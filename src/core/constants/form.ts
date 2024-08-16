@@ -69,3 +69,10 @@ export const getRoleTranslationKey = {
   [MembershipRole.Finance]: 'text_664f035a68227f00e261b7f2',
   [MembershipRole.Manager]: 'text_664f035a68227f00e261b7f0',
 }
+
+export enum LocalTaxProviderErrorsEnum {
+  CurrencyCodeNotSupported = 'text_17238318811308wqpult4i7r',
+  CustomerAddressError = 'text_1723831881130x4cfh6qr6o8',
+  ProductExternalIdUnknown = 'text_1723831881130g8hv6qzqe57',
+  GenericErrorMessage = 'text_17238318811307ghoc4v7mt9',
+}

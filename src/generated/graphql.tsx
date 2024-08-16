@@ -7313,7 +7313,7 @@ export type GetInfosForCreateInvoiceQueryVariables = Exact<{
 }>;
 
 
-export type GetInfosForCreateInvoiceQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, state?: string | null, zipcode?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> | null } | null, organization?: { __typename?: 'CurrentOrganization', id: string, addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, email?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, logoUrl?: string | null, state?: string | null, zipcode?: string | null, defaultCurrency: CurrencyEnum } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> } };
+export type GetInfosForCreateInvoiceQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, state?: string | null, zipcode?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string } | null } | null, organization?: { __typename?: 'CurrentOrganization', id: string, addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, email?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, logoUrl?: string | null, state?: string | null, zipcode?: string | null, defaultCurrency: CurrencyEnum } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> } };
 
 export type GetAddonListForInfoiceQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -7323,6 +7323,13 @@ export type GetAddonListForInfoiceQueryVariables = Exact<{
 
 
 export type GetAddonListForInfoiceQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null }> } };
+
+export type FetchDraftInvoiceTaxesMutationVariables = Exact<{
+  input: FetchDraftInvoiceTaxesInput;
+}>;
+
+
+export type FetchDraftInvoiceTaxesMutation = { __typename?: 'Mutation', fetchDraftInvoiceTaxes?: { __typename?: 'AnrokFeeObjectCollection', collection: Array<{ __typename?: 'AnrokFeeObject', amountCents?: any | null, itemId?: string | null, taxAmountCents?: any | null, taxBreakdown?: Array<{ __typename?: 'AnrokBreakdownObject', name?: string | null, rate?: number | null, taxAmount?: any | null }> | null }> } | null };
 
 export type TaxForPlanAndChargesInPlanFormFragment = { __typename?: 'Tax', id: string, code: string, name: string, rate: number };
 
@@ -18485,6 +18492,9 @@ export const GetInfosForCreateInvoiceDocument = gql`
       id
       ...TaxInfosForCreateInvoice
     }
+    anrokCustomer {
+      id
+    }
   }
   organization {
     id
@@ -18602,6 +18612,48 @@ export type GetAddonListForInfoiceQueryHookResult = ReturnType<typeof useGetAddo
 export type GetAddonListForInfoiceLazyQueryHookResult = ReturnType<typeof useGetAddonListForInfoiceLazyQuery>;
 export type GetAddonListForInfoiceSuspenseQueryHookResult = ReturnType<typeof useGetAddonListForInfoiceSuspenseQuery>;
 export type GetAddonListForInfoiceQueryResult = Apollo.QueryResult<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>;
+export const FetchDraftInvoiceTaxesDocument = gql`
+    mutation fetchDraftInvoiceTaxes($input: FetchDraftInvoiceTaxesInput!) {
+  fetchDraftInvoiceTaxes(input: $input) {
+    collection {
+      amountCents
+      itemId
+      taxAmountCents
+      taxBreakdown {
+        name
+        rate
+        taxAmount
+      }
+    }
+  }
+}
+    `;
+export type FetchDraftInvoiceTaxesMutationFn = Apollo.MutationFunction<FetchDraftInvoiceTaxesMutation, FetchDraftInvoiceTaxesMutationVariables>;
+
+/**
+ * __useFetchDraftInvoiceTaxesMutation__
+ *
+ * To run a mutation, you first call `useFetchDraftInvoiceTaxesMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useFetchDraftInvoiceTaxesMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [fetchDraftInvoiceTaxesMutation, { data, loading, error }] = useFetchDraftInvoiceTaxesMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useFetchDraftInvoiceTaxesMutation(baseOptions?: Apollo.MutationHookOptions<FetchDraftInvoiceTaxesMutation, FetchDraftInvoiceTaxesMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<FetchDraftInvoiceTaxesMutation, FetchDraftInvoiceTaxesMutationVariables>(FetchDraftInvoiceTaxesDocument, options);
+      }
+export type FetchDraftInvoiceTaxesMutationHookResult = ReturnType<typeof useFetchDraftInvoiceTaxesMutation>;
+export type FetchDraftInvoiceTaxesMutationResult = Apollo.MutationResult<FetchDraftInvoiceTaxesMutation>;
+export type FetchDraftInvoiceTaxesMutationOptions = Apollo.BaseMutationOptions<FetchDraftInvoiceTaxesMutation, FetchDraftInvoiceTaxesMutationVariables>;
 export const GetPlansDocument = gql`
     query getPlans($page: Int, $limit: Int, $searchTerm: String) {
   plans(page: $page, limit: $limit, searchTerm: $searchTerm) {

@@ -605,7 +605,7 @@
   "text_6453819268763979024ad10f": "Total amount due",
   "text_6453819268763979024ad124": "Edit description",
   "text_6453819268763979024ad12c": "Delete item",
-  "text_6453819268763979024ad134": "Create invoice",
+  "text_6453819268763979024ad134": "Create one-off invoice",
   "text_6453819268763979024ad144": "One-off invoice successfully created",
   "text_6453819268763979024acff7": "Edit the description of this item",
   "text_6453819268763979024ad005": "The description will appear below the item on the PDF invoice. Leave this text area empty to not display any description.",
@@ -2340,5 +2340,11 @@
   "text_66474fb55f1b6901c7ac7683": "It seems you don’t have the permission to access this page. If you think this is an error contact an admin of your organization.",
   "text_665deda4babaf700d603ea13": "Leaving without saving",
   "text_665dedd557dc3c00c62eb83d": "By clicking 'Leave', any unsaved data will be lost. Are you sure you want to continue?",
-  "text_668513bb1906740145e06abe": "Value already exist, please type a new one."
+  "text_668513bb1906740145e06abe": "Value already exist, please type a new one.",
+  "text_1723831735547ttel1jl0yva": "Tax calculation can not be performed.",
+  "text_172383173554743nq9isxpje": "Calculate taxes",
+  "text_17238318811308wqpult4i7r": "Currency defined is not supported for taxes calculation. Please contact the Lago team to resolve this issue.",
+  "text_1723831881130x4cfh6qr6o8": "Customer address information has issues preventing calculating taxes. Please update the information to generate the invoice.",
+  "text_1723831881130g8hv6qzqe57": "Anrok connection items mapping has issues preventing calculating taxes. Please update the mapping to generate the invoice.",
+  "text_17238318811307ghoc4v7mt9": "An issue with your tax provider connection occurred. Please contact the Lago team to solve this issue."
 }

@@ -8,8 +8,16 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 import { array, number, object, string } from 'yup'
 
-import { Avatar, Button, Popper, Skeleton, Tooltip, Typography } from '~/components/designSystem'
-import { AmountInputField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
+import {
+  Alert,
+  Avatar,
+  Button,
+  Popper,
+  Skeleton,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
+import { AmountInput, ComboBox, ComboBoxField, TextInput } from '~/components/form'
 import { Item } from '~/components/form/ComboBox/ComboBoxItem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import {
@@ -26,10 +34,11 @@ import {
 } from '~/components/invoices/EditInvoiceItemTaxDialog'
 import { InvoiceFormInput, LocalFeeInput } from '~/components/invoices/types'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { addToast } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { CountryCodes } from '~/core/constants/countryCodes'
 import {
   ADD_ITEM_FOR_INVOICE_INPUT_NAME,
+  LocalTaxProviderErrorsEnum,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
 } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -38,8 +47,11 @@ import { deserializeAmount, serializeAmount } from '~/core/serializers/serialize
 import {
   AddOnForInvoiceEditTaxDialogFragmentDoc,
   CurrencyEnum,
+  FetchDraftInvoiceTaxesMutation,
+  LagoApiError,
   TaxInfosForCreateInvoiceFragment,
   useCreateInvoiceMutation,
+  useFetchDraftInvoiceTaxesMutation,
   useGetAddonListForInfoiceLazyQuery,
   useGetInfosForCreateInvoiceQuery,
 } from '~/generated/graphql'
@@ -83,6 +95,9 @@ gql`
       taxes {
         id
         ...TaxInfosForCreateInvoice
+      }
+      anrokCustomer {
+        id
       }
     }
 
@@ -133,28 +148,50 @@ gql`
     }
   }
 
+  mutation fetchDraftInvoiceTaxes($input: FetchDraftInvoiceTaxesInput!) {
+    fetchDraftInvoiceTaxes(input: $input) {
+      collection {
+        amountCents
+        itemId # used to match addon-fee and tax provider data
+        taxAmountCents
+        taxBreakdown {
+          name
+          rate
+          taxAmount
+        }
+      }
+    }
+  }
+
   ${AddOnForInvoiceEditTaxDialogFragmentDoc}
 `
 
 type TaxMapType = Map<
-  string, // code of the tax
+  string,
   {
     label: string
     amount: number
-    taxRate: number // Used for sorting purpose
+    taxRate: number
   }
 >
 
 const CreateInvoice = () => {
-  const navigate = useNavigate()
-  const { customerId } = useParams()
-  const { emitSalesForceEvent, isRunningInSalesForceIframe } = useSalesForceConfig()
-  const [showAddItem, setShowAddItem] = useState(false)
   const { translate } = useInternationalization()
+  const { customerId } = useParams()
+  const navigate = useNavigate()
+  const { emitSalesForceEvent, isRunningInSalesForceIframe } = useSalesForceConfig()
+
+  const [showAddItem, setShowAddItem] = useState(false)
+  const [taxProviderTaxesResult, setTaxProviderTaxesResult] =
+    useState<FetchDraftInvoiceTaxesMutation['fetchDraftInvoiceTaxes']>(null)
+  const [taxProviderTaxesErrorMessage, setTaxProviderTaxesErrorMessage] =
+    useState<LocalTaxProviderErrorsEnum | null>(null)
+
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const editDescriptionDialogRef = useRef<EditInvoiceItemDescriptionDialogRef>(null)
   const editTaxDialogRef = useRef<EditInvoiceItemTaxDialogRef>(null)
   const editInvoiceDisplayNameRef = useRef<EditInvoiceDisplayNameRef>(null)
+
   const handleClosePage = useCallback(() => {
     navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId as string }))
   }, [navigate, customerId])
@@ -166,15 +203,24 @@ const CreateInvoice = () => {
   })
   const { customer, organization, taxes } = data || {}
 
-  const customerApplicableTax = useMemo(() => {
-    if (!!customer?.taxes?.length) return customer?.taxes
-    return taxes?.collection
-  }, [customer, taxes])
+  const hasTaxProvider = !!customer?.anrokCustomer?.id
 
-  // const localVatRate = customer?.vatRate || organization?.billingConfiguration?.vatRate || 0
+  const customerApplicableTax = useMemo(() => {
+    if (hasTaxProvider) return []
+    if (!!customer?.taxes?.length) return customer?.taxes
+
+    return taxes?.collection
+  }, [customer?.taxes, hasTaxProvider, taxes?.collection])
 
   const [getAddOns, { data: addOnData }] = useGetAddonListForInfoiceLazyQuery({
     variables: { limit: 20 },
+  })
+
+  const [getTaxFromTaxProvider] = useFetchDraftInvoiceTaxesMutation({
+    fetchPolicy: 'no-cache',
+    context: {
+      silentErrorCodes: [LagoApiError.UnprocessableEntity],
+    },
   })
 
   const [createInvoice] = useCreateInvoiceMutation({
@@ -227,7 +273,7 @@ const CreateInvoice = () => {
               return {
                 ...fee,
                 unitAmountCents: Number(serializeAmount(unitAmountCents, currency) || 0),
-                taxCodes: addonTaxes?.map(({ code }) => code) || [],
+                taxCodes: hasTaxProvider ? [] : addonTaxes?.map(({ code }) => code) || [],
               }
             }),
           },
@@ -265,7 +311,15 @@ const CreateInvoice = () => {
     })
   }, [addOnData])
 
-  const calculation = useMemo(() => {
+  const {
+    subTotal,
+    taxesToDisplay,
+    total,
+  }: { subTotal: number; taxesToDisplay: TaxMapType; total: number } = useMemo(() => {
+    if (hasTaxProvider) {
+      return { subTotal: 0, taxesToDisplay: new Map(), total: 0 }
+    }
+
     const updateOrCreateTaxMap = (
       currentTaxesMap: TaxMapType,
       feeAmount?: number,
@@ -311,12 +365,69 @@ const CreateInvoice = () => {
     const vatTotalAmount = totalsReduced?.taxesToDisplay?.size
       ? Array.from(totalsReduced?.taxesToDisplay.values()).reduce((acc, tax) => acc + tax.amount, 0)
       : 0
-    const total = totalsReduced.subTotal + vatTotalAmount
+    const localTotal = totalsReduced.subTotal + vatTotalAmount
 
-    return { subTotal: totalsReduced.subTotal, taxesToDisplay: totalsReduced.taxesToDisplay, total }
-  }, [formikProps.values.fees])
+    return {
+      subTotal: totalsReduced.subTotal,
+      taxesToDisplay: totalsReduced.taxesToDisplay,
+      total: localTotal,
+    }
+  }, [formikProps.values.fees, hasTaxProvider])
 
-  const { subTotal, taxesToDisplay, total } = calculation
+  const {
+    taxProviderTaxesToDisplay,
+    taxProviderSubtotalHT,
+    taxProviderTotalTTC,
+  }: {
+    taxProviderTaxesToDisplay: TaxMapType
+    taxProviderSubtotalHT: number
+    taxProviderTotalTTC: number
+  } = useMemo(() => {
+    if (!hasTaxProvider)
+      return {
+        taxProviderTaxesToDisplay: new Map(),
+        taxProviderSubtotalHT: 0,
+        taxProviderTotalTTC: 0,
+      }
+
+    const localTaxProviderTaxesToDisplay = !taxProviderTaxesResult?.collection?.length
+      ? new Map()
+      : taxProviderTaxesResult.collection.reduce((acc, cur) => {
+          cur.taxBreakdown?.forEach((tax) => {
+            const previousTax = acc.get(tax.rate)
+
+            if (previousTax) {
+              previousTax.amount += Number(tax.taxAmount || 0)
+              acc.set(tax.rate, previousTax)
+            } else {
+              acc.set(tax.rate, {
+                amount: Number(tax.taxAmount || 0),
+                label: `${tax.name} (${tax.rate}%)`,
+                taxRate: (tax.rate || 0) * 100,
+              })
+            }
+          })
+
+          return acc
+        }, new Map())
+
+    const taxesTotalAmount = Array.from(localTaxProviderTaxesToDisplay.values()).reduce(
+      (acc, tax) => acc + deserializeAmount(tax.amount, currency),
+      0,
+    )
+
+    const localTaxProviderSubtotalHT =
+      formikProps.values.fees.reduce((acc, fee) => {
+        acc += (fee.units || 0) * (fee.unitAmountCents || 0)
+        return acc
+      }, 0) || 0
+
+    return {
+      taxProviderTaxesToDisplay: localTaxProviderTaxesToDisplay,
+      taxProviderSubtotalHT: localTaxProviderSubtotalHT,
+      taxProviderTotalTTC: localTaxProviderSubtotalHT + taxesTotalAmount,
+    }
+  }, [currency, formikProps.values.fees, hasTaxProvider, taxProviderTaxesResult?.collection])
 
   if (!!error && !loading) {
     return (
@@ -602,18 +713,20 @@ const CreateInvoice = () => {
                               }
                               disableHoverListener={!unitValidationErrorKey}
                             >
-                              <TextInputField
-                                displayErrorText={false}
-                                formikProps={formikProps}
-                                placeholder={translate('text_62824f0e5d93bc008d268d00')}
-                                name={`fees.${i}.units`}
+                              <TextInput
                                 type="number"
                                 beforeChangeFormatter={['int', 'positiveNumber']}
+                                error={false}
+                                placeholder={translate('text_62824f0e5d93bc008d268d00')}
+                                value={formikProps.values.fees[i].units || undefined}
+                                onChange={(value) => {
+                                  formikProps.setFieldValue(`fees.${i}.units`, value)
+                                  !!hasTaxProvider && setTaxProviderTaxesResult(null)
+                                }}
                               />
                             </Tooltip>
-                            <AmountInputField
-                              formikProps={formikProps}
-                              name={`fees.${i}.unitAmountCents`}
+                            <AmountInput
+                              value={formikProps.values.fees[i].unitAmountCents || 0}
                               currency={currency}
                               InputProps={{
                                 startAdornment: (
@@ -622,21 +735,41 @@ const CreateInvoice = () => {
                                   </InputAdornment>
                                 ),
                               }}
+                              onChange={(value) => {
+                                formikProps.setFieldValue(`fees.${i}.unitAmountCents`, value)
+                                !!hasTaxProvider && setTaxProviderTaxesResult(null)
+                              }}
                             />
                             <TaxCell variant="body" color="grey700">
-                              {fee.taxes?.length
-                                ? fee.taxes.map((tax) => (
-                                    <Typography
-                                      key={`fee-${i}-applied-taxe-${tax.id}`}
-                                      variant="body"
-                                      color="grey700"
-                                    >
-                                      {intlFormatNumber(tax.rate / 100 || 0, {
-                                        style: 'percent',
-                                      })}
-                                    </Typography>
-                                  ))
-                                : '0%'}
+                              {hasTaxProvider
+                                ? !!taxProviderTaxesResult?.collection.length
+                                  ? taxProviderTaxesResult?.collection
+                                      ?.find((t) => t.itemId === fee.addOnId)
+                                      ?.taxBreakdown?.map((tax) => (
+                                        <Typography
+                                          key={`fee-${i}-applied-taxe-${tax.name}`}
+                                          variant="body"
+                                          color="grey700"
+                                        >
+                                          {intlFormatNumber(tax?.rate || 0, {
+                                            style: 'percent',
+                                          })}
+                                        </Typography>
+                                      ))
+                                  : '-'
+                                : fee.taxes?.length
+                                  ? fee.taxes.map((tax) => (
+                                      <Typography
+                                        key={`fee-${i}-applied-taxe-${tax.id}`}
+                                        variant="body"
+                                        color="grey700"
+                                      >
+                                        {intlFormatNumber(tax.rate / 100 || 0, {
+                                          style: 'percent',
+                                        })}
+                                      </Typography>
+                                    ))
+                                  : '0%'}
                             </TaxCell>
                             <Typography variant="body" color="grey700">
                               {!fee.units
@@ -678,26 +811,28 @@ const CreateInvoice = () => {
                                   >
                                     {translate('text_6453819268763979024ad124')}
                                   </Button>
-                                  <Button
-                                    startIcon="percentage"
-                                    variant="quaternary"
-                                    align="left"
-                                    onClick={() => {
-                                      editTaxDialogRef.current?.openDialog({
-                                        taxes: fee.taxes,
-                                        callback: (newTaxesArray?: LocalFeeInput['taxes']) => {
-                                          formikProps.setFieldValue(
-                                            `fees.${i}.taxes`,
-                                            newTaxesArray,
-                                          )
-                                        },
-                                      })
-                                      closePopper()
-                                    }}
-                                    data-test="invoice-item-edit-taxes"
-                                  >
-                                    {translate('text_64d40b7e80e64e40710a49ba')}
-                                  </Button>
+                                  {!hasTaxProvider && (
+                                    <Button
+                                      startIcon="percentage"
+                                      variant="quaternary"
+                                      align="left"
+                                      onClick={() => {
+                                        editTaxDialogRef.current?.openDialog({
+                                          taxes: fee.taxes,
+                                          callback: (newTaxesArray?: LocalFeeInput['taxes']) => {
+                                            formikProps.setFieldValue(
+                                              `fees.${i}.taxes`,
+                                              newTaxesArray,
+                                            )
+                                          },
+                                        })
+                                        closePopper()
+                                      }}
+                                      data-test="invoice-item-edit-taxes"
+                                    >
+                                      {translate('text_64d40b7e80e64e40710a49ba')}
+                                    </Button>
+                                  )}
                                   <Button
                                     startIcon="trash"
                                     variant="quaternary"
@@ -707,6 +842,7 @@ const CreateInvoice = () => {
 
                                       fees.splice(i, 1)
                                       formikProps.setFieldValue('fees', fees)
+                                      !!hasTaxProvider && setTaxProviderTaxesResult(null)
 
                                       closePopper()
                                     }}
@@ -732,9 +868,11 @@ const CreateInvoice = () => {
                               const addOn = addOnData?.addOns?.collection.find(
                                 (c) => c.id === value,
                               )
-                              const addonApplicableTaxes = addOn?.taxes?.length
-                                ? addOn?.taxes
-                                : customerApplicableTax
+                              const addonApplicableTaxes = hasTaxProvider
+                                ? undefined
+                                : addOn?.taxes?.length
+                                  ? addOn?.taxes
+                                  : customerApplicableTax
 
                               if (!!addOn) {
                                 formikProps.setFieldValue('fees', [
@@ -749,6 +887,8 @@ const CreateInvoice = () => {
                                     taxes: addonApplicableTaxes,
                                   },
                                 ])
+
+                                !!hasTaxProvider && setTaxProviderTaxesResult(null)
                               }
 
                               setShowAddItem(false)
@@ -788,6 +928,7 @@ const CreateInvoice = () => {
                     </InvoiceAddItemSection>
                   </InvoiceTable>
                 </InvoiceTableWrapper>
+
                 <InvoiceFooter>
                   <div>
                     <InvoiceFooterLine>
@@ -799,15 +940,67 @@ const CreateInvoice = () => {
                         color="grey700"
                         data-test="one-off-invoice-subtotal-value"
                       >
-                        {!hasAnyFee
-                          ? '-'
-                          : intlFormatNumber(subTotal, {
-                              currency,
-                            })}
+                        {hasTaxProvider
+                          ? !taxProviderSubtotalHT
+                            ? '-'
+                            : intlFormatNumber(taxProviderSubtotalHT, {
+                                currency,
+                              })
+                          : !hasAnyFee
+                            ? '-'
+                            : intlFormatNumber(subTotal, {
+                                currency,
+                              })}
                       </Typography>
                     </InvoiceFooterLine>
                     <>
-                      {!!taxesToDisplay?.size ? (
+                      {hasTaxProvider ? (
+                        !taxProviderTaxesToDisplay.size ? (
+                          <InvoiceFooterLine>
+                            <Typography variant="bodyHl" color="grey600">
+                              {translate('text_6453819268763979024ad0e9')}
+                            </Typography>
+                            <Typography variant="body" color="grey700">
+                              {'-'}
+                            </Typography>
+                          </InvoiceFooterLine>
+                        ) : (
+                          <>
+                            {Array.from(taxProviderTaxesToDisplay.values())
+                              .sort((a, b) => b.taxRate - a.taxRate)
+                              .map((taxToDisplay, i) => {
+                                return (
+                                  <InvoiceFooterLine
+                                    key={`one-off-invoice-tax-item-${i}`}
+                                    data-test={`one-off-invoice-tax-item-${i}`}
+                                  >
+                                    <Typography
+                                      variant="bodyHl"
+                                      color="grey600"
+                                      data-test={`one-off-invoice-tax-item-${i}-label`}
+                                    >
+                                      {taxToDisplay.label}
+                                    </Typography>
+                                    <Typography
+                                      variant="body"
+                                      color="grey700"
+                                      data-test={`one-off-invoice-tax-item-${i}-value`}
+                                    >
+                                      {!hasAnyFee
+                                        ? '-'
+                                        : intlFormatNumber(
+                                            deserializeAmount(taxToDisplay.amount || 0, currency),
+                                            {
+                                              currency,
+                                            },
+                                          )}
+                                    </Typography>
+                                  </InvoiceFooterLine>
+                                )
+                              })}
+                          </>
+                        )
+                      ) : !!taxesToDisplay?.size ? (
                         <>
                           {Array.from(taxesToDisplay.values())
                             .sort((a, b) => b.taxRate - a.taxRate)
@@ -871,11 +1064,17 @@ const CreateInvoice = () => {
                         color="grey700"
                         data-test="one-off-invoice-subtotal-amount-due-value"
                       >
-                        {!hasAnyFee
-                          ? '-'
-                          : intlFormatNumber(total, {
-                              currency,
-                            })}
+                        {hasTaxProvider
+                          ? !taxProviderTaxesToDisplay.size
+                            ? '-'
+                            : intlFormatNumber(taxProviderTotalTTC, {
+                                currency,
+                              })
+                          : !hasAnyFee
+                            ? '-'
+                            : intlFormatNumber(total, {
+                                currency,
+                              })}
                       </Typography>
                     </InvoiceFooterLine>
                     <InvoiceFooterLine>
@@ -887,14 +1086,31 @@ const CreateInvoice = () => {
                         color="grey700"
                         data-test="one-off-invoice-total-amount-due-value"
                       >
-                        {!hasAnyFee
-                          ? '-'
-                          : intlFormatNumber(total, {
-                              currency,
-                            })}
+                        {hasTaxProvider
+                          ? !taxProviderTaxesToDisplay.size
+                            ? '-'
+                            : intlFormatNumber(taxProviderTotalTTC, {
+                                currency,
+                              })
+                          : !hasAnyFee
+                            ? '-'
+                            : intlFormatNumber(total, {
+                                currency,
+                              })}
                       </Typography>
                     </InvoiceFooterLine>
                   </div>
+
+                  {!!taxProviderTaxesErrorMessage && (
+                    <Alert type="warning">
+                      <Typography variant="bodyHl" color="grey700">
+                        {translate('text_1723831735547ttel1jl0yva')}
+                      </Typography>
+                      <Typography variant="caption" color="grey600">
+                        {translate(taxProviderTaxesErrorMessage)}
+                      </Typography>
+                    </Alert>
+                  )}
                 </InvoiceFooter>
               </>
             )}
@@ -904,6 +1120,70 @@ const CreateInvoice = () => {
         {!loading && (
           <CustomStickySubmitBar>
             <SubmitButtonWrapper>
+              {!!hasTaxProvider && (
+                <Button
+                  size="large"
+                  variant="secondary"
+                  disabled={!formikProps.isValid || !formikProps.dirty || !!taxProviderTaxesResult}
+                  onClick={async () => {
+                    setTaxProviderTaxesErrorMessage(null)
+
+                    const taxProviderResult = await getTaxFromTaxProvider({
+                      variables: {
+                        input: {
+                          currency,
+                          customerId: formikProps.values.customerId,
+                          fees: formikProps.values.fees.map((f) => ({
+                            ...f,
+                            unitAmountCents: String(serializeAmount(f.unitAmountCents, currency)),
+                          })),
+                        },
+                      },
+                    })
+
+                    const { data: taxProviderResultData, errors } = taxProviderResult
+
+                    if (!!errors?.length) {
+                      if (hasDefinedGQLError('CurrencyCodeNotSupported', errors)) {
+                        setTaxProviderTaxesErrorMessage(
+                          LocalTaxProviderErrorsEnum.CurrencyCodeNotSupported,
+                        )
+                      } else if (
+                        hasDefinedGQLError('CustomerAddressCountryNotSupported', errors) ||
+                        hasDefinedGQLError('CustomerAddressCouldNotResolve', errors)
+                      ) {
+                        setTaxProviderTaxesErrorMessage(
+                          LocalTaxProviderErrorsEnum.CustomerAddressError,
+                        )
+                      } else if (hasDefinedGQLError('ProductExternalIdUnknown', errors)) {
+                        setTaxProviderTaxesErrorMessage(
+                          LocalTaxProviderErrorsEnum.ProductExternalIdUnknown,
+                        )
+                      } else {
+                        setTaxProviderTaxesErrorMessage(
+                          LocalTaxProviderErrorsEnum.GenericErrorMessage,
+                        )
+                      }
+
+                      // Scroll bottom of the screen once the error message is displayed
+                      setTimeout(() => {
+                        const rootElement = document.getElementById('root')
+
+                        rootElement?.scrollTo({
+                          top: rootElement.scrollHeight,
+                          behavior: 'smooth',
+                        })
+                      }, 1)
+
+                      return
+                    }
+
+                    setTaxProviderTaxesResult(taxProviderResultData?.fetchDraftInvoiceTaxes)
+                  }}
+                >
+                  {translate('text_172383173554743nq9isxpje')}
+                </Button>
+              )}
               <Button
                 size="large"
                 disabled={!formikProps.isValid || !formikProps.dirty}
@@ -936,6 +1216,7 @@ export default CreateInvoice
 
 const PageWrapper = styled.div`
   width: 100%;
+  height: 100%;
 `
 
 const BorderedCard = styled(Card)`
@@ -950,7 +1231,7 @@ const CenteredWrapper = styled.div`
   max-width: 1024px;
   padding: 0 ${theme.spacing(4)};
   margin: ${theme.spacing(12)} auto;
-  height: fit-content;
+  height: 100%;
 
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(8)};
@@ -1072,8 +1353,10 @@ const InlineAddonInput = styled.div`
 `
 
 const InvoiceFooter = styled.div`
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  display: inline-block;
+  gap: ${theme.spacing(8)};
 
   > div {
     width: 472px;
@@ -1112,6 +1395,7 @@ const SubmitButtonWrapper = styled.div`
   max-width: 1024px;
   padding: 0 ${theme.spacing(4)};
   margin: 0 auto;
+  gap: ${theme.spacing(3)};
 `
 
 const TaxCell = styled(Typography)`
