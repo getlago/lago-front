@@ -1,12 +1,13 @@
 import { gql } from '@apollo/client'
+import { Stack } from '@mui/material'
 import { useMemo, useRef } from 'react'
 import { generatePath, Outlet, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import {
+  Alert,
   Avatar,
   Button,
-  Chip,
   Icon,
   NavigationTab,
   Popper,
@@ -49,6 +50,7 @@ import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc,
   CurrencyEnum,
   CustomerMetadatasForInvoiceOverviewFragmentDoc,
+  ErrorCodesEnum,
   Invoice,
   InvoiceDetailsForInvoiceOverviewFragmentDoc,
   InvoiceForCreditNotesTableFragmentDoc,
@@ -62,6 +64,7 @@ import {
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   InvoiceTypeEnum,
+  LagoApiError,
   NetsuiteIntegration,
   NetsuiteIntegrationInfosForInvoiceOverviewFragmentDoc,
   useDownloadInvoiceMutation,
@@ -95,6 +98,10 @@ gql`
     paymentDisputeLostAt
     integrationSyncable
     externalIntegrationId
+    errorDetails {
+      errorCode
+      errorDetails
+    }
     customer {
       ...CustomerMetadatasForInvoiceOverview
       netsuiteCustomer {
@@ -174,14 +181,23 @@ export enum CustomerInvoiceDetailsTabsOptionsEnum {
   creditNotes = 'credit-notes',
 }
 
-const mapStatus = (
-  status: InvoiceStatusTypeEnum,
-  paymentStatus?: InvoicePaymentStatusTypeEnum | undefined,
-): StatusProps => {
+const mapStatus = ({
+  status,
+  paymentStatus,
+  paymentDisputeLostAt,
+}: {
+  status: InvoiceStatusTypeEnum
+  paymentStatus?: InvoicePaymentStatusTypeEnum
+  paymentDisputeLostAt?: boolean
+}): StatusProps => {
   if (status === InvoiceStatusTypeEnum.Draft) {
     return { label: 'draft', type: StatusType.outline }
   } else if (status === InvoiceStatusTypeEnum.Voided) {
     return { label: 'voided', type: StatusType.disabled }
+  } else if (status === InvoiceStatusTypeEnum.Failed) {
+    return { label: 'failed', type: StatusType.warning }
+  } else if (paymentDisputeLostAt) {
+    return { label: 'disputeLost', type: StatusType.danger }
   } else if (paymentStatus === InvoicePaymentStatusTypeEnum.Pending) {
     return { label: 'pending', type: StatusType.default }
   } else if (paymentStatus === InvoicePaymentStatusTypeEnum.Failed) {
@@ -191,6 +207,35 @@ const mapStatus = (
   }
 
   return { label: 'n/a', type: StatusType.default }
+}
+
+const getErrorMessageFromErrorDetails = (
+  errors: AllInvoiceDetailsForCustomerInvoiceDetailsFragment['errorDetails'],
+): string | undefined => {
+  if (!errors || errors.length === 0) {
+    return undefined
+  }
+
+  const [{ errorCode, errorDetails }] = errors
+
+  if (errorCode === ErrorCodesEnum.TaxError) {
+    if (errorDetails === LagoApiError.CurrencyCodeNotSupported) {
+      return 'Currency defined is not supported for taxes calculation. Please contact the Lago team to resolve this issue.'
+    }
+
+    if (
+      errorDetails === LagoApiError.CustomerAddressCouldNotResolve ||
+      errorDetails === LagoApiError.CustomerAddressCountryNotSupported
+    ) {
+      return 'Customer address information has issues preventing calculating taxes. Please update the information to generate the invoice.'
+    }
+
+    if (errorDetails === LagoApiError.ProductExternalIdUnknown) {
+      return 'Anrok connection items mapping has issues preventing calculating taxes. Please update the mapping to generate the invoice.'
+    }
+
+    return 'An issue with your tax provider connection occurred. Please contact the Lago team to solve this issue.'
+  }
 }
 
 const CustomerInvoiceDetails = () => {
@@ -276,10 +321,11 @@ const CustomerInvoiceDetails = () => {
     creditableAmountCents,
     refundableAmountCents,
     voidable,
+    errorDetails,
   } = (data?.invoice as AllInvoiceDetailsForCustomerInvoiceDetailsFragment) || {}
 
-  const formattedStatus = mapStatus(status, paymentStatus)
   const hasError = (!!error || !data?.invoice) && !loading
+  const errorMessage = getErrorMessageFromErrorDetails(errorDetails)
 
   const tabsOptions = useMemo(() => {
     const tabs = [
@@ -573,6 +619,26 @@ const CustomerInvoiceDetails = () => {
           </Popper>
         )}
       </PageHeader>
+
+      {!!errorMessage && (
+        <Alert
+          fullWidth
+          containerSize={{
+            default: 16,
+            md: 48,
+          }}
+          type="warning"
+        >
+          <Stack>
+            <Typography variant="body" color="grey700">
+              Invoice could not be issued.
+            </Typography>
+
+            <Typography variant="caption">{errorMessage}</Typography>
+          </Stack>
+        </Alert>
+      )}
+
       {hasError ? (
         <GenericPlaceholder
           title={translate('text_634812d6f16b31ce5cbf4111')}
@@ -602,13 +668,13 @@ const CustomerInvoiceDetails = () => {
                   <Typography variant="headline" color="grey700">
                     {number}
                   </Typography>
-                  {status === InvoiceStatusTypeEnum.Draft ? (
-                    <Chip label={translate('text_63a41a8eabb9ae67047c1bfe')} />
-                  ) : !!data?.invoice?.paymentDisputeLostAt ? (
-                    <Status type={StatusType.danger} label="disputeLost" />
-                  ) : (
-                    <Status {...formattedStatus} />
-                  )}
+                  <Status
+                    {...mapStatus({
+                      status,
+                      paymentStatus,
+                      paymentDisputeLostAt: !!data?.invoice?.paymentDisputeLostAt,
+                    })}
+                  />
                 </MainInfoLine>
                 <MainInfoLine>
                   <InlineTripleTypography variant="body" color="grey600">
