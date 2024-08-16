@@ -98,6 +98,7 @@ export const NavigationTab = ({
           onChange={handleChange}
           value={value}
           $leftPadding={leftPadding}
+          $nonHiddenTabsLength={nonHiddenTabs.length}
         >
           {nonHiddenTabs.length >= 2
             ? nonHiddenTabs.map((tab, tabIndex) => {
@@ -151,10 +152,10 @@ const TabsWrapper = styled.div`
   box-shadow: ${theme.shadows[7]};
 `
 
-const LocalTabs = styled(Tabs)<{ $leftPadding: boolean }>`
+const LocalTabs = styled(Tabs)<{ $leftPadding: boolean; $nonHiddenTabsLength: number }>`
   align-items: center;
   overflow: visible;
-  min-height: ${theme.spacing(13)};
+  min-height: ${({ $nonHiddenTabsLength }) => $nonHiddenTabsLength > 1 && theme.spacing(13)};
 
   ${({ $leftPadding }) =>
     !!$leftPadding &&
