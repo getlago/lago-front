@@ -64,15 +64,23 @@ export const Alert = ({
       data-test={`alert-type-${type}`}
       {...props}
     >
-      <Stack direction="row" gap={4} alignItems="center">
-        <Icon name={iconConfig.name} color={iconConfig.color} />
-        <Content color="textSecondary">{children}</Content>
+      <Stack
+        direction="row"
+        gap={4}
+        alignItems="center"
+        justifyContent="space-between"
+        py={theme.spacing(4)}
+      >
+        <Stack direction="row" gap={4} alignItems="center">
+          <Icon name={iconConfig.name} color={iconConfig.color} />
+          <Content color="textSecondary">{children}</Content>
+        </Stack>
+        {!!ButtonProps.onClick && !!label && (
+          <Button variant="quaternary-dark" size="medium" {...ButtonProps}>
+            {label}
+          </Button>
+        )}
       </Stack>
-      {!!ButtonProps.onClick && !!label && (
-        <Button variant="quaternary-dark" size="medium" {...ButtonProps}>
-          {label}
-        </Button>
-      )}
     </Container>
   )
 }
@@ -81,13 +89,7 @@ const Container = styled.div<{
   $isFullWidth?: boolean
   $containerSize: ResponsiveStyleValue<ContainerSize>
 }>`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   border-radius: 12px;
-  gap: ${theme.spacing(4)};
-  padding-top: ${theme.spacing(4)};
-  padding-bottom: ${theme.spacing(4)};
 
   &.alert-type--${AlertType.info} {
     background-color: ${theme.palette.info[100]};
@@ -112,12 +114,14 @@ const Container = styled.div<{
       width: 100%;
     `}
 
-  ${({ $containerSize }) => {
-    return css`
-      ${setResponsiveProperty('paddingLeft', $containerSize)}
-      ${setResponsiveProperty('paddingRight', $containerSize)}
-    `
-  }}
+  > div {
+    ${({ $containerSize }) => {
+      return css`
+        ${setResponsiveProperty('paddingLeft', $containerSize)}
+        ${setResponsiveProperty('paddingRight', $containerSize)}
+      `
+    }}
+  }
 `
 
 const Content = styled(Typography)`
