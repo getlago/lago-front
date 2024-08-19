@@ -41,7 +41,7 @@
     "@parcel/watcher": "^2.3.0",
     "@svgr/webpack": "8.1.0",
     "@testing-library/dom": "^10.0.0",
-    "@testing-library/jest-dom": "6.4.2",
+    "@testing-library/jest-dom": "6.4.8",
     "@testing-library/react": "16.0.0",
     "@testing-library/user-event": "^14.4.3",
     "@trivago/prettier-plugin-sort-imports": "^4.2.0",
