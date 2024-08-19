@@ -2,11 +2,11 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { envGlobalVar } from '~/core/apolloClient'
 import {
-  DittoTranslation,
   getTranslations,
   Locale,
   TranslateData,
   translateKey,
+  Translation,
 } from '~/core/translations'
 
 const { appEnv } = envGlobalVar()
@@ -16,7 +16,7 @@ type UseContextualLocale = (locale: Locale) => {
 }
 
 export const useContextualLocale: UseContextualLocale = (locale) => {
-  const [translations, setTranslations] = useState<DittoTranslation>()
+  const [translations, setTranslations] = useState<Translation>()
 
   useEffect(() => {
     const updateTranslations = async () => {

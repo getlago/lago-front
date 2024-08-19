@@ -4,4 +4,3 @@ dist
 .env
 yarn-error.log
 coverage
-ditto/*__*.json
