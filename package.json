@@ -34,7 +34,7 @@
     "@babel/preset-react": "7.22.15",
     "@emotion/react": "11.11.1",
     "@emotion/styled": "11.11.0",
-    "@graphql-codegen/cli": "4.0.1",
+    "@graphql-codegen/cli": "5.0.2",
     "@graphql-codegen/typescript": "4.0.9",
     "@graphql-codegen/typescript-operations": "4.2.3",
     "@graphql-codegen/typescript-react-apollo": "4.3.0",
