@@ -1,5 +1,5 @@
 import { ApolloError } from '@apollo/client'
-import { GraphQLError } from 'graphql'
+import { GraphQLFormattedError } from 'graphql'
 
 import { hasDefinedGQLError, LagoGQLError } from '../errorUtils'
 
@@ -24,9 +24,9 @@ const createApolloError: (details: Record<string, string | string[]>) => ApolloE
     ],
   }) as unknown as ApolloError
 
-const createGraphQLError: (details: Record<string, string | string[]>) => GraphQLError[] = (
-  details,
-) =>
+const createGraphQLError: (
+  details: Record<string, string | string[]>,
+) => GraphQLFormattedError[] = (details) =>
   [
     {
       message: 'Unprocessable Entity',
