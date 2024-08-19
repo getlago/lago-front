@@ -24,7 +24,8 @@
     "codegen:watch": "graphql-codegen --config codegen.yml -r dotenv/config --watch",
     "test": "jest --config jest.config.js",
     "test:e2e": "cypress open --config-file cypress/cypress.config.js",
-    "inspectTranslations": "node scripts/InspectTranslationKeys",
+    "translations:add": "node scripts/translations/add",
+    "translations:inspect": "node scripts/translations/inspect",
     "changelog:update": "auto-changelog --template=.changelog/regular.hbs",
     "postinstall": "npx yarn-deduplicate"
   },
