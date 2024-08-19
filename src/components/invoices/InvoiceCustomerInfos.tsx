@@ -55,6 +55,8 @@ const mapStatusConfig = (status?: InvoiceStatusTypeEnum): StatusProps => {
       return { label: 'voided', type: StatusType.disabled }
     case InvoiceStatusTypeEnum.Finalized:
       return { label: 'finalized', type: StatusType.success }
+    case InvoiceStatusTypeEnum.Failed:
+      return { label: 'failed', type: StatusType.warning }
     default:
       return {
         label: 'n/a',
@@ -63,8 +65,8 @@ const mapStatusConfig = (status?: InvoiceStatusTypeEnum): StatusProps => {
   }
 }
 
-const mapPaymentStatusConfig = (status?: InvoicePaymentStatusTypeEnum): StatusProps => {
-  switch (status) {
+const mapPaymentStatusConfig = (paymentStatus?: InvoicePaymentStatusTypeEnum): StatusProps => {
+  switch (paymentStatus) {
     case InvoicePaymentStatusTypeEnum.Failed:
       return { label: 'failed', type: StatusType.warning }
     case InvoicePaymentStatusTypeEnum.Pending:
@@ -247,7 +249,8 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
           </Typography>
           <Typography variant="body" color="grey700">
             {invoice?.status === InvoiceStatusTypeEnum.Draft ||
-            invoice?.status === InvoiceStatusTypeEnum.Voided ? (
+            invoice?.status === InvoiceStatusTypeEnum.Voided ||
+            invoice?.status === InvoiceStatusTypeEnum.Failed ? (
               <Typography variant="body" color="grey700">
                 -
               </Typography>
