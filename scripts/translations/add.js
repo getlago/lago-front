@@ -3,7 +3,7 @@ const fs = require('fs')
 
 const { globSync } = require('glob')
 
-const TRANSLATION_FILES_PATH = './ditto/base.json' // './ditto/**.json' for when we'll support several languages
+const TRANSLATION_FILES_PATH = './translations/base.json' // './translations/**.json' for when we'll support several languages
 
 const KEY_RANDOM_CHARS_LENGTH = 11
 

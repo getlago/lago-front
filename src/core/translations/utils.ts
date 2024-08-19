@@ -1,22 +1,20 @@
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 
-import { DittoTranslation, Locale, TranslateData, Translations } from './types'
+import { Locale, TranslateData, Translation, Translations } from './types'
 
 export const getTranslations: (locale: Locale) => Promise<Record<string, string>> = async (
   locale,
 ) => {
-  let loadedDittoTranslation: DittoTranslation
+  let loadedTranslation: Translation
 
   // Translations are dinamically imported according to the selected locale
   try {
-    loadedDittoTranslation = (await import(`../../../ditto/${locale}.json`)) as DittoTranslation
+    loadedTranslation = (await import(`../../../translations/${locale}.json`)) as Translation
   } catch (err) {
-    loadedDittoTranslation = (await import(
-      `../../../ditto/base.json`
-    )) as unknown as DittoTranslation
+    loadedTranslation = (await import(`../../../translations/base.json`)) as unknown as Translation
   }
 
-  return loadedDittoTranslation
+  return loadedTranslation
 }
 
 export function replaceDynamicVarInString(template: string, data: TranslateData) {

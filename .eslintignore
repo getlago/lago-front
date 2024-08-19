@@ -3,5 +3,4 @@ dist
 .github
 globals.d.ts
 generated
-ditto
 cypress/*

@@ -7,7 +7,7 @@ const { globSync } = require('glob')
 const { GettextExtractor, JsExtractors } = require('gettext-extractor')
 
 const SRC_DIR = './src/'
-const TRANSLATION_FILES_PATH = './ditto/base.json' // './ditto/**.json' for when we'll support several languages
+const TRANSLATION_FILES_PATH = './translations/base.json' // './translations/**.json' for when we'll support several languages
 
 async function extract(replaceMode) {
   // Extract all the translation keys by parsing the 'translate' function
@@ -42,38 +42,38 @@ async function extract(replaceMode) {
   const translationFiles = globSync(TRANSLATION_FILES_PATH)
 
   translationFiles.forEach((file) => {
-    // Get all translation keys from the ditto file
-    const dittoTranslations = JSON.parse(fs.readFileSync(file), 'utf-8')
+    // Get all translation keys from the translation file
+    const allTranslations = JSON.parse(fs.readFileSync(file), 'utf-8')
     // Ignore timezone keys as they're used in the config without calling translate
-    const dittoKeys = Object.keys(dittoTranslations).filter((key) => key.split('_')[0] !== 'TZ')
-    const keysNotInDitto = _.uniq(_.difference(foundKeys, dittoKeys))
-    const dittoKeysNotUsed = _.uniq(_.difference(dittoKeys, foundKeys))
+    const translationKeys = Object.keys(allTranslations).filter((key) => key.split('_')[0] !== 'TZ')
+    const keysNotInTranslations = _.uniq(_.difference(foundKeys, translationKeys))
+    const translationKeysNotUsed = _.uniq(_.difference(translationKeys, foundKeys))
 
-    if (dittoKeysNotUsed.length || keysNotInDitto.length) {
-      if (keysNotInDitto.length) {
+    if (translationKeysNotUsed.length || keysNotInTranslations.length) {
+      if (keysNotInTranslations.length) {
         console.info(
           '\u001b[' +
             31 +
             'm' +
-            `\n----- Keys used but not defined ----- ${keysNotInDitto.length}` +
+            `\n----- Keys used but not defined ----- ${keysNotInTranslations.length}` +
             '\u001b[0m',
         )
-        console.info(keysNotInDitto.join('\n'))
+        console.info(keysNotInTranslations.join('\n'))
       }
-      if (dittoKeysNotUsed.length) {
+      if (translationKeysNotUsed.length) {
         console.info(
           '\u001b[' +
             31 +
             'm' +
-            `\n----- Keys defined but not used ----- ${dittoKeysNotUsed.length}` +
+            `\n----- Keys defined but not used ----- ${translationKeysNotUsed.length}` +
             '\u001b[0m',
         )
-        console.info(dittoKeysNotUsed.join('\n'))
+        console.info(translationKeysNotUsed.join('\n'))
 
         if (replaceMode) {
-          for (let i = 0; i < dittoKeysNotUsed.length; i++) {
-            const key = dittoKeysNotUsed[i]
-            const translation = dittoTranslations[key]
+          for (let i = 0; i < translationKeysNotUsed.length; i++) {
+            const key = translationKeysNotUsed[i]
+            const translation = allTranslations[key]
 
             // Iterate through each file to replace the translation string
             for (let j = 0; j < files.length; j++) {

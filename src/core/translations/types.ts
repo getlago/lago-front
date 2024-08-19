@@ -2,7 +2,7 @@ export type TranslateData = Record<string, string | number | undefined | null>
 
 export type Translations = Record<string, string> | undefined
 
-export interface DittoTranslation {
+export interface Translation {
   [key: string]: string
 }
 
