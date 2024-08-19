@@ -96,6 +96,7 @@ type InvoiceDetailsTableBodyLineProps = {
   editFeeDrawerRef?: RefObject<EditFeeDrawerRef>
   deleteAdjustedFeeDialogRef?: RefObject<DeleteAdjustedFeeDialogRef>
   succeededDate?: string
+  hasTaxProviderError?: boolean
 }
 
 export const calculateIfDetailsShouldBeDisplayed = (
@@ -162,6 +163,7 @@ export const InvoiceDetailsTableBodyLine = memo(
     hideVat,
     isDraftInvoice,
     succeededDate,
+    hasTaxProviderError,
   }: InvoiceDetailsTableBodyLineProps) => {
     const { translate } = useInternationalization()
     const chargeModel = fee?.charge?.chargeModel
@@ -239,20 +241,22 @@ export const InvoiceDetailsTableBodyLine = memo(
               {!hideVat && (
                 <td>
                   <Typography variant="body" color="grey700">
-                    {fee?.appliedTaxes?.length
-                      ? fee?.appliedTaxes.map((appliedTaxes) => (
-                          <Typography
-                            key={`fee-${fee?.id}-applied-tax-${appliedTaxes.id}`}
-                            variant="body"
-                            color="grey700"
-                          >
-                            {intlFormatNumber(appliedTaxes.taxRate / 100 || 0, {
-                              maximumFractionDigits: 2,
-                              style: 'percent',
-                            })}
-                          </Typography>
-                        ))
-                      : '0%'}
+                    {hasTaxProviderError
+                      ? '-'
+                      : fee?.appliedTaxes?.length
+                        ? fee?.appliedTaxes.map((appliedTaxes) => (
+                            <Typography
+                              key={`fee-${fee?.id}-applied-tax-${appliedTaxes.id}`}
+                              variant="body"
+                              color="grey700"
+                            >
+                              {intlFormatNumber(appliedTaxes.taxRate / 100 || 0, {
+                                maximumFractionDigits: 2,
+                                style: 'percent',
+                              })}
+                            </Typography>
+                          ))
+                        : '0%'}
                   </Typography>
                 </td>
               )}
