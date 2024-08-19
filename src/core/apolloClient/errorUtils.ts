@@ -1,9 +1,9 @@
 import { ApolloError } from '@apollo/client'
-import { GraphQLError } from 'graphql'
+import { GraphQLFormattedError } from 'graphql'
 
 import { LagoApiError } from '~/generated/graphql'
 
-export interface LagoGQLError extends GraphQLError {
+export interface LagoGQLError extends GraphQLFormattedError {
   extensions: {
     code: LagoApiError
     details: Record<string, string[]>
@@ -13,7 +13,7 @@ export interface LagoGQLError extends GraphQLError {
 // --------------------- Graphql errors checker ---------------------
 export const hasDefinedGQLError = (
   errorCode: keyof typeof LagoApiError,
-  errorObject?: ApolloError | readonly GraphQLError[],
+  errorObject?: ApolloError | readonly GraphQLFormattedError[],
   key?: string,
 ) => {
   if (!errorObject) return false

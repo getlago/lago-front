@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import Nango from '@nangohq/frontend'
 import { useFormik } from 'formik'
-import { GraphQLError } from 'graphql'
+import { GraphQLFormattedError } from 'graphql'
 import { forwardRef, RefObject, useId, useImperativeHandle, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { generatePath } from 'react-router-dom'
@@ -140,7 +140,7 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
     onSubmit: async ({ ...values }, formikBag) => {
       setShowGlobalError(false)
 
-      const handleError = (errors: readonly GraphQLError[]) => {
+      const handleError = (errors: readonly GraphQLFormattedError[]) => {
         if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
           formikBag.setErrors({
             code: translate('text_632a2d437e341dcc76817556'),
