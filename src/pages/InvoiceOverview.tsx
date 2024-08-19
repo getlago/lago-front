@@ -70,7 +70,9 @@ interface InvoiceOverviewProps {
   loading: boolean
   loadingInvoiceDownload: boolean
   loadingRefreshInvoice: boolean
+  loadingRetryInvoice: boolean
   refreshInvoice: Function
+  retryInvoice: Function
   connectedNetsuiteIntegration: NetsuiteIntegrationInfosForInvoiceOverviewFragment | undefined
 }
 
@@ -82,7 +84,9 @@ const InvoiceOverview = memo(
     loading,
     loadingInvoiceDownload,
     loadingRefreshInvoice,
+    loadingRetryInvoice,
     refreshInvoice,
+    retryInvoice,
     connectedNetsuiteIntegration,
   }: InvoiceOverviewProps) => {
     const { translate } = useInternationalization()
@@ -139,6 +143,16 @@ const InvoiceOverview = memo(
                 {translate('text_638f4d756d899445f18a4a10')}
               </Button>
             </NavigationRightActions>
+          ) : invoice?.status === InvoiceStatusTypeEnum.Failed ? (
+            <Button
+              variant="quaternary"
+              disabled={loading || loadingRetryInvoice}
+              onClick={async () => {
+                await retryInvoice()
+              }}
+            >
+              {translate('TODO: Sync invoice')}
+            </Button>
           ) : (
             !hasError &&
             !loading && (

@@ -7213,6 +7213,13 @@ export type SyncIntegrationInvoiceMutationVariables = Exact<{
 
 export type SyncIntegrationInvoiceMutation = { __typename?: 'Mutation', syncIntegrationInvoice?: { __typename?: 'SyncIntegrationInvoicePayload', invoiceId?: string | null } | null };
 
+export type RetryInvoiceMutationVariables = Exact<{
+  input: RetryInvoiceInput;
+}>;
+
+
+export type RetryInvoiceMutation = { __typename?: 'Mutation', retryInvoice?: { __typename?: 'Invoice', id: string } | null };
+
 export type SideNavInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -18075,6 +18082,39 @@ export function useSyncIntegrationInvoiceMutation(baseOptions?: Apollo.MutationH
 export type SyncIntegrationInvoiceMutationHookResult = ReturnType<typeof useSyncIntegrationInvoiceMutation>;
 export type SyncIntegrationInvoiceMutationResult = Apollo.MutationResult<SyncIntegrationInvoiceMutation>;
 export type SyncIntegrationInvoiceMutationOptions = Apollo.BaseMutationOptions<SyncIntegrationInvoiceMutation, SyncIntegrationInvoiceMutationVariables>;
+export const RetryInvoiceDocument = gql`
+    mutation retryInvoice($input: RetryInvoiceInput!) {
+  retryInvoice(input: $input) {
+    id
+  }
+}
+    `;
+export type RetryInvoiceMutationFn = Apollo.MutationFunction<RetryInvoiceMutation, RetryInvoiceMutationVariables>;
+
+/**
+ * __useRetryInvoiceMutation__
+ *
+ * To run a mutation, you first call `useRetryInvoiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRetryInvoiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [retryInvoiceMutation, { data, loading, error }] = useRetryInvoiceMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useRetryInvoiceMutation(baseOptions?: Apollo.MutationHookOptions<RetryInvoiceMutation, RetryInvoiceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RetryInvoiceMutation, RetryInvoiceMutationVariables>(RetryInvoiceDocument, options);
+      }
+export type RetryInvoiceMutationHookResult = ReturnType<typeof useRetryInvoiceMutation>;
+export type RetryInvoiceMutationResult = Apollo.MutationResult<RetryInvoiceMutation>;
+export type RetryInvoiceMutationOptions = Apollo.BaseMutationOptions<RetryInvoiceMutation, RetryInvoiceMutationVariables>;
 export const SideNavInfosDocument = gql`
     query SideNavInfos {
   currentVersion {
