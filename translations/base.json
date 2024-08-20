@@ -2349,5 +2349,6 @@
   "text_1723831881130x4cfh6qr6o8": "Customer address information has issues preventing calculating taxes. Please update the information to generate the invoice.",
   "text_1723831881130g8hv6qzqe57": "Anrok connection items mapping has issues preventing calculating taxes. Please update the mapping to generate the invoice.",
   "text_17238318811307ghoc4v7mt9": "An issue with your tax provider connection occurred. Please contact the Lago team to solve this issue.",
-  "text_1724166369123t6c4k8zn80c": "Credit notes & prepaid credit will impact the invoice once it's finalized."
+  "text_1724166369123t6c4k8zn80c": "Credit notes & prepaid credit will impact the invoice once it's finalized.",
+  "text_1724170152395tr7v0f15xsv": "This invoice is in draft mode. You have until {{issuingDate}} to adjust it."
 }

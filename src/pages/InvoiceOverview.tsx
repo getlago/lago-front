@@ -66,6 +66,7 @@ gql`
 interface InvoiceOverviewProps {
   downloadInvoice: Function
   hasError: boolean
+  hasTaxProviderError: boolean
   invoice: Invoice
   loading: boolean
   loadingInvoiceDownload: boolean
@@ -80,6 +81,7 @@ const InvoiceOverview = memo(
   ({
     downloadInvoice,
     hasError,
+    hasTaxProviderError,
     invoice,
     loading,
     loadingInvoiceDownload,
@@ -121,7 +123,17 @@ const InvoiceOverview = memo(
       <>
         <SectionHeader variant="subhead">
           {translate('text_634687079be251fdb43833bf')}
-          {invoice?.status === InvoiceStatusTypeEnum.Draft ? (
+          {hasTaxProviderError ? (
+            <Button
+              variant="quaternary"
+              disabled={loading || loadingRetryInvoice}
+              onClick={async () => {
+                await retryInvoice()
+              }}
+            >
+              {translate('text_1724164767403kyknbaw13mg')}
+            </Button>
+          ) : invoice?.status === InvoiceStatusTypeEnum.Draft ? (
             <NavigationRightActions>
               <Button
                 variant="quaternary"
@@ -143,16 +155,6 @@ const InvoiceOverview = memo(
                 {translate('text_638f4d756d899445f18a4a10')}
               </Button>
             </NavigationRightActions>
-          ) : invoice?.status === InvoiceStatusTypeEnum.Failed ? (
-            <Button
-              variant="quaternary"
-              disabled={loading || loadingRetryInvoice}
-              onClick={async () => {
-                await retryInvoice()
-              }}
-            >
-              {translate('text_1724164767403kyknbaw13mg')}
-            </Button>
           ) : (
             !hasError &&
             !loading && (
@@ -228,13 +230,18 @@ const InvoiceOverview = memo(
               {invoice?.status === InvoiceStatusTypeEnum.Draft && (
                 <DraftAlertWrapper>
                   <Alert type="info">
-                    {translate('text_63a41a8eabb9ae67047c1c0c', {
-                      issuingDate: formatDateToTZ(
-                        invoice.issuingDate,
-                        customer?.applicableTimezone,
-                        "LLL. dd, yyyy U'T'CZ",
-                      ),
-                    })}
+                    {translate(
+                      hasTaxProviderError
+                        ? 'text_1724170152395tr7v0f15xsv'
+                        : 'text_63a41a8eabb9ae67047c1c0c',
+                      {
+                        issuingDate: formatDateToTZ(
+                          invoice.issuingDate,
+                          customer?.applicableTimezone,
+                          "LLL. dd, yyyy U'T'CZ",
+                        ),
+                      },
+                    )}
                   </Alert>
                 </DraftAlertWrapper>
               )}

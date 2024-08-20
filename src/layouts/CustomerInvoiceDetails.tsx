@@ -337,6 +337,7 @@ const CustomerInvoiceDetails = () => {
           <InvoiceOverview
             downloadInvoice={downloadInvoice}
             hasError={hasError}
+            hasTaxProviderError={!!hasTaxProviderError}
             invoice={data?.invoice as Invoice}
             loading={loading}
             loadingInvoiceDownload={loadingInvoiceDownload}
@@ -433,8 +434,21 @@ const CustomerInvoiceDetails = () => {
             {({ closePopper }) => {
               return (
                 <MenuPopper>
-                  {status === InvoiceStatusTypeEnum.Draft &&
-                  hasPermissions(['draftInvoicesUpdate']) ? (
+                  {hasTaxProviderError ? (
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      disabled={!!loadingRetryInvoice}
+                      loading={loadingRetryInvoice}
+                      onClick={async () => {
+                        await retryInvoice()
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_1724164767403kyknbaw13mg')}
+                    </Button>
+                  ) : status === InvoiceStatusTypeEnum.Draft &&
+                    hasPermissions(['draftInvoicesUpdate']) ? (
                     <>
                       <Button
                         variant="quaternary"
@@ -460,19 +474,6 @@ const CustomerInvoiceDetails = () => {
                         {translate('text_63a41a8eabb9ae67047c1c06')}
                       </Button>
                     </>
-                  ) : status === InvoiceStatusTypeEnum.Failed && hasTaxProviderError ? (
-                    <Button
-                      variant="quaternary"
-                      align="left"
-                      disabled={!!loadingRetryInvoice}
-                      loading={loadingRetryInvoice}
-                      onClick={async () => {
-                        await retryInvoice()
-                        closePopper()
-                      }}
-                    >
-                      {translate('text_1724164767403kyknbaw13mg')}
-                    </Button>
                   ) : (
                     <>
                       <Button
