@@ -13,8 +13,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { DetailsInfoGrid, DetailsInfoItem, DetailsSectionTitle } from '~/styles/detailsPage'
 
+import PlanDetailsAdvancedSettingsSection from './PlanDetailsAdvancedSettingsSection'
 import PlanDetailsChargesSection from './PlanDetailsChargesSection'
-import PlanDetailsCommitmentsSection from './PlanDetailsCommitmentsSection'
 import PlanDetailsFixedFeeAccordion from './PlanDetailsFixedFeeAccordion'
 
 gql`
@@ -92,17 +92,11 @@ const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
           />
         </section>
       )}
-      {!isNaN(Number(plan?.minimumCommitment?.amountCents)) && (
-        <section>
-          <DetailsSectionTitle variant="subhead" noWrap>
-            {translate('text_65d601bffb11e0f9d1d9f567')}
-          </DetailsSectionTitle>
-          <PlanDetailsCommitmentsSection
-            plan={plan}
-            currency={plan?.amountCurrency || CurrencyEnum.Usd}
-          />
-        </section>
-      )}
+
+      <PlanDetailsAdvancedSettingsSection
+        plan={plan}
+        currency={plan?.amountCurrency || CurrencyEnum.Usd}
+      />
     </Container>
   )
 }
