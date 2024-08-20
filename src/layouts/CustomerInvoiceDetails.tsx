@@ -198,21 +198,21 @@ const getErrorMessageFromErrorDetails = (
 
   if (errorCode === ErrorCodesEnum.TaxError) {
     if (errorDetails === LagoApiError.CurrencyCodeNotSupported) {
-      return 'Currency defined is not supported for taxes calculation. Please contact the Lago team to resolve this issue.'
+      return 'text_17238318811308wqpult4i7r'
     }
 
     if (
       errorDetails === LagoApiError.CustomerAddressCouldNotResolve ||
       errorDetails === LagoApiError.CustomerAddressCountryNotSupported
     ) {
-      return 'Customer address information has issues preventing calculating taxes. Please update the information to generate the invoice.'
+      return 'text_1723831881130x4cfh6qr6o8'
     }
 
     if (errorDetails === LagoApiError.ProductExternalIdUnknown) {
-      return 'Anrok connection items mapping has issues preventing calculating taxes. Please update the mapping to generate the invoice.'
+      return 'text_1723831881130g8hv6qzqe57'
     }
 
-    return 'An issue with your tax provider connection occurred. Please contact the Lago team to solve this issue.'
+    return 'text_17238318811307ghoc4v7mt9'
   }
 }
 
@@ -471,7 +471,7 @@ const CustomerInvoiceDetails = () => {
                         closePopper()
                       }}
                     >
-                      {translate('TODO: Sync invoice')}
+                      {translate('text_1724164767403kyknbaw13mg')}
                     </Button>
                   ) : (
                     <>
@@ -646,10 +646,10 @@ const CustomerInvoiceDetails = () => {
         >
           <Stack>
             <Typography variant="body" color="grey700">
-              Invoice could not be issued.
+              {translate('text_1724165657161stcilcabm7x')}
             </Typography>
 
-            <Typography variant="caption">{errorMessage}</Typography>
+            <Typography variant="caption">{translate(errorMessage)}</Typography>
           </Stack>
         </Alert>
       )}

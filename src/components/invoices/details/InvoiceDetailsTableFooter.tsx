@@ -305,11 +305,19 @@ export const InvoiceDetailsTableFooter = memo(
           </td>
         </tr>
 
-        {(invoice.status === InvoiceStatusTypeEnum.Draft || hasTaxProviderError) && (
+        {invoice.status === InvoiceStatusTypeEnum.Draft && (
           <tr>
             <td></td>
             <NoShadowTD colSpan={4}>
               <Alert type="info">{translate('text_63b6f4e9b074e3b8beebb97f')}</Alert>
+            </NoShadowTD>
+          </tr>
+        )}
+        {hasTaxProviderError && (
+          <tr>
+            <td></td>
+            <NoShadowTD colSpan={4}>
+              <Alert type="info">{translate('text_1724166369123t6c4k8zn80c')}</Alert>
             </NoShadowTD>
           </tr>
         )}

@@ -151,7 +151,7 @@ const InvoiceOverview = memo(
                 await retryInvoice()
               }}
             >
-              {translate('TODO: Sync invoice')}
+              {translate('text_1724164767403kyknbaw13mg')}
             </Button>
           ) : (
             !hasError &&

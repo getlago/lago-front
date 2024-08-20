@@ -320,7 +320,7 @@ const InvoicesList = ({
                       placement="top"
                       title={
                         !!paymentDisputeLostAt
-                          ? translate('TODO: This invoice contains a dispute lost')
+                          ? translate('text_172416478461328edo4vwz05')
                           : undefined
                       }
                     >
