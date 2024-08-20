@@ -165,8 +165,11 @@ const InvoicesList = ({
               const { status, paymentStatus, voidable } = invoice
 
               const canDownload =
-                status !== InvoiceStatusTypeEnum.Draft && hasPermissions(['invoicesView'])
-              const canFinalize = hasPermissions(['invoicesUpdate'])
+                ![InvoiceStatusTypeEnum.Draft, InvoiceStatusTypeEnum.Failed].includes(status) &&
+                hasPermissions(['invoicesView'])
+              const canFinalize =
+                ![InvoiceStatusTypeEnum.Failed].includes(status) &&
+                hasPermissions(['invoicesUpdate'])
               const canRetryCollect =
                 status === InvoiceStatusTypeEnum.Finalized &&
                 [
@@ -175,9 +178,11 @@ const InvoicesList = ({
                 ].includes(paymentStatus) &&
                 hasPermissions(['invoicesSend'])
               const canUpdatePaymentStatus =
-                status !== InvoiceStatusTypeEnum.Draft &&
-                status !== InvoiceStatusTypeEnum.Voided &&
-                hasPermissions(['invoicesUpdate'])
+                ![
+                  InvoiceStatusTypeEnum.Draft,
+                  InvoiceStatusTypeEnum.Voided,
+                  InvoiceStatusTypeEnum.Failed,
+                ].includes(status) && hasPermissions(['invoicesUpdate'])
               const canVoid =
                 status === InvoiceStatusTypeEnum.Finalized &&
                 [

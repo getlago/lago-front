@@ -278,8 +278,10 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
             const { status, paymentStatus, voidable } = invoice
 
             const canDownload =
-              status !== InvoiceStatusTypeEnum.Draft && hasPermissions(['invoicesView'])
-            const canFinalize = hasPermissions(['invoicesUpdate'])
+              ![InvoiceStatusTypeEnum.Draft, InvoiceStatusTypeEnum.Failed].includes(status) &&
+              hasPermissions(['invoicesView'])
+            const canFinalize =
+              ![InvoiceStatusTypeEnum.Failed].includes(status) && hasPermissions(['invoicesUpdate'])
             const canRetryCollect =
               status === InvoiceStatusTypeEnum.Finalized &&
               [InvoicePaymentStatusTypeEnum.Failed, InvoicePaymentStatusTypeEnum.Pending].includes(
@@ -287,9 +289,11 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
               ) &&
               hasPermissions(['invoicesSend'])
             const canUpdatePaymentStatus =
-              status !== InvoiceStatusTypeEnum.Draft &&
-              status !== InvoiceStatusTypeEnum.Voided &&
-              hasPermissions(['invoicesUpdate'])
+              ![
+                InvoiceStatusTypeEnum.Draft,
+                InvoiceStatusTypeEnum.Voided,
+                InvoiceStatusTypeEnum.Failed,
+              ].includes(status) && hasPermissions(['invoicesUpdate'])
             const canVoid =
               status === InvoiceStatusTypeEnum.Finalized &&
               [InvoicePaymentStatusTypeEnum.Pending, InvoicePaymentStatusTypeEnum.Failed].includes(
