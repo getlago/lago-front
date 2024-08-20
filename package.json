@@ -14,7 +14,6 @@
     "start": "webpack serve --config ./webpack.dev.js",
     "start:build": "yarn build && npx http-server-spa ./dist",
     "build": "webpack --config ./webpack.prod.js",
-    "build:analyseBundle": "webpack --config ./webpack.prod.js --env analyseBundle",
     "lint": "prettier --check src/**/*.{ts,tsx,svg,html} --check cypress/**/*.ts && eslint \"**/*.{js,ts,tsx}\"",
     "eslint": "eslint \"**/*.{js,ts,tsx}\"",
     "lint:fix": "prettier --write {src,cypress}/** && eslint --fix .",
@@ -87,7 +86,6 @@
     "ts-loader": "9.5.1",
     "typescript": "5.5.3",
     "webpack": "5.93.0",
-    "webpack-bundle-analyzer": "4.10.2",
     "webpack-cli": "5.1.4",
     "webpack-dev-server": "5.0.4",
     "webpack-merge": "5.9.0"
@@ -123,6 +121,7 @@
     "yup": "1.2.0"
   },
   "resolutions": {
+    "ws": "^8.18.0",
     "styled-components": "5.3.11",
     "@mui/styled-engine": "5.14.18",
     "lodash": "4.17.21",
