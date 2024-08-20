@@ -1104,7 +1104,6 @@
   "text_64e7b273b046851c46d78207": "Minimum value cannot exceed the maximum value. Please enter a value lower or equal than {{transac_max}}",
   "text_64e7b273b046851c46d78249": "Remove min per transaction",
   "text_64e7b273b046851c46d782d6": "Remove max per transaction",
-  "text_65d601bffb11e0f9d1d9f567": "Commitments",
   "text_65d601bffb11e0f9d1d9f569": "Minimum commitments",
   "text_65d601bffb11e0f9d1d9f571": "Spending minimum",
   "text_65018c8e5c6b626f030bcf8d": "Set an invoice display name",
@@ -2360,5 +2359,15 @@
   "text_1724774217640gd4bmfl8ne3": "Sync voided invoice to Anrok",
   "text_1724857130376douaqt98pna": "Customer is tax exempt",
   "text_1724857130376u3cph3amxmh": "No tax",
-  "text_1724857130376w85w86kutdb": "Reverse charge - Tax liability shifted to customer"
+  "text_1724857130376w85w86kutdb": "Reverse charge - Tax liability shifted to customer",
+  "text_1724179887722baucvj7bvc1": "Progressive billing",
+  "text_1724179887723kdf3nisf6hp": "In addition to the billing period, <a rel=\"external\" target=\"_blank\" href=\"{{href}}\">progressive billing</a> generates invoices when usage-based charges hit the lifetime usage threshold.",
+  "text_1724179887723eh12a0kqbdw": "Threshold amount",
+  "text_17241798877234jhvoho4ci9": "Threshold name",
+  "text_1724179887723hi673zmbvdj": "Lifetime usage reaches",
+  "text_1724179887723917j8ezkd9v": "Then",
+  "text_1724179887723pt34ivcecdt": "My threshold",
+  "text_17241798877230y851fdxzqt": "Recurring billing",
+  "text_17241798877230y851fdxzqu": "Then every",
+  "text_17241798877230y851fdxzqv": "My recurring threshold"
 }
