@@ -13,8 +13,6 @@ import {
   Popper,
   Skeleton,
   Status,
-  StatusProps,
-  StatusType,
   Tooltip,
   Typography,
 } from '~/components/designSystem'
@@ -35,6 +33,7 @@ import {
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast } from '~/core/apolloClient'
+import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE,
@@ -186,34 +185,6 @@ gql`
 export enum CustomerInvoiceDetailsTabsOptionsEnum {
   overview = 'overview',
   creditNotes = 'credit-notes',
-}
-
-const mapStatus = ({
-  status,
-  paymentStatus,
-  paymentDisputeLostAt,
-}: {
-  status: InvoiceStatusTypeEnum
-  paymentStatus?: InvoicePaymentStatusTypeEnum
-  paymentDisputeLostAt?: boolean
-}): StatusProps => {
-  if (status === InvoiceStatusTypeEnum.Draft) {
-    return { label: 'draft', type: StatusType.outline }
-  } else if (status === InvoiceStatusTypeEnum.Voided) {
-    return { label: 'voided', type: StatusType.disabled }
-  } else if (status === InvoiceStatusTypeEnum.Failed) {
-    return { label: 'failed', type: StatusType.warning }
-  } else if (paymentDisputeLostAt) {
-    return { label: 'disputeLost', type: StatusType.danger }
-  } else if (paymentStatus === InvoicePaymentStatusTypeEnum.Pending) {
-    return { label: 'pending', type: StatusType.default }
-  } else if (paymentStatus === InvoicePaymentStatusTypeEnum.Failed) {
-    return { label: 'failed', type: StatusType.warning }
-  } else if (paymentStatus === InvoicePaymentStatusTypeEnum.Succeeded) {
-    return { label: 'succeeded', type: StatusType.success }
-  }
-
-  return { label: 'n/a', type: StatusType.default }
 }
 
 const getErrorMessageFromErrorDetails = (
@@ -379,7 +350,10 @@ const CustomerInvoiceDetails = () => {
       },
     ]
 
-    if (invoiceType !== InvoiceTypeEnum.Credit && status !== InvoiceStatusTypeEnum.Draft) {
+    if (
+      invoiceType !== InvoiceTypeEnum.Credit &&
+      ![InvoiceStatusTypeEnum.Draft, InvoiceStatusTypeEnum.Failed].includes(status)
+    ) {
       tabs.push({
         title: translate('text_636bdef6565341dcb9cfb125'),
         link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
@@ -710,11 +684,10 @@ const CustomerInvoiceDetails = () => {
                     {number}
                   </Typography>
                   <Status
-                    {...mapStatus({
-                      status,
-                      paymentStatus,
-                      paymentDisputeLostAt: !!data?.invoice?.paymentDisputeLostAt,
-                    })}
+                    {...(status === InvoiceStatusTypeEnum.Finalized
+                      ? paymentStatusMapping({ status, paymentStatus })
+                      : invoiceStatusMapping({ status }))}
+                    endIcon={!!data?.invoice?.paymentDisputeLostAt ? 'warning-unfilled' : undefined}
                   />
                 </MainInfoLine>
                 <MainInfoLine>

@@ -75,7 +75,11 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
     variables: {
       customerId,
       limit: 20,
-      status: [InvoiceStatusTypeEnum.Finalized, InvoiceStatusTypeEnum.Voided],
+      status: [
+        InvoiceStatusTypeEnum.Finalized,
+        InvoiceStatusTypeEnum.Voided,
+        InvoiceStatusTypeEnum.Failed,
+      ],
     },
     notifyOnNetworkStatusChange: true,
   })
@@ -94,6 +98,7 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
             isLoading
             customerTimezone={customerTimezone}
             customerId={customerId}
+            context="finalized"
           />
         </LoadingState>
       ) : !invoicesDraft?.length &&

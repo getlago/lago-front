@@ -3,16 +3,9 @@ import { FC, useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
-import {
-  InfiniteScroll,
-  Status,
-  StatusProps,
-  StatusType,
-  Table,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { InfiniteScroll, Status, Table, Tooltip, Typography } from '~/components/designSystem'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -96,54 +89,6 @@ gql`
   ${InvoiceForFinalizeInvoiceFragmentDoc}
   ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
 `
-
-const mapStatusConfig = ({
-  status,
-  paymentStatus,
-  paymentOverdue,
-  paymentDisputeLostAt,
-}: {
-  status: InvoiceStatusTypeEnum
-  paymentStatus: InvoicePaymentStatusTypeEnum
-  paymentOverdue: boolean
-  paymentDisputeLostAt?: string
-}): StatusProps => {
-  if (paymentDisputeLostAt) {
-    return { label: 'disputed', type: StatusType.danger }
-  }
-
-  if (status === InvoiceStatusTypeEnum.Draft) {
-    return { label: 'draft', type: StatusType.outline }
-  }
-
-  if (status === InvoiceStatusTypeEnum.Voided) {
-    return { label: 'voided', type: StatusType.disabled }
-  }
-
-  if (paymentStatus === InvoicePaymentStatusTypeEnum.Succeeded) {
-    return { label: 'succeeded', type: StatusType.success }
-  }
-
-  if (paymentOverdue) {
-    return { label: 'overdue', type: StatusType.danger }
-  }
-
-  if (
-    status === InvoiceStatusTypeEnum.Finalized &&
-    paymentStatus === InvoicePaymentStatusTypeEnum.Failed
-  ) {
-    return { label: 'failed', type: StatusType.warning }
-  }
-
-  if (
-    status === InvoiceStatusTypeEnum.Finalized &&
-    paymentStatus === InvoicePaymentStatusTypeEnum.Pending
-  ) {
-    return { label: 'pending', type: StatusType.default }
-  }
-
-  return { label: 'n/a', type: StatusType.default }
-}
 
 interface CustomerInvoicesListProps {
   isLoading: boolean
@@ -252,23 +197,8 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
             {
               key: 'status',
               minWidth: 80,
-              title: translate(
-                context === 'draft'
-                  ? 'text_63ac86d797f728a87b2f9fa7'
-                  : 'text_63b5d225b075850e0fe489f4',
-              ),
-              content: ({ status, paymentStatus, paymentOverdue, paymentDisputeLostAt }) => {
-                return (
-                  <Status
-                    {...mapStatusConfig({
-                      status,
-                      paymentStatus,
-                      paymentOverdue,
-                      paymentDisputeLostAt,
-                    })}
-                  />
-                )
-              },
+              title: translate('text_63ac86d797f728a87b2f9fa7'),
+              content: ({ status }) => <Status {...invoiceStatusMapping({ status })} />,
             },
             {
               key: 'number',
@@ -293,6 +223,38 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 )
               },
             },
+            context === 'finalized'
+              ? {
+                  key: 'paymentStatus',
+                  minWidth: 120,
+                  title: translate('text_63b5d225b075850e0fe489f4'),
+                  content: ({ status, paymentStatus, paymentOverdue, paymentDisputeLostAt }) => {
+                    if (status !== InvoiceStatusTypeEnum.Finalized) {
+                      return null
+                    }
+
+                    return (
+                      <Tooltip
+                        placement="top"
+                        title={
+                          !!paymentDisputeLostAt
+                            ? translate('TODO: This invoice contains a dispute lost')
+                            : undefined
+                        }
+                      >
+                        <Status
+                          {...paymentStatusMapping({
+                            status,
+                            paymentStatus,
+                            paymentOverdue,
+                          })}
+                          endIcon={!!paymentDisputeLostAt ? 'warning-unfilled' : undefined}
+                        />
+                      </Tooltip>
+                    )
+                  },
+                }
+              : null,
             {
               key: 'issuingDate',
               minWidth: 104,

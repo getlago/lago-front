@@ -62,7 +62,7 @@ type RowSize = 44 | 56
 interface TableProps<T> {
   name: string
   data: T[]
-  columns: Column<T>[]
+  columns: Array<Column<T> | null>
   isLoading?: boolean
   hasError?: boolean
   placeholder?: {
@@ -100,7 +100,8 @@ export const Table = <T extends DataItem>({
   actionColumn,
 }: TableProps<T>) => {
   const TABLE_ID = `table-${name}`
-  const maxSpaceColumns = countMaxSpaceColumns(columns)
+  const filteredColumns = columns.filter((column) => !!column)
+  const maxSpaceColumns = countMaxSpaceColumns(filteredColumns)
   const tableRef = useRef<HTMLTableElement>(null)
   const { translate } = useInternationalization()
 
@@ -138,7 +139,7 @@ export const Table = <T extends DataItem>({
           return false
         })
       : true)
-  const colSpan = columns.length + (shouldDisplayActionColumn ? 1 : 0)
+  const colSpan = filteredColumns.length + (shouldDisplayActionColumn ? 1 : 0)
 
   const handleRowClick = (e: MouseEvent<HTMLTableRowElement>, item: T) => {
     // Prevent row action when clicking on button or link in cell
@@ -225,7 +226,7 @@ export const Table = <T extends DataItem>({
         <TableHead>
           <tr>
             <>
-              {columns.map((column, i) => (
+              {filteredColumns.map((column, i) => (
                 <TableCell
                   key={`${TABLE_ID}-head-${i}`}
                   align={column.textAlign || 'left'}
@@ -252,7 +253,7 @@ export const Table = <T extends DataItem>({
                   onKeyDown={isClickable ? onKeyDown : undefined}
                   onClick={isClickable ? (e) => handleRowClick(e, item) : undefined}
                 >
-                  {columns.map((column, j) => (
+                  {filteredColumns.map((column, j) => (
                     <TableCell
                       key={`${TABLE_ID}-cell-${i}-${j}`}
                       align={column.textAlign || 'left'}
@@ -302,7 +303,12 @@ export const Table = <T extends DataItem>({
                 </TableRow>
               )))}
           {isLoading &&
-            LoadingRows({ columns, id: TABLE_ID, shouldDisplayActionColumn, actionColumn })}
+            LoadingRows({
+              columns: filteredColumns,
+              id: TABLE_ID,
+              shouldDisplayActionColumn,
+              actionColumn,
+            })}
         </MUITableBody>
       </StyledTable>
     </Box>
@@ -314,7 +320,8 @@ const LoadingRows = <T,>({
   id,
   shouldDisplayActionColumn,
   actionColumn,
-}: Pick<TableProps<T>, 'columns' | 'actionColumn'> & {
+}: Pick<TableProps<T>, 'actionColumn'> & {
+  columns: Array<Column<T>>
   id: string
   shouldDisplayActionColumn: boolean
 }) => {

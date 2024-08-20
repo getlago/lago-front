@@ -1,19 +1,16 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
+import { Box, Stack } from '@mui/material'
 import { DateTime } from 'luxon'
 import { memo } from 'react'
 import { generatePath, Link } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Status, StatusProps, StatusType, Typography } from '~/components/designSystem'
+import { Icon, Status, StatusType, Typography } from '~/components/designSystem'
 import { CountryCodes } from '~/core/constants/countryCodes'
+import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import { formatDateToTZ } from '~/core/timezone'
-import {
-  InvoiceForInvoiceInfosFragment,
-  InvoicePaymentStatusTypeEnum,
-  InvoiceStatusTypeEnum,
-} from '~/generated/graphql'
+import { InvoiceForInvoiceInfosFragment, InvoiceStatusTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
@@ -47,40 +44,6 @@ gql`
   }
 `
 
-const mapStatusConfig = (status?: InvoiceStatusTypeEnum): StatusProps => {
-  switch (status) {
-    case InvoiceStatusTypeEnum.Draft:
-      return { label: 'draft', type: StatusType.outline }
-    case InvoiceStatusTypeEnum.Voided:
-      return { label: 'voided', type: StatusType.disabled }
-    case InvoiceStatusTypeEnum.Finalized:
-      return { label: 'finalized', type: StatusType.success }
-    case InvoiceStatusTypeEnum.Failed:
-      return { label: 'failed', type: StatusType.warning }
-    default:
-      return {
-        label: 'n/a',
-        type: StatusType.default,
-      }
-  }
-}
-
-const mapPaymentStatusConfig = (paymentStatus?: InvoicePaymentStatusTypeEnum): StatusProps => {
-  switch (paymentStatus) {
-    case InvoicePaymentStatusTypeEnum.Failed:
-      return { label: 'failed', type: StatusType.warning }
-    case InvoicePaymentStatusTypeEnum.Pending:
-      return { label: 'pending', type: StatusType.default }
-    case InvoicePaymentStatusTypeEnum.Succeeded:
-      return { label: 'succeeded', type: StatusType.success }
-    default:
-      return {
-        label: 'n/a',
-        type: StatusType.default,
-      }
-  }
-}
-
 interface InvoiceCustomerInfosProps {
   invoice?: InvoiceForInvoiceInfosFragment | null
 }
@@ -88,8 +51,6 @@ interface InvoiceCustomerInfosProps {
 export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps) => {
   const { customer } = invoice || {}
   const { translate } = useInternationalization()
-  const statusConfig = mapStatusConfig(invoice?.status)
-  const paymentStatusConfig = mapPaymentStatusConfig(invoice?.paymentStatus)
 
   return (
     <Wrapper>
@@ -240,7 +201,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
             {translate('text_65269b6afe1fda4ad9bf672b')}
           </Typography>
           <Typography variant="body" color="grey700">
-            <Status {...statusConfig} />
+            {invoice?.status && <Status {...invoiceStatusMapping({ status: invoice.status })} />}
           </Typography>
         </InfoLine>
         <InfoLine>
@@ -248,14 +209,17 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
             {translate('text_63eba8c65a6c8043feee2a0f')}
           </Typography>
           <Typography variant="body" color="grey700">
-            {invoice?.status === InvoiceStatusTypeEnum.Draft ||
-            invoice?.status === InvoiceStatusTypeEnum.Voided ||
-            invoice?.status === InvoiceStatusTypeEnum.Failed ? (
+            {invoice?.status === InvoiceStatusTypeEnum.Finalized ? (
+              <Status
+                {...paymentStatusMapping({
+                  status: invoice.status,
+                  paymentStatus: invoice.paymentStatus,
+                })}
+              />
+            ) : (
               <Typography variant="body" color="grey700">
                 -
               </Typography>
-            ) : (
-              <Status {...paymentStatusConfig} />
             )}
           </Typography>
         </InfoLine>
@@ -264,14 +228,14 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
             <Typography variant="caption" color="grey600" noWrap>
               {translate('text_66141e30699a0631f0b2ed32')}
             </Typography>
-            <Typography variant="body" color="grey700">
-              <Status
-                type={StatusType.danger}
-                label="disputeLostOn"
-                labelVariables={{
-                  date: DateTime.fromISO(invoice?.paymentDisputeLostAt).toFormat('LLL. dd, yyyy'),
-                }}
-              />
+
+            <Typography variant="body" color="textSecondary">
+              <Box marginRight={1} display="inline" sx={{ verticalAlign: 'middle' }}>
+                <Icon name="warning-filled" color="warning" />
+              </Box>
+              {translate('text_66141e30699a0631f0b2ed2c', {
+                date: DateTime.fromISO(invoice?.paymentDisputeLostAt).toFormat('LLL. dd, yyyy'),
+              })}
             </Typography>
           </InfoLine>
         )}
@@ -300,7 +264,7 @@ const Wrapper = styled.section`
 
 const InfoLine = styled.div`
   display: flex;
-  align-items: flex-start;
+  align-items: baseline;
   margin-bottom: ${theme.spacing(2)};
   gap: ${theme.spacing(2)};
 
