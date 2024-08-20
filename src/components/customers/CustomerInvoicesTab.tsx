@@ -1,9 +1,10 @@
 import { gql } from '@apollo/client'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { Stack } from '@mui/material'
+import { generatePath } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Skeleton, Typography } from '~/components/designSystem'
-import { CUSTOMER_DRAFT_INVOICES_LIST_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
+import { ButtonLink, Skeleton, Typography } from '~/components/designSystem'
+import { CUSTOMER_DRAFT_INVOICES_LIST_ROUTE } from '~/core/router'
 import {
   InvoiceForInvoiceListFragmentDoc,
   InvoiceStatusTypeEnum,
@@ -13,7 +14,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
 import { NAV_HEIGHT, theme } from '~/styles'
 
 import { CustomerInvoicesList } from './CustomerInvoicesList'
@@ -50,7 +50,6 @@ interface CustomerInvoicesTabProps {
 }
 
 export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerInvoicesTabProps) => {
-  const navigate = useNavigate()
   const { translate } = useInternationalization()
   const {
     data: dataDraft,
@@ -84,6 +83,7 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
   const initialLoad = loadingDraft && loadingFinalized
   const invoicesDraft = dataDraft?.customerInvoices.collection
   const invoicesFinalized = dataFinalized?.customerInvoices.collection
+  const invoicesDraftCount = dataDraft?.customerInvoices.metadata.totalCount || 0
 
   return (
     <div>
@@ -93,7 +93,7 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
           <CustomerInvoicesList
             isLoading
             customerTimezone={customerTimezone}
-            getOnClickLink={() => ''}
+            customerId={customerId}
           />
         </LoadingState>
       ) : !invoicesDraft?.length &&
@@ -114,22 +114,27 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
                 isLoading={loadingDraft}
                 hasError={!!errorDraft}
                 customerTimezone={customerTimezone}
-                getOnClickLink={(id) =>
-                  generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                    customerId,
-                    invoiceId: id,
-                    tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-                  })
-                }
+                customerId={customerId}
                 invoiceData={dataDraft?.customerInvoices}
-                onSeeAll={
-                  (dataDraft?.customerInvoices?.metadata?.totalCount || 0) >
-                  DRAFT_INVOICES_ITEMS_COUNT
-                    ? () =>
-                        navigate(generatePath(CUSTOMER_DRAFT_INVOICES_LIST_ROUTE, { customerId }))
-                    : undefined
-                }
               />
+              {invoicesDraftCount > DRAFT_INVOICES_ITEMS_COUNT && (
+                <Stack
+                  alignItems="center"
+                  justifyContent="center"
+                  py={theme.spacing(2)}
+                  boxShadow={theme.shadows[7]}
+                >
+                  <ButtonLink
+                    type="button"
+                    to={generatePath(CUSTOMER_DRAFT_INVOICES_LIST_ROUTE, { customerId })}
+                    buttonProps={{
+                      variant: 'quaternary',
+                    }}
+                  >
+                    {translate('text_638f4d756d899445f18a4a0e')}
+                  </ButtonLink>
+                </Stack>
+              )}
             </DraftWrapper>
           )}
 
@@ -149,17 +154,10 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
               <CustomerInvoicesList
                 isLoading={isLoading}
                 hasError={!!errorFinalized}
-                hasSearchTerm={!!variablesFinalized?.searchTerm}
                 customerTimezone={customerTimezone}
+                customerId={customerId}
                 context="finalized"
                 invoiceData={dataFinalized?.customerInvoices}
-                getOnClickLink={(id) =>
-                  generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                    customerId,
-                    invoiceId: id,
-                    tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-                  })
-                }
                 fetchMore={fetchMoreFinalized}
               />
             </>

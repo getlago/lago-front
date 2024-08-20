@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { CustomerInvoicesList } from '~/components/customers/CustomerInvoicesList'
 import { Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
 import { SearchInput } from '~/components/SearchInput'
-import { CUSTOMER_DETAILS_TAB_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
+import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
 import {
   InvoiceForInvoiceListFragmentDoc,
   InvoiceStatusTypeEnum,
@@ -16,7 +16,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
 import { NAV_HEIGHT, PageHeader, theme } from '~/styles'
 
 import { CustomerDetailsTabsOptions } from './CustomerDetails'
@@ -140,14 +139,8 @@ const CustomerDraftInvoicesList = () => {
           isLoading={isLoading}
           hasError={!!error}
           customerTimezone={safeTimezone}
+          customerId={customerId}
           invoiceData={data?.customerInvoices}
-          getOnClickLink={(id) =>
-            generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-              customerId,
-              invoiceId: id,
-              tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-            })
-          }
           fetchMore={fetchMore}
         />
       </Wrapper>
