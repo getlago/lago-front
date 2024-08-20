@@ -2,7 +2,6 @@ const path = require('path')
 
 const webpack = require('webpack')
 const { merge } = require('webpack-merge')
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const DuplicatePackageCheckerPlugin = require('duplicate-package-checker-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
@@ -92,7 +91,6 @@ const config = {
 
 module.exports = (env) => {
   if (env.analyseBundle) {
-    config.plugins.push(new BundleAnalyzerPlugin())
     config.plugins.push(new DuplicatePackageCheckerPlugin())
   }
 
