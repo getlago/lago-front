@@ -123,6 +123,7 @@
   "resolutions": {
     "ws": "^8.18.0",
     "express": "^4.19.2",
+    "jose": "^4.15.5",
     "styled-components": "5.3.11",
     "@mui/styled-engine": "5.14.18",
     "lodash": "4.17.21",
