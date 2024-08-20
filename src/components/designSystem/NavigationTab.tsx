@@ -155,7 +155,7 @@ const TabsWrapper = styled.div`
 const LocalTabs = styled(Tabs)<{ $leftPadding: boolean; $nonHiddenTabsLength: number }>`
   align-items: center;
   overflow: visible;
-  min-height: ${({ $nonHiddenTabsLength }) => $nonHiddenTabsLength > 1 && theme.spacing(13)};
+  min-height: ${({ $nonHiddenTabsLength }) => ($nonHiddenTabsLength > 1 ? theme.spacing(13) : 0)};
 
   ${({ $leftPadding }) =>
     !!$leftPadding &&
