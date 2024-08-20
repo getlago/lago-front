@@ -5,26 +5,33 @@ import styled from 'styled-components'
 import { HEADER_TABLE_HEIGHT, theme } from '~/styles'
 
 type DetailsTableDisplayData = {
-  header: Array<string | ReactNode>
+  header?: Array<string | ReactNode>
   body?: Array<Array<string | number | ReactNode>>
+  className?: string
 }
 
 const DetailsTableDisplay = (data: DetailsTableDisplayData) => {
   return (
-    <StyledTable $dataLength={data.header.length || 1} $hasBodyData={!!data.body?.length}>
-      <thead>
-        <tr>
-          {data.header.map((header, index) => (
-            <th key={`details-table-display-header-${index}`}>
-              {typeof header === 'object' ? (
-                header
-              ) : (
-                <Typography variant="captionHl">{header}</Typography>
-              )}
-            </th>
-          ))}
-        </tr>
-      </thead>
+    <StyledTable
+      $dataLength={data.header?.length || 0}
+      $hasBodyData={!!data.body?.length}
+      className={data?.className}
+    >
+      {!!data.header?.length && (
+        <thead>
+          <tr>
+            {data.header?.map((header, index) => (
+              <th key={`details-table-display-header-${index}`}>
+                {typeof header === 'object' ? (
+                  header
+                ) : (
+                  <Typography variant="captionHl">{header}</Typography>
+                )}
+              </th>
+            ))}
+          </tr>
+        </thead>
+      )}
       {!!data.body?.length && (
         <tbody>
           {data.body.map((values, i) => (
