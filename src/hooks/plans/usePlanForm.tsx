@@ -150,6 +150,7 @@ export const usePlanForm: ({
             ),
           }
         : {},
+      usageThresholds: plan?.usageThresholds || undefined,
       charges: plan?.charges
         ? (plan?.charges.map(
             ({
