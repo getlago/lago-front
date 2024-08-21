@@ -116,7 +116,7 @@ export const CommitmentsSection = ({
   }, [formikProps.initialValues.minimumCommitment?.amountCents])
 
   return (
-    <Card>
+    <Stack gap={4} alignItems="flex-start">
       <SectionTitle>
         <Typography variant="bodyHl" color="grey700">
           {translate('text_65d601bffb11e0f9d1d9f569')}
@@ -131,7 +131,7 @@ export const CommitmentsSection = ({
       </SectionTitle>
 
       {displayMinimumCommitment ? (
-        <Accordion
+        <StyledAccordion
           summary={
             <BoxHeader>
               <BoxHeaderGroupLeft>
@@ -306,7 +306,7 @@ export const CommitmentsSection = ({
               </Group>
             </div>
           </Stack>
-        </Accordion>
+        </StyledAccordion>
       ) : (
         <Button
           variant="quaternary"
@@ -330,7 +330,7 @@ export const CommitmentsSection = ({
           {translate('text_6661ffe746c680007e2df0e1')}
         </Button>
       )}
-    </Card>
+    </Stack>
   )
 }
 
@@ -339,18 +339,6 @@ CommitmentsSection.displayName = 'CommitmentsSection'
 const SectionTitle = styled.div`
   > div:not(:last-child) {
     margin-bottom: ${theme.spacing(1)};
-  }
-`
-
-const Card = styled.div`
-  padding: ${theme.spacing(8)};
-  border: 1px solid ${theme.palette.grey[300]};
-  background-color: ${theme.palette.common.white};
-  border-radius: 12px;
-  box-sizing: border-box;
-
-  > *:not(:first-child) {
-    margin-top: ${theme.spacing(6)};
   }
 `
 
@@ -412,4 +400,8 @@ const Group = styled.div`
   > div:not(:last-child) {
     margin-bottom: ${theme.spacing(4)};
   }
+`
+
+const StyledAccordion = styled(Accordion)`
+  width: 100%;
 `

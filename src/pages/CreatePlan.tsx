@@ -14,6 +14,7 @@ import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FixedFeeSection } from '~/components/plans/FixedFeeSection'
 import { PlanCodeSnippet } from '~/components/plans/PlanCodeSnippet'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
+import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
 import { LocalChargeInput } from '~/components/plans/types'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
@@ -249,11 +250,14 @@ const CreatePlan = () => {
                     </Typography>
                   </SectionTitle>
 
-                  <CommitmentsSection
-                    formikProps={formikProps}
-                    premiumWarningDialogRef={premiumWarningDialogRef}
-                    editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
-                  />
+                  <Card $childSpacing={8}>
+                    <ProgressiveBillingSection formikProps={formikProps} />
+                    <CommitmentsSection
+                      formikProps={formikProps}
+                      premiumWarningDialogRef={premiumWarningDialogRef}
+                      editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
+                    />
+                  </Card>
                 </SectionWrapper>
               </Stack>
             )}

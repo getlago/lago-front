@@ -2369,5 +2369,13 @@
   "text_1724179887723pt34ivcecdt": "My threshold",
   "text_17241798877230y851fdxzqt": "Recurring billing",
   "text_17241798877230y851fdxzqu": "Then every",
-  "text_17241798877230y851fdxzqv": "My recurring threshold"
+  "text_17241798877230y851fdxzqv": "My recurring threshold",
+  "text_1724233213996upb98e8b8xx": "Add billing threshold",
+  "text_1724233213997l2ksi40t8q6": "Add another threshold",
+  "text_1724234174944p8zi54j192m": "When lifetime usage reaches",
+  "text_1724234174945ztq15pvmty3": "Recurring billing after last threshold",
+  "text_172423417494563qf45qet2d": "Customer is billed everytime the threshold amount is reached.",
+  "text_1724252232460iqofvwnpgnx": "This progressive billing will affect usage-based charges lifetime usage only.",
+  "text_17242522324608198c2vblmw": "Delete threshold",
+  "text_1724252232460i4tv7384iiy": ""
 }
