@@ -5,7 +5,7 @@ import { PlanFormInput } from '~/components/plans/types'
 import { UsageThresholdInput } from '~/generated/graphql'
 
 const DEFAULT_PROGRESSIVE_BILLING: UsageThresholdInput = {
-  amountCents: '100',
+  amountCents: 1,
   recurring: false,
 }
 
@@ -23,15 +23,10 @@ export const useProgressiveBillingForm = ({
       nonRecurring: UsageThresholdInput[]
     }>(
       (acc, threshold) => {
-        if (!!threshold.recurring) {
+        if (threshold.recurring) {
           return {
             ...acc,
-            recurring: [
-              {
-                amountCents: threshold.amountCents,
-                recurring: threshold.recurring,
-              },
-            ],
+            recurring: [threshold],
           }
         }
         return {
@@ -50,7 +45,7 @@ export const useProgressiveBillingForm = ({
     // If there is a threshold, add a new one with an amount 1 cent higher
     if (lastThreshold) {
       newThresholds.push({
-        amountCents: Number(lastThreshold.amountCents) + 1,
+        amountCents: lastThreshold.amountCents + 1,
         recurring: false,
       })
     } else {
@@ -73,7 +68,7 @@ export const useProgressiveBillingForm = ({
   }
 
   const deleteProgressiveBilling = () => {
-    formikProps.setFieldValue('usageThreshold', undefined)
+    formikProps.setFieldValue('usageThresholds', undefined)
   }
 
   const addRecurring = () => {
@@ -86,6 +81,28 @@ export const useProgressiveBillingForm = ({
     ])
   }
 
+  const handleUpdateThreshold = ({
+    index,
+    value,
+    isRecurring,
+    key,
+  }: {
+    index: number
+    value: string | number | undefined
+    isRecurring: boolean
+    key: keyof UsageThresholdInput
+  }) => {
+    if (isRecurring) {
+      const currentRecurringValue = formikProps.values.usageThresholds?.findIndex(
+        (threshold) => !!threshold.recurring,
+      )
+
+      formikProps.setFieldValue(`usageThresholds[${currentRecurringValue}][${key}]`, value)
+    } else {
+      formikProps.setFieldValue(`usageThresholds[${index}][${key}]`, value)
+    }
+  }
+
   return {
     tableData: nonRecurring,
     recurringData: recurring,
@@ -93,5 +110,6 @@ export const useProgressiveBillingForm = ({
     addRecurring,
     deleteThreshold,
     deleteProgressiveBilling,
+    handleUpdateThreshold,
   }
 }

@@ -1,12 +1,13 @@
 import { Box, InputAdornment, Stack } from '@mui/material'
 import { FormikProps } from 'formik'
-import { FC, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import styled from 'styled-components'
 
 import {
   Accordion,
   Alert,
   Button,
+  ButtonLink,
   ChargeTable,
   Icon,
   Tooltip,
@@ -15,7 +16,6 @@ import {
 import { AmountInput, Switch, TextInput } from '~/components/form'
 import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useProgressiveBillingForm } from '~/hooks/plans/useProgressiveBillingForm'
 import { NAV_HEIGHT, theme } from '~/styles'
@@ -35,15 +35,38 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
     addThreshold,
     deleteThreshold,
     addRecurring,
+    handleUpdateThreshold,
   } = useProgressiveBillingForm({ formikProps })
 
   const [displayProgressiveBillingAccordion, setDisplayProgressiveBillingAccordion] = useState(
     !!formikProps.initialValues.usageThresholds,
   )
   const [displayRecurring, setRecurring] = useState(!!recurringData.length)
+  const [errorIndex, setErrorIndex] = useState<number | undefined>()
 
-  const hasErrorInGroup = false
+  const hasErrorInGroup = !!formikProps?.errors?.usageThresholds
   const currency = formikProps.values.amountCurrency
+
+  const hasPremiumIntegration = true
+
+  useEffect(() => {
+    let failedIndex = undefined
+    const localData = formikProps.values.usageThresholds ?? []
+
+    localData.every((row, index) => {
+      if (
+        (index > 0 && row.amountCents <= localData[index - 1].amountCents) ||
+        row.amountCents === undefined
+      ) {
+        failedIndex = index
+        return false
+      }
+
+      return true
+    })
+
+    setErrorIndex(failedIndex)
+  }, [formikProps.values.usageThresholds])
 
   return (
     <Stack gap={4} alignItems="flex-start">
@@ -58,7 +81,28 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
         />
       </SectionTitle>
 
-      {displayProgressiveBillingAccordion ? (
+      {!hasPremiumIntegration ? (
+        <PremiumWarning>
+          <Box>
+            <Typography variant="bodyHl" color="textSecondary">
+              {translate('text_1724345142892pcnx5m2k3r2')} <Icon name="sparkles" />
+            </Typography>
+            <Typography variant="caption">{translate('text_1724345142892ljzi79afhmc')}</Typography>
+          </Box>
+          <ButtonLink
+            buttonProps={{
+              variant: 'tertiary',
+              size: 'medium',
+              endIcon: 'sparkles',
+            }}
+            type="button"
+            external
+            to={`mailto:hello@getlago.com?subject=${translate('text_172434514289283gmf8bdhh3')}&body=${translate('text_1724346450317iqs2rtvx1tp')}`}
+          >
+            {translate('text_65ae73ebe3a66bec2b91d72d')}
+          </ButtonLink>
+        </PremiumWarning>
+      ) : displayProgressiveBillingAccordion ? (
         <StyledAccordion
           initiallyOpen
           summary={
@@ -66,21 +110,27 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
               hasErrorInGroup={hasErrorInGroup}
               onDelete={() => {
                 deleteProgressiveBilling()
+                setRecurring(false)
                 setDisplayProgressiveBillingAccordion(false)
               }}
             />
           }
         >
           <Stack gap={6}>
-            <Box>
+            <Box display="flex" flexDirection="column">
               <AddButton startIcon="plus" variant="quaternary" onClick={addThreshold}>
                 {translate('text_1724233213997l2ksi40t8q6')}
               </AddButton>
               <TableContainer>
                 <ChargeTable
                   name="graduated-percentage-charge-table"
-                  data={tableData}
-                  onDeleteRow={(_, i) => deleteThreshold({ index: i, isRecurring: false })}
+                  data={tableData.map((data) => ({
+                    ...data,
+                    disabledDelete: tableData.length === 1,
+                  }))}
+                  onDeleteRow={(_, i) => {
+                    deleteThreshold({ index: i, isRecurring: false })
+                  }}
                   deleteTooltipContent="text_17242522324608198c2vblmw"
                   columns={[
                     {
@@ -103,21 +153,43 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
                         </TypographyCell>
                       ),
                       content: (row, i) => (
-                        <CellAmount
-                          beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
-                          currency={currency}
-                          value={deserializeAmount(row.amountCents, currency)}
-                          onChange={(value) =>
-                            formikProps.setFieldValue(`usageThresholds[${i}].amountCents`, value)
-                          }
-                          InputProps={{
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                {getCurrencySymbol(currency)}
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
+                        <Tooltip
+                          placement="top"
+                          title={translate('text_1724252232460i4tv7384iiy', {
+                            value: tableData[i - 1]?.amountCents,
+                          })}
+                          disableHoverListener={errorIndex !== i}
+                        >
+                          <CellAmount
+                            error={errorIndex === i}
+                            beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
+                            currency={currency}
+                            value={row.amountCents}
+                            onChange={(value) => {
+                              handleUpdateThreshold({
+                                index: i,
+                                value: Number(value) || undefined,
+                                isRecurring: false,
+                                key: 'amountCents',
+                              })
+
+                              const previousRow = tableData[i - 1]
+
+                              if (previousRow && previousRow.amountCents >= Number(value)) {
+                                setErrorIndex(i)
+                              } else {
+                                setErrorIndex(undefined)
+                              }
+                            }}
+                            InputProps={{
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  {getCurrencySymbol(currency)}
+                                </InputAdornment>
+                              ),
+                            }}
+                          />
+                        </Tooltip>
                       ),
                     },
                     {
@@ -129,13 +201,15 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
                       ),
                       content: (row, i) => (
                         <CellInput
-                          placeholder={translate('Type a name')}
+                          placeholder={translate('text_645bb193927b375079d28ace')}
                           value={row.thresholdDisplayName ?? ''}
                           onChange={(value) => {
-                            formikProps.setFieldValue(
-                              `usageThresholds[${i}].thresholdDisplayName`,
-                              value,
-                            )
+                            handleUpdateThreshold({
+                              index: i,
+                              value: value === '' ? undefined : value,
+                              isRecurring: false,
+                              key: 'thresholdDisplayName',
+                            })
                           }}
                         />
                       ),
@@ -176,11 +250,16 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
                         size: 197,
                         content: (row, i) => (
                           <CellAmount
-                            beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
+                            beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                             currency={currency}
-                            value={deserializeAmount(row.amountCents, currency)}
+                            value={row.amountCents}
                             onChange={(value) =>
-                              formikProps.setFieldValue(`usageThresholds[${i}].amountCents`, value)
+                              handleUpdateThreshold({
+                                index: i,
+                                value: Number(value) || undefined,
+                                isRecurring: true,
+                                key: 'amountCents',
+                              })
                             }
                             InputProps={{
                               startAdornment: (
@@ -196,13 +275,15 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
                         size: 197,
                         content: (row, i) => (
                           <CellInput
-                            placeholder={translate('Type a name')}
+                            placeholder={translate('text_645bb193927b375079d28ace')}
                             value={row.thresholdDisplayName ?? ''}
                             onChange={(value) => {
-                              formikProps.setFieldValue(
-                                `usageThresholds[${i}].thresholdDisplayName`,
-                                value,
-                              )
+                              handleUpdateThreshold({
+                                index: i,
+                                value: value === '' ? undefined : value,
+                                isRecurring: true,
+                                key: 'thresholdDisplayName',
+                              })
                             }}
                           />
                         ),
@@ -349,6 +430,12 @@ const CellAmount = styled(AmountInput)`
         border: 2px solid ${theme.palette.primary.main};
       }
     }
+
+    .Mui-error {
+      .MuiOutlinedInput-notchedOutline {
+        border: 2px solid ${theme.palette.error.main};
+      }
+    }
   }
 `
 
@@ -378,4 +465,14 @@ const CellInput = styled(TextInput)`
       }
     }
   }
+`
+
+const PremiumWarning = styled.div`
+  background-color: ${theme.palette.grey[100]};
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: ${theme.spacing(4)} ${theme.spacing(6)};
+  gap: ${theme.spacing(4)};
+  border-radius: 8px;
 `

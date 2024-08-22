@@ -355,7 +355,7 @@ export enum ChargeModelEnum {
 export type ChargeOverridesInput = {
   billableMetricId: Scalars['ID']['input'];
   filters?: InputMaybe<Array<ChargeFilterInput>>;
-  id: Scalars['ID']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
   minAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   properties?: InputMaybe<PropertiesInput>;
@@ -5292,6 +5292,7 @@ export type UsageThresholdInput = {
 
 export type UsageThresholdOverridesInput = {
   amountCents: Scalars['BigInt']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
   recurring?: InputMaybe<Scalars['Boolean']['input']>;
   thresholdDisplayName?: InputMaybe<Scalars['String']['input']>;
 };
