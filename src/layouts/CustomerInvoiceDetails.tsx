@@ -704,7 +704,15 @@ const CustomerInvoiceDetails = () => {
                     {...(status === InvoiceStatusTypeEnum.Finalized
                       ? paymentStatusMapping({ status, paymentStatus })
                       : invoiceStatusMapping({ status }))}
-                    endIcon={!!data?.invoice?.paymentDisputeLostAt ? 'warning-unfilled' : undefined}
+                    endIcon={
+                      !!data?.invoice?.paymentDisputeLostAt ||
+                      (!!data?.invoice?.errorDetails?.length &&
+                        [InvoiceStatusTypeEnum.Draft, InvoiceStatusTypeEnum.Voided].includes(
+                          status,
+                        ))
+                        ? 'warning-unfilled'
+                        : undefined
+                    }
                   />
                 </MainInfoLine>
                 <MainInfoLine>

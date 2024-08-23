@@ -272,8 +272,23 @@ const InvoicesList = ({
                 key: 'status',
                 title: translate('text_63ac86d797f728a87b2f9fa7'),
                 minWidth: 80,
-                content: ({ status }) => {
-                  return <Status {...invoiceStatusMapping({ status })} />
+                content: ({ status, errorDetails }) => {
+                  const hasTaxErrors =
+                    !!errorDetails?.length &&
+                    [InvoiceStatusTypeEnum.Draft, InvoiceStatusTypeEnum.Voided].includes(status)
+
+                  return (
+                    <Tooltip
+                      placement="top-start"
+                      disableHoverListener={!hasTaxErrors}
+                      title={translate('text_1724674592260h33v56rycaw')}
+                    >
+                      <Status
+                        {...invoiceStatusMapping({ status })}
+                        endIcon={hasTaxErrors ? 'warning-unfilled' : undefined}
+                      />
+                    </Tooltip>
+                  )
                 },
               },
               {

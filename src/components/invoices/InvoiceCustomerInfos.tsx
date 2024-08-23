@@ -25,6 +25,10 @@ gql`
     status
     paymentStatus
     paymentDisputeLostAt
+    errorDetails {
+      errorCode
+      errorDetails
+    }
     customer {
       id
       name
@@ -201,7 +205,19 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
             {translate('text_65269b6afe1fda4ad9bf672b')}
           </Typography>
           <Typography variant="body" color="grey700">
-            {invoice?.status && <Status {...invoiceStatusMapping({ status: invoice.status })} />}
+            {invoice?.status && (
+              <Status
+                {...invoiceStatusMapping({ status: invoice.status })}
+                endIcon={
+                  !!invoice.errorDetails?.length &&
+                  [InvoiceStatusTypeEnum.Draft, InvoiceStatusTypeEnum.Voided].includes(
+                    invoice.status,
+                  )
+                    ? 'warning-unfilled'
+                    : undefined
+                }
+              />
+            )}
           </Typography>
         </InfoLine>
         <InfoLine>
