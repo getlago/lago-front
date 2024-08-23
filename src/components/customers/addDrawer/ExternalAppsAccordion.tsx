@@ -372,7 +372,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
         {showPaymentProviderSection && (
           <Stack gap={1}>
             <Typography variant="captionHl" color="grey700">
-              {translate('text_66423dbab233e60111c49464')}
+              {translate('text_634ea0ecc6147de10ddb6631')}
             </Typography>
             <Accordion
               noContentMargin
@@ -1101,7 +1101,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                   closePopper()
                 }}
               >
-                {translate('text_66423dbab233e60111c49464')}
+                {translate('text_634ea0ecc6147de10ddb6631')}
               </Button>
               <Button
                 variant="quaternary"
@@ -1149,7 +1149,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                     closePopper()
                   }}
                 >
-                  {translate('text_66798355dbb93a0065e3a423')}
+                  {translate('text_6668821d94e4da4dfd8b3840')}
                 </Button>
               )}
             </MenuPopper>
