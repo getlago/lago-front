@@ -19,7 +19,8 @@ const PlanDetailsAdvancedSettingsSection = ({
   plan?: EditPlanFragment | null
 }) => {
   const { translate } = useInternationalization()
-  const hasMinimumCommitment = isNaN(Number(plan?.minimumCommitment?.amountCents))
+  const hasMinimumCommitment =
+    !!plan?.minimumCommitment?.amountCents && !isNaN(Number(plan?.minimumCommitment?.amountCents))
 
   if (!hasMinimumCommitment) return null
 
