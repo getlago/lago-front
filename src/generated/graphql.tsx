@@ -6229,6 +6229,11 @@ export type GetTaxesForPlanQueryVariables = Exact<{
 
 export type GetTaxesForPlanQuery = { __typename?: 'Query', taxes: { __typename?: 'TaxCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> } };
 
+export type GetOrganizationIntegrationsForProgressiveBillingQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetOrganizationIntegrationsForProgressiveBillingQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', premiumIntegrations: Array<IntegrationTypeEnum> } | null };
+
 export type StandardChargeFragment = { __typename?: 'Properties', amount?: string | null, groupedBy?: Array<string> | null };
 
 export type VolumeRangesFragment = { __typename?: 'Properties', volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null };
@@ -13645,6 +13650,45 @@ export type GetTaxesForPlanQueryHookResult = ReturnType<typeof useGetTaxesForPla
 export type GetTaxesForPlanLazyQueryHookResult = ReturnType<typeof useGetTaxesForPlanLazyQuery>;
 export type GetTaxesForPlanSuspenseQueryHookResult = ReturnType<typeof useGetTaxesForPlanSuspenseQuery>;
 export type GetTaxesForPlanQueryResult = Apollo.QueryResult<GetTaxesForPlanQuery, GetTaxesForPlanQueryVariables>;
+export const GetOrganizationIntegrationsForProgressiveBillingDocument = gql`
+    query GetOrganizationIntegrationsForProgressiveBilling {
+  organization {
+    premiumIntegrations
+  }
+}
+    `;
+
+/**
+ * __useGetOrganizationIntegrationsForProgressiveBillingQuery__
+ *
+ * To run a query within a React component, call `useGetOrganizationIntegrationsForProgressiveBillingQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationIntegrationsForProgressiveBillingQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrganizationIntegrationsForProgressiveBillingQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetOrganizationIntegrationsForProgressiveBillingQuery(baseOptions?: Apollo.QueryHookOptions<GetOrganizationIntegrationsForProgressiveBillingQuery, GetOrganizationIntegrationsForProgressiveBillingQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetOrganizationIntegrationsForProgressiveBillingQuery, GetOrganizationIntegrationsForProgressiveBillingQueryVariables>(GetOrganizationIntegrationsForProgressiveBillingDocument, options);
+      }
+export function useGetOrganizationIntegrationsForProgressiveBillingLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrganizationIntegrationsForProgressiveBillingQuery, GetOrganizationIntegrationsForProgressiveBillingQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetOrganizationIntegrationsForProgressiveBillingQuery, GetOrganizationIntegrationsForProgressiveBillingQueryVariables>(GetOrganizationIntegrationsForProgressiveBillingDocument, options);
+        }
+export function useGetOrganizationIntegrationsForProgressiveBillingSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOrganizationIntegrationsForProgressiveBillingQuery, GetOrganizationIntegrationsForProgressiveBillingQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetOrganizationIntegrationsForProgressiveBillingQuery, GetOrganizationIntegrationsForProgressiveBillingQueryVariables>(GetOrganizationIntegrationsForProgressiveBillingDocument, options);
+        }
+export type GetOrganizationIntegrationsForProgressiveBillingQueryHookResult = ReturnType<typeof useGetOrganizationIntegrationsForProgressiveBillingQuery>;
+export type GetOrganizationIntegrationsForProgressiveBillingLazyQueryHookResult = ReturnType<typeof useGetOrganizationIntegrationsForProgressiveBillingLazyQuery>;
+export type GetOrganizationIntegrationsForProgressiveBillingSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationIntegrationsForProgressiveBillingSuspenseQuery>;
+export type GetOrganizationIntegrationsForProgressiveBillingQueryResult = Apollo.QueryResult<GetOrganizationIntegrationsForProgressiveBillingQuery, GetOrganizationIntegrationsForProgressiveBillingQueryVariables>;
 export const GetPlanForDetailsOverviewSectionDocument = gql`
     query getPlanForDetailsOverviewSection($plan: ID!) {
   plan(id: $plan) {
