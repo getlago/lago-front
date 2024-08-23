@@ -1,3 +1,4 @@
+import { gql } from '@apollo/client'
 import { Box, InputAdornment, Stack } from '@mui/material'
 import { FormikProps } from 'formik'
 import { FC, useEffect, useState } from 'react'
@@ -16,11 +17,23 @@ import {
 import { AmountInput, Switch, TextInput } from '~/components/form'
 import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
+import {
+  IntegrationTypeEnum,
+  useGetOrganizationIntegrationsForProgressiveBillingQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useProgressiveBillingForm } from '~/hooks/plans/useProgressiveBillingForm'
 import { NAV_HEIGHT, theme } from '~/styles'
 
 import { PlanFormInput } from './types'
+
+gql`
+  query GetOrganizationIntegrationsForProgressiveBilling {
+    organization {
+      premiumIntegrations
+    }
+  }
+`
 
 interface ProgressiveBillingSectionProps {
   formikProps: FormikProps<PlanFormInput>
@@ -37,6 +50,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
     addRecurring,
     handleUpdateThreshold,
   } = useProgressiveBillingForm({ formikProps })
+  const { data } = useGetOrganizationIntegrationsForProgressiveBillingQuery()
 
   const [displayProgressiveBillingAccordion, setDisplayProgressiveBillingAccordion] = useState(
     !!formikProps.initialValues.usageThresholds,
@@ -47,7 +61,9 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
   const hasErrorInGroup = !!formikProps?.errors?.usageThresholds
   const currency = formikProps.values.amountCurrency
 
-  const hasPremiumIntegration = true
+  const hasPremiumIntegration = !!data?.organization?.premiumIntegrations?.includes(
+    IntegrationTypeEnum.ProgressiveBilling,
+  )
 
   useEffect(() => {
     let failedIndex = undefined
@@ -124,8 +140,8 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
               <TableContainer>
                 <ChargeTable
                   name="graduated-percentage-charge-table"
-                  data={tableData.map((data) => ({
-                    ...data,
+                  data={tableData.map((localData) => ({
+                    ...localData,
                     disabledDelete: tableData.length === 1,
                   }))}
                   onDeleteRow={(_, i) => {
