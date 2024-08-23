@@ -145,10 +145,13 @@ export const serializePlanInput = (values: PlanFormInput) => {
             taxes: undefined,
           }
         : {},
-    usageThresholds: usageThresholds?.map((threshold) => ({
-      ...threshold,
-      amountCents: Number(serializeAmount(threshold.amountCents, values.amountCurrency)),
-    })),
+    usageThresholds:
+      !!usageThresholds && usageThresholds.length > 0
+        ? usageThresholds.map((threshold) => ({
+            ...threshold,
+            amountCents: Number(serializeAmount(threshold.amountCents, values.amountCurrency)),
+          }))
+        : [],
     charges: charges.map(
       ({
         billableMetric,
