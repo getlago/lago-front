@@ -32,7 +32,7 @@ import {
 } from '~/components/invoices/FinalizeInvoiceDialog'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { addToast } from '~/core/apolloClient'
+import { addToast, LagoGQLError } from '~/core/apolloClient'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
@@ -234,10 +234,25 @@ const CustomerInvoiceDetails = () => {
   })
   const [retryInvoice, { loading: loadingRetryInvoice }] = useRetryInvoiceMutation({
     variables: { input: { id: invoiceId || '' } },
+    context: {
+      silentErrorCodes: [LagoApiError.UnprocessableEntity],
+    },
     onCompleted: async ({ retryInvoice: retryInvoiceResult }) => {
       if (retryInvoiceResult?.id) {
         await refetch()
       }
+    },
+    onError: ({ graphQLErrors }) => {
+      graphQLErrors.forEach((graphQLError) => {
+        const { extensions } = graphQLError as LagoGQLError
+
+        if (extensions.details?.taxError?.length) {
+          addToast({
+            severity: 'danger',
+            translateKey: 'text_1724438705077s7oxv5be87m',
+          })
+        }
+      })
     },
   })
 
