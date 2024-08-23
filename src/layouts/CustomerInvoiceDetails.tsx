@@ -375,21 +375,22 @@ const CustomerInvoiceDetails = () => {
 
     return tabs
   }, [
-    translate,
+    connectedNetsuiteIntegration,
     customerId,
-    invoiceId,
+    data?.invoice,
     downloadInvoice,
     hasError,
-    data?.invoice,
+    hasTaxProviderError,
+    invoiceId,
+    invoiceType,
     loading,
     loadingInvoiceDownload,
     loadingRefreshInvoice,
     loadingRetryInvoice,
     refreshInvoice,
     retryInvoice,
-    connectedNetsuiteIntegration,
-    invoiceType,
     status,
+    translate,
   ])
 
   return (

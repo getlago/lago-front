@@ -123,54 +123,56 @@ const InvoiceOverview = memo(
       <>
         <SectionHeader variant="subhead">
           {translate('text_634687079be251fdb43833bf')}
-          {hasTaxProviderError ? (
-            <Button
-              variant="quaternary"
-              disabled={loading || loadingRetryInvoice}
-              onClick={async () => {
-                await retryInvoice()
-              }}
-            >
-              {translate('text_1724164767403kyknbaw13mg')}
-            </Button>
-          ) : invoice?.status === InvoiceStatusTypeEnum.Draft ? (
-            <NavigationRightActions>
+          <NavigationRightActions>
+            {invoice?.status === InvoiceStatusTypeEnum.Draft ? (
+              <>
+                <Button
+                  variant="quaternary"
+                  startIcon="reload"
+                  disabled={loading || loadingRefreshInvoice}
+                  onClick={async () => {
+                    await refreshInvoice()
+                  }}
+                >
+                  {translate('text_63a41a8eabb9ae67047c1c06')}
+                </Button>
+                <Button
+                  variant="quaternary"
+                  disabled={loading}
+                  onClick={() => {
+                    finalizeInvoiceRef.current?.openDialog(invoice)
+                  }}
+                >
+                  {translate('text_638f4d756d899445f18a4a10')}
+                </Button>
+              </>
+            ) : hasTaxProviderError ? (
               <Button
                 variant="quaternary"
-                startIcon="reload"
-                disabled={loading || loadingRefreshInvoice}
+                disabled={loading || loadingRetryInvoice}
                 onClick={async () => {
-                  await refreshInvoice()
+                  await retryInvoice()
                 }}
               >
-                {translate('text_63a41a8eabb9ae67047c1c06')}
+                {translate('text_1724164767403kyknbaw13mg')}
               </Button>
-              <Button
-                variant="quaternary"
-                disabled={loading}
-                onClick={() => {
-                  finalizeInvoiceRef.current?.openDialog(invoice)
-                }}
-              >
-                {translate('text_638f4d756d899445f18a4a10')}
-              </Button>
-            </NavigationRightActions>
-          ) : (
-            !hasError &&
-            !loading && (
-              <Button
-                variant="quaternary"
-                disabled={loadingInvoiceDownload}
-                onClick={async () => {
-                  await downloadInvoice({
-                    variables: { input: { id: invoiceId || '' } },
-                  })
-                }}
-              >
-                {translate('text_634687079be251fdb43833b9')}
-              </Button>
-            )
-          )}
+            ) : (
+              !hasError &&
+              !loading && (
+                <Button
+                  variant="quaternary"
+                  disabled={loadingInvoiceDownload}
+                  onClick={async () => {
+                    await downloadInvoice({
+                      variables: { input: { id: invoiceId || '' } },
+                    })
+                  }}
+                >
+                  {translate('text_634687079be251fdb43833b9')}
+                </Button>
+              )
+            )}
+          </NavigationRightActions>
         </SectionHeader>
 
         <>
@@ -340,10 +342,7 @@ const SkeletonLine = styled.div`
 
 const NavigationRightActions = styled.div`
   display: flex;
-
-  > button {
-    margin-left: ${theme.spacing(3)};
-  }
+  gap: ${theme.spacing(3)};
 `
 
 const DraftAlertWrapper = styled.div`
