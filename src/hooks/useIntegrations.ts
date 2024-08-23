@@ -25,7 +25,8 @@ export const useIntegrations: UseIntegrations = () => {
       limit: 1,
       integrationsType: IntegrationTypeEnum.Anrok,
     },
-    fetchPolicy: 'cache-first',
+    // In case the user removes their tax provider connection, should not rely on cache at all
+    fetchPolicy: 'network-only',
   })
 
   return {
