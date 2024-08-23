@@ -213,6 +213,8 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
               minWidth: 160,
               title: translate('text_63ac86d797f728a87b2f9fb9'),
               content: (invoice) => {
+                if (invoice.status === InvoiceStatusTypeEnum.Failed) return '-'
+
                 const currency = invoice.currency || CurrencyEnum.Usd
                 const amount = deserializeAmount(invoice.totalAmountCents, currency)
 
