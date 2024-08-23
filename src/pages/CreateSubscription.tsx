@@ -35,6 +35,7 @@ import { ChargesSection } from '~/components/plans/ChargesSection'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FixedFeeSection } from '~/components/plans/FixedFeeSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
+import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
 import { LocalChargeInput } from '~/components/plans/types'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
@@ -796,11 +797,14 @@ const CreateSubscription = () => {
                         {translate('text_66676ed0d8c3d481637e99b7')}
                       </Typography>
                     </SectionTitle>
-                    <CommitmentsSection
-                      formikProps={planFormikProps}
-                      premiumWarningDialogRef={premiumWarningDialogRef}
-                      editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
-                    />
+                    <Card $childSpacing={8}>
+                      <ProgressiveBillingSection formikProps={planFormikProps} />
+                      <CommitmentsSection
+                        formikProps={planFormikProps}
+                        premiumWarningDialogRef={premiumWarningDialogRef}
+                        editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
+                      />
+                    </Card>
                   </SectionWrapper>
                 </PlanFormConditionalWrapper>
               </FormPlanWrapper>
