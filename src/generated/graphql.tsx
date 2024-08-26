@@ -2554,6 +2554,7 @@ export type Invoice = {
   paymentOverdue: Scalars['Boolean']['output'];
   paymentStatus: InvoicePaymentStatusTypeEnum;
   prepaidCreditAmountCents: Scalars['BigInt']['output'];
+  progressiveBillingCreditAmountCents: Scalars['BigInt']['output'];
   refundableAmountCents: Scalars['BigInt']['output'];
   sequentialId: Scalars['ID']['output'];
   status: InvoiceStatusTypeEnum;
@@ -2573,6 +2574,7 @@ export type InvoiceAppliedTax = AppliedTax & {
   __typename?: 'InvoiceAppliedTax';
   amountCents: Scalars['BigInt']['output'];
   amountCurrency: CurrencyEnum;
+  appliedOnWholeInvoice: Scalars['Boolean']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
   feesAmountCents: Scalars['BigInt']['output'];
   id: Scalars['ID']['output'];

@@ -204,19 +204,17 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
               minWidth: 80,
               title: translate('text_63ac86d797f728a87b2f9fa7'),
               content: ({ status, errorDetails }) => {
-                const hasTaxErrors =
-                  !!errorDetails?.length &&
-                  [InvoiceStatusTypeEnum.Draft, InvoiceStatusTypeEnum.Voided].includes(status)
+                const showWarningIcon = !!errorDetails?.length
 
                 return (
                   <Tooltip
                     placement="top-start"
-                    disableHoverListener={!hasTaxErrors}
+                    disableHoverListener={!showWarningIcon}
                     title={translate('text_1724674592260h33v56rycaw')}
                   >
                     <Status
                       {...invoiceStatusMapping({ status })}
-                      endIcon={hasTaxErrors ? 'warning-unfilled' : undefined}
+                      endIcon={showWarningIcon ? 'warning-unfilled' : undefined}
                     />
                   </Tooltip>
                 )
