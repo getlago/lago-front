@@ -231,11 +231,26 @@ const CustomerInvoiceDetails = () => {
   const disputeInvoiceDialogRef = useRef<DisputeInvoiceDialogRef>(null)
   const [refreshInvoice, { loading: loadingRefreshInvoice }] = useRefreshInvoiceMutation({
     variables: { input: { id: invoiceId || '' } },
+    context: {
+      silentErrorCodes: [LagoApiError.UnprocessableEntity, LagoApiError.InternalError],
+    },
+    onError: ({ graphQLErrors }) => {
+      graphQLErrors.forEach((graphQLError) => {
+        const { extensions } = graphQLError as LagoGQLError
+
+        if (extensions.details?.taxError?.length) {
+          addToast({
+            severity: 'danger',
+            translateKey: 'text_1724438705077s7oxv5be87m',
+          })
+        }
+      })
+    },
   })
   const [retryInvoice, { loading: loadingRetryInvoice }] = useRetryInvoiceMutation({
     variables: { input: { id: invoiceId || '' } },
     context: {
-      silentErrorCodes: [LagoApiError.UnprocessableEntity],
+      silentErrorCodes: [LagoApiError.UnprocessableEntity, LagoApiError.InternalError],
     },
     onCompleted: async ({ retryInvoice: retryInvoiceResult }) => {
       if (retryInvoiceResult?.id) {
