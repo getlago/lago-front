@@ -13,6 +13,7 @@ export type IconColor =
   | 'warning'
   | 'info'
   | 'light'
+  | 'black'
   | 'dark'
   | 'skeleton'
   | 'disabled'
@@ -52,6 +53,8 @@ const mapColor = (color?: IconColor) => {
       return theme.palette.info.main
     case 'light':
       return theme.palette.common.white
+    case 'black':
+      return theme.palette.grey[700]
     case 'dark':
       return theme.palette.grey[600]
     case 'input':
