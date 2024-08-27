@@ -798,7 +798,10 @@ const CreateSubscription = () => {
                       </Typography>
                     </SectionTitle>
                     <Card $childSpacing={8}>
-                      <ProgressiveBillingSection formikProps={planFormikProps} />
+                      <ProgressiveBillingSection
+                        formikProps={planFormikProps}
+                        isInSubscriptionForm={isInSubscriptionForm}
+                      />
                       <CommitmentsSection
                         formikProps={planFormikProps}
                         premiumWarningDialogRef={premiumWarningDialogRef}

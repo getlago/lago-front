@@ -150,16 +150,28 @@ export const usePlanForm: ({
             ),
           }
         : {},
-      usageThresholds:
+      nonRecurringUsageThresholds:
         plan?.usageThresholds && plan?.usageThresholds.length > 0
-          ? plan?.usageThresholds.map((threshold) => ({
-              ...threshold,
-              amountCents: deserializeAmount(
-                threshold.amountCents || 0,
-                initialCurrency || CurrencyEnum.Usd,
-              ),
-            }))
+          ? plan?.usageThresholds
+              .filter(({ recurring }) => !recurring)
+              .map((threshold) => ({
+                ...threshold,
+                amountCents: deserializeAmount(
+                  threshold.amountCents || 0,
+                  initialCurrency || CurrencyEnum.Usd,
+                ),
+              }))
+              .sort((a, b) => a.amountCents - b.amountCents)
           : undefined,
+      recurringUsageThreshold: plan?.usageThresholds
+        ?.map((threshold) => ({
+          ...threshold,
+          amountCents: deserializeAmount(
+            threshold.amountCents || 0,
+            initialCurrency || CurrencyEnum.Usd,
+          ),
+        }))
+        .find(({ recurring }) => !!recurring),
       charges: plan?.charges
         ? (plan?.charges.map(
             ({
@@ -243,42 +255,54 @@ export const usePlanForm: ({
         })
         .nullable(),
       charges: chargeSchema,
-      usageThresholds: array().test({
-        test: (thresholds) => {
-          let isValid = true
+      nonRecurringUsageThresholds: array()
+        .test({
+          test: (nonRecurringUsageThresholds) => {
+            let isValid = true
 
-          const nonRecurringThreshold = thresholds?.filter(({ recurring }) => !recurring)
+            if (!nonRecurringUsageThresholds) {
+              return true
+            }
 
-          nonRecurringThreshold?.every(({ amountCents }, i) => {
-            if (amountCents === undefined) {
-              isValid = false
+            if (nonRecurringUsageThresholds?.length === 0) {
               return false
             }
 
-            if (i === 0 && Number(amountCents) <= 0) {
-              isValid = false
-              return false
-            }
+            nonRecurringUsageThresholds?.every(({ amountCents }, i) => {
+              if (amountCents === undefined) {
+                isValid = false
+                return false
+              }
 
-            const previousThreshold = nonRecurringThreshold[i - 1]
+              if (i === 0 && Number(amountCents) <= 0) {
+                isValid = false
+                return false
+              }
 
-            if (previousThreshold && Number(amountCents) <= Number(previousThreshold.amountCents)) {
-              isValid = false
-              return false
-            }
+              const previousThreshold = nonRecurringUsageThresholds[i - 1]
 
-            return true
-          })
+              if (
+                previousThreshold &&
+                Number(amountCents) <= Number(previousThreshold.amountCents)
+              ) {
+                isValid = false
+                return false
+              }
 
-          const hasRecurringThreshold = thresholds?.find(({ recurring }) => !!recurring)
+              return true
+            })
 
-          if (hasRecurringThreshold && hasRecurringThreshold.amountCents === undefined) {
-            isValid = false
-          }
-
-          return isValid
-        },
-      }),
+            return isValid
+          },
+        })
+        .nullable()
+        .default(undefined),
+      recurringUsageThreshold: object()
+        .shape({
+          amountCents: number().required().moreThan(0),
+        })
+        .nullable()
+        .default(undefined),
     }),
     enableReinitialize: true,
     validateOnMount: true,

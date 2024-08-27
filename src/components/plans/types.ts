@@ -8,6 +8,7 @@ import {
   TaxForPlanAndChargesInPlanFormFragment,
   TaxForPlanChargeAccordionFragment,
   TaxForPlanSettingsSectionFragment,
+  UsageThresholdInput,
 } from '~/generated/graphql'
 
 type LocalCommitmentInput = Omit<CommitmentInput, 'taxCodes'> & {
@@ -33,9 +34,17 @@ export type LocalChargeInput = Omit<ChargeInput, 'billableMetricId' | 'filters' 
   taxes?: TaxForPlanChargeAccordionFragment[] | null
 }
 
-export type PlanFormInput = Omit<CreatePlanInput, 'clientMutationId' | 'charges'> & {
+export type LocalUsageThresholdInput = UsageThresholdInput
+
+export type PlanFormInput = Omit<
+  CreatePlanInput,
+  'clientMutationId' | 'charges' | 'usageThresholds'
+> & {
   charges: LocalChargeInput[]
   // NOTE: this is used for display purpose but will be replaced by taxCodes[] on save
   taxes?: TaxForPlanSettingsSectionFragment[]
   minimumCommitment?: LocalCommitmentInput
+  // NOTE: this is used for display purpose but will be replaced by usageThresholds[] on save
+  nonRecurringUsageThresholds?: LocalUsageThresholdInput[]
+  recurringUsageThreshold?: LocalUsageThresholdInput
 }
