@@ -143,7 +143,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
                   onDeleteRow={(_, i) => {
                     deleteThreshold({ index: i, isRecurring: false })
                   }}
-                  deleteTooltipContent="text_17242522324608198c2vblmw"
+                  deleteTooltipContent={translate('text_17242522324608198c2vblmw')}
                   columns={[
                     {
                       size: 224,

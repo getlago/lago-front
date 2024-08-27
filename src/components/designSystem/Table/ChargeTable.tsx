@@ -93,7 +93,7 @@ export const ChargeTable = <T extends Record<string, unknown>>({
                 {onDeleteRow && !row.disabledDelete && (
                   <DeleteButtonContainer>
                     <Tooltip
-                      title={translate(deleteTooltipContent ?? 'text_62793bbb599f1c01522e9239')}
+                      title={deleteTooltipContent ?? translate('text_62793bbb599f1c01522e9239')}
                       placement="top-start"
                     >
                       <Button
