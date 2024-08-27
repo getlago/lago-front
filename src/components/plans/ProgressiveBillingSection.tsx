@@ -37,28 +37,32 @@ gql`
 
 interface ProgressiveBillingSectionProps {
   formikProps: FormikProps<PlanFormInput>
+  isInSubscriptionForm?: boolean
 }
 
-export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ formikProps }) => {
+export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
+  formikProps,
+  isInSubscriptionForm,
+}) => {
   const { translate } = useInternationalization()
-  const {
-    tableData,
-    recurringData,
-    deleteProgressiveBilling,
-    addThreshold,
-    deleteThreshold,
-    addRecurring,
-    handleUpdateThreshold,
-  } = useProgressiveBillingForm({ formikProps })
   const { data } = useGetOrganizationIntegrationsForProgressiveBillingQuery()
+  const {
+    nonRecurringUsageThresholds,
+    recurringUsageThreshold,
+    hasErrorInGroup,
+    errorIndex,
+    deleteProgressiveBilling,
+    deleteThreshold,
+    addNonRecurringThreshold,
+    addRecurringThreshold,
+    updateThreshold,
+  } = useProgressiveBillingForm({ formikProps })
 
   const [displayProgressiveBillingAccordion, setDisplayProgressiveBillingAccordion] = useState(
-    !!formikProps.initialValues.usageThresholds,
+    !!nonRecurringUsageThresholds?.length || !!recurringUsageThreshold,
   )
-  const [displayRecurring, setRecurring] = useState(!!recurringData.length)
-  const [errorIndex, setErrorIndex] = useState<number | undefined>()
+  const [displayRecurring, setRecurring] = useState(!!recurringUsageThreshold)
 
-  const hasErrorInGroup = !!formikProps?.errors?.usageThresholds
   const currency = formikProps.values.amountCurrency
 
   const hasPremiumIntegration = !!data?.organization?.premiumIntegrations?.includes(
@@ -66,23 +70,15 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
   )
 
   useEffect(() => {
-    let failedIndex = undefined
-    const localData = formikProps.values.usageThresholds ?? []
-
-    localData.every((row, index) => {
-      if (
-        (index > 0 && row.amountCents <= localData[index - 1].amountCents) ||
-        row.amountCents === undefined
-      ) {
-        failedIndex = index
-        return false
-      }
-
-      return true
-    })
-
-    setErrorIndex(failedIndex)
-  }, [formikProps.values.usageThresholds])
+    setDisplayProgressiveBillingAccordion(
+      !!formikProps.initialValues.nonRecurringUsageThresholds?.length ||
+        !!formikProps.initialValues.recurringUsageThreshold,
+    )
+    setRecurring(!!formikProps.initialValues.recurringUsageThreshold)
+  }, [
+    formikProps.initialValues.nonRecurringUsageThresholds,
+    formikProps.initialValues.recurringUsageThreshold,
+  ])
 
   return (
     <Stack gap={4} alignItems="flex-start">
@@ -120,7 +116,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
         </PremiumWarning>
       ) : displayProgressiveBillingAccordion ? (
         <StyledAccordion
-          initiallyOpen
+          initiallyOpen={!isInSubscriptionForm}
           summary={
             <AccordionSummary
               hasErrorInGroup={hasErrorInGroup}
@@ -134,15 +130,15 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
         >
           <Stack gap={6}>
             <Box display="flex" flexDirection="column">
-              <AddButton startIcon="plus" variant="quaternary" onClick={addThreshold}>
+              <AddButton startIcon="plus" variant="quaternary" onClick={addNonRecurringThreshold}>
                 {translate('text_1724233213997l2ksi40t8q6')}
               </AddButton>
               <TableContainer>
                 <ChargeTable
                   name="graduated-percentage-charge-table"
-                  data={tableData.map((localData) => ({
+                  data={(nonRecurringUsageThresholds ?? []).map((localData) => ({
                     ...localData,
-                    disabledDelete: tableData.length === 1,
+                    disabledDelete: nonRecurringUsageThresholds?.length === 1,
                   }))}
                   onDeleteRow={(_, i) => {
                     deleteThreshold({ index: i, isRecurring: false })
@@ -172,7 +168,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
                         <Tooltip
                           placement="top"
                           title={translate('text_1724252232460i4tv7384iiy', {
-                            value: tableData[i - 1]?.amountCents,
+                            value: nonRecurringUsageThresholds?.[i - 1]?.amountCents,
                           })}
                           disableHoverListener={errorIndex !== i}
                         >
@@ -182,20 +178,12 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
                             currency={currency}
                             value={row.amountCents}
                             onChange={(value) => {
-                              handleUpdateThreshold({
+                              updateThreshold({
                                 index: i,
                                 value: Number(value) || undefined,
                                 isRecurring: false,
                                 key: 'amountCents',
                               })
-
-                              const previousRow = tableData[i - 1]
-
-                              if (previousRow && previousRow.amountCents >= Number(value)) {
-                                setErrorIndex(i)
-                              } else {
-                                setErrorIndex(undefined)
-                              }
                             }}
                             InputProps={{
                               startAdornment: (
@@ -220,7 +208,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
                           placeholder={translate('text_645bb193927b375079d28ace')}
                           value={row.thresholdDisplayName ?? ''}
                           onChange={(value) => {
-                            handleUpdateThreshold({
+                            updateThreshold({
                               index: i,
                               value: value === '' ? undefined : value,
                               isRecurring: false,
@@ -239,7 +227,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
               checked={displayRecurring}
               onChange={() => {
                 if (!displayRecurring) {
-                  addRecurring()
+                  addRecurringThreshold()
                 } else {
                   deleteThreshold({ index: 0, isRecurring: true })
                 }
@@ -270,7 +258,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
                             currency={currency}
                             value={row.amountCents}
                             onChange={(value) =>
-                              handleUpdateThreshold({
+                              updateThreshold({
                                 index: i,
                                 value: Number(value) || undefined,
                                 isRecurring: true,
@@ -294,7 +282,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
                             placeholder={translate('text_645bb193927b375079d28ace')}
                             value={row.thresholdDisplayName ?? ''}
                             onChange={(value) => {
-                              handleUpdateThreshold({
+                              updateThreshold({
                                 index: i,
                                 value: value === '' ? undefined : value,
                                 isRecurring: true,
@@ -305,7 +293,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
                         ),
                       },
                     ]}
-                    data={recurringData}
+                    data={[recurringUsageThreshold ?? {}]}
                   />
                 </TableContainer>
 
@@ -320,7 +308,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
           startIcon="plus"
           disabled={displayProgressiveBillingAccordion}
           onClick={() => {
-            addThreshold()
+            addNonRecurringThreshold()
             setDisplayProgressiveBillingAccordion(true)
           }}
         >

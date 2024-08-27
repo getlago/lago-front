@@ -1,5 +1,5 @@
 import { FormikProps } from 'formik'
-import { useMemo } from 'react'
+import { useEffect, useState } from 'react'
 
 import { PlanFormInput } from '~/components/plans/types'
 import { UsageThresholdInput } from '~/generated/graphql'
@@ -14,102 +14,97 @@ export const useProgressiveBillingForm = ({
 }: {
   formikProps: FormikProps<PlanFormInput>
 }) => {
-  const { nonRecurring, recurring } = useMemo(() => {
-    const table = formikProps.values.usageThresholds ?? []
+  const [errorIndex, setErrorIndex] = useState<number | undefined>()
+  const { nonRecurringUsageThresholds, recurringUsageThreshold } = formikProps.values
 
-    // Split the thresholds between recurring and non-recurring data
-    return table.reduce<{
-      recurring: UsageThresholdInput[]
-      nonRecurring: UsageThresholdInput[]
-    }>(
-      (acc, threshold) => {
-        if (threshold.recurring) {
-          return {
-            ...acc,
-            recurring: [threshold],
-          }
-        }
-        return {
-          ...acc,
-          nonRecurring: [...(acc.nonRecurring ?? []), threshold],
-        }
-      },
-      { recurring: [], nonRecurring: [] },
-    )
-  }, [formikProps.values.usageThresholds])
+  useEffect(() => {
+    let failedIndex = undefined
 
-  const addThreshold = () => {
-    const newThresholds = [...nonRecurring]
-    const lastThreshold = nonRecurring[nonRecurring.length - 1]
+    nonRecurringUsageThresholds?.every((row, index) => {
+      if (
+        (index > 0 && row.amountCents <= nonRecurringUsageThresholds[index - 1].amountCents) ||
+        row.amountCents === undefined
+      ) {
+        failedIndex = index
+        return false
+      }
+
+      return true
+    })
+
+    setErrorIndex(failedIndex)
+  }, [nonRecurringUsageThresholds])
+
+  const addNonRecurringThreshold = () => {
+    const thresholds = [...(nonRecurringUsageThresholds ?? [])]
+    const lastThreshold = thresholds[thresholds.length - 1]
 
     // If there is a threshold, add a new one with an amount 1 cent higher
     if (lastThreshold) {
-      newThresholds.push({
-        amountCents: lastThreshold.amountCents + 1,
+      thresholds.push({
+        amountCents: (lastThreshold.amountCents ?? 0) + 1,
         recurring: false,
       })
     } else {
       // If there is no threshold, add the default one
-      newThresholds.push(DEFAULT_PROGRESSIVE_BILLING)
+      thresholds.push(DEFAULT_PROGRESSIVE_BILLING)
     }
 
     // Update the formik values with the new thresholds and the recurring ones
-    formikProps.setFieldValue('usageThresholds', [...newThresholds, ...recurring])
+    formikProps.setFieldValue('nonRecurringUsageThresholds', thresholds)
   }
 
-  const deleteThreshold = ({ index, isRecurring }: { index: number; isRecurring: boolean }) => {
-    const newThresholds = isRecurring
-      ? // If the threshold is recurring, recurring list becomes empty
-        [...nonRecurring]
-      : // Remove the threshold from the non-recurring list at the given index
-        [...recurring, ...nonRecurring.filter((_, i) => i !== index)]
+  const addRecurringThreshold = () => {
+    const initialRecurringThreshold = recurringUsageThreshold ?? {
+      ...DEFAULT_PROGRESSIVE_BILLING,
+      recurring: true,
+    }
 
-    formikProps.setFieldValue('usageThresholds', newThresholds)
+    formikProps.setFieldValue('recurringUsageThreshold', initialRecurringThreshold)
   }
 
   const deleteProgressiveBilling = () => {
-    formikProps.setFieldValue('usageThresholds', undefined)
+    formikProps.setFieldValue('nonRecurringUsageThresholds', undefined)
+    formikProps.setFieldValue('recurringUsageThreshold', undefined)
   }
 
-  const addRecurring = () => {
-    formikProps.setFieldValue('usageThresholds', [
-      ...nonRecurring,
-      {
-        ...DEFAULT_PROGRESSIVE_BILLING,
-        recurring: true,
-      },
-    ])
+  const deleteThreshold = ({ index, isRecurring }: { index: number; isRecurring: boolean }) => {
+    if (isRecurring) {
+      formikProps.setFieldValue('recurringUsageThreshold', undefined)
+    } else {
+      const newThresholds = nonRecurringUsageThresholds?.filter((_, i) => i !== index)
+
+      formikProps.setFieldValue('nonRecurringUsageThresholds', newThresholds)
+    }
   }
 
-  const handleUpdateThreshold = ({
+  const updateThreshold = ({
     index,
-    value,
     isRecurring,
     key,
+    value,
   }: {
-    index: number
-    value: string | number | undefined
+    index?: number
     isRecurring: boolean
     key: keyof UsageThresholdInput
+    value: unknown
   }) => {
     if (isRecurring) {
-      const currentRecurringValue = formikProps.values.usageThresholds?.findIndex(
-        (threshold) => !!threshold.recurring,
-      )
-
-      formikProps.setFieldValue(`usageThresholds[${currentRecurringValue}][${key}]`, value)
+      formikProps.setFieldValue(`recurringUsageThreshold.${key}`, value)
     } else {
-      formikProps.setFieldValue(`usageThresholds[${index}][${key}]`, value)
+      formikProps.setFieldValue(`nonRecurringUsageThresholds.${index}.${key}`, value)
     }
   }
 
   return {
-    tableData: nonRecurring,
-    recurringData: recurring,
-    addThreshold,
-    addRecurring,
+    nonRecurringUsageThresholds,
+    recurringUsageThreshold,
+    hasErrorInGroup: !!formikProps?.errors?.nonRecurringUsageThresholds,
+    addNonRecurringThreshold,
+    addRecurringThreshold,
     deleteThreshold,
     deleteProgressiveBilling,
-    handleUpdateThreshold,
+    updateThreshold,
+    errorIndex,
   }
 }
