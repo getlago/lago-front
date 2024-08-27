@@ -237,69 +237,66 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
               subLabel={translate('text_172423417494563qf45qet2d')}
             />
             {displayRecurring && (
-              <>
-                <TableContainer>
-                  <ChargeTable
-                    name={''}
-                    columns={[
-                      {
-                        size: 224,
-                        content: () => (
-                          <TypographyCell variant="captionHl" noWrap>
-                            {translate('text_17241798877230y851fdxzqu')}
-                          </TypographyCell>
-                        ),
-                      },
-                      {
-                        size: 197,
-                        content: (row, i) => (
-                          <CellAmount
-                            beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
-                            currency={currency}
-                            value={row.amountCents}
-                            onChange={(value) =>
-                              updateThreshold({
-                                index: i,
-                                value: Number(value) || undefined,
-                                isRecurring: true,
-                                key: 'amountCents',
-                              })
-                            }
-                            InputProps={{
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  {getCurrencySymbol(currency)}
-                                </InputAdornment>
-                              ),
-                            }}
-                          />
-                        ),
-                      },
-                      {
-                        size: 197,
-                        content: (row, i) => (
-                          <CellInput
-                            placeholder={translate('text_645bb193927b375079d28ace')}
-                            value={row.thresholdDisplayName ?? ''}
-                            onChange={(value) => {
-                              updateThreshold({
-                                index: i,
-                                value: value === '' ? undefined : value,
-                                isRecurring: true,
-                                key: 'thresholdDisplayName',
-                              })
-                            }}
-                          />
-                        ),
-                      },
-                    ]}
-                    data={[recurringUsageThreshold ?? {}]}
-                  />
-                </TableContainer>
-
-                <Alert type="info">{translate('text_172423417494563qf45qet2d')}</Alert>
-              </>
+              <TableContainer>
+                <ChargeTable
+                  name={'progressive-billing-recurring'}
+                  columns={[
+                    {
+                      size: 224,
+                      content: () => (
+                        <TypographyCell variant="captionHl" noWrap>
+                          {translate('text_17241798877230y851fdxzqu')}
+                        </TypographyCell>
+                      ),
+                    },
+                    {
+                      size: 197,
+                      content: (row, i) => (
+                        <CellAmount
+                          beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
+                          currency={currency}
+                          value={row.amountCents}
+                          onChange={(value) =>
+                            updateThreshold({
+                              index: i,
+                              value: Number(value) || undefined,
+                              isRecurring: true,
+                              key: 'amountCents',
+                            })
+                          }
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                {getCurrencySymbol(currency)}
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      ),
+                    },
+                    {
+                      size: 197,
+                      content: (row, i) => (
+                        <CellInput
+                          placeholder={translate('text_645bb193927b375079d28ace')}
+                          value={row.thresholdDisplayName ?? ''}
+                          onChange={(value) => {
+                            updateThreshold({
+                              index: i,
+                              value: value === '' ? undefined : value,
+                              isRecurring: true,
+                              key: 'thresholdDisplayName',
+                            })
+                          }}
+                        />
+                      ),
+                    },
+                  ]}
+                  data={[recurringUsageThreshold ?? {}]}
+                />
+              </TableContainer>
             )}
+            <Alert type="info">{translate('text_1724252232460iqofvwnpgnx')}</Alert>
           </Stack>
         </StyledAccordion>
       ) : (
