@@ -47,6 +47,7 @@ gql`
     currency
     voidable
     paymentDisputeLostAt
+    taxProviderVoidable
     customer {
       id
       name
@@ -203,8 +204,10 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
               key: 'status',
               minWidth: 80,
               title: translate('text_63ac86d797f728a87b2f9fa7'),
-              content: ({ status, errorDetails }) => {
-                const showWarningIcon = !!errorDetails?.length
+              content: ({ status, errorDetails, taxProviderVoidable }) => {
+                const showWarningIcon =
+                  (!!errorDetails?.length && status !== InvoiceStatusTypeEnum.Failed) ||
+                  taxProviderVoidable
 
                 return (
                   <Tooltip

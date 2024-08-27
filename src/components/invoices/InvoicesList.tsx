@@ -272,8 +272,10 @@ const InvoicesList = ({
                 key: 'status',
                 title: translate('text_63ac86d797f728a87b2f9fa7'),
                 minWidth: 80,
-                content: ({ status, errorDetails }) => {
-                  const showWarningIcon = !!errorDetails?.length
+                content: ({ status, errorDetails, taxProviderVoidable }) => {
+                  const showWarningIcon =
+                    (!!errorDetails?.length && status !== InvoiceStatusTypeEnum.Failed) ||
+                    taxProviderVoidable
 
                   return (
                     <Tooltip

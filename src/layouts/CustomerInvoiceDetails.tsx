@@ -98,6 +98,7 @@ gql`
     paymentDisputeLostAt
     integrationSyncable
     externalIntegrationId
+    taxProviderVoidable
     errorDetails {
       errorCode
       errorDetails
@@ -339,6 +340,7 @@ const CustomerInvoiceDetails = () => {
     refundableAmountCents,
     voidable,
     errorDetails,
+    taxProviderVoidable,
   } = (data?.invoice as AllInvoiceDetailsForCustomerInvoiceDetailsFragment) || {}
 
   const hasError = (!!error || !data?.invoice) && !loading
@@ -720,7 +722,10 @@ const CustomerInvoiceDetails = () => {
                       ? paymentStatusMapping({ status, paymentStatus })
                       : invoiceStatusMapping({ status }))}
                     endIcon={
-                      !!data?.invoice?.paymentDisputeLostAt || !!data?.invoice?.errorDetails?.length
+                      !!data?.invoice?.paymentDisputeLostAt ||
+                      (!!data?.invoice?.errorDetails?.length &&
+                        status !== InvoiceStatusTypeEnum.Failed) ||
+                      taxProviderVoidable
                         ? 'warning-unfilled'
                         : undefined
                     }
