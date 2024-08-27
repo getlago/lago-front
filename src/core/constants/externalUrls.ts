@@ -24,6 +24,12 @@ export const buildNetsuiteInvoiceUrl = (
 ) => {
   return `https://${connectionAccountId}.app.netsuite.com/app/accounting/transactions/custinvc.nl?id=${netsuiteInvoiceId}`
 }
+export const buildAnrokInvoiceUrl = (
+  connectionAccountId?: string | null,
+  anrokInvoiceId?: string | null,
+) => {
+  return `https://app.anrok.com/${connectionAccountId}/transactions/${anrokInvoiceId}`
+}
 export const buildNetsuiteCreditNoteUrl = (
   connectionAccountId?: string | null,
   netsuiteCreditNoteId?: string | null,

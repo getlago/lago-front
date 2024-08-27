@@ -22,7 +22,11 @@ import {
 import { InvoiceCreditNotesTable } from '~/components/invoices/InvoiceCreditNotesTable'
 import { InvoiceCustomerInfos } from '~/components/invoices/InvoiceCustomerInfos'
 import { Metadatas } from '~/components/invoices/Metadatas'
-import { buildNetsuiteInvoiceUrl, buildXeroInvoiceUrl } from '~/core/constants/externalUrls'
+import {
+  buildAnrokInvoiceUrl,
+  buildNetsuiteInvoiceUrl,
+  buildXeroInvoiceUrl,
+} from '~/core/constants/externalUrls'
 import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
 import { formatDateToTZ } from '~/core/timezone'
 import {
@@ -44,9 +48,14 @@ gql`
     status
     issuingDate
     externalIntegrationId
+    taxProviderVoidable
     customer {
       id
       applicableTimezone
+      anrokCustomer {
+        id
+        externalAccountId
+      }
       netsuiteCustomer {
         externalCustomerId
       }
@@ -72,8 +81,10 @@ interface InvoiceOverviewProps {
   loadingInvoiceDownload: boolean
   loadingRefreshInvoice: boolean
   loadingRetryInvoice: boolean
+  loadingRetryTaxProviderVoiding: boolean
   refreshInvoice: Function
   retryInvoice: Function
+  retryTaxProviderVoiding: Function
   connectedNetsuiteIntegration: NetsuiteIntegrationInfosForInvoiceOverviewFragment | undefined
 }
 
@@ -87,8 +98,10 @@ const InvoiceOverview = memo(
     loadingInvoiceDownload,
     loadingRefreshInvoice,
     loadingRetryInvoice,
+    loadingRetryTaxProviderVoiding,
     refreshInvoice,
     retryInvoice,
+    retryTaxProviderVoiding,
     connectedNetsuiteIntegration,
   }: InvoiceOverviewProps) => {
     const { translate } = useInternationalization()
@@ -118,6 +131,14 @@ const InvoiceOverview = memo(
         />
       )
     }
+
+    const showXeroSection =
+      !!invoice?.customer?.xeroCustomer?.externalCustomerId && !!invoice?.externalIntegrationId
+    const showNetsuiteSection =
+      !!connectedNetsuiteIntegration?.accountId && !!invoice?.externalIntegrationId
+    const showAnrokSection =
+      !!invoice?.customer?.anrokCustomer?.externalAccountId || invoice?.taxProviderVoidable
+    const showExternalAppsSection = showXeroSection || showNetsuiteSection || showAnrokSection
 
     return (
       <>
@@ -264,56 +285,98 @@ const InvoiceOverview = memo(
                   />
                 )}
 
-              {(connectedNetsuiteIntegration ||
-                invoice.customer.xeroCustomer?.externalCustomerId) &&
-                invoice?.externalIntegrationId && (
-                  <Stack marginTop={8} gap={6}>
-                    <SectionHeader variant="subhead">
-                      {translate('text_6650b36fc702a4014c878996')}
-                    </SectionHeader>
+              {showExternalAppsSection && (
+                <Stack marginTop={8} gap={6}>
+                  <SectionHeader variant="subhead">
+                    {translate('text_6650b36fc702a4014c878996')}
+                  </SectionHeader>
 
-                    {!!connectedNetsuiteIntegration && (
-                      <div>
-                        <InfoLine>
-                          <Typography variant="caption" color="grey600" noWrap>
-                            {translate('text_6650b36fc702a4014c87899a')}
+                  {showAnrokSection && (
+                    <InfoLine>
+                      <Typography variant="caption" color="grey600" noWrap>
+                        {translate('text_1724772240299r3u9nouqflf')}
+                      </Typography>
+                      {invoice.taxProviderVoidable ? (
+                        <Stack direction="row" alignItems="center" gap={2}>
+                          <Icon name="warning-filled" color="warning" />
+                          <Typography variant="body" color="grey600" noWrap>
+                            {translate('text_1724773425162ehwcxw6ynrp')}
                           </Typography>
+                          <span>•</span>
                           <InlineLink
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            to={buildNetsuiteInvoiceUrl(
-                              connectedNetsuiteIntegration?.accountId,
-                              invoice?.externalIntegrationId,
-                            )}
+                            to={'#'}
+                            onClick={(e) => {
+                              e.preventDefault()
+                              retryTaxProviderVoiding()
+                            }}
                           >
                             <Typography variant="body" color="info600">
-                              {invoice?.externalIntegrationId} <Icon name="outside" />
+                              {translate('text_1724774217640gd4bmfl8ne3')}
                             </Typography>
                           </InlineLink>
-                        </InfoLine>
-                      </div>
-                    )}
-
-                    {!!invoice.customer.xeroCustomer?.externalCustomerId && (
-                      <div>
-                        <InfoLine>
-                          <Typography variant="caption" color="grey600" noWrap>
-                            {translate('text_6691221aa754dc00d250d4c0')}
+                          {loadingRetryTaxProviderVoiding && (
+                            <Icon name="processing" color="info" size="small" animation="spin" />
+                          )}
+                        </Stack>
+                      ) : (
+                        <InlineLink
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          to={buildAnrokInvoiceUrl(
+                            invoice?.customer?.anrokCustomer?.externalAccountId,
+                            invoice?.id,
+                          )}
+                        >
+                          <Typography variant="body" color="info600">
+                            {invoice?.id} <Icon name="outside" />
                           </Typography>
-                          <InlineLink
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            to={buildXeroInvoiceUrl(invoice?.externalIntegrationId)}
-                          >
-                            <Typography variant="body" color="info600">
-                              {invoice?.externalIntegrationId} <Icon name="outside" />
-                            </Typography>
-                          </InlineLink>
-                        </InfoLine>
-                      </div>
-                    )}
-                  </Stack>
-                )}
+                        </InlineLink>
+                      )}
+                    </InfoLine>
+                  )}
+
+                  {showNetsuiteSection && (
+                    <div>
+                      <InfoLine>
+                        <Typography variant="caption" color="grey600" noWrap>
+                          {translate('text_6650b36fc702a4014c87899a')}
+                        </Typography>
+                        <InlineLink
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          to={buildNetsuiteInvoiceUrl(
+                            connectedNetsuiteIntegration?.accountId,
+                            invoice?.externalIntegrationId,
+                          )}
+                        >
+                          <Typography variant="body" color="info600">
+                            {invoice?.externalIntegrationId} <Icon name="outside" />
+                          </Typography>
+                        </InlineLink>
+                      </InfoLine>
+                    </div>
+                  )}
+
+                  {showXeroSection && (
+                    <div>
+                      <InfoLine>
+                        <Typography variant="caption" color="grey600" noWrap>
+                          {translate('text_6691221aa754dc00d250d4c0')}
+                        </Typography>
+                        <InlineLink
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          to={buildXeroInvoiceUrl(invoice?.externalIntegrationId)}
+                        >
+                          <Typography variant="body" color="info600">
+                            {invoice?.externalIntegrationId} <Icon name="outside" />
+                          </Typography>
+                        </InlineLink>
+                      </InfoLine>
+                    </div>
+                  )}
+                </Stack>
+              )}
 
               {invoice?.status !== InvoiceStatusTypeEnum.Draft && (
                 <Metadatas customer={customer} invoice={invoice} />

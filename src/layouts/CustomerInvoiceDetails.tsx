@@ -71,6 +71,7 @@ import {
   useIntegrationsListForCustomerInvoiceDetailsQuery,
   useRefreshInvoiceMutation,
   useRetryInvoiceMutation,
+  useRetryTaxProviderVoidingMutation,
   useSyncIntegrationInvoiceMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -166,6 +167,12 @@ gql`
 
   mutation retryInvoice($input: RetryInvoiceInput!) {
     retryInvoice(input: $input) {
+      id
+    }
+  }
+
+  mutation retryTaxProviderVoiding($input: RetryTaxProviderVoidingInput!) {
+    retryTaxProviderVoiding(input: $input) {
       id
     }
   }
@@ -272,6 +279,22 @@ const CustomerInvoiceDetails = () => {
     },
   })
 
+  const [retryTaxProviderVoiding, { loading: loadingRetryTaxProviderVoiding }] =
+    useRetryTaxProviderVoidingMutation({
+      variables: { input: { id: invoiceId || '' } },
+      context: {
+        silentErrorCodes: [LagoApiError.UnprocessableEntity, LagoApiError.InternalError],
+      },
+      onCompleted({ retryTaxProviderVoiding: retryTaxProviderVoidingResult }) {
+        if (retryTaxProviderVoidingResult?.id) {
+          addToast({
+            severity: 'success',
+            translateKey: 'text_1724769707909qoy2v4pxvku',
+          })
+        }
+      },
+    })
+
   const [syncIntegrationInvoice, { loading: loadingSyncIntegrationInvoice }] =
     useSyncIntegrationInvoiceMutation({
       variables: { input: { invoiceId: invoiceId || '' } },
@@ -375,8 +398,10 @@ const CustomerInvoiceDetails = () => {
             loadingInvoiceDownload={loadingInvoiceDownload}
             loadingRefreshInvoice={loadingRefreshInvoice}
             loadingRetryInvoice={loadingRetryInvoice}
+            loadingRetryTaxProviderVoiding={loadingRetryTaxProviderVoiding}
             refreshInvoice={refreshInvoice}
             retryInvoice={retryInvoice}
+            retryTaxProviderVoiding={retryTaxProviderVoiding}
             connectedNetsuiteIntegration={connectedNetsuiteIntegration}
           />
         ),
@@ -419,8 +444,10 @@ const CustomerInvoiceDetails = () => {
     loadingInvoiceDownload,
     loadingRefreshInvoice,
     loadingRetryInvoice,
+    loadingRetryTaxProviderVoiding,
     refreshInvoice,
     retryInvoice,
+    retryTaxProviderVoiding,
     status,
     translate,
   ])
@@ -662,6 +689,19 @@ const CustomerInvoiceDetails = () => {
                         </VoidInvoiceButton>
                       </Tooltip>
                     )}
+                  {data?.invoice?.taxProviderVoidable && (
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      disabled={loadingRetryTaxProviderVoiding}
+                      onClick={async () => {
+                        await retryTaxProviderVoiding()
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_1724702284063xef0c9kyhyl')}
+                    </Button>
+                  )}
                 </MenuPopper>
               )
             }}

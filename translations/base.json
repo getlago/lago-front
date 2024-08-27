@@ -2352,5 +2352,10 @@
   "text_1724166369123t6c4k8zn80c": "Credit notes & prepaid credit will impact the invoice once it's finalized.",
   "text_1724170152395tr7v0f15xsv": "This invoice is in draft mode. You have until {{issuingDate}} to adjust it.",
   "text_1724438705077s7oxv5be87m": "The invoice cannot be refreshed due to tax errors",
-  "text_1724674592260h33v56rycaw": "This invoice contains a tax error"
+  "text_1724674592260h33v56rycaw": "This invoice contains a tax error",
+  "text_1724702284063xef0c9kyhyl": "Sync invoice to Anrok",
+  "text_1724769707909qoy2v4pxvku": "NetSuite synchronisation successfully triggered.",
+  "text_1724772240299r3u9nouqflf": "Anrok invoice url",
+  "text_1724773425162ehwcxw6ynrp": "Invoice not synced to Anrok",
+  "text_1724774217640gd4bmfl8ne3": "Sync voided invoice to Anrok"
 }
