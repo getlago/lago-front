@@ -1370,10 +1370,24 @@ const DesignSystem = () => {
                       }}
                     />
                     <TextInputField
-                      label="With formatter"
+                      label="With decimal formatter"
                       name="inputNumber"
                       placeholder="Type number"
                       beforeChangeFormatter={['decimal']}
+                      formikProps={formikProps}
+                    />
+                    <TextInputField
+                      label="With triDecimal formatter"
+                      name="inputNumber"
+                      placeholder="Type number"
+                      beforeChangeFormatter={['triDecimal']}
+                      formikProps={formikProps}
+                    />
+                    <TextInputField
+                      label="With quadDecimal formatter"
+                      name="inputNumber"
+                      placeholder="Type number"
+                      beforeChangeFormatter={['quadDecimal']}
                       formikProps={formikProps}
                     />
                     <TextInputField

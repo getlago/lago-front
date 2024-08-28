@@ -105,6 +105,26 @@ describe('Text input formatValue', () => {
     expect(writtingDecimals).toBe('-29.')
   })
 
+  it('should return a number with 4 for "quadDecimal" formatter', () => {
+    const negativeValue = formatValue(-12, 'quadDecimal')
+    const value = formatValue(15, 'quadDecimal')
+    const zeroValue = formatValue(0, 'quadDecimal')
+    const negativeDecimalValue = formatValue(-13.459484, 'quadDecimal')
+    const minus = formatValue('-', 'quadDecimal')
+    const decimalValue = formatValue(11.459484, 'quadDecimal')
+    const stringValue = formatValue('random string', 'quadDecimal')
+    const writtingDecimals = formatValue('-29.', 'quadDecimal')
+
+    expect(negativeValue).toBe('-12')
+    expect(value).toBe('15')
+    expect(zeroValue).toBe('0')
+    expect(negativeDecimalValue).toBe('-13.4594')
+    expect(decimalValue).toBe('11.4594')
+    expect(stringValue).toBe(null)
+    expect(minus).toBe('-')
+    expect(writtingDecimals).toBe('-29.')
+  })
+
   it('should return a string with no spaces for "code" formatter', () => {
     const longString = formatValue('I just wanna have fun', 'code')
     const number = formatValue(938884, 'code')

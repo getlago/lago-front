@@ -390,7 +390,7 @@ const CreateCoupon = () => {
                   ) : (
                     <TextInputField
                       name="percentageRate"
-                      beforeChangeFormatter={['positiveNumber', 'decimal']}
+                      beforeChangeFormatter={['positiveNumber', 'quadDecimal']}
                       disabled={isEdition && !!coupon?.appliedCouponsCount}
                       label={translate('text_632d68358f1fedc68eed3e76')}
                       placeholder={translate('text_632d68358f1fedc68eed3e86')}

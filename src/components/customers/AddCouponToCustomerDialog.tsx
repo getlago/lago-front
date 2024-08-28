@@ -386,7 +386,7 @@ export const AddCouponToCustomerDialog = forwardRef<
             ) : (
               <TextInputField
                 name="percentageRate"
-                beforeChangeFormatter={['positiveNumber', 'decimal']}
+                beforeChangeFormatter={['positiveNumber', 'quadDecimal']}
                 label={translate('text_632d68358f1fedc68eed3e76')}
                 placeholder={translate('text_632d68358f1fedc68eed3e86')}
                 formikProps={formikProps}
