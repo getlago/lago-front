@@ -149,12 +149,14 @@ export const serializePlanInput = (values: PlanFormInput) => {
     usageThresholds: [
       ...(nonRecurringUsageThresholds ?? []).map((threshold) => ({
         ...threshold,
+        thresholdDisplayName: threshold.thresholdDisplayName,
         amountCents: Number(serializeAmount(threshold.amountCents, values.amountCurrency)),
       })),
       ...(recurringUsageThreshold
         ? [
             {
               ...recurringUsageThreshold,
+              thresholdDisplayName: recurringUsageThreshold.thresholdDisplayName,
               amountCents: Number(
                 serializeAmount(recurringUsageThreshold.amountCents, values.amountCurrency),
               ),
