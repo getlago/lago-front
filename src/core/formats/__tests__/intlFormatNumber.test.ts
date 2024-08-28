@@ -77,6 +77,26 @@ describe('Currency tools', () => {
       expect(formattedEURCent).toMatch('150,050.00')
       expect(formattedEURCent).toMatch('€')
     })
+
+    it('should return a percentage correctly formated', () => {
+      expect(intlFormatNumber(0.1, { style: 'percent' })).toMatch('10.00%')
+      expect(intlFormatNumber(0.101, { style: 'percent' })).toMatch('10.10%')
+      expect(intlFormatNumber(9.974, { style: 'percent' })).toMatch('997.40%')
+      expect(intlFormatNumber(100.1, { style: 'percent' })).toMatch('10,010.00%')
+      expect(intlFormatNumber(0.1001, { style: 'percent' })).toMatch('10.01%')
+      expect(intlFormatNumber(9.9741, { style: 'percent' })).toMatch('997.41%')
+      expect(intlFormatNumber(0.10101, { style: 'percent' })).toMatch('10.101%')
+      expect(intlFormatNumber(0.10101, { style: 'percent' })).toMatch('10.101%')
+      expect(intlFormatNumber(9.97411, { style: 'percent' })).toMatch('997.411%')
+      expect(intlFormatNumber(9.974111, { style: 'percent' })).toMatch('997.4111%')
+      expect(intlFormatNumber(1.010101, { style: 'percent' })).toMatch('101.0101%')
+      expect(intlFormatNumber(101.0101, { style: 'percent' })).toMatch('10,101.01%')
+      expect(intlFormatNumber(1010.101, { style: 'percent' })).toMatch('101,010.10%')
+      expect(intlFormatNumber(10101.01, { style: 'percent' })).toMatch('1,010,101.00%')
+      expect(intlFormatNumber(101010.1, { style: 'percent' })).toMatch('10,101,010.00%')
+      expect(intlFormatNumber(0.1010101, { style: 'percent' })).toMatch('10.101%')
+      expect(intlFormatNumber(0.9741111, { style: 'percent' })).toMatch('97.4111%')
+    })
   })
 
   describe('getCurrencySymbol', () => {

@@ -130,7 +130,6 @@ export const FixedFeeSection = memo(
                       Number(formikProps?.values?.taxes?.reduce((acc, cur) => acc + cur.rate, 0)) /
                         100 || 0,
                       {
-                        minimumFractionDigits: 2,
                         style: 'percent',
                       },
                     )}

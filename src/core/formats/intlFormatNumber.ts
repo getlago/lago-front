@@ -39,6 +39,9 @@ export const intlFormatNumber: (amount: number, options?: FormatterOptions) => s
     style,
     currencyDisplay,
     currency,
+    ...(style === AmountStyle.percent
+      ? { minimumFractionDigits: 2, maximumFractionDigits: 4 }
+      : {}),
     ...otherOptions,
   })
 }

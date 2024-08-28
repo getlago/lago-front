@@ -318,7 +318,6 @@ export const ChargeAccordion = memo(
       return taxesCollection.map(({ id: taxId, name, rate }) => {
         return {
           label: `${name} (${intlFormatNumber(Number(rate) / 100 || 0, {
-            minimumFractionDigits: 2,
             style: 'percent',
           })})`,
           labelNode: (
@@ -327,7 +326,6 @@ export const ChargeAccordion = memo(
               <Typography color="textPrimary">
                 (
                 {intlFormatNumber(Number(rate) / 100 || 0, {
-                  minimumFractionDigits: 2,
                   style: 'percent',
                 })}
                 )
@@ -407,7 +405,6 @@ export const ChargeAccordion = memo(
               {!!taxValueForBadgeDisplay && (
                 <Chip
                   label={intlFormatNumber(Number(taxValueForBadgeDisplay) / 100 || 0, {
-                    minimumFractionDigits: 2,
                     style: 'percent',
                   })}
                 />

@@ -76,7 +76,6 @@ export const AddOrganizationVatRateDialog = forwardRef<
 
       return {
         label: `${name} - (${intlFormatNumber((rate || 0) / 100, {
-          minimumFractionDigits: 2,
           style: 'percent',
         })})`,
         labelNode: (
@@ -85,7 +84,6 @@ export const AddOrganizationVatRateDialog = forwardRef<
             <Typography color="textPrimary">
               (
               {intlFormatNumber((rate || 0) / 100, {
-                minimumFractionDigits: 2,
                 style: 'percent',
               })}
               )

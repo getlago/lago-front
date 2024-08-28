@@ -456,7 +456,6 @@ const InvoiceSettings = () => {
                             <RightSection>
                               <Typography variant="body" color="grey700">
                                 {intlFormatNumber((taxRate.rate || 0) / 100, {
-                                  minimumFractionDigits: 2,
                                   style: 'percent',
                                 })}
                               </Typography>

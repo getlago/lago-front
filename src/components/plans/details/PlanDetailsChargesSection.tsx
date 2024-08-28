@@ -154,7 +154,6 @@ const PlanDetailsChargesSection = ({
                                   >
                                     {tax.name} (
                                     {intlFormatNumber(Number(tax.rate) / 100 || 0, {
-                                      maximumFractionDigits: 2,
                                       style: 'percent',
                                     })}
                                     )
@@ -265,7 +264,6 @@ const PlanDetailsChargesSection = ({
                                   >
                                     {tax.name} (
                                     {intlFormatNumber(Number(tax.rate) / 100 || 0, {
-                                      maximumFractionDigits: 2,
                                       style: 'percent',
                                     })}
                                     )

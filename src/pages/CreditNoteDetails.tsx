@@ -668,7 +668,6 @@ const CreditNoteDetails = () => {
                                               color="grey700"
                                             >
                                               {intlFormatNumber(appliedTaxe.taxRate / 100 || 0, {
-                                                maximumFractionDigits: 2,
                                                 style: 'percent',
                                               })}
                                             </Typography>
@@ -762,7 +761,6 @@ const CreditNoteDetails = () => {
                                 {translate('text_64c013a424ce2f00dffb7f4d', {
                                   name: appliedTax.taxName,
                                   rate: intlFormatNumber(appliedTax.taxRate / 100 || 0, {
-                                    maximumFractionDigits: 2,
                                     style: 'percent',
                                   }),
                                   amount: intlFormatNumber(

@@ -92,7 +92,6 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
                           color="grey600"
                         >
                           {intlFormatNumber(appliedTaxes.taxRate / 100 || 0, {
-                            maximumFractionDigits: 2,
                             style: 'percent',
                           })}
                         </Typography>
@@ -140,7 +139,6 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
                         color="grey600"
                       >
                         {intlFormatNumber(appliedTaxes.taxRate / 100 || 0, {
-                          maximumFractionDigits: 2,
                           style: 'percent',
                         })}
                       </Typography>
@@ -191,7 +189,6 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
                           color="grey600"
                         >
                           {intlFormatNumber(appliedTaxes.taxRate / 100 || 0, {
-                            maximumFractionDigits: 2,
                             style: 'percent',
                           })}
                         </Typography>
@@ -243,7 +240,6 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
                           color="grey600"
                         >
                           {intlFormatNumber(appliedTaxes.taxRate / 100 || 0, {
-                            maximumFractionDigits: 2,
                             style: 'percent',
                           })}
                         </Typography>
