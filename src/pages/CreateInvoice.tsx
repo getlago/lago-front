@@ -1231,7 +1231,7 @@ const CenteredWrapper = styled.div`
   max-width: 1024px;
   padding: 0 ${theme.spacing(4)};
   margin: ${theme.spacing(12)} auto;
-  height: 100%;
+  min-height: 100%;
 
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(8)};
