@@ -2357,5 +2357,8 @@
   "text_1724769707909qoy2v4pxvku": "NetSuite synchronisation successfully triggered.",
   "text_1724772240299r3u9nouqflf": "Anrok invoice url",
   "text_1724773425162ehwcxw6ynrp": "Invoice not synced to Anrok",
-  "text_1724774217640gd4bmfl8ne3": "Sync voided invoice to Anrok"
+  "text_1724774217640gd4bmfl8ne3": "Sync voided invoice to Anrok",
+  "text_1724857130376douaqt98pna": "Customer is tax exempt",
+  "text_1724857130376u3cph3amxmh": "No tax",
+  "text_1724857130376w85w86kutdb": "Reverse charge - Tax liability shifted to customer"
 }

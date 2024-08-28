@@ -3,6 +3,7 @@ import { memo } from 'react'
 import styled from 'styled-components'
 
 import { Alert, Typography } from '~/components/designSystem'
+import { appliedTaxEnumedTaxCodeTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
@@ -31,6 +32,7 @@ gql`
       feesAmountCents
       taxRate
       taxName
+      enumedTaxCode
     }
   }
 `
@@ -130,36 +132,50 @@ export const InvoiceDetailsTableFooter = memo(
                         color="grey600"
                         data-test={`invoice-details-table-footer-tax-${i}-label`}
                       >
-                        {translate('text_64c013a424ce2f00dffb7f4d', {
-                          name: appliedTax.taxName,
-                          rate: intlFormatNumber(appliedTax.taxRate / 100 || 0, {
-                            maximumFractionDigits: 2,
-                            style: 'percent',
-                          }),
-                          amount: intlFormatNumber(
-                            deserializeAmount(appliedTax.feesAmountCents || 0, currency),
+                        <>
+                          {!!appliedTax.enumedTaxCode ? (
+                            <>
+                              {translate(
+                                appliedTaxEnumedTaxCodeTranslationKey[appliedTax.enumedTaxCode],
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              {translate('text_64c013a424ce2f00dffb7f4d', {
+                                name: appliedTax.taxName,
+                                rate: intlFormatNumber(appliedTax.taxRate / 100 || 0, {
+                                  maximumFractionDigits: 2,
+                                  style: 'percent',
+                                }),
+                                amount: intlFormatNumber(
+                                  deserializeAmount(appliedTax.feesAmountCents || 0, currency),
+                                  {
+                                    currencyDisplay: 'symbol',
+                                    currency,
+                                  },
+                                ),
+                              })}
+                            </>
+                          )}
+                        </>
+                      </Typography>
+                    </td>
+                    <td>
+                      {!appliedTax.enumedTaxCode && (
+                        <Typography
+                          variant="body"
+                          color="grey700"
+                          data-test={`invoice-details-table-footer-tax-${i}-value`}
+                        >
+                          {intlFormatNumber(
+                            deserializeAmount(appliedTax.amountCents || 0, currency),
                             {
                               currencyDisplay: 'symbol',
                               currency,
                             },
-                          ),
-                        })}
-                      </Typography>
-                    </td>
-                    <td>
-                      <Typography
-                        variant="body"
-                        color="grey700"
-                        data-test={`invoice-details-table-footer-tax-${i}-value`}
-                      >
-                        {intlFormatNumber(
-                          deserializeAmount(appliedTax.amountCents || 0, currency),
-                          {
-                            currencyDisplay: 'symbol',
-                            currency,
-                          },
-                        )}
-                      </Typography>
+                          )}
+                        </Typography>
+                      )}
                     </td>
                   </tr>
                 ))}

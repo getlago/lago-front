@@ -1,4 +1,10 @@
-import { CouponFrequency, CouponTypeEnum, MembershipRole, PlanInterval } from '~/generated/graphql'
+import {
+  CouponFrequency,
+  CouponTypeEnum,
+  InvoiceAppliedTaxOnWholeInvoiceCodeEnum,
+  MembershipRole,
+  PlanInterval,
+} from '~/generated/graphql'
 
 /**** Errors ****/
 export enum FORM_ERRORS_ENUM {
@@ -75,4 +81,12 @@ export enum LocalTaxProviderErrorsEnum {
   CustomerAddressError = 'text_1723831881130x4cfh6qr6o8',
   ProductExternalIdUnknown = 'text_1723831881130g8hv6qzqe57',
   GenericErrorMessage = 'text_17238318811307ghoc4v7mt9',
+}
+
+export const appliedTaxEnumedTaxCodeTranslationKey = {
+  [InvoiceAppliedTaxOnWholeInvoiceCodeEnum.CustomerExempt]: 'text_1724857130376douaqt98pna',
+  [InvoiceAppliedTaxOnWholeInvoiceCodeEnum.TransactionExempt]: 'text_1724857130376douaqt98pna',
+  [InvoiceAppliedTaxOnWholeInvoiceCodeEnum.ReverseCharge]: 'text_1724857130376w85w86kutdb',
+  [InvoiceAppliedTaxOnWholeInvoiceCodeEnum.JurisNotTaxed]: 'text_1724857130376u3cph3amxmh',
+  [InvoiceAppliedTaxOnWholeInvoiceCodeEnum.NotCollecting]: 'text_1724857130376u3cph3amxmh',
 }
