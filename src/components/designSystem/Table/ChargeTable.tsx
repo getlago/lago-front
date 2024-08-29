@@ -37,6 +37,7 @@ interface ChargeTableProps<T> {
   data: DataType<T>[]
   className?: string
   onDeleteRow?: (row: DataType<T>, index: number) => unknown
+  deleteTooltipContent?: string
 }
 
 export const ChargeTable = <T extends Record<string, unknown>>({
@@ -45,27 +46,32 @@ export const ChargeTable = <T extends Record<string, unknown>>({
   columns,
   data,
   onDeleteRow,
+  deleteTooltipContent,
 }: ChargeTableProps<T>) => {
   const { translate } = useInternationalization()
+
+  const hasHeader = columns?.some(({ title }) => title)
 
   return (
     <Content className={className}>
       {/* Header */}
-      <thead>
-        <HeaderRow>
-          {columns?.map(({ title, size = 124, onClick }, i) => {
-            return (
-              <HeaderCell
-                key={`table-${name}-head-${i}`}
-                $size={size}
-                onClick={() => onClick && onClick()}
-              >
-                {title && title}
-              </HeaderCell>
-            )
-          })}
-        </HeaderRow>
-      </thead>
+      {hasHeader && (
+        <thead>
+          <HeaderRow>
+            {columns?.map(({ title, size = 124, onClick }, i) => {
+              return (
+                <HeaderCell
+                  key={`table-${name}-head-${i}`}
+                  $size={size}
+                  onClick={() => onClick && onClick()}
+                >
+                  {title && title}
+                </HeaderCell>
+              )
+            })}
+          </HeaderRow>
+        </thead>
+      )}
       <tbody>
         {data?.map((row, i) => {
           return (
@@ -87,7 +93,7 @@ export const ChargeTable = <T extends Record<string, unknown>>({
                 {onDeleteRow && !row.disabledDelete && (
                   <DeleteButtonContainer>
                     <Tooltip
-                      title={translate('text_62793bbb599f1c01522e9239')}
+                      title={deleteTooltipContent ?? translate('text_62793bbb599f1c01522e9239')}
                       placement="top-start"
                     >
                       <Button

@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { FormikProps, useFormik } from 'formik'
 import { useEffect, useMemo } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import { number, object, string } from 'yup'
+import { array, number, object, string } from 'yup'
 
 import { LocalChargeInput, PlanFormInput } from '~/components/plans/types'
 import { transformFilterObjectToString } from '~/components/plans/utils'
@@ -150,6 +150,28 @@ export const usePlanForm: ({
             ),
           }
         : {},
+      nonRecurringUsageThresholds:
+        plan?.usageThresholds && plan?.usageThresholds.length > 0
+          ? plan?.usageThresholds
+              .filter(({ recurring }) => !recurring)
+              .map((threshold) => ({
+                ...threshold,
+                amountCents: deserializeAmount(
+                  threshold.amountCents || 0,
+                  initialCurrency || CurrencyEnum.Usd,
+                ),
+              }))
+              .sort((a, b) => a.amountCents - b.amountCents)
+          : undefined,
+      recurringUsageThreshold: plan?.usageThresholds
+        ?.map((threshold) => ({
+          ...threshold,
+          amountCents: deserializeAmount(
+            threshold.amountCents || 0,
+            initialCurrency || CurrencyEnum.Usd,
+          ),
+        }))
+        .find(({ recurring }) => !!recurring),
       charges: plan?.charges
         ? (plan?.charges.map(
             ({
@@ -233,6 +255,54 @@ export const usePlanForm: ({
         })
         .nullable(),
       charges: chargeSchema,
+      nonRecurringUsageThresholds: array()
+        .test({
+          test: (nonRecurringUsageThresholds) => {
+            let isValid = true
+
+            if (!nonRecurringUsageThresholds) {
+              return true
+            }
+
+            if (nonRecurringUsageThresholds?.length === 0) {
+              return false
+            }
+
+            nonRecurringUsageThresholds?.every(({ amountCents }, i) => {
+              if (amountCents === undefined) {
+                isValid = false
+                return false
+              }
+
+              if (i === 0 && Number(amountCents) <= 0) {
+                isValid = false
+                return false
+              }
+
+              const previousThreshold = nonRecurringUsageThresholds[i - 1]
+
+              if (
+                previousThreshold &&
+                Number(amountCents) <= Number(previousThreshold.amountCents)
+              ) {
+                isValid = false
+                return false
+              }
+
+              return true
+            })
+
+            return isValid
+          },
+        })
+        .nullable()
+        .default(undefined),
+      recurringUsageThreshold: object()
+        .shape({
+          amountCents: number().required().moreThan(0),
+        })
+        .nullable()
+        .default(undefined),
     }),
     enableReinitialize: true,
     validateOnMount: true,

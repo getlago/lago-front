@@ -80,8 +80,7 @@ const PlanDetailsAdvancedSettingsSection = ({
                             currency: currency,
                           },
                         ),
-                        threshold.thresholdDisplayName ||
-                          `${translate('text_1724179887723pt34ivcecdt')} ${i + 1}`,
+                        threshold.thresholdDisplayName || '',
                       ]) || []),
                   ]}
                 />
@@ -113,8 +112,7 @@ const PlanDetailsAdvancedSettingsSection = ({
                             currency: currency,
                           },
                         ),
-                        threshold?.thresholdDisplayName ||
-                          translate('text_17241798877230y851fdxzqv'),
+                        threshold?.thresholdDisplayName || '',
                       ]) || []),
                     ]}
                   />

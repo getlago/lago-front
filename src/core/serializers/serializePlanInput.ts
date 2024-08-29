@@ -125,6 +125,8 @@ export const serializePlanInput = (values: PlanFormInput) => {
     charges,
     taxes: planTaxes,
     minimumCommitment,
+    nonRecurringUsageThresholds,
+    recurringUsageThreshold,
     ...otherValues
   } = values
 
@@ -144,6 +146,24 @@ export const serializePlanInput = (values: PlanFormInput) => {
             taxes: undefined,
           }
         : {},
+    usageThresholds: [
+      ...(nonRecurringUsageThresholds ?? []).map((threshold) => ({
+        ...threshold,
+        thresholdDisplayName: threshold.thresholdDisplayName ?? null,
+        amountCents: Number(serializeAmount(threshold.amountCents, values.amountCurrency)),
+      })),
+      ...(recurringUsageThreshold
+        ? [
+            {
+              ...recurringUsageThreshold,
+              thresholdDisplayName: recurringUsageThreshold.thresholdDisplayName ?? null,
+              amountCents: Number(
+                serializeAmount(recurringUsageThreshold.amountCents, values.amountCurrency),
+              ),
+            },
+          ]
+        : []),
+    ],
     charges: charges.map(
       ({
         billableMetric,

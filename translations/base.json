@@ -2366,8 +2366,19 @@
   "text_17241798877234jhvoho4ci9": "Threshold name",
   "text_1724179887723hi673zmbvdj": "Lifetime usage reaches",
   "text_1724179887723917j8ezkd9v": "Then",
-  "text_1724179887723pt34ivcecdt": "My threshold",
   "text_17241798877230y851fdxzqt": "Recurring billing",
   "text_17241798877230y851fdxzqu": "Then every",
-  "text_17241798877230y851fdxzqv": "My recurring threshold"
+  "text_1724233213996upb98e8b8xx": "Add billing threshold",
+  "text_1724233213997l2ksi40t8q6": "Add another threshold",
+  "text_1724234174944p8zi54j192m": "When lifetime usage reaches",
+  "text_1724234174945ztq15pvmty3": "Recurring billing after last threshold",
+  "text_172423417494563qf45qet2d": "Customer is billed everytime the threshold amount is reached.",
+  "text_1724252232460iqofvwnpgnx": "This progressive billing will affect usage-based charges lifetime usage only.",
+  "text_17242522324608198c2vblmw": "Delete threshold",
+  "text_1724252232460i4tv7384iiy": "This threshold overlaps with previous one, please set a value greater than {{value}}",
+  "text_1724345142892pcnx5m2k3r2": "Unlock Progressive billing",
+  "text_1724345142892ljzi79afhmc": "Define specific usage thresholds and generates invoices when the usage-based charges hit the lifetime usage threshold.",
+  "text_172434514289283gmf8bdhh3": "Request access to progressive billing",
+  "text_1724346450317iqs2rtvx1tp": "Hello, I would like to access your progressive billing add-on. \n\nPlease let me know if you need more info!",
+  "text_1724936123802q74m2xxak3o": "Usage already billed"
 }
