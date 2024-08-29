@@ -119,10 +119,7 @@ gql`
           invoiceName
           appliedTaxes {
             id
-            tax {
-              id
-              rate
-            }
+            taxRate
           }
           trueUpParentFee {
             id
@@ -670,7 +667,7 @@ const CreditNoteDetails = () => {
                                               variant="body"
                                               color="grey700"
                                             >
-                                              {intlFormatNumber(appliedTaxe.tax.rate / 100 || 0, {
+                                              {intlFormatNumber(appliedTaxe.taxRate / 100 || 0, {
                                                 maximumFractionDigits: 2,
                                                 style: 'percent',
                                               })}

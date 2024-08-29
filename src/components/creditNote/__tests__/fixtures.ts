@@ -20,11 +20,8 @@ export const feesMock = {
         appliedTaxes: [
           {
             id: 'tax1',
-            tax: {
-              id: 'tax1tax1',
-              name: 'Tax 1',
-              rate: 10,
-            },
+            taxName: 'Tax 1',
+            taxRate: 10,
           },
         ],
       },
@@ -39,11 +36,8 @@ export const feesMock = {
         appliedTaxes: [
           {
             id: 'tax2',
-            tax: {
-              id: 'tax2tax2',
-              name: 'Tax 2',
-              rate: 20,
-            },
+            taxName: 'Tax 2',
+            taxRate: 20,
           },
         ],
       },
@@ -85,19 +79,13 @@ export const feesMock = {
             appliedTaxes: [
               {
                 id: 'tax1',
-                tax: {
-                  id: 'tax1tax1',
-                  name: 'Tax 1',
-                  rate: 10,
-                },
+                taxName: 'Tax 1',
+                taxRate: 10,
               },
               {
                 id: 'tax2',
-                tax: {
-                  id: 'tax2tax2',
-                  name: 'Tax 2',
-                  rate: 20,
-                },
+                taxName: 'Tax 2',
+                taxRate: 20,
               },
             ],
           },
@@ -126,19 +114,13 @@ export const addOnFeeMock = [
     appliedTaxes: [
       {
         id: 'tax1',
-        tax: {
-          id: 'tax1tax1',
-          name: 'Tax 1',
-          rate: 10,
-        },
+        taxName: 'Tax 1',
+        taxRate: 10,
       },
       {
         id: 'tax2',
-        tax: {
-          id: 'tax2tax2',
-          name: 'Tax 2',
-          rate: 20,
-        },
+        taxName: 'Tax 2',
+        taxRate: 20,
       },
     ],
   },
@@ -153,25 +135,9 @@ export const addOnFeeMock = [
     appliedTaxes: [
       {
         id: 'tax1',
-        tax: {
-          id: 'tax1tax1',
-          name: 'Tax 1',
-          rate: 10,
-        },
+        taxName: 'Tax 1',
+        taxRate: 10,
       },
     ],
   },
 ]
-
-// export const invoiceMock = {
-//   id: '1234',
-//   couponsAmountCents: '1010',
-//   paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
-//   creditableAmountCents: '0',
-//   refundableAmountCents: '0',
-//   feesAmountCents: '62833',
-//   currency: CurrencyEnum.Eur,
-//   versionNumber: 3,
-//   fees: addOnFeeMock,
-//   invoiceSubscriptions: feesMock,
-// }

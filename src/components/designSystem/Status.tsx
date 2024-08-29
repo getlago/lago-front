@@ -113,7 +113,7 @@ const STATUS_CONFIG: StatusConfig = {
   },
   default: {
     color: 'grey700',
-    iconColor: 'dark',
+    iconColor: 'black',
     backgroundColor: theme.palette.grey[100],
     borderColor: theme.palette.grey[400],
   },

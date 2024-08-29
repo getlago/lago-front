@@ -1,10 +1,20 @@
 import { gql } from '@apollo/client'
-import { Accordion, AccordionDetails, AccordionSummary } from '@mui/material'
+import { Accordion, AccordionDetails, AccordionSummary, Stack } from '@mui/material'
 import { useRef, useState } from 'react'
 import styled from 'styled-components'
 
-import { Avatar, Button, Icon, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import {
+  Alert,
+  Avatar,
+  Button,
+  Icon,
+  Skeleton,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { LagoGQLError } from '~/core/apolloClient'
+import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ, getTimezoneConfig } from '~/core/timezone'
@@ -13,6 +23,7 @@ import {
   CurrencyEnum,
   CustomerSubscriptionForUsageFragment,
   CustomerUsageForUsageDetailsFragmentDoc,
+  LagoApiError,
   TimezoneEnum,
   useCustomerUsageLazyQuery,
 } from '~/generated/graphql'
@@ -81,6 +92,9 @@ export const UsageItem = ({
   const { translate } = useInternationalization()
   const customerUsageDetailDrawerRef = useRef<CustomerUsageDetailDrawerRef>(null)
   const [fetchUsage, { data, error, loading, refetch }] = useCustomerUsageLazyQuery({
+    context: {
+      silentErrorCodes: [LagoApiError.UnprocessableEntity],
+    },
     variables: { customerId: customerId, subscriptionId: id },
     // Fixes https://github.com/getlago/lago-front/pull/1243
     fetchPolicy: 'no-cache',
@@ -137,14 +151,41 @@ export const UsageItem = ({
         </Summary>
         <Details>
           {!!error && !loading ? (
-            <GenericPlaceholder
-              title={translate('text_62c3f3fca8a1625624e83379')}
-              subtitle={translate('text_62c3f3fca8a1625624e8337e')}
-              buttonTitle={translate('text_62c3f3fca8a1625624e83382')}
-              buttonVariant="primary"
-              buttonAction={() => location.reload()}
-              image={<ErrorImage width="136" height="104" />}
-            />
+            <>
+              {error.graphQLErrors.length > 0 &&
+              error.graphQLErrors.find((graphQLError) => {
+                const { extensions } = graphQLError as LagoGQLError
+
+                return extensions.details?.taxError?.length
+              }) ? (
+                <LocalTaxAlert
+                  fullWidth
+                  containerSize={{
+                    default: 16,
+                  }}
+                  type="warning"
+                >
+                  <Stack>
+                    <Typography variant="body" color="grey700">
+                      {translate('text_1724165657161stcilcabm7x')}
+                    </Typography>
+
+                    <Typography variant="caption">
+                      {translate(LocalTaxProviderErrorsEnum.GenericErrorMessage)}
+                    </Typography>
+                  </Stack>
+                </LocalTaxAlert>
+              ) : (
+                <GenericPlaceholder
+                  title={translate('text_62c3f3fca8a1625624e83379')}
+                  subtitle={translate('text_62c3f3fca8a1625624e8337e')}
+                  buttonTitle={translate('text_62c3f3fca8a1625624e83382')}
+                  buttonVariant="primary"
+                  buttonAction={() => location.reload()}
+                  image={<ErrorImage width="136" height="104" />}
+                />
+              )}
+            </>
           ) : !loading && !data ? (
             <GenericPlaceholder
               title={translate('text_62c3f454e5d7f4ec8888c1d5')}
@@ -495,4 +536,8 @@ const DateLine = styled(Typography)`
 const ItemNameWrapper = styled.div`
   /* Allow item title to elypsis */
   overflow: hidden;
+`
+
+const LocalTaxAlert = styled(Alert)`
+  box-shadow: ${theme.shadows[5]};
 `

@@ -50,10 +50,7 @@ gql`
           invoiceName
           appliedTaxes {
             id
-            tax {
-              id
-              rate
-            }
+            taxRate
           }
           trueUpParentFee {
             id
@@ -194,7 +191,7 @@ export const InvoiceCreditNotesTable = memo(
                                                   color="grey700"
                                                 >
                                                   {intlFormatNumber(
-                                                    appliedTaxe.tax.rate / 100 || 0,
+                                                    appliedTaxe.taxRate / 100 || 0,
                                                     {
                                                       maximumFractionDigits: 2,
                                                       style: 'percent',

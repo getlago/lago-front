@@ -10,11 +10,8 @@ export type FromFee = {
   succeededAt?: string
   appliedTaxes?: {
     id: string
-    tax: {
-      id: string
-      name: string
-      rate: number
-    }
+    taxName: string
+    taxRate: number
   }[]
 }
 

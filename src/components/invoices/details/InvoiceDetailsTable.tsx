@@ -8,6 +8,7 @@ import { formatDateToTZ } from '~/core/timezone'
 import {
   CurrencyEnum,
   Customer,
+  ErrorCodesEnum,
   FeeForInvoiceDetailsTableBodyLineFragmentDoc,
   FeeForInvoiceFeeAdvanceDetailsTableFragmentDoc,
   FeeForInvoiceFeeArrearsDetailsTableFragmentDoc,
@@ -79,7 +80,10 @@ gql`
     currency
     issuingDate
     versionNumber
-
+    errorDetails {
+      errorCode
+      errorDetails
+    }
     fees {
       id
       ...FeeForInvoiceDetailsTable
@@ -154,6 +158,10 @@ export const InvoiceDetailsTable = memo(
     const isDraftInvoice = invoice?.status === InvoiceStatusTypeEnum.Draft
     const canHaveUnitPrice = invoice.versionNumber >= 4 || isDraftInvoice
 
+    const hasTaxProviderError = !!invoice.errorDetails?.find(
+      ({ errorCode }) => errorCode === ErrorCodesEnum.TaxError,
+    )
+
     /******************
      * One-off invoice
      ******************/
@@ -196,10 +204,15 @@ export const InvoiceDetailsTable = memo(
                   deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                   isDraftInvoice={isDraftInvoice}
                   fee={fee as TExtendedRemainingFee}
+                  hasTaxProviderError={hasTaxProviderError}
                 />
               ))}
             </tbody>
-            <InvoiceDetailsTableFooter invoice={invoice} canHaveUnitPrice={canHaveUnitPrice} />
+            <InvoiceDetailsTableFooter
+              invoice={invoice}
+              canHaveUnitPrice={canHaveUnitPrice}
+              hasTaxProviderError={hasTaxProviderError}
+            />
           </table>
         </InvoiceWrapper>
       )
@@ -260,12 +273,14 @@ export const InvoiceDetailsTable = memo(
                         deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                         fee={undefined}
                         isDraftInvoice={false}
+                        hasTaxProviderError={hasTaxProviderError}
                       />
                     </tbody>
 
                     <InvoiceDetailsTableFooter
                       invoice={invoice}
                       canHaveUnitPrice={canHaveUnitPrice}
+                      hasTaxProviderError={hasTaxProviderError}
                     />
                   </table>
                 </InvoiceWrapper>
@@ -330,7 +345,11 @@ export const InvoiceDetailsTable = memo(
 
           {/* Footer */}
           <table>
-            <InvoiceDetailsTableFooter invoice={invoice} canHaveUnitPrice={canHaveUnitPrice} />
+            <InvoiceDetailsTableFooter
+              invoice={invoice}
+              canHaveUnitPrice={canHaveUnitPrice}
+              hasTaxProviderError={hasTaxProviderError}
+            />
           </table>
         </MultipleSubscriptionWrapper>
       </InvoiceWrapper>

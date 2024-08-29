@@ -42,11 +42,8 @@ gql`
       id
       appliedTaxes {
         id
-        tax {
-          id
-          name
-          rate
-        }
+        taxName
+        taxRate
       }
     }
   }
@@ -58,9 +55,6 @@ gql`
         taxName
         taxRate
         amountCents
-        tax {
-          id
-        }
       }
       couponsAdjustmentAmountCents
       currency
