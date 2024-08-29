@@ -26,11 +26,8 @@ describe('serializeCreditNoteInput()', () => {
                   appliedTaxes: [
                     {
                       id: '1234',
-                      tax: {
-                        id: '5678',
-                        name: 'VAT',
-                        rate: 0.2,
-                      },
+                      taxName: 'VAT',
+                      taxRate: 0.2,
                     },
                   ],
                 },
@@ -85,11 +82,8 @@ describe('serializeCreditNoteInput()', () => {
                   appliedTaxes: [
                     {
                       id: '1234',
-                      tax: {
-                        id: '5678',
-                        name: 'VAT',
-                        rate: 0.2,
-                      },
+                      taxName: 'VAT',
+                      taxRate: 0.2,
                     },
                   ],
                 },
@@ -105,11 +99,8 @@ describe('serializeCreditNoteInput()', () => {
                       appliedTaxes: [
                         {
                           id: '1234',
-                          tax: {
-                            id: '5678',
-                            name: 'VAT',
-                            rate: 0.2,
-                          },
+                          taxName: 'VAT',
+                          taxRate: 0.2,
                         },
                       ],
                     },
@@ -122,11 +113,8 @@ describe('serializeCreditNoteInput()', () => {
                       appliedTaxes: [
                         {
                           id: '1234',
-                          tax: {
-                            id: '5678',
-                            name: 'VAT',
-                            rate: 0.2,
-                          },
+                          taxName: 'VAT',
+                          taxRate: 0.2,
                         },
                       ],
                     },
@@ -144,11 +132,8 @@ describe('serializeCreditNoteInput()', () => {
                       appliedTaxes: [
                         {
                           id: '1234',
-                          tax: {
-                            id: '5678',
-                            name: 'VAT',
-                            rate: 0.2,
-                          },
+                          taxName: 'VAT',
+                          taxRate: 0.2,
                         },
                       ],
                     },
@@ -161,11 +146,8 @@ describe('serializeCreditNoteInput()', () => {
                       appliedTaxes: [
                         {
                           id: '1234',
-                          tax: {
-                            id: '5678',
-                            name: 'VAT',
-                            rate: 0.2,
-                          },
+                          taxName: 'VAT',
+                          taxRate: 0.2,
                         },
                       ],
                     },
@@ -178,11 +160,8 @@ describe('serializeCreditNoteInput()', () => {
                       appliedTaxes: [
                         {
                           id: '1234',
-                          tax: {
-                            id: '5678',
-                            name: 'VAT',
-                            rate: 0.2,
-                          },
+                          taxName: 'VAT',
+                          taxRate: 0.2,
                         },
                       ],
                     },

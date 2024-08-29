@@ -37,11 +37,8 @@ gql`
     succeededAt
     appliedTaxes {
       id
-      tax {
-        id
-        name
-        rate
-      }
+      taxName
+      taxRate
     }
     creditableAmountCents
     trueUpFee {
@@ -77,11 +74,8 @@ gql`
       succeededAt
       appliedTaxes {
         id
-        tax {
-          id
-          name
-          rate
-        }
+        taxName
+        taxRate
       }
       trueUpFee {
         id
