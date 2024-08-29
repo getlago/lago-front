@@ -25,6 +25,7 @@ gql`
     invoiceType
     status
     prepaidCreditAmountCents
+    progressiveBillingCreditAmountCents
     versionNumber
     appliedTaxes {
       id
@@ -62,6 +63,31 @@ export const InvoiceDetailsTableFooter = memo(
       <tfoot>
         {invoice.invoiceType !== InvoiceTypeEnum.Credit && (
           <>
+            {!!Number(invoice.progressiveBillingCreditAmountCents) && (
+              <tr>
+                <td></td>
+                <td colSpan={colSpan}>
+                  <Typography variant="bodyHl" color="grey600">
+                    {translate('text_1724936123802q74m2xxak3o')}
+                  </Typography>
+                </td>
+                <td>
+                  <Typography variant="body" color="success600">
+                    -
+                    {intlFormatNumber(
+                      deserializeAmount(
+                        invoice?.progressiveBillingCreditAmountCents || 0,
+                        currency,
+                      ),
+                      {
+                        currencyDisplay: 'symbol',
+                        currency,
+                      },
+                    )}
+                  </Typography>
+                </td>
+              </tr>
+            )}
             {shouldDisplayCouponRow && !isLegacyInvoice && (
               <tr>
                 <td></td>
