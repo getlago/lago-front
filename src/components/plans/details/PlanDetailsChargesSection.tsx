@@ -1,3 +1,4 @@
+import { Stack } from '@mui/material'
 import styled from 'styled-components'
 
 import { Accordion, Typography } from '~/components/designSystem'
@@ -56,7 +57,7 @@ const PlanDetailsChargesSection = ({
   return (
     <Container>
       {!!meteredCharges?.length && (
-        <ChargeSectionWrapper>
+        <Stack direction="column" gap={6}>
           <div>
             <Typography variant="bodyHl" color="grey700">
               {translate('text_64d2713ec021c6005ef64e03')}
@@ -168,10 +169,10 @@ const PlanDetailsChargesSection = ({
               </ChargeSectionWrapper>
             </Accordion>
           ))}
-        </ChargeSectionWrapper>
+        </Stack>
       )}
       {!!recurringCharges?.length && (
-        <ChargeSectionWrapper>
+        <Stack direction="column" gap={6}>
           <div>
             <Typography variant="bodyHl" color="grey700">
               {translate('text_64d271e20a9c11005bd6688a')}
@@ -279,7 +280,7 @@ const PlanDetailsChargesSection = ({
               </ChargeSectionWrapper>
             </Accordion>
           ))}
-        </ChargeSectionWrapper>
+        </Stack>
       )}
     </Container>
   )

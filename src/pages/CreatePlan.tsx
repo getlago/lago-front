@@ -94,6 +94,12 @@ gql`
       ...ChargeAccordion
       chargeModel
     }
+    usageThresholds {
+      id
+      amountCents
+      recurring
+      thresholdDisplayName
+    }
 
     ...PlanForChargeAccordion
     ...PlanForSettingsSection
