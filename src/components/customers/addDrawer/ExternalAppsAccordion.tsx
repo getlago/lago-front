@@ -29,7 +29,6 @@ import {
   MUI_BUTTON_BASE_ROOT_CLASSNAME,
 } from '~/core/constants/form'
 import { INTEGRATIONS_ROUTE } from '~/core/router'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   AnrokIntegration,
   CreateCustomerInput,
@@ -210,8 +209,6 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
   const selectedXeroIntegrationSettings = allXeroIntegrations?.find(
     (i) => i.code === selectedXeroIntegration?.integrationCode,
   ) as XeroIntegration
-
-  const hasAnrokIntegrationFeatureFlag = isFeatureFlagActive(FeatureFlags.ANROK_INTEGRATION)
 
   const allAccountingIntegrationsData = useMemo(() => {
     return [...(allNetsuiteIntegrations || []), ...(allXeroIntegrations || [])]
@@ -1127,31 +1124,29 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                 {translate('text_66423cad72bbad009f2f568f')}
               </Button>
 
-              {hasAnrokIntegrationFeatureFlag && (
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  disabled={showTaxIntegrationSection}
-                  onClick={() => {
-                    setShowTaxIntegrationSection(true)
+              <Button
+                variant="quaternary"
+                align="left"
+                disabled={showTaxIntegrationSection}
+                onClick={() => {
+                  setShowTaxIntegrationSection(true)
 
-                    setTimeout(() => {
-                      const element = document.querySelector(
-                        `.${ADD_CUSTOMER_TAX_PROVIDER_ACCORDION} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
-                      ) as HTMLElement
+                  setTimeout(() => {
+                    const element = document.querySelector(
+                      `.${ADD_CUSTOMER_TAX_PROVIDER_ACCORDION} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
+                    ) as HTMLElement
 
-                      if (!element) return
+                    if (!element) return
 
-                      element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                      element.click()
-                    }, 1)
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                    element.click()
+                  }, 1)
 
-                    closePopper()
-                  }}
-                >
-                  {translate('text_6668821d94e4da4dfd8b3840')}
-                </Button>
-              )}
+                  closePopper()
+                }}
+              >
+                {translate('text_6668821d94e4da4dfd8b3840')}
+              </Button>
             </MenuPopper>
           )}
         </Popper>
