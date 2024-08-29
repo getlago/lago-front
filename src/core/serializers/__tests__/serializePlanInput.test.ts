@@ -80,6 +80,8 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
+        nonRecurringUsageThresholds: [],
+        recurringUsageThreshold: undefined,
       })
 
       expect(plan).toStrictEqual({
@@ -94,6 +96,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
+        usageThresholds: [],
       })
     })
   })
@@ -125,6 +128,8 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
+        nonRecurringUsageThresholds: [],
+        recurringUsageThreshold: undefined,
       })
 
       expect(plan).toStrictEqual({
@@ -174,6 +179,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
+        usageThresholds: [],
       })
     })
   })
@@ -205,6 +211,8 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
+        nonRecurringUsageThresholds: [],
+        recurringUsageThreshold: undefined,
       })
 
       expect(plan).toStrictEqual({
@@ -256,6 +264,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
+        usageThresholds: [],
       })
     })
   })
@@ -285,6 +294,8 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
+        nonRecurringUsageThresholds: [],
+        recurringUsageThreshold: undefined,
       })
 
       expect(plan).toStrictEqual({
@@ -323,6 +334,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
+        usageThresholds: [],
       })
     })
   })
@@ -353,6 +365,8 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
+        nonRecurringUsageThresholds: [],
+        recurringUsageThreshold: undefined,
       })
 
       expect(plan).toStrictEqual({
@@ -391,6 +405,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
+        usageThresholds: [],
       })
     })
   })
@@ -421,6 +436,8 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
+        nonRecurringUsageThresholds: [],
+        recurringUsageThreshold: undefined,
       })
 
       expect(plan).toStrictEqual({
@@ -459,6 +476,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
+        usageThresholds: [],
       })
     })
 
@@ -488,6 +506,8 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
+        nonRecurringUsageThresholds: [],
+        recurringUsageThreshold: undefined,
       })
 
       expect(plan).toStrictEqual({
@@ -522,6 +542,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
+        usageThresholds: [],
       })
     })
 
@@ -578,6 +599,8 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
+        nonRecurringUsageThresholds: [],
+        recurringUsageThreshold: undefined,
       })
 
       expect(plan).toStrictEqual({
@@ -651,6 +674,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
+        usageThresholds: [],
       })
     })
   })
@@ -681,6 +705,8 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
+        nonRecurringUsageThresholds: [],
+        recurringUsageThreshold: undefined,
       })
 
       expect(plan).toStrictEqual({
@@ -730,6 +756,7 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
+        usageThresholds: [],
       })
     })
   })
@@ -760,6 +787,8 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
+        nonRecurringUsageThresholds: [],
+        recurringUsageThreshold: undefined,
       })
 
       expect(plan).toStrictEqual({
@@ -799,6 +828,70 @@ describe('serializePlanInput()', () => {
         payInAdvance: true,
         trialPeriod: 1,
         taxCodes: [],
+        usageThresholds: [],
+      })
+    })
+  })
+
+  describe('a plan with usage thresholds', () => {
+    it('returns plan correctly serialized', () => {
+      const plan = serializePlanInput({
+        amountCents: '1',
+        amountCurrency: CurrencyEnum.Eur,
+        billChargesMonthly: true,
+        charges: [],
+        code: 'my-plan',
+        interval: PlanInterval.Monthly,
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+        nonRecurringUsageThresholds: [
+          {
+            amountCents: '1',
+            thresholdDisplayName: 'Threshold 1',
+            recurring: false,
+          },
+          {
+            amountCents: '2',
+            recurring: false,
+          },
+        ],
+        recurringUsageThreshold: {
+          amountCents: '2',
+          recurring: true,
+        },
+      })
+
+      expect(plan).toStrictEqual({
+        amountCents: 100,
+        amountCurrency: 'EUR',
+        billChargesMonthly: true,
+        charges: [],
+        code: 'my-plan',
+        interval: 'monthly',
+        minimumCommitment: {},
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+        usageThresholds: [
+          {
+            amountCents: 100,
+            thresholdDisplayName: 'Threshold 1',
+            recurring: false,
+          },
+          {
+            amountCents: 200,
+            recurring: false,
+            thresholdDisplayName: null,
+          },
+          {
+            amountCents: 200,
+            recurring: true,
+            thresholdDisplayName: null,
+          },
+        ],
       })
     })
   })
