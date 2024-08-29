@@ -45,7 +45,6 @@ import {
   TAX_MANAGEMENT_INTEGRATION_ROUTE,
   XERO_INTEGRATION_ROUTE,
 } from '~/core/router'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { IntegrationTypeEnum, useIntegrationsSettingQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Adyen from '~/public/images/adyen.svg'
@@ -117,7 +116,6 @@ const Integrations = () => {
   const { data, loading } = useIntegrationsSettingQuery({
     variables: { limit: 1000 },
   })
-  const hasAnrokIntegrationFeatureFlag = isFeatureFlagActive(FeatureFlags.ANROK_INTEGRATION)
 
   const organization = data?.organization
   const hasAdyenIntegration = data?.paymentProviders?.collection?.some(
@@ -169,39 +167,38 @@ const Integrations = () => {
           </LoadingContainer>
         ) : (
           <>
-            {hasAnrokIntegrationFeatureFlag && (
-              <StyledSelector
-                fullWidth
-                title={translate('text_6668821d94e4da4dfd8b3834')}
-                subtitle={translate('text_6668821d94e4da4dfd8b3840')}
-                endIcon={
-                  !hasAccessToAnrokPremiumIntegration ? (
-                    'sparkles'
-                  ) : hasAnrokIntegration ? (
-                    <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
-                  ) : undefined
+            <StyledSelector
+              fullWidth
+              title={translate('text_6668821d94e4da4dfd8b3834')}
+              subtitle={translate('text_6668821d94e4da4dfd8b3840')}
+              endIcon={
+                !hasAccessToAnrokPremiumIntegration ? (
+                  'sparkles'
+                ) : hasAnrokIntegration ? (
+                  <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+                ) : undefined
+              }
+              icon={
+                <Avatar size="big" variant="connector">
+                  {<Anrok />}
+                </Avatar>
+              }
+              onClick={() => {
+                if (!hasAccessToAnrokPremiumIntegration) {
+                  premiumWarningDialogRef.current?.openDialog({
+                    title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                    description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                    mailtoSubject: translate('text_666887641443e4a75b9ead3d'),
+                    mailtoBody: translate('text_666887641443e4a75b9ead3e'),
+                  })
+                } else if (hasAnrokIntegration) {
+                  navigate(ANROK_INTEGRATION_ROUTE)
+                } else {
+                  addAnrokDialogRef.current?.openDialog()
                 }
-                icon={
-                  <Avatar size="big" variant="connector">
-                    {<Anrok />}
-                  </Avatar>
-                }
-                onClick={() => {
-                  if (!hasAccessToAnrokPremiumIntegration) {
-                    premiumWarningDialogRef.current?.openDialog({
-                      title: translate('text_661ff6e56ef7e1b7c542b1ea'),
-                      description: translate('text_661ff6e56ef7e1b7c542b1f6'),
-                      mailtoSubject: translate('text_666887641443e4a75b9ead3d'),
-                      mailtoBody: translate('text_666887641443e4a75b9ead3e'),
-                    })
-                  } else if (hasAnrokIntegration) {
-                    navigate(ANROK_INTEGRATION_ROUTE)
-                  } else {
-                    addAnrokDialogRef.current?.openDialog()
-                  }
-                }}
-              />
-            )}
+              }}
+            />
+
             <StyledSelector
               title={translate('text_645d071272418a14c1c76a6d')}
               subtitle={translate('text_634ea0ecc6147de10ddb6631')}
