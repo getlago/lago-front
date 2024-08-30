@@ -1002,12 +1002,9 @@ const CreateInvoice = () => {
                                         ? null
                                         : !hasAnyFee
                                           ? '-'
-                                          : intlFormatNumber(
-                                              deserializeAmount(taxToDisplay.amount || 0, currency),
-                                              {
-                                                currency,
-                                              },
-                                            )}
+                                          : intlFormatNumber(taxToDisplay.amount, {
+                                              currency,
+                                            })}
                                     </Typography>
                                   </InvoiceFooterLine>
                                 )
