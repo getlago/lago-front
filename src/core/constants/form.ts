@@ -83,10 +83,15 @@ export enum LocalTaxProviderErrorsEnum {
   GenericErrorMessage = 'text_17238318811307ghoc4v7mt9',
 }
 
-export const appliedTaxEnumedTaxCodeTranslationKey = {
+export const appliedTaxEnumedTaxCodeTranslationKey: Record<
+  InvoiceAppliedTaxOnWholeInvoiceCodeEnum,
+  string
+> = {
   [InvoiceAppliedTaxOnWholeInvoiceCodeEnum.CustomerExempt]: 'text_1724857130376douaqt98pna',
   [InvoiceAppliedTaxOnWholeInvoiceCodeEnum.TransactionExempt]: 'text_1724857130376douaqt98pna',
   [InvoiceAppliedTaxOnWholeInvoiceCodeEnum.ReverseCharge]: 'text_1724857130376w85w86kutdb',
   [InvoiceAppliedTaxOnWholeInvoiceCodeEnum.JurisNotTaxed]: 'text_1724857130376u3cph3amxmh',
   [InvoiceAppliedTaxOnWholeInvoiceCodeEnum.NotCollecting]: 'text_1724857130376u3cph3amxmh',
+  [InvoiceAppliedTaxOnWholeInvoiceCodeEnum.JurisHasNoTax]: 'text_1724857130376u3cph3amxmh',
+  [InvoiceAppliedTaxOnWholeInvoiceCodeEnum.UnknownTaxation]: 'text_17250100329108guatmyl9tj',
 }

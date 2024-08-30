@@ -2592,10 +2592,12 @@ export type InvoiceAppliedTax = AppliedTax & {
 
 export enum InvoiceAppliedTaxOnWholeInvoiceCodeEnum {
   CustomerExempt = 'customer_exempt',
+  JurisHasNoTax = 'juris_has_no_tax',
   JurisNotTaxed = 'juris_not_taxed',
   NotCollecting = 'not_collecting',
   ReverseCharge = 'reverse_charge',
-  TransactionExempt = 'transaction_exempt'
+  TransactionExempt = 'transaction_exempt',
+  UnknownTaxation = 'unknown_taxation'
 }
 
 /** InvoiceCollection type */
