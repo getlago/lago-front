@@ -407,7 +407,7 @@ const CreateInvoice = () => {
                 amount: Number(tax.taxAmount || 0),
                 label: !!tax.enumedTaxCode
                   ? translate(appliedTaxEnumedTaxCodeTranslationKey[tax.enumedTaxCode])
-                  : `${tax.name} (${tax.rate}%)`,
+                  : `${tax.name} (${!tax?.rate || tax?.rate === 0 ? 0 : tax.rate * 100}%)`,
                 taxRate: (tax.rate || 0) * 100,
                 hasEnumedTaxCode: !!tax.enumedTaxCode,
               })
@@ -1002,9 +1002,12 @@ const CreateInvoice = () => {
                                         ? null
                                         : !hasAnyFee
                                           ? '-'
-                                          : intlFormatNumber(taxToDisplay.amount, {
-                                              currency,
-                                            })}
+                                          : intlFormatNumber(
+                                              deserializeAmount(taxToDisplay.amount || 0, currency),
+                                              {
+                                                currency,
+                                              },
+                                            )}
                                     </Typography>
                                   </InvoiceFooterLine>
                                 )
