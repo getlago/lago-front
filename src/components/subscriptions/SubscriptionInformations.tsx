@@ -14,6 +14,7 @@ import { PlanDetailsTabsOptionsEnum } from '~/pages/PlanDetails'
 import { theme } from '~/styles'
 import { DetailsInfoGrid, DetailsInfoItem, DetailsSectionTitle } from '~/styles/detailsPage'
 
+import { ConditionalWrapper } from '../ConditionalWrapper'
 import { Alert, Status, StatusType } from '../designSystem'
 
 gql`
@@ -74,13 +75,21 @@ const SubscriptionInformations = ({
             {
               label: translate('text_65201c5a175a4b0238abf29a'),
               value: (
-                <Link
-                  to={generatePath(CUSTOMER_DETAILS_ROUTE, {
-                    customerId: subscription?.customer?.id as string,
-                  })}
+                <ConditionalWrapper
+                  condition={!!subscription?.customer?.id}
+                  validWrapper={(children) => (
+                    <Link
+                      to={generatePath(CUSTOMER_DETAILS_ROUTE, {
+                        customerId: subscription?.customer?.id as string,
+                      })}
+                    >
+                      {children}
+                    </Link>
+                  )}
+                  invalidWrapper={(children) => <>{children}</>}
                 >
                   {subscription?.customer?.name}
-                </Link>
+                </ConditionalWrapper>
               ),
             },
             {
@@ -112,16 +121,28 @@ const SubscriptionInformations = ({
             !!subscription?.plan?.parent?.id && {
               label: translate('text_65201c5a175a4b0238abf2a2'),
               value: (
-                <Link
-                  to={generatePath(CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, {
-                    customerId: subscription?.customer?.id as string,
-                    subscriptionId: subscription?.id as string,
-                    planId: subscription?.plan?.parent?.id as string,
-                    tab: PlanDetailsTabsOptionsEnum.overview,
-                  })}
+                <ConditionalWrapper
+                  condition={
+                    !!subscription?.customer?.id &&
+                    !!subscription?.id &&
+                    !!subscription?.plan?.parent?.id
+                  }
+                  validWrapper={(children) => (
+                    <Link
+                      to={generatePath(CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, {
+                        customerId: subscription?.customer?.id as string,
+                        subscriptionId: subscription?.id as string,
+                        planId: subscription?.plan?.parent?.id as string,
+                        tab: PlanDetailsTabsOptionsEnum.overview,
+                      })}
+                    >
+                      {children}
+                    </Link>
+                  )}
+                  invalidWrapper={(children) => <>{children}</>}
                 >
                   {subscription?.plan?.parent?.name}
-                </Link>
+                </ConditionalWrapper>
               ),
             },
           ]}
