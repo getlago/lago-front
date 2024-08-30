@@ -146,7 +146,6 @@ export const EditInvoiceItemTaxDialog = forwardRef<EditInvoiceItemTaxDialogRef>(
                       ({ id: localTaxId = '', name = '', rate = 0 }) => {
                         return {
                           label: `${name} (${intlFormatNumber(Number(rate) / 100 || 0, {
-                            minimumFractionDigits: 2,
                             style: 'percent',
                           })})`,
                           labelNode: (
@@ -155,7 +154,6 @@ export const EditInvoiceItemTaxDialog = forwardRef<EditInvoiceItemTaxDialogRef>(
                               <Typography color="textPrimary">
                                 (
                                 {intlFormatNumber(Number(rate) / 100 || 0, {
-                                  minimumFractionDigits: 2,
                                   style: 'percent',
                                 })}
                                 )

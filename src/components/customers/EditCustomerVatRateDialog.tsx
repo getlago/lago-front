@@ -94,7 +94,6 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
 
         return {
           label: `${name} - (${intlFormatNumber((rate || 0) / 100, {
-            minimumFractionDigits: 2,
             style: 'percent',
           })})`,
           labelNode: (
@@ -103,7 +102,6 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
               <Typography color="textPrimary">
                 (
                 {intlFormatNumber((rate || 0) / 100, {
-                  minimumFractionDigits: 2,
                   style: 'percent',
                 })}
                 )

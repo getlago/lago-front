@@ -107,7 +107,6 @@ const CreateAddOn = () => {
     return taxesCollection.map(({ id, name, rate }) => {
       return {
         label: `${name} (${intlFormatNumber(Number(rate) / 100 || 0, {
-          minimumFractionDigits: 2,
           style: 'percent',
         })})`,
         labelNode: (
@@ -116,7 +115,6 @@ const CreateAddOn = () => {
             <Typography color="textPrimary">
               (
               {intlFormatNumber(Number(rate) / 100 || 0, {
-                minimumFractionDigits: 2,
                 style: 'percent',
               })}
               )

@@ -221,7 +221,6 @@ const LagoTaxManagementIntegration = () => {
                   <Chip label={translate('text_657078c28394d6b1ae1b9755')} />
                   <Typography variant="body" color="grey700" align="right">
                     {intlFormatNumber(tax.rate / 100, {
-                      minimumFractionDigits: 2,
                       style: 'percent',
                     })}
                   </Typography>

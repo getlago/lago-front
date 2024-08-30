@@ -7,7 +7,10 @@ import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternat
 
 import { TextInput, TextInputProps, ValueFormatter, ValueFormatterType } from '../TextInput'
 
-type AmountValueFormatter = Exclude<keyof typeof ValueFormatter, 'int' | 'decimal' | 'triDecimal'>
+type AmountValueFormatter = Exclude<
+  keyof typeof ValueFormatter,
+  'int' | 'decimal' | 'triDecimal' | 'quadDecimal'
+>
 
 type AmountValueFormatterType = AmountValueFormatter
 

@@ -251,7 +251,6 @@ export const InvoiceDetailsTableBodyLine = memo(
                               color="grey700"
                             >
                               {intlFormatNumber(appliedTaxes.taxRate / 100 || 0, {
-                                maximumFractionDigits: 2,
                                 style: 'percent',
                               })}
                             </Typography>

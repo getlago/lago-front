@@ -80,7 +80,6 @@ export const CouponCaption = memo(({ coupon, variant = 'caption' }: CouponCaptio
     } else if (couponType === CouponTypeEnum.Percentage && frequency === CouponFrequency.Once) {
       return translate('text_632d68358f1fedc68eed3eb5', {
         rate: intlFormatNumber(Number(percentageRate) / 100 || 0, {
-          minimumFractionDigits: 2,
           style: 'percent',
         }),
       })
@@ -113,7 +112,6 @@ export const CouponCaption = memo(({ coupon, variant = 'caption' }: CouponCaptio
         'text_632d68358f1fedc68eed3ef9',
         {
           rate: intlFormatNumber(Number(percentageRate) / 100 || 0, {
-            minimumFractionDigits: 2,
             style: 'percent',
           }),
           duration: frequencyDurationRemaining || frequencyDuration,
@@ -133,7 +131,6 @@ export const CouponCaption = memo(({ coupon, variant = 'caption' }: CouponCaptio
     } else if (couponType === CouponTypeEnum.Percentage && frequency === CouponFrequency.Forever) {
       return translate('text_63c96b18bfbf40e9ef600e99', {
         rate: intlFormatNumber(Number(percentageRate) / 100 || 0, {
-          minimumFractionDigits: 2,
           style: 'percent',
         }),
       })

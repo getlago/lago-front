@@ -71,7 +71,6 @@ const CouponDetails = () => {
   const coupon = couponResult?.coupon
 
   const percentageRate = intlFormatNumber(Number(coupon?.percentageRate) / 100 || 0, {
-    minimumFractionDigits: 2,
     style: 'percent',
   })
 

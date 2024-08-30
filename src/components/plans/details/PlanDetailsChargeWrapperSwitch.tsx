@@ -123,12 +123,10 @@ const PlanDetailsChargeWrapperSwitch = ({
                     value.toValue || '∞',
                     intlFormatNumber(Number(value.rate) / 100 || 0, {
                       style: 'percent',
-                      minimumFractionDigits: 2,
                       maximumFractionDigits: 15,
                     }),
                     intlFormatNumber(Number(value.flatAmount) || 0, {
                       currency: currency,
-                      minimumFractionDigits: 2,
                       maximumFractionDigits: 15,
                     }),
                   ]
@@ -150,7 +148,6 @@ const PlanDetailsChargeWrapperSwitch = ({
               [
                 intlFormatNumber(Number(values?.rate) / 100 || 0, {
                   style: 'percent',
-                  minimumFractionDigits: 2,
                   maximumFractionDigits: 15,
                 }),
                 intlFormatNumber(Number(values?.fixedAmount) || 0, {

@@ -79,7 +79,6 @@ export const CommitmentsSection = ({
     return taxesCollection.map(({ id: taxId, name, rate }) => {
       return {
         label: `${name} (${intlFormatNumber(Number(rate) / 100 || 0, {
-          minimumFractionDigits: 2,
           style: 'percent',
         })})`,
         labelNode: (
@@ -88,7 +87,6 @@ export const CommitmentsSection = ({
             <Typography color="textPrimary">
               (
               {intlFormatNumber(Number(rate) / 100 || 0, {
-                minimumFractionDigits: 2,
                 style: 'percent',
               })}
               )
@@ -179,7 +177,6 @@ export const CommitmentsSection = ({
                 {!!taxValueForBadgeDisplay && (
                   <Chip
                     label={intlFormatNumber(Number(taxValueForBadgeDisplay) / 100 || 0, {
-                      minimumFractionDigits: 2,
                       style: 'percent',
                     })}
                   />

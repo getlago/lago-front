@@ -211,7 +211,6 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                       <RightSection>
                         <Typography variant="body" color="grey700">
                           {intlFormatNumber((rate || 0) / 100, {
-                            minimumFractionDigits: 2,
                             style: 'percent',
                           })}
                         </Typography>
