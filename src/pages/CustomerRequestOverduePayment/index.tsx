@@ -15,16 +15,16 @@ import {
   CurrencyEnum,
   CustomerForRequestOverduePaymentEmailFragmentDoc,
   CustomerForRequestOverduePaymentFormFragmentDoc,
+  IntegrationTypeEnum,
   InvoicesForRequestOverduePaymentEmailFragmentDoc,
   InvoicesForRequestOverduePaymentFormFragmentDoc,
   LastPaymentRequestFragmentDoc,
   OrganizationForRequestOverduePaymentEmailFragmentDoc,
   useCreatePaymentRequestMutation,
-  useGetRequestOverduePaymentBalanceQuery,
+  useGetRequestOverduePaymentAccessQuery,
   useGetRequestOverduePaymentInfosQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { EmailPreview } from '~/pages/CustomerRequestOverduePayment/components/EmailPreview'
 import {
   serializeEmails,
@@ -39,6 +39,12 @@ import {
 } from './components/RequestPaymentForm'
 
 gql`
+  query getRequestOverduePaymentAccess {
+    organization {
+      premiumIntegrations
+    }
+  }
+
   query getRequestOverduePaymentInfos($id: ID!) {
     organization {
       defaultCurrency
@@ -58,14 +64,7 @@ gql`
       }
     }
 
-    ${CustomerForRequestOverduePaymentFormFragmentDoc}
-    ${CustomerForRequestOverduePaymentEmailFragmentDoc}
-    ${OrganizationForRequestOverduePaymentEmailFragmentDoc}
-    ${LastPaymentRequestFragmentDoc}
-  }
-
-  query getRequestOverduePaymentBalance($externalCustomerId: String) {
-    invoices(paymentOverdue:true, customerExternalId: $externalCustomerId) {
+    invoices(paymentOverdue:true, customerId: $id) {
       collection {
         ...InvoicesForRequestOverduePaymentEmail
         ...InvoicesForRequestOverduePaymentForm
@@ -74,6 +73,10 @@ gql`
 
     ${InvoicesForRequestOverduePaymentEmailFragmentDoc}
     ${InvoicesForRequestOverduePaymentFormFragmentDoc}
+    ${CustomerForRequestOverduePaymentFormFragmentDoc}
+    ${CustomerForRequestOverduePaymentEmailFragmentDoc}
+    ${OrganizationForRequestOverduePaymentEmailFragmentDoc}
+    ${LastPaymentRequestFragmentDoc}
   }
 
   mutation createPaymentRequest($input: PaymentRequestCreateInput!) {
@@ -88,26 +91,25 @@ const FOOTER_HEIGHT = 80
 const CustomerRequestOverduePayment: FC = () => {
   const { translate } = useInternationalization()
   const { customerId } = useParams()
-  const { isPremium } = useCurrentUser()
   const navigate = useNavigate()
 
+  const { data: organizationData, loading: organizationLoading } =
+    useGetRequestOverduePaymentAccessQuery()
+
   const {
-    data: { customer, organization, paymentRequests } = {},
-    loading: infosLoading,
-    error: infosError,
+    data: { customer, organization, paymentRequests, invoices } = {},
+    loading,
+    error,
   } = useGetRequestOverduePaymentInfosQuery({
     variables: { id: customerId ?? '' },
   })
 
-  const { data: { invoices } = {}, loading: invoicesLoading } =
-    useGetRequestOverduePaymentBalanceQuery({
-      variables: {
-        externalCustomerId: customer?.externalId,
-      },
-      skip: !customer,
-    })
+  const hasDunningIntegration = !!organizationData?.organization?.premiumIntegrations.includes(
+    IntegrationTypeEnum.Dunning,
+  )
 
   const [paymentRequest] = useCreatePaymentRequestMutation({
+    refetchQueries: ['getCustomerOverdueBalances'],
     onCompleted() {
       addToast({
         severity: 'success',
@@ -135,6 +137,10 @@ const CustomerRequestOverduePayment: FC = () => {
     validateOnMount: true,
     enableReinitialize: true,
     onSubmit: async (values) => {
+      if (!hasDunningIntegration) {
+        return
+      }
+
       await paymentRequest({
         variables: {
           input: {
@@ -155,13 +161,18 @@ const CustomerRequestOverduePayment: FC = () => {
     0,
   )
   const totalInvoices = invoicesCollection.length
-  const isLoading = infosLoading || invoicesLoading
 
   useEffect(() => {
-    if (hasDefinedGQLError('NotFound', infosError, 'customer')) {
+    if (hasDefinedGQLError('NotFound', error, 'customer')) {
       navigate(ERROR_404_ROUTE)
     }
   })
+
+  // Don't render the page until we have the know if the
+  // organization has access to the feature to avoid glitches
+  if (organizationLoading) {
+    return null
+  }
 
   return (
     <>
@@ -191,10 +202,10 @@ const CustomerRequestOverduePayment: FC = () => {
 
       <Main>
         <LeftSection>
-          <FreemiumAlert />
+          {!hasDunningIntegration && <FreemiumAlert />}
           <Wrapper>
             <RequestPaymentForm
-              invoicesLoading={isLoading}
+              invoicesLoading={loading}
               formikProps={formikProps}
               overdueAmount={totalAmount}
               currency={defaultCurrency}
@@ -206,7 +217,7 @@ const CustomerRequestOverduePayment: FC = () => {
         <RightSection>
           <Wrapper>
             <EmailPreview
-              isLoading={isLoading}
+              isLoading={loading}
               documentLocale={LocaleEnum[documentLocale]}
               customer={customer ?? undefined}
               organization={organization ?? undefined}
@@ -233,7 +244,7 @@ const CustomerRequestOverduePayment: FC = () => {
             variant="primary"
             size="large"
             onClick={formikProps.submitForm}
-            disabled={!isPremium || totalAmount === 0 || !formikProps.isValid}
+            disabled={!hasDunningIntegration || totalAmount === 0 || !formikProps.isValid}
           >
             {translate('text_66b258f62100490d0eb5caa2')}
           </Button>

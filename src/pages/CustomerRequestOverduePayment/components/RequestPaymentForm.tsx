@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
 import { FormikProps } from 'formik'
 import { DateTime } from 'luxon'
-import { FC } from 'react'
+import { FC, useMemo } from 'react'
 import styled from 'styled-components'
 
 import { Alert, Skeleton, Table, Typography } from '~/components/designSystem'
@@ -10,6 +10,7 @@ import { TextInputField } from '~/components/form'
 import { OverviewCard } from '~/components/OverviewCard'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { isSameDay } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
 import {
   CurrencyEnum,
@@ -63,11 +64,12 @@ export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
   const amount = intlFormatNumber(overdueAmount, { currency, currencyDisplay: 'narrowSymbol' })
   const count = invoices.length
 
-  const date = DateTime.fromISO(lastSentDate?.createdAt).toUTC()
+  const date = useMemo(() => DateTime.fromISO(lastSentDate?.createdAt).toUTC(), [lastSentDate])
+  const today = useMemo(() => DateTime.now().toUTC(), [])
 
   return (
     <Stack flexDirection="column" gap={10}>
-      {!!lastSentDate && (
+      {isSameDay(date, today) && (
         <Alert type="info">
           <Typography variant="body" color="textSecondary">
             {translate('text_66b4f00bd67ccc185ea75c70', {

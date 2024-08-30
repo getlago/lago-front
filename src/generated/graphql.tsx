@@ -208,7 +208,7 @@ export type AppliedTax = {
   amountCurrency: CurrencyEnum;
   createdAt: Scalars['ISO8601DateTime']['output'];
   id: Scalars['ID']['output'];
-  tax: Tax;
+  tax?: Maybe<Tax>;
   taxCode: Scalars['String']['output'];
   taxDescription?: Maybe<Scalars['String']['output']>;
   taxName: Scalars['String']['output'];
@@ -356,7 +356,7 @@ export enum ChargeModelEnum {
 export type ChargeOverridesInput = {
   billableMetricId: Scalars['ID']['input'];
   filters?: InputMaybe<Array<ChargeFilterInput>>;
-  id: Scalars['ID']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
   minAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   properties?: InputMaybe<PropertiesInput>;
@@ -1340,7 +1340,7 @@ export type CreditNoteAppliedTax = AppliedTax & {
   createdAt: Scalars['ISO8601DateTime']['output'];
   creditNote: CreditNote;
   id: Scalars['ID']['output'];
-  tax: Tax;
+  tax?: Maybe<Tax>;
   taxCode: Scalars['String']['output'];
   taxDescription?: Maybe<Scalars['String']['output']>;
   taxName: Scalars['String']['output'];
@@ -2270,7 +2270,7 @@ export type FeeAppliedTax = AppliedTax & {
   createdAt: Scalars['ISO8601DateTime']['output'];
   fee: Fee;
   id: Scalars['ID']['output'];
-  tax: Tax;
+  tax?: Maybe<Tax>;
   taxCode: Scalars['String']['output'];
   taxDescription?: Maybe<Scalars['String']['output']>;
   taxName: Scalars['String']['output'];
@@ -2607,7 +2607,7 @@ export type InvoiceAppliedTax = AppliedTax & {
   feesAmountCents: Scalars['BigInt']['output'];
   id: Scalars['ID']['output'];
   invoice: Invoice;
-  tax: Tax;
+  tax?: Maybe<Tax>;
   taxCode: Scalars['String']['output'];
   taxDescription?: Maybe<Scalars['String']['output']>;
   taxName: Scalars['String']['output'];
@@ -5349,6 +5349,7 @@ export type UsageThresholdInput = {
 
 export type UsageThresholdOverridesInput = {
   amountCents: Scalars['BigInt']['input'];
+  id?: InputMaybe<Scalars['ID']['input']>;
   recurring?: InputMaybe<Scalars['Boolean']['input']>;
   thresholdDisplayName?: InputMaybe<Scalars['String']['input']>;
 };
@@ -5951,15 +5952,6 @@ export type RemoveCouponMutationVariables = Exact<{
 
 export type RemoveCouponMutation = { __typename?: 'Mutation', terminateAppliedCoupon?: { __typename?: 'AppliedCoupon', id: string } | null };
 
-export type GetCustomerGrossRevenuesQueryVariables = Exact<{
-  externalCustomerId: Scalars['String']['input'];
-  currency?: InputMaybe<CurrencyEnum>;
-  expireCache?: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-export type GetCustomerGrossRevenuesQuery = { __typename?: 'Query', grossRevenues: { __typename?: 'GrossRevenueCollection', collection: Array<{ __typename?: 'GrossRevenue', amountCents?: any | null, currency?: CurrencyEnum | null, invoicesCount: any, month: any }> } };
-
 export type GetCustomerOverdueBalancesQueryVariables = Exact<{
   externalCustomerId: Scalars['String']['input'];
   currency?: InputMaybe<CurrencyEnum>;
@@ -5968,7 +5960,7 @@ export type GetCustomerOverdueBalancesQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerOverdueBalancesQuery = { __typename?: 'Query', overdueBalances: { __typename?: 'OverdueBalanceCollection', collection: Array<{ __typename?: 'OverdueBalance', amountCents: any, currency: CurrencyEnum, lagoInvoiceIds: Array<string> }> } };
+export type GetCustomerOverdueBalancesQuery = { __typename?: 'Query', paymentRequests: { __typename?: 'PaymentRequestCollection', collection: Array<{ __typename?: 'PaymentRequest', createdAt: any }> }, overdueBalances: { __typename?: 'OverdueBalanceCollection', collection: Array<{ __typename?: 'OverdueBalance', amountCents: any, currency: CurrencyEnum, lagoInvoiceIds: Array<string> }> }, grossRevenues: { __typename?: 'GrossRevenueCollection', collection: Array<{ __typename?: 'GrossRevenue', amountCents?: any | null, currency?: CurrencyEnum | null, invoicesCount: any, month: any }> } };
 
 export type GetCustomerSubscriptionForListQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -7107,14 +7099,14 @@ export type CreateSubscriptionMutationVariables = Exact<{
 }>;
 
 
-export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } } | null };
+export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } } | null };
 
 export type UpdateSubscriptionMutationVariables = Exact<{
   input: UpdateSubscriptionInput;
 }>;
 
 
-export type UpdateSubscriptionMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } } | null };
+export type UpdateSubscriptionMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } } | null };
 
 export type GetSinglePlanQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -7495,14 +7487,14 @@ export type SyncIntegrationCreditNoteMutationVariables = Exact<{
 
 export type SyncIntegrationCreditNoteMutation = { __typename?: 'Mutation', syncIntegrationCreditNote?: { __typename?: 'SyncIntegrationCreditNotePayload', creditNoteId?: string | null } | null };
 
-export type CustomerDetailsFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null };
+export type CustomerDetailsFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null };
 
 export type GetCustomerQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } | null };
+export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, name?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } | null };
 
 export type GenerateCustomerPortalUrlMutationVariables = Exact<{
   input: GenerateCustomerPortalUrlInput;
@@ -7542,19 +7534,17 @@ export type InvoicesForRequestOverduePaymentFormFragment = { __typename?: 'Invoi
 
 export type LastPaymentRequestFragment = { __typename?: 'PaymentRequest', createdAt: any };
 
+export type GetRequestOverduePaymentAccessQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetRequestOverduePaymentAccessQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', premiumIntegrations: Array<IntegrationTypeEnum> } | null };
+
 export type GetRequestOverduePaymentInfosQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetRequestOverduePaymentInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', defaultCurrency: CurrencyEnum, name: string, logoUrl?: string | null, email?: string | null, netPaymentTerm: number, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', documentLocale?: string | null } | null } | null, customer?: { __typename?: 'Customer', externalId: string, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, paymentProvider?: ProviderTypeEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null } | null, paymentRequests: { __typename?: 'PaymentRequestCollection', collection: Array<{ __typename?: 'PaymentRequest', createdAt: any }> } };
-
-export type GetRequestOverduePaymentBalanceQueryVariables = Exact<{
-  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type GetRequestOverduePaymentBalanceQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, number: string, totalAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any }> } };
+export type GetRequestOverduePaymentInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', defaultCurrency: CurrencyEnum, name: string, logoUrl?: string | null, email?: string | null, netPaymentTerm: number, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', documentLocale?: string | null } | null } | null, customer?: { __typename?: 'Customer', externalId: string, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, paymentProvider?: ProviderTypeEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null } | null, paymentRequests: { __typename?: 'PaymentRequestCollection', collection: Array<{ __typename?: 'PaymentRequest', createdAt: any }> }, invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, number: string, totalAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any }> } };
 
 export type CreatePaymentRequestMutationVariables = Exact<{
   input: PaymentRequestCreateInput;
@@ -10373,6 +10363,7 @@ export const CustomerDetailsFragmentDoc = gql`
   creditNotesCreditsAvailableCount
   creditNotesBalanceAmountCents
   applicableTimezone
+  hasOverdueInvoices
   ...AddCustomerDrawer
   ...CustomerMainInfos
 }
@@ -12513,59 +12504,13 @@ export function useRemoveCouponMutation(baseOptions?: Apollo.MutationHookOptions
 export type RemoveCouponMutationHookResult = ReturnType<typeof useRemoveCouponMutation>;
 export type RemoveCouponMutationResult = Apollo.MutationResult<RemoveCouponMutation>;
 export type RemoveCouponMutationOptions = Apollo.BaseMutationOptions<RemoveCouponMutation, RemoveCouponMutationVariables>;
-export const GetCustomerGrossRevenuesDocument = gql`
-    query getCustomerGrossRevenues($externalCustomerId: String!, $currency: CurrencyEnum, $expireCache: Boolean) {
-  grossRevenues(
-    externalCustomerId: $externalCustomerId
-    currency: $currency
-    expireCache: $expireCache
-  ) {
-    collection {
-      amountCents
-      currency
-      invoicesCount
-      month
-    }
-  }
-}
-    `;
-
-/**
- * __useGetCustomerGrossRevenuesQuery__
- *
- * To run a query within a React component, call `useGetCustomerGrossRevenuesQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCustomerGrossRevenuesQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCustomerGrossRevenuesQuery({
- *   variables: {
- *      externalCustomerId: // value for 'externalCustomerId'
- *      currency: // value for 'currency'
- *      expireCache: // value for 'expireCache'
- *   },
- * });
- */
-export function useGetCustomerGrossRevenuesQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables> & ({ variables: GetCustomerGrossRevenuesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>(GetCustomerGrossRevenuesDocument, options);
-      }
-export function useGetCustomerGrossRevenuesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>(GetCustomerGrossRevenuesDocument, options);
-        }
-export function useGetCustomerGrossRevenuesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>(GetCustomerGrossRevenuesDocument, options);
-        }
-export type GetCustomerGrossRevenuesQueryHookResult = ReturnType<typeof useGetCustomerGrossRevenuesQuery>;
-export type GetCustomerGrossRevenuesLazyQueryHookResult = ReturnType<typeof useGetCustomerGrossRevenuesLazyQuery>;
-export type GetCustomerGrossRevenuesSuspenseQueryHookResult = ReturnType<typeof useGetCustomerGrossRevenuesSuspenseQuery>;
-export type GetCustomerGrossRevenuesQueryResult = Apollo.QueryResult<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>;
 export const GetCustomerOverdueBalancesDocument = gql`
     query getCustomerOverdueBalances($externalCustomerId: String!, $currency: CurrencyEnum, $months: Int!, $expireCache: Boolean) {
+  paymentRequests {
+    collection {
+      createdAt
+    }
+  }
   overdueBalances(
     externalCustomerId: $externalCustomerId
     currency: $currency
@@ -12576,6 +12521,18 @@ export const GetCustomerOverdueBalancesDocument = gql`
       amountCents
       currency
       lagoInvoiceIds
+    }
+  }
+  grossRevenues(
+    externalCustomerId: $externalCustomerId
+    currency: $currency
+    expireCache: $expireCache
+  ) {
+    collection {
+      amountCents
+      currency
+      invoicesCount
+      month
     }
   }
 }
@@ -19572,6 +19529,45 @@ export type GetCustomerInfosForDraftInvoicesListQueryHookResult = ReturnType<typ
 export type GetCustomerInfosForDraftInvoicesListLazyQueryHookResult = ReturnType<typeof useGetCustomerInfosForDraftInvoicesListLazyQuery>;
 export type GetCustomerInfosForDraftInvoicesListSuspenseQueryHookResult = ReturnType<typeof useGetCustomerInfosForDraftInvoicesListSuspenseQuery>;
 export type GetCustomerInfosForDraftInvoicesListQueryResult = Apollo.QueryResult<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>;
+export const GetRequestOverduePaymentAccessDocument = gql`
+    query getRequestOverduePaymentAccess {
+  organization {
+    premiumIntegrations
+  }
+}
+    `;
+
+/**
+ * __useGetRequestOverduePaymentAccessQuery__
+ *
+ * To run a query within a React component, call `useGetRequestOverduePaymentAccessQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRequestOverduePaymentAccessQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRequestOverduePaymentAccessQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetRequestOverduePaymentAccessQuery(baseOptions?: Apollo.QueryHookOptions<GetRequestOverduePaymentAccessQuery, GetRequestOverduePaymentAccessQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetRequestOverduePaymentAccessQuery, GetRequestOverduePaymentAccessQueryVariables>(GetRequestOverduePaymentAccessDocument, options);
+      }
+export function useGetRequestOverduePaymentAccessLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRequestOverduePaymentAccessQuery, GetRequestOverduePaymentAccessQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetRequestOverduePaymentAccessQuery, GetRequestOverduePaymentAccessQueryVariables>(GetRequestOverduePaymentAccessDocument, options);
+        }
+export function useGetRequestOverduePaymentAccessSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRequestOverduePaymentAccessQuery, GetRequestOverduePaymentAccessQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetRequestOverduePaymentAccessQuery, GetRequestOverduePaymentAccessQueryVariables>(GetRequestOverduePaymentAccessDocument, options);
+        }
+export type GetRequestOverduePaymentAccessQueryHookResult = ReturnType<typeof useGetRequestOverduePaymentAccessQuery>;
+export type GetRequestOverduePaymentAccessLazyQueryHookResult = ReturnType<typeof useGetRequestOverduePaymentAccessLazyQuery>;
+export type GetRequestOverduePaymentAccessSuspenseQueryHookResult = ReturnType<typeof useGetRequestOverduePaymentAccessSuspenseQuery>;
+export type GetRequestOverduePaymentAccessQueryResult = Apollo.QueryResult<GetRequestOverduePaymentAccessQuery, GetRequestOverduePaymentAccessQueryVariables>;
 export const GetRequestOverduePaymentInfosDocument = gql`
     query getRequestOverduePaymentInfos($id: ID!) {
   organization {
@@ -19589,11 +19585,19 @@ export const GetRequestOverduePaymentInfosDocument = gql`
       ...LastPaymentRequest
     }
   }
+  invoices(paymentOverdue: true, customerId: $id) {
+    collection {
+      ...InvoicesForRequestOverduePaymentEmail
+      ...InvoicesForRequestOverduePaymentForm
+    }
+  }
 }
     ${OrganizationForRequestOverduePaymentEmailFragmentDoc}
 ${CustomerForRequestOverduePaymentFormFragmentDoc}
 ${CustomerForRequestOverduePaymentEmailFragmentDoc}
-${LastPaymentRequestFragmentDoc}`;
+${LastPaymentRequestFragmentDoc}
+${InvoicesForRequestOverduePaymentEmailFragmentDoc}
+${InvoicesForRequestOverduePaymentFormFragmentDoc}`;
 
 /**
  * __useGetRequestOverduePaymentInfosQuery__
@@ -19627,50 +19631,6 @@ export type GetRequestOverduePaymentInfosQueryHookResult = ReturnType<typeof use
 export type GetRequestOverduePaymentInfosLazyQueryHookResult = ReturnType<typeof useGetRequestOverduePaymentInfosLazyQuery>;
 export type GetRequestOverduePaymentInfosSuspenseQueryHookResult = ReturnType<typeof useGetRequestOverduePaymentInfosSuspenseQuery>;
 export type GetRequestOverduePaymentInfosQueryResult = Apollo.QueryResult<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables>;
-export const GetRequestOverduePaymentBalanceDocument = gql`
-    query getRequestOverduePaymentBalance($externalCustomerId: String) {
-  invoices(paymentOverdue: true, customerExternalId: $externalCustomerId) {
-    collection {
-      ...InvoicesForRequestOverduePaymentEmail
-      ...InvoicesForRequestOverduePaymentForm
-    }
-  }
-}
-    ${InvoicesForRequestOverduePaymentEmailFragmentDoc}
-${InvoicesForRequestOverduePaymentFormFragmentDoc}`;
-
-/**
- * __useGetRequestOverduePaymentBalanceQuery__
- *
- * To run a query within a React component, call `useGetRequestOverduePaymentBalanceQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetRequestOverduePaymentBalanceQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetRequestOverduePaymentBalanceQuery({
- *   variables: {
- *      externalCustomerId: // value for 'externalCustomerId'
- *   },
- * });
- */
-export function useGetRequestOverduePaymentBalanceQuery(baseOptions?: Apollo.QueryHookOptions<GetRequestOverduePaymentBalanceQuery, GetRequestOverduePaymentBalanceQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetRequestOverduePaymentBalanceQuery, GetRequestOverduePaymentBalanceQueryVariables>(GetRequestOverduePaymentBalanceDocument, options);
-      }
-export function useGetRequestOverduePaymentBalanceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRequestOverduePaymentBalanceQuery, GetRequestOverduePaymentBalanceQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetRequestOverduePaymentBalanceQuery, GetRequestOverduePaymentBalanceQueryVariables>(GetRequestOverduePaymentBalanceDocument, options);
-        }
-export function useGetRequestOverduePaymentBalanceSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRequestOverduePaymentBalanceQuery, GetRequestOverduePaymentBalanceQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetRequestOverduePaymentBalanceQuery, GetRequestOverduePaymentBalanceQueryVariables>(GetRequestOverduePaymentBalanceDocument, options);
-        }
-export type GetRequestOverduePaymentBalanceQueryHookResult = ReturnType<typeof useGetRequestOverduePaymentBalanceQuery>;
-export type GetRequestOverduePaymentBalanceLazyQueryHookResult = ReturnType<typeof useGetRequestOverduePaymentBalanceLazyQuery>;
-export type GetRequestOverduePaymentBalanceSuspenseQueryHookResult = ReturnType<typeof useGetRequestOverduePaymentBalanceSuspenseQuery>;
-export type GetRequestOverduePaymentBalanceQueryResult = Apollo.QueryResult<GetRequestOverduePaymentBalanceQuery, GetRequestOverduePaymentBalanceQueryVariables>;
 export const CreatePaymentRequestDocument = gql`
     mutation createPaymentRequest($input: PaymentRequestCreateInput!) {
   createPaymentRequest(input: $input) {

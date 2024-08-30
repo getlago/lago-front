@@ -3,16 +3,10 @@ import styled from 'styled-components'
 
 import { Button, Icon, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { theme } from '~/styles'
 
 export const FreemiumAlert: FC = () => {
   const { translate } = useInternationalization()
-  const { isPremium } = useCurrentUser()
-
-  if (isPremium) {
-    return null
-  }
 
   return (
     <Alert>
