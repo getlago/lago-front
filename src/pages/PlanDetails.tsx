@@ -184,6 +184,7 @@ const PlanDetails = () => {
       </PlanBlockWrapper>
       <NavigationTab
         leftPadding
+        loading={isPlanLoading}
         tabs={[
           {
             title: translate('text_628cf761cbe6820138b8f2e4'),
