@@ -132,6 +132,7 @@ export enum AggregationTypeEnum {
 
 export type AnrokBreakdownObject = {
   __typename?: 'AnrokBreakdownObject';
+  enumedTaxCode?: Maybe<InvoiceAppliedTaxOnWholeInvoiceCodeEnum>;
   name?: Maybe<Scalars['String']['output']>;
   rate?: Maybe<Scalars['Float']['output']>;
   taxAmount?: Maybe<Scalars['BigInt']['output']>;
@@ -7365,7 +7366,7 @@ export type FetchDraftInvoiceTaxesMutationVariables = Exact<{
 }>;
 
 
-export type FetchDraftInvoiceTaxesMutation = { __typename?: 'Mutation', fetchDraftInvoiceTaxes?: { __typename?: 'AnrokFeeObjectCollection', collection: Array<{ __typename?: 'AnrokFeeObject', amountCents?: any | null, itemId?: string | null, taxAmountCents?: any | null, taxBreakdown?: Array<{ __typename?: 'AnrokBreakdownObject', name?: string | null, rate?: number | null, taxAmount?: any | null }> | null }> } | null };
+export type FetchDraftInvoiceTaxesMutation = { __typename?: 'Mutation', fetchDraftInvoiceTaxes?: { __typename?: 'AnrokFeeObjectCollection', collection: Array<{ __typename?: 'AnrokFeeObject', amountCents?: any | null, itemId?: string | null, taxAmountCents?: any | null, taxBreakdown?: Array<{ __typename?: 'AnrokBreakdownObject', name?: string | null, rate?: number | null, taxAmount?: any | null, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null }> } | null };
 
 export type TaxForPlanAndChargesInPlanFormFragment = { __typename?: 'Tax', id: string, code: string, name: string, rate: number };
 
@@ -18781,6 +18782,7 @@ export const FetchDraftInvoiceTaxesDocument = gql`
         name
         rate
         taxAmount
+        enumedTaxCode
       }
     }
   }

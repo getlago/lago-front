@@ -38,6 +38,7 @@ import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { CountryCodes } from '~/core/constants/countryCodes'
 import {
   ADD_ITEM_FOR_INVOICE_INPUT_NAME,
+  appliedTaxEnumedTaxCodeTranslationKey,
   LocalTaxProviderErrorsEnum,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
 } from '~/core/constants/form'
@@ -158,6 +159,7 @@ gql`
           name
           rate
           taxAmount
+          enumedTaxCode
         }
       }
     }
@@ -172,6 +174,7 @@ type TaxMapType = Map<
     label: string
     amount: number
     taxRate: number
+    hasEnumedTaxCode?: boolean
   }
 >
 
@@ -402,8 +405,11 @@ const CreateInvoice = () => {
             } else {
               acc.set(tax.rate, {
                 amount: Number(tax.taxAmount || 0),
-                label: `${tax.name} (${tax.rate}%)`,
+                label: !!tax.enumedTaxCode
+                  ? translate(appliedTaxEnumedTaxCodeTranslationKey[tax.enumedTaxCode])
+                  : `${tax.name} (${tax.rate}%)`,
                 taxRate: (tax.rate || 0) * 100,
+                hasEnumedTaxCode: !!tax.enumedTaxCode,
               })
             }
           })
@@ -427,7 +433,13 @@ const CreateInvoice = () => {
       taxProviderSubtotalHT: localTaxProviderSubtotalHT,
       taxProviderTotalTTC: localTaxProviderSubtotalHT + taxesTotalAmount,
     }
-  }, [currency, formikProps.values.fees, hasTaxProvider, taxProviderTaxesResult?.collection])
+  }, [
+    currency,
+    formikProps.values.fees,
+    hasTaxProvider,
+    taxProviderTaxesResult?.collection,
+    translate,
+  ])
 
   if (!!error && !loading) {
     return (
@@ -986,14 +998,16 @@ const CreateInvoice = () => {
                                       color="grey700"
                                       data-test={`one-off-invoice-tax-item-${i}-value`}
                                     >
-                                      {!hasAnyFee
-                                        ? '-'
-                                        : intlFormatNumber(
-                                            deserializeAmount(taxToDisplay.amount || 0, currency),
-                                            {
-                                              currency,
-                                            },
-                                          )}
+                                      {taxToDisplay.hasEnumedTaxCode
+                                        ? null
+                                        : !hasAnyFee
+                                          ? '-'
+                                          : intlFormatNumber(
+                                              deserializeAmount(taxToDisplay.amount || 0, currency),
+                                              {
+                                                currency,
+                                              },
+                                            )}
                                     </Typography>
                                   </InvoiceFooterLine>
                                 )
