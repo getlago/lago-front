@@ -16,7 +16,7 @@ import {
 import { AmountInput, Switch, TextInput } from '~/components/form'
 import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
-import { IntegrationTypeEnum } from '~/generated/graphql'
+import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useProgressiveBillingForm } from '~/hooks/plans/useProgressiveBillingForm'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -56,7 +56,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
   const currency = formikProps.values.amountCurrency
 
   const hasPremiumIntegration = !!premiumIntegrations?.includes(
-    IntegrationTypeEnum.ProgressiveBilling,
+    PremiumIntegrationTypeEnum.ProgressiveBilling,
   )
 
   useEffect(() => {
