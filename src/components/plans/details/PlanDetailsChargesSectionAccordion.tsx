@@ -59,9 +59,9 @@ const PlanDetailsChargesSectionAccordion = ({
               <Accordion
                 key={`plan-details-charges-section-accordion-${i}`}
                 summary={
-                  <Typography variant="bodyHl" color="grey700">
+                  <ChargeFilterTypography variant="bodyHl" color="grey700">
                     {filter.invoiceDisplayName || accordionMappedDisplayValues}
-                  </Typography>
+                  </ChargeFilterTypography>
                 }
               >
                 <PlanDetailsChargeWrapperSwitch
@@ -92,4 +92,10 @@ const PaddedChargesWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${theme.spacing(4)};
+`
+
+const ChargeFilterTypography = styled(Typography)`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `
