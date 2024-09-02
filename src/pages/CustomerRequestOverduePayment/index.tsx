@@ -303,9 +303,6 @@ const PageFooter = styled.footer`
   box-shadow: ${theme.shadows[5]};
   height: ${FOOTER_HEIGHT}px;
   z-index: ${theme.zIndex.appBar};
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
 
   ${theme.breakpoints.up('lg')} {
     width: 50%;
@@ -313,7 +310,16 @@ const PageFooter = styled.footer`
 `
 
 const PageFooterWrapper = styled.div`
+  max-width: 584px;
+  height: 100%;
   display: flex;
   gap: ${theme.spacing(3)};
-  margin-right: ${theme.spacing(4)};
+  align-items: center;
+  justify-content: flex-end;
+
+  padding: 0 ${theme.spacing(4)};
+
+  ${theme.breakpoints.up('lg')} {
+    padding: 0 ${theme.spacing(12)};
+  }
 `

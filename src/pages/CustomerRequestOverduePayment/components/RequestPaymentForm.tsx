@@ -68,7 +68,7 @@ export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
   const today = useMemo(() => DateTime.now().toUTC(), [])
 
   return (
-    <Stack flexDirection="column" gap={10}>
+    <Stack flexDirection="column" gap={10} maxWidth={584}>
       {isSameDay(date, today) && (
         <Alert type="info">
           <Typography variant="body" color="textSecondary">
