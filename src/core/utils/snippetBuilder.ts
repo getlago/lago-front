@@ -18,8 +18,10 @@ interface CurlCommand {
 
 export enum SnippetVariables {
   EXTERNAL_CUSTOMER_ID = '__EXTERNAL_CUSTOMER_ID__',
+  EXTERNAL_SUBSCRIPTION_ID = '__EXTERNAL_SUBSCRIPTION_ID__',
   MUST_BE_DEFINED = '__MUST_BE_DEFINED__',
   API_KEY = '__YOUR_API_KEY__',
+  UNIQUE_ID = '__UNIQUE_ID__',
 }
 
 /**
