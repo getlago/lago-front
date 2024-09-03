@@ -93,4 +93,3 @@ const PaddedChargesWrapper = styled.div`
   flex-direction: column;
   gap: ${theme.spacing(4)};
 `
-
