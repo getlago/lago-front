@@ -45,8 +45,9 @@ import {
   TAX_MANAGEMENT_INTEGRATION_ROUTE,
   XERO_INTEGRATION_ROUTE,
 } from '~/core/router'
-import { IntegrationTypeEnum, useIntegrationsSettingQuery } from '~/generated/graphql'
+import { PremiumIntegrationTypeEnum, useIntegrationsSettingQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import Adyen from '~/public/images/adyen.svg'
 import Airbyte from '~/public/images/airbyte.svg'
@@ -105,6 +106,7 @@ gql`
 const Integrations = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
+  const { isPremium } = useCurrentUser()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const addAnrokDialogRef = useRef<AddAnrokDialogRef>(null)
@@ -130,13 +132,10 @@ const Integrations = () => {
   )
   const hasTaxManagement = !!organization?.euTaxManagement
   const hasAccessToNetsuitePremiumIntegration = !!premiumIntegrations?.includes(
-    IntegrationTypeEnum.Netsuite,
-  )
-  const hasAccessToAnrokPremiumIntegration = !!premiumIntegrations?.includes(
-    IntegrationTypeEnum.Anrok,
+    PremiumIntegrationTypeEnum.Netsuite,
   )
   const hasAccessToXeroPremiumIntegration = !!premiumIntegrations?.includes(
-    IntegrationTypeEnum.Xero,
+    PremiumIntegrationTypeEnum.Xero,
   )
   const hasNetsuiteIntegration = data?.integrations?.collection?.some(
     (integration) => integration?.__typename === 'NetsuiteIntegration',
@@ -173,7 +172,7 @@ const Integrations = () => {
               title={translate('text_6668821d94e4da4dfd8b3834')}
               subtitle={translate('text_6668821d94e4da4dfd8b3840')}
               endIcon={
-                !hasAccessToAnrokPremiumIntegration ? (
+                !isPremium ? (
                   'sparkles'
                 ) : hasAnrokIntegration ? (
                   <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
@@ -185,7 +184,7 @@ const Integrations = () => {
                 </Avatar>
               }
               onClick={() => {
-                if (!hasAccessToAnrokPremiumIntegration) {
+                if (!isPremium) {
                   premiumWarningDialogRef.current?.openDialog({
                     title: translate('text_661ff6e56ef7e1b7c542b1ea'),
                     description: translate('text_661ff6e56ef7e1b7c542b1f6'),
