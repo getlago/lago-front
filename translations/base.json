@@ -2353,7 +2353,6 @@
   "text_1724438705077s7oxv5be87m": "The invoice cannot be refreshed due to tax errors",
   "text_1724674592260h33v56rycaw": "This invoice contains a tax error",
   "text_1724702284063xef0c9kyhyl": "Sync invoice to Anrok",
-  "text_1724769707909qoy2v4pxvku": "NetSuite synchronisation successfully triggered.",
   "text_1724772240299r3u9nouqflf": "Anrok invoice url",
   "text_1724773425162ehwcxw6ynrp": "Invoice not synced to Anrok",
   "text_1724774217640gd4bmfl8ne3": "Sync voided invoice to Anrok",
@@ -2381,5 +2380,6 @@
   "text_172434514289283gmf8bdhh3": "Request access to progressive billing",
   "text_1724346450317iqs2rtvx1tp": "Hello, I would like to access your progressive billing add-on. \n\nPlease let me know if you need more info!",
   "text_1724936123802q74m2xxak3o": "Usage already billed",
-  "text_17250100329108guatmyl9tj": "Unknown"
+  "text_17250100329108guatmyl9tj": "Unknown",
+  "text_172535279177716n7p2svtdb": "Anrok synchronisation successfully triggered."
 }

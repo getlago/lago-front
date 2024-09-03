@@ -289,7 +289,7 @@ const CustomerInvoiceDetails = () => {
         if (retryTaxProviderVoidingResult?.id) {
           addToast({
             severity: 'success',
-            translateKey: 'text_1724769707909qoy2v4pxvku',
+            translateKey: 'text_172535279177716n7p2svtdb',
           })
         }
       },

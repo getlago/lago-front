@@ -136,8 +136,12 @@ const InvoiceOverview = memo(
       !!invoice?.customer?.xeroCustomer?.externalCustomerId && !!invoice?.externalIntegrationId
     const showNetsuiteSection =
       !!connectedNetsuiteIntegration?.accountId && !!invoice?.externalIntegrationId
-    const showAnrokSection =
-      !!invoice?.customer?.anrokCustomer?.externalAccountId || invoice?.taxProviderVoidable
+    const showAnrokReSyncButton = invoice?.taxProviderVoidable
+    const showAnrokLink =
+      (invoice?.status === InvoiceStatusTypeEnum.Finalized ||
+        invoice?.status === InvoiceStatusTypeEnum.Voided) &&
+      !!invoice?.customer?.anrokCustomer?.externalAccountId
+    const showAnrokSection = showAnrokReSyncButton || showAnrokLink
     const showExternalAppsSection = showXeroSection || showNetsuiteSection || showAnrokSection
 
     return (
@@ -296,7 +300,20 @@ const InvoiceOverview = memo(
                       <Typography variant="caption" color="grey600" noWrap>
                         {translate('text_1724772240299r3u9nouqflf')}
                       </Typography>
-                      {invoice.taxProviderVoidable ? (
+                      {showAnrokLink ? (
+                        <InlineLink
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          to={buildAnrokInvoiceUrl(
+                            invoice?.customer?.anrokCustomer?.externalAccountId,
+                            invoice?.id,
+                          )}
+                        >
+                          <Typography variant="body" color="info600">
+                            {invoice?.id} <Icon name="outside" />
+                          </Typography>
+                        </InlineLink>
+                      ) : (
                         <Stack direction="row" alignItems="center" gap={2}>
                           <Icon name="warning-filled" color="warning" />
                           <Typography variant="body" color="grey600" noWrap>
@@ -318,19 +335,6 @@ const InvoiceOverview = memo(
                             <Icon name="processing" color="info" size="small" animation="spin" />
                           )}
                         </Stack>
-                      ) : (
-                        <InlineLink
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          to={buildAnrokInvoiceUrl(
-                            invoice?.customer?.anrokCustomer?.externalAccountId,
-                            invoice?.id,
-                          )}
-                        >
-                          <Typography variant="body" color="info600">
-                            {invoice?.id} <Icon name="outside" />
-                          </Typography>
-                        </InlineLink>
                       )}
                     </InfoLine>
                   )}
