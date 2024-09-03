@@ -59,7 +59,7 @@ const PlanDetailsChargesSectionAccordion = ({
               <Accordion
                 key={`plan-details-charges-section-accordion-${i}`}
                 summary={
-                  <Typography variant="bodyHl" color="grey700">
+                  <Typography noWrap variant="bodyHl" color="grey700">
                     {filter.invoiceDisplayName || accordionMappedDisplayValues}
                   </Typography>
                 }
