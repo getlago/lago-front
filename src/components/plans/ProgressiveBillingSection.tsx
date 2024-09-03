@@ -1,4 +1,3 @@
-import { gql } from '@apollo/client'
 import { Box, InputAdornment, Stack } from '@mui/material'
 import { FormikProps } from 'formik'
 import { FC, useEffect, useState } from 'react'
@@ -17,23 +16,13 @@ import {
 import { AmountInput, Switch, TextInput } from '~/components/form'
 import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
-import {
-  IntegrationTypeEnum,
-  useGetOrganizationIntegrationsForProgressiveBillingQuery,
-} from '~/generated/graphql'
+import { IntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useProgressiveBillingForm } from '~/hooks/plans/useProgressiveBillingForm'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { NAV_HEIGHT, theme } from '~/styles'
 
 import { PlanFormInput } from './types'
-
-gql`
-  query GetOrganizationIntegrationsForProgressiveBilling {
-    organization {
-      premiumIntegrations
-    }
-  }
-`
 
 interface ProgressiveBillingSectionProps {
   formikProps: FormikProps<PlanFormInput>
@@ -45,7 +34,8 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
   isInSubscriptionForm,
 }) => {
   const { translate } = useInternationalization()
-  const { data } = useGetOrganizationIntegrationsForProgressiveBillingQuery()
+  const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
+
   const {
     nonRecurringUsageThresholds,
     recurringUsageThreshold,
@@ -65,7 +55,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
 
   const currency = formikProps.values.amountCurrency
 
-  const hasPremiumIntegration = !!data?.organization?.premiumIntegrations?.includes(
+  const hasPremiumIntegration = !!premiumIntegrations?.includes(
     IntegrationTypeEnum.ProgressiveBilling,
   )
 

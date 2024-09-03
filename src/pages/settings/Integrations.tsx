@@ -47,6 +47,7 @@ import {
 } from '~/core/router'
 import { IntegrationTypeEnum, useIntegrationsSettingQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import Adyen from '~/public/images/adyen.svg'
 import Airbyte from '~/public/images/airbyte.svg'
 import Anrok from '~/public/images/anrok.svg'
@@ -67,7 +68,6 @@ gql`
       id
       euTaxManagement
       country
-      premiumIntegrations
     }
 
     paymentProviders(limit: $limit) {
@@ -105,6 +105,7 @@ gql`
 const Integrations = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
+  const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const addAnrokDialogRef = useRef<AddAnrokDialogRef>(null)
   const addStripeDialogRef = useRef<AddStripeDialogRef>(null)
@@ -128,13 +129,13 @@ const Integrations = () => {
     (provider) => provider?.__typename === 'GocardlessProvider',
   )
   const hasTaxManagement = !!organization?.euTaxManagement
-  const hasAccessToNetsuitePremiumIntegration = !!organization?.premiumIntegrations?.includes(
+  const hasAccessToNetsuitePremiumIntegration = !!premiumIntegrations?.includes(
     IntegrationTypeEnum.Netsuite,
   )
-  const hasAccessToAnrokPremiumIntegration = !!organization?.premiumIntegrations?.includes(
+  const hasAccessToAnrokPremiumIntegration = !!premiumIntegrations?.includes(
     IntegrationTypeEnum.Anrok,
   )
-  const hasAccessToXeroPremiumIntegration = !!organization?.premiumIntegrations?.includes(
+  const hasAccessToXeroPremiumIntegration = !!premiumIntegrations?.includes(
     IntegrationTypeEnum.Xero,
   )
   const hasNetsuiteIntegration = data?.integrations?.collection?.some(

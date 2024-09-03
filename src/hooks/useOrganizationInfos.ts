@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 
-import { TimezoneConfigObject, TimeZonesConfig } from '~/core/timezone'
-import { formatDateToTZ } from '~/core/timezone'
+import { formatDateToTZ, TimezoneConfigObject, TimeZonesConfig } from '~/core/timezone'
 import {
   MainOrganizationInfosFragment,
   OrganizationForDatePickerFragmentDoc,
@@ -16,6 +15,7 @@ gql`
     logoUrl
     timezone
     defaultCurrency
+    premiumIntegrations
 
     ...OrganizationForDatePicker
   }
