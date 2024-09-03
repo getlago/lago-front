@@ -20,17 +20,13 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import Okta from '~/public/images/okta.svg'
 import { theme } from '~/styles'
 import { SettingsHeaderNameWrapper, SettingsPageContentWrapper } from '~/styles/settingsPage'
 
 gql`
   query GetAuthIntegrations($limit: Int!) {
-    organization {
-      id
-      premiumIntegrations
-    }
-
     integrations(limit: $limit) {
       collection {
         ... on OktaIntegration {
@@ -49,6 +45,7 @@ gql`
 const Authentication = () => {
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
+  const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const navigate = useNavigate()
 
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
@@ -57,9 +54,7 @@ const Authentication = () => {
 
   const { data, loading } = useGetAuthIntegrationsQuery({ variables: { limit: 10 } })
 
-  const hasAccessTOktaPremiumIntegration = data?.organization?.premiumIntegrations?.includes(
-    IntegrationTypeEnum.Okta,
-  )
+  const hasAccessTOktaPremiumIntegration = !!premiumIntegrations?.includes(IntegrationTypeEnum.Okta)
 
   const oktaIntegration = data?.integrations?.collection.find(
     (integration) => integration.__typename === 'OktaIntegration',

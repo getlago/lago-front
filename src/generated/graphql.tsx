@@ -1776,6 +1776,8 @@ export type Customer = {
   hasActiveWallet: Scalars['Boolean']['output'];
   /** Define if a customer has any credit note */
   hasCreditNotes: Scalars['Boolean']['output'];
+  /** Define if a customer has overdue invoices */
+  hasOverdueInvoices: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   invoiceGracePeriod?: Maybe<Scalars['Int']['output']>;
   invoices?: Maybe<Array<Invoice>>;
@@ -4239,6 +4241,7 @@ export type QueryInvoicedUsagesArgs = {
 export type QueryInvoicesArgs = {
   currency?: InputMaybe<CurrencyEnum>;
   customerExternalId?: InputMaybe<Scalars['String']['input']>;
+  customerId?: InputMaybe<Scalars['ID']['input']>;
   invoiceType?: InputMaybe<Array<InvoiceTypeEnum>>;
   issuingDateFrom?: InputMaybe<Scalars['ISO8601Date']['input']>;
   issuingDateTo?: InputMaybe<Scalars['ISO8601Date']['input']>;
@@ -4536,6 +4539,7 @@ export type Subscription = {
   externalId: Scalars['String']['output'];
   fees?: Maybe<Array<Fee>>;
   id: Scalars['ID']['output'];
+  lifetimeUsage?: Maybe<SubscriptionLifetimeUsage>;
   name?: Maybe<Scalars['String']['output']>;
   nextName?: Maybe<Scalars['String']['output']>;
   nextPendingStartDate?: Maybe<Scalars['ISO8601Date']['output']>;
@@ -4557,6 +4561,16 @@ export type SubscriptionCollection = {
   collection: Array<Subscription>;
   /** Pagination Metadata for navigating the Pagination */
   metadata: CollectionMetadata;
+};
+
+export type SubscriptionLifetimeUsage = {
+  __typename?: 'SubscriptionLifetimeUsage';
+  lastThresholdAmountCents?: Maybe<Scalars['BigInt']['output']>;
+  nextThresholdAmountCents?: Maybe<Scalars['BigInt']['output']>;
+  nextTresholdRatio?: Maybe<Scalars['Float']['output']>;
+  totalUsageAmountCents: Scalars['BigInt']['output'];
+  totalUsageFromDatetime: Scalars['ISO8601DateTime']['output'];
+  totalUsageToDatetime: Scalars['ISO8601DateTime']['output'];
 };
 
 export type Subsidiary = {
@@ -5524,7 +5538,7 @@ export type XeroIntegration = {
 export type UserIdentifierQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, premium: boolean, memberships: Array<{ __typename?: 'Membership', id: string, organization: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> }, organization?: { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum } | null };
+export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, premium: boolean, memberships: Array<{ __typename?: 'Membership', id: string, organization: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> }, organization?: { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, premiumIntegrations: Array<IntegrationTypeEnum> } | null };
 
 export type AddOnItemFragment = { __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: any, customersCount: number, createdAt: any };
 
@@ -6231,11 +6245,6 @@ export type GetTaxesForPlanQueryVariables = Exact<{
 
 
 export type GetTaxesForPlanQuery = { __typename?: 'Query', taxes: { __typename?: 'TaxCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> } };
-
-export type GetOrganizationIntegrationsForProgressiveBillingQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetOrganizationIntegrationsForProgressiveBillingQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', premiumIntegrations: Array<IntegrationTypeEnum> } | null };
 
 export type StandardChargeFragment = { __typename?: 'Properties', amount?: string | null, groupedBy?: Array<string> | null };
 
@@ -7217,12 +7226,12 @@ export type GetTaxProviderPresenceQueryVariables = Exact<{
 
 export type GetTaxProviderPresenceQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration', id: string } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
 
-export type MainOrganizationInfosFragment = { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum };
+export type MainOrganizationInfosFragment = { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, premiumIntegrations: Array<IntegrationTypeEnum> };
 
 export type GetOrganizationInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetOrganizationInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum } | null };
+export type GetOrganizationInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, premiumIntegrations: Array<IntegrationTypeEnum> } | null };
 
 export type MembershipPermissionsFragment = { __typename?: 'Membership', id: string, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } };
 
@@ -7754,7 +7763,7 @@ export type GetAuthIntegrationsQueryVariables = Exact<{
 }>;
 
 
-export type GetAuthIntegrationsQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, premiumIntegrations: Array<IntegrationTypeEnum> } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration', id: string, domain: string, clientId?: string | null, clientSecret?: string | null, organizationName: string, name: string } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetAuthIntegrationsQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration', id: string, domain: string, clientId?: string | null, clientSecret?: string | null, organizationName: string, name: string } | { __typename?: 'XeroIntegration' }> } | null };
 
 export type OktaIntegrationDetailsFragment = { __typename?: 'OktaIntegration', id: string, clientId?: string | null, clientSecret?: string | null, code: string, organizationName: string, domain: string, name: string };
 
@@ -7800,7 +7809,7 @@ export type IntegrationsSettingQueryVariables = Exact<{
 }>;
 
 
-export type IntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, euTaxManagement: boolean, country?: CountryCode | null, premiumIntegrations: Array<IntegrationTypeEnum> } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'StripeProvider', id: string }> } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration', id: string } | { __typename?: 'NetsuiteIntegration', id: string } | { __typename?: 'OktaIntegration' } | { __typename?: 'XeroIntegration', id: string }> } | null };
+export type IntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, euTaxManagement: boolean, country?: CountryCode | null } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'StripeProvider', id: string }> } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration', id: string } | { __typename?: 'NetsuiteIntegration', id: string } | { __typename?: 'OktaIntegration' } | { __typename?: 'XeroIntegration', id: string }> } | null };
 
 export type GetOrganizationSettingsQueryVariables = Exact<{
   appliedToOrganization?: InputMaybe<Scalars['Boolean']['input']>;
@@ -9338,6 +9347,7 @@ export const MainOrganizationInfosFragmentDoc = gql`
   logoUrl
   timezone
   defaultCurrency
+  premiumIntegrations
   ...OrganizationForDatePicker
 }
     ${OrganizationForDatePickerFragmentDoc}`;
@@ -13654,45 +13664,6 @@ export type GetTaxesForPlanQueryHookResult = ReturnType<typeof useGetTaxesForPla
 export type GetTaxesForPlanLazyQueryHookResult = ReturnType<typeof useGetTaxesForPlanLazyQuery>;
 export type GetTaxesForPlanSuspenseQueryHookResult = ReturnType<typeof useGetTaxesForPlanSuspenseQuery>;
 export type GetTaxesForPlanQueryResult = Apollo.QueryResult<GetTaxesForPlanQuery, GetTaxesForPlanQueryVariables>;
-export const GetOrganizationIntegrationsForProgressiveBillingDocument = gql`
-    query GetOrganizationIntegrationsForProgressiveBilling {
-  organization {
-    premiumIntegrations
-  }
-}
-    `;
-
-/**
- * __useGetOrganizationIntegrationsForProgressiveBillingQuery__
- *
- * To run a query within a React component, call `useGetOrganizationIntegrationsForProgressiveBillingQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetOrganizationIntegrationsForProgressiveBillingQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetOrganizationIntegrationsForProgressiveBillingQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetOrganizationIntegrationsForProgressiveBillingQuery(baseOptions?: Apollo.QueryHookOptions<GetOrganizationIntegrationsForProgressiveBillingQuery, GetOrganizationIntegrationsForProgressiveBillingQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetOrganizationIntegrationsForProgressiveBillingQuery, GetOrganizationIntegrationsForProgressiveBillingQueryVariables>(GetOrganizationIntegrationsForProgressiveBillingDocument, options);
-      }
-export function useGetOrganizationIntegrationsForProgressiveBillingLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrganizationIntegrationsForProgressiveBillingQuery, GetOrganizationIntegrationsForProgressiveBillingQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetOrganizationIntegrationsForProgressiveBillingQuery, GetOrganizationIntegrationsForProgressiveBillingQueryVariables>(GetOrganizationIntegrationsForProgressiveBillingDocument, options);
-        }
-export function useGetOrganizationIntegrationsForProgressiveBillingSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOrganizationIntegrationsForProgressiveBillingQuery, GetOrganizationIntegrationsForProgressiveBillingQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetOrganizationIntegrationsForProgressiveBillingQuery, GetOrganizationIntegrationsForProgressiveBillingQueryVariables>(GetOrganizationIntegrationsForProgressiveBillingDocument, options);
-        }
-export type GetOrganizationIntegrationsForProgressiveBillingQueryHookResult = ReturnType<typeof useGetOrganizationIntegrationsForProgressiveBillingQuery>;
-export type GetOrganizationIntegrationsForProgressiveBillingLazyQueryHookResult = ReturnType<typeof useGetOrganizationIntegrationsForProgressiveBillingLazyQuery>;
-export type GetOrganizationIntegrationsForProgressiveBillingSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationIntegrationsForProgressiveBillingSuspenseQuery>;
-export type GetOrganizationIntegrationsForProgressiveBillingQueryResult = Apollo.QueryResult<GetOrganizationIntegrationsForProgressiveBillingQuery, GetOrganizationIntegrationsForProgressiveBillingQueryVariables>;
 export const GetPlanForDetailsOverviewSectionDocument = gql`
     query getPlanForDetailsOverviewSection($plan: ID!) {
   plan(id: $plan) {
@@ -20911,10 +20882,6 @@ export type GetAnrokIntegrationsListSuspenseQueryHookResult = ReturnType<typeof 
 export type GetAnrokIntegrationsListQueryResult = Apollo.QueryResult<GetAnrokIntegrationsListQuery, GetAnrokIntegrationsListQueryVariables>;
 export const GetAuthIntegrationsDocument = gql`
     query GetAuthIntegrations($limit: Int!) {
-  organization {
-    id
-    premiumIntegrations
-  }
   integrations(limit: $limit) {
     collection {
       ... on OktaIntegration {
@@ -21154,7 +21121,6 @@ export const IntegrationsSettingDocument = gql`
     id
     euTaxManagement
     country
-    premiumIntegrations
   }
   paymentProviders(limit: $limit) {
     collection {
