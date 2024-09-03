@@ -1,10 +1,19 @@
 import { Location, matchPath, useNavigate } from 'react-router-dom'
 
-import { addLocationToHistory, authTokenVar, locationHistoryVar } from '~/core/apolloClient'
+import {
+  addLocationToHistory,
+  authTokenVar,
+  getItemFromLS,
+  locationHistoryVar,
+  removeItemFromLS,
+  setItemFromLS,
+} from '~/core/apolloClient'
 import { CustomRouteObject, FORBIDDEN_ROUTE, HOME_ROUTE, LOGIN_ROUTE } from '~/core/router'
 
 import { useCurrentUser } from '../useCurrentUser'
 import { usePermissions } from '../usePermissions'
+
+export const LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY = 'lastPrivateVisitedRoute'
 
 type GoBack = (
   fallback: string,
@@ -63,6 +72,7 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
   }
 
   return {
+    goBack,
     onRouteEnter: (routeConfig, location) => {
       const isAuthenticated = !!authTokenVar()
 
@@ -82,6 +92,9 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
           search: location.search,
         })
         addLocationToHistory(location)
+
+        // If user is kickd out or logs out, we save the last private route visited to redirect after login
+        setItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY, location)
       } else if (
         isAuthenticated &&
         routeConfig.permissions?.length &&
@@ -95,7 +108,20 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
         navigate(FORBIDDEN_ROUTE)
       } else if (!routeConfig?.children && !routeConfig.onlyPublic) {
         // In the invitation for page, once users are logged in, we redirect them to the home page
-        if (routeConfig.invitation && isAuthenticated) navigate(HOME_ROUTE)
+        if (routeConfig.invitation && isAuthenticated) {
+          // We have a special case for the invitation route, we don't want to be redirected to any potential last visited page.
+          // If user follows an invitation, we remove this info from the local storage before the redirection happens.
+          const lastPrivateVisitedRouteWhileNotConnected: Location = getItemFromLS(
+            LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY,
+          )
+
+          if (lastPrivateVisitedRouteWhileNotConnected) {
+            removeItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
+          }
+
+          // We can then safely redirect to the home page.
+          navigate(HOME_ROUTE)
+        }
         /**
          * We add the current location to the history only if :
          * - Current route has no children (to avoid adding Layout route which will result in duplicates)
@@ -104,6 +130,5 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
         addLocationToHistory(location)
       }
     },
-    goBack,
   }
 }
