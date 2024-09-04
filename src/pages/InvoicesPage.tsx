@@ -98,8 +98,8 @@ gql`
 
   mutation retryAllInvoicePayments($input: RetryAllInvoicePaymentsInput!) {
     retryAllInvoicePayments(input: $input) {
-      collection {
-        id
+      metadata {
+        totalCount
       }
     }
   }
