@@ -39,6 +39,10 @@ export const setItemFromLS = (key: string, value: unknown) => {
   return localStorage.setItem(key, stringify)
 }
 
+export const removeItemFromLS = (key: string) => {
+  return localStorage.removeItem(key)
+}
+
 // --------------------- Auth utils ---------------------
 export const logOut = async (client: ApolloClient<object>, resetLocationHistory?: boolean) => {
   await client.cache.reset()
