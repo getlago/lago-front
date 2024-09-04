@@ -1,28 +1,39 @@
-import { FC } from 'react'
+import { FC, useRef } from 'react'
 import styled from 'styled-components'
 
 import { Button, Icon, Typography } from '~/components/designSystem'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
 export const FreemiumAlert: FC = () => {
   const { translate } = useInternationalization()
+  const premiumDialogRef = useRef<PremiumWarningDialogRef>(null)
 
   return (
-    <Alert>
-      <div>
-        <AlertTitle>
-          <Typography variant="bodyHl" color="textSecondary">
-            {translate('text_66b25adfd834ed0104345eb7')}
-          </Typography>
-          <Icon name="sparkles" />
-        </AlertTitle>
-        <Typography variant="caption">{translate('text_66b25adfd834ed0104345eb8')}</Typography>
-      </div>
-      <Button variant="tertiary" size="large" endIcon="sparkles">
-        {translate('text_65ae73ebe3a66bec2b91d72d')}
-      </Button>
-    </Alert>
+    <>
+      <Alert>
+        <div>
+          <AlertTitle>
+            <Typography variant="bodyHl" color="textSecondary">
+              {translate('text_66b25adfd834ed0104345eb7')}
+            </Typography>
+            <Icon name="sparkles" />
+          </AlertTitle>
+          <Typography variant="caption">{translate('text_66b25adfd834ed0104345eb8')}</Typography>
+        </div>
+        <Button
+          variant="tertiary"
+          size="large"
+          endIcon="sparkles"
+          onClick={() => premiumDialogRef.current?.openDialog()}
+        >
+          {translate('text_65ae73ebe3a66bec2b91d72d')}
+        </Button>
+      </Alert>
+
+      <PremiumWarningDialog ref={premiumDialogRef} />
+    </>
   )
 }
 
