@@ -117,7 +117,10 @@ export const VolumeChargeTable = memo(
                         value={row.toValue as number | undefined}
                         beforeChangeFormatter={['int', 'positiveNumber']}
                         onBlur={() => {
-                          if (typeof row.toValue === 'number' && row.toValue < row.fromValue) {
+                          if (
+                            typeof row.toValue === 'string' &&
+                            Number(row.toValue) < Number(row.fromValue)
+                          ) {
                             setErrorIndex(i)
                           }
                         }}
