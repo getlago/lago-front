@@ -30,7 +30,7 @@ beforeEach(() => {
       },
       {
         cacheAcrossSpecs: true,
-      }
+      },
     )
   }
 
