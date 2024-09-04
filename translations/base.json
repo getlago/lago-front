@@ -2419,5 +2419,6 @@
   "text_1725550089200omw15t6nh0h": "This customer inherits this rule from the <a href=\"{{link}}\">general settings</a>. Define whether to skip or finalize empty invoices for this customer.",
   "text_1725550089200svn5rdwfftc": "Empty invoice setting is applied only for this customer.",
   "text_1725550661207stz6kovtzkp": "Search or select an invoicing rule",
-  "text_1725550747818f6v0c35vzdk": "Add invoicing rule"
+  "text_1725550747818f6v0c35vzdk": "Add invoicing rule",
+  "text_17254494987274bsus9jsnb5": "Couldn't request payment, an invoice was updated in the meantime. Please retry."
 }

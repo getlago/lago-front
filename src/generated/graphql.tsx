@@ -2742,6 +2742,7 @@ export enum LagoApiError {
   InviteAlreadyExists = 'invite_already_exists',
   InviteEmailMistmatch = 'invite_email_mistmatch',
   InviteNotFound = 'invite_not_found',
+  InvoicesNotOverdue = 'invoices_not_overdue',
   NotFound = 'not_found',
   NotOrganizationMember = 'not_organization_member',
   OktaUserinfoError = 'okta_userinfo_error',
@@ -7537,7 +7538,7 @@ export type LastPaymentRequestFragment = { __typename?: 'PaymentRequest', create
 export type GetRequestOverduePaymentAccessQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetRequestOverduePaymentAccessQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', premiumIntegrations: Array<IntegrationTypeEnum> } | null };
+export type GetRequestOverduePaymentAccessQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', premiumIntegrations: Array<PremiumIntegrationTypeEnum> } | null };
 
 export type GetRequestOverduePaymentInfosQueryVariables = Exact<{
   id: Scalars['ID']['input'];

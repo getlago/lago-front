@@ -15,11 +15,12 @@ import {
   CurrencyEnum,
   CustomerForRequestOverduePaymentEmailFragmentDoc,
   CustomerForRequestOverduePaymentFormFragmentDoc,
-  IntegrationTypeEnum,
   InvoicesForRequestOverduePaymentEmailFragmentDoc,
   InvoicesForRequestOverduePaymentFormFragmentDoc,
+  LagoApiError,
   LastPaymentRequestFragmentDoc,
   OrganizationForRequestOverduePaymentEmailFragmentDoc,
+  PremiumIntegrationTypeEnum,
   useCreatePaymentRequestMutation,
   useGetRequestOverduePaymentAccessQuery,
   useGetRequestOverduePaymentInfosQuery,
@@ -105,11 +106,14 @@ const CustomerRequestOverduePayment: FC = () => {
   })
 
   const hasDunningIntegration = !!organizationData?.organization?.premiumIntegrations.includes(
-    IntegrationTypeEnum.Dunning,
+    PremiumIntegrationTypeEnum.Dunning,
   )
 
-  const [paymentRequest] = useCreatePaymentRequestMutation({
+  const [paymentRequest, paymentRequestStatus] = useCreatePaymentRequestMutation({
     refetchQueries: ['getCustomerOverdueBalances'],
+    context: {
+      silentErrorCodes: [LagoApiError.InvoicesNotOverdue],
+    },
     onCompleted() {
       addToast({
         severity: 'success',
@@ -117,6 +121,15 @@ const CustomerRequestOverduePayment: FC = () => {
       })
 
       navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId ?? '' }))
+    },
+    onError(mutationError) {
+      if (hasDefinedGQLError('InvoicesNotOverdue', mutationError)) {
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_17254494987274bsus9jsnb5',
+        })
+        paymentRequestStatus.client.refetchQueries({ include: ['getRequestOverduePaymentInfos'] })
+      }
     },
   })
 
