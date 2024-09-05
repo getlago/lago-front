@@ -3,6 +3,10 @@ import { useRef } from 'react'
 import styled from 'styled-components'
 
 import {
+  DeleteCustomerFinalizeZeroAmountInvoiceDialog,
+  DeleteCustomerFinalizeZeroAmountInvoiceDialogRef,
+} from '~/components/customers/DeleteCustomerFinalizeZeroAmountInvoiceDialog'
+import {
   EditCustomerVatRateDialog,
   EditCustomerVatRateDialogRef,
 } from '~/components/customers/EditCustomerVatRateDialog'
@@ -18,6 +22,10 @@ import {
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
+  EditFinalizeZeroAmountInvoiceDialog,
+  EditFinalizeZeroAmountInvoiceDialogRef,
+} from '~/components/settings/EditFinalizeZeroAmountInvoiceDialog'
+import {
   EditNetPaymentTermDialog,
   EditNetPaymentTermDialogRef,
 } from '~/components/settings/EditNetPaymentTermDialog'
@@ -32,6 +40,7 @@ import {
   EditCustomerDocumentLocaleFragmentDoc,
   EditCustomerInvoiceGracePeriodFragmentDoc,
   EditCustomerVatRateFragmentDoc,
+  FinalizeZeroAmountInvoiceEnum,
   useGetCustomerSettingsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -83,6 +92,8 @@ gql`
       id
       invoiceGracePeriod
       netPaymentTerm
+      finalizeZeroAmountInvoice
+
       billingConfiguration {
         id
         documentLocale
@@ -102,6 +113,7 @@ gql`
     organization {
       id
       netPaymentTerm
+      finalizeZeroAmountInvoice
       billingConfiguration {
         id
         invoiceGracePeriod
@@ -143,6 +155,10 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)
   const deleteOrganizationNetPaymentTermDialogRef =
     useRef<DeleteOrganizationNetPaymentTermDialogRef>(null)
+  const editFinalizeZeroAmountInvoiceDialogRef =
+    useRef<EditFinalizeZeroAmountInvoiceDialogRef>(null)
+  const deleteCustomerFinalizeZeroAmountInvoiceDialogRef =
+    useRef<DeleteCustomerFinalizeZeroAmountInvoiceDialogRef>(null)
 
   {
     !!error && !loading && (
@@ -326,6 +342,94 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                 typeof customer?.netPaymentTerm !== 'number'
                   ? translate('text_64c7a89b6c67eb6c9889824d', { link: INVOICE_SETTINGS_ROUTE })
                   : translate('text_64c7a89b6c67eb6c9889831d')
+              }
+            />
+          </>
+        )}
+      </InfoBlock>
+
+      <InlineSectionTitle>
+        <Typography variant="subhead" color="grey700">
+          {translate('text_1725549671287r9tnu5cuoeu')}
+        </Typography>
+
+        {customer?.finalizeZeroAmountInvoice === FinalizeZeroAmountInvoiceEnum.Inherit ? (
+          <Button
+            disabled={loading}
+            variant="quaternary"
+            onClick={() => editFinalizeZeroAmountInvoiceDialogRef?.current?.openDialog()}
+          >
+            {translate('text_1725550089200lfv6ug3vicm')}
+          </Button>
+        ) : (
+          <Popper
+            PopperProps={{ placement: 'bottom-end' }}
+            opener={<Button disabled={loading} icon="dots-horizontal" variant="quaternary" />}
+          >
+            {({ closePopper }) => (
+              <MenuPopper>
+                <Button
+                  disabled={loading}
+                  startIcon="pen"
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    editFinalizeZeroAmountInvoiceDialogRef?.current?.openDialog()
+                    closePopper()
+                  }}
+                >
+                  {translate('text_63aa15caab5b16980b21b0b8')}
+                </Button>
+                <Button
+                  disabled={loading}
+                  startIcon="trash"
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    deleteCustomerFinalizeZeroAmountInvoiceDialogRef?.current?.openDialog()
+                    closePopper()
+                  }}
+                >
+                  {translate('text_63aa15caab5b16980b21b0ba')}
+                </Button>
+              </MenuPopper>
+            )}
+          </Popper>
+        )}
+      </InlineSectionTitle>
+
+      <InfoBlock $hasSeparator $loading={loading}>
+        {loading ? (
+          <>
+            <Skeleton variant="text" width={320} height={12} marginBottom={theme.spacing(4)} />
+            <Skeleton variant="text" width={160} height={12} />
+          </>
+        ) : (
+          <>
+            <Typography variant="body" color="grey700">
+              {customer?.finalizeZeroAmountInvoice === FinalizeZeroAmountInvoiceEnum.Inherit ? (
+                <>
+                  {organization?.finalizeZeroAmountInvoice
+                    ? translate('text_17255500892002nq3iltm03z')
+                    : translate('text_1725549671288zkq9sr0y46l')}
+                  {` ${translate('text_17255500892009uqfqttms4w')}`}
+                </>
+              ) : (
+                <>
+                  {customer?.finalizeZeroAmountInvoice === FinalizeZeroAmountInvoiceEnum.Finalize
+                    ? translate('text_17255500892002nq3iltm03z')
+                    : translate('text_1725549671288zkq9sr0y46l')}
+                </>
+              )}
+            </Typography>
+
+            <Typography
+              variant="caption"
+              color="grey600"
+              html={
+                customer?.finalizeZeroAmountInvoice === FinalizeZeroAmountInvoiceEnum.Inherit
+                  ? translate('text_1725550089200omw15t6nh0h', { link: INVOICE_SETTINGS_ROUTE })
+                  : translate('text_1725550089200svn5rdwfftc')
               }
             />
           </>
@@ -544,6 +648,15 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
           />
           <DeleteOrganizationNetPaymentTermDialog
             ref={deleteOrganizationNetPaymentTermDialogRef}
+            customer={customer}
+          />
+          <EditFinalizeZeroAmountInvoiceDialog
+            ref={editFinalizeZeroAmountInvoiceDialogRef}
+            entity={customer}
+            finalizeZeroAmountInvoice={customer?.finalizeZeroAmountInvoice}
+          />
+          <DeleteCustomerFinalizeZeroAmountInvoiceDialog
+            ref={deleteCustomerFinalizeZeroAmountInvoiceDialogRef}
             customer={customer}
           />
         </>

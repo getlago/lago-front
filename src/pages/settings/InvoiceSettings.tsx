@@ -27,6 +27,10 @@ import {
   EditDefaultCurrencyDialogRef,
 } from '~/components/settings/EditDefaultCurrencyDialog'
 import {
+  EditFinalizeZeroAmountInvoiceDialog,
+  EditFinalizeZeroAmountInvoiceDialogRef,
+} from '~/components/settings/EditFinalizeZeroAmountInvoiceDialog'
+import {
   EditNetPaymentTermDialog,
   EditNetPaymentTermDialogRef,
 } from '~/components/settings/EditNetPaymentTermDialog'
@@ -98,6 +102,7 @@ gql`
       defaultCurrency
       documentNumbering
       documentNumberPrefix
+      finalizeZeroAmountInvoice
       billingConfiguration {
         id
         invoiceGracePeriod
@@ -141,6 +146,8 @@ const InvoiceSettings = () => {
   const editDefaultCurrencyDialogRef = useRef<EditDefaultCurrencyDialogRef>(null)
   const editDocumentLanguageDialogRef = useRef<EditOrganizationDocumentLocaleDialogRef>(null)
   const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)
+  const editFinalizeZeroAmountInvoiceDialogRef =
+    useRef<EditFinalizeZeroAmountInvoiceDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { data, error, loading } = useGetOrganizationSettingsQuery()
   const organization = data?.organization
@@ -405,6 +412,40 @@ const InvoiceSettings = () => {
           )}
         </InfoBlock>
 
+        {/* Finalize empty invoice setting */}
+        <InlineSectionTitle>
+          <Typography variant="subhead" color="grey700">
+            {translate('text_1725549671287r9tnu5cuoeu')}
+          </Typography>
+
+          <Button
+            variant="quaternary"
+            disabled={loading || !canEditInvoiceSettings}
+            onClick={() => editFinalizeZeroAmountInvoiceDialogRef?.current?.openDialog()}
+          >
+            {translate('text_637f819eff19cd55a56d55e4')}
+          </Button>
+        </InlineSectionTitle>
+        <InfoBlock $loading={loading}>
+          {loading ? (
+            <>
+              <Skeleton variant="text" width={320} height={12} />
+              <Skeleton variant="text" width={160} height={12} />
+            </>
+          ) : (
+            <>
+              <Typography variant="body" color="grey700">
+                {organization?.finalizeZeroAmountInvoice
+                  ? translate('text_1725549671287ancbf00edxx')
+                  : translate('text_1725549671288zkq9sr0y46l')}
+              </Typography>
+              <Typography variant="caption" color="grey600">
+                {translate('text_1725549671288b1qz36o5hyb')}
+              </Typography>
+            </>
+          )}
+        </InfoBlock>
+
         {/* Tax */}
         {hasPermissions(['organizationTaxesView']) && (
           <>
@@ -518,6 +559,11 @@ const InvoiceSettings = () => {
         <EditNetPaymentTermDialog
           ref={editNetPaymentTermDialogRef}
           description={translate('text_64c7a89b6c67eb6c988980eb')}
+        />
+        <EditFinalizeZeroAmountInvoiceDialog
+          ref={editFinalizeZeroAmountInvoiceDialogRef}
+          entity={organization}
+          finalizeZeroAmountInvoice={organization?.finalizeZeroAmountInvoice}
         />
         <EditDefaultCurrencyDialog ref={editDefaultCurrencyDialogRef} />
         <PremiumWarningDialog ref={premiumWarningDialogRef} />
