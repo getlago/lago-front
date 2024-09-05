@@ -136,7 +136,7 @@ const Members = () => {
             )}
           </Head>
         )}
-        <InvitationsListWrapper>
+        <InvitationsListWrapper data-test="invitations-list">
           {!!invitesError ? (
             <ErrorPlaceholder
               noMargins

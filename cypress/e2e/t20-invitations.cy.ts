@@ -9,17 +9,23 @@ describe('Invitations', () => {
     cy.get('[data-test="submit-invite-button"]').should('be.disabled')
     cy.get('input[name="email"]').type(inviteEmail)
     cy.get('[data-test="submit-invite-button"]').click()
-    cy.get('[data-test="copy-invite-link-button"]').focus().click()
+    cy.get('[data-test="copy-invite-link-button"]').click()
     cy.get(`[role="dialog"]`).should('not.exist')
   })
 
   it('invite link should have correct format', () => {
     cy.visit('/settings/members')
-    cy.get(`[data-test="copy-invite-link"]`).first().focus().click()
+
+    cy.get(`[data-test="invite-item-${inviteEmail}"]`).within(() => {
+      cy.get(`button`).click()
+    })
+
+    cy.get('[data-test="copy-invite-link"]').click()
+
     cy.url().should('be.equal', Cypress.config().baseUrl + '/settings/members')
     cy.window().then((win) => {
       new Cypress.Promise((resolve, reject) =>
-        win.navigator.clipboard.readText().then(resolve).catch(reject)
+        win.navigator.clipboard.readText().then(resolve).catch(reject),
       ).then((text) => {
         expect(text).to.contain('/invitation/')
       })

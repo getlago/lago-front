@@ -102,7 +102,9 @@ const SubscriptionDetails = () => {
           <Popper
             PopperProps={{ placement: 'bottom-end' }}
             opener={
-              <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
+              <Button data-test="subscription-details-actions" endIcon="chevron-down">
+                {translate('text_626162c62f790600f850b6fe')}
+              </Button>
             }
           >
             {({ closePopper }) => (
@@ -158,6 +160,7 @@ const SubscriptionDetails = () => {
                 </Button>
                 {hasPermissions(['subscriptionsUpdate']) && (
                   <Button
+                    data-test="subscription-details-terminate"
                     variant="quaternary"
                     align="left"
                     onClick={() => {

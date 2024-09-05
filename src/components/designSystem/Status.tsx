@@ -156,7 +156,11 @@ export const Status: FC<StatusProps> = ({
   const statusLabel = statusLabelMapping[label]
 
   return (
-    <Container $backgroundColor={config.backgroundColor} $borderColor={config.borderColor}>
+    <Container
+      data-test="status"
+      $backgroundColor={config.backgroundColor}
+      $borderColor={config.borderColor}
+    >
       <Typography variant="captionHl" color={config.color} noWrap>
         {translate(statusLabel, labelVariables ?? {})}
       </Typography>

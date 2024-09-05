@@ -49,6 +49,7 @@ export interface DatePickerProps
 
 export const DatePicker = ({
   className,
+  name,
   value,
   error,
   label,
@@ -118,6 +119,7 @@ export const DatePicker = ({
           invalidWrapper={(children) => <>{children}</>}
         >
           <MuiDatePicker
+            name={name}
             format="MM/dd/yyyy"
             disableFuture={disableFuture}
             disabled={disabled}

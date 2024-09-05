@@ -57,7 +57,7 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
   const terminateSubscriptionDialogRef = useRef<TerminateCustomerSubscriptionDialogRef>(null)
 
   return (
-    <SideSection>
+    <SideSection data-test="customer-subscriptions-list">
       <Header variant="subhead" $hideBottomShadow>
         {translate('text_6250304370f0f700a8fdc28d')}
 
