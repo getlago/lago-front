@@ -7561,7 +7561,7 @@ export type RetryAllInvoicePaymentsMutationVariables = Exact<{
 }>;
 
 
-export type RetryAllInvoicePaymentsMutation = { __typename?: 'Mutation', retryAllInvoicePayments?: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string }> } | null };
+export type RetryAllInvoicePaymentsMutation = { __typename?: 'Mutation', retryAllInvoicePayments?: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number } } | null };
 
 export type GetPlanForDetailsQueryVariables = Exact<{
   planId: Scalars['ID']['input'];
@@ -19724,8 +19724,8 @@ export type GetCreditNotesListQueryResult = Apollo.QueryResult<GetCreditNotesLis
 export const RetryAllInvoicePaymentsDocument = gql`
     mutation retryAllInvoicePayments($input: RetryAllInvoicePaymentsInput!) {
   retryAllInvoicePayments(input: $input) {
-    collection {
-      id
+    metadata {
+      totalCount
     }
   }
 }
