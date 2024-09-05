@@ -16,6 +16,7 @@ import { DetailsInfoGrid, DetailsInfoItem, DetailsSectionTitle } from '~/styles/
 
 import { ConditionalWrapper } from '../ConditionalWrapper'
 import { Alert, Status, StatusType } from '../designSystem'
+import LifetimeUsage from '../graphs/LifetimeUsage'
 
 gql`
   fragment SubscriptionForSubscriptionInformations on Subscription {
@@ -54,6 +55,7 @@ const SubscriptionInformations = ({
 
   return (
     <section>
+      <LifetimeUsage />
       <DetailsSectionTitle variant="subhead" noWrap>
         {translate('text_6335e8900c69f8ebdfef5312')}
       </DetailsSectionTitle>

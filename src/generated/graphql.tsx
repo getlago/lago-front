@@ -6031,6 +6031,8 @@ export type GetInvoiceCollectionsQueryVariables = Exact<{
 
 export type GetInvoiceCollectionsQuery = { __typename?: 'Query', invoiceCollections: { __typename?: 'FinalizedInvoiceCollectionCollection', collection: Array<{ __typename?: 'FinalizedInvoiceCollection', paymentStatus?: InvoicePaymentStatusTypeEnum | null, invoicesCount: any, amountCents: any, currency?: CurrencyEnum | null, month: any }> } };
 
+export type SubscriptionLifetimeUsageForLifetimeUsageGraphFragment = { __typename?: 'Subscription', id: string, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null };
+
 export type GetMrrQueryVariables = Exact<{
   currency: CurrencyEnum;
 }>;
@@ -8409,6 +8411,18 @@ export const WebhookForCreateAndEditFragmentDoc = gql`
   id
   webhookUrl
   signatureAlgo
+}
+    `;
+export const SubscriptionLifetimeUsageForLifetimeUsageGraphFragmentDoc = gql`
+    fragment SubscriptionLifetimeUsageForLifetimeUsageGraph on Subscription {
+  id
+  lifetimeUsage {
+    lastThresholdAmountCents
+    nextThresholdAmountCents
+    totalUsageAmountCents
+    totalUsageFromDatetime
+    totalUsageToDatetime
+  }
 }
     `;
 export const CreditNoteForCreditNoteListItemFragmentDoc = gql`

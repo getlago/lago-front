@@ -73,6 +73,56 @@ export const tableData: Array<{
   },
 ]
 
+export const currentUsageTableData: Array<{
+  id: string
+  amount: number
+  chargeCode: string
+  chargeName: string
+  hasFilterBreakdown: boolean
+  units: number
+}> = [
+  {
+    id: '0',
+    chargeName: 'GiB Hours',
+    chargeCode: 'memory_heartbeat',
+    hasFilterBreakdown: true,
+    amount: 1000,
+    units: 123,
+  },
+  {
+    id: '1',
+    chargeName: 'CPU Hours',
+    chargeCode: 'cpu_heartbeat',
+    hasFilterBreakdown: false,
+    amount: 1000,
+    units: 123,
+  },
+  {
+    id: '2',
+    chargeName: 'SOC2 Compliance',
+    chargeCode: 'compliance',
+    hasFilterBreakdown: false,
+    amount: 1000,
+    units: 123,
+  },
+  {
+    id: '3',
+    chargeName: 'Datastores',
+    chargeCode: 'datastores',
+    hasFilterBreakdown: false,
+    amount: 1000,
+    units: 123,
+  },
+  {
+    id: '4',
+    chargeName: 'Multi Cluster',
+    chargeCode: 'multicluster',
+    hasFilterBreakdown: false,
+    amount: 1000,
+    units: 123,
+  },
+]
+
 export const chargeTableData: Array<{
   name: string
   job: string

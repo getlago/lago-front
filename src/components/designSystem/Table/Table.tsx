@@ -57,7 +57,7 @@ export type ActionItem<T> = {
 }
 
 type ContainerSize = 0 | 4 | 16 | 48
-type RowSize = 44 | 56
+type RowSize = 48 | 72
 
 interface TableProps<T> {
   name: string
@@ -94,7 +94,7 @@ export const Table = <T extends DataItem>({
   isLoading,
   hasError,
   containerSize = 48,
-  rowSize = 56,
+  rowSize = 48,
   placeholder,
   onRowAction,
   actionColumn,
