@@ -24,14 +24,16 @@ describe('Add On', () => {
 
     // Submit form
     cy.get('[data-test="submit"]').click()
-    cy.url().should('be.equal', Cypress.config().baseUrl + '/add-ons')
-    cy.get(`[data-test="${addOnName}"]`).should('exist')
+    cy.get(`[data-test="addon-details-name"]`).should('contain.text', addOnName)
   })
 
   it('should be able to edit the same coupon', () => {
     // Navigation
     cy.visit('/add-ons')
     cy.get(`[data-test="${addOnName}"]`).click()
+
+    cy.get('button[data-test="addon-details-actions"]').click()
+    cy.get('button[data-test="addon-details-edit"]').click()
 
     // // Check taxes are still present
     // cy.get('[data-test="tax-chip-wrapper"]').children().should('have.length', 1)
@@ -41,7 +43,6 @@ describe('Add On', () => {
     cy.get('textarea[name="description"]').should('exist')
     cy.get('input[name="amountCents"]').type('20')
     cy.get('[data-test="submit"]').click()
-    cy.url().should('be.equal', Cypress.config().baseUrl + '/add-ons')
-    cy.get(`[data-test="${addOnName}"]`).should('exist')
+    cy.get(`[data-test="addon-details-name"]`).should('contain.text', addOnName)
   })
 })

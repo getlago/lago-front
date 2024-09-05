@@ -78,7 +78,12 @@ const AddOnDetails = () => {
               <Skeleton variant="text" width={200} height={12} />
             </AddOnTitleLoadingWrapper>
           ) : (
-            <Typography variant="bodyHl" color="textSecondary" noWrap>
+            <Typography
+              variant="bodyHl"
+              color="textSecondary"
+              noWrap
+              data-test="addon-details-name"
+            >
               {addOn?.name}
             </Typography>
           )}
@@ -89,12 +94,15 @@ const AddOnDetails = () => {
           <Popper
             PopperProps={{ placement: 'bottom-end' }}
             opener={
-              <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
+              <Button endIcon="chevron-down" data-test="addon-details-actions">
+                {translate('text_626162c62f790600f850b6fe')}
+              </Button>
             }
           >
             {({ closePopper }) => (
               <MenuPopper>
                 <Button
+                  data-test="addon-details-edit"
                   variant="quaternary"
                   align="left"
                   onClick={() => {

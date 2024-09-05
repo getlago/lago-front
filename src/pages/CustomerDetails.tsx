@@ -159,7 +159,12 @@ const CustomerDetails = () => {
           {loading ? (
             <Skeleton variant="text" height={12} width={120} />
           ) : (
-            <Typography variant="bodyHl" color="textSecondary" noWrap>
+            <Typography
+              variant="bodyHl"
+              color="textSecondary"
+              noWrap
+              data-test="customer-details-name"
+            >
               {name}
             </Typography>
           )}

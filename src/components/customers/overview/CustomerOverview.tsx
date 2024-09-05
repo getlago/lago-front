@@ -139,7 +139,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
             {translate('text_6670a7222702d70114cc7954')}
 
             <Button
-              data-test="add-subscription"
+              data-test="refresh-overview"
               variant="quaternary"
               onClick={() => {
                 getGrossRevenues({

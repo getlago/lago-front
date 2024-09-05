@@ -105,7 +105,12 @@ const CouponDetails = () => {
               <Skeleton variant="text" width={200} height={12} />
             </CouponTitleLoadingWrapper>
           ) : (
-            <Typography variant="bodyHl" color="textSecondary" noWrap>
+            <Typography
+              variant="bodyHl"
+              color="textSecondary"
+              noWrap
+              data-test="coupon-details-name"
+            >
               {coupon?.name}
             </Typography>
           )}
@@ -116,12 +121,15 @@ const CouponDetails = () => {
           <Popper
             PopperProps={{ placement: 'bottom-end' }}
             opener={
-              <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
+              <Button endIcon="chevron-down" data-test="coupon-details-actions">
+                {translate('text_626162c62f790600f850b6fe')}
+              </Button>
             }
           >
             {({ closePopper }) => (
               <MenuPopper>
                 <Button
+                  data-test="coupon-details-edit"
                   variant="quaternary"
                   align="left"
                   onClick={() => {
@@ -133,6 +141,7 @@ const CouponDetails = () => {
                 </Button>
                 {coupon && (
                   <Button
+                    data-test="coupon-details-delete"
                     variant="quaternary"
                     align="left"
                     onClick={() => {
