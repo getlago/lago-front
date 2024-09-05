@@ -1,0 +1,64 @@
+name: TestE2E
+
+on:
+  pull_request:
+    types: [opened, reopened, review_requested, ready_for_review, synchronize]
+
+jobs:
+  cypress-run: 
+    if: github.event.pull_request.draft == false
+    name: Run Test E2E
+    runs-on: ubuntu-latest
+    env:
+      ACTIONS_STEP_DEBUG: true
+      ACTIONS_RUNNER_DEBUG: true
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      - name: Checkout API Git repository
+        uses: actions/checkout@v4
+        with:
+          repository: getlago/lago-api
+          ref: ${{ github.event.inputs.api_branch }}
+          path: api
+          token: ${{ secrets.GH_TOKEN }}
+          
+      - name: Build Front local image
+        run: |
+          docker build -t getlago/front:ci ./
+
+      - name: Build API local image
+        run: |
+          docker build -t getlago/api:ci ./api
+
+      - name: Generate API RSA Key
+        run: |
+          echo "LAGO_RSA_PRIVATE_KEY=\"`openssl genrsa 2048 | base64`\"" >> .env
+
+      - name: Launch APP + API
+        env:
+          LAGO_LICENSE: ${{ secrets.LAGO_LICENSE }}
+        run: |
+          docker compose -f ./ci/docker-compose.ci.yml --env-file ./.env up -d db redis api front
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        env: 
+          CYPRESS_GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          browser: chrome
+          record: false
+          config-file: ./cypress/cypress.config.js
+          config: baseUrl=http://localhost,viewportHeight=99999,viewportWidth=1280
+          spec: |
+            cypress/e2e/00-auth/*
+            cypress/e2e/10-resources/*
+            cypress/e2e/t10-*
+            cypress/e2e/t20-*
+            cypress/e2e/t30-*
