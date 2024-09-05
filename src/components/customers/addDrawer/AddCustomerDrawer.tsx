@@ -112,7 +112,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
       metadata: customer?.metadata ?? undefined,
     },
     validationSchema: object().shape({
-      name: string().required(''),
+      name: string(),
       email: string().email('text_620bc4d4269a55014d493fc3'),
       externalId: string().required(''),
       metadata: metadataSchema(),
