@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { FC, useRef } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import {
   Avatar,
@@ -32,6 +32,8 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Hubspot from '~/public/images/hubspot.svg'
 import { MenuPopper, PageHeader } from '~/styles'
+
+import { IntegrationsTabsOptionsEnum } from './Integrations'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -95,9 +97,15 @@ const HubspotIntegrationDetails = () => {
     const integrations = data?.integrations?.collection || []
 
     if (integrations.length >= PROVIDER_CONNECTION_LIMIT) {
-      navigate(HUBSPOT_INTEGRATION_ROUTE)
+      navigate(
+        generatePath(HUBSPOT_INTEGRATION_ROUTE, {
+          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+        }),
+      )
     } else {
-      navigate(INTEGRATIONS_ROUTE)
+      navigate(
+        generatePath(INTEGRATIONS_ROUTE, { integrationGroup: IntegrationsTabsOptionsEnum.Lago }),
+      )
     }
   }
 
@@ -106,7 +114,9 @@ const HubspotIntegrationDetails = () => {
       <PageHeader withSide>
         <div className="flex items-center gap-3">
           <ButtonLink
-            to={HUBSPOT_INTEGRATION_ROUTE}
+            to={generatePath(HUBSPOT_INTEGRATION_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            })}
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />

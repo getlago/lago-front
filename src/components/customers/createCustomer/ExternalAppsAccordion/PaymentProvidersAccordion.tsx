@@ -15,6 +15,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Adyen from '~/public/images/adyen.svg'
+import Cashfree from '~/public/images/cashfree.svg'
 import GoCardless from '~/public/images/gocardless.svg'
 import Stripe from '~/public/images/stripe.svg'
 
@@ -24,6 +25,13 @@ gql`
   query paymentProvidersListForCustomerCreateEditExternalAppsAccordion($limit: Int) {
     paymentProviders(limit: $limit) {
       collection {
+        ... on CashfreeProvider {
+          __typename
+          id
+          name
+          code
+        }
+
         ... on StripeProvider {
           __typename
           id
@@ -55,9 +63,10 @@ interface PaymentProvidersAccordionProps {
 }
 
 const avatarMapping: Record<ProviderTypeEnum, ReactNode> = {
-  [ProviderTypeEnum.Stripe]: <Stripe />,
-  [ProviderTypeEnum.Gocardless]: <GoCardless />,
   [ProviderTypeEnum.Adyen]: <Adyen />,
+  [ProviderTypeEnum.Cashfree]: <Cashfree />,
+  [ProviderTypeEnum.Gocardless]: <GoCardless />,
+  [ProviderTypeEnum.Stripe]: <Stripe />,
 }
 
 export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
@@ -88,6 +97,13 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
       ),
     }))
   }, [paymentProviders?.collection])
+
+  const isSyncWithProviderSupported = useMemo(() => {
+    if (!formikProps.values.paymentProvider) return false
+    const unsupportedPaymentProviders: ProviderTypeEnum[] = [ProviderTypeEnum.Cashfree]
+
+    return !unsupportedPaymentProviders.includes(formikProps.values.paymentProvider)
+  }, [formikProps.values.paymentProvider])
 
   return (
     <div>
@@ -149,7 +165,7 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
               }}
             />
 
-            {!!formikProps.values.paymentProviderCode && (
+            {!!formikProps.values.paymentProviderCode && isSyncWithProviderSupported && (
               <>
                 <TextInputField
                   name="providerCustomer.providerCustomerId"

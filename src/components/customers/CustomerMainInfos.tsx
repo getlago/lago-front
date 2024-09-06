@@ -33,6 +33,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Adyen from '~/public/images/adyen.svg'
 import Anrok from '~/public/images/anrok.svg'
+import Cashfree from '~/public/images/cashfree.svg'
 import Gocardless from '~/public/images/gocardless.svg'
 import Hubspot from '~/public/images/hubspot.svg'
 import Netsuite from '~/public/images/netsuite.svg'
@@ -130,6 +131,12 @@ gql`
         }
 
         ... on GocardlessProvider {
+          id
+          name
+          code
+        }
+
+        ... on CashfreeProvider {
           id
           name
           code
@@ -470,6 +477,8 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                   <Gocardless />
                 ) : paymentProvider === ProviderTypeEnum?.Adyen ? (
                   <Adyen />
+                ) : paymentProvider === ProviderTypeEnum?.Cashfree ? (
+                  <Cashfree />
                 ) : null}
               </Avatar>
               <Typography color="grey700">{linkedProvider?.name}</Typography>

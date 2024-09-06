@@ -32,6 +32,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Hubspot from '~/public/images/hubspot.svg'
 import { ListItemLink, MenuPopper, PageHeader, PopperOpener } from '~/styles'
 
+import { IntegrationsTabsOptionsEnum } from './Integrations'
+
 gql`
   fragment HubspotIntegrations on HubspotIntegration {
     id
@@ -68,14 +70,23 @@ const HubspotIntegrations = () => {
 
   const connections = data?.integrations?.collection as HubspotIntegrationsFragment[] | undefined
   const deleteDialogCallback =
-    connections && connections?.length === 1 ? () => navigate(INTEGRATIONS_ROUTE) : undefined
+    connections && connections?.length === 1
+      ? () =>
+          navigate(
+            generatePath(INTEGRATIONS_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            }),
+          )
+      : undefined
 
   return (
     <>
       <PageHeader withSide>
         <div className="flex items-center gap-3">
           <ButtonLink
-            to={INTEGRATIONS_ROUTE}
+            to={generatePath(INTEGRATIONS_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            })}
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
@@ -151,6 +162,7 @@ const HubspotIntegrations = () => {
                           className="p-0"
                           to={generatePath(HUBSPOT_INTEGRATION_DETAILS_ROUTE, {
                             integrationId: connection.id,
+                            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
                           })}
                         >
                           <div className="flex flex-row items-center gap-3">

@@ -21,6 +21,7 @@ import {
   useUpdateGocardlessApiKeyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { IntegrationsTabsOptionsEnum } from '~/pages/settings/Integrations'
 import { theme } from '~/styles'
 
 import { DeleteGocardlessIntegrationDialogRef } from './DeleteGocardlessIntegrationDialog'
@@ -35,6 +36,9 @@ gql`
   query getProviderByCodeForGocardless($code: String) {
     paymentProvider(code: $code) {
       ... on GocardlessProvider {
+        id
+      }
+      ... on CashfreeProvider {
         id
       }
       ... on AdyenProvider {
@@ -84,6 +88,7 @@ export const AddGocardlessDialog = forwardRef<AddGocardlessDialogRef>((_, ref) =
         navigate(
           generatePath(GOCARDLESS_INTEGRATION_DETAILS_ROUTE, {
             integrationId: updateGocardlessPaymentProvider.id,
+            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
           }),
         )
 

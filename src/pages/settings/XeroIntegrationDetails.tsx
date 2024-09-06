@@ -41,6 +41,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Xero from '~/public/images/xero.svg'
 import { MenuPopper, PageHeader, theme } from '~/styles'
 
+import { IntegrationsTabsOptionsEnum } from './Integrations'
+
 const PROVIDER_CONNECTION_LIMIT = 2
 
 export enum XeroIntegrationDetailsTabs {
@@ -97,9 +99,15 @@ const XeroIntegrationDetails = () => {
   const xeroIntegration = data?.integration as XeroIntegrationDetailsFragment
   const deleteDialogCallback = () => {
     if ((data?.integrations?.collection.length || 0) >= PROVIDER_CONNECTION_LIMIT) {
-      navigate(XERO_INTEGRATION_ROUTE)
+      navigate(
+        generatePath(XERO_INTEGRATION_ROUTE, {
+          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+        }),
+      )
     } else {
-      navigate(INTEGRATIONS_ROUTE)
+      navigate(
+        generatePath(INTEGRATIONS_ROUTE, { integrationGroup: IntegrationsTabsOptionsEnum.Lago }),
+      )
     }
   }
 
@@ -108,7 +116,9 @@ const XeroIntegrationDetails = () => {
       <PageHeader withSide>
         <HeaderBlock>
           <ButtonLink
-            to={XERO_INTEGRATION_ROUTE}
+            to={generatePath(XERO_INTEGRATION_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            })}
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
@@ -197,6 +207,7 @@ const XeroIntegrationDetails = () => {
             link: generatePath(XERO_INTEGRATION_DETAILS_ROUTE, {
               integrationId,
               tab: XeroIntegrationDetailsTabs.Settings,
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
             component: <XeroIntegrationSettings />,
           },
@@ -205,6 +216,7 @@ const XeroIntegrationDetails = () => {
             link: generatePath(XERO_INTEGRATION_DETAILS_ROUTE, {
               integrationId,
               tab: XeroIntegrationDetailsTabs.Items,
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
             component: <XeroIntegrationItemsList integrationId={xeroIntegration?.id} />,
           },

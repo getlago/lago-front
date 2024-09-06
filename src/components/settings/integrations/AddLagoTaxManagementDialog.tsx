@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef } from 'react'
-import { useNavigate } from 'react-router'
+import { generatePath, useNavigate } from 'react-router'
 import styled from 'styled-components'
 import { object, string } from 'yup'
 
@@ -18,6 +18,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useIntegrations } from '~/hooks/useIntegrations'
+import { IntegrationsTabsOptionsEnum } from '~/pages/settings/Integrations'
 import { theme } from '~/styles'
 
 gql`
@@ -62,7 +63,11 @@ export const AddLagoTaxManagementDialog = forwardRef<AddLagoTaxManagementDialogR
     const [updateOrga] = useUpdateOrgaForLagoTaxManagementMutation({
       onCompleted({ updateOrganization }) {
         if (updateOrganization?.id) {
-          navigate(TAX_MANAGEMENT_INTEGRATION_ROUTE)
+          navigate(
+            generatePath(TAX_MANAGEMENT_INTEGRATION_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            }),
+          )
           addToast({
             message: translate('text_657078c28394d6b1ae1b980e'),
             severity: 'success',

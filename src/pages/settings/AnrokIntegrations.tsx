@@ -44,6 +44,7 @@ import {
 } from '~/styles'
 
 import { AnrokIntegrationDetailsTabs } from './AnrokIntegrationDetails'
+import { IntegrationsTabsOptionsEnum } from './Integrations'
 
 gql`
   fragment AnrokIntegrations on AnrokIntegration {
@@ -80,14 +81,23 @@ const AnrokIntegrations = () => {
   })
   const connections = data?.integrations?.collection as AnrokIntegrationsFragment[] | undefined
   const deleteDialogCallback =
-    connections && connections?.length === 1 ? () => navigate(INTEGRATIONS_ROUTE) : undefined
+    connections && connections?.length === 1
+      ? () =>
+          navigate(
+            generatePath(INTEGRATIONS_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            }),
+          )
+      : undefined
 
   return (
     <>
       <PageHeader withSide>
         <HeaderBlock>
           <ButtonLink
-            to={INTEGRATIONS_ROUTE}
+            to={generatePath(INTEGRATIONS_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            })}
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
@@ -160,6 +170,7 @@ const AnrokIntegrations = () => {
                         to={generatePath(ANROK_INTEGRATION_DETAILS_ROUTE, {
                           integrationId: connection.id,
                           tab: AnrokIntegrationDetailsTabs.Settings,
+                          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
                         })}
                       >
                         <Stack direction="row" alignItems="center" spacing={3}>

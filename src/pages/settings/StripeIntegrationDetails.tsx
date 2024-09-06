@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useRef } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import {
@@ -40,6 +40,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import Stripe from '~/public/images/stripe.svg'
 import { MenuPopper, NAV_HEIGHT, PageHeader, PopperOpener, theme } from '~/styles'
+
+import { IntegrationsTabsOptionsEnum } from './Integrations'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -96,9 +98,15 @@ const StripeIntegrationDetails = () => {
   const stripePaymentProvider = data?.paymentProvider as StripeIntegrationDetailsFragment
   const deleteDialogCallback = () => {
     if ((data?.paymentProviders?.collection.length || 0) >= PROVIDER_CONNECTION_LIMIT) {
-      navigate(STRIPE_INTEGRATION_ROUTE)
+      navigate(
+        generatePath(STRIPE_INTEGRATION_ROUTE, {
+          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+        }),
+      )
     } else {
-      navigate(INTEGRATIONS_ROUTE)
+      navigate(
+        generatePath(INTEGRATIONS_ROUTE, { integrationGroup: IntegrationsTabsOptionsEnum.Lago }),
+      )
     }
   }
 
@@ -110,7 +118,9 @@ const StripeIntegrationDetails = () => {
       <PageHeader withSide>
         <HeaderBlock>
           <ButtonLink
-            to={STRIPE_INTEGRATION_ROUTE}
+            to={generatePath(STRIPE_INTEGRATION_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            })}
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
