@@ -23,6 +23,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { AnrokIntegrationDetailsTabs } from '~/pages/settings/AnrokIntegrationDetails'
+import { IntegrationsTabsOptionsEnum } from '~/pages/settings/Integrations'
 import { theme } from '~/styles'
 
 import { DeleteAnrokIntegrationDialogRef } from './DeleteAnrokIntegrationDialog'
@@ -82,6 +83,7 @@ export const AddAnrokDialog = forwardRef<AddAnrokDialogRef>((_, ref) => {
           generatePath(ANROK_INTEGRATION_DETAILS_ROUTE, {
             integrationId: createAnrokIntegration.id,
             tab: AnrokIntegrationDetailsTabs.Settings,
+            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
           }),
         )
 

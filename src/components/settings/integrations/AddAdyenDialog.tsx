@@ -21,6 +21,7 @@ import {
   useUpdateAdyenApiKeyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { IntegrationsTabsOptionsEnum } from '~/pages/settings/Integrations'
 import { theme } from '~/styles'
 
 import { DeleteAdyenIntegrationDialogRef } from './DeleteAdyenIntegrationDialog'
@@ -42,6 +43,9 @@ gql`
         id
       }
       ... on GocardlessProvider {
+        id
+      }
+      ... on CashfreeProvider {
         id
       }
       ... on StripeProvider {
@@ -96,6 +100,7 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
         navigate(
           generatePath(ADYEN_INTEGRATION_DETAILS_ROUTE, {
             integrationId: addAdyenPaymentProvider.id,
+            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
           }),
         )
 

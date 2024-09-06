@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useRef } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import {
@@ -42,6 +42,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import GoCardless from '~/public/images/gocardless-large.svg'
 import { MenuPopper, NAV_HEIGHT, PageHeader, PopperOpener, theme } from '~/styles'
+
+import { IntegrationsTabsOptionsEnum } from './Integrations'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -98,9 +100,15 @@ const GocardlessIntegrationDetails = () => {
   const isConnectionEstablished = !!gocardlessPaymentProvider?.webhookSecret
   const deleteDialogCallback = () => {
     if ((data?.paymentProviders?.collection.length || 0) >= PROVIDER_CONNECTION_LIMIT) {
-      navigate(GOCARDLESS_INTEGRATION_ROUTE)
+      navigate(
+        generatePath(GOCARDLESS_INTEGRATION_ROUTE, {
+          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+        }),
+      )
     } else {
-      navigate(INTEGRATIONS_ROUTE)
+      navigate(
+        generatePath(INTEGRATIONS_ROUTE, { integrationGroup: IntegrationsTabsOptionsEnum.Lago }),
+      )
     }
   }
 
@@ -112,7 +120,9 @@ const GocardlessIntegrationDetails = () => {
       <PageHeader withSide>
         <HeaderBlock>
           <ButtonLink
-            to={GOCARDLESS_INTEGRATION_ROUTE}
+            to={generatePath(GOCARDLESS_INTEGRATION_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            })}
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />

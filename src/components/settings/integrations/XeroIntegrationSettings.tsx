@@ -17,6 +17,7 @@ import {
   XeroIntegrationSettingsFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { IntegrationsTabsOptionsEnum } from '~/pages/settings/Integrations'
 import { XeroIntegrationDetailsTabs } from '~/pages/settings/XeroIntegrationDetails'
 import { NAV_HEIGHT, theme } from '~/styles'
 
@@ -111,9 +112,15 @@ const XeroIntegrationSettings = () => {
   const xeroIntegration = data?.integration as XeroIntegrationSettingsFragment | undefined
   const deleteDialogCallback = () => {
     if ((data?.integrations?.collection.length || 0) >= PROVIDER_CONNECTION_LIMIT) {
-      navigate(XERO_INTEGRATION_ROUTE)
+      navigate(
+        generatePath(XERO_INTEGRATION_ROUTE, {
+          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+        }),
+      )
     } else {
-      navigate(INTEGRATIONS_ROUTE)
+      navigate(
+        generatePath(INTEGRATIONS_ROUTE, { integrationGroup: IntegrationsTabsOptionsEnum.Lago }),
+      )
     }
   }
 
@@ -130,6 +137,7 @@ const XeroIntegrationSettings = () => {
                   generatePath(XERO_INTEGRATION_DETAILS_ROUTE, {
                     integrationId,
                     tab: XeroIntegrationDetailsTabs.Items,
+                    integrationGroup: IntegrationsTabsOptionsEnum.Lago,
                   }),
                 )
               },

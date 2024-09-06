@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { FC, useRef } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import {
   Avatar,
@@ -32,6 +32,8 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Salesforce from '~/public/images/salesforce.svg'
 import { MenuPopper, PageHeader } from '~/styles'
+
+import { IntegrationsTabsOptionsEnum } from './Integrations'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -95,9 +97,15 @@ const SalesforceIntegrationDetails = () => {
     const integrations = data?.integrations?.collection || []
 
     if (integrations.length >= PROVIDER_CONNECTION_LIMIT) {
-      navigate(SALESFORCE_INTEGRATION_ROUTE)
+      navigate(
+        generatePath(SALESFORCE_INTEGRATION_ROUTE, {
+          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+        }),
+      )
     } else {
-      navigate(INTEGRATIONS_ROUTE)
+      navigate(
+        generatePath(INTEGRATIONS_ROUTE, { integrationGroup: IntegrationsTabsOptionsEnum.Lago }),
+      )
     }
   }
 
@@ -106,7 +114,9 @@ const SalesforceIntegrationDetails = () => {
       <PageHeader withSide>
         <div className="flex items-center gap-3">
           <ButtonLink
-            to={SALESFORCE_INTEGRATION_ROUTE}
+            to={generatePath(SALESFORCE_INTEGRATION_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            })}
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
