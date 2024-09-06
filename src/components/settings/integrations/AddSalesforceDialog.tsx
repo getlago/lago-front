@@ -17,6 +17,7 @@ import {
   useUpdateSalesforceIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { IntegrationsTabsOptionsEnum } from '~/pages/settings/Integrations'
 import { tw } from '~/styles/utils'
 
 import { DeleteSalesforceIntegrationDialogRef } from './DeleteSalesforceIntegrationDialog'
@@ -72,6 +73,7 @@ export const AddSalesforceDialog = forwardRef<AddSalesforceDialogRef>((_, ref) =
         navigate(
           generatePath(SALESFORCE_INTEGRATION_DETAILS_ROUTE, {
             integrationId: createSalesforceIntegration.id,
+            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
           }),
         )
 

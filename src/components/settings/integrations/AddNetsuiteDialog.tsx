@@ -20,6 +20,7 @@ import {
   useUpdateNetsuiteIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { IntegrationsTabsOptionsEnum } from '~/pages/settings/Integrations'
 import { NetsuiteIntegrationDetailsTabs } from '~/pages/settings/NetsuiteIntegrationDetails'
 import { theme } from '~/styles'
 
@@ -84,6 +85,7 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
           generatePath(NETSUITE_INTEGRATION_DETAILS_ROUTE, {
             integrationId: createNetsuiteIntegration.id,
             tab: NetsuiteIntegrationDetailsTabs.Settings,
+            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
           }),
         )
 

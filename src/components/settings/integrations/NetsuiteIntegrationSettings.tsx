@@ -17,6 +17,7 @@ import {
   useGetNetsuiteIntegrationsSettingsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { IntegrationsTabsOptionsEnum } from '~/pages/settings/Integrations'
 import { NetsuiteIntegrationDetailsTabs } from '~/pages/settings/NetsuiteIntegrationDetails'
 import { NAV_HEIGHT, theme } from '~/styles'
 
@@ -110,9 +111,15 @@ const NetsuiteIntegrationSettings = () => {
   const netsuiteIntegration = data?.integration as NetsuiteIntegrationSettingsFragment | undefined
   const deleteDialogCallback = () => {
     if ((data?.integrations?.collection.length || 0) >= PROVIDER_CONNECTION_LIMIT) {
-      navigate(NETSUITE_INTEGRATION_ROUTE)
+      navigate(
+        generatePath(NETSUITE_INTEGRATION_ROUTE, {
+          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+        }),
+      )
     } else {
-      navigate(INTEGRATIONS_ROUTE)
+      navigate(
+        generatePath(INTEGRATIONS_ROUTE, { integrationGroup: IntegrationsTabsOptionsEnum.Lago }),
+      )
     }
   }
 
@@ -129,6 +136,7 @@ const NetsuiteIntegrationSettings = () => {
                   generatePath(NETSUITE_INTEGRATION_DETAILS_ROUTE, {
                     integrationId,
                     tab: NetsuiteIntegrationDetailsTabs.Items,
+                    integrationGroup: IntegrationsTabsOptionsEnum.Lago,
                   }),
                 )
               },

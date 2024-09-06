@@ -49,6 +49,8 @@ import {
   theme,
 } from '~/styles'
 
+import { IntegrationsTabsOptionsEnum } from './Integrations'
+
 gql`
   fragment StripeIntegrations on StripeProvider {
     id
@@ -86,7 +88,14 @@ const StripeIntegrations = () => {
   })
   const connections = data?.paymentProviders?.collection as StripeProvider[] | undefined
   const deleteDialogCallback =
-    connections && connections.length === 1 ? () => navigate(INTEGRATIONS_ROUTE) : undefined
+    connections && connections.length === 1
+      ? () =>
+          navigate(
+            generatePath(INTEGRATIONS_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            }),
+          )
+      : undefined
 
   const canCreateIntegration = hasPermissions(['organizationIntegrationsCreate'])
   const canEditIntegration = hasPermissions(['organizationIntegrationsUpdate'])
@@ -97,7 +106,9 @@ const StripeIntegrations = () => {
       <PageHeader $withSide>
         <HeaderBlock>
           <ButtonLink
-            to={INTEGRATIONS_ROUTE}
+            to={generatePath(INTEGRATIONS_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            })}
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
@@ -172,6 +183,7 @@ const StripeIntegrations = () => {
                         tabIndex={0}
                         to={generatePath(STRIPE_INTEGRATION_DETAILS_ROUTE, {
                           integrationId: connection.id,
+                          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
                         })}
                       >
                         <Stack direction="row" spacing={3} alignItems="center">
