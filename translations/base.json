@@ -2381,5 +2381,20 @@
   "text_1724346450317iqs2rtvx1tp": "Hello, I would like to access your progressive billing add-on. \n\nPlease let me know if you need more info!",
   "text_1724936123802q74m2xxak3o": "Usage already billed",
   "text_17250100329108guatmyl9tj": "Unknown",
-  "text_172535279177716n7p2svtdb": "Anrok synchronisation successfully triggered."
+  "text_172535279177716n7p2svtdb": "Anrok synchronisation successfully triggered.",
+  "text_172450747075633492aqpbm2": "Connect to Cashfree Payments",
+  "text_17245079170372xxmw737fhf": "To connect to Cashfree Payments, please enter the following information.",
+  "text_1724507963056bu20ky8z98g": "Edit information linked to this Cashfree Payments connection.",
+  "text_1727619878796wmgcntkfycn": "Cashfree Payments",
+  "text_1727620558031ftsky1vpr55": "Client id",
+  "text_1727620574228qfyoqtsdih7": "Client secret",
+  "text_1727621816788cygs13tsdyv": "By deleting the connection, it will not be used anymore and upcoming data will not be synchronized to the connected Cashfree Payments account. Are you sure?",
+  "text_17276219350329d36mgsotee": "Cashfree Payments connection successfully created",
+  "text_1727621947600tg14usmdbb0": "Cashfree Payments connection successfully edited",
+  "text_1727621949511zk6kkl99pzk": "Cashfree Payments connection successfully deleted",
+  "text_1727623090069kyp9o88hpqe": "Webhook URL copied to clipboard",
+  "text_1727623127072q52kj0u3xql": "Copy Webhook URL",
+  "text_1727623232636ys8hnp8a3su": "Add the following Webhook URL in the <i>Webhooks</i> > <i>Payment Link</i> section of the Cashfree Payments dashboard.",
+  "text_1727624537843s2ublm4rsyj": "Type a client id",
+  "text_17276245391922l9540z7f78": "Type a client secret"
 }
