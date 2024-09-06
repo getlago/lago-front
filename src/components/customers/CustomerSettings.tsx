@@ -410,14 +410,14 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
               {customer?.finalizeZeroAmountInvoice === FinalizeZeroAmountInvoiceEnum.Inherit ? (
                 <>
                   {organization?.finalizeZeroAmountInvoice
-                    ? translate('text_17255500892002nq3iltm03z')
+                    ? translate('text_1725549671287ancbf00edxx')
                     : translate('text_1725549671288zkq9sr0y46l')}
                   {` ${translate('text_17255500892009uqfqttms4w')}`}
                 </>
               ) : (
                 <>
                   {customer?.finalizeZeroAmountInvoice === FinalizeZeroAmountInvoiceEnum.Finalize
-                    ? translate('text_17255500892002nq3iltm03z')
+                    ? translate('text_1725549671287ancbf00edxx')
                     : translate('text_1725549671288zkq9sr0y46l')}
                 </>
               )}

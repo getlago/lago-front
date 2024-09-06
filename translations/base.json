@@ -2395,7 +2395,6 @@
   "text_1725549671288txz7z4m4qrf": "You’re about to delete the empty invoice setting rule",
   "text_17255496712882gafqyniqpc": "After deleting this invoicing rule, {{customerName}}’s upcoming invoices will automatically adopt the one defined at the organization level. Are you sure to delete it?",
   "text_1725550089200lfv6ug3vicm": "Add rule",
-  "text_17255500892002nq3iltm03z": "Issue empty invoices",
   "text_17255500892009uqfqttms4w": "(from organization)",
   "text_1725550089200omw15t6nh0h": "This customer inherits this rule from the <a href=\"{{link}}\">general settings</a>. Define whether to skip or finalize empty invoices for this customer.",
   "text_1725550089200svn5rdwfftc": "Empty invoice setting is applied only for this customer.",
