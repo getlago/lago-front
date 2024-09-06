@@ -21,6 +21,7 @@ import {
   useUpdateHubspotIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { IntegrationsTabsOptionsEnum } from '~/pages/settings/Integrations'
 import { tw } from '~/styles/utils'
 
 gql`
@@ -78,6 +79,7 @@ export const AddHubspotDialog = forwardRef<AddHubspotDialogRef>((_, ref) => {
         navigate(
           generatePath(HUBSPOT_INTEGRATION_DETAILS_ROUTE, {
             integrationId: createHubspotIntegration.id,
+            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
           }),
         )
 

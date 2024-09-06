@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { useNavigate } from 'react-router'
+import { generatePath, useNavigate } from 'react-router'
 
-import { Avatar, Chip, Selector, Typography } from '~/components/designSystem'
+import { Alert, Avatar, Chip, NavigationTab, Selector, Typography } from '~/components/designSystem'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/Pages'
 import {
   SettingsListItem,
@@ -20,6 +20,10 @@ import {
   AddAnrokDialog,
   AddAnrokDialogRef,
 } from '~/components/settings/integrations/AddAnrokDialog'
+import {
+  AddCashfreeDialog,
+  AddCashfreeDialogRef,
+} from '~/components/settings/integrations/AddCashfreeDialog'
 import {
   AddGocardlessDialog,
   AddGocardlessDialogRef,
@@ -54,8 +58,10 @@ import {
 import {
   ADYEN_INTEGRATION_ROUTE,
   ANROK_INTEGRATION_ROUTE,
+  CASHFREE_INTEGRATION_ROUTE,
   GOCARDLESS_INTEGRATION_ROUTE,
   HUBSPOT_INTEGRATION_ROUTE,
+  INTEGRATIONS_ROUTE,
   NETSUITE_INTEGRATION_ROUTE,
   SALESFORCE_INTEGRATION_ROUTE,
   STRIPE_INTEGRATION_ROUTE,
@@ -69,6 +75,7 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import Adyen from '~/public/images/adyen.svg'
 import Airbyte from '~/public/images/airbyte.svg'
 import Anrok from '~/public/images/anrok.svg'
+import Cashfree from '~/public/images/cashfree.svg'
 import GoCardless from '~/public/images/gocardless.svg'
 import HightTouch from '~/public/images/hightouch.svg'
 import Hubspot from '~/public/images/hubspot.svg'
@@ -79,6 +86,11 @@ import Salesforce from '~/public/images/salesforce.svg'
 import Segment from '~/public/images/segment.svg'
 import Stripe from '~/public/images/stripe.svg'
 import Xero from '~/public/images/xero.svg'
+
+export enum IntegrationsTabsOptionsEnum {
+  Lago = 'lago',
+  Community = 'community',
+}
 
 gql`
   query integrationsSetting($limit: Int) {
@@ -137,6 +149,7 @@ const Integrations = () => {
   const addStripeDialogRef = useRef<AddStripeDialogRef>(null)
   const addAdyenDialogRef = useRef<AddAdyenDialogRef>(null)
   const addGocardlessDialogRef = useRef<AddGocardlessDialogRef>(null)
+  const addCashfreeDialogRef = useRef<AddCashfreeDialogRef>(null)
   const addLagoTaxManagementDialog = useRef<AddLagoTaxManagementDialogRef>(null)
   const addNetsuiteDialogRef = useRef<AddNetsuiteDialogRef>(null)
   const addSalesforceDialogRef = useRef<AddSalesforceDialogRef>(null)
@@ -156,6 +169,9 @@ const Integrations = () => {
   )
   const hasGocardlessIntegration = data?.paymentProviders?.collection?.some(
     (provider) => provider?.__typename === 'GocardlessProvider',
+  )
+  const hasCashfreeIntegration = data?.paymentProviders?.collection?.some(
+    (provider) => provider?.__typename === 'CashfreeProvider',
   )
   const hasTaxManagement = !!organization?.euTaxManagement
   const hasAccessToNetsuitePremiumIntegration = !!premiumIntegrations?.includes(
@@ -194,320 +210,413 @@ const Integrations = () => {
         </Typography>
       </PageBannerHeaderWithBurgerMenu>
 
-      <SettingsPaddedContainer>
+      <SettingsPaddedContainer className="gap-8">
         <SettingsPageHeaderContainer>
           <Typography variant="headline">{translate('text_62b1edddbf5f461ab9712750')}</Typography>
           <Typography>{translate('text_62b1edddbf5f461ab9712765')}</Typography>
         </SettingsPageHeaderContainer>
 
-        <SettingsListWrapper>
-          {!!loading ? (
-            <SettingsListItemLoadingSkeleton count={2} />
-          ) : (
-            <SettingsListItem>
-              <Selector
-                fullWidth
-                title={translate('text_6668821d94e4da4dfd8b3834')}
-                subtitle={translate('text_6668821d94e4da4dfd8b3840')}
-                endIcon={
-                  !isPremium ? (
-                    'sparkles'
-                  ) : hasAnrokIntegration ? (
-                    <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
-                  ) : undefined
-                }
-                icon={
-                  <Avatar size="big" variant="connector-full">
-                    {<Anrok />}
-                  </Avatar>
-                }
-                onClick={() => {
-                  if (!isPremium) {
-                    premiumWarningDialogRef.current?.openDialog({
-                      title: translate('text_661ff6e56ef7e1b7c542b1ea'),
-                      description: translate('text_661ff6e56ef7e1b7c542b1f6'),
-                      mailtoSubject: translate('text_666887641443e4a75b9ead3d'),
-                      mailtoBody: translate('text_666887641443e4a75b9ead3e'),
-                    })
-                  } else if (hasAnrokIntegration) {
-                    navigate(ANROK_INTEGRATION_ROUTE)
-                  } else {
-                    addAnrokDialogRef.current?.openDialog()
-                  }
-                }}
-              />
-              <Selector
-                title={translate('text_645d071272418a14c1c76a6d')}
-                subtitle={translate('text_634ea0ecc6147de10ddb6631')}
-                icon={
-                  <Avatar size="big" variant="connector-full">
-                    <Adyen />
-                  </Avatar>
-                }
-                endIcon={
-                  hasAdyenIntegration ? (
-                    <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
-                  ) : undefined
-                }
-                onClick={() => {
-                  if (hasAdyenIntegration) {
-                    navigate(ADYEN_INTEGRATION_ROUTE)
-                  } else {
-                    const element = document.activeElement as HTMLElement
+        <NavigationTab
+          tabs={[
+            {
+              title: translate('text_1733303404276jppxvximavl'),
+              link: generatePath(INTEGRATIONS_ROUTE, {
+                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+              }),
+              component: (
+                <SettingsListWrapper>
+                  {!!loading ? (
+                    <SettingsListItemLoadingSkeleton count={2} />
+                  ) : (
+                    <SettingsListItem>
+                      <Selector
+                        fullWidth
+                        title={translate('text_6668821d94e4da4dfd8b3834')}
+                        subtitle={translate('text_6668821d94e4da4dfd8b3840')}
+                        endIcon={
+                          !isPremium ? (
+                            'sparkles'
+                          ) : hasAnrokIntegration ? (
+                            <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+                          ) : undefined
+                        }
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            {<Anrok />}
+                          </Avatar>
+                        }
+                        onClick={() => {
+                          if (!isPremium) {
+                            premiumWarningDialogRef.current?.openDialog({
+                              title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                              description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                              mailtoSubject: translate('text_666887641443e4a75b9ead3d'),
+                              mailtoBody: translate('text_666887641443e4a75b9ead3e'),
+                            })
+                          } else if (hasAnrokIntegration) {
+                            navigate(
+                              generatePath(ANROK_INTEGRATION_ROUTE, {
+                                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                              }),
+                            )
+                          } else {
+                            addAnrokDialogRef.current?.openDialog()
+                          }
+                        }}
+                      />
+                      <Selector
+                        title={translate('text_645d071272418a14c1c76a6d')}
+                        subtitle={translate('text_634ea0ecc6147de10ddb6631')}
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            <Adyen />
+                          </Avatar>
+                        }
+                        endIcon={
+                          hasAdyenIntegration ? (
+                            <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+                          ) : undefined
+                        }
+                        onClick={() => {
+                          if (hasAdyenIntegration) {
+                            navigate(
+                              generatePath(ADYEN_INTEGRATION_ROUTE, {
+                                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                              }),
+                            )
+                          } else {
+                            const element = document.activeElement as HTMLElement
 
-                    element.blur && element.blur()
-                    addAdyenDialogRef.current?.openDialog()
-                  }
-                }}
-                fullWidth
-              />
-              <Selector
-                title={translate('text_639c334c3fa0e9c6ca3512b2')}
-                subtitle={translate('text_639c334c3fa0e9c6ca3512b4')}
-                icon={
-                  <Avatar size="big" variant="connector-full">
-                    {<Airbyte />}
-                  </Avatar>
-                }
-                onClick={() => {
-                  window.open(DOCUMENTATION_AIRBYTE, '_blank')
-                }}
-                fullWidth
-              />
-              <Selector
-                title={translate('text_63e26d8308d03687188221a5')}
-                subtitle={translate('text_63e26d8308d03687188221a6')}
-                icon={
-                  <Avatar size="big" variant="connector-full">
-                    {<Oso />}
-                  </Avatar>
-                }
-                onClick={() => {
-                  window.open(DOCUMENTATION_OSO, '_blank')
-                }}
-                fullWidth
-              />
-              <Selector
-                title={translate('text_634ea0ecc6147de10ddb6625')}
-                subtitle={translate('text_634ea0ecc6147de10ddb6631')}
-                icon={
-                  <Avatar size="big" variant="connector-full">
-                    <GoCardless />
-                  </Avatar>
-                }
-                endIcon={
-                  hasGocardlessIntegration ? (
-                    <Chip label={translate('text_634ea0ecc6147de10ddb6646')} />
-                  ) : undefined
-                }
-                onClick={() => {
-                  if (hasGocardlessIntegration) {
-                    navigate(GOCARDLESS_INTEGRATION_ROUTE)
-                  } else {
-                    addGocardlessDialogRef.current?.openDialog()
-                  }
-                }}
-                fullWidth
-              />
-              <Selector
-                title={translate('text_641b41f3cec373009a265e9e')}
-                subtitle={translate('text_641b41fa604ef10070cab5ea')}
-                icon={
-                  <Avatar size="big" variant="connector-full">
-                    {<HightTouch />}
-                  </Avatar>
-                }
-                onClick={() => {
-                  window.open(DOCUMENTATION_HIGHTTOUCH, '_blank')
-                }}
-                fullWidth
-              />
-              <Selector
-                title={translate('text_1727189568053s79ks5q07tr')}
-                subtitle={translate('text_1727189568053q2gpkjzpmxr')}
-                icon={
-                  <Avatar size="big" variant="connector-full">
-                    {<Hubspot />}
-                  </Avatar>
-                }
-                endIcon={
-                  !hasAccessToHubspotPremiumIntegration ? (
-                    'sparkles'
-                  ) : hasHubspotIntegration ? (
-                    <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
-                  ) : undefined
-                }
-                onClick={() => {
-                  if (!hasAccessToHubspotPremiumIntegration) {
-                    premiumWarningDialogRef.current?.openDialog({
-                      title: translate('text_661ff6e56ef7e1b7c542b1ea'),
-                      description: translate('text_661ff6e56ef7e1b7c542b1f6'),
-                      mailtoSubject: translate('text_172718956805392syzumhdlm'),
-                      mailtoBody: translate('text_1727189568053f91r4b3f4rl'),
-                    })
-                  } else if (hasHubspotIntegration) {
-                    navigate(HUBSPOT_INTEGRATION_ROUTE)
-                  } else {
-                    addHubspotDialogRef.current?.openDialog()
-                  }
-                }}
-                fullWidth
-              />
-              <Selector
-                fullWidth
-                title={translate('text_657078c28394d6b1ae1b9713')}
-                subtitle={translate('text_657078c28394d6b1ae1b971f')}
-                icon={
-                  <Avatar size="big" variant="connector-full">
-                    {<LagoTaxManagement />}
-                  </Avatar>
-                }
-                endIcon={
-                  hasTaxManagement ? (
-                    <Chip label={translate('text_634ea0ecc6147de10ddb6646')} />
-                  ) : undefined
-                }
-                onClick={() => {
-                  if (hasTaxManagement) {
-                    navigate(TAX_MANAGEMENT_INTEGRATION_ROUTE)
-                  } else {
-                    addLagoTaxManagementDialog.current?.openDialog()
-                  }
-                }}
-              />
-              <Selector
-                fullWidth
-                title={translate('text_661ff6e56ef7e1b7c542b239')}
-                subtitle={translate('text_661ff6e56ef7e1b7c542b245')}
-                endIcon={
-                  !hasAccessToNetsuitePremiumIntegration ? (
-                    'sparkles'
-                  ) : hasNetsuiteIntegration ? (
-                    <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
-                  ) : undefined
-                }
-                icon={
-                  <Avatar size="big" variant="connector-full">
-                    {<Netsuite />}
-                  </Avatar>
-                }
-                onClick={() => {
-                  if (!hasAccessToNetsuitePremiumIntegration) {
-                    premiumWarningDialogRef.current?.openDialog({
-                      title: translate('text_661ff6e56ef7e1b7c542b1ea'),
-                      description: translate('text_661ff6e56ef7e1b7c542b1f6'),
-                      mailtoSubject: translate('text_661ff6e56ef7e1b7c542b220'),
-                      mailtoBody: translate('text_661ff6e56ef7e1b7c542b238'),
-                    })
-                  } else if (hasNetsuiteIntegration) {
-                    navigate(NETSUITE_INTEGRATION_ROUTE)
-                  } else {
-                    addNetsuiteDialogRef.current?.openDialog()
-                  }
-                }}
-              />
-              <Selector
-                fullWidth
-                title={translate('text_1731507195246vu9kt6xnhv6')}
-                subtitle={translate('text_1731507195246zr2p61vihmw')}
-                icon={
-                  <Avatar size="big" variant="connector-full">
-                    {<Salesforce />}
-                  </Avatar>
-                }
-                endIcon={!hasAccessToSalesforcePremiumIntegration ? 'sparkles' : undefined}
-                onClick={() => {
-                  if (!hasAccessToSalesforcePremiumIntegration) {
-                    premiumWarningDialogRef.current?.openDialog({
-                      title: translate('text_661ff6e56ef7e1b7c542b1ea'),
-                      description: translate('text_661ff6e56ef7e1b7c542b1f6'),
-                      mailtoSubject: translate('text_173150719524652xb2nd3f7r'),
-                      mailtoBody: translate('text_1731507195246xxr17pdnb7s'),
-                    })
-                  } else if (hasSalesforceIntegration) {
-                    navigate(SALESFORCE_INTEGRATION_ROUTE)
-                  } else {
-                    addSalesforceDialogRef.current?.openDialog()
-                  }
-                }}
-              />
-              <Selector
-                title={translate('text_641b42035d62fd004e07cdde')}
-                subtitle={translate('text_641b420ccd75240062f2386e')}
-                icon={
-                  <Avatar size="big" variant="connector-full">
-                    {<Segment />}
-                  </Avatar>
-                }
-                onClick={() => {
-                  window.open(DOCUMENTATION_SEGMENT, '_blank')
-                }}
-                fullWidth
-              />
-              <Selector
-                title={translate('text_62b1edddbf5f461ab971277d')}
-                subtitle={translate('text_62b1edddbf5f461ab9712795')}
-                icon={
-                  <Avatar size="big" variant="connector-full">
-                    <Stripe />
-                  </Avatar>
-                }
-                endIcon={
-                  hasStripeIntegration ? (
-                    <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
-                  ) : undefined
-                }
-                onClick={() => {
-                  if (hasStripeIntegration) {
-                    navigate(STRIPE_INTEGRATION_ROUTE)
-                  } else {
-                    const element = document.activeElement as HTMLElement
+                            element.blur && element.blur()
+                            addAdyenDialogRef.current?.openDialog()
+                          }
+                        }}
+                        fullWidth
+                      />
+                      <Selector
+                        title={translate('text_63e26d8308d03687188221a5')}
+                        subtitle={translate('text_63e26d8308d03687188221a6')}
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            {<Oso />}
+                          </Avatar>
+                        }
+                        onClick={() => {
+                          window.open(DOCUMENTATION_OSO, '_blank')
+                        }}
+                        fullWidth
+                      />
+                      <Selector
+                        title={translate('text_634ea0ecc6147de10ddb6625')}
+                        subtitle={translate('text_634ea0ecc6147de10ddb6631')}
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            <GoCardless />
+                          </Avatar>
+                        }
+                        endIcon={
+                          hasGocardlessIntegration ? (
+                            <Chip label={translate('text_634ea0ecc6147de10ddb6646')} />
+                          ) : undefined
+                        }
+                        onClick={() => {
+                          if (hasGocardlessIntegration) {
+                            navigate(
+                              generatePath(GOCARDLESS_INTEGRATION_ROUTE, {
+                                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                              }),
+                            )
+                          } else {
+                            addGocardlessDialogRef.current?.openDialog()
+                          }
+                        }}
+                        fullWidth
+                      />
+                      <Selector
+                        title={translate('text_641b41f3cec373009a265e9e')}
+                        subtitle={translate('text_641b41fa604ef10070cab5ea')}
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            {<HightTouch />}
+                          </Avatar>
+                        }
+                        onClick={() => {
+                          window.open(DOCUMENTATION_HIGHTTOUCH, '_blank')
+                        }}
+                        fullWidth
+                      />
+                      <Selector
+                        title={translate('text_1727189568053s79ks5q07tr')}
+                        subtitle={translate('text_1727189568053q2gpkjzpmxr')}
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            {<Hubspot />}
+                          </Avatar>
+                        }
+                        endIcon={
+                          !hasAccessToHubspotPremiumIntegration ? (
+                            'sparkles'
+                          ) : hasHubspotIntegration ? (
+                            <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+                          ) : undefined
+                        }
+                        onClick={() => {
+                          if (!hasAccessToHubspotPremiumIntegration) {
+                            premiumWarningDialogRef.current?.openDialog({
+                              title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                              description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                              mailtoSubject: translate('text_172718956805392syzumhdlm'),
+                              mailtoBody: translate('text_1727189568053f91r4b3f4rl'),
+                            })
+                          } else if (hasHubspotIntegration) {
+                            navigate(
+                              generatePath(HUBSPOT_INTEGRATION_ROUTE, {
+                                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                              }),
+                            )
+                          } else {
+                            addHubspotDialogRef.current?.openDialog()
+                          }
+                        }}
+                        fullWidth
+                      />
+                      <Selector
+                        fullWidth
+                        title={translate('text_657078c28394d6b1ae1b9713')}
+                        subtitle={translate('text_657078c28394d6b1ae1b971f')}
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            {<LagoTaxManagement />}
+                          </Avatar>
+                        }
+                        endIcon={
+                          hasTaxManagement ? (
+                            <Chip label={translate('text_634ea0ecc6147de10ddb6646')} />
+                          ) : undefined
+                        }
+                        onClick={() => {
+                          if (hasTaxManagement) {
+                            navigate(
+                              generatePath(TAX_MANAGEMENT_INTEGRATION_ROUTE, {
+                                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                              }),
+                            )
+                          } else {
+                            addLagoTaxManagementDialog.current?.openDialog()
+                          }
+                        }}
+                      />
+                      <Selector
+                        fullWidth
+                        title={translate('text_661ff6e56ef7e1b7c542b239')}
+                        subtitle={translate('text_661ff6e56ef7e1b7c542b245')}
+                        endIcon={
+                          !hasAccessToNetsuitePremiumIntegration ? (
+                            'sparkles'
+                          ) : hasNetsuiteIntegration ? (
+                            <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+                          ) : undefined
+                        }
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            {<Netsuite />}
+                          </Avatar>
+                        }
+                        onClick={() => {
+                          if (!hasAccessToNetsuitePremiumIntegration) {
+                            premiumWarningDialogRef.current?.openDialog({
+                              title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                              description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                              mailtoSubject: translate('text_661ff6e56ef7e1b7c542b220'),
+                              mailtoBody: translate('text_661ff6e56ef7e1b7c542b238'),
+                            })
+                          } else if (hasNetsuiteIntegration) {
+                            navigate(
+                              generatePath(NETSUITE_INTEGRATION_ROUTE, {
+                                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                              }),
+                            )
+                          } else {
+                            addNetsuiteDialogRef.current?.openDialog()
+                          }
+                        }}
+                      />
+                      <Selector
+                        fullWidth
+                        title={translate('text_1731507195246vu9kt6xnhv6')}
+                        subtitle={translate('text_1731507195246zr2p61vihmw')}
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            {<Salesforce />}
+                          </Avatar>
+                        }
+                        endIcon={!hasAccessToSalesforcePremiumIntegration ? 'sparkles' : undefined}
+                        onClick={() => {
+                          if (!hasAccessToSalesforcePremiumIntegration) {
+                            premiumWarningDialogRef.current?.openDialog({
+                              title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                              description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                              mailtoSubject: translate('text_173150719524652xb2nd3f7r'),
+                              mailtoBody: translate('text_1731507195246xxr17pdnb7s'),
+                            })
+                          } else if (hasSalesforceIntegration) {
+                            navigate(
+                              generatePath(SALESFORCE_INTEGRATION_ROUTE, {
+                                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                              }),
+                            )
+                          } else {
+                            addSalesforceDialogRef.current?.openDialog()
+                          }
+                        }}
+                      />
+                      <Selector
+                        title={translate('text_641b42035d62fd004e07cdde')}
+                        subtitle={translate('text_641b420ccd75240062f2386e')}
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            {<Segment />}
+                          </Avatar>
+                        }
+                        onClick={() => {
+                          window.open(DOCUMENTATION_SEGMENT, '_blank')
+                        }}
+                        fullWidth
+                      />
+                      <Selector
+                        title={translate('text_62b1edddbf5f461ab971277d')}
+                        subtitle={translate('text_62b1edddbf5f461ab9712795')}
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            <Stripe />
+                          </Avatar>
+                        }
+                        endIcon={
+                          hasStripeIntegration ? (
+                            <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+                          ) : undefined
+                        }
+                        onClick={() => {
+                          if (hasStripeIntegration) {
+                            navigate(
+                              generatePath(STRIPE_INTEGRATION_ROUTE, {
+                                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                              }),
+                            )
+                          } else {
+                            const element = document.activeElement as HTMLElement
 
-                    element.blur && element.blur()
-                    addStripeDialogRef.current?.openDialog()
-                  }
-                }}
-                fullWidth
-              />
-              <Selector
-                fullWidth
-                title={translate('text_6672ebb8b1b50be550eccaf8')}
-                subtitle={translate('text_661ff6e56ef7e1b7c542b245')}
-                endIcon={
-                  !hasAccessToXeroPremiumIntegration ? (
-                    'sparkles'
-                  ) : hasXeroIntegration ? (
-                    <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
-                  ) : undefined
-                }
-                icon={
-                  <Avatar size="big" variant="connector-full">
-                    {<Xero />}
-                  </Avatar>
-                }
-                onClick={() => {
-                  if (!hasAccessToXeroPremiumIntegration) {
-                    premiumWarningDialogRef.current?.openDialog({
-                      title: translate('text_661ff6e56ef7e1b7c542b1ea'),
-                      description: translate('text_661ff6e56ef7e1b7c542b1f6'),
-                      mailtoSubject: translate('text_6672ebb8b1b50be550ecca09'),
-                      mailtoBody: translate('text_6672ebb8b1b50be550ecca13'),
-                    })
-                  } else if (hasXeroIntegration) {
-                    navigate(XERO_INTEGRATION_ROUTE)
-                  } else {
-                    addXeroDialogRef.current?.openDialog()
-                  }
-                }}
-              />
-            </SettingsListItem>
-          )}
-        </SettingsListWrapper>
+                            element.blur && element.blur()
+                            addStripeDialogRef.current?.openDialog()
+                          }
+                        }}
+                        fullWidth
+                      />
+                      <Selector
+                        fullWidth
+                        title={translate('text_6672ebb8b1b50be550eccaf8')}
+                        subtitle={translate('text_661ff6e56ef7e1b7c542b245')}
+                        endIcon={
+                          !hasAccessToXeroPremiumIntegration ? (
+                            'sparkles'
+                          ) : hasXeroIntegration ? (
+                            <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+                          ) : undefined
+                        }
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            {<Xero />}
+                          </Avatar>
+                        }
+                        onClick={() => {
+                          if (!hasAccessToXeroPremiumIntegration) {
+                            premiumWarningDialogRef.current?.openDialog({
+                              title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                              description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                              mailtoSubject: translate('text_6672ebb8b1b50be550ecca09'),
+                              mailtoBody: translate('text_6672ebb8b1b50be550ecca13'),
+                            })
+                          } else if (hasXeroIntegration) {
+                            navigate(
+                              generatePath(XERO_INTEGRATION_ROUTE, {
+                                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                              }),
+                            )
+                          } else {
+                            addXeroDialogRef.current?.openDialog()
+                          }
+                        }}
+                      />
+                    </SettingsListItem>
+                  )}
+                </SettingsListWrapper>
+              ),
+            },
+            {
+              title: translate('text_173330340427732b341qnuny'),
+              link: generatePath(INTEGRATIONS_ROUTE, {
+                integrationGroup: IntegrationsTabsOptionsEnum.Community,
+              }),
+              component: (
+                <SettingsListWrapper>
+                  <Alert type="warning">{translate('text_1733303404277q80b216p5zr')}</Alert>
+                  {!!loading ? (
+                    <SettingsListItemLoadingSkeleton count={2} />
+                  ) : (
+                    <SettingsListItem>
+                      <Selector
+                        fullWidth
+                        title={translate('text_639c334c3fa0e9c6ca3512b2')}
+                        subtitle={translate('text_639c334c3fa0e9c6ca3512b4')}
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            <Airbyte />
+                          </Avatar>
+                        }
+                        onClick={() => {
+                          window.open(DOCUMENTATION_AIRBYTE, '_blank')
+                        }}
+                      />
+                      <Selector
+                        fullWidth
+                        title={translate('text_1727619878796wmgcntkfycn')}
+                        subtitle={translate('text_634ea0ecc6147de10ddb6631')}
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            <Cashfree />
+                          </Avatar>
+                        }
+                        endIcon={
+                          hasCashfreeIntegration ? (
+                            <Chip label={translate('text_634ea0ecc6147de10ddb6646')} />
+                          ) : undefined
+                        }
+                        onClick={() => {
+                          if (hasCashfreeIntegration) {
+                            navigate(
+                              generatePath(CASHFREE_INTEGRATION_ROUTE, {
+                                integrationGroup: IntegrationsTabsOptionsEnum.Community,
+                              }),
+                            )
+                          } else {
+                            addCashfreeDialogRef.current?.openDialog()
+                          }
+                        }}
+                      />
+                    </SettingsListItem>
+                  )}
+                </SettingsListWrapper>
+              ),
+            },
+          ]}
+          loading={loading}
+        />
       </SettingsPaddedContainer>
 
       <AddAnrokDialog ref={addAnrokDialogRef} />
       <AddAdyenDialog ref={addAdyenDialogRef} />
       <AddStripeDialog ref={addStripeDialogRef} />
+      <AddCashfreeDialog ref={addCashfreeDialogRef} />
       <AddGocardlessDialog ref={addGocardlessDialogRef} />
       <AddLagoTaxManagementDialog
         country={organization?.country}

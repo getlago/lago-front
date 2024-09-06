@@ -1,6 +1,6 @@
 import { ClickAwayListener, Stack } from '@mui/material'
 import { useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { generatePath, Outlet } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { Button, Typography, VerticalMenu } from '~/components/designSystem'
@@ -26,6 +26,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { usePermissions } from '~/hooks/usePermissions'
+import { IntegrationsTabsOptionsEnum } from '~/pages/settings/Integrations'
 import { theme } from '~/styles'
 
 const NAV_WIDTH = 240
@@ -127,7 +128,9 @@ const Settings = () => {
               },
               {
                 title: translate('text_62b1edddbf5f461ab9712733'),
-                link: INTEGRATIONS_ROUTE,
+                link: generatePath(INTEGRATIONS_ROUTE, {
+                  integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                }),
                 hidden: !hasPermissions(['organizationIntegrationsView']),
               },
               {

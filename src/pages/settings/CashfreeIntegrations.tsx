@@ -1,8 +1,6 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 
 import {
   Avatar,
@@ -16,77 +14,68 @@ import {
   Typography,
 } from '~/components/designSystem'
 import {
+  AddCashfreeDialog,
+  AddCashfreeDialogRef,
+} from '~/components/settings/integrations/AddCashfreeDialog'
+import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
 } from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
 import {
-  AddStripeDialog,
-  AddStripeDialogRef,
-} from '~/components/settings/integrations/AddStripeDialog'
+  DeleteCashfreeIntegrationDialog,
+  DeleteCashfreeIntegrationDialogRef,
+} from '~/components/settings/integrations/DeleteCashfreeIntegrationDialog'
+import { CASHFREE_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
 import {
-  DeleteStripeIntegrationDialog,
-  DeleteStripeIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteStripeIntegrationDialog'
-import { INTEGRATIONS_ROUTE, STRIPE_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
-import {
-  AddStripeProviderDialogFragmentDoc,
-  DeleteStripeIntegrationDialogFragmentDoc,
+  AddCashfreeProviderDialogFragmentDoc,
+  CashfreeForCreateAndEditSuccessRedirectUrlFragmentDoc,
+  CashfreeProvider,
+  DeleteCashfreeIntegrationDialogFragmentDoc,
   ProviderTypeEnum,
-  StripeForCreateAndEditSuccessRedirectUrlFragmentDoc,
-  StripeProvider,
-  useGetStripeIntegrationsListQuery,
+  useGetCashfreeIntegrationsListQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
-import Stripe from '~/public/images/stripe.svg'
-import {
-  ItemContainer,
-  ListItemLink,
-  MenuPopper,
-  NAV_HEIGHT,
-  PageHeader,
-  PopperOpener,
-  theme,
-} from '~/styles'
+import Cashfree from '~/public/images/cashfree.svg'
+import { ListItemLink, MenuPopper, PageHeader, PopperOpener } from '~/styles'
 
 import { IntegrationsTabsOptionsEnum } from './Integrations'
 
 gql`
-  fragment StripeIntegrations on StripeProvider {
+  fragment CashfreeIntegrations on CashfreeProvider {
     id
     name
     code
   }
 
-  query getStripeIntegrationsList($limit: Int, $type: ProviderTypeEnum) {
+  query getCashfreeIntegrationsList($limit: Int, $type: ProviderTypeEnum) {
     paymentProviders(limit: $limit, type: $type) {
       collection {
-        ... on StripeProvider {
+        ... on CashfreeProvider {
           id
-          ...StripeIntegrations
-          ...AddStripeProviderDialog
-          ...DeleteStripeIntegrationDialog
+          ...CashfreeIntegrations
+          ...AddCashfreeProviderDialog
+          ...DeleteCashfreeIntegrationDialog
         }
       }
     }
   }
-
-  ${StripeForCreateAndEditSuccessRedirectUrlFragmentDoc}
-  ${DeleteStripeIntegrationDialogFragmentDoc}
-  ${AddStripeProviderDialogFragmentDoc}
+  ${CashfreeForCreateAndEditSuccessRedirectUrlFragmentDoc}
+  ${DeleteCashfreeIntegrationDialogFragmentDoc}
+  ${AddCashfreeProviderDialogFragmentDoc}
 `
 
-const StripeIntegrations = () => {
+const CashfreeIntegrations = () => {
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
-  const addStripeDialogRef = useRef<AddStripeDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteStripeIntegrationDialogRef>(null)
+  const addCashfreeDialogRef = useRef<AddCashfreeDialogRef>(null)
+  const deleteDialogRef = useRef<DeleteCashfreeIntegrationDialogRef>(null)
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
-  const { data, loading } = useGetStripeIntegrationsListQuery({
-    variables: { limit: 1000, type: ProviderTypeEnum.Stripe },
+  const { data, loading } = useGetCashfreeIntegrationsListQuery({
+    variables: { limit: 1000, type: ProviderTypeEnum.Cashfree },
   })
-  const connections = data?.paymentProviders?.collection as StripeProvider[] | undefined
+  const connections = data?.paymentProviders?.collection as CashfreeProvider[] | undefined
   const deleteDialogCallback =
     connections && connections.length === 1
       ? () =>
@@ -103,110 +92,115 @@ const StripeIntegrations = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <HeaderBlock>
+      <PageHeader $withSide>
+        <div className="flex items-center">
           <ButtonLink
             to={generatePath(INTEGRATIONS_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             })}
+            className="mr-3"
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
           {loading ? (
-            <Skeleton variant="text" className="w-30" />
+            <Skeleton className="w-30" variant="text" />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
-              {translate('text_62b1edddbf5f461ab971277d')}
+              {translate('text_1727619878796wmgcntkfycn')}
             </Typography>
           )}
-        </HeaderBlock>
+        </div>
 
         {canCreateIntegration && (
           <Button
             variant="primary"
             onClick={() => {
-              addStripeDialogRef.current?.openDialog()
+              addCashfreeDialogRef.current?.openDialog()
             }}
           >
             {translate('text_65846763e6140b469140e235')}
           </Button>
         )}
       </PageHeader>
-      <MainInfos>
+      <div className="flex items-center px-4 py-8 md:px-12">
         {loading ? (
           <>
-            <Skeleton variant="connectorAvatar" size="large" className="mr-4" />
+            <Skeleton className="mr-4" variant="connectorAvatar" size="large" />
             <div>
-              <Skeleton variant="text" className="mb-5 w-50" />
-              <Skeleton variant="text" className="w-32" />
+              <Skeleton className="mb-5 w-50" variant="text" />
+              <Skeleton className="w-32" variant="text" />
             </div>
           </>
         ) : (
           <>
             <Avatar className="mr-4" variant="connector-full" size="large">
-              <Stripe />
+              <Cashfree />
             </Avatar>
-            <div>
-              <Line>
-                <Typography variant="headline">
-                  {translate('text_62b1edddbf5f461ab971277d')}
-                </Typography>
-                <Chip label={translate('text_62b1edddbf5f461ab971270d')} />
-              </Line>
-              <Typography>{translate('text_62b1edddbf5f461ab971271f')}</Typography>
+            <div className="flex items-center">
+              <Typography className="mr-2" variant="headline">
+                {translate('text_1727619878796wmgcntkfycn')}
+              </Typography>
+              <Chip label={translate('text_62b1edddbf5f461ab971270d')} />
             </div>
+            <Typography>{translate('text_62b1edddbf5f461ab971271f')}</Typography>
           </>
         )}
-      </MainInfos>
-      <ListWrapper>
+      </div>
+
+      <div className="flex max-w-[672px] flex-col gap-8 px-4 py-0 md:px-12">
         <section>
-          <InlineTitle>
-            <Typography variant="subhead">{translate('text_65846763e6140b469140e239')}</Typography>
-          </InlineTitle>
+          <Typography className="h-18 w-full" variant="subhead">
+            {translate('text_65846763e6140b469140e239')}
+          </Typography>
 
           <>
             {loading ? (
               <>
                 {[1, 2].map((i) => (
-                  <ListItem key={`item-skeleton-item-${i}`}>
-                    <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
-                    <Skeleton variant="text" className="w-60" />
-                  </ListItem>
+                  <div key={`item-skeleton-item-${i}`} className="flex h-18 items-center shadow-b">
+                    <Skeleton className="mr-4" variant="connectorAvatar" size="big" />
+                    <Skeleton className="w-60" variant="text" />
+                  </div>
                 ))}
               </>
             ) : (
               <>
                 {connections?.map((connection, index) => {
                   return (
-                    <ItemContainer key={`stripe-connection-${index}`}>
-                      <LocalListItemLink
+                    <div key={`gocardless-connection-${index}`} className="relative">
+                      <ListItemLink
+                        className="p-0" // p-0 used to reset the default padding of ListItemLink
                         tabIndex={0}
-                        to={generatePath(STRIPE_INTEGRATION_DETAILS_ROUTE, {
+                        to={generatePath(CASHFREE_INTEGRATION_DETAILS_ROUTE, {
                           integrationId: connection.id,
                           integrationGroup: IntegrationsTabsOptionsEnum.Lago,
                         })}
                       >
-                        <Stack direction="row" spacing={3} alignItems="center">
+                        <div className="flex items-center gap-3">
                           <Avatar variant="connector" size="big">
                             <Icon name="plug" color="dark" />
                           </Avatar>
                           <div>
-                            <Typography variant="body" color="grey700">
+                            <Typography
+                              className="line-break-anywhere"
+                              variant="body"
+                              color="grey700"
+                            >
                               {connection.name}
                             </Typography>
                             <Typography variant="caption" color="grey600">
                               {connection.code}
                             </Typography>
                           </div>
-                          <ButtonMock />
-                        </Stack>
-                      </LocalListItemLink>
-
+                          <div className="w-10 min-w-10" />
+                        </div>
+                      </ListItemLink>
                       {(canEditIntegration || canDeleteIntegration) && (
                         <Popper
                           PopperProps={{ placement: 'bottom-end' }}
                           opener={({ isOpen }) => (
-                            <LocalPopperOpener>
+                            // right-0 used to align the popper to the right
+                            <PopperOpener className="right-0">
                               <Tooltip
                                 placement="top-end"
                                 disableHoverListener={isOpen}
@@ -218,7 +212,7 @@ const StripeIntegrations = () => {
                                   data-test="plan-item-options"
                                 />
                               </Tooltip>
-                            </LocalPopperOpener>
+                            </PopperOpener>
                           )}
                         >
                           {({ closePopper }) => (
@@ -229,7 +223,7 @@ const StripeIntegrations = () => {
                                   variant="quaternary"
                                   align="left"
                                   onClick={() => {
-                                    addStripeDialogRef.current?.openDialog({
+                                    addCashfreeDialogRef.current?.openDialog({
                                       provider: connection,
                                       deleteModalRef: deleteDialogRef,
                                       deleteDialogCallback,
@@ -261,93 +255,20 @@ const StripeIntegrations = () => {
                           )}
                         </Popper>
                       )}
-                    </ItemContainer>
+                    </div>
                   )
                 })}
               </>
             )}
           </>
         </section>
-      </ListWrapper>
-      <AddStripeDialog ref={addStripeDialogRef} />
-      <DeleteStripeIntegrationDialog ref={deleteDialogRef} />
+      </div>
+
+      <AddCashfreeDialog ref={addCashfreeDialogRef} />
+      <DeleteCashfreeIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
 }
 
-const HeaderBlock = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
-
-const MainInfos = styled.div`
-  display: flex;
-  align-items: center;
-  padding: ${theme.spacing(8)} ${theme.spacing(12)};
-
-  ${theme.breakpoints.down('md')} {
-    padding: ${theme.spacing(8)} ${theme.spacing(4)};
-  }
-`
-
-const ListWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(8)};
-  padding: 0 ${theme.spacing(12)};
-  box-sizing: border-box;
-  max-width: ${theme.spacing(168)};
-
-  ${theme.breakpoints.down('md')} {
-    padding: 0 ${theme.spacing(4)};
-  }
-`
-
-const InlineTitle = styled.div`
-  position: relative;
-  height: ${NAV_HEIGHT}px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
-
-const LocalListItemLink = styled(ListItemLink)`
-  padding: 0;
-`
-
-const ListItem = styled.div`
-  height: ${NAV_HEIGHT}px;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
-
-const Line = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(2)};
-  }
-`
-
-const ButtonMock = styled.div`
-  width: 40px;
-  min-width: 40px;
-`
-
-const LocalPopperOpener = styled(PopperOpener)`
-  right: 0;
-`
-
-export default StripeIntegrations
+export default CashfreeIntegrations

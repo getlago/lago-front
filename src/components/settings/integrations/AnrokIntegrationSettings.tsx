@@ -20,6 +20,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { AnrokIntegrationDetailsTabs } from '~/pages/settings/AnrokIntegrationDetails'
+import { IntegrationsTabsOptionsEnum } from '~/pages/settings/Integrations'
 import { NAV_HEIGHT, theme } from '~/styles'
 
 import { AddAnrokDialog, AddAnrokDialogRef } from './AddAnrokDialog'
@@ -103,9 +104,15 @@ const AnrokIntegrationSettings = () => {
   const anrokIntegration = data?.integration as AnrokIntegrationSettingsFragment | undefined
   const deleteDialogCallback = () => {
     if ((data?.integrations?.collection.length || 0) >= PROVIDER_CONNECTION_LIMIT) {
-      navigate(ANROK_INTEGRATION_ROUTE)
+      navigate(
+        generatePath(ANROK_INTEGRATION_ROUTE, {
+          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+        }),
+      )
     } else {
-      navigate(INTEGRATIONS_ROUTE)
+      navigate(
+        generatePath(INTEGRATIONS_ROUTE, { integrationGroup: IntegrationsTabsOptionsEnum.Lago }),
+      )
     }
   }
 
@@ -122,6 +129,7 @@ const AnrokIntegrationSettings = () => {
                   generatePath(ANROK_INTEGRATION_DETAILS_ROUTE, {
                     integrationId,
                     tab: AnrokIntegrationDetailsTabs.Items,
+                    integrationGroup: IntegrationsTabsOptionsEnum.Lago,
                   }),
                 )
               },

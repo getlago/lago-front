@@ -20,6 +20,7 @@ import {
   XeroForCreateDialogDialogFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { IntegrationsTabsOptionsEnum } from '~/pages/settings/Integrations'
 import { XeroIntegrationDetailsTabs } from '~/pages/settings/XeroIntegrationDetails'
 import { theme } from '~/styles'
 
@@ -80,6 +81,7 @@ export const AddXeroDialog = forwardRef<AddXeroDialogRef>((_, ref) => {
           generatePath(XERO_INTEGRATION_DETAILS_ROUTE, {
             integrationId: createXeroIntegration.id,
             tab: XeroIntegrationDetailsTabs.Settings,
+            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
           }),
         )
 

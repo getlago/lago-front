@@ -21,6 +21,7 @@ import {
   useUpdateStripeApiKeyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { IntegrationsTabsOptionsEnum } from '~/pages/settings/Integrations'
 import { theme } from '~/styles'
 
 import { DeleteStripeIntegrationDialogRef } from './DeleteStripeIntegrationDialog'
@@ -39,6 +40,9 @@ gql`
         id
       }
       ... on GocardlessProvider {
+        id
+      }
+      ... on CashfreeProvider {
         id
       }
       ... on AdyenProvider {
@@ -91,6 +95,7 @@ export const AddStripeDialog = forwardRef<AddStripeDialogRef>((_, ref) => {
         navigate(
           generatePath(STRIPE_INTEGRATION_DETAILS_ROUTE, {
             integrationId: addStripePaymentProvider.id,
+            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
           }),
         )
 
