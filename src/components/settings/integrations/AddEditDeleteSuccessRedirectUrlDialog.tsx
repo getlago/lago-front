@@ -10,12 +10,15 @@ import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { ADYEN_SUCCESS_LINK_SPEC_URL } from '~/core/constants/externalUrls'
 import {
   AdyenForCreateAndEditSuccessRedirectUrlFragment,
+  CashfreeForCreateAndEditSuccessRedirectUrlFragment,
   GocardlessForCreateAndEditSuccessRedirectUrlFragment,
   StripeForCreateAndEditSuccessRedirectUrlFragment,
   UpdateAdyenPaymentProviderInput,
+  UpdateCashfreePaymentProviderInput,
   UpdateGocardlessPaymentProviderInput,
   UpdateStripePaymentProviderInput,
   useUpdateAdyenPaymentProviderMutation,
+  useUpdateCashfreePaymentProviderMutation,
   useUpdateGocardlessPaymentProviderMutation,
   useUpdateStripePaymentProviderMutation,
 } from '~/generated/graphql'
@@ -24,6 +27,11 @@ import { theme } from '~/styles'
 
 gql`
   fragment AdyenForCreateAndEditSuccessRedirectUrl on AdyenProvider {
+    id
+    successRedirectUrl
+  }
+
+  fragment CashfreeForCreateAndEditSuccessRedirectUrl on CashfreeProvider {
     id
     successRedirectUrl
   }
@@ -40,6 +48,13 @@ gql`
 
   mutation updateAdyenPaymentProvider($input: UpdateAdyenPaymentProviderInput!) {
     updateAdyenPaymentProvider(input: $input) {
+      id
+      successRedirectUrl
+    }
+  }
+
+  mutation updateCashfreePaymentProvider($input: UpdateCashfreePaymentProviderInput!) {
+    updateCashfreePaymentProvider(input: $input) {
       id
       successRedirectUrl
     }
@@ -70,6 +85,7 @@ const AddEditDeleteSuccessRedirectUrlDialogProviderType = {
   Adyen: 'Adyen',
   Stripe: 'Stripe',
   GoCardless: 'GoCardless',
+  Cashfree: 'Cashfree',
 } as const
 
 type LocalProviderType = {
@@ -77,6 +93,7 @@ type LocalProviderType = {
   type: keyof typeof AddEditDeleteSuccessRedirectUrlDialogProviderType
   provider?:
     | AdyenForCreateAndEditSuccessRedirectUrlFragment
+    | CashfreeForCreateAndEditSuccessRedirectUrlFragment
     | GocardlessForCreateAndEditSuccessRedirectUrlFragment
     | StripeForCreateAndEditSuccessRedirectUrlFragment
     | null
@@ -110,6 +127,17 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
       },
     })
 
+    const [updateCashfreeProvider] = useUpdateCashfreePaymentProviderMutation({
+      onCompleted(data) {
+        if (data && data.updateCashfreePaymentProvider) {
+          addToast({
+            message: successToastMessage,
+            severity: 'success',
+          })
+        }
+      },
+    })
+
     const [updateGocardlessProvider] = useUpdateGocardlessPaymentProviderMutation({
       onCompleted(data) {
         if (data && data.updateGocardlessPaymentProvider) {
@@ -134,6 +162,7 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
 
     const formikProps = useFormik<
       | UpdateAdyenPaymentProviderInput
+      | UpdateCashfreePaymentProviderInput
       | UpdateGocardlessPaymentProviderInput
       | UpdateStripePaymentProviderInput
     >({
@@ -151,6 +180,7 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
           [AddEditDeleteSuccessRedirectUrlDialogProviderType.Adyen]: updateAdyenProvider,
           [AddEditDeleteSuccessRedirectUrlDialogProviderType.Stripe]: updateStripeProvider,
           [AddEditDeleteSuccessRedirectUrlDialogProviderType.GoCardless]: updateGocardlessProvider,
+          [AddEditDeleteSuccessRedirectUrlDialogProviderType.Cashfree]: updateCashfreeProvider,
         }
 
         const method = methodLoojup[localData?.type as LocalProviderType['type']]

@@ -44,6 +44,7 @@ import {
   NetsuiteCustomer,
   ProviderCustomer,
   ProviderPaymentMethodsEnum,
+  ProviderTypeEnum,
   TimezoneEnum,
   UpdateCustomerInput,
   XeroCustomer,
@@ -139,9 +140,11 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
             return false
           }
 
-          // if syncWithProvider is false, providerCustomerId is required
-          if (!value?.syncWithProvider && !value?.providerCustomerId) {
-            return false
+          if (from?.[1].value.paymentProvider !== ProviderTypeEnum.Cashfree) {
+            // if syncWithProvider is false, providerCustomerId is required
+            if (!value?.syncWithProvider && !value?.providerCustomerId) {
+              return false
+            }
           }
 
           return true
