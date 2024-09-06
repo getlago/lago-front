@@ -2381,5 +2381,8 @@
   "text_1724346450317iqs2rtvx1tp": "Hello, I would like to access your progressive billing add-on. \n\nPlease let me know if you need more info!",
   "text_1724936123802q74m2xxak3o": "Usage already billed",
   "text_17250100329108guatmyl9tj": "Unknown",
-  "text_172535279177716n7p2svtdb": "Anrok synchronisation successfully triggered."
+  "text_172535279177716n7p2svtdb": "Anrok synchronisation successfully triggered.",
+  "text_172450747075633492aqpbm2": "Connect to Cashfree Payments",
+  "text_17245079170372xxmw737fhf": "To connect to Cashfree Payments, please enter an account name and a code.",
+  "text_1724507963056bu20ky8z98g": "Edit information linked to this Cashfree Payments connection."
 }

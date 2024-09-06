@@ -112,6 +112,12 @@ gql`
           code
         }
 
+        ... on CashfreeProvider {
+          id
+          name
+          code
+        }
+
         ... on AdyenProvider {
           id
           name
