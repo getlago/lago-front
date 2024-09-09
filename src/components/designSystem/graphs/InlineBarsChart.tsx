@@ -1,22 +1,39 @@
+import { useEffect, useState } from 'react'
 import { Bar, BarChart, BarProps, ResponsiveContainer, XAxis, YAxis } from 'recharts'
 import styled from 'styled-components'
 
 import { theme } from '~/styles'
 
+import { Tooltip } from '../Tooltip'
+
 type InlineBarsChartProps = {
-  data: Record<string, number>[]
   colors: string[]
+  data: Record<string, number>[]
   hoveredBarId?: string
+  tooltipsData?: Record<string, string>[]
 }
 
 type TShapeBarProps = Omit<BarProps, 'name' | 'opacity'>
 
-const BarWithBorder = (props: TShapeBarProps & { opacity: number }) => {
-  const { fill, x, y, width, height, opacity } = props
+const BarWithBorder = (
+  props: TShapeBarProps & {
+    opacity?: number
+  },
+) => {
+  const { fill, height, opacity, width, x, y, className } = props
 
   return (
     <g>
-      <rect opacity={opacity} x={x} y={y} width={width} height={height} stroke="none" fill={fill} />
+      <rect
+        className={className}
+        opacity={opacity}
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        stroke="none"
+        fill={fill}
+      />
       {x !== 0 && (
         <rect x={x} y={y} width={2} height={12} stroke="none" fill={theme.palette.common.white} />
       )}
@@ -26,7 +43,13 @@ const BarWithBorder = (props: TShapeBarProps & { opacity: number }) => {
 
 BarWithBorder.displayName = 'BarWithBorder'
 
-const InlineBarsChart = ({ data, colors, hoveredBarId }: InlineBarsChartProps) => {
+const InlineBarsChart = ({ colors, data, hoveredBarId, tooltipsData }: InlineBarsChartProps) => {
+  const [localHoveredBarId, setLocalHoveredBarId] = useState<string | undefined>(undefined)
+
+  useEffect(() => {
+    setLocalHoveredBarId(hoveredBarId)
+  }, [hoveredBarId])
+
   return (
     <Wrapper>
       <ResponsiveContainer width="100%" height={12}>
@@ -50,11 +73,38 @@ const InlineBarsChart = ({ data, colors, hoveredBarId }: InlineBarsChartProps) =
               dataKey={key}
               stackId="a"
               fill={colors[index]}
+              onMouseEnter={!!tooltipsData?.length ? () => setLocalHoveredBarId(key) : undefined}
+              onMouseLeave={
+                !!tooltipsData?.length ? () => setLocalHoveredBarId(undefined) : undefined
+              }
               shape={(props: TShapeBarProps) => (
-                <BarWithBorder
-                  opacity={!hoveredBarId || hoveredBarId === key ? 1 : 0.2}
-                  {...props}
-                />
+                <>
+                  <BarWithBorder
+                    className="bar-with-border"
+                    opacity={!localHoveredBarId || localHoveredBarId === key ? 1 : 0.2}
+                    {...props}
+                  />
+                  {!!tooltipsData?.length && (
+                    <foreignObject
+                      key={`foreign-object-${key}`}
+                      width={props.width}
+                      height={props.height}
+                      transform={`translate(${props.x}, 0)`}
+                    >
+                      <BarTooltip title={tooltipsData?.[0]?.[key] || ''} placement="top">
+                        <div
+                          style={{
+                            width: props.width,
+                            height: props.hanging,
+                            opacity: 0,
+                          }}
+                        >
+                          -
+                        </div>
+                      </BarTooltip>
+                    </foreignObject>
+                  )}
+                </>
               )}
             />
           ))}
@@ -81,4 +131,9 @@ const Wrapper = styled.div`
     width: 100% !important;
     display: block;
   }
+`
+
+const BarTooltip = styled(Tooltip)`
+  /* Position fixed is needed to place properly the first foreignObject child on Safari */
+  position: fixed;
 `
