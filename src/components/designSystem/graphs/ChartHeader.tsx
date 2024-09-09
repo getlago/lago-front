@@ -6,9 +6,9 @@ import { theme } from '~/styles'
 
 type ChartHeaderProps = {
   name: string
-  tooltipText: string
+  tooltipText?: string
   amount: string
-  period: string
+  period?: string
   blur?: boolean
   loading?: boolean
 }
@@ -35,18 +35,22 @@ const ChartHeader = ({
               <Typography variant="captionHl" color="grey600">
                 {name}
               </Typography>
-              <LeftInfoCellTooltip placement="top-start" title={tooltipText}>
-                <Icon name="info-circle" />
-              </LeftInfoCellTooltip>
+              {!!tooltipText && (
+                <LeftInfoCellTooltip placement="top-start" title={tooltipText}>
+                  <Icon name="info-circle" />
+                </LeftInfoCellTooltip>
+              )}
             </LeftInfoCellWithTooltip>
             <Typography variant="subhead" color="grey700">
               {amount}
             </Typography>
           </LeftInfosWrapper>
 
-          <Typography variant="note" color="grey600">
-            {period}
-          </Typography>
+          {!!period && (
+            <Typography variant="note" color="grey600">
+              {period}
+            </Typography>
+          )}
         </ChartHeaderWrapper>
       )}
     </>
