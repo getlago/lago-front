@@ -1,5 +1,5 @@
 /* eslint-disable no-alert */
-import { InputAdornment, Stack } from '@mui/material'
+import { Box, InputAdornment, Stack } from '@mui/material'
 import { useFormik } from 'formik'
 import { useRef } from 'react'
 import { generatePath, Link } from 'react-router-dom'
@@ -49,7 +49,12 @@ import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
 import { CurrencyEnum } from '~/generated/graphql'
-import { chargeTableData, POSSIBLE_TOAST, tableData } from '~/pages/__devOnly/fixtures'
+import {
+  chargeTableData,
+  currentUsageTableData,
+  POSSIBLE_TOAST,
+  tableData,
+} from '~/pages/__devOnly/fixtures'
 import Stripe from '~/public/images/stripe.svg'
 import { MenuPopper, PageHeader, theme } from '~/styles'
 
@@ -611,6 +616,51 @@ const DesignSystem = () => {
                         },
                       },
                     ]}
+                  />
+
+                  <Table
+                    name="display-table"
+                    containerSize={0}
+                    rowSize={72}
+                    data={currentUsageTableData}
+                    isLoading={false}
+                    columns={[
+                      {
+                        key: 'chargeName',
+                        title: 'Customer',
+                        content: (row) => (
+                          <Box display={'grid'}>
+                            <Typography variant="body" color="grey700" noWrap>
+                              {row.chargeName}
+                            </Typography>
+                            <Typography variant="caption" color="grey600" noWrap>
+                              {row.chargeCode}
+                              {row.hasFilterBreakdown ? ' • with breakdown' : ''}
+                            </Typography>
+                          </Box>
+                        ),
+                      },
+                      {
+                        key: 'units',
+                        title: 'Units',
+                        content: (row) => (
+                          <Typography variant="body" color="grey700">
+                            {row.units}
+                          </Typography>
+                        ),
+                      },
+                      {
+                        key: 'amount',
+                        title: 'Amount',
+                        textAlign: 'right',
+                        content: (row) => (
+                          <Typography variant="body" color="grey700">
+                            {intlFormatNumber(row.amount)}
+                          </Typography>
+                        ),
+                      },
+                    ]}
+                    onRowAction={(item) => alert(`You clicked on ${item.id}`)}
                   />
                 </Block>
               </Container>
