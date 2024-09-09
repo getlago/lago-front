@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
-import { useMemo, useRef } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { generatePath, Outlet, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -372,6 +372,25 @@ const CustomerInvoiceDetails = () => {
   )
   const errorMessage = getErrorMessageFromErrorDetails(errorDetails)
 
+  const goToPreviousRoute = useCallback(
+    () =>
+      goBack(
+        generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+          customerId: customerId as string,
+          tab: CustomerDetailsTabsOptions.invoices,
+        }),
+        {
+          exclude: [
+            CUSTOMER_INVOICE_DETAILS_ROUTE,
+            CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
+            CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE,
+            CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
+          ],
+        },
+      ),
+    [customerId, goBack],
+  )
+
   const tabsOptions = useMemo(() => {
     const tabs = [
       {
@@ -403,6 +422,7 @@ const CustomerInvoiceDetails = () => {
             retryInvoice={retryInvoice}
             retryTaxProviderVoiding={retryTaxProviderVoiding}
             connectedNetsuiteIntegration={connectedNetsuiteIntegration}
+            goToPreviousRoute={goToPreviousRoute}
           />
         ),
       },
@@ -450,32 +470,14 @@ const CustomerInvoiceDetails = () => {
     retryTaxProviderVoiding,
     status,
     translate,
+    goToPreviousRoute,
   ])
 
   return (
     <>
       <PageHeader $withSide>
         <HeaderLeft>
-          <Button
-            icon="arrow-left"
-            variant="quaternary"
-            onClick={() =>
-              goBack(
-                generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                  customerId: customerId as string,
-                  tab: CustomerDetailsTabsOptions.invoices,
-                }),
-                {
-                  exclude: [
-                    CUSTOMER_INVOICE_DETAILS_ROUTE,
-                    CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
-                    CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE,
-                    CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
-                  ],
-                },
-              )
-            }
-          />
+          <Button icon="arrow-left" variant="quaternary" onClick={() => goToPreviousRoute()} />
           {loading ? (
             <Skeleton variant="text" height={12} width={120} />
           ) : (

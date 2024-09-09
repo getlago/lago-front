@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql, useApolloClient } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
@@ -7,6 +7,7 @@ import { formatDateToTZ } from '~/core/timezone'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc,
   InvoiceForFinalizeInvoiceFragment,
+  InvoiceStatusTypeEnum,
   LagoApiError,
   useFinalizeInvoiceMutation,
 } from '~/generated/graphql'
@@ -33,7 +34,7 @@ gql`
 `
 
 export interface FinalizeInvoiceDialogRef {
-  openDialog: (invoice: InvoiceForFinalizeInvoiceFragment) => unknown
+  openDialog: (invoice: InvoiceForFinalizeInvoiceFragment, callback?: Function) => unknown
   closeDialog: () => unknown
 }
 
@@ -41,18 +42,31 @@ export const FinalizeInvoiceDialog = forwardRef<FinalizeInvoiceDialogRef>((_, re
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)
   const [invoice, setInvoice] = useState<InvoiceForFinalizeInvoiceFragment>()
+  const [callback, setCallback] = useState<Function | null>(null)
+
+  const client = useApolloClient()
+
   const [finalizeInvoice] = useFinalizeInvoiceMutation({
     variables: { input: { id: invoice?.id || '' } },
     context: {
       silentErrorCodes: [LagoApiError.UnprocessableEntity, LagoApiError.InternalError],
     },
-    refetchQueries: ['getCustomerInvoices', 'getInvoiceDetails'],
     onCompleted({ finalizeInvoice: finalizeInvoiceRes }) {
+      const isClosed = finalizeInvoiceRes?.status === InvoiceStatusTypeEnum.Closed
+
+      client.refetchQueries({
+        include: isClosed ? ['getCustomerInvoices'] : ['getCustomerInvoices', 'getInvoiceDetails'],
+      })
+
       if (finalizeInvoiceRes?.id) {
         addToast({
           message: translate('text_63a41b3a01db40c7fff551e1'),
           severity: 'success',
         })
+      }
+
+      if (isClosed) {
+        callback?.()
       }
     },
     onError: ({ graphQLErrors }) => {
@@ -70,8 +84,9 @@ export const FinalizeInvoiceDialog = forwardRef<FinalizeInvoiceDialogRef>((_, re
   })
 
   useImperativeHandle(ref, () => ({
-    openDialog: (infos) => {
+    openDialog: (infos, callbackFn) => {
       setInvoice(infos)
+      callbackFn && setCallback(() => callbackFn)
       dialogRef.current?.openDialog()
     },
     closeDialog: () => dialogRef.current?.closeDialog(),

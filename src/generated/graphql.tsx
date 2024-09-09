@@ -2658,9 +2658,12 @@ export enum InvoicePaymentStatusTypeEnum {
 }
 
 export enum InvoiceStatusTypeEnum {
+  Closed = 'closed',
   Draft = 'draft',
   Failed = 'failed',
   Finalized = 'finalized',
+  Generating = 'generating',
+  Open = 'open',
   Voided = 'voided'
 }
 

@@ -86,6 +86,7 @@ interface InvoiceOverviewProps {
   retryInvoice: Function
   retryTaxProviderVoiding: Function
   connectedNetsuiteIntegration: NetsuiteIntegrationInfosForInvoiceOverviewFragment | undefined
+  goToPreviousRoute?: Function
 }
 
 const InvoiceOverview = memo(
@@ -103,6 +104,7 @@ const InvoiceOverview = memo(
     retryInvoice,
     retryTaxProviderVoiding,
     connectedNetsuiteIntegration,
+    goToPreviousRoute,
   }: InvoiceOverviewProps) => {
     const { translate } = useInternationalization()
     const { invoiceId } = useParams()
@@ -165,7 +167,7 @@ const InvoiceOverview = memo(
                   variant="quaternary"
                   disabled={loading}
                   onClick={() => {
-                    finalizeInvoiceRef.current?.openDialog(invoice)
+                    finalizeInvoiceRef.current?.openDialog(invoice, goToPreviousRoute)
                   }}
                 >
                   {translate('text_638f4d756d899445f18a4a10')}
