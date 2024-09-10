@@ -231,7 +231,10 @@ const InvoicesPage = () => {
         </HeaderRigthBlock>
       </PageHeader>
       <NavigationTab
-        leftPadding
+        leftSpacing={{
+          default: 16,
+          md: 48,
+        }}
         tabs={[
           {
             title: translate('text_63ac86d797f728a87b2f9f85'),

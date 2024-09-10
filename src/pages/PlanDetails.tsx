@@ -183,7 +183,7 @@ const PlanDetails = () => {
         </PlanBlockInfos>
       </PlanBlockWrapper>
       <NavigationTab
-        leftPadding
+        leftSpacing={48}
         loading={isPlanLoading}
         tabs={[
           {

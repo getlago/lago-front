@@ -32,7 +32,13 @@ const Developers = () => {
           {translate('text_6271200984178801ba8bdebe')}
         </Typography>
       </PageHeader>
-      <NavigationTab leftPadding tabs={tabsOptions} />
+      <NavigationTab
+        leftSpacing={{
+          default: 16,
+          md: 48,
+        }}
+        tabs={tabsOptions}
+      />
       <Content>
         <Outlet />
       </Content>

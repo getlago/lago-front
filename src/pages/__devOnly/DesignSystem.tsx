@@ -143,7 +143,7 @@ const DesignSystem = () => {
         <Typography variant="caption">Only visible in dev mode</Typography>
       </PageHeader>
       <NavigationTab
-        leftPadding
+        leftSpacing={48}
         name="Design system tab switcher"
         tabs={[
           {
