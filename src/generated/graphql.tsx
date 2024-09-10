@@ -5956,7 +5956,6 @@ export type RemoveCouponMutation = { __typename?: 'Mutation', terminateAppliedCo
 export type GetCustomerOverdueBalancesQueryVariables = Exact<{
   externalCustomerId: Scalars['String']['input'];
   currency?: InputMaybe<CurrencyEnum>;
-  months: Scalars['Int']['input'];
   expireCache?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
@@ -6061,6 +6060,7 @@ export type OrganizationForDatePickerFragment = { __typename?: 'CurrentOrganizat
 export type GetGrossRevenuesQueryVariables = Exact<{
   currency: CurrencyEnum;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  months?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
@@ -12517,7 +12517,7 @@ export type RemoveCouponMutationHookResult = ReturnType<typeof useRemoveCouponMu
 export type RemoveCouponMutationResult = Apollo.MutationResult<RemoveCouponMutation>;
 export type RemoveCouponMutationOptions = Apollo.BaseMutationOptions<RemoveCouponMutation, RemoveCouponMutationVariables>;
 export const GetCustomerOverdueBalancesDocument = gql`
-    query getCustomerOverdueBalances($externalCustomerId: String!, $currency: CurrencyEnum, $months: Int!, $expireCache: Boolean) {
+    query getCustomerOverdueBalances($externalCustomerId: String!, $currency: CurrencyEnum, $expireCache: Boolean) {
   paymentRequests {
     collection {
       createdAt
@@ -12526,7 +12526,6 @@ export const GetCustomerOverdueBalancesDocument = gql`
   overdueBalances(
     externalCustomerId: $externalCustomerId
     currency: $currency
-    months: $months
     expireCache: $expireCache
   ) {
     collection {
@@ -12552,7 +12551,6 @@ export const GetCustomerOverdueBalancesDocument = gql`
  *   variables: {
  *      externalCustomerId: // value for 'externalCustomerId'
  *      currency: // value for 'currency'
- *      months: // value for 'months'
  *      expireCache: // value for 'expireCache'
  *   },
  * });
@@ -13010,8 +13008,12 @@ export type RetryWebhookMutationHookResult = ReturnType<typeof useRetryWebhookMu
 export type RetryWebhookMutationResult = Apollo.MutationResult<RetryWebhookMutation>;
 export type RetryWebhookMutationOptions = Apollo.BaseMutationOptions<RetryWebhookMutation, RetryWebhookMutationVariables>;
 export const GetGrossRevenuesDocument = gql`
-    query getGrossRevenues($currency: CurrencyEnum!, $externalCustomerId: String) {
-  grossRevenues(currency: $currency, externalCustomerId: $externalCustomerId) {
+    query getGrossRevenues($currency: CurrencyEnum!, $externalCustomerId: String, $months: Int) {
+  grossRevenues(
+    currency: $currency
+    externalCustomerId: $externalCustomerId
+    months: $months
+  ) {
     collection {
       amountCents
       currency
@@ -13035,6 +13037,7 @@ export const GetGrossRevenuesDocument = gql`
  *   variables: {
  *      currency: // value for 'currency'
  *      externalCustomerId: // value for 'externalCustomerId'
+ *      months: // value for 'months'
  *   },
  * });
  */

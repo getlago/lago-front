@@ -28,7 +28,6 @@ gql`
   query getCustomerOverdueBalances(
     $externalCustomerId: String!
     $currency: CurrencyEnum
-    $months: Int!
     $expireCache: Boolean
   ) {
     paymentRequests {
@@ -40,7 +39,6 @@ gql`
     overdueBalances(
       externalCustomerId: $externalCustomerId
       currency: $currency
-      months: $months
       expireCache: $expireCache
     ) {
       collection {
@@ -99,7 +97,6 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
     variables: {
       externalCustomerId: externalCustomerId || '',
       currency,
-      months: 12,
     },
   })
   const [
@@ -175,7 +172,6 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
                     expireCache: true,
                     externalCustomerId: externalCustomerId || '',
                     currency,
-                    months: 12,
                   },
                 })
               }}
