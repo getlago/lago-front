@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { Button, Typography } from '~/components/designSystem'
 import { NAV_HEIGHT, theme } from '~/styles'
@@ -67,6 +67,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
       <>
         {!!opener && cloneElement(opener, { onClick: () => setIsOpen((prev) => !prev) })}
         <StyledDrawer
+          $hasStickyBottomBar={!!stickyBottomBar}
           open={isOpen}
           anchor={anchor}
           elevation={4}
@@ -141,10 +142,17 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
 
 Drawer.displayName = 'Drawer'
 
-const StyledDrawer = styled(MuiDrawer)`
+const StyledDrawer = styled(MuiDrawer)<{ $hasStickyBottomBar?: boolean }>`
   .drawerPaper {
     max-width: 816px;
     width: calc(100vw - ${theme.spacing(12)});
+
+    ${({ $hasStickyBottomBar }) =>
+      $hasStickyBottomBar &&
+      css`
+        display: grid;
+        grid-template-rows: 72px 1fr 80px;
+      `}
 
     ${theme.breakpoints.down('md')} {
       width: 100%;
@@ -190,6 +198,7 @@ const StickyBottomBar = styled.div`
   padding: ${theme.spacing(4)} ${theme.spacing(12)};
   box-sizing: border-box;
   text-align: right;
+  background-color: ${theme.palette.background.paper};
 
   ${theme.breakpoints.down('md')} {
     padding: ${theme.spacing(4)};
