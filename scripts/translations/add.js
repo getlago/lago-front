@@ -1,11 +1,9 @@
 /* eslint no-console: ["error", { allow: ["info"] }] */
 const fs = require('fs')
 
-const { globSync } = require('glob')
-
-const TRANSLATION_FILES_PATH = './translations/base.json' // './translations/**.json' for when we'll support several languages
-
 const KEY_RANDOM_CHARS_LENGTH = 11
+const TRANSLATIONS_FOLDER = './translations'
+const baseTranslationsFile = 'base.json'
 
 function createRandomCharChain() {
   let result = ''
@@ -20,36 +18,55 @@ function createRandomCharChain() {
   return result
 }
 
-async function addNewTranslationsKey(numberOfKeysToAdd) {
-  const translationFiles = globSync(TRANSLATION_FILES_PATH)
+function extractFiles(isIntl) {
+  const files = fs.readdirSync(TRANSLATIONS_FOLDER)
 
-  // For each translations files
-  translationFiles.forEach((file) => {
-    // Get all translation keys
-    const allTranslationsFromFile = JSON.parse(fs.readFileSync(file), 'utf-8')
-    // Ignore timezone keys as they're used in the config without calling translate
-    const existingKeysInTranslationFile = Object.keys(allTranslationsFromFile).filter(
-      (key) => key.split('_')[0] !== 'TZ',
-    )
+  if (isIntl) {
+    return files
+  }
 
-    const newKeys = {}
+  return files.filter((file) => file.includes(baseTranslationsFile))
+}
 
-    for (let i = 0; i < Number(numberOfKeysToAdd); i++) {
-      const key = `text_${Date.now() + createRandomCharChain()}`
+function generateNewKeys(count) {
+  const allTranslationsFromBaseFile = JSON.parse(
+    fs.readFileSync(`${TRANSLATIONS_FOLDER}/${baseTranslationsFile}`),
+    'utf-8',
+  )
+  // Ignore timezone keys as they're used in the config without calling translate
+  const existingKeysInTranslationFile = Object.keys(allTranslationsFromBaseFile).filter(
+    (key) => key.split('_')[0] !== 'TZ',
+  )
 
-      if (newKeys[key] || existingKeysInTranslationFile.includes(key)) {
-        i--
-        continue
-      }
+  const newKeys = {}
 
-      newKeys[key] = ''
+  for (let i = 0; i < Number(count); i++) {
+    const key = `text_${Date.now() + createRandomCharChain()}`
+
+    if (newKeys[key] || existingKeysInTranslationFile.includes(key)) {
+      i--
+      continue
     }
 
-    // Happen the new keys to the existing ones in the file
+    newKeys[key] = ''
+  }
+
+  return newKeys
+}
+
+async function addNewTranslationsKey({ count, isIntl }) {
+  const files = extractFiles(isIntl)
+  const newKeys = generateNewKeys(count)
+
+  files.forEach((file) => {
+    const filePath = `${TRANSLATIONS_FOLDER}/${file}`
+    const allTranslationsFromFile = JSON.parse(fs.readFileSync(filePath), 'utf-8')
+
+    // Append the new keys to the existing ones in the file
     const updatedTranslations = { ...allTranslationsFromFile, ...newKeys }
 
     // Write the updated translations back to the file
-    fs.writeFileSync(file, JSON.stringify(updatedTranslations, null, 2), 'utf-8')
+    fs.writeFileSync(filePath, JSON.stringify(updatedTranslations, null, 2), 'utf-8')
   })
 }
 
@@ -58,9 +75,18 @@ async function addNewTranslationsKey(numberOfKeysToAdd) {
  */
 async function main() {
   try {
-    const numberOfKeysToAdd = process.argv.slice(2)[0] || '1'
+    const args = process.argv.slice(2)
+    let isIntl
 
-    await addNewTranslationsKey(numberOfKeysToAdd)
+    if (args.find((arg) => arg === '--intl')) {
+      isIntl = true
+    } else {
+      isIntl = false
+    }
+
+    const count = args.filter((arg) => !arg.startsWith('--'))[0] || '1'
+
+    await addNewTranslationsKey({ count: Number(count), isIntl })
 
     console.info('\u001b[' + 32 + 'm' + '✔ All good' + '\u001b[0m')
   } catch (error) {
