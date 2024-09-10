@@ -1,4 +1,5 @@
 const { defineConfig } = require('cypress')
+const fs = require('fs')
 
 require('dotenv').config({ path: '../.env' })
 
