@@ -879,7 +879,7 @@ export enum CountryCode {
   Tn = 'TN',
   /** Tonga */
   To = 'TO',
-  /** Turkey */
+  /** Türkiye */
   Tr = 'TR',
   /** Trinidad and Tobago */
   Tt = 'TT',
@@ -1091,16 +1091,19 @@ export type CreateCustomerInput = {
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   country?: InputMaybe<CountryCode>;
   currency?: InputMaybe<CurrencyEnum>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
   email?: InputMaybe<Scalars['String']['input']>;
   externalId: Scalars['String']['input'];
   externalSalesforceId?: InputMaybe<Scalars['String']['input']>;
+  firstname?: InputMaybe<Scalars['String']['input']>;
   integrationCustomers?: InputMaybe<Array<IntegrationCustomerInput>>;
   invoiceGracePeriod?: InputMaybe<Scalars['Int']['input']>;
+  lastname?: InputMaybe<Scalars['String']['input']>;
   legalName?: InputMaybe<Scalars['String']['input']>;
   legalNumber?: InputMaybe<Scalars['String']['input']>;
   logoUrl?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Array<CustomerMetadataInput>>;
-  name: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
   netPaymentTerm?: InputMaybe<Scalars['Int']['input']>;
   paymentProvider?: InputMaybe<ProviderTypeEnum>;
   paymentProviderCode?: InputMaybe<Scalars['String']['input']>;
@@ -1768,10 +1771,13 @@ export type Customer = {
   /** Number of available credits from credit notes per customer */
   creditNotesCreditsAvailableCount: Scalars['Int']['output'];
   currency?: Maybe<CurrencyEnum>;
+  customerType?: Maybe<CustomerTypeEnum>;
   deletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  displayName: Scalars['String']['output'];
   email?: Maybe<Scalars['String']['output']>;
   externalId: Scalars['String']['output'];
   externalSalesforceId?: Maybe<Scalars['String']['output']>;
+  firstname?: Maybe<Scalars['String']['output']>;
   /** Define if a customer has an active wallet */
   hasActiveWallet: Scalars['Boolean']['output'];
   /** Define if a customer has any credit note */
@@ -1781,6 +1787,7 @@ export type Customer = {
   id: Scalars['ID']['output'];
   invoiceGracePeriod?: Maybe<Scalars['Int']['output']>;
   invoices?: Maybe<Array<Invoice>>;
+  lastname?: Maybe<Scalars['String']['output']>;
   legalName?: Maybe<Scalars['String']['output']>;
   legalNumber?: Maybe<Scalars['String']['output']>;
   logoUrl?: Maybe<Scalars['String']['output']>;
@@ -1866,6 +1873,11 @@ export type CustomerMetadataInput = {
   key: Scalars['String']['input'];
   value: Scalars['String']['input'];
 };
+
+export enum CustomerTypeEnum {
+  Company = 'company',
+  Individual = 'individual'
+}
 
 export type CustomerUsage = {
   __typename?: 'CustomerUsage';
@@ -3728,6 +3740,7 @@ export type Permissions = {
   addonsDelete: Scalars['Boolean']['output'];
   addonsUpdate: Scalars['Boolean']['output'];
   addonsView: Scalars['Boolean']['output'];
+  analyticsOverdueBalancesView: Scalars['Boolean']['output'];
   analyticsView: Scalars['Boolean']['output'];
   billableMetricsCreate: Scalars['Boolean']['output'];
   billableMetricsDelete: Scalars['Boolean']['output'];
@@ -4575,7 +4588,7 @@ export type SubscriptionLifetimeUsage = {
   __typename?: 'SubscriptionLifetimeUsage';
   lastThresholdAmountCents?: Maybe<Scalars['BigInt']['output']>;
   nextThresholdAmountCents?: Maybe<Scalars['BigInt']['output']>;
-  nextTresholdRatio?: Maybe<Scalars['Float']['output']>;
+  nextThresholdRatio?: Maybe<Scalars['Float']['output']>;
   totalUsageAmountCents: Scalars['BigInt']['output'];
   totalUsageFromDatetime: Scalars['ISO8601DateTime']['output'];
   totalUsageToDatetime: Scalars['ISO8601DateTime']['output'];
@@ -5069,17 +5082,20 @@ export type UpdateCustomerInput = {
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   country?: InputMaybe<CountryCode>;
   currency?: InputMaybe<CurrencyEnum>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
   email?: InputMaybe<Scalars['String']['input']>;
   externalId: Scalars['String']['input'];
   externalSalesforceId?: InputMaybe<Scalars['String']['input']>;
+  firstname?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   integrationCustomers?: InputMaybe<Array<IntegrationCustomerInput>>;
   invoiceGracePeriod?: InputMaybe<Scalars['Int']['input']>;
+  lastname?: InputMaybe<Scalars['String']['input']>;
   legalName?: InputMaybe<Scalars['String']['input']>;
   legalNumber?: InputMaybe<Scalars['String']['input']>;
   logoUrl?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Array<CustomerMetadataInput>>;
-  name: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
   netPaymentTerm?: InputMaybe<Scalars['Int']['input']>;
   paymentProvider?: InputMaybe<ProviderTypeEnum>;
   paymentProviderCode?: InputMaybe<Scalars['String']['input']>;
