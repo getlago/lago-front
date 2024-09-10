@@ -198,7 +198,10 @@ const AnrokIntegrationDetails = () => {
       </MainInfos>
 
       <NavigationTab
-        leftPadding
+        leftSpacing={{
+          default: 16,
+          md: 48,
+        }}
         loading={loading}
         tabs={[
           {
