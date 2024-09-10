@@ -91,5 +91,6 @@ export const customerObjectCreationRoutes: CustomRouteObject[] = [
     path: CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE,
     private: true,
     element: <CustomerRequestOverduePayment />,
+    permissions: ['analyticsOverdueBalancesView'],
   },
 ]

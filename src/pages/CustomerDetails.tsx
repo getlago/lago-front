@@ -414,6 +414,7 @@ const CustomerDetails = () => {
                       customerId: customerId as string,
                       tab: CustomerDetailsTabsOptions.usage,
                     }),
+                    hidden: !hasPermissions(['analyticsView']),
                     component: (
                       <SideBlock>
                         <CustomerUsage

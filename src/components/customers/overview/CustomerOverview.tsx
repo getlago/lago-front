@@ -16,10 +16,12 @@ import { LocaleEnum } from '~/core/translations'
 import {
   CurrencyEnum,
   TimezoneEnum,
+  useGetCustomerGrossRevenuesLazyQuery,
   useGetCustomerOverdueBalancesLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 import { SectionHeader } from '~/styles/customer'
 
 gql`
@@ -47,7 +49,13 @@ gql`
         lagoInvoiceIds
       }
     }
+  }
 
+  query getCustomerGrossRevenues(
+    $externalCustomerId: String!
+    $currency: CurrencyEnum
+    $expireCache: Boolean
+  ) {
     grossRevenues(
       externalCustomerId: $externalCustomerId
       currency: $currency
@@ -80,26 +88,43 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
   const { organization, formatTimeOrgaTZ } = useOrganizationInfos()
   const { customerId } = useParams()
   const navigate = useNavigate()
+  const { hasPermissions } = usePermissions()
 
   const currency = userCurrency ?? organization?.defaultCurrency ?? CurrencyEnum.Usd
 
-  const [getCustomerOverdueBalances, { data, loading, error }] =
-    useGetCustomerOverdueBalancesLazyQuery({
-      variables: {
-        externalCustomerId: externalCustomerId || '',
-        currency,
-        months: 12,
-      },
-    })
+  const [
+    getCustomerOverdueBalances,
+    { data: overdueBalancesData, loading: overdueBalancesLoading, error: overdueBalancesError },
+  ] = useGetCustomerOverdueBalancesLazyQuery({
+    variables: {
+      externalCustomerId: externalCustomerId || '',
+      currency,
+      months: 12,
+    },
+  })
+  const [
+    getCustomerGrossRevenues,
+    { data: grossRevenuesData, loading: grossRevenuesLoading, error: grossRevenuesError },
+  ] = useGetCustomerGrossRevenuesLazyQuery({
+    variables: {
+      externalCustomerId: externalCustomerId || '',
+      currency,
+    },
+  })
 
   useEffect(() => {
     if (!externalCustomerId) return
 
-    getCustomerOverdueBalances()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (hasPermissions(['analyticsOverdueBalancesView'])) {
+      getCustomerOverdueBalances()
+    }
+
+    if (hasPermissions(['analyticsView'])) {
+      getCustomerGrossRevenues()
+    }
   }, [externalCustomerId])
 
-  const grossRevenues = (data?.grossRevenues.collection || []).reduce(
+  const grossRevenues = (grossRevenuesData?.grossRevenues.collection || []).reduce(
     (acc, revenue) => {
       return {
         amountCents: acc.amountCents + deserializeAmount(revenue.amountCents, currency),
@@ -109,7 +134,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
     { amountCents: 0, invoicesCount: 0 },
   )
 
-  const overdueBalances = data?.overdueBalances.collection || []
+  const overdueBalances = overdueBalancesData?.overdueBalances.collection || []
   const overdueFormattedData = overdueBalances.reduce<{
     amountCents: number
     invoiceCount: number
@@ -129,14 +154,14 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
 
   const today = useMemo(() => DateTime.now().toUTC(), [])
   const lastPaymentRequestDate = useMemo(
-    () => DateTime.fromISO(data?.paymentRequests.collection[0]?.createdAt).toUTC(),
-    [data?.paymentRequests],
+    () => DateTime.fromISO(overdueBalancesData?.paymentRequests.collection[0]?.createdAt).toUTC(),
+    [overdueBalancesData?.paymentRequests],
   )
   const hasMadePaymentRequestToday = isSameDay(lastPaymentRequestDate, today)
 
   return (
     <>
-      {!error && (
+      {(!overdueBalancesError || !grossRevenuesError) && (
         <section>
           <SectionHeader variant="subhead" $hideBottomShadow>
             {translate('text_6670a7222702d70114cc7954')}
@@ -159,11 +184,11 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
             </Button>
           </SectionHeader>
           <Stack gap={4}>
-            {hasOverdueInvoices && !error && (
+            {hasOverdueInvoices && !overdueBalancesError && (
               <Alert
                 type="warning"
                 ButtonProps={
-                  !loading
+                  !overdueBalancesLoading
                     ? {
                         label: translate('text_66b258f62100490d0eb5caa2'),
                         onClick: () =>
@@ -176,7 +201,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
                     : undefined
                 }
               >
-                {loading ? (
+                {overdueBalancesLoading ? (
                   <Stack flexDirection="column" gap={1}>
                     <Skeleton variant="text" width={150} />
                     <Skeleton variant="text" width={80} />
@@ -203,7 +228,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
                               locale: LocaleEnum.en,
                             }),
                             time: formatTimeOrgaTZ(
-                              data?.paymentRequests.collection[0]?.createdAt,
+                              overdueBalancesData?.paymentRequests.collection[0]?.createdAt,
                               'HH:mm:ss',
                             ),
                           })
@@ -214,38 +239,38 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
               </Alert>
             )}
             <Stack flexDirection="row" gap={4}>
-              {!error && (
-                <>
-                  <OverviewCard
-                    isLoading={loading}
-                    title={translate('text_6553885df387fd0097fd7385')}
-                    tooltipContent={translate('text_65564e8e4af2340050d431bf')}
-                    content={intlFormatNumber(grossRevenues.amountCents, {
-                      currencyDisplay: 'symbol',
-                      currency,
-                    })}
-                    caption={translate(
-                      'text_6670a7222702d70114cc795c',
-                      { count: grossRevenues.invoicesCount },
-                      grossRevenues.invoicesCount,
-                    )}
-                  />
-                  <OverviewCard
-                    isLoading={loading}
-                    title={translate('text_6670a7222702d70114cc795a')}
-                    tooltipContent={translate('text_6670a2a7ae3562006c4ee3e7')}
-                    content={intlFormatNumber(overdueFormattedData.amountCents, {
-                      currencyDisplay: 'symbol',
-                      currency,
-                    })}
-                    caption={translate(
-                      'text_6670a7222702d70114cc795c',
-                      { count: overdueFormattedData.invoiceCount },
-                      overdueFormattedData.invoiceCount,
-                    )}
-                    isAccentContent={hasOverdueInvoices}
-                  />
-                </>
+              {hasPermissions(['analyticsView']) && !grossRevenuesError && (
+                <OverviewCard
+                  isLoading={grossRevenuesLoading}
+                  title={translate('text_6553885df387fd0097fd7385')}
+                  tooltipContent={translate('text_65564e8e4af2340050d431bf')}
+                  content={intlFormatNumber(grossRevenues.amountCents, {
+                    currencyDisplay: 'symbol',
+                    currency,
+                  })}
+                  caption={translate(
+                    'text_6670a7222702d70114cc795c',
+                    { count: grossRevenues.invoicesCount },
+                    grossRevenues.invoicesCount,
+                  )}
+                />
+              )}
+              {hasPermissions(['analyticsOverdueBalancesView']) && !overdueBalancesError && (
+                <OverviewCard
+                  isLoading={overdueBalancesLoading}
+                  title={translate('text_6670a7222702d70114cc795a')}
+                  tooltipContent={translate('text_6670a2a7ae3562006c4ee3e7')}
+                  content={intlFormatNumber(overdueFormattedData.amountCents, {
+                    currencyDisplay: 'symbol',
+                    currency,
+                  })}
+                  caption={translate(
+                    'text_6670a7222702d70114cc795c',
+                    { count: overdueFormattedData.invoiceCount },
+                    overdueFormattedData.invoiceCount,
+                  )}
+                  isAccentContent={hasOverdueInvoices}
+                />
               )}
             </Stack>
           </Stack>

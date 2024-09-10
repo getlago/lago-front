@@ -179,13 +179,13 @@ const CustomerRequestOverduePayment: FC = () => {
     if (hasDefinedGQLError('NotFound', error, 'customer')) {
       navigate(ERROR_404_ROUTE)
     }
-  }, [error, navigate])
+  }, [error])
 
   useEffect(() => {
     if (loading === false && totalAmount <= 0) {
       navigate(ERROR_404_ROUTE)
     }
-  }, [loading, totalAmount, navigate])
+  }, [loading, totalAmount])
 
   // Don't render the page until we have the know if the
   // organization has access to the feature to avoid glitches
