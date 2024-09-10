@@ -3,13 +3,16 @@ import { ReactNode, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 
+import { ResponsiveStyleValue, setResponsiveProperty } from '~/core/utils/responsiveProps'
 import { theme } from '~/styles'
 
 import { Icon, IconName } from './Icon'
 import { Skeleton } from './Skeleton'
 
+type LeftSpacing = 0 | 16 | 48
+
 type NavigationTabProps = {
-  leftPadding?: boolean
+  leftSpacing?: ResponsiveStyleValue<LeftSpacing>
   loading?: boolean
   name?: string
   tabs: {
@@ -53,7 +56,7 @@ const a11yProps = (index: number) => {
 }
 
 export const NavigationTab = ({
-  leftPadding = false,
+  leftSpacing = 16,
   loading,
   name = 'Navigation tab',
   tabs,
@@ -97,7 +100,7 @@ export const NavigationTab = ({
           aria-label={name}
           onChange={handleChange}
           value={value}
-          $leftPadding={leftPadding}
+          $leftSpacing={leftSpacing}
           $nonHiddenTabsLength={nonHiddenTabs.length}
         >
           {nonHiddenTabs.length >= 2
@@ -152,21 +155,19 @@ const TabsWrapper = styled.div`
   box-shadow: ${theme.shadows[7]};
 `
 
-const LocalTabs = styled(Tabs)<{ $leftPadding: boolean; $nonHiddenTabsLength: number }>`
+const LocalTabs = styled(Tabs)<{
+  $leftSpacing: ResponsiveStyleValue<LeftSpacing>
+  $nonHiddenTabsLength: number
+}>`
   align-items: center;
   overflow: visible;
   min-height: ${({ $nonHiddenTabsLength }) => ($nonHiddenTabsLength > 1 ? theme.spacing(13) : 0)};
 
-  ${({ $leftPadding }) =>
-    !!$leftPadding &&
-    css`
-      padding-left: ${theme.spacing(12)};
-      width: fit-content;
-
-      ${theme.breakpoints.down('md')} {
-        padding-left: ${theme.spacing(4)};
-      }
-    `};
+  ${({ $leftSpacing }) => {
+    return css`
+      ${setResponsiveProperty('paddingLeft', $leftSpacing)}
+    `
+  }}
 
   .MuiTabs-indicator {
     /* We hide the default MUI selected tab indicator. It's manually handled by us bellow */
