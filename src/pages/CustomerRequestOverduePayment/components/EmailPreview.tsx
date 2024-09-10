@@ -22,6 +22,7 @@ gql`
   fragment CustomerForRequestOverduePaymentEmail on Customer {
     name
     paymentProvider
+    netPaymentTerm
     billingConfiguration {
       documentLocale
     }
@@ -107,8 +108,8 @@ export const EmailPreview: FC<EmailPreviewProps> = ({
           <Text color="textSecondary">
             {translate(
               'text_66b378e748cda1004ff00db3',
-              { netPaymentTerm: organization?.netPaymentTerm },
-              organization?.netPaymentTerm,
+              { netPaymentTerm: customer?.netPaymentTerm || organization?.netPaymentTerm },
+              customer?.netPaymentTerm || organization?.netPaymentTerm,
             )}
           </Text>
           <Text color="textSecondary">{translate('text_66b378e748cda1004ff00db4')}</Text>
@@ -131,7 +132,7 @@ export const EmailPreview: FC<EmailPreviewProps> = ({
         <Table
           name="email-preview"
           containerSize={{ default: 0 }}
-          rowSize={44}
+          rowSize={48}
           data={invoices}
           columns={[
             {

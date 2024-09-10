@@ -179,7 +179,13 @@ const CustomerRequestOverduePayment: FC = () => {
     if (hasDefinedGQLError('NotFound', error, 'customer')) {
       navigate(ERROR_404_ROUTE)
     }
-  })
+  }, [error, navigate])
+
+  useEffect(() => {
+    if (loading === false && totalAmount <= 0) {
+      navigate(ERROR_404_ROUTE)
+    }
+  }, [loading, totalAmount, navigate])
 
   // Don't render the page until we have the know if the
   // organization has access to the feature to avoid glitches
@@ -323,7 +329,6 @@ const PageFooter = styled.footer`
 `
 
 const PageFooterWrapper = styled.div`
-  max-width: 584px;
   height: 100%;
   display: flex;
   gap: ${theme.spacing(3)};
@@ -333,6 +338,7 @@ const PageFooterWrapper = styled.div`
   padding: 0 ${theme.spacing(4)};
 
   ${theme.breakpoints.up('lg')} {
+    max-width: 584px;
     padding: 0 ${theme.spacing(12)};
   }
 `

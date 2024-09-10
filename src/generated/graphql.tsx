@@ -7523,7 +7523,7 @@ export type GetCustomerInfosForDraftInvoicesListQueryVariables = Exact<{
 
 export type GetCustomerInfosForDraftInvoicesListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, name?: string | null, applicableTimezone: TimezoneEnum } | null, customerInvoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number } } };
 
-export type CustomerForRequestOverduePaymentEmailFragment = { __typename?: 'Customer', name?: string | null, paymentProvider?: ProviderTypeEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null };
+export type CustomerForRequestOverduePaymentEmailFragment = { __typename?: 'Customer', name?: string | null, paymentProvider?: ProviderTypeEnum | null, netPaymentTerm?: number | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null };
 
 export type OrganizationForRequestOverduePaymentEmailFragment = { __typename?: 'CurrentOrganization', name: string, logoUrl?: string | null, email?: string | null, netPaymentTerm: number, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', documentLocale?: string | null } | null };
 
@@ -7545,7 +7545,7 @@ export type GetRequestOverduePaymentInfosQueryVariables = Exact<{
 }>;
 
 
-export type GetRequestOverduePaymentInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', defaultCurrency: CurrencyEnum, name: string, logoUrl?: string | null, email?: string | null, netPaymentTerm: number, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', documentLocale?: string | null } | null } | null, customer?: { __typename?: 'Customer', externalId: string, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, paymentProvider?: ProviderTypeEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null } | null, paymentRequests: { __typename?: 'PaymentRequestCollection', collection: Array<{ __typename?: 'PaymentRequest', createdAt: any }> }, invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, number: string, totalAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any }> } };
+export type GetRequestOverduePaymentInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', defaultCurrency: CurrencyEnum, name: string, logoUrl?: string | null, email?: string | null, netPaymentTerm: number, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', documentLocale?: string | null } | null } | null, customer?: { __typename?: 'Customer', externalId: string, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, paymentProvider?: ProviderTypeEnum | null, netPaymentTerm?: number | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null } | null, paymentRequests: { __typename?: 'PaymentRequestCollection', collection: Array<{ __typename?: 'PaymentRequest', createdAt: any }> }, invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, number: string, totalAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any }> } };
 
 export type CreatePaymentRequestMutationVariables = Exact<{
   input: PaymentRequestCreateInput;
@@ -10374,6 +10374,7 @@ export const CustomerForRequestOverduePaymentEmailFragmentDoc = gql`
     fragment CustomerForRequestOverduePaymentEmail on Customer {
   name
   paymentProvider
+  netPaymentTerm
   billingConfiguration {
     documentLocale
   }

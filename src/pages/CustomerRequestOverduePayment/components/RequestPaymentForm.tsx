@@ -68,7 +68,7 @@ export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
   const today = useMemo(() => DateTime.now().toUTC(), [])
 
   return (
-    <Stack flexDirection="column" gap={10} maxWidth={584}>
+    <Container>
       {isSameDay(date, today) && (
         <Alert type="info">
           <Typography variant="body" color="textSecondary">
@@ -164,12 +164,22 @@ export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
           },
         ]}
       />
-    </Stack>
+    </Container>
   )
 }
 
 const SectionHeader = styled.header`
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(3)};
+  }
+`
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing(10)};
+
+  ${theme.breakpoints.up('lg')} {
+    max-width: 584px;
   }
 `

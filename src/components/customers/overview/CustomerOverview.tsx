@@ -77,7 +77,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
   isLoading,
 }) => {
   const { translate } = useInternationalization()
-  const { organization } = useOrganizationInfos()
+  const { organization, formatTimeOrgaTZ } = useOrganizationInfos()
   const { customerId } = useParams()
   const navigate = useNavigate()
 
@@ -202,8 +202,9 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
                             relativeDay: lastPaymentRequestDate.toRelativeCalendar({
                               locale: LocaleEnum.en,
                             }),
-                            time: lastPaymentRequestDate.toLocaleString(
-                              DateTime.TIME_24_WITH_SHORT_OFFSET,
+                            time: formatTimeOrgaTZ(
+                              data?.paymentRequests.collection[0]?.createdAt,
+                              'HH:mm:ss',
                             ),
                           })
                         : translate('text_6670a2a7ae3562006c4ee3db')}
