@@ -9,9 +9,6 @@ jobs:
     if: github.event.pull_request.draft == false
     name: Run Test E2E
     runs-on: ubuntu-latest
-    env:
-      ACTIONS_STEP_DEBUG: true
-      ACTIONS_RUNNER_DEBUG: true
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
@@ -55,10 +52,26 @@ jobs:
           browser: chrome
           record: false
           config-file: ./cypress/cypress.config.js
-          config: baseUrl=http://localhost,viewportHeight=99999,viewportWidth=1280
+          config: baseUrl=http://localhost,viewportHeight=800,viewportWidth=1280,video=true
           spec: |
             cypress/e2e/00-auth/*
             cypress/e2e/10-resources/*
             cypress/e2e/t10-*
             cypress/e2e/t20-*
             cypress/e2e/t30-*
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+          if-no-files-found: ignore
+
+      - name: Upload videos
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-videos
+          path: cypress/videos
+          if-no-files-found: ignore
