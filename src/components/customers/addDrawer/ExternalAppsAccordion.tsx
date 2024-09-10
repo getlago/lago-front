@@ -95,6 +95,13 @@ gql`
           code
         }
 
+        ... on CashfreeProvider {
+          __typename
+          id
+          name
+          code
+        }
+
         ... on AdyenProvider {
           __typename
           id

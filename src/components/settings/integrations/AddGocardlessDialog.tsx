@@ -36,6 +36,9 @@ gql`
       ... on GocardlessProvider {
         id
       }
+      ... on CashfreeProvider {
+        id
+      }
       ... on AdyenProvider {
         id
       }

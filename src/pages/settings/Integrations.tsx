@@ -14,6 +14,10 @@ import {
   AddAnrokDialogRef,
 } from '~/components/settings/integrations/AddAnrokDialog'
 import {
+  AddCashfreeDialog,
+  AddCashfreeDialogRef,
+} from '~/components/settings/integrations/AddCashfreeDialog'
+import {
   AddGocardlessDialog,
   AddGocardlessDialogRef,
 } from '~/components/settings/integrations/AddGocardlessDialog'
@@ -39,6 +43,7 @@ import {
 import {
   ADYEN_INTEGRATION_ROUTE,
   ANROK_INTEGRATION_ROUTE,
+  CASHFREE_INTEGRATION_ROUTE,
   GOCARDLESS_INTEGRATION_ROUTE,
   NETSUITE_INTEGRATION_ROUTE,
   STRIPE_INTEGRATION_ROUTE,
@@ -52,6 +57,7 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import Adyen from '~/public/images/adyen.svg'
 import Airbyte from '~/public/images/airbyte.svg'
 import Anrok from '~/public/images/anrok.svg'
+import Cashfree from '~/public/images/cashfree.svg'
 import GoCardless from '~/public/images/gocardless.svg'
 import HightTouch from '~/public/images/hightouch.svg'
 import LagoTaxManagement from '~/public/images/lago-tax-management.svg'
@@ -113,6 +119,7 @@ const Integrations = () => {
   const addStripeDialogRef = useRef<AddStripeDialogRef>(null)
   const addAdyenDialogRef = useRef<AddAdyenDialogRef>(null)
   const addGocardlessnDialogRef = useRef<AddGocardlessDialogRef>(null)
+  const addCashfreeDialogRef = useRef<AddCashfreeDialogRef>(null)
   const addLagoTaxManagementDialog = useRef<AddLagoTaxManagementDialogRef>(null)
   const addNetsuiteDialogRef = useRef<AddNetsuiteDialogRef>(null)
   const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
@@ -129,6 +136,9 @@ const Integrations = () => {
   )
   const hasGocardlessIntegration = data?.paymentProviders?.collection?.some(
     (provider) => provider?.__typename === 'GocardlessProvider',
+  )
+  const hasCashfreeIntegration = data?.paymentProviders?.collection?.some(
+    (provider) => provider?.__typename === 'CashfreeProvider',
   )
   const hasTaxManagement = !!organization?.euTaxManagement
   const hasAccessToNetsuitePremiumIntegration = !!premiumIntegrations?.includes(
@@ -224,7 +234,28 @@ const Integrations = () => {
               }}
               fullWidth
             />
-
+            <StyledSelector
+              title={'Cashfree Payments'}
+              subtitle={translate('text_634ea0ecc6147de10ddb6631')}
+              icon={
+                <Avatar size="big" variant="connector">
+                  <Cashfree />
+                </Avatar>
+              }
+              endIcon={
+                hasCashfreeIntegration ? (
+                  <Chip label={translate('text_634ea0ecc6147de10ddb6646')} />
+                ) : undefined
+              }
+              onClick={() => {
+                if (hasCashfreeIntegration) {
+                  navigate(CASHFREE_INTEGRATION_ROUTE)
+                } else {
+                  addCashfreeDialogRef.current?.openDialog()
+                }
+              }}
+              fullWidth
+            />
             <StyledSelector
               title={translate('text_639c334c3fa0e9c6ca3512b2')}
               subtitle={translate('text_639c334c3fa0e9c6ca3512b4')}
@@ -417,6 +448,7 @@ const Integrations = () => {
       <AddAdyenDialog ref={addAdyenDialogRef} />
       <AddStripeDialog ref={addStripeDialogRef} />
       <AddGocardlessDialog ref={addGocardlessnDialogRef} />
+      <AddCashfreeDialog ref={addCashfreeDialogRef} />
       <AddLagoTaxManagementDialog
         country={organization?.country}
         ref={addLagoTaxManagementDialog}
