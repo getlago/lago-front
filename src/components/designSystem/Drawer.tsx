@@ -26,6 +26,7 @@ interface DrawerProps extends Pick<MuiDrawerProps, 'anchor'> {
   showCloseWarningDialog?: boolean
   fullContentHeight?: boolean
   children: (({ closeDrawer }: { closeDrawer: () => void }) => ReactNode) | ReactNode
+  stickyBottomBar?: (({ closeDrawer }: { closeDrawer: () => void }) => ReactNode) | ReactNode
   onOpen?: () => void
   onClose?: () => void
 }
@@ -41,6 +42,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
       forceOpen = false,
       showCloseWarningDialog = false,
       children,
+      stickyBottomBar,
       opener,
       anchor = 'right',
       title,
@@ -121,6 +123,14 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
               ? children({ closeDrawer: () => setIsOpen(false) })
               : children}
           </Content>
+
+          {!!stickyBottomBar && (
+            <StickyBottomBar>
+              {typeof stickyBottomBar === 'function'
+                ? stickyBottomBar({ closeDrawer: () => setIsOpen(false) })
+                : stickyBottomBar}
+            </StickyBottomBar>
+          )}
         </StyledDrawer>
 
         <PreventClosingDrawerDialog ref={preventClosingDrawerDialogRef} />
@@ -170,5 +180,18 @@ const Content = styled.div<{ $fullContentHeight?: boolean }>`
 
   ${theme.breakpoints.down('md')} {
     padding: ${theme.spacing(12)} ${theme.spacing(4)} ${theme.spacing(20)} ${theme.spacing(4)};
+  }
+`
+
+const StickyBottomBar = styled.div`
+  position: sticky;
+  bottom: 0;
+  border-top: 1px solid ${theme.palette.grey[200]};
+  padding: ${theme.spacing(4)} ${theme.spacing(12)};
+  box-sizing: border-box;
+  text-align: right;
+
+  ${theme.breakpoints.down('md')} {
+    padding: ${theme.spacing(4)};
   }
 `
