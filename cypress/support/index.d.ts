@@ -10,4 +10,8 @@ declare namespace Cypress {
      */
     login(email: string, password: string): Chainable<unknown>
   }
+
+  interface Cypress {
+    mocha: any // for Cypress.mocha
+  }
 }

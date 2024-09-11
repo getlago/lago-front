@@ -17,11 +17,13 @@ import './commands'
 import { userEmail, userPassword } from './reusableConstants'
 
 beforeEach(() => {
+  const { currentTest } = Cypress.mocha.getRunner().suite.ctx
+
   if (
-    // @ts-ignore - prevent to log for all "auth" test suite
-    !Cypress.mocha.getRunner().suite.ctx.test.file.includes('auth') &&
-    // @ts-ignore - In case we ever need to skip login before one test, add '::preventLogin' in the test name
-    !Cypress.mocha.getRunner().suite.ctx.currentTest.title.includes('::preventLogin')
+    // Prevent to log for all "auth" test suite
+    !currentTest.invocationDetails.relativeFile.includes('auth') &&
+    // In case we ever need to skip login before one test, add '::preventLogin' in the test name
+    !currentTest.title.includes('::preventLogin')
   ) {
     cy.session(
       'LoginTestUser',

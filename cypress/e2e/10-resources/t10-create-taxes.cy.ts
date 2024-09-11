@@ -15,6 +15,7 @@ describe('Create taxes', () => {
     cy.get('input[name="code"]').type(TAX_TEN_CODE)
     cy.get('input[name="rate"]').type('10')
     cy.get('[data-test="submit"]').click()
+
     // Create tax 20%
     cy.get('[data-test="create-tax-button"]').click()
     cy.url().should('include', '/create/tax')

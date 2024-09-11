@@ -1,6 +1,6 @@
 import {
   customerName,
-  planWithChargeCode,
+  planWithChargeCodeNew,
   planWithChargesName,
 } from '../../support/reusableConstants'
 
@@ -39,7 +39,7 @@ describe('Edit plan', () => {
     // BE is expecting string where we manage amount as int
     // cy.get('[data-test="submit"]').should('be.disabled')
 
-    cy.get('input[name="code"]').clear().type(planWithChargeCode)
+    cy.get('input[name="code"]').clear().type(planWithChargeCodeNew)
     cy.get('[data-test="submit"]').click({ force: true })
   })
 
@@ -50,7 +50,7 @@ describe('Edit plan', () => {
 
     cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('input[name="planId"]').click()
-    cy.get(`[data-test^="combobox-item-"]`).contains(planWithChargeCode).click()
+    cy.get(`[data-test^="combobox-item-"]`).contains(planWithChargeCodeNew).click()
 
     cy.get('[data-test="submit"]').should('not.be.disabled')
     cy.get('[data-test="submit"]').click()
