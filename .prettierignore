@@ -4,4 +4,5 @@ dist
 generated
 globals.d.ts
 ci
-cypress/*
+cypress/downloads
+cypress/screenshots

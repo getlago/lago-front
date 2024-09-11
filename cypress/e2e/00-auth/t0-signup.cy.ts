@@ -1,25 +1,17 @@
 import { userEmail, userPassword } from '../../support/reusableConstants'
 
-describe('Sign up page test', () => {
-  it('should be able to visit app', () => {
+describe('Sign up', () => {
+  it('should create a new user and redirect to the home after signup', () => {
     cy.visit('sign-up')
+
+    cy.get('input[name="organizationName"]').type('Company name')
+    cy.get('input[name="email"]').type(userEmail)
+    cy.get('input[name="password"]').type(userPassword)
+    cy.get('[data-test="submit-button"]').click()
+
+    cy.url().should('be.equal', Cypress.config().baseUrl + '/')
+    cy.get('[data-test="side-nav-name"]').contains('Company name')
   })
-
-  it(
-    'should create a new user and redirect to the home after signup',
-    { defaultCommandTimeout: 5000 },
-    () => {
-      cy.visit('sign-up')
-
-      cy.get('input[name="organizationName"]').type('Company name')
-      cy.get('input[name="email"]').type(userEmail)
-      cy.get('input[name="password"]').type(userPassword)
-      cy.get('[data-test="submit-button"]').click()
-
-      cy.url().should('be.equal', Cypress.config().baseUrl + '/')
-      cy.get('[data-test="side-nav-name"]').contains('Company name')
-    }
-  )
 
   it('should have a disabled button on visiting', () => {
     cy.visit('sign-up')
@@ -52,7 +44,7 @@ describe('Sign up page test', () => {
     cy.get('[data-test="error-alert"]').should('exist')
   })
 
-  it('should display the right password error', () => {
+  it('should display the right password error message', () => {
     cy.visit('sign-up')
 
     cy.get('input[name="password"]').focus()

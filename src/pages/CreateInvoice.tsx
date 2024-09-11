@@ -3,7 +3,7 @@ import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
 import _get from 'lodash/get'
 import { DateTime } from 'luxon'
-import React, { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 import { array, number, object, string } from 'yup'
@@ -726,6 +726,7 @@ const CreateInvoice = () => {
                               disableHoverListener={!unitValidationErrorKey}
                             >
                               <TextInput
+                                name={`fees.${i}.units`}
                                 type="number"
                                 beforeChangeFormatter={['int', 'positiveNumber']}
                                 error={false}

@@ -53,7 +53,7 @@ export const InviteItem = ({
   const { hasPermissions } = usePermissions()
 
   return (
-    <ItemContainer>
+    <ItemContainer data-test={`invite-item-${email}`}>
       <LeftBlock>
         <Avatar variant="user" identifier={email.charAt(0)} size="big" />
         <Typography variant="body" color="grey700">

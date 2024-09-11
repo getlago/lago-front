@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { PopperProps as MuiPopperProps } from '@mui/material'
 import { PickersCalendarHeader, PickersDay } from '@mui/x-date-pickers'
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon'
-import { DatePicker as MuiDatePicker } from '@mui/x-date-pickers/DatePicker'
+import { DesktopDatePicker as MuiDatePicker } from '@mui/x-date-pickers/DesktopDatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DateTime, Settings } from 'luxon'
 import { ReactNode, useEffect, useState } from 'react'
@@ -49,6 +49,7 @@ export interface DatePickerProps
 
 export const DatePicker = ({
   className,
+  name,
   value,
   error,
   label,
@@ -118,6 +119,7 @@ export const DatePicker = ({
           invalidWrapper={(children) => <>{children}</>}
         >
           <MuiDatePicker
+            name={name}
             format="MM/dd/yyyy"
             disableFuture={disableFuture}
             disabled={disabled}
