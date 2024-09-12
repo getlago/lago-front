@@ -97,7 +97,7 @@ type FormType = CreateAppliedCouponInput & {
 export interface AddCouponToCustomerDialogRef extends DialogRef {}
 
 interface AddCouponToCustomerDialogProps {
-  customer?: Pick<Customer, 'id' | 'name' | 'firstname' | 'lastname'> | null
+  customer?: Pick<Customer, 'id' | 'displayName'> | null
 }
 
 export const AddCouponToCustomerDialog = forwardRef<

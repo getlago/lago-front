@@ -44,8 +44,7 @@ gql`
     customer(id: $id) {
       id
       name
-      firstname
-      lastname
+      displayName
       ...CustomerAppliedCoupons
     }
   }

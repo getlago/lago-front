@@ -21,8 +21,7 @@ gql`
   fragment EditCustomerDocumentLocale on Customer {
     id
     name
-    firstname
-    lastname
+    displayName
     externalId
     billingConfiguration {
       id

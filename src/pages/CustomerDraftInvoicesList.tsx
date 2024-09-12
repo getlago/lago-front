@@ -44,8 +44,7 @@ gql`
     customer(id: $customerId) {
       id
       name
-      firstname
-      lastname
+      displayName
       applicableTimezone
     }
 

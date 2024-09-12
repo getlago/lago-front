@@ -70,50 +70,10 @@ describe('customerUtils', () => {
   })
 
   describe('computeCustomerName', () => {
-    describe('name', () => {
-      it('should return "name"', () => {
-        expect(computeCustomerName({ name: 'Lago' })).toEqual('Lago')
-      })
-    })
-
-    describe('name + firstname', () => {
-      it('should return the "name - firstname"', () => {
-        expect(computeCustomerName({ name: 'Lago', firstname: 'Stefan' })).toEqual('Lago - Stefan')
-      })
-    })
-
-    describe('name + lastname', () => {
-      it('should return the "name - lastname"', () => {
-        expect(computeCustomerName({ name: 'Lago', lastname: 'World' })).toEqual('Lago - World')
-      })
-    })
-
-    describe('name + firstname + lastname', () => {
-      it('should return "name - firstname lastname"', () => {
-        expect(
-          computeCustomerName({ name: 'Lago', firstname: 'Stefan', lastname: 'World' }),
-        ).toEqual('Lago - Stefan World')
-      })
-    })
-
-    describe('firstname', () => {
-      it('should return "firstname"', () => {
-        expect(computeCustomerName({ firstname: 'Stefan' })).toEqual('Stefan')
-      })
-    })
-
-    describe('firstname + lastname', () => {
-      it('should return "firstname lastname"', () => {
-        expect(computeCustomerName({ firstname: 'Stefan', lastname: 'World' })).toEqual(
-          'Stefan World',
-        )
-      })
-    })
-
-    describe('lastname', () => {
-      it('should return "lastname"', () => {
-        expect(computeCustomerName({ lastname: 'World' })).toEqual('World')
-      })
+    it('should return the displayName of the customer', () => {
+      expect(computeCustomerName({ displayName: 'Lago - Stefan World' })).toEqual(
+        'Lago - Stefan World',
+      )
     })
   })
 })

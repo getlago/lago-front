@@ -84,8 +84,7 @@ gql`
       customer {
         id
         name
-        firstname
-        lastname
+        displayName
         deletedAt
         applicableTimezone
         netsuiteCustomer {

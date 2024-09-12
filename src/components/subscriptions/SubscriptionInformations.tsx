@@ -33,8 +33,7 @@ gql`
     customer {
       id
       name
-      firstname
-      lastname
+      displayName
     }
     plan {
       id

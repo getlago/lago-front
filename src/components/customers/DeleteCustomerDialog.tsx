@@ -12,8 +12,7 @@ gql`
   fragment DeleteCustomerDialog on Customer {
     id
     name
-    firstname
-    lastname
+    displayName
   }
 
   mutation deleteCustomer($input: DestroyCustomerInput!) {

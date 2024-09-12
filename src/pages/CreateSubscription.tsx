@@ -84,8 +84,7 @@ gql`
       id
       applicableTimezone
       name
-      firstname
-      lastname
+      displayName
       externalId
     }
   }

@@ -19,23 +19,8 @@ export const computeCustomerInitials = (
   return '-'
 }
 
-export const computeCustomerName = (
-  customer?: Pick<Customer, 'name' | 'firstname' | 'lastname'> | null,
-) => {
-  const { name = '', firstname = '', lastname = '' } = customer ?? {}
-
-  if (name && (firstname || lastname)) {
-    const fullName = `${firstname} ${lastname}`.trim()
-
-    return `${name} - ${fullName}`
-  }
-
-  if (firstname || lastname) {
-    return `${firstname} ${lastname}`.trim()
-  }
-
-  return name
-}
+export const computeCustomerName = (customer?: Pick<Customer, 'displayName'> | null) =>
+  customer?.displayName
 
 export const TRANSLATIONS_MAP_CUSTOMER_TYPE: Record<CustomerTypeEnum, string> = {
   [CustomerTypeEnum.Individual]: 'text_1726129457108txzr4gdkvcz',

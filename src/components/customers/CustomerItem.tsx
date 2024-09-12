@@ -28,6 +28,7 @@ gql`
   fragment CustomerItem on Customer {
     id
     name
+    displayName
     firstname
     lastname
     externalId

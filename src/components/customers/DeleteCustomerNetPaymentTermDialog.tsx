@@ -16,8 +16,7 @@ gql`
     id
     externalId
     name
-    firstname
-    lastname
+    displayName
     netPaymentTerm
   }
 

@@ -89,8 +89,7 @@ gql`
       currency
       email
       name
-      firstname
-      lastname
+      displayName
       legalName
       legalNumber
       taxIdentificationNumber

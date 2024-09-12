@@ -60,6 +60,7 @@ gql`
     id
     customerType
     name
+    displayName
     firstname
     lastname
     externalId

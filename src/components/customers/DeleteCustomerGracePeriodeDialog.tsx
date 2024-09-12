@@ -15,8 +15,7 @@ gql`
   fragment DeleteCustomerGracePeriod on Customer {
     id
     name
-    firstname
-    lastname
+    displayName
   }
 
   mutation deleteCustomerGracePeriod($input: UpdateCustomerInvoiceGracePeriodInput!) {

@@ -25,6 +25,7 @@ gql`
     customer {
       id
       name
+      displayName
       firstname
       lastname
       externalId

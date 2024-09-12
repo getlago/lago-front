@@ -25,8 +25,7 @@ gql`
   fragment EditCustomerVatRate on Customer {
     id
     name
-    firstname
-    lastname
+    displayName
     externalId
     taxes {
       id

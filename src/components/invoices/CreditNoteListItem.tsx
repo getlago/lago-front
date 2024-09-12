@@ -46,8 +46,7 @@ gql`
       customer {
         id
         name
-        firstname
-        lastname
+        displayName
       }
     }
   }

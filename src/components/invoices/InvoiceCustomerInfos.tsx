@@ -34,8 +34,7 @@ gql`
     customer {
       id
       name
-      firstname
-      lastname
+      displayName
       legalNumber
       legalName
       taxIdentificationNumber

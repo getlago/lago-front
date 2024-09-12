@@ -17,8 +17,7 @@ gql`
     id
     externalId
     name
-    firstname
-    lastname
+    displayName
     finalizeZeroAmountInvoice
   }
 

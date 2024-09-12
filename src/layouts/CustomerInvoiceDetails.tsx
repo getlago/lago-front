@@ -106,8 +106,7 @@ gql`
     }
     customer {
       name
-      firstname
-      lastname
+      displayName
       ...CustomerMetadatasForInvoiceOverview
       netsuiteCustomer {
         id

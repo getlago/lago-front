@@ -15,8 +15,7 @@ gql`
   fragment DeleteCustomerDocumentLocale on Customer {
     id
     name
-    firstname
-    lastname
+    displayName
     externalId
   }
 
