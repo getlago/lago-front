@@ -13,6 +13,7 @@ gql`
       addonsUpdate
       addonsView
       analyticsView
+      analyticsOverdueBalancesView
       billableMetricsCreate
       billableMetricsDelete
       billableMetricsUpdate

@@ -61,5 +61,13 @@
   "text_6670a7222702d70114cc795a": "Total impayé",
   "text_6670a7222702d70114cc795c": "pour {{count}} facture|pour {{count}} factures",
   "text_6670a757999f8a007789bb5d": "Total des factures échues. C'est le montant que vous devez.",
-  "text_668fe99c939c8800dfeb504e": "En litige"
+  "text_668fe99c939c8800dfeb504e": "En litige",
+  "text_66b378e748cda1004ff00db0": "Bonjour {{customerName}}",
+  "text_66b378e748cda1004ff00db1": "Ceci est un rappel de l'équipe financière de {{organizationName}} que certaines de vos factures sont arrivées à échéance et non réglées.",
+  "text_66b378e748cda1004ff00db2": "Le montant total dû est de {{amount}}.",
+  "text_66b378e748cda1004ff00db3": "Les conditions de paiement convenues contractuellement exigent le paiement à la génération de la facture.|Nos conditions de paiement convenues contractuellement sont de {{netPaymentTerm}} jour.|Nos conditions de paiement convenues contractuellement sont de {{netPaymentTerm}} jours.",
+  "text_66b378e748cda1004ff00db4": "Si vous avez déjà réglé ces factures, veuillez ignorer cet e-mail.",
+  "text_66b378e748cda1004ff00db5": "Merci.",
+  "text_66b378e748cda1004ff00db6": "Montant restant à payer",
+  "text_66b378e748cda1004ff00db8": "Payer le solde"
 }

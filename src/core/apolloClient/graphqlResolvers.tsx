@@ -30,6 +30,7 @@ export const typeDefs = gql`
     does_not_match_item_amounts
     payment_processor_is_currently_handling_payment
     plan_overlapping
+    invoices_not_overdue
 
     # Object not found
     plan_not_found

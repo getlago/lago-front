@@ -39,6 +39,7 @@ import {
   CREATE_WALLET_ROUTE,
   CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
+  CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE,
   CUSTOMERS_LIST_ROUTE,
 } from '~/core/router'
 import {
@@ -64,6 +65,7 @@ gql`
     creditNotesCreditsAvailableCount
     creditNotesBalanceAmountCents
     applicableTimezone
+    hasOverdueInvoices
     ...AddCustomerDrawer
     ...CustomerMainInfos
   }
@@ -135,6 +137,7 @@ const CustomerDetails = () => {
     externalId,
     hasActiveWallet,
     hasCreditNotes,
+    hasOverdueInvoices,
     name,
     applicableTimezone,
   } = data?.customer || {}
@@ -193,6 +196,23 @@ const CustomerDetails = () => {
             >
               {({ closePopper }) => (
                 <MenuPopper>
+                  {hasOverdueInvoices && (
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      onClick={() => {
+                        navigate(
+                          generatePath(CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE, {
+                            customerId: customerId as string,
+                          }),
+                        )
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_66b25adfd834ed0104345eb7')}
+                    </Button>
+                  )}
+
                   {hasPermissions(['subscriptionsCreate']) && (
                     <Button
                       variant="quaternary"
@@ -394,6 +414,7 @@ const CustomerDetails = () => {
                       customerId: customerId as string,
                       tab: CustomerDetailsTabsOptions.usage,
                     }),
+                    hidden: !hasPermissions(['analyticsView']),
                     component: (
                       <SideBlock>
                         <CustomerUsage

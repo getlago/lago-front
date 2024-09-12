@@ -37,9 +37,9 @@ export const OverviewCard: FC<OverviewCardProps> = ({
           <CardHeader>
             <Typography variant="captionHl">{title}</Typography>
             {tooltipContent && (
-              <Tooltip placement="top-start" title={tooltipContent}>
+              <StyledTooltip placement="top-start" title={tooltipContent}>
                 <Icon name="info-circle" />
-              </Tooltip>
+              </StyledTooltip>
             )}
           </CardHeader>
 
@@ -68,4 +68,8 @@ const SkeletonWrapper = styled.div`
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(8)};
   }
+`
+
+const StyledTooltip = styled(Tooltip)`
+  height: 16px;
 `

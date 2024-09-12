@@ -37,3 +37,7 @@ export const formatDateToTZ = (
     zone: getTimezoneConfig(timezone).name,
   }).toFormat(format || 'LLL. dd, yyyy')
 }
+
+export const isSameDay = (a: DateTime, b: DateTime): boolean => {
+  return a.hasSame(b, 'day') && a.hasSame(b, 'month') && a.hasSame(b, 'year')
+}

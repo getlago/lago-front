@@ -22,8 +22,8 @@ import { AreaGrossRevenuesChartFakeData } from '../designSystem/graphs/fixtures'
 import { GenericPlaceholder } from '../GenericPlaceholder'
 
 gql`
-  query getGrossRevenues($currency: CurrencyEnum!, $externalCustomerId: String) {
-    grossRevenues(currency: $currency, externalCustomerId: $externalCustomerId) {
+  query getGrossRevenues($currency: CurrencyEnum!, $externalCustomerId: String, $months: Int) {
+    grossRevenues(currency: $currency, externalCustomerId: $externalCustomerId, months: $months) {
       collection {
         amountCents
         currency
@@ -73,7 +73,7 @@ const Gross = ({
 }: TGraphProps & { externalCustomerId?: string }) => {
   const { translate } = useInternationalization()
   const { data, loading, error } = useGetGrossRevenuesQuery({
-    variables: { currency: currency, externalCustomerId: externalCustomerId },
+    variables: { currency: currency, externalCustomerId: externalCustomerId, months: 12 },
     skip: demoMode || blur || !currency,
   })
 
