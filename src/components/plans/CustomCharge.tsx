@@ -20,7 +20,7 @@ gql`
   }
 `
 
-interface PackageChargeProps {
+interface CustomChargeProps {
   chargeIndex: number
   formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
@@ -29,7 +29,7 @@ interface PackageChargeProps {
 }
 
 export const CustomCharge = memo(
-  ({ chargeIndex, disabled, formikProps, propertyCursor, valuePointer }: PackageChargeProps) => {
+  ({ chargeIndex, disabled, formikProps, propertyCursor, valuePointer }: CustomChargeProps) => {
     const { translate } = useInternationalization()
     const drawerRef = useRef<EditCustomChargeDrawerRef>(null)
 
