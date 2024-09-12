@@ -411,7 +411,7 @@ const CreateAddOn = () => {
           </div>
         </Main>
         <Side>
-          <AddOnCodeSnippet isEdition={isEdition} loading={loading} addOn={formikProps.values} />
+          <AddOnCodeSnippet loading={loading} addOn={formikProps.values} />
         </Side>
       </Content>
 
