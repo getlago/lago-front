@@ -41,6 +41,7 @@ type Column<T> = {
   textAlign?: Align
   maxSpace?: boolean
   minWidth?: number
+  truncateOverflow?: boolean
 }
 
 type DataItem = {
@@ -219,6 +220,7 @@ export const Table = <T extends DataItem>({
     >
       <StyledTable
         data-test={TABLE_ID}
+        id={TABLE_ID}
         ref={tableRef}
         $containerSize={containerSize}
         $rowSize={rowSize}
@@ -259,7 +261,11 @@ export const Table = <T extends DataItem>({
                       align={column.textAlign || 'left'}
                       $maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
                     >
-                      <TableInnerCell $minWidth={column.minWidth} $align={column.textAlign}>
+                      <TableInnerCell
+                        $minWidth={column.minWidth}
+                        $align={column.textAlign}
+                        $truncateOverflow={column.truncateOverflow}
+                      >
                         <Typography noWrap>{column.content(item)}</Typography>
                       </TableInnerCell>
                     </TableCell>
@@ -387,9 +393,13 @@ const ActionItemButton = <T,>({
   return button
 }
 
-const TableInnerCell = styled.div<{ $minWidth?: number; $align?: Align }>`
+const TableInnerCell = styled.div<{
+  $minWidth?: number
+  $align?: Align
+  $truncateOverflow?: boolean
+}>`
   min-width: ${({ $minWidth }) => ($minWidth ? `${$minWidth}px` : 'auto')};
-  display: flex;
+  display: ${({ $truncateOverflow }) => ($truncateOverflow ? 'grid' : 'flex')};
   align-items: center;
   justify-content: ${({ $align }) => {
     if ($align === 'left') return 'flex-start'
