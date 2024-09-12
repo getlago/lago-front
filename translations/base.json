@@ -1409,7 +1409,7 @@
   "text_668fe99c939c8800dfeb504e": "Disputed",
   "text_66b258f62100490d0eb5ca73": "Request a payment of {{amount}} for {{count}} invoice|Request a payment of {{amount}} for {{count}} invoices",
   "text_66b258f62100490d0eb5ca86": "You’re about to request a payment of {{amount}}",
-  "text_66b258f62100490d0eb5ca87": "Once the request is validated, Lago will send an email to your customer requesting payment of the overdue balance.",
+  "text_66b258f62100490d0eb5ca87": "Once the request is validated, Lago will initiate a payment intent with the connected payment provider service (if applicable). If the payment fails, an email is sent to your customer requesting payment of the overdue balance.",
   "text_66b258f62100490d0eb5ca88": "Send this payment request by email",
   "text_66b258f62100490d0eb5ca89": "To send this email to multiple recipients, define multiple email addresses separated by commas. (e.g. billing@acme.com, accounting@acme.com)",
   "text_66b258f62100490d0eb5ca8b": "One or more emails are invalid",
