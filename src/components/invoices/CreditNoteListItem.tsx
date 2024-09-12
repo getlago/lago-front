@@ -3,6 +3,7 @@ import { RefObject } from 'react'
 import { generatePath, Link } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 
+import { computeCustomerName } from '~/components/customers/utils'
 import { Button, Popper, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -45,6 +46,8 @@ gql`
       customer {
         id
         name
+        firstname
+        lastname
       }
     }
   }
@@ -109,6 +112,8 @@ export const CreditNoteListItem = ({
       },
     })
 
+  const customerName = computeCustomerName(creditNote.invoice?.customer)
+
   return (
     <ItemContainer {...props}>
       <Item to={to} tabIndex={0} {...navigationProps}>
@@ -128,7 +133,7 @@ export const CreditNoteListItem = ({
             </Link>
           </Typography>
           <CustomerColumn variant="body" color="grey700" noWrap>
-            {creditNote.invoice?.customer?.name}
+            {customerName}
           </CustomerColumn>
           <Typography variant="body" color="success600" align="right" noWrap>
             {intlFormatNumber(

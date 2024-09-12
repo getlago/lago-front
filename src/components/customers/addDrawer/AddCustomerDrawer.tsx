@@ -1,3 +1,4 @@
+import { Grid } from '@mui/material'
 import { useFormik } from 'formik'
 import { FieldWithPossiblyUndefined } from 'lodash'
 import _get from 'lodash/get'
@@ -12,6 +13,7 @@ import React, {
 import styled, { css } from 'styled-components'
 import { array, object, string } from 'yup'
 
+import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import {
   Accordion,
   Button,
@@ -36,6 +38,7 @@ import {
   CreateCustomerInput,
   CurrencyEnum,
   CustomerMetadataInput,
+  CustomerTypeEnum,
   IntegrationTypeEnum,
   NetsuiteCustomer,
   ProviderCustomer,
@@ -75,7 +78,10 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
 
   const formikProps = useFormik<CreateCustomerInput | UpdateCustomerInput>({
     initialValues: {
+      customerType: customer?.customerType ?? null,
       name: customer?.name ?? '',
+      firstname: customer?.firstname ?? '',
+      lastname: customer?.lastname ?? '',
       externalId: customer?.externalId ?? '',
       externalSalesforceId: customer?.externalSalesforceId ?? '',
       legalName: customer?.legalName ?? undefined,
@@ -112,7 +118,10 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
       metadata: customer?.metadata ?? undefined,
     },
     validationSchema: object().shape({
+      customerType: string().oneOf(Object.values(CustomerTypeEnum)).nullable(),
       name: string(),
+      firstname: string(),
+      lastname: string(),
       email: string().email('text_620bc4d4269a55014d493fc3'),
       externalId: string().required(''),
       metadata: metadataSchema(),
@@ -283,6 +292,17 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
 
         <Card>
           <Typography variant="subhead">{translate('text_626c0c09812bbc00e4c59df1')}</Typography>
+          <ComboBoxField
+            name="customerType"
+            label={translate('text_1726128938631ioz4orixel3')}
+            placeholder={translate('text_17261289386318j0nhr1ms3t')}
+            formikProps={formikProps}
+            PopperProps={{ displayInDialog: true }}
+            data={Object.values(CustomerTypeEnum).map((customerValue) => ({
+              value: customerValue,
+              label: translate(TRANSLATIONS_MAP_CUSTOMER_TYPE[customerValue]),
+            }))}
+          />
           <TextInputField
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus={!isEdition}
@@ -291,6 +311,24 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
             placeholder={translate('text_624efab67eb2570101d117c6')}
             formikProps={formikProps}
           />
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={6}>
+              <TextInputField
+                name="firstname"
+                label={translate('text_1726128938631ggtf2ggqs4b')}
+                placeholder={translate('text_1726128938631ntcpbzv7x7s')}
+                formikProps={formikProps}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextInputField
+                name="lastname"
+                label={translate('text_1726128938631ymctg83bygm')}
+                placeholder={translate('text_1726128938631xmpsba9ssuo')}
+                formikProps={formikProps}
+              />
+            </Grid>
+          </Grid>
           <TextInputField
             name="externalId"
             disabled={isEdition && !customer?.canEditAttributes}
@@ -302,7 +340,6 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
             }
             formikProps={formikProps}
           />
-
           <ComboBoxField
             name="timezone"
             label={translate('text_6390a4ffef9227ba45daca90')}

@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
+import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
 import { CountryCodes } from '~/core/constants/countryCodes'
 import {
@@ -43,7 +44,10 @@ const PaymentProviderMethodTranslationsLookup = {
 gql`
   fragment CustomerMainInfos on Customer {
     id
+    customerType
     name
+    firstname
+    lastname
     externalId
     externalSalesforceId
     legalName
@@ -225,7 +229,10 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     )
 
   const {
+    customerType,
     name,
+    firstname,
+    lastname,
     externalId,
     externalSalesforceId,
     legalName,
@@ -269,11 +276,27 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
         data-id="customer-info-list"
         $showMore={showMore}
       >
+        {customerType && (
+          <div>
+            <Typography variant="caption">{translate('text_1726128938631ioz4orixel3')}</Typography>
+            <Typography color="textSecondary" forceBreak>
+              {translate(TRANSLATIONS_MAP_CUSTOMER_TYPE[customerType])}
+            </Typography>
+          </div>
+        )}
         {name && (
           <div>
             <Typography variant="caption">{translate('text_626162c62f790600f850b76a')}</Typography>
             <Typography color="textSecondary" forceBreak>
               {name}
+            </Typography>
+          </div>
+        )}
+        {(firstname || lastname) && (
+          <div>
+            <Typography variant="caption">{translate('text_17261289386311s35rvzyxbz')}</Typography>
+            <Typography color="textSecondary" forceBreak>
+              {firstname} {lastname}
             </Typography>
           </div>
         )}

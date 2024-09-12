@@ -44,6 +44,8 @@ gql`
     customer(id: $id) {
       id
       name
+      firstname
+      lastname
       ...CustomerAppliedCoupons
     }
   }
@@ -149,11 +151,7 @@ export const CustomerCoupons = memo(() => {
         continueText={translate('text_628b8c693e464200e00e4689')}
       />
 
-      <AddCouponToCustomerDialog
-        ref={addCouponDialogRef}
-        customerId={customerId as string}
-        customerName={data?.customer?.name as string}
-      />
+      <AddCouponToCustomerDialog ref={addCouponDialogRef} customer={data?.customer} />
     </>
   )
 })

@@ -51,6 +51,8 @@ gql`
     customer {
       id
       name
+      firstname
+      lastname
       applicableTimezone
     }
     errorDetails {

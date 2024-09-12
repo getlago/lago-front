@@ -105,6 +105,9 @@ gql`
       errorDetails
     }
     customer {
+      name
+      firstname
+      lastname
       ...CustomerMetadatasForInvoiceOverview
       netsuiteCustomer {
         id

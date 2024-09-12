@@ -34,7 +34,10 @@ gql`
     legalName
     legalNumber
     taxIdentificationNumber
+    customerType
     name
+    firstname
+    lastname
     paymentProvider
     phone
     state

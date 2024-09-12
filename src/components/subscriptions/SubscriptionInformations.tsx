@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 import { generatePath, Link } from 'react-router-dom'
 import styled from 'styled-components'
 
+import { computeCustomerName } from '~/components/customers/utils'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS } from '~/core/router'
 import {
   StatusTypeEnum,
@@ -32,6 +33,8 @@ gql`
     customer {
       id
       name
+      firstname
+      lastname
     }
     plan {
       id
@@ -51,6 +54,8 @@ const SubscriptionInformations = ({
 }) => {
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
+
+  const customerName = computeCustomerName(subscription?.customer)
 
   return (
     <section>
@@ -88,7 +93,7 @@ const SubscriptionInformations = ({
                   )}
                   invalidWrapper={(children) => <>{children}</>}
                 >
-                  {subscription?.customer?.name}
+                  {customerName}
                 </ConditionalWrapper>
               ),
             },

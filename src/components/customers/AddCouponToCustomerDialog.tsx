@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { number, object, string } from 'yup'
 
 import { CouponCaption } from '~/components/coupons/CouponCaption'
+import { computeCustomerName } from '~/components/customers/utils'
 import { Alert, Button, Chip, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { AmountInputField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -21,6 +22,7 @@ import {
   CouponTypeEnum,
   CreateAppliedCouponInput,
   CurrencyEnum,
+  Customer,
   CustomerAppliedCouponsFragment,
   CustomerAppliedCouponsFragmentDoc,
   CustomerCouponFragmentDoc,
@@ -95,14 +97,16 @@ type FormType = CreateAppliedCouponInput & {
 export interface AddCouponToCustomerDialogRef extends DialogRef {}
 
 interface AddCouponToCustomerDialogProps {
-  customerId: string
-  customerName: string
+  customer?: Pick<Customer, 'id' | 'name' | 'firstname' | 'lastname'> | null
 }
 
 export const AddCouponToCustomerDialog = forwardRef<
   AddCouponToCustomerDialogRef,
   AddCouponToCustomerDialogProps
->(({ customerId, customerName }: AddCouponToCustomerDialogProps, ref) => {
+>(({ customer }: AddCouponToCustomerDialogProps, ref) => {
+  const customerId = customer?.id
+  const customerName = computeCustomerName(customer)
+
   const { translate } = useInternationalization()
   const [getCoupons, { loading, data }] = useGetCouponForCustomerLazyQuery({
     variables: { limit: 50, status: CouponStatusEnum.Active },
@@ -212,6 +216,8 @@ export const AddCouponToCustomerDialog = forwardRef<
       { amountCents, amountCurrency, percentageRate, frequencyDuration, ...values },
       formikBag,
     ) => {
+      if (!customerId) return
+
       const couponValues = {
         ...values,
         couponType: undefined,

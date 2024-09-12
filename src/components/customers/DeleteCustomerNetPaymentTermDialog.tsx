@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import { forwardRef } from 'react'
 
+import { computeCustomerName } from '~/components/customers/utils'
 import { DialogRef, Typography } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
@@ -15,6 +16,8 @@ gql`
     id
     externalId
     name
+    firstname
+    lastname
     netPaymentTerm
   }
 
@@ -36,6 +39,7 @@ export const DeleteOrganizationNetPaymentTermDialog = forwardRef<
   DialogRef,
   DeleteOrganizationNetPaymentTermDialogProps
 >(({ customer }: DeleteOrganizationNetPaymentTermDialogProps, ref) => {
+  const customerName = computeCustomerName(customer)
   const [deleteCustomerNetPaymentTerm] = useDeleteCustomerNetPaymentTermMutation({
     onCompleted(data) {
       if (data && data.updateCustomer) {
@@ -55,7 +59,7 @@ export const DeleteOrganizationNetPaymentTermDialog = forwardRef<
       description={
         <Typography
           html={translate('text_64c7a89b6c67eb6c988980f9', {
-            customerName: `<span class="line-break-anywhere">${customer.name}</span>`,
+            customerName: `<span class="line-break-anywhere">${customerName}</span>`,
           })}
         />
       }

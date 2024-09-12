@@ -8,6 +8,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 import { array, number, object, string } from 'yup'
 
+import { computeCustomerName } from '~/components/customers/utils'
 import {
   Alert,
   Avatar,
@@ -88,6 +89,8 @@ gql`
       currency
       email
       name
+      firstname
+      lastname
       legalName
       legalNumber
       taxIdentificationNumber
@@ -207,6 +210,8 @@ const CreateInvoice = () => {
   const { customer, organization, taxes } = data || {}
 
   const hasTaxProvider = !!customer?.anrokCustomer?.id
+
+  const customerName = computeCustomerName(customer)
 
   const customerApplicableTax = useMemo(() => {
     if (hasTaxProvider) return []
@@ -592,7 +597,7 @@ const CreateInvoice = () => {
                       {translate('text_6453819268763979024ad03f')}
                     </Typography>
                     <Typography variant="body" color="grey700" forceBreak>
-                      {customer?.legalName || customer?.name}
+                      {customer?.legalName || customerName}
                     </Typography>
                     {customer?.legalNumber && (
                       <Typography variant="body" color="grey700">

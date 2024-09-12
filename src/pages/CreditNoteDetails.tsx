@@ -9,6 +9,7 @@ import {
   VoidCreditNoteDialog,
   VoidCreditNoteDialogRef,
 } from '~/components/customers/creditNotes/VoidCreditNoteDialog'
+import { computeCustomerName } from '~/components/customers/utils'
 import {
   Avatar,
   Button,
@@ -83,6 +84,8 @@ gql`
       customer {
         id
         name
+        firstname
+        lastname
         deletedAt
         applicableTimezone
         netsuiteCustomer {
@@ -290,6 +293,8 @@ const CreditNoteDetails = () => {
   const hasError = (!!error || !creditNote) && !loading
 
   const groupedData = formatCreditNotesItems(creditNote?.items as CreditNoteItem[])
+
+  const customerName = computeCustomerName(creditNote?.customer)
 
   return (
     <>
@@ -518,7 +523,7 @@ const CreditNoteDetails = () => {
                           )}
                         >
                           <Typography variant="body" color="grey700">
-                            {creditNote?.customer?.name}
+                            {customerName}
                           </Typography>
                         </ConditionalWrapper>
                       </InfoLine>

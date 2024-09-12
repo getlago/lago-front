@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 import styled from 'styled-components'
 
+import { computeCustomerName } from '~/components/customers/utils'
 import {
   InfiniteScroll,
   QuickFilters,
@@ -358,7 +359,7 @@ const InvoicesList = ({
                 minWidth: 160,
                 content: ({ customer }) => (
                   <Typography variant="body" noWrap>
-                    {customer.name || '-'}
+                    {computeCustomerName(customer) || '-'}
                   </Typography>
                 ),
               },

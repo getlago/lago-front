@@ -8,6 +8,7 @@ import styled, { css } from 'styled-components'
 import { object, string } from 'yup'
 
 import { SubscriptionDatesOffsetHelperComponent } from '~/components/customers/subscriptions/SubscriptionDatesOffsetHelperComponent'
+import { computeCustomerName } from '~/components/customers/utils'
 import {
   Alert,
   Avatar,
@@ -83,6 +84,8 @@ gql`
       id
       applicableTimezone
       name
+      firstname
+      lastname
       externalId
     }
   }
@@ -468,6 +471,8 @@ const CreateSubscription = () => {
     translate,
   ])
 
+  const customerName = computeCustomerName(customer)
+
   const pageHeaderTitle = useMemo(() => {
     if (formType === FORM_TYPE_ENUM.edition) {
       return translate('text_62d7f6178ec94cd09370e63c')
@@ -475,9 +480,9 @@ const CreateSubscription = () => {
       return translate('text_65118a52df984447c18694c6')
     }
     return translate('text_65118a52df984447c186940f', {
-      customerName: customer?.name || '',
+      customerName: customerName || '',
     })
-  }, [customer?.name, formType, translate])
+  }, [customerName, formType, translate])
 
   return (
     <PageContainer>
@@ -508,8 +513,8 @@ const CreateSubscription = () => {
           <Typography variant="subhead">{pageHeaderTitle}</Typography>
 
           <Selector
-            icon={<Avatar size="big" variant="user" identifier={customer?.name || ''} />}
-            title={customer?.name || ''}
+            icon={<Avatar size="big" variant="user" identifier={customerName || ''} />}
+            title={customerName || ''}
             subtitle={customer?.externalId}
           />
 

@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import { forwardRef } from 'react'
 
+import { computeCustomerName } from '~/components/customers/utils'
 import { DialogRef, Typography } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
@@ -14,6 +15,8 @@ gql`
   fragment DeleteCustomerGracePeriod on Customer {
     id
     name
+    firstname
+    lastname
   }
 
   mutation deleteCustomerGracePeriod($input: UpdateCustomerInvoiceGracePeriodInput!) {
@@ -34,6 +37,8 @@ export const DeleteCustomerGracePeriodeDialog = forwardRef<
   DialogRef,
   DeleteCustomerGracePeriodeDialogProps
 >(({ customer }: DeleteCustomerGracePeriodeDialogProps, ref) => {
+  const customerName = computeCustomerName(customer)
+
   const [deleteGracePeriode] = useDeleteCustomerGracePeriodMutation({
     onCompleted(data) {
       if (data && data.updateCustomerInvoiceGracePeriod) {
@@ -53,7 +58,7 @@ export const DeleteCustomerGracePeriodeDialog = forwardRef<
       description={
         <Typography
           html={translate('text_63aa085d28b8510cd464418d', {
-            name: customer?.name,
+            name: customerName,
           })}
         />
       }

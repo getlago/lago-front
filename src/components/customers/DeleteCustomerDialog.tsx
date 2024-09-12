@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import { forwardRef } from 'react'
 
+import { computeCustomerName } from '~/components/customers/utils'
 import { DialogRef, Typography } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
@@ -11,6 +12,8 @@ gql`
   fragment DeleteCustomerDialog on Customer {
     id
     name
+    firstname
+    lastname
   }
 
   mutation deleteCustomer($input: DestroyCustomerInput!) {
@@ -29,6 +32,8 @@ interface DeleteCustomerDialogProps {
 
 export const DeleteCustomerDialog = forwardRef<DialogRef, DeleteCustomerDialogProps>(
   ({ customer, onDeleted }: DeleteCustomerDialogProps, ref) => {
+    const customerName = computeCustomerName(customer)
+
     const [deleteCustomer] = useDeleteCustomerMutation({
       onCompleted(data) {
         if (data && data.destroyCustomer) {
@@ -56,7 +61,7 @@ export const DeleteCustomerDialog = forwardRef<DialogRef, DeleteCustomerDialogPr
       <WarningDialog
         ref={ref}
         title={translate('text_626162c62f790600f850b6e8', {
-          customerFullName: customer?.name || translate('text_651a8ab50fd34e005d1c1dc7'),
+          customerFullName: customerName || translate('text_651a8ab50fd34e005d1c1dc7'),
         })}
         description={<Typography html={translate('text_626162c62f790600f850b6f8')} />}
         onContinue={async () =>
