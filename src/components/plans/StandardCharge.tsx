@@ -22,7 +22,7 @@ gql`
   }
 `
 
-interface PackageChargeProps {
+interface StandardChargeProps {
   chargeIndex: number
   currency: CurrencyEnum
   formikProps: FormikProps<PlanFormInput>
@@ -41,7 +41,7 @@ export const StandardCharge = memo(
     initialValuePointer,
     propertyCursor,
     valuePointer,
-  }: PackageChargeProps) => {
+  }: StandardChargeProps) => {
     const { translate } = useInternationalization()
 
     const [shouldDisplayGroupedBy, setShouldDisplayGroupedBy] = useState<boolean>(
