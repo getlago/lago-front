@@ -240,7 +240,12 @@ const CreateTaxRate = () => {
           </div>
         </Main>
         <Side>
-          <TaxCodeSnippet loading={loading} tax={formikProps.values} isEdition={isEdition} />
+          <TaxCodeSnippet
+            loading={loading}
+            tax={formikProps.values}
+            isEdition={isEdition}
+            initialTaxCode={tax?.code}
+          />
         </Side>
       </Content>
 

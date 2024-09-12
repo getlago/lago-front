@@ -1,6 +1,7 @@
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { envGlobalVar } from '~/core/apolloClient'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
+import { snippetBuilder, SnippetVariables } from '~/core/utils/snippetBuilder'
 import {
   BillableMetricsForCouponsFragment,
   CouponExpiration,
@@ -33,52 +34,49 @@ const getSnippets = (
     percentageRate,
   } = coupon
 
-  return `# Assign a coupon to a customer
-curl --location --request POST "${apiUrl}/api/v1/applied_coupons" \\
-  --header "Authorization: Bearer $YOUR_API_KEY" \\
-  --header 'Content-Type: application/json' \\
-  --data-raw '{
-    "applied_coupon": {
-      "external_customer_id": "__EXTERNAL_CUSTOMER_ID__",
-      "coupon_code": "${code}",
-      ${
-        couponType === CouponTypeEnum.FixedAmount
-          ? `"coupon_type": "${couponType}",
-      "amount_cents": ${serializeAmount(amountCents || 0, amountCurrency || CurrencyEnum.Usd)},
-      "amount_currency": "${amountCurrency}",`
-          : `"coupon_type": "${couponType}",
-      "percentage_rate": ${percentageRate ? percentageRate : '__MUST_BE_DEFINED__'},`
-      }
-      ${
-        frequency === CouponFrequency.Recurring
-          ? `"frequency": "${frequency}",
-      "frequency_duration": ${frequencyDuration ? frequencyDuration : '__MUST_BE_DEFINED__'},`
-          : `"frequency": "${frequency}",`
-      }
-      ${
-        expiration === CouponExpiration.TimeLimit
-          ? `"expiration": "${expiration}",
-      "expiration_date": "${expirationAt ? expirationAt : '__MUST_BE_DEFINED__'}",`
-          : `"expiration": "${expiration}",`
-      }${
-        !!hasPlanLimit && !!limitPlansList?.length
-          ? `
-      "applies_to": { "plan_codes": [${limitPlansList.map(
-        (p: PlansForCouponsFragment) => `"${p.code}"`,
-      )}] },`
-          : ''
-      }${
-        !!hasBillableMetricLimit && !!limitBillableMetricsList?.length
-          ? `
-      "applies_to": { "billable_metrics_codes": [${limitBillableMetricsList.map(
-        (b: BillableMetricsForCouponsFragment) => `"${b.code}"`,
-      )}] },`
-          : ''
-      }
-    }
-  }'
-  
-# To use the snippet, don’t forget to edit your __YOUR_API_KEY__ and  __EXTERNAL_CUSTOMER_ID__`
+  return snippetBuilder({
+    title: 'Assign a coupon to a customer',
+    method: 'POST',
+    url: `${apiUrl}/api/v1/applied_coupons`,
+    headers: [
+      { Authorization: `Bearer $${SnippetVariables.API_KEY}` },
+      { 'Content-Type': 'application/json' },
+    ],
+    data: {
+      applied_coupon: {
+        external_customer_id: SnippetVariables.EXTERNAL_CUSTOMER_ID,
+        coupon_code: code,
+        coupon_type: couponType,
+        ...(couponType === CouponTypeEnum.FixedAmount
+          ? {
+              amount_cents: serializeAmount(amountCents || 0, amountCurrency || CurrencyEnum.Usd),
+              amount_currency: amountCurrency,
+            }
+          : {
+              percentage_rate: percentageRate ? percentageRate : SnippetVariables.MUST_BE_DEFINED,
+            }),
+        frequency: frequency,
+        ...(frequency === CouponFrequency.Recurring && {
+          frequency_duration: frequencyDuration
+            ? frequencyDuration
+            : SnippetVariables.MUST_BE_DEFINED,
+        }),
+        expiration: expiration,
+        ...(expiration === CouponExpiration.TimeLimit && {
+          expiration_date: expirationAt ? expirationAt : SnippetVariables.MUST_BE_DEFINED,
+        }),
+        ...(hasPlanLimit &&
+          !!limitPlansList?.length && {
+            applies_to: { plan_codes: limitPlansList.map((p) => p.code) },
+          }),
+        ...(hasBillableMetricLimit &&
+          !!limitBillableMetricsList?.length && {
+            applies_to: { billable_metrics_codes: limitBillableMetricsList.map((b) => b.code) },
+          }),
+      },
+    },
+    footerComment: `To use the snippet, don’t forget to edit your ${SnippetVariables.API_KEY} and ${SnippetVariables.EXTERNAL_CUSTOMER_ID}`,
+  })
 }
 
 interface CouponCodeSnippetProps {
