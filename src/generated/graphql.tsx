@@ -6015,7 +6015,7 @@ export type GetCustomersForFilterItemCustomerQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomersForFilterItemCustomerQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Customer', id: string, name?: string | null, externalId: string }> } };
+export type GetCustomersForFilterItemCustomerQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Customer', id: string, displayName: string, externalId: string }> } };
 
 export type WebhookForCreateAndEditFragment = { __typename?: 'WebhookEndpoint', id: string, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null };
 
@@ -12832,7 +12832,7 @@ export const GetCustomersForFilterItemCustomerDocument = gql`
     }
     collection {
       id
-      name
+      displayName
       externalId
     }
   }
