@@ -25,7 +25,6 @@ jobs:
           repository: getlago/lago-api
           ref: ${{ github.event.inputs.api_branch }}
           path: api
-          token: ${{ secrets.GH_TOKEN }}
 
       - name: Build API local image
         run: |
