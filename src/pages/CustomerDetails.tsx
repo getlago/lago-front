@@ -21,6 +21,7 @@ import {
 } from '~/components/customers/DeleteCustomerDialog'
 import { CustomerOverview } from '~/components/customers/overview/CustomerOverview'
 import { CustomerUsage } from '~/components/customers/usage/CustomerUsage'
+import { computeCustomerInitials } from '~/components/customers/utils'
 import {
   Avatar,
   Button,
@@ -57,7 +58,11 @@ import { MenuPopper, NAV_HEIGHT, PageHeader, theme } from '~/styles'
 gql`
   fragment CustomerDetails on Customer {
     id
+    customerType
     name
+    displayName
+    firstname
+    lastname
     externalId
     hasActiveWallet
     currency
@@ -138,9 +143,12 @@ const CustomerDetails = () => {
     hasActiveWallet,
     hasCreditNotes,
     hasOverdueInvoices,
-    name,
     applicableTimezone,
   } = data?.customer || {}
+
+  const customerName = data?.customer?.displayName
+  const customerInitials = computeCustomerInitials(data?.customer)
+
   const safeTimezone = applicableTimezone
   const hasAnyActionsPermission =
     hasPermissions(['subscriptionsCreate']) ||
@@ -168,7 +176,7 @@ const CustomerDetails = () => {
               noWrap
               data-test="customer-details-name"
             >
-              {name}
+              {customerName}
             </Typography>
           )}
         </HeaderInlineBreadcrumbBlock>
@@ -349,14 +357,12 @@ const CustomerDetails = () => {
                 <Avatar
                   size="large"
                   variant="user"
-                  identifier={name || ''}
-                  initials={
-                    !name ? '-' : name.split(' ').reduce((acc, n) => (acc = acc + n[0]), '')
-                  }
+                  identifier={customerName || ''}
+                  initials={customerInitials}
                 />
                 <div>
                   <Name color="textSecondary" variant="headline" forceBreak>
-                    {name || translate('text_62f272a7a60b4d7fadad911a')}
+                    {customerName || translate('text_62f272a7a60b4d7fadad911a')}
                   </Name>
                   <Typography>{externalId}</Typography>
                 </div>
@@ -488,11 +494,7 @@ const CustomerDetails = () => {
             // @ts-ignore
             customer={data?.customer}
           />
-          <AddCouponToCustomerDialog
-            ref={addCouponDialogRef}
-            customerId={customerId as string}
-            customerName={data?.customer?.name as string}
-          />
+          <AddCouponToCustomerDialog ref={addCouponDialogRef} customer={data?.customer} />
         </>
       )}
 

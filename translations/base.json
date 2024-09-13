@@ -2420,5 +2420,14 @@
   "text_1725550089200svn5rdwfftc": "Empty invoice setting is applied only for this customer.",
   "text_1725550661207stz6kovtzkp": "Search or select an invoicing rule",
   "text_1725550747818f6v0c35vzdk": "Add invoicing rule",
-  "text_17254494987274bsus9jsnb5": "Couldn't request payment, an invoice was updated in the meantime. Please retry."
+  "text_17254494987274bsus9jsnb5": "Couldn't request payment, an invoice was updated in the meantime. Please retry.",
+  "text_17261289386311s35rvzyxbz": "Full name",
+  "text_1726128938631ioz4orixel3": "Customer type",
+  "text_1726128938631ggtf2ggqs4b": "First name",
+  "text_1726128938631ntcpbzv7x7s": "Type a first name",
+  "text_1726128938631ymctg83bygm": "Last name",
+  "text_1726128938631xmpsba9ssuo": "Type a last name",
+  "text_17261289386318j0nhr1ms3t": "Search or select a customer type",
+  "text_1726129457108txzr4gdkvcz": "Individual",
+  "text_1726129457108raohiy4kkt3": "Company"
 }

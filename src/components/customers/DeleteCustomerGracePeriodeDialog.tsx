@@ -14,6 +14,7 @@ gql`
   fragment DeleteCustomerGracePeriod on Customer {
     id
     name
+    displayName
   }
 
   mutation deleteCustomerGracePeriod($input: UpdateCustomerInvoiceGracePeriodInput!) {
@@ -34,6 +35,8 @@ export const DeleteCustomerGracePeriodeDialog = forwardRef<
   DialogRef,
   DeleteCustomerGracePeriodeDialogProps
 >(({ customer }: DeleteCustomerGracePeriodeDialogProps, ref) => {
+  const customerName = customer?.displayName
+
   const [deleteGracePeriode] = useDeleteCustomerGracePeriodMutation({
     onCompleted(data) {
       if (data && data.updateCustomerInvoiceGracePeriod) {
@@ -53,7 +56,7 @@ export const DeleteCustomerGracePeriodeDialog = forwardRef<
       description={
         <Typography
           html={translate('text_63aa085d28b8510cd464418d', {
-            name: customer?.name,
+            name: customerName,
           })}
         />
       }

@@ -17,7 +17,7 @@ gql`
       }
       collection {
         id
-        name
+        displayName
         externalId
       }
     }
@@ -34,15 +34,18 @@ export const FiltersItemCustomer = ({ value, setFilterValue }: FiltersItemCustom
   const [getCustomers, { data, loading }] = useGetCustomersForFilterItemCustomerLazyQuery({
     variables: { page: 1, limit: 10 },
   })
+
   const comboboxCustomersData = useMemo(() => {
     if (!data?.customers?.collection) return []
 
     return data.customers.collection.map((customer) => {
-      const { externalId, name } = customer
+      const { externalId } = customer
+
+      const customerName = customer?.displayName
 
       return {
-        label: name || '',
-        value: `${externalId}${filterDataInlineSeparator}${name}`,
+        label: customerName || '',
+        value: `${externalId}${filterDataInlineSeparator}${customerName}`,
       }
     })
   }, [data])

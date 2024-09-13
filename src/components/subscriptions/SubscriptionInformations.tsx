@@ -32,6 +32,7 @@ gql`
     customer {
       id
       name
+      displayName
     }
     plan {
       id
@@ -51,6 +52,8 @@ const SubscriptionInformations = ({
 }) => {
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
+
+  const customerName = subscription?.customer?.displayName
 
   return (
     <section>
@@ -88,7 +91,7 @@ const SubscriptionInformations = ({
                   )}
                   invalidWrapper={(children) => <>{children}</>}
                 >
-                  {subscription?.customer?.name}
+                  {customerName}
                 </ConditionalWrapper>
               ),
             },

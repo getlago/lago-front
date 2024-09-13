@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 import { generatePath } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 
+import { computeCustomerInitials } from '~/components/customers/utils'
 import { Avatar, Skeleton, Typography } from '~/components/designSystem'
 import { PLAN_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
 import { PlanSubscriptionListItemForSubscriptionListFragment } from '~/generated/graphql'
@@ -24,6 +25,9 @@ gql`
     customer {
       id
       name
+      displayName
+      firstname
+      lastname
       externalId
     }
   }
@@ -41,6 +45,9 @@ export const PlanSubscriptionListItem = ({
 }: PlanSubscriptionListItemProps) => {
   const { translate } = useInternationalization()
 
+  const customerName = subscriptionItem?.customer?.displayName
+  const customerInitials = computeCustomerInitials(subscriptionItem?.customer)
+
   return (
     <ItemLink
       to={generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
@@ -56,18 +63,12 @@ export const PlanSubscriptionListItem = ({
           <Avatar
             size="big"
             variant="user"
-            identifier={subscriptionItem?.customer.name as string}
-            initials={
-              !subscriptionItem?.customer.name
-                ? '-'
-                : subscriptionItem?.customer.name
-                    .split(' ')
-                    .reduce((acc, n) => (acc = acc + n[0]), '')
-            }
+            identifier={customerName as string}
+            initials={customerInitials}
           />
           <CustomerBlockInfos>
             <Typography variant="bodyHl" color="grey700" noWrap>
-              {subscriptionItem?.customer.name}
+              {customerName}
             </Typography>
             <Typography variant="caption" color="grey600" noWrap>
               {subscriptionItem?.customer.externalId}

@@ -33,6 +33,7 @@ gql`
     customer {
       id
       name
+      displayName
       legalNumber
       legalName
       taxIdentificationNumber
@@ -57,10 +58,12 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
   const { customer } = invoice || {}
   const { translate } = useInternationalization()
 
+  const customerName = customer?.displayName
+
   return (
     <Wrapper>
       <div>
-        {customer?.name && (
+        {customer && customerName && (
           <InfoLine>
             <Typography variant="caption" color="grey600" noWrap>
               {translate('text_634687079be251fdb43833cb')}
@@ -79,7 +82,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
               )}
             >
               <Typography variant="body" color="grey700" forceBreak>
-                {customer?.name}
+                {customerName}
               </Typography>
             </ConditionalWrapper>
           </InfoLine>

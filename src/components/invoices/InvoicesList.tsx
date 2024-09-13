@@ -358,7 +358,7 @@ const InvoicesList = ({
                 minWidth: 160,
                 content: ({ customer }) => (
                   <Typography variant="body" noWrap>
-                    {customer.name || '-'}
+                    {customer?.displayName || '-'}
                   </Typography>
                 ),
               },

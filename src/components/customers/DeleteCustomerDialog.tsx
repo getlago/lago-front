@@ -11,6 +11,7 @@ gql`
   fragment DeleteCustomerDialog on Customer {
     id
     name
+    displayName
   }
 
   mutation deleteCustomer($input: DestroyCustomerInput!) {
@@ -29,6 +30,8 @@ interface DeleteCustomerDialogProps {
 
 export const DeleteCustomerDialog = forwardRef<DialogRef, DeleteCustomerDialogProps>(
   ({ customer, onDeleted }: DeleteCustomerDialogProps, ref) => {
+    const customerName = customer?.displayName
+
     const [deleteCustomer] = useDeleteCustomerMutation({
       onCompleted(data) {
         if (data && data.destroyCustomer) {
@@ -56,7 +59,7 @@ export const DeleteCustomerDialog = forwardRef<DialogRef, DeleteCustomerDialogPr
       <WarningDialog
         ref={ref}
         title={translate('text_626162c62f790600f850b6e8', {
-          customerFullName: customer?.name || translate('text_651a8ab50fd34e005d1c1dc7'),
+          customerFullName: customerName || translate('text_651a8ab50fd34e005d1c1dc7'),
         })}
         description={<Typography html={translate('text_626162c62f790600f850b6f8')} />}
         onContinue={async () =>

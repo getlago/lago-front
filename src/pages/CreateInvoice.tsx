@@ -88,6 +88,7 @@ gql`
       currency
       email
       name
+      displayName
       legalName
       legalNumber
       taxIdentificationNumber
@@ -207,6 +208,8 @@ const CreateInvoice = () => {
   const { customer, organization, taxes } = data || {}
 
   const hasTaxProvider = !!customer?.anrokCustomer?.id
+
+  const customerName = customer?.displayName
 
   const customerApplicableTax = useMemo(() => {
     if (hasTaxProvider) return []
@@ -592,7 +595,7 @@ const CreateInvoice = () => {
                       {translate('text_6453819268763979024ad03f')}
                     </Typography>
                     <Typography variant="body" color="grey700" forceBreak>
-                      {customer?.legalName || customer?.name}
+                      {customer?.legalName || customerName}
                     </Typography>
                     {customer?.legalNumber && (
                       <Typography variant="body" color="grey700">

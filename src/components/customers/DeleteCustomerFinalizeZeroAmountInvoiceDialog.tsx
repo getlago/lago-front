@@ -16,6 +16,7 @@ gql`
     id
     externalId
     name
+    displayName
     finalizeZeroAmountInvoice
   }
 
@@ -39,6 +40,8 @@ export const DeleteCustomerFinalizeZeroAmountInvoiceDialog = forwardRef<
 >(({ customer }: DeleteCustomerFinalizeZeroAmountInvoiceDialogProps, ref) => {
   const { translate } = useInternationalization()
 
+  const customerName = customer?.displayName
+
   const [deleteCustomerFinalizeZeroAmountInvoice] =
     useDeleteCustomerFinalizeZeroAmountInvoiceMutation({
       onCompleted(data) {
@@ -58,7 +61,7 @@ export const DeleteCustomerFinalizeZeroAmountInvoiceDialog = forwardRef<
       description={
         <Typography
           html={translate('text_17255496712882gafqyniqpc', {
-            customerName: customer?.name,
+            customerName,
           })}
         />
       }

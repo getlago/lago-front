@@ -45,6 +45,7 @@ gql`
       customer {
         id
         name
+        displayName
       }
     }
   }
@@ -109,6 +110,8 @@ export const CreditNoteListItem = ({
       },
     })
 
+  const customerName = creditNote.invoice?.customer?.displayName
+
   return (
     <ItemContainer {...props}>
       <Item to={to} tabIndex={0} {...navigationProps}>
@@ -128,7 +131,7 @@ export const CreditNoteListItem = ({
             </Link>
           </Typography>
           <CustomerColumn variant="body" color="grey700" noWrap>
-            {creditNote.invoice?.customer?.name}
+            {customerName}
           </CustomerColumn>
           <Typography variant="body" color="success600" align="right" noWrap>
             {intlFormatNumber(

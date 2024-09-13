@@ -53,6 +53,7 @@ async function prepare({
   const customer = {
     id: '1234',
     name: 'Customer Name',
+    displayName: 'Customer name',
     externalId: '4567',
   }
 

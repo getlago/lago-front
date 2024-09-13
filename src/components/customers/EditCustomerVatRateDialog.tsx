@@ -24,6 +24,7 @@ gql`
   fragment EditCustomerVatRate on Customer {
     id
     name
+    displayName
     externalId
     taxes {
       id
@@ -75,6 +76,7 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
     const [getTaxRates, { loading, data }] = useGetTaxRatesForEditCustomerLazyQuery({
       variables: { limit: 20 },
     })
+    const customerName = customer?.displayName
     const [createCustomerAppliedTax] = useCreateCustomerAppliedTaxMutation({
       onCompleted({ updateCustomer: mutationRes }) {
         if (mutationRes?.id) {
@@ -118,7 +120,7 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
       <Dialog
         open={!!forceOpen}
         ref={ref}
-        title={translate('text_64639f5e63a5cc0076779d42', { name: customer.name })}
+        title={translate('text_64639f5e63a5cc0076779d42', { name: customerName })}
         description={translate('text_64639f5e63a5cc0076779d46')}
         onClose={() => {
           setLocalTax('')

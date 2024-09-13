@@ -15,6 +15,7 @@ gql`
     id
     externalId
     name
+    displayName
     netPaymentTerm
   }
 
@@ -36,6 +37,7 @@ export const DeleteOrganizationNetPaymentTermDialog = forwardRef<
   DialogRef,
   DeleteOrganizationNetPaymentTermDialogProps
 >(({ customer }: DeleteOrganizationNetPaymentTermDialogProps, ref) => {
+  const customerName = customer?.displayName
   const [deleteCustomerNetPaymentTerm] = useDeleteCustomerNetPaymentTermMutation({
     onCompleted(data) {
       if (data && data.updateCustomer) {
@@ -55,7 +57,7 @@ export const DeleteOrganizationNetPaymentTermDialog = forwardRef<
       description={
         <Typography
           html={translate('text_64c7a89b6c67eb6c988980f9', {
-            customerName: `<span class="line-break-anywhere">${customer.name}</span>`,
+            customerName: `<span class="line-break-anywhere">${customerName}</span>`,
           })}
         />
       }

@@ -8,6 +8,7 @@ import {
   DeleteCustomerDialog,
   DeleteCustomerDialogRef,
 } from '~/components/customers/DeleteCustomerDialog'
+import { computeCustomerInitials } from '~/components/customers/utils'
 import { Avatar, Button, Popper, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import { AddCustomerDrawerFragmentDoc, CustomerItemFragment } from '~/generated/graphql'
@@ -27,6 +28,9 @@ gql`
   fragment CustomerItem on Customer {
     id
     name
+    displayName
+    firstname
+    lastname
     externalId
     createdAt
     activeSubscriptionsCount
@@ -47,8 +51,10 @@ export const CustomerItem = memo(({ rowId, customer, editDialogRef }: CustomerIt
   const { formatTimeOrgaTZ } = useOrganizationInfos()
   const { hasPermissions } = usePermissions()
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
-  const { id: customerId, name, externalId, createdAt, activeSubscriptionsCount } = customer
+  const { id: customerId, externalId, createdAt, activeSubscriptionsCount } = customer
   const canEditAndDeleteCustomer = hasPermissions(['customersUpdate', 'customersDelete'])
+  const customerName = customer?.displayName
+  const customerInitials = computeCustomerInitials(customer)
 
   return (
     <ItemContainer>
@@ -56,18 +62,18 @@ export const CustomerItem = memo(({ rowId, customer, editDialogRef }: CustomerIt
         id={rowId}
         to={generatePath(CUSTOMER_DETAILS_ROUTE, { customerId })}
         tabIndex={0}
-        data-test={name}
+        data-test={customerName}
       >
         <CustomerNameSection>
           <ListAvatar
             variant="user"
             size="big"
-            identifier={name as string}
-            initials={!name ? '-' : name.split(' ').reduce((acc, n) => (acc = acc + n[0]), '')}
+            identifier={customerName as string}
+            initials={customerInitials}
           />
           <NameBlock>
             <Typography color="textSecondary" variant="bodyHl" noWrap>
-              {name || translate('text_62f272a7a60b4d7fadad911a')}
+              {customerName || translate('text_62f272a7a60b4d7fadad911a')}
             </Typography>
             <Typography variant="caption" noWrap>
               {externalId}

@@ -20,6 +20,7 @@ gql`
   fragment EditCustomerDocumentLocale on Customer {
     id
     name
+    displayName
     externalId
     billingConfiguration {
       id
@@ -58,6 +59,7 @@ export const EditCustomerDocumentLocaleDialog = forwardRef<
 >(({ customer }: EditCustomerDocumentLocaleDialogProps, ref) => {
   const { translate } = useInternationalization()
   const isEdition = !!customer.billingConfiguration?.documentLocale
+  const customerName = customer?.displayName
   const [updateDocumentLocale] = useUpdateCustomerDocumentLocaleMutation({
     onCompleted(res) {
       if (res.updateCustomer) {
@@ -108,7 +110,7 @@ export const EditCustomerDocumentLocaleDialog = forwardRef<
       description={
         <Typography
           html={translate('text_63ea0f84f400488553caa680', {
-            customerName: `<span class="line-break-anywhere">${customer.name}</span>`,
+            customerName: `<span class="line-break-anywhere">${customerName}</span>`,
           })}
         />
       }

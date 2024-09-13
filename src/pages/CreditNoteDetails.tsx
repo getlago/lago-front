@@ -83,6 +83,7 @@ gql`
       customer {
         id
         name
+        displayName
         deletedAt
         applicableTimezone
         netsuiteCustomer {
@@ -290,6 +291,8 @@ const CreditNoteDetails = () => {
   const hasError = (!!error || !creditNote) && !loading
 
   const groupedData = formatCreditNotesItems(creditNote?.items as CreditNoteItem[])
+
+  const customerName = creditNote?.customer?.displayName
 
   return (
     <>
@@ -518,7 +521,7 @@ const CreditNoteDetails = () => {
                           )}
                         >
                           <Typography variant="body" color="grey700">
-                            {creditNote?.customer?.name}
+                            {customerName}
                           </Typography>
                         </ConditionalWrapper>
                       </InfoLine>

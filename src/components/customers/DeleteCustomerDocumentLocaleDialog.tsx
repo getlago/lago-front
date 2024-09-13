@@ -14,6 +14,7 @@ gql`
   fragment DeleteCustomerDocumentLocale on Customer {
     id
     name
+    displayName
     externalId
   }
 
@@ -38,6 +39,7 @@ export const DeleteCustomerDocumentLocaleDialog = forwardRef<
   DialogRef,
   DeleteCustomerDocumentLocaleDialogProps
 >(({ customer }: DeleteCustomerDocumentLocaleDialogProps, ref) => {
+  const customerName = customer?.displayName
   const [deleteCustomerDocumentLocale] = useDeleteCustomerDocumentLocaleMutation({
     onCompleted(data) {
       if (data && data.updateCustomer) {
@@ -57,7 +59,7 @@ export const DeleteCustomerDocumentLocaleDialog = forwardRef<
       description={
         <Typography
           html={translate('text_63ea0f84f400488553caa691', {
-            customerName: customer?.name,
+            customerName,
           })}
         />
       }

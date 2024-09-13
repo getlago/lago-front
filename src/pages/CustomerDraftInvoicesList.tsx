@@ -43,6 +43,7 @@ gql`
     customer(id: $customerId) {
       id
       name
+      displayName
       applicableTimezone
     }
 
@@ -73,6 +74,7 @@ const CustomerDraftInvoicesList = () => {
     })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getDraftInvoices, loading)
   const safeTimezone = customerData?.customer?.applicableTimezone || TimezoneEnum.TzUtc
+  const customerName = customerData?.customer?.displayName
 
   return (
     <>
@@ -113,7 +115,7 @@ const CustomerDraftInvoicesList = () => {
             <div>
               <Name color="textSecondary" variant="headline">
                 {translate('text_638f74bb4d41e3f1d0201649', {
-                  customerName: customerData?.customer?.name,
+                  customerName,
                 })}
               </Name>
               <Typography>
