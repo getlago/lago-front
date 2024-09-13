@@ -142,6 +142,7 @@ const CustomerDetails = () => {
     externalId,
     hasActiveWallet,
     hasCreditNotes,
+    hasOverdueInvoices,
     applicableTimezone,
   } = data?.customer || {}
 
