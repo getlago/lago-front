@@ -3,7 +3,6 @@ import { DateTime } from 'luxon'
 import { generatePath, Link } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { computeCustomerName } from '~/components/customers/utils'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS } from '~/core/router'
 import {
   StatusTypeEnum,
@@ -54,7 +53,7 @@ const SubscriptionInformations = ({
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
 
-  const customerName = computeCustomerName(subscription?.customer)
+  const customerName = subscription?.customer?.displayName
 
   return (
     <section>

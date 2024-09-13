@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import { generatePath } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 
-import { computeCustomerInitials, computeCustomerName } from '~/components/customers/utils'
+import { computeCustomerInitials } from '~/components/customers/utils'
 import { Avatar, Skeleton, Typography } from '~/components/designSystem'
 import { PLAN_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
 import { PlanSubscriptionListItemForSubscriptionListFragment } from '~/generated/graphql'
@@ -45,7 +45,7 @@ export const PlanSubscriptionListItem = ({
 }: PlanSubscriptionListItemProps) => {
   const { translate } = useInternationalization()
 
-  const customerName = computeCustomerName(subscriptionItem?.customer)
+  const customerName = subscriptionItem?.customer?.displayName
   const customerInitials = computeCustomerInitials(subscriptionItem?.customer)
 
   return (

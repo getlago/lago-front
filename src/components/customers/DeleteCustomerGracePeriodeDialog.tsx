@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { forwardRef } from 'react'
 
-import { computeCustomerName } from '~/components/customers/utils'
 import { DialogRef, Typography } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
@@ -36,7 +35,7 @@ export const DeleteCustomerGracePeriodeDialog = forwardRef<
   DialogRef,
   DeleteCustomerGracePeriodeDialogProps
 >(({ customer }: DeleteCustomerGracePeriodeDialogProps, ref) => {
-  const customerName = computeCustomerName(customer)
+  const customerName = customer?.displayName
 
   const [deleteGracePeriode] = useDeleteCustomerGracePeriodMutation({
     onCompleted(data) {

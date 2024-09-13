@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { forwardRef } from 'react'
 
-import { computeCustomerName } from '~/components/customers/utils'
 import { DialogRef, Typography } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
@@ -41,7 +40,7 @@ export const DeleteCustomerFinalizeZeroAmountInvoiceDialog = forwardRef<
 >(({ customer }: DeleteCustomerFinalizeZeroAmountInvoiceDialogProps, ref) => {
   const { translate } = useInternationalization()
 
-  const customerName = computeCustomerName(customer)
+  const customerName = customer?.displayName
 
   const [deleteCustomerFinalizeZeroAmountInvoice] =
     useDeleteCustomerFinalizeZeroAmountInvoiceMutation({

@@ -8,7 +8,6 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 import { array, number, object, string } from 'yup'
 
-import { computeCustomerName } from '~/components/customers/utils'
 import {
   Alert,
   Avatar,
@@ -210,7 +209,7 @@ const CreateInvoice = () => {
 
   const hasTaxProvider = !!customer?.anrokCustomer?.id
 
-  const customerName = computeCustomerName(customer)
+  const customerName = customer?.displayName
 
   const customerApplicableTax = useMemo(() => {
     if (hasTaxProvider) return []

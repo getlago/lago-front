@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { forwardRef } from 'react'
 
-import { computeCustomerName } from '~/components/customers/utils'
 import { DialogRef, Typography } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
@@ -31,7 +30,7 @@ interface DeleteCustomerDialogProps {
 
 export const DeleteCustomerDialog = forwardRef<DialogRef, DeleteCustomerDialogProps>(
   ({ customer, onDeleted }: DeleteCustomerDialogProps, ref) => {
-    const customerName = computeCustomerName(customer)
+    const customerName = customer?.displayName
 
     const [deleteCustomer] = useDeleteCustomerMutation({
       onCompleted(data) {

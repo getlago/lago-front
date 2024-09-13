@@ -5,7 +5,6 @@ import styled from 'styled-components'
 import { number, object, string } from 'yup'
 
 import { CouponCaption } from '~/components/coupons/CouponCaption'
-import { computeCustomerName } from '~/components/customers/utils'
 import { Alert, Button, Chip, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { AmountInputField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -105,7 +104,7 @@ export const AddCouponToCustomerDialog = forwardRef<
   AddCouponToCustomerDialogProps
 >(({ customer }: AddCouponToCustomerDialogProps, ref) => {
   const customerId = customer?.id
-  const customerName = computeCustomerName(customer)
+  const customerName = customer?.displayName
 
   const { translate } = useInternationalization()
   const [getCoupons, { loading, data }] = useGetCouponForCustomerLazyQuery({

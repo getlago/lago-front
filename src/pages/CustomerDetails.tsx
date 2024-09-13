@@ -21,7 +21,7 @@ import {
 } from '~/components/customers/DeleteCustomerDialog'
 import { CustomerOverview } from '~/components/customers/overview/CustomerOverview'
 import { CustomerUsage } from '~/components/customers/usage/CustomerUsage'
-import { computeCustomerInitials, computeCustomerName } from '~/components/customers/utils'
+import { computeCustomerInitials } from '~/components/customers/utils'
 import {
   Avatar,
   Button,
@@ -145,7 +145,7 @@ const CustomerDetails = () => {
     applicableTimezone,
   } = data?.customer || {}
 
-  const customerName = computeCustomerName(data?.customer)
+  const customerName = data?.customer?.displayName
   const customerInitials = computeCustomerInitials(data?.customer)
 
   const safeTimezone = applicableTimezone

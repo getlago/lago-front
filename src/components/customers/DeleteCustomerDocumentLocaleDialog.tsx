@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { forwardRef } from 'react'
 
-import { computeCustomerName } from '~/components/customers/utils'
 import { DialogRef, Typography } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
@@ -40,7 +39,7 @@ export const DeleteCustomerDocumentLocaleDialog = forwardRef<
   DialogRef,
   DeleteCustomerDocumentLocaleDialogProps
 >(({ customer }: DeleteCustomerDocumentLocaleDialogProps, ref) => {
-  const customerName = computeCustomerName(customer)
+  const customerName = customer?.displayName
   const [deleteCustomerDocumentLocale] = useDeleteCustomerDocumentLocaleMutation({
     onCompleted(data) {
       if (data && data.updateCustomer) {

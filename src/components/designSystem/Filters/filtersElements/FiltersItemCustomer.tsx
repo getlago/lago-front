@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useMemo } from 'react'
 
-import { computeCustomerName } from '~/components/customers/utils'
 import { ComboBox } from '~/components/form'
 import { useGetCustomersForFilterItemCustomerLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -42,7 +41,7 @@ export const FiltersItemCustomer = ({ value, setFilterValue }: FiltersItemCustom
     return data.customers.collection.map((customer) => {
       const { externalId } = customer
 
-      const customerName = computeCustomerName(customer)
+      const customerName = customer?.displayName
 
       return {
         label: customerName || '',

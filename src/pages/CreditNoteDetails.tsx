@@ -9,7 +9,6 @@ import {
   VoidCreditNoteDialog,
   VoidCreditNoteDialogRef,
 } from '~/components/customers/creditNotes/VoidCreditNoteDialog'
-import { computeCustomerName } from '~/components/customers/utils'
 import {
   Avatar,
   Button,
@@ -293,7 +292,7 @@ const CreditNoteDetails = () => {
 
   const groupedData = formatCreditNotesItems(creditNote?.items as CreditNoteItem[])
 
-  const customerName = computeCustomerName(creditNote?.customer)
+  const customerName = creditNote?.customer?.displayName
 
   return (
     <>

@@ -4,7 +4,6 @@ import { forwardRef } from 'react'
 import styled from 'styled-components'
 import { object, string } from 'yup'
 
-import { computeCustomerName } from '~/components/customers/utils'
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { ComboBoxField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
@@ -60,7 +59,7 @@ export const EditCustomerDocumentLocaleDialog = forwardRef<
 >(({ customer }: EditCustomerDocumentLocaleDialogProps, ref) => {
   const { translate } = useInternationalization()
   const isEdition = !!customer.billingConfiguration?.documentLocale
-  const customerName = computeCustomerName(customer)
+  const customerName = customer?.displayName
   const [updateDocumentLocale] = useUpdateCustomerDocumentLocaleMutation({
     onCompleted(res) {
       if (res.updateCustomer) {

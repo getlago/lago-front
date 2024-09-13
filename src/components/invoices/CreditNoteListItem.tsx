@@ -3,7 +3,6 @@ import { RefObject } from 'react'
 import { generatePath, Link } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 
-import { computeCustomerName } from '~/components/customers/utils'
 import { Button, Popper, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -111,7 +110,7 @@ export const CreditNoteListItem = ({
       },
     })
 
-  const customerName = computeCustomerName(creditNote.invoice?.customer)
+  const customerName = creditNote.invoice?.customer?.displayName
 
   return (
     <ItemContainer {...props}>

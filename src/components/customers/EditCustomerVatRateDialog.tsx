@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { forwardRef, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
-import { computeCustomerName } from '~/components/customers/utils'
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { ComboBox } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
@@ -77,7 +76,7 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
     const [getTaxRates, { loading, data }] = useGetTaxRatesForEditCustomerLazyQuery({
       variables: { limit: 20 },
     })
-    const customerName = computeCustomerName(customer)
+    const customerName = customer?.displayName
     const [createCustomerAppliedTax] = useCreateCustomerAppliedTaxMutation({
       onCompleted({ updateCustomer: mutationRes }) {
         if (mutationRes?.id) {

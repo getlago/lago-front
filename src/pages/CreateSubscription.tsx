@@ -8,7 +8,6 @@ import styled, { css } from 'styled-components'
 import { object, string } from 'yup'
 
 import { SubscriptionDatesOffsetHelperComponent } from '~/components/customers/subscriptions/SubscriptionDatesOffsetHelperComponent'
-import { computeCustomerName } from '~/components/customers/utils'
 import {
   Alert,
   Avatar,
@@ -470,7 +469,7 @@ const CreateSubscription = () => {
     translate,
   ])
 
-  const customerName = computeCustomerName(customer)
+  const customerName = customer?.displayName
 
   const pageHeaderTitle = useMemo(() => {
     if (formType === FORM_TYPE_ENUM.edition) {

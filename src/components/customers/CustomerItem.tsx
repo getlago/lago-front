@@ -8,7 +8,7 @@ import {
   DeleteCustomerDialog,
   DeleteCustomerDialogRef,
 } from '~/components/customers/DeleteCustomerDialog'
-import { computeCustomerInitials, computeCustomerName } from '~/components/customers/utils'
+import { computeCustomerInitials } from '~/components/customers/utils'
 import { Avatar, Button, Popper, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import { AddCustomerDrawerFragmentDoc, CustomerItemFragment } from '~/generated/graphql'
@@ -53,7 +53,7 @@ export const CustomerItem = memo(({ rowId, customer, editDialogRef }: CustomerIt
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
   const { id: customerId, externalId, createdAt, activeSubscriptionsCount } = customer
   const canEditAndDeleteCustomer = hasPermissions(['customersUpdate', 'customersDelete'])
-  const customerName = computeCustomerName(customer)
+  const customerName = customer?.displayName
   const customerInitials = computeCustomerInitials(customer)
 
   return (

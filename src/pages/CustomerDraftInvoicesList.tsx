@@ -3,7 +3,6 @@ import { generatePath, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { CustomerInvoicesList } from '~/components/customers/CustomerInvoicesList'
-import { computeCustomerName } from '~/components/customers/utils'
 import { Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
 import { SearchInput } from '~/components/SearchInput'
 import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
@@ -75,7 +74,7 @@ const CustomerDraftInvoicesList = () => {
     })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getDraftInvoices, loading)
   const safeTimezone = customerData?.customer?.applicableTimezone || TimezoneEnum.TzUtc
-  const customerName = computeCustomerName(customerData?.customer)
+  const customerName = customerData?.customer?.displayName
 
   return (
     <>

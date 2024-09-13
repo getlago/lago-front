@@ -1,8 +1,4 @@
-import {
-  computeCustomerInitials,
-  computeCustomerName,
-  getInitials,
-} from '~/components/customers/utils'
+import { computeCustomerInitials, getInitials } from '~/components/customers/utils'
 
 describe('customerUtils', () => {
   describe('getInitials', () => {
@@ -66,14 +62,6 @@ describe('customerUtils', () => {
       it('should return the initial of the last name', () => {
         expect(computeCustomerInitials({ lastname: 'World' })).toEqual('W')
       })
-    })
-  })
-
-  describe('computeCustomerName', () => {
-    it('should return the displayName of the customer', () => {
-      expect(computeCustomerName({ displayName: 'Lago - Stefan World' })).toEqual(
-        'Lago - Stefan World',
-      )
     })
   })
 })

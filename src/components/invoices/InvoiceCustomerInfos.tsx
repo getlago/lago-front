@@ -5,7 +5,6 @@ import { memo } from 'react'
 import { generatePath, Link } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { computeCustomerName } from '~/components/customers/utils'
 import { Icon, Status, StatusType, Typography } from '~/components/designSystem'
 import { CountryCodes } from '~/core/constants/countryCodes'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
@@ -59,7 +58,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
   const { customer } = invoice || {}
   const { translate } = useInternationalization()
 
-  const customerName = computeCustomerName(customer)
+  const customerName = customer?.displayName
 
   return (
     <Wrapper>

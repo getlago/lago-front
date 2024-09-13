@@ -19,9 +19,6 @@ export const computeCustomerInitials = (
   return '-'
 }
 
-export const computeCustomerName = (customer?: Pick<Customer, 'displayName'> | null) =>
-  customer?.displayName
-
 export const TRANSLATIONS_MAP_CUSTOMER_TYPE: Record<CustomerTypeEnum, string> = {
   [CustomerTypeEnum.Individual]: 'text_1726129457108txzr4gdkvcz',
   [CustomerTypeEnum.Company]: 'text_1726129457108raohiy4kkt3',
