@@ -27,6 +27,7 @@ interface SkeletonConnectorProps {
   className?: string
   marginRight?: number | string
   marginBottom?: number | string
+  marginTop?: number | string
   color?: keyof typeof SkeletonColorEnum
 }
 
@@ -38,6 +39,7 @@ interface SkeletonGenericProps {
   className?: string
   marginRight?: number | string
   marginBottom?: number | string
+  marginTop?: number | string
   color?: keyof typeof SkeletonColorEnum
 }
 
@@ -46,6 +48,7 @@ export const Skeleton = ({
   variant,
   marginRight,
   marginBottom,
+  marginTop,
   size,
   height,
   width,
@@ -55,6 +58,7 @@ export const Skeleton = ({
     <SkeletonContainer
       $marginRight={marginRight}
       $marginBottom={marginBottom}
+      $marginTop={marginTop}
       $height={(size ? mapAvatarSize(size) : height) || 12}
       $width={(size ? mapAvatarSize(size) : width) || 90}
       className={clsns(className, {
@@ -75,6 +79,7 @@ const SkeletonContainer = styled.div<{
   $width: number | string
   $marginRight?: number | string
   $marginBottom?: number | string
+  $marginTop?: number | string
 }>`
   animation: pulse 1.5s ease-in-out 0.5s infinite;
   background-color: ${theme.palette.grey[100]};
@@ -86,6 +91,8 @@ const SkeletonContainer = styled.div<{
     !$marginRight ? 0 : typeof $marginRight === 'number' ? `${$marginRight}px` : $marginRight};
   margin-bottom: ${({ $marginBottom }) =>
     !$marginBottom ? 0 : typeof $marginBottom === 'number' ? `${$marginBottom}px` : $marginBottom};
+  margin-top: ${({ $marginTop }) =>
+    !$marginTop ? 0 : typeof $marginTop === 'number' ? `${$marginTop}px` : $marginTop};
 
   &.skeleton-color--dark {
     background-color: ${theme.palette.grey[300]};

@@ -423,10 +423,7 @@ const CustomerDetails = () => {
                     hidden: !hasPermissions(['analyticsView']),
                     component: (
                       <SideBlock>
-                        <CustomerUsage
-                          customerTimezone={safeTimezone}
-                          premiumWarningDialogRef={premiumWarningDialogRef}
-                        />
+                        <CustomerUsage premiumWarningDialogRef={premiumWarningDialogRef} />
                       </SideBlock>
                     ),
                   },

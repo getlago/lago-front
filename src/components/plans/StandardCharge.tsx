@@ -84,7 +84,7 @@ export const StandardCharge = memo(
           </GroupTitle>
           {shouldDisplayGroupedBy || !!valuePointer?.groupedBy ? (
             <InlineFields>
-              {/* TODO: make it a single line textarea */}
+              {/* NOTE: should be a single line textarea */}
               <StyledTextInput
                 // multiline
                 // maxRows={3}

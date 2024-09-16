@@ -371,6 +371,7 @@ export type ChargeUsage = {
   eventsCount: Scalars['Int']['output'];
   filters?: Maybe<Array<ChargeFilterUsage>>;
   groupedUsage: Array<GroupedChargeUsage>;
+  id: Scalars['ID']['output'];
   units: Scalars['Float']['output'];
 };
 
@@ -2465,6 +2466,7 @@ export type GroupedChargeUsage = {
   eventsCount: Scalars['Int']['output'];
   filters?: Maybe<Array<ChargeFilterUsage>>;
   groupedBy?: Maybe<Scalars['JSON']['output']>;
+  id: Scalars['ID']['output'];
   units: Scalars['Float']['output'];
 };
 
@@ -5989,24 +5991,14 @@ export type TerminateCustomerSubscriptionMutationVariables = Exact<{
 
 export type TerminateCustomerSubscriptionMutation = { __typename?: 'Mutation', terminateSubscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number } } | null };
 
-export type CustomerSubscriptionForUsageFragment = { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } };
-
 export type GetCustomerSubscriptionForUsageQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCustomerSubscriptionForUsageQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, externalId: string, currency?: CurrencyEnum | null, subscriptions: Array<{ __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }> } | null };
+export type GetCustomerSubscriptionForUsageQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, externalId: string, currency?: CurrencyEnum | null } | null };
 
-export type CustomerUsageForUsageDetailsFragment = { __typename?: 'CustomerUsage', fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null }, billableMetric: { __typename?: 'BillableMetric', name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null }> | null }> }> };
-
-export type CustomerUsageQueryVariables = Exact<{
-  customerId: Scalars['ID']['input'];
-  subscriptionId: Scalars['ID']['input'];
-}>;
-
-
-export type CustomerUsageQuery = { __typename?: 'Query', customerUsage: { __typename?: 'CustomerUsage', amountCents: any, currency: CurrencyEnum, fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', units: number, amountCents: any, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null }, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null }> | null }> }> } };
+export type CustomerUsageForUsageDetailsFragment = { __typename?: 'CustomerUsage', fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null }, billableMetric: { __typename?: 'BillableMetric', name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', id: string, amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null }> | null }> }> };
 
 export type GetCustomersForFilterItemCustomerQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -7035,6 +7027,28 @@ export type RevokeMembershipMutationVariables = Exact<{
 export type RevokeMembershipMutation = { __typename?: 'Mutation', revokeMembership?: { __typename?: 'Membership', id: string } | null };
 
 export type InviteForRolePickerFieldFragment = { __typename?: 'Invite', id: string, role: MembershipRole };
+
+export type CustomerForSubscriptionUsageQueryVariables = Exact<{
+  customerId: Scalars['ID']['input'];
+}>;
+
+
+export type CustomerForSubscriptionUsageQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum } | null };
+
+export type SubscrptionForSubscriptionUsageQueryVariables = Exact<{
+  subscription: Scalars['ID']['input'];
+}>;
+
+
+export type SubscrptionForSubscriptionUsageQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } } | null };
+
+export type UsageForSubscriptionUsageQueryVariables = Exact<{
+  customerId: Scalars['ID']['input'];
+  subscriptionId: Scalars['ID']['input'];
+}>;
+
+
+export type UsageForSubscriptionUsageQuery = { __typename?: 'Query', customerUsage: { __typename?: 'CustomerUsage', amountCents: any, currency: CurrencyEnum, fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', id: string, units: number, amountCents: any, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null }, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, id: string, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null }> | null }> }> } };
 
 export type GetSubscriptionForDetailsOverviewQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -8470,18 +8484,6 @@ export const SubscriptionItemFragmentDoc = gql`
   }
 }
     ${SubscriptionLinePlanFragmentDoc}`;
-export const CustomerSubscriptionForUsageFragmentDoc = gql`
-    fragment CustomerSubscriptionForUsage on Subscription {
-  id
-  name
-  status
-  plan {
-    id
-    name
-    code
-  }
-}
-    `;
 export const CustomerUsageForUsageDetailsFragmentDoc = gql`
     fragment CustomerUsageForUsageDetails on CustomerUsage {
   fromDatetime
@@ -8502,6 +8504,7 @@ export const CustomerUsageForUsageDetailsFragmentDoc = gql`
       invoiceDisplayName
     }
     groupedUsage {
+      id
       amountCents
       groupedBy
       eventsCount
@@ -12743,13 +12746,9 @@ export const GetCustomerSubscriptionForUsageDocument = gql`
     id
     externalId
     currency
-    subscriptions(status: [active, pending]) {
-      id
-      ...CustomerSubscriptionForUsage
-    }
   }
 }
-    ${CustomerSubscriptionForUsageFragmentDoc}`;
+    `;
 
 /**
  * __useGetCustomerSubscriptionForUsageQuery__
@@ -12783,76 +12782,6 @@ export type GetCustomerSubscriptionForUsageQueryHookResult = ReturnType<typeof u
 export type GetCustomerSubscriptionForUsageLazyQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionForUsageLazyQuery>;
 export type GetCustomerSubscriptionForUsageSuspenseQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionForUsageSuspenseQuery>;
 export type GetCustomerSubscriptionForUsageQueryResult = Apollo.QueryResult<GetCustomerSubscriptionForUsageQuery, GetCustomerSubscriptionForUsageQueryVariables>;
-export const CustomerUsageDocument = gql`
-    query customerUsage($customerId: ID!, $subscriptionId: ID!) {
-  customerUsage(customerId: $customerId, subscriptionId: $subscriptionId) {
-    amountCents
-    currency
-    fromDatetime
-    toDatetime
-    chargesUsage {
-      units
-      amountCents
-      charge {
-        id
-        invoiceDisplayName
-      }
-      billableMetric {
-        id
-        code
-        name
-      }
-      filters {
-        id
-      }
-      groupedUsage {
-        amountCents
-        groupedBy
-        eventsCount
-        units
-        filters {
-          id
-        }
-      }
-    }
-    ...CustomerUsageForUsageDetails
-  }
-}
-    ${CustomerUsageForUsageDetailsFragmentDoc}`;
-
-/**
- * __useCustomerUsageQuery__
- *
- * To run a query within a React component, call `useCustomerUsageQuery` and pass it any options that fit your needs.
- * When your component renders, `useCustomerUsageQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useCustomerUsageQuery({
- *   variables: {
- *      customerId: // value for 'customerId'
- *      subscriptionId: // value for 'subscriptionId'
- *   },
- * });
- */
-export function useCustomerUsageQuery(baseOptions: Apollo.QueryHookOptions<CustomerUsageQuery, CustomerUsageQueryVariables> & ({ variables: CustomerUsageQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<CustomerUsageQuery, CustomerUsageQueryVariables>(CustomerUsageDocument, options);
-      }
-export function useCustomerUsageLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CustomerUsageQuery, CustomerUsageQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<CustomerUsageQuery, CustomerUsageQueryVariables>(CustomerUsageDocument, options);
-        }
-export function useCustomerUsageSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CustomerUsageQuery, CustomerUsageQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<CustomerUsageQuery, CustomerUsageQueryVariables>(CustomerUsageDocument, options);
-        }
-export type CustomerUsageQueryHookResult = ReturnType<typeof useCustomerUsageQuery>;
-export type CustomerUsageLazyQueryHookResult = ReturnType<typeof useCustomerUsageLazyQuery>;
-export type CustomerUsageSuspenseQueryHookResult = ReturnType<typeof useCustomerUsageSuspenseQuery>;
-export type CustomerUsageQueryResult = Apollo.QueryResult<CustomerUsageQuery, CustomerUsageQueryVariables>;
 export const GetCustomersForFilterItemCustomerDocument = gql`
     query getCustomersForFilterItemCustomer($page: Int, $limit: Int, $searchTerm: String) {
   customers(page: $page, limit: $limit, searchTerm: $searchTerm) {
@@ -17079,6 +17008,164 @@ export function useRevokeMembershipMutation(baseOptions?: Apollo.MutationHookOpt
 export type RevokeMembershipMutationHookResult = ReturnType<typeof useRevokeMembershipMutation>;
 export type RevokeMembershipMutationResult = Apollo.MutationResult<RevokeMembershipMutation>;
 export type RevokeMembershipMutationOptions = Apollo.BaseMutationOptions<RevokeMembershipMutation, RevokeMembershipMutationVariables>;
+export const CustomerForSubscriptionUsageDocument = gql`
+    query customerForSubscriptionUsage($customerId: ID!) {
+  customer(id: $customerId) {
+    id
+    applicableTimezone
+  }
+}
+    `;
+
+/**
+ * __useCustomerForSubscriptionUsageQuery__
+ *
+ * To run a query within a React component, call `useCustomerForSubscriptionUsageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCustomerForSubscriptionUsageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCustomerForSubscriptionUsageQuery({
+ *   variables: {
+ *      customerId: // value for 'customerId'
+ *   },
+ * });
+ */
+export function useCustomerForSubscriptionUsageQuery(baseOptions: Apollo.QueryHookOptions<CustomerForSubscriptionUsageQuery, CustomerForSubscriptionUsageQueryVariables> & ({ variables: CustomerForSubscriptionUsageQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CustomerForSubscriptionUsageQuery, CustomerForSubscriptionUsageQueryVariables>(CustomerForSubscriptionUsageDocument, options);
+      }
+export function useCustomerForSubscriptionUsageLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CustomerForSubscriptionUsageQuery, CustomerForSubscriptionUsageQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CustomerForSubscriptionUsageQuery, CustomerForSubscriptionUsageQueryVariables>(CustomerForSubscriptionUsageDocument, options);
+        }
+export function useCustomerForSubscriptionUsageSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CustomerForSubscriptionUsageQuery, CustomerForSubscriptionUsageQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<CustomerForSubscriptionUsageQuery, CustomerForSubscriptionUsageQueryVariables>(CustomerForSubscriptionUsageDocument, options);
+        }
+export type CustomerForSubscriptionUsageQueryHookResult = ReturnType<typeof useCustomerForSubscriptionUsageQuery>;
+export type CustomerForSubscriptionUsageLazyQueryHookResult = ReturnType<typeof useCustomerForSubscriptionUsageLazyQuery>;
+export type CustomerForSubscriptionUsageSuspenseQueryHookResult = ReturnType<typeof useCustomerForSubscriptionUsageSuspenseQuery>;
+export type CustomerForSubscriptionUsageQueryResult = Apollo.QueryResult<CustomerForSubscriptionUsageQuery, CustomerForSubscriptionUsageQueryVariables>;
+export const SubscrptionForSubscriptionUsageDocument = gql`
+    query subscrptionForSubscriptionUsage($subscription: ID!) {
+  subscription(id: $subscription) {
+    id
+    name
+    plan {
+      id
+      name
+      code
+    }
+  }
+}
+    `;
+
+/**
+ * __useSubscrptionForSubscriptionUsageQuery__
+ *
+ * To run a query within a React component, call `useSubscrptionForSubscriptionUsageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSubscrptionForSubscriptionUsageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSubscrptionForSubscriptionUsageQuery({
+ *   variables: {
+ *      subscription: // value for 'subscription'
+ *   },
+ * });
+ */
+export function useSubscrptionForSubscriptionUsageQuery(baseOptions: Apollo.QueryHookOptions<SubscrptionForSubscriptionUsageQuery, SubscrptionForSubscriptionUsageQueryVariables> & ({ variables: SubscrptionForSubscriptionUsageQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SubscrptionForSubscriptionUsageQuery, SubscrptionForSubscriptionUsageQueryVariables>(SubscrptionForSubscriptionUsageDocument, options);
+      }
+export function useSubscrptionForSubscriptionUsageLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SubscrptionForSubscriptionUsageQuery, SubscrptionForSubscriptionUsageQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SubscrptionForSubscriptionUsageQuery, SubscrptionForSubscriptionUsageQueryVariables>(SubscrptionForSubscriptionUsageDocument, options);
+        }
+export function useSubscrptionForSubscriptionUsageSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SubscrptionForSubscriptionUsageQuery, SubscrptionForSubscriptionUsageQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<SubscrptionForSubscriptionUsageQuery, SubscrptionForSubscriptionUsageQueryVariables>(SubscrptionForSubscriptionUsageDocument, options);
+        }
+export type SubscrptionForSubscriptionUsageQueryHookResult = ReturnType<typeof useSubscrptionForSubscriptionUsageQuery>;
+export type SubscrptionForSubscriptionUsageLazyQueryHookResult = ReturnType<typeof useSubscrptionForSubscriptionUsageLazyQuery>;
+export type SubscrptionForSubscriptionUsageSuspenseQueryHookResult = ReturnType<typeof useSubscrptionForSubscriptionUsageSuspenseQuery>;
+export type SubscrptionForSubscriptionUsageQueryResult = Apollo.QueryResult<SubscrptionForSubscriptionUsageQuery, SubscrptionForSubscriptionUsageQueryVariables>;
+export const UsageForSubscriptionUsageDocument = gql`
+    query usageForSubscriptionUsage($customerId: ID!, $subscriptionId: ID!) {
+  customerUsage(customerId: $customerId, subscriptionId: $subscriptionId) {
+    amountCents
+    currency
+    fromDatetime
+    toDatetime
+    chargesUsage {
+      id
+      units
+      amountCents
+      charge {
+        id
+        invoiceDisplayName
+      }
+      billableMetric {
+        id
+        code
+        name
+      }
+      filters {
+        id
+      }
+      groupedUsage {
+        amountCents
+        groupedBy
+        eventsCount
+        units
+        filters {
+          id
+        }
+      }
+    }
+    ...CustomerUsageForUsageDetails
+  }
+}
+    ${CustomerUsageForUsageDetailsFragmentDoc}`;
+
+/**
+ * __useUsageForSubscriptionUsageQuery__
+ *
+ * To run a query within a React component, call `useUsageForSubscriptionUsageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUsageForSubscriptionUsageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUsageForSubscriptionUsageQuery({
+ *   variables: {
+ *      customerId: // value for 'customerId'
+ *      subscriptionId: // value for 'subscriptionId'
+ *   },
+ * });
+ */
+export function useUsageForSubscriptionUsageQuery(baseOptions: Apollo.QueryHookOptions<UsageForSubscriptionUsageQuery, UsageForSubscriptionUsageQueryVariables> & ({ variables: UsageForSubscriptionUsageQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<UsageForSubscriptionUsageQuery, UsageForSubscriptionUsageQueryVariables>(UsageForSubscriptionUsageDocument, options);
+      }
+export function useUsageForSubscriptionUsageLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UsageForSubscriptionUsageQuery, UsageForSubscriptionUsageQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<UsageForSubscriptionUsageQuery, UsageForSubscriptionUsageQueryVariables>(UsageForSubscriptionUsageDocument, options);
+        }
+export function useUsageForSubscriptionUsageSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<UsageForSubscriptionUsageQuery, UsageForSubscriptionUsageQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<UsageForSubscriptionUsageQuery, UsageForSubscriptionUsageQueryVariables>(UsageForSubscriptionUsageDocument, options);
+        }
+export type UsageForSubscriptionUsageQueryHookResult = ReturnType<typeof useUsageForSubscriptionUsageQuery>;
+export type UsageForSubscriptionUsageLazyQueryHookResult = ReturnType<typeof useUsageForSubscriptionUsageLazyQuery>;
+export type UsageForSubscriptionUsageSuspenseQueryHookResult = ReturnType<typeof useUsageForSubscriptionUsageSuspenseQuery>;
+export type UsageForSubscriptionUsageQueryResult = Apollo.QueryResult<UsageForSubscriptionUsageQuery, UsageForSubscriptionUsageQueryVariables>;
 export const GetSubscriptionForDetailsOverviewDocument = gql`
     query getSubscriptionForDetailsOverview($subscriptionId: ID!) {
   subscription(id: $subscriptionId) {

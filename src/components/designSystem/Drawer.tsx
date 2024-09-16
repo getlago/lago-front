@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { Button, Typography } from '~/components/designSystem'
 import { NAV_HEIGHT, theme } from '~/styles'
@@ -26,6 +26,7 @@ interface DrawerProps extends Pick<MuiDrawerProps, 'anchor'> {
   showCloseWarningDialog?: boolean
   fullContentHeight?: boolean
   children: (({ closeDrawer }: { closeDrawer: () => void }) => ReactNode) | ReactNode
+  stickyBottomBar?: (({ closeDrawer }: { closeDrawer: () => void }) => ReactNode) | ReactNode
   onOpen?: () => void
   onClose?: () => void
 }
@@ -41,6 +42,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
       forceOpen = false,
       showCloseWarningDialog = false,
       children,
+      stickyBottomBar,
       opener,
       anchor = 'right',
       title,
@@ -65,6 +67,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
       <>
         {!!opener && cloneElement(opener, { onClick: () => setIsOpen((prev) => !prev) })}
         <StyledDrawer
+          $hasStickyBottomBar={!!stickyBottomBar}
           open={isOpen}
           anchor={anchor}
           elevation={4}
@@ -121,6 +124,14 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
               ? children({ closeDrawer: () => setIsOpen(false) })
               : children}
           </Content>
+
+          {!!stickyBottomBar && (
+            <StickyBottomBar>
+              {typeof stickyBottomBar === 'function'
+                ? stickyBottomBar({ closeDrawer: () => setIsOpen(false) })
+                : stickyBottomBar}
+            </StickyBottomBar>
+          )}
         </StyledDrawer>
 
         <PreventClosingDrawerDialog ref={preventClosingDrawerDialogRef} />
@@ -131,10 +142,17 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
 
 Drawer.displayName = 'Drawer'
 
-const StyledDrawer = styled(MuiDrawer)`
+const StyledDrawer = styled(MuiDrawer)<{ $hasStickyBottomBar?: boolean }>`
   .drawerPaper {
     max-width: 816px;
     width: calc(100vw - ${theme.spacing(12)});
+
+    ${({ $hasStickyBottomBar }) =>
+      $hasStickyBottomBar &&
+      css`
+        display: grid;
+        grid-template-rows: 72px 1fr 80px;
+      `}
 
     ${theme.breakpoints.down('md')} {
       width: 100%;
@@ -170,5 +188,19 @@ const Content = styled.div<{ $fullContentHeight?: boolean }>`
 
   ${theme.breakpoints.down('md')} {
     padding: ${theme.spacing(12)} ${theme.spacing(4)} ${theme.spacing(20)} ${theme.spacing(4)};
+  }
+`
+
+const StickyBottomBar = styled.div`
+  position: sticky;
+  bottom: 0;
+  border-top: 1px solid ${theme.palette.grey[200]};
+  padding: ${theme.spacing(4)} ${theme.spacing(12)};
+  box-sizing: border-box;
+  text-align: right;
+  background-color: ${theme.palette.background.paper};
+
+  ${theme.breakpoints.down('md')} {
+    padding: ${theme.spacing(4)};
   }
 `

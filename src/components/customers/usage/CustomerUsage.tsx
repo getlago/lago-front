@@ -1,72 +1,48 @@
 import { gql } from '@apollo/client'
 import { RefObject, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 
-import { Typography } from '~/components/designSystem'
+import { Alert, Typography } from '~/components/designSystem'
 import Gross from '~/components/graphs/Gross'
 import MonthSelectorDropdown, {
   AnalyticsPeriodScopeEnum,
   TPeriodScopeTranslationLookupValue,
 } from '~/components/graphs/MonthSelectorDropdown'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import {
-  StatusTypeEnum,
-  TimezoneEnum,
-  useGetCustomerSubscriptionForUsageQuery,
-} from '~/generated/graphql'
+import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
+import { useGetCustomerSubscriptionForUsageQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { CustomerDetailsTabsOptions } from '~/pages/CustomerDetails'
 import { NAV_HEIGHT, theme } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
 
-import { UsageItem, UsageItemSkeleton } from './UsageItem'
-
 gql`
-  fragment CustomerSubscriptionForUsage on Subscription {
-    id
-    name
-    status
-    plan {
-      id
-      name
-      code
-    }
-  }
-
   query getCustomerSubscriptionForUsage($id: ID!) {
     customer(id: $id) {
       id
       externalId
       currency
-      subscriptions(status: [active, pending]) {
-        id
-        ...CustomerSubscriptionForUsage
-      }
     }
   }
 `
 
 interface CustomerUsageProps {
-  customerTimezone?: TimezoneEnum
   premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
 }
 
-export const CustomerUsage = ({
-  customerTimezone,
-  premiumWarningDialogRef,
-}: CustomerUsageProps) => {
-  const { customerId } = useParams()
+export const CustomerUsage = ({ premiumWarningDialogRef }: CustomerUsageProps) => {
+  const { customerId = '' } = useParams()
   const { organization } = useOrganizationInfos()
   const { translate } = useInternationalization()
   const [periodScope, setPeriodScope] = useState<TPeriodScopeTranslationLookupValue>(
     AnalyticsPeriodScopeEnum.Year,
   )
   const { data, loading } = useGetCustomerSubscriptionForUsageQuery({
-    variables: { id: customerId as string },
+    variables: { id: customerId },
     skip: !customerId,
   })
-  const subscriptions = data?.customer?.subscriptions
 
   return (
     <div>
@@ -80,7 +56,7 @@ export const CustomerUsage = ({
         />
       </SectionHeader>
 
-      <GrossGraphWrapper $showDivider={loading || !!subscriptions?.length}>
+      <GrossGraphWrapper $showDivider={loading}>
         <Gross
           className="analytics-graph"
           currency={data?.customer?.currency || organization?.defaultCurrency}
@@ -89,31 +65,19 @@ export const CustomerUsage = ({
         />
       </GrossGraphWrapper>
 
-      {(loading || !!subscriptions?.length) && (
-        <>
-          <Title variant="subhead">{translate('text_62c3f3fca8a1625624e8337b')}</Title>
-          {loading ? (
-            <Content>
-              {[0, 1, 2].map((i) => (
-                <UsageItemSkeleton key={`customer-usage-skeleton-${i}`} />
-              ))}
-            </Content>
-          ) : (
-            <Content>
-              {subscriptions
-                ?.filter((s) => s.status === StatusTypeEnum.Active)
-                .map((subscription) => (
-                  <UsageItem
-                    key={subscription?.id}
-                    customerId={customerId as string}
-                    subscription={subscription}
-                    customerTimezone={customerTimezone}
-                  />
-                ))}
-            </Content>
-          )}
-        </>
-      )}
+      <Title variant="subhead">{translate('text_62c3f3fca8a1625624e8337b')}</Title>
+      <Alert type="info">
+        <Typography
+          variant="body"
+          color="grey700"
+          html={translate('text_1725983967306v77yaw6dtm1', {
+            link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+              customerId,
+              tab: CustomerDetailsTabsOptions.overview,
+            }),
+          })}
+        />
+      </Alert>
     </div>
   )
 }
@@ -123,12 +87,6 @@ const Title = styled(Typography)`
   display: flex;
   justify-content: space-between;
   align-items: center;
-`
-
-const Content = styled.div`
-  > :not(:last-child) {
-    margin-bottom: ${theme.spacing(4)};
-  }
 `
 
 const GrossGraphWrapper = styled.div<{ $showDivider: boolean }>`

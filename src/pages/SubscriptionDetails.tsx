@@ -7,13 +7,24 @@ import {
   TerminateCustomerSubscriptionDialog,
   TerminateCustomerSubscriptionDialogRef,
 } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
-import { Avatar, Button, Icon, Popper, Skeleton, Typography } from '~/components/designSystem'
+import {
+  Avatar,
+  Button,
+  Icon,
+  NavigationTab,
+  Popper,
+  Skeleton,
+  Typography,
+} from '~/components/designSystem'
 import SkeletonDetailsPage, { LoadingSkeletonWrapper } from '~/components/SkeletonDetailsPage'
 import SubscriptionDetailsOverview from '~/components/subscriptions/SubscriptionDetailsOverview'
+import SubscriptionUsageTabContent from '~/components/subscriptions/SubscriptionUsageTabContent'
 import { addToast } from '~/core/apolloClient'
 import {
   CUSTOMER_DETAILS_ROUTE,
+  CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   PLAN_DETAILS_ROUTE,
+  PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   UPDATE_SUBSCRIPTION,
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
 } from '~/core/router'
@@ -27,6 +38,7 @@ import { PlanDetailsTabsOptionsEnum } from './PlanDetails'
 
 export enum CustomerSubscriptionDetailsTabsOptionsEnum {
   overview = 'overview',
+  usage = 'usage',
 }
 
 gql`
@@ -192,12 +204,21 @@ const SubscriptionDetails = () => {
           <Icon name="clock" color="dark" size="large" />
         </Avatar>
         <PlanBlockInfos>
-          <Typography variant="headline" color="grey700" noWrap>
-            {translate('text_6529666e71f6ce006d2bf011', { planName: subscription?.plan.name })}
-          </Typography>
-          <Typography variant="body" color="grey600" noWrap>
-            {subscription?.plan.code}
-          </Typography>
+          {isSubscriptionLoading ? (
+            <>
+              <Skeleton variant="text" width={200} height={16} marginBottom={18} />
+              <Skeleton variant="text" width={200} height={12} />
+            </>
+          ) : (
+            <>
+              <Typography variant="headline" color="grey700" noWrap>
+                {translate('text_6529666e71f6ce006d2bf011', { planName: subscription?.plan.name })}
+              </Typography>
+              <Typography variant="body" color="grey600" noWrap>
+                {subscription?.plan.code}
+              </Typography>
+            </>
+          )}
         </PlanBlockInfos>
       </PlanBlockWrapper>
       {isSubscriptionLoading ? (
@@ -210,11 +231,53 @@ const SubscriptionDetails = () => {
           </TabContentWrapper>
         </ContentContainer>
       ) : (
-        <ContentContainer>
-          <TabContentWrapper>
-            <SubscriptionDetailsOverview />
-          </TabContentWrapper>
-        </ContentContainer>
+        <NavigationTab
+          leftSpacing={48}
+          tabs={[
+            {
+              title: translate('text_628cf761cbe6820138b8f2e4'),
+              link: generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                customerId: subscription?.customer?.id as string,
+                subscriptionId: subscriptionId as string,
+                tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+              }),
+              match: [
+                generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                  customerId: subscription?.customer?.id as string,
+                  subscriptionId: subscriptionId as string,
+                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+                }),
+                generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                  planId: planId || '',
+                  subscriptionId: subscriptionId as string,
+                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+                }),
+              ],
+              component: (
+                <ContentContainer>
+                  <TabContentWrapper>
+                    <SubscriptionDetailsOverview />
+                  </TabContentWrapper>
+                </ContentContainer>
+              ),
+            },
+            {
+              title: translate('text_1725983967306cei92rkdtvb'),
+              link: generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                customerId: subscription?.customer?.id as string,
+                subscriptionId: subscriptionId as string,
+                tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+              }),
+              component: (
+                <ContentContainer>
+                  <TabContentWrapper>
+                    <SubscriptionUsageTabContent />
+                  </TabContentWrapper>
+                </ContentContainer>
+              ),
+            },
+          ]}
+        />
       )}
 
       <TerminateCustomerSubscriptionDialog ref={terminateSubscriptionDialogRef} />
@@ -252,6 +315,7 @@ const PlanBlockWrapper = styled.div`
 
 const PlanBlockInfos = styled.div`
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: ${theme.spacing(1)};
   /* Used to hide text overflow */
