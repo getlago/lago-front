@@ -48,6 +48,10 @@ gql`
         name
         code
       }
+      customer {
+        id
+        applicableTimezone
+      }
     }
   }
 
@@ -107,6 +111,7 @@ export const SubscriptionCurrentUsageTable = ({
     error: customerError,
   } = useCustomerForSubscriptionUsageQuery({
     variables: { customerId },
+    skip: !customerId,
   })
 
   const {
@@ -126,14 +131,21 @@ export const SubscriptionCurrentUsageTable = ({
     context: {
       silentErrorCodes: [LagoApiError.UnprocessableEntity],
     },
-    variables: { customerId: customerId, subscriptionId: subscription?.id || '' },
+    variables: {
+      customerId: (customerId || subscription?.customer.id) as string,
+      subscriptionId: subscription?.id || '',
+    },
+    skip: !customerId || !subscription,
     // Fixes https://github.com/getlago/lago-front/pull/1243
     fetchPolicy: 'no-cache',
   })
   const currency = usageData?.customerUsage?.currency || CurrencyEnum.Usd
   const isLoading = subscriptionLoading || usageLoading || customerLoading
   const hasError = !!subscriptionError || !!usageError || !!customerError
-  const customerTimezone = customerData?.customer?.applicableTimezone || TimezoneEnum.TzUtc
+  const customerTimezone =
+    customerData?.customer?.applicableTimezone ||
+    subscription?.customer.applicableTimezone ||
+    TimezoneEnum.TzUtc
 
   return (
     <section>
@@ -200,7 +212,7 @@ export const SubscriptionCurrentUsageTable = ({
           ) : (
             <GenericPlaceholder
               title={translate('text_62c3f3fca8a1625624e83379')}
-              subtitle={translate('text_62c3f3fca8a1625624e8337e')}
+              subtitle={translate('text_1726498444629i1fpjyvh0kg')}
               buttonTitle={translate('text_1725983967306qz0npfuhlo1')}
               buttonVariant="primary"
               buttonAction={() => refetchUsage()}
@@ -339,7 +351,9 @@ export const SubscriptionCurrentUsageTable = ({
                 minWidth: 100,
                 content: (row) => (
                   <Typography variant="bodyHl" color="grey700">
-                    {intlFormatNumber(row.amountCents)}
+                    {intlFormatNumber(deserializeAmount(row.amountCents, currency), {
+                      currency,
+                    })}
                   </Typography>
                 ),
               },
