@@ -1,4 +1,5 @@
 import { alpha, createTheme } from '@mui/material/styles'
+import type {} from '@mui/x-date-pickers/themeAugmentation'
 
 import { palette } from './colorsPalette'
 
@@ -43,14 +44,16 @@ export const theme = createTheme({
         disableRipple: true,
         disableTouchRipple: true,
       },
+    },
+    MuiPickersArrowSwitcher: {
       styleOverrides: {
-        root: {
-          /* reset default button shape in datepicker */
-          '&.MuiPickersArrowSwitcher-button': {
-            width: '40px',
-            height: '40px',
-            borderRadius: '8px',
-          },
+        spacer: {
+          width: '24px',
+        },
+        button: {
+          width: '40px',
+          height: '40px',
+          borderRadius: '8px',
         },
       },
     },

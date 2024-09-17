@@ -13,7 +13,6 @@ import { envGlobalVar, initializeApolloClient, initializeTranslations } from '~/
 import { initializeYup } from '~/formValidation/initializeYup'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
 import { theme } from '~/styles'
-import { inputGlobalStyles } from '~/styles/globalStyle'
 
 import { AppEnvEnum } from './core/constants/globalTypes'
 
@@ -54,7 +53,6 @@ const App = () => {
       <ApolloProvider client={client}>
         <StyledEngineProvider injectFirst>
           <ThemeProvider theme={theme}>
-            {inputGlobalStyles}
             <ErrorBoundary>
               <RouteWrapper />
             </ErrorBoundary>

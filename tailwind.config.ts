@@ -1,6 +1,6 @@
-type Colors = 'grey' | 'blue' | 'yellow' | 'purple' | 'green' | 'red'
+import plugin from 'tailwindcss/plugin'
 
-const colors: Record<Colors, Record<number, string>> = {
+export const colors = {
   grey: {
     100: '#F3F4F6',
     200: '#E7EAEE',
@@ -62,8 +62,7 @@ const colors: Record<Colors, Record<number, string>> = {
   },
 }
 
-/** @type {import('tailwindcss').Config} */
-module.exports = {
+const config = {
   content: ['./src/**/*.{ts,tsx,html}'],
   theme: {
     colors: {
@@ -107,5 +106,36 @@ module.exports = {
   variants: {
     extend: {},
   },
-  plugins: [],
+  plugins: [
+    plugin(function ({ addUtilities, theme }) {
+      // Dividers
+      addUtilities({
+        '.shadow-t': {
+          boxShadow: `0px 1px 0px 0px ${theme('colors.grey.300')} inset`,
+        },
+
+        '.shadow-r': {
+          boxShadow: `-1px 0px 0px 0px ${theme('colors.grey.300')} inset`,
+        },
+
+        '.shadow-b': {
+          boxShadow: `0px -1px 0px 0px ${theme('colors.grey.300')} inset`,
+        },
+
+        '.shadow-l': {
+          boxShadow: `1px 0px 0px 0px ${theme('colors.grey.300')} inset`,
+        },
+      })
+      // Outline ring
+      addUtilities({
+        '.ring': {
+          outline: 'none',
+          boxShadow: `0px 0px 0px 4px ${theme('colors.blue.200')}`,
+          borderRadius: '4px',
+        },
+      })
+    }),
+  ],
 }
+
+export default config
