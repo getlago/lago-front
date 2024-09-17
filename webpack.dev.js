@@ -31,7 +31,20 @@ module.exports = (env) =>
         },
         {
           test: /\.css$/i,
-          use: ['style-loader', 'css-loader', 'postcss-loader'],
+          use: [
+            {
+              loader: 'style-loader',
+            },
+            {
+              loader: 'css-loader',
+              options: {
+                importLoaders: 1,
+              },
+            },
+            {
+              loader: 'postcss-loader',
+            },
+          ],
           include: path.resolve(__dirname, 'src'),
           exclude: /node_modules/,
         },
