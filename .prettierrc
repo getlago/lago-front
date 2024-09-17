@@ -1,5 +1,5 @@
 {
-  "plugins": ["@trivago/prettier-plugin-sort-imports"],
+  "plugins": ["@trivago/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"],
   "semi": false,
   "singleQuote": true,
   "printWidth": 100,
@@ -8,6 +8,8 @@
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
   "importOrderCaseInsensitive": true,
+  "tailwindConfig": "./tailwind.config.ts",
+  "tailwindFunctions": ["cn"],
   "overrides": [
     {
       "files": "*.svg",
