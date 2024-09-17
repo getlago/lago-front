@@ -2520,7 +2520,6 @@ export enum IntegrationItemTypeEnum {
 
 export enum IntegrationTypeEnum {
   Anrok = 'anrok',
-  Dunning = 'dunning',
   Hubspot = 'hubspot',
   Netsuite = 'netsuite',
   Okta = 'okta',
@@ -3891,7 +3890,6 @@ export type PlanOverridesInput = {
 };
 
 export enum PremiumIntegrationTypeEnum {
-  Dunning = 'dunning',
   Hubspot = 'hubspot',
   Netsuite = 'netsuite',
   Okta = 'okta',
@@ -7575,11 +7573,6 @@ export type CustomerForRequestOverduePaymentFormFragment = { __typename?: 'Custo
 export type InvoicesForRequestOverduePaymentFormFragment = { __typename?: 'Invoice', id: string, number: string, totalAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any };
 
 export type LastPaymentRequestFragment = { __typename?: 'PaymentRequest', createdAt: any };
-
-export type GetRequestOverduePaymentAccessQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetRequestOverduePaymentAccessQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', premiumIntegrations: Array<PremiumIntegrationTypeEnum> } | null };
 
 export type GetRequestOverduePaymentInfosQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -19726,45 +19719,6 @@ export type GetCustomerInfosForDraftInvoicesListQueryHookResult = ReturnType<typ
 export type GetCustomerInfosForDraftInvoicesListLazyQueryHookResult = ReturnType<typeof useGetCustomerInfosForDraftInvoicesListLazyQuery>;
 export type GetCustomerInfosForDraftInvoicesListSuspenseQueryHookResult = ReturnType<typeof useGetCustomerInfosForDraftInvoicesListSuspenseQuery>;
 export type GetCustomerInfosForDraftInvoicesListQueryResult = Apollo.QueryResult<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>;
-export const GetRequestOverduePaymentAccessDocument = gql`
-    query getRequestOverduePaymentAccess {
-  organization {
-    premiumIntegrations
-  }
-}
-    `;
-
-/**
- * __useGetRequestOverduePaymentAccessQuery__
- *
- * To run a query within a React component, call `useGetRequestOverduePaymentAccessQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetRequestOverduePaymentAccessQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetRequestOverduePaymentAccessQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetRequestOverduePaymentAccessQuery(baseOptions?: Apollo.QueryHookOptions<GetRequestOverduePaymentAccessQuery, GetRequestOverduePaymentAccessQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetRequestOverduePaymentAccessQuery, GetRequestOverduePaymentAccessQueryVariables>(GetRequestOverduePaymentAccessDocument, options);
-      }
-export function useGetRequestOverduePaymentAccessLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRequestOverduePaymentAccessQuery, GetRequestOverduePaymentAccessQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetRequestOverduePaymentAccessQuery, GetRequestOverduePaymentAccessQueryVariables>(GetRequestOverduePaymentAccessDocument, options);
-        }
-export function useGetRequestOverduePaymentAccessSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRequestOverduePaymentAccessQuery, GetRequestOverduePaymentAccessQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetRequestOverduePaymentAccessQuery, GetRequestOverduePaymentAccessQueryVariables>(GetRequestOverduePaymentAccessDocument, options);
-        }
-export type GetRequestOverduePaymentAccessQueryHookResult = ReturnType<typeof useGetRequestOverduePaymentAccessQuery>;
-export type GetRequestOverduePaymentAccessLazyQueryHookResult = ReturnType<typeof useGetRequestOverduePaymentAccessLazyQuery>;
-export type GetRequestOverduePaymentAccessSuspenseQueryHookResult = ReturnType<typeof useGetRequestOverduePaymentAccessSuspenseQuery>;
-export type GetRequestOverduePaymentAccessQueryResult = Apollo.QueryResult<GetRequestOverduePaymentAccessQuery, GetRequestOverduePaymentAccessQueryVariables>;
 export const GetRequestOverduePaymentInfosDocument = gql`
     query getRequestOverduePaymentInfos($id: ID!) {
   organization {
