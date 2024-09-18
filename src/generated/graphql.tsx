@@ -12562,7 +12562,7 @@ export type RemoveCouponMutationResult = Apollo.MutationResult<RemoveCouponMutat
 export type RemoveCouponMutationOptions = Apollo.BaseMutationOptions<RemoveCouponMutation, RemoveCouponMutationVariables>;
 export const GetCustomerOverdueBalancesDocument = gql`
     query getCustomerOverdueBalances($externalCustomerId: String!, $currency: CurrencyEnum, $expireCache: Boolean) {
-  paymentRequests {
+  paymentRequests(externalCustomerId: $externalCustomerId) {
     collection {
       createdAt
     }
