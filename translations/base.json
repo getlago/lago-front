@@ -2429,5 +2429,14 @@
   "text_1725983967306cei92rkdtvb": "Usage",
   "text_1726044816685r61awuydvji": "Close details",
   "text_1726158292600r2xetfumq5t": "Item name",
-  "text_1726498444629i1fpjyvh0kg": "Please refresh this section or contact us if the error persists."
+  "text_1726481163322ntor50xdm8k": "Lifetime usage",
+  "text_1726481163322vbcsvivii5k": "Total usage since the subscription start date, excluding paid in advance charges.",
+  "text_17264811633225nhatoh524y": "There is no defined lifetime usage for this subscription. Feel free to <a href=\"{{planLink}}\">edit the plan details</a> or <a href=\"{{subscriptionLink}}\">update this subscription</a> as needed.",
+  "text_1726481163322wngkv4nqfh9": "Total lifetime usage",
+  "text_1726498444629i1fpjyvh0kg": "Please refresh this section or contact us if the error persists.",
+  "text_17265631916994iccuwziryu": "Last threshold: {{amount}}",
+  "text_172656319170006dm5ta4sd8": "Next threshold: {{amount}}",
+  "text_17265631917004vcwz8zc0gy": "Next threshold not set",
+  "text_1726576554903s2dddtq5qz4": "{{rate}} consumed",
+  "text_1726576554903930hsa8vg23": "{{rate}} remaining"
 }

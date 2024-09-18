@@ -4,13 +4,14 @@ import styled from 'styled-components'
 import { theme } from '~/styles'
 
 import { SubscriptionCurrentUsageTable } from './SubscriptionCurrentUsageTable'
+import SubscriptionUsageLifetimeGraph from './SubscriptionUsageLifetimeGraph'
 
 const SubscriptionUsageTabContent = () => {
   const { subscriptionId = '', customerId = '' } = useParams()
 
   return (
     <Container>
-      {/* TODO: <SubscriptionUsageLifetimeGraph subscriptionId={subscriptionId} /> */}
+      <SubscriptionUsageLifetimeGraph customerId={customerId} subscriptionId={subscriptionId} />
       <SubscriptionCurrentUsageTable customerId={customerId} subscriptionId={subscriptionId} />
     </Container>
   )

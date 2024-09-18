@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 import { TInvoiceCollectionsDataResult } from '~/components/graphs/Invoices'
 import { TGetInvoicedUsagesQuery } from '~/components/graphs/Usage'
 import { TAreaChartDataResult } from '~/components/graphs/utils'
+import { TSubscriptionUsageLifetimeGraphDataResult } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { CurrencyEnum, InvoicePaymentStatusTypeEnum } from '~/generated/graphql'
 
 export const AreaGrossRevenuesChartFakeData: TAreaChartDataResult = [
@@ -203,3 +204,11 @@ export const InvoicedUsageFakeData: TGetInvoicedUsagesQuery = [
     code: 'gb',
   },
 ]
+
+export const subscriptionLifetimeUsageFakeData: TSubscriptionUsageLifetimeGraphDataResult = {
+  lastThresholdAmountCents: '100000',
+  nextThresholdAmountCents: '200000',
+  totalUsageAmountCents: '125000',
+  totalUsageFromDatetime: DateTime.now().minus({ month: 12 }).toISO(),
+  totalUsageToDatetime: DateTime.now().toISO(),
+}

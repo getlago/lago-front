@@ -7077,6 +7077,15 @@ export type GetSubscriptionForDetailsOverviewQuery = { __typename?: 'Query', sub
 
 export type SubscriptionForSubscriptionInformationsFragment = { __typename?: 'Subscription', id: string, externalId: string, status?: StatusTypeEnum | null, subscriptionAt?: any | null, endingAt?: any | null, nextPendingStartDate?: any | null, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, plan: { __typename?: 'Plan', id: string, name: string, parent?: { __typename?: 'Plan', id: string, name: string } | null } };
 
+export type SubscriptionUsageLifetimeGraphForLifetimeGraphFragment = { __typename?: 'Subscription', id: string, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string } };
+
+export type GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables = Exact<{
+  subscriptionId: Scalars['ID']['input'];
+}>;
+
+
+export type GetSubscriptionForSubscriptionUsageLifetimeGraphQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string } } | null };
+
 export type DeleteTaxFragment = { __typename?: 'Tax', id: string, name: string, customersCount: number };
 
 export type DeleteTaxMutationVariables = Exact<{
@@ -7148,7 +7157,7 @@ export type UpdateSubscriptionMutationVariables = Exact<{
 }>;
 
 
-export type UpdateSubscriptionMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, customerType?: CustomerTypeEnum | null, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } } | null };
+export type UpdateSubscriptionMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, customerType?: CustomerTypeEnum | null, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null }, plan: { __typename?: 'Plan', id: string } } | null };
 
 export type GetSinglePlanQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -9169,6 +9178,26 @@ export const SubscriptionForSubscriptionInformationsFragmentDoc = gql`
       id
       name
     }
+  }
+}
+    `;
+export const SubscriptionUsageLifetimeGraphForLifetimeGraphFragmentDoc = gql`
+    fragment SubscriptionUsageLifetimeGraphForLifetimeGraph on Subscription {
+  id
+  lifetimeUsage {
+    lastThresholdAmountCents
+    nextThresholdAmountCents
+    totalUsageAmountCents
+    totalUsageFromDatetime
+    totalUsageToDatetime
+  }
+  customer {
+    id
+    currency
+    applicableTimezone
+  }
+  plan {
+    id
   }
 }
     `;
@@ -17232,6 +17261,47 @@ export type GetSubscriptionForDetailsOverviewQueryHookResult = ReturnType<typeof
 export type GetSubscriptionForDetailsOverviewLazyQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsOverviewLazyQuery>;
 export type GetSubscriptionForDetailsOverviewSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsOverviewSuspenseQuery>;
 export type GetSubscriptionForDetailsOverviewQueryResult = Apollo.QueryResult<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>;
+export const GetSubscriptionForSubscriptionUsageLifetimeGraphDocument = gql`
+    query getSubscriptionForSubscriptionUsageLifetimeGraph($subscriptionId: ID!) {
+  subscription(id: $subscriptionId) {
+    id
+    ...SubscriptionUsageLifetimeGraphForLifetimeGraph
+  }
+}
+    ${SubscriptionUsageLifetimeGraphForLifetimeGraphFragmentDoc}`;
+
+/**
+ * __useGetSubscriptionForSubscriptionUsageLifetimeGraphQuery__
+ *
+ * To run a query within a React component, call `useGetSubscriptionForSubscriptionUsageLifetimeGraphQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubscriptionForSubscriptionUsageLifetimeGraphQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSubscriptionForSubscriptionUsageLifetimeGraphQuery({
+ *   variables: {
+ *      subscriptionId: // value for 'subscriptionId'
+ *   },
+ * });
+ */
+export function useGetSubscriptionForSubscriptionUsageLifetimeGraphQuery(baseOptions: Apollo.QueryHookOptions<GetSubscriptionForSubscriptionUsageLifetimeGraphQuery, GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables> & ({ variables: GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSubscriptionForSubscriptionUsageLifetimeGraphQuery, GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables>(GetSubscriptionForSubscriptionUsageLifetimeGraphDocument, options);
+      }
+export function useGetSubscriptionForSubscriptionUsageLifetimeGraphLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSubscriptionForSubscriptionUsageLifetimeGraphQuery, GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSubscriptionForSubscriptionUsageLifetimeGraphQuery, GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables>(GetSubscriptionForSubscriptionUsageLifetimeGraphDocument, options);
+        }
+export function useGetSubscriptionForSubscriptionUsageLifetimeGraphSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionForSubscriptionUsageLifetimeGraphQuery, GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetSubscriptionForSubscriptionUsageLifetimeGraphQuery, GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables>(GetSubscriptionForSubscriptionUsageLifetimeGraphDocument, options);
+        }
+export type GetSubscriptionForSubscriptionUsageLifetimeGraphQueryHookResult = ReturnType<typeof useGetSubscriptionForSubscriptionUsageLifetimeGraphQuery>;
+export type GetSubscriptionForSubscriptionUsageLifetimeGraphLazyQueryHookResult = ReturnType<typeof useGetSubscriptionForSubscriptionUsageLifetimeGraphLazyQuery>;
+export type GetSubscriptionForSubscriptionUsageLifetimeGraphSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionForSubscriptionUsageLifetimeGraphSuspenseQuery>;
+export type GetSubscriptionForSubscriptionUsageLifetimeGraphQueryResult = Apollo.QueryResult<GetSubscriptionForSubscriptionUsageLifetimeGraphQuery, GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables>;
 export const DeleteTaxDocument = gql`
     mutation deleteTax($input: DestroyTaxInput!) {
   destroyTax(input: $input) {
@@ -17483,6 +17553,9 @@ export const UpdateSubscriptionDocument = gql`
       id
       activeSubscriptionsCount
       ...CustomerDetails
+    }
+    plan {
+      id
     }
   }
 }
