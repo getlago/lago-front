@@ -9,17 +9,17 @@ import { usePermissions } from '~/hooks/usePermissions'
 
 const Home = () => {
   const navigate = useNavigate()
-  const { loading: isUserLoading } = useCurrentUser()
+  const { loading: isUserLoading, currentMembership } = useCurrentUser()
   const { hasPermissions } = usePermissions()
 
   useEffect(() => {
     // Make sure user permissions are loaded before performing redirection
-    if (!isUserLoading) {
-      const lastPrivateVisitedRouteWhileNotConnected: Location = getItemFromLS(
+    if (!isUserLoading && !!currentMembership) {
+      const lastPrivateVisitedRouteWhileNotConnected: Location | undefined = getItemFromLS(
         LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY,
       )
 
-      if (lastPrivateVisitedRouteWhileNotConnected) {
+      if (!!lastPrivateVisitedRouteWhileNotConnected) {
         navigate(lastPrivateVisitedRouteWhileNotConnected, { replace: true })
         // This is a temp value for redirection, should be removed after redirection have been performed
         removeItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
@@ -29,8 +29,9 @@ const Home = () => {
         navigate(CUSTOMERS_LIST_ROUTE, { replace: true })
       }
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isUserLoading])
+  }, [isUserLoading, currentMembership])
 
   return null
 }
