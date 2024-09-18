@@ -6,6 +6,7 @@ import { WebhookLogItemFragment, WebhookStatusEnum } from '~/generated/graphql'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { BaseListItem, ItemContainer, ListItem, theme } from '~/styles'
+import { cn } from '~/styles/utils'
 
 gql`
   fragment WebhookLogItem on Webhook {
@@ -37,16 +38,17 @@ export const WebhookLogItem = ({
     <ItemContainer>
       <Item tabIndex={0} onClick={onClick} {...navigationProps} $active={selected}>
         <NameSection>
-          <ListAvatar
+          <Avatar
             size="big"
             variant="connector"
-            $isFailed={status === WebhookStatusEnum.Failed}
+            className={cn('mr-3', { 'bg-red-100': hasError })}
+            // $isFailed={status === WebhookStatusEnum.Failed}
           >
             <Icon
               name={hasError ? 'close-circle-unfilled' : 'checkmark'}
               color={hasError ? 'error' : 'dark'}
             />
-          </ListAvatar>
+          </Avatar>
           <NameBlock>
             <Typography color="textSecondary" variant="bodyHl" noWrap>
               {webhookType}
@@ -83,15 +85,6 @@ const NameSection = styled.div`
   display: flex;
   align-items: center;
   min-width: 0;
-`
-
-const ListAvatar = styled(Avatar)<{ $isFailed?: boolean }>`
-  margin-right: ${theme.spacing(3)};
-  ${({ $isFailed }) =>
-    $isFailed &&
-    css`
-      background-color: ${theme.palette.error[100]};
-    `}
 `
 
 const NameBlock = styled.div`

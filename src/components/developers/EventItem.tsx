@@ -6,6 +6,7 @@ import { EventItemFragment } from '~/generated/graphql'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { BaseListItem, ItemContainer, ListItem, theme } from '~/styles'
+import { cn } from '~/styles/utils'
 
 gql`
   fragment EventItem on Event {
@@ -34,12 +35,17 @@ export const EventItem = ({ event, navigationProps, selected, onClick }: EventIt
     <ItemContainer>
       <Item tabIndex={0} onClick={onClick} {...navigationProps} $active={selected}>
         <NameSection>
-          <ListAvatar variant="connector" $hasWarning={hasWarning}>
+          <Avatar
+            className={cn('mr-3', {
+              'bg-yellow-100': hasWarning,
+            })}
+            variant="connector"
+          >
             <Icon
               name={hasWarning ? 'warning-unfilled' : 'checkmark'}
               color={hasWarning ? 'warning' : 'dark'}
             />
-          </ListAvatar>
+          </Avatar>
           <NameBlock>
             <Typography color="textSecondary" variant="bodyHl" noWrap>
               {code}
@@ -76,15 +82,6 @@ const NameSection = styled.div`
   display: flex;
   align-items: center;
   min-width: 0;
-`
-
-const ListAvatar = styled(Avatar)<{ $hasWarning?: boolean }>`
-  margin-right: ${theme.spacing(3)};
-  ${({ $hasWarning }) =>
-    $hasWarning &&
-    css`
-      background-color: ${theme.palette.secondary[100]};
-    `}
 `
 
 const NameBlock = styled.div`
