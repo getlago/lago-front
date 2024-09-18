@@ -30,7 +30,7 @@ gql`
     $currency: CurrencyEnum
     $expireCache: Boolean
   ) {
-    paymentRequests {
+    paymentRequests(externalCustomerId: $externalCustomerId) {
       collection {
         createdAt
       }

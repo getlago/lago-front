@@ -20,12 +20,11 @@ import {
   LagoApiError,
   LastPaymentRequestFragmentDoc,
   OrganizationForRequestOverduePaymentEmailFragmentDoc,
-  PremiumIntegrationTypeEnum,
   useCreatePaymentRequestMutation,
-  useGetRequestOverduePaymentAccessQuery,
   useGetRequestOverduePaymentInfosQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { EmailPreview } from '~/pages/CustomerRequestOverduePayment/components/EmailPreview'
 import {
   serializeEmails,
@@ -40,11 +39,7 @@ import {
 } from './components/RequestPaymentForm'
 
 gql`
-  query getRequestOverduePaymentAccess {
-    organization {
-      premiumIntegrations
-    }
-  }
+
 
   query getRequestOverduePaymentInfos($id: ID!) {
     organization {
@@ -93,9 +88,7 @@ const CustomerRequestOverduePayment: FC = () => {
   const { translate } = useInternationalization()
   const { customerId } = useParams()
   const navigate = useNavigate()
-
-  const { data: organizationData, loading: organizationLoading } =
-    useGetRequestOverduePaymentAccessQuery()
+  const { isPremium } = useCurrentUser()
 
   const {
     data: { customer, organization, paymentRequests, invoices } = {},
@@ -105,9 +98,7 @@ const CustomerRequestOverduePayment: FC = () => {
     variables: { id: customerId ?? '' },
   })
 
-  const hasDunningIntegration = !!organizationData?.organization?.premiumIntegrations.includes(
-    PremiumIntegrationTypeEnum.Dunning,
-  )
+  const hasDunningIntegration = !!isPremium
 
   const [paymentRequest, paymentRequestStatus] = useCreatePaymentRequestMutation({
     refetchQueries: ['getCustomerOverdueBalances'],
@@ -186,12 +177,6 @@ const CustomerRequestOverduePayment: FC = () => {
       navigate(ERROR_404_ROUTE)
     }
   }, [loading, totalAmount])
-
-  // Don't render the page until we have the know if the
-  // organization has access to the feature to avoid glitches
-  if (organizationLoading) {
-    return null
-  }
 
   return (
     <>
