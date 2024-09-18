@@ -50,7 +50,6 @@ import {
   useGetCustomerQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, NAV_HEIGHT, PageHeader, theme } from '~/styles'
@@ -106,7 +105,6 @@ const CustomerDetails = () => {
   const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { translate } = useInternationalization()
-  const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
   const navigate = useNavigate()
   const { customerId, tab } = useParams()
@@ -184,12 +182,10 @@ const CustomerDetails = () => {
         </HeaderInlineBreadcrumbBlock>
         <HeaderInlineActionsBlock>
           <GoToPortalButton
-            startIcon={isPremium ? 'outside' : 'sparkles'}
+            startIcon={'outside'}
             variant="quaternary"
             onClick={async () => {
-              isPremium
-                ? await generatePortalUrl({ variables: { input: { id: customerId as string } } })
-                : premiumWarningDialogRef.current?.openDialog()
+              await generatePortalUrl({ variables: { input: { id: customerId as string } } })
             }}
           >
             {translate('text_641b1b19d6e64300632ca60c')}
