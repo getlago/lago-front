@@ -3,7 +3,13 @@ import { useMediaQuery } from '@mui/material'
 import { useFormik } from 'formik'
 import { DateTime } from 'luxon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom'
+import {
+  generatePath,
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom'
 import styled, { css } from 'styled-components'
 import { object, string } from 'yup'
 
@@ -38,9 +44,14 @@ import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
 import { LocalChargeInput } from '~/components/plans/types'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
-import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
+import {
+  CUSTOMER_DETAILS_ROUTE,
+  CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
+  PLAN_SUBSCRIPTION_DETAILS_ROUTE,
+} from '~/core/router'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
   AddSubscriptionPlanFragmentDoc,
@@ -61,6 +72,8 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
 import ThinkingManeki from '~/public/images/maneki/thinking.svg'
 import { BREAKPOINT_LG, Card, NAV_HEIGHT, PageHeader, theme } from '~/styles'
+
+import { CustomerSubscriptionDetailsTabsOptionsEnum } from './SubscriptionDetails'
 
 gql`
   fragment AddSubscriptionPlan on Plan {
@@ -193,6 +206,7 @@ const EmptyState = () => {
 const CreateSubscription = () => {
   let location = useLocation()
   const navigate = useNavigate()
+  let [searchParams] = useSearchParams()
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
   const { customerId, subscriptionId } = useParams()
@@ -492,13 +506,45 @@ const CreateSubscription = () => {
           <Button
             variant="quaternary"
             icon="close"
-            onClick={() =>
-              subscriptionFormikProps.dirty || planFormikProps.dirty
-                ? warningDialogRef.current?.openDialog()
-                : navigate(
+            onClick={() => {
+              if (subscriptionFormikProps.dirty || planFormikProps.dirty) {
+                warningDialogRef.current?.openDialog()
+              } else {
+                const origin = searchParams.get('origin')
+                const originSubscriptionId = searchParams.get('subscriptionId')
+                const originCustomerId = searchParams.get('customerId')
+
+                if (
+                  origin === REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE &&
+                  originSubscriptionId &&
+                  !!originCustomerId
+                ) {
+                  navigate(
+                    generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                      customerId: originCustomerId,
+                      subscriptionId: originSubscriptionId,
+                      tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+                    }),
+                  )
+                } else if (
+                  origin === REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE &&
+                  !!originSubscriptionId &&
+                  plan?.id
+                ) {
+                  navigate(
+                    generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                      planId: plan?.id,
+                      subscriptionId: originSubscriptionId,
+                      tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+                    }),
+                  )
+                } else {
+                  navigate(
                     generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId as string }),
                   )
-            }
+                }
+              }
+            }}
             data-test="close-create-subscription-button"
           />
         )}

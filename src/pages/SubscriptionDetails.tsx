@@ -236,14 +236,20 @@ const SubscriptionDetails = () => {
           tabs={[
             {
               title: translate('text_628cf761cbe6820138b8f2e4'),
-              link: generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                customerId: subscription?.customer?.id as string,
-                subscriptionId: subscriptionId as string,
-                tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-              }),
+              link: !!customerId
+                ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                    customerId,
+                    subscriptionId: subscriptionId as string,
+                    tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+                  })
+                : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                    planId: planId || '',
+                    subscriptionId: subscriptionId as string,
+                    tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+                  }),
               match: [
                 generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                  customerId: subscription?.customer?.id as string,
+                  customerId: customerId || '',
                   subscriptionId: subscriptionId as string,
                   tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
                 }),
@@ -263,11 +269,29 @@ const SubscriptionDetails = () => {
             },
             {
               title: translate('text_1725983967306cei92rkdtvb'),
-              link: generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                customerId: subscription?.customer?.id as string,
-                subscriptionId: subscriptionId as string,
-                tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
-              }),
+              link: !!customerId
+                ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                    customerId,
+                    subscriptionId: subscriptionId as string,
+                    tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+                  })
+                : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                    planId: planId || '',
+                    subscriptionId: subscriptionId as string,
+                    tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+                  }),
+              match: [
+                generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                  customerId: customerId || '',
+                  subscriptionId: subscriptionId as string,
+                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+                }),
+                generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                  planId: planId || '',
+                  subscriptionId: subscriptionId as string,
+                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+                }),
+              ],
               component: (
                 <ContentContainer>
                   <TabContentWrapper>

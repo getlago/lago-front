@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useRef } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { Button, Skeleton, Typography } from '~/components/designSystem'
@@ -17,10 +17,16 @@ import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
 import { LocalChargeInput } from '~/components/plans/types'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { useDuplicatePlanVar } from '~/core/apolloClient'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
-import { PLAN_DETAILS_ROUTE, PLANS_ROUTE } from '~/core/router'
+import {
+  CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
+  PLAN_DETAILS_ROUTE,
+  PLAN_SUBSCRIPTION_DETAILS_ROUTE,
+  PLANS_ROUTE,
+} from '~/core/router'
 import {
   ChargeAccordionFragmentDoc,
   PlanForChargeAccordionFragmentDoc,
@@ -33,6 +39,7 @@ import { Card, NAV_HEIGHT, PageHeader, theme } from '~/styles'
 import { Content, Main, MAIN_PADDING, Side, SkeletonHeader } from '~/styles/mainObjectsForm'
 
 import { PlanDetailsTabsOptionsEnum } from './PlanDetails'
+import { CustomerSubscriptionDetailsTabsOptionsEnum } from './SubscriptionDetails'
 
 gql`
   fragment TaxForPlanAndChargesInPlanForm on Tax {
@@ -117,6 +124,7 @@ const CreatePlan = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const { type: actionType } = useDuplicatePlanVar()
+  let [searchParams] = useSearchParams()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { errorCode, formikProps, isEdition, loading, plan, type } = usePlanForm({})
   const warningDialogRef = useRef<WarningDialogRef>(null)
@@ -125,7 +133,29 @@ const CreatePlan = () => {
   const canBeEdited = !plan?.subscriptionsCount
 
   const planCloseRedirection = () => {
-    if (plan?.id && actionType !== FORM_TYPE_ENUM.duplicate) {
+    const origin = searchParams.get('origin')
+    const originSubscriptionId = searchParams.get('subscriptionId')
+    const originCustomerId = searchParams.get('customerId')
+
+    if (origin === REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE && originSubscriptionId && plan?.id) {
+      if (!!originCustomerId) {
+        navigate(
+          generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+            customerId: originCustomerId,
+            subscriptionId: originSubscriptionId,
+            tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+          }),
+        )
+      } else {
+        navigate(
+          generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+            planId: plan?.id,
+            subscriptionId: originSubscriptionId,
+            tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+          }),
+        )
+      }
+    } else if (plan?.id && actionType !== FORM_TYPE_ENUM.duplicate) {
       navigate(
         generatePath(PLAN_DETAILS_ROUTE, {
           planId: plan.id,
