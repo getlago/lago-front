@@ -132,9 +132,9 @@ const AdyenIntegrations = () => {
           </>
         ) : (
           <>
-            <StyledAvatar variant="connector" size="large">
+            <Avatar className="mr-4" variant="connector" size="large">
               <Adyen />
-            </StyledAvatar>
+            </Avatar>
             <div>
               <Line>
                 <Typography variant="headline">
@@ -319,10 +319,6 @@ const ListItem = styled.div`
   > *:first-child {
     margin-right: ${theme.spacing(3)};
   }
-`
-
-const StyledAvatar = styled(Avatar)`
-  margin-right: ${theme.spacing(4)};
 `
 
 const Line = styled.div`

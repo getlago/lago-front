@@ -37,9 +37,9 @@ export const ListItem: FC<ListItemProps> = ({
   return (
     <ListItemWrapper {...props}>
       <ListLeftWrapper>
-        <ItemIcon size="big" variant="connector">
+        <Avatar className="mr-3" size="big" variant="connector">
           <Icon name={isPending ? 'sync' : iconName} color="dark" />
-        </ItemIcon>
+        </Avatar>
         <ColumnWrapper>
           <Typography variant="bodyHl" color={isPending ? 'grey600' : labelColor}>
             {label}
@@ -91,10 +91,6 @@ const ListLeftWrapper = styled.div`
   &:last-child {
     align-items: flex-end;
   }
-`
-
-const ItemIcon = styled(Avatar)`
-  margin-right: ${theme.spacing(3)};
 `
 
 const ListRightWrapper = styled.div`

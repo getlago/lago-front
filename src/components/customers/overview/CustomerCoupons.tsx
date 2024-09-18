@@ -105,9 +105,9 @@ export const CustomerCoupons = memo(() => {
           </ListHeader>
           {(coupons || []).map((appliedCoupon) => (
             <CouponNameSection key={appliedCoupon.id} data-test={appliedCoupon.coupon?.name}>
-              <ListAvatar variant="connector">
+              <Avatar className="mr-3" variant="connector">
                 <Icon name="coupon" color="dark" />
-              </ListAvatar>
+              </Avatar>
               <NameBlock>
                 <Typography color="textSecondary" variant="bodyHl" noWrap>
                   {appliedCoupon.coupon?.name}
@@ -178,10 +178,6 @@ const CouponNameSection = styled.div`
   height: ${NAV_HEIGHT}px;
   box-shadow: ${theme.shadows[7]};
   width: 100%;
-`
-
-const ListAvatar = styled(Avatar)`
-  margin-right: ${theme.spacing(3)};
 `
 
 const NameBlock = styled.div`

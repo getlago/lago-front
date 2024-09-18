@@ -65,7 +65,8 @@ export const CustomerItem = memo(({ rowId, customer, editDialogRef }: CustomerIt
         data-test={customerName}
       >
         <CustomerNameSection>
-          <ListAvatar
+          <Avatar
+            className="mr-3"
             variant="user"
             size="big"
             identifier={customerName as string}
@@ -160,10 +161,6 @@ const Item = styled(ListItemLink)`
 
 const SmallCell = styled(Typography)<{ $alignLeft?: boolean }>`
   width: 112px;
-`
-
-const ListAvatar = styled(Avatar)`
-  margin-right: ${theme.spacing(3)};
 `
 
 const CustomerNameSection = styled.div`

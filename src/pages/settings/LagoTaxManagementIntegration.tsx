@@ -128,9 +128,9 @@ const LagoTaxManagementIntegration = () => {
           </>
         ) : (
           <>
-            <StyledAvatar variant="connector" size="large">
+            <Avatar className="mr-4" variant="connector" size="large">
               <LagoTaxManagement />
-            </StyledAvatar>
+            </Avatar>
             <Stack spacing={1}>
               <Line>
                 <Typography variant="headline">
@@ -307,10 +307,6 @@ const Info = styled(Typography)`
   display: flex;
   justify-content: flex-start;
   align-items: center;
-`
-
-const StyledAvatar = styled(Avatar)`
-  margin-right: ${theme.spacing(4)};
 `
 
 const Line = styled.div`
