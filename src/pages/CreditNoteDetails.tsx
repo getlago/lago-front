@@ -426,9 +426,9 @@ const CreditNoteDetails = () => {
             </MainInfos>
           ) : (
             <MainInfos>
-              <ConnectorAvatar size="big" variant="connector">
+              <Avatar size="large" variant="connector">
                 <Icon name="document" color="dark" size="large" />
-              </ConnectorAvatar>
+              </Avatar>
               <div>
                 <MainInfoLine>
                   <Typography variant="headline" color="grey700">
@@ -980,10 +980,6 @@ const MainInfos = styled.div`
   > *:first-child {
     margin-right: ${theme.spacing(4)};
   }
-`
-
-const ConnectorAvatar = styled(Avatar)`
-  padding: ${theme.spacing(3)};
 `
 
 const MainInfoLine = styled.div`
