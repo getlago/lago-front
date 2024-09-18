@@ -60,6 +60,16 @@ export const colors = {
     700: '#BA2B08',
     800: '#9D2507',
   },
+  avatar: {
+    orange: '#FF9351',
+    brown: '#D59993',
+    green: '#66DD93',
+    turquoise: '#6FD8C1',
+    blue: '#2FC1FE',
+    indigo: '#5195FF',
+    grey: '#889ABF',
+    pink: '#FF9BE0',
+  },
 }
 
 const config = {
@@ -90,6 +100,7 @@ const config = {
         ...colors.red,
         DEFAULT: colors.red[600],
       },
+      avatar: colors.avatar,
       black: '#000000',
       white: '#FFFFFF',
     },

@@ -1,37 +1,14 @@
+import { cva } from 'class-variance-authority'
 import { ReactNode } from 'react'
-import styled, { css } from 'styled-components'
 
-import { theme } from '~/styles'
+import { cn } from '~/styles/utils'
 
 import { Typography } from './Typography'
 
-const AVATAR_PALETTE = {
-  orange: '#FF9351',
-  brown: '#D59993',
-  green: '#66DD93',
-  turquoise: '#6FD8C1',
-  blue: '#2FC1FE',
-  indigo: '#5195FF',
-  grey: '#889ABF',
-  pink: '#FF9BE0',
-}
+import { colors } from '../../../tailwind.config'
 
-enum AvatarSizeEnum {
-  small = 'small',
-  intermediate = 'intermediate',
-  medium = 'medium',
-  big = 'big',
-  large = 'large',
-}
-
-enum AvatarVariantEnum {
-  connector = 'connector',
-  user = 'user',
-  company = 'company',
-}
-
-export type AvatarSize = keyof typeof AvatarSizeEnum
-type AvatarVariant = keyof typeof AvatarVariantEnum
+export type AvatarSize = 'small' | 'intermediate' | 'medium' | 'big' | 'large'
+type AvatarVariant = 'connector' | 'user' | 'company'
 
 interface AvatarConnectorProps {
   variant: Extract<AvatarVariant, 'connector'>
@@ -63,6 +40,8 @@ const mapTypographyVariant = (size: AvatarSize) => {
   }
 }
 
+// TODO: To remove once migration is done for Skeleton component
+// Use avatarSizeStyles instead of mapAvatarSize
 export const mapAvatarSize = (size: AvatarSize) => {
   switch (size) {
     case 'small':
@@ -80,7 +59,7 @@ export const mapAvatarSize = (size: AvatarSize) => {
 
 // The need here is to get a color from the AVATAR_PALETTE according to
 // an identifier (can be an id, fullname, company name... whaterver)
-const getBackgroundColorKey = (identifier?: string): keyof typeof AVATAR_PALETTE | null => {
+const getBackgroundColorKey = (identifier?: string): keyof typeof colors.avatar | null => {
   if (!identifier) return null
 
   // Get the sum of the UTF-16 code for each char
@@ -90,14 +69,53 @@ const getBackgroundColorKey = (identifier?: string): keyof typeof AVATAR_PALETTE
   }, 0)
 
   // From the modulo of the color number, get the modulo
-  const colorKeys = Object.keys(AVATAR_PALETTE)
+  const colorKeys = Object.keys(colors.avatar)
+
   const colorIndex = charcodeSum % colorKeys.length
 
   // @ts-expect-error
   return colorKeys[colorIndex]
 }
 
-type AvatarProps = AvatarGenericProps | AvatarConnectorProps
+const avatarSizeStyles: Record<AvatarSize, string> = {
+  small: 'w-4 min-w-4 h-4 rounded',
+  intermediate: 'w-6 min-w-6 h-6 rounded-lg',
+  medium: 'w-8 min-w-8 h-8 rounded-xl',
+  big: 'w-10 min-w-10 h-10 rounded-xl',
+  large: 'w-16 min-w-16 h-16 rounded-xl',
+}
+
+const avatarStyles = cva(
+  'flex items-center justify-center [&>img]:object-cover [&>img]:h-full [&>img]:w-full [&>img]:rounded-[inherit]',
+  {
+    variants: {
+      size: avatarSizeStyles,
+      rounded: {
+        false: 'rounded-full',
+      },
+      backgroundColor: {
+        default: 'bg-grey-100',
+        orange: 'bg-avatar-orange',
+        brown: 'bg-avatar-brown',
+        green: 'bg-avatar-green',
+        turquoise: 'bg-avatar-turquoise',
+        blue: 'bg-avatar-blue',
+        indigo: 'bg-avatar-indigo',
+        grey: 'bg-avatar-grey',
+        pink: 'bg-avatar-pink',
+      },
+      color: {
+        default: 'text-gray-600',
+        white: 'text-white',
+      },
+    },
+    defaultVariants: {
+      size: 'big',
+      backgroundColor: 'default',
+      color: 'default',
+    },
+  },
+)
 
 export const Avatar = ({
   variant,
@@ -106,18 +124,15 @@ export const Avatar = ({
   initials,
   children,
   className,
-}: AvatarProps) => {
+}: AvatarGenericProps | AvatarConnectorProps) => {
   if (variant === 'connector') {
     return (
-      <StyledAvatar
-        className={className}
+      <div
+        className={cn(avatarStyles({ size, rounded: true }), className)}
         data-test={`${variant}/${size}`}
-        $size={mapAvatarSize(size)}
-        $isRounded={true}
-        $backgroundColor={theme.palette.grey[100]}
       >
         {children}
-      </StyledAvatar>
+      </div>
     )
   }
 
@@ -131,49 +146,20 @@ export const Avatar = ({
     )
   }
 
-  const backgroundColorKey = getBackgroundColorKey(identifier)
-
   return (
-    <StyledAvatar
-      className={className}
+    <div
+      className={cn(
+        avatarStyles({
+          size,
+          backgroundColor: getBackgroundColorKey(identifier) ?? 'default',
+          color: identifier ? 'white' : 'default',
+          rounded: variant === 'company',
+        }),
+        className,
+      )}
       data-test={`${variant}/${size}`}
-      $size={mapAvatarSize(size)}
-      $isRounded={variant === 'company'}
-      // @ts-expect-error
-      $backgroundColor={!!identifier ? AVATAR_PALETTE[backgroundColorKey] : theme.palette.grey[100]}
-      $color={!!identifier ? theme.palette.common.white : theme.palette.grey[600]}
     >
       {getContent()}
-    </StyledAvatar>
+    </div>
   )
 }
-
-const StyledAvatar = styled.div<{
-  $size: number
-  $isRounded: boolean
-  $backgroundColor?: string
-  $color?: string
-}>`
-  background-color: ${(props) => props.$backgroundColor};
-  color: ${(props) => props.$color};
-  width: ${(props) => props.$size}px;
-  min-width: ${(props) => props.$size}px;
-  height: ${(props) => props.$size}px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  ${(props) =>
-    props.$isRounded
-      ? css`
-          border-radius: ${props.$size === 16 ? '4px' : props.$size === 24 ? '8px' : '12px'};
-        `
-      : css`
-          border-radius: 50%;
-        `}
-  > img {
-    height: 100%;
-    width: 100%;
-    object-fit: cover;
-    border-radius: inherit;
-  }
-`
