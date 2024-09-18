@@ -230,7 +230,7 @@ const WalletForm = () => {
                   interval: trigger === RecurringTransactionTriggerEnum.Interval ? interval : null,
                   startedAt:
                     trigger === RecurringTransactionTriggerEnum.Interval
-                      ? startedAt ?? DateTime.now().toISO()
+                      ? (startedAt ?? DateTime.now().toISO())
                       : null,
                   thresholdCredits:
                     trigger === RecurringTransactionTriggerEnum.Threshold ? thresholdCredits : null,
