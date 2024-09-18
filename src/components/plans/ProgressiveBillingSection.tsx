@@ -396,6 +396,10 @@ const TableContainer = styled.div`
   margin-left: -${theme.spacing(4)};
   margin-right: -${theme.spacing(4)};
   padding-left: ${theme.spacing(4)};
+
+  /* Make sure focus ring is not crop at the bottom */
+  padding-bottom: ${theme.spacing(1)};
+  margin-bottom: -${theme.spacing(1)};
 `
 
 const TypographyCell = styled(Typography)`
