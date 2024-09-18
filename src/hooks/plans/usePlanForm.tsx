@@ -1,11 +1,12 @@
 import { gql } from '@apollo/client'
 import { FormikProps, useFormik } from 'formik'
 import { useEffect, useMemo } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { array, number, object, string } from 'yup'
 
 import { LocalChargeInput, PlanFormInput } from '~/components/plans/types'
 import { transformFilterObjectToString } from '~/components/plans/utils'
+import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   PLAN_FORM_TYPE,
@@ -13,7 +14,12 @@ import {
   useDuplicatePlanVar,
 } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
 import { FORM_ERRORS_ENUM, FORM_TYPE_ENUM } from '~/core/constants/form'
-import { ERROR_404_ROUTE, PLAN_DETAILS_ROUTE } from '~/core/router'
+import {
+  CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
+  ERROR_404_ROUTE,
+  PLAN_DETAILS_ROUTE,
+  PLAN_SUBSCRIPTION_DETAILS_ROUTE,
+} from '~/core/router'
 import { serializePlanInput } from '~/core/serializers'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -31,6 +37,7 @@ import {
   useUpdatePlanMutation,
 } from '~/generated/graphql'
 import { PlanDetailsTabsOptionsEnum } from '~/pages/PlanDetails'
+import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/pages/SubscriptionDetails'
 
 import { useInternationalization } from '../core/useInternationalization'
 import { useOrganizationInfos } from '../useOrganizationInfos'
@@ -80,6 +87,7 @@ export const usePlanForm: ({
   const navigate = useNavigate()
   const { organization } = useOrganizationInfos()
   const { translate } = useInternationalization()
+  let [searchParams] = useSearchParams()
   const { planId: id } = useParams()
   const { parentId, type: actionType } = useDuplicatePlanVar()
   const { data, loading, error } = useGetSinglePlanQuery({
@@ -340,16 +348,47 @@ export const usePlanForm: ({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted({ updatePlan }) {
       if (!!updatePlan) {
+        const origin = searchParams.get('origin')
+        const originSubscriptionId = searchParams.get('subscriptionId')
+        const originCustomerId = searchParams.get('customerId')
+
         addToast({
           severity: 'success',
           translateKey: 'text_625fd165963a7b00c8f598a0',
         })
-        navigate(
-          generatePath(PLAN_DETAILS_ROUTE, {
-            planId: updatePlan.id,
-            tab: PlanDetailsTabsOptionsEnum.overview,
-          }),
-        )
+
+        if (
+          origin === REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE &&
+          originSubscriptionId &&
+          !!originCustomerId
+        ) {
+          navigate(
+            generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+              customerId: originCustomerId,
+              subscriptionId: originSubscriptionId,
+              tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+            }),
+          )
+        } else if (
+          origin === REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE &&
+          !!originSubscriptionId &&
+          updatePlan?.id
+        ) {
+          navigate(
+            generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+              planId: updatePlan?.id,
+              subscriptionId: originSubscriptionId,
+              tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+            }),
+          )
+        } else {
+          navigate(
+            generatePath(PLAN_DETAILS_ROUTE, {
+              planId: updatePlan.id,
+              tab: PlanDetailsTabsOptionsEnum.overview,
+            }),
+          )
+        }
       }
     },
   })

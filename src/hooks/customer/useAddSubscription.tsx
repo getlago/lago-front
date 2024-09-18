@@ -1,12 +1,17 @@
 import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 import { useMemo } from 'react'
-import { generatePath, useLocation, useNavigate } from 'react-router-dom'
+import { generatePath, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { PlanFormInput } from '~/components/plans/types'
+import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
-import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
+import {
+  CUSTOMER_DETAILS_ROUTE,
+  CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
+  PLAN_SUBSCRIPTION_DETAILS_ROUTE,
+} from '~/core/router'
 import { serializePlanInput } from '~/core/serializers'
 import {
   BillingTimeEnum,
@@ -20,6 +25,7 @@ import {
   useUpdateSubscriptionMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/pages/SubscriptionDetails'
 
 import { useSalesForceConfig } from '../useSalesForceConfig'
 
@@ -42,6 +48,9 @@ gql`
         id
         activeSubscriptionsCount
         ...CustomerDetails
+      }
+      plan {
+        id
       }
     }
   }
@@ -95,6 +104,7 @@ export const useAddSubscription: UseAddSubscription = ({
 }): UseAddSubscriptionReturn => {
   let location = useLocation()
   const navigate = useNavigate()
+  let [searchParams] = useSearchParams()
   const { translate } = useInternationalization()
   const { emitSalesForceEvent, isRunningInSalesForceIframe } = useSalesForceConfig()
 
@@ -162,6 +172,10 @@ export const useAddSubscription: UseAddSubscription = ({
     },
     onCompleted: async (res) => {
       if (!!res?.updateSubscription) {
+        const origin = searchParams.get('origin')
+        const originSubscriptionId = searchParams.get('subscriptionId')
+        const originCustomerId = searchParams.get('customerId')
+
         addToast({
           message: translate(
             formType === FORM_TYPE_ENUM.upgradeDowngrade
@@ -170,13 +184,39 @@ export const useAddSubscription: UseAddSubscription = ({
           ),
           severity: 'success',
         })
-      }
 
-      navigate(
-        generatePath(CUSTOMER_DETAILS_ROUTE, {
-          customerId: res?.updateSubscription?.customer.id as string,
-        }),
-      )
+        if (
+          origin === REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE &&
+          originSubscriptionId &&
+          !!originCustomerId
+        ) {
+          navigate(
+            generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+              customerId: originCustomerId,
+              subscriptionId: originSubscriptionId,
+              tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+            }),
+          )
+        } else if (
+          origin === REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE &&
+          !!originSubscriptionId &&
+          res?.updateSubscription?.plan?.id
+        ) {
+          navigate(
+            generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+              planId: res?.updateSubscription?.plan?.id,
+              subscriptionId: originSubscriptionId,
+              tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+            }),
+          )
+        } else {
+          navigate(
+            generatePath(CUSTOMER_DETAILS_ROUTE, {
+              customerId: res?.updateSubscription?.customer.id as string,
+            }),
+          )
+        }
+      }
     },
     refetchQueries: ['getCustomerSubscriptionForList'],
   })
