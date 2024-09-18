@@ -122,7 +122,7 @@
     "yup": "1.2.0"
   },
   "resolutions": {
-    "express": "^4.19.2",
+    "express": "^4.20.0",
     "jose": "^4.15.5",
     "styled-components": "5.3.11",
     "@mui/styled-engine": "5.14.18",
