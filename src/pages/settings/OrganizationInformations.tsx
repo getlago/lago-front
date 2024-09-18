@@ -166,11 +166,12 @@ const OrganizationInformations = () => {
         ) : (
           <Grid>
             {logoUrl ? (
-              <CompanyAvatar size="big" variant="connector">
+              <Avatar className="col-span-2 mb-3" size="big" variant="connector">
                 <img src={logoUrl} alt={`${name}'s logo`} />
-              </CompanyAvatar>
+              </Avatar>
             ) : (
-              <CompanyAvatar
+              <Avatar
+                className="col-span-2 mb-3"
                 size="big"
                 variant="company"
                 identifier={name || ''}
@@ -268,11 +269,6 @@ const SkeletonLine = styled.div`
   &:first-child {
     margin-right: ${theme.spacing(18)};
   }
-`
-
-const CompanyAvatar = styled(Avatar)`
-  grid-column: 1 / span 2;
-  margin-bottom: ${theme.spacing(3)};
 `
 
 const Grid = styled.div`
