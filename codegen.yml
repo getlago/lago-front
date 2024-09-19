@@ -1,6 +1,7 @@
 overwrite: true
 schema:
-  - ${CODEGEN_API}
+  - ${CODEGEN_API_CUSTOMER_PORTAL}
+  - ${CODEGEN_API_GRAPHQL}
   - './src/core/apolloClient/graphqlResolvers.tsx'
 documents: ['src/**/*.tsx', 'src/**/*.ts']
 generates:
