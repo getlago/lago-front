@@ -1,6 +1,6 @@
 import { ApolloClient, ApolloProvider, NormalizedCacheObject } from '@apollo/client'
 import { loadDevMessages, loadErrorMessages } from '@apollo/client/dev'
-import { ThemeProvider } from '@mui/material'
+import { StyledEngineProvider, ThemeProvider } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { BrowserRouter } from 'react-router-dom'
 
@@ -13,7 +13,6 @@ import { envGlobalVar, initializeApolloClient, initializeTranslations } from '~/
 import { initializeYup } from '~/formValidation/initializeYup'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
 import { theme } from '~/styles'
-import { inputGlobalStyles } from '~/styles/globalStyle'
 
 import { AppEnvEnum } from './core/constants/globalTypes'
 
@@ -52,15 +51,16 @@ const App = () => {
   return (
     <BrowserRouter basename="/">
       <ApolloProvider client={client}>
-        <ThemeProvider theme={theme}>
-          {inputGlobalStyles}
-          <ErrorBoundary>
-            <RouteWrapper />
-          </ErrorBoundary>
-          <UserIdentifier />
-          <ToastContainer />
-          <DebugInfoDialog ref={debugInfoDialogRef} />
-        </ThemeProvider>
+        <StyledEngineProvider injectFirst>
+          <ThemeProvider theme={theme}>
+            <ErrorBoundary>
+              <RouteWrapper />
+            </ErrorBoundary>
+            <UserIdentifier />
+            <ToastContainer />
+            <DebugInfoDialog ref={debugInfoDialogRef} />
+          </ThemeProvider>
+        </StyledEngineProvider>
       </ApolloProvider>
     </BrowserRouter>
   )

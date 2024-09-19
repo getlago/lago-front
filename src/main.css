@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles */
+
+html,
+body,
+#root {
+  @apply m-0 h-full w-full overflow-auto p-0;
+}
+
+body {
+  @apply relative font-sans text-base text-grey-600 subpixel-antialiased;
+}
+
+a {
+  @apply text-blue no-underline visited:text-purple hover:underline focus:ring;
+}
+
+b {
+  @apply text-base font-medium -tracking-[0.01em];
+}
+
+ul {
+  @apply m-0 list-disc pl-6;
+}
+
+span.line-break-anywhere {
+  @apply break-all;
+}
+
+/* TODO: Might be able to delete after migration */
+button {
+  @apply h-10 cursor-pointer rounded-xl border-0 px-3 py-[6px] font-sans outline-none active:outline-none;
+}

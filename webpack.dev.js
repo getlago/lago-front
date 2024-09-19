@@ -31,7 +31,22 @@ module.exports = (env) =>
         },
         {
           test: /\.css$/i,
-          use: ['style-loader', 'css-loader'],
+          use: [
+            {
+              loader: 'style-loader',
+            },
+            {
+              loader: 'css-loader',
+              options: {
+                importLoaders: 1,
+              },
+            },
+            {
+              loader: 'postcss-loader',
+            },
+          ],
+          include: path.resolve(__dirname, 'src'),
+          exclude: /node_modules/,
         },
         {
           test: /\.svg$/,
@@ -74,7 +89,8 @@ module.exports = (env) =>
     ],
     devServer: {
       historyApiFallback: true,
-      hot: 'only',
+      open: true,
+      hot: true,
       port: process.env.PORT || 8080,
       static: {
         directory: path.resolve(__dirname, './dist'),

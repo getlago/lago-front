@@ -10,6 +10,7 @@
     "esbenp.prettier-vscode",
     "ionutvmi.path-autocomplete",
     "christian-kohler.path-intellisense",
-    "dsznajder.es7-react-js-snippets"
+    "dsznajder.es7-react-js-snippets",
+    "bradlc.vscode-tailwindcss"
   ]
 }
