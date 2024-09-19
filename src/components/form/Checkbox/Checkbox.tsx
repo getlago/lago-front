@@ -1,4 +1,4 @@
-import clsns from 'classnames'
+import { cx } from 'class-variance-authority'
 import { ChangeEvent, useRef, useState } from 'react'
 import styled from 'styled-components'
 
@@ -41,7 +41,7 @@ export const Checkbox = ({
       onClick={() => inputRef.current?.click()}
     >
       <Main
-        className={clsns({
+        className={cx({
           'checkbox--disabled': disabled,
           'checkbox--focused': focused,
         })}

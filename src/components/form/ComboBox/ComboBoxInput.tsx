@@ -1,5 +1,5 @@
 import { InputAdornment } from '@mui/material'
-import clsns from 'classnames'
+import { cx } from 'class-variance-authority'
 import _omit from 'lodash/omit'
 import styled from 'styled-components'
 
@@ -56,7 +56,7 @@ export const ComboBoxInput = ({
             {!disableClearable && (
               <StyledButton
                 // To make sure the "clear button" is displayed only on hover or focus
-                className={clsns('MuiAutocomplete-clearIndicator', {
+                className={cx('MuiAutocomplete-clearIndicator', {
                   'MuiAutocomplete-clearIndicatorDirty': inputProps?.value,
                 })}
                 disabled={restParams.disabled}

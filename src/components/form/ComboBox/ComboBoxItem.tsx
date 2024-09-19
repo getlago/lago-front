@@ -1,4 +1,4 @@
-import clsns from 'classnames'
+import { cx } from 'class-variance-authority'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -42,7 +42,7 @@ export const ComboBoxItem = ({
         <Item
           id={id}
           $virtualized={virtualized}
-          className={clsns(
+          className={cx(
             {
               'combo-box-item--disabled': disabled,
             },

@@ -1,4 +1,4 @@
-import clsns from 'classnames'
+import { cx } from 'class-variance-authority'
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import styled, { css } from 'styled-components'
 
@@ -66,7 +66,7 @@ export const Toast = forwardRef<ToastRef, ToastProps>(({ toast }: ToastProps, re
           removeToast(id)
         }
       }}
-      className={clsns({ 'toast-closing': closing })}
+      className={cx({ 'toast-closing': closing })}
       key={id}
       $severity={severity}
       onMouseEnter={stopTimeout}

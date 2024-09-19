@@ -1,5 +1,5 @@
 import { Stack } from '@mui/material'
-import clsns from 'classnames'
+import { cx } from 'class-variance-authority'
 import { ReactNode } from 'react'
 import styled, { css } from 'styled-components'
 
@@ -60,7 +60,7 @@ export const Alert = ({
     <Container
       $isFullWidth={fullWidth}
       $containerSize={containerSize}
-      className={clsns(className, [`alert-type--${type}`])}
+      className={cx(className, [`alert-type--${type}`])}
       data-test={`alert-type-${type}`}
       {...props}
     >

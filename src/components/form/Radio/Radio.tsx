@@ -1,4 +1,4 @@
-import clsns from 'classnames'
+import { cx } from 'class-variance-authority'
 import { isBoolean } from 'lodash'
 import { forwardRef, ReactNode, useId, useRef, useState } from 'react'
 import styled from 'styled-components'
@@ -33,7 +33,7 @@ export const Radio = forwardRef<HTMLDivElement, RadioProps>(
       <Container
         ref={ref}
         onClick={() => inputRef.current?.click()}
-        className={clsns({
+        className={cx({
           'radio--disabled': disabled,
           'radio--focused': focused,
           'radio--checked': checked,

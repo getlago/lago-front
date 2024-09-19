@@ -112,7 +112,6 @@
     "apollo-link-timeout": "4.0.0",
     "apollo-upload-client": "17.0.0",
     "apollo3-cache-persist": "0.15.0",
-    "classnames": "2.3.2",
     "formik": "2.4.5",
     "graphql": "^16.6.0",
     "localforage": "1.10.0",
