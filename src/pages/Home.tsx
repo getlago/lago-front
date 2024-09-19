@@ -19,7 +19,10 @@ const Home = () => {
         LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY,
       )
 
-      if (!!lastPrivateVisitedRouteWhileNotConnected) {
+      if (
+        !!lastPrivateVisitedRouteWhileNotConnected &&
+        lastPrivateVisitedRouteWhileNotConnected.pathname !== '/'
+      ) {
         navigate(lastPrivateVisitedRouteWhileNotConnected, { replace: true })
         // This is a temp value for redirection, should be removed after redirection have been performed
         removeItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
