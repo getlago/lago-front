@@ -1,6 +1,6 @@
 import clsx from 'classnames'
 import { twMerge } from 'tailwind-merge'
 
-export const cn = (...inputs: clsx.ArgumentArray) => {
+export const tw = (...inputs: clsx.ArgumentArray) => {
   return twMerge(clsx(inputs))
 }

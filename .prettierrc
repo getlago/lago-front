@@ -9,7 +9,7 @@
   "importOrderSortSpecifiers": true,
   "importOrderCaseInsensitive": true,
   "tailwindConfig": "./tailwind.config.ts",
-  "tailwindFunctions": ["cn"],
+  "tailwindFunctions": ["tw", "clsx", "cva"],
   "overrides": [
     {
       "files": "*.svg",
