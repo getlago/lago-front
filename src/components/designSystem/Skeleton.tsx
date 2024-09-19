@@ -1,4 +1,4 @@
-import clsns from 'classnames'
+import { cx } from 'class-variance-authority'
 import styled from 'styled-components'
 
 import { theme } from '~/styles'
@@ -61,7 +61,7 @@ export const Skeleton = ({
       $marginTop={marginTop}
       $height={(size ? mapAvatarSize(size) : height) || 12}
       $width={(size ? mapAvatarSize(size) : width) || 90}
-      className={clsns(className, {
+      className={cx(className, {
         'skeleton-variant--circular': [
           SkeletonVariantEnum.circular,
           SkeletonVariantEnum.userAvatar,

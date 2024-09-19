@@ -1,4 +1,4 @@
-import clsns from 'classnames'
+import { cx } from 'class-variance-authority'
 import { forwardRef, MouseEvent, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import styled, { css } from 'styled-components'
@@ -74,7 +74,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
           }
         : buttonProps || {}
 
-    const classNames = clsns(className, {
+    const classNames = cx(className, {
       'button-link-disabled': (active && !canBeClickedOnActive) || disabled,
     })
 

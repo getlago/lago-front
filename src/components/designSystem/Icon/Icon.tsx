@@ -1,4 +1,4 @@
-import clsns from 'classnames'
+import { cx } from 'class-variance-authority'
 import { cloneElement } from 'react'
 import styled from 'styled-components'
 
@@ -84,7 +84,7 @@ export const Icon = ({
       data-test={`${name}/${size}`}
       $size={size}
       $canClick={!!onClick}
-      className={clsns('svg-icon', className, { [`icon-animation--${animation}`]: animation })}
+      className={cx('svg-icon', className, { [`icon-animation--${animation}`]: animation })}
       $color={mapColor(color)}
       component={<SVGIcon />}
       onClick={onClick}

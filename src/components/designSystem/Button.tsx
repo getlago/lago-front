@@ -2,7 +2,7 @@
 
 /* eslint-disable react/prop-types */
 import { Button as MuiButton, ButtonProps as MuiButtonProps } from '@mui/material'
-import clsns from 'classnames'
+import { cx } from 'class-variance-authority'
 import { forwardRef, MouseEvent, useEffect, useRef, useState } from 'react'
 import styled, { css } from 'styled-components'
 
@@ -149,7 +149,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     return (
       <StyledButton
-        className={clsns(className, {
+        className={cx(className, {
           'button-danger': danger,
           'button-icon-only': icon && !children,
           'button-quaternary-light': variant === 'quaternary-light',

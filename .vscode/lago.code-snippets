@@ -19,62 +19,57 @@
   "Import from generated graphql file": {
     "scope": "typescript, typescriptreact",
     "prefix": "igenerated",
-    "body": "import { $1 } from '~/generated/graphql'"
+    "body": "import { $1 } from '~/generated/graphql'",
   },
   "Import MuiTheme": {
     "scope": "typescript, typescriptreact",
     "prefix": "itheme",
-    "body": "import { theme } from '~/styles'"
+    "body": "import { theme } from '~/styles'",
   },
   "Import from MaterialUI/core": {
     "scope": "typescript, typescriptreact",
     "prefix": "imui",
-    "body": "import { $1 } from '@mui/material'"
+    "body": "import { $1 } from '@mui/material'",
   },
   "Import styled from styled-components": {
     "scope": "typescript, typescriptreact",
     "prefix": "istyled",
-    "body": "import styled from 'styled-components'"
+    "body": "import styled from 'styled-components'",
   },
   "Import from components generics": {
     "scope": "typescript, typescriptreact",
     "prefix": "ids",
-    "body": "import { $1 } from '~/components/designSystem'"
+    "body": "import { $1 } from '~/components/designSystem'",
   },
   "Import from form components": {
     "scope": "typescript, typescriptreact",
     "prefix": "iforms",
-    "body": "import { $1 } from '~/components/form'"
-  },
-  "Import from classnames": {
-    "scope": "typescript, typescriptreact",
-    "prefix": "iclsns",
-    "body": "import clsns from 'classnames'"
+    "body": "import { $1 } from '~/components/form'",
   },
   "Import permissions hook with method hasPermissions": {
     "scope": "typescript, typescriptreact",
     "prefix": "uhp",
-    "body": "const { hasPermissions } = usePermissions()"
+    "body": "const { hasPermissions } = usePermissions()",
   },
 
   // Translations
   "Add translate with TODO: key": {
     "scope": "typescript, typescriptreact",
     "prefix": "trl",
-    "body": "translate('TODO: $1')"
+    "body": "translate('TODO: $1')",
   },
 
   // Linter ignore
   "Ignore exhaustive deps if needed": {
     "scope": "typescript, typescriptreact",
     "prefix": "exhaustive-deps",
-    "body": "// eslint-disable-next-line react-hooks/exhaustive-deps"
+    "body": "// eslint-disable-next-line react-hooks/exhaustive-deps",
   },
 
   // In styles
   "Add theme spacing in px": {
     "scope": "css, styled, typescript, typescriptreact",
     "prefix": "tspx",
-    "body": "${theme.spacing(${1:4})}"
-  }
+    "body": "${theme.spacing(${1:4})}",
+  },
 }

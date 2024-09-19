@@ -1,4 +1,4 @@
-import clsns from 'classnames'
+import { cx } from 'class-variance-authority'
 import { MouseEvent, useEffect, useRef, useState } from 'react'
 import styled, { css } from 'styled-components'
 
@@ -77,7 +77,7 @@ export const Switch = ({
     >
       <SwitchContainer
         $checked={!!checked}
-        className={clsns('switchField', {
+        className={cx('switchField', {
           'switchField--disabled': disabled,
           'switchField--focused': focused,
           'switchField--loading': loading,
