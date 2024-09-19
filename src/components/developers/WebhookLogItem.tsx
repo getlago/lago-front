@@ -6,7 +6,7 @@ import { WebhookLogItemFragment, WebhookStatusEnum } from '~/generated/graphql'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { BaseListItem, ItemContainer, ListItem, theme } from '~/styles'
-import { cn } from '~/styles/utils'
+import { tw } from '~/styles/utils'
 
 gql`
   fragment WebhookLogItem on Webhook {
@@ -38,12 +38,7 @@ export const WebhookLogItem = ({
     <ItemContainer>
       <Item tabIndex={0} onClick={onClick} {...navigationProps} $active={selected}>
         <NameSection>
-          <Avatar
-            size="big"
-            variant="connector"
-            className={cn('mr-3', { 'bg-red-100': hasError })}
-            // $isFailed={status === WebhookStatusEnum.Failed}
-          >
+          <Avatar size="big" variant="connector" className={tw('mr-3', { 'bg-red-100': hasError })}>
             <Icon
               name={hasError ? 'close-circle-unfilled' : 'checkmark'}
               color={hasError ? 'error' : 'dark'}

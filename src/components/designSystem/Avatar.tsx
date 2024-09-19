@@ -1,7 +1,7 @@
-import { cva } from 'class-variance-authority'
+import { cva, cx } from 'class-variance-authority'
 import { ReactNode } from 'react'
 
-import { cn } from '~/styles/utils'
+import { tw } from '~/styles/utils'
 
 import { Typography } from './Typography'
 
@@ -78,15 +78,15 @@ const getBackgroundColorKey = (identifier?: string): keyof typeof colors.avatar 
 }
 
 const avatarSizeStyles: Record<AvatarSize, string> = {
-  small: 'w-4 min-w-4 h-4 rounded',
-  intermediate: 'w-6 min-w-6 h-6 rounded-lg',
-  medium: 'w-8 min-w-8 h-8 rounded-xl',
-  big: 'w-10 min-w-10 h-10 rounded-xl',
-  large: 'w-16 min-w-16 h-16 rounded-xl',
+  small: cx('w-4 min-w-4 h-4 rounded'),
+  intermediate: cx('w-6 min-w-6 h-6 rounded-lg'),
+  medium: cx('w-8 min-w-8 h-8 rounded-xl'),
+  big: cx('w-10 min-w-10 h-10 rounded-xl'),
+  large: cx('w-16 min-w-16 h-16 rounded-xl'),
 }
 
 const avatarStyles = cva(
-  'flex items-center justify-center [&>img]:object-cover [&>img]:h-full [&>img]:w-full [&>img]:rounded-[inherit]',
+  'flex items-center justify-center [&>img]:h-full [&>img]:w-full [&>img]:rounded-[inherit] [&>img]:object-cover',
   {
     variants: {
       size: avatarSizeStyles,
@@ -128,7 +128,7 @@ export const Avatar = ({
   if (variant === 'connector') {
     return (
       <div
-        className={cn(avatarStyles({ size, rounded: true }), className)}
+        className={tw(avatarStyles({ size, rounded: true }), className)}
         data-test={`${variant}/${size}`}
       >
         {children}
@@ -148,7 +148,7 @@ export const Avatar = ({
 
   return (
     <div
-      className={cn(
+      className={tw(
         avatarStyles({
           size,
           backgroundColor: getBackgroundColorKey(identifier) ?? 'default',

@@ -6,7 +6,7 @@ import { EventItemFragment } from '~/generated/graphql'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { BaseListItem, ItemContainer, ListItem, theme } from '~/styles'
-import { cn } from '~/styles/utils'
+import { tw } from '~/styles/utils'
 
 gql`
   fragment EventItem on Event {
@@ -36,7 +36,7 @@ export const EventItem = ({ event, navigationProps, selected, onClick }: EventIt
       <Item tabIndex={0} onClick={onClick} {...navigationProps} $active={selected}>
         <NameSection>
           <Avatar
-            className={cn('mr-3', {
+            className={tw('mr-3', {
               'bg-yellow-100': hasWarning,
             })}
             variant="connector"
