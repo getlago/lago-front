@@ -345,6 +345,7 @@ export type ChargeInput = {
 
 export enum ChargeModelEnum {
   Custom = 'custom',
+  Dynamic = 'dynamic',
   Graduated = 'graduated',
   GraduatedPercentage = 'graduated_percentage',
   Package = 'package',
@@ -4129,6 +4130,8 @@ export type Query = {
   customer?: Maybe<Customer>;
   /** Query invoices of a customer */
   customerInvoices: InvoiceCollection;
+  /** Query the usage of the customer on the current billing period */
+  customerPortalCustomerUsage: CustomerUsage;
   /** Query invoice collections of a customer portal user */
   customerPortalInvoiceCollections: FinalizedInvoiceCollectionCollection;
   /** Query invoices of a customer */
@@ -4295,6 +4298,11 @@ export type QueryCustomerInvoicesArgs = {
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Array<InvoiceStatusTypeEnum>>;
+};
+
+
+export type QueryCustomerPortalCustomerUsageArgs = {
+  subscriptionId: Scalars['ID']['input'];
 };
 
 
@@ -5979,7 +5987,7 @@ export type GetCustomerCreditNotesQuery = { __typename?: 'Query', creditNotes: {
 
 export type InvoiceListItemFragment = { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null };
 
-export type InvoiceForInvoiceListFragment = { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, name?: string | null, displayName: string }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalCount: number, totalPages: number } };
+export type InvoiceForInvoiceListFragment = { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalCount: number, totalPages: number } };
 
 export type DownloadInvoiceItemMutationVariables = Exact<{
   input: DownloadInvoiceInput;
@@ -6004,7 +6012,7 @@ export type GetCustomerInvoicesQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerInvoicesQuery = { __typename?: 'Query', customerInvoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, name?: string | null, displayName: string }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalCount: number, totalPages: number } } };
+export type GetCustomerInvoicesQuery = { __typename?: 'Query', customerInvoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalCount: number, totalPages: number } } };
 
 export type CustomerItemFragment = { __typename?: 'Customer', id: string, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, createdAt: any, activeSubscriptionsCount: number, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, customerType?: CustomerTypeEnum | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null };
 
@@ -6323,7 +6331,7 @@ export type DisputeInvoiceMutationVariables = Exact<{
 }>;
 
 
-export type DisputeInvoiceMutation = { __typename?: 'Mutation', loseInvoiceDispute?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, issuingDate: any, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, couponsAmountCents: any, creditNotesAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', name?: string | null, displayName: string, id: string, applicableTimezone: TimezoneEnum, currency?: CurrencyEnum | null, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, deletedAt?: any | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, externalAccountId?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, displayInInvoice: boolean, key: string, value: string }> | null }, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, couponsAdjustmentAmountCents: any, number: string, subTotalExcludingTaxesAmountCents: any, currency: CurrencyEnum, totalAmountCents: any, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }> }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoice: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } }> | null, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
+export type DisputeInvoiceMutation = { __typename?: 'Mutation', loseInvoiceDispute?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, issuingDate: any, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, couponsAmountCents: any, creditNotesAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', name?: string | null, displayName: string, id: string, applicableTimezone: TimezoneEnum, currency?: CurrencyEnum | null, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, deletedAt?: any | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, externalAccountId?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, displayInInvoice: boolean, key: string, value: string }> | null }, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, couponsAdjustmentAmountCents: any, number: string, subTotalExcludingTaxesAmountCents: any, currency: CurrencyEnum, totalAmountCents: any, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }> }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoice: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } }> | null, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
 
 export type TaxForInvoiceEditTaxDialogFragment = { __typename?: 'Tax', id: string, name: string, rate: number, code: string };
 
@@ -6344,7 +6352,7 @@ export type UpdateInvoicePaymentStatusMutationVariables = Exact<{
 }>;
 
 
-export type UpdateInvoicePaymentStatusMutation = { __typename?: 'Mutation', updateInvoice?: { __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, refundableAmountCents: any, creditableAmountCents: any, integrationSyncable: boolean, externalIntegrationId?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, versionNumber: number, paymentDueDate: any, couponsAmountCents: any, creditNotesAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, currency?: CurrencyEnum | null, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, deletedAt?: any | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, externalAccountId?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, displayInInvoice: boolean, key: string, value: string }> | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, couponsAdjustmentAmountCents: any, number: string, subTotalExcludingTaxesAmountCents: any, currency: CurrencyEnum, totalAmountCents: any, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }> }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoice: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } }> | null, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
+export type UpdateInvoicePaymentStatusMutation = { __typename?: 'Mutation', updateInvoice?: { __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, refundableAmountCents: any, creditableAmountCents: any, integrationSyncable: boolean, externalIntegrationId?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, versionNumber: number, paymentDueDate: any, couponsAmountCents: any, creditNotesAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, customer: { __typename?: 'Customer', name?: string | null, displayName: string, id: string, applicableTimezone: TimezoneEnum, currency?: CurrencyEnum | null, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, deletedAt?: any | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, externalAccountId?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, displayInInvoice: boolean, key: string, value: string }> | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, couponsAdjustmentAmountCents: any, number: string, subTotalExcludingTaxesAmountCents: any, currency: CurrencyEnum, totalAmountCents: any, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }> }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoice: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } }> | null, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
 
 export type CreateInvoicesDataExportMutationVariables = Exact<{
   input: CreateDataExportsInvoicesInput;
@@ -6360,7 +6368,7 @@ export type FinalizeInvoiceMutationVariables = Exact<{
 }>;
 
 
-export type FinalizeInvoiceMutation = { __typename?: 'Mutation', finalizeInvoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, issuingDate: any, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, couponsAmountCents: any, creditNotesAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', name?: string | null, displayName: string, id: string, applicableTimezone: TimezoneEnum, currency?: CurrencyEnum | null, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, deletedAt?: any | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, externalAccountId?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, displayInInvoice: boolean, key: string, value: string }> | null }, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, couponsAdjustmentAmountCents: any, number: string, subTotalExcludingTaxesAmountCents: any, currency: CurrencyEnum, totalAmountCents: any, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }> }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoice: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } }> | null, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
+export type FinalizeInvoiceMutation = { __typename?: 'Mutation', finalizeInvoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, issuingDate: any, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, couponsAmountCents: any, creditNotesAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', name?: string | null, displayName: string, id: string, applicableTimezone: TimezoneEnum, currency?: CurrencyEnum | null, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, deletedAt?: any | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, externalAccountId?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, displayInInvoice: boolean, key: string, value: string }> | null }, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, couponsAdjustmentAmountCents: any, number: string, subTotalExcludingTaxesAmountCents: any, currency: CurrencyEnum, totalAmountCents: any, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }> }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoice: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } }> | null, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
 
 export type InvoiceForCreditNotesTableFragment = { __typename?: 'Invoice', id: string, customer: { __typename?: 'Customer', id: string }, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, couponsAdjustmentAmountCents: any, number: string, subTotalExcludingTaxesAmountCents: any, currency: CurrencyEnum, totalAmountCents: any, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }> }> | null };
 
@@ -6377,7 +6385,7 @@ export type VoidInvoiceMutationVariables = Exact<{
 }>;
 
 
-export type VoidInvoiceMutation = { __typename?: 'Mutation', voidInvoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, refundableAmountCents: any, creditableAmountCents: any, integrationSyncable: boolean, externalIntegrationId?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, versionNumber: number, paymentDueDate: any, couponsAmountCents: any, creditNotesAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, currency?: CurrencyEnum | null, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, deletedAt?: any | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, externalAccountId?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, displayInInvoice: boolean, key: string, value: string }> | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, couponsAdjustmentAmountCents: any, number: string, subTotalExcludingTaxesAmountCents: any, currency: CurrencyEnum, totalAmountCents: any, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }> }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoice: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } }> | null, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
+export type VoidInvoiceMutation = { __typename?: 'Mutation', voidInvoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, refundableAmountCents: any, creditableAmountCents: any, integrationSyncable: boolean, externalIntegrationId?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, versionNumber: number, paymentDueDate: any, couponsAmountCents: any, creditNotesAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, customer: { __typename?: 'Customer', name?: string | null, displayName: string, id: string, applicableTimezone: TimezoneEnum, currency?: CurrencyEnum | null, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, deletedAt?: any | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, externalAccountId?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, displayInInvoice: boolean, key: string, value: string }> | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, couponsAdjustmentAmountCents: any, number: string, subTotalExcludingTaxesAmountCents: any, currency: CurrencyEnum, totalAmountCents: any, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }> }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoice: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } }> | null, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
 
 export type FeeForDeleteAdjustmentFeeDialogFragment = { __typename?: 'Fee', id: string };
 
@@ -6399,7 +6407,7 @@ export type CreateAdjustedFeeMutation = { __typename?: 'Mutation', createAdjuste
 
 export type FeeForInvoiceDetailsTableFragment = { __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null };
 
-export type InvoiceForDetailsTableFragment = { __typename?: 'Invoice', invoiceType: InvoiceTypeEnum, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, totalAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any, versionNumber: number, couponsAmountCents: any, creditNotesAmountCents: any, status: InvoiceStatusTypeEnum, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoice: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null };
+export type InvoiceForDetailsTableFragment = { __typename?: 'Invoice', invoiceType: InvoiceTypeEnum, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, totalAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any, versionNumber: number, couponsAmountCents: any, creditNotesAmountCents: any, status: InvoiceStatusTypeEnum, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoice: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null };
 
 export type FeeForInvoiceDetailsTableBodyLineFragment = { __typename?: 'Fee', id: string, units: number, preciseUnitAmount: number, amountCents: any, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, charge?: { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, minAmountCents: any, payInAdvance: boolean, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, recurring: boolean } } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null };
 
@@ -7529,14 +7537,14 @@ export type GetOrganizationInfosQuery = { __typename?: 'Query', organization?: {
 
 export type MembershipPermissionsFragment = { __typename?: 'Membership', id: string, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, analyticsOverdueBalancesView: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } };
 
-export type AllInvoiceDetailsForCustomerInvoiceDetailsFragment = { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, issuingDate: any, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, couponsAmountCents: any, creditNotesAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', name?: string | null, displayName: string, id: string, applicableTimezone: TimezoneEnum, currency?: CurrencyEnum | null, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, deletedAt?: any | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, externalAccountId?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, displayInInvoice: boolean, key: string, value: string }> | null }, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, couponsAdjustmentAmountCents: any, number: string, subTotalExcludingTaxesAmountCents: any, currency: CurrencyEnum, totalAmountCents: any, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }> }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoice: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } }> | null, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null };
+export type AllInvoiceDetailsForCustomerInvoiceDetailsFragment = { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, issuingDate: any, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, couponsAmountCents: any, creditNotesAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', name?: string | null, displayName: string, id: string, applicableTimezone: TimezoneEnum, currency?: CurrencyEnum | null, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, deletedAt?: any | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, externalAccountId?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, displayInInvoice: boolean, key: string, value: string }> | null }, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, couponsAdjustmentAmountCents: any, number: string, subTotalExcludingTaxesAmountCents: any, currency: CurrencyEnum, totalAmountCents: any, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }> }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoice: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } }> | null, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null };
 
 export type GetInvoiceDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetInvoiceDetailsQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, issuingDate: any, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, couponsAmountCents: any, creditNotesAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', name?: string | null, displayName: string, id: string, applicableTimezone: TimezoneEnum, currency?: CurrencyEnum | null, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, deletedAt?: any | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, externalAccountId?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, displayInInvoice: boolean, key: string, value: string }> | null }, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, couponsAdjustmentAmountCents: any, number: string, subTotalExcludingTaxesAmountCents: any, currency: CurrencyEnum, totalAmountCents: any, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }> }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoice: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } }> | null, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
+export type GetInvoiceDetailsQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, issuingDate: any, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, couponsAmountCents: any, creditNotesAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', name?: string | null, displayName: string, id: string, applicableTimezone: TimezoneEnum, currency?: CurrencyEnum | null, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, deletedAt?: any | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, externalAccountId?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, displayInInvoice: boolean, key: string, value: string }> | null }, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, couponsAdjustmentAmountCents: any, number: string, subTotalExcludingTaxesAmountCents: any, currency: CurrencyEnum, totalAmountCents: any, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }> }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoice: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } }> | null, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
 
 export type IntegrationsListForCustomerInvoiceDetailsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7557,7 +7565,7 @@ export type RefreshInvoiceMutationVariables = Exact<{
 }>;
 
 
-export type RefreshInvoiceMutation = { __typename?: 'Mutation', refreshInvoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, issuingDate: any, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, couponsAmountCents: any, creditNotesAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', name?: string | null, displayName: string, id: string, applicableTimezone: TimezoneEnum, currency?: CurrencyEnum | null, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, deletedAt?: any | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, externalAccountId?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, displayInInvoice: boolean, key: string, value: string }> | null }, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, couponsAdjustmentAmountCents: any, number: string, subTotalExcludingTaxesAmountCents: any, currency: CurrencyEnum, totalAmountCents: any, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }> }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoice: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } }> | null, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
+export type RefreshInvoiceMutation = { __typename?: 'Mutation', refreshInvoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, issuingDate: any, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, couponsAmountCents: any, creditNotesAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', name?: string | null, displayName: string, id: string, applicableTimezone: TimezoneEnum, currency?: CurrencyEnum | null, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, deletedAt?: any | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, externalAccountId?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, displayInInvoice: boolean, key: string, value: string }> | null }, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, couponsAdjustmentAmountCents: any, number: string, subTotalExcludingTaxesAmountCents: any, currency: CurrencyEnum, totalAmountCents: any, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }> }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoice: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } }> | null, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
 
 export type SyncIntegrationInvoiceMutationVariables = Exact<{
   input: SyncIntegrationInvoiceInput;
@@ -7662,7 +7670,7 @@ export type GetAddonListForInfoiceQueryVariables = Exact<{
 }>;
 
 
-export type GetAddonListForInfoiceQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> | null }> } };
+export type GetAddonListForInfoiceQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null }> } };
 
 export type FetchDraftInvoiceTaxesMutationVariables = Exact<{
   input: FetchDraftInvoiceTaxesInput;
@@ -7755,7 +7763,7 @@ export type GetCustomerDraftInvoicesQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerDraftInvoicesQuery = { __typename?: 'Query', customerInvoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, name?: string | null, displayName: string }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalCount: number, totalPages: number } } };
+export type GetCustomerDraftInvoicesQuery = { __typename?: 'Query', customerInvoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalCount: number, totalPages: number } } };
 
 export type GetCustomerInfosForDraftInvoicesListQueryVariables = Exact<{
   customerId: Scalars['ID']['input'];
@@ -11029,8 +11037,8 @@ export function useUserIdentifierLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<UserIdentifierQuery, UserIdentifierQueryVariables>(UserIdentifierDocument, options);
         }
-export function useUserIdentifierSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<UserIdentifierQuery, UserIdentifierQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useUserIdentifierSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<UserIdentifierQuery, UserIdentifierQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<UserIdentifierQuery, UserIdentifierQueryVariables>(UserIdentifierDocument, options);
         }
 export type UserIdentifierQueryHookResult = ReturnType<typeof useUserIdentifierQuery>;
@@ -11101,8 +11109,8 @@ export function useGetGoogleAuthUrlLazyQuery(baseOptions?: Apollo.LazyQueryHookO
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetGoogleAuthUrlQuery, GetGoogleAuthUrlQueryVariables>(GetGoogleAuthUrlDocument, options);
         }
-export function useGetGoogleAuthUrlSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetGoogleAuthUrlQuery, GetGoogleAuthUrlQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetGoogleAuthUrlSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGoogleAuthUrlQuery, GetGoogleAuthUrlQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetGoogleAuthUrlQuery, GetGoogleAuthUrlQueryVariables>(GetGoogleAuthUrlDocument, options);
         }
 export type GetGoogleAuthUrlQueryHookResult = ReturnType<typeof useGetGoogleAuthUrlQuery>;
@@ -11133,7 +11141,7 @@ export const GetBillableMetricToDeleteDocument = gql`
  *   },
  * });
  */
-export function useGetBillableMetricToDeleteQuery(baseOptions: Apollo.QueryHookOptions<GetBillableMetricToDeleteQuery, GetBillableMetricToDeleteQueryVariables>) {
+export function useGetBillableMetricToDeleteQuery(baseOptions: Apollo.QueryHookOptions<GetBillableMetricToDeleteQuery, GetBillableMetricToDeleteQueryVariables> & ({ variables: GetBillableMetricToDeleteQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetBillableMetricToDeleteQuery, GetBillableMetricToDeleteQueryVariables>(GetBillableMetricToDeleteDocument, options);
       }
@@ -11141,8 +11149,8 @@ export function useGetBillableMetricToDeleteLazyQuery(baseOptions?: Apollo.LazyQ
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetBillableMetricToDeleteQuery, GetBillableMetricToDeleteQueryVariables>(GetBillableMetricToDeleteDocument, options);
         }
-export function useGetBillableMetricToDeleteSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillableMetricToDeleteQuery, GetBillableMetricToDeleteQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetBillableMetricToDeleteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricToDeleteQuery, GetBillableMetricToDeleteQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetBillableMetricToDeleteQuery, GetBillableMetricToDeleteQueryVariables>(GetBillableMetricToDeleteDocument, options);
         }
 export type GetBillableMetricToDeleteQueryHookResult = ReturnType<typeof useGetBillableMetricToDeleteQuery>;
@@ -11218,8 +11226,8 @@ export function useGetBillableMetricsForCouponsLazyQuery(baseOptions?: Apollo.La
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetBillableMetricsForCouponsQuery, GetBillableMetricsForCouponsQueryVariables>(GetBillableMetricsForCouponsDocument, options);
         }
-export function useGetBillableMetricsForCouponsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillableMetricsForCouponsQuery, GetBillableMetricsForCouponsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetBillableMetricsForCouponsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsForCouponsQuery, GetBillableMetricsForCouponsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetBillableMetricsForCouponsQuery, GetBillableMetricsForCouponsQueryVariables>(GetBillableMetricsForCouponsDocument, options);
         }
 export type GetBillableMetricsForCouponsQueryHookResult = ReturnType<typeof useGetBillableMetricsForCouponsQuery>;
@@ -11262,8 +11270,8 @@ export function useGetPlansForCouponsLazyQuery(baseOptions?: Apollo.LazyQueryHoo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPlansForCouponsQuery, GetPlansForCouponsQueryVariables>(GetPlansForCouponsDocument, options);
         }
-export function useGetPlansForCouponsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPlansForCouponsQuery, GetPlansForCouponsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetPlansForCouponsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlansForCouponsQuery, GetPlansForCouponsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPlansForCouponsQuery, GetPlansForCouponsQueryVariables>(GetPlansForCouponsDocument, options);
         }
 export type GetPlansForCouponsQueryHookResult = ReturnType<typeof useGetPlansForCouponsQuery>;
@@ -11379,7 +11387,7 @@ export const CreditNoteEstimateDocument = gql`
  *   },
  * });
  */
-export function useCreditNoteEstimateQuery(baseOptions: Apollo.QueryHookOptions<CreditNoteEstimateQuery, CreditNoteEstimateQueryVariables>) {
+export function useCreditNoteEstimateQuery(baseOptions: Apollo.QueryHookOptions<CreditNoteEstimateQuery, CreditNoteEstimateQueryVariables> & ({ variables: CreditNoteEstimateQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<CreditNoteEstimateQuery, CreditNoteEstimateQueryVariables>(CreditNoteEstimateDocument, options);
       }
@@ -11387,8 +11395,8 @@ export function useCreditNoteEstimateLazyQuery(baseOptions?: Apollo.LazyQueryHoo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<CreditNoteEstimateQuery, CreditNoteEstimateQueryVariables>(CreditNoteEstimateDocument, options);
         }
-export function useCreditNoteEstimateSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CreditNoteEstimateQuery, CreditNoteEstimateQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useCreditNoteEstimateSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CreditNoteEstimateQuery, CreditNoteEstimateQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<CreditNoteEstimateQuery, CreditNoteEstimateQueryVariables>(CreditNoteEstimateDocument, options);
         }
 export type CreditNoteEstimateQueryHookResult = ReturnType<typeof useCreditNoteEstimateQuery>;
@@ -11471,8 +11479,8 @@ export function useGetPortalCustomerInfosLazyQuery(baseOptions?: Apollo.LazyQuer
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>(GetPortalCustomerInfosDocument, options);
         }
-export function useGetPortalCustomerInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetPortalCustomerInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPortalCustomerInfosQuery, GetPortalCustomerInfosQueryVariables>(GetPortalCustomerInfosDocument, options);
         }
 export type GetPortalCustomerInfosQueryHookResult = ReturnType<typeof useGetPortalCustomerInfosQuery>;
@@ -11527,8 +11535,8 @@ export function useCustomerPortalInvoicesLazyQuery(baseOptions?: Apollo.LazyQuer
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<CustomerPortalInvoicesQuery, CustomerPortalInvoicesQueryVariables>(CustomerPortalInvoicesDocument, options);
         }
-export function useCustomerPortalInvoicesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CustomerPortalInvoicesQuery, CustomerPortalInvoicesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useCustomerPortalInvoicesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerPortalInvoicesQuery, CustomerPortalInvoicesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<CustomerPortalInvoicesQuery, CustomerPortalInvoicesQueryVariables>(CustomerPortalInvoicesDocument, options);
         }
 export type CustomerPortalInvoicesQueryHookResult = ReturnType<typeof useCustomerPortalInvoicesQuery>;
@@ -11605,8 +11613,8 @@ export function useGetCustomerPortalInvoicesCollectionLazyQuery(baseOptions?: Ap
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerPortalInvoicesCollectionQuery, GetCustomerPortalInvoicesCollectionQueryVariables>(GetCustomerPortalInvoicesCollectionDocument, options);
         }
-export function useGetCustomerPortalInvoicesCollectionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerPortalInvoicesCollectionQuery, GetCustomerPortalInvoicesCollectionQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCustomerPortalInvoicesCollectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerPortalInvoicesCollectionQuery, GetCustomerPortalInvoicesCollectionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerPortalInvoicesCollectionQuery, GetCustomerPortalInvoicesCollectionQueryVariables>(GetCustomerPortalInvoicesCollectionDocument, options);
         }
 export type GetCustomerPortalInvoicesCollectionQueryHookResult = ReturnType<typeof useGetCustomerPortalInvoicesCollectionQuery>;
@@ -11649,8 +11657,8 @@ export function useGetCustomerPortalOverdueBalancesLazyQuery(baseOptions?: Apoll
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerPortalOverdueBalancesQuery, GetCustomerPortalOverdueBalancesQueryVariables>(GetCustomerPortalOverdueBalancesDocument, options);
         }
-export function useGetCustomerPortalOverdueBalancesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerPortalOverdueBalancesQuery, GetCustomerPortalOverdueBalancesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCustomerPortalOverdueBalancesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerPortalOverdueBalancesQuery, GetCustomerPortalOverdueBalancesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerPortalOverdueBalancesQuery, GetCustomerPortalOverdueBalancesQueryVariables>(GetCustomerPortalOverdueBalancesDocument, options);
         }
 export type GetCustomerPortalOverdueBalancesQueryHookResult = ReturnType<typeof useGetCustomerPortalOverdueBalancesQuery>;
@@ -11688,8 +11696,8 @@ export function useGetCustomerPortalUserCurrencyLazyQuery(baseOptions?: Apollo.L
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>(GetCustomerPortalUserCurrencyDocument, options);
         }
-export function useGetCustomerPortalUserCurrencySuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCustomerPortalUserCurrencySuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>(GetCustomerPortalUserCurrencyDocument, options);
         }
 export type GetCustomerPortalUserCurrencyQueryHookResult = ReturnType<typeof useGetCustomerPortalUserCurrencyQuery>;
@@ -11753,8 +11761,8 @@ export function useGetCouponForCustomerLazyQuery(baseOptions?: Apollo.LazyQueryH
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCouponForCustomerQuery, GetCouponForCustomerQueryVariables>(GetCouponForCustomerDocument, options);
         }
-export function useGetCouponForCustomerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCouponForCustomerQuery, GetCouponForCustomerQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCouponForCustomerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCouponForCustomerQuery, GetCouponForCustomerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCouponForCustomerQuery, GetCouponForCustomerQueryVariables>(GetCouponForCustomerDocument, options);
         }
 export type GetCouponForCustomerQueryHookResult = ReturnType<typeof useGetCouponForCustomerQuery>;
@@ -11827,7 +11835,7 @@ export const GetCustomerCreditNotesDocument = gql`
  *   },
  * });
  */
-export function useGetCustomerCreditNotesQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables>) {
+export function useGetCustomerCreditNotesQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables> & ({ variables: GetCustomerCreditNotesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables>(GetCustomerCreditNotesDocument, options);
       }
@@ -11835,8 +11843,8 @@ export function useGetCustomerCreditNotesLazyQuery(baseOptions?: Apollo.LazyQuer
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables>(GetCustomerCreditNotesDocument, options);
         }
-export function useGetCustomerCreditNotesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCustomerCreditNotesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables>(GetCustomerCreditNotesDocument, options);
         }
 export type GetCustomerCreditNotesQueryHookResult = ReturnType<typeof useGetCustomerCreditNotesQuery>;
@@ -11945,7 +11953,7 @@ export const GetCustomerInvoicesDocument = gql`
  *   },
  * });
  */
-export function useGetCustomerInvoicesQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerInvoicesQuery, GetCustomerInvoicesQueryVariables>) {
+export function useGetCustomerInvoicesQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerInvoicesQuery, GetCustomerInvoicesQueryVariables> & ({ variables: GetCustomerInvoicesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetCustomerInvoicesQuery, GetCustomerInvoicesQueryVariables>(GetCustomerInvoicesDocument, options);
       }
@@ -11953,8 +11961,8 @@ export function useGetCustomerInvoicesLazyQuery(baseOptions?: Apollo.LazyQueryHo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerInvoicesQuery, GetCustomerInvoicesQueryVariables>(GetCustomerInvoicesDocument, options);
         }
-export function useGetCustomerInvoicesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerInvoicesQuery, GetCustomerInvoicesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCustomerInvoicesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerInvoicesQuery, GetCustomerInvoicesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerInvoicesQuery, GetCustomerInvoicesQueryVariables>(GetCustomerInvoicesDocument, options);
         }
 export type GetCustomerInvoicesQueryHookResult = ReturnType<typeof useGetCustomerInvoicesQuery>;
@@ -12009,8 +12017,8 @@ export function usePaymentProvidersListForCustomerMainInfosLazyQuery(baseOptions
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>(PaymentProvidersListForCustomerMainInfosDocument, options);
         }
-export function usePaymentProvidersListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function usePaymentProvidersListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>(PaymentProvidersListForCustomerMainInfosDocument, options);
         }
 export type PaymentProvidersListForCustomerMainInfosQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerMainInfosQuery>;
@@ -12068,8 +12076,8 @@ export function useIntegrationsListForCustomerMainInfosLazyQuery(baseOptions?: A
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>(IntegrationsListForCustomerMainInfosDocument, options);
         }
-export function useIntegrationsListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useIntegrationsListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>(IntegrationsListForCustomerMainInfosDocument, options);
         }
 export type IntegrationsListForCustomerMainInfosQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerMainInfosQuery>;
@@ -12132,7 +12140,7 @@ ${DeleteCustomerNetPaymentTermFragmentDoc}`;
  *   },
  * });
  */
-export function useGetCustomerSettingsQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerSettingsQuery, GetCustomerSettingsQueryVariables>) {
+export function useGetCustomerSettingsQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerSettingsQuery, GetCustomerSettingsQueryVariables> & ({ variables: GetCustomerSettingsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetCustomerSettingsQuery, GetCustomerSettingsQueryVariables>(GetCustomerSettingsDocument, options);
       }
@@ -12140,8 +12148,8 @@ export function useGetCustomerSettingsLazyQuery(baseOptions?: Apollo.LazyQueryHo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerSettingsQuery, GetCustomerSettingsQueryVariables>(GetCustomerSettingsDocument, options);
         }
-export function useGetCustomerSettingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerSettingsQuery, GetCustomerSettingsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCustomerSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerSettingsQuery, GetCustomerSettingsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerSettingsQuery, GetCustomerSettingsQueryVariables>(GetCustomerSettingsDocument, options);
         }
 export type GetCustomerSettingsQueryHookResult = ReturnType<typeof useGetCustomerSettingsQuery>;
@@ -12467,8 +12475,8 @@ export function useGetTaxRatesForEditCustomerLazyQuery(baseOptions?: Apollo.Lazy
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetTaxRatesForEditCustomerQuery, GetTaxRatesForEditCustomerQueryVariables>(GetTaxRatesForEditCustomerDocument, options);
         }
-export function useGetTaxRatesForEditCustomerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxRatesForEditCustomerQuery, GetTaxRatesForEditCustomerQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetTaxRatesForEditCustomerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxRatesForEditCustomerQuery, GetTaxRatesForEditCustomerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetTaxRatesForEditCustomerQuery, GetTaxRatesForEditCustomerQueryVariables>(GetTaxRatesForEditCustomerDocument, options);
         }
 export type GetTaxRatesForEditCustomerQueryHookResult = ReturnType<typeof useGetTaxRatesForEditCustomerQuery>;
@@ -12560,8 +12568,8 @@ export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordio
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>(PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument, options);
         }
-export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>(PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument, options);
         }
 export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery>;
@@ -12620,8 +12628,8 @@ export function useAccountingIntegrationsListForCustomerEditExternalAppsAccordio
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<AccountingIntegrationsListForCustomerEditExternalAppsAccordionQuery, AccountingIntegrationsListForCustomerEditExternalAppsAccordionQueryVariables>(AccountingIntegrationsListForCustomerEditExternalAppsAccordionDocument, options);
         }
-export function useAccountingIntegrationsListForCustomerEditExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AccountingIntegrationsListForCustomerEditExternalAppsAccordionQuery, AccountingIntegrationsListForCustomerEditExternalAppsAccordionQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useAccountingIntegrationsListForCustomerEditExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AccountingIntegrationsListForCustomerEditExternalAppsAccordionQuery, AccountingIntegrationsListForCustomerEditExternalAppsAccordionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<AccountingIntegrationsListForCustomerEditExternalAppsAccordionQuery, AccountingIntegrationsListForCustomerEditExternalAppsAccordionQueryVariables>(AccountingIntegrationsListForCustomerEditExternalAppsAccordionDocument, options);
         }
 export type AccountingIntegrationsListForCustomerEditExternalAppsAccordionQueryHookResult = ReturnType<typeof useAccountingIntegrationsListForCustomerEditExternalAppsAccordionQuery>;
@@ -12663,8 +12671,8 @@ export function useSubsidiariesListForCustomerCreateEditExternalAppsAccordionLaz
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<SubsidiariesListForCustomerCreateEditExternalAppsAccordionQuery, SubsidiariesListForCustomerCreateEditExternalAppsAccordionQueryVariables>(SubsidiariesListForCustomerCreateEditExternalAppsAccordionDocument, options);
         }
-export function useSubsidiariesListForCustomerCreateEditExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SubsidiariesListForCustomerCreateEditExternalAppsAccordionQuery, SubsidiariesListForCustomerCreateEditExternalAppsAccordionQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useSubsidiariesListForCustomerCreateEditExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SubsidiariesListForCustomerCreateEditExternalAppsAccordionQuery, SubsidiariesListForCustomerCreateEditExternalAppsAccordionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<SubsidiariesListForCustomerCreateEditExternalAppsAccordionQuery, SubsidiariesListForCustomerCreateEditExternalAppsAccordionQueryVariables>(SubsidiariesListForCustomerCreateEditExternalAppsAccordionDocument, options);
         }
 export type SubsidiariesListForCustomerCreateEditExternalAppsAccordionQueryHookResult = ReturnType<typeof useSubsidiariesListForCustomerCreateEditExternalAppsAccordionQuery>;
@@ -12731,7 +12739,7 @@ export const GetCustomerCouponsDocument = gql`
  *   },
  * });
  */
-export function useGetCustomerCouponsQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>) {
+export function useGetCustomerCouponsQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables> & ({ variables: GetCustomerCouponsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>(GetCustomerCouponsDocument, options);
       }
@@ -12739,8 +12747,8 @@ export function useGetCustomerCouponsLazyQuery(baseOptions?: Apollo.LazyQueryHoo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>(GetCustomerCouponsDocument, options);
         }
-export function useGetCustomerCouponsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCustomerCouponsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>(GetCustomerCouponsDocument, options);
         }
 export type GetCustomerCouponsQueryHookResult = ReturnType<typeof useGetCustomerCouponsQuery>;
@@ -12819,7 +12827,7 @@ export const GetCustomerOverdueBalancesDocument = gql`
  *   },
  * });
  */
-export function useGetCustomerOverdueBalancesQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerOverdueBalancesQuery, GetCustomerOverdueBalancesQueryVariables>) {
+export function useGetCustomerOverdueBalancesQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerOverdueBalancesQuery, GetCustomerOverdueBalancesQueryVariables> & ({ variables: GetCustomerOverdueBalancesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetCustomerOverdueBalancesQuery, GetCustomerOverdueBalancesQueryVariables>(GetCustomerOverdueBalancesDocument, options);
       }
@@ -12827,8 +12835,8 @@ export function useGetCustomerOverdueBalancesLazyQuery(baseOptions?: Apollo.Lazy
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerOverdueBalancesQuery, GetCustomerOverdueBalancesQueryVariables>(GetCustomerOverdueBalancesDocument, options);
         }
-export function useGetCustomerOverdueBalancesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerOverdueBalancesQuery, GetCustomerOverdueBalancesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCustomerOverdueBalancesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerOverdueBalancesQuery, GetCustomerOverdueBalancesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerOverdueBalancesQuery, GetCustomerOverdueBalancesQueryVariables>(GetCustomerOverdueBalancesDocument, options);
         }
 export type GetCustomerOverdueBalancesQueryHookResult = ReturnType<typeof useGetCustomerOverdueBalancesQuery>;
@@ -12870,7 +12878,7 @@ export const GetCustomerGrossRevenuesDocument = gql`
  *   },
  * });
  */
-export function useGetCustomerGrossRevenuesQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>) {
+export function useGetCustomerGrossRevenuesQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables> & ({ variables: GetCustomerGrossRevenuesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>(GetCustomerGrossRevenuesDocument, options);
       }
@@ -12878,8 +12886,8 @@ export function useGetCustomerGrossRevenuesLazyQuery(baseOptions?: Apollo.LazyQu
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>(GetCustomerGrossRevenuesDocument, options);
         }
-export function useGetCustomerGrossRevenuesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCustomerGrossRevenuesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>(GetCustomerGrossRevenuesDocument, options);
         }
 export type GetCustomerGrossRevenuesQueryHookResult = ReturnType<typeof useGetCustomerGrossRevenuesQuery>;
@@ -12918,7 +12926,7 @@ export const GetCustomerSubscriptionForListDocument = gql`
  *   },
  * });
  */
-export function useGetCustomerSubscriptionForListQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerSubscriptionForListQuery, GetCustomerSubscriptionForListQueryVariables>) {
+export function useGetCustomerSubscriptionForListQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerSubscriptionForListQuery, GetCustomerSubscriptionForListQueryVariables> & ({ variables: GetCustomerSubscriptionForListQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetCustomerSubscriptionForListQuery, GetCustomerSubscriptionForListQueryVariables>(GetCustomerSubscriptionForListDocument, options);
       }
@@ -12926,8 +12934,8 @@ export function useGetCustomerSubscriptionForListLazyQuery(baseOptions?: Apollo.
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerSubscriptionForListQuery, GetCustomerSubscriptionForListQueryVariables>(GetCustomerSubscriptionForListDocument, options);
         }
-export function useGetCustomerSubscriptionForListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerSubscriptionForListQuery, GetCustomerSubscriptionForListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCustomerSubscriptionForListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerSubscriptionForListQuery, GetCustomerSubscriptionForListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerSubscriptionForListQuery, GetCustomerSubscriptionForListQueryVariables>(GetCustomerSubscriptionForListDocument, options);
         }
 export type GetCustomerSubscriptionForListQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionForListQuery>;
@@ -12997,7 +13005,7 @@ export const GetCustomerSubscriptionForUsageDocument = gql`
  *   },
  * });
  */
-export function useGetCustomerSubscriptionForUsageQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerSubscriptionForUsageQuery, GetCustomerSubscriptionForUsageQueryVariables>) {
+export function useGetCustomerSubscriptionForUsageQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerSubscriptionForUsageQuery, GetCustomerSubscriptionForUsageQueryVariables> & ({ variables: GetCustomerSubscriptionForUsageQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetCustomerSubscriptionForUsageQuery, GetCustomerSubscriptionForUsageQueryVariables>(GetCustomerSubscriptionForUsageDocument, options);
       }
@@ -13005,8 +13013,8 @@ export function useGetCustomerSubscriptionForUsageLazyQuery(baseOptions?: Apollo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerSubscriptionForUsageQuery, GetCustomerSubscriptionForUsageQueryVariables>(GetCustomerSubscriptionForUsageDocument, options);
         }
-export function useGetCustomerSubscriptionForUsageSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerSubscriptionForUsageQuery, GetCustomerSubscriptionForUsageQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCustomerSubscriptionForUsageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerSubscriptionForUsageQuery, GetCustomerSubscriptionForUsageQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerSubscriptionForUsageQuery, GetCustomerSubscriptionForUsageQueryVariables>(GetCustomerSubscriptionForUsageDocument, options);
         }
 export type GetCustomerSubscriptionForUsageQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionForUsageQuery>;
@@ -13055,8 +13063,8 @@ export function useGetCustomersForFilterItemCustomerLazyQuery(baseOptions?: Apol
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomersForFilterItemCustomerQuery, GetCustomersForFilterItemCustomerQueryVariables>(GetCustomersForFilterItemCustomerDocument, options);
         }
-export function useGetCustomersForFilterItemCustomerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomersForFilterItemCustomerQuery, GetCustomersForFilterItemCustomerQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCustomersForFilterItemCustomerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomersForFilterItemCustomerQuery, GetCustomersForFilterItemCustomerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomersForFilterItemCustomerQuery, GetCustomersForFilterItemCustomerQueryVariables>(GetCustomersForFilterItemCustomerDocument, options);
         }
 export type GetCustomersForFilterItemCustomerQueryHookResult = ReturnType<typeof useGetCustomersForFilterItemCustomerQuery>;
@@ -13231,7 +13239,7 @@ export const GetGrossRevenuesDocument = gql`
  *   },
  * });
  */
-export function useGetGrossRevenuesQuery(baseOptions: Apollo.QueryHookOptions<GetGrossRevenuesQuery, GetGrossRevenuesQueryVariables>) {
+export function useGetGrossRevenuesQuery(baseOptions: Apollo.QueryHookOptions<GetGrossRevenuesQuery, GetGrossRevenuesQueryVariables> & ({ variables: GetGrossRevenuesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetGrossRevenuesQuery, GetGrossRevenuesQueryVariables>(GetGrossRevenuesDocument, options);
       }
@@ -13239,8 +13247,8 @@ export function useGetGrossRevenuesLazyQuery(baseOptions?: Apollo.LazyQueryHookO
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetGrossRevenuesQuery, GetGrossRevenuesQueryVariables>(GetGrossRevenuesDocument, options);
         }
-export function useGetGrossRevenuesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetGrossRevenuesQuery, GetGrossRevenuesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetGrossRevenuesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGrossRevenuesQuery, GetGrossRevenuesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetGrossRevenuesQuery, GetGrossRevenuesQueryVariables>(GetGrossRevenuesDocument, options);
         }
 export type GetGrossRevenuesQueryHookResult = ReturnType<typeof useGetGrossRevenuesQuery>;
@@ -13277,7 +13285,7 @@ export const GetInvoiceCollectionsDocument = gql`
  *   },
  * });
  */
-export function useGetInvoiceCollectionsQuery(baseOptions: Apollo.QueryHookOptions<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>) {
+export function useGetInvoiceCollectionsQuery(baseOptions: Apollo.QueryHookOptions<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables> & ({ variables: GetInvoiceCollectionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>(GetInvoiceCollectionsDocument, options);
       }
@@ -13285,8 +13293,8 @@ export function useGetInvoiceCollectionsLazyQuery(baseOptions?: Apollo.LazyQuery
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>(GetInvoiceCollectionsDocument, options);
         }
-export function useGetInvoiceCollectionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetInvoiceCollectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>(GetInvoiceCollectionsDocument, options);
         }
 export type GetInvoiceCollectionsQueryHookResult = ReturnType<typeof useGetInvoiceCollectionsQuery>;
@@ -13321,7 +13329,7 @@ export const GetMrrDocument = gql`
  *   },
  * });
  */
-export function useGetMrrQuery(baseOptions: Apollo.QueryHookOptions<GetMrrQuery, GetMrrQueryVariables>) {
+export function useGetMrrQuery(baseOptions: Apollo.QueryHookOptions<GetMrrQuery, GetMrrQueryVariables> & ({ variables: GetMrrQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetMrrQuery, GetMrrQueryVariables>(GetMrrDocument, options);
       }
@@ -13329,8 +13337,8 @@ export function useGetMrrLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Get
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetMrrQuery, GetMrrQueryVariables>(GetMrrDocument, options);
         }
-export function useGetMrrSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetMrrQuery, GetMrrQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetMrrSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMrrQuery, GetMrrQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetMrrQuery, GetMrrQueryVariables>(GetMrrDocument, options);
         }
 export type GetMrrQueryHookResult = ReturnType<typeof useGetMrrQuery>;
@@ -13372,7 +13380,7 @@ export const GetOverdueDocument = gql`
  *   },
  * });
  */
-export function useGetOverdueQuery(baseOptions: Apollo.QueryHookOptions<GetOverdueQuery, GetOverdueQueryVariables>) {
+export function useGetOverdueQuery(baseOptions: Apollo.QueryHookOptions<GetOverdueQuery, GetOverdueQueryVariables> & ({ variables: GetOverdueQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetOverdueQuery, GetOverdueQueryVariables>(GetOverdueDocument, options);
       }
@@ -13380,8 +13388,8 @@ export function useGetOverdueLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetOverdueQuery, GetOverdueQueryVariables>(GetOverdueDocument, options);
         }
-export function useGetOverdueSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOverdueQuery, GetOverdueQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetOverdueSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOverdueQuery, GetOverdueQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetOverdueQuery, GetOverdueQueryVariables>(GetOverdueDocument, options);
         }
 export type GetOverdueQueryHookResult = ReturnType<typeof useGetOverdueQuery>;
@@ -13417,7 +13425,7 @@ export const GetInvoicedUsagesDocument = gql`
  *   },
  * });
  */
-export function useGetInvoicedUsagesQuery(baseOptions: Apollo.QueryHookOptions<GetInvoicedUsagesQuery, GetInvoicedUsagesQueryVariables>) {
+export function useGetInvoicedUsagesQuery(baseOptions: Apollo.QueryHookOptions<GetInvoicedUsagesQuery, GetInvoicedUsagesQueryVariables> & ({ variables: GetInvoicedUsagesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetInvoicedUsagesQuery, GetInvoicedUsagesQueryVariables>(GetInvoicedUsagesDocument, options);
       }
@@ -13425,8 +13433,8 @@ export function useGetInvoicedUsagesLazyQuery(baseOptions?: Apollo.LazyQueryHook
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoicedUsagesQuery, GetInvoicedUsagesQueryVariables>(GetInvoicedUsagesDocument, options);
         }
-export function useGetInvoicedUsagesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoicedUsagesQuery, GetInvoicedUsagesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetInvoicedUsagesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoicedUsagesQuery, GetInvoicedUsagesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoicedUsagesQuery, GetInvoicedUsagesQueryVariables>(GetInvoicedUsagesDocument, options);
         }
 export type GetInvoicedUsagesQueryHookResult = ReturnType<typeof useGetInvoicedUsagesQuery>;
@@ -13542,8 +13550,8 @@ export function useGetTaxesForInvoiceEditTaxDialogLazyQuery(baseOptions?: Apollo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetTaxesForInvoiceEditTaxDialogQuery, GetTaxesForInvoiceEditTaxDialogQueryVariables>(GetTaxesForInvoiceEditTaxDialogDocument, options);
         }
-export function useGetTaxesForInvoiceEditTaxDialogSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxesForInvoiceEditTaxDialogQuery, GetTaxesForInvoiceEditTaxDialogQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetTaxesForInvoiceEditTaxDialogSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxesForInvoiceEditTaxDialogQuery, GetTaxesForInvoiceEditTaxDialogQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetTaxesForInvoiceEditTaxDialogQuery, GetTaxesForInvoiceEditTaxDialogQueryVariables>(GetTaxesForInvoiceEditTaxDialogDocument, options);
         }
 export type GetTaxesForInvoiceEditTaxDialogQueryHookResult = ReturnType<typeof useGetTaxesForInvoiceEditTaxDialogQuery>;
@@ -13798,8 +13806,8 @@ export function useGetTaxesForChargesLazyQuery(baseOptions?: Apollo.LazyQueryHoo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetTaxesForChargesQuery, GetTaxesForChargesQueryVariables>(GetTaxesForChargesDocument, options);
         }
-export function useGetTaxesForChargesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxesForChargesQuery, GetTaxesForChargesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetTaxesForChargesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxesForChargesQuery, GetTaxesForChargesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetTaxesForChargesQuery, GetTaxesForChargesQueryVariables>(GetTaxesForChargesDocument, options);
         }
 export type GetTaxesForChargesQueryHookResult = ReturnType<typeof useGetTaxesForChargesQuery>;
@@ -13848,8 +13856,8 @@ export function useGetMeteredBillableMetricsLazyQuery(baseOptions?: Apollo.LazyQ
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetMeteredBillableMetricsQuery, GetMeteredBillableMetricsQueryVariables>(GetMeteredBillableMetricsDocument, options);
         }
-export function useGetMeteredBillableMetricsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetMeteredBillableMetricsQuery, GetMeteredBillableMetricsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetMeteredBillableMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMeteredBillableMetricsQuery, GetMeteredBillableMetricsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetMeteredBillableMetricsQuery, GetMeteredBillableMetricsQueryVariables>(GetMeteredBillableMetricsDocument, options);
         }
 export type GetMeteredBillableMetricsQueryHookResult = ReturnType<typeof useGetMeteredBillableMetricsQuery>;
@@ -13898,8 +13906,8 @@ export function useGetRecurringBillableMetricsLazyQuery(baseOptions?: Apollo.Laz
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetRecurringBillableMetricsQuery, GetRecurringBillableMetricsQueryVariables>(GetRecurringBillableMetricsDocument, options);
         }
-export function useGetRecurringBillableMetricsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRecurringBillableMetricsQuery, GetRecurringBillableMetricsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetRecurringBillableMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRecurringBillableMetricsQuery, GetRecurringBillableMetricsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetRecurringBillableMetricsQuery, GetRecurringBillableMetricsQueryVariables>(GetRecurringBillableMetricsDocument, options);
         }
 export type GetRecurringBillableMetricsQueryHookResult = ReturnType<typeof useGetRecurringBillableMetricsQuery>;
@@ -13946,8 +13954,8 @@ export function useGetTaxesForCommitmentsLazyQuery(baseOptions?: Apollo.LazyQuer
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetTaxesForCommitmentsQuery, GetTaxesForCommitmentsQueryVariables>(GetTaxesForCommitmentsDocument, options);
         }
-export function useGetTaxesForCommitmentsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxesForCommitmentsQuery, GetTaxesForCommitmentsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetTaxesForCommitmentsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxesForCommitmentsQuery, GetTaxesForCommitmentsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetTaxesForCommitmentsQuery, GetTaxesForCommitmentsQueryVariables>(GetTaxesForCommitmentsDocument, options);
         }
 export type GetTaxesForCommitmentsQueryHookResult = ReturnType<typeof useGetTaxesForCommitmentsQuery>;
@@ -14027,8 +14035,8 @@ export function useGetTaxesForPlanLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetTaxesForPlanQuery, GetTaxesForPlanQueryVariables>(GetTaxesForPlanDocument, options);
         }
-export function useGetTaxesForPlanSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxesForPlanQuery, GetTaxesForPlanQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetTaxesForPlanSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxesForPlanQuery, GetTaxesForPlanQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetTaxesForPlanQuery, GetTaxesForPlanQueryVariables>(GetTaxesForPlanDocument, options);
         }
 export type GetTaxesForPlanQueryHookResult = ReturnType<typeof useGetTaxesForPlanQuery>;
@@ -14059,7 +14067,7 @@ export const GetPlanForDetailsOverviewSectionDocument = gql`
  *   },
  * });
  */
-export function useGetPlanForDetailsOverviewSectionQuery(baseOptions: Apollo.QueryHookOptions<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>) {
+export function useGetPlanForDetailsOverviewSectionQuery(baseOptions: Apollo.QueryHookOptions<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables> & ({ variables: GetPlanForDetailsOverviewSectionQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>(GetPlanForDetailsOverviewSectionDocument, options);
       }
@@ -14067,8 +14075,8 @@ export function useGetPlanForDetailsOverviewSectionLazyQuery(baseOptions?: Apoll
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>(GetPlanForDetailsOverviewSectionDocument, options);
         }
-export function useGetPlanForDetailsOverviewSectionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetPlanForDetailsOverviewSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>(GetPlanForDetailsOverviewSectionDocument, options);
         }
 export type GetPlanForDetailsOverviewSectionQueryHookResult = ReturnType<typeof useGetPlanForDetailsOverviewSectionQuery>;
@@ -14117,8 +14125,8 @@ export function useGetSubscribtionsForPlanDetailsLazyQuery(baseOptions?: Apollo.
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSubscribtionsForPlanDetailsQuery, GetSubscribtionsForPlanDetailsQueryVariables>(GetSubscribtionsForPlanDetailsDocument, options);
         }
-export function useGetSubscribtionsForPlanDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscribtionsForPlanDetailsQuery, GetSubscribtionsForPlanDetailsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetSubscribtionsForPlanDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscribtionsForPlanDetailsQuery, GetSubscribtionsForPlanDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSubscribtionsForPlanDetailsQuery, GetSubscribtionsForPlanDetailsQueryVariables>(GetSubscribtionsForPlanDetailsDocument, options);
         }
 export type GetSubscribtionsForPlanDetailsQueryHookResult = ReturnType<typeof useGetSubscribtionsForPlanDetailsQuery>;
@@ -14167,8 +14175,8 @@ export function useGetTaxRatesForEditOrgaLazyQuery(baseOptions?: Apollo.LazyQuer
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetTaxRatesForEditOrgaQuery, GetTaxRatesForEditOrgaQueryVariables>(GetTaxRatesForEditOrgaDocument, options);
         }
-export function useGetTaxRatesForEditOrgaSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxRatesForEditOrgaQuery, GetTaxRatesForEditOrgaQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetTaxRatesForEditOrgaSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxRatesForEditOrgaQuery, GetTaxRatesForEditOrgaQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetTaxRatesForEditOrgaQuery, GetTaxRatesForEditOrgaQueryVariables>(GetTaxRatesForEditOrgaDocument, options);
         }
 export type GetTaxRatesForEditOrgaQueryHookResult = ReturnType<typeof useGetTaxRatesForEditOrgaQuery>;
@@ -14796,8 +14804,8 @@ export function useGetProviderByCodeForAdyenLazyQuery(baseOptions?: Apollo.LazyQ
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetProviderByCodeForAdyenQuery, GetProviderByCodeForAdyenQueryVariables>(GetProviderByCodeForAdyenDocument, options);
         }
-export function useGetProviderByCodeForAdyenSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProviderByCodeForAdyenQuery, GetProviderByCodeForAdyenQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetProviderByCodeForAdyenSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProviderByCodeForAdyenQuery, GetProviderByCodeForAdyenQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetProviderByCodeForAdyenQuery, GetProviderByCodeForAdyenQueryVariables>(GetProviderByCodeForAdyenDocument, options);
         }
 export type GetProviderByCodeForAdyenQueryHookResult = ReturnType<typeof useGetProviderByCodeForAdyenQuery>;
@@ -15090,8 +15098,8 @@ export function useGetProviderByCodeForGocardlessLazyQuery(baseOptions?: Apollo.
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetProviderByCodeForGocardlessQuery, GetProviderByCodeForGocardlessQueryVariables>(GetProviderByCodeForGocardlessDocument, options);
         }
-export function useGetProviderByCodeForGocardlessSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProviderByCodeForGocardlessQuery, GetProviderByCodeForGocardlessQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetProviderByCodeForGocardlessSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProviderByCodeForGocardlessQuery, GetProviderByCodeForGocardlessQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetProviderByCodeForGocardlessQuery, GetProviderByCodeForGocardlessQueryVariables>(GetProviderByCodeForGocardlessDocument, options);
         }
 export type GetProviderByCodeForGocardlessQueryHookResult = ReturnType<typeof useGetProviderByCodeForGocardlessQuery>;
@@ -15273,8 +15281,8 @@ export function useGetProviderByCodeForStripeLazyQuery(baseOptions?: Apollo.Lazy
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetProviderByCodeForStripeQuery, GetProviderByCodeForStripeQueryVariables>(GetProviderByCodeForStripeDocument, options);
         }
-export function useGetProviderByCodeForStripeSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProviderByCodeForStripeQuery, GetProviderByCodeForStripeQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetProviderByCodeForStripeSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProviderByCodeForStripeQuery, GetProviderByCodeForStripeQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetProviderByCodeForStripeQuery, GetProviderByCodeForStripeQueryVariables>(GetProviderByCodeForStripeDocument, options);
         }
 export type GetProviderByCodeForStripeQueryHookResult = ReturnType<typeof useGetProviderByCodeForStripeQuery>;
@@ -15446,7 +15454,7 @@ export const GetAnrokIntegrationCollectionMappingsDocument = gql`
  *   },
  * });
  */
-export function useGetAnrokIntegrationCollectionMappingsQuery(baseOptions: Apollo.QueryHookOptions<GetAnrokIntegrationCollectionMappingsQuery, GetAnrokIntegrationCollectionMappingsQueryVariables>) {
+export function useGetAnrokIntegrationCollectionMappingsQuery(baseOptions: Apollo.QueryHookOptions<GetAnrokIntegrationCollectionMappingsQuery, GetAnrokIntegrationCollectionMappingsQueryVariables> & ({ variables: GetAnrokIntegrationCollectionMappingsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetAnrokIntegrationCollectionMappingsQuery, GetAnrokIntegrationCollectionMappingsQueryVariables>(GetAnrokIntegrationCollectionMappingsDocument, options);
       }
@@ -15454,8 +15462,8 @@ export function useGetAnrokIntegrationCollectionMappingsLazyQuery(baseOptions?: 
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAnrokIntegrationCollectionMappingsQuery, GetAnrokIntegrationCollectionMappingsQueryVariables>(GetAnrokIntegrationCollectionMappingsDocument, options);
         }
-export function useGetAnrokIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationCollectionMappingsQuery, GetAnrokIntegrationCollectionMappingsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetAnrokIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationCollectionMappingsQuery, GetAnrokIntegrationCollectionMappingsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAnrokIntegrationCollectionMappingsQuery, GetAnrokIntegrationCollectionMappingsQueryVariables>(GetAnrokIntegrationCollectionMappingsDocument, options);
         }
 export type GetAnrokIntegrationCollectionMappingsQueryHookResult = ReturnType<typeof useGetAnrokIntegrationCollectionMappingsQuery>;
@@ -15496,7 +15504,7 @@ export const GetAddOnsForAnrokItemsListDocument = gql`
  *   },
  * });
  */
-export function useGetAddOnsForAnrokItemsListQuery(baseOptions: Apollo.QueryHookOptions<GetAddOnsForAnrokItemsListQuery, GetAddOnsForAnrokItemsListQueryVariables>) {
+export function useGetAddOnsForAnrokItemsListQuery(baseOptions: Apollo.QueryHookOptions<GetAddOnsForAnrokItemsListQuery, GetAddOnsForAnrokItemsListQueryVariables> & ({ variables: GetAddOnsForAnrokItemsListQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetAddOnsForAnrokItemsListQuery, GetAddOnsForAnrokItemsListQueryVariables>(GetAddOnsForAnrokItemsListDocument, options);
       }
@@ -15504,8 +15512,8 @@ export function useGetAddOnsForAnrokItemsListLazyQuery(baseOptions?: Apollo.Lazy
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAddOnsForAnrokItemsListQuery, GetAddOnsForAnrokItemsListQueryVariables>(GetAddOnsForAnrokItemsListDocument, options);
         }
-export function useGetAddOnsForAnrokItemsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAddOnsForAnrokItemsListQuery, GetAddOnsForAnrokItemsListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetAddOnsForAnrokItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddOnsForAnrokItemsListQuery, GetAddOnsForAnrokItemsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAddOnsForAnrokItemsListQuery, GetAddOnsForAnrokItemsListQueryVariables>(GetAddOnsForAnrokItemsListDocument, options);
         }
 export type GetAddOnsForAnrokItemsListQueryHookResult = ReturnType<typeof useGetAddOnsForAnrokItemsListQuery>;
@@ -15546,7 +15554,7 @@ export const GetBillableMetricsForAnrokItemsListDocument = gql`
  *   },
  * });
  */
-export function useGetBillableMetricsForAnrokItemsListQuery(baseOptions: Apollo.QueryHookOptions<GetBillableMetricsForAnrokItemsListQuery, GetBillableMetricsForAnrokItemsListQueryVariables>) {
+export function useGetBillableMetricsForAnrokItemsListQuery(baseOptions: Apollo.QueryHookOptions<GetBillableMetricsForAnrokItemsListQuery, GetBillableMetricsForAnrokItemsListQueryVariables> & ({ variables: GetBillableMetricsForAnrokItemsListQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetBillableMetricsForAnrokItemsListQuery, GetBillableMetricsForAnrokItemsListQueryVariables>(GetBillableMetricsForAnrokItemsListDocument, options);
       }
@@ -15554,8 +15562,8 @@ export function useGetBillableMetricsForAnrokItemsListLazyQuery(baseOptions?: Ap
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetBillableMetricsForAnrokItemsListQuery, GetBillableMetricsForAnrokItemsListQueryVariables>(GetBillableMetricsForAnrokItemsListDocument, options);
         }
-export function useGetBillableMetricsForAnrokItemsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillableMetricsForAnrokItemsListQuery, GetBillableMetricsForAnrokItemsListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetBillableMetricsForAnrokItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsForAnrokItemsListQuery, GetBillableMetricsForAnrokItemsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetBillableMetricsForAnrokItemsListQuery, GetBillableMetricsForAnrokItemsListQueryVariables>(GetBillableMetricsForAnrokItemsListDocument, options);
         }
 export type GetBillableMetricsForAnrokItemsListQueryHookResult = ReturnType<typeof useGetBillableMetricsForAnrokItemsListQuery>;
@@ -15801,7 +15809,7 @@ ${AddAnrokIntegrationDialogFragmentDoc}`;
  *   },
  * });
  */
-export function useGetAnrokIntegrationsSettingsQuery(baseOptions: Apollo.QueryHookOptions<GetAnrokIntegrationsSettingsQuery, GetAnrokIntegrationsSettingsQueryVariables>) {
+export function useGetAnrokIntegrationsSettingsQuery(baseOptions: Apollo.QueryHookOptions<GetAnrokIntegrationsSettingsQuery, GetAnrokIntegrationsSettingsQueryVariables> & ({ variables: GetAnrokIntegrationsSettingsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetAnrokIntegrationsSettingsQuery, GetAnrokIntegrationsSettingsQueryVariables>(GetAnrokIntegrationsSettingsDocument, options);
       }
@@ -15809,8 +15817,8 @@ export function useGetAnrokIntegrationsSettingsLazyQuery(baseOptions?: Apollo.La
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAnrokIntegrationsSettingsQuery, GetAnrokIntegrationsSettingsQueryVariables>(GetAnrokIntegrationsSettingsDocument, options);
         }
-export function useGetAnrokIntegrationsSettingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationsSettingsQuery, GetAnrokIntegrationsSettingsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetAnrokIntegrationsSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationsSettingsQuery, GetAnrokIntegrationsSettingsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAnrokIntegrationsSettingsQuery, GetAnrokIntegrationsSettingsQueryVariables>(GetAnrokIntegrationsSettingsDocument, options);
         }
 export type GetAnrokIntegrationsSettingsQueryHookResult = ReturnType<typeof useGetAnrokIntegrationsSettingsQuery>;
@@ -16011,7 +16019,7 @@ export const GetNetsuiteIntegrationCollectionMappingsDocument = gql`
  *   },
  * });
  */
-export function useGetNetsuiteIntegrationCollectionMappingsQuery(baseOptions: Apollo.QueryHookOptions<GetNetsuiteIntegrationCollectionMappingsQuery, GetNetsuiteIntegrationCollectionMappingsQueryVariables>) {
+export function useGetNetsuiteIntegrationCollectionMappingsQuery(baseOptions: Apollo.QueryHookOptions<GetNetsuiteIntegrationCollectionMappingsQuery, GetNetsuiteIntegrationCollectionMappingsQueryVariables> & ({ variables: GetNetsuiteIntegrationCollectionMappingsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetNetsuiteIntegrationCollectionMappingsQuery, GetNetsuiteIntegrationCollectionMappingsQueryVariables>(GetNetsuiteIntegrationCollectionMappingsDocument, options);
       }
@@ -16019,8 +16027,8 @@ export function useGetNetsuiteIntegrationCollectionMappingsLazyQuery(baseOptions
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetNetsuiteIntegrationCollectionMappingsQuery, GetNetsuiteIntegrationCollectionMappingsQueryVariables>(GetNetsuiteIntegrationCollectionMappingsDocument, options);
         }
-export function useGetNetsuiteIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationCollectionMappingsQuery, GetNetsuiteIntegrationCollectionMappingsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetNetsuiteIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationCollectionMappingsQuery, GetNetsuiteIntegrationCollectionMappingsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetNetsuiteIntegrationCollectionMappingsQuery, GetNetsuiteIntegrationCollectionMappingsQueryVariables>(GetNetsuiteIntegrationCollectionMappingsDocument, options);
         }
 export type GetNetsuiteIntegrationCollectionMappingsQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationCollectionMappingsQuery>;
@@ -16061,7 +16069,7 @@ export const GetAddOnsForNetsuiteItemsListDocument = gql`
  *   },
  * });
  */
-export function useGetAddOnsForNetsuiteItemsListQuery(baseOptions: Apollo.QueryHookOptions<GetAddOnsForNetsuiteItemsListQuery, GetAddOnsForNetsuiteItemsListQueryVariables>) {
+export function useGetAddOnsForNetsuiteItemsListQuery(baseOptions: Apollo.QueryHookOptions<GetAddOnsForNetsuiteItemsListQuery, GetAddOnsForNetsuiteItemsListQueryVariables> & ({ variables: GetAddOnsForNetsuiteItemsListQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetAddOnsForNetsuiteItemsListQuery, GetAddOnsForNetsuiteItemsListQueryVariables>(GetAddOnsForNetsuiteItemsListDocument, options);
       }
@@ -16069,8 +16077,8 @@ export function useGetAddOnsForNetsuiteItemsListLazyQuery(baseOptions?: Apollo.L
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAddOnsForNetsuiteItemsListQuery, GetAddOnsForNetsuiteItemsListQueryVariables>(GetAddOnsForNetsuiteItemsListDocument, options);
         }
-export function useGetAddOnsForNetsuiteItemsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAddOnsForNetsuiteItemsListQuery, GetAddOnsForNetsuiteItemsListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetAddOnsForNetsuiteItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddOnsForNetsuiteItemsListQuery, GetAddOnsForNetsuiteItemsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAddOnsForNetsuiteItemsListQuery, GetAddOnsForNetsuiteItemsListQueryVariables>(GetAddOnsForNetsuiteItemsListDocument, options);
         }
 export type GetAddOnsForNetsuiteItemsListQueryHookResult = ReturnType<typeof useGetAddOnsForNetsuiteItemsListQuery>;
@@ -16111,7 +16119,7 @@ export const GetBillableMetricsForNetsuiteItemsListDocument = gql`
  *   },
  * });
  */
-export function useGetBillableMetricsForNetsuiteItemsListQuery(baseOptions: Apollo.QueryHookOptions<GetBillableMetricsForNetsuiteItemsListQuery, GetBillableMetricsForNetsuiteItemsListQueryVariables>) {
+export function useGetBillableMetricsForNetsuiteItemsListQuery(baseOptions: Apollo.QueryHookOptions<GetBillableMetricsForNetsuiteItemsListQuery, GetBillableMetricsForNetsuiteItemsListQueryVariables> & ({ variables: GetBillableMetricsForNetsuiteItemsListQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetBillableMetricsForNetsuiteItemsListQuery, GetBillableMetricsForNetsuiteItemsListQueryVariables>(GetBillableMetricsForNetsuiteItemsListDocument, options);
       }
@@ -16119,8 +16127,8 @@ export function useGetBillableMetricsForNetsuiteItemsListLazyQuery(baseOptions?:
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetBillableMetricsForNetsuiteItemsListQuery, GetBillableMetricsForNetsuiteItemsListQueryVariables>(GetBillableMetricsForNetsuiteItemsListDocument, options);
         }
-export function useGetBillableMetricsForNetsuiteItemsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillableMetricsForNetsuiteItemsListQuery, GetBillableMetricsForNetsuiteItemsListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetBillableMetricsForNetsuiteItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsForNetsuiteItemsListQuery, GetBillableMetricsForNetsuiteItemsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetBillableMetricsForNetsuiteItemsListQuery, GetBillableMetricsForNetsuiteItemsListQueryVariables>(GetBillableMetricsForNetsuiteItemsListDocument, options);
         }
 export type GetBillableMetricsForNetsuiteItemsListQueryHookResult = ReturnType<typeof useGetBillableMetricsForNetsuiteItemsListQuery>;
@@ -16168,7 +16176,7 @@ export const GetNetsuiteIntegrationItemsDocument = gql`
  *   },
  * });
  */
-export function useGetNetsuiteIntegrationItemsQuery(baseOptions: Apollo.QueryHookOptions<GetNetsuiteIntegrationItemsQuery, GetNetsuiteIntegrationItemsQueryVariables>) {
+export function useGetNetsuiteIntegrationItemsQuery(baseOptions: Apollo.QueryHookOptions<GetNetsuiteIntegrationItemsQuery, GetNetsuiteIntegrationItemsQueryVariables> & ({ variables: GetNetsuiteIntegrationItemsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetNetsuiteIntegrationItemsQuery, GetNetsuiteIntegrationItemsQueryVariables>(GetNetsuiteIntegrationItemsDocument, options);
       }
@@ -16176,8 +16184,8 @@ export function useGetNetsuiteIntegrationItemsLazyQuery(baseOptions?: Apollo.Laz
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetNetsuiteIntegrationItemsQuery, GetNetsuiteIntegrationItemsQueryVariables>(GetNetsuiteIntegrationItemsDocument, options);
         }
-export function useGetNetsuiteIntegrationItemsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationItemsQuery, GetNetsuiteIntegrationItemsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetNetsuiteIntegrationItemsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationItemsQuery, GetNetsuiteIntegrationItemsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetNetsuiteIntegrationItemsQuery, GetNetsuiteIntegrationItemsQueryVariables>(GetNetsuiteIntegrationItemsDocument, options);
         }
 export type GetNetsuiteIntegrationItemsQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationItemsQuery>;
@@ -16459,7 +16467,7 @@ ${NetsuiteForCreateDialogDialogFragmentDoc}`;
  *   },
  * });
  */
-export function useGetNetsuiteIntegrationsSettingsQuery(baseOptions: Apollo.QueryHookOptions<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables>) {
+export function useGetNetsuiteIntegrationsSettingsQuery(baseOptions: Apollo.QueryHookOptions<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables> & ({ variables: GetNetsuiteIntegrationsSettingsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables>(GetNetsuiteIntegrationsSettingsDocument, options);
       }
@@ -16467,8 +16475,8 @@ export function useGetNetsuiteIntegrationsSettingsLazyQuery(baseOptions?: Apollo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables>(GetNetsuiteIntegrationsSettingsDocument, options);
         }
-export function useGetNetsuiteIntegrationsSettingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetNetsuiteIntegrationsSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables>(GetNetsuiteIntegrationsSettingsDocument, options);
         }
 export type GetNetsuiteIntegrationsSettingsQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsSettingsQuery>;
@@ -16502,7 +16510,7 @@ export const GetXeroIntegrationCollectionMappingsDocument = gql`
  *   },
  * });
  */
-export function useGetXeroIntegrationCollectionMappingsQuery(baseOptions: Apollo.QueryHookOptions<GetXeroIntegrationCollectionMappingsQuery, GetXeroIntegrationCollectionMappingsQueryVariables>) {
+export function useGetXeroIntegrationCollectionMappingsQuery(baseOptions: Apollo.QueryHookOptions<GetXeroIntegrationCollectionMappingsQuery, GetXeroIntegrationCollectionMappingsQueryVariables> & ({ variables: GetXeroIntegrationCollectionMappingsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetXeroIntegrationCollectionMappingsQuery, GetXeroIntegrationCollectionMappingsQueryVariables>(GetXeroIntegrationCollectionMappingsDocument, options);
       }
@@ -16510,8 +16518,8 @@ export function useGetXeroIntegrationCollectionMappingsLazyQuery(baseOptions?: A
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetXeroIntegrationCollectionMappingsQuery, GetXeroIntegrationCollectionMappingsQueryVariables>(GetXeroIntegrationCollectionMappingsDocument, options);
         }
-export function useGetXeroIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetXeroIntegrationCollectionMappingsQuery, GetXeroIntegrationCollectionMappingsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetXeroIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetXeroIntegrationCollectionMappingsQuery, GetXeroIntegrationCollectionMappingsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetXeroIntegrationCollectionMappingsQuery, GetXeroIntegrationCollectionMappingsQueryVariables>(GetXeroIntegrationCollectionMappingsDocument, options);
         }
 export type GetXeroIntegrationCollectionMappingsQueryHookResult = ReturnType<typeof useGetXeroIntegrationCollectionMappingsQuery>;
@@ -16552,7 +16560,7 @@ export const GetAddOnsForXeroItemsListDocument = gql`
  *   },
  * });
  */
-export function useGetAddOnsForXeroItemsListQuery(baseOptions: Apollo.QueryHookOptions<GetAddOnsForXeroItemsListQuery, GetAddOnsForXeroItemsListQueryVariables>) {
+export function useGetAddOnsForXeroItemsListQuery(baseOptions: Apollo.QueryHookOptions<GetAddOnsForXeroItemsListQuery, GetAddOnsForXeroItemsListQueryVariables> & ({ variables: GetAddOnsForXeroItemsListQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetAddOnsForXeroItemsListQuery, GetAddOnsForXeroItemsListQueryVariables>(GetAddOnsForXeroItemsListDocument, options);
       }
@@ -16560,8 +16568,8 @@ export function useGetAddOnsForXeroItemsListLazyQuery(baseOptions?: Apollo.LazyQ
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAddOnsForXeroItemsListQuery, GetAddOnsForXeroItemsListQueryVariables>(GetAddOnsForXeroItemsListDocument, options);
         }
-export function useGetAddOnsForXeroItemsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAddOnsForXeroItemsListQuery, GetAddOnsForXeroItemsListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetAddOnsForXeroItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddOnsForXeroItemsListQuery, GetAddOnsForXeroItemsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAddOnsForXeroItemsListQuery, GetAddOnsForXeroItemsListQueryVariables>(GetAddOnsForXeroItemsListDocument, options);
         }
 export type GetAddOnsForXeroItemsListQueryHookResult = ReturnType<typeof useGetAddOnsForXeroItemsListQuery>;
@@ -16602,7 +16610,7 @@ export const GetBillableMetricsForXeroItemsListDocument = gql`
  *   },
  * });
  */
-export function useGetBillableMetricsForXeroItemsListQuery(baseOptions: Apollo.QueryHookOptions<GetBillableMetricsForXeroItemsListQuery, GetBillableMetricsForXeroItemsListQueryVariables>) {
+export function useGetBillableMetricsForXeroItemsListQuery(baseOptions: Apollo.QueryHookOptions<GetBillableMetricsForXeroItemsListQuery, GetBillableMetricsForXeroItemsListQueryVariables> & ({ variables: GetBillableMetricsForXeroItemsListQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetBillableMetricsForXeroItemsListQuery, GetBillableMetricsForXeroItemsListQueryVariables>(GetBillableMetricsForXeroItemsListDocument, options);
       }
@@ -16610,8 +16618,8 @@ export function useGetBillableMetricsForXeroItemsListLazyQuery(baseOptions?: Apo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetBillableMetricsForXeroItemsListQuery, GetBillableMetricsForXeroItemsListQueryVariables>(GetBillableMetricsForXeroItemsListDocument, options);
         }
-export function useGetBillableMetricsForXeroItemsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillableMetricsForXeroItemsListQuery, GetBillableMetricsForXeroItemsListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetBillableMetricsForXeroItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsForXeroItemsListQuery, GetBillableMetricsForXeroItemsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetBillableMetricsForXeroItemsListQuery, GetBillableMetricsForXeroItemsListQueryVariables>(GetBillableMetricsForXeroItemsListDocument, options);
         }
 export type GetBillableMetricsForXeroItemsListQueryHookResult = ReturnType<typeof useGetBillableMetricsForXeroItemsListQuery>;
@@ -16659,7 +16667,7 @@ export const GetXeroIntegrationItemsDocument = gql`
  *   },
  * });
  */
-export function useGetXeroIntegrationItemsQuery(baseOptions: Apollo.QueryHookOptions<GetXeroIntegrationItemsQuery, GetXeroIntegrationItemsQueryVariables>) {
+export function useGetXeroIntegrationItemsQuery(baseOptions: Apollo.QueryHookOptions<GetXeroIntegrationItemsQuery, GetXeroIntegrationItemsQueryVariables> & ({ variables: GetXeroIntegrationItemsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetXeroIntegrationItemsQuery, GetXeroIntegrationItemsQueryVariables>(GetXeroIntegrationItemsDocument, options);
       }
@@ -16667,8 +16675,8 @@ export function useGetXeroIntegrationItemsLazyQuery(baseOptions?: Apollo.LazyQue
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetXeroIntegrationItemsQuery, GetXeroIntegrationItemsQueryVariables>(GetXeroIntegrationItemsDocument, options);
         }
-export function useGetXeroIntegrationItemsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetXeroIntegrationItemsQuery, GetXeroIntegrationItemsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetXeroIntegrationItemsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetXeroIntegrationItemsQuery, GetXeroIntegrationItemsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetXeroIntegrationItemsQuery, GetXeroIntegrationItemsQueryVariables>(GetXeroIntegrationItemsDocument, options);
         }
 export type GetXeroIntegrationItemsQueryHookResult = ReturnType<typeof useGetXeroIntegrationItemsQuery>;
@@ -16985,7 +16993,7 @@ ${XeroForCreateDialogDialogFragmentDoc}`;
  *   },
  * });
  */
-export function useGetXeroIntegrationsSettingsQuery(baseOptions: Apollo.QueryHookOptions<GetXeroIntegrationsSettingsQuery, GetXeroIntegrationsSettingsQueryVariables>) {
+export function useGetXeroIntegrationsSettingsQuery(baseOptions: Apollo.QueryHookOptions<GetXeroIntegrationsSettingsQuery, GetXeroIntegrationsSettingsQueryVariables> & ({ variables: GetXeroIntegrationsSettingsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetXeroIntegrationsSettingsQuery, GetXeroIntegrationsSettingsQueryVariables>(GetXeroIntegrationsSettingsDocument, options);
       }
@@ -16993,8 +17001,8 @@ export function useGetXeroIntegrationsSettingsLazyQuery(baseOptions?: Apollo.Laz
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetXeroIntegrationsSettingsQuery, GetXeroIntegrationsSettingsQueryVariables>(GetXeroIntegrationsSettingsDocument, options);
         }
-export function useGetXeroIntegrationsSettingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetXeroIntegrationsSettingsQuery, GetXeroIntegrationsSettingsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetXeroIntegrationsSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetXeroIntegrationsSettingsQuery, GetXeroIntegrationsSettingsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetXeroIntegrationsSettingsQuery, GetXeroIntegrationsSettingsQueryVariables>(GetXeroIntegrationsSettingsDocument, options);
         }
 export type GetXeroIntegrationsSettingsQueryHookResult = ReturnType<typeof useGetXeroIntegrationsSettingsQuery>;
@@ -17195,7 +17203,7 @@ export const CustomerForSubscriptionUsageDocument = gql`
  *   },
  * });
  */
-export function useCustomerForSubscriptionUsageQuery(baseOptions: Apollo.QueryHookOptions<CustomerForSubscriptionUsageQuery, CustomerForSubscriptionUsageQueryVariables>) {
+export function useCustomerForSubscriptionUsageQuery(baseOptions: Apollo.QueryHookOptions<CustomerForSubscriptionUsageQuery, CustomerForSubscriptionUsageQueryVariables> & ({ variables: CustomerForSubscriptionUsageQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<CustomerForSubscriptionUsageQuery, CustomerForSubscriptionUsageQueryVariables>(CustomerForSubscriptionUsageDocument, options);
       }
@@ -17203,8 +17211,8 @@ export function useCustomerForSubscriptionUsageLazyQuery(baseOptions?: Apollo.La
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<CustomerForSubscriptionUsageQuery, CustomerForSubscriptionUsageQueryVariables>(CustomerForSubscriptionUsageDocument, options);
         }
-export function useCustomerForSubscriptionUsageSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CustomerForSubscriptionUsageQuery, CustomerForSubscriptionUsageQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useCustomerForSubscriptionUsageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerForSubscriptionUsageQuery, CustomerForSubscriptionUsageQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<CustomerForSubscriptionUsageQuery, CustomerForSubscriptionUsageQueryVariables>(CustomerForSubscriptionUsageDocument, options);
         }
 export type CustomerForSubscriptionUsageQueryHookResult = ReturnType<typeof useCustomerForSubscriptionUsageQuery>;
@@ -17245,7 +17253,7 @@ export const SubscrptionForSubscriptionUsageDocument = gql`
  *   },
  * });
  */
-export function useSubscrptionForSubscriptionUsageQuery(baseOptions: Apollo.QueryHookOptions<SubscrptionForSubscriptionUsageQuery, SubscrptionForSubscriptionUsageQueryVariables>) {
+export function useSubscrptionForSubscriptionUsageQuery(baseOptions: Apollo.QueryHookOptions<SubscrptionForSubscriptionUsageQuery, SubscrptionForSubscriptionUsageQueryVariables> & ({ variables: SubscrptionForSubscriptionUsageQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<SubscrptionForSubscriptionUsageQuery, SubscrptionForSubscriptionUsageQueryVariables>(SubscrptionForSubscriptionUsageDocument, options);
       }
@@ -17253,8 +17261,8 @@ export function useSubscrptionForSubscriptionUsageLazyQuery(baseOptions?: Apollo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<SubscrptionForSubscriptionUsageQuery, SubscrptionForSubscriptionUsageQueryVariables>(SubscrptionForSubscriptionUsageDocument, options);
         }
-export function useSubscrptionForSubscriptionUsageSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SubscrptionForSubscriptionUsageQuery, SubscrptionForSubscriptionUsageQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useSubscrptionForSubscriptionUsageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SubscrptionForSubscriptionUsageQuery, SubscrptionForSubscriptionUsageQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<SubscrptionForSubscriptionUsageQuery, SubscrptionForSubscriptionUsageQueryVariables>(SubscrptionForSubscriptionUsageDocument, options);
         }
 export type SubscrptionForSubscriptionUsageQueryHookResult = ReturnType<typeof useSubscrptionForSubscriptionUsageQuery>;
@@ -17316,7 +17324,7 @@ export const UsageForSubscriptionUsageDocument = gql`
  *   },
  * });
  */
-export function useUsageForSubscriptionUsageQuery(baseOptions: Apollo.QueryHookOptions<UsageForSubscriptionUsageQuery, UsageForSubscriptionUsageQueryVariables>) {
+export function useUsageForSubscriptionUsageQuery(baseOptions: Apollo.QueryHookOptions<UsageForSubscriptionUsageQuery, UsageForSubscriptionUsageQueryVariables> & ({ variables: UsageForSubscriptionUsageQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<UsageForSubscriptionUsageQuery, UsageForSubscriptionUsageQueryVariables>(UsageForSubscriptionUsageDocument, options);
       }
@@ -17324,8 +17332,8 @@ export function useUsageForSubscriptionUsageLazyQuery(baseOptions?: Apollo.LazyQ
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<UsageForSubscriptionUsageQuery, UsageForSubscriptionUsageQueryVariables>(UsageForSubscriptionUsageDocument, options);
         }
-export function useUsageForSubscriptionUsageSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<UsageForSubscriptionUsageQuery, UsageForSubscriptionUsageQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useUsageForSubscriptionUsageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<UsageForSubscriptionUsageQuery, UsageForSubscriptionUsageQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<UsageForSubscriptionUsageQuery, UsageForSubscriptionUsageQueryVariables>(UsageForSubscriptionUsageDocument, options);
         }
 export type UsageForSubscriptionUsageQueryHookResult = ReturnType<typeof useUsageForSubscriptionUsageQuery>;
@@ -17360,7 +17368,7 @@ export const GetSubscriptionForDetailsOverviewDocument = gql`
  *   },
  * });
  */
-export function useGetSubscriptionForDetailsOverviewQuery(baseOptions: Apollo.QueryHookOptions<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>) {
+export function useGetSubscriptionForDetailsOverviewQuery(baseOptions: Apollo.QueryHookOptions<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables> & ({ variables: GetSubscriptionForDetailsOverviewQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>(GetSubscriptionForDetailsOverviewDocument, options);
       }
@@ -17368,8 +17376,8 @@ export function useGetSubscriptionForDetailsOverviewLazyQuery(baseOptions?: Apol
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>(GetSubscriptionForDetailsOverviewDocument, options);
         }
-export function useGetSubscriptionForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetSubscriptionForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>(GetSubscriptionForDetailsOverviewDocument, options);
         }
 export type GetSubscriptionForDetailsOverviewQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsOverviewQuery>;
@@ -17401,7 +17409,7 @@ export const GetSubscriptionForSubscriptionUsageLifetimeGraphDocument = gql`
  *   },
  * });
  */
-export function useGetSubscriptionForSubscriptionUsageLifetimeGraphQuery(baseOptions: Apollo.QueryHookOptions<GetSubscriptionForSubscriptionUsageLifetimeGraphQuery, GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables>) {
+export function useGetSubscriptionForSubscriptionUsageLifetimeGraphQuery(baseOptions: Apollo.QueryHookOptions<GetSubscriptionForSubscriptionUsageLifetimeGraphQuery, GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables> & ({ variables: GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetSubscriptionForSubscriptionUsageLifetimeGraphQuery, GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables>(GetSubscriptionForSubscriptionUsageLifetimeGraphDocument, options);
       }
@@ -17409,8 +17417,8 @@ export function useGetSubscriptionForSubscriptionUsageLifetimeGraphLazyQuery(bas
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSubscriptionForSubscriptionUsageLifetimeGraphQuery, GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables>(GetSubscriptionForSubscriptionUsageLifetimeGraphDocument, options);
         }
-export function useGetSubscriptionForSubscriptionUsageLifetimeGraphSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionForSubscriptionUsageLifetimeGraphQuery, GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetSubscriptionForSubscriptionUsageLifetimeGraphSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForSubscriptionUsageLifetimeGraphQuery, GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSubscriptionForSubscriptionUsageLifetimeGraphQuery, GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables>(GetSubscriptionForSubscriptionUsageLifetimeGraphDocument, options);
         }
 export type GetSubscriptionForSubscriptionUsageLifetimeGraphQueryHookResult = ReturnType<typeof useGetSubscriptionForSubscriptionUsageLifetimeGraphQuery>;
@@ -17482,7 +17490,7 @@ export const GetCustomerWalletListDocument = gql`
  *   },
  * });
  */
-export function useGetCustomerWalletListQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerWalletListQuery, GetCustomerWalletListQueryVariables>) {
+export function useGetCustomerWalletListQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerWalletListQuery, GetCustomerWalletListQueryVariables> & ({ variables: GetCustomerWalletListQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetCustomerWalletListQuery, GetCustomerWalletListQueryVariables>(GetCustomerWalletListDocument, options);
       }
@@ -17490,8 +17498,8 @@ export function useGetCustomerWalletListLazyQuery(baseOptions?: Apollo.LazyQuery
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerWalletListQuery, GetCustomerWalletListQueryVariables>(GetCustomerWalletListDocument, options);
         }
-export function useGetCustomerWalletListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerWalletListQuery, GetCustomerWalletListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCustomerWalletListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerWalletListQuery, GetCustomerWalletListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerWalletListQuery, GetCustomerWalletListQueryVariables>(GetCustomerWalletListDocument, options);
         }
 export type GetCustomerWalletListQueryHookResult = ReturnType<typeof useGetCustomerWalletListQuery>;
@@ -17606,7 +17614,7 @@ export const GetWalletTransactionsDocument = gql`
  *   },
  * });
  */
-export function useGetWalletTransactionsQuery(baseOptions: Apollo.QueryHookOptions<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>) {
+export function useGetWalletTransactionsQuery(baseOptions: Apollo.QueryHookOptions<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables> & ({ variables: GetWalletTransactionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>(GetWalletTransactionsDocument, options);
       }
@@ -17614,8 +17622,8 @@ export function useGetWalletTransactionsLazyQuery(baseOptions?: Apollo.LazyQuery
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>(GetWalletTransactionsDocument, options);
         }
-export function useGetWalletTransactionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetWalletTransactionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>(GetWalletTransactionsDocument, options);
         }
 export type GetWalletTransactionsQueryHookResult = ReturnType<typeof useGetWalletTransactionsQuery>;
@@ -17725,7 +17733,7 @@ export const GetSinglePlanDocument = gql`
  *   },
  * });
  */
-export function useGetSinglePlanQuery(baseOptions: Apollo.QueryHookOptions<GetSinglePlanQuery, GetSinglePlanQueryVariables>) {
+export function useGetSinglePlanQuery(baseOptions: Apollo.QueryHookOptions<GetSinglePlanQuery, GetSinglePlanQueryVariables> & ({ variables: GetSinglePlanQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetSinglePlanQuery, GetSinglePlanQueryVariables>(GetSinglePlanDocument, options);
       }
@@ -17733,8 +17741,8 @@ export function useGetSinglePlanLazyQuery(baseOptions?: Apollo.LazyQueryHookOpti
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSinglePlanQuery, GetSinglePlanQueryVariables>(GetSinglePlanDocument, options);
         }
-export function useGetSinglePlanSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSinglePlanQuery, GetSinglePlanQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetSinglePlanSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSinglePlanQuery, GetSinglePlanQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSinglePlanQuery, GetSinglePlanQueryVariables>(GetSinglePlanDocument, options);
         }
 export type GetSinglePlanQueryHookResult = ReturnType<typeof useGetSinglePlanQuery>;
@@ -17835,7 +17843,7 @@ export const GetInvoiceCreateCreditNoteDocument = gql`
  *   },
  * });
  */
-export function useGetInvoiceCreateCreditNoteQuery(baseOptions: Apollo.QueryHookOptions<GetInvoiceCreateCreditNoteQuery, GetInvoiceCreateCreditNoteQueryVariables>) {
+export function useGetInvoiceCreateCreditNoteQuery(baseOptions: Apollo.QueryHookOptions<GetInvoiceCreateCreditNoteQuery, GetInvoiceCreateCreditNoteQueryVariables> & ({ variables: GetInvoiceCreateCreditNoteQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetInvoiceCreateCreditNoteQuery, GetInvoiceCreateCreditNoteQueryVariables>(GetInvoiceCreateCreditNoteDocument, options);
       }
@@ -17843,8 +17851,8 @@ export function useGetInvoiceCreateCreditNoteLazyQuery(baseOptions?: Apollo.Lazy
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoiceCreateCreditNoteQuery, GetInvoiceCreateCreditNoteQueryVariables>(GetInvoiceCreateCreditNoteDocument, options);
         }
-export function useGetInvoiceCreateCreditNoteSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoiceCreateCreditNoteQuery, GetInvoiceCreateCreditNoteQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetInvoiceCreateCreditNoteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceCreateCreditNoteQuery, GetInvoiceCreateCreditNoteQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoiceCreateCreditNoteQuery, GetInvoiceCreateCreditNoteQueryVariables>(GetInvoiceCreateCreditNoteDocument, options);
         }
 export type GetInvoiceCreateCreditNoteQueryHookResult = ReturnType<typeof useGetInvoiceCreateCreditNoteQuery>;
@@ -17908,7 +17916,7 @@ export const GetSingleAddOnDocument = gql`
  *   },
  * });
  */
-export function useGetSingleAddOnQuery(baseOptions: Apollo.QueryHookOptions<GetSingleAddOnQuery, GetSingleAddOnQueryVariables>) {
+export function useGetSingleAddOnQuery(baseOptions: Apollo.QueryHookOptions<GetSingleAddOnQuery, GetSingleAddOnQueryVariables> & ({ variables: GetSingleAddOnQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetSingleAddOnQuery, GetSingleAddOnQueryVariables>(GetSingleAddOnDocument, options);
       }
@@ -17916,8 +17924,8 @@ export function useGetSingleAddOnLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSingleAddOnQuery, GetSingleAddOnQueryVariables>(GetSingleAddOnDocument, options);
         }
-export function useGetSingleAddOnSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSingleAddOnQuery, GetSingleAddOnQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetSingleAddOnSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleAddOnQuery, GetSingleAddOnQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSingleAddOnQuery, GetSingleAddOnQueryVariables>(GetSingleAddOnDocument, options);
         }
 export type GetSingleAddOnQueryHookResult = ReturnType<typeof useGetSingleAddOnQuery>;
@@ -18014,7 +18022,7 @@ export const GetSingleBillableMetricDocument = gql`
  *   },
  * });
  */
-export function useGetSingleBillableMetricQuery(baseOptions: Apollo.QueryHookOptions<GetSingleBillableMetricQuery, GetSingleBillableMetricQueryVariables>) {
+export function useGetSingleBillableMetricQuery(baseOptions: Apollo.QueryHookOptions<GetSingleBillableMetricQuery, GetSingleBillableMetricQueryVariables> & ({ variables: GetSingleBillableMetricQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetSingleBillableMetricQuery, GetSingleBillableMetricQueryVariables>(GetSingleBillableMetricDocument, options);
       }
@@ -18022,8 +18030,8 @@ export function useGetSingleBillableMetricLazyQuery(baseOptions?: Apollo.LazyQue
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSingleBillableMetricQuery, GetSingleBillableMetricQueryVariables>(GetSingleBillableMetricDocument, options);
         }
-export function useGetSingleBillableMetricSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSingleBillableMetricQuery, GetSingleBillableMetricQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetSingleBillableMetricSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleBillableMetricQuery, GetSingleBillableMetricQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSingleBillableMetricQuery, GetSingleBillableMetricQueryVariables>(GetSingleBillableMetricDocument, options);
         }
 export type GetSingleBillableMetricQueryHookResult = ReturnType<typeof useGetSingleBillableMetricQuery>;
@@ -18120,7 +18128,7 @@ export const GetSingleCouponDocument = gql`
  *   },
  * });
  */
-export function useGetSingleCouponQuery(baseOptions: Apollo.QueryHookOptions<GetSingleCouponQuery, GetSingleCouponQueryVariables>) {
+export function useGetSingleCouponQuery(baseOptions: Apollo.QueryHookOptions<GetSingleCouponQuery, GetSingleCouponQueryVariables> & ({ variables: GetSingleCouponQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetSingleCouponQuery, GetSingleCouponQueryVariables>(GetSingleCouponDocument, options);
       }
@@ -18128,8 +18136,8 @@ export function useGetSingleCouponLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSingleCouponQuery, GetSingleCouponQueryVariables>(GetSingleCouponDocument, options);
         }
-export function useGetSingleCouponSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSingleCouponQuery, GetSingleCouponQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetSingleCouponSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleCouponQuery, GetSingleCouponQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSingleCouponQuery, GetSingleCouponQueryVariables>(GetSingleCouponDocument, options);
         }
 export type GetSingleCouponQueryHookResult = ReturnType<typeof useGetSingleCouponQuery>;
@@ -18298,7 +18306,7 @@ export const GetSingleTaxDocument = gql`
  *   },
  * });
  */
-export function useGetSingleTaxQuery(baseOptions: Apollo.QueryHookOptions<GetSingleTaxQuery, GetSingleTaxQueryVariables>) {
+export function useGetSingleTaxQuery(baseOptions: Apollo.QueryHookOptions<GetSingleTaxQuery, GetSingleTaxQueryVariables> & ({ variables: GetSingleTaxQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetSingleTaxQuery, GetSingleTaxQueryVariables>(GetSingleTaxDocument, options);
       }
@@ -18306,8 +18314,8 @@ export function useGetSingleTaxLazyQuery(baseOptions?: Apollo.LazyQueryHookOptio
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSingleTaxQuery, GetSingleTaxQueryVariables>(GetSingleTaxDocument, options);
         }
-export function useGetSingleTaxSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSingleTaxQuery, GetSingleTaxQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetSingleTaxSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleTaxQuery, GetSingleTaxQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSingleTaxQuery, GetSingleTaxQueryVariables>(GetSingleTaxDocument, options);
         }
 export type GetSingleTaxQueryHookResult = ReturnType<typeof useGetSingleTaxQuery>;
@@ -18412,8 +18420,8 @@ export function useGetCurrentUserInfosLazyQuery(baseOptions?: Apollo.LazyQueryHo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCurrentUserInfosQuery, GetCurrentUserInfosQueryVariables>(GetCurrentUserInfosDocument, options);
         }
-export function useGetCurrentUserInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCurrentUserInfosQuery, GetCurrentUserInfosQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCurrentUserInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCurrentUserInfosQuery, GetCurrentUserInfosQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCurrentUserInfosQuery, GetCurrentUserInfosQueryVariables>(GetCurrentUserInfosDocument, options);
         }
 export type GetCurrentUserInfosQueryHookResult = ReturnType<typeof useGetCurrentUserInfosQuery>;
@@ -18454,8 +18462,8 @@ export function useGetEmailSettingsLazyQuery(baseOptions?: Apollo.LazyQueryHookO
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetEmailSettingsQuery, GetEmailSettingsQueryVariables>(GetEmailSettingsDocument, options);
         }
-export function useGetEmailSettingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetEmailSettingsQuery, GetEmailSettingsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetEmailSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetEmailSettingsQuery, GetEmailSettingsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetEmailSettingsQuery, GetEmailSettingsQueryVariables>(GetEmailSettingsDocument, options);
         }
 export type GetEmailSettingsQueryHookResult = ReturnType<typeof useGetEmailSettingsQuery>;
@@ -18533,8 +18541,8 @@ export function useGetTaxProviderPresenceLazyQuery(baseOptions?: Apollo.LazyQuer
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetTaxProviderPresenceQuery, GetTaxProviderPresenceQueryVariables>(GetTaxProviderPresenceDocument, options);
         }
-export function useGetTaxProviderPresenceSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxProviderPresenceQuery, GetTaxProviderPresenceQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetTaxProviderPresenceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxProviderPresenceQuery, GetTaxProviderPresenceQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetTaxProviderPresenceQuery, GetTaxProviderPresenceQueryVariables>(GetTaxProviderPresenceDocument, options);
         }
 export type GetTaxProviderPresenceQueryHookResult = ReturnType<typeof useGetTaxProviderPresenceQuery>;
@@ -18572,8 +18580,8 @@ export function useGetOrganizationInfosLazyQuery(baseOptions?: Apollo.LazyQueryH
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetOrganizationInfosQuery, GetOrganizationInfosQueryVariables>(GetOrganizationInfosDocument, options);
         }
-export function useGetOrganizationInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOrganizationInfosQuery, GetOrganizationInfosQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetOrganizationInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationInfosQuery, GetOrganizationInfosQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetOrganizationInfosQuery, GetOrganizationInfosQueryVariables>(GetOrganizationInfosDocument, options);
         }
 export type GetOrganizationInfosQueryHookResult = ReturnType<typeof useGetOrganizationInfosQuery>;
@@ -18605,7 +18613,7 @@ export const GetInvoiceDetailsDocument = gql`
  *   },
  * });
  */
-export function useGetInvoiceDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetInvoiceDetailsQuery, GetInvoiceDetailsQueryVariables>) {
+export function useGetInvoiceDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetInvoiceDetailsQuery, GetInvoiceDetailsQueryVariables> & ({ variables: GetInvoiceDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetInvoiceDetailsQuery, GetInvoiceDetailsQueryVariables>(GetInvoiceDetailsDocument, options);
       }
@@ -18613,8 +18621,8 @@ export function useGetInvoiceDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHook
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoiceDetailsQuery, GetInvoiceDetailsQueryVariables>(GetInvoiceDetailsDocument, options);
         }
-export function useGetInvoiceDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoiceDetailsQuery, GetInvoiceDetailsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetInvoiceDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceDetailsQuery, GetInvoiceDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoiceDetailsQuery, GetInvoiceDetailsQueryVariables>(GetInvoiceDetailsDocument, options);
         }
 export type GetInvoiceDetailsQueryHookResult = ReturnType<typeof useGetInvoiceDetailsQuery>;
@@ -18659,8 +18667,8 @@ export function useIntegrationsListForCustomerInvoiceDetailsLazyQuery(baseOption
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<IntegrationsListForCustomerInvoiceDetailsQuery, IntegrationsListForCustomerInvoiceDetailsQueryVariables>(IntegrationsListForCustomerInvoiceDetailsDocument, options);
         }
-export function useIntegrationsListForCustomerInvoiceDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerInvoiceDetailsQuery, IntegrationsListForCustomerInvoiceDetailsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useIntegrationsListForCustomerInvoiceDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerInvoiceDetailsQuery, IntegrationsListForCustomerInvoiceDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<IntegrationsListForCustomerInvoiceDetailsQuery, IntegrationsListForCustomerInvoiceDetailsQueryVariables>(IntegrationsListForCustomerInvoiceDetailsDocument, options);
         }
 export type IntegrationsListForCustomerInvoiceDetailsQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerInvoiceDetailsQuery>;
@@ -18866,8 +18874,8 @@ export function useSideNavInfosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptio
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<SideNavInfosQuery, SideNavInfosQueryVariables>(SideNavInfosDocument, options);
         }
-export function useSideNavInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SideNavInfosQuery, SideNavInfosQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useSideNavInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SideNavInfosQuery, SideNavInfosQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<SideNavInfosQuery, SideNavInfosQueryVariables>(SideNavInfosDocument, options);
         }
 export type SideNavInfosQueryHookResult = ReturnType<typeof useSideNavInfosQuery>;
@@ -18908,7 +18916,7 @@ export const GetAddOnForDetailsDocument = gql`
  *   },
  * });
  */
-export function useGetAddOnForDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetAddOnForDetailsQuery, GetAddOnForDetailsQueryVariables>) {
+export function useGetAddOnForDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetAddOnForDetailsQuery, GetAddOnForDetailsQueryVariables> & ({ variables: GetAddOnForDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetAddOnForDetailsQuery, GetAddOnForDetailsQueryVariables>(GetAddOnForDetailsDocument, options);
       }
@@ -18916,8 +18924,8 @@ export function useGetAddOnForDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHoo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAddOnForDetailsQuery, GetAddOnForDetailsQueryVariables>(GetAddOnForDetailsDocument, options);
         }
-export function useGetAddOnForDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAddOnForDetailsQuery, GetAddOnForDetailsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetAddOnForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddOnForDetailsQuery, GetAddOnForDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAddOnForDetailsQuery, GetAddOnForDetailsQueryVariables>(GetAddOnForDetailsDocument, options);
         }
 export type GetAddOnForDetailsQueryHookResult = ReturnType<typeof useGetAddOnForDetailsQuery>;
@@ -18965,8 +18973,8 @@ export function useAddOnsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Add
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<AddOnsQuery, AddOnsQueryVariables>(AddOnsDocument, options);
         }
-export function useAddOnsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AddOnsQuery, AddOnsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useAddOnsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AddOnsQuery, AddOnsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<AddOnsQuery, AddOnsQueryVariables>(AddOnsDocument, options);
         }
 export type AddOnsQueryHookResult = ReturnType<typeof useAddOnsQuery>;
@@ -19013,8 +19021,8 @@ export function useBillableMetricsLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<BillableMetricsQuery, BillableMetricsQueryVariables>(BillableMetricsDocument, options);
         }
-export function useBillableMetricsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<BillableMetricsQuery, BillableMetricsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useBillableMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<BillableMetricsQuery, BillableMetricsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<BillableMetricsQuery, BillableMetricsQueryVariables>(BillableMetricsDocument, options);
         }
 export type BillableMetricsQueryHookResult = ReturnType<typeof useBillableMetricsQuery>;
@@ -19062,7 +19070,7 @@ export const GetCouponForDetailsDocument = gql`
  *   },
  * });
  */
-export function useGetCouponForDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetCouponForDetailsQuery, GetCouponForDetailsQueryVariables>) {
+export function useGetCouponForDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetCouponForDetailsQuery, GetCouponForDetailsQueryVariables> & ({ variables: GetCouponForDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetCouponForDetailsQuery, GetCouponForDetailsQueryVariables>(GetCouponForDetailsDocument, options);
       }
@@ -19070,8 +19078,8 @@ export function useGetCouponForDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCouponForDetailsQuery, GetCouponForDetailsQueryVariables>(GetCouponForDetailsDocument, options);
         }
-export function useGetCouponForDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCouponForDetailsQuery, GetCouponForDetailsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCouponForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCouponForDetailsQuery, GetCouponForDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCouponForDetailsQuery, GetCouponForDetailsQueryVariables>(GetCouponForDetailsDocument, options);
         }
 export type GetCouponForDetailsQueryHookResult = ReturnType<typeof useGetCouponForDetailsQuery>;
@@ -19120,8 +19128,8 @@ export function useCouponsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Co
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<CouponsQuery, CouponsQueryVariables>(CouponsDocument, options);
         }
-export function useCouponsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CouponsQuery, CouponsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useCouponsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CouponsQuery, CouponsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<CouponsQuery, CouponsQueryVariables>(CouponsDocument, options);
         }
 export type CouponsQueryHookResult = ReturnType<typeof useCouponsQuery>;
@@ -19171,8 +19179,8 @@ export function useGetTaxesForAddOnFormLazyQuery(baseOptions?: Apollo.LazyQueryH
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetTaxesForAddOnFormQuery, GetTaxesForAddOnFormQueryVariables>(GetTaxesForAddOnFormDocument, options);
         }
-export function useGetTaxesForAddOnFormSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxesForAddOnFormQuery, GetTaxesForAddOnFormQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetTaxesForAddOnFormSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxesForAddOnFormQuery, GetTaxesForAddOnFormQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetTaxesForAddOnFormQuery, GetTaxesForAddOnFormQueryVariables>(GetTaxesForAddOnFormDocument, options);
         }
 export type GetTaxesForAddOnFormQueryHookResult = ReturnType<typeof useGetTaxesForAddOnFormQuery>;
@@ -19278,7 +19286,7 @@ export const GetInfosForCreateInvoiceDocument = gql`
  *   },
  * });
  */
-export function useGetInfosForCreateInvoiceQuery(baseOptions: Apollo.QueryHookOptions<GetInfosForCreateInvoiceQuery, GetInfosForCreateInvoiceQueryVariables>) {
+export function useGetInfosForCreateInvoiceQuery(baseOptions: Apollo.QueryHookOptions<GetInfosForCreateInvoiceQuery, GetInfosForCreateInvoiceQueryVariables> & ({ variables: GetInfosForCreateInvoiceQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetInfosForCreateInvoiceQuery, GetInfosForCreateInvoiceQueryVariables>(GetInfosForCreateInvoiceDocument, options);
       }
@@ -19286,8 +19294,8 @@ export function useGetInfosForCreateInvoiceLazyQuery(baseOptions?: Apollo.LazyQu
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInfosForCreateInvoiceQuery, GetInfosForCreateInvoiceQueryVariables>(GetInfosForCreateInvoiceDocument, options);
         }
-export function useGetInfosForCreateInvoiceSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInfosForCreateInvoiceQuery, GetInfosForCreateInvoiceQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetInfosForCreateInvoiceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInfosForCreateInvoiceQuery, GetInfosForCreateInvoiceQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInfosForCreateInvoiceQuery, GetInfosForCreateInvoiceQueryVariables>(GetInfosForCreateInvoiceDocument, options);
         }
 export type GetInfosForCreateInvoiceQueryHookResult = ReturnType<typeof useGetInfosForCreateInvoiceQuery>;
@@ -19345,8 +19353,8 @@ export function useGetAddonListForInfoiceLazyQuery(baseOptions?: Apollo.LazyQuer
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>(GetAddonListForInfoiceDocument, options);
         }
-export function useGetAddonListForInfoiceSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetAddonListForInfoiceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>(GetAddonListForInfoiceDocument, options);
         }
 export type GetAddonListForInfoiceQueryHookResult = ReturnType<typeof useGetAddonListForInfoiceQuery>;
@@ -19432,8 +19440,8 @@ export function useGetPlansLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<G
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPlansQuery, GetPlansQueryVariables>(GetPlansDocument, options);
         }
-export function useGetPlansSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPlansQuery, GetPlansQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetPlansSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlansQuery, GetPlansQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPlansQuery, GetPlansQueryVariables>(GetPlansDocument, options);
         }
 export type GetPlansQueryHookResult = ReturnType<typeof useGetPlansQuery>;
@@ -19468,7 +19476,7 @@ export const GetCustomerForCreateSubscriptionDocument = gql`
  *   },
  * });
  */
-export function useGetCustomerForCreateSubscriptionQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerForCreateSubscriptionQuery, GetCustomerForCreateSubscriptionQueryVariables>) {
+export function useGetCustomerForCreateSubscriptionQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerForCreateSubscriptionQuery, GetCustomerForCreateSubscriptionQueryVariables> & ({ variables: GetCustomerForCreateSubscriptionQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetCustomerForCreateSubscriptionQuery, GetCustomerForCreateSubscriptionQueryVariables>(GetCustomerForCreateSubscriptionDocument, options);
       }
@@ -19476,8 +19484,8 @@ export function useGetCustomerForCreateSubscriptionLazyQuery(baseOptions?: Apoll
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerForCreateSubscriptionQuery, GetCustomerForCreateSubscriptionQueryVariables>(GetCustomerForCreateSubscriptionDocument, options);
         }
-export function useGetCustomerForCreateSubscriptionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerForCreateSubscriptionQuery, GetCustomerForCreateSubscriptionQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCustomerForCreateSubscriptionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerForCreateSubscriptionQuery, GetCustomerForCreateSubscriptionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerForCreateSubscriptionQuery, GetCustomerForCreateSubscriptionQueryVariables>(GetCustomerForCreateSubscriptionDocument, options);
         }
 export type GetCustomerForCreateSubscriptionQueryHookResult = ReturnType<typeof useGetCustomerForCreateSubscriptionQuery>;
@@ -19523,7 +19531,7 @@ export const GetSubscriptionForCreateSubscriptionDocument = gql`
  *   },
  * });
  */
-export function useGetSubscriptionForCreateSubscriptionQuery(baseOptions: Apollo.QueryHookOptions<GetSubscriptionForCreateSubscriptionQuery, GetSubscriptionForCreateSubscriptionQueryVariables>) {
+export function useGetSubscriptionForCreateSubscriptionQuery(baseOptions: Apollo.QueryHookOptions<GetSubscriptionForCreateSubscriptionQuery, GetSubscriptionForCreateSubscriptionQueryVariables> & ({ variables: GetSubscriptionForCreateSubscriptionQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetSubscriptionForCreateSubscriptionQuery, GetSubscriptionForCreateSubscriptionQueryVariables>(GetSubscriptionForCreateSubscriptionDocument, options);
       }
@@ -19531,8 +19539,8 @@ export function useGetSubscriptionForCreateSubscriptionLazyQuery(baseOptions?: A
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSubscriptionForCreateSubscriptionQuery, GetSubscriptionForCreateSubscriptionQueryVariables>(GetSubscriptionForCreateSubscriptionDocument, options);
         }
-export function useGetSubscriptionForCreateSubscriptionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionForCreateSubscriptionQuery, GetSubscriptionForCreateSubscriptionQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetSubscriptionForCreateSubscriptionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForCreateSubscriptionQuery, GetSubscriptionForCreateSubscriptionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSubscriptionForCreateSubscriptionQuery, GetSubscriptionForCreateSubscriptionQueryVariables>(GetSubscriptionForCreateSubscriptionDocument, options);
         }
 export type GetSubscriptionForCreateSubscriptionQueryHookResult = ReturnType<typeof useGetSubscriptionForCreateSubscriptionQuery>;
@@ -19653,7 +19661,7 @@ export const GetCreditNoteDocument = gql`
  *   },
  * });
  */
-export function useGetCreditNoteQuery(baseOptions: Apollo.QueryHookOptions<GetCreditNoteQuery, GetCreditNoteQueryVariables>) {
+export function useGetCreditNoteQuery(baseOptions: Apollo.QueryHookOptions<GetCreditNoteQuery, GetCreditNoteQueryVariables> & ({ variables: GetCreditNoteQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetCreditNoteQuery, GetCreditNoteQueryVariables>(GetCreditNoteDocument, options);
       }
@@ -19661,8 +19669,8 @@ export function useGetCreditNoteLazyQuery(baseOptions?: Apollo.LazyQueryHookOpti
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCreditNoteQuery, GetCreditNoteQueryVariables>(GetCreditNoteDocument, options);
         }
-export function useGetCreditNoteSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCreditNoteQuery, GetCreditNoteQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCreditNoteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCreditNoteQuery, GetCreditNoteQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCreditNoteQuery, GetCreditNoteQueryVariables>(GetCreditNoteDocument, options);
         }
 export type GetCreditNoteQueryHookResult = ReturnType<typeof useGetCreditNoteQuery>;
@@ -19708,8 +19716,8 @@ export function useIntegrationsListForCreditNoteDetailsLazyQuery(baseOptions?: A
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<IntegrationsListForCreditNoteDetailsQuery, IntegrationsListForCreditNoteDetailsQueryVariables>(IntegrationsListForCreditNoteDetailsDocument, options);
         }
-export function useIntegrationsListForCreditNoteDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<IntegrationsListForCreditNoteDetailsQuery, IntegrationsListForCreditNoteDetailsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useIntegrationsListForCreditNoteDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<IntegrationsListForCreditNoteDetailsQuery, IntegrationsListForCreditNoteDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<IntegrationsListForCreditNoteDetailsQuery, IntegrationsListForCreditNoteDetailsQueryVariables>(IntegrationsListForCreditNoteDetailsDocument, options);
         }
 export type IntegrationsListForCreditNoteDetailsQueryHookResult = ReturnType<typeof useIntegrationsListForCreditNoteDetailsQuery>;
@@ -19806,7 +19814,7 @@ export const GetCustomerDocument = gql`
  *   },
  * });
  */
-export function useGetCustomerQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerQuery, GetCustomerQueryVariables>) {
+export function useGetCustomerQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerQuery, GetCustomerQueryVariables> & ({ variables: GetCustomerQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetCustomerQuery, GetCustomerQueryVariables>(GetCustomerDocument, options);
       }
@@ -19814,8 +19822,8 @@ export function useGetCustomerLazyQuery(baseOptions?: Apollo.LazyQueryHookOption
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerQuery, GetCustomerQueryVariables>(GetCustomerDocument, options);
         }
-export function useGetCustomerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerQuery, GetCustomerQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCustomerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerQuery, GetCustomerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerQuery, GetCustomerQueryVariables>(GetCustomerDocument, options);
         }
 export type GetCustomerQueryHookResult = ReturnType<typeof useGetCustomerQuery>;
@@ -19889,7 +19897,7 @@ export const GetCustomerDraftInvoicesDocument = gql`
  *   },
  * });
  */
-export function useGetCustomerDraftInvoicesQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables>) {
+export function useGetCustomerDraftInvoicesQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables> & ({ variables: GetCustomerDraftInvoicesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables>(GetCustomerDraftInvoicesDocument, options);
       }
@@ -19897,8 +19905,8 @@ export function useGetCustomerDraftInvoicesLazyQuery(baseOptions?: Apollo.LazyQu
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables>(GetCustomerDraftInvoicesDocument, options);
         }
-export function useGetCustomerDraftInvoicesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCustomerDraftInvoicesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables>(GetCustomerDraftInvoicesDocument, options);
         }
 export type GetCustomerDraftInvoicesQueryHookResult = ReturnType<typeof useGetCustomerDraftInvoicesQuery>;
@@ -19938,7 +19946,7 @@ export const GetCustomerInfosForDraftInvoicesListDocument = gql`
  *   },
  * });
  */
-export function useGetCustomerInfosForDraftInvoicesListQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>) {
+export function useGetCustomerInfosForDraftInvoicesListQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables> & ({ variables: GetCustomerInfosForDraftInvoicesListQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>(GetCustomerInfosForDraftInvoicesListDocument, options);
       }
@@ -19946,8 +19954,8 @@ export function useGetCustomerInfosForDraftInvoicesListLazyQuery(baseOptions?: A
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>(GetCustomerInfosForDraftInvoicesListDocument, options);
         }
-export function useGetCustomerInfosForDraftInvoicesListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCustomerInfosForDraftInvoicesListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>(GetCustomerInfosForDraftInvoicesListDocument, options);
         }
 export type GetCustomerInfosForDraftInvoicesListQueryHookResult = ReturnType<typeof useGetCustomerInfosForDraftInvoicesListQuery>;
@@ -20001,7 +20009,7 @@ ${InvoicesForRequestOverduePaymentFormFragmentDoc}`;
  *   },
  * });
  */
-export function useGetRequestOverduePaymentInfosQuery(baseOptions: Apollo.QueryHookOptions<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables>) {
+export function useGetRequestOverduePaymentInfosQuery(baseOptions: Apollo.QueryHookOptions<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables> & ({ variables: GetRequestOverduePaymentInfosQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables>(GetRequestOverduePaymentInfosDocument, options);
       }
@@ -20009,8 +20017,8 @@ export function useGetRequestOverduePaymentInfosLazyQuery(baseOptions?: Apollo.L
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables>(GetRequestOverduePaymentInfosDocument, options);
         }
-export function useGetRequestOverduePaymentInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetRequestOverduePaymentInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetRequestOverduePaymentInfosQuery, GetRequestOverduePaymentInfosQueryVariables>(GetRequestOverduePaymentInfosDocument, options);
         }
 export type GetRequestOverduePaymentInfosQueryHookResult = ReturnType<typeof useGetRequestOverduePaymentInfosQuery>;
@@ -20090,8 +20098,8 @@ export function useCustomersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<CustomersQuery, CustomersQueryVariables>(CustomersDocument, options);
         }
-export function useCustomersSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CustomersQuery, CustomersQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useCustomersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomersQuery, CustomersQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<CustomersQuery, CustomersQueryVariables>(CustomersDocument, options);
         }
 export type CustomersQueryHookResult = ReturnType<typeof useCustomersQuery>;
@@ -20127,7 +20135,7 @@ export const GetinviteDocument = gql`
  *   },
  * });
  */
-export function useGetinviteQuery(baseOptions: Apollo.QueryHookOptions<GetinviteQuery, GetinviteQueryVariables>) {
+export function useGetinviteQuery(baseOptions: Apollo.QueryHookOptions<GetinviteQuery, GetinviteQueryVariables> & ({ variables: GetinviteQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetinviteQuery, GetinviteQueryVariables>(GetinviteDocument, options);
       }
@@ -20135,8 +20143,8 @@ export function useGetinviteLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetinviteQuery, GetinviteQueryVariables>(GetinviteDocument, options);
         }
-export function useGetinviteSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetinviteQuery, GetinviteQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetinviteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetinviteQuery, GetinviteQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetinviteQuery, GetinviteQueryVariables>(GetinviteDocument, options);
         }
 export type GetinviteQueryHookResult = ReturnType<typeof useGetinviteQuery>;
@@ -20324,7 +20332,7 @@ export const GetInvoiceCreditNotesDocument = gql`
  *   },
  * });
  */
-export function useGetInvoiceCreditNotesQuery(baseOptions: Apollo.QueryHookOptions<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables>) {
+export function useGetInvoiceCreditNotesQuery(baseOptions: Apollo.QueryHookOptions<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables> & ({ variables: GetInvoiceCreditNotesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables>(GetInvoiceCreditNotesDocument, options);
       }
@@ -20332,8 +20340,8 @@ export function useGetInvoiceCreditNotesLazyQuery(baseOptions?: Apollo.LazyQuery
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables>(GetInvoiceCreditNotesDocument, options);
         }
-export function useGetInvoiceCreditNotesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetInvoiceCreditNotesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables>(GetInvoiceCreditNotesDocument, options);
         }
 export type GetInvoiceCreditNotesQueryHookResult = ReturnType<typeof useGetInvoiceCreditNotesQuery>;
@@ -20404,8 +20412,8 @@ export function useGetInvoicesListLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvoicesListQuery, GetInvoicesListQueryVariables>(GetInvoicesListDocument, options);
         }
-export function useGetInvoicesListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvoicesListQuery, GetInvoicesListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetInvoicesListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoicesListQuery, GetInvoicesListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvoicesListQuery, GetInvoicesListQueryVariables>(GetInvoicesListDocument, options);
         }
 export type GetInvoicesListQueryHookResult = ReturnType<typeof useGetInvoicesListQuery>;
@@ -20446,8 +20454,8 @@ export function useGetCreditNotesListLazyQuery(baseOptions?: Apollo.LazyQueryHoo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>(GetCreditNotesListDocument, options);
         }
-export function useGetCreditNotesListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCreditNotesListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>(GetCreditNotesListDocument, options);
         }
 export type GetCreditNotesListQueryHookResult = ReturnType<typeof useGetCreditNotesListQuery>;
@@ -20519,7 +20527,7 @@ export const GetPlanForDetailsDocument = gql`
  *   },
  * });
  */
-export function useGetPlanForDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetPlanForDetailsQuery, GetPlanForDetailsQueryVariables>) {
+export function useGetPlanForDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetPlanForDetailsQuery, GetPlanForDetailsQueryVariables> & ({ variables: GetPlanForDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetPlanForDetailsQuery, GetPlanForDetailsQueryVariables>(GetPlanForDetailsDocument, options);
       }
@@ -20527,8 +20535,8 @@ export function useGetPlanForDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHook
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPlanForDetailsQuery, GetPlanForDetailsQueryVariables>(GetPlanForDetailsDocument, options);
         }
-export function useGetPlanForDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPlanForDetailsQuery, GetPlanForDetailsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetPlanForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlanForDetailsQuery, GetPlanForDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPlanForDetailsQuery, GetPlanForDetailsQueryVariables>(GetPlanForDetailsDocument, options);
         }
 export type GetPlanForDetailsQueryHookResult = ReturnType<typeof useGetPlanForDetailsQuery>;
@@ -20575,8 +20583,8 @@ export function usePlansLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Plan
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<PlansQuery, PlansQueryVariables>(PlansDocument, options);
         }
-export function usePlansSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<PlansQuery, PlansQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function usePlansSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PlansQuery, PlansQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<PlansQuery, PlansQueryVariables>(PlansDocument, options);
         }
 export type PlansQueryHookResult = ReturnType<typeof usePlansQuery>;
@@ -20623,7 +20631,7 @@ export const GetSubscriptionForDetailsDocument = gql`
  *   },
  * });
  */
-export function useGetSubscriptionForDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables>) {
+export function useGetSubscriptionForDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables> & ({ variables: GetSubscriptionForDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables>(GetSubscriptionForDetailsDocument, options);
       }
@@ -20631,8 +20639,8 @@ export function useGetSubscriptionForDetailsLazyQuery(baseOptions?: Apollo.LazyQ
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables>(GetSubscriptionForDetailsDocument, options);
         }
-export function useGetSubscriptionForDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetSubscriptionForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables>(GetSubscriptionForDetailsDocument, options);
         }
 export type GetSubscriptionForDetailsQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsQuery>;
@@ -20665,7 +20673,7 @@ export const GetCustomerInfosForWalletFormDocument = gql`
  *   },
  * });
  */
-export function useGetCustomerInfosForWalletFormQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>) {
+export function useGetCustomerInfosForWalletFormQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables> & ({ variables: GetCustomerInfosForWalletFormQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>(GetCustomerInfosForWalletFormDocument, options);
       }
@@ -20673,8 +20681,8 @@ export function useGetCustomerInfosForWalletFormLazyQuery(baseOptions?: Apollo.L
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>(GetCustomerInfosForWalletFormDocument, options);
         }
-export function useGetCustomerInfosForWalletFormSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetCustomerInfosForWalletFormSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>(GetCustomerInfosForWalletFormDocument, options);
         }
 export type GetCustomerInfosForWalletFormQueryHookResult = ReturnType<typeof useGetCustomerInfosForWalletFormQuery>;
@@ -20706,7 +20714,7 @@ export const GetWalletInfosForWalletFormDocument = gql`
  *   },
  * });
  */
-export function useGetWalletInfosForWalletFormQuery(baseOptions: Apollo.QueryHookOptions<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>) {
+export function useGetWalletInfosForWalletFormQuery(baseOptions: Apollo.QueryHookOptions<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables> & ({ variables: GetWalletInfosForWalletFormQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>(GetWalletInfosForWalletFormDocument, options);
       }
@@ -20714,8 +20722,8 @@ export function useGetWalletInfosForWalletFormLazyQuery(baseOptions?: Apollo.Laz
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>(GetWalletInfosForWalletFormDocument, options);
         }
-export function useGetWalletInfosForWalletFormSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetWalletInfosForWalletFormSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>(GetWalletInfosForWalletFormDocument, options);
         }
 export type GetWalletInfosForWalletFormQueryHookResult = ReturnType<typeof useGetWalletInfosForWalletFormQuery>;
@@ -20978,8 +20986,8 @@ export function useGetPortalLocaleLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>(GetPortalLocaleDocument, options);
         }
-export function useGetPortalLocaleSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetPortalLocaleSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPortalLocaleQuery, GetPortalLocaleQueryVariables>(GetPortalLocaleDocument, options);
         }
 export type GetPortalLocaleQueryHookResult = ReturnType<typeof useGetPortalLocaleQuery>;
@@ -21014,7 +21022,7 @@ export const GetPasswordResetDocument = gql`
  *   },
  * });
  */
-export function useGetPasswordResetQuery(baseOptions: Apollo.QueryHookOptions<GetPasswordResetQuery, GetPasswordResetQueryVariables>) {
+export function useGetPasswordResetQuery(baseOptions: Apollo.QueryHookOptions<GetPasswordResetQuery, GetPasswordResetQueryVariables> & ({ variables: GetPasswordResetQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetPasswordResetQuery, GetPasswordResetQueryVariables>(GetPasswordResetDocument, options);
       }
@@ -21022,8 +21030,8 @@ export function useGetPasswordResetLazyQuery(baseOptions?: Apollo.LazyQueryHookO
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPasswordResetQuery, GetPasswordResetQueryVariables>(GetPasswordResetDocument, options);
         }
-export function useGetPasswordResetSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPasswordResetQuery, GetPasswordResetQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetPasswordResetSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPasswordResetQuery, GetPasswordResetQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPasswordResetQuery, GetPasswordResetQueryVariables>(GetPasswordResetDocument, options);
         }
 export type GetPasswordResetQueryHookResult = ReturnType<typeof useGetPasswordResetQuery>;
@@ -21174,8 +21182,8 @@ export function useGetPortalOrgaInfosLazyQuery(baseOptions?: Apollo.LazyQueryHoo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>(GetPortalOrgaInfosDocument, options);
         }
-export function useGetPortalOrgaInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetPortalOrgaInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>(GetPortalOrgaInfosDocument, options);
         }
 export type GetPortalOrgaInfosQueryHookResult = ReturnType<typeof useGetPortalOrgaInfosQuery>;
@@ -21214,8 +21222,8 @@ export function useGetOrganizationApiKeyLazyQuery(baseOptions?: Apollo.LazyQuery
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetOrganizationApiKeyQuery, GetOrganizationApiKeyQueryVariables>(GetOrganizationApiKeyDocument, options);
         }
-export function useGetOrganizationApiKeySuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOrganizationApiKeyQuery, GetOrganizationApiKeyQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetOrganizationApiKeySuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationApiKeyQuery, GetOrganizationApiKeyQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetOrganizationApiKeyQuery, GetOrganizationApiKeyQueryVariables>(GetOrganizationApiKeyDocument, options);
         }
 export type GetOrganizationApiKeyQueryHookResult = ReturnType<typeof useGetOrganizationApiKeyQuery>;
@@ -21261,8 +21269,8 @@ export function useEventsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Eve
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<EventsQuery, EventsQueryVariables>(EventsDocument, options);
         }
-export function useEventsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<EventsQuery, EventsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useEventsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<EventsQuery, EventsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<EventsQuery, EventsQueryVariables>(EventsDocument, options);
         }
 export type EventsQueryHookResult = ReturnType<typeof useEventsQuery>;
@@ -21294,7 +21302,7 @@ export const GetWebhookInformationsDocument = gql`
  *   },
  * });
  */
-export function useGetWebhookInformationsQuery(baseOptions: Apollo.QueryHookOptions<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables>) {
+export function useGetWebhookInformationsQuery(baseOptions: Apollo.QueryHookOptions<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables> & ({ variables: GetWebhookInformationsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables>(GetWebhookInformationsDocument, options);
       }
@@ -21302,8 +21310,8 @@ export function useGetWebhookInformationsLazyQuery(baseOptions?: Apollo.LazyQuer
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables>(GetWebhookInformationsDocument, options);
         }
-export function useGetWebhookInformationsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetWebhookInformationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetWebhookInformationsQuery, GetWebhookInformationsQueryVariables>(GetWebhookInformationsDocument, options);
         }
 export type GetWebhookInformationsQueryHookResult = ReturnType<typeof useGetWebhookInformationsQuery>;
@@ -21350,7 +21358,7 @@ export const GetWebhookLogDocument = gql`
  *   },
  * });
  */
-export function useGetWebhookLogQuery(baseOptions: Apollo.QueryHookOptions<GetWebhookLogQuery, GetWebhookLogQueryVariables>) {
+export function useGetWebhookLogQuery(baseOptions: Apollo.QueryHookOptions<GetWebhookLogQuery, GetWebhookLogQueryVariables> & ({ variables: GetWebhookLogQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetWebhookLogQuery, GetWebhookLogQueryVariables>(GetWebhookLogDocument, options);
       }
@@ -21358,8 +21366,8 @@ export function useGetWebhookLogLazyQuery(baseOptions?: Apollo.LazyQueryHookOpti
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetWebhookLogQuery, GetWebhookLogQueryVariables>(GetWebhookLogDocument, options);
         }
-export function useGetWebhookLogSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetWebhookLogQuery, GetWebhookLogQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetWebhookLogSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWebhookLogQuery, GetWebhookLogQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetWebhookLogQuery, GetWebhookLogQueryVariables>(GetWebhookLogDocument, options);
         }
 export type GetWebhookLogQueryHookResult = ReturnType<typeof useGetWebhookLogQuery>;
@@ -21403,8 +21411,8 @@ export function useGetWebhookListLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetWebhookListQuery, GetWebhookListQueryVariables>(GetWebhookListDocument, options);
         }
-export function useGetWebhookListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetWebhookListQuery, GetWebhookListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetWebhookListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWebhookListQuery, GetWebhookListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetWebhookListQuery, GetWebhookListQueryVariables>(GetWebhookListDocument, options);
         }
 export type GetWebhookListQueryHookResult = ReturnType<typeof useGetWebhookListQuery>;
@@ -21453,7 +21461,7 @@ ${AdyenForCreateAndEditSuccessRedirectUrlFragmentDoc}`;
  *   },
  * });
  */
-export function useGetAdyenIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>) {
+export function useGetAdyenIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables> & ({ variables: GetAdyenIntegrationsDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>(GetAdyenIntegrationsDetailsDocument, options);
       }
@@ -21461,8 +21469,8 @@ export function useGetAdyenIntegrationsDetailsLazyQuery(baseOptions?: Apollo.Laz
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>(GetAdyenIntegrationsDetailsDocument, options);
         }
-export function useGetAdyenIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetAdyenIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>(GetAdyenIntegrationsDetailsDocument, options);
         }
 export type GetAdyenIntegrationsDetailsQueryHookResult = ReturnType<typeof useGetAdyenIntegrationsDetailsQuery>;
@@ -21511,8 +21519,8 @@ export function useGetAdyenIntegrationsListLazyQuery(baseOptions?: Apollo.LazyQu
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>(GetAdyenIntegrationsListDocument, options);
         }
-export function useGetAdyenIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetAdyenIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>(GetAdyenIntegrationsListDocument, options);
         }
 export type GetAdyenIntegrationsListQueryHookResult = ReturnType<typeof useGetAdyenIntegrationsListQuery>;
@@ -21555,7 +21563,7 @@ export const GetAnrokIntegrationsDetailsDocument = gql`
  *   },
  * });
  */
-export function useGetAnrokIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetAnrokIntegrationsDetailsQuery, GetAnrokIntegrationsDetailsQueryVariables>) {
+export function useGetAnrokIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetAnrokIntegrationsDetailsQuery, GetAnrokIntegrationsDetailsQueryVariables> & ({ variables: GetAnrokIntegrationsDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetAnrokIntegrationsDetailsQuery, GetAnrokIntegrationsDetailsQueryVariables>(GetAnrokIntegrationsDetailsDocument, options);
       }
@@ -21563,8 +21571,8 @@ export function useGetAnrokIntegrationsDetailsLazyQuery(baseOptions?: Apollo.Laz
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAnrokIntegrationsDetailsQuery, GetAnrokIntegrationsDetailsQueryVariables>(GetAnrokIntegrationsDetailsDocument, options);
         }
-export function useGetAnrokIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationsDetailsQuery, GetAnrokIntegrationsDetailsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetAnrokIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationsDetailsQuery, GetAnrokIntegrationsDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAnrokIntegrationsDetailsQuery, GetAnrokIntegrationsDetailsQueryVariables>(GetAnrokIntegrationsDetailsDocument, options);
         }
 export type GetAnrokIntegrationsDetailsQueryHookResult = ReturnType<typeof useGetAnrokIntegrationsDetailsQuery>;
@@ -21613,8 +21621,8 @@ export function useGetAnrokIntegrationsListLazyQuery(baseOptions?: Apollo.LazyQu
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAnrokIntegrationsListQuery, GetAnrokIntegrationsListQueryVariables>(GetAnrokIntegrationsListDocument, options);
         }
-export function useGetAnrokIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationsListQuery, GetAnrokIntegrationsListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetAnrokIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAnrokIntegrationsListQuery, GetAnrokIntegrationsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAnrokIntegrationsListQuery, GetAnrokIntegrationsListQueryVariables>(GetAnrokIntegrationsListDocument, options);
         }
 export type GetAnrokIntegrationsListQueryHookResult = ReturnType<typeof useGetAnrokIntegrationsListQuery>;
@@ -21652,7 +21660,7 @@ ${DeleteOktaIntegrationDialogFragmentDoc}`;
  *   },
  * });
  */
-export function useGetAuthIntegrationsQuery(baseOptions: Apollo.QueryHookOptions<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>) {
+export function useGetAuthIntegrationsQuery(baseOptions: Apollo.QueryHookOptions<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables> & ({ variables: GetAuthIntegrationsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>(GetAuthIntegrationsDocument, options);
       }
@@ -21660,8 +21668,8 @@ export function useGetAuthIntegrationsLazyQuery(baseOptions?: Apollo.LazyQueryHo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>(GetAuthIntegrationsDocument, options);
         }
-export function useGetAuthIntegrationsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetAuthIntegrationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetAuthIntegrationsQuery, GetAuthIntegrationsQueryVariables>(GetAuthIntegrationsDocument, options);
         }
 export type GetAuthIntegrationsQueryHookResult = ReturnType<typeof useGetAuthIntegrationsQuery>;
@@ -21706,8 +21714,8 @@ export function useGetOktaIntegrationLazyQuery(baseOptions?: Apollo.LazyQueryHoo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>(GetOktaIntegrationDocument, options);
         }
-export function useGetOktaIntegrationSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetOktaIntegrationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>(GetOktaIntegrationDocument, options);
         }
 export type GetOktaIntegrationQueryHookResult = ReturnType<typeof useGetOktaIntegrationQuery>;
@@ -21754,7 +21762,7 @@ ${AddGocardlessProviderDialogFragmentDoc}`;
  *   },
  * });
  */
-export function useGetGocardlessIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetGocardlessIntegrationsDetailsQuery, GetGocardlessIntegrationsDetailsQueryVariables>) {
+export function useGetGocardlessIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetGocardlessIntegrationsDetailsQuery, GetGocardlessIntegrationsDetailsQueryVariables> & ({ variables: GetGocardlessIntegrationsDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetGocardlessIntegrationsDetailsQuery, GetGocardlessIntegrationsDetailsQueryVariables>(GetGocardlessIntegrationsDetailsDocument, options);
       }
@@ -21762,8 +21770,8 @@ export function useGetGocardlessIntegrationsDetailsLazyQuery(baseOptions?: Apoll
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetGocardlessIntegrationsDetailsQuery, GetGocardlessIntegrationsDetailsQueryVariables>(GetGocardlessIntegrationsDetailsDocument, options);
         }
-export function useGetGocardlessIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetGocardlessIntegrationsDetailsQuery, GetGocardlessIntegrationsDetailsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetGocardlessIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGocardlessIntegrationsDetailsQuery, GetGocardlessIntegrationsDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetGocardlessIntegrationsDetailsQuery, GetGocardlessIntegrationsDetailsQueryVariables>(GetGocardlessIntegrationsDetailsDocument, options);
         }
 export type GetGocardlessIntegrationsDetailsQueryHookResult = ReturnType<typeof useGetGocardlessIntegrationsDetailsQuery>;
@@ -21848,8 +21856,8 @@ export function useGetGocardlessIntegrationsListLazyQuery(baseOptions?: Apollo.L
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetGocardlessIntegrationsListQuery, GetGocardlessIntegrationsListQueryVariables>(GetGocardlessIntegrationsListDocument, options);
         }
-export function useGetGocardlessIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetGocardlessIntegrationsListQuery, GetGocardlessIntegrationsListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetGocardlessIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGocardlessIntegrationsListQuery, GetGocardlessIntegrationsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetGocardlessIntegrationsListQuery, GetGocardlessIntegrationsListQueryVariables>(GetGocardlessIntegrationsListDocument, options);
         }
 export type GetGocardlessIntegrationsListQueryHookResult = ReturnType<typeof useGetGocardlessIntegrationsListQuery>;
@@ -21916,8 +21924,8 @@ export function useIntegrationsSettingLazyQuery(baseOptions?: Apollo.LazyQueryHo
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<IntegrationsSettingQuery, IntegrationsSettingQueryVariables>(IntegrationsSettingDocument, options);
         }
-export function useIntegrationsSettingSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<IntegrationsSettingQuery, IntegrationsSettingQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useIntegrationsSettingSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<IntegrationsSettingQuery, IntegrationsSettingQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<IntegrationsSettingQuery, IntegrationsSettingQueryVariables>(IntegrationsSettingDocument, options);
         }
 export type IntegrationsSettingQueryHookResult = ReturnType<typeof useIntegrationsSettingQuery>;
@@ -21984,8 +21992,8 @@ export function useGetOrganizationSettingsLazyQuery(baseOptions?: Apollo.LazyQue
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetOrganizationSettingsQuery, GetOrganizationSettingsQueryVariables>(GetOrganizationSettingsDocument, options);
         }
-export function useGetOrganizationSettingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOrganizationSettingsQuery, GetOrganizationSettingsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetOrganizationSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationSettingsQuery, GetOrganizationSettingsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetOrganizationSettingsQuery, GetOrganizationSettingsQueryVariables>(GetOrganizationSettingsDocument, options);
         }
 export type GetOrganizationSettingsQueryHookResult = ReturnType<typeof useGetOrganizationSettingsQuery>;
@@ -22025,8 +22033,8 @@ export function useLagoTaxManagementIntegrationsSettingLazyQuery(baseOptions?: A
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<LagoTaxManagementIntegrationsSettingQuery, LagoTaxManagementIntegrationsSettingQueryVariables>(LagoTaxManagementIntegrationsSettingDocument, options);
         }
-export function useLagoTaxManagementIntegrationsSettingSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<LagoTaxManagementIntegrationsSettingQuery, LagoTaxManagementIntegrationsSettingQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useLagoTaxManagementIntegrationsSettingSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<LagoTaxManagementIntegrationsSettingQuery, LagoTaxManagementIntegrationsSettingQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<LagoTaxManagementIntegrationsSettingQuery, LagoTaxManagementIntegrationsSettingQueryVariables>(LagoTaxManagementIntegrationsSettingDocument, options);
         }
 export type LagoTaxManagementIntegrationsSettingQueryHookResult = ReturnType<typeof useLagoTaxManagementIntegrationsSettingQuery>;
@@ -22069,8 +22077,8 @@ export function useGetTaxesForTaxManagementIntegrationDetailsPageLazyQuery(baseO
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetTaxesForTaxManagementIntegrationDetailsPageQuery, GetTaxesForTaxManagementIntegrationDetailsPageQueryVariables>(GetTaxesForTaxManagementIntegrationDetailsPageDocument, options);
         }
-export function useGetTaxesForTaxManagementIntegrationDetailsPageSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxesForTaxManagementIntegrationDetailsPageQuery, GetTaxesForTaxManagementIntegrationDetailsPageQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetTaxesForTaxManagementIntegrationDetailsPageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxesForTaxManagementIntegrationDetailsPageQuery, GetTaxesForTaxManagementIntegrationDetailsPageQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetTaxesForTaxManagementIntegrationDetailsPageQuery, GetTaxesForTaxManagementIntegrationDetailsPageQueryVariables>(GetTaxesForTaxManagementIntegrationDetailsPageDocument, options);
         }
 export type GetTaxesForTaxManagementIntegrationDetailsPageQueryHookResult = ReturnType<typeof useGetTaxesForTaxManagementIntegrationDetailsPageQuery>;
@@ -22151,8 +22159,8 @@ export function useGetInvitesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetInvitesQuery, GetInvitesQueryVariables>(GetInvitesDocument, options);
         }
-export function useGetInvitesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetInvitesQuery, GetInvitesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetInvitesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvitesQuery, GetInvitesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetInvitesQuery, GetInvitesQueryVariables>(GetInvitesDocument, options);
         }
 export type GetInvitesQueryHookResult = ReturnType<typeof useGetInvitesQuery>;
@@ -22200,8 +22208,8 @@ export function useGetMembersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetMembersQuery, GetMembersQueryVariables>(GetMembersDocument, options);
         }
-export function useGetMembersSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetMembersQuery, GetMembersQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetMembersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMembersQuery, GetMembersQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetMembersQuery, GetMembersQueryVariables>(GetMembersDocument, options);
         }
 export type GetMembersQueryHookResult = ReturnType<typeof useGetMembersQuery>;
@@ -22244,7 +22252,7 @@ export const GetNetsuiteIntegrationsDetailsDocument = gql`
  *   },
  * });
  */
-export function useGetNetsuiteIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetNetsuiteIntegrationsDetailsQuery, GetNetsuiteIntegrationsDetailsQueryVariables>) {
+export function useGetNetsuiteIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetNetsuiteIntegrationsDetailsQuery, GetNetsuiteIntegrationsDetailsQueryVariables> & ({ variables: GetNetsuiteIntegrationsDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetNetsuiteIntegrationsDetailsQuery, GetNetsuiteIntegrationsDetailsQueryVariables>(GetNetsuiteIntegrationsDetailsDocument, options);
       }
@@ -22252,8 +22260,8 @@ export function useGetNetsuiteIntegrationsDetailsLazyQuery(baseOptions?: Apollo.
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetNetsuiteIntegrationsDetailsQuery, GetNetsuiteIntegrationsDetailsQueryVariables>(GetNetsuiteIntegrationsDetailsDocument, options);
         }
-export function useGetNetsuiteIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationsDetailsQuery, GetNetsuiteIntegrationsDetailsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetNetsuiteIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationsDetailsQuery, GetNetsuiteIntegrationsDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetNetsuiteIntegrationsDetailsQuery, GetNetsuiteIntegrationsDetailsQueryVariables>(GetNetsuiteIntegrationsDetailsDocument, options);
         }
 export type GetNetsuiteIntegrationsDetailsQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsDetailsQuery>;
@@ -22302,8 +22310,8 @@ export function useGetNetsuiteIntegrationsListLazyQuery(baseOptions?: Apollo.Laz
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetNetsuiteIntegrationsListQuery, GetNetsuiteIntegrationsListQueryVariables>(GetNetsuiteIntegrationsListDocument, options);
         }
-export function useGetNetsuiteIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationsListQuery, GetNetsuiteIntegrationsListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetNetsuiteIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationsListQuery, GetNetsuiteIntegrationsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetNetsuiteIntegrationsListQuery, GetNetsuiteIntegrationsListQueryVariables>(GetNetsuiteIntegrationsListDocument, options);
         }
 export type GetNetsuiteIntegrationsListQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsListQuery>;
@@ -22344,8 +22352,8 @@ export function useGetOrganizationInformationsLazyQuery(baseOptions?: Apollo.Laz
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetOrganizationInformationsQuery, GetOrganizationInformationsQueryVariables>(GetOrganizationInformationsDocument, options);
         }
-export function useGetOrganizationInformationsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOrganizationInformationsQuery, GetOrganizationInformationsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetOrganizationInformationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationInformationsQuery, GetOrganizationInformationsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetOrganizationInformationsQuery, GetOrganizationInformationsQueryVariables>(GetOrganizationInformationsDocument, options);
         }
 export type GetOrganizationInformationsQueryHookResult = ReturnType<typeof useGetOrganizationInformationsQuery>;
@@ -22394,7 +22402,7 @@ ${StripeForCreateAndEditSuccessRedirectUrlFragmentDoc}`;
  *   },
  * });
  */
-export function useGetStripeIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetStripeIntegrationsDetailsQuery, GetStripeIntegrationsDetailsQueryVariables>) {
+export function useGetStripeIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetStripeIntegrationsDetailsQuery, GetStripeIntegrationsDetailsQueryVariables> & ({ variables: GetStripeIntegrationsDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetStripeIntegrationsDetailsQuery, GetStripeIntegrationsDetailsQueryVariables>(GetStripeIntegrationsDetailsDocument, options);
       }
@@ -22402,8 +22410,8 @@ export function useGetStripeIntegrationsDetailsLazyQuery(baseOptions?: Apollo.La
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetStripeIntegrationsDetailsQuery, GetStripeIntegrationsDetailsQueryVariables>(GetStripeIntegrationsDetailsDocument, options);
         }
-export function useGetStripeIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetStripeIntegrationsDetailsQuery, GetStripeIntegrationsDetailsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetStripeIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetStripeIntegrationsDetailsQuery, GetStripeIntegrationsDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetStripeIntegrationsDetailsQuery, GetStripeIntegrationsDetailsQueryVariables>(GetStripeIntegrationsDetailsDocument, options);
         }
 export type GetStripeIntegrationsDetailsQueryHookResult = ReturnType<typeof useGetStripeIntegrationsDetailsQuery>;
@@ -22452,8 +22460,8 @@ export function useGetStripeIntegrationsListLazyQuery(baseOptions?: Apollo.LazyQ
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetStripeIntegrationsListQuery, GetStripeIntegrationsListQueryVariables>(GetStripeIntegrationsListDocument, options);
         }
-export function useGetStripeIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetStripeIntegrationsListQuery, GetStripeIntegrationsListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetStripeIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetStripeIntegrationsListQuery, GetStripeIntegrationsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetStripeIntegrationsListQuery, GetStripeIntegrationsListQueryVariables>(GetStripeIntegrationsListDocument, options);
         }
 export type GetStripeIntegrationsListQueryHookResult = ReturnType<typeof useGetStripeIntegrationsListQuery>;
@@ -22500,8 +22508,8 @@ export function useGetTaxesSettingsInformationsLazyQuery(baseOptions?: Apollo.La
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetTaxesSettingsInformationsQuery, GetTaxesSettingsInformationsQueryVariables>(GetTaxesSettingsInformationsDocument, options);
         }
-export function useGetTaxesSettingsInformationsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxesSettingsInformationsQuery, GetTaxesSettingsInformationsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetTaxesSettingsInformationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxesSettingsInformationsQuery, GetTaxesSettingsInformationsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetTaxesSettingsInformationsQuery, GetTaxesSettingsInformationsQueryVariables>(GetTaxesSettingsInformationsDocument, options);
         }
 export type GetTaxesSettingsInformationsQueryHookResult = ReturnType<typeof useGetTaxesSettingsInformationsQuery>;
@@ -22544,7 +22552,7 @@ export const GetXeroIntegrationsDetailsDocument = gql`
  *   },
  * });
  */
-export function useGetXeroIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetXeroIntegrationsDetailsQuery, GetXeroIntegrationsDetailsQueryVariables>) {
+export function useGetXeroIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetXeroIntegrationsDetailsQuery, GetXeroIntegrationsDetailsQueryVariables> & ({ variables: GetXeroIntegrationsDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetXeroIntegrationsDetailsQuery, GetXeroIntegrationsDetailsQueryVariables>(GetXeroIntegrationsDetailsDocument, options);
       }
@@ -22552,8 +22560,8 @@ export function useGetXeroIntegrationsDetailsLazyQuery(baseOptions?: Apollo.Lazy
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetXeroIntegrationsDetailsQuery, GetXeroIntegrationsDetailsQueryVariables>(GetXeroIntegrationsDetailsDocument, options);
         }
-export function useGetXeroIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetXeroIntegrationsDetailsQuery, GetXeroIntegrationsDetailsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetXeroIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetXeroIntegrationsDetailsQuery, GetXeroIntegrationsDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetXeroIntegrationsDetailsQuery, GetXeroIntegrationsDetailsQueryVariables>(GetXeroIntegrationsDetailsDocument, options);
         }
 export type GetXeroIntegrationsDetailsQueryHookResult = ReturnType<typeof useGetXeroIntegrationsDetailsQuery>;
@@ -22602,8 +22610,8 @@ export function useGetXeroIntegrationsListLazyQuery(baseOptions?: Apollo.LazyQue
           const options = {...defaultOptions, ...baseOptions}
           return Apollo.useLazyQuery<GetXeroIntegrationsListQuery, GetXeroIntegrationsListQueryVariables>(GetXeroIntegrationsListDocument, options);
         }
-export function useGetXeroIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetXeroIntegrationsListQuery, GetXeroIntegrationsListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
+export function useGetXeroIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetXeroIntegrationsListQuery, GetXeroIntegrationsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
           return Apollo.useSuspenseQuery<GetXeroIntegrationsListQuery, GetXeroIntegrationsListQueryVariables>(GetXeroIntegrationsListDocument, options);
         }
 export type GetXeroIntegrationsListQueryHookResult = ReturnType<typeof useGetXeroIntegrationsListQuery>;

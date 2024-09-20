@@ -119,9 +119,6 @@ export const calculateIfDetailsShouldBeDisplayed = (
     fee?.charge?.chargeModel === ChargeModelEnum.Volume && !!fee?.amountDetails?.flatUnitAmount
   const isValidAdvanceRecurringPackage =
     fee?.charge?.chargeModel === ChargeModelEnum.Package && !!fee?.amountDetails?.freeUnits
-  const isValidAdvanceRecurringPercentage =
-    fee?.charge?.chargeModel === ChargeModelEnum.Percentage &&
-    !!fee?.amountDetails?.fixedFeeUnitAmount
   const isValidAdvanceGraduated =
     fee?.charge?.chargeModel === ChargeModelEnum.Graduated &&
     !!fee?.amountDetails?.graduatedRanges?.[0].toValue
@@ -134,16 +131,23 @@ export const calculateIfDetailsShouldBeDisplayed = (
     !!fee?.charge?.billableMetric?.recurring &&
     (isValidAdvanceRecurringVolume ||
       isValidAdvanceRecurringPackage ||
-      isValidAdvanceRecurringPercentage ||
       isValidAdvanceGraduated ||
       isValidAdvanceGraduatedPercentage)
+
+  // Always show details for percentage charge if it has fixedFeeUnitAmount
+  const isPercentageWithDetailsAndNotOnlyRate =
+    fee?.charge?.chargeModel === ChargeModelEnum.Percentage &&
+    (!!Number(fee?.amountDetails?.fixedFeeUnitAmount) ||
+      !!Number(fee?.amountDetails?.freeUnits) ||
+      !!Number(fee?.amountDetails?.freeEvents) ||
+      !!Number(fee?.amountDetails?.minMaxAdjustmentTotalAmount))
 
   const shouldDisplayFeeDetail =
     !!fee &&
     !isTrueUpFee &&
     fee.adjustedFeeType !== AdjustedFeeTypeEnum.AdjustedAmount &&
     !fee?.metadata?.isSubscriptionFee &&
-    (isInArrears || isAdvanceRecurring) &&
+    (isInArrears || isAdvanceRecurring || isPercentageWithDetailsAndNotOnlyRate) &&
     fee?.charge?.chargeModel !== ChargeModelEnum.Standard &&
     fee.feeType !== FeeTypesEnum.AddOn &&
     fee.feeType !== FeeTypesEnum.Credit &&
@@ -229,15 +233,25 @@ export const InvoiceDetailsTableBodyLine = memo(
                 </Typography>
               </td>
               {canHaveUnitPrice && (
-                <td>
-                  <Typography variant="body" color="grey700">
-                    {intlFormatNumber(fee?.preciseUnitAmount || 0, {
-                      currencyDisplay: 'symbol',
-                      currency,
-                      maximumFractionDigits: 15,
-                    })}
-                  </Typography>
-                </td>
+                <>
+                  {chargeModel === ChargeModelEnum.Percentage ? (
+                    <td>
+                      <Typography variant="body" color="grey700">
+                        {fee?.amountDetails?.rate}%
+                      </Typography>
+                    </td>
+                  ) : (
+                    <td>
+                      <Typography variant="body" color="grey700">
+                        {intlFormatNumber(fee?.preciseUnitAmount || 0, {
+                          currencyDisplay: 'symbol',
+                          currency,
+                          maximumFractionDigits: 15,
+                        })}
+                      </Typography>
+                    </td>
+                  )}
+                </>
               )}
               {!hideVat && (
                 <td>
