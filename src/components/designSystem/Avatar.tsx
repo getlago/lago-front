@@ -86,7 +86,7 @@ const avatarSizeStyles: Record<AvatarSize, string> = {
 }
 
 const avatarStyles = cva(
-  'flex items-center justify-center [&>img]:h-full [&>img]:w-full [&>img]:rounded-[inherit] [&>img]:object-cover',
+  'flex items-center justify-center [&>img]:size-full [&>img]:rounded-[inherit] [&>img]:object-cover',
   {
     variants: {
       size: avatarSizeStyles,
@@ -105,7 +105,7 @@ const avatarStyles = cva(
         pink: 'bg-avatar-pink',
       },
       color: {
-        default: 'text-gray-600',
+        default: 'text-grey-600',
         white: 'text-white',
       },
     },
