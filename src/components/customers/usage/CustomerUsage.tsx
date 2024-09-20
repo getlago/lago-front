@@ -58,6 +58,7 @@ export const CustomerUsage = ({ premiumWarningDialogRef }: CustomerUsageProps) =
 
       <GrossGraphWrapper $showDivider={loading}>
         <Gross
+          // eslint-disable-next-line tailwindcss/no-custom-classname
           className="analytics-graph"
           currency={data?.customer?.currency || organization?.defaultCurrency}
           period={periodScope}

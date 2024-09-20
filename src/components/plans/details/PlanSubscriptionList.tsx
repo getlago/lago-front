@@ -1,3 +1,4 @@
+/* eslint-disable tailwindcss/no-custom-classname */
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 

@@ -1,3 +1,4 @@
+/* eslint-disable tailwindcss/no-custom-classname */
 import { cx } from 'class-variance-authority'
 import { ChangeEvent, useRef, useState } from 'react'
 import styled from 'styled-components'

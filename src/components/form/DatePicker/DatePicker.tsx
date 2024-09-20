@@ -1,3 +1,4 @@
+/* eslint-disable tailwindcss/no-custom-classname */
 import { gql } from '@apollo/client'
 import { PopperProps as MuiPopperProps } from '@mui/material'
 import { PickersCalendarHeader, PickersDay } from '@mui/x-date-pickers'
