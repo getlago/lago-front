@@ -483,6 +483,7 @@ const CreateInvoice = () => {
                 <InvoiceHeader>
                   <Skeleton variant="text" width={120} height={12} />
                   <Skeleton
+                    // eslint-disable-next-line tailwindcss/no-custom-classname
                     className="rounded-conector-skeleton"
                     variant="connectorAvatar"
                     size="big"

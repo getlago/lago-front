@@ -2,20 +2,21 @@
   "env": {
     "browser": true,
     "es6": true,
-    "node": true
+    "node": true,
   },
   "extends": [
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
     "plugin:jsx-a11y/recommended",
+    "plugin:tailwindcss/recommended",
 
     // prettier config will turn rules off according to prettier, it should always be at the end
-    "prettier"
+    "prettier",
   ],
   "plugins": ["import", "@typescript-eslint"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "sourceType": "module"
+    "sourceType": "module",
   },
   "rules": {
     "no-alert": "error",
@@ -35,9 +36,9 @@
       "error",
       {
         "groups": ["builtin", "external", "internal", "unknown", "sibling", "parent", "index"],
-        "newlines-between": "always"
-      }
+        "newlines-between": "always",
+      },
     ],
-    "react/display-name": "warn"
-  }
+    "react/display-name": "warn",
+  },
 }

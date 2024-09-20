@@ -615,6 +615,7 @@ const CreditNoteDetails = () => {
 
                 return (
                   <React.Fragment key={`groupSubscriptionItem-${i}`}>
+                    {/* eslint-disable-next-line tailwindcss/no-custom-classname */}
                     <table className="main-table">
                       <thead>
                         <tr>

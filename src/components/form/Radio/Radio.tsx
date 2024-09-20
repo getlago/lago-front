@@ -1,3 +1,4 @@
+/* eslint-disable tailwindcss/no-custom-classname */
 import { cx } from 'class-variance-authority'
 import { isBoolean } from 'lodash'
 import { forwardRef, ReactNode, useId, useRef, useState } from 'react'

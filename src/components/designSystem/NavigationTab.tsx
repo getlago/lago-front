@@ -123,6 +123,7 @@ export const NavigationTab = ({
                     disableFocusRipple
                     disableRipple
                     role="tab"
+                    // eslint-disable-next-line tailwindcss/no-custom-classname
                     className="navigation-tab-item"
                     disabled={loading || tab.disabled}
                     icon={!!tab.icon ? <Icon name={tab.icon} /> : undefined}

@@ -1,3 +1,4 @@
+/* eslint-disable tailwindcss/no-custom-classname */
 import { useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 

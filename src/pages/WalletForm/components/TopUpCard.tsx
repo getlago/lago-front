@@ -1,3 +1,4 @@
+/* eslint-disable tailwindcss/no-custom-classname */
 import { Box, InputAdornment, Stack } from '@mui/material'
 import { FormikProps } from 'formik'
 import { get } from 'lodash'

@@ -1,3 +1,4 @@
+/* eslint-disable tailwindcss/no-custom-classname */
 import { Stack } from '@mui/material'
 import styled from 'styled-components'
 
