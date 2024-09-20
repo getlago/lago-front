@@ -2438,5 +2438,6 @@
   "text_172656319170006dm5ta4sd8": "Next threshold: {{amount}}",
   "text_17265631917004vcwz8zc0gy": "Next threshold not set",
   "text_1726576554903s2dddtq5qz4": "{{rate}} consumed",
-  "text_1726576554903930hsa8vg23": "{{rate}} remaining"
+  "text_1726576554903930hsa8vg23": "{{rate}} remaining",
+  "text_17268445285571pwim3q27vl": "Xero synchronisation successfully triggered."
 }
