@@ -1,23 +1,14 @@
-import { Stack } from '@mui/material'
-import { cx } from 'class-variance-authority'
+import { cva } from 'class-variance-authority'
 import { ReactNode } from 'react'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 
-import { ResponsiveStyleValue, setResponsiveProperty } from '~/core/utils/responsiveProps'
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import { Button, ButtonProps as TButtonProps } from './Button'
 import { Icon, IconColor, IconName } from './Icon'
 import { Typography } from './Typography'
 
-type ContainerSize = 0 | 4 | 16 | 48
-
-enum AlertType {
-  info = 'info',
-  success = 'success',
-  danger = 'danger',
-  warning = 'warning',
-}
+type AlertType = 'info' | 'success' | 'danger' | 'warning'
 
 type AlertButtonProps = Partial<Omit<Omit<TButtonProps, 'variant' | 'icon'>, 'size'>> & {
   label: string
@@ -25,31 +16,43 @@ type AlertButtonProps = Partial<Omit<Omit<TButtonProps, 'variant' | 'icon'>, 'si
 
 interface AlertProps {
   children: ReactNode
-  type: keyof typeof AlertType
+  type: AlertType
   ButtonProps?: AlertButtonProps
   className?: string
-  containerSize?: ResponsiveStyleValue<ContainerSize>
   fullWidth?: boolean
 }
 
-const getIcon = (type: keyof typeof AlertType): { name: IconName; color: IconColor } => {
+const getIcon = (type: AlertType): { name: IconName; color: IconColor } => {
   switch (type) {
-    case AlertType.success:
+    case 'success':
       return { name: 'validate-unfilled', color: 'success' }
-    case AlertType.warning:
+    case 'warning':
       return { name: 'warning-unfilled', color: 'warning' }
-    case AlertType.danger:
+    case 'danger':
       return { name: 'error-unfilled', color: 'error' }
     default:
       return { name: 'info-circle', color: 'info' }
   }
 }
 
+const alertStyles = cva('rounded-xl px-4', {
+  variants: {
+    backgroundColor: {
+      info: 'bg-purple-100',
+      success: 'bg-green-100',
+      danger: 'bg-red-100',
+      warning: 'bg-yellow-100',
+    },
+    isFullWidth: {
+      true: 'w-full rounded-none',
+    },
+  },
+})
+
 export const Alert = ({
   ButtonProps: { label, ...ButtonProps } = {} as AlertButtonProps,
   children,
   className,
-  containerSize = 16,
   fullWidth,
   type,
   ...props
@@ -57,72 +60,25 @@ export const Alert = ({
   const iconConfig = getIcon(type)
 
   return (
-    <Container
-      $isFullWidth={fullWidth}
-      $containerSize={containerSize}
-      className={cx(className, [`alert-type--${type}`])}
+    <div
+      className={tw(alertStyles({ backgroundColor: type, isFullWidth: fullWidth }), className)}
       data-test={`alert-type-${type}`}
       {...props}
     >
-      <Stack
-        direction="row"
-        gap={4}
-        alignItems="center"
-        justifyContent="space-between"
-        py={theme.spacing(4)}
-      >
-        <Stack direction="row" gap={4} alignItems="center">
+      <div className="flex flex-row items-center justify-between gap-4 py-4">
+        <div className="flex flex-row items-center gap-4">
           <Icon name={iconConfig.name} color={iconConfig.color} />
           <Content color="textSecondary">{children}</Content>
-        </Stack>
+        </div>
         {!!ButtonProps.onClick && !!label && (
           <Button variant="quaternary-dark" size="medium" {...ButtonProps}>
             {label}
           </Button>
         )}
-      </Stack>
-    </Container>
+      </div>
+    </div>
   )
 }
-
-const Container = styled.div<{
-  $isFullWidth?: boolean
-  $containerSize: ResponsiveStyleValue<ContainerSize>
-}>`
-  border-radius: 12px;
-
-  &.alert-type--${AlertType.info} {
-    background-color: ${theme.palette.info[100]};
-  }
-
-  &.alert-type--${AlertType.success} {
-    background-color: ${theme.palette.success[100]};
-  }
-
-  &.alert-type--${AlertType.warning} {
-    background-color: ${theme.palette.warning[100]};
-  }
-
-  &.alert-type--${AlertType.danger} {
-    background-color: ${theme.palette.error[100]};
-  }
-
-  ${({ $isFullWidth }) =>
-    $isFullWidth &&
-    css`
-      border-radius: 0;
-      width: 100%;
-    `}
-
-  > div {
-    ${({ $containerSize }) => {
-      return css`
-        ${setResponsiveProperty('paddingLeft', $containerSize)}
-        ${setResponsiveProperty('paddingRight', $containerSize)}
-      `
-    }}
-  }
-`
 
 const Content = styled(Typography)`
   && {

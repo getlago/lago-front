@@ -192,13 +192,7 @@ export const SubscriptionCurrentUsageTable = ({
 
             return extensions?.details?.taxError?.length
           }) ? (
-            <LocalTaxAlert
-              fullWidth
-              containerSize={{
-                default: 16,
-              }}
-              type="warning"
-            >
+            <LocalTaxAlert fullWidth type="warning">
               <Stack>
                 <Typography variant="body" color="grey700">
                   {translate('text_1724165657161stcilcabm7x')}

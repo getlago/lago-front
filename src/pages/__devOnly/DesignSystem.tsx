@@ -166,10 +166,7 @@ const DesignSystem = () => {
                 <Block $marginBottom={theme.spacing(6)}>
                   <Alert
                     fullWidth
-                    containerSize={{
-                      default: 16,
-                      md: 48,
-                    }}
+                    className="md:px-12"
                     type="danger"
                     ButtonProps={{
                       label: 'Retry',

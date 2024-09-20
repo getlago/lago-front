@@ -115,7 +115,11 @@ const config = {
     },
   },
   variants: {
-    extend: {},
+    extend: {
+      screens: {
+        md: '776px',
+      },
+    },
   },
   plugins: [
     plugin(function ({ addUtilities, theme }) {

@@ -716,14 +716,7 @@ const CustomerInvoiceDetails = () => {
       </PageHeader>
 
       {!!errorMessage && (
-        <Alert
-          fullWidth
-          containerSize={{
-            default: 16,
-            md: 48,
-          }}
-          type="warning"
-        >
+        <Alert fullWidth className="md:px-12" type="warning">
           <Stack>
             <Typography variant="body" color="grey700">
               {translate('text_1724165657161stcilcabm7x')}
