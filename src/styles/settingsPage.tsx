@@ -19,7 +19,7 @@ export const SettingsHeaderNameWrapper = styled.div`
 `
 
 export const SettingsPageContentWrapper = styled.div`
-  max-width: ${theme.spacing(168)};
+  max-width: ${theme.spacing(192)};
   padding: ${theme.spacing(8)} ${theme.spacing(12)};
 
   ${theme.breakpoints.down('md')} {

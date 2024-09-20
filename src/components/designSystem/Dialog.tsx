@@ -1,6 +1,5 @@
 import { alpha, Dialog as MuiDialog } from '@mui/material'
-import { forwardRef, ReactNode, useImperativeHandle, useState } from 'react'
-import { useEffect } from 'react'
+import { forwardRef, ReactNode, useEffect, useImperativeHandle, useState } from 'react'
 import styled from 'styled-components'
 
 import { ButtonGroup, theme } from '~/styles'
@@ -100,7 +99,7 @@ const StyledDialog = styled(MuiDialog)`
     .dialogPaper {
       display: flex;
       flex-direction: column;
-      max-width: 496px;
+      max-width: 576px;
       margin: 0 auto;
       border-radius: 12px;
       box-shadow: ${theme.shadows[4]};
