@@ -47,7 +47,8 @@ jobs:
 
       - name: Run codegen
         env:
-          CODEGEN_API: http://localhost:3000/graphql
+          CODEGEN_API_CUSTOMER_PORTAL: http://localhost:3000/customer_portal/graphql
+          CODEGEN_API_GRAPHQL: http://localhost:3000/api/graphql
         run: |
           yarn codegen
       - name: Run Typescript
