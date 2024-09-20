@@ -27,8 +27,7 @@ import {
   DeleteGocardlessIntegrationDialog,
   DeleteGocardlessIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteGocardlessIntegrationDialog'
-import { envGlobalVar } from '~/core/apolloClient'
-import { addToast } from '~/core/apolloClient'
+import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { GOCARDLESS_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
@@ -198,9 +197,9 @@ const GocardlessIntegrationDetails = () => {
           </>
         ) : (
           <>
-            <StyledAvatar variant="connector" size="large">
+            <Avatar className="mr-4" variant="connector" size="large">
               <GoCardless />
-            </StyledAvatar>
+            </Avatar>
             <div>
               <Line>
                 <Typography variant="headline">{gocardlessPaymentProvider?.name}</Typography>
@@ -484,10 +483,6 @@ const Item = styled(Stack)`
 
 const Info = styled(Typography)`
   margin-top: ${theme.spacing(3)};
-`
-
-const StyledAvatar = styled(Avatar)`
-  margin-right: ${theme.spacing(4)};
 `
 
 const Line = styled.div`

@@ -71,9 +71,9 @@ export const PlanItem = memo(
           {...navigationProps}
         >
           <PlanNameSection>
-            <ListAvatar size="big" variant="connector">
+            <Avatar className="mr-3" size="big" variant="connector">
               <Icon name="board" color="dark" />
-            </ListAvatar>
+            </Avatar>
             <NameBlock>
               <Typography color="textSecondary" variant="bodyHl" noWrap>
                 {name}
@@ -170,10 +170,6 @@ export const PlanItemSkeleton = () => {
     </BaseListItem>
   )
 }
-
-const ListAvatar = styled(Avatar)`
-  margin-right: ${theme.spacing(3)};
-`
 
 const NameBlock = styled.div`
   min-width: 0;

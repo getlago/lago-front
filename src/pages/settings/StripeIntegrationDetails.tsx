@@ -182,9 +182,9 @@ const StripeIntegrationDetails = () => {
           </>
         ) : (
           <>
-            <StyledAvatar variant="connector" size="large">
+            <Avatar className="mr-4" variant="connector" size="large">
               <Stripe />
-            </StyledAvatar>
+            </Avatar>
             <div>
               <Line>
                 <Typography variant="headline">{stripePaymentProvider?.name}</Typography>
@@ -461,10 +461,6 @@ const LineItem = styled.div`
 
 const LineItemCaption = styled(Typography)`
   margin-top: ${theme.spacing(3)};
-`
-
-const StyledAvatar = styled(Avatar)`
-  margin-right: ${theme.spacing(4)};
 `
 
 const Line = styled.div`

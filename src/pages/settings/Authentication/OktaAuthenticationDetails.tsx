@@ -155,9 +155,9 @@ const OktaAuthenticationDetails = () => {
           </>
         ) : (
           <>
-            <StyledAvatar variant="connector" size="large">
+            <Avatar className="mr-4" variant="connector" size="large">
               <Okta />
-            </StyledAvatar>
+            </Avatar>
             <div>
               <Line>
                 <Typography variant="headline">
@@ -271,10 +271,6 @@ const InlineTitle = styled.div`
 
 const SkeletonText = styled.div`
   width: 100%;
-`
-
-const StyledAvatar = styled(Avatar)`
-  margin-right: ${theme.spacing(4)};
 `
 
 const Line = styled.div`

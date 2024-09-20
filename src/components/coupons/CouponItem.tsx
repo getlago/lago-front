@@ -103,9 +103,9 @@ export const CouponItem = ({
         )}
       >
         <CouponNameSection>
-          <ListAvatar size="big" variant="connector">
+          <Avatar className="mr-3" size="big" variant="connector">
             <Icon name="coupon" color="dark" />
-          </ListAvatar>
+          </Avatar>
           <NameBlock>
             <Typography color="textSecondary" variant="bodyHl" noWrap>
               {name}
@@ -227,10 +227,6 @@ const CouponNameSection = styled.div`
   display: flex;
   align-items: center;
   min-width: 0;
-`
-
-const ListAvatar = styled(Avatar)`
-  margin-right: ${theme.spacing(3)};
 `
 
 const NameBlock = styled.div`

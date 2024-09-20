@@ -107,9 +107,9 @@ const GocardlessIntegrationOauthCallback = () => {
           </>
         ) : (
           <>
-            <StyledAvatar variant="connector" size="large">
+            <Avatar className="mr-4" variant="connector" size="large">
               <Gocardless />
-            </StyledAvatar>
+            </Avatar>
             <div>
               <Line>
                 <Typography variant="headline">
@@ -157,10 +157,6 @@ const MainInfos = styled.div`
   ${theme.breakpoints.down('md')} {
     padding: ${theme.spacing(8)} ${theme.spacing(4)};
   }
-`
-
-const StyledAvatar = styled(Avatar)`
-  margin-right: ${theme.spacing(4)};
 `
 
 const Line = styled.div`

@@ -1,9 +1,7 @@
-import { gql } from '@apollo/client'
-import { useApolloClient } from '@apollo/client'
+import { gql, useApolloClient } from '@apollo/client'
 import { ClickAwayListener, Stack } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
-import { Outlet, useNavigate } from 'react-router-dom'
-import { Location, useLocation } from 'react-router-dom'
+import { Location, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
 import {
@@ -171,11 +169,12 @@ const SideNav = () => {
                             }}
                           >
                             {!!logoUrl ? (
-                              <OrganizationAvatar size="small" variant="connector">
+                              <Avatar className="mr-2" size="small" variant="connector">
                                 <img src={logoUrl} alt={`${name}'s logo`} />
-                              </OrganizationAvatar>
+                              </Avatar>
                             ) : (
-                              <OrganizationAvatar
+                              <Avatar
+                                className="mr-2"
                                 variant="company"
                                 identifier={name || ''}
                                 size="small"
@@ -516,10 +515,6 @@ const OrganizationList = styled.div`
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(1)};
   }
-`
-
-const OrganizationAvatar = styled(Avatar)`
-  margin-right: ${theme.spacing(2)};
 `
 
 const Logout = styled.div`
