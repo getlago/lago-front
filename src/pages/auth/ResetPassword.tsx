@@ -207,9 +207,9 @@ const ResetPassword = () => {
                       )
                     })
                   ) : (
-                    <StyledAlert type="success" data-test="success">
+                    <Alert className="mb-3" type="success" data-test="success">
                       {translate('text_63246f875e2228ab7b63dd02')}
-                    </StyledAlert>
+                    </Alert>
                   )}
                 </PasswordValidation>
               </PasswordBlock>
@@ -248,11 +248,6 @@ const PasswordValidation = styled.div<{ $visible: boolean }>`
   overflow: hidden;
   display: flex;
   flex-wrap: wrap;
-`
-
-const StyledAlert = styled(Alert)`
-  flex: 1;
-  margin-bottom: ${theme.spacing(3)};
 `
 
 const ValidationLine = styled.div`
