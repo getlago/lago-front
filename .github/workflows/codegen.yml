@@ -47,8 +47,8 @@ jobs:
 
       - name: Run codegen
         env:
-          CODEGEN_API_CUSTOMER_PORTAL: http://api.lago.dev/customer_portal_graphql
-          CODEGEN_API_GRAPHQL: http://api.lago.dev/api_graphql
+          CODEGEN_API_CUSTOMER_PORTAL: http://api.lago.dev/customer_portal/graphql
+          CODEGEN_API_GRAPHQL: http://api.lago.dev/api/graphql
         run: |
           yarn codegen
       - name: Run Typescript
