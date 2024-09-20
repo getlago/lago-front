@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useMemo } from 'react'
 import { generatePath } from 'react-router-dom'
-import styled, { css } from 'styled-components'
 
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { UPDATE_PLAN_ROUTE, UPDATE_SUBSCRIPTION } from '~/core/router'
@@ -18,6 +17,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import { getLifetimeGraphPercentages } from './utils'
 
@@ -111,14 +111,14 @@ const SubscriptionUsageLifetimeGraph = ({
         alignItems={'flex-start'}
         justifyContent={'space-between'}
       >
-        <Stack direction={'row'} gap={2} alignItems={'flex-end'}>
+        <div className="flex flex-row items-center gap-2">
           <Typography variant="subhead" color="grey700" noWrap>
             {translate('text_1726481163322ntor50xdm8k')}
           </Typography>
           <Tooltip placement="top-start" title={translate('text_1726481163322vbcsvivii5k')}>
             <Icon name="info-circle" />
           </Tooltip>
-        </Stack>
+        </div>
 
         {isLoading ? (
           <Skeleton variant="text" height={12} width={144} marginTop={8} />
@@ -137,9 +137,10 @@ const SubscriptionUsageLifetimeGraph = ({
         ) : null}
       </Stack>
 
-      <Wrapper>
+      <div className="flex flex-col gap-6 bg-white py-6">
         {!!lifetimeUsageError ? (
-          <Error
+          <GenericPlaceholder
+            className="m-0 p-0"
             title={translate('text_636d023ce11a9d038819b579')}
             subtitle={translate('text_636d023ce11a9d038819b57b')}
             buttonTitle={translate('text_1725983967306qz0npfuhlo1')}
@@ -177,22 +178,17 @@ const SubscriptionUsageLifetimeGraph = ({
                   loading={isLoading}
                 />
 
-                <GraphContainer $blur={isBlurred}>
-                  <GraphWrapper>
+                <div className={tw({ 'pointer-events-none blur-sm': isBlurred })}>
+                  <div className="flex flex-col gap-3">
                     {!!isLoading ? (
-                      <>
+                      <div className="flex flex-col gap-3">
                         <Skeleton variant="text" width="100%" height={12} />
 
-                        <div>
-                          {[...Array(3)].map((_, index) => (
-                            <SkeletonLine key={`usage-skeleton-${index}`}>
-                              <Skeleton variant="circular" width={8} height={8} />
-                              <Skeleton variant="text" width="32%" height={12} />
-                              <Skeleton variant="text" width="32%" height={12} />
-                            </SkeletonLine>
-                          ))}
+                        <div className="flex h-6 items-center gap-2">
+                          <Skeleton variant="text" width="32%" height={12} />
+                          <Skeleton variant="text" width="32%" height={12} className="ml-auto" />
                         </div>
-                      </>
+                      </div>
                     ) : (
                       <>
                         <InlineBarsChart
@@ -264,8 +260,8 @@ const SubscriptionUsageLifetimeGraph = ({
                         </Stack>
                       </>
                     )}
-                  </GraphWrapper>
-                </GraphContainer>
+                  </div>
+                </div>
 
                 {/* Non premium block */}
                 {!isLoading && !hasProgressiveBillingPremiumIntegration && (
@@ -309,53 +305,9 @@ const SubscriptionUsageLifetimeGraph = ({
             )}
           </>
         )}
-      </Wrapper>
+      </div>
     </section>
   )
 }
 
 export default SubscriptionUsageLifetimeGraph
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(6)};
-  padding: ${theme.spacing(6)} 0;
-  box-sizing: border-box;
-  background-color: ${theme.palette.common.white};
-`
-
-const GraphContainer = styled.div<{ $blur: boolean }>`
-  ${({ $blur }) =>
-    $blur &&
-    css`
-      filter: blur(4px);
-      pointer-events: none;
-    `}
-`
-
-const GraphWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(3)};
-`
-
-const SkeletonLine = styled.div`
-  display: flex;
-  align-items: center;
-  height: 40px;
-  gap: ${theme.spacing(2)};
-
-  &:not(:last-child) {
-    box-shadow: ${theme.shadows[7]};
-  }
-
-  > *:last-child {
-    margin-left: auto;
-  }
-`
-
-const Error = styled(GenericPlaceholder)`
-  margin: 0;
-  padding: 0;
-`
