@@ -111,14 +111,14 @@ const SubscriptionUsageLifetimeGraph = ({
         alignItems={'flex-start'}
         justifyContent={'space-between'}
       >
-        <Stack direction={'row'} gap={2} alignItems={'flex-end'}>
+        <div className="align flex flex-row items-center gap-2">
           <Typography variant="subhead" color="grey700" noWrap>
             {translate('text_1726481163322ntor50xdm8k')}
           </Typography>
           <Tooltip placement="top-start" title={translate('text_1726481163322vbcsvivii5k')}>
             <Icon name="info-circle" />
           </Tooltip>
-        </Stack>
+        </div>
 
         {isLoading ? (
           <Skeleton variant="text" height={12} width={144} marginTop={8} />
