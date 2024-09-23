@@ -192,13 +192,7 @@ export const SubscriptionCurrentUsageTable = ({
 
             return extensions?.details?.taxError?.length
           }) ? (
-            <LocalTaxAlert
-              fullWidth
-              containerSize={{
-                default: 16,
-              }}
-              type="warning"
-            >
+            <Alert fullWidth type="warning" className="shadow-t">
               <Stack>
                 <Typography variant="body" color="grey700">
                   {translate('text_1724165657161stcilcabm7x')}
@@ -208,7 +202,7 @@ export const SubscriptionCurrentUsageTable = ({
                   {translate(LocalTaxProviderErrorsEnum.GenericErrorMessage)}
                 </Typography>
               </Stack>
-            </LocalTaxAlert>
+            </Alert>
           ) : (
             <GenericPlaceholder
               title={translate('text_62c3f3fca8a1625624e83379')}
@@ -397,10 +391,6 @@ const SkeletonItem = styled.div`
   > *:first-child {
     margin-right: ${theme.spacing(3)};
   }
-`
-
-const LocalTaxAlert = styled(Alert)`
-  box-shadow: ${theme.shadows[5]};
 `
 
 const NoFocusLink = styled(Link)`

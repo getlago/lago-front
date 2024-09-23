@@ -124,7 +124,9 @@ export const AddBillableMetricToCouponDialog = forwardRef<
         searchQuery={getBillableMetrics}
         value={selectedBillableMetric?.id}
       />
-      <StyledAlertBox type="warning">{translate('text_64352657267c3d916f962763')}</StyledAlertBox>
+      <Alert type="warning" className="mb-8">
+        {translate('text_64352657267c3d916f962763')}
+      </Alert>
     </Dialog>
   )
 })
@@ -132,9 +134,5 @@ export const AddBillableMetricToCouponDialog = forwardRef<
 AddBillableMetricToCouponDialog.displayName = 'AddBillableMetricToCouponDialog'
 
 const StyledComboBox = styled(ComboBox)`
-  margin-bottom: ${theme.spacing(8)};
-`
-
-const StyledAlertBox = styled(Alert)`
   margin-bottom: ${theme.spacing(8)};
 `

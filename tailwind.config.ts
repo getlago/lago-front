@@ -113,10 +113,14 @@ const config = {
     fontFamily: {
       sans: ['Inter, Arial , Verdana , Helvetica , sans-serif'],
     },
+
+    extend: {
+      screens: {
+        md: '776px',
+      },
+    },
   },
-  variants: {
-    extend: {},
-  },
+
   plugins: [
     plugin(function ({ addUtilities, theme }) {
       // Dividers

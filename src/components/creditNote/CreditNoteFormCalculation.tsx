@@ -559,13 +559,13 @@ export const CreditNoteFormCalculation = ({
       )}
 
       {_get(formikProps.errors, 'payBack.0.value') === LagoApiError.DoesNotMatchItemAmounts && (
-        <StyledAlert type="danger">
+        <Alert className="mt-6" type="danger">
           {translate('text_637e334680481f653e8caa9d', {
             total: intlFormatNumber(totalTaxIncluded || 0, {
               currency,
             }),
           })}
-        </StyledAlert>
+        </Alert>
       )}
     </div>
   )
@@ -622,10 +622,6 @@ const StyledTextInput = styled(AmountInputField)`
   input {
     text-align: right;
   }
-`
-
-const StyledAlert = styled(Alert)`
-  margin-top: ${theme.spacing(6)};
 `
 
 const InlineLabel = styled.div`

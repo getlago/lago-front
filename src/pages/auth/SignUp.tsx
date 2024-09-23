@@ -298,9 +298,9 @@ const SignUp = () => {
                       })}
                     </PasswordValidation>
                   ) : (
-                    <ValidPasswordAlert type="success" data-test="success">
+                    <Alert className="mt-4" type="success" data-test="success">
                       {translate('text_620bc4d4269a55014d493fbe')}
-                    </ValidPasswordAlert>
+                    </Alert>
                   )}
                 </div>
               </>
@@ -348,11 +348,6 @@ const PasswordValidation = styled.div<{ $visible: boolean }>`
   overflow: hidden;
   display: flex;
   flex-wrap: wrap;
-`
-
-const ValidPasswordAlert = styled(Alert)`
-  flex: 1;
-  margin-top: ${theme.spacing(4)};
 `
 
 const ValidationLine = styled.div`

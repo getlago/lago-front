@@ -110,7 +110,7 @@ const ApiKeys = () => {
 
 const Page = styled.div`
   padding: ${theme.spacing(8)} ${theme.spacing(12)};
-  max-width: ${theme.spacing(168)};
+  max-width: ${theme.spacing(192)};
 `
 
 const Title = styled(Typography)`
