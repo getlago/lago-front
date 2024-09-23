@@ -2552,6 +2552,7 @@ export enum IntegrationItemTypeEnum {
 
 export enum IntegrationTypeEnum {
   Anrok = 'anrok',
+  Dunning = 'dunning',
   Hubspot = 'hubspot',
   Netsuite = 'netsuite',
   Okta = 'okta',
@@ -3936,6 +3937,7 @@ export type PlanOverridesInput = {
 };
 
 export enum PremiumIntegrationTypeEnum {
+  Dunning = 'dunning',
   Hubspot = 'hubspot',
   Netsuite = 'netsuite',
   Okta = 'okta',
@@ -5757,6 +5759,17 @@ export type CreditNoteEstimateQueryVariables = Exact<{
 
 export type CreditNoteEstimateQuery = { __typename?: 'Query', creditNoteEstimate: { __typename?: 'CreditNoteEstimate', couponsAdjustmentAmountCents: any, currency: CurrencyEnum, maxCreditableAmountCents: any, maxRefundableAmountCents: any, subTotalExcludingTaxesAmountCents: any, taxesAmountCents: any, taxesRate: number, appliedTaxes: Array<{ __typename?: 'CreditNoteAppliedTax', taxCode: string, taxName: string, taxRate: number, amountCents: any }>, items: Array<{ __typename?: 'CreditNoteItemEstimate', amountCents: any, fee: { __typename?: 'Fee', id: string } }> } };
 
+export type CreditNoteTableItemFragment = { __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null };
+
+export type CreditNotesForTableFragment = { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null }> };
+
+export type DownloadCreditNoteMutationVariables = Exact<{
+  input: DownloadCreditNoteInput;
+}>;
+
+
+export type DownloadCreditNoteMutation = { __typename?: 'Mutation', downloadCreditNote?: { __typename?: 'CreditNote', id: string, fileUrl?: string | null } | null };
+
 export type GetPortalCustomerInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -5829,7 +5842,7 @@ export type GetCustomerCreditNotesQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerCreditNotesQuery = { __typename?: 'Query', creditNotes: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'CreditNote', id: string, canBeVoided: boolean, createdAt: any, creditStatus?: CreditNoteCreditStatusEnum | null, currency: CurrencyEnum, number: string, totalAmountCents: any, balanceAmountCents: any }> } };
+export type GetCustomerCreditNotesQuery = { __typename?: 'Query', creditNotes: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null }> } };
 
 export type InvoiceListItemFragment = { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null };
 
@@ -6003,15 +6016,6 @@ export type SubsidiariesListForCustomerCreateEditExternalAppsAccordionQueryVaria
 
 export type SubsidiariesListForCustomerCreateEditExternalAppsAccordionQuery = { __typename?: 'Query', integrationSubsidiaries?: { __typename?: 'SubsidiaryCollection', collection: Array<{ __typename?: 'Subsidiary', externalId: string, externalName?: string | null }> } | null };
 
-export type CreditNotesForListFragment = { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'CreditNote', id: string, canBeVoided: boolean, createdAt: any, creditStatus?: CreditNoteCreditStatusEnum | null, currency: CurrencyEnum, number: string, totalAmountCents: any, balanceAmountCents: any }> };
-
-export type DownloadCreditNoteMutationVariables = Exact<{
-  input: DownloadCreditNoteInput;
-}>;
-
-
-export type DownloadCreditNoteMutation = { __typename?: 'Mutation', downloadCreditNote?: { __typename?: 'CreditNote', id: string, fileUrl?: string | null } | null };
-
 export type CreditNoteForVoidCreditNoteDialogFragment = { __typename?: 'CreditNote', id: string, totalAmountCents: any, currency: CurrencyEnum };
 
 export type VoidCreditNoteMutationVariables = Exact<{
@@ -6180,17 +6184,6 @@ export type UpdateInvoiceMetadataMutationVariables = Exact<{
 
 
 export type UpdateInvoiceMetadataMutation = { __typename?: 'Mutation', updateInvoice?: { __typename?: 'Invoice', id: string, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null } | null };
-
-export type CreditNoteForCreditNoteListItemFragment = { __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string } } | null };
-
-export type DownloadCreditNoteItemMutationVariables = Exact<{
-  input: DownloadCreditNoteInput;
-}>;
-
-
-export type DownloadCreditNoteItemMutation = { __typename?: 'Mutation', downloadCreditNote?: { __typename?: 'CreditNote', id: string, fileUrl?: string | null } | null };
-
-export type CreditNoteForCreditNoteListFragment = { __typename?: 'CreditNote', id: string, invoice?: { __typename?: 'Invoice', id: string, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum } } | null };
 
 export type DisputeInvoiceMutationVariables = Exact<{
   input: LoseInvoiceDisputeInput;
@@ -7581,7 +7574,7 @@ export type GetCreditNoteQueryVariables = Exact<{
 }>;
 
 
-export type GetCreditNoteQuery = { __typename?: 'Query', creditNote?: { __typename?: 'CreditNote', id: string, balanceAmountCents: any, canBeVoided: boolean, couponsAdjustmentAmountCents: any, createdAt: any, creditAmountCents: any, creditStatus?: CreditNoteCreditStatusEnum | null, currency: CurrencyEnum, number: string, refundAmountCents: any, refundedAt?: any | null, refundStatus?: CreditNoteRefundStatusEnum | null, subTotalExcludingTaxesAmountCents: any, totalAmountCents: any, integrationSyncable: boolean, externalIntegrationId?: string | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, deletedAt?: any | null, applicableTimezone: TimezoneEnum, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null } | null }, invoice?: { __typename?: 'Invoice', id: string, number: string } | null, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, itemName: string, groupedBy: any, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }> } | null };
+export type GetCreditNoteQuery = { __typename?: 'Query', creditNote?: { __typename?: 'CreditNote', id: string, balanceAmountCents: any, canBeVoided: boolean, couponsAdjustmentAmountCents: any, createdAt: any, creditAmountCents: any, creditStatus?: CreditNoteCreditStatusEnum | null, currency: CurrencyEnum, number: string, refundAmountCents: any, refundedAt?: any | null, refundStatus?: CreditNoteRefundStatusEnum | null, subTotalExcludingTaxesAmountCents: any, totalAmountCents: any, integrationSyncable: boolean, taxProviderSyncable: boolean, externalIntegrationId?: string | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, deletedAt?: any | null, applicableTimezone: TimezoneEnum, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, integrationId?: string | null, externalAccountId?: string | null } | null }, invoice?: { __typename?: 'Invoice', id: string, number: string } | null, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, itemName: string, groupedBy: any, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }> } | null };
 
 export type IntegrationsListForCreditNoteDetailsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7596,6 +7589,13 @@ export type SyncIntegrationCreditNoteMutationVariables = Exact<{
 
 
 export type SyncIntegrationCreditNoteMutation = { __typename?: 'Mutation', syncIntegrationCreditNote?: { __typename?: 'SyncIntegrationCreditNotePayload', creditNoteId?: string | null } | null };
+
+export type RetryTaxReportingMutationVariables = Exact<{
+  input: RetryTaxReportingInput;
+}>;
+
+
+export type RetryTaxReportingMutation = { __typename?: 'Mutation', retryTaxReporting?: { __typename?: 'CreditNote', id: string } | null };
 
 export type CustomerDetailsFragment = { __typename?: 'Customer', id: string, customerType?: CustomerTypeEnum | null, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null };
 
@@ -7709,7 +7709,7 @@ export type GetInvoiceCreditNotesQueryVariables = Exact<{
 }>;
 
 
-export type GetInvoiceCreditNotesQuery = { __typename?: 'Query', invoiceCreditNotes?: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'CreditNote', id: string, canBeVoided: boolean, createdAt: any, creditStatus?: CreditNoteCreditStatusEnum | null, currency: CurrencyEnum, number: string, totalAmountCents: any, balanceAmountCents: any }> } | null, invoice?: { __typename?: 'Invoice', id: string, refundableAmountCents: any, creditableAmountCents: any, status: InvoiceStatusTypeEnum, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum } } | null };
+export type GetInvoiceCreditNotesQuery = { __typename?: 'Query', invoiceCreditNotes?: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null }> } | null, invoice?: { __typename?: 'Invoice', id: string, refundableAmountCents: any, creditableAmountCents: any, status: InvoiceStatusTypeEnum, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, displayName: string } } | null };
 
 export type InvoiceDetailsForInvoiceOverviewFragment = { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, issuingDate: any, externalIntegrationId?: string | null, taxProviderVoidable: boolean, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, externalAccountId?: string | null } | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', externalCustomerId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', externalCustomerId?: string | null } | null } };
 
@@ -7740,7 +7740,7 @@ export type GetCreditNotesListQueryVariables = Exact<{
 }>;
 
 
-export type GetCreditNotesListQuery = { __typename?: 'Query', creditNotes: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null }> } };
+export type GetCreditNotesListQuery = { __typename?: 'Query', creditNotes: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null }> } };
 
 export type RetryAllInvoicePaymentsMutationVariables = Exact<{
   input: RetryAllInvoicePaymentsInput;
@@ -8195,6 +8195,47 @@ export const TerminateCouponFragmentDoc = gql`
   name
 }
     `;
+export const CreditNoteTableItemFragmentDoc = gql`
+    fragment CreditNoteTableItem on CreditNote {
+  id
+  number
+  totalAmountCents
+  refundAmountCents
+  creditAmountCents
+  currency
+  createdAt
+  canBeVoided
+  voidedAt
+  errorDetails {
+    id
+    errorCode
+    errorDetails
+  }
+  invoice {
+    id
+    number
+    customer {
+      id
+      name
+      displayName
+      applicableTimezone
+    }
+  }
+}
+    `;
+export const CreditNotesForTableFragmentDoc = gql`
+    fragment CreditNotesForTable on CreditNoteCollection {
+  metadata {
+    currentPage
+    totalPages
+    totalCount
+  }
+  collection {
+    id
+    ...CreditNoteTableItem
+  }
+}
+    ${CreditNoteTableItemFragmentDoc}`;
 export const PortalInvoiceListItemFragmentDoc = gql`
     fragment PortalInvoiceListItem on Invoice {
   id
@@ -8481,24 +8522,6 @@ export const EditCustomerVatRateFragmentDoc = gql`
   }
 }
     `;
-export const CreditNotesForListFragmentDoc = gql`
-    fragment CreditNotesForList on CreditNoteCollection {
-  metadata {
-    currentPage
-    totalPages
-  }
-  collection {
-    id
-    canBeVoided
-    createdAt
-    creditStatus
-    currency
-    number
-    totalAmountCents
-    balanceAmountCents
-  }
-}
-    `;
 export const CreditNoteForVoidCreditNoteDialogFragmentDoc = gql`
     fragment CreditNoteForVoidCreditNoteDialog on CreditNote {
   id
@@ -8606,37 +8629,6 @@ export const WebhookForCreateAndEditFragmentDoc = gql`
   id
   webhookUrl
   signatureAlgo
-}
-    `;
-export const CreditNoteForCreditNoteListItemFragmentDoc = gql`
-    fragment CreditNoteForCreditNoteListItem on CreditNote {
-  id
-  number
-  totalAmountCents
-  currency
-  createdAt
-  canBeVoided
-  invoice {
-    id
-    number
-    customer {
-      id
-      name
-      displayName
-    }
-  }
-}
-    `;
-export const CreditNoteForCreditNoteListFragmentDoc = gql`
-    fragment CreditNoteForCreditNoteList on CreditNote {
-  id
-  invoice {
-    id
-    customer {
-      id
-      applicableTimezone
-    }
-  }
 }
     `;
 export const TaxForInvoiceEditTaxDialogFragmentDoc = gql`
@@ -11268,6 +11260,40 @@ export type CreditNoteEstimateQueryHookResult = ReturnType<typeof useCreditNoteE
 export type CreditNoteEstimateLazyQueryHookResult = ReturnType<typeof useCreditNoteEstimateLazyQuery>;
 export type CreditNoteEstimateSuspenseQueryHookResult = ReturnType<typeof useCreditNoteEstimateSuspenseQuery>;
 export type CreditNoteEstimateQueryResult = Apollo.QueryResult<CreditNoteEstimateQuery, CreditNoteEstimateQueryVariables>;
+export const DownloadCreditNoteDocument = gql`
+    mutation downloadCreditNote($input: DownloadCreditNoteInput!) {
+  downloadCreditNote(input: $input) {
+    id
+    fileUrl
+  }
+}
+    `;
+export type DownloadCreditNoteMutationFn = Apollo.MutationFunction<DownloadCreditNoteMutation, DownloadCreditNoteMutationVariables>;
+
+/**
+ * __useDownloadCreditNoteMutation__
+ *
+ * To run a mutation, you first call `useDownloadCreditNoteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDownloadCreditNoteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [downloadCreditNoteMutation, { data, loading, error }] = useDownloadCreditNoteMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDownloadCreditNoteMutation(baseOptions?: Apollo.MutationHookOptions<DownloadCreditNoteMutation, DownloadCreditNoteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DownloadCreditNoteMutation, DownloadCreditNoteMutationVariables>(DownloadCreditNoteDocument, options);
+      }
+export type DownloadCreditNoteMutationHookResult = ReturnType<typeof useDownloadCreditNoteMutation>;
+export type DownloadCreditNoteMutationResult = Apollo.MutationResult<DownloadCreditNoteMutation>;
+export type DownloadCreditNoteMutationOptions = Apollo.BaseMutationOptions<DownloadCreditNoteMutation, DownloadCreditNoteMutationVariables>;
 export const GetPortalCustomerInfosDocument = gql`
     query getPortalCustomerInfos {
   customerPortalUser {
@@ -11642,10 +11668,10 @@ export const GetCustomerCreditNotesDocument = gql`
     limit: $limit
     searchTerm: $searchTerm
   ) {
-    ...CreditNotesForList
+    ...CreditNotesForTable
   }
 }
-    ${CreditNotesForListFragmentDoc}`;
+    ${CreditNotesForTableFragmentDoc}`;
 
 /**
  * __useGetCustomerCreditNotesQuery__
@@ -12510,40 +12536,6 @@ export type SubsidiariesListForCustomerCreateEditExternalAppsAccordionQueryHookR
 export type SubsidiariesListForCustomerCreateEditExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof useSubsidiariesListForCustomerCreateEditExternalAppsAccordionLazyQuery>;
 export type SubsidiariesListForCustomerCreateEditExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof useSubsidiariesListForCustomerCreateEditExternalAppsAccordionSuspenseQuery>;
 export type SubsidiariesListForCustomerCreateEditExternalAppsAccordionQueryResult = Apollo.QueryResult<SubsidiariesListForCustomerCreateEditExternalAppsAccordionQuery, SubsidiariesListForCustomerCreateEditExternalAppsAccordionQueryVariables>;
-export const DownloadCreditNoteDocument = gql`
-    mutation downloadCreditNote($input: DownloadCreditNoteInput!) {
-  downloadCreditNote(input: $input) {
-    id
-    fileUrl
-  }
-}
-    `;
-export type DownloadCreditNoteMutationFn = Apollo.MutationFunction<DownloadCreditNoteMutation, DownloadCreditNoteMutationVariables>;
-
-/**
- * __useDownloadCreditNoteMutation__
- *
- * To run a mutation, you first call `useDownloadCreditNoteMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDownloadCreditNoteMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [downloadCreditNoteMutation, { data, loading, error }] = useDownloadCreditNoteMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useDownloadCreditNoteMutation(baseOptions?: Apollo.MutationHookOptions<DownloadCreditNoteMutation, DownloadCreditNoteMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DownloadCreditNoteMutation, DownloadCreditNoteMutationVariables>(DownloadCreditNoteDocument, options);
-      }
-export type DownloadCreditNoteMutationHookResult = ReturnType<typeof useDownloadCreditNoteMutation>;
-export type DownloadCreditNoteMutationResult = Apollo.MutationResult<DownloadCreditNoteMutation>;
-export type DownloadCreditNoteMutationOptions = Apollo.BaseMutationOptions<DownloadCreditNoteMutation, DownloadCreditNoteMutationVariables>;
 export const VoidCreditNoteDocument = gql`
     mutation voidCreditNote($input: VoidCreditNoteInput!) {
   voidCreditNote(input: $input) {
@@ -13340,40 +13332,6 @@ export function useUpdateInvoiceMetadataMutation(baseOptions?: Apollo.MutationHo
 export type UpdateInvoiceMetadataMutationHookResult = ReturnType<typeof useUpdateInvoiceMetadataMutation>;
 export type UpdateInvoiceMetadataMutationResult = Apollo.MutationResult<UpdateInvoiceMetadataMutation>;
 export type UpdateInvoiceMetadataMutationOptions = Apollo.BaseMutationOptions<UpdateInvoiceMetadataMutation, UpdateInvoiceMetadataMutationVariables>;
-export const DownloadCreditNoteItemDocument = gql`
-    mutation downloadCreditNoteItem($input: DownloadCreditNoteInput!) {
-  downloadCreditNote(input: $input) {
-    id
-    fileUrl
-  }
-}
-    `;
-export type DownloadCreditNoteItemMutationFn = Apollo.MutationFunction<DownloadCreditNoteItemMutation, DownloadCreditNoteItemMutationVariables>;
-
-/**
- * __useDownloadCreditNoteItemMutation__
- *
- * To run a mutation, you first call `useDownloadCreditNoteItemMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDownloadCreditNoteItemMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [downloadCreditNoteItemMutation, { data, loading, error }] = useDownloadCreditNoteItemMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useDownloadCreditNoteItemMutation(baseOptions?: Apollo.MutationHookOptions<DownloadCreditNoteItemMutation, DownloadCreditNoteItemMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DownloadCreditNoteItemMutation, DownloadCreditNoteItemMutationVariables>(DownloadCreditNoteItemDocument, options);
-      }
-export type DownloadCreditNoteItemMutationHookResult = ReturnType<typeof useDownloadCreditNoteItemMutation>;
-export type DownloadCreditNoteItemMutationResult = Apollo.MutationResult<DownloadCreditNoteItemMutation>;
-export type DownloadCreditNoteItemMutationOptions = Apollo.BaseMutationOptions<DownloadCreditNoteItemMutation, DownloadCreditNoteItemMutationVariables>;
 export const DisputeInvoiceDocument = gql`
     mutation disputeInvoice($input: LoseInvoiceDisputeInput!) {
   loseInvoiceDispute(input: $input) {
@@ -19464,6 +19422,7 @@ export const GetCreditNoteDocument = gql`
     subTotalExcludingTaxesAmountCents
     totalAmountCents
     integrationSyncable
+    taxProviderSyncable
     externalIntegrationId
     customer {
       id
@@ -19478,6 +19437,11 @@ export const GetCreditNoteDocument = gql`
       xeroCustomer {
         id
         integrationId
+      }
+      anrokCustomer {
+        id
+        integrationId
+        externalAccountId
       }
     }
     invoice {
@@ -19649,6 +19613,39 @@ export function useSyncIntegrationCreditNoteMutation(baseOptions?: Apollo.Mutati
 export type SyncIntegrationCreditNoteMutationHookResult = ReturnType<typeof useSyncIntegrationCreditNoteMutation>;
 export type SyncIntegrationCreditNoteMutationResult = Apollo.MutationResult<SyncIntegrationCreditNoteMutation>;
 export type SyncIntegrationCreditNoteMutationOptions = Apollo.BaseMutationOptions<SyncIntegrationCreditNoteMutation, SyncIntegrationCreditNoteMutationVariables>;
+export const RetryTaxReportingDocument = gql`
+    mutation retryTaxReporting($input: RetryTaxReportingInput!) {
+  retryTaxReporting(input: $input) {
+    id
+  }
+}
+    `;
+export type RetryTaxReportingMutationFn = Apollo.MutationFunction<RetryTaxReportingMutation, RetryTaxReportingMutationVariables>;
+
+/**
+ * __useRetryTaxReportingMutation__
+ *
+ * To run a mutation, you first call `useRetryTaxReportingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRetryTaxReportingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [retryTaxReportingMutation, { data, loading, error }] = useRetryTaxReportingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useRetryTaxReportingMutation(baseOptions?: Apollo.MutationHookOptions<RetryTaxReportingMutation, RetryTaxReportingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RetryTaxReportingMutation, RetryTaxReportingMutationVariables>(RetryTaxReportingDocument, options);
+      }
+export type RetryTaxReportingMutationHookResult = ReturnType<typeof useRetryTaxReportingMutation>;
+export type RetryTaxReportingMutationResult = Apollo.MutationResult<RetryTaxReportingMutation>;
+export type RetryTaxReportingMutationOptions = Apollo.BaseMutationOptions<RetryTaxReportingMutation, RetryTaxReportingMutationVariables>;
 export const GetCustomerDocument = gql`
     query getCustomer($id: ID!) {
   customer(id: $id) {
@@ -20157,7 +20154,7 @@ export type OktaAcceptInviteMutationOptions = Apollo.BaseMutationOptions<OktaAcc
 export const GetInvoiceCreditNotesDocument = gql`
     query getInvoiceCreditNotes($invoiceId: ID!, $page: Int, $limit: Int) {
   invoiceCreditNotes(invoiceId: $invoiceId, page: $page, limit: $limit) {
-    ...CreditNotesForList
+    ...CreditNotesForTable
   }
   invoice(id: $invoiceId) {
     id
@@ -20167,10 +20164,11 @@ export const GetInvoiceCreditNotesDocument = gql`
     customer {
       id
       applicableTimezone
+      displayName
     }
   }
 }
-    ${CreditNotesForListFragmentDoc}`;
+    ${CreditNotesForTableFragmentDoc}`;
 
 /**
  * __useGetInvoiceCreditNotesQuery__
@@ -20281,20 +20279,10 @@ export type GetInvoicesListQueryResult = Apollo.QueryResult<GetInvoicesListQuery
 export const GetCreditNotesListDocument = gql`
     query getCreditNotesList($limit: Int, $page: Int, $searchTerm: String) {
   creditNotes(limit: $limit, page: $page, searchTerm: $searchTerm) {
-    metadata {
-      currentPage
-      totalPages
-      totalCount
-    }
-    collection {
-      id
-      ...CreditNoteForCreditNoteList
-      ...CreditNoteForCreditNoteListItem
-    }
+    ...CreditNotesForTable
   }
 }
-    ${CreditNoteForCreditNoteListFragmentDoc}
-${CreditNoteForCreditNoteListItemFragmentDoc}`;
+    ${CreditNotesForTableFragmentDoc}`;
 
 /**
  * __useGetCreditNotesListQuery__
