@@ -2446,5 +2446,9 @@
   "text_1727271456219atwdpxysccc": "NetSuite Tax Type ID",
   "text_1727271456219tl2bt8qdevm": "Enter a NetSuite Tax Type ID",
   "text_1727271456220dvb59po0x1g": "NetSuite Tax Code ID",
-  "text_1727271456220u56zdq1mfrn": "Enter a NetSuite Tax Code ID"
+  "text_1727271456220u56zdq1mfrn": "Enter a NetSuite Tax Code ID",
+  "text_17270681462632d46dh3r1vu": "Sync credit note to Anrok",
+  "text_1727068146263ztoat7i901x": "Credit note not synced to Anrok",
+  "text_1727068146263345gopo39sm": "Anrok credit note url",
+  "text_1727068261852148l97frl5q": "Credit note synced successfully"
 }
