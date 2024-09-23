@@ -52,6 +52,7 @@ gql`
     createdAt
     canBeVoided
     voidedAt
+    taxProviderSyncable
     errorDetails {
       id
       errorCode
@@ -287,7 +288,7 @@ const CreditNotesTable = ({
                 columns={[
                   {
                     key: 'totalAmountCents',
-                    title: 'TODO: Type',
+                    title: translate('text_1727078012568v9460bmnh8a'),
                     content: (creditNote) => <CreditNoteBadge creditNote={creditNote} />,
                   },
                   {

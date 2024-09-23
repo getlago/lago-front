@@ -16,7 +16,7 @@ const CreditNoteBadge = ({
 
   if (!creditNote) return null
 
-  const { creditAmountCents, refundAmountCents, voidedAt, errorDetails } = creditNote
+  const { creditAmountCents, refundAmountCents, voidedAt, taxProviderSyncable } = creditNote
 
   const type = creditNoteType({
     creditAmountCents,
@@ -28,7 +28,7 @@ const CreditNoteBadge = ({
 
   const label = translate(CREDIT_NOTE_TYPE_TRANSLATIONS_MAP[type])
 
-  const hasError = creditNoteTaxError({ errorDetails })
+  const hasError = creditNoteTaxError({ taxProviderSyncable })
 
   return <Chip label={label} icon={hasError ? 'warning-filled' : undefined} />
 }

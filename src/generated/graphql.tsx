@@ -2552,7 +2552,6 @@ export enum IntegrationItemTypeEnum {
 
 export enum IntegrationTypeEnum {
   Anrok = 'anrok',
-  Dunning = 'dunning',
   Hubspot = 'hubspot',
   Netsuite = 'netsuite',
   Okta = 'okta',
@@ -3937,7 +3936,6 @@ export type PlanOverridesInput = {
 };
 
 export enum PremiumIntegrationTypeEnum {
-  Dunning = 'dunning',
   Hubspot = 'hubspot',
   Netsuite = 'netsuite',
   Okta = 'okta',
@@ -5759,9 +5757,9 @@ export type CreditNoteEstimateQueryVariables = Exact<{
 
 export type CreditNoteEstimateQuery = { __typename?: 'Query', creditNoteEstimate: { __typename?: 'CreditNoteEstimate', couponsAdjustmentAmountCents: any, currency: CurrencyEnum, maxCreditableAmountCents: any, maxRefundableAmountCents: any, subTotalExcludingTaxesAmountCents: any, taxesAmountCents: any, taxesRate: number, appliedTaxes: Array<{ __typename?: 'CreditNoteAppliedTax', taxCode: string, taxName: string, taxRate: number, amountCents: any }>, items: Array<{ __typename?: 'CreditNoteItemEstimate', amountCents: any, fee: { __typename?: 'Fee', id: string } }> } };
 
-export type CreditNoteTableItemFragment = { __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null };
+export type CreditNoteTableItemFragment = { __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, taxProviderSyncable: boolean, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null };
 
-export type CreditNotesForTableFragment = { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null }> };
+export type CreditNotesForTableFragment = { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, taxProviderSyncable: boolean, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null }> };
 
 export type DownloadCreditNoteMutationVariables = Exact<{
   input: DownloadCreditNoteInput;
@@ -5842,7 +5840,7 @@ export type GetCustomerCreditNotesQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerCreditNotesQuery = { __typename?: 'Query', creditNotes: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null }> } };
+export type GetCustomerCreditNotesQuery = { __typename?: 'Query', creditNotes: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, taxProviderSyncable: boolean, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null }> } };
 
 export type InvoiceListItemFragment = { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null };
 
@@ -7709,7 +7707,7 @@ export type GetInvoiceCreditNotesQueryVariables = Exact<{
 }>;
 
 
-export type GetInvoiceCreditNotesQuery = { __typename?: 'Query', invoiceCreditNotes?: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null }> } | null, invoice?: { __typename?: 'Invoice', id: string, refundableAmountCents: any, creditableAmountCents: any, status: InvoiceStatusTypeEnum, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, displayName: string } } | null };
+export type GetInvoiceCreditNotesQuery = { __typename?: 'Query', invoiceCreditNotes?: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, taxProviderSyncable: boolean, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null }> } | null, invoice?: { __typename?: 'Invoice', id: string, refundableAmountCents: any, creditableAmountCents: any, status: InvoiceStatusTypeEnum, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, displayName: string } } | null };
 
 export type InvoiceDetailsForInvoiceOverviewFragment = { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, issuingDate: any, externalIntegrationId?: string | null, taxProviderVoidable: boolean, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, externalAccountId?: string | null } | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', externalCustomerId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', externalCustomerId?: string | null } | null } };
 
@@ -7740,7 +7738,7 @@ export type GetCreditNotesListQueryVariables = Exact<{
 }>;
 
 
-export type GetCreditNotesListQuery = { __typename?: 'Query', creditNotes: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null }> } };
+export type GetCreditNotesListQuery = { __typename?: 'Query', creditNotes: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, taxProviderSyncable: boolean, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null }> } };
 
 export type RetryAllInvoicePaymentsMutationVariables = Exact<{
   input: RetryAllInvoicePaymentsInput;
@@ -8206,6 +8204,7 @@ export const CreditNoteTableItemFragmentDoc = gql`
   createdAt
   canBeVoided
   voidedAt
+  taxProviderSyncable
   errorDetails {
     id
     errorCode

@@ -2450,5 +2450,10 @@
   "text_17270681462632d46dh3r1vu": "Sync credit note to Anrok",
   "text_1727068146263ztoat7i901x": "Credit note not synced to Anrok",
   "text_1727068146263345gopo39sm": "Anrok credit note url",
-  "text_1727068261852148l97frl5q": "Credit note synced successfully"
+  "text_1727068261852148l97frl5q": "Credit note synced successfully",
+  "text_1727078012568v9460bmnh8a": "Type",
+  "text_1727079454388ekfkh3vna8m": "Voided",
+  "text_1727079454388wxlpkmmkrmj": "Credit & refund",
+  "text_1727079454388x9q4uz6ah71": "Credit",
+  "text_17270794543889mcmuhfq70p": "Refund"
 }

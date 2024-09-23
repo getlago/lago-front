@@ -118,16 +118,14 @@ export const creditNoteType = ({
 }
 
 export const CREDIT_NOTE_TYPE_TRANSLATIONS_MAP = {
-  [CreditNoteType.VOIDED]: 'TODO: Voided',
-  [CreditNoteType.CREDIT_AND_REFUND]: 'TODO: Credit & refund',
-  [CreditNoteType.CREDIT]: 'TODO: Credit',
-  [CreditNoteType.REFUND]: 'TODO: Refund',
+  [CreditNoteType.VOIDED]: 'text_1727079454388ekfkh3vna8m',
+  [CreditNoteType.CREDIT_AND_REFUND]: 'text_1727079454388wxlpkmmkrmj',
+  [CreditNoteType.CREDIT]: 'text_1727079454388x9q4uz6ah71',
+  [CreditNoteType.REFUND]: 'text_17270794543889mcmuhfq70p',
 }
 
 export const creditNoteTaxError = ({
-  errorDetails,
-}: Pick<CreditNoteTableItemFragment, 'errorDetails'>) => {
-  return errorDetails?.find(({ errorCode }: { errorCode: ErrorCodesEnum }) =>
-    [ErrorCodesEnum.TaxError, ErrorCodesEnum.TaxVoidingError].includes(errorCode),
-  )
+  taxProviderSyncable,
+}: Pick<CreditNoteTableItemFragment, 'taxProviderSyncable'>) => {
+  return taxProviderSyncable
 }

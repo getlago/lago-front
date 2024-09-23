@@ -989,32 +989,34 @@ const CreditNoteDetails = () => {
                         <Typography variant="caption" color="grey600" noWrap>
                           {translate('text_1727068146263345gopo39sm')}
                         </Typography>
-                        <InlineLink
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          to={buildAnrokCreditNoteUrl(
-                            data?.creditNote?.customer?.anrokCustomer?.externalAccountId,
-                            creditNote?.externalIntegrationId,
-                          )}
-                        >
-                          {!!data?.creditNote?.taxProviderSyncable ? (
-                            <Typography variant="body" color="info600">
-                              <Icon name="warning-filled" />{' '}
-                              {translate('text_1727068146263ztoat7i901x')} •{' '}
-                              <InlineButton
-                                onClick={async () => {
-                                  await retryTaxReporting()
-                                }}
-                              >
-                                {translate('text_17270681462632d46dh3r1vu')}
-                              </InlineButton>
-                            </Typography>
-                          ) : (
+
+                        {!!data?.creditNote?.taxProviderSyncable ? (
+                          <Typography variant="body" color="info600">
+                            <Icon name="warning-filled" />{' '}
+                            {translate('text_1727068146263ztoat7i901x')} •{' '}
+                            <InlineLink
+                              to="#"
+                              onClick={async () => {
+                                await retryTaxReporting()
+                              }}
+                            >
+                              {translate('text_17270681462632d46dh3r1vu')}
+                            </InlineLink>
+                          </Typography>
+                        ) : (
+                          <InlineLink
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            to={buildAnrokCreditNoteUrl(
+                              data?.creditNote?.customer?.anrokCustomer?.externalAccountId,
+                              creditNote?.externalIntegrationId,
+                            )}
+                          >
                             <Typography variant="body" color="info600">
                               {creditNote?.externalIntegrationId} <Icon name="outside" />
                             </Typography>
-                          )}
-                        </InlineLink>
+                          </InlineLink>
+                        )}
                       </InfoLine>
                     </div>
                   )}
@@ -1205,9 +1207,4 @@ const InlineLink = styled(Link)`
   &:hover {
     text-decoration: none;
   }
-`
-
-const InlineButton = styled.span`
-  color: ${theme.palette.primary[600]};
-  cursor: pointer;
 `
