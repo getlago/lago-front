@@ -232,7 +232,9 @@ const CreditNoteDetails = () => {
         if (syncIntegrationCreditNoteResult?.creditNoteId) {
           addToast({
             severity: 'success',
-            translateKey: 'text_6655a88569eed300ee8c4d44',
+            translateKey: !!data?.creditNote?.customer.netsuiteCustomer
+              ? 'text_6655a88569eed300ee8c4d44'
+              : 'text_17268445285571pwim3q27vl',
           })
         }
       },
