@@ -123,9 +123,3 @@ export const CREDIT_NOTE_TYPE_TRANSLATIONS_MAP = {
   [CreditNoteType.CREDIT]: 'text_1727079454388x9q4uz6ah71',
   [CreditNoteType.REFUND]: 'text_17270794543889mcmuhfq70p',
 }
-
-export const creditNoteTaxError = ({
-  taxProviderSyncable,
-}: Pick<CreditNoteTableItemFragment, 'taxProviderSyncable'>) => {
-  return taxProviderSyncable
-}

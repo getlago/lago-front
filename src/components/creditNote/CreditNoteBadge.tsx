@@ -1,8 +1,4 @@
-import {
-  CREDIT_NOTE_TYPE_TRANSLATIONS_MAP,
-  creditNoteTaxError,
-  creditNoteType,
-} from '~/components/creditNote/utils'
+import { CREDIT_NOTE_TYPE_TRANSLATIONS_MAP, creditNoteType } from '~/components/creditNote/utils'
 import { Icon, Tooltip, Typography } from '~/components/designSystem'
 import { CreditNote, CreditNoteTableItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -28,7 +24,7 @@ const CreditNoteBadge = ({
 
   const label = translate(CREDIT_NOTE_TYPE_TRANSLATIONS_MAP[type])
 
-  const hasError = creditNoteTaxError({ taxProviderSyncable })
+  const hasError = taxProviderSyncable
 
   return (
     <div className="flex items-center gap-2 rounded-lg border border-grey-400 bg-grey-100 px-2 py-1">
