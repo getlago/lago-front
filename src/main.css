@@ -26,6 +26,10 @@ ul {
   @apply m-0 list-disc pl-6;
 }
 
+svg {
+  @apply inline-block;
+}
+
 span.line-break-anywhere {
   @apply break-all;
 }
