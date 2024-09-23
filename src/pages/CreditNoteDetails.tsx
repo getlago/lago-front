@@ -291,6 +291,7 @@ const CreditNoteDetails = () => {
         translateKey: 'text_1727068261852148l97frl5q',
       })
     },
+    refetchQueries: ['getCreditNote'],
   })
 
   const { data, loading, error } = useGetCreditNoteQuery({
@@ -324,6 +325,18 @@ const CreditNoteDetails = () => {
   const groupedData = formatCreditNotesItems(creditNote?.items as CreditNoteItem[])
 
   const customerName = creditNote?.customer?.displayName
+
+  const retryTaxSync = async () => {
+    if (!data?.creditNote?.id) return
+
+    await retryTaxReporting({
+      variables: {
+        input: {
+          id: data.creditNote.id,
+        },
+      },
+    })
+  }
 
   return (
     <>
@@ -436,7 +449,7 @@ const CreditNoteDetails = () => {
                     align="left"
                     disabled={loadingSyncIntegrationCreditNote}
                     onClick={async () => {
-                      await retryTaxReporting()
+                      await retryTaxSync()
 
                       closePopper()
                     }}
@@ -936,13 +949,12 @@ const CreditNoteDetails = () => {
             {(connectedNetsuiteIntegration ||
               data?.creditNote?.customer?.xeroCustomer?.integrationId ||
               data?.creditNote?.customer?.anrokCustomer?.integrationId) &&
-              creditNote?.externalIntegrationId && (
+              creditNote?.id && (
                 <Stack marginTop={8} gap={6}>
                   <SectionHeader variant="subhead">
                     {translate('text_6650b36fc702a4014c878996')}
                   </SectionHeader>
-
-                  {!!connectedNetsuiteIntegration && (
+                  {!!connectedNetsuiteIntegration && creditNote?.externalIntegrationId && (
                     <div>
                       <InfoLine>
                         <Typography variant="caption" color="grey600" noWrap>
@@ -963,25 +975,25 @@ const CreditNoteDetails = () => {
                       </InfoLine>
                     </div>
                   )}
-
-                  {!!data?.creditNote?.customer?.xeroCustomer?.integrationId && (
-                    <div>
-                      <InfoLine>
-                        <Typography variant="caption" color="grey600" noWrap>
-                          {translate('text_66911ce41415f40090d053ce')}
-                        </Typography>
-                        <InlineLink
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          to={buildXeroCreditNoteUrl(creditNote?.externalIntegrationId)}
-                        >
-                          <Typography variant="body" color="info600">
-                            {creditNote?.externalIntegrationId} <Icon name="outside" />
+                  {!!data?.creditNote?.customer?.xeroCustomer?.integrationId &&
+                    creditNote?.externalIntegrationId && (
+                      <div>
+                        <InfoLine>
+                          <Typography variant="caption" color="grey600" noWrap>
+                            {translate('text_66911ce41415f40090d053ce')}
                           </Typography>
-                        </InlineLink>
-                      </InfoLine>
-                    </div>
-                  )}
+                          <InlineLink
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            to={buildXeroCreditNoteUrl(creditNote?.externalIntegrationId)}
+                          >
+                            <Typography variant="body" color="info600">
+                              {creditNote?.externalIntegrationId} <Icon name="outside" />
+                            </Typography>
+                          </InlineLink>
+                        </InfoLine>
+                      </div>
+                    )}
 
                   {!!data?.creditNote?.customer?.anrokCustomer?.integrationId && (
                     <div>
@@ -991,29 +1003,34 @@ const CreditNoteDetails = () => {
                         </Typography>
 
                         {!!data?.creditNote?.taxProviderSyncable ? (
-                          <Typography variant="body" color="info600">
-                            <Icon name="warning-filled" />{' '}
-                            {translate('text_1727068146263ztoat7i901x')} •{' '}
+                          <div className="flex items-center gap-2">
+                            <Icon name="warning-filled" color="warning" />
+                            <Typography variant="caption">
+                              {translate('text_1727068146263ztoat7i901x')}
+                            </Typography>
+                            <Typography variant="caption">•</Typography>
                             <InlineLink
                               to="#"
                               onClick={async () => {
-                                await retryTaxReporting()
+                                await retryTaxSync()
                               }}
                             >
-                              {translate('text_17270681462632d46dh3r1vu')}
+                              <Typography variant="caption" color="info600">
+                                {translate('text_17270681462632d46dh3r1vu')}
+                              </Typography>
                             </InlineLink>
-                          </Typography>
+                          </div>
                         ) : (
                           <InlineLink
                             target="_blank"
                             rel="noopener noreferrer"
                             to={buildAnrokCreditNoteUrl(
                               data?.creditNote?.customer?.anrokCustomer?.externalAccountId,
-                              creditNote?.externalIntegrationId,
+                              creditNote?.id,
                             )}
                           >
-                            <Typography variant="body" color="info600">
-                              {creditNote?.externalIntegrationId} <Icon name="outside" />
+                            <Typography variant="caption" color="info600">
+                              {creditNote?.id} <Icon name="outside" />
                             </Typography>
                           </InlineLink>
                         )}

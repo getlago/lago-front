@@ -261,6 +261,10 @@ const InvoicesPage = () => {
                 isLoading={creditNoteIsLoading}
                 metadata={dataCreditNotes?.creditNotes?.metadata}
                 variables={variableCreditNotes}
+                tableContainerSize={{
+                  default: 16,
+                  md: 48,
+                }}
               />
             ),
             hidden: !hasPermissions(['creditNotesView']),

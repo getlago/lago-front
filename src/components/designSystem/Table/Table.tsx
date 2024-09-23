@@ -57,7 +57,7 @@ export type ActionItem<T> = {
   tooltipListener?: boolean
 }
 
-type ContainerSize = 0 | 4 | 16 | 48
+export type TableContainerSize = 0 | 4 | 16 | 48
 type RowSize = 48 | 72
 
 interface TableProps<T> {
@@ -72,7 +72,7 @@ interface TableProps<T> {
   }
   onRowAction?: (item: T) => void
   actionColumn?: (item: T) => Array<ActionItem<T> | null> | ReactNode
-  containerSize?: ResponsiveStyleValue<ContainerSize>
+  containerSize?: ResponsiveStyleValue<TableContainerSize>
   rowSize?: RowSize
 }
 
@@ -445,7 +445,7 @@ const TableCell = styled(MUITableCell)<{
 `
 
 const StyledTable = styled(MUITable)<{
-  $containerSize: ResponsiveStyleValue<ContainerSize>
+  $containerSize: ResponsiveStyleValue<TableContainerSize>
   $rowSize: RowSize
 }>`
   border-collapse: collapse;
