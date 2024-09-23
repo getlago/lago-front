@@ -1,5 +1,10 @@
 import { serializeAmount } from '~/core/serializers/serializeAmount'
-import { CreditNoteItemInput, CurrencyEnum } from '~/generated/graphql'
+import {
+  CreditNoteItemInput,
+  CreditNoteTableItemFragment,
+  CurrencyEnum,
+  ErrorCodesEnum,
+} from '~/generated/graphql'
 
 import { FeesPerInvoice, FromFee, GroupedFee } from './types'
 
@@ -82,4 +87,47 @@ export const creditNoteFormCalculationCalculation = ({
   return {
     feeForEstimate,
   }
+}
+
+export enum CreditNoteType {
+  VOIDED,
+  CREDIT_AND_REFUND,
+  CREDIT,
+  REFUND,
+}
+
+export const creditNoteType = ({
+  creditAmountCents,
+  refundAmountCents,
+  voidedAt,
+}: Pick<
+  CreditNoteTableItemFragment,
+  'creditAmountCents' | 'refundAmountCents' | 'voidedAt'
+>): CreditNoteType | null => {
+  if (voidedAt) {
+    return CreditNoteType.VOIDED
+  } else if (creditAmountCents && refundAmountCents) {
+    return CreditNoteType.CREDIT_AND_REFUND
+  } else if (creditAmountCents) {
+    return CreditNoteType.CREDIT
+  } else if (refundAmountCents) {
+    return CreditNoteType.REFUND
+  }
+
+  return null
+}
+
+export const CREDIT_NOTE_TYPE_TRANSLATIONS_MAP = {
+  [CreditNoteType.VOIDED]: 'TODO: Voided',
+  [CreditNoteType.CREDIT_AND_REFUND]: 'TODO: Credit & refund',
+  [CreditNoteType.CREDIT]: 'TODO: Credit',
+  [CreditNoteType.REFUND]: 'TODO: Refund',
+}
+
+export const creditNoteTaxError = ({
+  errorDetails,
+}: Pick<CreditNoteTableItemFragment, 'errorDetails'>) => {
+  return errorDetails?.find(({ errorCode }: { errorCode: ErrorCodesEnum }) =>
+    [ErrorCodesEnum.TaxError, ErrorCodesEnum.TaxVoidingError].includes(errorCode),
+  )
 }
