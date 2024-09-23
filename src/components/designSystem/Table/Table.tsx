@@ -33,7 +33,7 @@ type DotNestedKeys<T> = (
   ? Extract<D, string>
   : never
 
-type Column<T> = {
+export type TableColumn<T> = {
   // Using DotNestedKeys to get nested keys for object with more than one level deepness
   key: DotNestedKeys<T>
   title: string | ReactNode
@@ -63,7 +63,7 @@ type RowSize = 48 | 72
 interface TableProps<T> {
   name: string
   data: T[]
-  columns: Array<Column<T> | null>
+  columns: Array<TableColumn<T> | null>
   isLoading?: boolean
   hasError?: boolean
   placeholder?: {
@@ -79,7 +79,7 @@ interface TableProps<T> {
 const ACTION_COLUMN_ID = 'actionColumn'
 const LOADING_ROW_COUNT = 3
 
-const countMaxSpaceColumns = <T,>(columns: Column<T>[]) =>
+const countMaxSpaceColumns = <T,>(columns: TableColumn<T>[]) =>
   columns.reduce((acc, column) => {
     if (column.maxSpace) {
       acc += 1
@@ -327,7 +327,7 @@ const LoadingRows = <T,>({
   shouldDisplayActionColumn,
   actionColumn,
 }: Pick<TableProps<T>, 'actionColumn'> & {
-  columns: Array<Column<T>>
+  columns: Array<TableColumn<T>>
   id: string
   shouldDisplayActionColumn: boolean
 }) => {
