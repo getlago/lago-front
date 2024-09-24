@@ -2455,5 +2455,21 @@
   "text_1727079454388wxlpkmmkrmj": "Credit & refund",
   "text_1727079454388x9q4uz6ah71": "Credit",
   "text_17270794543889mcmuhfq70p": "Refund",
-  "text_1727090499191gqzispoy1qz": "This credit note contains a tax error"
+  "text_1727090499191gqzispoy1qz": "This credit note contains a tax error",
+  "text_1727189568053s79ks5q07tr": "Hubspot",
+  "text_1727189568053q2gpkjzpmxr": "CRM",
+  "text_172718956805392syzumhdlm": "Request access to premium HubSpot add-on",
+  "text_1727189568053f91r4b3f4rl": "Hello, I would like to access your Hubspot add-on. \nPlease let me know if you need more info!",
+  "text_1727189568053ifu63v2q1gf": "Connect to HubSpot",
+  "text_1727189568053fu2g4sonout": "Edit information linked to this HubSpot connection.",
+  "text_1727189568054z4qhm7flfgh": "To connect to HubSpot, please enter the following information",
+  "text_1727189568054lp1npj548nk": "Private App Access Token",
+  "text_172718956805412kz5w7o2m2": "Type an access token",
+  "text_17271895680545qv3cvwk1jx": "Default targeted object for Lago customers",
+  "text_1727190044775zgd0l3fpwdj": "HubSpot Companies",
+  "text_1727190044775keiwznwv16s": "HubSpot Contacts",
+  "text_1727190044775k62adpax08b": "Select the HubSpot object for data synchronization",
+  "text_1727190044775yssj1flnpe9": "Sync data to HubSpot",
+  "text_1727190044775p6mbfwbzv36": "native object",
+  "text_172719004477572tu71psqqt": "custom object"
 }
