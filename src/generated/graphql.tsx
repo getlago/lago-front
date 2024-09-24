@@ -6753,6 +6753,22 @@ export type UpdateGocardlessApiKeyMutationVariables = Exact<{
 
 export type UpdateGocardlessApiKeyMutation = { __typename?: 'Mutation', updateGocardlessPaymentProvider?: { __typename?: 'GocardlessProvider', id: string, name: string, code: string, successRedirectUrl?: string | null, webhookSecret?: string | null } | null };
 
+export type HubspotForCreateDialogFragment = { __typename?: 'HubspotIntegration', id: string, name: string, code: string, defaultTargetedObject: TargetedObjectsEnum, privateAppToken: string, syncInvoices?: boolean | null, syncSubscriptions?: boolean | null };
+
+export type CreateHubspotIntegrationMutationVariables = Exact<{
+  input: CreateHubspotIntegrationInput;
+}>;
+
+
+export type CreateHubspotIntegrationMutation = { __typename?: 'Mutation', createHubspotIntegration?: { __typename?: 'HubspotIntegration', id: string, name: string, code: string, defaultTargetedObject: TargetedObjectsEnum, privateAppToken: string, syncInvoices?: boolean | null, syncSubscriptions?: boolean | null } | null };
+
+export type UpdateHubspotIntegrationMutationVariables = Exact<{
+  input: UpdateHubspotIntegrationInput;
+}>;
+
+
+export type UpdateHubspotIntegrationMutation = { __typename?: 'Mutation', updateHubspotIntegration?: { __typename?: 'HubspotIntegration', id: string, name: string, code: string, defaultTargetedObject: TargetedObjectsEnum, privateAppToken: string, syncInvoices?: boolean | null, syncSubscriptions?: boolean | null } | null };
+
 export type UpdateOrgaForLagoTaxManagementMutationVariables = Exact<{
   input: UpdateOrganizationInput;
 }>;
@@ -8965,6 +8981,17 @@ export const AddGocardlessProviderDialogFragmentDoc = gql`
   id
   name
   code
+}
+    `;
+export const HubspotForCreateDialogFragmentDoc = gql`
+    fragment HubspotForCreateDialog on HubspotIntegration {
+  id
+  name
+  code
+  defaultTargetedObject
+  privateAppToken
+  syncInvoices
+  syncSubscriptions
 }
     `;
 export const AddStripeProviderDialogFragmentDoc = gql`
@@ -15134,6 +15161,72 @@ export function useUpdateGocardlessApiKeyMutation(baseOptions?: Apollo.MutationH
 export type UpdateGocardlessApiKeyMutationHookResult = ReturnType<typeof useUpdateGocardlessApiKeyMutation>;
 export type UpdateGocardlessApiKeyMutationResult = Apollo.MutationResult<UpdateGocardlessApiKeyMutation>;
 export type UpdateGocardlessApiKeyMutationOptions = Apollo.BaseMutationOptions<UpdateGocardlessApiKeyMutation, UpdateGocardlessApiKeyMutationVariables>;
+export const CreateHubspotIntegrationDocument = gql`
+    mutation createHubspotIntegration($input: CreateHubspotIntegrationInput!) {
+  createHubspotIntegration(input: $input) {
+    ...HubspotForCreateDialog
+  }
+}
+    ${HubspotForCreateDialogFragmentDoc}`;
+export type CreateHubspotIntegrationMutationFn = Apollo.MutationFunction<CreateHubspotIntegrationMutation, CreateHubspotIntegrationMutationVariables>;
+
+/**
+ * __useCreateHubspotIntegrationMutation__
+ *
+ * To run a mutation, you first call `useCreateHubspotIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateHubspotIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createHubspotIntegrationMutation, { data, loading, error }] = useCreateHubspotIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateHubspotIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<CreateHubspotIntegrationMutation, CreateHubspotIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateHubspotIntegrationMutation, CreateHubspotIntegrationMutationVariables>(CreateHubspotIntegrationDocument, options);
+      }
+export type CreateHubspotIntegrationMutationHookResult = ReturnType<typeof useCreateHubspotIntegrationMutation>;
+export type CreateHubspotIntegrationMutationResult = Apollo.MutationResult<CreateHubspotIntegrationMutation>;
+export type CreateHubspotIntegrationMutationOptions = Apollo.BaseMutationOptions<CreateHubspotIntegrationMutation, CreateHubspotIntegrationMutationVariables>;
+export const UpdateHubspotIntegrationDocument = gql`
+    mutation updateHubspotIntegration($input: UpdateHubspotIntegrationInput!) {
+  updateHubspotIntegration(input: $input) {
+    ...HubspotForCreateDialog
+  }
+}
+    ${HubspotForCreateDialogFragmentDoc}`;
+export type UpdateHubspotIntegrationMutationFn = Apollo.MutationFunction<UpdateHubspotIntegrationMutation, UpdateHubspotIntegrationMutationVariables>;
+
+/**
+ * __useUpdateHubspotIntegrationMutation__
+ *
+ * To run a mutation, you first call `useUpdateHubspotIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateHubspotIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateHubspotIntegrationMutation, { data, loading, error }] = useUpdateHubspotIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateHubspotIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<UpdateHubspotIntegrationMutation, UpdateHubspotIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateHubspotIntegrationMutation, UpdateHubspotIntegrationMutationVariables>(UpdateHubspotIntegrationDocument, options);
+      }
+export type UpdateHubspotIntegrationMutationHookResult = ReturnType<typeof useUpdateHubspotIntegrationMutation>;
+export type UpdateHubspotIntegrationMutationResult = Apollo.MutationResult<UpdateHubspotIntegrationMutation>;
+export type UpdateHubspotIntegrationMutationOptions = Apollo.BaseMutationOptions<UpdateHubspotIntegrationMutation, UpdateHubspotIntegrationMutationVariables>;
 export const UpdateOrgaForLagoTaxManagementDocument = gql`
     mutation updateOrgaForLagoTaxManagement($input: UpdateOrganizationInput!) {
   updateOrganization(input: $input) {

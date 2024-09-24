@@ -2471,5 +2471,7 @@
   "text_1727190044775k62adpax08b": "Select the HubSpot object for data synchronization",
   "text_1727190044775yssj1flnpe9": "Sync data to HubSpot",
   "text_1727190044775p6mbfwbzv36": "native object",
-  "text_172719004477572tu71psqqt": "custom object"
+  "text_172719004477572tu71psqqt": "custom object",
+  "text_1727190044775psjhxh09fsq": "HubSpot integration successfully connected. Objects can take few seconds to be fetched",
+  "text_172719004477535rfq4o0j1s": "HubSpot integration successfully edited."
 }

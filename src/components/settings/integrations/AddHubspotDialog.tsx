@@ -1,4 +1,7 @@
+import { gql } from '@apollo/client'
+import Nango from '@nangohq/frontend'
 import { useFormik } from 'formik'
+import { GraphQLFormattedError } from 'graphql'
 import { forwardRef, RefObject, useId, useImperativeHandle, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { boolean, object, string } from 'yup'
@@ -6,14 +9,44 @@ import { boolean, object, string } from 'yup'
 import { Alert, Button, Chip, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { Checkbox, CheckboxField, ComboBoxField, TextInputField } from '~/components/form'
 import { DeleteHubspotIntegrationDialogRef } from '~/components/settings/integrations/DeleteHubspotIntegrationDialog'
-import { envGlobalVar } from '~/core/apolloClient'
-import { CreateHubspotIntegrationInput, TargetedObjectsEnum } from '~/generated/graphql'
+import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
+import {
+  CreateHubspotIntegrationInput,
+  HubspotForCreateDialogFragment,
+  TargetedObjectsEnum,
+  useCreateHubspotIntegrationMutation,
+  useUpdateHubspotIntegrationMutation,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'
 
+gql`
+  fragment HubspotForCreateDialog on HubspotIntegration {
+    id
+    name
+    code
+    defaultTargetedObject
+    privateAppToken
+    syncInvoices
+    syncSubscriptions
+  }
+
+  mutation createHubspotIntegration($input: CreateHubspotIntegrationInput!) {
+    createHubspotIntegration(input: $input) {
+      ...HubspotForCreateDialog
+    }
+  }
+
+  mutation updateHubspotIntegration($input: UpdateHubspotIntegrationInput!) {
+    updateHubspotIntegration(input: $input) {
+      ...HubspotForCreateDialog
+    }
+  }
+`
+
 type TAddHubspotDialogProps = Partial<{
   deleteModalRef: RefObject<DeleteHubspotIntegrationDialogRef>
-  provider: any
+  provider: HubspotForCreateDialogFragment
   deleteDialogCallback: Function
 }>
 
@@ -34,6 +67,31 @@ export const AddHubspotDialog = forwardRef<AddHubspotDialogRef>((_, ref) => {
   const hubspotProvider = localData?.provider
   const isEdition = !!hubspotProvider
 
+  const [createIntegration] = useCreateHubspotIntegrationMutation({
+    onCompleted({ createHubspotIntegration }) {
+      if (createHubspotIntegration?.id) {
+        // TODO: Redirect
+        navigate('/')
+
+        addToast({
+          message: translate('text_1727190044775psjhxh09fsq'),
+          severity: 'success',
+        })
+      }
+    },
+  })
+
+  const [updateIntegration] = useUpdateHubspotIntegrationMutation({
+    onCompleted({ updateHubspotIntegration }) {
+      if (updateHubspotIntegration?.id) {
+        addToast({
+          message: translate('text_172719004477535rfq4o0j1s'),
+          severity: 'success',
+        })
+      }
+    },
+  })
+
   const formikProps = useFormik<Omit<CreateHubspotIntegrationInput, 'connectionId'>>({
     initialValues: {
       name: hubspotProvider?.name || '',
@@ -52,10 +110,61 @@ export const AddHubspotDialog = forwardRef<AddHubspotDialogRef>((_, ref) => {
       syncInvoices: boolean(),
       syncSubscriptions: boolean(),
     }),
-    onSubmit: async ({ ...values }) => {
+    onSubmit: async ({ ...values }, formikBag) => {
       setShowGlobalError(false)
 
-      console.log({ values })
+      const handleError = (errors: readonly GraphQLFormattedError[]) => {
+        if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
+          formikBag.setErrors({
+            code: translate('text_632a2d437e341dcc76817556'),
+          })
+
+          // Scroll to top of modal container
+          const modalContainer = document.getElementsByClassName('MuiDialog-container')[0]
+
+          if (modalContainer) {
+            modalContainer.scrollTo({ top: 0 })
+          }
+        }
+      }
+
+      if (isEdition) {
+        const res = await updateIntegration({
+          variables: {
+            input: {
+              ...values,
+              id: hubspotProvider?.id || '',
+            },
+          },
+        })
+
+        if (res.errors) {
+          return handleError(res.errors)
+        }
+      } else {
+        const connectionId = `hubspot-${componentId.replaceAll(':', '')}-${Date.now()}`
+
+        const nango = new Nango({ publicKey: nangoPublicKey })
+
+        try {
+          const nangoAuthResult = await nango.auth('hubspot', connectionId)
+
+          if (!!nangoAuthResult) {
+            const res = await createIntegration({
+              variables: {
+                input: { ...values, connectionId },
+              },
+            })
+
+            if (res.errors) {
+              return handleError(res.errors)
+            }
+          }
+        } catch (error) {
+          setShowGlobalError(true)
+          return
+        }
+      }
 
       dialogRef.current?.closeDialog()
     },
