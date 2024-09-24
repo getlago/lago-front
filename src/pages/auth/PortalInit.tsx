@@ -39,6 +39,7 @@ const PortalInit = () => {
   const { isPortalAuthenticated } = useIsAuthenticated()
 
   const { data, error, loading } = useGetPortalLocaleQuery({
+    context: { portal: true },
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
     skip: !isPortalAuthenticated || !token,

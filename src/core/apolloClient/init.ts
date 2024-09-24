@@ -1,8 +1,8 @@
-import { ApolloClient, ApolloLink, NormalizedCacheObject } from '@apollo/client'
+import { ApolloClient, ApolloLink, HttpLink, NormalizedCacheObject } from '@apollo/client'
 import { onError } from '@apollo/client/link/error'
+import { RetryLink } from '@apollo/client/link/retry'
 import { LocalForageWrapper, persistCache } from 'apollo3-cache-persist'
 import ApolloLinkTimeout from 'apollo-link-timeout'
-import { createUploadLink } from 'apollo-upload-client'
 import localForage from 'localforage'
 
 // IMPORTANT: Keep reactiveVars import before cacheUtils
@@ -57,56 +57,54 @@ export const initializeApolloClient = async () => {
     return forward(operation)
   })
 
-  const links = [
-    initialLink.concat(timeoutLink),
-    onError(({ graphQLErrors, networkError, operation }) => {
-      const { silentError = false, silentErrorCodes = [] } = operation.getContext()
+  const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
+    const { silentError = false, silentErrorCodes = [] } = operation.getContext()
 
-      // Silent auth and permissions related errors by default
-      silentErrorCodes.push(...AUTH_ERRORS, LagoApiError.Forbidden)
+    // Silent auth and permissions related errors by default
+    silentErrorCodes.push(...AUTH_ERRORS, LagoApiError.Forbidden)
 
-      if (graphQLErrors) {
-        // @ts-expect-error
-        graphQLErrors.forEach(({ message, locations, path, extensions }: LagoGQLError) => {
-          const isUnauthorized = extensions && AUTH_ERRORS.includes(extensions?.code)
+    if (graphQLErrors) {
+      // @ts-expect-error
+      graphQLErrors.forEach(({ message, locations, path, extensions }: LagoGQLError) => {
+        const isUnauthorized = extensions && AUTH_ERRORS.includes(extensions?.code)
 
-          if (isUnauthorized && globalApolloClient) {
-            logOut(globalApolloClient)
-          }
+        if (isUnauthorized && globalApolloClient) {
+          logOut(globalApolloClient)
+        }
 
-          !silentError &&
-            !silentErrorCodes.includes(extensions?.code) &&
-            !isUnauthorized &&
-            message !== 'PersistedQueryNotFound' &&
-            addToast({
-              severity: 'danger',
-              translateKey: 'text_622f7a3dc32ce100c46a5154',
-            })
+        !silentError &&
+          !silentErrorCodes.includes(extensions?.code) &&
+          !isUnauthorized &&
+          message !== 'PersistedQueryNotFound' &&
+          addToast({
+            severity: 'danger',
+            translateKey: 'text_622f7a3dc32ce100c46a5154',
+          })
 
-          // eslint-disable-next-line no-console
-          console.warn(
-            `[GraphQL error]: Message: ${message}, Path: ${path}, Location: ${JSON.stringify(
-              locations,
-            )}`,
-          )
-        })
-      }
-
-      if (networkError) {
-        addToast({
-          severity: 'danger',
-          translateKey: 'text_622f7a3dc32ce100c46a5154',
-        })
         // eslint-disable-next-line no-console
-        console.warn(`[Network error]: ${JSON.stringify(networkError)}`)
-      }
-    }),
-    // afterwareLink.concat(
-    createUploadLink({
-      uri: `${apiUrl}/graphql`,
-    }) as unknown as ApolloLink,
-    // ),
-  ]
+        console.warn(
+          `[GraphQL error]: Message: ${message}, Path: ${path}, Location: ${JSON.stringify(
+            locations,
+          )}`,
+        )
+      })
+    }
+
+    if (networkError) {
+      addToast({
+        severity: 'danger',
+        translateKey: 'text_622f7a3dc32ce100c46a5154',
+      })
+      // eslint-disable-next-line no-console
+      console.warn(`[Network error]: ${JSON.stringify(networkError)}`)
+    }
+  })
+
+  const directionalLink = new RetryLink().split(
+    (operation) => operation.getContext().portal === true,
+    new HttpLink({ uri: `${apiUrl}/customer_portal/graphql` }),
+    new HttpLink({ uri: `${apiUrl}/api/graphql` }),
+  )
 
   await persistCache({
     cache,
@@ -117,7 +115,7 @@ export const initializeApolloClient = async () => {
 
   const client = new ApolloClient({
     cache,
-    link: ApolloLink.from(links),
+    link: ApolloLink.from([initialLink, errorLink, directionalLink, timeoutLink]),
     name: 'lago-app',
     version: appVersion,
     typeDefs,

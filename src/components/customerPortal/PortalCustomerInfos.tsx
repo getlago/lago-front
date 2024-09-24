@@ -31,7 +31,9 @@ interface PortalCustomerInfosProps {
 }
 
 export const PortalCustomerInfos = memo(({ translate }: PortalCustomerInfosProps) => {
-  const { data, loading } = useGetPortalCustomerInfosQuery()
+  const { data, loading } = useGetPortalCustomerInfosQuery({
+    context: { portal: true },
+  })
   const customerPortalUser = data?.customerPortalUser
 
   return (

@@ -55,11 +55,13 @@ interface CalculatedData {
 }
 
 export const PortalOverview: FC<PortalOverviewProps> = ({ translate, documentLocale }) => {
-  const { data: userCurrencyData } = useGetCustomerPortalUserCurrencyQuery()
+  const { data: userCurrencyData } = useGetCustomerPortalUserCurrencyQuery({
+    context: { portal: true },
+  })
   const [getOverdueBalance, { data: overdueData, loading: overdueLoading }] =
-    useGetCustomerPortalOverdueBalancesLazyQuery()
+    useGetCustomerPortalOverdueBalancesLazyQuery({ context: { portal: true } })
   const [getInvoicesCollection, { data: invoicesData, loading: invoicesLoading }] =
-    useGetCustomerPortalInvoicesCollectionLazyQuery()
+    useGetCustomerPortalInvoicesCollectionLazyQuery({ context: { portal: true } })
 
   useEffect(() => {
     getOverdueBalance()

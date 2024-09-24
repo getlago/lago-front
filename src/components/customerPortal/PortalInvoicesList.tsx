@@ -112,9 +112,11 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
         limit: 20,
         status: [InvoiceStatusTypeEnum.Finalized],
       },
+      context: { portal: true },
     })
 
   const [downloadInvoice] = useDownloadCustomerPortalInvoiceMutation({
+    context: { portal: true },
     onCompleted(localData) {
       const fileUrl = localData?.downloadCustomerPortalInvoice?.fileUrl
 

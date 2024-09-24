@@ -26,7 +26,7 @@ interface CutsomerPortalProps {
 }
 
 const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
-  const { data, loading } = useGetPortalOrgaInfosQuery()
+  const { data, loading } = useGetPortalOrgaInfosQuery({ context: { portal: true } })
 
   return (
     <PageWrapper>
