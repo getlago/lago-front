@@ -20,21 +20,3 @@ generates:
     config:
       reactApolloVersion: 3
       exportFragmentSpreadSubTypes: true
-  src/generated/portal-graphql.tsx:
-    schema:
-      - ${CODEGEN_API_CUSTOMER_PORTAL}
-      - './src/core/apolloClient/graphqlResolvers.tsx'
-    documents:
-      [
-        'src/pages/auth/PortalInit.tsx',
-        'src/pages/customerPortal/CustomerPortal.tsx',
-        'src/components/customerPortal/*.tsx',
-        'src/components/customerPortal/*.ts',
-      ]
-    plugins:
-      - 'typescript'
-      - 'typescript-operations'
-      - 'typescript-react-apollo'
-    config:
-      reactApolloVersion: 3
-      exportFragmentSpreadSubTypes: true

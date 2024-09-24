@@ -19,14 +19,12 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { LocaleEnum } from '~/core/translations'
 import {
   CurrencyEnum,
-  InvoiceForFinalizeInvoiceFragmentDoc,
-  InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   PortalInvoiceListItemFragmentDoc,
   useCustomerPortalInvoicesLazyQuery,
   useDownloadCustomerPortalInvoiceMutation,
-} from '~/generated/graphql'
+} from '~/generated/portal-graphql'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { NAV_HEIGHT, theme } from '~/styles'
 
@@ -69,8 +67,6 @@ gql`
   }
 
   ${PortalInvoiceListItemFragmentDoc}
-  ${InvoiceForFinalizeInvoiceFragmentDoc}
-  ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
 `
 
 const mapStatusConfig = ({

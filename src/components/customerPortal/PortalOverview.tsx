@@ -12,7 +12,7 @@ import {
   useGetCustomerPortalInvoicesCollectionLazyQuery,
   useGetCustomerPortalOverdueBalancesLazyQuery,
   useGetCustomerPortalUserCurrencyQuery,
-} from '~/generated/graphql'
+} from '~/generated/portal-graphql'
 import { SectionHeader } from '~/styles/customer'
 
 gql`

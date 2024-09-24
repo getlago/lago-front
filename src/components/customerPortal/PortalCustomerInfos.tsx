@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import { Skeleton, Typography } from '~/components/designSystem'
 import { CountryCodes } from '~/core/constants/countryCodes'
-import { useGetPortalCustomerInfosQuery } from '~/generated/graphql'
+import { useGetPortalCustomerInfosQuery } from '~/generated/portal-graphql'
 import { NAV_HEIGHT, theme } from '~/styles'
 
 gql`

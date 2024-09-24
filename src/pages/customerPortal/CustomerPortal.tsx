@@ -6,7 +6,7 @@ import PortalInvoicesList from '~/components/customerPortal/PortalInvoicesList'
 import { PortalOverview } from '~/components/customerPortal/PortalOverview'
 import { Skeleton, Typography } from '~/components/designSystem'
 import { LocaleEnum } from '~/core/translations'
-import { useGetPortalOrgaInfosQuery } from '~/generated/graphql'
+import { useGetPortalOrgaInfosQuery } from '~/generated/portal-graphql'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
 import { theme } from '~/styles'
 
