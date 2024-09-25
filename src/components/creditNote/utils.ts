@@ -1,10 +1,5 @@
 import { serializeAmount } from '~/core/serializers/serializeAmount'
-import {
-  CreditNoteItemInput,
-  CreditNoteTableItemFragment,
-  CurrencyEnum,
-  ErrorCodesEnum,
-} from '~/generated/graphql'
+import { CreditNoteItemInput, CreditNoteTableItemFragment, CurrencyEnum } from '~/generated/graphql'
 
 import { FeesPerInvoice, FromFee, GroupedFee } from './types'
 

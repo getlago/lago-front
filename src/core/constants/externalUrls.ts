@@ -34,9 +34,9 @@ export const buildAnrokInvoiceUrl = (
 }
 export const buildAnrokCreditNoteUrl = (
   connectionAccountId?: string | null,
-  anrokCreditNoteId?: string | null,
+  anrokTaxProviderId?: string | null,
 ) => {
-  return `https://app.anrok.com/${connectionAccountId}/transactions/cn_${anrokCreditNoteId}`
+  return `https://app.anrok.com/${connectionAccountId}/transactions/${anrokTaxProviderId}`
 }
 export const buildNetsuiteCreditNoteUrl = (
   connectionAccountId?: string | null,

@@ -87,6 +87,7 @@ gql`
       totalAmountCents
       integrationSyncable
       taxProviderSyncable
+      taxProviderId
       externalIntegrationId
       customer {
         id
@@ -948,7 +949,8 @@ const CreditNoteDetails = () => {
 
             {(connectedNetsuiteIntegration ||
               data?.creditNote?.customer?.xeroCustomer?.integrationId ||
-              data?.creditNote?.customer?.anrokCustomer?.integrationId) &&
+              data?.creditNote?.taxProviderId ||
+              data?.creditNote?.taxProviderSyncable) &&
               creditNote?.id && (
                 <Stack marginTop={8} gap={6}>
                   <SectionHeader variant="subhead">
@@ -997,12 +999,31 @@ const CreditNoteDetails = () => {
 
                   {!!data?.creditNote?.customer?.anrokCustomer?.integrationId && (
                     <div>
-                      <InfoLine>
-                        <Typography variant="caption" color="grey600" noWrap>
-                          {translate('text_1727068146263345gopo39sm')}
-                        </Typography>
+                      {!!data?.creditNote?.taxProviderId && (
+                        <InfoLine>
+                          <Typography variant="caption" color="grey600" noWrap>
+                            {translate('text_1727068146263345gopo39sm')}
+                          </Typography>
+                          <InlineLink
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            to={buildAnrokCreditNoteUrl(
+                              data?.creditNote?.customer?.anrokCustomer?.externalAccountId,
+                              data?.creditNote?.taxProviderId,
+                            )}
+                          >
+                            <Typography variant="caption" color="info600">
+                              {data?.creditNote?.taxProviderId} <Icon name="outside" />
+                            </Typography>
+                          </InlineLink>
+                        </InfoLine>
+                      )}
 
-                        {!!data?.creditNote?.taxProviderSyncable ? (
+                      {!!data?.creditNote?.taxProviderSyncable && (
+                        <InfoLine>
+                          <Typography variant="caption" color="grey600" noWrap>
+                            {translate('text_1727068146263345gopo39sm')}
+                          </Typography>
                           <div className="flex items-center gap-2">
                             <Icon name="warning-filled" color="warning" />
                             <Typography variant="caption">
@@ -1020,21 +1041,8 @@ const CreditNoteDetails = () => {
                               </Typography>
                             </InlineLink>
                           </div>
-                        ) : (
-                          <InlineLink
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            to={buildAnrokCreditNoteUrl(
-                              data?.creditNote?.customer?.anrokCustomer?.externalAccountId,
-                              creditNote?.id,
-                            )}
-                          >
-                            <Typography variant="caption" color="info600">
-                              {creditNote?.id} <Icon name="outside" />
-                            </Typography>
-                          </InlineLink>
-                        )}
-                      </InfoLine>
+                        </InfoLine>
+                      )}
                     </div>
                   )}
                 </Stack>
