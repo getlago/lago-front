@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
+import { cx } from 'class-variance-authority'
 import { RefObject } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
 import {
@@ -70,11 +70,11 @@ export const AddOnItem = ({
         data-test={name}
         {...navigationProps}
       >
-        <AddOnNameSection>
+        <div className="mr-auto flex min-w-0 items-center">
           <Avatar className="mr-3" size="big" variant="connector">
             <Icon name="puzzle" color="dark" />
           </Avatar>
-          <NameBlock>
+          <div className="min-w-0">
             <Typography color="textSecondary" variant="bodyHl" noWrap>
               {name}
             </Typography>
@@ -89,13 +89,13 @@ export const AddOnItem = ({
                 ),
               })}
             </Typography>
-          </NameBlock>
-        </AddOnNameSection>
-        <CouponInfosSection $shouldShowItemActions={shouldShowItemActions}>
-          <SmallCell>{customersCount}</SmallCell>
-          <MediumCell>{formatTimeOrgaTZ(createdAt)}</MediumCell>
-        </CouponInfosSection>
-        {shouldShowItemActions && <ButtonMock />}
+          </div>
+        </div>
+        <div className={cx('flex', shouldShowItemActions ? 'mr-6' : 'mr-0')}>
+          <Typography className="mr-6 hidden w-24 text-right md:block">{customersCount}</Typography>
+          <Typography className="w-28">{formatTimeOrgaTZ(createdAt)}</Typography>
+        </div>
+        {shouldShowItemActions && <div className="w-10" />}
       </ListItemLink>
 
       {shouldShowItemActions &&
@@ -103,7 +103,6 @@ export const AddOnItem = ({
           <Popper
             PopperProps={{ placement: 'bottom-end' }}
             opener={({ isOpen }) => (
-              // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
               <PopperOpener>
                 <Tooltip
                   placement="top-end"
@@ -167,40 +166,3 @@ export const AddOnItemSkeleton = () => {
     </BaseListItem>
   )
 }
-
-const AddOnNameSection = styled.div`
-  margin-right: auto;
-  display: flex;
-  align-items: center;
-  min-width: 0;
-`
-
-const NameBlock = styled.div`
-  min-width: 0;
-`
-
-const CouponInfosSection = styled.div<{ $shouldShowItemActions: boolean }>`
-  display: flex;
-  margin-right: ${({ $shouldShowItemActions }) => ($shouldShowItemActions ? theme.spacing(6) : 0)};
-
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(6)};
-
-    ${theme.breakpoints.down('md')} {
-      display: none;
-    }
-  }
-`
-
-const MediumCell = styled(Typography)`
-  width: 112px;
-`
-
-const SmallCell = styled(Typography)`
-  text-align: right;
-  width: 96px;
-`
-
-const ButtonMock = styled.div`
-  width: 40px;
-`

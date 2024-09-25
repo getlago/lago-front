@@ -118,9 +118,11 @@ const config = {
       screens: {
         md: '776px',
       },
+      spacing: {
+        18: '4.5rem',
+      },
     },
   },
-
   plugins: [
     plugin(function ({ addUtilities, theme }) {
       // Dividers

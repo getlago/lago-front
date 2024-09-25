@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useMemo, useState } from 'react'
-import styled from 'styled-components'
 
 import { Alert, Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { ComboBox } from '~/components/form'
@@ -10,7 +9,6 @@ import {
   useGetBillableMetricsForCouponsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 import { Item } from '../form/ComboBox/ComboBoxItem'
 
@@ -105,8 +103,9 @@ export const AddBillableMetricToCouponDialog = forwardRef<
         </>
       )}
     >
-      <StyledComboBox
+      <ComboBox
         name="selectedBillableMetric"
+        className="mb-8"
         data={comboboxBillableMetricsData}
         label={translate('text_64352657267c3d916f962757')}
         loading={loading}
@@ -124,7 +123,7 @@ export const AddBillableMetricToCouponDialog = forwardRef<
         searchQuery={getBillableMetrics}
         value={selectedBillableMetric?.id}
       />
-      <Alert type="warning" className="mb-8">
+      <Alert className="mb-8" type="warning">
         {translate('text_64352657267c3d916f962763')}
       </Alert>
     </Dialog>
@@ -132,7 +131,3 @@ export const AddBillableMetricToCouponDialog = forwardRef<
 })
 
 AddBillableMetricToCouponDialog.displayName = 'AddBillableMetricToCouponDialog'
-
-const StyledComboBox = styled(ComboBox)`
-  margin-bottom: ${theme.spacing(8)};
-`

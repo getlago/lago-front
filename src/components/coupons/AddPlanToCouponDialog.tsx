@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useMemo, useState } from 'react'
-import styled from 'styled-components'
 
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { ComboBox } from '~/components/form'
@@ -10,7 +9,6 @@ import {
   useGetPlansForCouponsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 import { Item } from '../form/ComboBox/ComboBoxItem'
 
@@ -102,8 +100,9 @@ export const AddPlanToCouponDialog = forwardRef<DialogRef, AddPlanToCouponDialog
           </>
         )}
       >
-        <StyledComboBox
+        <ComboBox
           name="selectedPlan"
+          className="mb-8"
           data={comboboxPlansData}
           label={translate('text_63d3a658c6d84a5843032145')}
           loading={loading}
@@ -127,7 +126,3 @@ export const AddPlanToCouponDialog = forwardRef<DialogRef, AddPlanToCouponDialog
 )
 
 AddPlanToCouponDialog.displayName = 'AddPlanToCouponDialog'
-
-const StyledComboBox = styled(ComboBox)`
-  margin-bottom: ${theme.spacing(8)};
-`

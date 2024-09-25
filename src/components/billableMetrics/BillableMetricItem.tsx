@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { memo, RefObject } from 'react'
 import { generatePath } from 'react-router-dom'
-import styled from 'styled-components'
 
 import {
   Avatar,
@@ -64,21 +63,23 @@ export const BillableMetricItem = memo(
           tabIndex={0}
           {...navigationProps}
         >
-          <BillableMetricName>
-            <Avatar size="big" variant="connector">
+          <div className="flex min-w-0 flex-1 items-center">
+            <Avatar className="mr-3" size="big" variant="connector">
               <Icon name="pulse" color="dark" />
             </Avatar>
-            <NameBlock>
+            <div className="mr-6 min-w-0">
               <Typography color="textSecondary" variant="bodyHl" noWrap>
                 {name}
               </Typography>
               <Typography variant="caption" noWrap>
                 {code}
               </Typography>
-            </NameBlock>
-          </BillableMetricName>
-          <CellSmall align="right">{formatTimeOrgaTZ(createdAt)}</CellSmall>
-          <ButtonMock />
+            </div>
+          </div>
+          <Typography className="mr-6 w-28" align="right">
+            {formatTimeOrgaTZ(createdAt)}
+          </Typography>
+          <div className="w-10" />
         </ListItemLink>
         {(hasPermissions(['billableMetricsUpdate']) ||
           hasPermissions(['billableMetricsDelete'])) && (
@@ -144,34 +145,5 @@ export const BillableMetricItemSkeleton = () => {
     </BaseListItem>
   )
 }
-
-const NameBlock = styled.div`
-  min-width: 0;
-  margin-right: ${theme.spacing(6)};
-`
-
-const CellSmall = styled(Typography)`
-  width: 112px;
-  margin-right: ${theme.spacing(6)};
-`
-
-const BillableMetricName = styled.div`
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-
-  > *:last-child {
-    margin-right: ${theme.spacing(6)};
-  }
-`
-
-const ButtonMock = styled.div`
-  width: 40px;
-`
 
 BillableMetricItem.displayName = 'BillableMetricItem'
