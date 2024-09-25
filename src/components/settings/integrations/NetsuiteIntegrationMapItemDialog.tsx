@@ -1,11 +1,10 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Dialog, Typography } from '~/components/designSystem'
-import { ComboBox, ComboBoxProps } from '~/components/form'
+import { ComboBox, ComboBoxProps, TextInputField } from '~/components/form'
 import { Item } from '~/components/form/ComboBox/ComboBoxItem'
 import { WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
@@ -19,12 +18,10 @@ import {
   useDeleteNetsuiteIntegrationMappingMutation,
   useGetNetsuiteIntegrationItemsLazyQuery,
   useTriggerNetsuiteIntegrationItemsRefetchMutation,
-  useTriggerNetsuiteIntegrationTaxItemsRefetchMutation,
   useUpdateNetsuiteIntegrationCollectionMappingMutation,
   useUpdateNetsuiteIntegrationMappingMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 const OPTION_VALUE_SEPARATOR = ':::'
 
@@ -103,14 +100,6 @@ gql`
     }
   }
 
-  mutation triggerNetsuiteIntegrationTaxItemsRefetch($input: FetchIntegrationTaxItemsInput!) {
-    fetchIntegrationTaxItems(input: $input) {
-      collection {
-        ...NetsuiteIntegrationMapItemDialog
-      }
-    }
-  }
-
   # Mapping Creation
   mutation createNetsuiteIntegrationCollectionMapping(
     $input: CreateIntegrationCollectionMappingInput!
@@ -168,6 +157,16 @@ type TNetsuiteIntegrationMapItemDialogProps = {
   itemExternalCode?: string
   lagoMappableId?: string
   lagoMappableName?: string
+  taxCode?: string | null
+  taxNexus?: string | null
+  taxType?: string | null
+}
+
+type FormValuesType = {
+  selectedElementValue: string
+  taxCode: string
+  taxNexus: string
+  taxType: string
 }
 
 export interface NetsuiteIntegrationMapItemDialogRef {
@@ -201,19 +200,12 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
       variables: {
         limit: 50,
         integrationId: localData?.integrationId as string,
-        itemType:
-          localData?.type === MappingTypeEnum.Tax
-            ? IntegrationItemTypeEnum.Tax
-            : IntegrationItemTypeEnum.Standard,
+        itemType: IntegrationItemTypeEnum.Standard,
       },
+      fetchPolicy: 'no-cache',
     })
     const [triggerItemRefetch, { loading: itemsLoading }] =
       useTriggerNetsuiteIntegrationItemsRefetchMutation({
-        variables: { input: { integrationId: localData?.integrationId as string } },
-        refetchQueries: ['getNetsuiteIntegrationItems'],
-      })
-    const [triggerTaxItemRefetch, { loading: taxItemsLoading }] =
-      useTriggerNetsuiteIntegrationTaxItemsRefetchMutation({
         variables: { input: { integrationId: localData?.integrationId as string } },
         refetchQueries: ['getNetsuiteIntegrationItems'],
       })
@@ -290,8 +282,11 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
       refetchQueries,
     })
 
-    const formikProps = useFormik<{ selectedElementValue: string }>({
+    const formikProps = useFormik<FormValuesType>({
       initialValues: {
+        taxCode: localData?.taxCode || '',
+        taxNexus: localData?.taxNexus || '',
+        taxType: localData?.taxType || '',
         selectedElementValue: localData?.itemExternalId
           ? stringifyOptionValue({
               externalId: localData?.itemExternalId || '',
@@ -301,14 +296,36 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
           : '',
       },
       validationSchema: object().shape({
-        selectedElementValue: string(),
+        taxCode: string().test({
+          test: function (value, { from }) {
+            return !value ? true : !!from?.[0]?.value?.taxNexus && !!from?.[0]?.value?.taxType
+          },
+        }),
+        taxNexus: string().test({
+          test: function (value, { from }) {
+            return !value ? true : !!from?.[0]?.value?.taxCode && !!from?.[0]?.value?.taxType
+          },
+        }),
+        taxType: string().test({
+          test: function (value, { from }) {
+            return !value ? true : !!from?.[0]?.value?.taxCode && !!from?.[0]?.value?.taxNexus
+          },
+        }),
       }),
       validateOnMount: true,
       enableReinitialize: true,
       onSubmit: async ({ selectedElementValue, ...values }) => {
-        const isCreate = !localData?.itemExternalId
-        const isEdit = !!localData?.itemExternalId
-        const isDelete = !selectedElementValue
+        const hasInitialDatas =
+          !!localData?.itemExternalId ||
+          (!!localData?.taxCode && !!localData?.taxNexus && !!localData?.taxType)
+        const hasInputDatas =
+          !!selectedElementValue || (!!values.taxCode && !!values.taxNexus && !!values.taxType)
+        const isCreate = !localData?.itemId
+        const isEdit = !isCreate && hasInitialDatas && hasInputDatas
+        const isDelete =
+          !isCreate &&
+          !isEdit &&
+          (!selectedElementValue || (!values.taxCode && !values.taxNexus && !values.taxType))
 
         const { externalAccountCode, externalId, externalName } =
           extractOptionValue(selectedElementValue)
@@ -419,7 +436,7 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
       },
     })
 
-    const isLoading = initialItemFetchLoading || itemsLoading || taxItemsLoading
+    const isLoading = initialItemFetchLoading || itemsLoading
 
     const comboboxData = useMemo(() => {
       return (initialItemFetchData?.integrationItems?.collection || []).map((item) => {
@@ -578,65 +595,73 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
           </>
         )}
       >
-        <Container>
-          <InlineElements>
-            <ComboBox
-              value={formikProps.values.selectedElementValue}
-              data={comboboxData}
-              loading={isLoading}
-              label={translate('text_6630e51df0a194013daea621')}
-              placeholder={translate('text_6630e51df0a194013daea622')}
-              helperText={
-                !isLoading && !comboboxData.length
-                  ? translate('text_6630ec823adac97d3bf0fb4b')
-                  : undefined
-              }
-              searchQuery={getNetsuiteIntegrationItems as unknown as ComboBoxProps['searchQuery']}
-              onChange={(value) => {
-                formikProps.setFieldValue('selectedElementValue', value)
-              }}
-              PopperProps={{ displayInDialog: true }}
-            />
+        <>
+          {isTaxContext ? (
+            <div className="mb-8 flex flex-col gap-6">
+              <TextInputField
+                name="taxNexus"
+                autoComplete="off"
+                label={translate('text_172727145621913rzc8t0twl')}
+                placeholder={translate('text_17272714562195xp5rofbulp')}
+                formikProps={formikProps}
+                error={undefined}
+              />
 
-            <Button
-              icon="reload"
-              variant="quaternary"
-              disabled={isLoading}
-              loading={isLoading}
-              onClick={() => {
-                if (isTaxContext) {
-                  triggerTaxItemRefetch()
-                } else {
-                  triggerItemRefetch()
+              <TextInputField
+                name="taxType"
+                autoComplete="off"
+                label={translate('text_1727271456219atwdpxysccc')}
+                placeholder={translate('text_1727271456219tl2bt8qdevm')}
+                formikProps={formikProps}
+                error={undefined}
+              />
+
+              <TextInputField
+                name="taxCode"
+                autoComplete="off"
+                label={translate('text_1727271456220dvb59po0x1g')}
+                placeholder={translate('text_1727271456220u56zdq1mfrn')}
+                formikProps={formikProps}
+                error={undefined}
+              />
+            </div>
+          ) : (
+            <div className="mb-8 flex flex-1 gap-3 [&>*:first-child]:flex [&>*:first-child]:flex-1">
+              <ComboBox
+                className="flex-1"
+                value={formikProps.values.selectedElementValue}
+                data={comboboxData}
+                loading={isLoading}
+                label={translate('text_6630e51df0a194013daea621')}
+                placeholder={translate('text_6630e51df0a194013daea622')}
+                helperText={
+                  !isLoading && !comboboxData.length
+                    ? translate('text_6630ec823adac97d3bf0fb4b')
+                    : undefined
                 }
-              }}
-            />
-          </InlineElements>
-        </Container>
+                searchQuery={getNetsuiteIntegrationItems as unknown as ComboBoxProps['searchQuery']}
+                onChange={(value) => {
+                  formikProps.setFieldValue('selectedElementValue', value)
+                }}
+                PopperProps={{ displayInDialog: true }}
+              />
+
+              <Button
+                className="mt-8"
+                icon="reload"
+                variant="quaternary"
+                disabled={isLoading}
+                loading={isLoading}
+                onClick={() => {
+                  triggerItemRefetch()
+                }}
+              />
+            </div>
+          )}
+        </>
       </Dialog>
     )
   },
 )
 
 NetsuiteIntegrationMapItemDialog.displayName = 'NetsuiteIntegrationMapItemDialog'
-
-const Container = styled.div`
-  margin-bottom: ${theme.spacing(8)};
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
-  }
-`
-
-const InlineElements = styled.div`
-  display: flex;
-  gap: ${theme.spacing(3)};
-
-  > *:first-child {
-    flex: 1;
-  }
-
-  > *:last-child {
-    margin-top: ${theme.spacing(7)};
-  }
-`

@@ -121,6 +121,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
     variables: {
       integrationId,
     },
+    fetchPolicy: 'no-cache',
   })
 
   const [

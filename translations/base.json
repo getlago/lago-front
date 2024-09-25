@@ -2439,5 +2439,12 @@
   "text_17265631917004vcwz8zc0gy": "Next threshold not set",
   "text_1726576554903s2dddtq5qz4": "{{rate}} consumed",
   "text_1726576554903930hsa8vg23": "{{rate}} remaining",
-  "text_17268445285571pwim3q27vl": "Xero synchronisation successfully triggered."
+  "text_17268445285571pwim3q27vl": "Xero synchronisation successfully triggered.",
+  "text_17272714562192y06u5okvo4": "Mapped",
+  "text_172727145621913rzc8t0twl": "NetSuite Tax Nexus ID",
+  "text_17272714562195xp5rofbulp": "Enter a NetSuite Tax Nexus Id",
+  "text_1727271456219atwdpxysccc": "NetSuite Tax Type ID",
+  "text_1727271456219tl2bt8qdevm": "Enter a NetSuite Tax Type ID",
+  "text_1727271456220dvb59po0x1g": "NetSuite Tax Code ID",
+  "text_1727271456220u56zdq1mfrn": "Enter a NetSuite Tax Code ID"
 }

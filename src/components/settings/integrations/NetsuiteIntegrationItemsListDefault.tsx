@@ -18,6 +18,9 @@ gql`
     externalId
     externalAccountCode
     externalName
+    taxCode
+    taxNexus
+    taxType
   }
 `
 
@@ -218,16 +221,15 @@ const NetsuiteIntegrationItemsListDefault = ({
             integrationId,
             type: MappingTypeEnum.Tax,
             itemId: tax?.id,
-            itemExternalId: tax?.externalId,
-            itemExternalCode: tax?.externalAccountCode || undefined,
-            itemExternalName: tax?.externalName || undefined,
+            taxCode: tax?.taxCode,
+            taxNexus: tax?.taxNexus,
+            taxType: tax?.taxType,
           })
         }}
         mappingInfos={
           tax
             ? {
-                id: tax.externalId || '',
-                name: tax.externalName || '',
+                name: translate('text_17272714562192y06u5okvo4'),
               }
             : undefined
         }
