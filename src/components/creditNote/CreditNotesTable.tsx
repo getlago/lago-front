@@ -226,6 +226,19 @@ const CreditNotesTable = ({
               }
               isLoading={isLoading}
               hasError={!!error}
+              placeholder={{
+                emptyState: {
+                  title: translate('text_6663014df0a6be0098264dd9'),
+                  subtitle: translate('text_6663014df0a6be0098264dda'),
+                },
+              }}
+              actionColumnTooltip={(creditNote) =>
+                translate(
+                  creditNote.canBeVoided && hasPermissions(['creditNotesVoid'])
+                    ? 'text_63728c6434e1344aea76347d'
+                    : 'text_63728c6434e1344aea76347f',
+                )
+              }
               actionColumn={(creditNote) => {
                 let actions: ActionItem<CreditNoteTableItemFragment>[] = []
 

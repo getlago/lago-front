@@ -16,7 +16,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { MenuPopper, theme } from '~/styles'
+import { MenuPopper, PopperOpener, theme } from '~/styles'
 
 type Align = 'left' | 'center' | 'right'
 
@@ -72,6 +72,7 @@ interface TableProps<T> {
   }
   onRowAction?: (item: T) => void
   actionColumn?: (item: T) => Array<ActionItem<T> | null> | ReactNode
+  actionColumnTooltip?: (item: T) => string
   containerSize?: ResponsiveStyleValue<TableContainerSize>
   rowSize?: RowSize
 }
@@ -99,6 +100,7 @@ export const Table = <T extends DataItem>({
   placeholder,
   onRowAction,
   actionColumn,
+  actionColumnTooltip,
 }: TableProps<T>) => {
   const TABLE_ID = `table-${name}`
   const filteredColumns = columns.filter((column) => !!column)
@@ -277,7 +279,17 @@ export const Table = <T extends DataItem>({
                           <Popper
                             popperGroupName={`${TABLE_ID}-action-cell`}
                             PopperProps={{ placement: 'bottom-end' }}
-                            opener={<Button icon="dots-horizontal" variant="quaternary" />}
+                            opener={({ isOpen }) => (
+                              <LocalPopperOpener>
+                                <Tooltip
+                                  placement="top-end"
+                                  disableHoverListener={isOpen}
+                                  title={actionColumnTooltip?.(item) || null}
+                                >
+                                  <Button icon="dots-horizontal" variant="quaternary" />
+                                </Tooltip>
+                              </LocalPopperOpener>
+                            )}
                           >
                             {({ closePopper }) => (
                               <MenuPopper data-id={`${TABLE_ID}-popper`}>
@@ -554,5 +566,15 @@ const TableRow = styled(MUITableRow)<{ $isClickable?: boolean }>`
     ${TableActionCell} {
       background-color: ${theme.palette.background.paper};
     }
+  }
+`
+
+const LocalPopperOpener = styled(PopperOpener)`
+  position: relative;
+  top: 0;
+  right: 0;
+  height: 100%;
+  > *:first-child {
+    right: 0;
   }
 `
