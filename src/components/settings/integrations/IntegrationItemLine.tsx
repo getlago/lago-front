@@ -13,7 +13,7 @@ type TIntegrationItemLineProps = {
   label: string
   loading: boolean
   mappingInfos?: {
-    id: string
+    id?: string
     name: string
   }
   onMappingClick?: () => void
@@ -74,7 +74,7 @@ const IntegrationItemLine = ({
 
         <Typography variant="captionHl" color="grey700">
           {!!mappingInfos
-            ? `${mappingInfos.name} (${mappingInfos.id})`
+            ? `${mappingInfos.name}${!!mappingInfos.id ? ` (${mappingInfos.id})` : ''} `
             : translate('text_6630e3210c13c500cd398e9a')}
         </Typography>
       </StatusContainer>
