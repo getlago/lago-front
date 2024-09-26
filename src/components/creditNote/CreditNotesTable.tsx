@@ -322,7 +322,13 @@ const CreditNotesTable = ({
                   key: 'totalAmountCents',
                   title: translate('text_62544c1db13ca10187214d85'),
                   content: ({ totalAmountCents, currency }) => (
-                    <Typography variant="body" align="right" noWrap>
+                    <Typography
+                      className="font-medium"
+                      variant="body"
+                      color="grey700"
+                      align="right"
+                      noWrap
+                    >
                       {intlFormatNumber(deserializeAmount(totalAmountCents || 0, currency), {
                         currencyDisplay: 'symbol',
                         currency,
@@ -336,10 +342,11 @@ const CreditNotesTable = ({
                         key: 'invoice.customer.displayName',
                         title: translate('text_63ac86d797f728a87b2f9fb3'),
                         content: (creditNote: CreditNoteTableItemFragment) => (
-                          <CustomerColumn variant="body" color="grey700" noWrap>
+                          <CustomerColumn variant="body" color="grey600" noWrap>
                             {creditNote.invoice?.customer.displayName}
                           </CustomerColumn>
                         ),
+                        maxSpace: true,
                       } as TableColumn<CreditNoteTableItemFragment>,
                     ]
                   : []),
@@ -347,7 +354,7 @@ const CreditNotesTable = ({
                   key: 'createdAt',
                   title: translate('text_62544c1db13ca10187214d7f'),
                   content: ({ createdAt }) => (
-                    <Typography variant="body" color="grey700" noWrap>
+                    <Typography variant="body" color="grey600" noWrap>
                       {customerTimezone
                         ? formatDateToTZ(createdAt, customerTimezone)
                         : formatTimeOrgaTZ(createdAt)}
