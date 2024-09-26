@@ -101,11 +101,11 @@ export const creditNoteType = ({
 >): CreditNoteType | null => {
   if (voidedAt) {
     return CreditNoteType.VOIDED
-  } else if (creditAmountCents && refundAmountCents) {
+  } else if (creditAmountCents > 0 && refundAmountCents > 0) {
     return CreditNoteType.CREDIT_AND_REFUND
-  } else if (creditAmountCents) {
+  } else if (creditAmountCents > 0) {
     return CreditNoteType.CREDIT
-  } else if (refundAmountCents) {
+  } else if (refundAmountCents > 0) {
     return CreditNoteType.REFUND
   }
 
