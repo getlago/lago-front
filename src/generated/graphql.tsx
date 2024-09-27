@@ -6958,6 +6958,8 @@ export type DeleteGocardlessMutationVariables = Exact<{
 
 export type DeleteGocardlessMutation = { __typename?: 'Mutation', destroyPaymentProvider?: { __typename?: 'DestroyPaymentProviderPayload', id?: string | null } | null };
 
+export type DeleteHubspotIntegrationDialogFragment = { __typename?: 'HubspotIntegration', id: string, name: string };
+
 export type DeleteNetsuiteIntegrationDialogFragment = { __typename?: 'NetsuiteIntegration', id: string, name: string };
 
 export type DeleteStripeIntegrationDialogFragment = { __typename?: 'StripeProvider', id: string, name: string };
@@ -10906,6 +10908,12 @@ export const GocardlessIntegrationsFragmentDoc = gql`
   code
 }
     `;
+export const DeleteHubspotIntegrationDialogFragmentDoc = gql`
+    fragment DeleteHubspotIntegrationDialog on HubspotIntegration {
+  id
+  name
+}
+    `;
 export const HubspotForCreateDialogFragmentDoc = gql`
     fragment HubspotForCreateDialog on HubspotIntegration {
   id
@@ -10915,8 +10923,9 @@ export const HubspotForCreateDialogFragmentDoc = gql`
   privateAppToken
   syncInvoices
   syncSubscriptions
+  ...DeleteHubspotIntegrationDialog
 }
-    `;
+    ${DeleteHubspotIntegrationDialogFragmentDoc}`;
 export const HubspotIntegrationDetailsFragmentDoc = gql`
     fragment HubspotIntegrationDetails on HubspotIntegration {
   id
@@ -10927,8 +10936,10 @@ export const HubspotIntegrationDetailsFragmentDoc = gql`
   syncInvoices
   syncSubscriptions
   ...HubspotForCreateDialog
+  ...DeleteHubspotIntegrationDialog
 }
-    ${HubspotForCreateDialogFragmentDoc}`;
+    ${HubspotForCreateDialogFragmentDoc}
+${DeleteHubspotIntegrationDialogFragmentDoc}`;
 export const HubspotIntegrationsFragmentDoc = gql`
     fragment HubspotIntegrations on HubspotIntegration {
   id

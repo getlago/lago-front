@@ -1,16 +1,29 @@
+import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import {
-  useDestroyNangoIntegrationMutation
+  DeleteHubspotIntegrationDialogFragment,
+  useDestroyNangoIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+gql`
+  fragment DeleteHubspotIntegrationDialog on HubspotIntegration {
+    id
+    name
+  }
 
+  mutation destroyNangoIntegration($input: DestroyIntegrationInput!) {
+    destroyIntegration(input: $input) {
+      id
+    }
+  }
+`
 
 type TDeleteHubspotIntegrationDialogProps = {
-  provider: any
+  provider: DeleteHubspotIntegrationDialogFragment | null
   callback?: Function
 }
 
@@ -27,11 +40,11 @@ export const DeleteHubspotIntegrationDialog = forwardRef<DeleteHubspotIntegratio
     const [localData, setLocalData] = useState<TDeleteHubspotIntegrationDialogProps | undefined>(
       undefined,
     )
-    const netsuiteProvider = localData?.provider
+    const hubspotProvider = localData?.provider
 
-    const [deleteNetsuite] = useDestroyNangoIntegrationMutation({
+    const [deleteHubspot] = useDestroyNangoIntegrationMutation({
       onCompleted(data) {
-        if (data && data.destroyIntegration) {
+        if (data.destroyIntegration) {
           dialogRef.current?.closeDialog()
           localData?.callback?.()
           addToast({
@@ -41,9 +54,9 @@ export const DeleteHubspotIntegrationDialog = forwardRef<DeleteHubspotIntegratio
         }
       },
       update(cache) {
-        cache.evict({ id: `NetsuiteProvider:${netsuiteProvider?.id}` })
+        cache.evict({ id: `HubspotProvider:${hubspotProvider?.id}` })
       },
-      refetchQueries: ['getNetsuiteIntegrationsList'],
+      refetchQueries: ['getHubspotIntegrationsList'],
     })
 
     useImperativeHandle(ref, () => ({
@@ -57,10 +70,18 @@ export const DeleteHubspotIntegrationDialog = forwardRef<DeleteHubspotIntegratio
     return (
       <WarningDialog
         ref={dialogRef}
-        title={translate('text_658461066530343fe1808cd7', { name: netsuiteProvider?.name })}
-        description={translate('text_661ff6e56ef7e1b7c542b1ec')}
+        title={translate('text_658461066530343fe1808cd7', {
+          name: hubspotProvider?.name,
+        })}
+        description={translate('text_1727453876790u9azb7rvhox')}
         onContinue={async () =>
-          await deleteNetsuite({ variables: { input: { id: netsuiteProvider?.id as string } } })
+          await deleteHubspot({
+            variables: {
+              input: {
+                id: hubspotProvider?.id as string,
+              },
+            },
+          })
         }
         continueText={translate('text_645d071272418a14c1c76a81')}
       />

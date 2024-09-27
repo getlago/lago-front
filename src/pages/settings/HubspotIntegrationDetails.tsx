@@ -23,6 +23,7 @@ import {
 } from '~/components/settings/integrations/DeleteHubspotIntegrationDialog'
 import { HUBSPOT_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
 import {
+  DeleteHubspotIntegrationDialogFragmentDoc,
   HubspotForCreateDialogFragmentDoc,
   HubspotIntegrationDetailsFragment,
   IntegrationTypeEnum,
@@ -44,6 +45,7 @@ gql`
     syncInvoices
     syncSubscriptions
     ...HubspotForCreateDialog
+    ...DeleteHubspotIntegrationDialog
   }
 
   query getHubspotIntegrationsDetails(
@@ -68,6 +70,7 @@ gql`
   }
 
   ${HubspotForCreateDialogFragmentDoc}
+  ${DeleteHubspotIntegrationDialogFragmentDoc}
 `
 
 const HubspotIntegrationDetails = () => {
@@ -139,20 +142,22 @@ const HubspotIntegrationDetails = () => {
               >
                 {translate('text_65845f35d7d69c3ab4793dac')}
               </Button>
-              <Button
-                variant="quaternary"
-                align="left"
-                fullWidth
-                onClick={() => {
-                  deleteHubspotDialogRef.current?.openDialog({
-                    provider: hubspotIntegration,
-                    callback: deleteDialogCallback,
-                  })
-                  closePopper()
-                }}
-              >
-                {translate('text_65845f35d7d69c3ab4793dad')}
-              </Button>
+              {hubspotIntegration && (
+                <Button
+                  variant="quaternary"
+                  align="left"
+                  fullWidth
+                  onClick={() => {
+                    deleteHubspotDialogRef.current?.openDialog({
+                      provider: hubspotIntegration,
+                      callback: deleteDialogCallback,
+                    })
+                    closePopper()
+                  }}
+                >
+                  {translate('text_65845f35d7d69c3ab4793dad')}
+                </Button>
+              )}
             </MenuPopper>
           )}
         </Popper>
@@ -240,6 +245,7 @@ const HubspotIntegrationDetails = () => {
                 label={translate('text_661ff6e56ef7e1b7c542b2b4')}
                 value={[
                   translate('text_1727281892403pmg1yza7x1e'),
+                  translate('text_1727281892403m7aoqothh7r'),
                   hubspotIntegration?.syncInvoices && translate('text_1727281892403ljelfgyyupg'),
                   hubspotIntegration?.syncSubscriptions &&
                     translate('text_1727281892403w0qjgmdf8n4'),

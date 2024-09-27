@@ -13,6 +13,7 @@ import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { HUBSPOT_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   CreateHubspotIntegrationInput,
+  DeleteHubspotIntegrationDialogFragmentDoc,
   HubspotForCreateDialogFragment,
   TargetedObjectsEnum,
   useCreateHubspotIntegrationMutation,
@@ -30,6 +31,7 @@ gql`
     privateAppToken
     syncInvoices
     syncSubscriptions
+    ...DeleteHubspotIntegrationDialog
   }
 
   mutation createHubspotIntegration($input: CreateHubspotIntegrationInput!) {
@@ -43,6 +45,8 @@ gql`
       ...HubspotForCreateDialog
     }
   }
+
+  ${DeleteHubspotIntegrationDialogFragmentDoc}
 `
 
 type TAddHubspotDialogProps = Partial<{
