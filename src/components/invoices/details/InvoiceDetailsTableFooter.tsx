@@ -31,7 +31,7 @@ gql`
       id
       amountCents
       feesAmountCents
-      taxableBaseAmountCents
+      taxableAmountCents
       taxRate
       taxName
       enumedTaxCode
@@ -175,7 +175,7 @@ export const InvoiceDetailsTableFooter = memo(
                                 }),
                                 amount: intlFormatNumber(
                                   deserializeAmount(
-                                    appliedTax.taxableBaseAmountCents || 0,
+                                    appliedTax.taxableAmountCents || 0,
                                     currency,
                                   ),
                                   {
