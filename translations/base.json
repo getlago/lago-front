@@ -817,7 +817,6 @@
   "text_62bb102b66ff57dbfe7905c0": "Something went wrong",
   "text_62bb102b66ff57dbfe7905c2": "Please refresh the page or contact us if the error persists.",
   "text_62bb102b66ff57dbfe7905c4": "Refresh the page",
-  "text_62b31e1f6a5b8b1b745ece00": "Invoice number",
   "text_62b31e1f6a5b8b1b745ece42": "Download invoice",
   "text_62b31e1f6a5b8b1b745ece48": "An error occurred, please try again",
   "text_62bb10ad2a10bd182d00201d": "Edit invoice template",
@@ -2446,5 +2445,15 @@
   "text_1727271456219atwdpxysccc": "NetSuite Tax Type ID",
   "text_1727271456219tl2bt8qdevm": "Enter a NetSuite Tax Type ID",
   "text_1727271456220dvb59po0x1g": "NetSuite Tax Code ID",
-  "text_1727271456220u56zdq1mfrn": "Enter a NetSuite Tax Code ID"
+  "text_1727271456220u56zdq1mfrn": "Enter a NetSuite Tax Code ID",
+  "text_17270681462632d46dh3r1vu": "Sync credit note to Anrok",
+  "text_1727068146263ztoat7i901x": "Credit note not synced to Anrok",
+  "text_1727068146263345gopo39sm": "Anrok credit note url",
+  "text_1727068261852148l97frl5q": "Credit note synced successfully",
+  "text_1727078012568v9460bmnh8a": "Type",
+  "text_1727079454388ekfkh3vna8m": "Voided",
+  "text_1727079454388wxlpkmmkrmj": "Credit & refund",
+  "text_1727079454388x9q4uz6ah71": "Credit",
+  "text_17270794543889mcmuhfq70p": "Refund",
+  "text_1727090499191gqzispoy1qz": "This credit note contains a tax error"
 }

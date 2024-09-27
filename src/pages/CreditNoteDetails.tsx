@@ -5,6 +5,7 @@ import { generatePath, Link, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
+import CreditNoteBadge from '~/components/creditNote/CreditNoteBadge'
 import {
   VoidCreditNoteDialog,
   VoidCreditNoteDialogRef,
@@ -22,7 +23,11 @@ import {
 } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { addToast } from '~/core/apolloClient'
-import { buildNetsuiteCreditNoteUrl, buildXeroCreditNoteUrl } from '~/core/constants/externalUrls'
+import {
+  buildAnrokCreditNoteUrl,
+  buildNetsuiteCreditNoteUrl,
+  buildXeroCreditNoteUrl,
+} from '~/core/constants/externalUrls'
 import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
 import {
   composeChargeFilterDisplayName,
@@ -40,6 +45,7 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
+  CreditNote,
   CreditNoteCreditStatusEnum,
   CreditNoteItem,
   CreditNoteRefundStatusEnum,
@@ -49,6 +55,7 @@ import {
   useDownloadCreditNoteMutation,
   useGetCreditNoteQuery,
   useIntegrationsListForCreditNoteDetailsQuery,
+  useRetryTaxReportingMutation,
   useSyncIntegrationCreditNoteMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -79,6 +86,8 @@ gql`
       subTotalExcludingTaxesAmountCents
       totalAmountCents
       integrationSyncable
+      taxProviderSyncable
+      taxProviderId
       externalIntegrationId
       customer {
         id
@@ -93,6 +102,11 @@ gql`
         xeroCustomer {
           id
           integrationId
+        }
+        anrokCustomer {
+          id
+          integrationId
+          externalAccountId
         }
       }
       invoice {
@@ -174,6 +188,12 @@ gql`
   mutation syncIntegrationCreditNote($input: SyncIntegrationCreditNoteInput!) {
     syncIntegrationCreditNote(input: $input) {
       creditNoteId
+    }
+  }
+
+  mutation retryTaxReporting($input: RetryTaxReportingInput!) {
+    retryTaxReporting(input: $input) {
+      id
     }
   }
 `
@@ -265,6 +285,16 @@ const CreditNoteDetails = () => {
       },
     })
 
+  const [retryTaxReporting] = useRetryTaxReportingMutation({
+    onCompleted() {
+      addToast({
+        severity: 'success',
+        translateKey: 'text_1727068261852148l97frl5q',
+      })
+    },
+    refetchQueries: ['getCreditNote'],
+  })
+
   const { data, loading, error } = useGetCreditNoteQuery({
     variables: { id: creditNoteId as string },
     skip: !creditNoteId || !customerId,
@@ -273,7 +303,8 @@ const CreditNoteDetails = () => {
     variables: { limit: 1000 },
     skip:
       !data?.creditNote?.customer?.netsuiteCustomer?.integrationId &&
-      !data?.creditNote?.customer?.xeroCustomer?.integrationId,
+      !data?.creditNote?.customer?.xeroCustomer?.integrationId &&
+      !data?.creditNote?.customer?.anrokCustomer?.integrationId,
   })
 
   const allNetsuiteIntegrations = integrationsData?.integrations?.collection.filter(
@@ -295,6 +326,18 @@ const CreditNoteDetails = () => {
   const groupedData = formatCreditNotesItems(creditNote?.items as CreditNoteItem[])
 
   const customerName = creditNote?.customer?.displayName
+
+  const retryTaxSync = async () => {
+    if (!data?.creditNote?.id) return
+
+    await retryTaxReporting({
+      variables: {
+        input: {
+          id: data.creditNote.id,
+        },
+      },
+    })
+  }
 
   return (
     <>
@@ -352,7 +395,6 @@ const CreditNoteDetails = () => {
                     {translate('text_637655cb50f04bf1c8379cea')}
                   </Button>
                 )}
-
                 {creditNote?.canBeVoided && hasPermissions(['creditNotesVoid']) && (
                   <Button
                     variant="quaternary"
@@ -383,7 +425,6 @@ const CreditNoteDetails = () => {
                 >
                   {translate('text_637655cb50f04bf1c8379cee')}
                 </Button>
-
                 {!!data?.creditNote?.integrationSyncable && (
                   <Button
                     variant="quaternary"
@@ -400,6 +441,21 @@ const CreditNoteDetails = () => {
                         ? 'text_665d742ee9853200e3a6be7f'
                         : 'text_66911d4b4b3c3e005c62ab49',
                     )}
+                  </Button>
+                )}
+
+                {!!data?.creditNote?.taxProviderSyncable && (
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    disabled={loadingSyncIntegrationCreditNote}
+                    onClick={async () => {
+                      await retryTaxSync()
+
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_17270681462632d46dh3r1vu')}
                   </Button>
                 )}
               </MenuPopper>
@@ -436,15 +492,8 @@ const CreditNoteDetails = () => {
                   <Typography variant="headline" color="grey700">
                     {creditNote?.number}
                   </Typography>
-                  <Status
-                    {...status}
-                    labelVariables={{
-                      date: formatDateToTZ(
-                        creditNote?.refundedAt,
-                        creditNote?.customer.applicableTimezone,
-                      ),
-                    }}
-                  />
+
+                  <CreditNoteBadge creditNote={creditNote as CreditNote} />
                 </MainInfoLine>
                 <MainInfoLine>
                   <InlineTripleTypography variant="body" color="grey600">
@@ -899,14 +948,15 @@ const CreditNoteDetails = () => {
             </TableSection>
 
             {(connectedNetsuiteIntegration ||
-              data?.creditNote?.customer?.xeroCustomer?.integrationId) &&
-              creditNote?.externalIntegrationId && (
+              data?.creditNote?.customer?.xeroCustomer?.integrationId ||
+              data?.creditNote?.taxProviderId ||
+              data?.creditNote?.taxProviderSyncable) &&
+              creditNote?.id && (
                 <Stack marginTop={8} gap={6}>
                   <SectionHeader variant="subhead">
                     {translate('text_6650b36fc702a4014c878996')}
                   </SectionHeader>
-
-                  {!!connectedNetsuiteIntegration && (
+                  {!!connectedNetsuiteIntegration && creditNote?.externalIntegrationId && (
                     <div>
                       <InfoLine>
                         <Typography variant="caption" color="grey600" noWrap>
@@ -927,23 +977,72 @@ const CreditNoteDetails = () => {
                       </InfoLine>
                     </div>
                   )}
-
-                  {!!data?.creditNote?.customer?.xeroCustomer?.integrationId && (
-                    <div>
-                      <InfoLine>
-                        <Typography variant="caption" color="grey600" noWrap>
-                          {translate('text_66911ce41415f40090d053ce')}
-                        </Typography>
-                        <InlineLink
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          to={buildXeroCreditNoteUrl(creditNote?.externalIntegrationId)}
-                        >
-                          <Typography variant="body" color="info600">
-                            {creditNote?.externalIntegrationId} <Icon name="outside" />
+                  {!!data?.creditNote?.customer?.xeroCustomer?.integrationId &&
+                    creditNote?.externalIntegrationId && (
+                      <div>
+                        <InfoLine>
+                          <Typography variant="caption" color="grey600" noWrap>
+                            {translate('text_66911ce41415f40090d053ce')}
                           </Typography>
-                        </InlineLink>
-                      </InfoLine>
+                          <InlineLink
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            to={buildXeroCreditNoteUrl(creditNote?.externalIntegrationId)}
+                          >
+                            <Typography variant="body" color="info600">
+                              {creditNote?.externalIntegrationId} <Icon name="outside" />
+                            </Typography>
+                          </InlineLink>
+                        </InfoLine>
+                      </div>
+                    )}
+
+                  {!!data?.creditNote?.customer?.anrokCustomer?.integrationId && (
+                    <div>
+                      {!!data?.creditNote?.taxProviderId && (
+                        <InfoLine>
+                          <Typography variant="caption" color="grey600" noWrap>
+                            {translate('text_1727068146263345gopo39sm')}
+                          </Typography>
+                          <InlineLink
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            to={buildAnrokCreditNoteUrl(
+                              data?.creditNote?.customer?.anrokCustomer?.externalAccountId,
+                              data?.creditNote?.taxProviderId,
+                            )}
+                          >
+                            <Typography variant="caption" color="info600">
+                              {data?.creditNote?.taxProviderId} <Icon name="outside" />
+                            </Typography>
+                          </InlineLink>
+                        </InfoLine>
+                      )}
+
+                      {!!data?.creditNote?.taxProviderSyncable && (
+                        <InfoLine>
+                          <Typography variant="caption" color="grey600" noWrap>
+                            {translate('text_1727068146263345gopo39sm')}
+                          </Typography>
+                          <div className="flex items-center gap-2">
+                            <Icon name="warning-filled" color="warning" />
+                            <Typography variant="caption">
+                              {translate('text_1727068146263ztoat7i901x')}
+                            </Typography>
+                            <Typography variant="caption">•</Typography>
+                            <InlineLink
+                              to="#"
+                              onClick={async () => {
+                                await retryTaxSync()
+                              }}
+                            >
+                              <Typography variant="caption" color="info600">
+                                {translate('text_17270681462632d46dh3r1vu')}
+                              </Typography>
+                            </InlineLink>
+                          </div>
+                        </InfoLine>
+                      )}
                     </div>
                   )}
                 </Stack>

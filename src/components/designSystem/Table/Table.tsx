@@ -16,7 +16,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { MenuPopper, theme } from '~/styles'
+import { MenuPopper, PopperOpener, theme } from '~/styles'
 
 type Align = 'left' | 'center' | 'right'
 
@@ -33,7 +33,7 @@ type DotNestedKeys<T> = (
   ? Extract<D, string>
   : never
 
-type Column<T> = {
+export type TableColumn<T> = {
   // Using DotNestedKeys to get nested keys for object with more than one level deepness
   key: DotNestedKeys<T>
   title: string | ReactNode
@@ -57,13 +57,13 @@ export type ActionItem<T> = {
   tooltipListener?: boolean
 }
 
-type ContainerSize = 0 | 4 | 16 | 48
+export type TableContainerSize = 0 | 4 | 16 | 48
 type RowSize = 48 | 72
 
 interface TableProps<T> {
   name: string
   data: T[]
-  columns: Array<Column<T> | null>
+  columns: Array<TableColumn<T> | null>
   isLoading?: boolean
   hasError?: boolean
   placeholder?: {
@@ -72,14 +72,15 @@ interface TableProps<T> {
   }
   onRowAction?: (item: T) => void
   actionColumn?: (item: T) => Array<ActionItem<T> | null> | ReactNode
-  containerSize?: ResponsiveStyleValue<ContainerSize>
+  actionColumnTooltip?: (item: T) => string
+  containerSize?: ResponsiveStyleValue<TableContainerSize>
   rowSize?: RowSize
 }
 
 const ACTION_COLUMN_ID = 'actionColumn'
 const LOADING_ROW_COUNT = 3
 
-const countMaxSpaceColumns = <T,>(columns: Column<T>[]) =>
+const countMaxSpaceColumns = <T,>(columns: TableColumn<T>[]) =>
   columns.reduce((acc, column) => {
     if (column.maxSpace) {
       acc += 1
@@ -99,6 +100,7 @@ export const Table = <T extends DataItem>({
   placeholder,
   onRowAction,
   actionColumn,
+  actionColumnTooltip,
 }: TableProps<T>) => {
   const TABLE_ID = `table-${name}`
   const filteredColumns = columns.filter((column) => !!column)
@@ -277,7 +279,17 @@ export const Table = <T extends DataItem>({
                           <Popper
                             popperGroupName={`${TABLE_ID}-action-cell`}
                             PopperProps={{ placement: 'bottom-end' }}
-                            opener={<Button icon="dots-horizontal" variant="quaternary" />}
+                            opener={({ isOpen }) => (
+                              <LocalPopperOpener>
+                                <Tooltip
+                                  placement="top-end"
+                                  disableHoverListener={isOpen}
+                                  title={actionColumnTooltip?.(item) || null}
+                                >
+                                  <Button icon="dots-horizontal" variant="quaternary" />
+                                </Tooltip>
+                              </LocalPopperOpener>
+                            )}
                           >
                             {({ closePopper }) => (
                               <MenuPopper data-id={`${TABLE_ID}-popper`}>
@@ -327,7 +339,7 @@ const LoadingRows = <T,>({
   shouldDisplayActionColumn,
   actionColumn,
 }: Pick<TableProps<T>, 'actionColumn'> & {
-  columns: Array<Column<T>>
+  columns: Array<TableColumn<T>>
   id: string
   shouldDisplayActionColumn: boolean
 }) => {
@@ -445,7 +457,7 @@ const TableCell = styled(MUITableCell)<{
 `
 
 const StyledTable = styled(MUITable)<{
-  $containerSize: ResponsiveStyleValue<ContainerSize>
+  $containerSize: ResponsiveStyleValue<TableContainerSize>
   $rowSize: RowSize
 }>`
   border-collapse: collapse;
@@ -554,5 +566,15 @@ const TableRow = styled(MUITableRow)<{ $isClickable?: boolean }>`
     ${TableActionCell} {
       background-color: ${theme.palette.background.paper};
     }
+  }
+`
+
+const LocalPopperOpener = styled(PopperOpener)`
+  position: relative;
+  top: 0;
+  right: 0;
+  height: 100%;
+  > *:first-child {
+    right: 0;
   }
 `

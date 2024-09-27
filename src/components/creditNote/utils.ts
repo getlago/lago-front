@@ -1,5 +1,5 @@
 import { serializeAmount } from '~/core/serializers/serializeAmount'
-import { CreditNoteItemInput, CurrencyEnum } from '~/generated/graphql'
+import { CreditNoteItemInput, CreditNoteTableItemFragment, CurrencyEnum } from '~/generated/graphql'
 
 import { FeesPerInvoice, FromFee, GroupedFee } from './types'
 
@@ -82,4 +82,39 @@ export const creditNoteFormCalculationCalculation = ({
   return {
     feeForEstimate,
   }
+}
+
+export enum CreditNoteType {
+  VOIDED,
+  CREDIT_AND_REFUND,
+  CREDIT,
+  REFUND,
+}
+
+export const creditNoteType = ({
+  creditAmountCents,
+  refundAmountCents,
+  voidedAt,
+}: Pick<
+  CreditNoteTableItemFragment,
+  'creditAmountCents' | 'refundAmountCents' | 'voidedAt'
+>): CreditNoteType | null => {
+  if (voidedAt) {
+    return CreditNoteType.VOIDED
+  } else if (creditAmountCents > 0 && refundAmountCents > 0) {
+    return CreditNoteType.CREDIT_AND_REFUND
+  } else if (creditAmountCents > 0) {
+    return CreditNoteType.CREDIT
+  } else if (refundAmountCents > 0) {
+    return CreditNoteType.REFUND
+  }
+
+  return null
+}
+
+export const CREDIT_NOTE_TYPE_TRANSLATIONS_MAP = {
+  [CreditNoteType.VOIDED]: 'text_1727079454388ekfkh3vna8m',
+  [CreditNoteType.CREDIT_AND_REFUND]: 'text_1727079454388wxlpkmmkrmj',
+  [CreditNoteType.CREDIT]: 'text_1727079454388x9q4uz6ah71',
+  [CreditNoteType.REFUND]: 'text_17270794543889mcmuhfq70p',
 }

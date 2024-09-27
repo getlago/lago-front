@@ -1,14 +1,13 @@
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
-import CreditNotesList from '~/components/customers/creditNotes/CreditNotesList'
+import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
 import { Avatar, Icon, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
-  CreditNotesForListFragmentDoc,
+  CreditNotesForTableFragmentDoc,
   CurrencyEnum,
   TimezoneEnum,
   useGetCustomerCreditNotesLazyQuery,
@@ -24,11 +23,11 @@ import { SearchInput } from '../SearchInput'
 gql`
   query getCustomerCreditNotes($customerId: ID!, $page: Int, $limit: Int, $searchTerm: String) {
     creditNotes(customerId: $customerId, page: $page, limit: $limit, searchTerm: $searchTerm) {
-      ...CreditNotesForList
+      ...CreditNotesForTable
     }
   }
 
-  ${CreditNotesForListFragmentDoc}
+  ${CreditNotesForTableFragmentDoc}
 `
 
 interface CustomerCreditNotesListProps {
@@ -108,14 +107,14 @@ export const CustomerCreditNotesList = ({
           image={<ErrorImage width="136" height="104" />}
         />
       ) : (
-        <CreditNotesList
+        <CreditNotesTable
           creditNotes={creditNotes}
           fetchMore={fetchMore}
-          itemClickRedirection={CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE}
-          loading={isLoading}
-          hasSearchQuery={!!variables?.searchTerm}
+          isLoading={isLoading}
           metadata={data?.creditNotes?.metadata}
           customerTimezone={customerTimezone}
+          error={error}
+          variables={variables}
         />
       )}
     </SideSection>

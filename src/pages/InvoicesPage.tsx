@@ -3,12 +3,12 @@ import { useMemo, useRef } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 import styled from 'styled-components'
 
+import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
 import { Button, NavigationTab, Typography } from '~/components/designSystem'
 import {
   formatFiltersForInvoiceQuery,
   isOutstandingUrlParams,
 } from '~/components/designSystem/Filters/utils'
-import CreditNotesList from '~/components/invoices/CreditNotesList'
 import {
   UpdateInvoicePaymentStatusDialog,
   UpdateInvoicePaymentStatusDialogRef,
@@ -27,8 +27,8 @@ import { SearchInput } from '~/components/SearchInput'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { INVOICES_ROUTE, INVOICES_TAB_ROUTE } from '~/core/router'
 import {
-  CreditNoteForCreditNoteListFragmentDoc,
-  CreditNoteForCreditNoteListItemFragmentDoc,
+  CreditNotesForTableFragmentDoc,
+  CreditNoteTableItemFragmentDoc,
   InvoiceListItemFragmentDoc,
   LagoApiError,
   useGetCreditNotesListLazyQuery,
@@ -83,16 +83,7 @@ gql`
 
   query getCreditNotesList($limit: Int, $page: Int, $searchTerm: String) {
     creditNotes(limit: $limit, page: $page, searchTerm: $searchTerm) {
-      metadata {
-        currentPage
-        totalPages
-        totalCount
-      }
-      collection {
-        id
-        ...CreditNoteForCreditNoteList
-        ...CreditNoteForCreditNoteListItem
-      }
+      ...CreditNotesForTable
     }
   }
 
@@ -105,8 +96,8 @@ gql`
   }
 
   ${InvoiceListItemFragmentDoc}
-  ${CreditNoteForCreditNoteListFragmentDoc}
-  ${CreditNoteForCreditNoteListItemFragmentDoc}
+  ${CreditNoteTableItemFragmentDoc}
+  ${CreditNotesForTableFragmentDoc}
 `
 
 enum InvoiceListTabEnum {
@@ -263,13 +254,17 @@ const InvoicesPage = () => {
               tab: InvoiceListTabEnum.creditNotes,
             }),
             component: (
-              <CreditNotesList
+              <CreditNotesTable
                 creditNotes={dataCreditNotes?.creditNotes?.collection}
                 error={errorCreditNotes}
                 fetchMore={fetchMoreCreditNotes}
                 isLoading={creditNoteIsLoading}
                 metadata={dataCreditNotes?.creditNotes?.metadata}
                 variables={variableCreditNotes}
+                tableContainerSize={{
+                  default: 16,
+                  md: 48,
+                }}
               />
             ),
             hidden: !hasPermissions(['creditNotesView']),

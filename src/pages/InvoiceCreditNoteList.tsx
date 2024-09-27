@@ -3,7 +3,7 @@ import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
-import CreditNotesList from '~/components/customers/creditNotes/CreditNotesList'
+import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
 import {
   VoidCreditNoteDialog,
   VoidCreditNoteDialogRef,
@@ -11,12 +11,9 @@ import {
 import { Button, ButtonLink, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE } from '~/core/router'
 import {
-  CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
-  CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
-} from '~/core/router'
-import {
-  CreditNotesForListFragmentDoc,
+  CreditNotesForTableFragmentDoc,
   InvoiceStatusTypeEnum,
   TimezoneEnum,
   useGetInvoiceCreditNotesQuery,
@@ -29,7 +26,7 @@ import { NAV_HEIGHT, theme } from '~/styles'
 gql`
   query getInvoiceCreditNotes($invoiceId: ID!, $page: Int, $limit: Int) {
     invoiceCreditNotes(invoiceId: $invoiceId, page: $page, limit: $limit) {
-      ...CreditNotesForList
+      ...CreditNotesForTable
     }
 
     invoice(id: $invoiceId) {
@@ -40,11 +37,12 @@ gql`
       customer {
         id
         applicableTimezone
+        displayName
       }
     }
   }
 
-  ${CreditNotesForListFragmentDoc}
+  ${CreditNotesForTableFragmentDoc}
 `
 
 const InvoiceCreditNoteList = () => {
@@ -53,7 +51,7 @@ const InvoiceCreditNoteList = () => {
   const { isPremium } = useCurrentUser()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
-  const { data, loading, error, fetchMore } = useGetInvoiceCreditNotesQuery({
+  const { data, loading, error, fetchMore, variables } = useGetInvoiceCreditNotesQuery({
     variables: { invoiceId: invoiceId as string, limit: 20 },
     skip: !invoiceId || !customerId,
   })
@@ -113,13 +111,14 @@ const InvoiceCreditNoteList = () => {
             {translate('text_636bdef6565341dcb9cfb12b')}
           </EmptyStateTypography>
         ) : (
-          <CreditNotesList
+          <CreditNotesTable
             creditNotes={creditNotes}
             fetchMore={fetchMore}
-            itemClickRedirection={CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE}
-            loading={loading}
+            isLoading={loading}
             metadata={data?.invoiceCreditNotes?.metadata}
             customerTimezone={data?.invoice?.customer.applicableTimezone || TimezoneEnum.TzUtc}
+            error={error}
+            variables={variables}
           />
         )}
       </>
