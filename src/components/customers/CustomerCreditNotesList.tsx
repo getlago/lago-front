@@ -111,7 +111,6 @@ export const CustomerCreditNotesList = ({
           creditNotes={creditNotes}
           fetchMore={fetchMore}
           isLoading={isLoading}
-          //hasSearchQuery={!!variables?.searchTerm}
           metadata={data?.creditNotes?.metadata}
           customerTimezone={customerTimezone}
           error={error}
