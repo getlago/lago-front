@@ -325,7 +325,7 @@ const CreditNotesTable = ({
                     <Typography
                       className="font-medium"
                       variant="body"
-                      color="grey700"
+                      color={showCustomerName ? 'grey700' : 'success600'}
                       align="right"
                       noWrap
                     >
@@ -335,6 +335,8 @@ const CreditNotesTable = ({
                       })}
                     </Typography>
                   ),
+                  maxSpace: !showCustomerName,
+                  textAlign: 'right',
                 },
                 ...(showCustomerName
                   ? [
