@@ -44,6 +44,7 @@ import {
   ADYEN_INTEGRATION_ROUTE,
   ANROK_INTEGRATION_ROUTE,
   GOCARDLESS_INTEGRATION_ROUTE,
+  HUBSPOT_INTEGRATION_ROUTE,
   NETSUITE_INTEGRATION_ROUTE,
   STRIPE_INTEGRATION_ROUTE,
   TAX_MANAGEMENT_INTEGRATION_ROUTE,
@@ -324,7 +325,7 @@ const Integrations = () => {
                     mailtoBody: translate('text_1727189568053f91r4b3f4rl'),
                   })
                 } else if (hasHubspotIntegration) {
-                  // navigate(HUBSPOT_INTEGRATION_ROUTE)
+                  navigate(HUBSPOT_INTEGRATION_ROUTE)
                 } else {
                   addHubspotDialogRef.current?.openDialog()
                 }

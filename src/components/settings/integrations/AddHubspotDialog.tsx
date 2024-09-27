@@ -3,13 +3,14 @@ import Nango from '@nangohq/frontend'
 import { useFormik } from 'formik'
 import { GraphQLFormattedError } from 'graphql'
 import { forwardRef, RefObject, useId, useImperativeHandle, useRef, useState } from 'react'
-import { useNavigate } from 'react-router'
+import { generatePath, useNavigate } from 'react-router'
 import { boolean, object, string } from 'yup'
 
 import { Alert, Button, Chip, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { Checkbox, CheckboxField, ComboBoxField, TextInputField } from '~/components/form'
 import { DeleteHubspotIntegrationDialogRef } from '~/components/settings/integrations/DeleteHubspotIntegrationDialog'
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
+import { HUBSPOT_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   CreateHubspotIntegrationInput,
   HubspotForCreateDialogFragment,
@@ -70,8 +71,11 @@ export const AddHubspotDialog = forwardRef<AddHubspotDialogRef>((_, ref) => {
   const [createIntegration] = useCreateHubspotIntegrationMutation({
     onCompleted({ createHubspotIntegration }) {
       if (createHubspotIntegration?.id) {
-        // TODO: Redirect
-        navigate('/')
+        navigate(
+          generatePath(HUBSPOT_INTEGRATION_DETAILS_ROUTE, {
+            integrationId: createHubspotIntegration.id,
+          }),
+        )
 
         addToast({
           message: translate('text_1727190044775psjhxh09fsq'),
@@ -174,6 +178,7 @@ export const AddHubspotDialog = forwardRef<AddHubspotDialogRef>((_, ref) => {
 
   useImperativeHandle(ref, () => ({
     openDialog: (data) => {
+      setShowGlobalError(false)
       setLocalData(data)
       dialogRef.current?.openDialog()
     },
@@ -292,7 +297,7 @@ export const AddHubspotDialog = forwardRef<AddHubspotDialogRef>((_, ref) => {
               label={
                 <CheckboxLabelWithCode
                   firstPart={translate('text_1727190044775yssj1flnpe9')}
-                  code="Company"
+                  code={translate('text_1727281892403bkjbojs75t7')}
                   lastPart={translate('text_1727190044775p6mbfwbzv36')}
                 />
               }
@@ -304,7 +309,7 @@ export const AddHubspotDialog = forwardRef<AddHubspotDialogRef>((_, ref) => {
               label={
                 <CheckboxLabelWithCode
                   firstPart={translate('text_1727190044775yssj1flnpe9')}
-                  code="Contacts"
+                  code={translate('text_1727281892403m7aoqothh7r')}
                   lastPart={translate('text_1727190044775p6mbfwbzv36')}
                 />
               }
@@ -317,7 +322,7 @@ export const AddHubspotDialog = forwardRef<AddHubspotDialogRef>((_, ref) => {
               label={
                 <CheckboxLabelWithCode
                   firstPart={translate('text_1727190044775yssj1flnpe9')}
-                  code="LagoInvoices"
+                  code={translate('text_1727281892403ljelfgyyupg')}
                   lastPart={translate('text_172719004477572tu71psqqt')}
                 />
               }
@@ -328,7 +333,7 @@ export const AddHubspotDialog = forwardRef<AddHubspotDialogRef>((_, ref) => {
               label={
                 <CheckboxLabelWithCode
                   firstPart={translate('text_1727190044775yssj1flnpe9')}
-                  code="LagoSubscriptions"
+                  code={translate('text_1727281892403w0qjgmdf8n4')}
                   lastPart={translate('text_172719004477572tu71psqqt')}
                 />
               }

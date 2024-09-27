@@ -2456,7 +2456,7 @@
   "text_1727079454388x9q4uz6ah71": "Credit",
   "text_17270794543889mcmuhfq70p": "Refund",
   "text_1727090499191gqzispoy1qz": "This credit note contains a tax error",
-  "text_1727189568053s79ks5q07tr": "Hubspot",
+  "text_1727189568053s79ks5q07tr": "HubSpot",
   "text_1727189568053q2gpkjzpmxr": "CRM",
   "text_172718956805392syzumhdlm": "Request access to premium HubSpot add-on",
   "text_1727189568053f91r4b3f4rl": "Hello, I would like to access your Hubspot add-on. \nPlease let me know if you need more info!",
@@ -2473,5 +2473,12 @@
   "text_1727190044775p6mbfwbzv36": "native object",
   "text_172719004477572tu71psqqt": "custom object",
   "text_1727190044775psjhxh09fsq": "HubSpot integration successfully connected. Objects can take few seconds to be fetched",
-  "text_172719004477535rfq4o0j1s": "HubSpot integration successfully edited."
+  "text_172719004477535rfq4o0j1s": "HubSpot integration successfully edited.",
+  "text_1727281892403opxm269y6mv": "HubSpot • Accounting",
+  "text_1727281892403pbay53j8is3": "Targeted object for Lago Customers",
+  "text_1727281892403w0qjgmdf8n4": "LagoSubscriptions",
+  "text_1727281892403ljelfgyyupg": "LagoInvoices",
+  "text_1727281892403m7aoqothh7r": "Contacts",
+  "text_1727281892403bkjbojs75t7": "Company",
+  "text_1727281892403pmg1yza7x1e": "Companies"
 }
