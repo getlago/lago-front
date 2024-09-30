@@ -174,10 +174,7 @@ export const InvoiceDetailsTableFooter = memo(
                                   style: 'percent',
                                 }),
                                 amount: intlFormatNumber(
-                                  deserializeAmount(
-                                    appliedTax.taxableAmountCents || 0,
-                                    currency,
-                                  ),
+                                  deserializeAmount(appliedTax.taxableAmountCents || 0, currency),
                                   {
                                     currencyDisplay: 'symbol',
                                     currency,
