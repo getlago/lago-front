@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import styled from 'styled-components'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
 import { Avatar, Icon, Typography } from '~/components/designSystem'
@@ -15,7 +14,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { NAV_HEIGHT, theme } from '~/styles'
 import { SectionHeader, SideSection } from '~/styles/customer'
 
 import { SearchInput } from '../SearchInput'
@@ -58,9 +56,9 @@ export const CustomerCreditNotesList = ({
       <SectionHeader variant="subhead" color="grey700" $hideBottomShadow>
         {translate('text_63725b30957fd5b26b308dd7')}
       </SectionHeader>
-      <TotalCreditAmountWrapper>
-        <TotalCreditAmountLeftWrapper>
-          <Avatar size="big" variant="connector">
+      <div className="mb-8 flex h-18 items-center justify-between rounded-xl border border-grey-400 px-4 py-3">
+        <div className="flex items-center">
+          <Avatar className="mr-3" size="big" variant="connector">
             <Icon name="wallet" color="dark" />
           </Avatar>
           <div>
@@ -73,7 +71,7 @@ export const CustomerCreditNotesList = ({
               })}
             </Typography>
           </div>
-        </TotalCreditAmountLeftWrapper>
+        </div>
         <Typography variant="body" color="grey700">
           {intlFormatNumber(
             deserializeAmount(
@@ -86,9 +84,9 @@ export const CustomerCreditNotesList = ({
             },
           )}
         </Typography>
-      </TotalCreditAmountWrapper>
+      </div>
 
-      <HeaderWithSearch>
+      <div className="flex h-18 items-center justify-between shadow-b">
         <Typography variant="subhead" color="grey700">
           {translate('text_63725b30957fd5b26b308ddf')}
         </Typography>
@@ -96,7 +94,7 @@ export const CustomerCreditNotesList = ({
           onChange={debouncedSearch}
           placeholder={translate('text_63c6edd80c57d0dfaae3898e')}
         />
-      </HeaderWithSearch>
+      </div>
       {!!error && !isLoading ? (
         <GenericPlaceholder
           title={translate('text_636d023ce11a9d038819b579')}
@@ -120,32 +118,3 @@ export const CustomerCreditNotesList = ({
     </SideSection>
   )
 }
-
-const TotalCreditAmountWrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: ${NAV_HEIGHT}px;
-  padding: ${theme.spacing(3)} ${theme.spacing(4)};
-  margin-bottom: ${theme.spacing(8)};
-  box-sizing: border-box;
-  border: 1px solid ${theme.palette.grey[400]};
-  border-radius: 12px;
-`
-
-const TotalCreditAmountLeftWrapper = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
-
-const HeaderWithSearch = styled.div`
-  height: ${NAV_HEIGHT}px;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
