@@ -61,6 +61,8 @@ const StyledTable = styled.table<{ $dataLength: number; $hasBodyData: boolean }>
   border-radius: 12px;
   /* Used to hide non-rounded elements to overflow */
   overflow: hidden;
+  /* Show back the border, hidden with TW default property border-collapse: collapse; */
+  border-collapse: initial;
 
   > thead > tr > th,
   > tbody > tr > td {
