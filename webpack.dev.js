@@ -1,9 +1,9 @@
 const path = require('path')
 
-const webpack = require('webpack')
 const { merge } = require('webpack-merge')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
 
 const common = require('./webpack.common.js')
 
@@ -85,18 +85,15 @@ module.exports = (env) =>
         template: path.join(__dirname, 'src', 'index.html'),
         favicon: './src/public/images/favicon-local.svg',
       }),
-      new webpack.HotModuleReplacementPlugin(),
+      new ReactRefreshWebpackPlugin(),
     ],
     devServer: {
       historyApiFallback: true,
-      open: true,
-      hot: true,
       port: process.env.PORT || 8080,
       static: {
         directory: path.resolve(__dirname, './dist'),
       },
       client: {
-        overlay: true,
         webSocketURL: {
           port: 443,
         },
