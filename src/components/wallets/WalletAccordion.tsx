@@ -176,14 +176,15 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                   <TextWithSideSpace variant="captionHl" color="grey600">
                     {translate('text_65ae73ebe3a66bec2b91d747')}
                   </TextWithSideSpace>
-                  <TooltipIcon
+                  <Tooltip
+                    className="flex h-5 items-end"
                     placement="bottom-start"
                     title={translate('text_65ae73ebe3a66bec2b91d741', {
                       date: formatTimeOrgaTZ(lastBalanceSyncAt || DateTime.now()),
                     })}
                   >
                     <Icon name="info-circle" />
-                  </TooltipIcon>
+                  </Tooltip>
                 </DetailSummaryLine>
                 <DetailSummaryLine $alignBaseLine>
                   <Typography
@@ -223,12 +224,13 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                     <TextWithSideSpace variant="captionHl" color="grey600">
                       {translate('text_65ae73ebe3a66bec2b91d75f')}
                     </TextWithSideSpace>
-                    <TooltipIcon
+                    <Tooltip
+                      className="flex h-5 items-end"
                       placement="bottom-start"
                       title={translate('text_65ae73ebe3a66bec2b91d749')}
                     >
                       <Icon name="info-circle" />
-                    </TooltipIcon>
+                    </Tooltip>
                   </DetailSummaryLine>
                   <DetailSummaryLine $alignBaseLine>
                     <Typography
@@ -422,10 +424,6 @@ const DetailSummary = styled.div`
   > *:not(:last-child) {
     margin-right: ${theme.spacing(8)};
   }
-`
-
-const TooltipIcon = styled(Tooltip)`
-  height: 16px;
 `
 
 const DetailSummaryBlock = styled.div`
