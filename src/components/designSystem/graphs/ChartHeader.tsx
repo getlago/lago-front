@@ -1,4 +1,3 @@
-import React from 'react'
 import styled, { css } from 'styled-components'
 
 import { Icon, Skeleton, Tooltip, Typography } from '~/components/designSystem'
@@ -36,9 +35,9 @@ const ChartHeader = ({
                 {name}
               </Typography>
               {!!tooltipText && (
-                <LeftInfoCellTooltip placement="top-start" title={tooltipText}>
+                <Tooltip className="flex h-5 items-end" placement="top-start" title={tooltipText}>
                   <Icon name="info-circle" />
-                </LeftInfoCellTooltip>
+                </Tooltip>
               )}
             </LeftInfoCellWithTooltip>
             <Typography variant="subhead" color="grey700">
@@ -92,8 +91,4 @@ const LeftInfoCellWithTooltip = styled.div`
   display: flex;
   align-items: center;
   gap: ${theme.spacing(2)};
-`
-
-const LeftInfoCellTooltip = styled(Tooltip)`
-  height: 16px;
 `

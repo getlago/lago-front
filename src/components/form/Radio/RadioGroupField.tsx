@@ -43,7 +43,7 @@ export const RadioGroupField: FC<RadioGroupFieldProps> = ({
                 {label}
               </Typography>
               {!!infoText && (
-                <Tooltip placement="top-start" title={infoText}>
+                <Tooltip className="flex h-5 items-end" placement="top-start" title={infoText}>
                   <Icon name="info-circle" />
                 </Tooltip>
               )}
@@ -94,10 +94,6 @@ const Label = styled.div<{ $withInfo?: boolean }>`
     css`
       > *:first-child {
         margin-right: ${theme.spacing(1)};
-      }
-
-      > *:last-child {
-        height: 16px;
       }
     `}
 `

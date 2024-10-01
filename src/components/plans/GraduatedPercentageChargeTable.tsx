@@ -168,14 +168,18 @@ export const GraduatedPercentageChargeTable = memo(
               },
               {
                 title: (
-                  <CellTitleWithTooltip>
+                  <div className="flex items-center">
                     <TypographyCell variant="captionHl">
                       {translate('text_64de472463e2da6b31737df2')}
                     </TypographyCell>
-                    <Tooltip placement="top-end" title={translate('text_64de472563e2da6b31737e77')}>
+                    <Tooltip
+                      className="flex h-5 items-end"
+                      placement="top-end"
+                      title={translate('text_64de472563e2da6b31737e77')}
+                    >
                       <Icon name="info-circle" />
                     </Tooltip>
-                  </CellTitleWithTooltip>
+                  </div>
                 ),
                 size: 124,
                 content: (row, i) =>
@@ -350,13 +354,4 @@ const CellAmount = styled(AmountInput)`
 const AddButton = styled(Button)`
   margin-left: auto;
   margin-bottom: ${theme.spacing(2)};
-`
-
-const CellTitleWithTooltip = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:nth-child(2) {
-    height: 16px;
-  }
 `

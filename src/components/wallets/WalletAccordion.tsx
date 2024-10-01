@@ -341,14 +341,15 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                 currency,
               })}
               &nbsp;
-              <InlineTooltip
+              <Tooltip
+                className="flex h-5 items-end"
                 placement="top-end"
                 title={translate('text_62da6db136909f52c2704c40', {
                   date: formatTimeOrgaTZ(lastConsumedCreditAt || DateTime.now()),
                 })}
               >
                 <Icon name="info-circle" />
-              </InlineTooltip>
+              </Tooltip>
             </WalletConsumptionSummary>
           </>
         )}
@@ -393,10 +394,6 @@ const SummaryLeft = styled.div`
     margin-right: ${theme.spacing(3)};
   }
 `
-
-// const SummaryRight = styled.div`
-//   min-width: 120px;
-// `
 
 const SummaryInfos = styled.div<{ $isLoading?: boolean }>`
   display: flex;
@@ -452,10 +449,6 @@ const WalletConsumptionSummary = styled(Typography)`
   display: flex;
   align-items: center;
   justify-content: flex-end;
-`
-
-const InlineTooltip = styled(Tooltip)`
-  height: 16px;
 `
 
 const FreemiumWarningBlock = styled.div`
