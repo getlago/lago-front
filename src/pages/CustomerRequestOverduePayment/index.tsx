@@ -64,7 +64,7 @@ gql`
       collection {
         ...InvoicesForRequestOverduePaymentEmail
         ...InvoicesForRequestOverduePaymentForm
-      } 
+      }
     }
 
     ${InvoicesForRequestOverduePaymentEmailFragmentDoc}
@@ -327,6 +327,7 @@ const PageFooterWrapper = styled.div`
   gap: ${theme.spacing(3)};
   align-items: center;
   justify-content: flex-end;
+  box-sizing: initial;
 
   padding: 0 ${theme.spacing(4)};
 
