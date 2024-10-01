@@ -297,7 +297,7 @@ const Label = styled.div<{ $withInfo?: boolean }>`
       }
 
       > *:last-child {
-        height: 16px;
+        margin-top: -${theme.spacing(1)};
       }
     `}
 `

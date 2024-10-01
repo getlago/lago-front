@@ -94,7 +94,7 @@ export const LineAmount = styled.div`
 
   > *:last-child {
     max-width: 120px;
-    margin-top: 24px;
+    margin-top: 28px;
   }
 `
 

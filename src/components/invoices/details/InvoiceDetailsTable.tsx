@@ -524,7 +524,7 @@ export const InvoiceWrapper = styled.section<{
               overflow: visible;
               height: 24px;
               width: 24px;
-              padding-top: 14px;
+              padding-top: 10px;
               /* Need to keep the pr0 to make sure popper is alligned with button's position */
               padding-right: 0;
             }

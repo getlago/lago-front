@@ -209,7 +209,7 @@ const InlineInputsWrapper = styled.div`
 
   .separator {
     height: fit-content;
-    margin-top: 34px;
+    margin-top: 38px;
   }
 `
 

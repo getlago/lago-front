@@ -31,6 +31,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
+import { LineAmount } from '~/styles/mainObjectsForm'
 
 gql`
   fragment CouponPlansForCustomer on Plan {
@@ -472,20 +473,6 @@ const Container = styled.div`
 const Item = styled.span`
   display: flex;
   white-space: pre;
-`
-
-const LineAmount = styled.div`
-  display: flex;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-    flex: 1;
-  }
-
-  > *:last-child {
-    max-width: 120px;
-    margin-top: 24px;
-  }
 `
 
 const InputEnd = styled(Typography)`
