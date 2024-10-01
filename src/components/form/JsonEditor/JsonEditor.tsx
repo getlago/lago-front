@@ -84,7 +84,7 @@ export const JsonEditor = ({
               {label}
             </Typography>
             {!!infoText && (
-              <Tooltip placement="bottom-start" title={infoText}>
+              <Tooltip className="flex h-5 items-end" placement="bottom-start" title={infoText}>
                 <Icon name="info-circle" />
               </Tooltip>
             )}
@@ -208,10 +208,6 @@ const LabelContainer = styled.div<{ $withInfo?: boolean }>`
     css`
       > *:first-child {
         margin-right: ${theme.spacing(1)};
-      }
-
-      > *:last-child {
-        height: 16px;
       }
     `}
 `

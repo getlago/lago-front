@@ -108,12 +108,13 @@ export const DebuggerEventDetails = ({ event }: DebuggerEventDetailsProps) => {
         </PropertyLabel>
         <PropertyValue color="textSecondary">
           {transactionId}
-          <TransactionIdTooltip
+          <Tooltip
+            className="flex h-5 items-end"
             placement="bottom-start"
             title={translate('text_6298bd525e359200d5ea0257')}
           >
             <StyledIcon color="dark" name="info-circle" />
-          </TransactionIdTooltip>
+          </Tooltip>
         </PropertyValue>
 
         <PropertyLabel variant="caption">
@@ -167,10 +168,6 @@ const StyledCodeSnippet = styled(CodeSnippet)`
   > * {
     padding-bottom: 0px;
   }
-`
-
-const TransactionIdTooltip = styled(Tooltip)`
-  height: 16px;
 `
 
 const PropertiesContainer = styled.div`

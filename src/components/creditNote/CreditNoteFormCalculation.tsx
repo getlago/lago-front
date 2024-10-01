@@ -233,7 +233,11 @@ export const CreditNoteFormCalculation = ({
           <Line>
             <InlineLabel>
               <Typography variant="bodyHl">{translate('text_644b9f17623605a945cafdbb')}</Typography>
-              <Tooltip placement="top-start" title={translate('text_644b9f17623605a945cafdb9')}>
+              <Tooltip
+                className="flex h-5 items-end"
+                placement="top-start"
+                title={translate('text_644b9f17623605a945cafdb9')}
+              >
                 <Icon name="info-circle" />
               </Tooltip>
             </InlineLabel>
@@ -630,7 +634,6 @@ const InlineLabel = styled.div`
 
   > *:last-child {
     margin-left: ${theme.spacing(2)};
-    height: 16px;
   }
 `
 
