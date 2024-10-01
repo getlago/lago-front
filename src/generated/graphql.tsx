@@ -6753,6 +6753,22 @@ export type UpdateGocardlessApiKeyMutationVariables = Exact<{
 
 export type UpdateGocardlessApiKeyMutation = { __typename?: 'Mutation', updateGocardlessPaymentProvider?: { __typename?: 'GocardlessProvider', id: string, name: string, code: string, successRedirectUrl?: string | null, webhookSecret?: string | null } | null };
 
+export type HubspotForCreateDialogFragment = { __typename?: 'HubspotIntegration', id: string, name: string, code: string, defaultTargetedObject: TargetedObjectsEnum, privateAppToken: string, syncInvoices?: boolean | null, syncSubscriptions?: boolean | null };
+
+export type CreateHubspotIntegrationMutationVariables = Exact<{
+  input: CreateHubspotIntegrationInput;
+}>;
+
+
+export type CreateHubspotIntegrationMutation = { __typename?: 'Mutation', createHubspotIntegration?: { __typename?: 'HubspotIntegration', id: string, name: string, code: string, defaultTargetedObject: TargetedObjectsEnum, privateAppToken: string, syncInvoices?: boolean | null, syncSubscriptions?: boolean | null } | null };
+
+export type UpdateHubspotIntegrationMutationVariables = Exact<{
+  input: UpdateHubspotIntegrationInput;
+}>;
+
+
+export type UpdateHubspotIntegrationMutation = { __typename?: 'Mutation', updateHubspotIntegration?: { __typename?: 'HubspotIntegration', id: string, name: string, code: string, defaultTargetedObject: TargetedObjectsEnum, privateAppToken: string, syncInvoices?: boolean | null, syncSubscriptions?: boolean | null } | null };
+
 export type UpdateOrgaForLagoTaxManagementMutationVariables = Exact<{
   input: UpdateOrganizationInput;
 }>;
@@ -6941,6 +6957,8 @@ export type DeleteGocardlessMutationVariables = Exact<{
 
 
 export type DeleteGocardlessMutation = { __typename?: 'Mutation', destroyPaymentProvider?: { __typename?: 'DestroyPaymentProviderPayload', id?: string | null } | null };
+
+export type DeleteHubspotIntegrationDialogFragment = { __typename?: 'HubspotIntegration', id: string, name: string };
 
 export type DeleteNetsuiteIntegrationDialogFragment = { __typename?: 'NetsuiteIntegration', id: string, name: string };
 
@@ -8131,12 +8149,33 @@ export type GetGocardlessIntegrationsListQueryVariables = Exact<{
 
 export type GetGocardlessIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider' } | { __typename?: 'GocardlessProvider', id: string, name: string, code: string } | { __typename?: 'StripeProvider' }> } | null };
 
+export type HubspotIntegrationDetailsFragment = { __typename?: 'HubspotIntegration', id: string, name: string, code: string, defaultTargetedObject: TargetedObjectsEnum, privateAppToken: string, syncInvoices?: boolean | null, syncSubscriptions?: boolean | null };
+
+export type GetHubspotIntegrationsDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  integrationsType: IntegrationTypeEnum;
+}>;
+
+
+export type GetHubspotIntegrationsDetailsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'HubspotIntegration', id: string, name: string, code: string, defaultTargetedObject: TargetedObjectsEnum, privateAppToken: string, syncInvoices?: boolean | null, syncSubscriptions?: boolean | null } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'XeroIntegration' } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'HubspotIntegration', id: string } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+
+export type HubspotIntegrationsFragment = { __typename?: 'HubspotIntegration', id: string, name: string, code: string, defaultTargetedObject: TargetedObjectsEnum, privateAppToken: string, syncInvoices?: boolean | null, syncSubscriptions?: boolean | null };
+
+export type GetHubspotIntegrationsListQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<IntegrationTypeEnum>;
+}>;
+
+
+export type GetHubspotIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'HubspotIntegration', id: string, name: string, code: string, defaultTargetedObject: TargetedObjectsEnum, privateAppToken: string, syncInvoices?: boolean | null, syncSubscriptions?: boolean | null } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+
 export type IntegrationsSettingQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-export type IntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, euTaxManagement: boolean, country?: CountryCode | null } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'StripeProvider', id: string }> } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration', id: string } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration', id: string } | { __typename?: 'OktaIntegration' } | { __typename?: 'XeroIntegration', id: string }> } | null };
+export type IntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, euTaxManagement: boolean, country?: CountryCode | null } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'StripeProvider', id: string }> } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration', id: string } | { __typename?: 'HubspotIntegration', id: string } | { __typename?: 'NetsuiteIntegration', id: string } | { __typename?: 'OktaIntegration' } | { __typename?: 'XeroIntegration', id: string }> } | null };
 
 export type GetOrganizationSettingsQueryVariables = Exact<{
   appliedToOrganization?: InputMaybe<Scalars['Boolean']['input']>;
@@ -10869,6 +10908,46 @@ export const GocardlessIntegrationsFragmentDoc = gql`
   code
 }
     `;
+export const DeleteHubspotIntegrationDialogFragmentDoc = gql`
+    fragment DeleteHubspotIntegrationDialog on HubspotIntegration {
+  id
+  name
+}
+    `;
+export const HubspotForCreateDialogFragmentDoc = gql`
+    fragment HubspotForCreateDialog on HubspotIntegration {
+  id
+  name
+  code
+  defaultTargetedObject
+  privateAppToken
+  syncInvoices
+  syncSubscriptions
+  ...DeleteHubspotIntegrationDialog
+}
+    ${DeleteHubspotIntegrationDialogFragmentDoc}`;
+export const HubspotIntegrationDetailsFragmentDoc = gql`
+    fragment HubspotIntegrationDetails on HubspotIntegration {
+  id
+  name
+  code
+  defaultTargetedObject
+  privateAppToken
+  syncInvoices
+  syncSubscriptions
+  ...HubspotForCreateDialog
+  ...DeleteHubspotIntegrationDialog
+}
+    ${HubspotForCreateDialogFragmentDoc}
+${DeleteHubspotIntegrationDialogFragmentDoc}`;
+export const HubspotIntegrationsFragmentDoc = gql`
+    fragment HubspotIntegrations on HubspotIntegration {
+  id
+  name
+  code
+  ...HubspotForCreateDialog
+}
+    ${HubspotForCreateDialogFragmentDoc}`;
 export const DeleteNetsuiteIntegrationDialogFragmentDoc = gql`
     fragment DeleteNetsuiteIntegrationDialog on NetsuiteIntegration {
   id
@@ -15134,6 +15213,72 @@ export function useUpdateGocardlessApiKeyMutation(baseOptions?: Apollo.MutationH
 export type UpdateGocardlessApiKeyMutationHookResult = ReturnType<typeof useUpdateGocardlessApiKeyMutation>;
 export type UpdateGocardlessApiKeyMutationResult = Apollo.MutationResult<UpdateGocardlessApiKeyMutation>;
 export type UpdateGocardlessApiKeyMutationOptions = Apollo.BaseMutationOptions<UpdateGocardlessApiKeyMutation, UpdateGocardlessApiKeyMutationVariables>;
+export const CreateHubspotIntegrationDocument = gql`
+    mutation createHubspotIntegration($input: CreateHubspotIntegrationInput!) {
+  createHubspotIntegration(input: $input) {
+    ...HubspotForCreateDialog
+  }
+}
+    ${HubspotForCreateDialogFragmentDoc}`;
+export type CreateHubspotIntegrationMutationFn = Apollo.MutationFunction<CreateHubspotIntegrationMutation, CreateHubspotIntegrationMutationVariables>;
+
+/**
+ * __useCreateHubspotIntegrationMutation__
+ *
+ * To run a mutation, you first call `useCreateHubspotIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateHubspotIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createHubspotIntegrationMutation, { data, loading, error }] = useCreateHubspotIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateHubspotIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<CreateHubspotIntegrationMutation, CreateHubspotIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateHubspotIntegrationMutation, CreateHubspotIntegrationMutationVariables>(CreateHubspotIntegrationDocument, options);
+      }
+export type CreateHubspotIntegrationMutationHookResult = ReturnType<typeof useCreateHubspotIntegrationMutation>;
+export type CreateHubspotIntegrationMutationResult = Apollo.MutationResult<CreateHubspotIntegrationMutation>;
+export type CreateHubspotIntegrationMutationOptions = Apollo.BaseMutationOptions<CreateHubspotIntegrationMutation, CreateHubspotIntegrationMutationVariables>;
+export const UpdateHubspotIntegrationDocument = gql`
+    mutation updateHubspotIntegration($input: UpdateHubspotIntegrationInput!) {
+  updateHubspotIntegration(input: $input) {
+    ...HubspotForCreateDialog
+  }
+}
+    ${HubspotForCreateDialogFragmentDoc}`;
+export type UpdateHubspotIntegrationMutationFn = Apollo.MutationFunction<UpdateHubspotIntegrationMutation, UpdateHubspotIntegrationMutationVariables>;
+
+/**
+ * __useUpdateHubspotIntegrationMutation__
+ *
+ * To run a mutation, you first call `useUpdateHubspotIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateHubspotIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateHubspotIntegrationMutation, { data, loading, error }] = useUpdateHubspotIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateHubspotIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<UpdateHubspotIntegrationMutation, UpdateHubspotIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateHubspotIntegrationMutation, UpdateHubspotIntegrationMutationVariables>(UpdateHubspotIntegrationDocument, options);
+      }
+export type UpdateHubspotIntegrationMutationHookResult = ReturnType<typeof useUpdateHubspotIntegrationMutation>;
+export type UpdateHubspotIntegrationMutationResult = Apollo.MutationResult<UpdateHubspotIntegrationMutation>;
+export type UpdateHubspotIntegrationMutationOptions = Apollo.BaseMutationOptions<UpdateHubspotIntegrationMutation, UpdateHubspotIntegrationMutationVariables>;
 export const UpdateOrgaForLagoTaxManagementDocument = gql`
     mutation updateOrgaForLagoTaxManagement($input: UpdateOrganizationInput!) {
   updateOrganization(input: $input) {
@@ -21856,6 +22001,106 @@ export type GetGocardlessIntegrationsListQueryHookResult = ReturnType<typeof use
 export type GetGocardlessIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetGocardlessIntegrationsListLazyQuery>;
 export type GetGocardlessIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetGocardlessIntegrationsListSuspenseQuery>;
 export type GetGocardlessIntegrationsListQueryResult = Apollo.QueryResult<GetGocardlessIntegrationsListQuery, GetGocardlessIntegrationsListQueryVariables>;
+export const GetHubspotIntegrationsDetailsDocument = gql`
+    query getHubspotIntegrationsDetails($id: ID!, $limit: Int, $integrationsType: IntegrationTypeEnum!) {
+  integration(id: $id) {
+    ... on HubspotIntegration {
+      id
+      ...HubspotIntegrationDetails
+    }
+  }
+  integrations(limit: $limit, type: $integrationsType) {
+    collection {
+      ... on HubspotIntegration {
+        id
+      }
+    }
+  }
+}
+    ${HubspotIntegrationDetailsFragmentDoc}`;
+
+/**
+ * __useGetHubspotIntegrationsDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetHubspotIntegrationsDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetHubspotIntegrationsDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetHubspotIntegrationsDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      limit: // value for 'limit'
+ *      integrationsType: // value for 'integrationsType'
+ *   },
+ * });
+ */
+export function useGetHubspotIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetHubspotIntegrationsDetailsQuery, GetHubspotIntegrationsDetailsQueryVariables> & ({ variables: GetHubspotIntegrationsDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetHubspotIntegrationsDetailsQuery, GetHubspotIntegrationsDetailsQueryVariables>(GetHubspotIntegrationsDetailsDocument, options);
+      }
+export function useGetHubspotIntegrationsDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetHubspotIntegrationsDetailsQuery, GetHubspotIntegrationsDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetHubspotIntegrationsDetailsQuery, GetHubspotIntegrationsDetailsQueryVariables>(GetHubspotIntegrationsDetailsDocument, options);
+        }
+export function useGetHubspotIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetHubspotIntegrationsDetailsQuery, GetHubspotIntegrationsDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetHubspotIntegrationsDetailsQuery, GetHubspotIntegrationsDetailsQueryVariables>(GetHubspotIntegrationsDetailsDocument, options);
+        }
+export type GetHubspotIntegrationsDetailsQueryHookResult = ReturnType<typeof useGetHubspotIntegrationsDetailsQuery>;
+export type GetHubspotIntegrationsDetailsLazyQueryHookResult = ReturnType<typeof useGetHubspotIntegrationsDetailsLazyQuery>;
+export type GetHubspotIntegrationsDetailsSuspenseQueryHookResult = ReturnType<typeof useGetHubspotIntegrationsDetailsSuspenseQuery>;
+export type GetHubspotIntegrationsDetailsQueryResult = Apollo.QueryResult<GetHubspotIntegrationsDetailsQuery, GetHubspotIntegrationsDetailsQueryVariables>;
+export const GetHubspotIntegrationsListDocument = gql`
+    query getHubspotIntegrationsList($limit: Int, $type: IntegrationTypeEnum) {
+  integrations(limit: $limit, type: $type) {
+    collection {
+      ... on HubspotIntegration {
+        id
+        ...HubspotIntegrations
+        ...HubspotForCreateDialog
+      }
+    }
+  }
+}
+    ${HubspotIntegrationsFragmentDoc}
+${HubspotForCreateDialogFragmentDoc}`;
+
+/**
+ * __useGetHubspotIntegrationsListQuery__
+ *
+ * To run a query within a React component, call `useGetHubspotIntegrationsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetHubspotIntegrationsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetHubspotIntegrationsListQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      type: // value for 'type'
+ *   },
+ * });
+ */
+export function useGetHubspotIntegrationsListQuery(baseOptions?: Apollo.QueryHookOptions<GetHubspotIntegrationsListQuery, GetHubspotIntegrationsListQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetHubspotIntegrationsListQuery, GetHubspotIntegrationsListQueryVariables>(GetHubspotIntegrationsListDocument, options);
+      }
+export function useGetHubspotIntegrationsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetHubspotIntegrationsListQuery, GetHubspotIntegrationsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetHubspotIntegrationsListQuery, GetHubspotIntegrationsListQueryVariables>(GetHubspotIntegrationsListDocument, options);
+        }
+export function useGetHubspotIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetHubspotIntegrationsListQuery, GetHubspotIntegrationsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetHubspotIntegrationsListQuery, GetHubspotIntegrationsListQueryVariables>(GetHubspotIntegrationsListDocument, options);
+        }
+export type GetHubspotIntegrationsListQueryHookResult = ReturnType<typeof useGetHubspotIntegrationsListQuery>;
+export type GetHubspotIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetHubspotIntegrationsListLazyQuery>;
+export type GetHubspotIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetHubspotIntegrationsListSuspenseQuery>;
+export type GetHubspotIntegrationsListQueryResult = Apollo.QueryResult<GetHubspotIntegrationsListQuery, GetHubspotIntegrationsListQueryVariables>;
 export const IntegrationsSettingDocument = gql`
     query integrationsSetting($limit: Int) {
   organization {
@@ -21885,6 +22130,9 @@ export const IntegrationsSettingDocument = gql`
         id
       }
       ... on XeroIntegration {
+        id
+      }
+      ... on HubspotIntegration {
         id
       }
     }

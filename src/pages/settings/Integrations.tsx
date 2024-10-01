@@ -18,6 +18,10 @@ import {
   AddGocardlessDialogRef,
 } from '~/components/settings/integrations/AddGocardlessDialog'
 import {
+  AddHubspotDialog,
+  AddHubspotDialogRef,
+} from '~/components/settings/integrations/AddHubspotDialog'
+import {
   AddLagoTaxManagementDialog,
   AddLagoTaxManagementDialogRef,
 } from '~/components/settings/integrations/AddLagoTaxManagementDialog'
@@ -40,11 +44,13 @@ import {
   ADYEN_INTEGRATION_ROUTE,
   ANROK_INTEGRATION_ROUTE,
   GOCARDLESS_INTEGRATION_ROUTE,
+  HUBSPOT_INTEGRATION_ROUTE,
   NETSUITE_INTEGRATION_ROUTE,
   STRIPE_INTEGRATION_ROUTE,
   TAX_MANAGEMENT_INTEGRATION_ROUTE,
   XERO_INTEGRATION_ROUTE,
 } from '~/core/router'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { PremiumIntegrationTypeEnum, useIntegrationsSettingQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -54,6 +60,7 @@ import Airbyte from '~/public/images/airbyte.svg'
 import Anrok from '~/public/images/anrok.svg'
 import GoCardless from '~/public/images/gocardless.svg'
 import HightTouch from '~/public/images/hightouch.svg'
+import Hubspot from '~/public/images/hubspot.svg'
 import LagoTaxManagement from '~/public/images/lago-tax-management.svg'
 import Netsuite from '~/public/images/netsuite.svg'
 import Oso from '~/public/images/oso.svg'
@@ -98,6 +105,9 @@ gql`
         ... on XeroIntegration {
           id
         }
+        ... on HubspotIntegration {
+          id
+        }
       }
     }
   }
@@ -112,10 +122,12 @@ const Integrations = () => {
   const addAnrokDialogRef = useRef<AddAnrokDialogRef>(null)
   const addStripeDialogRef = useRef<AddStripeDialogRef>(null)
   const addAdyenDialogRef = useRef<AddAdyenDialogRef>(null)
-  const addGocardlessnDialogRef = useRef<AddGocardlessDialogRef>(null)
+  const addGocardlessDialogRef = useRef<AddGocardlessDialogRef>(null)
   const addLagoTaxManagementDialog = useRef<AddLagoTaxManagementDialogRef>(null)
   const addNetsuiteDialogRef = useRef<AddNetsuiteDialogRef>(null)
   const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
+  const addHubspotDialogRef = useRef<AddHubspotDialogRef>(null)
+
   const { data, loading } = useIntegrationsSettingQuery({
     variables: { limit: 1000 },
   })
@@ -137,6 +149,9 @@ const Integrations = () => {
   const hasAccessToXeroPremiumIntegration = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.Xero,
   )
+  const hasAccessToHubspotPremiumIntegration = !!premiumIntegrations?.includes(
+    PremiumIntegrationTypeEnum.Hubspot,
+  )
   const hasNetsuiteIntegration = data?.integrations?.collection?.some(
     (integration) => integration?.__typename === 'NetsuiteIntegration',
   )
@@ -145,6 +160,11 @@ const Integrations = () => {
   )
   const hasXeroIntegration = data?.integrations?.collection?.some(
     (integration) => integration?.__typename === 'XeroIntegration',
+  )
+
+  const isHubspotFeatureFlagEnabled = isFeatureFlagActive(FeatureFlags.HUBSPOT_INTEGRATION)
+  const hasHubspotIntegration = data?.integrations?.collection?.some(
+    (integration) => integration?.__typename === 'HubspotIntegration',
   )
 
   return (
@@ -198,7 +218,6 @@ const Integrations = () => {
                 }
               }}
             />
-
             <StyledSelector
               title={translate('text_645d071272418a14c1c76a6d')}
               subtitle={translate('text_634ea0ecc6147de10ddb6631')}
@@ -224,7 +243,6 @@ const Integrations = () => {
               }}
               fullWidth
             />
-
             <StyledSelector
               title={translate('text_639c334c3fa0e9c6ca3512b2')}
               subtitle={translate('text_639c334c3fa0e9c6ca3512b4')}
@@ -268,7 +286,7 @@ const Integrations = () => {
                 if (hasGocardlessIntegration) {
                   navigate(GOCARDLESS_INTEGRATION_ROUTE)
                 } else {
-                  addGocardlessnDialogRef.current?.openDialog()
+                  addGocardlessDialogRef.current?.openDialog()
                 }
               }}
               fullWidth
@@ -286,6 +304,39 @@ const Integrations = () => {
               }}
               fullWidth
             />
+            {isHubspotFeatureFlagEnabled && (
+              <StyledSelector
+                title={translate('text_1727189568053s79ks5q07tr')}
+                subtitle={translate('text_1727189568053q2gpkjzpmxr')}
+                icon={
+                  <Avatar size="big" variant="connector">
+                    {<Hubspot />}
+                  </Avatar>
+                }
+                endIcon={
+                  !hasAccessToHubspotPremiumIntegration ? (
+                    'sparkles'
+                  ) : hasHubspotIntegration ? (
+                    <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+                  ) : undefined
+                }
+                onClick={() => {
+                  if (!hasAccessToHubspotPremiumIntegration) {
+                    premiumWarningDialogRef.current?.openDialog({
+                      title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                      description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                      mailtoSubject: translate('text_172718956805392syzumhdlm'),
+                      mailtoBody: translate('text_1727189568053f91r4b3f4rl'),
+                    })
+                  } else if (hasHubspotIntegration) {
+                    navigate(HUBSPOT_INTEGRATION_ROUTE)
+                  } else {
+                    addHubspotDialogRef.current?.openDialog()
+                  }
+                }}
+                fullWidth
+              />
+            )}
             <StyledSelector
               fullWidth
               title={translate('text_657078c28394d6b1ae1b9713')}
@@ -416,13 +467,14 @@ const Integrations = () => {
       <AddAnrokDialog ref={addAnrokDialogRef} />
       <AddAdyenDialog ref={addAdyenDialogRef} />
       <AddStripeDialog ref={addStripeDialogRef} />
-      <AddGocardlessDialog ref={addGocardlessnDialogRef} />
+      <AddGocardlessDialog ref={addGocardlessDialogRef} />
       <AddLagoTaxManagementDialog
         country={organization?.country}
         ref={addLagoTaxManagementDialog}
       />
       <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
       <AddXeroDialog ref={addXeroDialogRef} />
+      <AddHubspotDialog ref={addHubspotDialogRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
