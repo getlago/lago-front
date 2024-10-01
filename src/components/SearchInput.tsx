@@ -24,7 +24,7 @@ export const SearchInput = ({ onChange, placeholder }: SearchInputProps) => {
         setLocalValue(value)
       }}
       InputProps={{
-        startAdornment: <SearchIcon name="magnifying-glass" />,
+        startAdornment: <Icon className="ml-4" name="magnifying-glass" />,
       }}
       cleanable
     />
@@ -38,8 +38,4 @@ const TextInputForSearch = styled(TextInput)`
     height: 40px;
     padding-left: ${theme.spacing(3)};
   }
-`
-
-const SearchIcon = styled(Icon)`
-  padding-left: ${theme.spacing(4)};
 `
