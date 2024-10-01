@@ -114,7 +114,7 @@ export const FixedFeeSection = memo(
                 </Tooltip>
               </BoxHeaderGroupLeft>
               <BoxHeaderGroupRight>
-                <ValidationTooltip
+                <Tooltip
                   placement="top-end"
                   title={
                     hasErrorInSection
@@ -123,7 +123,7 @@ export const FixedFeeSection = memo(
                   }
                 >
                   <Icon name="validate-filled" color={hasErrorInSection ? 'disabled' : 'success'} />
-                </ValidationTooltip>
+                </Tooltip>
                 {!!formikProps.values?.taxes?.length && (
                   <Chip
                     label={intlFormatNumber(
@@ -303,9 +303,6 @@ const BoxContent = styled.div`
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(8)};
   }
-`
-const ValidationTooltip = styled(Tooltip)`
-  height: 16px;
 `
 
 const Group = styled.div`
