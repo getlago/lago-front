@@ -60,6 +60,9 @@ export const theme = createTheme({
     MuiPopper: {
       styleOverrides: {
         root: {
+          '*': {
+            boxSizing: 'content-box',
+          },
           // Make sure if a date picker is displayed in a popper that it is above all content
           '&.MuiPickersPopper-root': {
             zIndex: 2000,
