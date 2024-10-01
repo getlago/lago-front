@@ -533,7 +533,7 @@ export const InvoiceWrapper = styled.section<{
       `}
 
     /* Collapsable table */
-    tr.collapse {
+    tr.line-collapse {
       > td {
         padding: 0 !important;
       }

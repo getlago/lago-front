@@ -100,7 +100,7 @@ export const InvoiceFeeAdvanceDetailsTable = memo(
             {/* Should be only displayed for draft invoices */}
             {subscription.feesInAdvanceZero.length > 0 && (
               <>
-                <tr className="collapse">
+                <tr className="line-collapse">
                   <td colSpan={6}>
                     <div className="collapse-header">
                       <Button
