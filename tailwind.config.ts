@@ -125,9 +125,6 @@ const config = {
     },
 
     extend: {
-      spacing: {
-        '18': '4.5rem',
-      },
       screens: {
         md: '776px',
       },
