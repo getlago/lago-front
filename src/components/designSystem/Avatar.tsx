@@ -1,5 +1,5 @@
 import { cva, cx } from 'class-variance-authority'
-import { ReactNode } from 'react'
+import { isValidElement, ReactNode } from 'react'
 
 import { tw } from '~/styles/utils'
 
@@ -126,9 +126,17 @@ export const Avatar = ({
   className,
 }: AvatarGenericProps | AvatarConnectorProps) => {
   if (variant === 'connector') {
+    // If children is a valid element, check if it's an SVG directly rendered (not wrapped in an Icon component)
+    // If it is, apply the full size to it
+    const isSvg = isValidElement(children) ? children.type?.toString().includes('Svg') : null
+
     return (
       <div
-        className={tw(avatarStyles({ size, rounded: true }), className)}
+        className={tw(
+          avatarStyles({ size, rounded: true }),
+          isSvg && '[&>svg]:size-full',
+          className,
+        )}
         data-test={`${variant}/${size}`}
       >
         {children}

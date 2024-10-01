@@ -54,7 +54,17 @@ const config = {
             loader: '@svgr/webpack',
             options: {
               svgoConfig: {
-                pluggins: [{ prefixIds: false, prefixClassNames: false }],
+                plugins: [
+                  {
+                    name: 'prefixIds',
+                    params: {
+                      overrides: {
+                        prefixIds: false,
+                        prefixClassNames: false,
+                      },
+                    },
+                  },
+                ],
               },
             },
           },
