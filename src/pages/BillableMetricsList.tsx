@@ -73,9 +73,9 @@ const BillableMetricsList = () => {
             placeholder={translate('text_63ba9ee977a67c9693f50aea')}
           />
           {hasPermissions(['billableMetricsCreate']) && (
-            <StyledButton data-test="create-bm" type="button" to={CREATE_BILLABLE_METRIC_ROUTE}>
+            <ButtonLink data-test="create-bm" type="button" to={CREATE_BILLABLE_METRIC_ROUTE}>
               {translate('text_623b497ad05b960101be343a')}
-            </StyledButton>
+            </ButtonLink>
           )}
         </HeaderRigthBlock>
       </Header>
@@ -205,10 +205,6 @@ const ListHead = styled(ListHeader)`
 
 const CellSmall = styled(Typography)`
   width: 112px;
-`
-
-const StyledButton = styled(ButtonLink)`
-  min-width: 179px;
 `
 
 export default BillableMetricsList

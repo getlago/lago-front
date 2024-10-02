@@ -90,7 +90,7 @@ describe('ButtonLink', () => {
       expect(onContinueMock).not.toHaveBeenCalled()
       expect(screen.queryByTestId('button-link-button')).toBeDisabled()
       expect(screen.queryByTestId('tab-internal-button-link-title')).toHaveClass(
-        'button-link-disabled',
+        'pointer-events-none',
       )
     })
 
