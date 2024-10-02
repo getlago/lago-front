@@ -18,6 +18,7 @@ gql`
   query getPortalLocale {
     customerPortalOrganization {
       id
+      premiumIntegrations
       billingConfiguration {
         id
         documentLocale

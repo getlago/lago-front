@@ -8,10 +8,15 @@ const PortalInit = lazyLoad(
 
 // ----------- Routes -----------
 export const CUSTOMER_PORTAL_ROUTE = '/customer-portal/:token'
+export const CUSTOMER_PORTAL_ROUTE_PAGE = '/customer-portal/:token/:page/:itemId'
 
 export const customerPortalRoutes: CustomRouteObject[] = [
   {
     path: CUSTOMER_PORTAL_ROUTE,
+    element: <PortalInit />,
+  },
+  {
+    path: CUSTOMER_PORTAL_ROUTE_PAGE,
     element: <PortalInit />,
   },
 ]

@@ -174,7 +174,7 @@ const InfoSkeletonLine = styled.div`
 const Title = styled(Typography)`
   display: flex;
   align-items: center;
-  height: ${NAV_HEIGHT}px;
+  height: 40px;
   box-shadow: ${theme.shadows[7]};
   margin-bottom: ${theme.spacing(6)};
 `

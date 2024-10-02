@@ -1,14 +1,19 @@
 import { gql } from '@apollo/client'
-import styled from 'styled-components'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
+import CustomerPortalLoading from '~/components/customerPortal/common/CustomerPortalLoading'
+import CustomerPortalSidebar from '~/components/customerPortal/common/CustomerPortalSidebar'
 import { PortalCustomerInfos } from '~/components/customerPortal/PortalCustomerInfos'
 import PortalInvoicesList from '~/components/customerPortal/PortalInvoicesList'
 import { PortalOverview } from '~/components/customerPortal/PortalOverview'
-import { Skeleton, Typography } from '~/components/designSystem'
+import UsagePage from '~/components/customerPortal/usage/UsagePage'
+import UsageSection from '~/components/customerPortal/usage/UsageSection'
+import {
+  CUSTOMER_PORTAL_ROUTE,
+  CUSTOMER_PORTAL_ROUTE_PAGE,
+} from '~/core/router/CustomerPortalRoutes'
 import { LocaleEnum } from '~/core/translations'
 import { useGetPortalOrgaInfosQuery } from '~/generated/graphql'
-import Logo from '~/public/images/logo/lago-logo-grey.svg'
-import { theme } from '~/styles'
 
 gql`
   query getPortalOrgaInfos {
@@ -16,6 +21,7 @@ gql`
       id
       name
       logoUrl
+      premiumIntegrations
     }
   }
 `
@@ -28,87 +34,50 @@ interface CutsomerPortalProps {
 const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
   const { data, loading } = useGetPortalOrgaInfosQuery()
 
-  return (
-    <PageWrapper>
-      <PageHeader>
-        {loading ? (
-          <InlineItems>
-            <Skeleton variant="connectorAvatar" size="big" marginRight={theme.spacing(3)} />
-            <Skeleton variant="text" height={12} width={120} />
-          </InlineItems>
-        ) : (
-          <InlineItems>
-            {!!data?.customerPortalOrganization?.logoUrl && (
-              <OrgaLogoContainer>
-                <img
-                  src={data.customerPortalOrganization?.logoUrl}
-                  alt={`${data.customerPortalOrganization?.name}'s logo`}
-                />
-              </OrgaLogoContainer>
-            )}
-            <Typography variant="headline">{data?.customerPortalOrganization?.name}</Typography>
-          </InlineItems>
-        )}
-        <InlineItems>
-          <InlinePoweredByTypography variant="note" color="grey500">
-            {translate('text_6419c64eace749372fc72b03')}
-          </InlinePoweredByTypography>
-          <StyledLogo />
-        </InlineItems>
-      </PageHeader>
+  const { token, page } = useParams()
 
-      <PortalCustomerInfos translate={translate} />
-      <PortalOverview translate={translate} documentLocale={documentLocale} />
-      <PortalInvoicesList translate={translate} documentLocale={documentLocale} />
-    </PageWrapper>
+  const navigate = useNavigate()
+
+  const changePage = ({ newPage, itemId }: { newPage: string; itemId: string }) => {
+    navigate(
+      generatePath(CUSTOMER_PORTAL_ROUTE_PAGE, { token: token as string, page: newPage, itemId }),
+    )
+  }
+
+  const goHome = () => {
+    navigate(generatePath(CUSTOMER_PORTAL_ROUTE, { token: token as string }))
+  }
+
+  const viewSubscription = (id: string) => {
+    changePage({
+      newPage: 'usage',
+      itemId: id,
+    })
+  }
+
+  return (
+    <div className="flex flex-col md:flex-row">
+      <CustomerPortalSidebar
+        organizationName={data?.customerPortalOrganization?.name}
+        organizationLogoUrl={data?.customerPortalOrganization?.logoUrl}
+      />
+
+      <div className="h-screen w-full overflow-y-auto px-20 pt-16">
+        {loading && <CustomerPortalLoading />}
+
+        {!loading && !page && (
+          <>
+            <UsageSection viewSubscription={viewSubscription} />
+            <PortalCustomerInfos translate={translate} />
+            <PortalOverview translate={translate} documentLocale={documentLocale} />
+            <PortalInvoicesList translate={translate} documentLocale={documentLocale} />
+          </>
+        )}
+
+        {!loading && page === 'usage' && <UsagePage goHome={goHome} />}
+      </div>
+    </div>
   )
 }
-
-const InlineItems = styled.div`
-  display: flex;
-  align-items: center;
-`
-
-const InlinePoweredByTypography = styled(Typography)`
-  margin-right: ${theme.spacing(1)};
-`
-
-const StyledLogo = styled(Logo)`
-  width: 40px;
-`
-
-const PageWrapper = styled.div`
-  max-width: 1024px;
-  margin: ${theme.spacing(20)} auto;
-  padding: 0 ${theme.spacing(4)};
-
-  > section {
-    margin-bottom: ${theme.spacing(12)};
-  }
-`
-
-const PageHeader = styled.section`
-  display: flex;
-  justify-content: space-between;
-
-  > div:first-child {
-    width: 100%;
-    flex: 1;
-  }
-`
-
-const OrgaLogoContainer = styled.div`
-  width: 40px;
-  height: 40px;
-  margin-right: ${theme.spacing(3)};
-  border-radius: 8px;
-
-  > img {
-    height: 100%;
-    width: 100%;
-    object-fit: cover;
-    border-radius: inherit;
-  }
-`
 
 export default CustomerPortal

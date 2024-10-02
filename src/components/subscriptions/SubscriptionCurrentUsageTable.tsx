@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { ApolloError, gql } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
@@ -14,10 +14,17 @@ import { formatDateToTZ } from '~/core/timezone'
 import {
   ChargeUsage,
   CurrencyEnum,
+  CustomerForSubscriptionUsageQuery,
   CustomerUsageForUsageDetailsFragmentDoc,
+  GetCustomerUsageForPortalQuery,
+  GetSubscriptionForSubscriptionUsageLifetimeGraphQuery,
+  GetSubscriptionForSubscriptionUsageLifetimeGraphQueryResult,
   LagoApiError,
+  Subscription,
   TimezoneEnum,
+  UsageForSubscriptionUsageQuery,
   useCustomerForSubscriptionUsageQuery,
+  useGetSubscriptionForSubscriptionUsageLifetimeGraphQuery,
   useSubscrptionForSubscriptionUsageQuery,
   useUsageForSubscriptionUsageQuery,
 } from '~/generated/graphql'
@@ -55,38 +62,43 @@ gql`
     }
   }
 
-  query usageForSubscriptionUsage($customerId: ID!, $subscriptionId: ID!) {
-    customerUsage(customerId: $customerId, subscriptionId: $subscriptionId) {
+  fragment SubscriptionCurrentUsageTableComponentCustomerUsage on CustomerUsage {
+    amountCents
+    currency
+    fromDatetime
+    toDatetime
+    chargesUsage {
+      id
+      units
       amountCents
-      currency
-      fromDatetime
-      toDatetime
-      chargesUsage {
+      charge {
         id
-        units
+        invoiceDisplayName
+      }
+      billableMetric {
+        id
+        code
+        name
+      }
+      filters {
+        id
+      }
+      groupedUsage {
         amountCents
-        charge {
-          id
-          invoiceDisplayName
-        }
-        billableMetric {
-          id
-          code
-          name
-        }
+        groupedBy
+        eventsCount
+        units
         filters {
           id
         }
-        groupedUsage {
-          amountCents
-          groupedBy
-          eventsCount
-          units
-          filters {
-            id
-          }
-        }
       }
+    }
+  }
+
+  query usageForSubscriptionUsage($customerId: ID!, $subscriptionId: ID!) {
+    customerUsage(customerId: $customerId, subscriptionId: $subscriptionId) {
+      amountCents
+      ...SubscriptionCurrentUsageTableComponentCustomerUsage
       ...CustomerUsageForUsageDetails
     }
   }
@@ -99,51 +111,49 @@ interface SubscriptionCurrentUsageTableProps {
   subscriptionId: string
 }
 
-export const SubscriptionCurrentUsageTable = ({
-  customerId,
-  subscriptionId,
-}: SubscriptionCurrentUsageTableProps) => {
-  const { translate } = useInternationalization()
-  const subscriptionUsageDetailDrawerRef = useRef<SubscriptionUsageDetailDrawerRef>(null)
-  const {
-    data: customerData,
-    loading: customerLoading,
-    error: customerError,
-  } = useCustomerForSubscriptionUsageQuery({
-    variables: { customerId },
-    skip: !customerId,
-  })
+type SubscriptionCurrentUsageTableComponentProps = {
+  usageData?:
+    | UsageForSubscriptionUsageQuery['customerUsage']
+    | GetCustomerUsageForPortalQuery['customerPortalCustomerUsage']
+  usageLoading: boolean
+  usageError?: ApolloError
 
-  const {
-    data: subscriptionData,
-    loading: subscriptionLoading,
-    error: subscriptionError,
-  } = useSubscrptionForSubscriptionUsageQuery({
-    variables: { subscription: subscriptionId },
-  })
-  const subscription = subscriptionData?.subscription
-  const {
-    data: usageData,
-    loading: usageLoading,
-    error: usageError,
-    refetch: refetchUsage,
-  } = useUsageForSubscriptionUsageQuery({
-    context: {
-      silentErrorCodes: [LagoApiError.UnprocessableEntity],
-    },
-    variables: {
-      customerId: (customerId || subscription?.customer.id) as string,
-      subscriptionId: subscription?.id || '',
-    },
-    skip: !customerId || !subscription,
-    // Fixes https://github.com/getlago/lago-front/pull/1243
-    fetchPolicy: 'no-cache',
-  })
-  const currency = usageData?.customerUsage?.currency || CurrencyEnum.Usd
+  subscription?: GetSubscriptionForSubscriptionUsageLifetimeGraphQuery['subscription']
+  subscriptionLoading: boolean
+
+  subscriptionError?: ApolloError
+
+  customerData?: CustomerForSubscriptionUsageQuery['customer']
+  customerLoading: boolean
+  customerError?: ApolloError
+
+  refetchUsage: () => void
+}
+
+export const SubscriptionCurrentUsageTableComponent = ({
+  usageData,
+  usageLoading,
+  usageError,
+
+  subscription,
+  subscriptionLoading,
+  subscriptionError,
+
+  customerData,
+  customerLoading,
+  customerError,
+
+  refetchUsage,
+}: SubscriptionCurrentUsageTableComponentProps) => {
+  const { translate } = useInternationalization()
+
+  const subscriptionUsageDetailDrawerRef = useRef<SubscriptionUsageDetailDrawerRef>(null)
+
+  const currency = usageData?.currency || CurrencyEnum.Usd
   const isLoading = subscriptionLoading || usageLoading || customerLoading
   const hasError = !!subscriptionError || !!usageError || !!customerError
   const customerTimezone =
-    customerData?.customer?.applicableTimezone ||
+    customerData?.applicableTimezone ||
     subscription?.customer.applicableTimezone ||
     TimezoneEnum.TzUtc
 
@@ -179,8 +189,8 @@ export const SubscriptionCurrentUsageTable = ({
           !!usageData?.customerUsage?.toDatetime ? (
           <Typography variant="caption" color="grey600" noWrap>
             {translate('text_633dae57ca9a923dd53c2097', {
-              fromDate: formatDateToTZ(usageData?.customerUsage?.fromDatetime, customerTimezone),
-              toDate: formatDateToTZ(usageData?.customerUsage?.toDatetime, customerTimezone),
+              fromDate: formatDateToTZ(usageData?.fromDatetime, customerTimezone),
+              toDate: formatDateToTZ(usageData?.toDatetime, customerTimezone),
             })}
           </Typography>
         ) : null}
@@ -216,7 +226,7 @@ export const SubscriptionCurrentUsageTable = ({
             />
           )}
         </>
-      ) : !isLoading && !usageData?.customerUsage.chargesUsage.length ? (
+      ) : !isLoading && !usageData?.chargesUsage.length ? (
         <GenericPlaceholder
           title={translate('text_62c3f454e5d7f4ec8888c1d5')}
           subtitle={translate('text_62c3f454e5d7f4ec8888c1d7')}
@@ -239,13 +249,10 @@ export const SubscriptionCurrentUsageTable = ({
               <Skeleton variant="text" height={12} width={144} marginTop={8} />
             ) : (
               <Typography variant="bodyHl" color="grey700" noWrap>
-                {intlFormatNumber(
-                  deserializeAmount(usageData?.customerUsage?.amountCents, currency) || 0,
-                  {
-                    currencyDisplay: 'symbol',
-                    currency,
-                  },
-                )}
+                {intlFormatNumber(deserializeAmount(usageData?.amountCents, currency) || 0, {
+                  currencyDisplay: 'symbol',
+                  currency,
+                })}
               </Typography>
             )}
           </Stack>
@@ -256,7 +263,7 @@ export const SubscriptionCurrentUsageTable = ({
             rowSize={72}
             isLoading={isLoading}
             hasError={hasError}
-            data={usageData?.customerUsage.chargesUsage || []}
+            data={usageData?.chargesUsage || []}
             columns={[
               {
                 key: 'charge.invoiceDisplayName',
@@ -361,11 +368,67 @@ export const SubscriptionCurrentUsageTable = ({
       <SubscriptionUsageDetailDrawer
         ref={subscriptionUsageDetailDrawerRef}
         currency={currency}
-        fromDatetime={usageData?.customerUsage?.fromDatetime}
-        toDatetime={usageData?.customerUsage?.toDatetime}
+        fromDatetime={usageData?.fromDatetime}
+        toDatetime={usageData?.toDatetime}
         customerTimezone={customerTimezone}
       />
     </section>
+  )
+}
+
+export const SubscriptionCurrentUsageTable = ({
+  customerId,
+  subscriptionId,
+}: SubscriptionCurrentUsageTableProps) => {
+  const {
+    data: customerData,
+    loading: customerLoading,
+    error: customerError,
+  } = useCustomerForSubscriptionUsageQuery({
+    variables: { customerId },
+    skip: !customerId,
+  })
+
+  const {
+    data: subscriptionData,
+    loading: subscriptionLoading,
+    error: subscriptionError,
+  } = useSubscrptionForSubscriptionUsageQuery({
+    variables: { subscription: subscriptionId },
+  })
+
+  const subscription = subscriptionData?.subscription
+
+  const {
+    data: usageData,
+    loading: usageLoading,
+    error: usageError,
+    refetch: refetchUsage,
+  } = useUsageForSubscriptionUsageQuery({
+    context: {
+      silentErrorCodes: [LagoApiError.UnprocessableEntity],
+    },
+    variables: {
+      customerId: (customerId || subscription?.customer.id) as string,
+      subscriptionId: subscription?.id || '',
+    },
+    skip: !customerId || !subscription,
+    fetchPolicy: 'no-cache',
+  })
+
+  return (
+    <SubscriptionCurrentUsageTableComponent
+      customerData={customerData?.customer}
+      customerLoading={customerLoading}
+      customerError={customerError}
+      subscription={subscription}
+      subscriptionLoading={subscriptionLoading}
+      subscriptionError={subscriptionError}
+      usageData={usageData?.customerUsage}
+      usageLoading={usageLoading}
+      usageError={usageError}
+      refetchUsage={() => refetchUsage()}
+    />
   )
 }
 

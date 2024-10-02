@@ -5974,6 +5974,27 @@ export type GetCustomerPortalUserCurrencyQueryVariables = Exact<{ [key: string]:
 
 export type GetCustomerPortalUserCurrencyQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'CustomerPortalCustomer', currency?: CurrencyEnum | null } | null };
 
+export type SubscriptionForPortalUsageFragment = { __typename?: 'Subscription', id: string, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, amountCents: any, amountCurrency: CurrencyEnum }, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null };
+
+export type GetSubscriptionForPortalQueryVariables = Exact<{
+  subscriptionId: Scalars['ID']['input'];
+}>;
+
+
+export type GetSubscriptionForPortalQuery = { __typename?: 'Query', customerPortalSubscription?: { __typename?: 'Subscription', id: string, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, amountCents: any, amountCurrency: CurrencyEnum }, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null } | null };
+
+export type GetCustomerUsageForPortalQueryVariables = Exact<{
+  subscriptionId: Scalars['ID']['input'];
+}>;
+
+
+export type GetCustomerUsageForPortalQuery = { __typename?: 'Query', customerPortalCustomerUsage: { __typename?: 'CustomerUsage', amountCents: any, currency: CurrencyEnum, fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', id: string, units: number, amountCents: any, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null }, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null }> | null }> }> } };
+
+export type GetPortalUsageQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetPortalUsageQuery = { __typename?: 'Query', customerPortalSubscriptions: { __typename?: 'SubscriptionCollection', collection: Array<{ __typename?: 'Subscription', id: string, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, amountCents: any, amountCurrency: CurrencyEnum }, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null }> } };
+
 export type CouponPlansForCustomerFragment = { __typename?: 'Plan', id: string, name: string };
 
 export type CouponBillableMetricsForCustomerFragment = { __typename?: 'BillableMetric', id: string, name: string };
@@ -6503,8 +6524,6 @@ export type DeletePlanMutationVariables = Exact<{
 
 
 export type DeletePlanMutation = { __typename?: 'Mutation', destroyPlan?: { __typename?: 'DestroyPlanPayload', id?: string | null } | null };
-
-export type DynamicChargeFragment = { __typename?: 'Properties', groupedBy?: Array<string> | null };
 
 export type PlanForFixedFeeSectionFragment = { __typename?: 'Plan', id: string, amountCents: any, payInAdvance: boolean, trialPeriod?: number | null, invoiceDisplayName?: string | null };
 
@@ -7289,6 +7308,8 @@ export type SubscrptionForSubscriptionUsageQueryVariables = Exact<{
 
 export type SubscrptionForSubscriptionUsageQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, code: string }, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum } } | null };
 
+export type SubscriptionCurrentUsageTableComponentCustomerUsageFragment = { __typename?: 'CustomerUsage', amountCents: any, currency: CurrencyEnum, fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', id: string, units: number, amountCents: any, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null }, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null }> | null }> }> };
+
 export type UsageForSubscriptionUsageQueryVariables = Exact<{
   customerId: Scalars['ID']['input'];
   subscriptionId: Scalars['ID']['input'];
@@ -8008,7 +8029,7 @@ export type OktaLoginUserMutation = { __typename?: 'Mutation', oktaLogin?: { __t
 export type GetPortalLocaleQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetPortalLocaleQuery = { __typename?: 'Query', customerPortalOrganization?: { __typename?: 'CustomerPortalOrganization', id: string, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, documentLocale?: string | null } | null } | null, customerPortalUser?: { __typename?: 'CustomerPortalCustomer', id: string, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null } | null };
+export type GetPortalLocaleQuery = { __typename?: 'Query', customerPortalOrganization?: { __typename?: 'CustomerPortalOrganization', id: string, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, documentLocale?: string | null } | null } | null, customerPortalUser?: { __typename?: 'CustomerPortalCustomer', id: string, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null } | null };
 
 export type GetPasswordResetQueryVariables = Exact<{
   token: Scalars['String']['input'];
@@ -8041,7 +8062,7 @@ export type GoogleRegisterMutation = { __typename?: 'Mutation', googleRegisterUs
 export type GetPortalOrgaInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetPortalOrgaInfosQuery = { __typename?: 'Query', customerPortalOrganization?: { __typename?: 'CustomerPortalOrganization', id: string, name: string, logoUrl?: string | null } | null };
+export type GetPortalOrgaInfosQuery = { __typename?: 'Query', customerPortalOrganization?: { __typename?: 'CustomerPortalOrganization', id: string, name: string, logoUrl?: string | null, premiumIntegrations: Array<PremiumIntegrationTypeEnum> } | null };
 
 export type GetOrganizationApiKeyQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -8449,6 +8470,31 @@ export const PortalInvoiceListItemFragmentDoc = gql`
   issuingDate
   totalAmountCents
   currency
+}
+    `;
+export const SubscriptionForPortalUsageFragmentDoc = gql`
+    fragment SubscriptionForPortalUsage on Subscription {
+  id
+  currentBillingPeriodEndingAt
+  plan {
+    id
+    name
+    code
+    amountCents
+    amountCurrency
+  }
+  customer {
+    id
+    currency
+    applicableTimezone
+  }
+  lifetimeUsage {
+    lastThresholdAmountCents
+    nextThresholdAmountCents
+    totalUsageAmountCents
+    totalUsageFromDatetime
+    totalUsageToDatetime
+  }
 }
     `;
 export const CouponPlansForCustomerFragmentDoc = gql`
@@ -9293,6 +9339,40 @@ export const InviteForRolePickerFieldFragmentDoc = gql`
     fragment InviteForRolePickerField on Invite {
   id
   role
+}
+    `;
+export const SubscriptionCurrentUsageTableComponentCustomerUsageFragmentDoc = gql`
+    fragment SubscriptionCurrentUsageTableComponentCustomerUsage on CustomerUsage {
+  amountCents
+  currency
+  fromDatetime
+  toDatetime
+  chargesUsage {
+    id
+    units
+    amountCents
+    charge {
+      id
+      invoiceDisplayName
+    }
+    billableMetric {
+      id
+      code
+      name
+    }
+    filters {
+      id
+    }
+    groupedUsage {
+      amountCents
+      groupedBy
+      eventsCount
+      units
+      filters {
+        id
+      }
+    }
+  }
 }
     `;
 export const SubscriptionForSubscriptionInformationsFragmentDoc = gql`
@@ -10400,11 +10480,6 @@ export const CustomChargeFragmentDoc = gql`
   customProperties
 }
     `;
-export const DynamicChargeFragmentDoc = gql`
-    fragment DynamicCharge on Properties {
-  groupedBy
-}
-    `;
 export const TaxForPlanChargeAccordionFragmentDoc = gql`
     fragment TaxForPlanChargeAccordion on Tax {
   id
@@ -10440,7 +10515,6 @@ export const ChargeAccordionFragmentDoc = gql`
     ...StandardCharge
     ...PercentageCharge
     ...CustomCharge
-    ...DynamicCharge
   }
   filters {
     invoiceDisplayName
@@ -10453,7 +10527,6 @@ export const ChargeAccordionFragmentDoc = gql`
       ...StandardCharge
       ...PercentageCharge
       ...CustomCharge
-      ...DynamicCharge
     }
   }
   billableMetric {
@@ -10478,7 +10551,6 @@ ${PackageChargeFragmentDoc}
 ${StandardChargeFragmentDoc}
 ${PercentageChargeFragmentDoc}
 ${CustomChargeFragmentDoc}
-${DynamicChargeFragmentDoc}
 ${TaxForPlanChargeAccordionFragmentDoc}
 ${ChargeForChargeOptionsAccordionFragmentDoc}`;
 export const PlanForChargeAccordionFragmentDoc = gql`
@@ -11818,6 +11890,130 @@ export type GetCustomerPortalUserCurrencyQueryHookResult = ReturnType<typeof use
 export type GetCustomerPortalUserCurrencyLazyQueryHookResult = ReturnType<typeof useGetCustomerPortalUserCurrencyLazyQuery>;
 export type GetCustomerPortalUserCurrencySuspenseQueryHookResult = ReturnType<typeof useGetCustomerPortalUserCurrencySuspenseQuery>;
 export type GetCustomerPortalUserCurrencyQueryResult = Apollo.QueryResult<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>;
+export const GetSubscriptionForPortalDocument = gql`
+    query getSubscriptionForPortal($subscriptionId: ID!) {
+  customerPortalSubscription(id: $subscriptionId) {
+    id
+    ...SubscriptionForPortalUsage
+  }
+}
+    ${SubscriptionForPortalUsageFragmentDoc}`;
+
+/**
+ * __useGetSubscriptionForPortalQuery__
+ *
+ * To run a query within a React component, call `useGetSubscriptionForPortalQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubscriptionForPortalQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSubscriptionForPortalQuery({
+ *   variables: {
+ *      subscriptionId: // value for 'subscriptionId'
+ *   },
+ * });
+ */
+export function useGetSubscriptionForPortalQuery(baseOptions: Apollo.QueryHookOptions<GetSubscriptionForPortalQuery, GetSubscriptionForPortalQueryVariables> & ({ variables: GetSubscriptionForPortalQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSubscriptionForPortalQuery, GetSubscriptionForPortalQueryVariables>(GetSubscriptionForPortalDocument, options);
+      }
+export function useGetSubscriptionForPortalLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSubscriptionForPortalQuery, GetSubscriptionForPortalQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSubscriptionForPortalQuery, GetSubscriptionForPortalQueryVariables>(GetSubscriptionForPortalDocument, options);
+        }
+export function useGetSubscriptionForPortalSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForPortalQuery, GetSubscriptionForPortalQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetSubscriptionForPortalQuery, GetSubscriptionForPortalQueryVariables>(GetSubscriptionForPortalDocument, options);
+        }
+export type GetSubscriptionForPortalQueryHookResult = ReturnType<typeof useGetSubscriptionForPortalQuery>;
+export type GetSubscriptionForPortalLazyQueryHookResult = ReturnType<typeof useGetSubscriptionForPortalLazyQuery>;
+export type GetSubscriptionForPortalSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionForPortalSuspenseQuery>;
+export type GetSubscriptionForPortalQueryResult = Apollo.QueryResult<GetSubscriptionForPortalQuery, GetSubscriptionForPortalQueryVariables>;
+export const GetCustomerUsageForPortalDocument = gql`
+    query getCustomerUsageForPortal($subscriptionId: ID!) {
+  customerPortalCustomerUsage(subscriptionId: $subscriptionId) {
+    amountCents
+    ...SubscriptionCurrentUsageTableComponentCustomerUsage
+  }
+}
+    ${SubscriptionCurrentUsageTableComponentCustomerUsageFragmentDoc}`;
+
+/**
+ * __useGetCustomerUsageForPortalQuery__
+ *
+ * To run a query within a React component, call `useGetCustomerUsageForPortalQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerUsageForPortalQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomerUsageForPortalQuery({
+ *   variables: {
+ *      subscriptionId: // value for 'subscriptionId'
+ *   },
+ * });
+ */
+export function useGetCustomerUsageForPortalQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerUsageForPortalQuery, GetCustomerUsageForPortalQueryVariables> & ({ variables: GetCustomerUsageForPortalQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCustomerUsageForPortalQuery, GetCustomerUsageForPortalQueryVariables>(GetCustomerUsageForPortalDocument, options);
+      }
+export function useGetCustomerUsageForPortalLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerUsageForPortalQuery, GetCustomerUsageForPortalQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCustomerUsageForPortalQuery, GetCustomerUsageForPortalQueryVariables>(GetCustomerUsageForPortalDocument, options);
+        }
+export function useGetCustomerUsageForPortalSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerUsageForPortalQuery, GetCustomerUsageForPortalQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCustomerUsageForPortalQuery, GetCustomerUsageForPortalQueryVariables>(GetCustomerUsageForPortalDocument, options);
+        }
+export type GetCustomerUsageForPortalQueryHookResult = ReturnType<typeof useGetCustomerUsageForPortalQuery>;
+export type GetCustomerUsageForPortalLazyQueryHookResult = ReturnType<typeof useGetCustomerUsageForPortalLazyQuery>;
+export type GetCustomerUsageForPortalSuspenseQueryHookResult = ReturnType<typeof useGetCustomerUsageForPortalSuspenseQuery>;
+export type GetCustomerUsageForPortalQueryResult = Apollo.QueryResult<GetCustomerUsageForPortalQuery, GetCustomerUsageForPortalQueryVariables>;
+export const GetPortalUsageDocument = gql`
+    query getPortalUsage {
+  customerPortalSubscriptions {
+    collection {
+      id
+      ...SubscriptionForPortalUsage
+    }
+  }
+}
+    ${SubscriptionForPortalUsageFragmentDoc}`;
+
+/**
+ * __useGetPortalUsageQuery__
+ *
+ * To run a query within a React component, call `useGetPortalUsageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPortalUsageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPortalUsageQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetPortalUsageQuery(baseOptions?: Apollo.QueryHookOptions<GetPortalUsageQuery, GetPortalUsageQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPortalUsageQuery, GetPortalUsageQueryVariables>(GetPortalUsageDocument, options);
+      }
+export function useGetPortalUsageLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPortalUsageQuery, GetPortalUsageQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPortalUsageQuery, GetPortalUsageQueryVariables>(GetPortalUsageDocument, options);
+        }
+export function useGetPortalUsageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalUsageQuery, GetPortalUsageQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetPortalUsageQuery, GetPortalUsageQueryVariables>(GetPortalUsageDocument, options);
+        }
+export type GetPortalUsageQueryHookResult = ReturnType<typeof useGetPortalUsageQuery>;
+export type GetPortalUsageLazyQueryHookResult = ReturnType<typeof useGetPortalUsageLazyQuery>;
+export type GetPortalUsageSuspenseQueryHookResult = ReturnType<typeof useGetPortalUsageSuspenseQuery>;
+export type GetPortalUsageQueryResult = Apollo.QueryResult<GetPortalUsageQuery, GetPortalUsageQueryVariables>;
 export const GetCouponForCustomerDocument = gql`
     query getCouponForCustomer($page: Int, $limit: Int, $status: CouponStatusEnum, $searchTerm: String) {
   coupons(page: $page, limit: $limit, status: $status, searchTerm: $searchTerm) {
@@ -17453,39 +17649,12 @@ export const UsageForSubscriptionUsageDocument = gql`
     query usageForSubscriptionUsage($customerId: ID!, $subscriptionId: ID!) {
   customerUsage(customerId: $customerId, subscriptionId: $subscriptionId) {
     amountCents
-    currency
-    fromDatetime
-    toDatetime
-    chargesUsage {
-      id
-      units
-      amountCents
-      charge {
-        id
-        invoiceDisplayName
-      }
-      billableMetric {
-        id
-        code
-        name
-      }
-      filters {
-        id
-      }
-      groupedUsage {
-        amountCents
-        groupedBy
-        eventsCount
-        units
-        filters {
-          id
-        }
-      }
-    }
+    ...SubscriptionCurrentUsageTableComponentCustomerUsage
     ...CustomerUsageForUsageDetails
   }
 }
-    ${CustomerUsageForUsageDetailsFragmentDoc}`;
+    ${SubscriptionCurrentUsageTableComponentCustomerUsageFragmentDoc}
+${CustomerUsageForUsageDetailsFragmentDoc}`;
 
 /**
  * __useUsageForSubscriptionUsageQuery__
@@ -21128,6 +21297,7 @@ export const GetPortalLocaleDocument = gql`
     query getPortalLocale {
   customerPortalOrganization {
     id
+    premiumIntegrations
     billingConfiguration {
       id
       documentLocale
@@ -21335,6 +21505,7 @@ export const GetPortalOrgaInfosDocument = gql`
     id
     name
     logoUrl
+    premiumIntegrations
   }
 }
     `;
