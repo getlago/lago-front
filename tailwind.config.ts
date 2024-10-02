@@ -134,7 +134,7 @@ const config = {
     },
   },
   plugins: [
-    plugin(function ({ addUtilities, theme }) {
+    plugin(function ({ addUtilities, addVariant, theme }) {
       // Dividers
       addUtilities({
         '.shadow-t': {
@@ -153,14 +153,20 @@ const config = {
           boxShadow: `1px 0px 0px 0px ${theme('colors.grey.300')} inset`,
         },
       })
+
       // Outline ring
       addUtilities({
         '.ring': {
           outline: 'none',
           boxShadow: `0px 0px 0px 4px ${theme('colors.blue.200')}`,
-          borderRadius: '4px',
         },
       })
+
+      // Focus not active
+      addVariant('focus-not-active', '&:focus:not(:active)')
+
+      // Hover not active
+      addVariant('hover-not-active', '&:hover:not(:active)')
     }),
   ],
 }

@@ -23,6 +23,7 @@ import {
   NavigationTab,
   Popper,
   Selector,
+  SelectorSkeleton,
   ShowMoreText,
   Skeleton,
   Status,
@@ -486,6 +487,9 @@ const DesignSystem = () => {
                   <Skeleton variant="circular" width="60px" height="60px" marginBottom="16px" />
                   <Skeleton variant="text" width={120} height={12} marginBottom="16px" />
                   <Skeleton variant="text" width="50%" height={12} marginBottom="16px" />
+                </div>
+                <div>
+                  <SelectorSkeleton fullWidth />
                 </div>
               </Container>
             ),

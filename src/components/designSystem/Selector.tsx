@@ -1,7 +1,7 @@
+import { cva } from 'class-variance-authority'
 import { ReactElement, useState } from 'react'
-import styled, { css } from 'styled-components'
 
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import { Avatar } from './Avatar'
 import { Icon, IconName } from './Icon'
@@ -21,6 +21,44 @@ interface SelectorProps {
   onClick?: () => Promise<void> | unknown
 }
 
+const selectorVariants = cva('flex h-18 items-center rounded-xl border p-4', {
+  variants: {
+    selected: {
+      true: 'border-blue-600 bg-blue-100',
+      false: 'border-grey-400 bg-white',
+    },
+    disabled: {
+      true: 'cursor-not-allowed bg-grey-100',
+      false: 'cursor-default',
+    },
+    clickable: {
+      true: 'cursor-pointer focus-not-active:ring',
+    },
+    fullWidth: {
+      true: 'w-full',
+      false: 'min-w-full max-w-full md:min-w-[calc(50%-32px)] md:max-w-[calc(50%-32px)]',
+    },
+  },
+  compoundVariants: [
+    {
+      selected: false,
+      clickable: true,
+      disabled: false,
+      class: 'active:bg-grey-200 hover-not-active:bg-grey-100',
+    },
+    {
+      selected: true,
+      clickable: true,
+      disabled: false,
+      class: 'hover-not-active:bg-blue-200',
+    },
+  ],
+  defaultVariants: {
+    fullWidth: true,
+    selected: false,
+  },
+})
+
 export const Selector = ({
   title,
   subtitle,
@@ -34,10 +72,21 @@ export const Selector = ({
   onClick,
 }: SelectorProps) => {
   const [loading, setLoading] = useState(false)
+  const clickable = !!onClick && !loading && !disabled
 
   return (
-    <Container
-      className={className}
+    <button
+      disabled={disabled}
+      tabIndex={clickable ? 0 : -1}
+      className={tw(
+        selectorVariants({
+          selected,
+          disabled,
+          clickable,
+          fullWidth,
+        }),
+        className,
+      )}
       onClick={async () => {
         if (loading || disabled) return
         let result = !!onClick && onClick()
@@ -48,12 +97,8 @@ export const Selector = ({
           setLoading(false)
         }
       }}
-      $clickable={!!onClick && !loading}
-      $selected={selected}
-      $disabled={disabled}
-      $fullWidth={fullWidth}
     >
-      <MainIcon>
+      <div className="mr-3">
         {typeof icon === 'string' ? (
           <Avatar size="big" variant="connector">
             <Icon color="dark" name={icon as IconName} />
@@ -61,8 +106,13 @@ export const Selector = ({
         ) : (
           icon
         )}
-      </MainIcon>
-      <Infos $withEndIcon={!!endIcon} $titleFirst={titleFirst}>
+      </div>
+      <div
+        className={tw('mr-4 flex flex-1 overflow-hidden text-left', {
+          'flex-col': titleFirst,
+          'flex-col-reverse': !titleFirst,
+        })}
+      >
         <Typography
           variant={!!subtitle ? 'bodyHl' : 'body'}
           color={disabled ? 'disabled' : 'textSecondary'}
@@ -73,7 +123,7 @@ export const Selector = ({
         <Typography variant="caption" color={disabled ? 'disabled' : undefined} noWrap>
           {subtitle}
         </Typography>
-      </Infos>
+      </div>
       {loading ? (
         <Icon animation="spin" color="primary" name="processing" />
       ) : typeof endIcon === 'string' ? (
@@ -81,98 +131,15 @@ export const Selector = ({
       ) : (
         endIcon
       )}
-    </Container>
+    </button>
   )
 }
 
 export const SelectorSkeleton = ({ fullWidth = false }: { fullWidth?: boolean } = {}) => (
-  <Container $fullWidth={fullWidth}>
+  <div className={tw(selectorVariants({ fullWidth }))}>
     <Skeleton variant="connectorAvatar" size="big" marginRight={12} />
     <Skeleton variant="text" width={160} height={12} />
-  </Container>
+  </div>
 )
 
 export const SELECTOR_HEIGHT = 72
-
-const MainIcon = styled.div`
-  margin-right: ${theme.spacing(3)};
-`
-
-const ICON_CONTAINER_SIZE = 40
-
-const Infos = styled.div<{ $titleFirst?: boolean; $withEndIcon?: boolean }>`
-  display: flex;
-  text-align: left;
-  flex-direction: ${({ $titleFirst }) => ($titleFirst ? 'column' : 'column-reverse')};
-  flex: 1;
-  margin-right: ${theme.spacing(4)};
-  // 100 - Container icon size - end icon size (if present) - (padding left + right)
-  max-width: ${({ $withEndIcon }) =>
-    $withEndIcon
-      ? `calc(100% - ${ICON_CONTAINER_SIZE}px - ${theme.spacing(4)} - ${theme.spacing(4 * 2)})`
-      : `calc(100% - ${ICON_CONTAINER_SIZE}px - ${theme.spacing(4 * 2)})`};
-`
-
-const Container = styled.button<{
-  $selected?: boolean
-  $disabled?: boolean
-  $clickable?: boolean
-  $fullWidth?: boolean
-}>`
-  display: flex;
-  align-items: center;
-  padding: ${theme.spacing(4)};
-  box-sizing: border-box;
-  height: ${SELECTOR_HEIGHT}px;
-  background-color: ${({ $selected, $disabled }) =>
-    $selected
-      ? theme.palette.primary[100]
-      : $disabled
-        ? theme.palette.grey[100]
-        : theme.palette.background.default};
-  border: 1px solid
-    ${({ $selected }) => ($selected ? theme.palette.primary[600] : theme.palette.grey[400])};
-  cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'default')};
-
-  ${({ $fullWidth }) =>
-    !$fullWidth
-      ? css`
-          min-width: calc(50% - ${theme.spacing(4 * 2)});
-          max-width: calc(50% - ${theme.spacing(4 * 2)});
-          ${theme.breakpoints.down('sm')} {
-            min-width: initial;
-            max-width: 100%;
-          }
-        `
-      : css`
-          width: 100%;
-        `}
-
-  ${({ $clickable, $selected, $disabled }) =>
-    $clickable &&
-    !$disabled &&
-    css`
-      cursor: pointer;
-      :focus:not(:active) {
-        box-shadow: 0px 0px 0px 4px ${theme.palette.primary[200]};
-        border-radius: 12px;
-      }
-
-      ${() =>
-        !!$clickable &&
-        css`
-          :hover:not(:active) {
-            background-color: ${$selected ? theme.palette.primary[200] : theme.palette.grey[100]};
-          }
-        `}
-    `}
-
-  ${({ $selected, $clickable }) =>
-    !$selected &&
-    $clickable &&
-    css`
-      :active {
-        background-color: ${theme.palette.grey[200]};
-      }
-    `}
-`
