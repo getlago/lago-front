@@ -174,7 +174,9 @@ export const SubscriptionCurrentUsageTable = ({
 
         {isLoading ? (
           <Skeleton variant="text" height={12} width={144} marginTop={8} />
-        ) : !hasError ? (
+        ) : !hasError &&
+          !!usageData?.customerUsage?.fromDatetime &&
+          !!usageData?.customerUsage?.toDatetime ? (
           <Typography variant="caption" color="grey600" noWrap>
             {translate('text_633dae57ca9a923dd53c2097', {
               fromDate: formatDateToTZ(usageData?.customerUsage?.fromDatetime, customerTimezone),
