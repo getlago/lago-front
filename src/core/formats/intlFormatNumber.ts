@@ -19,6 +19,7 @@ type FormatterOptions = {
   style?: keyof typeof AmountStyle
   minimumFractionDigits?: number
   maximumFractionDigits?: number
+  maximumSignificantDigits?: number
   locale?: LocaleEnum
 }
 
