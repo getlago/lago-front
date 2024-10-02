@@ -186,8 +186,8 @@ const Integrations = () => {
             ))}
           </LoadingContainer>
         ) : (
-          <>
-            <StyledSelector
+          <div className="flex flex-1 flex-col gap-4">
+            <Selector
               fullWidth
               title={translate('text_6668821d94e4da4dfd8b3834')}
               subtitle={translate('text_6668821d94e4da4dfd8b3840')}
@@ -218,7 +218,7 @@ const Integrations = () => {
                 }
               }}
             />
-            <StyledSelector
+            <Selector
               title={translate('text_645d071272418a14c1c76a6d')}
               subtitle={translate('text_634ea0ecc6147de10ddb6631')}
               icon={
@@ -243,7 +243,7 @@ const Integrations = () => {
               }}
               fullWidth
             />
-            <StyledSelector
+            <Selector
               title={translate('text_639c334c3fa0e9c6ca3512b2')}
               subtitle={translate('text_639c334c3fa0e9c6ca3512b4')}
               icon={
@@ -256,7 +256,7 @@ const Integrations = () => {
               }}
               fullWidth
             />
-            <StyledSelector
+            <Selector
               title={translate('text_63e26d8308d03687188221a5')}
               subtitle={translate('text_63e26d8308d03687188221a6')}
               icon={
@@ -269,7 +269,7 @@ const Integrations = () => {
               }}
               fullWidth
             />
-            <StyledSelector
+            <Selector
               title={translate('text_634ea0ecc6147de10ddb6625')}
               subtitle={translate('text_634ea0ecc6147de10ddb6631')}
               icon={
@@ -291,7 +291,7 @@ const Integrations = () => {
               }}
               fullWidth
             />
-            <StyledSelector
+            <Selector
               title={translate('text_641b41f3cec373009a265e9e')}
               subtitle={translate('text_641b41fa604ef10070cab5ea')}
               icon={
@@ -305,7 +305,7 @@ const Integrations = () => {
               fullWidth
             />
             {isHubspotFeatureFlagEnabled && (
-              <StyledSelector
+              <Selector
                 title={translate('text_1727189568053s79ks5q07tr')}
                 subtitle={translate('text_1727189568053q2gpkjzpmxr')}
                 icon={
@@ -337,7 +337,7 @@ const Integrations = () => {
                 fullWidth
               />
             )}
-            <StyledSelector
+            <Selector
               fullWidth
               title={translate('text_657078c28394d6b1ae1b9713')}
               subtitle={translate('text_657078c28394d6b1ae1b971f')}
@@ -359,7 +359,7 @@ const Integrations = () => {
                 }
               }}
             />
-            <StyledSelector
+            <Selector
               fullWidth
               title={translate('text_661ff6e56ef7e1b7c542b239')}
               subtitle={translate('text_661ff6e56ef7e1b7c542b245')}
@@ -390,7 +390,7 @@ const Integrations = () => {
                 }
               }}
             />
-            <StyledSelector
+            <Selector
               title={translate('text_641b42035d62fd004e07cdde')}
               subtitle={translate('text_641b420ccd75240062f2386e')}
               icon={
@@ -403,7 +403,7 @@ const Integrations = () => {
               }}
               fullWidth
             />
-            <StyledSelector
+            <Selector
               title={translate('text_62b1edddbf5f461ab971277d')}
               subtitle={translate('text_62b1edddbf5f461ab9712795')}
               icon={
@@ -429,7 +429,7 @@ const Integrations = () => {
               fullWidth
             />
 
-            <StyledSelector
+            <Selector
               fullWidth
               title={translate('text_6672ebb8b1b50be550eccaf8')}
               subtitle={translate('text_661ff6e56ef7e1b7c542b245')}
@@ -460,7 +460,7 @@ const Integrations = () => {
                 }
               }}
             />
-          </>
+          </div>
         )}
       </SettingsPageContentWrapper>
 
@@ -482,10 +482,6 @@ const Integrations = () => {
 
 const Title = styled(Typography)`
   margin-bottom: ${theme.spacing(2)};
-`
-
-const StyledSelector = styled(Selector)`
-  margin-bottom: ${theme.spacing(4)};
 `
 
 const Subtitle = styled(Typography)`
