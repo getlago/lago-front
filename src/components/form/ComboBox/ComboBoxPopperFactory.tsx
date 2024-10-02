@@ -68,6 +68,7 @@ const StyledPopper = styled(Popper)<{
   .MuiAutocomplete-paper {
     border: 1px solid ${theme.palette.grey[200]};
     padding: ${theme.spacing(2)} 0;
+    box-sizing: content-box;
   }
 
   > *.combobox-popper--grouped .MuiAutocomplete-paper {
