@@ -32,6 +32,7 @@ import {
   ChargeModelEnum,
   CurrencyEnum,
   CustomChargeFragmentDoc,
+  DynamicChargeFragmentDoc,
   GraduatedChargeFragmentDoc,
   GraduatedPercentageChargeFragmentDoc,
   PackageChargeFragmentDoc,
@@ -86,6 +87,7 @@ gql`
       ...StandardCharge
       ...PercentageCharge
       ...CustomCharge
+      ...DynamicCharge
     }
     filters {
       invoiceDisplayName
@@ -98,6 +100,7 @@ gql`
         ...StandardCharge
         ...PercentageCharge
         ...CustomCharge
+        ...DynamicCharge
       }
     }
     billableMetric {
@@ -137,6 +140,7 @@ gql`
   ${PercentageChargeFragmentDoc}
   ${CustomChargeFragmentDoc}
   ${ChargeForChargeOptionsAccordionFragmentDoc}
+  ${DynamicChargeFragmentDoc}
 `
 
 export const mapChargeIntervalCopy = (interval: string, forceMonthlyCharge: boolean): string => {

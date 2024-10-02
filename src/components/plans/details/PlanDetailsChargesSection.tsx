@@ -28,6 +28,7 @@ const chargeModelLookupTranslation: Record<string, string> = {
   [ChargeModelEnum.Standard]: 'text_65201b8216455901fe273dd6',
   [ChargeModelEnum.Volume]: 'text_65201b8216455901fe273e4f',
   [ChargeModelEnum.Custom]: 'text_6641dd21c0cffd005b5e2a8b',
+  [ChargeModelEnum.Dynamic]: 'text_1727770512968tj58xr3h64p',
 }
 
 const PlanDetailsChargesSection = ({

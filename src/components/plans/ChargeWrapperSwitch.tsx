@@ -7,6 +7,7 @@ import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
 import { ChargeModelEnum, CurrencyEnum } from '~/generated/graphql'
 
+import { DynamicCharge } from './DynamicCharge'
 import { GraduatedPercentageChargeTable } from './GraduatedPercentageChargeTable'
 import { StandardCharge } from './StandardCharge'
 import { LocalChargeFilterInput, LocalPropertiesInput, PlanFormInput } from './types'
@@ -104,6 +105,15 @@ export const ChargeWrapperSwitch = memo(
             disabled={disabled}
             chargeIndex={chargeIndex}
             formikProps={formikProps}
+            propertyCursor={propertyCursor}
+            valuePointer={valuePointer}
+          />
+        ) : localCharge.chargeModel === ChargeModelEnum.Dynamic ? (
+          <DynamicCharge
+            chargeIndex={chargeIndex}
+            disabled={disabled}
+            formikProps={formikProps}
+            initialValuePointer={initialValuePointer}
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}
           />

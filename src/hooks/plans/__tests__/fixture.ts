@@ -31,7 +31,7 @@ export const ComboboxTestMatrice = [
   },
   {
     aggregationType: AggregationTypeEnum.SumAgg,
-    expectedChargesModels: allCombobxOptionsWithoutCustom,
+    expectedChargesModels: [ChargeModelEnum.Dynamic, ...allCombobxOptionsWithoutCustom],
   },
   {
     aggregationType: AggregationTypeEnum.UniqueCountAgg,

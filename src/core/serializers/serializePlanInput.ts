@@ -42,7 +42,7 @@ const serializeFilters = (
 const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnum) => {
   return {
     ...properties,
-    ...([ChargeModelEnum.Standard].includes(chargeModel)
+    ...([ChargeModelEnum.Standard, ChargeModelEnum.Dynamic].includes(chargeModel)
       ? // @ts-ignore EDIT: groupedBy is a string at this stage. need to send string[] to BE
         { groupedBy: !!properties?.groupedBy ? properties?.groupedBy.split(',') : undefined }
       : { groupedBy: undefined }),
