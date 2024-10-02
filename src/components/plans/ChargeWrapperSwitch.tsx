@@ -1,6 +1,5 @@
 import { FormikProps } from 'formik'
 import { memo, RefObject } from 'react'
-import styled from 'styled-components'
 
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
 import { CustomCharge } from '~/components/plans/CustomCharge'
@@ -42,8 +41,8 @@ export const ChargeWrapperSwitch = memo(
     const localCharge = formikProps.values.charges[chargeIndex]
 
     return (
-      <MargedWrapper>
-        {localCharge.chargeModel === ChargeModelEnum.Standard && (
+      <div className="m-4">
+        {localCharge.chargeModel === ChargeModelEnum.Standard ? (
           <StandardCharge
             chargeIndex={chargeIndex}
             currency={currency}
@@ -53,8 +52,7 @@ export const ChargeWrapperSwitch = memo(
             valuePointer={valuePointer}
             initialValuePointer={initialValuePointer}
           />
-        )}
-        {localCharge.chargeModel === ChargeModelEnum.Package && (
+        ) : localCharge.chargeModel === ChargeModelEnum.Package ? (
           <PackageCharge
             chargeIndex={chargeIndex}
             currency={currency}
@@ -63,8 +61,7 @@ export const ChargeWrapperSwitch = memo(
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}
           />
-        )}
-        {localCharge.chargeModel === ChargeModelEnum.Graduated && (
+        ) : localCharge.chargeModel === ChargeModelEnum.Graduated ? (
           <GraduatedChargeTable
             chargeIndex={chargeIndex}
             currency={currency}
@@ -73,8 +70,7 @@ export const ChargeWrapperSwitch = memo(
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}
           />
-        )}
-        {localCharge.chargeModel === ChargeModelEnum.GraduatedPercentage && (
+        ) : localCharge.chargeModel === ChargeModelEnum.GraduatedPercentage ? (
           <GraduatedPercentageChargeTable
             chargeIndex={chargeIndex}
             currency={currency}
@@ -83,8 +79,7 @@ export const ChargeWrapperSwitch = memo(
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}
           />
-        )}
-        {localCharge.chargeModel === ChargeModelEnum.Percentage && (
+        ) : localCharge.chargeModel === ChargeModelEnum.Percentage ? (
           <ChargePercentage
             chargeIndex={chargeIndex}
             filterIndex={filterIndex}
@@ -95,8 +90,7 @@ export const ChargeWrapperSwitch = memo(
             valuePointer={valuePointer}
             premiumWarningDialogRef={premiumWarningDialogRef}
           />
-        )}
-        {localCharge.chargeModel === ChargeModelEnum.Volume && (
+        ) : localCharge.chargeModel === ChargeModelEnum.Volume ? (
           <VolumeChargeTable
             chargeIndex={chargeIndex}
             currency={currency}
@@ -105,8 +99,7 @@ export const ChargeWrapperSwitch = memo(
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}
           />
-        )}
-        {localCharge.chargeModel === ChargeModelEnum.Custom && (
+        ) : localCharge.chargeModel === ChargeModelEnum.Custom ? (
           <CustomCharge
             disabled={disabled}
             chargeIndex={chargeIndex}
@@ -114,14 +107,10 @@ export const ChargeWrapperSwitch = memo(
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}
           />
-        )}
-      </MargedWrapper>
+        ) : null}
+      </div>
     )
   },
 )
 
 ChargeWrapperSwitch.displayName = 'ChargeWrapperSwitch'
-
-const MargedWrapper = styled.div`
-  margin: 16px;
-`
