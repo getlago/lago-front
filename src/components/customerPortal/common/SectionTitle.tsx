@@ -1,14 +1,17 @@
 import { tw } from '~/styles/utils'
 
-const SectionTitle = ({ className, title }: { className?: string; title: string }) => (
-  <h3
-    className={tw(
-      'mb-6 flex h-10 items-center text-lg font-semibold text-grey-700 shadow-b',
-      className,
-    )}
-  >
-    {title}
-  </h3>
+type SectionTitleProps = {
+  className?: string
+  title: string
+  children?: React.ReactNode
+}
+
+const SectionTitle = ({ className, title, children }: SectionTitleProps) => (
+  <div className={tw('mb-6 flex h-10 items-center shadow-b', className)}>
+    <h3 className={'text-lg font-semibold text-grey-700'}>{title}</h3>
+
+    {children}
+  </div>
 )
 
 export default SectionTitle
