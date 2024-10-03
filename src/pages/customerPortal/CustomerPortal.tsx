@@ -1,3 +1,9 @@
+/*
+TODO:
+Error pages (Usage, Wallet)
+Wallet consumed credits (take into account premium ongoing - see notion)
+Wallet info icon next to balance
+*/
 import { gql } from '@apollo/client'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
@@ -8,9 +14,12 @@ import PortalInvoicesList from '~/components/customerPortal/PortalInvoicesList'
 import { PortalOverview } from '~/components/customerPortal/PortalOverview'
 import UsagePage from '~/components/customerPortal/usage/UsagePage'
 import UsageSection from '~/components/customerPortal/usage/UsageSection'
+import WalletPage from '~/components/customerPortal/wallet/WalletPage'
+import WalletSection from '~/components/customerPortal/wallet/WalletSection'
 import {
   CUSTOMER_PORTAL_ROUTE,
   CUSTOMER_PORTAL_ROUTE_PAGE,
+  CUSTOMER_PORTAL_ROUTE_PAGE_ITEMID,
 } from '~/core/router/CustomerPortalRoutes'
 import { LocaleEnum } from '~/core/translations'
 import { useGetPortalOrgaInfosQuery } from '~/generated/graphql'
@@ -31,6 +40,11 @@ interface CutsomerPortalProps {
   documentLocale: LocaleEnum
 }
 
+type ChangePageProps = {
+  newPage: string
+  itemId?: string
+}
+
 const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
   const { data, loading } = useGetPortalOrgaInfosQuery()
 
@@ -38,9 +52,22 @@ const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
 
   const navigate = useNavigate()
 
-  const changePage = ({ newPage, itemId }: { newPage: string; itemId: string }) => {
-    navigate(
-      generatePath(CUSTOMER_PORTAL_ROUTE_PAGE, { token: token as string, page: newPage, itemId }),
+  const changePage = ({ newPage, itemId }: ChangePageProps) => {
+    if (itemId) {
+      return navigate(
+        generatePath(CUSTOMER_PORTAL_ROUTE_PAGE_ITEMID, {
+          token: token as string,
+          page: newPage,
+          itemId,
+        }),
+      )
+    }
+
+    return navigate(
+      generatePath(CUSTOMER_PORTAL_ROUTE_PAGE, {
+        token: token as string,
+        page: newPage,
+      }),
     )
   }
 
@@ -52,6 +79,12 @@ const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
     changePage({
       newPage: 'usage',
       itemId: id,
+    })
+  }
+
+  const viewWallet = () => {
+    changePage({
+      newPage: 'wallet',
     })
   }
 
@@ -67,6 +100,7 @@ const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
 
         {!loading && !page && (
           <>
+            <WalletSection viewWallet={viewWallet} />
             <UsageSection viewSubscription={viewSubscription} />
             <PortalCustomerInfos translate={translate} />
             <PortalOverview translate={translate} documentLocale={documentLocale} />
@@ -75,6 +109,7 @@ const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
         )}
 
         {!loading && page === 'usage' && <UsagePage goHome={goHome} />}
+        {!loading && page === 'wallet' && <WalletPage goHome={goHome} />}
       </div>
     </div>
   )
