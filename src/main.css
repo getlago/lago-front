@@ -15,7 +15,7 @@ body {
 }
 
 a {
-  @apply text-blue no-underline visited:text-purple hover:underline focus:ring;
+  @apply text-blue no-underline visited:text-purple hover:underline focus:rounded focus:ring;
 }
 
 b {
