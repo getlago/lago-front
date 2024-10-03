@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 
+import SectionContainer from '~/components/customerPortal/common/SectionContainer'
 import SectionLoading from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import UsageSubscriptionItem from '~/components/customerPortal/usage/UsageSubscriptionItem'
@@ -34,7 +35,7 @@ const UsageSection = ({ viewSubscription }: PortalUsageSectionProps) => {
     data?.customerPortalSubscriptions?.collection?.[0]?.customer?.applicableTimezone
 
   return (
-    <section>
+    <SectionContainer>
       <SectionTitle title={translate('TODO: Plans')} />
 
       {loading && <SectionLoading />}
@@ -57,7 +58,7 @@ const UsageSection = ({ viewSubscription }: PortalUsageSectionProps) => {
           ))}
         </div>
       )}
-    </section>
+    </SectionContainer>
   )
 }
 
