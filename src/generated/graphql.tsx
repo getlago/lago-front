@@ -5995,6 +5995,25 @@ export type GetPortalUsageQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetPortalUsageQuery = { __typename?: 'Query', customerPortalSubscriptions: { __typename?: 'SubscriptionCollection', collection: Array<{ __typename?: 'Subscription', id: string, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, amountCents: any, amountCurrency: CurrencyEnum }, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null }> } };
 
+export type TopUpPortalWalletMutationVariables = Exact<{
+  input: CreateCustomerPortalWalletTransactionInput;
+}>;
+
+
+export type TopUpPortalWalletMutation = { __typename?: 'Mutation', createCustomerPortalWalletTransaction?: { __typename?: 'CustomerPortalWalletTransactionCollection', collection: Array<{ __typename?: 'CustomerPortalWalletTransaction', id: string }> } | null };
+
+export type CustomerPortalWalletInfoFragment = { __typename?: 'CustomerPortalWallet', id: string, currency: CurrencyEnum, balanceCents: any, creditsBalance: number, expirationAt?: any | null, consumedCredits: number, consumedAmountCents: any, status: WalletStatusEnum, creditsOngoingBalance: number, rateAmount: number };
+
+export type GetPortalCustomerTimezoneQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetPortalCustomerTimezoneQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'CustomerPortalCustomer', applicableTimezone: TimezoneEnum } | null };
+
+export type GetPortalWalletsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetPortalWalletsQuery = { __typename?: 'Query', customerPortalWallets: { __typename?: 'CustomerPortalWalletCollection', collection: Array<{ __typename?: 'CustomerPortalWallet', id: string, currency: CurrencyEnum, balanceCents: any, creditsBalance: number, expirationAt?: any | null, consumedCredits: number, consumedAmountCents: any, status: WalletStatusEnum, creditsOngoingBalance: number, rateAmount: number }> } };
+
 export type CouponPlansForCustomerFragment = { __typename?: 'Plan', id: string, name: string };
 
 export type CouponBillableMetricsForCustomerFragment = { __typename?: 'BillableMetric', id: string, name: string };
@@ -8495,6 +8514,21 @@ export const SubscriptionForPortalUsageFragmentDoc = gql`
     totalUsageFromDatetime
     totalUsageToDatetime
   }
+}
+    `;
+export const CustomerPortalWalletInfoFragmentDoc = gql`
+    fragment CustomerPortalWalletInfo on CustomerPortalWallet {
+  id
+  currency
+  balanceCents
+  creditsBalance
+  expirationAt
+  consumedCredits
+  consumedAmountCents
+  status
+  creditsOngoingBalance
+  creditsBalance
+  rateAmount
 }
     `;
 export const CouponPlansForCustomerFragmentDoc = gql`
@@ -12014,6 +12048,121 @@ export type GetPortalUsageQueryHookResult = ReturnType<typeof useGetPortalUsageQ
 export type GetPortalUsageLazyQueryHookResult = ReturnType<typeof useGetPortalUsageLazyQuery>;
 export type GetPortalUsageSuspenseQueryHookResult = ReturnType<typeof useGetPortalUsageSuspenseQuery>;
 export type GetPortalUsageQueryResult = Apollo.QueryResult<GetPortalUsageQuery, GetPortalUsageQueryVariables>;
+export const TopUpPortalWalletDocument = gql`
+    mutation TopUpPortalWallet($input: CreateCustomerPortalWalletTransactionInput!) {
+  createCustomerPortalWalletTransaction(input: $input) {
+    collection {
+      id
+    }
+  }
+}
+    `;
+export type TopUpPortalWalletMutationFn = Apollo.MutationFunction<TopUpPortalWalletMutation, TopUpPortalWalletMutationVariables>;
+
+/**
+ * __useTopUpPortalWalletMutation__
+ *
+ * To run a mutation, you first call `useTopUpPortalWalletMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTopUpPortalWalletMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [topUpPortalWalletMutation, { data, loading, error }] = useTopUpPortalWalletMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useTopUpPortalWalletMutation(baseOptions?: Apollo.MutationHookOptions<TopUpPortalWalletMutation, TopUpPortalWalletMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<TopUpPortalWalletMutation, TopUpPortalWalletMutationVariables>(TopUpPortalWalletDocument, options);
+      }
+export type TopUpPortalWalletMutationHookResult = ReturnType<typeof useTopUpPortalWalletMutation>;
+export type TopUpPortalWalletMutationResult = Apollo.MutationResult<TopUpPortalWalletMutation>;
+export type TopUpPortalWalletMutationOptions = Apollo.BaseMutationOptions<TopUpPortalWalletMutation, TopUpPortalWalletMutationVariables>;
+export const GetPortalCustomerTimezoneDocument = gql`
+    query getPortalCustomerTimezone {
+  customerPortalUser {
+    applicableTimezone
+  }
+}
+    `;
+
+/**
+ * __useGetPortalCustomerTimezoneQuery__
+ *
+ * To run a query within a React component, call `useGetPortalCustomerTimezoneQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPortalCustomerTimezoneQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPortalCustomerTimezoneQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetPortalCustomerTimezoneQuery(baseOptions?: Apollo.QueryHookOptions<GetPortalCustomerTimezoneQuery, GetPortalCustomerTimezoneQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPortalCustomerTimezoneQuery, GetPortalCustomerTimezoneQueryVariables>(GetPortalCustomerTimezoneDocument, options);
+      }
+export function useGetPortalCustomerTimezoneLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPortalCustomerTimezoneQuery, GetPortalCustomerTimezoneQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPortalCustomerTimezoneQuery, GetPortalCustomerTimezoneQueryVariables>(GetPortalCustomerTimezoneDocument, options);
+        }
+export function useGetPortalCustomerTimezoneSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalCustomerTimezoneQuery, GetPortalCustomerTimezoneQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetPortalCustomerTimezoneQuery, GetPortalCustomerTimezoneQueryVariables>(GetPortalCustomerTimezoneDocument, options);
+        }
+export type GetPortalCustomerTimezoneQueryHookResult = ReturnType<typeof useGetPortalCustomerTimezoneQuery>;
+export type GetPortalCustomerTimezoneLazyQueryHookResult = ReturnType<typeof useGetPortalCustomerTimezoneLazyQuery>;
+export type GetPortalCustomerTimezoneSuspenseQueryHookResult = ReturnType<typeof useGetPortalCustomerTimezoneSuspenseQuery>;
+export type GetPortalCustomerTimezoneQueryResult = Apollo.QueryResult<GetPortalCustomerTimezoneQuery, GetPortalCustomerTimezoneQueryVariables>;
+export const GetPortalWalletsDocument = gql`
+    query getPortalWallets {
+  customerPortalWallets {
+    collection {
+      ...CustomerPortalWalletInfo
+    }
+  }
+}
+    ${CustomerPortalWalletInfoFragmentDoc}`;
+
+/**
+ * __useGetPortalWalletsQuery__
+ *
+ * To run a query within a React component, call `useGetPortalWalletsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPortalWalletsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPortalWalletsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetPortalWalletsQuery(baseOptions?: Apollo.QueryHookOptions<GetPortalWalletsQuery, GetPortalWalletsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPortalWalletsQuery, GetPortalWalletsQueryVariables>(GetPortalWalletsDocument, options);
+      }
+export function useGetPortalWalletsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPortalWalletsQuery, GetPortalWalletsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPortalWalletsQuery, GetPortalWalletsQueryVariables>(GetPortalWalletsDocument, options);
+        }
+export function useGetPortalWalletsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalWalletsQuery, GetPortalWalletsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetPortalWalletsQuery, GetPortalWalletsQueryVariables>(GetPortalWalletsDocument, options);
+        }
+export type GetPortalWalletsQueryHookResult = ReturnType<typeof useGetPortalWalletsQuery>;
+export type GetPortalWalletsLazyQueryHookResult = ReturnType<typeof useGetPortalWalletsLazyQuery>;
+export type GetPortalWalletsSuspenseQueryHookResult = ReturnType<typeof useGetPortalWalletsSuspenseQuery>;
+export type GetPortalWalletsQueryResult = Apollo.QueryResult<GetPortalWalletsQuery, GetPortalWalletsQueryVariables>;
 export const GetCouponForCustomerDocument = gql`
     query getCouponForCustomer($page: Int, $limit: Int, $status: CouponStatusEnum, $searchTerm: String) {
   coupons(page: $page, limit: $limit, status: $status, searchTerm: $searchTerm) {
