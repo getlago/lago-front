@@ -1932,6 +1932,18 @@ export type CustomerPortalCustomer = {
   zipcode?: Maybe<Scalars['String']['output']>;
 };
 
+/** CustomerPortalOrganization */
+export type CustomerPortalOrganization = {
+  __typename?: 'CustomerPortalOrganization';
+  billingConfiguration?: Maybe<OrganizationBillingConfiguration>;
+  defaultCurrency: CurrencyEnum;
+  id: Scalars['ID']['output'];
+  logoUrl?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  premiumIntegrations: Array<PremiumIntegrationTypeEnum>;
+  timezone?: Maybe<TimezoneEnum>;
+};
+
 /** CustomerPortalWallet */
 export type CustomerPortalWallet = {
   __typename?: 'CustomerPortalWallet';
@@ -4137,9 +4149,11 @@ export type Query = {
   /** Query invoices of a customer */
   customerPortalInvoices: InvoiceCollection;
   /** Query customer portal organization */
-  customerPortalOrganization?: Maybe<Organization>;
+  customerPortalOrganization?: Maybe<CustomerPortalOrganization>;
   /** Query overdue balances of a customer portal user */
   customerPortalOverdueBalances: OverdueBalanceCollection;
+  /** Query a single subscription from the customer portal */
+  customerPortalSubscription?: Maybe<Subscription>;
   /** Query customer portal subscriptions */
   customerPortalSubscriptions: SubscriptionCollection;
   /** Query a customer portal user */
@@ -4323,6 +4337,11 @@ export type QueryCustomerPortalInvoicesArgs = {
 export type QueryCustomerPortalOverdueBalancesArgs = {
   expireCache?: InputMaybe<Scalars['Boolean']['input']>;
   months?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryCustomerPortalSubscriptionArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -4842,8 +4861,8 @@ export type SyncIntegrationInvoicePayload = {
 };
 
 export enum TargetedObjectsEnum {
-  Companies = 'Companies',
-  Contacts = 'Contacts'
+  Companies = 'companies',
+  Contacts = 'contacts'
 }
 
 export type Tax = {
@@ -7992,7 +8011,7 @@ export type OktaLoginUserMutation = { __typename?: 'Mutation', oktaLogin?: { __t
 export type GetPortalLocaleQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetPortalLocaleQuery = { __typename?: 'Query', customerPortalOrganization?: { __typename?: 'Organization', id: string, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, documentLocale?: string | null } | null } | null, customerPortalUser?: { __typename?: 'CustomerPortalCustomer', id: string, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null } | null };
+export type GetPortalLocaleQuery = { __typename?: 'Query', customerPortalOrganization?: { __typename?: 'CustomerPortalOrganization', id: string, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, documentLocale?: string | null } | null } | null, customerPortalUser?: { __typename?: 'CustomerPortalCustomer', id: string, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null } | null };
 
 export type GetPasswordResetQueryVariables = Exact<{
   token: Scalars['String']['input'];
@@ -8025,7 +8044,7 @@ export type GoogleRegisterMutation = { __typename?: 'Mutation', googleRegisterUs
 export type GetPortalOrgaInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetPortalOrgaInfosQuery = { __typename?: 'Query', customerPortalOrganization?: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null } | null };
+export type GetPortalOrgaInfosQuery = { __typename?: 'Query', customerPortalOrganization?: { __typename?: 'CustomerPortalOrganization', id: string, name: string, logoUrl?: string | null } | null };
 
 export type GetOrganizationApiKeyQueryVariables = Exact<{ [key: string]: never; }>;
 
