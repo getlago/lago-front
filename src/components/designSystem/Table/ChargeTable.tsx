@@ -1,15 +1,14 @@
 import _get from 'lodash/get'
 import { ReactNode } from 'react'
-import styled from 'styled-components'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import { Button } from '../Button'
 import { Tooltip } from '../Tooltip'
 import { Typography } from '../Typography'
 
-const CELL_HEIGHT = 48
+const CELL_HEIGHT = 'h-12'
 
 type DataType<T> = T & { disabledDelete?: boolean }
 
@@ -53,33 +52,64 @@ export const ChargeTable = <T extends Record<string, unknown>>({
   const hasHeader = columns?.some(({ title }) => title)
 
   return (
-    <Content className={className}>
+    <table
+      className={tw('border-spacing-0 border-l border-t border-solid border-grey-300', className)}
+    >
       {/* Header */}
       {hasHeader && (
         <thead>
-          <HeaderRow>
+          <tr className={tw(CELL_HEIGHT)}>
             {columns?.map(({ title, size = 124, onClick }, i) => {
+              const sizeStyle = {
+                width: `${size}px`,
+                minWidth: `${size}px`,
+                maxWidth: `${size}px`,
+              }
+
               return (
-                <HeaderCell
+                <th
+                  className={tw(
+                    CELL_HEIGHT,
+                    'border-b border-r border-solid border-grey-300 text-left',
+                  )}
+                  style={sizeStyle}
                   key={`table-${name}-head-${i}`}
-                  $size={size}
                   onClick={() => onClick && onClick()}
                 >
                   {title && title}
-                </HeaderCell>
+                </th>
               )
             })}
-          </HeaderRow>
+          </tr>
         </thead>
       )}
       <tbody>
         {data?.map((row, i) => {
           return (
-            <ContentRow key={`table-${name}-head-${i}`} data-test={`row-${i}`}>
+            <tr
+              className={tw('group/row relative', CELL_HEIGHT)}
+              key={`table-${name}-head-${i}`}
+              data-test={`row-${i}`}
+            >
               <>
                 {columns.map(({ content, mapKey, size = 124 }, j) => {
+                  const sizeStyle = {
+                    width: `${size}px`,
+                    minWidth: `${size}px`,
+                    maxWidth: `${size}px`,
+                  }
+
                   return (
-                    <ContentCell $size={size} key={`table-${name}-cell-${i}-${j}`}>
+                    <td
+                      className={tw(
+                        CELL_HEIGHT,
+                        'border-b border-r border-solid border-grey-300 p-0',
+                      )}
+                      // Tailwind doesn't support interpolation in class names
+                      // https://tailwindcss.com/docs/content-configuration#dynamic-class-names
+                      style={sizeStyle}
+                      key={`table-${name}-cell-${i}-${j}`}
+                    >
                       {mapKey ? (
                         <Typography variant="body">{_get(row, mapKey) as string}</Typography>
                       ) : typeof content === 'function' ? (
@@ -87,11 +117,16 @@ export const ChargeTable = <T extends Record<string, unknown>>({
                       ) : (
                         content
                       )}
-                    </ContentCell>
+                    </td>
                   )
                 })}
                 {onDeleteRow && !row.disabledDelete && (
-                  <DeleteButtonContainer>
+                  <td
+                    className={tw(
+                      'absolute hidden w-fit rounded-lg bg-white',
+                      'group-hover/row:left-0 group-hover/row:top-0 group-hover/row:flex group-hover/row:-translate-x-3 group-hover/row:translate-y-3',
+                    )}
+                  >
                     <Tooltip
                       title={deleteTooltipContent ?? translate('text_62793bbb599f1c01522e9239')}
                       placement="top-start"
@@ -103,69 +138,13 @@ export const ChargeTable = <T extends Record<string, unknown>>({
                         onClick={() => onDeleteRow(row, i)}
                       />
                     </Tooltip>
-                  </DeleteButtonContainer>
+                  </td>
                 )}
               </>
-            </ContentRow>
+            </tr>
           )
         })}
       </tbody>
-    </Content>
+    </table>
   )
 }
-
-const DeleteButtonContainer = styled.td`
-  position: absolute;
-  display: none;
-  border-radius: 8px;
-  width: fit-content;
-  background-color: ${theme.palette.background.default};
-`
-
-const Content = styled.table`
-  border-left: 1px solid ${theme.palette.grey[300]};
-  border-top: 1px solid ${theme.palette.grey[300]};
-  border-spacing: 0;
-`
-
-const HeaderRow = styled.tr`
-  height: ${CELL_HEIGHT}px;
-`
-
-const HeaderCell = styled.th<{ $size: number }>`
-  width: ${({ $size }) => $size}px;
-  min-width: ${({ $size }) => $size}px;
-  max-width: ${({ $size }) => $size}px;
-  min-width: ${({ $size }) => $size}px;
-  box-sizing: border-box;
-  border-right: 1px solid ${theme.palette.grey[300]};
-  border-bottom: 1px solid ${theme.palette.grey[300]};
-  text-align: left;
-  height: ${CELL_HEIGHT}px;
-`
-
-const ContentRow = styled.tr`
-  position: relative;
-  height: ${CELL_HEIGHT}px;
-
-  &:hover {
-    ${DeleteButtonContainer} {
-      display: flex;
-      top: 0;
-      left: 0;
-      transform: translate(-12px, ${CELL_HEIGHT / 2 - 12}px);
-    }
-  }
-`
-
-const ContentCell = styled.td<{ $size: number }>`
-  width: ${({ $size }) => $size}px;
-  min-width: ${({ $size }) => $size}px;
-  max-width: ${({ $size }) => $size}px;
-  min-width: ${({ $size }) => $size}px;
-  box-sizing: border-box;
-  height: ${CELL_HEIGHT}px;
-  border-right: 1px solid ${theme.palette.grey[300]};
-  border-bottom: 1px solid ${theme.palette.grey[300]};
-  padding: 0;
-`

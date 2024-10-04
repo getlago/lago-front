@@ -1,9 +1,8 @@
 import { FC } from 'react'
-import styled from 'styled-components'
 
 import { Locale, TranslateData } from '~/core/translations'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import { Icon, IconColor, IconName } from './Icon'
 import { Typography, TypographyColor } from './Typography'
@@ -108,38 +107,38 @@ const STATUS_CONFIG: StatusConfig = {
   success: {
     color: 'success600',
     iconColor: 'success',
-    backgroundColor: theme.palette.success[100],
-    borderColor: theme.palette.success[200],
+    backgroundColor: 'bg-green-100',
+    borderColor: 'outline-green-200',
   },
   default: {
     color: 'grey700',
     iconColor: 'black',
-    backgroundColor: theme.palette.grey[100],
-    borderColor: theme.palette.grey[400],
+    backgroundColor: 'bg-grey-100',
+    borderColor: 'outline-grey-400',
   },
   outline: {
     color: 'grey600',
     iconColor: 'dark',
-    backgroundColor: theme.palette.background.default,
-    borderColor: theme.palette.grey[400],
+    backgroundColor: 'bg-white',
+    borderColor: 'outline-grey-400',
   },
   warning: {
     color: 'warning700',
     iconColor: 'warning',
-    backgroundColor: theme.palette.secondary[100],
-    borderColor: theme.palette.secondary[300],
+    backgroundColor: 'bg-yellow-100',
+    borderColor: 'outline-yellow-300',
   },
   danger: {
     color: 'danger600',
     iconColor: 'error',
-    backgroundColor: theme.palette.error[100],
-    borderColor: theme.palette.error[200],
+    backgroundColor: 'bg-red-100',
+    borderColor: 'outline-red-200',
   },
   disabled: {
     color: 'grey500',
     iconColor: 'disabled',
-    backgroundColor: theme.palette.grey[100],
-    borderColor: theme.palette.grey[400],
+    backgroundColor: 'bg-grey-100',
+    borderColor: 'outline-grey-400',
   },
 }
 
@@ -156,31 +155,18 @@ export const Status: FC<StatusProps> = ({
   const statusLabel = statusLabelMapping[label]
 
   return (
-    <Container
+    <div
+      className={tw(
+        'flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1',
+        config.backgroundColor,
+        config.borderColor,
+      )}
       data-test="status"
-      $backgroundColor={config.backgroundColor}
-      $borderColor={config.borderColor}
     >
       <Typography variant="captionHl" color={config.color} noWrap>
         {translate(statusLabel, labelVariables ?? {})}
       </Typography>
       {endIcon && <Icon name={endIcon} size="medium" color={config.iconColor} />}
-    </Container>
+    </div>
   )
 }
-
-const Container = styled.div<{ $backgroundColor: string; $borderColor: string }>`
-  background-color: ${({ $backgroundColor }) => $backgroundColor};
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(2)};
-  height: fit-content;
-  width: fit-content;
-  border-radius: ${theme.spacing(2)};
-  min-height: ${theme.spacing(8)};
-  padding: 0px ${theme.spacing(2)};
-  outline-offset: -1px;
-  outline-style: solid;
-  outline-width: 1px;
-  outline-color: ${({ $borderColor }) => $borderColor};
-`

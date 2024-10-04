@@ -1,11 +1,8 @@
-import { Stack } from '@mui/material'
 import _omit from 'lodash/omit'
 import { ReactNode } from 'react'
 import { matchPath, useLocation } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 import { ButtonLink, ButtonLinkTabProps } from './ButtonLink'
 import { Chip } from './Chip'
@@ -47,9 +44,9 @@ export const VerticalMenu = ({
   )
 
   return (
-    <Container {...props}>
+    <div className="flex w-full flex-col overflow-visible" {...props}>
       {!loading && tabs.length > 1 && (
-        <TabsBlock>
+        <div className="flex w-full flex-1 flex-col gap-1 overflow-visible">
           {tabs.map((tab, i) => {
             const { link, hidden, title, beta, external, ...tabProps } = tab
 
@@ -66,75 +63,33 @@ export const VerticalMenu = ({
                 onClick={!!onClick ? () => onClick(tab) : undefined}
                 {..._omit(tabProps, ['component', 'match'])}
               >
-                <Stack
-                  width="100%"
-                  direction="row"
-                  alignItems="center"
-                  justifyContent="space-between"
-                >
-                  <InlineNavLinkWrapper>
-                    <Typography variant="body" color="inherit">
+                <div className="flex w-full flex-row items-center justify-between">
+                  <div className="flex items-baseline gap-2">
+                    <Typography variant="body" color="inherit" noWrap>
                       {title}
                     </Typography>
                     {!!beta && (
                       <Chip beta size="small" label={translate('text_65d8d71a640c5400917f8a13')} />
                     )}
-                  </InlineNavLinkWrapper>
+                  </div>
                   {!!external && <Icon name="outside" />}
-                </Stack>
+                </div>
               </ButtonLink>
             )
           })}
-        </TabsBlock>
+        </div>
       )}
       {loading ? (
         loadingComponent ? (
           loadingComponent
         ) : (
-          <Loader>
+          <div className="m-auto flex h-40 w-full items-center justify-center">
             <Icon name="processing" color="info" size="large" animation="spin" />
-          </Loader>
+          </div>
         )
       ) : (
         activeTab?.component || children
       )}
-    </Container>
+    </div>
   )
 }
-
-const TabsBlock = styled.div`
-  display: flex;
-  box-sizing: border-box;
-  padding: ${theme.spacing(4)};
-  width: 100%;
-
-  box-shadow: none;
-  flex-direction: column;
-  padding: 0;
-  overflow: visible;
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(1)};
-    flex: 1;
-  }
-`
-
-const Loader = styled.div`
-  height: 160px;
-  width: 100%;
-  margin: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`
-
-const Container = styled.div<{ $vertical?: boolean }>`
-  display: flex;
-  flex-direction: ${({ $vertical }) => ($vertical ? 'row' : 'column')};
-`
-
-const InlineNavLinkWrapper = styled.div`
-  display: flex;
-  align-items: baseline;
-  gap: ${theme.spacing(2)};
-`

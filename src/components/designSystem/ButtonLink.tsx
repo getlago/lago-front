@@ -1,9 +1,8 @@
-import { cx } from 'class-variance-authority'
 import { forwardRef, MouseEvent, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import styled, { css } from 'styled-components'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
+import { tw } from '~/styles/utils'
 
 import { Button, ButtonProps } from './Button'
 import { IconName } from './Icon'
@@ -74,15 +73,18 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
           }
         : buttonProps || {}
 
-    const classNames = cx(className, {
-      'button-link-disabled': (active && !canBeClickedOnActive) || disabled,
-    })
+    const classNames = tw(
+      {
+        'pointer-events-none': (active && !canBeClickedOnActive) || disabled,
+      },
+      className,
+    )
 
     return (
       <ConditionalWrapper
         condition={!!external}
         validWrapper={(wrapperChildren) => (
-          <ExternalButtonLink
+          <a
             tabIndex={-1}
             className={classNames}
             href={to}
@@ -93,10 +95,10 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
             {...props}
           >
             {wrapperChildren}
-          </ExternalButtonLink>
+          </a>
         )}
         invalidWrapper={(wrapperChildren) => (
-          <InternalButtonLink
+          <Link
             tabIndex={-1}
             className={classNames}
             to={to}
@@ -105,7 +107,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
             data-test={`tab-internal-button-link-${title?.toLowerCase()}`}
           >
             {wrapperChildren}
-          </InternalButtonLink>
+          </Link>
         )}
       >
         {/* @ts-ignore */}
@@ -124,29 +126,3 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
 )
 
 ButtonLink.displayName = 'ButtonLink'
-
-const LinkBase = css`
-  &:focus,
-  &:active,
-  &:hover {
-    outline: none;
-    text-decoration: none;
-  }
-
-  &.button-link-disabled,
-  &.button-link-disabled > button {
-    pointer-events: none;
-  }
-
-  > button {
-    white-space: nowrap;
-  }
-`
-
-const InternalButtonLink = styled(Link)`
-  ${LinkBase}
-`
-
-const ExternalButtonLink = styled.a`
-  ${LinkBase}
-`
