@@ -1,7 +1,11 @@
 import { gql } from '@apollo/client'
+import { Stack } from '@mui/material'
 import { DateTime } from 'luxon'
+import { useEffect } from 'react'
 import styled, { css } from 'styled-components'
 
+import SectionContainer from '~/components/customerPortal/common/SectionContainer'
+import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import {
   Button,
   InfiniteScroll,
@@ -12,6 +16,7 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
+import { OverviewCard } from '~/components/OverviewCard'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -26,6 +31,9 @@ import {
   PortalInvoiceListItemFragmentDoc,
   useCustomerPortalInvoicesLazyQuery,
   useDownloadCustomerPortalInvoiceMutation,
+  useGetCustomerPortalInvoicesCollectionLazyQuery,
+  useGetCustomerPortalOverdueBalancesLazyQuery,
+  useGetCustomerPortalUserCurrencyQuery,
 } from '~/generated/graphql'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { NAV_HEIGHT, theme } from '~/styles'
@@ -68,10 +76,42 @@ gql`
     }
   }
 
+  query getCustomerPortalInvoicesCollection($expireCache: Boolean) {
+    customerPortalInvoiceCollections(expireCache: $expireCache) {
+      collection {
+        amountCents
+        invoicesCount
+        currency
+      }
+    }
+  }
+
+  query getCustomerPortalOverdueBalances($expireCache: Boolean) {
+    customerPortalOverdueBalances(expireCache: $expireCache) {
+      collection {
+        amountCents
+        currency
+        lagoInvoiceIds
+      }
+    }
+  }
+
+  query getCustomerPortalUserCurrency {
+    customerPortalUser {
+      currency
+    }
+  }
+
   ${PortalInvoiceListItemFragmentDoc}
   ${InvoiceForFinalizeInvoiceFragmentDoc}
   ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
 `
+
+interface CalculatedData {
+  amount: number
+  count: number
+  currency?: CurrencyEnum
+}
 
 const mapStatusConfig = ({
   paymentStatus,
@@ -114,6 +154,47 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
       },
     })
 
+  const { data: userCurrencyData } = useGetCustomerPortalUserCurrencyQuery()
+  const [getOverdueBalance, { data: overdueData, loading: overdueLoading }] =
+    useGetCustomerPortalOverdueBalancesLazyQuery()
+  const [getInvoicesCollection, { data: invoicesData, loading: invoicesLoading }] =
+    useGetCustomerPortalInvoicesCollectionLazyQuery()
+
+  useEffect(() => {
+    getOverdueBalance()
+    getInvoicesCollection()
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const customerCurrency = userCurrencyData?.customerPortalUser?.currency ?? CurrencyEnum.Usd
+
+  const overdue = (
+    overdueData?.customerPortalOverdueBalances?.collection || []
+  ).reduce<CalculatedData>(
+    (acc, item) => {
+      return {
+        amount: acc.amount + deserializeAmount(item.amountCents, item.currency),
+        count: acc.count + item.lagoInvoiceIds.length,
+        currency: item.currency,
+      }
+    },
+    { amount: 0, count: 0, currency: customerCurrency },
+  )
+
+  const invoices = (
+    invoicesData?.customerPortalInvoiceCollections?.collection || []
+  ).reduce<CalculatedData>(
+    (acc, item) => {
+      return {
+        amount: acc.amount + deserializeAmount(item.amountCents, item.currency ?? customerCurrency),
+        count: acc.count + Number(item.invoicesCount),
+        currency: item.currency ?? acc.currency,
+      }
+    },
+    { amount: 0, count: 0, currency: customerCurrency },
+  )
+
   const [downloadInvoice] = useDownloadCustomerPortalInvoiceMutation({
     onCompleted(localData) {
       const fileUrl = localData?.downloadCustomerPortalInvoice?.fileUrl
@@ -145,21 +226,52 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
   const hasNoInvoices = !loading && !error && !metadata?.totalCount && !hasSearchTerm
 
   return (
-    <section>
-      <PageHeader $isEmpty={hasNoInvoices}>
-        <Typography variant="subhead" color="grey700">
-          {translate('text_6419c64eace749372fc72b37')}
-        </Typography>
+    <SectionContainer>
+      <SectionTitle title={translate('text_6419c64eace749372fc72b37')} />
 
-        {!hasNoInvoices && (
-          <HeaderRigthBlock>
-            <SearchInput
-              onChange={debouncedSearch}
-              placeholder={translate('text_6419c64eace749372fc72b33')}
-            />
-          </HeaderRigthBlock>
-        )}
-      </PageHeader>
+      <Stack gap={4}>
+        <Stack flexDirection="row" gap={4}>
+          <OverviewCard
+            isLoading={invoicesLoading}
+            title={translate('text_6670a7222702d70114cc7957')}
+            content={intlFormatNumber(invoices.amount, {
+              currency: invoices.currency,
+              locale: documentLocale,
+              currencyDisplay: 'narrowSymbol',
+            })}
+            caption={translate(
+              'text_6670a7222702d70114cc795c',
+              { count: invoices.count },
+              invoices.count,
+            )}
+          />
+          <OverviewCard
+            isLoading={overdueLoading}
+            title={translate('text_6670a7222702d70114cc795a')}
+            tooltipContent={translate('text_6670a757999f8a007789bb5d')}
+            content={intlFormatNumber(overdue.amount, {
+              currency: overdue.currency,
+              locale: documentLocale,
+              currencyDisplay: 'narrowSymbol',
+            })}
+            caption={translate(
+              'text_6670a7222702d70114cc795c',
+              { count: overdue.count },
+              overdue.count,
+            )}
+            isAccentContent={overdue.count > 0}
+          />
+        </Stack>
+      </Stack>
+
+      {!hasNoInvoices && (
+        <SearchInput
+          className="my-8 w-full max-w-full"
+          onChange={debouncedSearch}
+          placeholder={translate('text_6419c64eace749372fc72b33')}
+        />
+      )}
+
       {hasNoInvoices ? (
         <Typography>{translate('text_6419c64eace749372fc72b3b')}</Typography>
       ) : (
@@ -273,7 +385,7 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
           />
         </InfiniteScroll>
       )}
-    </section>
+    </SectionContainer>
   )
 }
 

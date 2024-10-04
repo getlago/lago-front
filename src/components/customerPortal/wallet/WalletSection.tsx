@@ -71,18 +71,19 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
   if (customerLoadingError) {
     return (
       <section>
-        <SectionTitle title={translate('TODO: Wallet')}>Error</SectionTitle>
+        <SectionTitle title={translate('TODO: Wallet')} />
+        Error
       </section>
     )
   }
 
   return (
     <SectionContainer>
-      <SectionTitle title={translate('TODO: Wallet')} className="justify-between">
-        <span className="cursor-pointer text-blue-600" onClick={viewWallet} role="presentation">
-          {translate('TODO: Top up wallet')}
-        </span>
-      </SectionTitle>
+      <SectionTitle
+        title={translate('TODO: Wallet')}
+        className="justify-between"
+        action={{ title: translate('TODO: Top up wallet'), onClick: viewWallet }}
+      />
 
       {customerWalletLoading && <SectionLoading />}
 

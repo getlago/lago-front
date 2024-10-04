@@ -42,6 +42,8 @@ const WalletPage = ({ goHome }: WalletPageProps) => {
     useTopUpPortalWalletMutation({
       onCompleted(res) {
         if (res) {
+          formikProps.resetForm()
+
           addToast({
             severity: 'success',
             translateKey: 'TODO: Success',

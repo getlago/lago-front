@@ -5974,6 +5974,13 @@ export type GetCustomerPortalUserCurrencyQueryVariables = Exact<{ [key: string]:
 
 export type GetCustomerPortalUserCurrencyQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'CustomerPortalCustomer', currency?: CurrencyEnum | null } | null };
 
+export type UpdatePortalCustomerMutationVariables = Exact<{
+  input: UpdateCustomerPortalCustomerInput;
+}>;
+
+
+export type UpdatePortalCustomerMutation = { __typename?: 'Mutation', updateCustomerPortalCustomer?: { __typename?: 'CustomerPortalCustomer', id: string } | null };
+
 export type SubscriptionForPortalUsageFragment = { __typename?: 'Subscription', id: string, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, amountCents: any, amountCurrency: CurrencyEnum }, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null };
 
 export type GetSubscriptionForPortalQueryVariables = Exact<{
@@ -11924,6 +11931,39 @@ export type GetCustomerPortalUserCurrencyQueryHookResult = ReturnType<typeof use
 export type GetCustomerPortalUserCurrencyLazyQueryHookResult = ReturnType<typeof useGetCustomerPortalUserCurrencyLazyQuery>;
 export type GetCustomerPortalUserCurrencySuspenseQueryHookResult = ReturnType<typeof useGetCustomerPortalUserCurrencySuspenseQuery>;
 export type GetCustomerPortalUserCurrencyQueryResult = Apollo.QueryResult<GetCustomerPortalUserCurrencyQuery, GetCustomerPortalUserCurrencyQueryVariables>;
+export const UpdatePortalCustomerDocument = gql`
+    mutation updatePortalCustomer($input: UpdateCustomerPortalCustomerInput!) {
+  updateCustomerPortalCustomer(input: $input) {
+    id
+  }
+}
+    `;
+export type UpdatePortalCustomerMutationFn = Apollo.MutationFunction<UpdatePortalCustomerMutation, UpdatePortalCustomerMutationVariables>;
+
+/**
+ * __useUpdatePortalCustomerMutation__
+ *
+ * To run a mutation, you first call `useUpdatePortalCustomerMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePortalCustomerMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePortalCustomerMutation, { data, loading, error }] = useUpdatePortalCustomerMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdatePortalCustomerMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePortalCustomerMutation, UpdatePortalCustomerMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePortalCustomerMutation, UpdatePortalCustomerMutationVariables>(UpdatePortalCustomerDocument, options);
+      }
+export type UpdatePortalCustomerMutationHookResult = ReturnType<typeof useUpdatePortalCustomerMutation>;
+export type UpdatePortalCustomerMutationResult = Apollo.MutationResult<UpdatePortalCustomerMutation>;
+export type UpdatePortalCustomerMutationOptions = Apollo.BaseMutationOptions<UpdatePortalCustomerMutation, UpdatePortalCustomerMutationVariables>;
 export const GetSubscriptionForPortalDocument = gql`
     query getSubscriptionForPortal($subscriptionId: ID!) {
   customerPortalSubscription(id: $subscriptionId) {

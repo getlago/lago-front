@@ -8,15 +8,17 @@ import { Icon } from './designSystem'
 import { TextInput } from './form'
 
 interface SearchInputProps {
+  className?: string
   onChange: ReturnType<UseDebouncedSearch>['debouncedSearch']
   placeholder?: string
 }
 
-export const SearchInput = ({ onChange, placeholder }: SearchInputProps) => {
+export const SearchInput = ({ className, onChange, placeholder }: SearchInputProps) => {
   const [localValue, setLocalValue] = useState<string>('')
 
   return (
     <TextInputForSearch
+      className={className}
       placeholder={placeholder}
       value={localValue}
       onChange={(value) => {

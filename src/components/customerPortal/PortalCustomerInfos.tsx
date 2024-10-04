@@ -2,9 +2,12 @@ import { gql } from '@apollo/client'
 import { memo } from 'react'
 import styled from 'styled-components'
 
+import SectionContainer from '~/components/customerPortal/common/SectionContainer'
+import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import { Skeleton, Typography } from '~/components/designSystem'
 import { CountryCodes } from '~/core/constants/countryCodes'
 import { useGetPortalCustomerInfosQuery } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NAV_HEIGHT, theme } from '~/styles'
 
 gql`
@@ -27,16 +30,22 @@ gql`
 `
 
 interface PortalCustomerInfosProps {
-  translate: Function
+  viewEditInformation: () => void
 }
 
-export const PortalCustomerInfos = memo(({ translate }: PortalCustomerInfosProps) => {
+const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) => {
+  const { translate } = useInternationalization()
+
   const { data, loading } = useGetPortalCustomerInfosQuery()
   const customerPortalUser = data?.customerPortalUser
 
   return (
-    <section>
-      <Title variant="subhead">{translate('text_6419c64eace749372fc72b07')}</Title>
+    <SectionContainer>
+      <SectionTitle
+        title={translate('text_6419c64eace749372fc72b07')}
+        className="justify-between"
+        action={{ title: translate('TODO: Edit information'), onClick: viewEditInformation }}
+      />
       <InfosContainer>
         {loading ? (
           <InfoSkeletonContainer>
@@ -152,11 +161,11 @@ export const PortalCustomerInfos = memo(({ translate }: PortalCustomerInfosProps
           </>
         )}
       </InfosContainer>
-    </section>
+    </SectionContainer>
   )
-})
+}
 
-PortalCustomerInfos.displayName = 'PortalCustomerInfos'
+export default PortalCustomerInfos
 
 const InfoSkeletonContainer = styled.div`
   display: flex;
@@ -169,14 +178,6 @@ const InfoSkeletonLine = styled.div`
   &:not(:last-child) {
     margin-bottom: ${theme.spacing(7)};
   }
-`
-
-const Title = styled(Typography)`
-  display: flex;
-  align-items: center;
-  height: 40px;
-  box-shadow: ${theme.shadows[7]};
-  margin-bottom: ${theme.spacing(6)};
 `
 
 const InfosContainer = styled.section`
@@ -194,6 +195,7 @@ const InfosContainer = styled.section`
 
 const InfoLine = styled.div`
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
   margin-bottom: ${theme.spacing(2)};
 

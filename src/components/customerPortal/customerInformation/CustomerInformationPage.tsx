@@ -1,0 +1,250 @@
+import { gql } from '@apollo/client'
+import { useFormik } from 'formik'
+import { useState } from 'react'
+import { object, string } from 'yup'
+
+import PageTitle from '~/components/customerPortal/common/PageTitle'
+import { Button } from '~/components/designSystem'
+import { Checkbox, ComboBoxField, TextInputField } from '~/components/form'
+import { addToast } from '~/core/apolloClient'
+import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
+import {
+  UpdateCustomerInput,
+  UpdateCustomerPortalCustomerInput,
+  useGetPortalCustomerInfosQuery,
+  useUpdatePortalCustomerMutation,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+type CustomerInformationPageProps = {
+  goHome: () => void
+}
+
+type EditCustomerBillingFormProps = {
+  customer?: UpdateCustomerPortalCustomerInput | null
+}
+
+gql`
+  mutation updatePortalCustomer($input: UpdateCustomerPortalCustomerInput!) {
+    updateCustomerPortalCustomer(input: $input) {
+      id
+    }
+  }
+`
+
+const EditCustomerBillingForm = ({ customer }: EditCustomerBillingFormProps) => {
+  const { translate } = useInternationalization()
+
+  const [isShippingEqualBillingAddress, setIsShippingEqualBillingAddress] = useState(false)
+
+  const [
+    updatePortalCustomer,
+    { loading: updatePortalCustomerLoading, error: updatePortalCustomerError },
+  ] = useUpdatePortalCustomerMutation({
+    onCompleted(res) {
+      if (res) {
+        // TODO: Refetch customer?
+
+        addToast({
+          severity: 'success',
+          translateKey: 'TODO: Success',
+        })
+      }
+    },
+  })
+
+  const formikProps = useFormik<Partial<UpdateCustomerInput>>({
+    initialValues: {
+      name: customer?.name ?? '',
+      legalName: customer?.legalName ?? undefined,
+      taxIdentificationNumber: customer?.taxIdentificationNumber ?? undefined,
+      email: customer?.email ?? undefined,
+
+      addressLine1: customer?.addressLine1 ?? undefined,
+      addressLine2: customer?.addressLine2 ?? undefined,
+      zipcode: customer?.zipcode ?? undefined,
+      city: customer?.city ?? undefined,
+      state: customer?.state ?? undefined,
+      country: customer?.country ?? undefined,
+
+      shippingAddress: customer?.shippingAddress ?? undefined,
+    },
+    validationSchema: object().shape({
+      name: string(),
+      email: string().email('text_620bc4d4269a55014d493fc3'),
+    }),
+
+    onSubmit: async (values) => {
+      updatePortalCustomer({
+        variables: {
+          input: {
+            ...values,
+          },
+        },
+      })
+    },
+  })
+
+  if (!customer) {
+    return null
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <h3 className="mt-8 text-base font-medium text-grey-700">
+        {translate('TODO: General information')}
+      </h3>
+
+      <TextInputField
+        name="legalName"
+        label={translate('text_626c0c09812bbc00e4c59e01')}
+        placeholder={translate('text_626c0c09812bbc00e4c59e03')}
+        formikProps={formikProps}
+      />
+      <TextInputField
+        name="taxIdentificationNumber"
+        label={translate('text_648053ee819b60364c675d05')}
+        placeholder={translate('text_648053ee819b60364c675d0b')}
+        formikProps={formikProps}
+      />
+      <TextInputField
+        name="email"
+        beforeChangeFormatter={['lowercase']}
+        label={translate('text_626c0c09812bbc00e4c59e09')}
+        placeholder={translate('text_626c0c09812bbc00e4c59e0b')}
+        formikProps={formikProps}
+      />
+
+      <h3 className="mt-8 text-base font-medium text-grey-700">
+        {translate('TODO:Billing address')}
+      </h3>
+
+      <TextInputField
+        name="addressLine1"
+        label={translate('text_626c0c09812bbc00e4c59e1b')}
+        placeholder={translate('text_626c0c09812bbc00e4c59e1d')}
+        formikProps={formikProps}
+      />
+      <TextInputField
+        name="addressLine2"
+        placeholder={translate('text_626c0c09812bbc00e4c59e1f')}
+        formikProps={formikProps}
+      />
+
+      <div className="grid grid-cols-2 gap-4">
+        <TextInputField
+          name="zipcode"
+          placeholder={translate('text_626c0c09812bbc00e4c59e21')}
+          formikProps={formikProps}
+        />
+        <TextInputField
+          name="city"
+          placeholder={translate('text_626c0c09812bbc00e4c59e23')}
+          formikProps={formikProps}
+        />
+      </div>
+
+      <TextInputField
+        name="state"
+        placeholder={translate('text_626c0c09812bbc00e4c59e25')}
+        formikProps={formikProps}
+      />
+      <ComboBoxField
+        data={countryDataForCombobox}
+        name="country"
+        placeholder={translate('text_626c0c09812bbc00e4c59e27')}
+        formikProps={formikProps}
+        PopperProps={{ displayInDialog: true }}
+      />
+
+      <h3 className="mt-8 text-base font-medium text-grey-700">
+        {translate('text_667d708c1359b49f5a5a8230')}
+      </h3>
+
+      <Checkbox
+        label={translate('text_667d708c1359b49f5a5a8234')}
+        value={isShippingEqualBillingAddress}
+        onChange={() => setIsShippingEqualBillingAddress((prev) => !prev)}
+      />
+      <TextInputField
+        name="shippingAddress.addressLine1"
+        label={translate('text_626c0c09812bbc00e4c59e1b')}
+        placeholder={translate('text_626c0c09812bbc00e4c59e1d')}
+        formikProps={formikProps}
+        disabled={isShippingEqualBillingAddress}
+      />
+      <TextInputField
+        name="shippingAddress.addressLine2"
+        placeholder={translate('text_626c0c09812bbc00e4c59e1f')}
+        formikProps={formikProps}
+        disabled={isShippingEqualBillingAddress}
+      />
+
+      <div className="grid grid-cols-2 gap-4">
+        <TextInputField
+          name="shippingAddress.zipcode"
+          placeholder={translate('text_626c0c09812bbc00e4c59e21')}
+          formikProps={formikProps}
+          disabled={isShippingEqualBillingAddress}
+        />
+        <TextInputField
+          name="shippingAddress.city"
+          placeholder={translate('text_626c0c09812bbc00e4c59e23')}
+          formikProps={formikProps}
+          disabled={isShippingEqualBillingAddress}
+        />
+      </div>
+
+      <TextInputField
+        name="shippingAddress.state"
+        placeholder={translate('text_626c0c09812bbc00e4c59e25')}
+        formikProps={formikProps}
+        disabled={isShippingEqualBillingAddress}
+      />
+      <ComboBoxField
+        data={countryDataForCombobox}
+        name="shippingAddress.country"
+        placeholder={translate('text_626c0c09812bbc00e4c59e27')}
+        formikProps={formikProps}
+        disabled={isShippingEqualBillingAddress}
+        PopperProps={{ displayInDialog: true }}
+      />
+
+      <div className="flex justify-end">
+        <div>
+          <Button
+            className="mt-8"
+            size="large"
+            disabled={!formikProps.isValid}
+            loading={formikProps.isSubmitting}
+            fullWidth
+            data-test="submit"
+            onClick={formikProps.submitForm}
+          >
+            {translate('TODO: Save information')}
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const CustomerInformationPage = ({ goHome }: CustomerInformationPageProps) => {
+  const { translate } = useInternationalization()
+
+  const { data, loading } = useGetPortalCustomerInfosQuery()
+
+  const customerPortalUser = data?.customerPortalUser
+
+  return (
+    <div>
+      <PageTitle title={translate('TODO: Edit Customer Information')} goHome={goHome} />
+
+      {loading && <div>Loading..</div>}
+
+      {!loading && <EditCustomerBillingForm customer={customerPortalUser} />}
+    </div>
+  )
+}
+
+export default CustomerInformationPage
