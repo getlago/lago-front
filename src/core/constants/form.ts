@@ -1,4 +1,5 @@
 import {
+  ChargeModelEnum,
   CouponFrequency,
   CouponTypeEnum,
   InvoiceAppliedTaxOnWholeInvoiceCodeEnum,
@@ -81,6 +82,17 @@ export enum LocalTaxProviderErrorsEnum {
   CustomerAddressError = 'text_1723831881130x4cfh6qr6o8',
   ProductExternalIdUnknown = 'text_1723831881130g8hv6qzqe57',
   GenericErrorMessage = 'text_17238318811307ghoc4v7mt9',
+}
+
+export const getChargeModelHelpTextTranslationKey = {
+  [ChargeModelEnum.Percentage]: 'text_62ff5d01a306e274d4ffcc06',
+  [ChargeModelEnum.Graduated]: 'text_62793bbb599f1c01522e91a1',
+  [ChargeModelEnum.GraduatedPercentage]: 'text_64de472463e2da6b31737db8',
+  [ChargeModelEnum.Package]: 'text_6282085b4f283b010265586c',
+  [ChargeModelEnum.Standard]: 'text_624d9adba93343010cd14ca7',
+  [ChargeModelEnum.Volume]: 'text_6304e74aab6dbc18d615f38a',
+  [ChargeModelEnum.Custom]: 'text_663dea5702b60301d8d064fe',
+  [ChargeModelEnum.Dynamic]: 'text_1727711757973zhs7w84v44t',
 }
 
 export const appliedTaxEnumedTaxCodeTranslationKey: Record<

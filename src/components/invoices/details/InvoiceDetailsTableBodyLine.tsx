@@ -246,7 +246,8 @@ export const InvoiceDetailsTableBodyLine = memo(
                         {intlFormatNumber(fee?.preciseUnitAmount || 0, {
                           currencyDisplay: 'symbol',
                           currency,
-                          maximumFractionDigits: 15,
+                          minimumFractionDigits: 2,
+                          maximumSignificantDigits: 6,
                         })}
                       </Typography>
                     </td>

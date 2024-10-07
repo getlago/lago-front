@@ -94,6 +94,13 @@ export const useChargeForm: () => TUseChargeFormReturn = () => {
       })
     }
 
+    if (aggregationType === AggregationTypeEnum.SumAgg) {
+      chargeModelComboboxData.push({
+        label: translate('text_1727711520232zpp50zgnam5'),
+        value: ChargeModelEnum.Dynamic,
+      })
+    }
+
     return chargeModelComboboxData.sort((a, b) => {
       return a.label && b.label ? a.label.localeCompare(b.label) : a.value.localeCompare(b.value)
     })
@@ -163,7 +170,8 @@ export const useChargeForm: () => TUseChargeFormReturn = () => {
       if (
         chargeModel === ChargeModelEnum.GraduatedPercentage ||
         chargeModel === ChargeModelEnum.Package ||
-        chargeModel === ChargeModelEnum.Percentage
+        chargeModel === ChargeModelEnum.Percentage ||
+        chargeModel === ChargeModelEnum.Dynamic
       ) {
         return true
       }

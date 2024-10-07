@@ -19,6 +19,7 @@ import { useDuplicatePlanVar } from '~/core/apolloClient'
 import {
   ALL_FILTER_VALUES,
   FORM_TYPE_ENUM,
+  getChargeModelHelpTextTranslationKey,
   MUI_BUTTON_BASE_ROOT_CLASSNAME,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME,
@@ -31,6 +32,7 @@ import {
   ChargeModelEnum,
   CurrencyEnum,
   CustomChargeFragmentDoc,
+  DynamicChargeFragmentDoc,
   GraduatedChargeFragmentDoc,
   GraduatedPercentageChargeFragmentDoc,
   PackageChargeFragmentDoc,
@@ -85,6 +87,7 @@ gql`
       ...StandardCharge
       ...PercentageCharge
       ...CustomCharge
+      ...DynamicCharge
     }
     filters {
       invoiceDisplayName
@@ -97,6 +100,7 @@ gql`
         ...StandardCharge
         ...PercentageCharge
         ...CustomCharge
+        ...DynamicCharge
       }
     }
     billableMetric {
@@ -136,6 +140,7 @@ gql`
   ${PercentageChargeFragmentDoc}
   ${CustomChargeFragmentDoc}
   ${ChargeForChargeOptionsAccordionFragmentDoc}
+  ${DynamicChargeFragmentDoc}
 `
 
 export const mapChargeIntervalCopy = (interval: string, forceMonthlyCharge: boolean): string => {
@@ -466,21 +471,7 @@ export const ChargeAccordion = memo(
               label={translate('text_65201b8216455901fe273dd5')}
               data={chargeModelComboboxData}
               value={localCharge.chargeModel}
-              helperText={translate(
-                localCharge.chargeModel === ChargeModelEnum.Percentage
-                  ? 'text_62ff5d01a306e274d4ffcc06'
-                  : localCharge.chargeModel === ChargeModelEnum.Graduated
-                    ? 'text_62793bbb599f1c01522e91a1'
-                    : localCharge.chargeModel === ChargeModelEnum.GraduatedPercentage
-                      ? 'text_64de472463e2da6b31737db8'
-                      : localCharge.chargeModel === ChargeModelEnum.Package
-                        ? 'text_6282085b4f283b010265586c'
-                        : localCharge.chargeModel === ChargeModelEnum.Volume
-                          ? 'text_6304e74aab6dbc18d615f38a'
-                          : localCharge.chargeModel === ChargeModelEnum.Custom
-                            ? 'text_663dea5702b60301d8d064fe'
-                            : 'text_624d9adba93343010cd14ca7',
-              )}
+              helperText={translate(getChargeModelHelpTextTranslationKey[localCharge.chargeModel])}
               onChange={(value) => handleUpdate('chargeModel', value)}
             />
           </ChargeModelWrapper>

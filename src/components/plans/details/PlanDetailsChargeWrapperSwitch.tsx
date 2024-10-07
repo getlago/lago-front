@@ -1,7 +1,7 @@
 import { useId } from 'react'
 import styled from 'styled-components'
 
-import { Chip } from '~/components/designSystem'
+import { Alert, Chip } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { ChargeModelEnum, CurrencyEnum, Maybe, Properties } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -219,6 +219,24 @@ const PlanDetailsChargeWrapperSwitch = ({
             header={translate('text_663dea5702b60301d8d06502')}
             value={values?.customProperties}
           />
+        </ChargeContentWrapper>
+      )}
+      {chargeModel === ChargeModelEnum.Dynamic && (
+        <ChargeContentWrapper>
+          <Alert type="info">{translate('text_17277706303454rxgscdqklx')}</Alert>
+
+          {groupedBy.length > 0 && (
+            <DetailsInfoItem
+              label={translate('text_65ba6d45e780c1ff8acb20ce')}
+              value={
+                <GroupChipWrapper>
+                  {groupedBy.map((group, groupIndex) => (
+                    <Chip key={`${componentId}-${groupIndex}`} label={group} />
+                  ))}
+                </GroupChipWrapper>
+              }
+            />
+          )}
         </ChargeContentWrapper>
       )}
     </div>
