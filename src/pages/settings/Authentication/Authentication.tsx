@@ -1,9 +1,16 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 
-import { Avatar, Chip, Selector, SelectorSkeleton, Typography } from '~/components/designSystem'
+import { Avatar, Chip, Selector, Typography } from '~/components/designSystem'
+import { PageBannerHeader } from '~/components/layouts/Pages'
+import {
+  SettingsListItem,
+  SettingsListItemLoadingSkeleton,
+  SettingsListWrapper,
+  SettingsPaddedContainer,
+  SettingsPageHeaderContainer,
+} from '~/components/layouts/Settings'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { AddOktaDialog, AddOktaDialogRef } from '~/components/settings/authentication/AddOktaDialog'
 import {
@@ -22,8 +29,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import Okta from '~/public/images/okta.svg'
-import { theme } from '~/styles'
-import { SettingsHeaderNameWrapper, SettingsPageContentWrapper } from '~/styles/settingsPage'
 
 gql`
   query GetAuthIntegrations($limit: Int!) {
@@ -66,82 +71,70 @@ const Authentication = () => {
 
   return (
     <>
-      <SettingsHeaderNameWrapper>
+      <PageBannerHeader>
         <Typography variant="bodyHl" color="grey700">
           {translate('text_664c732c264d7eed1c74fd96')}
         </Typography>
-      </SettingsHeaderNameWrapper>
+      </PageBannerHeader>
 
-      <SettingsPageContentWrapper>
-        <Title variant="headline">{translate('text_664c732c264d7eed1c74fd96')}</Title>
-        <Subtitle>{translate('text_664c732c264d7eed1c74fd9c')}</Subtitle>
+      <SettingsPaddedContainer>
+        <SettingsPageHeaderContainer>
+          <Typography variant="headline">{translate('text_664c732c264d7eed1c74fd96')}</Typography>
+          <Typography>{translate('text_664c732c264d7eed1c74fd9c')}</Typography>
+        </SettingsPageHeaderContainer>
 
-        {loading ? (
-          <LoadingContainer>
-            {[0].map((i) => (
-              <SelectorSkeleton fullWidth key={`skeleton-${i}`} />
-            ))}
-          </LoadingContainer>
-        ) : (
-          <Selector
-            title={translate('text_664c732c264d7eed1c74fda2')}
-            subtitle={translate('text_664c732c264d7eed1c74fda8')}
-            icon={
-              <Avatar size="big" variant="connector">
-                <Okta />
-              </Avatar>
-            }
-            endIcon={
-              shouldSeeOktaIntegration ? (
-                oktaIntegration?.id ? (
-                  <Chip label={translate('text_634ea0ecc6147de10ddb662d')} />
-                ) : undefined
-              ) : (
-                'sparkles'
-              )
-            }
-            onClick={() => {
-              if (!shouldSeeOktaIntegration) {
-                return premiumWarningDialogRef.current?.openDialog()
-              }
+        <SettingsListWrapper>
+          {!!loading ? (
+            <SettingsListItemLoadingSkeleton count={2} />
+          ) : (
+            <SettingsListItem>
+              <Selector
+                title={translate('text_664c732c264d7eed1c74fda2')}
+                subtitle={translate('text_664c732c264d7eed1c74fda8')}
+                icon={
+                  <Avatar size="big" variant="connector">
+                    <Okta />
+                  </Avatar>
+                }
+                endIcon={
+                  shouldSeeOktaIntegration ? (
+                    oktaIntegration?.id ? (
+                      <Chip label={translate('text_634ea0ecc6147de10ddb662d')} />
+                    ) : undefined
+                  ) : (
+                    'sparkles'
+                  )
+                }
+                onClick={() => {
+                  if (!shouldSeeOktaIntegration) {
+                    return premiumWarningDialogRef.current?.openDialog()
+                  }
 
-              if (oktaIntegration?.id) {
-                return navigate(
-                  generatePath(OKTA_AUTHENTICATION_ROUTE, {
-                    integrationId: oktaIntegration.id,
-                  }),
-                )
-              }
+                  if (oktaIntegration?.id) {
+                    return navigate(
+                      generatePath(OKTA_AUTHENTICATION_ROUTE, {
+                        integrationId: oktaIntegration.id,
+                      }),
+                    )
+                  }
 
-              return addOktaDialogRef.current?.openDialog({
-                integration: oktaIntegration,
-                callback: (id) =>
-                  navigate(generatePath(OKTA_AUTHENTICATION_ROUTE, { integrationId: id })),
-              })
-            }}
-          />
-        )}
+                  return addOktaDialogRef.current?.openDialog({
+                    integration: oktaIntegration,
+                    callback: (id) =>
+                      navigate(generatePath(OKTA_AUTHENTICATION_ROUTE, { integrationId: id })),
+                  })
+                }}
+              />
+            </SettingsListItem>
+          )}
+        </SettingsListWrapper>
 
         <PremiumWarningDialog ref={premiumWarningDialogRef} />
         <AddOktaDialog ref={addOktaDialogRef} />
         <DeleteOktaIntegrationDialog ref={deleteOktaDialogRef} />
-      </SettingsPageContentWrapper>
+      </SettingsPaddedContainer>
     </>
   )
 }
-
-const Title = styled(Typography)`
-  margin-bottom: ${theme.spacing(2)};
-`
-
-const Subtitle = styled(Typography)`
-  margin-bottom: ${theme.spacing(8)};
-`
-
-const LoadingContainer = styled.div`
-  > * {
-    margin-bottom: ${theme.spacing(4)};
-  }
-`
 
 export default Authentication

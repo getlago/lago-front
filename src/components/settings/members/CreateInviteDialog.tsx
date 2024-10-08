@@ -17,7 +17,7 @@ import {
   CreateInviteInput,
   GetInvitesDocument,
   GetInvitesQuery,
-  InviteItemFragmentDoc,
+  InviteItemForMembersSettingsFragmentDoc,
   LagoApiError,
   MembershipRole,
   useCreateInviteMutation,
@@ -34,11 +34,11 @@ gql`
     createInvite(input: $input) {
       id
       token
-      ...InviteItem
+      ...InviteItemForMembersSettings
     }
   }
 
-  ${InviteItemFragmentDoc}
+  ${InviteItemForMembersSettingsFragmentDoc}
 `
 
 export interface CreateInviteDialogRef extends DialogRef {}

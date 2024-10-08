@@ -16,9 +16,11 @@ describe('Invitations', () => {
   it('invite link should have correct format', () => {
     cy.visit('/settings/members')
 
-    cy.get(`[data-test="invite-item-${inviteEmail}"]`).within(() => {
-      cy.get(`button`).click()
-    })
+    cy.get('#table-members-setting-invivations-list-row-0')
+      .first()
+      .within(() => {
+        cy.get(`button`).click()
+      })
 
     cy.get('[data-test="copy-invite-link"]').click()
 

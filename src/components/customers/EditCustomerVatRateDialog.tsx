@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useMemo, useState } from 'react'
-import styled from 'styled-components'
 
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { ComboBox } from '~/components/form'
@@ -16,7 +15,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
-import { theme } from '~/styles'
 
 import { Item } from '../form/ComboBox/ComboBoxItem'
 
@@ -157,7 +155,7 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
         )}
         data-test="edit-customer-vat-rate-dialog"
       >
-        <Content>
+        <div className="mb-8">
           <ComboBox
             allowAddValue
             className={SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME}
@@ -178,14 +176,10 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
             searchQuery={getTaxRates}
             value={localTax}
           />
-        </Content>
+        </div>
       </Dialog>
     )
   },
 )
-
-const Content = styled.div`
-  margin-bottom: ${theme.spacing(8)};
-`
 
 EditCustomerVatRateDialog.displayName = 'forwardRef'

@@ -465,11 +465,7 @@ const CustomerDetails = () => {
                       customerId: customerId as string,
                       tab: CustomerDetailsTabsOptions.settings,
                     }),
-                    component: (
-                      <SideBlock>
-                        <CustomerSettings customerId={customerId as string} />
-                      </SideBlock>
-                    ),
+                    component: <CustomerSettings customerId={customerId as string} />,
                     hidden: !hasPermissions(['customerSettingsView']),
                   },
                 ]}

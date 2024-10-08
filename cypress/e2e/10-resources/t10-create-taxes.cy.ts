@@ -6,7 +6,7 @@ describe('Create taxes', () => {
     cy.url().should('include', '/settings/taxes')
 
     // Make sure no tax exists
-    cy.get('[data-test="empty-title"]').should('exist')
+    cy.get('[data-test="table-tax-settings-taxes"]').should('not.exist')
 
     // Create tax 10%
     cy.get('[data-test="create-tax-button"]').click()
@@ -33,12 +33,7 @@ describe('Create taxes', () => {
     cy.url().should('include', '/settings/invoice')
 
     // Make sure no tax are already assigned
-    cy.get('[data-test="empty-taxes"]')
-      .scrollIntoView({
-        offset: { top: -100, left: 0 },
-        duration: 0,
-      })
-      .should('exist')
+    cy.get('[data-test="table-invoice-settings-taxes"]').should('not.exist')
 
     // Assign tax 20%
     cy.get('[data-test="add-tax-button"]').click()

@@ -120,7 +120,7 @@ const config = {
         md: '3rem',
       },
       screens: {
-        md: '768px',
+        md: '776px',
       },
     },
 
@@ -129,7 +129,19 @@ const config = {
         md: '776px',
       },
       spacing: {
+        17: '4.25rem',
         18: '4.5rem',
+        98: '24.5rem',
+        192: '48rem',
+      },
+      zIndex: {
+        tooltip: 2400,
+        toast: 2200,
+        dialog: 2000,
+        popper: 1800,
+        drawer: 1600,
+        navBar: 1200,
+        sectionHead: 1000,
       },
     },
   },
@@ -161,12 +173,30 @@ const config = {
           boxShadow: `0px 0px 0px 4px ${theme('colors.blue.200')}`,
         },
       })
+      // Line break anywhere
+      addUtilities({
+        '.line-break-anywhere': {
+          lineBreak: 'anywhere',
+        },
+      })
 
       // Focus not active
       addVariant('focus-not-active', '&:focus:not(:active)')
 
       // Hover not active
       addVariant('hover-not-active', '&:hover:not(:active)')
+
+      // Not first child
+      addVariant('not-first-child', '&>*:not(:first-child)')
+
+      // Not first element
+      addVariant('not-first', '&:not(:first-child)')
+
+      // Not last child
+      addVariant('not-last-child', '&>*:not(:last-child)')
+
+      // Not last element
+      addVariant('not-last', '&:not(:last-child)')
     }),
   ],
 }

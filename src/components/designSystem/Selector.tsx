@@ -5,7 +5,6 @@ import { tw } from '~/styles/utils'
 
 import { Avatar } from './Avatar'
 import { Icon, IconName } from './Icon'
-import { Skeleton } from './Skeleton'
 import { Typography } from './Typography'
 
 interface SelectorProps {
@@ -134,12 +133,5 @@ export const Selector = ({
     </button>
   )
 }
-
-export const SelectorSkeleton = ({ fullWidth = false }: { fullWidth?: boolean } = {}) => (
-  <div className={tw(selectorVariants({ fullWidth }))}>
-    <Skeleton variant="connectorAvatar" size="big" marginRight={12} />
-    <Skeleton variant="text" width={160} height={12} />
-  </div>
-)
 
 export const SELECTOR_HEIGHT = 72

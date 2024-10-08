@@ -55,6 +55,7 @@ export type ActionItem<T> = {
   disabled?: boolean
   tooltip?: string
   tooltipListener?: boolean
+  dataTest?: string
 }
 
 export type TableContainerSize = 0 | 4 | 16 | 48
@@ -387,6 +388,7 @@ const ActionItemButton = <T,>({
         await action.onAction(item)
         closePopper()
       }}
+      data-test={action.dataTest}
     >
       {action.title}
     </Button>
