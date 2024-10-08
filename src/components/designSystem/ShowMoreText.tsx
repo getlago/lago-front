@@ -13,11 +13,16 @@ export const ShowMoreText = ({ text, limit, showMore, ...props }: ShowMoreTextPr
   const { translate } = useInternationalization()
   const [isTextTruncated, setIsTextTruncated] = useState(true)
 
-  if (!isTextTruncated || text.length <= limit) return <Typography {...props}>{text}</Typography>
+  if (!isTextTruncated || text.length <= limit)
+    return (
+      <Typography className="line-break-anywhere" {...props}>
+        {text}
+      </Typography>
+    )
 
   return (
     <Typography {...props}>
-      <span className="mr-1">{text.substring(0, limit)}...</span>
+      <span className="mr-1 line-break-anywhere">{text.substring(0, limit)}...</span>
       <span className="text-blue-600">
         {!showMore || typeof showMore === 'string' ? (
           <button
