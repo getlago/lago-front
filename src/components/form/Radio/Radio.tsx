@@ -139,7 +139,7 @@ const RadioContainer = styled.div`
   margin-right: ${theme.spacing(4)};
   display: flex;
   align-items: flex-start;
-  padding-top: 6px;
+  padding-top: 4px;
 
   input {
     opacity: 0;
