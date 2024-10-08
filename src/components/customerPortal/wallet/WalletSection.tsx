@@ -71,7 +71,7 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
   if (customerLoadingError) {
     return (
       <section>
-        <SectionTitle title={translate('TODO: Wallet')} />
+        <SectionTitle title={translate('text_1728377307159q3otzyv9tey')} />
         Error
       </section>
     )
@@ -80,17 +80,19 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
   return (
     <SectionContainer>
       <SectionTitle
-        title={translate('TODO: Wallet')}
+        title={translate('text_1728377307159q3otzyv9tey')}
         className="justify-between"
-        action={{ title: translate('TODO: Top up wallet'), onClick: viewWallet }}
+        action={{ title: translate('text_1728377307160cludx1c0cfb'), onClick: viewWallet }}
       />
 
       {customerWalletLoading && <SectionLoading />}
 
       {!customerWalletLoading && wallet && (
         <div>
-          <div className="flex flex-col">
-            <h6 className="text-sm font-normal text-grey-600">{translate('TODO: Balance')}</h6>
+          <div className="flex flex-col gap-1">
+            <h6 className="text-sm font-normal text-grey-600">
+              {translate('text_1728377307160cbszddumfkg')}
+            </h6>
 
             <div className="flex items-end gap-1">
               <h3 className="text-2xl font-semibold text-grey-700">
@@ -111,14 +113,14 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
                 currencyDisplay: 'symbol',
                 currency: wallet.currency,
               })}{' '}
-              {translate('TODO: of credits')}
+              {translate('text_17283773071600j3nukyme6f')}
             </span>
           </div>
 
-          <div className="mt-4 grid grid-cols-2">
+          <div className="mt-6 grid grid-cols-2">
             <div className="flex flex-col">
               <span className="text-sm font-normal text-grey-600">
-                {translate('TODO: Expiry date')}
+                {translate('text_1728377307160dqj0b2q59f6')}
               </span>
 
               {wallet?.expirationAt ? (
@@ -134,7 +136,7 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
 
             <div className="flex flex-col">
               <span className="text-sm font-normal text-grey-600">
-                {translate('TODO: Total credits used')}
+                {translate('text_1728377307160sh06zbhqebt')}
               </span>
 
               <div className="flex items-center">

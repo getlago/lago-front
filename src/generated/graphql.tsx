@@ -5934,7 +5934,7 @@ export type DownloadCreditNoteMutation = { __typename?: 'Mutation', downloadCred
 export type GetPortalCustomerInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetPortalCustomerInfosQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'CustomerPortalCustomer', id: string, name?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null } | null };
+export type GetPortalCustomerInfosQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'CustomerPortalCustomer', id: string, name?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null } | null };
 
 export type PortalInvoiceListItemFragment = { __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, paymentDisputeLostAt?: any | null, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null };
 
@@ -6550,6 +6550,8 @@ export type DeletePlanMutationVariables = Exact<{
 
 
 export type DeletePlanMutation = { __typename?: 'Mutation', destroyPlan?: { __typename?: 'DestroyPlanPayload', id?: string | null } | null };
+
+export type DynamicChargeFragment = { __typename?: 'Properties', groupedBy?: Array<string> | null };
 
 export type PlanForFixedFeeSectionFragment = { __typename?: 'Plan', id: string, amountCents: any, payInAdvance: boolean, trialPeriod?: number | null, invoiceDisplayName?: string | null };
 
@@ -10521,6 +10523,11 @@ export const CustomChargeFragmentDoc = gql`
   customProperties
 }
     `;
+export const DynamicChargeFragmentDoc = gql`
+    fragment DynamicCharge on Properties {
+  groupedBy
+}
+    `;
 export const TaxForPlanChargeAccordionFragmentDoc = gql`
     fragment TaxForPlanChargeAccordion on Tax {
   id
@@ -10556,6 +10563,7 @@ export const ChargeAccordionFragmentDoc = gql`
     ...StandardCharge
     ...PercentageCharge
     ...CustomCharge
+    ...DynamicCharge
   }
   filters {
     invoiceDisplayName
@@ -10568,6 +10576,7 @@ export const ChargeAccordionFragmentDoc = gql`
       ...StandardCharge
       ...PercentageCharge
       ...CustomCharge
+      ...DynamicCharge
     }
   }
   billableMetric {
@@ -10592,6 +10601,7 @@ ${PackageChargeFragmentDoc}
 ${StandardChargeFragmentDoc}
 ${PercentageChargeFragmentDoc}
 ${CustomChargeFragmentDoc}
+${DynamicChargeFragmentDoc}
 ${TaxForPlanChargeAccordionFragmentDoc}
 ${ChargeForChargeOptionsAccordionFragmentDoc}`;
 export const PlanForChargeAccordionFragmentDoc = gql`
@@ -11679,6 +11689,14 @@ export const GetPortalCustomerInfosDocument = gql`
     country
     city
     zipcode
+    shippingAddress {
+      addressLine1
+      addressLine2
+      city
+      country
+      state
+      zipcode
+    }
   }
 }
     `;

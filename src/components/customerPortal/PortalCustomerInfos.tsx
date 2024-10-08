@@ -1,14 +1,13 @@
 import { gql } from '@apollo/client'
-import { memo } from 'react'
 import styled from 'styled-components'
 
 import SectionContainer from '~/components/customerPortal/common/SectionContainer'
+import SectionLoading from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
-import { Skeleton, Typography } from '~/components/designSystem'
 import { CountryCodes } from '~/core/constants/countryCodes'
-import { useGetPortalCustomerInfosQuery } from '~/generated/graphql'
+import { CustomerAddressInput, useGetPortalCustomerInfosQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { NAV_HEIGHT, theme } from '~/styles'
+import { theme } from '~/styles'
 
 gql`
   query getPortalCustomerInfos {
@@ -25,9 +24,86 @@ gql`
       country
       city
       zipcode
+
+      shippingAddress {
+        addressLine1
+        addressLine2
+        city
+        country
+        state
+        zipcode
+      }
     }
   }
 `
+
+const FieldTitle = ({ title }: { title: string }) => (
+  <p className="text-sm font-normal text-grey-600">{title}</p>
+)
+
+const FieldContent = ({ content, children }: { content?: string; children?: React.ReactNode }) => (
+  <p className="text-base font-normal text-grey-700">{content || children}</p>
+)
+
+const Field = ({ title, content }: { title: string; content: string }) => (
+  <div className="flex flex-col gap-1">
+    <FieldTitle title={title} />
+    <FieldContent content={content} />
+  </div>
+)
+
+type AddressFieldProps = CustomerAddressInput & {
+  title: string
+}
+
+const addressesAreIdentical = ({
+  addressA,
+  addressB,
+}: {
+  addressA?: CustomerAddressInput | null
+  addressB?: CustomerAddressInput | null
+}) =>
+  addressA &&
+  addressB &&
+  addressA.addressLine1 === addressB.addressLine1 &&
+  addressA.addressLine2 === addressB.addressLine2 &&
+  addressA.state === addressB.state &&
+  addressA.country === addressB.country &&
+  addressA.city === addressB.city &&
+  addressA.zipcode === addressB.zipcode
+
+const AddressField = ({
+  title,
+  addressLine1,
+  addressLine2,
+  state,
+  country,
+  city,
+  zipcode,
+}: AddressFieldProps) => {
+  const { translate } = useInternationalization()
+
+  return (
+    <InfoLine>
+      <FieldTitle title={title} />
+
+      {!(addressLine1 || addressLine2 || state || country || city || zipcode) ? (
+        <FieldContent content={translate('text_6419c64eace749372fc72b2b')} />
+      ) : (
+        <div>
+          {addressLine1 && <FieldContent content={addressLine1} />}
+          {addressLine2 && <FieldContent content={addressLine2} />}
+          {(zipcode || city || state) && (
+            <FieldContent>
+              {zipcode} {city} {state}
+            </FieldContent>
+          )}
+          {country && <FieldContent content={CountryCodes[country]} />}
+        </div>
+      )}
+    </InfoLine>
+  )
+}
 
 interface PortalCustomerInfosProps {
   viewEditInformation: () => void
@@ -39,159 +115,80 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
   const { data, loading } = useGetPortalCustomerInfosQuery()
   const customerPortalUser = data?.customerPortalUser
 
+  const identicalAddresses = addressesAreIdentical({
+    addressA: customerPortalUser,
+    addressB: customerPortalUser?.shippingAddress,
+  })
+
   return (
     <SectionContainer>
       <SectionTitle
         title={translate('text_6419c64eace749372fc72b07')}
         className="justify-between"
-        action={{ title: translate('TODO: Edit information'), onClick: viewEditInformation }}
+        action={{ title: translate('text_1728377307159fck091geiv0'), onClick: viewEditInformation }}
       />
-      <InfosContainer>
-        {loading ? (
-          <InfoSkeletonContainer>
-            {[1, 2].map((i) => (
-              <InfoSkeletonLine key={`key-skeleton-line-${i}`}>
-                <Skeleton variant="text" width="12%" height={12} marginRight={32} />
-                <Skeleton variant="text" width="38%" height={12} />
-              </InfoSkeletonLine>
-            ))}
-          </InfoSkeletonContainer>
-        ) : (
-          <>
-            <div>
-              <InfoLine>
-                <Typography variant="caption" color="grey600">
-                  {translate('text_6419c64eace749372fc72b0f')}
-                </Typography>
-                <Typography variant="body" color={customerPortalUser?.name ? 'grey700' : 'grey500'}>
-                  {customerPortalUser?.name || translate('text_6419c64eace749372fc72b0b')}
-                </Typography>
-              </InfoLine>
-              <InfoLine>
-                <Typography variant="caption" color="grey600">
-                  {translate('text_6419c64eace749372fc72b17')}
-                </Typography>
-                <Typography
-                  variant="body"
-                  color={customerPortalUser?.legalName ? 'grey700' : 'grey500'}
-                >
-                  {customerPortalUser?.legalName || translate('text_6419c64eace749372fc72b13')}
-                </Typography>
-              </InfoLine>
-              <InfoLine>
-                <Typography variant="caption" color="grey600">
-                  {translate('text_647ddd5220412a009bfd36f4')}
-                </Typography>
-                <Typography
-                  variant="body"
-                  color={customerPortalUser?.legalNumber ? 'grey700' : 'grey500'}
-                >
-                  {customerPortalUser?.legalNumber || translate('text_647ddd5f54fefd00c5754bca')}
-                </Typography>
-              </InfoLine>
-              <InfoLine>
-                <Typography variant="caption" color="grey600">
-                  {translate('text_6480a70109b61a005b2092df')}
-                </Typography>
-                <Typography
-                  variant="body"
-                  color={customerPortalUser?.taxIdentificationNumber ? 'grey700' : 'grey500'}
-                >
-                  {customerPortalUser?.taxIdentificationNumber ||
-                    translate('text_6480a707530c5c0053cd11e1')}
-                </Typography>
-              </InfoLine>
-            </div>
-            <div>
-              <InfoLine>
-                <Typography variant="caption" color="grey600">
-                  {translate('text_6419c64eace749372fc72b27')}
-                </Typography>
-                <Typography
-                  variant="body"
-                  color={customerPortalUser?.email ? 'grey700' : 'grey500'}
-                >
-                  {customerPortalUser?.email || translate('text_6419c64eace749372fc72b23')}
-                </Typography>
-              </InfoLine>
-              <InfoLine>
-                <Typography variant="caption" color="grey600">
-                  {translate('text_6419c64eace749372fc72b2f')}
-                </Typography>
-                {!(
-                  customerPortalUser?.addressLine1 ||
-                  customerPortalUser?.addressLine2 ||
-                  customerPortalUser?.state ||
-                  customerPortalUser?.country ||
-                  customerPortalUser?.city ||
-                  customerPortalUser?.zipcode
-                ) ? (
-                  <Typography variant="body" color="grey500">
-                    {translate('text_6419c64eace749372fc72b2b')}
-                  </Typography>
-                ) : (
-                  <div>
-                    {customerPortalUser?.addressLine1 && (
-                      <Typography variant="body" color="grey700">
-                        {customerPortalUser?.addressLine1}
-                      </Typography>
-                    )}
-                    {customerPortalUser?.addressLine2 && (
-                      <Typography variant="body" color="grey700">
-                        {customerPortalUser?.addressLine2}
-                      </Typography>
-                    )}
-                    {(customerPortalUser?.zipcode ||
-                      customerPortalUser?.city ||
-                      customerPortalUser?.state) && (
-                      <Typography variant="body" color="grey700">
-                        {customerPortalUser?.zipcode} {customerPortalUser?.city}{' '}
-                        {customerPortalUser?.state}
-                      </Typography>
-                    )}
-                    {customerPortalUser?.country && (
-                      <Typography variant="body" color="grey700">
-                        {CountryCodes[customerPortalUser?.country]}
-                      </Typography>
-                    )}
-                  </div>
-                )}
-              </InfoLine>
-            </div>
-          </>
-        )}
-      </InfosContainer>
+
+      {loading && <SectionLoading />}
+
+      {!loading && (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-0">
+          <div className="flex flex-col gap-4">
+            <Field
+              title={translate('text_6419c64eace749372fc72b0f')}
+              content={customerPortalUser?.name || translate('text_6419c64eace749372fc72b0b')}
+            />
+
+            <Field
+              title={translate('text_6419c64eace749372fc72b17')}
+              content={customerPortalUser?.legalName || translate('text_6419c64eace749372fc72b13')}
+            />
+
+            <Field
+              title={translate('text_647ddd5220412a009bfd36f4')}
+              content={
+                customerPortalUser?.legalNumber || translate('text_647ddd5f54fefd00c5754bca')
+              }
+            />
+
+            <Field
+              title={translate('text_6480a70109b61a005b2092df')}
+              content={
+                customerPortalUser?.taxIdentificationNumber ||
+                translate('text_6480a707530c5c0053cd11e1')
+              }
+            />
+
+            <Field
+              title={translate('text_1728379586750vyjcpwgu27f')}
+              content={customerPortalUser?.email || translate('text_6419c64eace749372fc72b23')}
+            />
+          </div>
+
+          <div className="flex flex-col gap-4">
+            <AddressField
+              title={translate('text_626c0c301a16a600ea06148d')}
+              {...customerPortalUser}
+            />
+
+            {customerPortalUser?.shippingAddress?.addressLine1 && identicalAddresses ? (
+              <span className="text-base font-normal text-grey-700">
+                <FieldTitle title={translate('text_667d708c1359b49f5a5a822a')} />
+                <FieldContent content={translate('text_1728381336070e8cj1amorap')} />
+              </span>
+            ) : (
+              <AddressField
+                title={translate('text_667d708c1359b49f5a5a822a')}
+                {...customerPortalUser?.shippingAddress}
+              />
+            )}
+          </div>
+        </div>
+      )}
     </SectionContainer>
   )
 }
 
 export default PortalCustomerInfos
-
-const InfoSkeletonContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: ${theme.spacing(2)} ${theme.spacing(1)};
-`
-const InfoSkeletonLine = styled.div`
-  display: flex;
-
-  &:not(:last-child) {
-    margin-bottom: ${theme.spacing(7)};
-  }
-`
-
-const InfosContainer = styled.section`
-  display: flex;
-  column-gap: ${theme.spacing(8)};
-
-  > * {
-    flex: 1;
-  }
-
-  ${theme.breakpoints.down('md')} {
-    flex-direction: column;
-  }
-`
 
 const InfoLine = styled.div`
   display: flex;

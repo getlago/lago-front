@@ -101,9 +101,9 @@ const UsagePage = ({ goHome }: PortalUsagePageProps) => {
 
   return (
     <div>
-      <PageTitle title={translate('TODO: Usage')} goHome={goHome} />
+      <PageTitle title={translate('text_1728377307160r73ggjgpulg')} goHome={goHome} />
 
-      <SectionTitle className="mt-8" title={translate('TODO: Plan')} />
+      <SectionTitle className="mt-8" title={translate('text_172837730716038g8qgz927f')} />
 
       <UsageSubscriptionItem
         subscription={customerPortalSubscription}
@@ -112,16 +112,18 @@ const UsagePage = ({ goHome }: PortalUsagePageProps) => {
 
       {customerId && subscriptionId && (
         <div className="mt-12">
-          <SubscriptionUsageLifetimeGraphComponent
-            subscriptionId={subscriptionId}
-            customerId={customerId}
-            organization={customerPortalOrganization}
-            organizationLoading={organizationLoading}
-            subscription={customerPortalSubscription}
-            subscriptionLoading={customerPortalSubscriptionLoading}
-            subscriptionError={customerPortalSubscriptionError}
-            refetchLifetimeData={() => customerPortalSubscriptionRefetch()}
-          />
+          {customerPortalSubscription?.lifetimeUsage && (
+            <SubscriptionUsageLifetimeGraphComponent
+              subscriptionId={subscriptionId}
+              customerId={customerId}
+              organization={customerPortalOrganization}
+              organizationLoading={organizationLoading}
+              subscription={customerPortalSubscription}
+              subscriptionLoading={customerPortalSubscriptionLoading}
+              subscriptionError={customerPortalSubscriptionError}
+              refetchLifetimeData={() => customerPortalSubscriptionRefetch()}
+            />
+          )}
 
           <SubscriptionCurrentUsageTableComponent
             usageData={usageData?.customerPortalCustomerUsage}
@@ -134,6 +136,17 @@ const UsagePage = ({ goHome }: PortalUsagePageProps) => {
             customerLoading={customerPortalSubscriptionLoading}
             customerError={customerPortalSubscriptionError}
             refetchUsage={() => usageRefetch()}
+            noUsageOverride={
+              <div className="mt-6 flex flex-col gap-3">
+                <h6 className="text-lg font-semibold text-grey-700">
+                  {translate('text_1728384061736ee3wi673knf')}
+                </h6>
+
+                <p className="text-base font-normal text-grey-600">
+                  {translate('text_1728384061736kob8d52j62l')}
+                </p>
+              </div>
+            }
           />
         </div>
       )}

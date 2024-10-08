@@ -18,13 +18,10 @@ import {
   CustomerUsageForUsageDetailsFragmentDoc,
   GetCustomerUsageForPortalQuery,
   GetSubscriptionForSubscriptionUsageLifetimeGraphQuery,
-  GetSubscriptionForSubscriptionUsageLifetimeGraphQueryResult,
   LagoApiError,
-  Subscription,
   TimezoneEnum,
   UsageForSubscriptionUsageQuery,
   useCustomerForSubscriptionUsageQuery,
-  useGetSubscriptionForSubscriptionUsageLifetimeGraphQuery,
   useSubscrptionForSubscriptionUsageQuery,
   useUsageForSubscriptionUsageQuery,
 } from '~/generated/graphql'
@@ -128,6 +125,8 @@ type SubscriptionCurrentUsageTableComponentProps = {
   customerError?: ApolloError
 
   refetchUsage: () => void
+
+  noUsageOverride?: React.ReactNode
 }
 
 export const SubscriptionCurrentUsageTableComponent = ({
@@ -144,6 +143,8 @@ export const SubscriptionCurrentUsageTableComponent = ({
   customerError,
 
   refetchUsage,
+
+  noUsageOverride,
 }: SubscriptionCurrentUsageTableComponentProps) => {
   const { translate } = useInternationalization()
 
@@ -176,7 +177,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
               icon="reload"
               size="small"
               onClick={async () => {
-                await refetchUsage()
+                refetchUsage()
               }}
             />
           </Tooltip>
@@ -184,9 +185,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
 
         {isLoading ? (
           <Skeleton variant="text" height={12} width={144} marginTop={8} />
-        ) : !hasError &&
-          !!usageData?.customerUsage?.fromDatetime &&
-          !!usageData?.customerUsage?.toDatetime ? (
+        ) : !hasError && !!usageData?.fromDatetime && !!usageData?.toDatetime ? (
           <Typography variant="caption" color="grey600" noWrap>
             {translate('text_633dae57ca9a923dd53c2097', {
               fromDate: formatDateToTZ(usageData?.fromDatetime, customerTimezone),
@@ -227,11 +226,17 @@ export const SubscriptionCurrentUsageTableComponent = ({
           )}
         </>
       ) : !isLoading && !usageData?.chargesUsage.length ? (
-        <GenericPlaceholder
-          title={translate('text_62c3f454e5d7f4ec8888c1d5')}
-          subtitle={translate('text_62c3f454e5d7f4ec8888c1d7')}
-          image={<EmptyImage width="136" height="104" />}
-        />
+        <>
+          {noUsageOverride ? (
+            noUsageOverride
+          ) : (
+            <GenericPlaceholder
+              title={translate('text_62c3f454e5d7f4ec8888c1d5')}
+              subtitle={translate('text_62c3f454e5d7f4ec8888c1d7')}
+              image={<EmptyImage width="136" height="104" />}
+            />
+          )}
+        </>
       ) : (
         <>
           <Stack

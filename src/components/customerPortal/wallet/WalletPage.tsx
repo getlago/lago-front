@@ -4,6 +4,7 @@ import { useFormik } from 'formik'
 import { number, object } from 'yup'
 
 import PageTitle from '~/components/customerPortal/common/PageTitle'
+import SectionError from '~/components/customerPortal/common/SectionError'
 import { Alert, Button } from '~/components/designSystem'
 import { AmountInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
@@ -36,6 +37,7 @@ const WalletPage = ({ goHome }: WalletPageProps) => {
     data: customerWalletData,
     loading: customerWalletLoading,
     error: customerWalletError,
+    refetch: customerWalletRefetch,
   } = useGetPortalWalletsQuery()
 
   const [topUpPortalWallet, { loading: loadingTopUpPortalWallet, error: errorTopUpPortalWallet }] =
@@ -46,7 +48,7 @@ const WalletPage = ({ goHome }: WalletPageProps) => {
 
           addToast({
             severity: 'success',
-            translateKey: 'TODO: Success',
+            translateKey: 'text_17283773071607bl03l6kl4n',
           })
         }
       },
@@ -76,12 +78,21 @@ const WalletPage = ({ goHome }: WalletPageProps) => {
   })
 
   if (customerWalletError) {
-    return <div>Error</div>
+    return (
+      <div>
+        <PageTitle title={translate('text_1728377307159q3otzyv9tey')} goHome={goHome} />
+
+        <SectionError refresh={customerWalletRefetch} />
+      </div>
+    )
   }
+
+  const submitButtonDisabled =
+    !formikProps?.values?.amount || loadingTopUpPortalWallet || formikProps?.values?.amount <= 0
 
   return (
     <div>
-      <PageTitle title={translate('TODO: Wallet')} goHome={goHome} />
+      <PageTitle title={translate('text_1728377307159q3otzyv9tey')} goHome={goHome} />
 
       {customerWalletLoading && <div>Loading..</div>}
 
@@ -89,6 +100,8 @@ const WalletPage = ({ goHome }: WalletPageProps) => {
         <div className="mt-10">
           <AmountInputField
             name="amount"
+            displayErrorText={false}
+            beforeChangeFormatter={['positiveNumber']}
             helperText={translate('text_17279456600803f8on7ku8jo', {
               credits: intlFormatNumber(
                 Number(formikProps?.values?.amount || 0) * Number(wallet?.rateAmount || 0),
@@ -98,31 +111,33 @@ const WalletPage = ({ goHome }: WalletPageProps) => {
                 },
               ),
             })}
-            label={translate('TODO: Credits to purchase')}
+            label={translate('text_1728377307160d96z1skvnw3')}
             currency={CurrencyEnum.Usd}
             formikProps={formikProps}
             InputProps={{
               endAdornment: (
-                <InputAdornment position="end">{translate('TODO: credits')}</InputAdornment>
+                <InputAdornment position="end">
+                  {translate('text_1728377307160iloscj20uc1')}
+                </InputAdornment>
               ),
             }}
           />
 
           {errorTopUpPortalWallet && (
             <Alert className="mt-8" type="danger" data-test="error-alert">
-              <span>{translate('TODO: Something went wrong, please try again')}</span>
+              <span>{translate('text_1728377307160tb09yisgxk9')}</span>
             </Alert>
           )}
 
           <div className="flex justify-end">
             <Button
               className="mt-8"
-              disabled={!formikProps?.values?.amount || loadingTopUpPortalWallet}
+              disabled={submitButtonDisabled}
               loading={loadingTopUpPortalWallet}
               size="large"
               onClick={formikProps.submitForm}
             >
-              {translate('TODO: Top up credits')}
+              {translate('text_1728377307160e831fr4ydtn')}
             </Button>
           </div>
         </div>

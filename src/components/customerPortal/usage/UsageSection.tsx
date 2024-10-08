@@ -36,7 +36,7 @@ const UsageSection = ({ viewSubscription }: PortalUsageSectionProps) => {
 
   return (
     <SectionContainer>
-      <SectionTitle title={translate('TODO: Plans')} />
+      <SectionTitle title={translate('text_1728377307160ilquuusbuwq')} />
 
       {loading && <SectionLoading />}
 
@@ -52,7 +52,7 @@ const UsageSection = ({ viewSubscription }: PortalUsageSectionProps) => {
                 className="p-0 text-base font-normal text-blue-600"
                 onClick={() => viewSubscription(item.id)}
               >
-                {translate('TODO: View usage')}
+                {translate('text_17283773071604x345yf0jbz')}
               </button>
             </UsageSubscriptionItem>
           ))}

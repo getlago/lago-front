@@ -7,7 +7,7 @@ type SectionTitleProps = {
 }
 
 const SectionTitle = ({ className, title, action }: SectionTitleProps) => (
-  <div className={tw('mb-6 flex h-10 items-center shadow-b', className)}>
+  <div className={tw('mb-6 flex items-center pb-4 shadow-b', className)}>
     <h3 className={'text-lg font-semibold text-grey-700'}>{title}</h3>
 
     {action && (

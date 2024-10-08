@@ -20,7 +20,7 @@ const UsageSubscriptionItem = ({
   if (!subscription) return null
 
   return (
-    <div key={subscription.id}>
+    <div className="flex flex-col gap-1" key={subscription.id}>
       <p className="text-base font-medium text-grey-700">{subscription.plan?.name}</p>
 
       <p className="text-base font-normal text-grey-700">
@@ -41,14 +41,14 @@ const UsageSubscriptionItem = ({
       </p>
 
       <p className="text-sm font-normal text-grey-600">
-        {translate('TODO: Your plan renews on')}{' '}
+        {translate('text_1728377747178bfroky3hn30')}{' '}
         {planRenewalDate({
           currentBillingPeriodEndingAt: subscription.currentBillingPeriodEndingAt,
           applicableTimezone,
         })}
       </p>
 
-      {children}
+      <div>{children}</div>
     </div>
   )
 }

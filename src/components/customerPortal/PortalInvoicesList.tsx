@@ -1,13 +1,12 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
 import { DateTime } from 'luxon'
 import { useEffect } from 'react'
-import styled, { css } from 'styled-components'
 
 import SectionContainer from '~/components/customerPortal/common/SectionContainer'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import {
   Button,
+  Icon,
   InfiniteScroll,
   Status,
   StatusProps,
@@ -16,7 +15,6 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
-import { OverviewCard } from '~/components/OverviewCard'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -36,7 +34,6 @@ import {
   useGetCustomerPortalUserCurrencyQuery,
 } from '~/generated/graphql'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { NAV_HEIGHT, theme } from '~/styles'
 
 gql`
   fragment PortalInvoiceListItem on Invoice {
@@ -229,46 +226,57 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
     <SectionContainer>
       <SectionTitle title={translate('text_6419c64eace749372fc72b37')} />
 
-      <Stack gap={4}>
-        <Stack flexDirection="row" gap={4}>
-          <OverviewCard
-            isLoading={invoicesLoading}
-            title={translate('text_6670a7222702d70114cc7957')}
-            content={intlFormatNumber(invoices.amount, {
-              currency: invoices.currency,
-              locale: documentLocale,
-              currencyDisplay: 'narrowSymbol',
-            })}
-            caption={translate(
-              'text_6670a7222702d70114cc795c',
-              { count: invoices.count },
-              invoices.count,
-            )}
-          />
-          <OverviewCard
-            isLoading={overdueLoading}
-            title={translate('text_6670a7222702d70114cc795a')}
-            tooltipContent={translate('text_6670a757999f8a007789bb5d')}
-            content={intlFormatNumber(overdue.amount, {
-              currency: overdue.currency,
-              locale: documentLocale,
-              currencyDisplay: 'narrowSymbol',
-            })}
-            caption={translate(
-              'text_6670a7222702d70114cc795c',
-              { count: overdue.count },
-              overdue.count,
-            )}
-            isAccentContent={overdue.count > 0}
-          />
-        </Stack>
-      </Stack>
+      <div className="grid grid-cols-1 md:grid-cols-2">
+        <div className="flex flex-col gap-1">
+          {!invoicesLoading && (
+            <>
+              <h6 className="text-sm font-normal text-grey-600">
+                {translate('text_6670a7222702d70114cc7957')}
+              </h6>
+
+              <p className="text-2xl font-semibold text-grey-700">
+                {intlFormatNumber(invoices.amount, {
+                  currency: invoices.currency,
+                  locale: documentLocale,
+                  currencyDisplay: 'narrowSymbol',
+                })}
+              </p>
+            </>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-1">
+          {!overdueLoading && (
+            <>
+              <h6 className="flex items-center gap-2 text-sm font-normal text-grey-600">
+                {translate('text_6670a7222702d70114cc795a')}
+
+                <Tooltip
+                  className="flex h-5 items-end"
+                  placement="top-start"
+                  title={translate('text_6670a757999f8a007789bb5d')}
+                >
+                  <Icon name="info-circle" />
+                </Tooltip>
+              </h6>
+
+              <p className="text-2xl font-semibold text-grey-700">
+                {intlFormatNumber(overdue.amount, {
+                  currency: overdue.currency,
+                  locale: documentLocale,
+                  currencyDisplay: 'narrowSymbol',
+                })}
+              </p>
+            </>
+          )}
+        </div>
+      </div>
 
       {!hasNoInvoices && (
         <SearchInput
           className="my-8 w-full max-w-full"
           onChange={debouncedSearch}
-          placeholder={translate('text_6419c64eace749372fc72b33')}
+          placeholder={translate('text_1728382674210n9qpjbnooi4')}
         />
       )}
 
@@ -390,21 +398,3 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
 }
 
 export default PortalInvoicesList
-
-const PageHeader = styled.div<{ $isEmpty?: boolean }>`
-  align-items: center;
-  display: flex;
-  height: ${NAV_HEIGHT}px;
-  justify-content: space-between;
-  ${({ $isEmpty }) =>
-    !!$isEmpty &&
-    css`
-      box-shadow: ${theme.shadows[7]};
-      margin-bottom: ${theme.spacing(6)};
-    `};
-`
-
-const HeaderRigthBlock = styled.div`
-  display: flex;
-  align-items: center;
-`

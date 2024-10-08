@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { object, string } from 'yup'
 
 import PageTitle from '~/components/customerPortal/common/PageTitle'
-import { Button } from '~/components/designSystem'
+import { Alert, Button } from '~/components/designSystem'
 import { Checkbox, ComboBoxField, TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
@@ -43,11 +43,9 @@ const EditCustomerBillingForm = ({ customer }: EditCustomerBillingFormProps) => 
   ] = useUpdatePortalCustomerMutation({
     onCompleted(res) {
       if (res) {
-        // TODO: Refetch customer?
-
         addToast({
           severity: 'success',
-          translateKey: 'TODO: Success',
+          translateKey: 'text_17283785089842qcgpab0bfn',
         })
       }
     },
@@ -73,7 +71,6 @@ const EditCustomerBillingForm = ({ customer }: EditCustomerBillingFormProps) => 
       name: string(),
       email: string().email('text_620bc4d4269a55014d493fc3'),
     }),
-
     onSubmit: async (values) => {
       updatePortalCustomer({
         variables: {
@@ -85,6 +82,29 @@ const EditCustomerBillingForm = ({ customer }: EditCustomerBillingFormProps) => 
     },
   })
 
+  useEffect(() => {
+    if (isShippingEqualBillingAddress) {
+      formikProps.setFieldValue('shippingAddress', {
+        addressLine1: formikProps.values.addressLine1,
+        addressLine2: formikProps.values.addressLine2,
+        city: formikProps.values.city,
+        country: formikProps.values.country,
+        state: formikProps.values.state,
+        zipcode: formikProps.values.zipcode,
+      })
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    formikProps.values.addressLine1,
+    formikProps.values.addressLine2,
+    formikProps.values.city,
+    formikProps.values.country,
+    formikProps.values.state,
+    formikProps.values.zipcode,
+    isShippingEqualBillingAddress,
+  ])
+
   if (!customer) {
     return null
   }
@@ -92,7 +112,7 @@ const EditCustomerBillingForm = ({ customer }: EditCustomerBillingFormProps) => 
   return (
     <div className="flex flex-col gap-4">
       <h3 className="mt-8 text-base font-medium text-grey-700">
-        {translate('TODO: General information')}
+        {translate('text_1728377307159eu0ihwiyrf0')}
       </h3>
 
       <TextInputField
@@ -116,7 +136,7 @@ const EditCustomerBillingForm = ({ customer }: EditCustomerBillingFormProps) => 
       />
 
       <h3 className="mt-8 text-base font-medium text-grey-700">
-        {translate('TODO:Billing address')}
+        {translate('text_1728377307159y9afykbx2q9')}
       </h3>
 
       <TextInputField
@@ -210,18 +230,24 @@ const EditCustomerBillingForm = ({ customer }: EditCustomerBillingFormProps) => 
         PopperProps={{ displayInDialog: true }}
       />
 
+      {updatePortalCustomerError && (
+        <Alert className="mt-8" type="danger" data-test="error-alert">
+          <span>{translate('text_1728377307160tb09yisgxk9')}</span>
+        </Alert>
+      )}
+
       <div className="flex justify-end">
         <div>
           <Button
             className="mt-8"
             size="large"
             disabled={!formikProps.isValid}
-            loading={formikProps.isSubmitting}
+            loading={formikProps.isSubmitting || updatePortalCustomerLoading}
             fullWidth
             data-test="submit"
             onClick={formikProps.submitForm}
           >
-            {translate('TODO: Save information')}
+            {translate('text_17283773071596dmecu79kx4')}
           </Button>
         </div>
       </div>
@@ -238,7 +264,7 @@ const CustomerInformationPage = ({ goHome }: CustomerInformationPageProps) => {
 
   return (
     <div>
-      <PageTitle title={translate('TODO: Edit Customer Information')} goHome={goHome} />
+      <PageTitle title={translate('text_1728377307159nbrs3pgng03')} goHome={goHome} />
 
       {loading && <div>Loading..</div>}
 
