@@ -3,7 +3,6 @@ import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
 import { forwardRef } from 'react'
 import { useParams } from 'react-router-dom'
-import styled from 'styled-components'
 import { number, object } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
@@ -14,7 +13,6 @@ import {
   useUpdateCustomerInvoiceGracePeriodMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 gql`
   fragment EditCustomerInvoiceGracePeriod on Customer {
@@ -97,7 +95,7 @@ export const EditCustomerInvoiceGracePeriodDialog = forwardRef<
         </>
       )}
     >
-      <Content>
+      <div className="mb-8">
         <TextInputField
           name="invoiceGracePeriod"
           beforeChangeFormatter={['positiveNumber', 'int']}
@@ -112,13 +110,9 @@ export const EditCustomerInvoiceGracePeriodDialog = forwardRef<
             ),
           }}
         />
-      </Content>
+      </div>
     </Dialog>
   )
 })
-
-const Content = styled.div`
-  margin-bottom: ${theme.spacing(8)};
-`
 
 EditCustomerInvoiceGracePeriodDialog.displayName = 'forwardRef'
