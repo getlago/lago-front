@@ -52,6 +52,8 @@ export const Switch = ({
         disabled
           ? undefined
           : (e) => {
+              e.stopPropagation()
+
               if (onChange) {
                 const res = onChange(!checked, e)
 
