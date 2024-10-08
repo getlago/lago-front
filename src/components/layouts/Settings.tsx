@@ -8,9 +8,7 @@ export const SettingsPaddedContainer = ({
   children,
   className,
 }: PropsWithChildren & { className?: string }) => (
-  <div className={tw('flex max-w-192 flex-col gap-10 px-4 pb-20 pt-8 md:px-12', className)}>
-    {children}
-  </div>
+  <div className={tw('container flex flex-col gap-10 pb-20 pt-8', className)}>{children}</div>
 )
 
 export const SettingsPageHeaderContainer = ({ children }: PropsWithChildren) => (

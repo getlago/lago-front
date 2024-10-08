@@ -1,9 +1,26 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
+import { generatePath } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Button, InfiniteScroll, Skeleton, Typography } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import {
+  ActionItem,
+  Avatar,
+  Button,
+  Chip,
+  InfiniteScroll,
+  Table,
+  Typography,
+} from '~/components/designSystem'
+import { PageBannerHeader } from '~/components/layouts/Pages'
+import {
+  SettingsListItem,
+  SettingsListItemHeader,
+  SettingsListItemLoadingSkeleton,
+  SettingsListWrapper,
+  SettingsPaddedContainer,
+  SettingsPageHeaderContainer,
+} from '~/components/layouts/Settings'
 import {
   CreateInviteDialog,
   CreateInviteDialogRef,
@@ -16,11 +33,6 @@ import {
   EditMemberRoleDialog,
   EditMemberRoleDialogRef,
 } from '~/components/settings/members/EditMemberRoleDialog'
-import { InviteItem, InviteItemSkeleton } from '~/components/settings/members/InviteItem'
-import {
-  MembershipItem,
-  MembershipItemSkeleton,
-} from '~/components/settings/members/MembershipItem'
 import {
   RevokeInviteDialog,
   RevokeInviteDialogRef,
@@ -29,19 +41,50 @@ import {
   RevokeMembershipDialog,
   RevokeMembershipDialogRef,
 } from '~/components/settings/members/RevokeMembershipDialog'
+import { addToast } from '~/core/apolloClient'
+import { getRoleTranslationKey } from '~/core/constants/form'
+import { INVITATION_ROUTE } from '~/core/router'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
-  InviteItemFragmentDoc,
-  MembershipItemFragmentDoc,
+  InviteForEditRoleForDialogFragmentDoc,
+  InviteItemForMembersSettingsFragment,
+  MemberForEditRoleForDialogFragmentDoc,
+  MembershipItemForMembershipSettingsFragment,
   useGetInvitesQuery,
   useGetMembersQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
-import ErrorImage from '~/public/images/maneki/error.svg'
-import { NAV_HEIGHT, theme } from '~/styles'
-import { SettingsHeaderNameWrapper, SettingsPageContentWrapper } from '~/styles/settingsPage'
+import { theme } from '~/styles'
 
 gql`
+  fragment InviteItemForMembersSettings on Invite {
+    id
+    email
+    token
+    role
+    organization {
+      id
+      name
+    }
+    ...InviteForEditRoleForDialog
+  }
+
+  fragment MembershipItemForMembershipSettings on Membership {
+    id
+    role
+    user {
+      id
+      email
+    }
+    organization {
+      id
+      name
+    }
+    ...MemberForEditRoleForDialog
+  }
+
   query getInvites($page: Int, $limit: Int) {
     invites(page: $page, limit: $limit) {
       metadata {
@@ -50,7 +93,7 @@ gql`
         totalCount
       }
       collection {
-        ...InviteItem
+        ...InviteItemForMembersSettings
       }
     }
   }
@@ -64,18 +107,19 @@ gql`
         adminCount
       }
       collection {
-        ...MembershipItem
+        ...MembershipItemForMembershipSettings
       }
     }
   }
 
-  ${InviteItemFragmentDoc}
-  ${MembershipItemFragmentDoc}
+  ${InviteForEditRoleForDialogFragmentDoc}
+  ${MemberForEditRoleForDialogFragmentDoc}
 `
 
 const Members = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
+  const { currentUser } = useCurrentUser()
   const revokeInviteDialogRef = useRef<RevokeInviteDialogRef>(null)
   const revokeMembershipDialogRef = useRef<RevokeMembershipDialogRef>(null)
   const editMemberRoleDiaglogRef = useRef<EditMemberRoleDialogRef>(null)
@@ -95,6 +139,7 @@ const Members = () => {
     refetch: membersRefetch,
     fetchMore: membersFetchMore,
   } = useGetMembersQuery({ variables: { limit: 20 }, notifyOnNetworkStatusChange: true })
+  const isLoading = invitesLoading || membersLoading
   const invitesMetadata = invitesData?.invites.metadata
   const membersMetadata = membersData?.memberships.metadata
   const hasInvites = !!invitesMetadata?.totalCount
@@ -103,146 +148,280 @@ const Members = () => {
 
   return (
     <>
-      <SettingsHeaderNameWrapper>
+      <PageBannerHeader>
         <Typography variant="bodyHl" color="grey700">
           {translate('text_63208b630aaf8df6bbfb2655')}
         </Typography>
-      </SettingsHeaderNameWrapper>
+      </PageBannerHeader>
 
-      <SettingsPageContentWrapper>
-        <Title variant="headline">{translate('text_63208b630aaf8df6bbfb2657')}</Title>
-        <Subtitle>{translate('text_63208b630aaf8df6bbfb2659')}</Subtitle>
-        {(!!invitesLoading || !!invitesError || !!hasInvites) && (
-          <Head>
-            {!!invitesLoading && !hasInvites ? (
-              <TitleSkeleton variant="text" height={12} width={160} />
-            ) : (
-              <>
-                <Typography variant="subhead">
-                  {translate('text_63208b630aaf8df6bbfb265d')}
-                </Typography>
-                {!!hasInvites && hasPermissions(['organizationMembersCreate']) && (
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      createInviteDialogRef.current?.openDialog()
-                    }}
-                    data-test="create-invite-button"
-                  >
-                    {translate('text_63208b630aaf8df6bbfb265b')}
-                  </Button>
-                )}
-              </>
-            )}
-          </Head>
-        )}
-        <InvitationsListWrapper data-test="invitations-list">
-          {!!invitesError ? (
-            <ErrorPlaceholder
-              noMargins
-              title={translate('text_6321a076b94bd1b32494e9e6')}
-              subtitle={translate('text_6321a076b94bd1b32494e9e8')}
-              buttonTitle={translate('text_6321a076b94bd1b32494e9ea')}
-              buttonVariant="primary"
-              buttonAction={invitesRefetch}
-              image={<ErrorImage width="136" height="104" />}
-            />
-          ) : !!hasInvites ? (
+      <SettingsPaddedContainer>
+        <SettingsPageHeaderContainer>
+          <Typography variant="headline">{translate('text_63208b630aaf8df6bbfb2657')}</Typography>
+          <Typography>{translate('text_63208b630aaf8df6bbfb2659')}</Typography>
+        </SettingsPageHeaderContainer>
+
+        <SettingsListWrapper>
+          {!!isLoading && !hasInvites ? (
+            <SettingsListItemLoadingSkeleton count={2} />
+          ) : (
             <>
-              <ListWrapper>
-                {invitesData?.invites.collection.map((invite, i) => (
-                  <InviteItem
-                    key={`invite-item-${i}`}
-                    editInviteRoleDiaglogRef={editInviteRoleDiaglogRef}
-                    invite={invite}
-                    revokeInviteDialogRef={revokeInviteDialogRef}
-                  />
-                ))}
-                {!!invitesLoading && (
-                  <LoadingListWrapper>
-                    {[1, 2].map((i) => (
-                      <InviteItemSkeleton key={`invite-item-skeleton-${i}`} />
-                    ))}
-                  </LoadingListWrapper>
-                )}
-              </ListWrapper>
-              {inviteCurrentPage < inviteTotalPages && (
-                <Loadmore>
-                  <Button
-                    variant="quaternary"
-                    onClick={() =>
-                      invitesFetchMore({
-                        variables: { page: inviteCurrentPage + 1 },
-                      })
+              {/* INVITES */}
+              {!!hasInvites && (
+                <SettingsListItem className="[box-shadow:none]">
+                  <SettingsListItemHeader
+                    label={translate('text_63208b630aaf8df6bbfb265d')}
+                    sublabel={translate('text_1728309971006gggruz7xtfp')}
+                    action={
+                      !!hasInvites && hasPermissions(['organizationMembersCreate']) ? (
+                        <Button
+                          variant="quaternary"
+                          onClick={() => {
+                            createInviteDialogRef.current?.openDialog()
+                          }}
+                          data-test="create-invite-button"
+                        >
+                          {translate('text_645bb193927b375079d28ad2')}
+                        </Button>
+                      ) : undefined
                     }
-                  >
-                    <Typography variant="body" color="grey600">
-                      {translate('text_63208bfc99e69a28211ec7fd')}
-                    </Typography>
-                  </Button>
-                </Loadmore>
+                  />
+
+                  <Table
+                    name="members-setting-invivations-list"
+                    containerSize={{ default: 0 }}
+                    rowSize={72}
+                    isLoading={invitesLoading}
+                    data={invitesData?.invites.collection || []}
+                    hasError={!!invitesError}
+                    placeholder={{
+                      errorState: {
+                        title: translate('text_6321a076b94bd1b32494e9e6'),
+                        subtitle: translate('text_6321a076b94bd1b32494e9e8'),
+                        buttonTitle: translate('text_6321a076b94bd1b32494e9ea'),
+                        buttonAction: invitesRefetch,
+                      },
+                    }}
+                    columns={[
+                      {
+                        key: 'email',
+                        title: translate('text_1728310120853rutc5q05ax6'),
+                        maxSpace: true,
+                        content: ({ email }) => (
+                          <div className="flex flex-1 items-center gap-3">
+                            <Avatar variant="user" identifier={email.charAt(0)} size="big" />
+                            <Typography variant="body" color="grey700">
+                              {email}
+                            </Typography>
+                          </div>
+                        ),
+                      },
+                      {
+                        key: 'role',
+                        title: translate('text_664f035a68227f00e261b7ec'),
+                        minWidth: 170,
+                        content: ({ role }) => (
+                          <Chip label={translate(getRoleTranslationKey[role])} />
+                        ),
+                      },
+                    ]}
+                    actionColumnTooltip={() => translate('text_646e2d0cc536351b62ba6f01')}
+                    actionColumn={(invite) => {
+                      return [
+                        ...(hasPermissions(['organizationMembersUpdate'])
+                          ? [
+                              {
+                                startIcon: 'pen',
+                                title: translate('text_664f035a68227f00e261b7f6'),
+                                onAction: () => {
+                                  editInviteRoleDiaglogRef.current?.openDialog({
+                                    invite,
+                                  })
+                                },
+                              } as ActionItem<InviteItemForMembersSettingsFragment>,
+                            ]
+                          : []),
+
+                        {
+                          startIcon: 'duplicate',
+                          title: translate('text_63208b630aaf8df6bbfb265f'),
+                          onAction: () => {
+                            copyToClipboard(
+                              `${window.location.origin}${generatePath(INVITATION_ROUTE, {
+                                token: invite.token,
+                              })}`,
+                            )
+
+                            addToast({
+                              severity: 'info',
+                              translateKey: 'text_63208b630aaf8df6bbfb2679',
+                            })
+                          },
+                          dataTest: 'copy-invite-link',
+                        },
+
+                        ...(hasPermissions(['organizationMembersDelete'])
+                          ? [
+                              {
+                                startIcon: 'trash',
+                                title: translate('text_63208c701ce25db78140745e'),
+                                onAction: () => {
+                                  revokeInviteDialogRef?.current?.openDialog({
+                                    id: invite.id,
+                                    email: invite.email,
+                                    organizationName: invite.organization.name,
+                                  })
+                                },
+                              } as ActionItem<InviteItemForMembersSettingsFragment>,
+                            ]
+                          : []),
+                      ]
+                    }}
+                  />
+
+                  {inviteCurrentPage < inviteTotalPages && (
+                    <Loadmore>
+                      <Button
+                        variant="quaternary"
+                        onClick={() =>
+                          invitesFetchMore({
+                            variables: { page: inviteCurrentPage + 1 },
+                          })
+                        }
+                      >
+                        <Typography variant="body" color="grey600">
+                          {translate('text_63208bfc99e69a28211ec7fd')}
+                        </Typography>
+                      </Button>
+                    </Loadmore>
+                  )}
+                </SettingsListItem>
               )}
-            </>
-          ) : null}
-        </InvitationsListWrapper>
 
-        <Head>
-          <Typography variant="subhead">{translate('text_63208b630aaf8df6bbfb266f')}</Typography>
-          {!membersLoading && !hasInvites && hasPermissions(['organizationMembersCreate']) && (
-            <Button
-              variant="secondary"
-              onClick={() => {
-                createInviteDialogRef.current?.openDialog()
-              }}
-              data-test="create-invite-button"
-            >
-              {translate('text_63208b630aaf8df6bbfb265b')}
-            </Button>
-          )}
-        </Head>
-        {!!membersError ? (
-          <ErrorPlaceholder
-            noMargins
-            title={translate('text_6321a076b94bd1b32494e9ee')}
-            subtitle={translate('text_6321a076b94bd1b32494e9f0')}
-            buttonTitle={translate('text_6321a076b94bd1b32494e9f2')}
-            buttonVariant="primary"
-            buttonAction={membersRefetch}
-            image={<ErrorImage width="136" height="104" />}
-          />
-        ) : (
-          <InfiniteScroll
-            onBottom={() => {
-              const { currentPage = 0, totalPages = 0 } = membersMetadata || {}
-
-              currentPage < totalPages &&
-                !membersLoading &&
-                membersFetchMore({
-                  variables: { page: currentPage + 1 },
-                })
-            }}
-          >
-            <ListWrapper>
-              {membersData?.memberships.collection.map((membership, i) => (
-                <MembershipItem
-                  key={`membership-item-${i}`}
-                  adminCount={membersMetadata?.adminCount}
-                  editMemberRoleDiaglogRef={editMemberRoleDiaglogRef}
-                  membership={membership}
-                  revokeMembershipDialogRef={revokeMembershipDialogRef}
+              {/* MEMBERS */}
+              <SettingsListItem className="[box-shadow:none]">
+                <SettingsListItemHeader
+                  label={translate('text_63208b630aaf8df6bbfb266f')}
+                  sublabel={translate('text_1728311671318w5i5bfj4aeq')}
+                  action={
+                    !hasInvites && hasPermissions(['organizationMembersCreate']) ? (
+                      <Button
+                        variant="quaternary"
+                        onClick={() => {
+                          createInviteDialogRef.current?.openDialog()
+                        }}
+                        data-test="create-invite-button"
+                      >
+                        {translate('text_63208b630aaf8df6bbfb265b')}
+                      </Button>
+                    ) : undefined
+                  }
                 />
-              ))}
 
-              {!!membersLoading && (
-                <LoadingListWrapper>
-                  {[1, 2, 3].map((i) => (
-                    <MembershipItemSkeleton key={`membership-item-skeleton-${i}`} />
-                  ))}
-                </LoadingListWrapper>
-              )}
-            </ListWrapper>
-          </InfiniteScroll>
-        )}
+                <InfiniteScroll
+                  onBottom={() => {
+                    const { currentPage = 0, totalPages = 0 } = membersMetadata || {}
+
+                    currentPage < totalPages &&
+                      !membersLoading &&
+                      membersFetchMore({
+                        variables: { page: currentPage + 1 },
+                      })
+                  }}
+                >
+                  <Table
+                    name="members-setting-members-list"
+                    containerSize={{ default: 0 }}
+                    rowSize={72}
+                    isLoading={membersLoading}
+                    data={membersData?.memberships.collection || []}
+                    hasError={!!membersError}
+                    placeholder={{
+                      errorState: {
+                        title: translate('text_6321a076b94bd1b32494e9ee'),
+                        subtitle: translate('text_6321a076b94bd1b32494e9f0'),
+                        buttonTitle: translate('text_6321a076b94bd1b32494e9f2'),
+                        buttonAction: membersRefetch,
+                      },
+                    }}
+                    columns={[
+                      {
+                        key: 'user.email',
+                        title: translate('text_63208b630aaf8df6bbfb2655'),
+                        maxSpace: true,
+                        content: ({ user }) => (
+                          <div className="flex flex-1 items-center gap-3">
+                            <Avatar
+                              variant="user"
+                              identifier={(user.email || '').charAt(0)}
+                              size="big"
+                            />
+                            <Typography variant="body" color="grey700">
+                              {user.email}
+                            </Typography>
+                          </div>
+                        ),
+                      },
+                      {
+                        key: 'role',
+                        title: translate('text_664f035a68227f00e261b7ec'),
+                        minWidth: 170,
+                        content: ({ role }) => (
+                          <Chip label={translate(getRoleTranslationKey[role])} />
+                        ),
+                      },
+                    ]}
+                    actionColumnTooltip={() => translate('text_626162c62f790600f850b7b6')}
+                    actionColumn={(membership) => {
+                      if (
+                        !hasPermissions(['organizationMembersUpdate']) &&
+                        !hasPermissions(['organizationMembersDelete'])
+                      ) {
+                        return undefined
+                      }
+
+                      return [
+                        ...(hasPermissions(['organizationMembersUpdate'])
+                          ? [
+                              {
+                                startIcon: 'pen',
+                                title: translate('text_664f035a68227f00e261b7f6'),
+                                onAction: () => {
+                                  editMemberRoleDiaglogRef.current?.openDialog({
+                                    member: membership,
+                                    isEditingLastAdmin:
+                                      membership.role === 'admin' &&
+                                      membersMetadata?.adminCount === 1,
+                                    isEditingMyOwnMembership:
+                                      currentUser?.id === membership.user.id,
+                                  })
+                                },
+                              } as ActionItem<MembershipItemForMembershipSettingsFragment>,
+                            ]
+                          : []),
+
+                        ...(hasPermissions(['organizationMembersDelete'])
+                          ? [
+                              {
+                                startIcon: 'trash',
+                                title: translate('text_63ea0f84f400488553caa786'),
+                                onAction: () => {
+                                  revokeMembershipDialogRef.current?.openDialog({
+                                    id: membership.id,
+                                    email: membership.user.email || '',
+                                    organizationName: membership.organization?.name || '',
+                                  })
+                                },
+                              } as ActionItem<MembershipItemForMembershipSettingsFragment>,
+                            ]
+                          : []),
+                      ]
+                    }}
+                  />
+                </InfiniteScroll>
+              </SettingsListItem>
+            </>
+          )}
+        </SettingsListWrapper>
 
         {!!hasInvites && <RevokeInviteDialog ref={revokeInviteDialogRef} />}
         <RevokeMembershipDialog
@@ -252,51 +431,10 @@ const Members = () => {
         <EditMemberRoleDialog ref={editMemberRoleDiaglogRef} />
         <EditInviteRoleDialog ref={editInviteRoleDiaglogRef} />
         <CreateInviteDialog ref={createInviteDialogRef} />
-      </SettingsPageContentWrapper>
+      </SettingsPaddedContainer>
     </>
   )
 }
-
-const Title = styled(Typography)`
-  margin-bottom: ${theme.spacing(2)};
-`
-
-const Subtitle = styled(Typography)`
-  margin-bottom: ${theme.spacing(8)};
-`
-
-const Head = styled.div`
-  height: ${NAV_HEIGHT}px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`
-
-const TitleSkeleton = styled(Skeleton)`
-  margin: 30px 0;
-`
-
-const LoadingListWrapper = styled.div`
-  margin-bottom: ${theme.spacing(8)};
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(3)};
-  }
-`
-
-const InvitationsListWrapper = styled.div`
-  margin-bottom: ${theme.spacing(8)};
-`
-
-const ErrorPlaceholder = styled(GenericPlaceholder)`
-  margin: 0 auto;
-`
-
-const ListWrapper = styled.div`
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(4)};
-  }
-`
 
 const Loadmore = styled.div`
   margin: ${theme.spacing(4)} auto 0 auto;
