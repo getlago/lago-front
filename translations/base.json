@@ -886,7 +886,7 @@
   "text_6657c29c84ad4500ad764ed8": "Search and select a top-up method",
   "text_6657c29c84ad4500ad764ee1": "Trigger",
   "text_6657c29c84ad4500ad764ee2": "Search and select a trigger type",
-  "text_6657c2b9cf6b9200aa3d1c89": "Edit wallet. Once the expiration date is hit, all the remaining credit will be expired and not usable.",
+  "text_6657c2b9cf6b9200aa3d1c89": "Edit the customer's wallet. Once the expiration date has been reached, any remaining credit will be automatically voided.",
   "text_6657c34670561c0127132da4": "Target top-up",
   "text_6657c34670561c0127132da5": "Target ongoing balance",
   "text_6657cdd8cea6bf010e1ce128": "Fixed top-up",
