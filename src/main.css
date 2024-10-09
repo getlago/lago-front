@@ -38,3 +38,21 @@ span.line-break-anywhere {
 button {
   @apply h-10 cursor-pointer rounded-xl border-0 px-3 py-[6px] font-sans outline-none active:outline-none;
 }
+
+/*************
+ ** RECHART **
+ *************/
+
+circle.recharts-dot {
+  display: none;
+}
+
+/* The definitions bellow are a hack https://github.com/recharts/recharts/issues/172 */
+.recharts-wrapper {
+  width: 100% !important;
+}
+
+.recharts-surface {
+  width: 100% !important;
+  display: block;
+}

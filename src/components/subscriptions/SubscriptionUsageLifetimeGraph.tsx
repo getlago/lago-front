@@ -95,7 +95,7 @@ const SubscriptionUsageLifetimeGraph = ({
     : subscriptionLifetimeUsageFakeData
   const isLoading = lifetimeUsageLoading || currentOrganizationDataLoading
   const currency = lifetimeUsageData?.subscription?.customer?.currency || CurrencyEnum.Usd
-  const isBlurred = !hasProgressiveBillingPremiumIntegration || !organization
+  const isBlurred = !isLoading && (!hasProgressiveBillingPremiumIntegration || !organization)
   const customerTimezone = lifetimeUsageData?.subscription?.customer?.applicableTimezone
 
   const { nextThresholdPercentage, lastThresholdPercentage } = useMemo(() => {
