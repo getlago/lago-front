@@ -1914,6 +1914,7 @@ export type CustomerPortalCustomer = {
   __typename?: 'CustomerPortalCustomer';
   addressLine1?: Maybe<Scalars['String']['output']>;
   addressLine2?: Maybe<Scalars['String']['output']>;
+  applicableTimezone: TimezoneEnum;
   billingConfiguration?: Maybe<CustomerBillingConfiguration>;
   city?: Maybe<Scalars['String']['output']>;
   country?: Maybe<CountryCode>;
@@ -4861,8 +4862,8 @@ export type SyncIntegrationInvoicePayload = {
 };
 
 export enum TargetedObjectsEnum {
-  Companies = 'Companies',
-  Contacts = 'Contacts'
+  Companies = 'companies',
+  Contacts = 'contacts'
 }
 
 export type Tax = {
