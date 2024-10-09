@@ -3,6 +3,7 @@ import { gql } from '@apollo/client'
 import SectionContainer from '~/components/customerPortal/common/SectionContainer'
 import SectionLoading from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
+import TextButton from '~/components/customerPortal/common/TextButton'
 import UsageSubscriptionItem from '~/components/customerPortal/usage/UsageSubscriptionItem'
 import { SubscriptionForPortalUsageFragmentDoc, useGetPortalUsageQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -53,12 +54,11 @@ const UsageSection = ({ viewSubscription }: PortalUsageSectionProps) => {
             applicableTimezone={applicableTimezone}
             key={item.id}
           >
-            <button
-              className="p-0 text-base font-normal text-blue-600"
+            <TextButton
+              className="h-10"
+              content={translate('text_17283773071604x345yf0jbz')}
               onClick={() => viewSubscription(item.id)}
-            >
-              {translate('text_17283773071604x345yf0jbz')}
-            </button>
+            />
           </UsageSubscriptionItem>
         ))}
       </div>

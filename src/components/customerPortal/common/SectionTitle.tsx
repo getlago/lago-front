@@ -1,3 +1,5 @@
+import TextButton from '~/components/customerPortal/common/TextButton'
+import { Button } from '~/components/designSystem'
 import { tw } from '~/styles/utils'
 
 type SectionTitleProps = {
@@ -10,11 +12,7 @@ const SectionTitle = ({ className, title, action }: SectionTitleProps) => (
   <div className={tw('mb-6 flex items-center pb-4 shadow-b', className)}>
     <h3 className={'text-lg font-semibold text-grey-700'}>{title}</h3>
 
-    {action && (
-      <span className="cursor-pointer text-blue-600" onClick={action.onClick} role="presentation">
-        {action.title}
-      </span>
-    )}
+    {action && <TextButton onClick={action.onClick} content={action.title} />}
   </div>
 )
 
