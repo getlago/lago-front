@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import styled from 'styled-components'
 
 import SectionContainer from '~/components/customerPortal/common/SectionContainer'
 import SectionLoading from '~/components/customerPortal/common/SectionLoading'
@@ -11,7 +10,6 @@ import {
   useGetPortalCustomerInfosQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 gql`
   query getPortalCustomerInfos {
@@ -184,30 +182,3 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
 }
 
 export default PortalCustomerInfos
-
-const InfoLine = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-bottom: ${theme.spacing(2)};
-
-  > div:first-child {
-    min-width: 140px;
-    white-space: break-spaces;
-    margin-top: ${theme.spacing(1)};
-    margin-right: ${theme.spacing(3)};
-  }
-
-  > div:last-child {
-    width: 100%;
-    line-break: anywhere;
-  }
-
-  > a {
-    color: ${theme.palette.primary[600]};
-
-    > * {
-      color: inherit;
-    }
-  }
-`

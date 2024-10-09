@@ -7,7 +7,6 @@ import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import {
   Button,
   Icon,
-  InfiniteScroll,
   Status,
   StatusProps,
   StatusType,
