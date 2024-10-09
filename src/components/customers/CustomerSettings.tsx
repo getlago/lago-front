@@ -253,330 +253,344 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                       })}
                 </Typography>
               </SettingsListItem>
+
+              {/* Finalize empty invoice setting */}
+              <SettingsListItem>
+                <SettingsListItemHeader
+                  label={translate('text_1725549671287r9tnu5cuoeu')}
+                  sublabel={translate('text_1725538340200495slgen6ji')}
+                  action={
+                    customer?.finalizeZeroAmountInvoice ===
+                    FinalizeZeroAmountInvoiceEnum.Inherit ? (
+                      <Button
+                        disabled={loading}
+                        variant="quaternary"
+                        onClick={() =>
+                          editFinalizeZeroAmountInvoiceDialogRef?.current?.openDialog()
+                        }
+                      >
+                        {translate('text_645bb193927b375079d28ad2')}
+                      </Button>
+                    ) : (
+                      <Popper
+                        PopperProps={{ placement: 'bottom-end' }}
+                        opener={
+                          <Button disabled={loading} icon="dots-horizontal" variant="quaternary" />
+                        }
+                      >
+                        {({ closePopper }) => (
+                          <MenuPopper>
+                            <Button
+                              disabled={loading}
+                              startIcon="pen"
+                              variant="quaternary"
+                              align="left"
+                              onClick={() => {
+                                editFinalizeZeroAmountInvoiceDialogRef?.current?.openDialog()
+                                closePopper()
+                              }}
+                            >
+                              {translate('text_63aa15caab5b16980b21b0b8')}
+                            </Button>
+                            <Button
+                              disabled={loading}
+                              startIcon="trash"
+                              variant="quaternary"
+                              align="left"
+                              onClick={() => {
+                                deleteCustomerFinalizeZeroAmountInvoiceDialogRef?.current?.openDialog()
+                                closePopper()
+                              }}
+                            >
+                              {translate('text_63aa15caab5b16980b21b0ba')}
+                            </Button>
+                          </MenuPopper>
+                        )}
+                      </Popper>
+                    )
+                  }
+                />
+
+                <Typography variant="body" color="grey700">
+                  {customer?.finalizeZeroAmountInvoice === FinalizeZeroAmountInvoiceEnum.Inherit ? (
+                    <>
+                      {organization?.finalizeZeroAmountInvoice
+                        ? translate('text_1725549671287ancbf00edxx')
+                        : translate('text_1725549671288zkq9sr0y46l')}
+                      {` ${translate('text_17255500892009uqfqttms4w')}`}
+                    </>
+                  ) : (
+                    <>
+                      {customer?.finalizeZeroAmountInvoice ===
+                      FinalizeZeroAmountInvoiceEnum.Finalize
+                        ? translate('text_1725549671287ancbf00edxx')
+                        : translate('text_1725549671288zkq9sr0y46l')}
+                    </>
+                  )}
+                </Typography>
+              </SettingsListItem>
+
+              {/* Grace period */}
+              <SettingsListItem>
+                <SettingsListItemHeader
+                  label={translate('text_638dc196fb209d551f3d8141')}
+                  sublabel={translate('text_1728031300577ozl3dbfygr7')}
+                  action={
+                    hasPermissions(['customerSettingsUpdateGracePeriod']) ? (
+                      <>
+                        {typeof customer?.invoiceGracePeriod !== 'number' ? (
+                          <Button
+                            disabled={loading}
+                            variant="quaternary"
+                            endIcon={isPremium ? undefined : 'sparkles'}
+                            onClick={() =>
+                              isPremium
+                                ? editInvoiceGracePeriodDialogRef?.current?.openDialog()
+                                : premiumWarningDialogRef.current?.openDialog()
+                            }
+                          >
+                            {translate('text_645bb193927b375079d28ad2')}
+                          </Button>
+                        ) : (
+                          <Popper
+                            PopperProps={{ placement: 'bottom-end' }}
+                            opener={
+                              <Button
+                                disabled={loading}
+                                icon="dots-horizontal"
+                                variant="quaternary"
+                              />
+                            }
+                          >
+                            {({ closePopper }) => (
+                              <MenuPopper>
+                                <Button
+                                  disabled={loading}
+                                  startIcon="pen"
+                                  variant="quaternary"
+                                  align="left"
+                                  onClick={() => {
+                                    editInvoiceGracePeriodDialogRef.current?.openDialog()
+                                    closePopper()
+                                  }}
+                                >
+                                  {translate('text_63aa15caab5b16980b21b0b8')}
+                                </Button>
+                                <Button
+                                  disabled={loading}
+                                  startIcon="trash"
+                                  variant="quaternary"
+                                  align="left"
+                                  onClick={() => {
+                                    deleteGracePeriodDialogRef.current?.openDialog()
+                                    closePopper()
+                                  }}
+                                >
+                                  {translate('text_63aa15caab5b16980b21b0ba')}
+                                </Button>
+                              </MenuPopper>
+                            )}
+                          </Popper>
+                        )}
+                      </>
+                    ) : undefined
+                  }
+                />
+
+                <Typography variant="body" color="grey700">
+                  {typeof customer?.invoiceGracePeriod === 'number'
+                    ? translate(
+                        'text_638dff9779fb99299bee9132',
+                        {
+                          invoiceGracePeriod: customer?.invoiceGracePeriod,
+                        },
+                        customer?.invoiceGracePeriod,
+                      )
+                    : translate(
+                        'text_63aa085d28b8510cd464440d',
+                        {
+                          invoiceGracePeriod:
+                            organization?.billingConfiguration?.invoiceGracePeriod || 0,
+                        },
+                        organization?.billingConfiguration?.invoiceGracePeriod || 0,
+                      )}
+                </Typography>
+              </SettingsListItem>
+
+              {/* Net payment term */}
+              <SettingsListItem>
+                <SettingsListItemHeader
+                  label={translate('text_64c7a89b6c67eb6c98898167')}
+                  sublabel={translate('text_1728031300577aivplw3hqav')}
+                  action={
+                    hasPermissions(['customerSettingsUpdatePaymentTerms']) ? (
+                      <>
+                        {typeof customer?.netPaymentTerm !== 'number' ? (
+                          <Button
+                            disabled={loading}
+                            variant="quaternary"
+                            onClick={() =>
+                              editNetPaymentTermDialogRef?.current?.openDialog(customer)
+                            }
+                          >
+                            {translate('text_645bb193927b375079d28ad2')}
+                          </Button>
+                        ) : (
+                          <Popper
+                            PopperProps={{ placement: 'bottom-end' }}
+                            opener={
+                              <Button
+                                disabled={loading}
+                                icon="dots-horizontal"
+                                variant="quaternary"
+                              />
+                            }
+                          >
+                            {({ closePopper }) => (
+                              <MenuPopper>
+                                <Button
+                                  disabled={loading}
+                                  startIcon="pen"
+                                  variant="quaternary"
+                                  align="left"
+                                  onClick={() => {
+                                    editNetPaymentTermDialogRef?.current?.openDialog(customer)
+                                    closePopper()
+                                  }}
+                                >
+                                  {translate('text_63aa15caab5b16980b21b0b8')}
+                                </Button>
+                                <Button
+                                  disabled={loading}
+                                  startIcon="trash"
+                                  variant="quaternary"
+                                  align="left"
+                                  onClick={() => {
+                                    deleteOrganizationNetPaymentTermDialogRef?.current?.openDialog()
+                                    closePopper()
+                                  }}
+                                >
+                                  {translate('text_63aa15caab5b16980b21b0ba')}
+                                </Button>
+                              </MenuPopper>
+                            )}
+                          </Popper>
+                        )}
+                      </>
+                    ) : undefined
+                  }
+                />
+
+                <Typography variant="body" color="grey700">
+                  {typeof customer?.netPaymentTerm !== 'number'
+                    ? translate(
+                        'text_64c7a89b6c67eb6c98898241',
+                        {
+                          days: organization?.netPaymentTerm,
+                        },
+                        organization?.netPaymentTerm,
+                      )
+                    : customer?.netPaymentTerm === 0
+                      ? translate('text_64c7a89b6c67eb6c98898125')
+                      : translate(
+                          'text_64c7a89b6c67eb6c9889815f',
+                          {
+                            days: customer?.netPaymentTerm,
+                          },
+                          customer?.netPaymentTerm,
+                        )}
+                </Typography>
+              </SettingsListItem>
+
+              {/* Tax */}
+              <SettingsListItem>
+                <SettingsListItemHeader
+                  label={translate('text_637f819eff19cd55a56d55e6')}
+                  sublabel={translate('text_1728031300577obxo6934yo7')}
+                  action={
+                    hasPermissions(['customerSettingsUpdateTaxRates']) ? (
+                      <Button
+                        variant="quaternary"
+                        disabled={loading}
+                        onClick={() => editVATDialogRef?.current?.openDialog()}
+                        data-test="add-vat-rate-button"
+                      >
+                        {translate('text_62728ff857d47b013204cab3')}
+                      </Button>
+                    ) : undefined
+                  }
+                />
+
+                {!customer?.taxes?.length ? (
+                  <Typography variant="body" color="grey700">
+                    {translate('text_64639f5e63a5cc0076779db7')}
+                  </Typography>
+                ) : (
+                  <Table
+                    name="invoice-settings-taxes"
+                    containerSize={{ default: 0 }}
+                    rowSize={72}
+                    data={customer?.taxes}
+                    columns={[
+                      {
+                        key: 'name',
+                        title: translate('text_17280312664187sb64qzmyhy'),
+                        maxSpace: true,
+                        content: ({ name, code }) => (
+                          <div className="flex flex-1 items-center gap-3">
+                            <Avatar size="big" variant="connector">
+                              <Icon size="medium" name="percentage" color="dark" />
+                            </Avatar>
+                            <div>
+                              <Typography color="textSecondary" variant="bodyHl" noWrap>
+                                {name}
+                              </Typography>
+                              <Typography variant="caption" noWrap>
+                                {code}
+                              </Typography>
+                            </div>
+                          </div>
+                        ),
+                      },
+                      {
+                        key: 'rate',
+                        textAlign: 'right',
+                        title: translate('text_64de472463e2da6b31737de0'),
+                        content: ({ rate }) => (
+                          <Typography variant="body" color="grey700">
+                            {intlFormatNumber((rate || 0) / 100, {
+                              style: 'percent',
+                            })}
+                          </Typography>
+                        ),
+                      },
+                    ]}
+                    actionColumn={
+                      hasPermissions(['customerSettingsUpdateTaxRates'])
+                        ? (row) => {
+                            return (
+                              <Tooltip
+                                placement="top-end"
+                                title={translate('text_64639cfe2e46e9007d11b49d')}
+                              >
+                                <Button
+                                  icon="trash"
+                                  variant="quaternary"
+                                  disabled={row.autoGenerated}
+                                  onClick={() => {
+                                    deleteVatRateDialogRef.current?.openDialog(row)
+                                  }}
+                                />
+                              </Tooltip>
+                            )
+                          }
+                        : undefined
+                    }
+                  />
+                )}
+              </SettingsListItem>
             </>
           )}
-
-          {/* Finalize empty invoice setting */}
-          <SettingsListItem>
-            <SettingsListItemHeader
-              label={translate('text_1725549671287r9tnu5cuoeu')}
-              sublabel={translate('text_1725538340200495slgen6ji')}
-              action={
-                customer?.finalizeZeroAmountInvoice === FinalizeZeroAmountInvoiceEnum.Inherit ? (
-                  <Button
-                    disabled={loading}
-                    variant="quaternary"
-                    onClick={() => editFinalizeZeroAmountInvoiceDialogRef?.current?.openDialog()}
-                  >
-                    {translate('text_645bb193927b375079d28ad2')}
-                  </Button>
-                ) : (
-                  <Popper
-                    PopperProps={{ placement: 'bottom-end' }}
-                    opener={
-                      <Button disabled={loading} icon="dots-horizontal" variant="quaternary" />
-                    }
-                  >
-                    {({ closePopper }) => (
-                      <MenuPopper>
-                        <Button
-                          disabled={loading}
-                          startIcon="pen"
-                          variant="quaternary"
-                          align="left"
-                          onClick={() => {
-                            editFinalizeZeroAmountInvoiceDialogRef?.current?.openDialog()
-                            closePopper()
-                          }}
-                        >
-                          {translate('text_63aa15caab5b16980b21b0b8')}
-                        </Button>
-                        <Button
-                          disabled={loading}
-                          startIcon="trash"
-                          variant="quaternary"
-                          align="left"
-                          onClick={() => {
-                            deleteCustomerFinalizeZeroAmountInvoiceDialogRef?.current?.openDialog()
-                            closePopper()
-                          }}
-                        >
-                          {translate('text_63aa15caab5b16980b21b0ba')}
-                        </Button>
-                      </MenuPopper>
-                    )}
-                  </Popper>
-                )
-              }
-            />
-
-            <Typography variant="body" color="grey700">
-              {customer?.finalizeZeroAmountInvoice === FinalizeZeroAmountInvoiceEnum.Inherit ? (
-                <>
-                  {organization?.finalizeZeroAmountInvoice
-                    ? translate('text_1725549671287ancbf00edxx')
-                    : translate('text_1725549671288zkq9sr0y46l')}
-                  {` ${translate('text_17255500892009uqfqttms4w')}`}
-                </>
-              ) : (
-                <>
-                  {customer?.finalizeZeroAmountInvoice === FinalizeZeroAmountInvoiceEnum.Finalize
-                    ? translate('text_1725549671287ancbf00edxx')
-                    : translate('text_1725549671288zkq9sr0y46l')}
-                </>
-              )}
-            </Typography>
-          </SettingsListItem>
-
-          {/* Grace period */}
-          <SettingsListItem>
-            <SettingsListItemHeader
-              label={translate('text_638dc196fb209d551f3d8141')}
-              sublabel={translate('text_1728031300577ozl3dbfygr7')}
-              action={
-                hasPermissions(['customerSettingsUpdateGracePeriod']) ? (
-                  <>
-                    {typeof customer?.invoiceGracePeriod !== 'number' ? (
-                      <Button
-                        disabled={loading}
-                        variant="quaternary"
-                        endIcon={isPremium ? undefined : 'sparkles'}
-                        onClick={() =>
-                          isPremium
-                            ? editInvoiceGracePeriodDialogRef?.current?.openDialog()
-                            : premiumWarningDialogRef.current?.openDialog()
-                        }
-                      >
-                        {translate('text_645bb193927b375079d28ad2')}
-                      </Button>
-                    ) : (
-                      <Popper
-                        PopperProps={{ placement: 'bottom-end' }}
-                        opener={
-                          <Button disabled={loading} icon="dots-horizontal" variant="quaternary" />
-                        }
-                      >
-                        {({ closePopper }) => (
-                          <MenuPopper>
-                            <Button
-                              disabled={loading}
-                              startIcon="pen"
-                              variant="quaternary"
-                              align="left"
-                              onClick={() => {
-                                editInvoiceGracePeriodDialogRef.current?.openDialog()
-                                closePopper()
-                              }}
-                            >
-                              {translate('text_63aa15caab5b16980b21b0b8')}
-                            </Button>
-                            <Button
-                              disabled={loading}
-                              startIcon="trash"
-                              variant="quaternary"
-                              align="left"
-                              onClick={() => {
-                                deleteGracePeriodDialogRef.current?.openDialog()
-                                closePopper()
-                              }}
-                            >
-                              {translate('text_63aa15caab5b16980b21b0ba')}
-                            </Button>
-                          </MenuPopper>
-                        )}
-                      </Popper>
-                    )}
-                  </>
-                ) : undefined
-              }
-            />
-
-            <Typography variant="body" color="grey700">
-              {typeof customer?.invoiceGracePeriod === 'number'
-                ? translate(
-                    'text_638dff9779fb99299bee9132',
-                    {
-                      invoiceGracePeriod: customer?.invoiceGracePeriod,
-                    },
-                    customer?.invoiceGracePeriod,
-                  )
-                : translate(
-                    'text_63aa085d28b8510cd464440d',
-                    {
-                      invoiceGracePeriod:
-                        organization?.billingConfiguration?.invoiceGracePeriod || 0,
-                    },
-                    organization?.billingConfiguration?.invoiceGracePeriod || 0,
-                  )}
-            </Typography>
-          </SettingsListItem>
-
-          {/* Net payment term */}
-          <SettingsListItem>
-            <SettingsListItemHeader
-              label={translate('text_64c7a89b6c67eb6c98898167')}
-              sublabel={translate('text_1728031300577aivplw3hqav')}
-              action={
-                hasPermissions(['customerSettingsUpdatePaymentTerms']) ? (
-                  <>
-                    {typeof customer?.netPaymentTerm !== 'number' ? (
-                      <Button
-                        disabled={loading}
-                        variant="quaternary"
-                        onClick={() => editNetPaymentTermDialogRef?.current?.openDialog(customer)}
-                      >
-                        {translate('text_645bb193927b375079d28ad2')}
-                      </Button>
-                    ) : (
-                      <Popper
-                        PopperProps={{ placement: 'bottom-end' }}
-                        opener={
-                          <Button disabled={loading} icon="dots-horizontal" variant="quaternary" />
-                        }
-                      >
-                        {({ closePopper }) => (
-                          <MenuPopper>
-                            <Button
-                              disabled={loading}
-                              startIcon="pen"
-                              variant="quaternary"
-                              align="left"
-                              onClick={() => {
-                                editNetPaymentTermDialogRef?.current?.openDialog(customer)
-                                closePopper()
-                              }}
-                            >
-                              {translate('text_63aa15caab5b16980b21b0b8')}
-                            </Button>
-                            <Button
-                              disabled={loading}
-                              startIcon="trash"
-                              variant="quaternary"
-                              align="left"
-                              onClick={() => {
-                                deleteOrganizationNetPaymentTermDialogRef?.current?.openDialog()
-                                closePopper()
-                              }}
-                            >
-                              {translate('text_63aa15caab5b16980b21b0ba')}
-                            </Button>
-                          </MenuPopper>
-                        )}
-                      </Popper>
-                    )}
-                  </>
-                ) : undefined
-              }
-            />
-
-            <Typography variant="body" color="grey700">
-              {typeof customer?.netPaymentTerm !== 'number'
-                ? translate(
-                    'text_64c7a89b6c67eb6c98898241',
-                    {
-                      days: organization?.netPaymentTerm,
-                    },
-                    organization?.netPaymentTerm,
-                  )
-                : customer?.netPaymentTerm === 0
-                  ? translate('text_64c7a89b6c67eb6c98898125')
-                  : translate(
-                      'text_64c7a89b6c67eb6c9889815f',
-                      {
-                        days: customer?.netPaymentTerm,
-                      },
-                      customer?.netPaymentTerm,
-                    )}
-            </Typography>
-          </SettingsListItem>
-
-          {/* Tax */}
-          <SettingsListItem>
-            <SettingsListItemHeader
-              label={translate('text_637f819eff19cd55a56d55e6')}
-              sublabel={translate('text_1728031300577obxo6934yo7')}
-              action={
-                hasPermissions(['customerSettingsUpdateTaxRates']) ? (
-                  <Button
-                    variant="quaternary"
-                    disabled={loading}
-                    onClick={() => editVATDialogRef?.current?.openDialog()}
-                    data-test="add-vat-rate-button"
-                  >
-                    {translate('text_62728ff857d47b013204cab3')}
-                  </Button>
-                ) : undefined
-              }
-            />
-
-            {!customer?.taxes?.length ? (
-              <Typography variant="body" color="grey700">
-                {translate('text_64639f5e63a5cc0076779db7')}
-              </Typography>
-            ) : (
-              <Table
-                name="invoice-settings-taxes"
-                containerSize={{ default: 0 }}
-                rowSize={72}
-                data={customer?.taxes}
-                columns={[
-                  {
-                    key: 'name',
-                    title: translate('text_17280312664187sb64qzmyhy'),
-                    maxSpace: true,
-                    content: ({ name, code }) => (
-                      <div className="flex flex-1 items-center gap-3">
-                        <Avatar size="big" variant="connector">
-                          <Icon size="medium" name="percentage" color="dark" />
-                        </Avatar>
-                        <div>
-                          <Typography color="textSecondary" variant="bodyHl" noWrap>
-                            {name}
-                          </Typography>
-                          <Typography variant="caption" noWrap>
-                            {code}
-                          </Typography>
-                        </div>
-                      </div>
-                    ),
-                  },
-                  {
-                    key: 'rate',
-                    textAlign: 'right',
-                    title: translate('text_64de472463e2da6b31737de0'),
-                    content: ({ rate }) => (
-                      <Typography variant="body" color="grey700">
-                        {intlFormatNumber((rate || 0) / 100, {
-                          style: 'percent',
-                        })}
-                      </Typography>
-                    ),
-                  },
-                ]}
-                actionColumn={
-                  hasPermissions(['customerSettingsUpdateTaxRates'])
-                    ? (row) => {
-                        return (
-                          <Tooltip
-                            placement="top-end"
-                            title={translate('text_64639cfe2e46e9007d11b49d')}
-                          >
-                            <Button
-                              icon="trash"
-                              variant="quaternary"
-                              disabled={row.autoGenerated}
-                              onClick={() => {
-                                deleteVatRateDialogRef.current?.openDialog(row)
-                              }}
-                            />
-                          </Tooltip>
-                        )
-                      }
-                    : undefined
-                }
-              />
-            )}
-          </SettingsListItem>
         </SettingsListWrapper>
       </SettingsPaddedContainer>
 
