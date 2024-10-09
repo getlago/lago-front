@@ -99,7 +99,7 @@ const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
         organizationLogoUrl={data?.customerPortalOrganization?.logoUrl}
       />
 
-      <div className="h-screen w-full max-w-screen-lg overflow-y-auto p-20">
+      <div className="h-screen w-full max-w-screen-lg overflow-y-auto p-4 md:p-20">
         {loading && <CustomerPortalLoading />}
 
         {!loading && !page && (
