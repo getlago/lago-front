@@ -280,9 +280,7 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
         />
       )}
 
-      {hasNoInvoices ? (
-        <Typography>{translate('text_6419c64eace749372fc72b3b')}</Typography>
-      ) : (
+      {!hasNoInvoices && (
         <InfiniteScroll
           onBottom={() => {
             if (!fetchMore) return
