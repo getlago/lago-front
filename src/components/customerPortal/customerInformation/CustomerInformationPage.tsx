@@ -110,7 +110,7 @@ const EditCustomerBillingForm = ({ customer }: EditCustomerBillingFormProps) => 
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex max-w-2xl flex-col gap-4">
       <h3 className="mt-8 text-base font-medium text-grey-700">
         {translate('text_1728377307159eu0ihwiyrf0')}
       </h3>
