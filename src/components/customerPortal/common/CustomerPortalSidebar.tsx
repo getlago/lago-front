@@ -16,7 +16,7 @@ const CustomerPortalSidebar = ({
 
   return (
     <>
-      <div className="hidden h-screen w-96 flex-col gap-8 bg-grey-100 px-16 pt-8 md:flex">
+      <div className="hidden h-screen w-96 flex-col gap-8 bg-grey-100 p-16 md:flex">
         <div className="flex items-center">
           {!!organizationLogoUrl && (
             <OrgaLogoContainer>
