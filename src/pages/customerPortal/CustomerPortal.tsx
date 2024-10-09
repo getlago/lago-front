@@ -120,7 +120,7 @@ const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
         )}
 
         {!loading && page === 'usage' && <UsagePage goHome={goHome} />}
-        {!loading && page === 'wallet' && <WalletPage goHome={goHome} />}
+        {!loading && page === 'wallet' && <WalletPage goHome={goHome} onSuccess={goHome} />}
         {!loading && page === 'customer-edit-information' && (
           <CustomerInformationPage goHome={goHome} />
         )}

@@ -7,7 +7,6 @@ import PageTitle from '~/components/customerPortal/common/PageTitle'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { Alert, Button } from '~/components/designSystem'
 import { AmountInputField } from '~/components/form'
-import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   CurrencyEnum,
@@ -28,9 +27,10 @@ gql`
 
 type WalletPageProps = {
   goHome: () => void
+  onSuccess?: () => void
 }
 
-const WalletPage = ({ goHome }: WalletPageProps) => {
+const WalletPage = ({ goHome, onSuccess }: WalletPageProps) => {
   const { translate } = useInternationalization()
 
   const {
@@ -46,10 +46,7 @@ const WalletPage = ({ goHome }: WalletPageProps) => {
         if (res) {
           formikProps.resetForm()
 
-          addToast({
-            severity: 'success',
-            translateKey: 'text_17283773071607bl03l6kl4n',
-          })
+          onSuccess?.()
         }
       },
     })
