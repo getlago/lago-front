@@ -5,7 +5,11 @@ import SectionContainer from '~/components/customerPortal/common/SectionContaine
 import SectionLoading from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import { CountryCodes } from '~/core/constants/countryCodes'
-import { CustomerAddressInput, useGetPortalCustomerInfosQuery } from '~/generated/graphql'
+import {
+  CustomerAddressInput,
+  CustomerPortalCustomer,
+  useGetPortalCustomerInfosQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
@@ -113,12 +117,20 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
   const { translate } = useInternationalization()
 
   const { data, loading } = useGetPortalCustomerInfosQuery()
-  const customerPortalUser = data?.customerPortalUser
+  const customerPortalUser = data?.customerPortalUser as CustomerPortalCustomer
 
   const identicalAddresses = addressesAreIdentical({
     addressA: customerPortalUser,
     addressB: customerPortalUser?.shippingAddress,
   })
+
+  const customerFields: { key: keyof CustomerPortalCustomer; title: string }[] = [
+    { key: 'name', title: translate('text_6419c64eace749372fc72b0f') },
+    { key: 'legalName', title: translate('text_6419c64eace749372fc72b17') },
+    { key: 'legalNumber', title: translate('text_647ddd5220412a009bfd36f4') },
+    { key: 'taxIdentificationNumber', title: translate('text_6480a70109b61a005b2092df') },
+    { key: 'email', title: translate('text_1728379586750vyjcpwgu27f') },
+  ]
 
   return (
     <SectionContainer>
@@ -133,35 +145,15 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
       {!loading && (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-0">
           <div className="flex flex-col gap-4">
-            <Field
-              title={translate('text_6419c64eace749372fc72b0f')}
-              content={customerPortalUser?.name || translate('text_6419c64eace749372fc72b0b')}
-            />
-
-            <Field
-              title={translate('text_6419c64eace749372fc72b17')}
-              content={customerPortalUser?.legalName || translate('text_6419c64eace749372fc72b13')}
-            />
-
-            <Field
-              title={translate('text_647ddd5220412a009bfd36f4')}
-              content={
-                customerPortalUser?.legalNumber || translate('text_647ddd5f54fefd00c5754bca')
-              }
-            />
-
-            <Field
-              title={translate('text_6480a70109b61a005b2092df')}
-              content={
-                customerPortalUser?.taxIdentificationNumber ||
-                translate('text_6480a707530c5c0053cd11e1')
-              }
-            />
-
-            <Field
-              title={translate('text_1728379586750vyjcpwgu27f')}
-              content={customerPortalUser?.email || translate('text_6419c64eace749372fc72b23')}
-            />
+            {customerFields
+              .filter((field) => !!customerPortalUser?.[field.key])
+              .map((field) => (
+                <Field
+                  key={`customer-portal-${field.key}`}
+                  title={field.title}
+                  content={customerPortalUser[field.key] as string}
+                />
+              ))}
           </div>
 
           <div className="flex flex-col gap-4">
