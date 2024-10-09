@@ -55,7 +55,6 @@ const UsageSection = ({ viewSubscription }: PortalUsageSectionProps) => {
             key={item.id}
           >
             <TextButton
-              className="h-10"
               content={translate('text_17283773071604x345yf0jbz')}
               onClick={() => viewSubscription(item.id)}
             />
