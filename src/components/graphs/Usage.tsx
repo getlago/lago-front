@@ -26,6 +26,7 @@ import ChartHeader from '../designSystem/graphs/ChartHeader'
 import { InvoicedUsageFakeData } from '../designSystem/graphs/fixtures'
 import InlineBarsChart from '../designSystem/graphs/InlineBarsChart'
 import { GenericPlaceholder } from '../GenericPlaceholder'
+import { ChartWrapper } from '../layouts/Charts'
 
 export const LAST_USAGE_GRAPH_LINE_KEY_NAME = 'Others'
 
@@ -229,7 +230,7 @@ const Usage = ({
             loading={isLoading}
           />
 
-          <GraphContainer $blur={blur}>
+          <ChartWrapper blur={blur}>
             <GraphWrapper>
               {!!isLoading ? (
                 <>
@@ -308,7 +309,7 @@ const Usage = ({
                 </>
               )}
             </GraphWrapper>
-          </GraphContainer>
+          </ChartWrapper>
         </>
       )}
     </Wrapper>
@@ -324,15 +325,6 @@ const Wrapper = styled.div`
   padding: ${theme.spacing(6)} 0;
   box-sizing: border-box;
   background-color: ${theme.palette.common.white};
-`
-
-const GraphContainer = styled.div<{ $blur: boolean }>`
-  ${({ $blur }) =>
-    $blur &&
-    css`
-      filter: blur(4px);
-      pointer-events: none;
-    `}
 `
 
 const GraphWrapper = styled.div`

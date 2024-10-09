@@ -27,6 +27,7 @@ import ChartHeader from '../designSystem/graphs/ChartHeader'
 import { InvoiceCollectionsFakeData } from '../designSystem/graphs/fixtures'
 import InlineBarsChart from '../designSystem/graphs/InlineBarsChart'
 import { GenericPlaceholder } from '../GenericPlaceholder'
+import { ChartWrapper } from '../layouts/Charts'
 
 const DOT_SIZE = 8
 
@@ -297,7 +298,7 @@ const Invoices = ({
             loading={isLoading}
           />
 
-          <GraphContainer $blur={blur}>
+          <ChartWrapper blur={blur}>
             <GraphWrapper>
               {!!isLoading ? (
                 <>
@@ -371,7 +372,7 @@ const Invoices = ({
                 </>
               )}
             </GraphWrapper>
-          </GraphContainer>
+          </ChartWrapper>
         </>
       )}
     </Wrapper>
@@ -387,15 +388,6 @@ const Wrapper = styled.div`
   padding: ${theme.spacing(6)} 0;
   box-sizing: border-box;
   background-color: ${theme.palette.common.white};
-`
-
-const GraphContainer = styled.div<{ $blur: boolean }>`
-  ${({ $blur }) =>
-    $blur &&
-    css`
-      filter: blur(4px);
-      pointer-events: none;
-    `}
 `
 
 const GraphWrapper = styled.div`

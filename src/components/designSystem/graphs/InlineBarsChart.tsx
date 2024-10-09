@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Bar, BarChart, BarProps, ResponsiveContainer, XAxis, YAxis } from 'recharts'
-import styled from 'styled-components'
 
-import { theme } from '~/styles'
+import { ChartWrapper } from '~/components/layouts/Charts'
 
 import { Tooltip } from '../Tooltip'
 
@@ -34,9 +33,7 @@ const BarWithBorder = (
         stroke="none"
         fill={fill}
       />
-      {x !== 0 && (
-        <rect x={x} y={y} width={2} height={12} stroke="none" fill={theme.palette.common.white} />
-      )}
+      {x !== 0 && <rect className="fill-white" x={x} y={y} width={2} height={12} stroke="none" />}
     </g>
   )
 }
@@ -51,7 +48,7 @@ const InlineBarsChart = ({ colors, data, hoveredBarId, tooltipsData }: InlineBar
   }, [hoveredBarId])
 
   return (
-    <Wrapper>
+    <ChartWrapper className="overflow-hidden rounded-xl bg-white">
       <ResponsiveContainer width="100%" height={12}>
         <BarChart
           layout="vertical"
@@ -92,7 +89,12 @@ const InlineBarsChart = ({ colors, data, hoveredBarId, tooltipsData }: InlineBar
                       height={props.height}
                       transform={`translate(${props.x}, 0)`}
                     >
-                      <BarTooltip title={tooltipsData?.[0]?.[key] || ''} placement="top">
+                      <Tooltip
+                        // Position fixed is needed to place properly the first foreignObject child on Safari
+                        className="fixed"
+                        title={tooltipsData?.[0]?.[key] || ''}
+                        placement="top"
+                      >
                         <div
                           style={{
                             width: props.width,
@@ -102,7 +104,7 @@ const InlineBarsChart = ({ colors, data, hoveredBarId, tooltipsData }: InlineBar
                         >
                           -
                         </div>
-                      </BarTooltip>
+                      </Tooltip>
                     </foreignObject>
                   )}
                 </>
@@ -111,30 +113,8 @@ const InlineBarsChart = ({ colors, data, hoveredBarId, tooltipsData }: InlineBar
           ))}
         </BarChart>
       </ResponsiveContainer>
-    </Wrapper>
+    </ChartWrapper>
   )
 }
 
 export default InlineBarsChart
-
-const Wrapper = styled.div`
-  background-color: #fff;
-  border-radius: 12px;
-  /* Used to round the bars */
-  overflow: hidden;
-
-  /* NOTE: The two definition above are a hack https://github.com/recharts/recharts/issues/172 */
-  .recharts-wrapper {
-    width: 100% !important;
-  }
-
-  .recharts-surface {
-    width: 100% !important;
-    display: block;
-  }
-`
-
-const BarTooltip = styled(Tooltip)`
-  /* Position fixed is needed to place properly the first foreignObject child on Safari */
-  position: fixed;
-`

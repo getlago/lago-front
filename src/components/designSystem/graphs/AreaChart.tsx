@@ -8,9 +8,9 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import styled, { css } from 'styled-components'
 
 import { Typography } from '~/components/designSystem'
+import { ChartWrapper } from '~/components/layouts/Charts'
 import {
   bigNumberShortenNotationFormater,
   getCurrencySymbol,
@@ -37,9 +37,13 @@ type CustomTooltipProps = {
 const CustomTooltip = ({ active, payload }: CustomTooltipProps): JSX.Element | null => {
   if (active && payload && payload.length) {
     return (
-      <HoverTooltip variant="caption" color="white">
+      <Typography
+        className="w-fit rounded-xl bg-grey-700 px-4 py-3"
+        variant="caption"
+        color="white"
+      >
         {payload[0]?.payload?.tooltipLabel}
-      </HoverTooltip>
+      </Typography>
     )
   }
 
@@ -56,7 +60,7 @@ type AreaChartProps = {
 
 const AreaChart = memo(({ blur, currency, data, hasOnlyZeroValues, loading }: AreaChartProps) => {
   return (
-    <Wrapper $blur={blur}>
+    <ChartWrapper blur={blur}>
       <ResponsiveContainer width="100%" height={112}>
         <RechartAreaChart
           margin={{
@@ -196,41 +200,10 @@ const AreaChart = memo(({ blur, currency, data, hasOnlyZeroValues, loading }: Ar
           )}
         </RechartAreaChart>
       </ResponsiveContainer>
-    </Wrapper>
+    </ChartWrapper>
   )
 })
 
 AreaChart.displayName = 'AreaChart'
 
 export default AreaChart
-
-const Wrapper = styled.div<{ $blur: boolean }>`
-  circle.recharts-dot {
-    display: none;
-  }
-
-  /* NOTE: The two definition bellow are a hack https://github.com/recharts/recharts/issues/172 */
-  .recharts-wrapper {
-    width: 100% !important;
-  }
-
-  .recharts-surface {
-    width: 100% !important;
-    display: block;
-  }
-
-  ${({ $blur }) =>
-    $blur &&
-    css`
-      filter: blur(4px);
-      pointer-events: none;
-    `}
-`
-
-const HoverTooltip = styled(Typography)`
-  width: fit-content;
-  box-sizing: border-box;
-  border-radius: 12px;
-  padding: ${theme.spacing(3)} ${theme.spacing(4)};
-  background-color: ${theme.palette.grey[700]};
-`
