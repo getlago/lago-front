@@ -6013,7 +6013,7 @@ export type TopUpPortalWalletMutationVariables = Exact<{
 
 export type TopUpPortalWalletMutation = { __typename?: 'Mutation', createCustomerPortalWalletTransaction?: { __typename?: 'CustomerPortalWalletTransactionCollection', collection: Array<{ __typename?: 'CustomerPortalWalletTransaction', id: string }> } | null };
 
-export type CustomerPortalWalletInfoFragment = { __typename?: 'CustomerPortalWallet', id: string, currency: CurrencyEnum, balanceCents: any, creditsBalance: number, expirationAt?: any | null, consumedCredits: number, consumedAmountCents: any, status: WalletStatusEnum, creditsOngoingBalance: number, ongoingBalanceCents: any, rateAmount: number };
+export type CustomerPortalWalletInfoFragment = { __typename?: 'CustomerPortalWallet', id: string, currency: CurrencyEnum, balanceCents: any, creditsBalance: number, expirationAt?: any | null, consumedCredits: number, consumedAmountCents: any, status: WalletStatusEnum, creditsOngoingBalance: number, ongoingBalanceCents: any, rateAmount: number, lastBalanceSyncAt?: any | null };
 
 export type GetPortalCustomerDataQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -6023,7 +6023,7 @@ export type GetPortalCustomerDataQuery = { __typename?: 'Query', customerPortalU
 export type GetPortalWalletsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetPortalWalletsQuery = { __typename?: 'Query', customerPortalWallets: { __typename?: 'CustomerPortalWalletCollection', collection: Array<{ __typename?: 'CustomerPortalWallet', id: string, currency: CurrencyEnum, balanceCents: any, creditsBalance: number, expirationAt?: any | null, consumedCredits: number, consumedAmountCents: any, status: WalletStatusEnum, creditsOngoingBalance: number, ongoingBalanceCents: any, rateAmount: number }> } };
+export type GetPortalWalletsQuery = { __typename?: 'Query', customerPortalWallets: { __typename?: 'CustomerPortalWalletCollection', collection: Array<{ __typename?: 'CustomerPortalWallet', id: string, currency: CurrencyEnum, balanceCents: any, creditsBalance: number, expirationAt?: any | null, consumedCredits: number, consumedAmountCents: any, status: WalletStatusEnum, creditsOngoingBalance: number, ongoingBalanceCents: any, rateAmount: number, lastBalanceSyncAt?: any | null }> } };
 
 export type CouponPlansForCustomerFragment = { __typename?: 'Plan', id: string, name: string };
 
@@ -8546,6 +8546,7 @@ export const CustomerPortalWalletInfoFragmentDoc = gql`
   creditsOngoingBalance
   ongoingBalanceCents
   rateAmount
+  lastBalanceSyncAt
 }
     `;
 export const CouponPlansForCustomerFragmentDoc = gql`

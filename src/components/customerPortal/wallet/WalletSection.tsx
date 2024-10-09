@@ -27,6 +27,7 @@ gql`
     creditsOngoingBalance
     ongoingBalanceCents
     rateAmount
+    lastBalanceSyncAt
   }
 
   query getPortalCustomerData {
@@ -106,14 +107,17 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
           <div className="flex flex-col gap-1">
             <h6 className="flex h-6 items-center gap-2 text-sm font-normal text-grey-600">
               {translate('text_1728377307160cbszddumfkg')}
-              <Tooltip
-                placement="top-start"
-                title={translate('text_1728470529877eb3qoinwqa5', {
-                  date: 'abc',
-                })}
-              >
-                <Icon size="medium" name="info-circle" />
-              </Tooltip>
+
+              {wallet?.lastBalanceSyncAt && (
+                <Tooltip
+                  placement="top-start"
+                  title={translate('text_1728470529877eb3qoinwqa5', {
+                    date: formatDateToTZ(wallet?.lastBalanceSyncAt, customerTimezone),
+                  })}
+                >
+                  <Icon size="medium" name="info-circle" />
+                </Tooltip>
+              )}
             </h6>
 
             <div className="flex items-end gap-1">
