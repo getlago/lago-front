@@ -228,7 +228,7 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
     <SectionContainer>
       <SectionTitle title={translate('text_6419c64eace749372fc72b37')} />
 
-      <div className="grid grid-cols-1 md:grid-cols-2">
+      <div className="grid grid-cols-2 gap-8">
         <div className="flex flex-col gap-1">
           {!invoicesLoading && (
             <>

@@ -46,7 +46,7 @@ const FieldTitle = ({ title }: { title: string }) => (
 )
 
 const FieldContent = ({ content, children }: { content?: string; children?: React.ReactNode }) => (
-  <p className="text-base font-normal text-grey-700">{content || children}</p>
+  <p className="break-words text-base font-normal text-grey-700">{content || children}</p>
 )
 
 const Field = ({ title, content }: { title: string; content: string }) => (
@@ -143,7 +143,7 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
       {loading && <SectionLoading />}
 
       {!loading && (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-0">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8">
           <div className="flex flex-col gap-4">
             {customerFields
               .filter((field) => !!customerPortalUser?.[field.key])

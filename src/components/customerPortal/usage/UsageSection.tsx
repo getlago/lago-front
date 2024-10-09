@@ -46,7 +46,7 @@ const UsageSection = ({ viewSubscription }: PortalUsageSectionProps) => {
     <SectionContainer>
       <SectionTitle title={translate('text_1728377307160ilquuusbuwq')} />
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
         {subscription?.map((item) => (
           <UsageSubscriptionItem
             subscription={item}
