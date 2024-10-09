@@ -275,7 +275,7 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
         <div>
           <Button
             className="mt-8"
-            size="large"
+            size="medium"
             disabled={!formikProps.isValid}
             loading={formikProps.isSubmitting || updatePortalCustomerLoading}
             fullWidth
