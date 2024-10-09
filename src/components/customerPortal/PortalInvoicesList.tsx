@@ -106,12 +106,12 @@ gql`
   ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
 `
 const INVOICE_TYPE_TRANSLATION_MAP: Record<InvoiceTypeEnum, string> = {
-  [InvoiceTypeEnum.AddOn]: '',
+  [InvoiceTypeEnum.AddOn]: 'text_1728472697691t126b808cm9',
   [InvoiceTypeEnum.Credit]: 'text_1728472697691x8zhuzkp74r',
   [InvoiceTypeEnum.OneOff]: 'text_1728472697691t126b808cm9',
   [InvoiceTypeEnum.Subscription]: 'text_1728472697691k6k2e9m5ibb',
   [InvoiceTypeEnum.AdvanceCharges]: 'text_1728472697691y39tdxgyrcg',
-  [InvoiceTypeEnum.ProgressiveBilling]: '',
+  [InvoiceTypeEnum.ProgressiveBilling]: 'text_1728472697691pv1eqroobte',
 }
 
 interface CalculatedData {
