@@ -108,8 +108,8 @@ export const EmailPreview: FC<EmailPreviewProps> = ({
           <Text color="textSecondary">
             {translate(
               'text_66b378e748cda1004ff00db3',
-              { netPaymentTerm: customer?.netPaymentTerm || organization?.netPaymentTerm },
-              customer?.netPaymentTerm || organization?.netPaymentTerm,
+              { netPaymentTerm: customer?.netPaymentTerm ?? organization?.netPaymentTerm },
+              customer?.netPaymentTerm ?? organization?.netPaymentTerm,
             )}
           </Text>
           <Text color="textSecondary">{translate('text_66b378e748cda1004ff00db4')}</Text>
