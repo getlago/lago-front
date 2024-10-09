@@ -42,11 +42,11 @@ gql`
 `
 
 const FieldTitle = ({ title }: { title: string }) => (
-  <p className="text-sm font-normal text-grey-600">{title}</p>
+  <p className="text-sm font-normal leading-6 text-grey-600">{title}</p>
 )
 
 const FieldContent = ({ content, children }: { content?: string; children?: React.ReactNode }) => (
-  <p className="break-words text-base font-normal text-grey-700">{content || children}</p>
+  <p className="break-words text-base font-normal leading-6 text-grey-700">{content || children}</p>
 )
 
 const Field = ({ title, content }: { title: string; content: string }) => (
@@ -88,7 +88,7 @@ const AddressField = ({
   const { translate } = useInternationalization()
 
   return (
-    <InfoLine>
+    <div className="flex flex-col gap-1">
       <FieldTitle title={title} />
 
       {!(addressLine1 || addressLine2 || state || country || city || zipcode) ? (
@@ -105,7 +105,7 @@ const AddressField = ({
           {country && <FieldContent content={CountryCodes[country]} />}
         </div>
       )}
-    </InfoLine>
+    </div>
   )
 }
 

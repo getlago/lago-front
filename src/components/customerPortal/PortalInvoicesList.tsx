@@ -26,6 +26,7 @@ import {
   InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
+  InvoiceTypeEnum,
   PortalInvoiceListItemFragmentDoc,
   useCustomerPortalInvoicesLazyQuery,
   useDownloadCustomerPortalInvoiceMutation,
@@ -45,6 +46,7 @@ gql`
     issuingDate
     totalAmountCents
     currency
+    invoiceType
   }
 
   query customerPortalInvoices(
@@ -103,6 +105,14 @@ gql`
   ${InvoiceForFinalizeInvoiceFragmentDoc}
   ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
 `
+const INVOICE_TYPE_TRANSLATION_MAP: Record<InvoiceTypeEnum, string> = {
+  [InvoiceTypeEnum.AddOn]: '',
+  [InvoiceTypeEnum.Credit]: 'text_1728472697691x8zhuzkp74r',
+  [InvoiceTypeEnum.OneOff]: 'text_1728472697691t126b808cm9',
+  [InvoiceTypeEnum.Subscription]: 'text_1728472697691k6k2e9m5ibb',
+  [InvoiceTypeEnum.AdvanceCharges]: 'text_1728472697691y39tdxgyrcg',
+  [InvoiceTypeEnum.ProgressiveBilling]: '',
+}
 
 interface CalculatedData {
   amount: number
@@ -253,12 +263,8 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
               <h6 className="flex items-center gap-2 text-sm font-normal text-grey-600">
                 {translate('text_6670a7222702d70114cc795a')}
 
-                <Tooltip
-                  className="flex h-5 items-end"
-                  placement="top-start"
-                  title={translate('text_6670a757999f8a007789bb5d')}
-                >
-                  <Icon name="info-circle" />
+                <Tooltip placement="top-start" title={translate('text_6670a757999f8a007789bb5d')}>
+                  <Icon size="medium" name="info-circle" />
                 </Tooltip>
               </h6>
 
@@ -277,7 +283,7 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
       {!hasNoInvoices && (
         <>
           <SearchInput
-            className="my-8 w-full max-w-full"
+            className="my-6 w-full max-w-full"
             onChange={debouncedSearch}
             placeholder={translate('text_1728382674210n9qpjbnooi4')}
           />
@@ -312,6 +318,15 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
                     {DateTime.fromISO(issuingDate).toLocaleString(DateTime.DATE_MED, {
                       locale: documentLocale,
                     })}
+                  </Typography>
+                ),
+              },
+              {
+                key: 'invoiceType',
+                title: translate('text_1728472381019nimbf36pk6t'),
+                content: ({ invoiceType }) => (
+                  <Typography variant="body" noWrap>
+                    {translate(INVOICE_TYPE_TRANSLATION_MAP[invoiceType as InvoiceTypeEnum])}
                   </Typography>
                 ),
               },

@@ -3,6 +3,7 @@ import { gql } from '@apollo/client'
 import SectionContainer from '~/components/customerPortal/common/SectionContainer'
 import SectionLoading from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
+import { Icon, Tooltip } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone/utils'
@@ -90,8 +91,16 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
       {!customerWalletLoading && wallet && (
         <div>
           <div className="flex flex-col gap-1">
-            <h6 className="text-sm font-normal text-grey-600">
+            <h6 className="flex h-6 items-center gap-2 text-sm font-normal text-grey-600">
               {translate('text_1728377307160cbszddumfkg')}
+              <Tooltip
+                placement="top-start"
+                title={translate('text_1728470529877eb3qoinwqa5', {
+                  date: 'abc',
+                })}
+              >
+                <Icon size="medium" name="info-circle" />
+              </Tooltip>
             </h6>
 
             <div className="flex items-end gap-1">
@@ -117,9 +126,9 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
             </span>
           </div>
 
-          <div className="mt-6 grid grid-cols-2">
-            <div className="flex flex-col">
-              <span className="text-sm font-normal text-grey-600">
+          <div className="mt-4 grid grid-cols-2 gap-8">
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-normal leading-6 text-grey-600">
                 {translate('text_1728377307160dqj0b2q59f6')}
               </span>
 
@@ -134,8 +143,8 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
               )}
             </div>
 
-            <div className="flex flex-col">
-              <span className="text-sm font-normal text-grey-600">
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-normal leading-6 text-grey-600">
                 {translate('text_1728377307160sh06zbhqebt')}
               </span>
 

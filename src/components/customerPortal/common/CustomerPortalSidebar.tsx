@@ -28,15 +28,16 @@ const CustomerPortalSidebar = ({
 
         <h3 className="text-lg font-semibold text-black">Manage your plans & billing</h3>
 
-        <div className="flex items-center">
-          <InlinePoweredByTypography variant="note" color="grey500">
+        <div className="flex items-center gap-1">
+          <span className="text-xs font-normal text-grey-600">
             {translate('text_6419c64eace749372fc72b03')}
-          </InlinePoweredByTypography>
+          </span>
+
           <StyledLogo />
         </div>
       </div>
 
-      <div className="flex h-24 w-full items-center justify-center bg-grey-100 md:hidden">
+      <div className="mb-4 flex w-full items-center justify-center bg-grey-100 px-5 py-8 md:hidden">
         <div className="flex items-center">
           {!!organizationLogoUrl && (
             <OrgaLogoContainer>
@@ -49,10 +50,6 @@ const CustomerPortalSidebar = ({
     </>
   )
 }
-
-const InlinePoweredByTypography = styled(Typography)`
-  margin-right: ${theme.spacing(1)};
-`
 
 const StyledLogo = styled(Logo)`
   width: 40px;
