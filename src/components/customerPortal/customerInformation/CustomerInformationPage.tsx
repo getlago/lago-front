@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react'
 import { object, string } from 'yup'
 
 import PageTitle from '~/components/customerPortal/common/PageTitle'
+import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { Alert, Button } from '~/components/designSystem'
 import { Checkbox, ComboBoxField, TextInputField } from '~/components/form'
-import { addToast } from '~/core/apolloClient'
 import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 import {
+  CustomerTypeEnum,
   UpdateCustomerInput,
   UpdateCustomerPortalCustomerInput,
   useGetPortalCustomerInfosQuery,
@@ -51,7 +52,11 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
 
   const formikProps = useFormik<Partial<UpdateCustomerInput>>({
     initialValues: {
+      // @ts-ignore
+      customerType: customer?.customerType ?? null,
       name: customer?.name ?? '',
+      firstname: customer?.firstname ?? '',
+      lastname: customer?.lastname ?? '',
       legalName: customer?.legalName ?? undefined,
       taxIdentificationNumber: customer?.taxIdentificationNumber ?? undefined,
       email: customer?.email ?? undefined,
@@ -66,7 +71,10 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
       shippingAddress: customer?.shippingAddress ?? undefined,
     },
     validationSchema: object().shape({
+      customerType: string().oneOf(Object.values(CustomerTypeEnum)).nullable(),
       name: string(),
+      firstname: string(),
+      lastname: string(),
       email: string().email('text_620bc4d4269a55014d493fc3'),
     }),
     onSubmit: async (values) => {
@@ -112,6 +120,34 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
       <h3 className="mt-8 text-base font-medium text-grey-700">
         {translate('text_1728377307159eu0ihwiyrf0')}
       </h3>
+
+      <ComboBoxField
+        name="customerType"
+        label={translate('text_1726128938631ioz4orixel3')}
+        placeholder={translate('text_17261289386318j0nhr1ms3t')}
+        formikProps={formikProps}
+        PopperProps={{ displayInDialog: true }}
+        data={Object.values(CustomerTypeEnum).map((customerValue) => ({
+          value: customerValue,
+          label: translate(TRANSLATIONS_MAP_CUSTOMER_TYPE[customerValue]),
+        }))}
+      />
+
+      <div className="grid grid-cols-2 gap-4">
+        <TextInputField
+          name="firstname"
+          label={translate('text_1726128938631ggtf2ggqs4b')}
+          placeholder={translate('text_1726128938631ntcpbzv7x7s')}
+          formikProps={formikProps}
+        />
+
+        <TextInputField
+          name="lastname"
+          label={translate('text_1726128938631ymctg83bygm')}
+          placeholder={translate('text_1726128938631xmpsba9ssuo')}
+          formikProps={formikProps}
+        />
+      </div>
 
       <TextInputField
         name="legalName"
