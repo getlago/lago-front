@@ -170,7 +170,7 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
         formikProps={formikProps}
       />
 
-      <h3 className="mt-8 text-base font-medium text-grey-700">
+      <h3 className="mt-12 text-base font-medium text-grey-700">
         {translate('text_1728377307159y9afykbx2q9')}
       </h3>
 
