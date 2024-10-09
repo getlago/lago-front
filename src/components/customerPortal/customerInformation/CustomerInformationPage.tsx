@@ -22,6 +22,7 @@ type CustomerInformationPageProps = {
 
 type EditCustomerBillingFormProps = {
   customer?: UpdateCustomerPortalCustomerInput | null
+  onSuccess?: () => void
 }
 
 gql`
@@ -32,7 +33,7 @@ gql`
   }
 `
 
-const EditCustomerBillingForm = ({ customer }: EditCustomerBillingFormProps) => {
+const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFormProps) => {
   const { translate } = useInternationalization()
 
   const [isShippingEqualBillingAddress, setIsShippingEqualBillingAddress] = useState(false)
@@ -43,10 +44,7 @@ const EditCustomerBillingForm = ({ customer }: EditCustomerBillingFormProps) => 
   ] = useUpdatePortalCustomerMutation({
     onCompleted(res) {
       if (res) {
-        addToast({
-          severity: 'success',
-          translateKey: 'text_17283785089842qcgpab0bfn',
-        })
+        onSuccess?.()
       }
     },
   })
@@ -268,7 +266,7 @@ const CustomerInformationPage = ({ goHome }: CustomerInformationPageProps) => {
 
       {loading && <div>Loading..</div>}
 
-      {!loading && <EditCustomerBillingForm customer={customerPortalUser} />}
+      {!loading && <EditCustomerBillingForm customer={customerPortalUser} onSuccess={goHome} />}
     </div>
   )
 }
