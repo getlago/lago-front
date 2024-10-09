@@ -25,6 +25,7 @@ gql`
       code
       amountCents
       amountCurrency
+      interval
     }
 
     customer {

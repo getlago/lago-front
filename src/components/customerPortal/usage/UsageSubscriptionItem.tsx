@@ -1,13 +1,35 @@
 import { planRenewalDate } from '~/components/customerPortal/utils'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { SubscriptionForPortalUsageFragment, TimezoneEnum } from '~/generated/graphql'
+import { PlanInterval, SubscriptionForPortalUsageFragment, TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 type UsageSubscriptionItemProps = {
   subscription?: SubscriptionForPortalUsageFragment | null
   children?: React.ReactNode
   applicableTimezone?: TimezoneEnum | null
+}
+
+const planIntervalLabel = (interval?: string | null) => {
+  if (!interval) return ''
+
+  if (interval === PlanInterval.Weekly) {
+    return 'text_1728457056992jfgxzscd70q'
+  }
+
+  if (interval === PlanInterval.Monthly) {
+    return 'text_1728457056992oc086nxmsdc'
+  }
+
+  if (interval === PlanInterval.Quarterly) {
+    return 'text_1728457056992k9xfbdt0bgq'
+  }
+
+  if (interval === PlanInterval.Yearly) {
+    return 'text_17284570569928g0b297xuqf'
+  }
+
+  return ''
 }
 
 const UsageSubscriptionItem = ({
@@ -23,9 +45,9 @@ const UsageSubscriptionItem = ({
     <div className="flex flex-col gap-1" key={subscription.id}>
       <p className="text-base font-medium text-grey-700">{subscription.plan?.name}</p>
 
-      <p className="text-base font-normal text-grey-700">
-        {typeof subscription.plan?.amountCurrency !== 'undefined' && (
-          <>
+      {typeof subscription.plan?.amountCurrency !== 'undefined' && (
+        <div className="flex gap-1">
+          <p className="text-base font-normal text-grey-700">
             {intlFormatNumber(
               deserializeAmount(
                 subscription.plan?.amountCents || 0,
@@ -36,9 +58,15 @@ const UsageSubscriptionItem = ({
                 currency: subscription.plan?.amountCurrency,
               },
             )}
-          </>
-        )}
-      </p>
+          </p>
+
+          {subscription?.plan?.interval && (
+            <p className="text-base font-normal lowercase text-grey-700">
+              {translate(planIntervalLabel(subscription.plan.interval))}
+            </p>
+          )}
+        </div>
+      )}
 
       <p className="text-sm font-normal text-grey-600">
         {translate('text_1728377747178bfroky3hn30')}{' '}
