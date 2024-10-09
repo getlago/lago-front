@@ -32,6 +32,22 @@ const planIntervalLabel = (interval?: string | null) => {
   return ''
 }
 
+const itemName = (subscription: SubscriptionForPortalUsageFragment) => {
+  if (subscription?.name) {
+    return subscription.name
+  }
+
+  if (subscription?.plan?.invoiceDisplayName) {
+    return subscription.plan.invoiceDisplayName
+  }
+
+  if (subscription?.plan?.name) {
+    return subscription.plan.name
+  }
+
+  return ''
+}
+
 const UsageSubscriptionItem = ({
   subscription,
   applicableTimezone,
@@ -43,7 +59,7 @@ const UsageSubscriptionItem = ({
 
   return (
     <div className="flex flex-col gap-1" key={subscription.id}>
-      <p className="text-base font-medium text-grey-700">{subscription.plan?.name}</p>
+      <p className="text-base font-medium text-grey-700">{itemName(subscription)}</p>
 
       {typeof subscription.plan?.amountCurrency !== 'undefined' && (
         <div className="flex gap-1">

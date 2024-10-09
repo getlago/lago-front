@@ -18,10 +18,12 @@ gql`
   fragment SubscriptionForPortalUsage on Subscription {
     id
     currentBillingPeriodEndingAt
+    name
 
     plan {
       id
       name
+      invoiceDisplayName
       code
       amountCents
       amountCurrency

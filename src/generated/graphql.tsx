@@ -5981,14 +5981,14 @@ export type UpdatePortalCustomerMutationVariables = Exact<{
 
 export type UpdatePortalCustomerMutation = { __typename?: 'Mutation', updateCustomerPortalCustomer?: { __typename?: 'CustomerPortalCustomer', id: string } | null };
 
-export type SubscriptionForPortalUsageFragment = { __typename?: 'Subscription', id: string, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, amountCents: any, amountCurrency: CurrencyEnum, interval: PlanInterval }, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null };
+export type SubscriptionForPortalUsageFragment = { __typename?: 'Subscription', id: string, currentBillingPeriodEndingAt?: any | null, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, code: string, amountCents: any, amountCurrency: CurrencyEnum, interval: PlanInterval }, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null };
 
 export type GetSubscriptionForPortalQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
 }>;
 
 
-export type GetSubscriptionForPortalQuery = { __typename?: 'Query', customerPortalSubscription?: { __typename?: 'Subscription', id: string, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, amountCents: any, amountCurrency: CurrencyEnum, interval: PlanInterval }, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null } | null };
+export type GetSubscriptionForPortalQuery = { __typename?: 'Query', customerPortalSubscription?: { __typename?: 'Subscription', id: string, currentBillingPeriodEndingAt?: any | null, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, code: string, amountCents: any, amountCurrency: CurrencyEnum, interval: PlanInterval }, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null } | null };
 
 export type GetCustomerUsageForPortalQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -6000,7 +6000,7 @@ export type GetCustomerUsageForPortalQuery = { __typename?: 'Query', customerPor
 export type GetPortalUsageQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetPortalUsageQuery = { __typename?: 'Query', customerPortalSubscriptions: { __typename?: 'SubscriptionCollection', collection: Array<{ __typename?: 'Subscription', id: string, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, amountCents: any, amountCurrency: CurrencyEnum, interval: PlanInterval }, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null }> } };
+export type GetPortalUsageQuery = { __typename?: 'Query', customerPortalSubscriptions: { __typename?: 'SubscriptionCollection', collection: Array<{ __typename?: 'Subscription', id: string, currentBillingPeriodEndingAt?: any | null, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, code: string, amountCents: any, amountCurrency: CurrencyEnum, interval: PlanInterval }, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null }> } };
 
 export type TopUpPortalWalletMutationVariables = Exact<{
   input: CreateCustomerPortalWalletTransactionInput;
@@ -8504,9 +8504,11 @@ export const SubscriptionForPortalUsageFragmentDoc = gql`
     fragment SubscriptionForPortalUsage on Subscription {
   id
   currentBillingPeriodEndingAt
+  name
   plan {
     id
     name
+    invoiceDisplayName
     code
     amountCents
     amountCurrency
