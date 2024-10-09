@@ -7,6 +7,7 @@ import UsageSubscriptionItem from '~/components/customerPortal/usage/UsageSubscr
 import { SubscriptionCurrentUsageTableComponent } from '~/components/subscriptions/SubscriptionCurrentUsageTable'
 import { SubscriptionUsageLifetimeGraphComponent } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import {
+  CustomerUsageForUsageDetailsFragmentDoc,
   SubscriptionCurrentUsageTableComponentCustomerUsageFragmentDoc,
   useGetCustomerUsageForPortalQuery,
   useGetPortalOrgaInfosQuery,
@@ -56,10 +57,12 @@ gql`
     customerPortalCustomerUsage(subscriptionId: $subscriptionId) {
       amountCents
       ...SubscriptionCurrentUsageTableComponentCustomerUsage
+      ...CustomerUsageForUsageDetails
     }
   }
 
   ${SubscriptionCurrentUsageTableComponentCustomerUsageFragmentDoc}
+  ${CustomerUsageForUsageDetailsFragmentDoc}
 `
 
 type PortalUsagePageProps = {
@@ -98,8 +101,8 @@ const UsagePage = ({ goHome }: PortalUsagePageProps) => {
   })
 
   const { data: organization, loading: organizationLoading } = useGetPortalOrgaInfosQuery()
-
   const customerPortalSubscription = customerPortalSubscriptionData?.customerPortalSubscription
+
   const customerPortalOrganization = organization?.customerPortalOrganization
 
   return (
@@ -111,23 +114,26 @@ const UsagePage = ({ goHome }: PortalUsagePageProps) => {
       <UsageSubscriptionItem
         subscription={customerPortalSubscription}
         applicableTimezone={customerPortalSubscription?.customer?.applicableTimezone}
+        loading={customerPortalSubscriptionLoading}
       />
 
-      {customerId && subscriptionId && (
+      {customerId && subscriptionId && customerPortalSubscription?.lifetimeUsage && (
         <div className="mt-12">
-          {customerPortalSubscription?.lifetimeUsage && (
-            <SubscriptionUsageLifetimeGraphComponent
-              subscriptionId={subscriptionId}
-              customerId={customerId}
-              organization={customerPortalOrganization}
-              organizationLoading={organizationLoading}
-              subscription={customerPortalSubscription}
-              subscriptionLoading={customerPortalSubscriptionLoading}
-              subscriptionError={customerPortalSubscriptionError}
-              refetchLifetimeData={() => customerPortalSubscriptionRefetch()}
-            />
-          )}
+          <SubscriptionUsageLifetimeGraphComponent
+            subscriptionId={subscriptionId}
+            customerId={customerId}
+            organization={customerPortalOrganization}
+            organizationLoading={organizationLoading}
+            subscription={customerPortalSubscription}
+            subscriptionLoading={customerPortalSubscriptionLoading}
+            subscriptionError={customerPortalSubscriptionError}
+            refetchLifetimeData={() => customerPortalSubscriptionRefetch()}
+          />
+        </div>
+      )}
 
+      {customerId && subscriptionId && (
+        <div className="mt-6">
           <SubscriptionCurrentUsageTableComponent
             usageData={usageData?.customerPortalCustomerUsage}
             usageLoading={usageLoading}

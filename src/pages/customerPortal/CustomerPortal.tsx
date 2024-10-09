@@ -1,12 +1,5 @@
-/*
-TODO:
-Error pages (Usage, Wallet)
-Wallet consumed credits (take into account premium ongoing - see notion)
-Wallet info icon next to balance
-Refresh button for invoices
-Translations
-*/
 import { gql } from '@apollo/client'
+import { useEffect, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -50,11 +43,16 @@ type ChangePageProps = {
 }
 
 const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
-  const { data, loading } = useGetPortalOrgaInfosQuery()
+  const customerPortalContentRef = useRef<HTMLDivElement>(null)
 
   const { token, page } = useParams()
-
   const navigate = useNavigate()
+
+  const { data, loading } = useGetPortalOrgaInfosQuery()
+
+  useEffect(() => {
+    customerPortalContentRef.current?.scrollTo?.(0, 0)
+  }, [page])
 
   const changePage = ({ newPage, itemId }: ChangePageProps) => {
     if (itemId) {
@@ -99,11 +97,14 @@ const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
         organizationLogoUrl={data?.customerPortalOrganization?.logoUrl}
       />
 
-      <div className="h-screen w-full max-w-screen-lg overflow-y-auto p-4 md:p-20">
+      <div
+        className="h-screen w-full max-w-screen-lg overflow-y-auto p-4 md:p-20"
+        ref={customerPortalContentRef}
+      >
         {loading && <CustomerPortalLoading />}
 
         {!loading && !page && (
-          <>
+          <div className="flex flex-col gap-12">
             <WalletSection viewWallet={viewWallet} />
             <UsageSection viewSubscription={viewSubscription} />
             <PortalCustomerInfos viewEditInformation={viewEditInformation} />
@@ -116,7 +117,7 @@ const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
 
               <StyledLogo />
             </div>
-          </>
+          </div>
         )}
 
         {!loading && page === 'usage' && <UsagePage goHome={goHome} />}

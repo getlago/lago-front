@@ -17,7 +17,10 @@ gql`
   query getPortalCustomerInfos {
     customerPortalUser {
       id
+      customerType
       name
+      firstname
+      lastname
       legalName
       legalNumber
       taxIdentificationNumber

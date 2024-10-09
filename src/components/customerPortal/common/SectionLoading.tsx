@@ -1,10 +1,30 @@
 import { Skeleton } from '~/components/designSystem/Skeleton'
 
 type SectionLoadingProps = {
-  variant?: 'customer-information-page'
+  variant?: 'customer-information-page' | 'usage-subscription-item' | 'wallet-section'
 }
 
 const SectionLoading = ({ variant }: SectionLoadingProps) => {
+  if (variant === 'wallet-section') {
+    return (
+      <div className="flex flex-col gap-2">
+        <Skeleton variant="text" height={12} width={120} />
+        <Skeleton variant="text" height={12} width={160} />
+        <Skeleton variant="text" height={12} width={200} />
+      </div>
+    )
+  }
+
+  if (variant === 'usage-subscription-item') {
+    return (
+      <div className="flex flex-col gap-2">
+        <Skeleton variant="text" height={12} width={120} />
+        <Skeleton variant="text" height={12} width={160} />
+        <Skeleton variant="text" height={12} width={200} />
+      </div>
+    )
+  }
+
   if (variant === 'customer-information-page') {
     return (
       <div className="mt-8 flex flex-col gap-2">

@@ -7,7 +7,11 @@ import { Icon, Tooltip } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone/utils'
-import { TimezoneEnum, useGetPortalWalletsQuery, WalletStatusEnum } from '~/generated/graphql'
+import {
+  useGetPortalCustomerDataQuery,
+  useGetPortalWalletsQuery,
+  WalletStatusEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
@@ -21,13 +25,14 @@ gql`
     consumedAmountCents
     status
     creditsOngoingBalance
-    creditsBalance
+    ongoingBalanceCents
     rateAmount
   }
 
-  query getPortalCustomerTimezone {
+  query getPortalCustomerData {
     customerPortalUser {
       applicableTimezone
+      premium
     }
   }
 
@@ -47,20 +52,23 @@ type WalletSectionProps = {
 const WalletSection = ({ viewWallet }: WalletSectionProps) => {
   const { translate } = useInternationalization()
 
+  const { data: customerPortalUserData, loading: customerPortalUserLoading } =
+    useGetPortalCustomerDataQuery()
+
+  const customerPortalUser = customerPortalUserData?.customerPortalUser
+  const customerTimezone = customerPortalUser?.applicableTimezone
+  const isPremium = customerPortalUser?.premium
+
   const {
     data: customerWalletData,
     loading: customerWalletLoading,
     error: customerLoadingError,
   } = useGetPortalWalletsQuery()
 
-  const customerTimezone = TimezoneEnum.TzUtc
-
   const wallet = customerWalletData?.customerPortalWallets?.collection?.[0]
-
   const isWalletActive = wallet?.status === WalletStatusEnum.Active
 
   let [creditAmountUnit = '0', creditAmountCents = '00'] = String(wallet?.creditsBalance).split('.')
-
   let [consumedCreditUnit = '0', consumedCreditCents = '00'] = String(
     wallet?.creditsOngoingBalance,
   ).split('.')
@@ -69,14 +77,19 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
     return null
   }
 
-  if (customerLoadingError) {
+  if (customerLoadingError || customerPortalUserLoading) {
     return (
       <section>
         <SectionTitle title={translate('text_1728377307159q3otzyv9tey')} />
-        Error
+
+        <SectionLoading variant="wallet-section" />
       </section>
     )
   }
+
+  const [unit, cents, balance] = isPremium
+    ? [consumedCreditUnit, consumedCreditCents, wallet?.ongoingBalanceCents]
+    : [creditAmountUnit, creditAmountCents, wallet?.balanceCents]
 
   return (
     <SectionContainer>
@@ -105,20 +118,16 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
 
             <div className="flex items-end gap-1">
               <h3 className="text-2xl font-semibold text-grey-700">
-                {creditAmountUnit}.{creditAmountCents}
+                {unit}.{cents}
               </h3>
 
               <span className="text-sm font-medium leading-6 text-grey-700">
-                {translate(
-                  'text_62da6ec24a8e24e44f81287a',
-                  undefined,
-                  Number(creditAmountUnit) || 0,
-                )}
+                {translate('text_62da6ec24a8e24e44f81287a', undefined, Number(unit) || 0)}
               </span>
             </div>
 
             <span className="text-xs font-normal text-grey-600">
-              {intlFormatNumber(deserializeAmount(wallet.balanceCents, wallet.currency), {
+              {intlFormatNumber(deserializeAmount(balance, wallet.currency), {
                 currencyDisplay: 'symbol',
                 currency: wallet.currency,
               })}{' '}
@@ -150,11 +159,11 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
 
               <div className="flex items-center">
                 <span className="text-grey-700">
-                  {wallet?.consumedCredits}.{consumedCreditCents}{' '}
+                  {wallet?.consumedCredits}{' '}
                   {translate(
                     'text_62da6ec24a8e24e44f812884',
                     undefined,
-                    Number(consumedCreditUnit) || 0,
+                    Number(wallet?.consumedCredits) || 0,
                   )}{' '}
                   (
                   {intlFormatNumber(

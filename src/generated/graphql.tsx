@@ -1919,6 +1919,7 @@ export type CustomerPortalCustomer = {
   city?: Maybe<Scalars['String']['output']>;
   country?: Maybe<CountryCode>;
   currency?: Maybe<CurrencyEnum>;
+  customerType?: Maybe<CustomerTypeEnum>;
   displayName: Scalars['String']['output'];
   email?: Maybe<Scalars['String']['output']>;
   firstname?: Maybe<Scalars['String']['output']>;
@@ -1927,6 +1928,7 @@ export type CustomerPortalCustomer = {
   legalName?: Maybe<Scalars['String']['output']>;
   legalNumber?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
+  premium: Scalars['Boolean']['output'];
   shippingAddress?: Maybe<CustomerAddress>;
   state?: Maybe<Scalars['String']['output']>;
   taxIdentificationNumber?: Maybe<Scalars['String']['output']>;
@@ -1956,6 +1958,7 @@ export type CustomerPortalWallet = {
   currency: CurrencyEnum;
   expirationAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   id: Scalars['ID']['output'];
+  lastBalanceSyncAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   ongoingBalanceCents: Scalars['BigInt']['output'];
   ongoingUsageBalanceCents: Scalars['BigInt']['output'];
@@ -5354,6 +5357,7 @@ export type UpdateCustomerPortalCustomerInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   country?: InputMaybe<CountryCode>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
   documentLocale?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   firstname?: InputMaybe<Scalars['String']['input']>;
@@ -5934,7 +5938,7 @@ export type DownloadCreditNoteMutation = { __typename?: 'Mutation', downloadCred
 export type GetPortalCustomerInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetPortalCustomerInfosQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'CustomerPortalCustomer', id: string, name?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null } | null };
+export type GetPortalCustomerInfosQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'CustomerPortalCustomer', id: string, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null } | null };
 
 export type PortalInvoiceListItemFragment = { __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, paymentDisputeLostAt?: any | null, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, invoiceType: InvoiceTypeEnum };
 
@@ -5995,7 +5999,7 @@ export type GetCustomerUsageForPortalQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerUsageForPortalQuery = { __typename?: 'Query', customerPortalCustomerUsage: { __typename?: 'CustomerUsage', amountCents: any, currency: CurrencyEnum, fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', id: string, units: number, amountCents: any, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null }, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null }> | null }> }> } };
+export type GetCustomerUsageForPortalQuery = { __typename?: 'Query', customerPortalCustomerUsage: { __typename?: 'CustomerUsage', amountCents: any, currency: CurrencyEnum, fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', id: string, units: number, amountCents: any, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null }, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, id: string, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null }> | null }> }> } };
 
 export type GetPortalUsageQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -6009,17 +6013,17 @@ export type TopUpPortalWalletMutationVariables = Exact<{
 
 export type TopUpPortalWalletMutation = { __typename?: 'Mutation', createCustomerPortalWalletTransaction?: { __typename?: 'CustomerPortalWalletTransactionCollection', collection: Array<{ __typename?: 'CustomerPortalWalletTransaction', id: string }> } | null };
 
-export type CustomerPortalWalletInfoFragment = { __typename?: 'CustomerPortalWallet', id: string, currency: CurrencyEnum, balanceCents: any, creditsBalance: number, expirationAt?: any | null, consumedCredits: number, consumedAmountCents: any, status: WalletStatusEnum, creditsOngoingBalance: number, rateAmount: number };
+export type CustomerPortalWalletInfoFragment = { __typename?: 'CustomerPortalWallet', id: string, currency: CurrencyEnum, balanceCents: any, creditsBalance: number, expirationAt?: any | null, consumedCredits: number, consumedAmountCents: any, status: WalletStatusEnum, creditsOngoingBalance: number, ongoingBalanceCents: any, rateAmount: number };
 
-export type GetPortalCustomerTimezoneQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetPortalCustomerDataQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetPortalCustomerTimezoneQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'CustomerPortalCustomer', applicableTimezone: TimezoneEnum } | null };
+export type GetPortalCustomerDataQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'CustomerPortalCustomer', applicableTimezone: TimezoneEnum, premium: boolean } | null };
 
 export type GetPortalWalletsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetPortalWalletsQuery = { __typename?: 'Query', customerPortalWallets: { __typename?: 'CustomerPortalWalletCollection', collection: Array<{ __typename?: 'CustomerPortalWallet', id: string, currency: CurrencyEnum, balanceCents: any, creditsBalance: number, expirationAt?: any | null, consumedCredits: number, consumedAmountCents: any, status: WalletStatusEnum, creditsOngoingBalance: number, rateAmount: number }> } };
+export type GetPortalWalletsQuery = { __typename?: 'Query', customerPortalWallets: { __typename?: 'CustomerPortalWalletCollection', collection: Array<{ __typename?: 'CustomerPortalWallet', id: string, currency: CurrencyEnum, balanceCents: any, creditsBalance: number, expirationAt?: any | null, consumedCredits: number, consumedAmountCents: any, status: WalletStatusEnum, creditsOngoingBalance: number, ongoingBalanceCents: any, rateAmount: number }> } };
 
 export type CouponPlansForCustomerFragment = { __typename?: 'Plan', id: string, name: string };
 
@@ -8540,7 +8544,7 @@ export const CustomerPortalWalletInfoFragmentDoc = gql`
   consumedAmountCents
   status
   creditsOngoingBalance
-  creditsBalance
+  ongoingBalanceCents
   rateAmount
 }
     `;
@@ -11682,7 +11686,10 @@ export const GetPortalCustomerInfosDocument = gql`
     query getPortalCustomerInfos {
   customerPortalUser {
     id
+    customerType
     name
+    firstname
+    lastname
     legalName
     legalNumber
     taxIdentificationNumber
@@ -12032,9 +12039,11 @@ export const GetCustomerUsageForPortalDocument = gql`
   customerPortalCustomerUsage(subscriptionId: $subscriptionId) {
     amountCents
     ...SubscriptionCurrentUsageTableComponentCustomerUsage
+    ...CustomerUsageForUsageDetails
   }
 }
-    ${SubscriptionCurrentUsageTableComponentCustomerUsageFragmentDoc}`;
+    ${SubscriptionCurrentUsageTableComponentCustomerUsageFragmentDoc}
+${CustomerUsageForUsageDetailsFragmentDoc}`;
 
 /**
  * __useGetCustomerUsageForPortalQuery__
@@ -12145,45 +12154,46 @@ export function useTopUpPortalWalletMutation(baseOptions?: Apollo.MutationHookOp
 export type TopUpPortalWalletMutationHookResult = ReturnType<typeof useTopUpPortalWalletMutation>;
 export type TopUpPortalWalletMutationResult = Apollo.MutationResult<TopUpPortalWalletMutation>;
 export type TopUpPortalWalletMutationOptions = Apollo.BaseMutationOptions<TopUpPortalWalletMutation, TopUpPortalWalletMutationVariables>;
-export const GetPortalCustomerTimezoneDocument = gql`
-    query getPortalCustomerTimezone {
+export const GetPortalCustomerDataDocument = gql`
+    query getPortalCustomerData {
   customerPortalUser {
     applicableTimezone
+    premium
   }
 }
     `;
 
 /**
- * __useGetPortalCustomerTimezoneQuery__
+ * __useGetPortalCustomerDataQuery__
  *
- * To run a query within a React component, call `useGetPortalCustomerTimezoneQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetPortalCustomerTimezoneQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetPortalCustomerDataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPortalCustomerDataQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetPortalCustomerTimezoneQuery({
+ * const { data, loading, error } = useGetPortalCustomerDataQuery({
  *   variables: {
  *   },
  * });
  */
-export function useGetPortalCustomerTimezoneQuery(baseOptions?: Apollo.QueryHookOptions<GetPortalCustomerTimezoneQuery, GetPortalCustomerTimezoneQueryVariables>) {
+export function useGetPortalCustomerDataQuery(baseOptions?: Apollo.QueryHookOptions<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetPortalCustomerTimezoneQuery, GetPortalCustomerTimezoneQueryVariables>(GetPortalCustomerTimezoneDocument, options);
+        return Apollo.useQuery<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>(GetPortalCustomerDataDocument, options);
       }
-export function useGetPortalCustomerTimezoneLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPortalCustomerTimezoneQuery, GetPortalCustomerTimezoneQueryVariables>) {
+export function useGetPortalCustomerDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetPortalCustomerTimezoneQuery, GetPortalCustomerTimezoneQueryVariables>(GetPortalCustomerTimezoneDocument, options);
+          return Apollo.useLazyQuery<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>(GetPortalCustomerDataDocument, options);
         }
-export function useGetPortalCustomerTimezoneSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalCustomerTimezoneQuery, GetPortalCustomerTimezoneQueryVariables>) {
+export function useGetPortalCustomerDataSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetPortalCustomerTimezoneQuery, GetPortalCustomerTimezoneQueryVariables>(GetPortalCustomerTimezoneDocument, options);
+          return Apollo.useSuspenseQuery<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>(GetPortalCustomerDataDocument, options);
         }
-export type GetPortalCustomerTimezoneQueryHookResult = ReturnType<typeof useGetPortalCustomerTimezoneQuery>;
-export type GetPortalCustomerTimezoneLazyQueryHookResult = ReturnType<typeof useGetPortalCustomerTimezoneLazyQuery>;
-export type GetPortalCustomerTimezoneSuspenseQueryHookResult = ReturnType<typeof useGetPortalCustomerTimezoneSuspenseQuery>;
-export type GetPortalCustomerTimezoneQueryResult = Apollo.QueryResult<GetPortalCustomerTimezoneQuery, GetPortalCustomerTimezoneQueryVariables>;
+export type GetPortalCustomerDataQueryHookResult = ReturnType<typeof useGetPortalCustomerDataQuery>;
+export type GetPortalCustomerDataLazyQueryHookResult = ReturnType<typeof useGetPortalCustomerDataLazyQuery>;
+export type GetPortalCustomerDataSuspenseQueryHookResult = ReturnType<typeof useGetPortalCustomerDataSuspenseQuery>;
+export type GetPortalCustomerDataQueryResult = Apollo.QueryResult<GetPortalCustomerDataQuery, GetPortalCustomerDataQueryVariables>;
 export const GetPortalWalletsDocument = gql`
     query getPortalWallets {
   customerPortalWallets {

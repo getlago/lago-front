@@ -1,3 +1,4 @@
+import SectionLoading from '~/components/customerPortal/common/SectionLoading'
 import { planRenewalDate } from '~/components/customerPortal/utils'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -6,8 +7,9 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 type UsageSubscriptionItemProps = {
   subscription?: SubscriptionForPortalUsageFragment | null
-  children?: React.ReactNode
   applicableTimezone?: TimezoneEnum | null
+  loading?: boolean
+  children?: React.ReactNode
 }
 
 const planIntervalLabel = (interval?: string | null) => {
@@ -51,11 +53,19 @@ const itemName = (subscription: SubscriptionForPortalUsageFragment) => {
 const UsageSubscriptionItem = ({
   subscription,
   applicableTimezone,
+  loading,
   children,
 }: UsageSubscriptionItemProps) => {
   const { translate } = useInternationalization()
 
   if (!subscription) return null
+
+  if (loading)
+    return (
+      <div className="flex flex-col gap-1" key={subscription.id}>
+        <SectionLoading variant="usage-subscription-item" />
+      </div>
+    )
 
   return (
     <div className="flex flex-col gap-1" key={subscription.id}>
