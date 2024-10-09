@@ -146,7 +146,7 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
       fetchPolicy: 'network-only',
       nextFetchPolicy: 'network-only',
       variables: {
-        limit: 20,
+        limit: 8,
         status: [InvoiceStatusTypeEnum.Finalized],
       },
     })
@@ -222,6 +222,8 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
   const hasSearchTerm = !!variables?.searchTerm
   const hasNoInvoices = !loading && !error && !metadata?.totalCount && !hasSearchTerm
 
+  const { currentPage = 0, totalPages = 0 } = metadata || {}
+
   return (
     <SectionContainer>
       <SectionTitle title={translate('text_6419c64eace749372fc72b37')} />
@@ -273,26 +275,13 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
       </div>
 
       {!hasNoInvoices && (
-        <SearchInput
-          className="my-8 w-full max-w-full"
-          onChange={debouncedSearch}
-          placeholder={translate('text_1728382674210n9qpjbnooi4')}
-        />
-      )}
+        <>
+          <SearchInput
+            className="my-8 w-full max-w-full"
+            onChange={debouncedSearch}
+            placeholder={translate('text_1728382674210n9qpjbnooi4')}
+          />
 
-      {!hasNoInvoices && (
-        <InfiniteScroll
-          onBottom={() => {
-            if (!fetchMore) return
-            const { currentPage = 0, totalPages = 0 } = metadata || {}
-
-            currentPage < totalPages &&
-              !isLoading &&
-              fetchMore({
-                variables: { page: currentPage + 1 },
-              })
-          }}
-        >
           <Table
             name="portal-invoice"
             containerSize={{
@@ -389,7 +378,24 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
               )
             }}
           />
-        </InfiniteScroll>
+
+          {currentPage < totalPages && (
+            <Button
+              className="mt-2"
+              variant="quaternary"
+              startIcon="chevron-down"
+              onClick={() =>
+                fetchMore({
+                  variables: { page: currentPage + 1 },
+                })
+              }
+            >
+              <span className="text-base font-medium text-grey-600">
+                {translate('text_62da6ec24a8e24e44f8128aa')}
+              </span>
+            </Button>
+          )}
+        </>
       )}
     </SectionContainer>
   )
