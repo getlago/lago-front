@@ -1,12 +1,15 @@
 import { gql } from '@apollo/client'
 
 import SectionContainer from '~/components/customerPortal/common/SectionContainer'
+import SectionError from '~/components/customerPortal/common/SectionError'
 import SectionLoading from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
+import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { CountryCodes } from '~/core/constants/countryCodes'
 import {
   CustomerAddressInput,
   CustomerPortalCustomer,
+  CustomerTypeEnum,
   useGetPortalCustomerInfosQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -117,21 +120,62 @@ interface PortalCustomerInfosProps {
 const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) => {
   const { translate } = useInternationalization()
 
-  const { data, loading } = useGetPortalCustomerInfosQuery()
-  const customerPortalUser = data?.customerPortalUser as CustomerPortalCustomer
+  const {
+    data: portalCustomerInfosData,
+    loading: portalCustomerInfosLoading,
+    error: portalCustomerInfosError,
+    refetch: portalCustomerInfosRefetch,
+  } = useGetPortalCustomerInfosQuery()
+
+  const customerPortalUser = portalCustomerInfosData?.customerPortalUser as CustomerPortalCustomer
 
   const identicalAddresses = addressesAreIdentical({
     addressA: customerPortalUser,
     addressB: customerPortalUser?.shippingAddress,
   })
 
-  const customerFields: { key: keyof CustomerPortalCustomer; title: string }[] = [
+  type CustomerField = {
+    key: keyof CustomerPortalCustomer
+    title: string
+    show?: (customer: CustomerPortalCustomer) => boolean
+    content?: (customer: CustomerPortalCustomer) => string
+  }
+
+  const customerFields: CustomerField[] = [
     { key: 'name', title: translate('text_6419c64eace749372fc72b0f') },
+    {
+      key: 'firstname',
+      title: translate('text_17261289386311s35rvzyxbz'),
+      show: (customer) => !!(customer.firstname || customer.lastname),
+      content: (customer) => `${customer.firstname || ''} ${customer.lastname || ''}`,
+    },
     { key: 'legalName', title: translate('text_6419c64eace749372fc72b17') },
     { key: 'legalNumber', title: translate('text_647ddd5220412a009bfd36f4') },
     { key: 'taxIdentificationNumber', title: translate('text_6480a70109b61a005b2092df') },
-    { key: 'email', title: translate('text_1728379586750vyjcpwgu27f') },
+    {
+      key: 'customerType',
+      title: translate('text_1728497501618g7qbdad97r5'),
+      content: (customer) =>
+        translate(TRANSLATIONS_MAP_CUSTOMER_TYPE[customer.customerType as CustomerTypeEnum]),
+    },
   ]
+
+  const refreshSection = () => {
+    portalCustomerInfosRefetch()
+  }
+
+  const isLoading = portalCustomerInfosLoading
+  const isError = !isLoading && portalCustomerInfosError
+
+  if (isError) {
+    return (
+      <section>
+        <SectionTitle title={translate('text_6419c64eace749372fc72b07')} />
+
+        <SectionError refresh={refreshSection} />
+      </section>
+    )
+  }
 
   return (
     <SectionContainer>
@@ -139,25 +183,37 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
         title={translate('text_6419c64eace749372fc72b07')}
         className="justify-between"
         action={{ title: translate('text_1728377307159fck091geiv0'), onClick: viewEditInformation }}
+        loading={isLoading}
       />
 
-      {loading && <SectionLoading />}
+      {isLoading && <SectionLoading variant="customer-information-section" />}
 
-      {!loading && (
+      {!isLoading && (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8">
           <div className="flex flex-col gap-4">
             {customerFields
-              .filter((field) => !!customerPortalUser?.[field.key])
+              .filter(
+                (field) => !!customerPortalUser?.[field.key] || field.show?.(customerPortalUser),
+              )
               .map((field) => (
                 <Field
                   key={`customer-portal-${field.key}`}
                   title={field.title}
-                  content={customerPortalUser[field.key] as string}
+                  content={
+                    field.content?.(customerPortalUser) || (customerPortalUser[field.key] as string)
+                  }
                 />
               ))}
           </div>
 
           <div className="flex flex-col gap-4">
+            {customerPortalUser?.email && (
+              <Field
+                title={translate('text_1728379586750vyjcpwgu27f')}
+                content={customerPortalUser.email}
+              />
+            )}
+
             <AddressField
               title={translate('text_626c0c301a16a600ea06148d')}
               {...customerPortalUser}

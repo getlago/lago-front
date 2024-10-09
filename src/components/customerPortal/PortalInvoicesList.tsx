@@ -3,6 +3,8 @@ import { DateTime } from 'luxon'
 import { useEffect } from 'react'
 
 import SectionContainer from '~/components/customerPortal/common/SectionContainer'
+import SectionError from '~/components/customerPortal/common/SectionError'
+import SectionLoading from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import {
   Button,
@@ -149,7 +151,7 @@ interface PortalCustomerInvoicesProps {
 }
 
 const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoicesProps) => {
-  const [getInvoices, { data, loading, error, fetchMore, variables }] =
+  const [getInvoices, { data, loading, error, fetchMore, variables, refetch }] =
     useCustomerPortalInvoicesLazyQuery({
       notifyOnNetworkStatusChange: true,
       fetchPolicy: 'network-only',
@@ -161,10 +163,12 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
     })
 
   const { data: userCurrencyData } = useGetCustomerPortalUserCurrencyQuery()
-  const [getOverdueBalance, { data: overdueData, loading: overdueLoading }] =
+  const [getOverdueBalance, { data: overdueData, loading: overdueLoading, error: overdueError }] =
     useGetCustomerPortalOverdueBalancesLazyQuery()
-  const [getInvoicesCollection, { data: invoicesData, loading: invoicesLoading }] =
-    useGetCustomerPortalInvoicesCollectionLazyQuery()
+  const [
+    getInvoicesCollection,
+    { data: invoicesData, loading: invoicesLoading, error: invoicesError },
+  ] = useGetCustomerPortalInvoicesCollectionLazyQuery()
 
   useEffect(() => {
     getOverdueBalance()
@@ -226,20 +230,36 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
     },
   })
 
-  const { debouncedSearch, isLoading } = useDebouncedSearch(getInvoices, loading)
+  const { debouncedSearch, isLoading: searchIsLoading } = useDebouncedSearch(getInvoices, loading)
   const { metadata, collection } = data?.customerPortalInvoices || {}
   const hasSearchTerm = !!variables?.searchTerm
   const hasNoInvoices = !loading && !error && !metadata?.totalCount && !hasSearchTerm
 
   const { currentPage = 0, totalPages = 0 } = metadata || {}
 
+  const refreshSection = () => {
+    refetch()
+  }
+
+  if (error) {
+    return (
+      <section>
+        <SectionTitle title={translate('text_6419c64eace749372fc72b37')} />
+
+        <SectionError refresh={refreshSection} />
+      </section>
+    )
+  }
+
   return (
     <SectionContainer>
-      <SectionTitle title={translate('text_6419c64eace749372fc72b37')} />
+      <SectionTitle title={translate('text_6419c64eace749372fc72b37')} loading={loading} />
 
       <div className="grid grid-cols-2 gap-8">
         <div className="flex flex-col gap-1">
-          {!invoicesLoading && (
+          {invoicesLoading && <SectionLoading variant="invoices-list-total" />}
+
+          {!invoicesLoading && !invoicesError && (
             <>
               <h6 className="text-sm font-normal text-grey-600">
                 {translate('text_6670a7222702d70114cc7957')}
@@ -257,7 +277,9 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
         </div>
 
         <div className="flex flex-col gap-1">
-          {!overdueLoading && (
+          {overdueLoading && <SectionLoading variant="invoices-list-total" />}
+
+          {!overdueLoading && !overdueError && (
             <>
               <h6 className="flex items-center gap-2 text-sm font-normal text-grey-600">
                 {translate('text_6670a7222702d70114cc795a')}
@@ -279,20 +301,20 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
         </div>
       </div>
 
+      <SearchInput
+        className="mb-4 mt-6 w-full max-w-full"
+        onChange={debouncedSearch}
+        placeholder={translate('text_1728382674210n9qpjbnooi4')}
+      />
+
       {!hasNoInvoices && (
         <>
-          <SearchInput
-            className="my-6 w-full max-w-full"
-            onChange={debouncedSearch}
-            placeholder={translate('text_1728382674210n9qpjbnooi4')}
-          />
-
           <Table
             name="portal-invoice"
             containerSize={{
               default: 0,
             }}
-            isLoading={isLoading}
+            isLoading={loading || searchIsLoading}
             hasError={!!error}
             placeholder={{
               errorState: {
@@ -380,13 +402,13 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
               return (
                 <Tooltip
                   placement="top-end"
-                  title={!isLoading && translate('text_6419c64eace749372fc72b62')}
+                  title={!searchIsLoading && translate('text_6419c64eace749372fc72b62')}
                 >
                   <Button
                     icon="download"
                     variant="quaternary"
                     onClick={async () => await downloadInvoice({ variables: { input: { id } } })}
-                    disabled={isLoading}
+                    disabled={searchIsLoading}
                   />
                 </Tooltip>
               )

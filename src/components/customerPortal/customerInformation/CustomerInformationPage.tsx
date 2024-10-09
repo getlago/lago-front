@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { object, string } from 'yup'
 
 import PageTitle from '~/components/customerPortal/common/PageTitle'
+import SectionError from '~/components/customerPortal/common/SectionError'
 import SectionLoading from '~/components/customerPortal/common/SectionLoading'
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { Alert, Button } from '~/components/designSystem'
@@ -118,7 +119,7 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
 
   return (
     <div className="flex max-w-2xl flex-col gap-4">
-      <h3 className="mt-8 text-base font-medium text-grey-700">
+      <h3 className="text-base font-medium text-grey-700">
         {translate('text_1728377307159eu0ihwiyrf0')}
       </h3>
 
@@ -293,17 +294,35 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
 const CustomerInformationPage = ({ goHome }: CustomerInformationPageProps) => {
   const { translate } = useInternationalization()
 
-  const { data, loading } = useGetPortalCustomerInfosQuery()
+  const {
+    data: portalCustomerInfosData,
+    loading: portalCustomerInfosLoading,
+    error: portalCustomerInfosError,
+    refetch: portalCustomerInfosRefetch,
+  } = useGetPortalCustomerInfosQuery()
 
-  const customerPortalUser = data?.customerPortalUser
+  const customerPortalUser = portalCustomerInfosData?.customerPortalUser
+
+  const isLoading = portalCustomerInfosLoading
+  const isError = !isLoading && portalCustomerInfosError
+
+  if (isError) {
+    return (
+      <div>
+        <PageTitle title={translate('text_1728377307159nbrs3pgng03')} goHome={goHome} />
+
+        <SectionError refresh={() => portalCustomerInfosRefetch} />
+      </div>
+    )
+  }
 
   return (
     <div>
       <PageTitle title={translate('text_1728377307159nbrs3pgng03')} goHome={goHome} />
 
-      {loading && <SectionLoading variant="customer-information-page" />}
+      {isLoading && <SectionLoading variant="customer-information-page" />}
 
-      {!loading && <EditCustomerBillingForm customer={customerPortalUser} onSuccess={goHome} />}
+      {!isLoading && <EditCustomerBillingForm customer={customerPortalUser} onSuccess={goHome} />}
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 
 import SectionContainer from '~/components/customerPortal/common/SectionContainer'
+import SectionError from '~/components/customerPortal/common/SectionError'
 import SectionLoading from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import TextButton from '~/components/customerPortal/common/TextButton'
@@ -26,41 +27,63 @@ type PortalUsageSectionProps = {
 }
 
 const UsageSection = ({ viewSubscription }: PortalUsageSectionProps) => {
-  const { data, loading } = useGetPortalUsageQuery()
-
   const { translate } = useInternationalization()
 
-  const subscription = data?.customerPortalSubscriptions?.collection
+  const {
+    data: portalUsageData,
+    loading: portalUsageLoading,
+    error: portalUsageError,
+    refetch: portalUsageRefetch,
+  } = useGetPortalUsageQuery()
+
+  const subscription = portalUsageData?.customerPortalSubscriptions?.collection
 
   const applicableTimezone =
-    data?.customerPortalSubscriptions?.collection?.[0]?.customer?.applicableTimezone
+    portalUsageData?.customerPortalSubscriptions?.collection?.[0]?.customer?.applicableTimezone
 
-  if (loading) {
-    return <SectionLoading />
+  const isLoading = portalUsageLoading
+  const isError = portalUsageError
+
+  const refreshSection = () => {
+    portalUsageRefetch()
   }
 
-  if (!subscription?.length) {
+  if (!isLoading && isError) {
+    return (
+      <section>
+        <SectionTitle title={translate('text_1728377307160ilquuusbuwq')} />
+
+        <SectionError refresh={refreshSection} />
+      </section>
+    )
+  }
+
+  if (!isLoading && !subscription?.length) {
     return null
   }
 
   return (
     <SectionContainer>
-      <SectionTitle title={translate('text_1728377307160ilquuusbuwq')} />
+      <SectionTitle title={translate('text_1728377307160ilquuusbuwq')} loading={isLoading} />
 
-      <div className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
-        {subscription?.map((item) => (
-          <UsageSubscriptionItem
-            subscription={item}
-            applicableTimezone={applicableTimezone}
-            key={item.id}
-          >
-            <TextButton
-              content={translate('text_17283773071604x345yf0jbz')}
-              onClick={() => viewSubscription(item.id)}
-            />
-          </UsageSubscriptionItem>
-        ))}
-      </div>
+      {isLoading && <SectionLoading variant="usage-section" />}
+
+      {!isLoading && subscription?.length && (
+        <div className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
+          {subscription?.map((item) => (
+            <UsageSubscriptionItem
+              subscription={item}
+              applicableTimezone={applicableTimezone}
+              key={item.id}
+            >
+              <TextButton
+                content={translate('text_17283773071604x345yf0jbz')}
+                onClick={() => viewSubscription(item.id)}
+              />
+            </UsageSubscriptionItem>
+          ))}
+        </div>
+      )}
     </SectionContainer>
   )
 }

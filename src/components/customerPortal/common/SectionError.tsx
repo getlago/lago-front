@@ -24,7 +24,7 @@ const SectionError = ({ refresh }: SectionErrorProps) => {
         </p>
       </div>
 
-      <Button onClick={refresh}>{translate('text_1728385052918zkczgwzq967')}</Button>
+      {refresh && <Button onClick={refresh}>{translate('text_1728385052918zkczgwzq967')}</Button>}
     </div>
   )
 }

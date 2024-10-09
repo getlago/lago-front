@@ -109,7 +109,7 @@ const UsagePage = ({ goHome }: PortalUsagePageProps) => {
     <div>
       <PageTitle title={translate('text_1728377307160r73ggjgpulg')} goHome={goHome} />
 
-      <SectionTitle className="mt-8" title={translate('text_172837730716038g8qgz927f')} />
+      <SectionTitle title={translate('text_172837730716038g8qgz927f')} />
 
       <UsageSubscriptionItem
         subscription={customerPortalSubscription}

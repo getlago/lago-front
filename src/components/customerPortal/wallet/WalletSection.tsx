@@ -94,7 +94,7 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
     customerWalletError && customerWalletRefetch()
   }
 
-  if (!isLoading && isError) {
+  if (isError) {
     return (
       <section>
         <SectionTitle title={translate('text_1728377307159q3otzyv9tey')} />

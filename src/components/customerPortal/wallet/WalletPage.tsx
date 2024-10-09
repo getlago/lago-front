@@ -5,6 +5,7 @@ import { number, object } from 'yup'
 
 import PageTitle from '~/components/customerPortal/common/PageTitle'
 import SectionError from '~/components/customerPortal/common/SectionError'
+import SectionLoading from '~/components/customerPortal/common/SectionLoading'
 import { Alert, Button } from '~/components/designSystem'
 import { AmountInputField } from '~/components/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -74,27 +75,30 @@ const WalletPage = ({ goHome, onSuccess }: WalletPageProps) => {
     },
   })
 
-  if (customerWalletError) {
+  const submitButtonDisabled =
+    !formikProps?.values?.amount || loadingTopUpPortalWallet || formikProps?.values?.amount <= 0
+
+  const isLoading = customerWalletLoading
+  const isError = !isLoading && customerWalletError
+
+  if (isError) {
     return (
       <div>
-        <PageTitle title={translate('text_1728377307159q3otzyv9tey')} goHome={goHome} />
+        <PageTitle title={translate('text_1728498418253nyv3qmz9k5k')} goHome={goHome} />
 
-        <SectionError refresh={customerWalletRefetch} />
+        <SectionError refresh={() => customerWalletRefetch()} />
       </div>
     )
   }
 
-  const submitButtonDisabled =
-    !formikProps?.values?.amount || loadingTopUpPortalWallet || formikProps?.values?.amount <= 0
-
   return (
     <div>
-      <PageTitle title={translate('text_1728377307159q3otzyv9tey')} goHome={goHome} />
+      <PageTitle title={translate('text_1728498418253nyv3qmz9k5k')} goHome={goHome} />
 
-      {customerWalletLoading && <div>Loading..</div>}
+      {isLoading && <SectionLoading variant="wallet-page" />}
 
-      {!customerWalletLoading && (
-        <div className="mt-10">
+      {!isLoading && (
+        <div>
           <AmountInputField
             name="amount"
             displayErrorText={false}
@@ -126,12 +130,11 @@ const WalletPage = ({ goHome, onSuccess }: WalletPageProps) => {
             </Alert>
           )}
 
-          <div className="flex justify-end">
+          <div className="mt-8 flex justify-end">
             <Button
-              className="mt-8"
               disabled={submitButtonDisabled}
               loading={loadingTopUpPortalWallet}
-              size="large"
+              size="medium"
               onClick={formikProps.submitForm}
             >
               {translate('text_1728377307160e831fr4ydtn')}
