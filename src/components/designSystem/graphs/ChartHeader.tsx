@@ -24,7 +24,7 @@ const ChartHeader = ({
     <>
       {!!loading ? (
         <LoadingWrapper>
-          <Skeleton variant="text" width={72} height={12} />
+          <Skeleton variant="text" width={72} height={12} marginBottom={4} />
           <Skeleton variant="text" width={160} height={12} />
         </LoadingWrapper>
       ) : (
@@ -40,16 +40,16 @@ const ChartHeader = ({
                 </Tooltip>
               )}
             </LeftInfoCellWithTooltip>
-            <Typography variant="subhead" color="grey700">
-              {amount}
-            </Typography>
+            {!!period && (
+              <Typography variant="note" color="grey600">
+                {period}
+              </Typography>
+            )}
           </LeftInfosWrapper>
 
-          {!!period && (
-            <Typography variant="note" color="grey600">
-              {period}
-            </Typography>
-          )}
+          <Typography variant="subhead" color="grey700">
+            {amount}
+          </Typography>
         </ChartHeaderWrapper>
       )}
     </>
@@ -64,13 +64,14 @@ const LoadingWrapper = styled.div`
   justify-content: space-between;
   height: 56px;
   padding: ${theme.spacing(1)} 0 ${theme.spacing(2)};
-  box-sizing: border-box;
 `
 
 const ChartHeaderWrapper = styled.div<{ $blur: boolean }>`
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  flex-direction: column;
+  gap: ${theme.spacing(2)};
 
   ${({ $blur }) =>
     $blur &&
@@ -82,9 +83,10 @@ const ChartHeaderWrapper = styled.div<{ $blur: boolean }>`
 
 const LeftInfosWrapper = styled.div`
   display: flex;
-  align-items: flex-start;
-  flex-direction: column;
+  align-items: baseline;
+  justify-content: space-between;
   gap: ${theme.spacing(2)};
+  width: 100%;
 `
 
 const LeftInfoCellWithTooltip = styled.div`
