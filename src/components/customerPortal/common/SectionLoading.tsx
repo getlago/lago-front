@@ -7,10 +7,16 @@ type SectionLoadingProps = {
 const SectionLoading = ({ variant }: SectionLoadingProps) => {
   if (variant === 'wallet-section') {
     return (
-      <div className="flex flex-col gap-2">
-        <Skeleton variant="text" height={12} width={120} />
-        <Skeleton variant="text" height={12} width={160} />
-        <Skeleton variant="text" height={12} width={200} />
+      <div className="grid grid-cols-2">
+        <div className="flex flex-col gap-3">
+          <Skeleton variant="text" height={12} width={72} />
+          <Skeleton variant="text" height={12} width={160} />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <Skeleton variant="text" height={12} width={72} />
+          <Skeleton variant="text" height={12} width={160} />
+        </div>
       </div>
     )
   }

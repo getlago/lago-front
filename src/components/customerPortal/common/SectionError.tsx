@@ -1,22 +1,28 @@
-import { Button } from '~/components/designSystem'
+import { Button, Icon } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 type SectionErrorProps = {
-  refresh: () => void
+  refresh?: () => void
 }
 
 const SectionError = ({ refresh }: SectionErrorProps) => {
   const { translate } = useInternationalization()
 
   return (
-    <div>
-      <h3 className="text-lg font-semibold text-grey-700">
-        {translate('text_1728385052917x4pkr4t3x3b')}
-      </h3>
+    <div className="flex flex-col items-start gap-5">
+      <div className="rounded-xl bg-grey-100 p-5">
+        <Icon name="warning-unfilled" size="large" />
+      </div>
 
-      <p className="text-base font-normal text-grey-600">
-        {translate('text_1728385052918teqr4dhxxi6')}
-      </p>
+      <div>
+        <h3 className="mb-3 text-lg font-semibold leading-6 text-grey-700">
+          {translate('text_1728385052917x4pkr4t3x3b')}
+        </h3>
+
+        <p className="text-base font-normal leading-6 text-grey-600">
+          {translate('text_1728385052918teqr4dhxxi6')}
+        </p>
+      </div>
 
       <Button onClick={refresh}>{translate('text_1728385052918zkczgwzq967')}</Button>
     </div>

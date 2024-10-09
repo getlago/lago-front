@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 
 import SectionContainer from '~/components/customerPortal/common/SectionContainer'
+import SectionError from '~/components/customerPortal/common/SectionError'
 import SectionLoading from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import { Icon, Tooltip } from '~/components/designSystem'
@@ -53,8 +54,12 @@ type WalletSectionProps = {
 const WalletSection = ({ viewWallet }: WalletSectionProps) => {
   const { translate } = useInternationalization()
 
-  const { data: customerPortalUserData, loading: customerPortalUserLoading } =
-    useGetPortalCustomerDataQuery()
+  const {
+    data: customerPortalUserData,
+    loading: customerPortalUserLoading,
+    error: customerPortalUserError,
+    refetch: customerPortalUserRefetch,
+  } = useGetPortalCustomerDataQuery()
 
   const customerPortalUser = customerPortalUserData?.customerPortalUser
   const customerTimezone = customerPortalUser?.applicableTimezone
@@ -63,34 +68,45 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
   const {
     data: customerWalletData,
     loading: customerWalletLoading,
-    error: customerLoadingError,
+    error: customerWalletError,
+    refetch: customerWalletRefetch,
   } = useGetPortalWalletsQuery()
 
   const wallet = customerWalletData?.customerPortalWallets?.collection?.[0]
   const isWalletActive = wallet?.status === WalletStatusEnum.Active
 
-  let [creditAmountUnit = '0', creditAmountCents = '00'] = String(wallet?.creditsBalance).split('.')
-  let [consumedCreditUnit = '0', consumedCreditCents = '00'] = String(
+  const [creditAmountUnit = '0', creditAmountCents = '00'] = String(wallet?.creditsBalance).split(
+    '.',
+  )
+  const [consumedCreditUnit = '0', consumedCreditCents = '00'] = String(
     wallet?.creditsOngoingBalance,
   ).split('.')
-
-  if (!customerWalletLoading && !isWalletActive) {
-    return null
-  }
-
-  if (customerLoadingError || customerPortalUserLoading) {
-    return (
-      <section>
-        <SectionTitle title={translate('text_1728377307159q3otzyv9tey')} />
-
-        <SectionLoading variant="wallet-section" />
-      </section>
-    )
-  }
 
   const [unit, cents, balance] = isPremium
     ? [consumedCreditUnit, consumedCreditCents, wallet?.ongoingBalanceCents]
     : [creditAmountUnit, creditAmountCents, wallet?.balanceCents]
+
+  const isLoading = customerWalletLoading || customerPortalUserLoading
+  const isError = !isLoading && (customerWalletError || customerPortalUserError)
+
+  const refreshSection = () => {
+    customerPortalUserError && customerPortalUserRefetch()
+    customerWalletError && customerWalletRefetch()
+  }
+
+  if (!isLoading && isError) {
+    return (
+      <section>
+        <SectionTitle title={translate('text_1728377307159q3otzyv9tey')} />
+
+        <SectionError refresh={refreshSection} />
+      </section>
+    )
+  }
+
+  if (!isLoading && !isWalletActive) {
+    return null
+  }
 
   return (
     <SectionContainer>
@@ -98,11 +114,12 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
         title={translate('text_1728377307159q3otzyv9tey')}
         className="justify-between"
         action={{ title: translate('text_1728377307160cludx1c0cfb'), onClick: viewWallet }}
+        loading={isLoading}
       />
 
-      {customerWalletLoading && <SectionLoading />}
+      {isLoading && <SectionLoading variant="wallet-section" />}
 
-      {!customerWalletLoading && wallet && (
+      {!isLoading && wallet && (
         <div>
           <div className="flex flex-col gap-1">
             <h6 className="flex h-6 items-center gap-2 text-sm font-normal text-grey-600">
