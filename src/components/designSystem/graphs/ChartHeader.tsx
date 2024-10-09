@@ -1,7 +1,5 @@
-import styled, { css } from 'styled-components'
-
 import { Icon, Skeleton, Tooltip, Typography } from '~/components/designSystem'
-import { theme } from '~/styles'
+import { ChartWrapper } from '~/components/layouts/Charts'
 
 type ChartHeaderProps = {
   name: string
@@ -23,14 +21,14 @@ const ChartHeader = ({
   return (
     <>
       {!!loading ? (
-        <LoadingWrapper>
+        <div className="flex h-14 flex-col justify-between pb-2 pt-1">
           <Skeleton variant="text" width={72} height={12} marginBottom={4} />
           <Skeleton variant="text" width={160} height={12} />
-        </LoadingWrapper>
+        </div>
       ) : (
-        <ChartHeaderWrapper $blur={blur}>
-          <LeftInfosWrapper>
-            <LeftInfoCellWithTooltip>
+        <ChartWrapper className="flex flex-col items-start justify-between gap-2" blur={blur}>
+          <div className="flex w-full items-baseline justify-between gap-2">
+            <div className="flex items-center gap-2">
               <Typography variant="captionHl" color="grey600">
                 {name}
               </Typography>
@@ -39,58 +37,21 @@ const ChartHeader = ({
                   <Icon name="info-circle" />
                 </Tooltip>
               )}
-            </LeftInfoCellWithTooltip>
+            </div>
             {!!period && (
               <Typography variant="note" color="grey600">
                 {period}
               </Typography>
             )}
-          </LeftInfosWrapper>
+          </div>
 
           <Typography variant="subhead" color="grey700">
             {amount}
           </Typography>
-        </ChartHeaderWrapper>
+        </ChartWrapper>
       )}
     </>
   )
 }
 
 export default ChartHeader
-
-const LoadingWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 56px;
-  padding: ${theme.spacing(1)} 0 ${theme.spacing(2)};
-`
-
-const ChartHeaderWrapper = styled.div<{ $blur: boolean }>`
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-direction: column;
-  gap: ${theme.spacing(2)};
-
-  ${({ $blur }) =>
-    $blur &&
-    css`
-      filter: blur(4px);
-      pointer-events: none;
-    `}
-`
-
-const LeftInfosWrapper = styled.div`
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: ${theme.spacing(2)};
-  width: 100%;
-`
-
-const LeftInfoCellWithTooltip = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(2)};
-`
