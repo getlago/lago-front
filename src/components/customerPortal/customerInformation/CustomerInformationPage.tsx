@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { object, string } from 'yup'
 
 import PageTitle from '~/components/customerPortal/common/PageTitle'
+import SectionLoading from '~/components/customerPortal/common/SectionLoading'
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { Alert, Button } from '~/components/designSystem'
 import { Checkbox, ComboBoxField, TextInputField } from '~/components/form'
@@ -300,7 +301,7 @@ const CustomerInformationPage = ({ goHome }: CustomerInformationPageProps) => {
     <div>
       <PageTitle title={translate('text_1728377307159nbrs3pgng03')} goHome={goHome} />
 
-      {loading && <div>Loading..</div>}
+      {loading && <SectionLoading variant="customer-information-page" />}
 
       {!loading && <EditCustomerBillingForm customer={customerPortalUser} onSuccess={goHome} />}
     </div>
