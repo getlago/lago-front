@@ -34,7 +34,7 @@ export const SettingsListItemLoadingSkeleton = ({ count = 1 }: { count?: number 
   Array.from({ length: count }).map((_, index) => (
     <div
       key={`settings-list-item-skeleton-${index}`}
-      className="flex w-98 flex-col justify-between pb-8 shadow-b last:pb-0 last:[box-shadow:none]"
+      className="flex w-full flex-col justify-between pb-8 shadow-b last:pb-0 last:[box-shadow:none]"
     >
       <Skeleton variant="text" width={160} height={12} marginBottom={24} />
       <Skeleton variant="text" width={320} height={12} marginBottom={28} />
