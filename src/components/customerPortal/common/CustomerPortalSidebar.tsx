@@ -24,20 +24,23 @@ const CustomerPortalSidebar = ({
   return (
     <>
       <div className="hidden h-screen w-[400px] shrink-0 flex-col gap-8 bg-grey-100 p-16 md:flex">
-        <div className="flex items-center">
-          {isLoading && (
-            <div className="w-full">
-              <LoaderSidebarOrganization />
-            </div>
-          )}
+        {(isLoading || !!organizationLogoUrl || organizationName) && (
+          <div className="flex items-center">
+            {isLoading && (
+              <div className="w-full">
+                <LoaderSidebarOrganization />
+              </div>
+            )}
 
-          {!isLoading && !!organizationLogoUrl && (
-            <OrgaLogoContainer>
-              <img src={organizationLogoUrl} alt={`${organizationName}'s logo`} />
-            </OrgaLogoContainer>
-          )}
-          <Typography variant="headline">{organizationName}</Typography>
-        </div>
+            {!isLoading && !!organizationLogoUrl && (
+              <OrgaLogoContainer>
+                <img src={organizationLogoUrl} alt={`${organizationName}'s logo`} />
+              </OrgaLogoContainer>
+            )}
+
+            {organizationName && <Typography variant="headline">{organizationName}</Typography>}
+          </div>
+        )}
 
         {!isLoading && (
           <h3 className="text-lg font-semibold text-black">Manage your plans & billing</h3>
