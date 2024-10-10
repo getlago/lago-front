@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import { useParams } from 'react-router-dom'
 
+import useCustomerPortalNavigation from '~/components/customerPortal/common/hooks/useCustomerPortalNavigation'
 import PageTitle from '~/components/customerPortal/common/PageTitle'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import UsageSubscriptionItem from '~/components/customerPortal/usage/UsageSubscriptionItem'
@@ -65,11 +66,8 @@ gql`
   ${CustomerUsageForUsageDetailsFragmentDoc}
 `
 
-type PortalUsagePageProps = {
-  goHome: () => void
-}
-
-const UsagePage = ({ goHome }: PortalUsagePageProps) => {
+const UsagePage = () => {
+  const { goHome } = useCustomerPortalNavigation()
   const { translate } = useInternationalization()
   const customerId = 'cdef1dac-c55f-4d25-985b-cb25c2c8edc1'
   const { itemId } = useParams()

@@ -3,6 +3,7 @@ import { useFormik } from 'formik'
 import { useEffect, useState } from 'react'
 import { object, string } from 'yup'
 
+import useCustomerPortalNavigation from '~/components/customerPortal/common/hooks/useCustomerPortalNavigation'
 import PageTitle from '~/components/customerPortal/common/PageTitle'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderCustomerInformationPage } from '~/components/customerPortal/common/SectionLoading'
@@ -18,10 +19,6 @@ import {
   useUpdatePortalCustomerMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-type CustomerInformationPageProps = {
-  goHome: () => void
-}
 
 type EditCustomerBillingFormProps = {
   customer?: UpdateCustomerPortalCustomerInput | null
@@ -290,7 +287,8 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
   )
 }
 
-const CustomerInformationPage = ({ goHome }: CustomerInformationPageProps) => {
+const CustomerInformationPage = () => {
+  const { goHome } = useCustomerPortalNavigation()
   const { translate } = useInternationalization()
 
   const {

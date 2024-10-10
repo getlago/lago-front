@@ -1,9 +1,10 @@
 import { gql } from '@apollo/client'
 import { useEffect, useRef } from 'react'
-import { generatePath, NavigateFunction, useNavigate, useParams } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 
 import CustomerPortalLoading from '~/components/customerPortal/common/CustomerPortalLoading'
 import CustomerPortalSidebar from '~/components/customerPortal/common/CustomerPortalSidebar'
+import useCustomerPortalNavigation from '~/components/customerPortal/common/hooks/useCustomerPortalNavigation'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import {
   LoaderCustomerInformationSection,
@@ -12,21 +13,9 @@ import {
   LoaderWalletSection,
 } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
-import CustomerInformationPage from '~/components/customerPortal/customerInformation/CustomerInformationPage'
-import PortalCustomerInfos from '~/components/customerPortal/PortalCustomerInfos'
-import PortalInvoicesList from '~/components/customerPortal/PortalInvoicesList'
-import UsagePage from '~/components/customerPortal/usage/UsagePage'
-import UsageSection from '~/components/customerPortal/usage/UsageSection'
-import WalletPage from '~/components/customerPortal/wallet/WalletPage'
-import WalletSection from '~/components/customerPortal/wallet/WalletSection'
-import {
-  CUSTOMER_PORTAL_ROUTE,
-  CUSTOMER_PORTAL_ROUTE_PAGE,
-  CUSTOMER_PORTAL_ROUTE_PAGE_ITEMID,
-} from '~/core/router/CustomerPortalRoutes'
-import { LocaleEnum } from '~/core/translations'
+import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
+import { hasDefinedGQLError } from '~/core/apolloClient'
 import { useGetPortalOrgaInfosQuery } from '~/generated/graphql'
-import Logo from '~/public/images/logo/lago-logo-grey.svg'
 
 gql`
   query getPortalOrgaInfos {
@@ -39,83 +28,19 @@ gql`
   }
 `
 
-interface CutsomerPortalProps {
-  translate: Function
-  documentLocale: LocaleEnum
-  portalIsLoading?: boolean
-  portalIsError?: boolean
-}
+const CustomerPortal = () => {
+  const {
+    translate,
+    error: customerPortalTranslateError,
+    loading: portalIsLoading,
+  } = useCustomerPortalTranslate()
 
-type ChangePageProps = {
-  newPage: string
-  itemId?: string
-}
+  const portalIsError =
+    customerPortalTranslateError && hasDefinedGQLError('Unauthorized', customerPortalTranslateError)
 
-type UseCustomerPortalNavigationProps = {
-  navigate: NavigateFunction
-  token?: string
-}
-
-const useCustomerPortalNavigation = ({ navigate, token }: UseCustomerPortalNavigationProps) => {
-  const changePage = ({ newPage, itemId }: ChangePageProps) => {
-    if (itemId) {
-      return navigate(
-        generatePath(CUSTOMER_PORTAL_ROUTE_PAGE_ITEMID, {
-          token: token as string,
-          page: newPage,
-          itemId,
-        }),
-      )
-    }
-
-    return navigate(
-      generatePath(CUSTOMER_PORTAL_ROUTE_PAGE, {
-        token: token as string,
-        page: newPage,
-      }),
-    )
-  }
-
-  const goHome = () => {
-    navigate(generatePath(CUSTOMER_PORTAL_ROUTE, { token: token as string }))
-  }
-
-  const viewSubscription = (id: string) =>
-    changePage({
-      newPage: 'usage',
-      itemId: id,
-    })
-
-  const viewWallet = () =>
-    changePage({
-      newPage: 'wallet',
-    })
-
-  const viewEditInformation = () => changePage({ newPage: 'customer-edit-information' })
-
-  return {
-    changePage,
-    goHome,
-    viewSubscription,
-    viewWallet,
-    viewEditInformation,
-  }
-}
-
-const CustomerPortal = ({
-  translate,
-  documentLocale,
-  portalIsLoading,
-  portalIsError,
-}: CutsomerPortalProps) => {
   const customerPortalContentRef = useRef<HTMLDivElement>(null)
 
-  const { token, page } = useParams()
-  const navigate = useNavigate()
-
-  const { goHome, viewSubscription, viewWallet, viewEditInformation } = useCustomerPortalNavigation(
-    { navigate, token },
-  )
+  const { pathname } = useCustomerPortalNavigation()
 
   const {
     data: portalOrgaInfosData,
@@ -125,7 +50,7 @@ const CustomerPortal = ({
 
   useEffect(() => {
     customerPortalContentRef.current?.scrollTo?.(0, 0)
-  }, [page])
+  }, [pathname])
 
   if (portalIsError) {
     return (
@@ -189,32 +114,7 @@ const CustomerPortal = ({
         <div className="max-w-screen-lg">
           {portalOrgasInfoLoading && <CustomerPortalLoading />}
 
-          {!portalOrgasInfoLoading && !page && (
-            <div className="flex flex-col gap-12">
-              <WalletSection viewWallet={viewWallet} />
-              <UsageSection viewSubscription={viewSubscription} />
-              <PortalCustomerInfos viewEditInformation={viewEditInformation} />
-              <PortalInvoicesList translate={translate} documentLocale={documentLocale} />
-
-              <div className="my-8 flex justify-center gap-2 md:hidden">
-                <div className="text-sm text-grey-600">
-                  {translate('text_6419c64eace749372fc72b03')}
-                </div>
-
-                <Logo width="40px" />
-              </div>
-            </div>
-          )}
-
-          {!portalOrgasInfoLoading && page === 'usage' && <UsagePage goHome={goHome} />}
-
-          {!portalOrgasInfoLoading && page === 'wallet' && (
-            <WalletPage goHome={goHome} onSuccess={goHome} />
-          )}
-
-          {!portalOrgasInfoLoading && page === 'customer-edit-information' && (
-            <CustomerInformationPage goHome={goHome} />
-          )}
+          {!portalOrgasInfoLoading && <Outlet />}
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ import InputAdornment from '@mui/material/InputAdornment/InputAdornment'
 import { useFormik } from 'formik'
 import { number, object } from 'yup'
 
+import useCustomerPortalNavigation from '~/components/customerPortal/common/hooks/useCustomerPortalNavigation'
 import PageTitle from '~/components/customerPortal/common/PageTitle'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderWalletPage } from '~/components/customerPortal/common/SectionLoading'
@@ -26,12 +27,8 @@ gql`
   }
 `
 
-type WalletPageProps = {
-  goHome: () => void
-  onSuccess?: () => void
-}
-
-const WalletPage = ({ goHome, onSuccess }: WalletPageProps) => {
+const WalletPage = () => {
+  const { goHome } = useCustomerPortalNavigation()
   const { translate } = useInternationalization()
 
   const {
@@ -47,7 +44,7 @@ const WalletPage = ({ goHome, onSuccess }: WalletPageProps) => {
         if (res) {
           formikProps.resetForm()
 
-          onSuccess?.()
+          goHome?.()
         }
       },
     })
