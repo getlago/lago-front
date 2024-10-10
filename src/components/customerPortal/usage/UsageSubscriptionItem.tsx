@@ -1,5 +1,6 @@
 import { LoaderUsageSubscriptionItem } from '~/components/customerPortal/common/SectionLoading'
 import { planRenewalDate } from '~/components/customerPortal/utils'
+import { Typography } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { PlanInterval, SubscriptionForPortalUsageFragment, TimezoneEnum } from '~/generated/graphql'
@@ -56,11 +57,13 @@ const UsageSubscriptionItem = ({
 
   return (
     <div className="flex flex-col gap-1" key={subscription.id}>
-      <p className="text-base font-medium text-grey-700">{itemName(subscription)}</p>
+      <Typography className="text-base font-medium text-grey-700">
+        {itemName(subscription)}
+      </Typography>
 
       {typeof subscription.plan?.amountCurrency !== 'undefined' && (
         <div className="flex gap-1">
-          <p className="text-base font-normal text-grey-700">
+          <Typography className="text-base font-normal text-grey-700">
             {intlFormatNumber(
               deserializeAmount(
                 subscription.plan?.amountCents || 0,
@@ -71,24 +74,24 @@ const UsageSubscriptionItem = ({
                 currency: subscription.plan?.amountCurrency,
               },
             )}
-          </p>
+          </Typography>
 
           {subscription?.plan?.interval && (
-            <p className="text-base font-normal lowercase text-grey-700">
+            <Typography className="text-base font-normal lowercase text-grey-700">
               {translate(planIntervalLabel(subscription.plan.interval))}
-            </p>
+            </Typography>
           )}
         </div>
       )}
 
-      <p className="text-sm font-normal leading-6 text-grey-600">
+      <Typography className="text-sm font-normal leading-6 text-grey-600">
         {translate('text_1728377747178bfroky3hn30', {
           date: planRenewalDate({
             currentBillingPeriodEndingAt: subscription.currentBillingPeriodEndingAt,
             applicableTimezone,
           }),
         })}
-      </p>
+      </Typography>
 
       <div>{children}</div>
     </div>

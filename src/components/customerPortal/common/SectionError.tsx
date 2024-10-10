@@ -1,4 +1,4 @@
-import { Button, Icon } from '~/components/designSystem'
+import { Button, Icon, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 type SectionErrorProps = {
@@ -23,14 +23,14 @@ const SectionError = ({
       </div>
 
       <div>
-        <h3 className="mb-3 text-lg font-semibold leading-6 text-grey-700">
+        <Typography className="mb-3 text-lg font-semibold leading-6 text-grey-700">
           {customTitle || translate('text_1728385052917x4pkr4t3x3b')}
-        </h3>
+        </Typography>
 
         {!hideDescription && (
-          <p className="text-base font-normal leading-6 text-grey-600">
+          <Typography className="text-base font-normal leading-6 text-grey-600">
             {customDescription || translate('text_1728385052918teqr4dhxxi6')}
-          </p>
+          </Typography>
         )}
       </div>
 

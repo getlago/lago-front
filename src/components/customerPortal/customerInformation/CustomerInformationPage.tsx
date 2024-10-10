@@ -8,7 +8,7 @@ import PageTitle from '~/components/customerPortal/common/PageTitle'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderCustomerInformationPage } from '~/components/customerPortal/common/SectionLoading'
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
-import { Alert, Button } from '~/components/designSystem'
+import { Alert, Button, Typography } from '~/components/designSystem'
 import { Checkbox, ComboBoxField, TextInputField } from '~/components/form'
 import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 import {
@@ -115,9 +115,9 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
 
   return (
     <div className="flex max-w-2xl flex-col gap-4">
-      <h3 className="text-base font-medium text-grey-700">
+      <Typography className="text-base font-medium text-grey-700">
         {translate('text_1728377307159eu0ihwiyrf0')}
-      </h3>
+      </Typography>
 
       <ComboBoxField
         name="customerType"
@@ -167,9 +167,9 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
         formikProps={formikProps}
       />
 
-      <h3 className="mt-12 text-base font-medium text-grey-700">
+      <Typography className="mt-12 text-base font-medium text-grey-700">
         {translate('text_1728377307159y9afykbx2q9')}
-      </h3>
+      </Typography>
 
       <TextInputField
         name="addressLine1"
@@ -209,9 +209,9 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
         PopperProps={{ displayInDialog: true }}
       />
 
-      <h3 className="mt-8 text-base font-medium text-grey-700">
+      <Typography className="mt-8 text-base font-medium text-grey-700">
         {translate('text_667d708c1359b49f5a5a8230')}
-      </h3>
+      </Typography>
 
       <Checkbox
         label={translate('text_667d708c1359b49f5a5a8234')}
@@ -264,7 +264,7 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
 
       {updatePortalCustomerError && (
         <Alert className="mt-8" type="danger" data-test="error-alert">
-          <span>{translate('text_1728377307160tb09yisgxk9')}</span>
+          <Typography>{translate('text_1728377307160tb09yisgxk9')}</Typography>
         </Alert>
       )}
 

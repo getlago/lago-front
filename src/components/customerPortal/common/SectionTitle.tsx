@@ -1,5 +1,5 @@
 import TextButton from '~/components/customerPortal/common/TextButton'
-import { Skeleton } from '~/components/designSystem'
+import { Skeleton, Typography } from '~/components/designSystem'
 import { tw } from '~/styles/utils'
 
 type SectionTitleProps = {
@@ -17,7 +17,7 @@ const SectionTitle = ({ className, title, action, loading }: SectionTitleProps) 
       </div>
     ) : (
       <>
-        <h3 className={'text-lg font-semibold leading-6 text-grey-700'}>{title}</h3>
+        <Typography className={'text-lg font-semibold leading-6 text-grey-700'}>{title}</Typography>
 
         {action && <TextButton onClick={action.onClick} content={action.title} />}
       </>

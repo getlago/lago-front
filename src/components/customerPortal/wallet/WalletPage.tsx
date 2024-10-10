@@ -7,7 +7,7 @@ import useCustomerPortalNavigation from '~/components/customerPortal/common/hook
 import PageTitle from '~/components/customerPortal/common/PageTitle'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderWalletPage } from '~/components/customerPortal/common/SectionLoading'
-import { Alert, Button } from '~/components/designSystem'
+import { Alert, Button, Typography } from '~/components/designSystem'
 import { AmountInputField } from '~/components/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
@@ -123,7 +123,7 @@ const WalletPage = () => {
 
           {errorTopUpPortalWallet && (
             <Alert className="mt-8" type="danger" data-test="error-alert">
-              <span>{translate('text_1728377307160tb09yisgxk9')}</span>
+              <Typography>{translate('text_1728377307160tb09yisgxk9')}</Typography>
             </Alert>
           )}
 

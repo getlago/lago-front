@@ -4,6 +4,7 @@ import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderCustomerInformationSection } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
+import { Typography } from '~/components/designSystem'
 import { CountryCodes } from '~/core/constants/countryCodes'
 import {
   CustomerAddressInput,
@@ -45,11 +46,13 @@ gql`
 `
 
 const FieldTitle = ({ title }: { title: string }) => (
-  <p className="text-sm font-normal leading-6 text-grey-600">{title}</p>
+  <Typography className="text-sm font-normal leading-6 text-grey-600">{title}</Typography>
 )
 
 const FieldContent = ({ content, children }: { content?: string; children?: React.ReactNode }) => (
-  <p className="break-words text-base font-normal leading-6 text-grey-700">{content || children}</p>
+  <Typography className="break-words text-base font-normal leading-6 text-grey-700">
+    {content || children}
+  </Typography>
 )
 
 const Field = ({ title, content }: { title: string; content: string }) => (
@@ -212,10 +215,10 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
 
             {Object.keys(customerPortalUser?.shippingAddress || {}).length > 0 &&
             identicalAddresses ? (
-              <span className="text-base font-normal text-grey-700">
+              <Typography className="text-base font-normal text-grey-700">
                 <FieldTitle title={translate('text_667d708c1359b49f5a5a822a')} />
                 <FieldContent content={translate('text_1728381336070e8cj1amorap')} />
-              </span>
+              </Typography>
             ) : (
               <AddressField
                 title={translate('text_667d708c1359b49f5a5a822a')}

@@ -45,13 +45,15 @@ const CustomerPortalSidebar = ({
         )}
 
         {!isLoading && (
-          <h3 className="text-lg font-semibold text-black">Manage your plans & billing</h3>
+          <Typography className="text-lg font-semibold text-black">
+            Manage your plans & billing
+          </Typography>
         )}
 
         <div className="flex items-center gap-1">
-          <span className="text-xs font-normal text-grey-600">
+          <Typography className="text-xs font-normal text-grey-600">
             {translate('text_6419c64eace749372fc72b03')}
-          </span>
+          </Typography>
 
           <Logo width="40px" />
         </div>

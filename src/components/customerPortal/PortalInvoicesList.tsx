@@ -256,17 +256,17 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
 
           {!invoicesLoading && !invoicesError && (
             <>
-              <h6 className="text-sm font-normal text-grey-600">
+              <Typography className="text-sm font-normal text-grey-600">
                 {translate('text_6670a7222702d70114cc7957')}
-              </h6>
+              </Typography>
 
-              <p className="text-2xl font-semibold text-grey-700">
+              <Typography className="text-2xl font-semibold text-grey-700">
                 {intlFormatNumber(invoices.amount, {
                   currency: invoices.currency,
                   locale: documentLocale,
                   currencyDisplay: 'narrowSymbol',
                 })}
-              </p>
+              </Typography>
             </>
           )}
         </div>
@@ -276,21 +276,21 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
 
           {!overdueLoading && !overdueError && (
             <>
-              <h6 className="flex items-center gap-2 text-sm font-normal text-grey-600">
+              <Typography className="flex items-center gap-2 text-sm font-normal text-grey-600">
                 {translate('text_6670a7222702d70114cc795a')}
 
                 <Tooltip placement="top-start" title={translate('text_6670a757999f8a007789bb5d')}>
                   <Icon size="medium" name="info-circle" />
                 </Tooltip>
-              </h6>
+              </Typography>
 
-              <p className="text-2xl font-semibold text-grey-700">
+              <Typography className="text-2xl font-semibold text-grey-700">
                 {intlFormatNumber(overdue.amount, {
                   currency: overdue.currency,
                   locale: documentLocale,
                   currencyDisplay: 'narrowSymbol',
                 })}
-              </p>
+              </Typography>
             </>
           )}
         </div>
@@ -421,9 +421,9 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
                 })
               }
             >
-              <span className="text-base font-medium text-grey-600">
+              <Typography className="text-base font-medium text-grey-600">
                 {translate('text_62da6ec24a8e24e44f8128aa')}
-              </span>
+              </Typography>
             </Button>
           )}
         </>

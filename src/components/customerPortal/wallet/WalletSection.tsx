@@ -3,7 +3,7 @@ import { gql } from '@apollo/client'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderWalletSection } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
-import { Icon, Tooltip } from '~/components/designSystem'
+import { Icon, Tooltip, Typography } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone/utils'
@@ -121,7 +121,7 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
       {!isLoading && wallet && (
         <div>
           <div className="flex flex-col gap-1">
-            <h6 className="flex h-6 items-center gap-2 text-sm font-normal text-grey-600">
+            <Typography className="flex h-6 items-center gap-2 text-sm font-normal text-grey-600">
               {translate('text_1728377307160cbszddumfkg')}
 
               {wallet?.lastBalanceSyncAt && (
@@ -134,52 +134,56 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
                   <Icon size="medium" name="info-circle" />
                 </Tooltip>
               )}
-            </h6>
+            </Typography>
 
             <div className="flex items-end gap-1">
-              <h3 className="text-2xl font-semibold text-grey-700">
+              <Typography className="text-2xl font-semibold text-grey-700">
                 {unit}.{cents}
-              </h3>
+              </Typography>
 
-              <span className="text-sm font-medium leading-6 text-grey-700">
+              <Typography className="text-sm font-medium leading-6 text-grey-700">
                 {translate('text_62da6ec24a8e24e44f81287a', undefined, Number(unit) || 0)}
-              </span>
+              </Typography>
             </div>
 
-            <span className="text-xs font-normal text-grey-600">
+            <Typography className="text-xs font-normal text-grey-600">
               {translate('text_17283773071600j3nukyme6f', {
                 credits: intlFormatNumber(deserializeAmount(balance, wallet.currency), {
                   currencyDisplay: 'symbol',
                   currency: wallet.currency,
                 }),
               })}
-            </span>
+            </Typography>
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-8">
             <div className="flex flex-col gap-1">
-              <span className="text-sm font-normal leading-6 text-grey-600">
+              <Typography className="text-sm font-normal leading-6 text-grey-600">
                 {translate('text_1728377307160dqj0b2q59f6')}
-              </span>
+              </Typography>
 
               {wallet?.expirationAt ? (
-                <span className="text-base font-normal text-grey-700">
-                  {formatDateToTZ(wallet?.expirationAt, customerTimezone)}
-                </span>
+                <>
+                  <Typography className="text-base font-normal text-grey-700">
+                    {formatDateToTZ(wallet?.expirationAt, customerTimezone)}
+                  </Typography>
+                </>
               ) : (
-                <p className="text-base font-normal text-grey-700">
-                  {translate('text_62da6ec24a8e24e44f81288c')}
-                </p>
+                <>
+                  <Typography className="text-base font-normal text-grey-700">
+                    {translate('text_62da6ec24a8e24e44f81288c')}
+                  </Typography>
+                </>
               )}
             </div>
 
             <div className="flex flex-col gap-1">
-              <span className="text-sm font-normal leading-6 text-grey-600">
+              <Typography className="text-sm font-normal leading-6 text-grey-600">
                 {translate('text_1728377307160sh06zbhqebt')}
-              </span>
+              </Typography>
 
               <div className="flex items-center">
-                <span className="text-grey-700">
+                <Typography className="text-grey-700">
                   {wallet?.consumedCredits}&nbsp;
                   {translate(
                     'text_62da6ec24a8e24e44f812884',
@@ -195,7 +199,7 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
                     },
                   )}
                   )
-                </span>
+                </Typography>
               </div>
             </div>
           </div>

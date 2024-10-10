@@ -1,3 +1,4 @@
+import { Typography } from '~/components/designSystem'
 import { Button } from '~/components/designSystem/Button'
 
 const PageTitle = ({ title, goHome }: { title: string; goHome: () => void }) => {
@@ -10,7 +11,7 @@ const PageTitle = ({ title, goHome }: { title: string; goHome: () => void }) => 
         onClick={() => goHome()}
       />
 
-      <h3 className="text-lg font-semibold text-grey-700">{title}</h3>
+      <Typography className="text-lg font-semibold text-grey-700">{title}</Typography>
     </div>
   )
 }
