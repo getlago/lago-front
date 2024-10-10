@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { ApolloError, gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useMemo } from 'react'
 import { generatePath } from 'react-router-dom'
@@ -9,6 +9,7 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
 import {
   CurrencyEnum,
+  GetSubscriptionForSubscriptionUsageLifetimeGraphQuery,
   PremiumIntegrationTypeEnum,
   SubscriptionUsageLifetimeGraphForLifetimeGraphFragment,
   useGetSubscriptionForSubscriptionUsageLifetimeGraphQuery,
@@ -68,35 +69,41 @@ type SubscriptionUsageLifetimeGraphProps = {
   customerId: string
 }
 
-const SubscriptionUsageLifetimeGraph = ({
-  customerId,
+type SubscriptionUsageLifetimeGraphComponentProps = {
+  subscriptionId: string
+  customerId: string
+  organization?: { premiumIntegrations: Array<PremiumIntegrationTypeEnum> } | null
+  organizationLoading: boolean
+  subscription?: null | GetSubscriptionForSubscriptionUsageLifetimeGraphQuery['subscription']
+  subscriptionLoading: boolean
+  subscriptionError?: ApolloError
+  refetchLifetimeData: () => void
+}
+
+export const SubscriptionUsageLifetimeGraphComponent = ({
   subscriptionId,
-}: SubscriptionUsageLifetimeGraphProps) => {
+  customerId,
+  organization,
+  organizationLoading,
+  subscription,
+  subscriptionLoading,
+  subscriptionError,
+  refetchLifetimeData,
+}: SubscriptionUsageLifetimeGraphComponentProps) => {
   const { translate } = useInternationalization()
-  const { organization, loading: currentOrganizationDataLoading } = useOrganizationInfos()
 
   const hasProgressiveBillingPremiumIntegration = !!organization?.premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.ProgressiveBilling,
   )
 
-  const {
-    data: lifetimeUsageData,
-    loading: lifetimeUsageLoading,
-    error: lifetimeUsageError,
-    refetch: refetchLifetimeData,
-  } = useGetSubscriptionForSubscriptionUsageLifetimeGraphQuery({
-    variables: {
-      subscriptionId,
-    },
-    fetchPolicy: 'no-cache',
-  })
-  const lifetimeUsage = hasProgressiveBillingPremiumIntegration
-    ? lifetimeUsageData?.subscription?.lifetimeUsage
-    : subscriptionLifetimeUsageFakeData
-  const isLoading = lifetimeUsageLoading || currentOrganizationDataLoading
-  const currency = lifetimeUsageData?.subscription?.customer?.currency || CurrencyEnum.Usd
+  const isLoading = subscriptionLoading || organizationLoading
+  const currency = subscription?.customer?.currency || CurrencyEnum.Usd
   const isBlurred = !isLoading && (!hasProgressiveBillingPremiumIntegration || !organization)
-  const customerTimezone = lifetimeUsageData?.subscription?.customer?.applicableTimezone
+  const customerTimezone = subscription?.customer?.applicableTimezone
+
+  const lifetimeUsage = hasProgressiveBillingPremiumIntegration
+    ? subscription?.lifetimeUsage
+    : subscriptionLifetimeUsageFakeData
 
   const { nextThresholdPercentage, lastThresholdPercentage } = useMemo(() => {
     return getLifetimeGraphPercentages(lifetimeUsage)
@@ -122,7 +129,7 @@ const SubscriptionUsageLifetimeGraph = ({
 
         {isLoading ? (
           <Skeleton variant="text" height={12} width={144} marginTop={8} />
-        ) : !lifetimeUsageError && !!lifetimeUsage ? (
+        ) : !subscriptionError && !!lifetimeUsage ? (
           <Typography
             variant="caption"
             color="grey600"
@@ -138,7 +145,7 @@ const SubscriptionUsageLifetimeGraph = ({
       </Stack>
 
       <div className="flex flex-col gap-6 bg-white py-6">
-        {!!lifetimeUsageError ? (
+        {!!subscriptionError ? (
           <GenericPlaceholder
             className="m-0 p-0"
             title={translate('text_636d023ce11a9d038819b579')}
@@ -156,11 +163,11 @@ const SubscriptionUsageLifetimeGraph = ({
                 color="grey600"
                 html={translate('text_17264811633225nhatoh524y', {
                   planLink: `${generatePath(UPDATE_PLAN_ROUTE, {
-                    planId: lifetimeUsageData?.subscription?.plan?.id || '',
+                    planId: subscription?.plan?.id || '',
                   })}?origin=${REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE}&subscriptionId=${subscriptionId}&customerId=${customerId}`,
                   subscriptionLink: `${generatePath(UPDATE_SUBSCRIPTION, {
                     subscriptionId,
-                    customerId: lifetimeUsageData?.subscription?.customer?.id || '',
+                    customerId: subscription?.customer?.id || '',
                   })}?origin=${REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE}&subscriptionId=${subscriptionId}&customerId=${customerId}`,
                 })}
               />
@@ -307,6 +314,40 @@ const SubscriptionUsageLifetimeGraph = ({
         )}
       </div>
     </section>
+  )
+}
+
+const SubscriptionUsageLifetimeGraph = ({
+  customerId,
+  subscriptionId,
+}: SubscriptionUsageLifetimeGraphProps) => {
+  const { organization, loading: currentOrganizationDataLoading } = useOrganizationInfos()
+
+  const {
+    data: subscriptionData,
+    loading: subscriptionLoading,
+    error: subscriptionError,
+    refetch: refetchLifetimeData,
+  } = useGetSubscriptionForSubscriptionUsageLifetimeGraphQuery({
+    variables: {
+      subscriptionId,
+    },
+    fetchPolicy: 'no-cache',
+  })
+
+  const subscription = subscriptionData?.subscription
+
+  return (
+    <SubscriptionUsageLifetimeGraphComponent
+      customerId={customerId}
+      subscriptionId={subscriptionId}
+      organization={organization}
+      organizationLoading={currentOrganizationDataLoading}
+      subscription={subscription}
+      subscriptionLoading={subscriptionLoading}
+      subscriptionError={subscriptionError}
+      refetchLifetimeData={() => refetchLifetimeData()}
+    />
   )
 }
 

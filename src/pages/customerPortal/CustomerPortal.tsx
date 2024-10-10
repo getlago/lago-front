@@ -1,14 +1,21 @@
 import { gql } from '@apollo/client'
-import styled from 'styled-components'
+import { useEffect, useRef } from 'react'
+import { Outlet } from 'react-router-dom'
 
-import { PortalCustomerInfos } from '~/components/customerPortal/PortalCustomerInfos'
-import PortalInvoicesList from '~/components/customerPortal/PortalInvoicesList'
-import { PortalOverview } from '~/components/customerPortal/PortalOverview'
-import { Skeleton, Typography } from '~/components/designSystem'
-import { LocaleEnum } from '~/core/translations'
+import CustomerPortalLoading from '~/components/customerPortal/common/CustomerPortalLoading'
+import CustomerPortalSidebar from '~/components/customerPortal/common/CustomerPortalSidebar'
+import useCustomerPortalNavigation from '~/components/customerPortal/common/hooks/useCustomerPortalNavigation'
+import SectionError from '~/components/customerPortal/common/SectionError'
+import {
+  LoaderCustomerInformationSection,
+  LoaderInvoicesListSection,
+  LoaderUsageSection,
+  LoaderWalletSection,
+} from '~/components/customerPortal/common/SectionLoading'
+import SectionTitle from '~/components/customerPortal/common/SectionTitle'
+import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
+import { hasDefinedGQLError } from '~/core/apolloClient'
 import { useGetPortalOrgaInfosQuery } from '~/generated/graphql'
-import Logo from '~/public/images/logo/lago-logo-grey.svg'
-import { theme } from '~/styles'
 
 gql`
   query getPortalOrgaInfos {
@@ -16,99 +23,102 @@ gql`
       id
       name
       logoUrl
+      premiumIntegrations
     }
   }
 `
 
-interface CutsomerPortalProps {
-  translate: Function
-  documentLocale: LocaleEnum
-}
+const CustomerPortal = () => {
+  const {
+    translate,
+    error: customerPortalTranslateError,
+    loading: portalIsLoading,
+  } = useCustomerPortalTranslate()
 
-const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
-  const { data, loading } = useGetPortalOrgaInfosQuery()
+  const portalIsError =
+    customerPortalTranslateError && hasDefinedGQLError('Unauthorized', customerPortalTranslateError)
+
+  const customerPortalContentRef = useRef<HTMLDivElement>(null)
+
+  const { pathname } = useCustomerPortalNavigation()
+
+  const {
+    data: portalOrgaInfosData,
+    loading: portalOrgasInfoLoading,
+    error: portalOrgasInfoError,
+  } = useGetPortalOrgaInfosQuery()
+
+  useEffect(() => {
+    customerPortalContentRef.current?.scrollTo?.(0, 0)
+  }, [pathname])
+
+  if (portalIsError) {
+    return (
+      <div className="flex flex-col md:flex-row">
+        <CustomerPortalSidebar
+          organizationName={portalOrgaInfosData?.customerPortalOrganization?.name}
+          organizationLogoUrl={portalOrgaInfosData?.customerPortalOrganization?.logoUrl}
+          isLoading={portalOrgasInfoLoading}
+          isError={portalOrgasInfoError}
+        />
+
+        <div className="h-screen w-full max-w-screen-lg overflow-y-auto p-4 md:p-20">
+          <SectionError
+            customTitle={translate('text_1728546284339z3fs0oqdejs')}
+            hideDescription={true}
+          />
+        </div>
+      </div>
+    )
+  }
+
+  if (portalIsLoading) {
+    return (
+      <div className="flex flex-col md:flex-row">
+        <CustomerPortalSidebar isLoading={true} />
+
+        <div className="h-screen w-full max-w-screen-lg overflow-y-auto p-4 md:p-20">
+          <div className="flex flex-col gap-12">
+            <div>
+              <SectionTitle title="" loading={true} />
+              <LoaderWalletSection />
+            </div>
+            <div>
+              <SectionTitle title="" loading={true} />
+              <LoaderUsageSection />
+            </div>
+            <div>
+              <SectionTitle title="" loading={true} />
+              <LoaderCustomerInformationSection />
+            </div>
+            <div>
+              <SectionTitle title="" loading={true} />
+              <LoaderInvoicesListSection />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <PageWrapper>
-      <PageHeader>
-        {loading ? (
-          <InlineItems>
-            <Skeleton variant="connectorAvatar" size="big" marginRight={theme.spacing(3)} />
-            <Skeleton variant="text" height={12} width={120} />
-          </InlineItems>
-        ) : (
-          <InlineItems>
-            {!!data?.customerPortalOrganization?.logoUrl && (
-              <OrgaLogoContainer>
-                <img
-                  src={data.customerPortalOrganization?.logoUrl}
-                  alt={`${data.customerPortalOrganization?.name}'s logo`}
-                />
-              </OrgaLogoContainer>
-            )}
-            <Typography variant="headline">{data?.customerPortalOrganization?.name}</Typography>
-          </InlineItems>
-        )}
-        <InlineItems>
-          <InlinePoweredByTypography variant="note" color="grey500">
-            {translate('text_6419c64eace749372fc72b03')}
-          </InlinePoweredByTypography>
-          <StyledLogo />
-        </InlineItems>
-      </PageHeader>
+    <div className="flex flex-col md:flex-row">
+      <CustomerPortalSidebar
+        organizationName={portalOrgaInfosData?.customerPortalOrganization?.name}
+        organizationLogoUrl={portalOrgaInfosData?.customerPortalOrganization?.logoUrl}
+        isLoading={portalOrgasInfoLoading}
+        isError={portalOrgasInfoError}
+      />
 
-      <PortalCustomerInfos translate={translate} />
-      <PortalOverview translate={translate} documentLocale={documentLocale} />
-      <PortalInvoicesList translate={translate} documentLocale={documentLocale} />
-    </PageWrapper>
+      <div className="h-screen w-full overflow-y-auto p-4 md:p-20" ref={customerPortalContentRef}>
+        <div className="max-w-screen-lg">
+          {portalOrgasInfoLoading && <CustomerPortalLoading />}
+
+          {!portalOrgasInfoLoading && <Outlet />}
+        </div>
+      </div>
+    </div>
   )
 }
-
-const InlineItems = styled.div`
-  display: flex;
-  align-items: center;
-`
-
-const InlinePoweredByTypography = styled(Typography)`
-  margin-right: ${theme.spacing(1)};
-`
-
-const StyledLogo = styled(Logo)`
-  width: 40px;
-`
-
-const PageWrapper = styled.div`
-  max-width: 1024px;
-  margin: ${theme.spacing(20)} auto;
-  padding: 0 ${theme.spacing(4)};
-
-  > section {
-    margin-bottom: ${theme.spacing(12)};
-  }
-`
-
-const PageHeader = styled.section`
-  display: flex;
-  justify-content: space-between;
-
-  > div:first-child {
-    width: 100%;
-    flex: 1;
-  }
-`
-
-const OrgaLogoContainer = styled.div`
-  width: 40px;
-  height: 40px;
-  margin-right: ${theme.spacing(3)};
-  border-radius: 8px;
-
-  > img {
-    height: 100%;
-    width: 100%;
-    object-fit: cover;
-    border-radius: inherit;
-  }
-`
 
 export default CustomerPortal
