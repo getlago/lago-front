@@ -12,27 +12,14 @@ type UsageSubscriptionItemProps = {
   children?: React.ReactNode
 }
 
-const planIntervalLabel = (interval?: string | null) => {
-  if (!interval) return ''
-
-  if (interval === PlanInterval.Weekly) {
-    return 'text_1728457056992jfgxzscd70q'
-  }
-
-  if (interval === PlanInterval.Monthly) {
-    return 'text_1728457056992oc086nxmsdc'
-  }
-
-  if (interval === PlanInterval.Quarterly) {
-    return 'text_1728457056992k9xfbdt0bgq'
-  }
-
-  if (interval === PlanInterval.Yearly) {
-    return 'text_17284570569928g0b297xuqf'
-  }
-
-  return ''
+const TRANSLATIONS_MAP_PLAN_INTERVAL = {
+  [PlanInterval.Weekly]: 'text_1728457056992jfgxzscd70q',
+  [PlanInterval.Monthly]: 'text_1728457056992oc086nxmsdc',
+  [PlanInterval.Quarterly]: 'text_1728457056992k9xfbdt0bgq',
+  [PlanInterval.Yearly]: 'text_17284570569928g0b297xuqf',
 }
+
+const planIntervalLabel = (interval: PlanInterval) => TRANSLATIONS_MAP_PLAN_INTERVAL[interval]
 
 const itemName = (subscription: SubscriptionForPortalUsageFragment) => {
   if (subscription?.name) {
