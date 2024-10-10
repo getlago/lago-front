@@ -26,6 +26,7 @@ import {
   DefaultCampaignDialogRef,
 } from '~/components/settings/dunnings/DefaultCampaignDialog'
 import { addToast } from '~/core/apolloClient'
+import { CREATE_DUNNING_ROUTE } from '~/core/router'
 import { useGetDunningCampaignsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -104,8 +105,7 @@ const Dunnings = () => {
                       variant="quaternary"
                       disabled={loading}
                       onClick={() => {
-                        // TODO: navigate to create dunning page
-                        navigate('')
+                        navigate(CREATE_DUNNING_ROUTE)
                       }}
                       data-test="create-dunning-button"
                     >

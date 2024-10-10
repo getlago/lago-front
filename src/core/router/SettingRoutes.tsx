@@ -117,6 +117,9 @@ const XeroIntegrationDetails = lazyLoad(
 const DunningsSettings = lazyLoad(
   () => import(/* webpackChunkName: 'dunnings-settings' */ '~/pages/settings/Dunnings/Dunnings'),
 )
+const CreateDunning = lazyLoad(
+  () => import(/* webpackChunkName: 'create-dunning' */ '~/pages/settings/Dunnings/CreateDunning'),
+)
 
 // ----------- Routes -----------
 export const SETTINGS_ROUTE = '/settings'
@@ -146,6 +149,7 @@ export const EMAILS_SCENARIO_CONFIG_ROUTE = `${SETTINGS_ROUTE}/emails/config/:ty
 export const XERO_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/xero`
 export const XERO_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/xero/:integrationId/:tab`
 export const DUNNINGS_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/dunnings`
+export const CREATE_DUNNING_ROUTE = `${SETTINGS_ROUTE}/dunnings/create`
 
 export const settingRoutes: CustomRouteObject[] = [
   {
@@ -310,5 +314,12 @@ export const settingRoutes: CustomRouteObject[] = [
         permissions: [],
       },
     ],
+  },
+  {
+    path: CREATE_DUNNING_ROUTE,
+    private: true,
+    element: <CreateDunning />,
+    // TODO: Add permissions
+    permissions: [],
   },
 ]
