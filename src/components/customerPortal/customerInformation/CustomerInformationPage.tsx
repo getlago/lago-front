@@ -54,7 +54,6 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
 
   const formikProps = useFormik<Partial<UpdateCustomerInput>>({
     initialValues: {
-      // @ts-ignore
       customerType: customer?.customerType ?? null,
       name: customer?.name ?? '',
       firstname: customer?.firstname ?? '',
