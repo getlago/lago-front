@@ -186,38 +186,37 @@ const CustomerPortal = ({
         isError={portalOrgasInfoError}
       />
 
-      <div
-        className="h-screen w-full max-w-screen-lg overflow-y-auto p-4 md:p-20"
-        ref={customerPortalContentRef}
-      >
-        {portalOrgasInfoLoading && <CustomerPortalLoading />}
+      <div className="h-screen w-full overflow-y-auto p-4 md:p-20" ref={customerPortalContentRef}>
+        <div className="max-w-screen-lg">
+          {portalOrgasInfoLoading && <CustomerPortalLoading />}
 
-        {!portalOrgasInfoLoading && !page && (
-          <div className="flex flex-col gap-12">
-            <WalletSection viewWallet={viewWallet} />
-            <UsageSection viewSubscription={viewSubscription} />
-            <PortalCustomerInfos viewEditInformation={viewEditInformation} />
-            <PortalInvoicesList translate={translate} documentLocale={documentLocale} />
+          {!portalOrgasInfoLoading && !page && (
+            <div className="flex flex-col gap-12">
+              <WalletSection viewWallet={viewWallet} />
+              <UsageSection viewSubscription={viewSubscription} />
+              <PortalCustomerInfos viewEditInformation={viewEditInformation} />
+              <PortalInvoicesList translate={translate} documentLocale={documentLocale} />
 
-            <div className="my-8 flex justify-center gap-2 md:hidden">
-              <div className="text-sm text-grey-600">
-                {translate('text_6419c64eace749372fc72b03')}
+              <div className="my-8 flex justify-center gap-2 md:hidden">
+                <div className="text-sm text-grey-600">
+                  {translate('text_6419c64eace749372fc72b03')}
+                </div>
+
+                <StyledLogo />
               </div>
-
-              <StyledLogo />
             </div>
-          </div>
-        )}
+          )}
 
-        {!portalOrgasInfoLoading && page === 'usage' && <UsagePage goHome={goHome} />}
+          {!portalOrgasInfoLoading && page === 'usage' && <UsagePage goHome={goHome} />}
 
-        {!portalOrgasInfoLoading && page === 'wallet' && (
-          <WalletPage goHome={goHome} onSuccess={goHome} />
-        )}
+          {!portalOrgasInfoLoading && page === 'wallet' && (
+            <WalletPage goHome={goHome} onSuccess={goHome} />
+          )}
 
-        {!portalOrgasInfoLoading && page === 'customer-edit-information' && (
-          <CustomerInformationPage goHome={goHome} />
-        )}
+          {!portalOrgasInfoLoading && page === 'customer-edit-information' && (
+            <CustomerInformationPage goHome={goHome} />
+          )}
+        </div>
       </div>
     </div>
   )
