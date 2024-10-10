@@ -43,16 +43,12 @@ const UsageSection = ({ viewSubscription }: PortalUsageSectionProps) => {
   const isLoading = portalUsageLoading
   const isError = portalUsageError
 
-  const refreshSection = () => {
-    portalUsageRefetch()
-  }
-
   if (!isLoading && isError) {
     return (
       <section>
         <SectionTitle title={translate('text_1728377307160ilquuusbuwq')} />
 
-        <SectionError refresh={refreshSection} />
+        <SectionError refresh={() => portalUsageRefetch()} />
       </section>
     )
   }

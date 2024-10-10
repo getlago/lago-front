@@ -236,16 +236,12 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
 
   const { currentPage = 0, totalPages = 0 } = metadata || {}
 
-  const refreshSection = () => {
-    refetch()
-  }
-
   if (error) {
     return (
       <section>
         <SectionTitle title={translate('text_6419c64eace749372fc72b37')} />
 
-        <SectionError refresh={refreshSection} />
+        <SectionError refresh={() => refetch()} />
       </section>
     )
   }

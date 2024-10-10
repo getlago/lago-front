@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { reactRouterV5Instrumentation } from '@sentry/react'
 
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderCustomerInformationSection } from '~/components/customerPortal/common/SectionLoading'
@@ -7,7 +6,6 @@ import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { CountryCodes } from '~/core/constants/countryCodes'
 import {
-  CustomerAddress,
   CustomerAddressInput,
   CustomerPortalCustomer,
   CustomerTypeEnum,
@@ -157,10 +155,6 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
     },
   ]
 
-  const refreshSection = () => {
-    portalCustomerInfosRefetch()
-  }
-
   const isLoading = portalCustomerInfosLoading
   const isError = !isLoading && portalCustomerInfosError
 
@@ -169,7 +163,7 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
       <section>
         <SectionTitle title={translate('text_6419c64eace749372fc72b07')} />
 
-        <SectionError refresh={refreshSection} />
+        <SectionError refresh={() => portalCustomerInfosRefetch()} />
       </section>
     )
   }
