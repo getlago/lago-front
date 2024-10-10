@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { reactRouterV5Instrumentation } from '@sentry/react'
 
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderCustomerInformationSection } from '~/components/customerPortal/common/SectionLoading'
@@ -6,6 +7,7 @@ import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { CountryCodes } from '~/core/constants/countryCodes'
 import {
+  CustomerAddress,
   CustomerAddressInput,
   CustomerPortalCustomer,
   CustomerTypeEnum,
@@ -63,21 +65,10 @@ type AddressFieldProps = CustomerAddressInput & {
   title: string
 }
 
-const addressesAreIdentical = ({
-  addressA,
-  addressB,
-}: {
-  addressA?: CustomerAddressInput | null
-  addressB?: CustomerAddressInput | null
-}) =>
-  addressA &&
-  addressB &&
-  addressA.addressLine1 === addressB.addressLine1 &&
-  addressA.addressLine2 === addressB.addressLine2 &&
-  addressA.state === addressB.state &&
-  addressA.country === addressB.country &&
-  addressA.city === addressB.city &&
-  addressA.zipcode === addressB.zipcode
+const addressesAreIdentical = (addressA: CustomerAddressInput, addressB: CustomerAddressInput) =>
+  (Object.keys(addressA) as (keyof CustomerAddressInput)[]).every(
+    (key) => addressA[key] === addressB[key],
+  )
 
 const AddressField = ({
   title,
@@ -128,10 +119,17 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
 
   const customerPortalUser = portalCustomerInfosData?.customerPortalUser as CustomerPortalCustomer
 
-  const identicalAddresses = addressesAreIdentical({
-    addressA: customerPortalUser,
-    addressB: customerPortalUser?.shippingAddress,
-  })
+  const identicalAddresses = addressesAreIdentical(
+    {
+      addressLine1: customerPortalUser?.addressLine1,
+      addressLine2: customerPortalUser?.addressLine2,
+      city: customerPortalUser?.city,
+      country: customerPortalUser?.country,
+      state: customerPortalUser?.state,
+      zipcode: customerPortalUser?.zipcode,
+    },
+    customerPortalUser?.shippingAddress || {},
+  )
 
   type CustomerField = {
     key: keyof CustomerPortalCustomer
@@ -218,7 +216,8 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
               {...customerPortalUser}
             />
 
-            {customerPortalUser?.shippingAddress?.addressLine1 && identicalAddresses ? (
+            {Object.keys(customerPortalUser?.shippingAddress || {}).length > 0 &&
+            identicalAddresses ? (
               <span className="text-base font-normal text-grey-700">
                 <FieldTitle title={translate('text_667d708c1359b49f5a5a822a')} />
                 <FieldContent content={translate('text_1728381336070e8cj1amorap')} />
