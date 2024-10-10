@@ -147,11 +147,12 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
             </div>
 
             <span className="text-xs font-normal text-grey-600">
-              {intlFormatNumber(deserializeAmount(balance, wallet.currency), {
-                currencyDisplay: 'symbol',
-                currency: wallet.currency,
-              })}{' '}
-              {translate('text_17283773071600j3nukyme6f')}
+              {translate('text_17283773071600j3nukyme6f', {
+                credits: intlFormatNumber(deserializeAmount(balance, wallet.currency), {
+                  currencyDisplay: 'symbol',
+                  currency: wallet.currency,
+                }),
+              })}
             </span>
           </div>
 
@@ -179,13 +180,13 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
 
               <div className="flex items-center">
                 <span className="text-grey-700">
-                  {wallet?.consumedCredits}{' '}
+                  {wallet?.consumedCredits}&nbsp;
                   {translate(
                     'text_62da6ec24a8e24e44f812884',
                     undefined,
                     Number(wallet?.consumedCredits) || 0,
-                  )}{' '}
-                  (
+                  )}
+                  &nbsp; (
                   {intlFormatNumber(
                     deserializeAmount(wallet?.consumedAmountCents, wallet.currency),
                     {

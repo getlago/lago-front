@@ -82,10 +82,11 @@ const UsageSubscriptionItem = ({
       )}
 
       <p className="text-sm font-normal leading-6 text-grey-600">
-        {translate('text_1728377747178bfroky3hn30')}{' '}
-        {planRenewalDate({
-          currentBillingPeriodEndingAt: subscription.currentBillingPeriodEndingAt,
-          applicableTimezone,
+        {translate('text_1728377747178bfroky3hn30', {
+          date: planRenewalDate({
+            currentBillingPeriodEndingAt: subscription.currentBillingPeriodEndingAt,
+            applicableTimezone,
+          }),
         })}
       </p>
 
