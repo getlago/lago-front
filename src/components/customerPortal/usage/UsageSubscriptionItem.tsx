@@ -46,14 +46,14 @@ const UsageSubscriptionItem = ({
 }: UsageSubscriptionItemProps) => {
   const { translate } = useInternationalization()
 
-  if (!subscription) return null
-
   if (loading)
     return (
-      <div className="flex flex-col gap-1" key={subscription.id}>
+      <div className="flex flex-col gap-1">
         <LoaderUsageSubscriptionItem />
       </div>
     )
+
+  if (!subscription) return null
 
   return (
     <div className="flex flex-col gap-1" key={subscription.id}>
