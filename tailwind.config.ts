@@ -130,8 +130,10 @@ const config = {
         md: '776px',
       },
       spacing: {
+        15: '3.75rem',
         17: '4.25rem',
         18: '4.5rem',
+        30: '7.5rem',
         98: '24.5rem',
         192: '48rem',
       },

@@ -1,8 +1,10 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import {
   Avatar,
+  Button,
   ButtonLink,
   Chip,
   Icon,
@@ -25,6 +27,7 @@ import {
   DefaultCampaignDialogRef,
 } from '~/components/settings/dunnings/DefaultCampaignDialog'
 import { addToast } from '~/core/apolloClient'
+import { CREATE_DUNNING_ROUTE } from '~/core/router'
 import {
   PremiumIntegrationTypeEnum,
   useGetDunningCampaignsQuery,
@@ -65,6 +68,7 @@ gql`
 
 const Dunnings = () => {
   const { translate } = useInternationalization()
+  const navigate = useNavigate()
   const defaultCampaignDialogRef = useRef<DefaultCampaignDialogRef>(null)
 
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
@@ -134,6 +138,18 @@ const Dunnings = () => {
                 <SettingsListItemHeader
                   label={translate('text_1728574726495w5aylnynne9')}
                   sublabel={translate('text_1728574726495kqlx1l8crvp')}
+                  action={
+                    <Button
+                      variant="quaternary"
+                      disabled={loading}
+                      onClick={() => {
+                        navigate(CREATE_DUNNING_ROUTE)
+                      }}
+                      data-test="create-dunning-button"
+                    >
+                      {translate('text_645bb193927b375079d28ad2')}
+                    </Button>
+                  }
                 />
 
                 {!hasAccessToFeature ? (
