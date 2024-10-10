@@ -2457,7 +2457,7 @@
   "text_1727281892403pmg1yza7x1e": "Companies",
   "text_1727453876790u9azb7rvhox": "By deleting the connection, it will no longer be utilized, and upcoming data will not be synchronized to the connected HubSpot account. Additionally, please note that deleting this connection will also result in the removal of all connections with Lago customers. Are you sure you want to proceed?",
   "text_1727711520232zpp50zgnam5": "Dynamic pricing",
-  "text_1727711757973zhs7w84v44t": "The price of the unit is defined in the events through the event_amount field.",
+  "text_1727711757973zhs7w84v44t": "Used when the event price is calculated directly on your side (e.g., interchange).",
   "text_1727770512968tj58xr3h64p": "Dynamic",
   "text_17277706303454rxgscdqklx": "Prices are not defined here; they are determined and sent to Lago through events.",
   "text_17279506108559c3u84iznh2": "Send invoices to all your customers according to your organization’s timezone.",
