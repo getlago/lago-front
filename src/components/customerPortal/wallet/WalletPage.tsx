@@ -5,7 +5,7 @@ import { number, object } from 'yup'
 
 import PageTitle from '~/components/customerPortal/common/PageTitle'
 import SectionError from '~/components/customerPortal/common/SectionError'
-import SectionLoading from '~/components/customerPortal/common/SectionLoading'
+import { LoaderWalletPage } from '~/components/customerPortal/common/SectionLoading'
 import { Alert, Button } from '~/components/designSystem'
 import { AmountInputField } from '~/components/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -95,7 +95,7 @@ const WalletPage = ({ goHome, onSuccess }: WalletPageProps) => {
     <div>
       <PageTitle title={translate('text_1728498418253nyv3qmz9k5k')} goHome={goHome} />
 
-      {isLoading && <SectionLoading variant="wallet-page" />}
+      {isLoading && <LoaderWalletPage />}
 
       {!isLoading && (
         <div>

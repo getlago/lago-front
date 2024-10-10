@@ -1,24 +1,37 @@
+import { ApolloError } from '@apollo/client'
 import styled from 'styled-components'
 
+import { LoaderSidebarOrganization } from '~/components/customerPortal/common/SectionLoading'
 import { Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
 import { theme } from '~/styles'
 
+type CustomerPortalSidebarProps = {
+  organizationName?: string | null
+  organizationLogoUrl?: string | null
+  isLoading?: boolean
+  isError?: ApolloError
+}
+
 const CustomerPortalSidebar = ({
   organizationName,
   organizationLogoUrl,
-}: {
-  organizationName?: string | null
-  organizationLogoUrl?: string | null
-}) => {
+  isLoading,
+}: CustomerPortalSidebarProps) => {
   const { translate } = useInternationalization()
 
   return (
     <>
       <div className="hidden h-screen w-[400px] shrink-0 flex-col gap-8 bg-grey-100 p-16 md:flex">
         <div className="flex items-center">
-          {!!organizationLogoUrl && (
+          {isLoading && (
+            <div className="w-full">
+              <LoaderSidebarOrganization />
+            </div>
+          )}
+
+          {!isLoading && !!organizationLogoUrl && (
             <OrgaLogoContainer>
               <img src={organizationLogoUrl} alt={`${organizationName}'s logo`} />
             </OrgaLogoContainer>
@@ -26,7 +39,9 @@ const CustomerPortalSidebar = ({
           <Typography variant="headline">{organizationName}</Typography>
         </div>
 
-        <h3 className="text-lg font-semibold text-black">Manage your plans & billing</h3>
+        {!isLoading && (
+          <h3 className="text-lg font-semibold text-black">Manage your plans & billing</h3>
+        )}
 
         <div className="flex items-center gap-1">
           <span className="text-xs font-normal text-grey-600">

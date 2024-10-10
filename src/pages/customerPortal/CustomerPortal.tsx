@@ -1,10 +1,18 @@
 import { gql } from '@apollo/client'
 import { useEffect, useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, NavigateFunction, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import CustomerPortalLoading from '~/components/customerPortal/common/CustomerPortalLoading'
 import CustomerPortalSidebar from '~/components/customerPortal/common/CustomerPortalSidebar'
+import SectionError from '~/components/customerPortal/common/SectionError'
+import {
+  LoaderCustomerInformationSection,
+  LoaderInvoicesListSection,
+  LoaderUsageSection,
+  LoaderWalletSection,
+} from '~/components/customerPortal/common/SectionLoading'
+import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import CustomerInformationPage from '~/components/customerPortal/customerInformation/CustomerInformationPage'
 import PortalCustomerInfos from '~/components/customerPortal/PortalCustomerInfos'
 import PortalInvoicesList from '~/components/customerPortal/PortalInvoicesList'
@@ -35,6 +43,8 @@ gql`
 interface CutsomerPortalProps {
   translate: Function
   documentLocale: LocaleEnum
+  portalIsLoading?: boolean
+  portalIsError?: boolean
 }
 
 type ChangePageProps = {
@@ -42,18 +52,12 @@ type ChangePageProps = {
   itemId?: string
 }
 
-const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
-  const customerPortalContentRef = useRef<HTMLDivElement>(null)
+type UseCustomerPortalNavigationProps = {
+  navigate: NavigateFunction
+  token?: string
+}
 
-  const { token, page } = useParams()
-  const navigate = useNavigate()
-
-  const { data, loading } = useGetPortalOrgaInfosQuery()
-
-  useEffect(() => {
-    customerPortalContentRef.current?.scrollTo?.(0, 0)
-  }, [page])
-
+const useCustomerPortalNavigation = ({ navigate, token }: UseCustomerPortalNavigationProps) => {
   const changePage = ({ newPage, itemId }: ChangePageProps) => {
     if (itemId) {
       return navigate(
@@ -90,20 +94,105 @@ const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
 
   const viewEditInformation = () => changePage({ newPage: 'customer-edit-information' })
 
+  return {
+    changePage,
+    goHome,
+    viewSubscription,
+    viewWallet,
+    viewEditInformation,
+  }
+}
+
+const CustomerPortal = ({
+  translate,
+  documentLocale,
+  portalIsLoading,
+  portalIsError,
+}: CutsomerPortalProps) => {
+  const customerPortalContentRef = useRef<HTMLDivElement>(null)
+
+  const { token, page } = useParams()
+  const navigate = useNavigate()
+
+  const { goHome, viewSubscription, viewWallet, viewEditInformation } = useCustomerPortalNavigation(
+    { navigate, token },
+  )
+
+  const {
+    data: portalOrgaInfosData,
+    loading: portalOrgasInfoLoading,
+    error: portalOrgasInfoError,
+  } = useGetPortalOrgaInfosQuery()
+
+  useEffect(() => {
+    customerPortalContentRef.current?.scrollTo?.(0, 0)
+  }, [page])
+
+  if (portalIsError) {
+    return (
+      <div className="flex flex-col md:flex-row">
+        <CustomerPortalSidebar
+          organizationName={portalOrgaInfosData?.customerPortalOrganization?.name}
+          organizationLogoUrl={portalOrgaInfosData?.customerPortalOrganization?.logoUrl}
+          isLoading={portalOrgasInfoLoading}
+          isError={portalOrgasInfoError}
+        />
+
+        <div className="h-screen w-full max-w-screen-lg overflow-y-auto p-4 md:p-20">
+          <SectionError
+            customTitle={translate('text_1728546284339z3fs0oqdejs')}
+            hideDescription={true}
+          />
+        </div>
+      </div>
+    )
+  }
+
+  if (portalIsLoading) {
+    return (
+      <div className="flex flex-col md:flex-row">
+        <CustomerPortalSidebar isLoading={true} />
+
+        <div className="h-screen w-full max-w-screen-lg overflow-y-auto p-4 md:p-20">
+          <div className="flex flex-col gap-12">
+            <div>
+              <SectionTitle title="" loading={true} />
+              <LoaderWalletSection />
+            </div>
+            <div>
+              <SectionTitle title="" loading={true} />
+              <LoaderUsageSection />
+            </div>
+            <div>
+              <SectionTitle title="" loading={true} />
+              <LoaderCustomerInformationSection />
+            </div>
+            <div>
+              <SectionTitle title="" loading={true} />
+              <LoaderInvoicesListSection />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col md:flex-row">
       <CustomerPortalSidebar
-        organizationName={data?.customerPortalOrganization?.name}
-        organizationLogoUrl={data?.customerPortalOrganization?.logoUrl}
+        organizationName={portalOrgaInfosData?.customerPortalOrganization?.name}
+        organizationLogoUrl={portalOrgaInfosData?.customerPortalOrganization?.logoUrl}
+        isLoading={portalOrgasInfoLoading}
+        isError={portalOrgasInfoError}
       />
 
       <div
         className="h-screen w-full max-w-screen-lg overflow-y-auto p-4 md:p-20"
         ref={customerPortalContentRef}
       >
-        {loading && <CustomerPortalLoading />}
+        {portalOrgasInfoLoading && <CustomerPortalLoading />}
 
-        {!loading && !page && (
+        {!portalOrgasInfoLoading && !page && (
           <div className="flex flex-col gap-12">
             <WalletSection viewWallet={viewWallet} />
             <UsageSection viewSubscription={viewSubscription} />
@@ -120,9 +209,13 @@ const CustomerPortal = ({ translate, documentLocale }: CutsomerPortalProps) => {
           </div>
         )}
 
-        {!loading && page === 'usage' && <UsagePage goHome={goHome} />}
-        {!loading && page === 'wallet' && <WalletPage goHome={goHome} onSuccess={goHome} />}
-        {!loading && page === 'customer-edit-information' && (
+        {!portalOrgasInfoLoading && page === 'usage' && <UsagePage goHome={goHome} />}
+
+        {!portalOrgasInfoLoading && page === 'wallet' && (
+          <WalletPage goHome={goHome} onSuccess={goHome} />
+        )}
+
+        {!portalOrgasInfoLoading && page === 'customer-edit-information' && (
           <CustomerInformationPage goHome={goHome} />
         )}
       </div>

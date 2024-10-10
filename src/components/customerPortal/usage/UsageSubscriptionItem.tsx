@@ -1,4 +1,4 @@
-import SectionLoading from '~/components/customerPortal/common/SectionLoading'
+import { LoaderUsageSubscriptionItem } from '~/components/customerPortal/common/SectionLoading'
 import { planRenewalDate } from '~/components/customerPortal/utils'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -63,7 +63,7 @@ const UsageSubscriptionItem = ({
   if (loading)
     return (
       <div className="flex flex-col gap-1" key={subscription.id}>
-        <SectionLoading variant="usage-subscription-item" />
+        <LoaderUsageSubscriptionItem />
       </div>
     )
 

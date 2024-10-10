@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 
 import SectionContainer from '~/components/customerPortal/common/SectionContainer'
 import SectionError from '~/components/customerPortal/common/SectionError'
-import SectionLoading from '~/components/customerPortal/common/SectionLoading'
+import { LoaderInvoicesListTotal } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import {
   Button,
@@ -257,7 +257,7 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
 
       <div className="grid grid-cols-2 gap-8">
         <div className="flex flex-col gap-1">
-          {invoicesLoading && <SectionLoading variant="invoices-list-total" />}
+          {invoicesLoading && <LoaderInvoicesListTotal />}
 
           {!invoicesLoading && !invoicesError && (
             <>
@@ -277,7 +277,7 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
         </div>
 
         <div className="flex flex-col gap-1">
-          {overdueLoading && <SectionLoading variant="invoices-list-total" />}
+          {overdueLoading && <LoaderInvoicesListTotal />}
 
           {!overdueLoading && !overdueError && (
             <>

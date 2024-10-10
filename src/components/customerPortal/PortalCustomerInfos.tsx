@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 
 import SectionContainer from '~/components/customerPortal/common/SectionContainer'
 import SectionError from '~/components/customerPortal/common/SectionError'
-import SectionLoading from '~/components/customerPortal/common/SectionLoading'
+import { LoaderCustomerInformationSection } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { CountryCodes } from '~/core/constants/countryCodes'
@@ -186,7 +186,7 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
         loading={isLoading}
       />
 
-      {isLoading && <SectionLoading variant="customer-information-section" />}
+      {isLoading && <LoaderCustomerInformationSection />}
 
       {!isLoading && (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8">

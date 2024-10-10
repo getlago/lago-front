@@ -5,7 +5,7 @@ import { object, string } from 'yup'
 
 import PageTitle from '~/components/customerPortal/common/PageTitle'
 import SectionError from '~/components/customerPortal/common/SectionError'
-import SectionLoading from '~/components/customerPortal/common/SectionLoading'
+import { LoaderCustomerInformationPage } from '~/components/customerPortal/common/SectionLoading'
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { Alert, Button } from '~/components/designSystem'
 import { Checkbox, ComboBoxField, TextInputField } from '~/components/form'
@@ -320,7 +320,7 @@ const CustomerInformationPage = ({ goHome }: CustomerInformationPageProps) => {
     <div>
       <PageTitle title={translate('text_1728377307159nbrs3pgng03')} goHome={goHome} />
 
-      {isLoading && <SectionLoading variant="customer-information-page" />}
+      {isLoading && <LoaderCustomerInformationPage />}
 
       {!isLoading && <EditCustomerBillingForm customer={customerPortalUser} onSuccess={goHome} />}
     </div>

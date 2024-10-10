@@ -3,9 +3,17 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 type SectionErrorProps = {
   refresh?: () => void
+  customTitle?: string
+  customDescription?: string
+  hideDescription?: boolean
 }
 
-const SectionError = ({ refresh }: SectionErrorProps) => {
+const SectionError = ({
+  customTitle,
+  customDescription,
+  hideDescription,
+  refresh,
+}: SectionErrorProps) => {
   const { translate } = useInternationalization()
 
   return (
@@ -16,12 +24,14 @@ const SectionError = ({ refresh }: SectionErrorProps) => {
 
       <div>
         <h3 className="mb-3 text-lg font-semibold leading-6 text-grey-700">
-          {translate('text_1728385052917x4pkr4t3x3b')}
+          {customTitle || translate('text_1728385052917x4pkr4t3x3b')}
         </h3>
 
-        <p className="text-base font-normal leading-6 text-grey-600">
-          {translate('text_1728385052918teqr4dhxxi6')}
-        </p>
+        {!hideDescription && (
+          <p className="text-base font-normal leading-6 text-grey-600">
+            {customDescription || translate('text_1728385052918teqr4dhxxi6')}
+          </p>
+        )}
       </div>
 
       {refresh && <Button onClick={refresh}>{translate('text_1728385052918zkczgwzq967')}</Button>}

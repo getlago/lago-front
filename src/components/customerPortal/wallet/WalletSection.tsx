@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 
 import SectionContainer from '~/components/customerPortal/common/SectionContainer'
 import SectionError from '~/components/customerPortal/common/SectionError'
-import SectionLoading from '~/components/customerPortal/common/SectionLoading'
+import { LoaderWalletSection } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import { Icon, Tooltip } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -117,7 +117,7 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
         loading={isLoading}
       />
 
-      {isLoading && <SectionLoading variant="wallet-section" />}
+      {isLoading && <LoaderWalletSection />}
 
       {!isLoading && wallet && (
         <div>

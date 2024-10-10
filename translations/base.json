@@ -568,7 +568,6 @@
   "text_6419c64eace749372fc72b54": "Paid",
   "text_6419c64eace749372fc72b62": "Download PDF",
   "text_641b1b19d6e64300632ca60c": "Customer portal",
-  "text_641c6acee4bc20004e62c534": "Something went wrong, token is invalid or has expired",
   "text_6453819268763979024ad083": "Create one-off invoice",
   "text_6453819268763979024ad0ad": "Search and select an add-on",
   "text_6453819268763979024acfe9": "Create a one-off invoice",
@@ -2509,5 +2508,6 @@
   "text_1728472697691y39tdxgyrcg": "Advance charges",
   "text_1728472697691pv1eqroobte": "Progressive billing",
   "text_1728497501618g7qbdad97r5": "Type",
-  "text_1728498418253nyv3qmz9k5k": "Top-Up Wallet"
+  "text_1728498418253nyv3qmz9k5k": "Top-Up Wallet",
+  "text_1728546284339z3fs0oqdejs": "Something went wrong, token is invalid or has expired"
 }
