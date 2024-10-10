@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 
-import SectionContainer from '~/components/customerPortal/common/SectionContainer'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderUsageSection } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
@@ -63,7 +62,7 @@ const UsageSection = ({ viewSubscription }: PortalUsageSectionProps) => {
   }
 
   return (
-    <SectionContainer>
+    <div>
       <SectionTitle title={translate('text_1728377307160ilquuusbuwq')} loading={isLoading} />
 
       {isLoading && <LoaderUsageSection />}
@@ -84,7 +83,7 @@ const UsageSection = ({ viewSubscription }: PortalUsageSectionProps) => {
           ))}
         </div>
       )}
-    </SectionContainer>
+    </div>
   )
 }
 

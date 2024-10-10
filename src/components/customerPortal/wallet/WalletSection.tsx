@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 
-import SectionContainer from '~/components/customerPortal/common/SectionContainer'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderWalletSection } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
@@ -109,7 +108,7 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
   }
 
   return (
-    <SectionContainer>
+    <div>
       <SectionTitle
         title={translate('text_1728377307159q3otzyv9tey')}
         className="justify-between"
@@ -201,7 +200,7 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
           </div>
         </div>
       )}
-    </SectionContainer>
+    </div>
   )
 }
 

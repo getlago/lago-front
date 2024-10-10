@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 import { useEffect } from 'react'
 
-import SectionContainer from '~/components/customerPortal/common/SectionContainer'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderInvoicesListTotal } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
@@ -252,7 +251,7 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
   }
 
   return (
-    <SectionContainer>
+    <div>
       <SectionTitle title={translate('text_6419c64eace749372fc72b37')} loading={loading} />
 
       <div className="grid grid-cols-2 gap-8">
@@ -433,7 +432,7 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
           )}
         </>
       )}
-    </SectionContainer>
+    </div>
   )
 }
 

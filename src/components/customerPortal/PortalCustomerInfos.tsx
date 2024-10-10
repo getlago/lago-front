@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 
-import SectionContainer from '~/components/customerPortal/common/SectionContainer'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderCustomerInformationSection } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
@@ -178,7 +177,7 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
   }
 
   return (
-    <SectionContainer>
+    <div>
       <SectionTitle
         title={translate('text_6419c64eace749372fc72b07')}
         className="justify-between"
@@ -233,7 +232,7 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
           </div>
         </div>
       )}
-    </SectionContainer>
+    </div>
   )
 }
 
