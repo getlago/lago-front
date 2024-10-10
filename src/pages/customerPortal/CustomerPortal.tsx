@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useEffect, useRef } from 'react'
 import { generatePath, NavigateFunction, useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import CustomerPortalLoading from '~/components/customerPortal/common/CustomerPortalLoading'
 import CustomerPortalSidebar from '~/components/customerPortal/common/CustomerPortalSidebar'
@@ -202,7 +201,7 @@ const CustomerPortal = ({
                   {translate('text_6419c64eace749372fc72b03')}
                 </div>
 
-                <StyledLogo />
+                <Logo width="40px" />
               </div>
             </div>
           )}
@@ -223,7 +222,3 @@ const CustomerPortal = ({
 }
 
 export default CustomerPortal
-
-const StyledLogo = styled(Logo)`
-  width: 40px;
-`
