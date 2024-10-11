@@ -105,7 +105,7 @@ const UsagePage = () => {
   const customerPortalOrganization = organization?.customerPortalOrganization
 
   return (
-    <div>
+    <div className="max-w-2xl">
       <PageTitle title={translate('text_1728377307160r73ggjgpulg')} goHome={goHome} />
 
       <SectionTitle title={translate('text_172837730716038g8qgz927f')} />
@@ -133,7 +133,7 @@ const UsagePage = () => {
       )}
 
       {customerId && subscriptionId && (
-        <div className="mt-6">
+        <div className="mt-12">
           <SubscriptionCurrentUsageTableComponent
             usageData={usageData?.customerPortalCustomerUsage}
             usageLoading={usageLoading}

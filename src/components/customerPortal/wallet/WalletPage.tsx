@@ -89,7 +89,7 @@ const WalletPage = () => {
   }
 
   return (
-    <div>
+    <div className="max-w-2xl">
       <PageTitle title={translate('text_1728498418253nyv3qmz9k5k')} goHome={goHome} />
 
       {isLoading && <LoaderWalletPage />}
@@ -100,15 +100,19 @@ const WalletPage = () => {
             name="amount"
             displayErrorText={false}
             beforeChangeFormatter={['positiveNumber']}
-            helperText={translate('text_17279456600803f8on7ku8jo', {
-              credits: intlFormatNumber(
-                Number(formikProps?.values?.amount || 0) * Number(wallet?.rateAmount || 0),
-                {
-                  currencyDisplay: 'symbol',
-                  currency: wallet?.currency,
-                },
-              ),
-            })}
+            helperText={
+              <Typography className="mt-1 text-sm font-normal text-grey-600">
+                {translate('text_17279456600803f8on7ku8jo', {
+                  credits: intlFormatNumber(
+                    Number(formikProps?.values?.amount || 0) * Number(wallet?.rateAmount || 0),
+                    {
+                      currencyDisplay: 'symbol',
+                      currency: wallet?.currency,
+                    },
+                  ),
+                })}
+              </Typography>
+            }
             label={translate('text_1728377307160d96z1skvnw3')}
             currency={CurrencyEnum.Usd}
             formikProps={formikProps}
