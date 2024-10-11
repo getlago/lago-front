@@ -7,6 +7,7 @@ import useCustomerPortalNavigation from '~/components/customerPortal/common/hook
 import PageTitle from '~/components/customerPortal/common/PageTitle'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderCustomerInformationPage } from '~/components/customerPortal/common/SectionLoading'
+import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { Alert, Button, Typography } from '~/components/designSystem'
 import { Checkbox, ComboBoxField, TextInputField } from '~/components/form'
@@ -18,7 +19,6 @@ import {
   useGetPortalCustomerInfosQuery,
   useUpdatePortalCustomerMutation,
 } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 type EditCustomerBillingFormProps = {
   customer?: UpdateCustomerPortalCustomerInput | null
@@ -34,7 +34,7 @@ gql`
 `
 
 const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFormProps) => {
-  const { translate } = useInternationalization()
+  const { translate } = useCustomerPortalTranslate()
 
   const [isShippingEqualBillingAddress, setIsShippingEqualBillingAddress] = useState(false)
 
@@ -289,7 +289,7 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
 
 const CustomerInformationPage = () => {
   const { goHome } = useCustomerPortalNavigation()
-  const { translate } = useInternationalization()
+  const { translate } = useCustomerPortalTranslate()
 
   const {
     data: portalCustomerInfosData,

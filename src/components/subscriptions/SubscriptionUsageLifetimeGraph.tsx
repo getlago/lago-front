@@ -14,7 +14,7 @@ import {
   SubscriptionUsageLifetimeGraphForLifetimeGraphFragment,
   useGetSubscriptionForSubscriptionUsageLifetimeGraphQuery,
 } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { theme } from '~/styles'
@@ -78,6 +78,7 @@ type SubscriptionUsageLifetimeGraphComponentProps = {
   subscriptionLoading: boolean
   subscriptionError?: ApolloError
   refetchLifetimeData: () => void
+  translate: TranslateFunc
 }
 
 export const SubscriptionUsageLifetimeGraphComponent = ({
@@ -89,9 +90,8 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
   subscriptionLoading,
   subscriptionError,
   refetchLifetimeData,
+  translate,
 }: SubscriptionUsageLifetimeGraphComponentProps) => {
-  const { translate } = useInternationalization()
-
   const hasProgressiveBillingPremiumIntegration = !!organization?.premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.ProgressiveBilling,
   )
@@ -321,6 +321,8 @@ const SubscriptionUsageLifetimeGraph = ({
   customerId,
   subscriptionId,
 }: SubscriptionUsageLifetimeGraphProps) => {
+  const { translate } = useInternationalization()
+
   const { organization, loading: currentOrganizationDataLoading } = useOrganizationInfos()
 
   const {
@@ -347,6 +349,7 @@ const SubscriptionUsageLifetimeGraph = ({
       subscriptionLoading={subscriptionLoading}
       subscriptionError={subscriptionError}
       refetchLifetimeData={() => refetchLifetimeData()}
+      translate={translate}
     />
   )
 }

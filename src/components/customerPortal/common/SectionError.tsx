@@ -1,5 +1,5 @@
+import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import { Button, Icon, Typography } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 type SectionErrorProps = {
   refresh?: () => void
@@ -14,7 +14,7 @@ const SectionError = ({
   hideDescription,
   refresh,
 }: SectionErrorProps) => {
-  const { translate } = useInternationalization()
+  const { translate } = useCustomerPortalTranslate()
 
   return (
     <div className="flex flex-col items-start gap-5">

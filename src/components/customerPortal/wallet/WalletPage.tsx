@@ -7,6 +7,7 @@ import useCustomerPortalNavigation from '~/components/customerPortal/common/hook
 import PageTitle from '~/components/customerPortal/common/PageTitle'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderWalletPage } from '~/components/customerPortal/common/SectionLoading'
+import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import { Alert, Button, Typography } from '~/components/designSystem'
 import { AmountInputField } from '~/components/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -15,7 +16,6 @@ import {
   useGetPortalWalletsQuery,
   useTopUpPortalWalletMutation,
 } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   mutation TopUpPortalWallet($input: CreateCustomerPortalWalletTransactionInput!) {
@@ -29,7 +29,7 @@ gql`
 
 const WalletPage = () => {
   const { goHome } = useCustomerPortalNavigation()
-  const { translate } = useInternationalization()
+  const { translate } = useCustomerPortalTranslate()
 
   const {
     data: customerWalletData,

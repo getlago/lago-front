@@ -3,6 +3,7 @@ import { gql } from '@apollo/client'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderWalletSection } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
+import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import { Icon, Tooltip, Typography } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -12,7 +13,6 @@ import {
   useGetPortalWalletsQuery,
   WalletStatusEnum,
 } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   fragment CustomerPortalWalletInfo on CustomerPortalWallet {
@@ -51,7 +51,7 @@ type WalletSectionProps = {
 }
 
 const WalletSection = ({ viewWallet }: WalletSectionProps) => {
-  const { translate } = useInternationalization()
+  const { translate } = useCustomerPortalTranslate()
 
   const {
     data: customerPortalUserData,

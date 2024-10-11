@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom'
 import useCustomerPortalNavigation from '~/components/customerPortal/common/hooks/useCustomerPortalNavigation'
 import PageTitle from '~/components/customerPortal/common/PageTitle'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
+import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import UsageSubscriptionItem from '~/components/customerPortal/usage/UsageSubscriptionItem'
 import { Typography } from '~/components/designSystem'
 import { SubscriptionCurrentUsageTableComponent } from '~/components/subscriptions/SubscriptionCurrentUsageTable'
@@ -15,7 +16,6 @@ import {
   useGetPortalOrgaInfosQuery,
   useGetSubscriptionForPortalQuery,
 } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   fragment SubscriptionForPortalUsage on Subscription {
@@ -69,7 +69,7 @@ gql`
 
 const UsagePage = () => {
   const { goHome } = useCustomerPortalNavigation()
-  const { translate } = useInternationalization()
+  const { translate } = useCustomerPortalTranslate()
   const customerId = 'cdef1dac-c55f-4d25-985b-cb25c2c8edc1'
   const { itemId } = useParams()
 
@@ -127,6 +127,7 @@ const UsagePage = () => {
             subscriptionLoading={customerPortalSubscriptionLoading}
             subscriptionError={customerPortalSubscriptionError}
             refetchLifetimeData={() => customerPortalSubscriptionRefetch()}
+            translate={translate}
           />
         </div>
       )}
@@ -155,6 +156,7 @@ const UsagePage = () => {
                 </Typography>
               </div>
             }
+            translate={translate}
           />
         </div>
       )}

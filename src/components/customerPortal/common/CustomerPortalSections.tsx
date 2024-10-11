@@ -7,7 +7,7 @@ import WalletSection from '~/components/customerPortal/wallet/WalletSection'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
 
 const CustomerPortalSections = () => {
-  const { translate, documentLocale } = useCustomerPortalTranslate()
+  const { translate } = useCustomerPortalTranslate()
 
   const { viewWallet, viewSubscription, viewEditInformation } = useCustomerPortalNavigation()
 
@@ -16,7 +16,7 @@ const CustomerPortalSections = () => {
       <WalletSection viewWallet={viewWallet} />
       <UsageSection viewSubscription={viewSubscription} />
       <PortalCustomerInfos viewEditInformation={viewEditInformation} />
-      <PortalInvoicesList translate={translate} documentLocale={documentLocale} />
+      <PortalInvoicesList />
 
       <div className="my-8 flex justify-center gap-2 md:hidden">
         <div className="text-sm text-grey-600">{translate('text_6419c64eace749372fc72b03')}</div>

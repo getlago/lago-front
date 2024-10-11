@@ -1,10 +1,10 @@
 import { LoaderUsageSubscriptionItem } from '~/components/customerPortal/common/SectionLoading'
+import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import { planRenewalDate } from '~/components/customerPortal/utils'
 import { Typography } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { PlanInterval, SubscriptionForPortalUsageFragment, TimezoneEnum } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 type UsageSubscriptionItemProps = {
   subscription?: SubscriptionForPortalUsageFragment | null
@@ -44,7 +44,7 @@ const UsageSubscriptionItem = ({
   loading,
   children,
 }: UsageSubscriptionItemProps) => {
-  const { translate } = useInternationalization()
+  const { translate } = useCustomerPortalTranslate()
 
   if (loading)
     return (

@@ -1,8 +1,8 @@
 import { ApolloError } from '@apollo/client'
 
 import { LoaderSidebarOrganization } from '~/components/customerPortal/common/SectionLoading'
+import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import { Typography } from '~/components/designSystem'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
 
 type CustomerPortalSidebarProps = {
@@ -17,7 +17,7 @@ const CustomerPortalSidebar = ({
   organizationLogoUrl,
   isLoading,
 }: CustomerPortalSidebarProps) => {
-  const { translate } = useInternationalization()
+  const { translate } = useCustomerPortalTranslate()
 
   return (
     <>
@@ -46,7 +46,7 @@ const CustomerPortalSidebar = ({
 
         {!isLoading && (
           <Typography className="text-lg font-semibold text-black">
-            Manage your plans & billing
+            {translate('text_1728636271035se9pkfziyvg')}
           </Typography>
         )}
 

@@ -5,6 +5,7 @@ import { useEffect } from 'react'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderInvoicesListTotal } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
+import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import {
   Button,
   Icon,
@@ -19,7 +20,6 @@ import { SearchInput } from '~/components/SearchInput'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { LocaleEnum } from '~/core/translations'
 import {
   CurrencyEnum,
   InvoiceForFinalizeInvoiceFragmentDoc,
@@ -144,12 +144,9 @@ const mapStatusConfig = ({
   return { label: 'toPay', type: StatusType.default }
 }
 
-interface PortalCustomerInvoicesProps {
-  translate: Function
-  documentLocale: LocaleEnum
-}
+const PortalInvoicesList = () => {
+  const { translate, documentLocale } = useCustomerPortalTranslate()
 
-const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoicesProps) => {
   const [getInvoices, { data, loading, error, fetchMore, variables, refetch }] =
     useCustomerPortalInvoicesLazyQuery({
       notifyOnNetworkStatusChange: true,

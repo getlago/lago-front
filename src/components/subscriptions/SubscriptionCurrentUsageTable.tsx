@@ -25,7 +25,7 @@ import {
   useSubscrptionForSubscriptionUsageQuery,
   useUsageForSubscriptionUsageQuery,
 } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { NAV_HEIGHT, theme } from '~/styles'
@@ -127,6 +127,8 @@ type SubscriptionCurrentUsageTableComponentProps = {
   refetchUsage: () => void
 
   noUsageOverride?: React.ReactNode
+
+  translate: TranslateFunc
 }
 
 export const SubscriptionCurrentUsageTableComponent = ({
@@ -145,9 +147,9 @@ export const SubscriptionCurrentUsageTableComponent = ({
   refetchUsage,
 
   noUsageOverride,
-}: SubscriptionCurrentUsageTableComponentProps) => {
-  const { translate } = useInternationalization()
 
+  translate,
+}: SubscriptionCurrentUsageTableComponentProps) => {
   const subscriptionUsageDetailDrawerRef = useRef<SubscriptionUsageDetailDrawerRef>(null)
 
   const currency = usageData?.currency || CurrencyEnum.Usd
@@ -376,6 +378,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
         fromDatetime={usageData?.fromDatetime}
         toDatetime={usageData?.toDatetime}
         customerTimezone={customerTimezone}
+        translate={translate}
       />
     </section>
   )
@@ -385,6 +388,8 @@ export const SubscriptionCurrentUsageTable = ({
   customerId,
   subscriptionId,
 }: SubscriptionCurrentUsageTableProps) => {
+  const { translate } = useInternationalization()
+
   const {
     data: customerData,
     loading: customerLoading,
@@ -433,6 +438,7 @@ export const SubscriptionCurrentUsageTable = ({
       usageLoading={usageLoading}
       usageError={usageError}
       refetchUsage={() => refetchUsage()}
+      translate={translate}
     />
   )
 }

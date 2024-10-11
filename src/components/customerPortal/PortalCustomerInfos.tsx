@@ -3,6 +3,7 @@ import { gql } from '@apollo/client'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderCustomerInformationSection } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
+import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { Typography } from '~/components/designSystem'
 import { CountryCodes } from '~/core/constants/countryCodes'
@@ -12,7 +13,6 @@ import {
   CustomerTypeEnum,
   useGetPortalCustomerInfosQuery,
 } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   query getPortalCustomerInfos {
@@ -80,7 +80,7 @@ const AddressField = ({
   city,
   zipcode,
 }: AddressFieldProps) => {
-  const { translate } = useInternationalization()
+  const { translate } = useCustomerPortalTranslate()
 
   return (
     <div className="flex flex-col gap-1">
@@ -109,7 +109,7 @@ interface PortalCustomerInfosProps {
 }
 
 const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) => {
-  const { translate } = useInternationalization()
+  const { translate } = useCustomerPortalTranslate()
 
   const {
     data: portalCustomerInfosData,

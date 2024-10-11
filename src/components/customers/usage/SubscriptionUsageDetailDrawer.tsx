@@ -12,7 +12,7 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
 import { ChargeUsage, CurrencyEnum, TimezoneEnum } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TranslateFunc } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
 const NO_ID_FILTER_DEFAULT_VALUE = 'NO_ID_FILTER_DEFAULT_VALUE'
@@ -64,6 +64,7 @@ interface SubscriptionUsageDetailDrawerProps {
   fromDatetime: string
   toDatetime: string
   customerTimezone: TimezoneEnum
+  translate: TranslateFunc
 }
 
 export const SubscriptionUsageDetailDrawer = forwardRef<
@@ -71,10 +72,15 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
   SubscriptionUsageDetailDrawerProps
 >(
   (
-    { currency, fromDatetime, toDatetime, customerTimezone }: SubscriptionUsageDetailDrawerProps,
+    {
+      currency,
+      fromDatetime,
+      toDatetime,
+      customerTimezone,
+      translate,
+    }: SubscriptionUsageDetailDrawerProps,
     ref,
   ) => {
-    const { translate } = useInternationalization()
     const drawerRef = useRef<DrawerRef>(null)
     const [usage, setUsage] = useState<ChargeUsage>()
 

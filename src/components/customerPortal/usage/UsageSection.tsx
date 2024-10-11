@@ -4,9 +4,9 @@ import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderUsageSection } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import TextButton from '~/components/customerPortal/common/TextButton'
+import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import UsageSubscriptionItem from '~/components/customerPortal/usage/UsageSubscriptionItem'
 import { SubscriptionForPortalUsageFragmentDoc, useGetPortalUsageQuery } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   query getPortalUsage {
@@ -26,7 +26,7 @@ type PortalUsageSectionProps = {
 }
 
 const UsageSection = ({ viewSubscription }: PortalUsageSectionProps) => {
-  const { translate } = useInternationalization()
+  const { translate } = useCustomerPortalTranslate()
 
   const {
     data: portalUsageData,
