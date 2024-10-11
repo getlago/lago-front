@@ -120,15 +120,23 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
 
   const customerPortalUser = portalCustomerInfosData?.customerPortalUser as CustomerPortalCustomer
 
+  const billingAddress = {
+    addressLine1: customerPortalUser?.addressLine1,
+    addressLine2: customerPortalUser?.addressLine2,
+    city: customerPortalUser?.city,
+    country: customerPortalUser?.country,
+    state: customerPortalUser?.state,
+    zipcode: customerPortalUser?.zipcode,
+  }
+
+  const hasBillingAddress = (Object.keys(billingAddress) as (keyof CustomerAddressInput)[]).some(
+    (key) => !!billingAddress[key],
+  )
+
+  const hasShippingAddress = Object.keys(customerPortalUser?.shippingAddress || {}).length > 0
+
   const identicalAddresses = addressesAreIdentical(
-    {
-      addressLine1: customerPortalUser?.addressLine1,
-      addressLine2: customerPortalUser?.addressLine2,
-      city: customerPortalUser?.city,
-      country: customerPortalUser?.country,
-      state: customerPortalUser?.state,
-      zipcode: customerPortalUser?.zipcode,
-    },
+    billingAddress,
     customerPortalUser?.shippingAddress || {},
   )
 
@@ -213,8 +221,7 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
               {...customerPortalUser}
             />
 
-            {Object.keys(customerPortalUser?.shippingAddress || {}).length > 0 &&
-            identicalAddresses ? (
+            {hasShippingAddress && hasBillingAddress && identicalAddresses ? (
               <Typography className="text-base font-normal text-grey-700">
                 <FieldTitle title={translate('text_667d708c1359b49f5a5a822a')} />
                 <FieldContent content={translate('text_1728381336070e8cj1amorap')} />
