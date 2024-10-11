@@ -131,6 +131,13 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
         }))}
       />
 
+      <TextInputField
+        name="name"
+        label={translate('text_634687079be251fdb43833cb')}
+        placeholder={translate('text_1728654170904707saidat0f')}
+        formikProps={formikProps}
+      />
+
       <div className="grid grid-cols-2 gap-4">
         <TextInputField
           name="firstname"
