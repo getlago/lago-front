@@ -72,7 +72,7 @@
   "text_66b378e748cda1004ff00db8": "Paga il saldo",
   "text_62da6ec24a8e24e44f81287a": "crediti|credito|crediti",
   "text_62da6ec24a8e24e44f812884": "crediti|credito|crediti",
-  "text_1726481163322ntor50xdm8k": "Utilizzo a vita",
+  "text_1726481163322ntor50xdm8k": "Utilizzo cumulato",
   "text_633dae57ca9a923dd53c2097": "Dal {{fromDate}} al {{toDate}}",
   "text_1726481163322wngkv4nqfh9": "Utilizzo totale a vita",
   "text_17265631916994iccuwziryu": "Ultima soglia: {{amount}}",
@@ -95,7 +95,7 @@
   "text_1728377307159nbrs3pgng03": "Modifica informazioni cliente",
   "text_1728377307159eu0ihwiyrf0": "Informazioni generali",
   "text_1728377307159fck091geiv0": "Modifica informazioni",
-  "text_1728377307159q3otzyv9tey": "Portafoglio",
+  "text_1728377307159q3otzyv9tey": "Credito",
   "text_1728377307160d96z1skvnw3": "Crediti da acquistare",
   "text_1728377307160iloscj20uc1": "crediti",
   "text_1728377307160tb09yisgxk9": "Qualcosa è andato storto, riprova",
@@ -133,5 +133,7 @@
   "text_1728498418253nyv3qmz9k5k": "Ricarica portafoglio",
   "text_1728546284339z3fs0oqdejs": "Qualcosa è andato storto, il token non è valido o è scaduto",
   "text_17261289386318j0nhr1ms3t": "Cerca o seleziona un tipo di cliente",
-  "text_62d7f6178ec94cd09370e4b3": "Ricarica il report di utilizzo"
+  "text_62d7f6178ec94cd09370e4b3": "Ricarica il report di utilizzo",
+  "text_1728654170904707saidat0f": "Inserisci il nome di un cliente",
+  "text_62da6ec24a8e24e44f8128aa": "Carica altro"
 }

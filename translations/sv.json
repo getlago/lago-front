@@ -72,7 +72,7 @@
   "text_66b378e748cda1004ff00db8": "Betala saldot",
   "text_62da6ec24a8e24e44f81287a": "krediter|kredit|krediter",
   "text_62da6ec24a8e24e44f812884": "krediter|kredit|krediter",
-  "text_1726481163322ntor50xdm8k": "Livstidsanvändning",
+  "text_1726481163322ntor50xdm8k": "Ackumulerade användning",
   "text_633dae57ca9a923dd53c2097": "Från {{fromDate}} till {{toDate}}",
   "text_1726481163322wngkv4nqfh9": "Total livstidsanvändning",
   "text_17265631916994iccuwziryu": "Senaste tröskel: {{amount}}",
@@ -95,7 +95,7 @@
   "text_1728377307159nbrs3pgng03": "Redigera kundinformation",
   "text_1728377307159eu0ihwiyrf0": "Allmän information",
   "text_1728377307159fck091geiv0": "Redigera information",
-  "text_1728377307159q3otzyv9tey": "Plånbok",
+  "text_1728377307159q3otzyv9tey": "Kredit",
   "text_1728377307160d96z1skvnw3": "Krediter att köpa",
   "text_1728377307160iloscj20uc1": "krediter",
   "text_1728377307160tb09yisgxk9": "Något gick fel, försök igen",
@@ -160,5 +160,7 @@
   "text_1726481163322vbcsvivii5k": "Total användning sedan prenumerationens start, exklusive förskottsbetalda avgifter.",
   "text_1728636271035se9pkfziyvg": "Hantera dina planer och fakturering",
   "text_17261289386318j0nhr1ms3t": "Sök eller välj en kundtyp",
-  "text_62d7f6178ec94cd09370e4b3": "Ladda om användningsrapport"
+  "text_62d7f6178ec94cd09370e4b3": "Ladda om användningsrapport",
+  "text_1728654170904707saidat0f": "Skriv in ett kundnamn",
+  "text_62da6ec24a8e24e44f8128aa": "Ladda mer"
 }

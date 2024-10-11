@@ -72,7 +72,7 @@
   "text_66b378e748cda1004ff00db8": "Payer le solde",
   "text_62da6ec24a8e24e44f81287a": "crédits|crédit|crédits",
   "text_62da6ec24a8e24e44f812884": "crédits|crédit|crédits",
-  "text_1726481163322ntor50xdm8k": "Utilisation à vie",
+  "text_1726481163322ntor50xdm8k": "Usage cumulé",
   "text_633dae57ca9a923dd53c2097": "Du {{fromDate}} au {{toDate}}",
   "text_1726481163322wngkv4nqfh9": "Utilisation totale à vie",
   "text_17265631916994iccuwziryu": "Dernier seuil : {{amount}}",
@@ -95,7 +95,7 @@
   "text_1728377307159nbrs3pgng03": "Modifier les informations du client",
   "text_1728377307159eu0ihwiyrf0": "Informations générales",
   "text_1728377307159fck091geiv0": "Modifier les informations",
-  "text_1728377307159q3otzyv9tey": "Portefeuille",
+  "text_1728377307159q3otzyv9tey": "Crédit",
   "text_1728377307160d96z1skvnw3": "Crédits à acheter",
   "text_1728377307160iloscj20uc1": "crédits",
   "text_1728377307160tb09yisgxk9": "Une erreur s'est produite, veuillez réessayer",
@@ -160,5 +160,7 @@
   "text_1726481163322vbcsvivii5k": "Utilisation totale depuis le début de l'abonnement, hors frais payés d'avance.",
   "text_1728636271035se9pkfziyvg": "Gérez vos forfaits et votre facturation",
   "text_17261289386318j0nhr1ms3t": "Rechercher ou sélectionner un type de client",
-  "text_62d7f6178ec94cd09370e4b3": "Recharger le rapport d'utilisation"
+  "text_62d7f6178ec94cd09370e4b3": "Recharger le rapport d'utilisation",
+  "text_1728654170904707saidat0f": "Saisissez le nom d'un client",
+  "text_62da6ec24a8e24e44f8128aa": "Charger plus"
 }

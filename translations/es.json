@@ -72,7 +72,7 @@
   "text_66b378e748cda1004ff00db8": "Pagar el saldo",
   "text_62da6ec24a8e24e44f81287a": "créditos|crédito|créditos",
   "text_62da6ec24a8e24e44f812884": "créditos|crédito|créditos",
-  "text_1726481163322ntor50xdm8k": "Uso de por vida",
+  "text_1726481163322ntor50xdm8k": "Uso acumulado",
   "text_633dae57ca9a923dd53c2097": "Desde {{fromDate}} hasta {{toDate}}",
   "text_1726481163322wngkv4nqfh9": "Uso total de por vida",
   "text_17265631916994iccuwziryu": "Último umbral: {{amount}}",
@@ -95,7 +95,7 @@
   "text_1728377307159nbrs3pgng03": "Editar información del cliente",
   "text_1728377307159eu0ihwiyrf0": "Información general",
   "text_1728377307159fck091geiv0": "Editar información",
-  "text_1728377307159q3otzyv9tey": "Cartera",
+  "text_1728377307159q3otzyv9tey": "Crédito",
   "text_1728377307160d96z1skvnw3": "Créditos a comprar",
   "text_1728377307160iloscj20uc1": "créditos",
   "text_1728377307160tb09yisgxk9": "Algo salió mal, por favor intenta de nuevo",
@@ -187,5 +187,7 @@
   "text_1726481163322vbcsvivii5k": "Uso total desde el inicio de la suscripción, excluyendo los cargos pagados por adelantado.",
   "text_1728636271035se9pkfziyvg": "Gestione sus planes y facturación",
   "text_17261289386318j0nhr1ms3t": "Buscar o seleccionar un tipo de cliente",
-  "text_62d7f6178ec94cd09370e4b3": "Recargar informe de uso"
+  "text_62d7f6178ec94cd09370e4b3": "Recargar informe de uso",
+  "text_1728654170904707saidat0f": "Escribe el nombre de un cliente",
+  "text_62da6ec24a8e24e44f8128aa": "Cargar más"
 }

@@ -72,7 +72,7 @@
   "text_66b378e748cda1004ff00db8": "Restbetrag bezahlen",
   "text_62da6ec24a8e24e44f81287a": "Guthaben|Guthaben|Guthaben",
   "text_62da6ec24a8e24e44f812884": "Guthaben|Guthaben|Guthaben",
-  "text_1726481163322ntor50xdm8k": "Lebenslange Nutzung",
+  "text_1726481163322ntor50xdm8k": "Kumulierte Nutzung",
   "text_633dae57ca9a923dd53c2097": "Von {{fromDate}} bis {{toDate}}",
   "text_1726481163322wngkv4nqfh9": "Gesamte lebenslange Nutzung",
   "text_17265631916994iccuwziryu": "Letzter Schwellenwert: {{amount}}",
@@ -95,7 +95,7 @@
   "text_1728377307159nbrs3pgng03": "Kundeninformationen bearbeiten",
   "text_1728377307159eu0ihwiyrf0": "Allgemeine Informationen",
   "text_1728377307159fck091geiv0": "Informationen bearbeiten",
-  "text_1728377307159q3otzyv9tey": "Geldbörse",
+  "text_1728377307159q3otzyv9tey": "Kredit",
   "text_1728377307160d96z1skvnw3": "Zu kaufendes Guthaben",
   "text_1728377307160iloscj20uc1": "Guthaben",
   "text_1728377307160tb09yisgxk9": "Etwas ist schiefgelaufen, bitte versuchen Sie es erneut",
@@ -160,5 +160,7 @@
   "text_1726481163322vbcsvivii5k": "Gesamtnutzung seit Beginn des Abonnements, ohne im Voraus bezahlte Gebühren.",
   "text_1728636271035se9pkfziyvg": "Verwalten Sie Ihre Pläne & Rechnungsstellung",
   "text_17261289386318j0nhr1ms3t": "Kundentyp suchen oder auswählen",
-  "text_62d7f6178ec94cd09370e4b3": "Nutzungsbericht neu laden"
+  "text_62d7f6178ec94cd09370e4b3": "Nutzungsbericht neu laden",
+  "text_1728654170904707saidat0f": "Geben Sie einen Kundennamen ein",
+  "text_62da6ec24a8e24e44f8128aa": "Mehr laden"
 }

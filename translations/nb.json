@@ -71,7 +71,7 @@
   "text_66b378e748cda1004ff00db8": "Betal saldoen",
   "text_62da6ec24a8e24e44f81287a": "kreditter|kreditt|kreditter",
   "text_62da6ec24a8e24e44f812884": "kreditter|kreditt|kreditter",
-  "text_1726481163322ntor50xdm8k": "Livstidsbruk",
+  "text_1726481163322ntor50xdm8k": "Akkumulerte bruk",
   "text_633dae57ca9a923dd53c2097": "Fra {{fromDate}} til {{toDate}}",
   "text_1726481163322wngkv4nqfh9": "Total livstidsbruk",
   "text_17265631916994iccuwziryu": "Siste terskel: {{amount}}",
@@ -94,7 +94,7 @@
   "text_1728377307159nbrs3pgng03": "Rediger kundeinformasjon",
   "text_1728377307159eu0ihwiyrf0": "Generell informasjon",
   "text_1728377307159fck091geiv0": "Rediger informasjon",
-  "text_1728377307159q3otzyv9tey": "Lommebok",
+  "text_1728377307159q3otzyv9tey": "Kreditt",
   "text_1728377307160d96z1skvnw3": "Kreditter å kjøpe",
   "text_1728377307160iloscj20uc1": "kreditter",
   "text_1728377307160tb09yisgxk9": "Noe gikk galt, vennligst prøv igjen",
@@ -159,5 +159,7 @@
   "text_1726481163322vbcsvivii5k": "Total bruk siden abonnementets startdato, ekskludert forhåndsbetalte avgifter.",
   "text_1728636271035se9pkfziyvg": "Administrer dine abonnementer og fakturering",
   "text_17261289386318j0nhr1ms3t": "Søk eller velg en kundetype",
-  "text_62d7f6178ec94cd09370e4b3": "Last inn bruksrapport på nytt"
+  "text_62d7f6178ec94cd09370e4b3": "Last inn bruksrapport på nytt",
+  "text_1728654170904707saidat0f": "Skriv inn et kundenavn",
+  "text_62da6ec24a8e24e44f8128aa": "Last inn mer"
 }
