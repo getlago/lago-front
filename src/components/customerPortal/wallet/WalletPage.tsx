@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import InputAdornment from '@mui/material/InputAdornment/InputAdornment'
+import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
 import { number, object } from 'yup'
 
