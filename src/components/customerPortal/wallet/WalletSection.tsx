@@ -7,7 +7,7 @@ import useCustomerPortalTranslate from '~/components/customerPortal/common/useCu
 import { Icon, Tooltip, Typography } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ } from '~/core/timezone/utils'
+import { formatDateToTZ, intlFormatDateToDateMed } from '~/core/timezone/utils'
 import {
   useGetPortalCustomerDataQuery,
   useGetPortalWalletsQuery,
@@ -51,7 +51,7 @@ type WalletSectionProps = {
 }
 
 const WalletSection = ({ viewWallet }: WalletSectionProps) => {
-  const { translate } = useCustomerPortalTranslate()
+  const { translate, documentLocale } = useCustomerPortalTranslate()
 
   const {
     data: customerPortalUserData,
@@ -149,8 +149,9 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
             <Typography className="text-xs font-normal text-grey-600">
               {translate('text_17283773071600j3nukyme6f', {
                 credits: intlFormatNumber(deserializeAmount(balance, wallet.currency), {
-                  currencyDisplay: 'symbol',
+                  currencyDisplay: 'narrowSymbol',
                   currency: wallet.currency,
+                  locale: documentLocale,
                 }),
               })}
             </Typography>
@@ -165,7 +166,11 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
               {wallet?.expirationAt ? (
                 <>
                   <Typography className="text-base font-normal text-grey-700">
-                    {formatDateToTZ(wallet?.expirationAt, customerTimezone)}
+                    {intlFormatDateToDateMed(
+                      wallet?.expirationAt,
+                      customerTimezone,
+                      documentLocale,
+                    )}
                   </Typography>
                 </>
               ) : (
@@ -194,8 +199,9 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
                   {intlFormatNumber(
                     deserializeAmount(wallet?.consumedAmountCents, wallet.currency),
                     {
-                      currencyDisplay: 'symbol',
+                      currencyDisplay: 'narrowSymbol',
                       currency: wallet.currency,
+                      locale: documentLocale,
                     },
                   )}
                   )

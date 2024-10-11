@@ -6,7 +6,8 @@ import { generatePath } from 'react-router-dom'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { UPDATE_PLAN_ROUTE, UPDATE_SUBSCRIPTION } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ } from '~/core/timezone'
+import { formatDateToTZ, intlFormatDateToDateMed } from '~/core/timezone'
+import { LocaleEnum } from '~/core/translations'
 import {
   CurrencyEnum,
   GetSubscriptionForSubscriptionUsageLifetimeGraphQuery,
@@ -79,6 +80,7 @@ type SubscriptionUsageLifetimeGraphComponentProps = {
   subscriptionError?: ApolloError
   refetchLifetimeData: () => void
   translate: TranslateFunc
+  locale?: LocaleEnum
 }
 
 export const SubscriptionUsageLifetimeGraphComponent = ({
@@ -91,6 +93,7 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
   subscriptionError,
   refetchLifetimeData,
   translate,
+  locale,
 }: SubscriptionUsageLifetimeGraphComponentProps) => {
   const hasProgressiveBillingPremiumIntegration = !!organization?.premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.ProgressiveBilling,
@@ -137,8 +140,20 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
             noWrap
           >
             {translate('text_633dae57ca9a923dd53c2097', {
-              fromDate: formatDateToTZ(lifetimeUsage.totalUsageFromDatetime, customerTimezone),
-              toDate: formatDateToTZ(lifetimeUsage.totalUsageToDatetime, customerTimezone),
+              fromDate: locale
+                ? intlFormatDateToDateMed(
+                    lifetimeUsage.totalUsageFromDatetime,
+                    customerTimezone,
+                    locale,
+                  )
+                : formatDateToTZ(lifetimeUsage.totalUsageFromDatetime, customerTimezone),
+              toDate: locale
+                ? intlFormatDateToDateMed(
+                    lifetimeUsage.totalUsageToDatetime,
+                    customerTimezone,
+                    locale,
+                  )
+                : formatDateToTZ(lifetimeUsage.totalUsageToDatetime, customerTimezone),
             })}
           </Typography>
         ) : null}
@@ -179,6 +194,8 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
                     deserializeAmount(lifetimeUsage?.totalUsageAmountCents, currency),
                     {
                       currency,
+                      locale,
+                      currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
                     },
                   )}
                   blur={isBlurred}
@@ -216,6 +233,8 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
                                           style: 'percent',
                                           // This is a ratio so we will only allow 2 decimal
                                           maximumFractionDigits: 2,
+                                          locale,
+                                          currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
                                         }),
                                       },
                                     ),
@@ -226,6 +245,8 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
                                           style: 'percent',
                                           // This is a ratio so we will only allow 2 decimal
                                           maximumFractionDigits: 2,
+                                          locale,
+                                          currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
                                         }),
                                       },
                                     ),
@@ -245,6 +266,8 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
                                 ),
                                 {
                                   currency,
+                                  locale,
+                                  currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
                                 },
                               ),
                             })}
@@ -260,6 +283,8 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
                                     ),
                                     {
                                       currency,
+                                      locale,
+                                      currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
                                     },
                                   ),
                                 })}

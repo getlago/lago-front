@@ -69,7 +69,7 @@ gql`
 
 const UsagePage = () => {
   const { goHome } = useCustomerPortalNavigation()
-  const { translate } = useCustomerPortalTranslate()
+  const { translate, documentLocale } = useCustomerPortalTranslate()
   const customerId = 'cdef1dac-c55f-4d25-985b-cb25c2c8edc1'
   const { itemId } = useParams()
 
@@ -128,6 +128,7 @@ const UsagePage = () => {
             subscriptionError={customerPortalSubscriptionError}
             refetchLifetimeData={() => customerPortalSubscriptionRefetch()}
             translate={translate}
+            locale={documentLocale}
           />
         </div>
       )}
@@ -157,6 +158,7 @@ const UsagePage = () => {
               </div>
             }
             translate={translate}
+            locale={documentLocale}
           />
         </div>
       )}

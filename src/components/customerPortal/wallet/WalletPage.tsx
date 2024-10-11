@@ -29,7 +29,7 @@ gql`
 
 const WalletPage = () => {
   const { goHome } = useCustomerPortalNavigation()
-  const { translate } = useCustomerPortalTranslate()
+  const { translate, documentLocale } = useCustomerPortalTranslate()
 
   const {
     data: customerWalletData,
@@ -106,15 +106,16 @@ const WalletPage = () => {
                   credits: intlFormatNumber(
                     Number(formikProps?.values?.amount || 0) * Number(wallet?.rateAmount || 0),
                     {
-                      currencyDisplay: 'symbol',
+                      currencyDisplay: 'narrowSymbol',
                       currency: wallet?.currency,
+                      locale: documentLocale,
                     },
                   ),
                 })}
               </Typography>
             }
             label={translate('text_1728377307160d96z1skvnw3')}
-            currency={CurrencyEnum.Usd}
+            currency={wallet?.currency || CurrencyEnum.Usd}
             formikProps={formikProps}
             InputProps={{
               endAdornment: (

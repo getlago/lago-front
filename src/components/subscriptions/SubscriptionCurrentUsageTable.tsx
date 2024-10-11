@@ -10,7 +10,8 @@ import { LagoGQLError } from '~/core/apolloClient'
 import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ } from '~/core/timezone'
+import { formatDateToTZ, intlFormatDateToDateMed } from '~/core/timezone'
+import { LocaleEnum } from '~/core/translations'
 import {
   ChargeUsage,
   CurrencyEnum,
@@ -129,6 +130,7 @@ type SubscriptionCurrentUsageTableComponentProps = {
   noUsageOverride?: React.ReactNode
 
   translate: TranslateFunc
+  locale?: LocaleEnum
 }
 
 export const SubscriptionCurrentUsageTableComponent = ({
@@ -149,6 +151,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
   noUsageOverride,
 
   translate,
+  locale,
 }: SubscriptionCurrentUsageTableComponentProps) => {
   const subscriptionUsageDetailDrawerRef = useRef<SubscriptionUsageDetailDrawerRef>(null)
 
@@ -190,8 +193,12 @@ export const SubscriptionCurrentUsageTableComponent = ({
         ) : !hasError && !!usageData?.fromDatetime && !!usageData?.toDatetime ? (
           <Typography variant="caption" color="grey600" noWrap>
             {translate('text_633dae57ca9a923dd53c2097', {
-              fromDate: formatDateToTZ(usageData?.fromDatetime, customerTimezone),
-              toDate: formatDateToTZ(usageData?.toDatetime, customerTimezone),
+              fromDate: locale
+                ? intlFormatDateToDateMed(usageData?.fromDatetime, customerTimezone, locale)
+                : formatDateToTZ(usageData?.fromDatetime, customerTimezone),
+              toDate: locale
+                ? intlFormatDateToDateMed(usageData?.toDatetime, customerTimezone, locale)
+                : formatDateToTZ(usageData?.fromDatetime, customerTimezone),
             })}
           </Typography>
         ) : null}
@@ -257,8 +264,9 @@ export const SubscriptionCurrentUsageTableComponent = ({
             ) : (
               <Typography variant="bodyHl" color="grey700" noWrap>
                 {intlFormatNumber(deserializeAmount(usageData?.amountCents, currency) || 0, {
-                  currencyDisplay: 'symbol',
+                  currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
                   currency,
+                  locale,
                 })}
               </Typography>
             )}
@@ -363,6 +371,8 @@ export const SubscriptionCurrentUsageTableComponent = ({
                   <Typography variant="bodyHl" color="grey700">
                     {intlFormatNumber(deserializeAmount(row.amountCents, currency), {
                       currency,
+                      currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
+                      locale,
                     })}
                   </Typography>
                 ),
@@ -379,6 +389,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
         toDatetime={usageData?.toDatetime}
         customerTimezone={customerTimezone}
         translate={translate}
+        locale={locale}
       />
     </section>
   )

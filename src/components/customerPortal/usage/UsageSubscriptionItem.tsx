@@ -44,7 +44,7 @@ const UsageSubscriptionItem = ({
   loading,
   children,
 }: UsageSubscriptionItemProps) => {
-  const { translate } = useCustomerPortalTranslate()
+  const { translate, documentLocale } = useCustomerPortalTranslate()
 
   if (loading)
     return (
@@ -70,8 +70,9 @@ const UsageSubscriptionItem = ({
                 subscription.plan?.amountCurrency,
               ),
               {
-                currencyDisplay: 'symbol',
+                currencyDisplay: 'narrowSymbol',
                 currency: subscription.plan?.amountCurrency,
+                locale: documentLocale,
               },
             )}
           </Typography>
@@ -89,6 +90,7 @@ const UsageSubscriptionItem = ({
           date: planRenewalDate({
             currentBillingPeriodEndingAt: subscription.currentBillingPeriodEndingAt,
             applicableTimezone,
+            locale: documentLocale,
           }),
         })}
       </Typography>
