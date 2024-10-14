@@ -1,12 +1,10 @@
 import { FC, PropsWithChildren, useRef } from 'react'
-import styled from 'styled-components'
 
 import { LocaleEnum } from '~/core/translations'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useEmailConfig } from '~/hooks/useEmailConfig'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
-import { theme } from '~/styles'
 
 import {
   UpdateOrganizationLogoDialog,
@@ -34,24 +32,28 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
 
   return (
     <>
-      <InvoicePreviewContent>
-        <InvoiceTitle variant="bodyHl" color="grey700">
+      <div>
+        <Typography className="mb-4" variant="bodyHl" color="grey700">
           {emailObject}
-        </InvoiceTitle>
-        <InvoiceHead>
-          <EmptyAvatar />
+        </Typography>
+        <div className="mb-12 flex w-full items-center">
+          <div className="mr-4 size-10 rounded-full bg-grey-300" />
           <div>
-            <div>
+            <div className="h-[1em]">
               <Typography variant="captionHl" color="grey700" component="span">
                 {name}
               </Typography>
-              <FromEmail>{translate('text_64188b3d9735d5007d712260')}</FromEmail>
+              <Typography variant="note" component="span" className="ml-1">
+                {translate('text_64188b3d9735d5007d712260')}
+              </Typography>
             </div>
-            <ToEmail>{translateWithContextualLocal('text_64188b3d9735d5007d712262')}</ToEmail>
+            <Typography variant="note" component="span">
+              {translateWithContextualLocal('text_64188b3d9735d5007d712262')}
+            </Typography>
           </div>
-        </InvoiceHead>
+        </div>
         <div>
-          <Company>
+          <div className="mb-8 flex items-center justify-center not-last-child:mr-3">
             {!!logoUrl ? (
               <Avatar size="medium" variant="connector">
                 <img src={logoUrl} alt="company-logo" />
@@ -69,103 +71,20 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
               </Tooltip>
             )}
             <Typography variant="subhead">{name}</Typography>
-          </Company>
-          <TemplateContent>{children}</TemplateContent>
-          <Footer>
+          </div>
+          <section className="mb-8 flex flex-col items-center justify-center rounded-xl border border-grey-300 bg-white p-8">
+            {children}
+          </section>
+          <div className="mb-20 flex items-center justify-center [&>svg]:mx-1">
             <Typography variant="note" color="grey500">
               {translateWithContextualLocal('text_64188b3d9735d5007d712278')}
             </Typography>
             <Logo height="12px" />
-          </Footer>
+          </div>
         </div>
-      </InvoicePreviewContent>
+      </div>
 
       <UpdateOrganizationLogoDialog ref={updateLogoDialogRef} />
     </>
   )
 }
-
-const InvoicePreviewContent = styled.div`
-  display: flex;
-  flex-direction: column;
-`
-
-const Company = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 32px;
-
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(3)};
-  }
-`
-
-const TemplateContent = styled.div`
-  background-color: ${theme.palette.common.white};
-  padding: ${theme.spacing(8)};
-  border-radius: 12px;
-  border: ${theme.palette.grey[300]};
-  margin-bottom: ${theme.spacing(8)};
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-`
-
-const Footer = styled.div`
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-  letter-spacing: -0.16px;
-  color: ${theme.palette.grey[500]};
-  margin-bottom: ${theme.spacing(20)};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  svg {
-    margin: 0 4px;
-  }
-`
-
-const FromEmail = styled.span`
-  margin-left: ${theme.spacing(1)};
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-  letter-spacing: -0.16px;
-  text-align: left;
-  color: ${theme.palette.grey[600]};
-`
-
-const ToEmail = styled.span`
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-  letter-spacing: -0.16px;
-  text-align: left;
-  color: ${theme.palette.grey[600]};
-`
-
-const InvoiceTitle = styled(Typography)`
-  margin-bottom: ${theme.spacing(4)};
-  flex: 1;
-`
-
-const EmptyAvatar = styled.div`
-  height: 40px;
-  min-height: 40px;
-  min-width: 40px;
-  width: 40px;
-  border-radius: 50%;
-  background-color: ${theme.palette.grey[300]};
-  margin-right: ${theme.spacing(4)};
-`
-
-const InvoiceHead = styled.div`
-  display: flex;
-  align-items: center;
-  width: 100%;
-  margin-bottom: ${theme.spacing(12)};
-`
