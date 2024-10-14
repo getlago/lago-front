@@ -1,10 +1,14 @@
 import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
-import styled, { css } from 'styled-components'
+import { useEffect } from 'react'
 
+import SectionError from '~/components/customerPortal/common/SectionError'
+import { LoaderInvoicesListTotal } from '~/components/customerPortal/common/SectionLoading'
+import SectionTitle from '~/components/customerPortal/common/SectionTitle'
+import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import {
   Button,
-  InfiniteScroll,
+  Icon,
   Status,
   StatusProps,
   StatusType,
@@ -16,19 +20,21 @@ import { SearchInput } from '~/components/SearchInput'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { LocaleEnum } from '~/core/translations'
 import {
   CurrencyEnum,
   InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
+  InvoiceTypeEnum,
   PortalInvoiceListItemFragmentDoc,
   useCustomerPortalInvoicesLazyQuery,
   useDownloadCustomerPortalInvoiceMutation,
+  useGetCustomerPortalInvoicesCollectionLazyQuery,
+  useGetCustomerPortalOverdueBalancesLazyQuery,
+  useGetCustomerPortalUserCurrencyQuery,
 } from '~/generated/graphql'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { NAV_HEIGHT, theme } from '~/styles'
 
 gql`
   fragment PortalInvoiceListItem on Invoice {
@@ -40,6 +46,7 @@ gql`
     issuingDate
     totalAmountCents
     currency
+    invoiceType
   }
 
   query customerPortalInvoices(
@@ -68,10 +75,50 @@ gql`
     }
   }
 
+  query getCustomerPortalInvoicesCollection($expireCache: Boolean) {
+    customerPortalInvoiceCollections(expireCache: $expireCache) {
+      collection {
+        amountCents
+        invoicesCount
+        currency
+      }
+    }
+  }
+
+  query getCustomerPortalOverdueBalances($expireCache: Boolean) {
+    customerPortalOverdueBalances(expireCache: $expireCache) {
+      collection {
+        amountCents
+        currency
+        lagoInvoiceIds
+      }
+    }
+  }
+
+  query getCustomerPortalUserCurrency {
+    customerPortalUser {
+      currency
+    }
+  }
+
   ${PortalInvoiceListItemFragmentDoc}
   ${InvoiceForFinalizeInvoiceFragmentDoc}
   ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
 `
+const INVOICE_TYPE_TRANSLATION_MAP: Record<InvoiceTypeEnum, string> = {
+  [InvoiceTypeEnum.AddOn]: 'text_1728472697691t126b808cm9',
+  [InvoiceTypeEnum.Credit]: 'text_1728472697691x8zhuzkp74r',
+  [InvoiceTypeEnum.OneOff]: 'text_1728472697691t126b808cm9',
+  [InvoiceTypeEnum.Subscription]: 'text_1728472697691k6k2e9m5ibb',
+  [InvoiceTypeEnum.AdvanceCharges]: 'text_1728472697691y39tdxgyrcg',
+  [InvoiceTypeEnum.ProgressiveBilling]: 'text_1728472697691pv1eqroobte',
+}
+
+interface CalculatedData {
+  amount: number
+  count: number
+  currency?: CurrencyEnum
+}
 
 const mapStatusConfig = ({
   paymentStatus,
@@ -97,22 +144,62 @@ const mapStatusConfig = ({
   return { label: 'toPay', type: StatusType.default }
 }
 
-interface PortalCustomerInvoicesProps {
-  translate: Function
-  documentLocale: LocaleEnum
-}
+const PortalInvoicesList = () => {
+  const { translate, documentLocale } = useCustomerPortalTranslate()
 
-const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoicesProps) => {
-  const [getInvoices, { data, loading, error, fetchMore, variables }] =
+  const [getInvoices, { data, loading, error, fetchMore, variables, refetch }] =
     useCustomerPortalInvoicesLazyQuery({
       notifyOnNetworkStatusChange: true,
       fetchPolicy: 'network-only',
       nextFetchPolicy: 'network-only',
       variables: {
-        limit: 20,
+        limit: 8,
         status: [InvoiceStatusTypeEnum.Finalized],
       },
     })
+
+  const { data: userCurrencyData } = useGetCustomerPortalUserCurrencyQuery()
+  const [getOverdueBalance, { data: overdueData, loading: overdueLoading, error: overdueError }] =
+    useGetCustomerPortalOverdueBalancesLazyQuery()
+  const [
+    getInvoicesCollection,
+    { data: invoicesData, loading: invoicesLoading, error: invoicesError },
+  ] = useGetCustomerPortalInvoicesCollectionLazyQuery()
+
+  useEffect(() => {
+    getOverdueBalance()
+    getInvoicesCollection()
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const customerCurrency = userCurrencyData?.customerPortalUser?.currency ?? CurrencyEnum.Usd
+
+  const overdue = (
+    overdueData?.customerPortalOverdueBalances?.collection || []
+  ).reduce<CalculatedData>(
+    (acc, item) => {
+      return {
+        amount: acc.amount + deserializeAmount(item.amountCents, item.currency),
+        count: acc.count + item.lagoInvoiceIds.length,
+        currency: item.currency,
+      }
+    },
+    { amount: 0, count: 0, currency: customerCurrency },
+  )
+
+  const invoices = (
+    invoicesData?.customerPortalInvoiceCollections?.collection || []
+  ).reduce<CalculatedData>(
+    (acc, item) => {
+      return {
+        amount: acc.amount + deserializeAmount(item.amountCents, item.currency ?? customerCurrency),
+        count: acc.count + Number(item.invoicesCount),
+        currency: item.currency ?? acc.currency,
+      }
+    },
+    { amount: 0, count: 0, currency: customerCurrency },
+  )
 
   const [downloadInvoice] = useDownloadCustomerPortalInvoiceMutation({
     onCompleted(localData) {
@@ -139,48 +226,87 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
     },
   })
 
-  const { debouncedSearch, isLoading } = useDebouncedSearch(getInvoices, loading)
+  const { debouncedSearch, isLoading: searchIsLoading } = useDebouncedSearch(getInvoices, loading)
   const { metadata, collection } = data?.customerPortalInvoices || {}
   const hasSearchTerm = !!variables?.searchTerm
   const hasNoInvoices = !loading && !error && !metadata?.totalCount && !hasSearchTerm
 
+  const { currentPage = 0, totalPages = 0 } = metadata || {}
+
+  if (error) {
+    return (
+      <section>
+        <SectionTitle title={translate('text_6419c64eace749372fc72b37')} />
+
+        <SectionError refresh={() => refetch()} />
+      </section>
+    )
+  }
+
   return (
-    <section>
-      <PageHeader $isEmpty={hasNoInvoices}>
-        <Typography variant="subhead" color="grey700">
-          {translate('text_6419c64eace749372fc72b37')}
-        </Typography>
+    <div>
+      <SectionTitle title={translate('text_6419c64eace749372fc72b37')} loading={loading} />
 
-        {!hasNoInvoices && (
-          <HeaderRigthBlock>
-            <SearchInput
-              onChange={debouncedSearch}
-              placeholder={translate('text_6419c64eace749372fc72b33')}
-            />
-          </HeaderRigthBlock>
-        )}
-      </PageHeader>
-      {hasNoInvoices ? (
-        <Typography>{translate('text_6419c64eace749372fc72b3b')}</Typography>
-      ) : (
-        <InfiniteScroll
-          onBottom={() => {
-            if (!fetchMore) return
-            const { currentPage = 0, totalPages = 0 } = metadata || {}
+      <div className="grid grid-cols-2 gap-8">
+        <div className="flex flex-col gap-1">
+          {invoicesLoading && <LoaderInvoicesListTotal />}
 
-            currentPage < totalPages &&
-              !isLoading &&
-              fetchMore({
-                variables: { page: currentPage + 1 },
-              })
-          }}
-        >
+          {!invoicesLoading && !invoicesError && (
+            <>
+              <Typography className="text-sm font-normal text-grey-600">
+                {translate('text_6670a7222702d70114cc7957')}
+              </Typography>
+
+              <Typography className="text-2xl font-semibold text-grey-700">
+                {intlFormatNumber(invoices.amount, {
+                  currency: invoices.currency,
+                  locale: documentLocale,
+                  currencyDisplay: 'narrowSymbol',
+                })}
+              </Typography>
+            </>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-1">
+          {overdueLoading && <LoaderInvoicesListTotal />}
+
+          {!overdueLoading && !overdueError && (
+            <>
+              <Typography className="flex items-center gap-2 text-sm font-normal text-grey-600">
+                {translate('text_6670a7222702d70114cc795a')}
+
+                <Tooltip placement="top-start" title={translate('text_6670a757999f8a007789bb5d')}>
+                  <Icon size="medium" name="info-circle" />
+                </Tooltip>
+              </Typography>
+
+              <Typography className="text-2xl font-semibold text-grey-700">
+                {intlFormatNumber(overdue.amount, {
+                  currency: overdue.currency,
+                  locale: documentLocale,
+                  currencyDisplay: 'narrowSymbol',
+                })}
+              </Typography>
+            </>
+          )}
+        </div>
+      </div>
+
+      <SearchInput
+        className="mb-4 mt-6 w-full max-w-full"
+        onChange={debouncedSearch}
+        placeholder={translate('text_1728382674210n9qpjbnooi4')}
+      />
+
+      {!hasNoInvoices && (
+        <>
           <Table
             name="portal-invoice"
             containerSize={{
               default: 0,
             }}
-            isLoading={isLoading}
+            isLoading={loading || searchIsLoading}
             hasError={!!error}
             placeholder={{
               errorState: {
@@ -205,6 +331,15 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
                     {DateTime.fromISO(issuingDate).toLocaleString(DateTime.DATE_MED, {
                       locale: documentLocale,
                     })}
+                  </Typography>
+                ),
+              },
+              {
+                key: 'invoiceType',
+                title: translate('text_1728472381019nimbf36pk6t'),
+                content: ({ invoiceType }) => (
+                  <Typography variant="body" noWrap>
+                    {translate(INVOICE_TYPE_TRANSLATION_MAP[invoiceType as InvoiceTypeEnum])}
                   </Typography>
                 ),
               },
@@ -259,40 +394,39 @@ const PortalInvoicesList = ({ translate, documentLocale }: PortalCustomerInvoice
               return (
                 <Tooltip
                   placement="top-end"
-                  title={!isLoading && translate('text_6419c64eace749372fc72b62')}
+                  title={!searchIsLoading && translate('text_6419c64eace749372fc72b62')}
                 >
                   <Button
                     icon="download"
                     variant="quaternary"
                     onClick={async () => await downloadInvoice({ variables: { input: { id } } })}
-                    disabled={isLoading}
+                    disabled={searchIsLoading}
                   />
                 </Tooltip>
               )
             }}
           />
-        </InfiniteScroll>
+
+          {currentPage < totalPages && (
+            <Button
+              className="mt-2"
+              variant="quaternary"
+              startIcon="chevron-down"
+              onClick={() =>
+                fetchMore({
+                  variables: { page: currentPage + 1 },
+                })
+              }
+            >
+              <Typography className="text-base font-medium text-grey-600">
+                {translate('text_62da6ec24a8e24e44f8128aa')}
+              </Typography>
+            </Button>
+          )}
+        </>
       )}
-    </section>
+    </div>
   )
 }
 
 export default PortalInvoicesList
-
-const PageHeader = styled.div<{ $isEmpty?: boolean }>`
-  align-items: center;
-  display: flex;
-  height: ${NAV_HEIGHT}px;
-  justify-content: space-between;
-  ${({ $isEmpty }) =>
-    !!$isEmpty &&
-    css`
-      box-shadow: ${theme.shadows[7]};
-      margin-bottom: ${theme.spacing(6)};
-    `};
-`
-
-const HeaderRigthBlock = styled.div`
-  display: flex;
-  align-items: center;
-`

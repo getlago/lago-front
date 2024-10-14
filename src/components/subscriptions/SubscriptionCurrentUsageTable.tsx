@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { ApolloError, gql } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
@@ -10,18 +10,23 @@ import { LagoGQLError } from '~/core/apolloClient'
 import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ } from '~/core/timezone'
+import { formatDateToTZ, intlFormatDateToDateMed } from '~/core/timezone'
+import { LocaleEnum } from '~/core/translations'
 import {
   ChargeUsage,
   CurrencyEnum,
+  CustomerForSubscriptionUsageQuery,
   CustomerUsageForUsageDetailsFragmentDoc,
+  GetCustomerUsageForPortalQuery,
+  GetSubscriptionForSubscriptionUsageLifetimeGraphQuery,
   LagoApiError,
   TimezoneEnum,
+  UsageForSubscriptionUsageQuery,
   useCustomerForSubscriptionUsageQuery,
   useSubscrptionForSubscriptionUsageQuery,
   useUsageForSubscriptionUsageQuery,
 } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { NAV_HEIGHT, theme } from '~/styles'
@@ -55,38 +60,43 @@ gql`
     }
   }
 
-  query usageForSubscriptionUsage($customerId: ID!, $subscriptionId: ID!) {
-    customerUsage(customerId: $customerId, subscriptionId: $subscriptionId) {
+  fragment SubscriptionCurrentUsageTableComponentCustomerUsage on CustomerUsage {
+    amountCents
+    currency
+    fromDatetime
+    toDatetime
+    chargesUsage {
+      id
+      units
       amountCents
-      currency
-      fromDatetime
-      toDatetime
-      chargesUsage {
+      charge {
         id
-        units
+        invoiceDisplayName
+      }
+      billableMetric {
+        id
+        code
+        name
+      }
+      filters {
+        id
+      }
+      groupedUsage {
         amountCents
-        charge {
-          id
-          invoiceDisplayName
-        }
-        billableMetric {
-          id
-          code
-          name
-        }
+        groupedBy
+        eventsCount
+        units
         filters {
           id
         }
-        groupedUsage {
-          amountCents
-          groupedBy
-          eventsCount
-          units
-          filters {
-            id
-          }
-        }
       }
+    }
+  }
+
+  query usageForSubscriptionUsage($customerId: ID!, $subscriptionId: ID!) {
+    customerUsage(customerId: $customerId, subscriptionId: $subscriptionId) {
+      amountCents
+      ...SubscriptionCurrentUsageTableComponentCustomerUsage
       ...CustomerUsageForUsageDetails
     }
   }
@@ -99,51 +109,57 @@ interface SubscriptionCurrentUsageTableProps {
   subscriptionId: string
 }
 
-export const SubscriptionCurrentUsageTable = ({
-  customerId,
-  subscriptionId,
-}: SubscriptionCurrentUsageTableProps) => {
-  const { translate } = useInternationalization()
-  const subscriptionUsageDetailDrawerRef = useRef<SubscriptionUsageDetailDrawerRef>(null)
-  const {
-    data: customerData,
-    loading: customerLoading,
-    error: customerError,
-  } = useCustomerForSubscriptionUsageQuery({
-    variables: { customerId },
-    skip: !customerId,
-  })
+type SubscriptionCurrentUsageTableComponentProps = {
+  usageData?:
+    | UsageForSubscriptionUsageQuery['customerUsage']
+    | GetCustomerUsageForPortalQuery['customerPortalCustomerUsage']
+  usageLoading: boolean
+  usageError?: ApolloError
 
-  const {
-    data: subscriptionData,
-    loading: subscriptionLoading,
-    error: subscriptionError,
-  } = useSubscrptionForSubscriptionUsageQuery({
-    variables: { subscription: subscriptionId },
-  })
-  const subscription = subscriptionData?.subscription
-  const {
-    data: usageData,
-    loading: usageLoading,
-    error: usageError,
-    refetch: refetchUsage,
-  } = useUsageForSubscriptionUsageQuery({
-    context: {
-      silentErrorCodes: [LagoApiError.UnprocessableEntity],
-    },
-    variables: {
-      customerId: (customerId || subscription?.customer.id) as string,
-      subscriptionId: subscription?.id || '',
-    },
-    skip: !customerId || !subscription,
-    // Fixes https://github.com/getlago/lago-front/pull/1243
-    fetchPolicy: 'no-cache',
-  })
-  const currency = usageData?.customerUsage?.currency || CurrencyEnum.Usd
+  subscription?: GetSubscriptionForSubscriptionUsageLifetimeGraphQuery['subscription']
+  subscriptionLoading: boolean
+
+  subscriptionError?: ApolloError
+
+  customerData?: CustomerForSubscriptionUsageQuery['customer']
+  customerLoading: boolean
+  customerError?: ApolloError
+
+  refetchUsage: () => void
+
+  noUsageOverride?: React.ReactNode
+
+  translate: TranslateFunc
+  locale?: LocaleEnum
+}
+
+export const SubscriptionCurrentUsageTableComponent = ({
+  usageData,
+  usageLoading,
+  usageError,
+
+  subscription,
+  subscriptionLoading,
+  subscriptionError,
+
+  customerData,
+  customerLoading,
+  customerError,
+
+  refetchUsage,
+
+  noUsageOverride,
+
+  translate,
+  locale,
+}: SubscriptionCurrentUsageTableComponentProps) => {
+  const subscriptionUsageDetailDrawerRef = useRef<SubscriptionUsageDetailDrawerRef>(null)
+
+  const currency = usageData?.currency || CurrencyEnum.Usd
   const isLoading = subscriptionLoading || usageLoading || customerLoading
   const hasError = !!subscriptionError || !!usageError || !!customerError
   const customerTimezone =
-    customerData?.customer?.applicableTimezone ||
+    customerData?.applicableTimezone ||
     subscription?.customer.applicableTimezone ||
     TimezoneEnum.TzUtc
 
@@ -166,7 +182,7 @@ export const SubscriptionCurrentUsageTable = ({
               icon="reload"
               size="small"
               onClick={async () => {
-                await refetchUsage()
+                refetchUsage()
               }}
             />
           </Tooltip>
@@ -174,13 +190,15 @@ export const SubscriptionCurrentUsageTable = ({
 
         {isLoading ? (
           <Skeleton variant="text" height={12} width={144} marginTop={8} />
-        ) : !hasError &&
-          !!usageData?.customerUsage?.fromDatetime &&
-          !!usageData?.customerUsage?.toDatetime ? (
+        ) : !hasError && !!usageData?.fromDatetime && !!usageData?.toDatetime ? (
           <Typography variant="caption" color="grey600" noWrap>
             {translate('text_633dae57ca9a923dd53c2097', {
-              fromDate: formatDateToTZ(usageData?.customerUsage?.fromDatetime, customerTimezone),
-              toDate: formatDateToTZ(usageData?.customerUsage?.toDatetime, customerTimezone),
+              fromDate: locale
+                ? intlFormatDateToDateMed(usageData?.fromDatetime, customerTimezone, locale)
+                : formatDateToTZ(usageData?.fromDatetime, customerTimezone),
+              toDate: locale
+                ? intlFormatDateToDateMed(usageData?.toDatetime, customerTimezone, locale)
+                : formatDateToTZ(usageData?.fromDatetime, customerTimezone),
             })}
           </Typography>
         ) : null}
@@ -216,12 +234,18 @@ export const SubscriptionCurrentUsageTable = ({
             />
           )}
         </>
-      ) : !isLoading && !usageData?.customerUsage.chargesUsage.length ? (
-        <GenericPlaceholder
-          title={translate('text_62c3f454e5d7f4ec8888c1d5')}
-          subtitle={translate('text_62c3f454e5d7f4ec8888c1d7')}
-          image={<EmptyImage width="136" height="104" />}
-        />
+      ) : !isLoading && !usageData?.chargesUsage.length ? (
+        <>
+          {noUsageOverride ? (
+            noUsageOverride
+          ) : (
+            <GenericPlaceholder
+              title={translate('text_62c3f454e5d7f4ec8888c1d5')}
+              subtitle={translate('text_62c3f454e5d7f4ec8888c1d7')}
+              image={<EmptyImage width="136" height="104" />}
+            />
+          )}
+        </>
       ) : (
         <>
           <Stack
@@ -239,13 +263,11 @@ export const SubscriptionCurrentUsageTable = ({
               <Skeleton variant="text" height={12} width={144} marginTop={8} />
             ) : (
               <Typography variant="bodyHl" color="grey700" noWrap>
-                {intlFormatNumber(
-                  deserializeAmount(usageData?.customerUsage?.amountCents, currency) || 0,
-                  {
-                    currencyDisplay: 'symbol',
-                    currency,
-                  },
-                )}
+                {intlFormatNumber(deserializeAmount(usageData?.amountCents, currency) || 0, {
+                  currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
+                  currency,
+                  locale,
+                })}
               </Typography>
             )}
           </Stack>
@@ -256,7 +278,7 @@ export const SubscriptionCurrentUsageTable = ({
             rowSize={72}
             isLoading={isLoading}
             hasError={hasError}
-            data={usageData?.customerUsage.chargesUsage || []}
+            data={usageData?.chargesUsage || []}
             columns={[
               {
                 key: 'charge.invoiceDisplayName',
@@ -349,6 +371,8 @@ export const SubscriptionCurrentUsageTable = ({
                   <Typography variant="bodyHl" color="grey700">
                     {intlFormatNumber(deserializeAmount(row.amountCents, currency), {
                       currency,
+                      currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
+                      locale,
                     })}
                   </Typography>
                 ),
@@ -361,11 +385,72 @@ export const SubscriptionCurrentUsageTable = ({
       <SubscriptionUsageDetailDrawer
         ref={subscriptionUsageDetailDrawerRef}
         currency={currency}
-        fromDatetime={usageData?.customerUsage?.fromDatetime}
-        toDatetime={usageData?.customerUsage?.toDatetime}
+        fromDatetime={usageData?.fromDatetime}
+        toDatetime={usageData?.toDatetime}
         customerTimezone={customerTimezone}
+        translate={translate}
+        locale={locale}
       />
     </section>
+  )
+}
+
+export const SubscriptionCurrentUsageTable = ({
+  customerId,
+  subscriptionId,
+}: SubscriptionCurrentUsageTableProps) => {
+  const { translate } = useInternationalization()
+
+  const {
+    data: customerData,
+    loading: customerLoading,
+    error: customerError,
+  } = useCustomerForSubscriptionUsageQuery({
+    variables: { customerId },
+    skip: !customerId,
+  })
+
+  const {
+    data: subscriptionData,
+    loading: subscriptionLoading,
+    error: subscriptionError,
+  } = useSubscrptionForSubscriptionUsageQuery({
+    variables: { subscription: subscriptionId },
+  })
+
+  const subscription = subscriptionData?.subscription
+
+  const {
+    data: usageData,
+    loading: usageLoading,
+    error: usageError,
+    refetch: refetchUsage,
+  } = useUsageForSubscriptionUsageQuery({
+    context: {
+      silentErrorCodes: [LagoApiError.UnprocessableEntity],
+    },
+    variables: {
+      customerId: (customerId || subscription?.customer.id) as string,
+      subscriptionId: subscription?.id || '',
+    },
+    skip: !customerId || !subscription,
+    fetchPolicy: 'no-cache',
+  })
+
+  return (
+    <SubscriptionCurrentUsageTableComponent
+      customerData={customerData?.customer}
+      customerLoading={customerLoading}
+      customerError={customerError}
+      subscription={subscription}
+      subscriptionLoading={subscriptionLoading}
+      subscriptionError={subscriptionError}
+      usageData={usageData?.customerUsage}
+      usageLoading={usageLoading}
+      usageError={usageError}
+      refetchUsage={() => refetchUsage()}
+      translate={translate}
+    />
   )
 }
 

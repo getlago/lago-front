@@ -10,9 +10,10 @@ import {
 } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ } from '~/core/timezone'
+import { formatDateToTZ, intlFormatDateToDateMed } from '~/core/timezone'
+import { LocaleEnum } from '~/core/translations'
 import { ChargeUsage, CurrencyEnum, TimezoneEnum } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TranslateFunc } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
 const NO_ID_FILTER_DEFAULT_VALUE = 'NO_ID_FILTER_DEFAULT_VALUE'
@@ -64,6 +65,8 @@ interface SubscriptionUsageDetailDrawerProps {
   fromDatetime: string
   toDatetime: string
   customerTimezone: TimezoneEnum
+  translate: TranslateFunc
+  locale?: LocaleEnum
 }
 
 export const SubscriptionUsageDetailDrawer = forwardRef<
@@ -71,10 +74,16 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
   SubscriptionUsageDetailDrawerProps
 >(
   (
-    { currency, fromDatetime, toDatetime, customerTimezone }: SubscriptionUsageDetailDrawerProps,
+    {
+      currency,
+      fromDatetime,
+      toDatetime,
+      customerTimezone,
+      translate,
+      locale,
+    }: SubscriptionUsageDetailDrawerProps,
     ref,
   ) => {
-    const { translate } = useInternationalization()
     const drawerRef = useRef<DrawerRef>(null)
     const [usage, setUsage] = useState<ChargeUsage>()
 
@@ -112,8 +121,12 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
           </Typography>
           <Typography>
             {translate('text_633dae57ca9a923dd53c2097', {
-              fromDate: formatDateToTZ(fromDatetime, customerTimezone),
-              toDate: formatDateToTZ(toDatetime, customerTimezone),
+              fromDate: locale
+                ? intlFormatDateToDateMed(fromDatetime, customerTimezone, locale)
+                : formatDateToTZ(fromDatetime, customerTimezone),
+              toDate: locale
+                ? intlFormatDateToDateMed(toDatetime, customerTimezone, locale)
+                : formatDateToTZ(toDatetime, customerTimezone),
             })}
           </Typography>
         </Title>
@@ -185,8 +198,9 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                         content: (row) => (
                           <Typography variant="bodyHl" color="grey700">
                             {intlFormatNumber(deserializeAmount(row.amountCents, currency) || 0, {
-                              currencyDisplay: 'symbol',
+                              currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
                               currency,
+                              locale,
                             })}
                           </Typography>
                         ),
@@ -237,8 +251,9 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                   content: (row) => (
                     <Typography variant="bodyHl" color="grey700">
                       {intlFormatNumber(deserializeAmount(row.amountCents, currency) || 0, {
-                        currencyDisplay: 'symbol',
+                        currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
                         currency,
+                        locale,
                       })}
                     </Typography>
                   ),
@@ -298,8 +313,9 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                   content: (row) => (
                     <Typography variant="bodyHl" color="grey700">
                       {intlFormatNumber(deserializeAmount(row.amountCents, currency) || 0, {
-                        currencyDisplay: 'symbol',
+                        currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
                         currency,
+                        locale,
                       })}
                     </Typography>
                   ),

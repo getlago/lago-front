@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { ApolloError, gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useMemo } from 'react'
 import { generatePath } from 'react-router-dom'
@@ -6,14 +6,16 @@ import { generatePath } from 'react-router-dom'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { UPDATE_PLAN_ROUTE, UPDATE_SUBSCRIPTION } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ } from '~/core/timezone'
+import { formatDateToTZ, intlFormatDateToDateMed } from '~/core/timezone'
+import { LocaleEnum } from '~/core/translations'
 import {
   CurrencyEnum,
+  GetSubscriptionForSubscriptionUsageLifetimeGraphQuery,
   PremiumIntegrationTypeEnum,
   SubscriptionUsageLifetimeGraphForLifetimeGraphFragment,
   useGetSubscriptionForSubscriptionUsageLifetimeGraphQuery,
 } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { theme } from '~/styles'
@@ -68,35 +70,43 @@ type SubscriptionUsageLifetimeGraphProps = {
   customerId: string
 }
 
-const SubscriptionUsageLifetimeGraph = ({
-  customerId,
-  subscriptionId,
-}: SubscriptionUsageLifetimeGraphProps) => {
-  const { translate } = useInternationalization()
-  const { organization, loading: currentOrganizationDataLoading } = useOrganizationInfos()
+type SubscriptionUsageLifetimeGraphComponentProps = {
+  subscriptionId: string
+  customerId: string
+  organization?: { premiumIntegrations: Array<PremiumIntegrationTypeEnum> } | null
+  organizationLoading: boolean
+  subscription?: null | GetSubscriptionForSubscriptionUsageLifetimeGraphQuery['subscription']
+  subscriptionLoading: boolean
+  subscriptionError?: ApolloError
+  refetchLifetimeData: () => void
+  translate: TranslateFunc
+  locale?: LocaleEnum
+}
 
+export const SubscriptionUsageLifetimeGraphComponent = ({
+  subscriptionId,
+  customerId,
+  organization,
+  organizationLoading,
+  subscription,
+  subscriptionLoading,
+  subscriptionError,
+  refetchLifetimeData,
+  translate,
+  locale,
+}: SubscriptionUsageLifetimeGraphComponentProps) => {
   const hasProgressiveBillingPremiumIntegration = !!organization?.premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.ProgressiveBilling,
   )
 
-  const {
-    data: lifetimeUsageData,
-    loading: lifetimeUsageLoading,
-    error: lifetimeUsageError,
-    refetch: refetchLifetimeData,
-  } = useGetSubscriptionForSubscriptionUsageLifetimeGraphQuery({
-    variables: {
-      subscriptionId,
-    },
-    fetchPolicy: 'no-cache',
-  })
-  const lifetimeUsage = hasProgressiveBillingPremiumIntegration
-    ? lifetimeUsageData?.subscription?.lifetimeUsage
-    : subscriptionLifetimeUsageFakeData
-  const isLoading = lifetimeUsageLoading || currentOrganizationDataLoading
-  const currency = lifetimeUsageData?.subscription?.customer?.currency || CurrencyEnum.Usd
+  const isLoading = subscriptionLoading || organizationLoading
+  const currency = subscription?.customer?.currency || CurrencyEnum.Usd
   const isBlurred = !isLoading && (!hasProgressiveBillingPremiumIntegration || !organization)
-  const customerTimezone = lifetimeUsageData?.subscription?.customer?.applicableTimezone
+  const customerTimezone = subscription?.customer?.applicableTimezone
+
+  const lifetimeUsage = hasProgressiveBillingPremiumIntegration
+    ? subscription?.lifetimeUsage
+    : subscriptionLifetimeUsageFakeData
 
   const { nextThresholdPercentage, lastThresholdPercentage } = useMemo(() => {
     return getLifetimeGraphPercentages(lifetimeUsage)
@@ -122,7 +132,7 @@ const SubscriptionUsageLifetimeGraph = ({
 
         {isLoading ? (
           <Skeleton variant="text" height={12} width={144} marginTop={8} />
-        ) : !lifetimeUsageError && !!lifetimeUsage ? (
+        ) : !subscriptionError && !!lifetimeUsage ? (
           <Typography
             variant="caption"
             color="grey600"
@@ -130,15 +140,27 @@ const SubscriptionUsageLifetimeGraph = ({
             noWrap
           >
             {translate('text_633dae57ca9a923dd53c2097', {
-              fromDate: formatDateToTZ(lifetimeUsage.totalUsageFromDatetime, customerTimezone),
-              toDate: formatDateToTZ(lifetimeUsage.totalUsageToDatetime, customerTimezone),
+              fromDate: locale
+                ? intlFormatDateToDateMed(
+                    lifetimeUsage.totalUsageFromDatetime,
+                    customerTimezone,
+                    locale,
+                  )
+                : formatDateToTZ(lifetimeUsage.totalUsageFromDatetime, customerTimezone),
+              toDate: locale
+                ? intlFormatDateToDateMed(
+                    lifetimeUsage.totalUsageToDatetime,
+                    customerTimezone,
+                    locale,
+                  )
+                : formatDateToTZ(lifetimeUsage.totalUsageToDatetime, customerTimezone),
             })}
           </Typography>
         ) : null}
       </Stack>
 
       <div className="flex flex-col gap-6 bg-white py-6">
-        {!!lifetimeUsageError ? (
+        {!!subscriptionError ? (
           <GenericPlaceholder
             className="m-0 p-0"
             title={translate('text_636d023ce11a9d038819b579')}
@@ -156,11 +178,11 @@ const SubscriptionUsageLifetimeGraph = ({
                 color="grey600"
                 html={translate('text_17264811633225nhatoh524y', {
                   planLink: `${generatePath(UPDATE_PLAN_ROUTE, {
-                    planId: lifetimeUsageData?.subscription?.plan?.id || '',
+                    planId: subscription?.plan?.id || '',
                   })}?origin=${REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE}&subscriptionId=${subscriptionId}&customerId=${customerId}`,
                   subscriptionLink: `${generatePath(UPDATE_SUBSCRIPTION, {
                     subscriptionId,
-                    customerId: lifetimeUsageData?.subscription?.customer?.id || '',
+                    customerId: subscription?.customer?.id || '',
                   })}?origin=${REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE}&subscriptionId=${subscriptionId}&customerId=${customerId}`,
                 })}
               />
@@ -172,6 +194,8 @@ const SubscriptionUsageLifetimeGraph = ({
                     deserializeAmount(lifetimeUsage?.totalUsageAmountCents, currency),
                     {
                       currency,
+                      locale,
+                      currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
                     },
                   )}
                   blur={isBlurred}
@@ -209,6 +233,8 @@ const SubscriptionUsageLifetimeGraph = ({
                                           style: 'percent',
                                           // This is a ratio so we will only allow 2 decimal
                                           maximumFractionDigits: 2,
+                                          locale,
+                                          currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
                                         }),
                                       },
                                     ),
@@ -219,6 +245,8 @@ const SubscriptionUsageLifetimeGraph = ({
                                           style: 'percent',
                                           // This is a ratio so we will only allow 2 decimal
                                           maximumFractionDigits: 2,
+                                          locale,
+                                          currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
                                         }),
                                       },
                                     ),
@@ -238,6 +266,8 @@ const SubscriptionUsageLifetimeGraph = ({
                                 ),
                                 {
                                   currency,
+                                  locale,
+                                  currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
                                 },
                               ),
                             })}
@@ -253,6 +283,8 @@ const SubscriptionUsageLifetimeGraph = ({
                                     ),
                                     {
                                       currency,
+                                      locale,
+                                      currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
                                     },
                                   ),
                                 })}
@@ -307,6 +339,43 @@ const SubscriptionUsageLifetimeGraph = ({
         )}
       </div>
     </section>
+  )
+}
+
+const SubscriptionUsageLifetimeGraph = ({
+  customerId,
+  subscriptionId,
+}: SubscriptionUsageLifetimeGraphProps) => {
+  const { translate } = useInternationalization()
+
+  const { organization, loading: currentOrganizationDataLoading } = useOrganizationInfos()
+
+  const {
+    data: subscriptionData,
+    loading: subscriptionLoading,
+    error: subscriptionError,
+    refetch: refetchLifetimeData,
+  } = useGetSubscriptionForSubscriptionUsageLifetimeGraphQuery({
+    variables: {
+      subscriptionId,
+    },
+    fetchPolicy: 'no-cache',
+  })
+
+  const subscription = subscriptionData?.subscription
+
+  return (
+    <SubscriptionUsageLifetimeGraphComponent
+      customerId={customerId}
+      subscriptionId={subscriptionId}
+      organization={organization}
+      organizationLoading={currentOrganizationDataLoading}
+      subscription={subscription}
+      subscriptionLoading={subscriptionLoading}
+      subscriptionError={subscriptionError}
+      refetchLifetimeData={() => refetchLifetimeData()}
+      translate={translate}
+    />
   )
 }
 
