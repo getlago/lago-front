@@ -2,21 +2,14 @@ import { useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
-import {
-  Avatar,
-  Button,
-  Icon,
-  Popper,
-  Skeleton,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Avatar, Button, Icon, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { Switch } from '~/components/form'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   UpdateOrganizationLogoDialog,
   UpdateOrganizationLogoDialogRef,
 } from '~/components/settings/emails/UpdateOrganizationLogoDialog'
+import { LanguageSettingsButton } from '~/components/settings/LanguageSettingsButton'
 import { EMAILS_SCENARIO_CONFIG_ROUTE, EMAILS_SETTINGS_ROUTE } from '~/core/router'
 import { LocaleEnum } from '~/core/translations'
 import { EmailSettingsEnum } from '~/generated/graphql'
@@ -27,30 +20,11 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useEmailConfig } from '~/hooks/useEmailConfig'
 import { usePermissions } from '~/hooks/usePermissions'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
-import { MenuPopper, NAV_HEIGHT, PageHeader, theme } from '~/styles'
+import { NAV_HEIGHT, PageHeader, theme } from '~/styles'
 
 enum DisplayEnum {
   desktop = 'desktop',
   mobile = 'mobile',
-}
-
-const mapLanguageKey = (language: LocaleEnum) => {
-  switch (language) {
-    case LocaleEnum.fr:
-      return 'text_640a0b75228ef90063296ea4'
-    case LocaleEnum.nb:
-      return 'text_640a0b75228ef90063296eb5'
-    case LocaleEnum.de:
-      return 'text_6437d8583c62bc00c393d923'
-    case LocaleEnum.it:
-      return 'text_64e4ce3b2fa8940053c8a583'
-    case LocaleEnum.es:
-      return 'text_6526cbd3aedb8800aed06c3d'
-    case LocaleEnum.sv:
-      return 'text_6526cd088700e000714f0025'
-    default:
-      return 'text_6407684eaf41130074c4b2f7'
-  }
 }
 
 const mapTranslationsKey = (type?: EmailSettingsEnum) => {
@@ -169,89 +143,9 @@ const EmailScenarioConfig = () => {
         {!loading && (
           <Controls>
             <Typography variant="caption">{translate('text_6407684eaf41130074c4b2f9')}</Typography>
-            <Popper
-              PopperProps={{ placement: 'bottom-end' }}
-              opener={
-                <Button variant="quaternary" endIcon="chevron-down">
-                  {translate(mapLanguageKey(invoiceLanguage))}
-                </Button>
-              }
-            >
-              {({ closePopper }) => (
-                <MenuPopper>
-                  <Button
-                    align="left"
-                    variant={invoiceLanguage === LocaleEnum.en ? 'secondary' : 'quaternary'}
-                    onClick={() => {
-                      closePopper()
-                      setInvoiceLanguage(LocaleEnum.en)
-                    }}
-                  >
-                    {translate(mapLanguageKey(LocaleEnum.en))}
-                  </Button>
-                  <Button
-                    align="left"
-                    variant={invoiceLanguage === LocaleEnum.fr ? 'secondary' : 'quaternary'}
-                    onClick={() => {
-                      closePopper()
-                      setInvoiceLanguage(LocaleEnum.fr)
-                    }}
-                  >
-                    {translate(mapLanguageKey(LocaleEnum.fr))}
-                  </Button>
-                  <Button
-                    align="left"
-                    variant={invoiceLanguage === LocaleEnum.de ? 'secondary' : 'quaternary'}
-                    onClick={() => {
-                      closePopper()
-                      setInvoiceLanguage(LocaleEnum.de)
-                    }}
-                  >
-                    {translate(mapLanguageKey(LocaleEnum.de))}
-                  </Button>
-                  <Button
-                    align="left"
-                    variant={invoiceLanguage === LocaleEnum.it ? 'secondary' : 'quaternary'}
-                    onClick={() => {
-                      closePopper()
-                      setInvoiceLanguage(LocaleEnum.it)
-                    }}
-                  >
-                    {translate(mapLanguageKey(LocaleEnum.it))}
-                  </Button>
-                  <Button
-                    align="left"
-                    variant={invoiceLanguage === LocaleEnum.nb ? 'secondary' : 'quaternary'}
-                    onClick={() => {
-                      closePopper()
-                      setInvoiceLanguage(LocaleEnum.nb)
-                    }}
-                  >
-                    {translate(mapLanguageKey(LocaleEnum.nb))}
-                  </Button>
-                  <Button
-                    align="left"
-                    variant={invoiceLanguage === LocaleEnum.es ? 'secondary' : 'quaternary'}
-                    onClick={() => {
-                      closePopper()
-                      setInvoiceLanguage(LocaleEnum.es)
-                    }}
-                  >
-                    {translate(mapLanguageKey(LocaleEnum.es))}
-                  </Button>
-                  <Button
-                    align="left"
-                    variant={invoiceLanguage === LocaleEnum.sv ? 'secondary' : 'quaternary'}
-                    onClick={() => {
-                      closePopper()
-                      setInvoiceLanguage(LocaleEnum.sv)
-                    }}
-                  >
-                    {translate(mapLanguageKey(LocaleEnum.sv))}
-                  </Button>
-                </MenuPopper>
-              )}
-            </Popper>
+
+            <LanguageSettingsButton language={invoiceLanguage} onChange={setInvoiceLanguage} />
+
             <ControlDivider />
             <Typography variant="caption">{translate('text_6407684eaf41130074c4b2fa')}</Typography>
             <Tooltip title={translate('text_6407684eaf41130074c4b2f6')} placement="top-end">
