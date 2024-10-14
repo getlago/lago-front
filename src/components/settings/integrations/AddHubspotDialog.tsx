@@ -15,7 +15,7 @@ import {
   CreateHubspotIntegrationInput,
   DeleteHubspotIntegrationDialogFragmentDoc,
   HubspotForCreateDialogFragment,
-  TargetedObjectsEnum,
+  HubspotTargetedObjectsEnum,
   useCreateHubspotIntegrationMutation,
   useUpdateHubspotIntegrationMutation,
 } from '~/generated/graphql'
@@ -28,7 +28,6 @@ gql`
     name
     code
     defaultTargetedObject
-    privateAppToken
     syncInvoices
     syncSubscriptions
     ...DeleteHubspotIntegrationDialog
@@ -105,8 +104,7 @@ export const AddHubspotDialog = forwardRef<AddHubspotDialogRef>((_, ref) => {
       name: hubspotProvider?.name || '',
       code: hubspotProvider?.code || '',
       defaultTargetedObject:
-        hubspotProvider?.defaultTargetedObject || TargetedObjectsEnum.Companies,
-      privateAppToken: hubspotProvider?.privateAppToken || '',
+        hubspotProvider?.defaultTargetedObject || HubspotTargetedObjectsEnum.Companies,
       syncInvoices: !!hubspotProvider?.syncInvoices,
       syncSubscriptions: !!hubspotProvider?.syncSubscriptions,
     },
@@ -114,7 +112,6 @@ export const AddHubspotDialog = forwardRef<AddHubspotDialogRef>((_, ref) => {
       name: string().required(''),
       code: string().required(''),
       defaultTargetedObject: string().required(''),
-      privateAppToken: string().required(''),
       syncInvoices: boolean(),
       syncSubscriptions: boolean(),
     }),
@@ -260,13 +257,6 @@ export const AddHubspotDialog = forwardRef<AddHubspotDialogRef>((_, ref) => {
             formikProps={formikProps}
           />
         </div>
-
-        <TextInputField
-          name="privateAppToken"
-          label={translate('text_1727189568054lp1npj548nk')}
-          placeholder={translate('text_172718956805412kz5w7o2m2')}
-          formikProps={formikProps}
-        />
 
         <div className="flex flex-col gap-12">
           <ComboBoxField
