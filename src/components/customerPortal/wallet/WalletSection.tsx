@@ -7,7 +7,7 @@ import useCustomerPortalTranslate from '~/components/customerPortal/common/useCu
 import { Icon, Tooltip, Typography } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ, intlFormatDateToDateMed } from '~/core/timezone/utils'
+import { intlFormatDateToDateMed } from '~/core/timezone/utils'
 import {
   useGetPortalCustomerDataQuery,
   useGetPortalWalletsQuery,
@@ -128,7 +128,11 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
                 <Tooltip
                   placement="top-start"
                   title={translate('text_1728470529877eb3qoinwqa5', {
-                    date: formatDateToTZ(wallet?.lastBalanceSyncAt, customerTimezone),
+                    date: intlFormatDateToDateMed(
+                      wallet?.lastBalanceSyncAt,
+                      customerTimezone,
+                      documentLocale,
+                    ),
                   })}
                 >
                   <Icon size="medium" name="info-circle" />
