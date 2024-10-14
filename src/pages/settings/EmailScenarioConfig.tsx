@@ -5,11 +5,8 @@ import styled from 'styled-components'
 import { Avatar, Button, Icon, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { Switch } from '~/components/form'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import {
-  UpdateOrganizationLogoDialog,
-  UpdateOrganizationLogoDialogRef,
-} from '~/components/settings/emails/UpdateOrganizationLogoDialog'
 import { LanguageSettingsButton } from '~/components/settings/LanguageSettingsButton'
+import { PreviewEmailLayout } from '~/components/settings/PreviewEmailLayout'
 import { EMAILS_SCENARIO_CONFIG_ROUTE, EMAILS_SETTINGS_ROUTE } from '~/core/router'
 import { LocaleEnum } from '~/core/translations'
 import { EmailSettingsEnum } from '~/generated/graphql'
@@ -19,7 +16,6 @@ import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useEmailConfig } from '~/hooks/useEmailConfig'
 import { usePermissions } from '~/hooks/usePermissions'
-import Logo from '~/public/images/logo/lago-logo-grey.svg'
 import { NAV_HEIGHT, PageHeader, theme } from '~/styles'
 
 enum DisplayEnum {
@@ -64,7 +60,7 @@ const mapTranslationsKey = (type?: EmailSettingsEnum) => {
 
 const EmailScenarioConfig = () => {
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
-  const updateLogoDialogRef = useRef<UpdateOrganizationLogoDialogRef>(null)
+
   const [invoiceLanguage, setInvoiceLanguage] = useState<LocaleEnum>(LocaleEnum.en)
   const [display, setDisplay] = useState<DisplayEnum>(DisplayEnum.desktop)
   const { translate } = useInternationalization()
@@ -73,7 +69,7 @@ const EmailScenarioConfig = () => {
   const translationsKey = mapTranslationsKey(type)
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
-  const { loading, emailSettings, logoUrl, name, updateEmailSettings } = useEmailConfig()
+  const { loading, emailSettings, name, updateEmailSettings } = useEmailConfig()
   const { translateWithContextualLocal } = useContextualLocale(invoiceLanguage)
 
   return (
@@ -236,43 +232,14 @@ const EmailScenarioConfig = () => {
               </InvoiceFooter>
             </Loading>
           ) : (
-            <InvoicePreviewContent>
-              <InvoiceTitle variant="bodyHl" color="grey700">
-                {translateWithContextualLocal(translationsKey.subject, { organization: name })}
-              </InvoiceTitle>
-              <InvoiceHead>
-                <EmptyAvatar />
-                <div>
-                  <div>
-                    <Typography variant="captionHl" color="grey700" component="span">
-                      {name}
-                    </Typography>
-                    <FromEmail>{translate('text_64188b3d9735d5007d712260')}</FromEmail>
-                  </div>
-                  <ToEmail>{translateWithContextualLocal('text_64188b3d9735d5007d712262')}</ToEmail>
-                </div>
-              </InvoiceHead>
-              <div>
-                <Company>
-                  {!!logoUrl ? (
-                    <Avatar size="medium" variant="connector">
-                      <img src={logoUrl} alt="company-logo" />
-                    </Avatar>
-                  ) : (
-                    <Tooltip title={translate('text_6411e0aa915fd500a4d92cfb')} placement="top">
-                      <Button
-                        icon="plus"
-                        size="small"
-                        variant="secondary"
-                        onClick={() => {
-                          updateLogoDialogRef?.current?.openDialog()
-                        }}
-                      />
-                    </Tooltip>
-                  )}
-                  <Typography variant="subhead">{name}</Typography>
-                </Company>
-                <TemplateContent>
+            <>
+              <PreviewEmailLayout
+                language={invoiceLanguage}
+                emailObject={translateWithContextualLocal(translationsKey.subject, {
+                  organization: name,
+                })}
+              >
+                <>
                   <Typography variant="caption">
                     {translateWithContextualLocal(translationsKey.invoice_from, {
                       organization: name,
@@ -330,20 +297,13 @@ const EmailScenarioConfig = () => {
                     <span>{translateWithContextualLocal('text_64188b3d9735d5007d712276')}</span>
                     <span>billing@user_email.com</span>
                   </ContactBlock>
-                </TemplateContent>
-                <Footer>
-                  <Typography variant="note" color="grey500">
-                    {translateWithContextualLocal('text_64188b3d9735d5007d712278')}
-                  </Typography>
-                  <Logo height="12px" />
-                </Footer>
-              </div>
-            </InvoicePreviewContent>
+                </>
+              </PreviewEmailLayout>
+            </>
           )}
         </PreviewContent>
       </PreviewContainer>
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
-      <UpdateOrganizationLogoDialog ref={updateLogoDialogRef} />
     </Container>
   )
 }
@@ -470,26 +430,6 @@ const ControlDivider = styled.div`
   background-color: ${theme.palette.grey[300]};
 `
 
-const InvoiceTitle = styled(Typography)`
-  margin-bottom: ${theme.spacing(4)};
-  flex: 1;
-`
-
-const EmptyAvatar = styled.div`
-  height: 40px;
-  min-height: 40px;
-  min-width: 40px;
-  width: 40px;
-  border-radius: 50%;
-  background-color: ${theme.palette.grey[300]};
-  margin-right: ${theme.spacing(4)};
-`
-
-const InvoicePreviewContent = styled.div`
-  display: flex;
-  flex-direction: column;
-`
-
 const InvoiceContentLoader = styled.div`
   background-color: ${theme.palette.common.white};
   padding: ${theme.spacing(8)};
@@ -510,29 +450,6 @@ const ContactBlock = styled(Typography)`
   > :last-child {
     color: ${theme.palette.primary[600]};
   }
-`
-
-const Company = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 32px;
-
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(3)};
-  }
-`
-
-const TemplateContent = styled.div`
-  background-color: ${theme.palette.common.white};
-  padding: ${theme.spacing(8)};
-  border-radius: 12px;
-  border: ${theme.palette.grey[300]};
-  margin-bottom: ${theme.spacing(8)};
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
 `
 
 const InfoBlock = styled.div`
@@ -559,22 +476,6 @@ const DownloadBlock = styled.div`
   }
 `
 
-const Footer = styled.div`
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-  letter-spacing: -0.16px;
-  color: ${theme.palette.grey[500]};
-  margin-bottom: ${theme.spacing(20)};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  svg {
-    margin: 0 4px;
-  }
-`
-
 const Divider = styled.div`
   height: 1px;
   width: 100%;
@@ -589,25 +490,6 @@ const HeaderRight = styled.div`
   > *:not(:last-child) {
     margin-right: ${theme.spacing(3)};
   }
-`
-
-const FromEmail = styled.span`
-  margin-left: ${theme.spacing(1)};
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-  letter-spacing: -0.16px;
-  text-align: left;
-  color: ${theme.palette.grey[600]};
-`
-
-const ToEmail = styled.span`
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-  letter-spacing: -0.16px;
-  text-align: left;
-  color: ${theme.palette.grey[600]};
 `
 
 const TitleText = styled(Typography)`
