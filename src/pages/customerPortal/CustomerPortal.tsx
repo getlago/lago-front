@@ -16,6 +16,7 @@ import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { useGetPortalOrgaInfosQuery } from '~/generated/graphql'
+import { tw } from '~/styles/utils'
 
 gql`
   query getPortalOrgaInfos {
@@ -29,6 +30,9 @@ gql`
 `
 
 const CustomerPortal = () => {
+  const isInsideIframe = window.top !== window.self
+  const showSidebar = !isInsideIframe
+
   const {
     translate,
     error: customerPortalTranslateError,
@@ -48,25 +52,43 @@ const CustomerPortal = () => {
     error: portalOrgasInfoError,
   } = useGetPortalOrgaInfosQuery()
 
+  const containerClassName = tw(
+    'flex flex-col bg-white md:flex-row',
+    !showSidebar && 'justify-center',
+  )
+
+  const contentContainerClassName = tw(
+    'h-screen w-full overflow-y-auto bg-white p-4',
+    showSidebar && 'md:p-20',
+  )
+
+  const contentInnerContainerClassName = tw(showSidebar && 'max-w-screen-lg')
+
+  const pageContainerClassName = tw(showSidebar && 'max-w-2xl')
+
   useEffect(() => {
     customerPortalContentRef.current?.scrollTo?.(0, 0)
   }, [pathname])
 
   if (portalIsError) {
     return (
-      <div className="flex flex-col md:flex-row">
-        <CustomerPortalSidebar
-          organizationName={portalOrgaInfosData?.customerPortalOrganization?.name}
-          organizationLogoUrl={portalOrgaInfosData?.customerPortalOrganization?.logoUrl}
-          isLoading={portalOrgasInfoLoading}
-          isError={portalOrgasInfoError}
-        />
-
-        <div className="h-screen w-full max-w-screen-lg overflow-y-auto p-4 md:p-20">
-          <SectionError
-            customTitle={translate('text_1728546284339z3fs0oqdejs')}
-            hideDescription={true}
+      <div className={containerClassName}>
+        {showSidebar && (
+          <CustomerPortalSidebar
+            organizationName={portalOrgaInfosData?.customerPortalOrganization?.name}
+            organizationLogoUrl={portalOrgaInfosData?.customerPortalOrganization?.logoUrl}
+            isLoading={portalOrgasInfoLoading}
+            isError={portalOrgasInfoError}
           />
+        )}
+
+        <div className={contentContainerClassName}>
+          <div className={contentInnerContainerClassName}>
+            <SectionError
+              customTitle={translate('text_1728546284339z3fs0oqdejs')}
+              hideDescription={true}
+            />
+          </div>
         </div>
       </div>
     )
@@ -74,26 +96,28 @@ const CustomerPortal = () => {
 
   if (portalIsLoading) {
     return (
-      <div className="flex flex-col md:flex-row">
-        <CustomerPortalSidebar isLoading={true} />
+      <div className={containerClassName}>
+        {showSidebar && <CustomerPortalSidebar isLoading={true} />}
 
-        <div className="h-screen w-full max-w-screen-lg overflow-y-auto p-4 md:p-20">
-          <div className="flex flex-col gap-12">
-            <div>
-              <SectionTitle title="" loading={true} />
-              <LoaderWalletSection />
-            </div>
-            <div>
-              <SectionTitle title="" loading={true} />
-              <LoaderUsageSection />
-            </div>
-            <div>
-              <SectionTitle title="" loading={true} />
-              <LoaderCustomerInformationSection />
-            </div>
-            <div>
-              <SectionTitle title="" loading={true} />
-              <LoaderInvoicesListSection />
+        <div className={contentContainerClassName}>
+          <div className={contentInnerContainerClassName}>
+            <div className="flex flex-col gap-12">
+              <div>
+                <SectionTitle title="" loading={true} />
+                <LoaderWalletSection />
+              </div>
+              <div>
+                <SectionTitle title="" loading={true} />
+                <LoaderUsageSection />
+              </div>
+              <div>
+                <SectionTitle title="" loading={true} />
+                <LoaderCustomerInformationSection />
+              </div>
+              <div>
+                <SectionTitle title="" loading={true} />
+                <LoaderInvoicesListSection />
+              </div>
             </div>
           </div>
         </div>
@@ -102,19 +126,25 @@ const CustomerPortal = () => {
   }
 
   return (
-    <div className="flex flex-col md:flex-row">
-      <CustomerPortalSidebar
-        organizationName={portalOrgaInfosData?.customerPortalOrganization?.name}
-        organizationLogoUrl={portalOrgaInfosData?.customerPortalOrganization?.logoUrl}
-        isLoading={portalOrgasInfoLoading}
-        isError={portalOrgasInfoError}
-      />
+    <div className={containerClassName}>
+      {showSidebar && (
+        <CustomerPortalSidebar
+          organizationName={portalOrgaInfosData?.customerPortalOrganization?.name}
+          organizationLogoUrl={portalOrgaInfosData?.customerPortalOrganization?.logoUrl}
+          isLoading={portalOrgasInfoLoading}
+          isError={portalOrgasInfoError}
+        />
+      )}
 
-      <div className="h-screen w-full overflow-y-auto p-4 md:p-20" ref={customerPortalContentRef}>
-        <div className="max-w-screen-lg">
+      <div className={contentContainerClassName} ref={customerPortalContentRef}>
+        <div className={contentInnerContainerClassName}>
           {portalOrgasInfoLoading && <CustomerPortalLoading />}
 
-          {!portalOrgasInfoLoading && <Outlet />}
+          {!portalOrgasInfoLoading && (
+            <div className={pageContainerClassName}>
+              <Outlet />
+            </div>
+          )}
         </div>
       </div>
     </div>

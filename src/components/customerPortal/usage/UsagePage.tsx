@@ -105,7 +105,7 @@ const UsagePage = () => {
   const customerPortalOrganization = organization?.customerPortalOrganization
 
   return (
-    <div className="max-w-2xl">
+    <div>
       <PageTitle title={translate('text_1728377307160r73ggjgpulg')} goHome={goHome} />
 
       <SectionTitle title={translate('text_172837730716038g8qgz927f')} />

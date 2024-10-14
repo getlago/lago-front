@@ -114,7 +114,7 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
   }
 
   return (
-    <div className="flex max-w-2xl flex-col gap-4">
+    <div className="flex flex-col gap-4">
       <Typography className="text-base font-medium text-grey-700">
         {translate('text_1728377307159eu0ihwiyrf0')}
       </Typography>

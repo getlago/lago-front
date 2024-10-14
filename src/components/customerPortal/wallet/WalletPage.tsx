@@ -89,7 +89,7 @@ const WalletPage = () => {
   }
 
   return (
-    <div className="max-w-2xl">
+    <div>
       <PageTitle title={translate('text_1728498418253nyv3qmz9k5k')} goHome={goHome} />
 
       {isLoading && <LoaderWalletPage />}
