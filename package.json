@@ -124,7 +124,7 @@
     "react": "18.2.0",
     "react-ace": "^11.0.1",
     "react-dom": "18.2.0",
-    "react-router-dom": "6.15.0",
+    "react-router-dom": "6.27.0",
     "react-window": "1.8.9",
     "recharts": "^2.9.0",
     "sanitize-html": "2.12.1",
