@@ -2,21 +2,11 @@ import { useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
-import {
-  Avatar,
-  Button,
-  Icon,
-  Popper,
-  Skeleton,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Avatar, Button, Icon, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { Switch } from '~/components/form'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import {
-  UpdateOrganizationLogoDialog,
-  UpdateOrganizationLogoDialogRef,
-} from '~/components/settings/emails/UpdateOrganizationLogoDialog'
+import { LanguageSettingsButton } from '~/components/settings/LanguageSettingsButton'
+import { PreviewEmailLayout } from '~/components/settings/PreviewEmailLayout'
 import { EMAILS_SCENARIO_CONFIG_ROUTE, EMAILS_SETTINGS_ROUTE } from '~/core/router'
 import { LocaleEnum } from '~/core/translations'
 import { EmailSettingsEnum } from '~/generated/graphql'
@@ -26,31 +16,11 @@ import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useEmailConfig } from '~/hooks/useEmailConfig'
 import { usePermissions } from '~/hooks/usePermissions'
-import Logo from '~/public/images/logo/lago-logo-grey.svg'
-import { MenuPopper, NAV_HEIGHT, PageHeader, theme } from '~/styles'
+import { NAV_HEIGHT, PageHeader, theme } from '~/styles'
 
 enum DisplayEnum {
   desktop = 'desktop',
   mobile = 'mobile',
-}
-
-const mapLanguageKey = (language: LocaleEnum) => {
-  switch (language) {
-    case LocaleEnum.fr:
-      return 'text_640a0b75228ef90063296ea4'
-    case LocaleEnum.nb:
-      return 'text_640a0b75228ef90063296eb5'
-    case LocaleEnum.de:
-      return 'text_6437d8583c62bc00c393d923'
-    case LocaleEnum.it:
-      return 'text_64e4ce3b2fa8940053c8a583'
-    case LocaleEnum.es:
-      return 'text_6526cbd3aedb8800aed06c3d'
-    case LocaleEnum.sv:
-      return 'text_6526cd088700e000714f0025'
-    default:
-      return 'text_6407684eaf41130074c4b2f7'
-  }
 }
 
 const mapTranslationsKey = (type?: EmailSettingsEnum) => {
@@ -90,7 +60,7 @@ const mapTranslationsKey = (type?: EmailSettingsEnum) => {
 
 const EmailScenarioConfig = () => {
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
-  const updateLogoDialogRef = useRef<UpdateOrganizationLogoDialogRef>(null)
+
   const [invoiceLanguage, setInvoiceLanguage] = useState<LocaleEnum>(LocaleEnum.en)
   const [display, setDisplay] = useState<DisplayEnum>(DisplayEnum.desktop)
   const { translate } = useInternationalization()
@@ -99,7 +69,7 @@ const EmailScenarioConfig = () => {
   const translationsKey = mapTranslationsKey(type)
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
-  const { loading, emailSettings, logoUrl, name, updateEmailSettings } = useEmailConfig()
+  const { loading, emailSettings, name, updateEmailSettings } = useEmailConfig()
   const { translateWithContextualLocal } = useContextualLocale(invoiceLanguage)
 
   return (
@@ -169,89 +139,9 @@ const EmailScenarioConfig = () => {
         {!loading && (
           <Controls>
             <Typography variant="caption">{translate('text_6407684eaf41130074c4b2f9')}</Typography>
-            <Popper
-              PopperProps={{ placement: 'bottom-end' }}
-              opener={
-                <Button variant="quaternary" endIcon="chevron-down">
-                  {translate(mapLanguageKey(invoiceLanguage))}
-                </Button>
-              }
-            >
-              {({ closePopper }) => (
-                <MenuPopper>
-                  <Button
-                    align="left"
-                    variant={invoiceLanguage === LocaleEnum.en ? 'secondary' : 'quaternary'}
-                    onClick={() => {
-                      closePopper()
-                      setInvoiceLanguage(LocaleEnum.en)
-                    }}
-                  >
-                    {translate(mapLanguageKey(LocaleEnum.en))}
-                  </Button>
-                  <Button
-                    align="left"
-                    variant={invoiceLanguage === LocaleEnum.fr ? 'secondary' : 'quaternary'}
-                    onClick={() => {
-                      closePopper()
-                      setInvoiceLanguage(LocaleEnum.fr)
-                    }}
-                  >
-                    {translate(mapLanguageKey(LocaleEnum.fr))}
-                  </Button>
-                  <Button
-                    align="left"
-                    variant={invoiceLanguage === LocaleEnum.de ? 'secondary' : 'quaternary'}
-                    onClick={() => {
-                      closePopper()
-                      setInvoiceLanguage(LocaleEnum.de)
-                    }}
-                  >
-                    {translate(mapLanguageKey(LocaleEnum.de))}
-                  </Button>
-                  <Button
-                    align="left"
-                    variant={invoiceLanguage === LocaleEnum.it ? 'secondary' : 'quaternary'}
-                    onClick={() => {
-                      closePopper()
-                      setInvoiceLanguage(LocaleEnum.it)
-                    }}
-                  >
-                    {translate(mapLanguageKey(LocaleEnum.it))}
-                  </Button>
-                  <Button
-                    align="left"
-                    variant={invoiceLanguage === LocaleEnum.nb ? 'secondary' : 'quaternary'}
-                    onClick={() => {
-                      closePopper()
-                      setInvoiceLanguage(LocaleEnum.nb)
-                    }}
-                  >
-                    {translate(mapLanguageKey(LocaleEnum.nb))}
-                  </Button>
-                  <Button
-                    align="left"
-                    variant={invoiceLanguage === LocaleEnum.es ? 'secondary' : 'quaternary'}
-                    onClick={() => {
-                      closePopper()
-                      setInvoiceLanguage(LocaleEnum.es)
-                    }}
-                  >
-                    {translate(mapLanguageKey(LocaleEnum.es))}
-                  </Button>
-                  <Button
-                    align="left"
-                    variant={invoiceLanguage === LocaleEnum.sv ? 'secondary' : 'quaternary'}
-                    onClick={() => {
-                      closePopper()
-                      setInvoiceLanguage(LocaleEnum.sv)
-                    }}
-                  >
-                    {translate(mapLanguageKey(LocaleEnum.sv))}
-                  </Button>
-                </MenuPopper>
-              )}
-            </Popper>
+
+            <LanguageSettingsButton language={invoiceLanguage} onChange={setInvoiceLanguage} />
+
             <ControlDivider />
             <Typography variant="caption">{translate('text_6407684eaf41130074c4b2fa')}</Typography>
             <Tooltip title={translate('text_6407684eaf41130074c4b2f6')} placement="top-end">
@@ -273,112 +163,61 @@ const EmailScenarioConfig = () => {
       </PreviewHeader>
       <PreviewContainer>
         <PreviewContent $display={display}>
-          {loading ? (
-            <Loading>
-              <Skeleton color="dark" variant="text" width={360} marginBottom={22} />
-              <InvoiceHead>
-                <Skeleton
-                  color="dark"
-                  variant="circular"
-                  width={40}
-                  height={40}
-                  marginRight={theme.spacing(4)}
-                />
-                <div>
-                  <Skeleton
-                    color="dark"
-                    variant="text"
-                    width={240}
-                    marginBottom={theme.spacing(2)}
-                  />
-                  <Skeleton color="dark" variant="text" width={120} />
-                </div>
-              </InvoiceHead>
-              <InvoiceLogo>
-                <Skeleton
-                  color="dark"
-                  variant="connectorAvatar"
-                  size="medium"
-                  marginRight={theme.spacing(3)}
-                />
-                <Skeleton color="dark" variant="text" width={120} />
-              </InvoiceLogo>
-              <InvoiceContentLoader>
-                <Skeleton color="dark" variant="text" width={120} marginBottom={theme.spacing(5)} />
-                <Skeleton color="dark" variant="text" width={160} marginBottom={theme.spacing(5)} />
-                <Skeleton color="dark" variant="text" width={120} marginBottom={30} />
-                <Skeleton color="dark" variant="text" width="100%" height={1} marginBottom={30} />
-                <LoadingBlock>
+          <PreviewEmailLayout
+            isLoading={loading}
+            language={invoiceLanguage}
+            emailObject={translateWithContextualLocal(translationsKey.subject, {
+              organization: name,
+            })}
+          >
+            <div className="flex flex-col items-center justify-center">
+              {loading ? (
+                <>
                   <Skeleton
                     color="dark"
                     variant="text"
                     width={120}
-                    marginBottom={theme.spacing(4)}
+                    marginBottom={theme.spacing(5)}
                   />
                   <Skeleton
                     color="dark"
                     variant="text"
                     width={160}
-                    marginBottom={theme.spacing(4)}
+                    marginBottom={theme.spacing(5)}
                   />
-                </LoadingBlock>
-                <LoadingBlock>
-                  <Skeleton
-                    color="dark"
-                    variant="text"
-                    width={120}
-                    marginBottom={theme.spacing(4)}
-                  />
-                  <Skeleton
-                    color="dark"
-                    variant="text"
-                    width={160}
-                    marginBottom={theme.spacing(4)}
-                  />
-                </LoadingBlock>
-              </InvoiceContentLoader>
-              <InvoiceFooter>
-                <Skeleton color="dark" variant="text" width={220} />
-              </InvoiceFooter>
-            </Loading>
-          ) : (
-            <InvoicePreviewContent>
-              <InvoiceTitle variant="bodyHl" color="grey700">
-                {translateWithContextualLocal(translationsKey.subject, { organization: name })}
-              </InvoiceTitle>
-              <InvoiceHead>
-                <EmptyAvatar />
-                <div>
-                  <div>
-                    <Typography variant="captionHl" color="grey700" component="span">
-                      {name}
-                    </Typography>
-                    <FromEmail>{translate('text_64188b3d9735d5007d712260')}</FromEmail>
-                  </div>
-                  <ToEmail>{translateWithContextualLocal('text_64188b3d9735d5007d712262')}</ToEmail>
-                </div>
-              </InvoiceHead>
-              <div>
-                <Company>
-                  {!!logoUrl ? (
-                    <Avatar size="medium" variant="connector">
-                      <img src={logoUrl} alt="company-logo" />
-                    </Avatar>
-                  ) : (
-                    <Tooltip title={translate('text_6411e0aa915fd500a4d92cfb')} placement="top">
-                      <Button
-                        icon="plus"
-                        size="small"
-                        variant="secondary"
-                        onClick={() => {
-                          updateLogoDialogRef?.current?.openDialog()
-                        }}
-                      />
-                    </Tooltip>
-                  )}
-                  <Typography variant="subhead">{name}</Typography>
-                </Company>
-                <TemplateContent>
+                  <Skeleton color="dark" variant="text" width={120} marginBottom={30} />
+                  <Skeleton color="dark" variant="text" width="100%" height={1} marginBottom={30} />
+                  <LoadingBlock>
+                    <Skeleton
+                      color="dark"
+                      variant="text"
+                      width={120}
+                      marginBottom={theme.spacing(4)}
+                    />
+                    <Skeleton
+                      color="dark"
+                      variant="text"
+                      width={160}
+                      marginBottom={theme.spacing(4)}
+                    />
+                  </LoadingBlock>
+                  <LoadingBlock>
+                    <Skeleton
+                      color="dark"
+                      variant="text"
+                      width={120}
+                      marginBottom={theme.spacing(4)}
+                    />
+                    <Skeleton
+                      color="dark"
+                      variant="text"
+                      width={160}
+                      marginBottom={theme.spacing(4)}
+                    />
+                  </LoadingBlock>
+                </>
+              ) : (
+                <>
                   <Typography variant="caption">
                     {translateWithContextualLocal(translationsKey.invoice_from, {
                       organization: name,
@@ -436,20 +275,13 @@ const EmailScenarioConfig = () => {
                     <span>{translateWithContextualLocal('text_64188b3d9735d5007d712276')}</span>
                     <span>billing@user_email.com</span>
                   </ContactBlock>
-                </TemplateContent>
-                <Footer>
-                  <Typography variant="note" color="grey500">
-                    {translateWithContextualLocal('text_64188b3d9735d5007d712278')}
-                  </Typography>
-                  <Logo height="12px" />
-                </Footer>
-              </div>
-            </InvoicePreviewContent>
-          )}
+                </>
+              )}
+            </div>
+          </PreviewEmailLayout>
         </PreviewContent>
       </PreviewContainer>
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
-      <UpdateOrganizationLogoDialog ref={updateLogoDialogRef} />
     </Container>
   )
 }
@@ -523,38 +355,6 @@ const PreviewContent = styled.div<{ $display: DisplayEnum }>`
   width: ${({ $display }) => ($display === DisplayEnum.desktop ? '600px' : '360px')};
   padding: ${theme.spacing(12)} ${theme.spacing(4)} 0;
 `
-
-const Loading = styled.div`
-  flex: 1;
-  > *:first-child {
-    margin-top: ${theme.spacing(1)};
-  }
-`
-
-const InvoiceHead = styled.div`
-  display: flex;
-  align-items: center;
-  width: 100%;
-  margin-bottom: ${theme.spacing(12)};
-
-  > * {
-    width: 100%;
-  }
-`
-
-const InvoiceLogo = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: ${theme.spacing(8)};
-`
-
-const InvoiceFooter = styled.div`
-  display: flex;
-  justify-content: center;
-  padding-bottom: ${theme.spacing(20)};
-`
-
 const LoadingBlock = styled.div`
   display: flex;
   justify-content: space-between;
@@ -576,38 +376,6 @@ const ControlDivider = styled.div`
   background-color: ${theme.palette.grey[300]};
 `
 
-const InvoiceTitle = styled(Typography)`
-  margin-bottom: ${theme.spacing(4)};
-  flex: 1;
-`
-
-const EmptyAvatar = styled.div`
-  height: 40px;
-  min-height: 40px;
-  min-width: 40px;
-  width: 40px;
-  border-radius: 50%;
-  background-color: ${theme.palette.grey[300]};
-  margin-right: ${theme.spacing(4)};
-`
-
-const InvoicePreviewContent = styled.div`
-  display: flex;
-  flex-direction: column;
-`
-
-const InvoiceContentLoader = styled.div`
-  background-color: ${theme.palette.common.white};
-  padding: ${theme.spacing(8)};
-  border-radius: 12px;
-  border: ${theme.palette.grey[300]};
-  margin-bottom: ${theme.spacing(8)};
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-`
-
 const ContactBlock = styled(Typography)`
   text-align: center;
   > :first-child {
@@ -616,29 +384,6 @@ const ContactBlock = styled(Typography)`
   > :last-child {
     color: ${theme.palette.primary[600]};
   }
-`
-
-const Company = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 32px;
-
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(3)};
-  }
-`
-
-const TemplateContent = styled.div`
-  background-color: ${theme.palette.common.white};
-  padding: ${theme.spacing(8)};
-  border-radius: 12px;
-  border: ${theme.palette.grey[300]};
-  margin-bottom: ${theme.spacing(8)};
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
 `
 
 const InfoBlock = styled.div`
@@ -665,22 +410,6 @@ const DownloadBlock = styled.div`
   }
 `
 
-const Footer = styled.div`
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-  letter-spacing: -0.16px;
-  color: ${theme.palette.grey[500]};
-  margin-bottom: ${theme.spacing(20)};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  svg {
-    margin: 0 4px;
-  }
-`
-
 const Divider = styled.div`
   height: 1px;
   width: 100%;
@@ -695,25 +424,6 @@ const HeaderRight = styled.div`
   > *:not(:last-child) {
     margin-right: ${theme.spacing(3)};
   }
-`
-
-const FromEmail = styled.span`
-  margin-left: ${theme.spacing(1)};
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-  letter-spacing: -0.16px;
-  text-align: left;
-  color: ${theme.palette.grey[600]};
-`
-
-const ToEmail = styled.span`
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-  letter-spacing: -0.16px;
-  text-align: left;
-  color: ${theme.palette.grey[600]};
 `
 
 const TitleText = styled(Typography)`
