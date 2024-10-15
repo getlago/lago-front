@@ -163,82 +163,60 @@ const EmailScenarioConfig = () => {
       </PreviewHeader>
       <PreviewContainer>
         <PreviewContent $display={display}>
-          {loading ? (
-            <Loading>
-              <Skeleton color="dark" variant="text" width={360} marginBottom={22} />
-              <InvoiceHead>
-                <Skeleton
-                  color="dark"
-                  variant="circular"
-                  width={40}
-                  height={40}
-                  marginRight={theme.spacing(4)}
-                />
-                <div>
-                  <Skeleton
-                    color="dark"
-                    variant="text"
-                    width={240}
-                    marginBottom={theme.spacing(2)}
-                  />
-                  <Skeleton color="dark" variant="text" width={120} />
-                </div>
-              </InvoiceHead>
-              <InvoiceLogo>
-                <Skeleton
-                  color="dark"
-                  variant="connectorAvatar"
-                  size="medium"
-                  marginRight={theme.spacing(3)}
-                />
-                <Skeleton color="dark" variant="text" width={120} />
-              </InvoiceLogo>
-              <InvoiceContentLoader>
-                <Skeleton color="dark" variant="text" width={120} marginBottom={theme.spacing(5)} />
-                <Skeleton color="dark" variant="text" width={160} marginBottom={theme.spacing(5)} />
-                <Skeleton color="dark" variant="text" width={120} marginBottom={30} />
-                <Skeleton color="dark" variant="text" width="100%" height={1} marginBottom={30} />
-                <LoadingBlock>
+          <PreviewEmailLayout
+            isLoading={loading}
+            language={invoiceLanguage}
+            emailObject={translateWithContextualLocal(translationsKey.subject, {
+              organization: name,
+            })}
+          >
+            <div className="flex flex-col items-center justify-center">
+              {loading ? (
+                <>
                   <Skeleton
                     color="dark"
                     variant="text"
                     width={120}
-                    marginBottom={theme.spacing(4)}
+                    marginBottom={theme.spacing(5)}
                   />
                   <Skeleton
                     color="dark"
                     variant="text"
                     width={160}
-                    marginBottom={theme.spacing(4)}
+                    marginBottom={theme.spacing(5)}
                   />
-                </LoadingBlock>
-                <LoadingBlock>
-                  <Skeleton
-                    color="dark"
-                    variant="text"
-                    width={120}
-                    marginBottom={theme.spacing(4)}
-                  />
-                  <Skeleton
-                    color="dark"
-                    variant="text"
-                    width={160}
-                    marginBottom={theme.spacing(4)}
-                  />
-                </LoadingBlock>
-              </InvoiceContentLoader>
-              <InvoiceFooter>
-                <Skeleton color="dark" variant="text" width={220} />
-              </InvoiceFooter>
-            </Loading>
-          ) : (
-            <>
-              <PreviewEmailLayout
-                language={invoiceLanguage}
-                emailObject={translateWithContextualLocal(translationsKey.subject, {
-                  organization: name,
-                })}
-              >
+                  <Skeleton color="dark" variant="text" width={120} marginBottom={30} />
+                  <Skeleton color="dark" variant="text" width="100%" height={1} marginBottom={30} />
+                  <LoadingBlock>
+                    <Skeleton
+                      color="dark"
+                      variant="text"
+                      width={120}
+                      marginBottom={theme.spacing(4)}
+                    />
+                    <Skeleton
+                      color="dark"
+                      variant="text"
+                      width={160}
+                      marginBottom={theme.spacing(4)}
+                    />
+                  </LoadingBlock>
+                  <LoadingBlock>
+                    <Skeleton
+                      color="dark"
+                      variant="text"
+                      width={120}
+                      marginBottom={theme.spacing(4)}
+                    />
+                    <Skeleton
+                      color="dark"
+                      variant="text"
+                      width={160}
+                      marginBottom={theme.spacing(4)}
+                    />
+                  </LoadingBlock>
+                </>
+              ) : (
                 <>
                   <Typography variant="caption">
                     {translateWithContextualLocal(translationsKey.invoice_from, {
@@ -298,9 +276,9 @@ const EmailScenarioConfig = () => {
                     <span>billing@user_email.com</span>
                   </ContactBlock>
                 </>
-              </PreviewEmailLayout>
-            </>
-          )}
+              )}
+            </div>
+          </PreviewEmailLayout>
         </PreviewContent>
       </PreviewContainer>
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
@@ -377,38 +355,6 @@ const PreviewContent = styled.div<{ $display: DisplayEnum }>`
   width: ${({ $display }) => ($display === DisplayEnum.desktop ? '600px' : '360px')};
   padding: ${theme.spacing(12)} ${theme.spacing(4)} 0;
 `
-
-const Loading = styled.div`
-  flex: 1;
-  > *:first-child {
-    margin-top: ${theme.spacing(1)};
-  }
-`
-
-const InvoiceHead = styled.div`
-  display: flex;
-  align-items: center;
-  width: 100%;
-  margin-bottom: ${theme.spacing(12)};
-
-  > * {
-    width: 100%;
-  }
-`
-
-const InvoiceLogo = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: ${theme.spacing(8)};
-`
-
-const InvoiceFooter = styled.div`
-  display: flex;
-  justify-content: center;
-  padding-bottom: ${theme.spacing(20)};
-`
-
 const LoadingBlock = styled.div`
   display: flex;
   justify-content: space-between;
@@ -428,18 +374,6 @@ const ControlDivider = styled.div`
   width: 1px;
   height: 40px;
   background-color: ${theme.palette.grey[300]};
-`
-
-const InvoiceContentLoader = styled.div`
-  background-color: ${theme.palette.common.white};
-  padding: ${theme.spacing(8)};
-  border-radius: 12px;
-  border: ${theme.palette.grey[300]};
-  margin-bottom: ${theme.spacing(8)};
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
 `
 
 const ContactBlock = styled(Typography)`
