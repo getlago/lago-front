@@ -27,6 +27,7 @@ interface DrawerProps extends Pick<MuiDrawerProps, 'anchor'> {
   fullContentHeight?: boolean
   children: (({ closeDrawer }: { closeDrawer: () => void }) => ReactNode) | ReactNode
   stickyBottomBar?: (({ closeDrawer }: { closeDrawer: () => void }) => ReactNode) | ReactNode
+  withPadding?: boolean
   onOpen?: () => void
   onClose?: () => void
 }
@@ -47,6 +48,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
       anchor = 'right',
       title,
       fullContentHeight,
+      withPadding = true,
       onOpen,
       onClose,
     }: DrawerProps,
@@ -119,7 +121,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
               }}
             />
           </Header>
-          <Content $fullContentHeight={fullContentHeight}>
+          <Content $fullContentHeight={fullContentHeight} $withPadding={withPadding}>
             {typeof children === 'function'
               ? children({ closeDrawer: () => setIsOpen(false) })
               : children}
@@ -182,12 +184,16 @@ const Header = styled.div`
   }
 `
 
-const Content = styled.div<{ $fullContentHeight?: boolean }>`
+const Content = styled.div<{ $fullContentHeight?: boolean; $withPadding?: boolean }>`
   height: ${({ $fullContentHeight }) => ($fullContentHeight ? '100%' : ' ')};
-  padding: ${theme.spacing(12)} ${theme.spacing(12)} ${theme.spacing(20)};
+  padding: ${({ $withPadding }) =>
+    $withPadding ? `${theme.spacing(12)} ${theme.spacing(12)} ${theme.spacing(20)}` : undefined};
 
   ${theme.breakpoints.down('md')} {
-    padding: ${theme.spacing(12)} ${theme.spacing(4)} ${theme.spacing(20)} ${theme.spacing(4)};
+    padding: ${({ $withPadding }) =>
+      $withPadding
+        ? `${theme.spacing(12)} ${theme.spacing(4)} ${theme.spacing(20)} ${theme.spacing(4)}`
+        : undefined};
   }
 `
 
