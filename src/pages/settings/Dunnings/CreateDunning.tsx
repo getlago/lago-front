@@ -1,7 +1,9 @@
+import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { array, boolean, number, object, string } from 'yup'
 
 import { Button, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInputField, ComboBoxField, Switch, TextInputField } from '~/components/form'
@@ -10,12 +12,44 @@ import {
   DefaultCampaignDialogRef,
 } from '~/components/settings/dunnings/DefaultCampaignDialog'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { DUNNINGS_SETTINGS_ROUTE } from '~/core/router'
-import { CurrencyEnum } from '~/generated/graphql'
+import { serializeAmount } from '~/core/serializers/serializeAmount'
+import {
+  CreateDunningCampaignInput,
+  CurrencyEnum,
+  LagoApiError,
+  useCreateDunningCampaignMutation,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { PageHeader } from '~/styles'
 import { Divider } from '~/styles/mainObjectsForm'
+
+gql`
+  mutation CreateDunningCampaign($input: CreateDunningCampaignInput!) {
+    createDunningCampaign(input: $input) {
+      name
+      code
+      description
+      thresholds {
+        amountCents
+        currency
+      }
+      daysBetweenAttempts
+      maxAttempts
+      appliedToOrganization
+    }
+  }
+`
+
+type TCreateDunningCampaignInput = Omit<
+  CreateDunningCampaignInput,
+  'daysBetweenAttempts' | 'maxAttempts'
+> & {
+  daysBetweenAttempts: string
+  maxAttempts: string
+}
 
 const CreateDunning = () => {
   const { translate } = useInternationalization()
@@ -26,32 +60,88 @@ const CreateDunning = () => {
 
   const { organization: { defaultCurrency } = {} } = useOrganizationInfos()
 
-  const formikProps = useFormik({
+  const [create] = useCreateDunningCampaignMutation({
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+    onCompleted({ createDunningCampaign }) {
+      if (!!createDunningCampaign) {
+        addToast({
+          severity: 'success',
+          message: translate('text_17290016117598ws4m1j6wvy'),
+        })
+      }
+      navigate(DUNNINGS_SETTINGS_ROUTE)
+    },
+    onError(error) {
+      if (hasDefinedGQLError('ValueAlreadyExist', error)) {
+        formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
+      } else {
+        addToast({
+          severity: 'danger',
+          message: translate('text_62b31e1f6a5b8b1b745ece48'),
+        })
+      }
+
+      const rootElement = document.getElementById('root')
+
+      if (!rootElement) return
+      rootElement.scrollTo({ top: 0 })
+    },
+  })
+
+  const formikProps = useFormik<TCreateDunningCampaignInput>({
     initialValues: {
       name: '',
       code: '',
       description: '',
       thresholds: [
         {
-          currency: defaultCurrency,
-          amount: '0',
+          currency: defaultCurrency ?? CurrencyEnum.Usd,
+          amountCents: undefined,
         },
       ],
-      delays: '',
-      retry: '',
-      isDefault: false,
+      daysBetweenAttempts: '',
+      maxAttempts: '',
+      appliedToOrganization: false,
     },
+    validationSchema: object().shape({
+      name: string().required(''),
+      code: string().required(''),
+      description: string(),
+      thresholds: array()
+        .of(
+          object().shape({
+            currency: string().required(''),
+            amountCents: string().required(''),
+          }),
+        )
+        .min(1, '')
+        .required(''),
+      daysBetweenAttempts: number().min(1, '').required(''),
+      maxAttempts: number().min(1, '').required(''),
+      appliedToOrganization: boolean().required(''),
+    }),
     enableReinitialize: true,
     validateOnMount: true,
-    onSubmit: () => {
-      console.log('Submit')
+    onSubmit: async (values) => {
+      await create({
+        variables: {
+          input: {
+            ...values,
+            daysBetweenAttempts: Number(values.daysBetweenAttempts),
+            maxAttempts: Number(values.maxAttempts),
+            thresholds: values.thresholds.map((threshold) => ({
+              ...threshold,
+              amountCents: serializeAmount(threshold.amountCents, threshold.currency),
+            })),
+          },
+        },
+      })
     },
   })
 
   const [shouldDisplayDescription, setShouldDisplayDescription] = useState(
     !!formikProps.initialValues.description,
   )
-  const [localThresholds, setLocalThresholds] = useState(formikProps.values.thresholds)
 
   return (
     <>
@@ -88,7 +178,7 @@ const CreateDunning = () => {
                 {translate('text_1728584028187im92nik4ff8')}
               </Typography>
             </div>
-            <div className="flex items-center gap-6 *:flex-1">
+            <div className="flex items-start gap-6 *:flex-1">
               <TextInputField
                 name="name"
                 formikProps={formikProps}
@@ -154,27 +244,33 @@ const CreateDunning = () => {
                 {translate('text_1728584028187gsi6wv2mf6y')}
               </Typography>
               <div className="flex flex-col gap-6">
-                {localThresholds.map((_threshold, index) => {
+                {formikProps.values.thresholds.map((_threshold, index) => {
                   const key = `thresholds.${index}`
 
                   return (
-                    <div key={key} className="flex flex-1 items-center gap-4">
+                    <div key={key} className="flex flex-1 items-start gap-4">
                       <ComboBoxField
                         className="w-30"
                         name={`${key}.currency`}
                         formikProps={formikProps}
-                        data={Object.values(CurrencyEnum).map((currencyType) => ({
-                          value: currencyType,
+                        data={Object.values(CurrencyEnum).map((currency) => ({
+                          label: currency,
+                          value: currency,
+                          disabled: formikProps.values.thresholds.some(
+                            (localThreshold) => localThreshold.currency === currency,
+                          ),
                         }))}
+                        placeholder={translate('text_632c6e59b73f9a54d4c7224b')}
                         disableClearable
                       />
                       <AmountInputField
                         className="flex-1"
-                        name={`${key}.amount`}
+                        name={`${key}.amountCents`}
                         formikProps={formikProps}
                         currency={CurrencyEnum.Usd}
+                        beforeChangeFormatter={['positiveNumber']}
                       />
-                      {localThresholds.length > 1 && (
+                      {formikProps.values.thresholds.length > 1 && (
                         <Tooltip
                           placement="top-end"
                           title={translate('text_63aa085d28b8510cd46443ff')}
@@ -183,10 +279,9 @@ const CreateDunning = () => {
                             icon="trash"
                             variant="quaternary"
                             onClick={() => {
-                              const newThresholds = [...localThresholds]
+                              const newThresholds = [...formikProps.values.thresholds]
 
                               newThresholds.splice(index, 1)
-                              setLocalThresholds(newThresholds)
                               formikProps.setFieldValue('thresholds', newThresholds)
                             }}
                           />
@@ -201,7 +296,10 @@ const CreateDunning = () => {
                     startIcon="plus"
                     variant="quaternary"
                     onClick={() =>
-                      setLocalThresholds([...localThresholds, { currency: undefined, amount: '' }])
+                      formikProps.setFieldValue('thresholds', [
+                        ...formikProps.values.thresholds,
+                        { currency: undefined, amountCents: '' },
+                      ])
                     }
                   >
                     {translate('text_1728584028187rmbbvaboadk')}
@@ -224,7 +322,7 @@ const CreateDunning = () => {
             </div>
 
             <TextInputField
-              name="delays"
+              name="daysBetweenAttempts"
               formikProps={formikProps}
               label={translate('text_1728584028187al65i47z3qn')}
               placeholder="0"
@@ -238,14 +336,17 @@ const CreateDunning = () => {
               }}
             />
             <TextInputField
-              name="retry"
+              name="maxAttempts"
               formikProps={formikProps}
               label={translate('text_17285840281879mpfdrz2mmi')}
               placeholder="0"
               beforeChangeFormatter={['positiveNumber']}
-              helperText={translate('text_17285840281874du2dlbui5u', {
-                attempts: formikProps.values.retry,
-              })}
+              helperText={
+                Number(formikProps.values.maxAttempts) > 0 &&
+                translate('text_17285840281874du2dlbui5u', {
+                  attempts: formikProps.values.maxAttempts,
+                })
+              }
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -260,16 +361,16 @@ const CreateDunning = () => {
 
           <section className="not-last-child:mb-6">
             <Switch
-              name="isDefault"
-              checked={formikProps.values.isDefault}
+              name="appliedToOrganization"
+              checked={formikProps.values.appliedToOrganization}
               onChange={() => {
-                if (!formikProps.values.isDefault) {
+                if (!formikProps.values.appliedToOrganization) {
                   defaultCampaignDialog.current?.openDialog({
                     type: 'setDefault',
-                    onConfirm: () => formikProps.setFieldValue('isDefault', true),
+                    onConfirm: () => formikProps.setFieldValue('appliedToOrganization', true),
                   })
                 } else {
-                  formikProps.setFieldValue('isDefault', !formikProps.values.isDefault)
+                  formikProps.setFieldValue('isDefault', !formikProps.values.appliedToOrganization)
                 }
               }}
               label={translate('text_1728584028187cpxux50bk4n')}
@@ -291,7 +392,11 @@ const CreateDunning = () => {
               >
                 {translate('text_6411e6b530cb47007488b027')}
               </Button>
-              <Button variant="primary" onClick={() => formikProps.submitForm()}>
+              <Button
+                variant="primary"
+                disabled={!formikProps.isValid || !formikProps.dirty}
+                onClick={() => formikProps.submitForm()}
+              >
                 {translate('text_1728584028187oqpu20oxuxq')}
               </Button>
             </div>

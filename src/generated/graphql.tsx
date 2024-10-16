@@ -8294,6 +8294,13 @@ export type GetOktaIntegrationQueryVariables = Exact<{
 
 export type GetOktaIntegrationQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration', id: string, clientId?: string | null, clientSecret?: string | null, code: string, organizationName: string, domain: string, name: string } | { __typename?: 'XeroIntegration' } | null };
 
+export type CreateDunningCampaignMutationVariables = Exact<{
+  input: CreateDunningCampaignInput;
+}>;
+
+
+export type CreateDunningCampaignMutation = { __typename?: 'Mutation', createDunningCampaign?: { __typename?: 'DunningCampaign', name: string, code: string, description?: string | null, daysBetweenAttempts: number, maxAttempts: number, appliedToOrganization: boolean, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', amountCents: any, currency: CurrencyEnum }> } | null };
+
 export type DunningCampaignItemFragment = { __typename?: 'DunningCampaign', id: string, name: string, code: string, appliedToOrganization: boolean };
 
 export type GetDunningCampaignsQueryVariables = Exact<{
@@ -22447,6 +22454,48 @@ export type GetOktaIntegrationQueryHookResult = ReturnType<typeof useGetOktaInte
 export type GetOktaIntegrationLazyQueryHookResult = ReturnType<typeof useGetOktaIntegrationLazyQuery>;
 export type GetOktaIntegrationSuspenseQueryHookResult = ReturnType<typeof useGetOktaIntegrationSuspenseQuery>;
 export type GetOktaIntegrationQueryResult = Apollo.QueryResult<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>;
+export const CreateDunningCampaignDocument = gql`
+    mutation CreateDunningCampaign($input: CreateDunningCampaignInput!) {
+  createDunningCampaign(input: $input) {
+    name
+    code
+    description
+    thresholds {
+      amountCents
+      currency
+    }
+    daysBetweenAttempts
+    maxAttempts
+    appliedToOrganization
+  }
+}
+    `;
+export type CreateDunningCampaignMutationFn = Apollo.MutationFunction<CreateDunningCampaignMutation, CreateDunningCampaignMutationVariables>;
+
+/**
+ * __useCreateDunningCampaignMutation__
+ *
+ * To run a mutation, you first call `useCreateDunningCampaignMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateDunningCampaignMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createDunningCampaignMutation, { data, loading, error }] = useCreateDunningCampaignMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateDunningCampaignMutation(baseOptions?: Apollo.MutationHookOptions<CreateDunningCampaignMutation, CreateDunningCampaignMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateDunningCampaignMutation, CreateDunningCampaignMutationVariables>(CreateDunningCampaignDocument, options);
+      }
+export type CreateDunningCampaignMutationHookResult = ReturnType<typeof useCreateDunningCampaignMutation>;
+export type CreateDunningCampaignMutationResult = Apollo.MutationResult<CreateDunningCampaignMutation>;
+export type CreateDunningCampaignMutationOptions = Apollo.BaseMutationOptions<CreateDunningCampaignMutation, CreateDunningCampaignMutationVariables>;
 export const GetDunningCampaignsDocument = gql`
     query getDunningCampaigns($limit: Int, $page: Int) {
   dunningCampaigns(limit: $limit, page: $page, order: "name") {
