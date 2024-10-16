@@ -2515,5 +2515,8 @@
   "text_17290677918809xyyuizjvtk": "Targeted HubSpot object",
   "text_1729067791880uwec7af9cpq": "HubSpot Contact ID",
   "text_1729067791880y0th6mtz2av": "Type a HubSpot Contact ID",
-  "text_1729067791880abj1lzd7dn9": "This customer will be created to HubSpot after editing in Lago"
+  "text_1729067791880abj1lzd7dn9": "This customer will be created to HubSpot after editing in Lago",
+  "text_17290829949642fgof01loxo": "The credit note cannot be issued because the invoice is unpaid.",
+  "text_172908299496461z9ejmm2j7": "The credit note can’t be issued as the invoice is linked to a terminated wallet.",
+  "text_1729082994964zccpjmtotdy": "The credit note can’t be issued as the creditable amount is already fully covered."
 }
