@@ -105,6 +105,7 @@ gql`
     externalIntegrationId
     taxProviderVoidable
     integrationCrmSyncable
+    associatedActiveWalletPresent
     errorDetails {
       errorCode
       errorDetails
@@ -394,6 +395,7 @@ const CustomerInvoiceDetails = () => {
     voidable,
     errorDetails,
     taxProviderVoidable,
+    associatedActiveWalletPresent,
   } = (data?.invoice as AllInvoiceDetailsForCustomerInvoiceDetailsFragment) || {}
 
   const hasError = (!!error || !data?.invoice) && !loading
@@ -401,6 +403,30 @@ const CustomerInvoiceDetails = () => {
     ({ errorCode }) => errorCode === ErrorCodesEnum.TaxError,
   )
   const errorMessage = getErrorMessageFromErrorDetails(errorDetails)
+
+  const TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED = {
+    unpaid: 'text_17290829949642fgof01loxo',
+    terminatedWallet: 'text_172908299496461z9ejmm2j7',
+    fullyCovered: 'text_1729082994964zccpjmtotdy',
+  }
+
+  const isUnpaid =
+    paymentStatus === InvoicePaymentStatusTypeEnum.Pending ||
+    paymentStatus === InvoicePaymentStatusTypeEnum.Failed
+
+  const isAssociatedWithTerminatedWallet =
+    invoiceType === InvoiceTypeEnum.Credit && !associatedActiveWalletPresent
+
+  const disabledIssueCreditNoteButton =
+    creditableAmountCents === '0' && refundableAmountCents === '0'
+
+  const disabledIssueCreditNoteButtonLabel =
+    disabledIssueCreditNoteButton &&
+    translate(
+      TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED[
+        isUnpaid ? 'unpaid' : isAssociatedWithTerminatedWallet ? 'terminatedWallet' : 'fullyCovered'
+      ],
+    )
 
   const goToPreviousRoute = useCallback(
     () =>
@@ -591,23 +617,38 @@ const CustomerInvoiceDetails = () => {
                         hasPermissions(['creditNotesCreate']) && (
                           <>
                             {isPremium ? (
-                              <Button
-                                variant="quaternary"
-                                align="left"
-                                disabled={
-                                  creditableAmountCents === '0' && refundableAmountCents === '0'
-                                }
-                                onClick={async () => {
-                                  navigate(
-                                    generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
-                                      customerId: customerId as string,
-                                      invoiceId: invoiceId as string,
-                                    }),
-                                  )
+                              <Tooltip
+                                PopperProps={{
+                                  popperOptions: {
+                                    modifiers: [
+                                      {
+                                        name: 'offset',
+                                        options: {
+                                          offset: [0, 8],
+                                        },
+                                      },
+                                    ],
+                                  },
                                 }}
+                                title={disabledIssueCreditNoteButtonLabel}
+                                placement="left"
                               >
-                                {translate('text_6386589e4e82fa85eadcaa7a')}
-                              </Button>
+                                <Button
+                                  variant="quaternary"
+                                  align="left"
+                                  disabled={disabledIssueCreditNoteButton}
+                                  onClick={async () => {
+                                    navigate(
+                                      generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
+                                        customerId: customerId as string,
+                                        invoiceId: invoiceId as string,
+                                      }),
+                                    )
+                                  }}
+                                >
+                                  {translate('text_6386589e4e82fa85eadcaa7a')}
+                                </Button>
+                              </Tooltip>
                             ) : (
                               <Button
                                 variant="quaternary"

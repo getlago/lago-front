@@ -2515,8 +2515,13 @@
   "text_17290677918809xyyuizjvtk": "Targeted HubSpot object",
   "text_1729067791880uwec7af9cpq": "HubSpot Contact ID",
   "text_1729067791880y0th6mtz2av": "Type a HubSpot Contact ID",
+<<<<<<< HEAD
   "text_1729602057769exfgebgaj4g": "HubSpot Company ID",
   "text_1729602057769w37ljj318sn": "Type a HubSpot Company ID",
+||||||| parent of eb8f9706 (feat: add tooltip to disabled issue credit note button)
+=======
+<<<<<<< HEAD
+>>>>>>> eb8f9706 (feat: add tooltip to disabled issue credit note button)
   "text_1729067791880abj1lzd7dn9": "This customer will be created to HubSpot after editing in Lago",
   "text_17285747264958mqbtws3em8": "Dunning",
   "text_1728574726495473mszb2j27": "Automatic payment retries and targeted emails to settle customers’ overdue balances.",
@@ -2565,5 +2570,8 @@
   "text_1729613902412cy033eh4vvt": "HubSpot invoice url",
   "text_1729678728144lfukq2wzred": "Invoice not synced to HubSpot",
   "text_1729679289432l7pa9bgih1v": "Sync invoice to HubSpot",
-  "text_1729756690073w4jrdeesayy": "Hubspot synchronisation successfully triggered."
+  "text_1729756690073w4jrdeesayy": "Hubspot synchronisation successfully triggered.",
+  "text_17290829949642fgof01loxo": "The credit note cannot be issued because the invoice is unpaid.",
+  "text_172908299496461z9ejmm2j7": "The credit note can’t be issued as the invoice is linked to a terminated wallet.",
+  "text_1729082994964zccpjmtotdy": "The credit note can’t be issued as the creditable amount is already fully covered."
 }
