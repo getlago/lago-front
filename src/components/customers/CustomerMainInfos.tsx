@@ -9,13 +9,16 @@ import { Avatar, Button, Icon, Skeleton, Typography } from '~/components/designS
 import { CountryCodes } from '~/core/constants/countryCodes'
 import {
   buildAnrokCustomerUrl,
+  buildHubsportRecordUrl,
   buildNetsuiteCustomerUrl,
   buildXeroCustomerUrl,
 } from '~/core/constants/externalUrls'
+import { getTargetedObjectTranslationKey } from '~/core/constants/form'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
   AnrokIntegration,
   CustomerMainInfosFragment,
+  HubspotIntegration,
   NetsuiteIntegration,
   ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
@@ -28,6 +31,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Adyen from '~/public/images/adyen.svg'
 import Anrok from '~/public/images/anrok.svg'
 import Gocardless from '~/public/images/gocardless.svg'
+import Hubspot from '~/public/images/hubspot.svg'
 import Netsuite from '~/public/images/netsuite.svg'
 import Stripe from '~/public/images/stripe.svg'
 import Xero from '~/public/images/xero.svg'
@@ -94,6 +98,12 @@ gql`
       integrationId
       externalCustomerId
     }
+    hubspotCustomer {
+      id
+      integrationId
+      externalCustomerId
+      targetedObject
+    }
     metadata {
       id
       key
@@ -146,6 +156,12 @@ gql`
           id
           name
         }
+        ... on HubspotIntegration {
+          __typename
+          id
+          name
+          portalId
+        }
       }
     }
   }
@@ -171,7 +187,11 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
   const { data: integrationsData, loading: integrationsLoading } =
     useIntegrationsListForCustomerMainInfosQuery({
       variables: { limit: 1000 },
-      skip: !customer?.netsuiteCustomer && !customer?.anrokCustomer && !customer?.xeroCustomer,
+      skip:
+        !customer?.netsuiteCustomer &&
+        !customer?.anrokCustomer &&
+        !customer?.xeroCustomer &&
+        !customer?.hubspotCustomer,
     })
 
   const linkedProvider = paymentProvidersData?.paymentProviders?.collection?.find(
@@ -190,6 +210,10 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     (i) => i.__typename === 'XeroIntegration',
   ) as XeroIntegration[] | undefined
 
+  const allHubspotIntegrations = integrationsData?.integrations?.collection.filter(
+    (i) => i.__typename === 'HubspotIntegration',
+  ) as HubspotIntegration[] | undefined
+
   const connectedNetsuiteIntegration = allNetsuiteIntegrations?.find(
     (integration) => integration?.id === customer?.netsuiteCustomer?.integrationId,
   ) as NetsuiteIntegration
@@ -201,6 +225,10 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
   const connectedXeroIntegration = allXeroIntegrations?.find(
     (integration) => integration?.id === customer?.xeroCustomer?.integrationId,
   ) as XeroIntegration
+
+  const connectedHubspotIntegration = allHubspotIntegrations?.find(
+    (integration) => integration?.id === customer?.hubspotCustomer?.integrationId,
+  ) as HubspotIntegration
 
   const updateRef = useCallback(
     (node: HTMLDivElement) => {
@@ -526,6 +554,52 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
             ) : null}
           </div>
         )}
+
+        {!!connectedHubspotIntegration && (
+          <div>
+            <Typography variant="caption">{translate('text_1728658962985xpfdvl5ru8a')}</Typography>
+            {integrationsLoading ? (
+              <Stack flex={1} gap={3} marginTop={1}>
+                <Skeleton variant="text" height={12} width={200} />
+                <Skeleton variant="text" height={12} width={200} />
+              </Stack>
+            ) : !!connectedHubspotIntegration &&
+              customer?.hubspotCustomer?.integrationId &&
+              customer?.hubspotCustomer.targetedObject ? (
+              <Stack>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <Avatar variant="connector" size="small">
+                    <Hubspot />
+                  </Avatar>
+                  <Typography color="grey700">{connectedHubspotIntegration?.name}</Typography>
+                </Stack>
+                <Typography variant="body" color="grey700">
+                  {translate(
+                    getTargetedObjectTranslationKey[customer?.hubspotCustomer.targetedObject],
+                  )}
+                </Typography>
+                {!!connectedHubspotIntegration.portalId &&
+                  customer?.hubspotCustomer?.externalCustomerId &&
+                  !!customer?.hubspotCustomer.targetedObject && (
+                    <InlineLink
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      to={buildHubsportRecordUrl({
+                        portalId: connectedHubspotIntegration.portalId,
+                        recordId: customer?.hubspotCustomer?.externalCustomerId,
+                        targetedObject: customer?.hubspotCustomer.targetedObject,
+                      })}
+                    >
+                      <Typography className="flex flex-row items-center gap-1" color="info600">
+                        {customer?.hubspotCustomer?.externalCustomerId} <Icon name="outside" />
+                      </Typography>
+                    </InlineLink>
+                  )}
+              </Stack>
+            ) : null}
+          </div>
+        )}
+
         {!!metadata?.length &&
           metadata.map((meta) => (
             <div key={`customer-metadata-${meta.id}`}>

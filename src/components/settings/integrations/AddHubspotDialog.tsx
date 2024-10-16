@@ -10,6 +10,7 @@ import { Alert, Button, Chip, Dialog, DialogRef, Typography } from '~/components
 import { Checkbox, CheckboxField, ComboBoxField, TextInputField } from '~/components/form'
 import { DeleteHubspotIntegrationDialogRef } from '~/components/settings/integrations/DeleteHubspotIntegrationDialog'
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
+import { getHubspotTargetedObjectTranslationKey } from '~/core/constants/form'
 import { HUBSPOT_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   CreateHubspotIntegrationInput,
@@ -265,12 +266,16 @@ export const AddHubspotDialog = forwardRef<AddHubspotDialogRef>((_, ref) => {
             formikProps={formikProps}
             data={[
               {
-                label: translate('text_1727190044775zgd0l3fpwdj'),
-                value: TargetedObjectsEnum.Companies,
+                label: translate(
+                  getHubspotTargetedObjectTranslationKey[HubspotTargetedObjectsEnum.Companies],
+                ),
+                value: HubspotTargetedObjectsEnum.Companies,
               },
               {
-                label: translate('text_1727190044775keiwznwv16s'),
-                value: TargetedObjectsEnum.Contacts,
+                label: translate(
+                  getHubspotTargetedObjectTranslationKey[HubspotTargetedObjectsEnum.Contacts],
+                ),
+                value: HubspotTargetedObjectsEnum.Contacts,
               },
             ]}
             PopperProps={{ displayInDialog: true }}

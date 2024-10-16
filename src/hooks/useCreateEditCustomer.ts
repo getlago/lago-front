@@ -74,6 +74,11 @@ gql`
       id
       integrationId
     }
+    hubspotCustomer {
+      __typename
+      id
+      integrationId
+    }
     metadata {
       id
       key
