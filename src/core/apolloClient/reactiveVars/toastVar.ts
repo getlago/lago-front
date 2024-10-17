@@ -10,7 +10,7 @@ export enum ToastSeverityEnum {
   success = 'success',
   danger = 'danger',
 }
-export type TSeverity = keyof typeof ToastSeverityEnum
+type TSeverity = keyof typeof ToastSeverityEnum
 
 interface IToastWithMessage {
   id: string
