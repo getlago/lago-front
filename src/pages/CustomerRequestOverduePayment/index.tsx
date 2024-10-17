@@ -13,13 +13,13 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { Locale, LocaleEnum } from '~/core/translations'
 import {
   CurrencyEnum,
-  CustomerForRequestOverduePaymentEmailFragmentDoc,
+  CustomerForDunningEmailFragmentDoc,
   CustomerForRequestOverduePaymentFormFragmentDoc,
-  InvoicesForRequestOverduePaymentEmailFragmentDoc,
+  InvoicesForDunningEmailFragmentDoc,
   InvoicesForRequestOverduePaymentFormFragmentDoc,
   LagoApiError,
   LastPaymentRequestFragmentDoc,
-  OrganizationForRequestOverduePaymentEmailFragmentDoc,
+  OrganizationForDunningEmailFragmentDoc,
   useCreatePaymentRequestMutation,
   useGetRequestOverduePaymentInfosQuery,
 } from '~/generated/graphql'
@@ -39,19 +39,17 @@ import {
 } from './components/RequestPaymentForm'
 
 gql`
-
-
   query getRequestOverduePaymentInfos($id: ID!) {
     organization {
       defaultCurrency
-      ...OrganizationForRequestOverduePaymentEmail
+      ...OrganizationForDunningEmail
     }
 
     customer(id: $id) {
       externalId
       currency
       ...CustomerForRequestOverduePaymentForm
-      ...CustomerForRequestOverduePaymentEmail
+      ...CustomerForDunningEmail
     }
 
     paymentRequests {
@@ -62,16 +60,16 @@ gql`
 
     invoices(paymentOverdue:true, customerId: $id) {
       collection {
-        ...InvoicesForRequestOverduePaymentEmail
+        ...InvoicesForDunningEmail
         ...InvoicesForRequestOverduePaymentForm
       }
     }
 
-    ${InvoicesForRequestOverduePaymentEmailFragmentDoc}
-    ${InvoicesForRequestOverduePaymentFormFragmentDoc}
+    ${CustomerForDunningEmailFragmentDoc}
+    ${InvoicesForDunningEmailFragmentDoc}
+    ${OrganizationForDunningEmailFragmentDoc}
     ${CustomerForRequestOverduePaymentFormFragmentDoc}
-    ${CustomerForRequestOverduePaymentEmailFragmentDoc}
-    ${OrganizationForRequestOverduePaymentEmailFragmentDoc}
+    ${InvoicesForRequestOverduePaymentFormFragmentDoc}
     ${LastPaymentRequestFragmentDoc}
   }
 
@@ -230,7 +228,7 @@ const CustomerRequestOverduePayment: FC = () => {
           <Wrapper>
             <EmailPreview
               isLoading={loading}
-              documentLocale={LocaleEnum[documentLocale]}
+              locale={LocaleEnum[documentLocale]}
               customer={customer ?? undefined}
               organization={organization ?? undefined}
               overdueAmount={totalAmount}

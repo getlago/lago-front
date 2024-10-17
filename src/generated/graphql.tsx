@@ -6409,6 +6409,12 @@ export type RetryWebhookMutation = { __typename?: 'Mutation', retryWebhook?: { _
 
 export type WebhookLogItemFragment = { __typename?: 'Webhook', id: string, status: WebhookStatusEnum, updatedAt: any, webhookType: string };
 
+export type CustomerForDunningEmailFragment = { __typename?: 'Customer', displayName: string, paymentProvider?: ProviderTypeEnum | null, netPaymentTerm?: number | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null };
+
+export type OrganizationForDunningEmailFragment = { __typename?: 'CurrentOrganization', name: string, logoUrl?: string | null, email?: string | null, netPaymentTerm: number, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', documentLocale?: string | null } | null };
+
+export type InvoicesForDunningEmailFragment = { __typename?: 'Invoice', id: string, number: string, totalAmountCents: any, currency?: CurrencyEnum | null };
+
 export type OrganizationForDatePickerFragment = { __typename?: 'CurrentOrganization', id: string, timezone?: TimezoneEnum | null };
 
 export type GetGrossRevenuesQueryVariables = Exact<{
@@ -7922,12 +7928,6 @@ export type GetCustomerInfosForDraftInvoicesListQueryVariables = Exact<{
 
 export type GetCustomerInfosForDraftInvoicesListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } | null, customerInvoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number } } };
 
-export type CustomerForRequestOverduePaymentEmailFragment = { __typename?: 'Customer', name?: string | null, paymentProvider?: ProviderTypeEnum | null, netPaymentTerm?: number | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null };
-
-export type OrganizationForRequestOverduePaymentEmailFragment = { __typename?: 'CurrentOrganization', name: string, logoUrl?: string | null, email?: string | null, netPaymentTerm: number, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', documentLocale?: string | null } | null };
-
-export type InvoicesForRequestOverduePaymentEmailFragment = { __typename?: 'Invoice', id: string, number: string, totalAmountCents: any, currency?: CurrencyEnum | null };
-
 export type CustomerForRequestOverduePaymentFormFragment = { __typename?: 'Customer', email?: string | null };
 
 export type InvoicesForRequestOverduePaymentFormFragment = { __typename?: 'Invoice', id: string, number: string, totalAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any };
@@ -7939,7 +7939,7 @@ export type GetRequestOverduePaymentInfosQueryVariables = Exact<{
 }>;
 
 
-export type GetRequestOverduePaymentInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', defaultCurrency: CurrencyEnum, name: string, logoUrl?: string | null, email?: string | null, netPaymentTerm: number, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', documentLocale?: string | null } | null } | null, customer?: { __typename?: 'Customer', externalId: string, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, paymentProvider?: ProviderTypeEnum | null, netPaymentTerm?: number | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null } | null, paymentRequests: { __typename?: 'PaymentRequestCollection', collection: Array<{ __typename?: 'PaymentRequest', createdAt: any }> }, invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, number: string, totalAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any }> } };
+export type GetRequestOverduePaymentInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', defaultCurrency: CurrencyEnum, name: string, logoUrl?: string | null, email?: string | null, netPaymentTerm: number, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', documentLocale?: string | null } | null } | null, customer?: { __typename?: 'Customer', externalId: string, currency?: CurrencyEnum | null, email?: string | null, displayName: string, paymentProvider?: ProviderTypeEnum | null, netPaymentTerm?: number | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null } | null, paymentRequests: { __typename?: 'PaymentRequestCollection', collection: Array<{ __typename?: 'PaymentRequest', createdAt: any }> }, invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, number: string, totalAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any }> } };
 
 export type CreatePaymentRequestMutationVariables = Exact<{
   input: PaymentRequestCreateInput;
@@ -8999,6 +8999,35 @@ export const WebhookForCreateAndEditFragmentDoc = gql`
   id
   webhookUrl
   signatureAlgo
+}
+    `;
+export const CustomerForDunningEmailFragmentDoc = gql`
+    fragment CustomerForDunningEmail on Customer {
+  displayName
+  paymentProvider
+  netPaymentTerm
+  billingConfiguration {
+    documentLocale
+  }
+}
+    `;
+export const OrganizationForDunningEmailFragmentDoc = gql`
+    fragment OrganizationForDunningEmail on CurrentOrganization {
+  name
+  logoUrl
+  email
+  netPaymentTerm
+  billingConfiguration {
+    documentLocale
+  }
+}
+    `;
+export const InvoicesForDunningEmailFragmentDoc = gql`
+    fragment InvoicesForDunningEmail on Invoice {
+  id
+  number
+  totalAmountCents
+  currency
 }
     `;
 export const TaxForInvoiceEditTaxDialogFragmentDoc = gql`
@@ -10869,35 +10898,6 @@ export const CustomerDetailsFragmentDoc = gql`
 }
     ${AddCustomerDrawerFragmentDoc}
 ${CustomerMainInfosFragmentDoc}`;
-export const CustomerForRequestOverduePaymentEmailFragmentDoc = gql`
-    fragment CustomerForRequestOverduePaymentEmail on Customer {
-  name
-  paymentProvider
-  netPaymentTerm
-  billingConfiguration {
-    documentLocale
-  }
-}
-    `;
-export const OrganizationForRequestOverduePaymentEmailFragmentDoc = gql`
-    fragment OrganizationForRequestOverduePaymentEmail on CurrentOrganization {
-  name
-  logoUrl
-  email
-  netPaymentTerm
-  billingConfiguration {
-    documentLocale
-  }
-}
-    `;
-export const InvoicesForRequestOverduePaymentEmailFragmentDoc = gql`
-    fragment InvoicesForRequestOverduePaymentEmail on Invoice {
-  id
-  number
-  totalAmountCents
-  currency
-}
-    `;
 export const CustomerForRequestOverduePaymentFormFragmentDoc = gql`
     fragment CustomerForRequestOverduePaymentForm on Customer {
   email
@@ -20674,13 +20674,13 @@ export const GetRequestOverduePaymentInfosDocument = gql`
     query getRequestOverduePaymentInfos($id: ID!) {
   organization {
     defaultCurrency
-    ...OrganizationForRequestOverduePaymentEmail
+    ...OrganizationForDunningEmail
   }
   customer(id: $id) {
     externalId
     currency
     ...CustomerForRequestOverduePaymentForm
-    ...CustomerForRequestOverduePaymentEmail
+    ...CustomerForDunningEmail
   }
   paymentRequests {
     collection {
@@ -20689,16 +20689,16 @@ export const GetRequestOverduePaymentInfosDocument = gql`
   }
   invoices(paymentOverdue: true, customerId: $id) {
     collection {
-      ...InvoicesForRequestOverduePaymentEmail
+      ...InvoicesForDunningEmail
       ...InvoicesForRequestOverduePaymentForm
     }
   }
 }
-    ${OrganizationForRequestOverduePaymentEmailFragmentDoc}
+    ${OrganizationForDunningEmailFragmentDoc}
 ${CustomerForRequestOverduePaymentFormFragmentDoc}
-${CustomerForRequestOverduePaymentEmailFragmentDoc}
+${CustomerForDunningEmailFragmentDoc}
 ${LastPaymentRequestFragmentDoc}
-${InvoicesForRequestOverduePaymentEmailFragmentDoc}
+${InvoicesForDunningEmailFragmentDoc}
 ${InvoicesForRequestOverduePaymentFormFragmentDoc}`;
 
 /**

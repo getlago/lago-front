@@ -113,6 +113,7 @@ const config = {
     },
     fontFamily: {
       sans: ['Inter, Arial, Verdana, Helvetica, sans-serif'],
+      email: ['Helvetica, Arial, sans-serif'],
     },
     container: {
       center: false,
@@ -126,6 +127,9 @@ const config = {
     },
 
     extend: {
+      fontSize: {
+        '4xl': ['2rem', '2.5rem'],
+      },
       screens: {
         md: '776px',
       },
@@ -133,6 +137,7 @@ const config = {
         17: '4.25rem',
         18: '4.5rem',
         98: '24.5rem',
+        150: '37.5rem',
         192: '48rem',
       },
       zIndex: {
