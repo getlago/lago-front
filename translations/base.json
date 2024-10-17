@@ -2427,8 +2427,6 @@
   "text_1727189568053ifu63v2q1gf": "Connect to HubSpot",
   "text_1727189568053fu2g4sonout": "Edit information linked to this HubSpot connection.",
   "text_1727189568054z4qhm7flfgh": "To connect to HubSpot, please enter the following information",
-  "text_1727189568054lp1npj548nk": "Private App Access Token",
-  "text_172718956805412kz5w7o2m2": "Type an access token",
   "text_17271895680545qv3cvwk1jx": "Default targeted object for Lago customers",
   "text_1727190044775zgd0l3fpwdj": "HubSpot Companies",
   "text_1727190044775keiwznwv16s": "HubSpot Contacts",
@@ -2511,5 +2509,11 @@
   "text_1728498418253nyv3qmz9k5k": "Top-Up Wallet",
   "text_1728546284339z3fs0oqdejs": "Something went wrong, token is invalid or has expired",
   "text_1728636271035se9pkfziyvg": "Manage your plans & billing",
-  "text_1728654170904707saidat0f": "Type a customer name"
+  "text_1728654170904707saidat0f": "Type a customer name",
+  "text_1728658962985xpfdvl5ru8a": "CRM connection",
+  "text_1729003289241opvevwwhr7n": "Contact",
+  "text_17290677918809xyyuizjvtk": "Targeted HubSpot object",
+  "text_1729067791880uwec7af9cpq": "HubSpot Contact ID",
+  "text_1729067791880y0th6mtz2av": "Type a HubSpot Contact ID",
+  "text_1729067791880abj1lzd7dn9": "This customer will be created to HubSpot after editing in Lago"
 }

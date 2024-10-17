@@ -41,7 +41,6 @@ gql`
     name
     code
     defaultTargetedObject
-    privateAppToken
     syncInvoices
     syncSubscriptions
     ...HubspotForCreateDialog
@@ -234,11 +233,6 @@ const HubspotIntegrationDetails = () => {
                 icon="id"
                 label={translate('text_62876e85e32e0300e1803127')}
                 value={hubspotIntegration?.code}
-              />
-              <IntegrationDetailsItem
-                icon="key"
-                label={translate('text_1727189568054lp1npj548nk')}
-                value={hubspotIntegration?.privateAppToken}
               />
               <IntegrationDetailsItem
                 icon="schema"

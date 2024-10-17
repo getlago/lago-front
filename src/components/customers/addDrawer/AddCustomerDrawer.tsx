@@ -39,6 +39,7 @@ import {
   CurrencyEnum,
   CustomerMetadataInput,
   CustomerTypeEnum,
+  HubspotCustomer,
   IntegrationTypeEnum,
   NetsuiteCustomer,
   ProviderCustomer,
@@ -103,6 +104,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
         ...(!!customer?.netsuiteCustomer ? [customer?.netsuiteCustomer] : []),
         ...(!!customer?.anrokCustomer ? [customer?.anrokCustomer] : []),
         ...(!!customer?.xeroCustomer ? [customer?.xeroCustomer] : []),
+        ...(!!customer?.hubspotCustomer ? [customer?.hubspotCustomer] : []),
       ],
       paymentProviderCode: customer?.paymentProviderCode ?? undefined,
       providerCustomer: {
@@ -153,7 +155,8 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                 value:
                   | Omit<NetsuiteCustomer, 'id'>
                   | Omit<AnrokCustomer, 'id'>
-                  | Omit<XeroCustomer, 'id'>,
+                  | Omit<XeroCustomer, 'id'>
+                  | Omit<HubspotCustomer, 'id'>,
               ) {
                 if (!!value) {
                   if (value.integrationType === IntegrationTypeEnum.Netsuite) {
@@ -186,6 +189,22 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                     value = value as XeroCustomer
                     // If Xero integrationCode is not selected
                     if (!value.integrationCode) {
+                      return false
+                    }
+
+                    // if syncWithProvider is false, externalCustomerId is required
+                    if (!value?.syncWithProvider && !value?.externalCustomerId) {
+                      return false
+                    }
+                  } else if (value.integrationType === IntegrationTypeEnum.Hubspot) {
+                    value = value as HubspotCustomer
+                    // If Hubspot integrationCode is not selected
+                    if (!value.integrationCode) {
+                      return false
+                    }
+
+                    // targetedObject needs to be selected
+                    if (!value?.targetedObject) {
                       return false
                     }
 

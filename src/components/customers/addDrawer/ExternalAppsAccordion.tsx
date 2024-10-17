@@ -24,15 +24,21 @@ import {
 import { Item } from '~/components/form/ComboBox/ComboBoxItem'
 import {
   ADD_CUSTOMER_ACCOUNTING_PROVIDER_ACCORDION,
+  ADD_CUSTOMER_CRM_PROVIDER_ACCORDION,
   ADD_CUSTOMER_PAYMENT_PROVIDER_ACCORDION,
   ADD_CUSTOMER_TAX_PROVIDER_ACCORDION,
+  getHubspotTargetedObjectTranslationKey,
   MUI_BUTTON_BASE_ROOT_CLASSNAME,
 } from '~/core/constants/form'
 import { INTEGRATIONS_ROUTE } from '~/core/router'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   AnrokIntegration,
   CreateCustomerInput,
   CurrencyEnum,
+  CustomerTypeEnum,
+  HubspotIntegration,
+  HubspotTargetedObjectsEnum,
   IntegrationTypeEnum,
   NetsuiteIntegration,
   ProviderPaymentMethodsEnum,
@@ -47,6 +53,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Adyen from '~/public/images/adyen.svg'
 import Anrok from '~/public/images/anrok.svg'
 import GoCardless from '~/public/images/gocardless.svg'
+import Hubspot from '~/public/images/hubspot.svg'
 import Netsuite from '~/public/images/netsuite.svg'
 import PSPIcons from '~/public/images/psp-icons.svg'
 import Stripe from '~/public/images/stripe.svg'
@@ -56,6 +63,7 @@ import { MenuPopper, theme } from '~/styles'
 gql`
   fragment CustomerForExternalAppsAccordion on Customer {
     id
+    customerType
     # Name in the customer is netsuiteCustomer, but it's used as integrationCustomer in the create update inputs
     netsuiteCustomer {
       externalCustomerId
@@ -71,6 +79,12 @@ gql`
       syncWithProvider
     }
     xeroCustomer {
+      externalCustomerId
+      integrationCode
+      integrationType
+      syncWithProvider
+    }
+    hubspotCustomer {
       externalCustomerId
       integrationCode
       integrationType
@@ -126,6 +140,13 @@ gql`
           code
           name
         }
+        ... on HubspotIntegration {
+          __typename
+          id
+          code
+          name
+          defaultTargetedObject
+        }
       }
     }
   }
@@ -147,6 +168,8 @@ type TExternalAppsAccordionProps = {
 
 export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsAccordionProps) => {
   const { translate } = useInternationalization()
+
+  const isHubspotFeatureFlagEnabled = isFeatureFlagActive(FeatureFlags.HUBSPOT_INTEGRATION)
 
   const [getPaymentProvidersData, { data: paymentProvidersData }] =
     usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQuery({
@@ -174,6 +197,10 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     (i) => i.__typename === 'XeroIntegration',
   ) as XeroIntegration[] | undefined
 
+  const allHubspotIntegrations = allIntegrationsData?.integrations?.collection.filter(
+    (i) => i.__typename === 'HubspotIntegration',
+  ) as HubspotIntegration[] | undefined
+
   const selectedNetsuiteIntegrationIndex =
     formikProps.values.integrationCustomers?.findIndex(
       (i) => i.integrationType === IntegrationTypeEnum.Netsuite,
@@ -186,10 +213,15 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     formikProps.values.integrationCustomers?.findIndex(
       (i) => i.integrationType === IntegrationTypeEnum.Xero,
     ) || 0
+  const selectedHubspotIntegrationIndex =
+    formikProps.values.integrationCustomers?.findIndex(
+      (i) => i.integrationType === IntegrationTypeEnum.Hubspot,
+    ) || 0
 
   const netsuiteIntegrationpointerInIntegrationCustomer = `integrationCustomers.${selectedNetsuiteIntegrationIndex}`
   const anrokIntegrationpointerInIntegration = `integrationCustomers.${selectedAnrokIntegrationIndex}`
   const xeroIntegrationpointerInIntegrationCustomer = `integrationCustomers.${selectedXeroIntegrationIndex}`
+  const hubspotIntegrationpointerInIntegrationCustomer = `integrationCustomers.${selectedHubspotIntegrationIndex}`
 
   const selectedNetsuiteIntegration =
     formikProps.values.integrationCustomers?.[selectedNetsuiteIntegrationIndex]
@@ -197,6 +229,8 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     formikProps.values.integrationCustomers?.[selectedAnrokIntegrationIndex]
   const selectedXeroIntegration =
     formikProps.values.integrationCustomers?.[selectedXeroIntegrationIndex]
+  const selectedHubspotIntegration =
+    formikProps.values.integrationCustomers?.[selectedHubspotIntegrationIndex]
 
   const selectedNetsuiteIntegrationSettings = allNetsuiteIntegrations?.find(
     (i) => i.code === selectedNetsuiteIntegration?.integrationCode,
@@ -210,9 +244,17 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     (i) => i.code === selectedXeroIntegration?.integrationCode,
   ) as XeroIntegration
 
+  const selectedHubspotIntegrationSettings = allHubspotIntegrations?.find(
+    (i) => i.code === selectedHubspotIntegration?.integrationCode,
+  ) as HubspotIntegration
+
   const allAccountingIntegrationsData = useMemo(() => {
     return [...(allNetsuiteIntegrations || []), ...(allXeroIntegrations || [])]
   }, [allNetsuiteIntegrations, allXeroIntegrations])
+
+  const allCRMIntegrationsData = useMemo(() => {
+    return [...(allHubspotIntegrations || [])]
+  }, [allHubspotIntegrations])
 
   const { data: subsidiariesData } =
     useSubsidiariesListForCustomerCreateEditExternalAppsAccordionQuery({
@@ -231,6 +273,10 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
   const hadInitialXeroIntegrationCustomer = !!formikProps.initialValues.integrationCustomers?.find(
     (i) => i.integrationType === IntegrationTypeEnum.Xero,
   )
+  const hadInitialHubspotIntegrationCustomer =
+    !!formikProps.initialValues.integrationCustomers?.find(
+      (i) => i.integrationType === IntegrationTypeEnum.Hubspot,
+    )
 
   const [showPaymentProviderSection, setShowPaymentProviderSection] = useState<boolean>(
     !!formikProps.values.paymentProvider,
@@ -241,6 +287,9 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
   )
   const [showTaxIntegrationSection, setShowTaxIntegrationSection] = useState<boolean>(
     hadInitialAnrokIntegrationCustomer,
+  )
+  const [showCRMIntegrationSection, setShowCRMIntegrationSection] = useState<boolean>(
+    hadInitialHubspotIntegrationCustomer,
   )
 
   const connectedPaymentProvidersData: ComboboxDataGrouped[] | [] = useMemo(() => {
@@ -325,6 +374,27 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     }))
   }, [allAnrokIntegrations])
 
+  const connectedCRMIntegrationsData: ComboboxDataGrouped[] | [] = useMemo(() => {
+    if (!allCRMIntegrationsData?.length) return []
+
+    return allCRMIntegrationsData?.map((integration) => ({
+      value: integration.code,
+      label: integration.name,
+      group: integration?.__typename?.replace('Integration', '') || '',
+      labelNode: (
+        <Item>
+          <Typography variant="body" color="grey700" noWrap>
+            {integration.name}
+          </Typography>
+          &nbsp;
+          <Typography variant="body" color="grey600" noWrap>
+            ({integration.code})
+          </Typography>
+        </Item>
+      ),
+    }))
+  }, [allCRMIntegrationsData])
+
   useEffect(() => {
     setShowPaymentProviderSection(!!formikProps.values.paymentProvider)
   }, [formikProps.values.paymentProvider])
@@ -338,6 +408,10 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
   useEffect(() => {
     setShowTaxIntegrationSection(hadInitialAnrokIntegrationCustomer)
   }, [hadInitialAnrokIntegrationCustomer])
+
+  useEffect(() => {
+    setShowCRMIntegrationSection(hadInitialHubspotIntegrationCustomer)
+  }, [hadInitialHubspotIntegrationCustomer])
 
   return (
     <Accordion
@@ -1059,6 +1133,182 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
             </Accordion>
           </Stack>
         )}
+        {isHubspotFeatureFlagEnabled && showCRMIntegrationSection && (
+          <Stack gap={1}>
+            <Typography variant="captionHl" color="grey700">
+              {translate('text_1728658962985xpfdvl5ru8a')}
+            </Typography>
+            <Accordion
+              noContentMargin
+              className={ADD_CUSTOMER_CRM_PROVIDER_ACCORDION}
+              summary={
+                <Stack gap={3} flex={1} direction="row" alignItems="center">
+                  <Stack gap={3} flex={1} direction="row" alignItems="center">
+                    <Avatar size="big" variant="connector">
+                      {!!selectedHubspotIntegrationSettings ? (
+                        <Hubspot />
+                      ) : (
+                        <Icon name="plug" color="dark" />
+                      )}
+                    </Avatar>
+                    <Stack>
+                      <Typography variant="bodyHl" color="grey700">
+                        {!selectedHubspotIntegrationSettings
+                          ? translate('text_66423cad72bbad009f2f5691')
+                          : selectedHubspotIntegrationSettings.name}
+                      </Typography>
+                      {!!selectedHubspotIntegrationSettings?.code && (
+                        <Typography variant="caption">
+                          {selectedHubspotIntegrationSettings.code}
+                        </Typography>
+                      )}
+                    </Stack>
+                  </Stack>
+
+                  <Button
+                    variant="quaternary"
+                    icon="trash"
+                    onClick={() => {
+                      formikProps.setFieldValue(
+                        'integrationCustomers',
+                        formikProps.values.integrationCustomers?.filter(
+                          (i) => i.integrationType !== IntegrationTypeEnum.Hubspot,
+                        ),
+                      )
+                      setShowCRMIntegrationSection(false)
+                    }}
+                  />
+                </Stack>
+              }
+            >
+              <Stack gap={6} padding={4}>
+                <Typography variant="bodyHl" color="grey700">
+                  {translate('text_65e1f90471bc198c0c934d6c')}
+                </Typography>
+
+                {/* Select Integration account */}
+                <ComboBox
+                  onOpen={getAccountingIntegrationsData}
+                  disabled={hadInitialHubspotIntegrationCustomer}
+                  data={connectedCRMIntegrationsData}
+                  label={translate('text_66423cad72bbad009f2f5695')}
+                  placeholder={translate('text_66423cad72bbad009f2f5697')}
+                  emptyText={translate('text_6645daa0468420011304aded')}
+                  PopperProps={{ displayInDialog: true }}
+                  value={selectedHubspotIntegration?.integrationCode as string}
+                  onChange={(value) => {
+                    let localDefaultTargetedObject
+
+                    if (formikProps.values.customerType === CustomerTypeEnum.Company) {
+                      localDefaultTargetedObject = HubspotTargetedObjectsEnum.Companies
+                    } else if (formikProps.values.customerType === CustomerTypeEnum.Individual) {
+                      localDefaultTargetedObject = HubspotTargetedObjectsEnum.Contacts
+                    } else {
+                      const { defaultTargetedObject } = allHubspotIntegrations?.find(
+                        (i) => i.code === value,
+                      ) as HubspotIntegration
+
+                      localDefaultTargetedObject = defaultTargetedObject
+                    }
+
+                    const newHubspotIntegrationObject = {
+                      integrationCode: value,
+                      integrationType: IntegrationTypeEnum.Hubspot,
+                      syncWithProvider: false,
+                      targetedObject: localDefaultTargetedObject,
+                    }
+
+                    // If no existing hubspot integration, add it
+                    if (!selectedHubspotIntegration) {
+                      formikProps.setFieldValue('integrationCustomers', [
+                        ...(formikProps.values.integrationCustomers || []),
+                        newHubspotIntegrationObject,
+                      ])
+                    } else {
+                      // If existing hubspot integration, update it
+                      formikProps.setFieldValue(
+                        `${hubspotIntegrationpointerInIntegrationCustomer}`,
+                        newHubspotIntegrationObject,
+                      )
+                    }
+                  }}
+                />
+
+                {!!selectedHubspotIntegration && (
+                  <>
+                    <ComboBoxField
+                      disableClearable
+                      label={translate('text_17290677918809xyyuizjvtk')}
+                      name={`${hubspotIntegrationpointerInIntegrationCustomer}.targetedObject`}
+                      disabled={hadInitialHubspotIntegrationCustomer}
+                      data={[
+                        {
+                          label: translate(
+                            getHubspotTargetedObjectTranslationKey[
+                              HubspotTargetedObjectsEnum.Companies
+                            ],
+                          ),
+                          value: HubspotTargetedObjectsEnum.Companies,
+                        },
+                        {
+                          label: translate(
+                            getHubspotTargetedObjectTranslationKey[
+                              HubspotTargetedObjectsEnum.Contacts
+                            ],
+                          ),
+                          value: HubspotTargetedObjectsEnum.Contacts,
+                        },
+                      ]}
+                      PopperProps={{ displayInDialog: true }}
+                      formikProps={formikProps}
+                    />
+
+                    <TextInputField
+                      label={translate('text_1729067791880uwec7af9cpq')}
+                      placeholder={translate('text_1729067791880y0th6mtz2av')}
+                      name={`${hubspotIntegrationpointerInIntegrationCustomer}.externalCustomerId`}
+                      disabled={
+                        !!selectedHubspotIntegration?.syncWithProvider ||
+                        hadInitialHubspotIntegrationCustomer
+                      }
+                      formikProps={formikProps}
+                    />
+
+                    <Checkbox
+                      name={`${hubspotIntegrationpointerInIntegrationCustomer}.syncWithProvider`}
+                      disabled={hadInitialHubspotIntegrationCustomer}
+                      value={!!selectedHubspotIntegration?.syncWithProvider}
+                      label={translate('text_66423cad72bbad009f2f569e', {
+                        connectionName: selectedHubspotIntegrationSettings?.name,
+                      })}
+                      onChange={(_, checked) => {
+                        const newHubspotIntegrationObject = {
+                          ...selectedHubspotIntegration,
+                          syncWithProvider: checked,
+                        }
+
+                        if (!isEdition && checked) {
+                          newHubspotIntegrationObject.externalCustomerId = ''
+                        }
+
+                        formikProps.setFieldValue(
+                          `${hubspotIntegrationpointerInIntegrationCustomer}`,
+                          newHubspotIntegrationObject,
+                        )
+                      }}
+                    />
+                  </>
+                )}
+
+                {isEdition &&
+                  !!selectedHubspotIntegration?.syncWithProvider &&
+                  !hadInitialHubspotIntegrationCustomer && (
+                    <Alert type="info">{translate('text_1729067791880abj1lzd7dn9')}</Alert>
+                  )}
+              </Stack>
+            </Accordion>
+          </Stack>
+        )}
         <Popper
           PopperProps={{ placement: 'bottom-start' }}
           opener={
@@ -1068,7 +1318,8 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
               disabled={
                 showAccountingProviderSection &&
                 showPaymentProviderSection &&
-                showTaxIntegrationSection
+                showTaxIntegrationSection &&
+                showCRMIntegrationSection
               }
             >
               {translate('text_65846763e6140b469140e235')}
@@ -1147,6 +1398,32 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
               >
                 {translate('text_6668821d94e4da4dfd8b3840')}
               </Button>
+
+              {isHubspotFeatureFlagEnabled && (
+                <Button
+                  variant="quaternary"
+                  align="left"
+                  disabled={showCRMIntegrationSection}
+                  onClick={() => {
+                    setShowCRMIntegrationSection(true)
+
+                    setTimeout(() => {
+                      const element = document.querySelector(
+                        `.${ADD_CUSTOMER_CRM_PROVIDER_ACCORDION} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
+                      ) as HTMLElement
+
+                      if (!element) return
+
+                      element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                      element.click()
+                    }, 1)
+
+                    closePopper()
+                  }}
+                >
+                  {translate('text_1728658962985xpfdvl5ru8a')}
+                </Button>
+              )}
             </MenuPopper>
           )}
         </Popper>
