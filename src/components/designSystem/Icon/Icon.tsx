@@ -1,10 +1,35 @@
-import { cx } from 'class-variance-authority'
-import { cloneElement } from 'react'
-import styled from 'styled-components'
+import { cva, VariantProps } from 'class-variance-authority'
 
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import { ALL_ICONS } from './mapping'
+
+const iconStyles = cva('text-inherit', {
+  variants: {
+    animation: {
+      spin: 'animate-spin',
+      pulse: 'animate-pulse',
+    },
+    color: {
+      primary: 'text-blue-600',
+      success: 'text-green-600',
+      error: 'text-red-600',
+      warning: 'text-yellow-600',
+      info: 'text-purple-600',
+      light: 'text-white',
+      black: 'text-grey-700',
+      dark: 'text-grey-600',
+      input: 'text-grey-500',
+      disabled: 'text-grey-400',
+      skeleton: 'text-grey-100',
+    },
+    size: {
+      small: 'size-3 min-w-3',
+      medium: 'size-4 min-w-4',
+      large: 'size-6 min-w-6',
+    },
+  },
+})
 
 export type IconName = keyof typeof ALL_ICONS
 export type IconColor =
@@ -20,52 +45,12 @@ export type IconColor =
   | 'input'
   | 'primary'
 
-enum IconAnimationEnum {
-  spin = 'spin',
-  pulse = 'pulse',
-}
-interface IconProps {
+type IconVariantProps = VariantProps<typeof iconStyles>
+
+interface IconProps extends IconVariantProps {
   name: IconName
-  size?: 'small' | 'medium' | 'large'
-  color?: IconColor
   className?: string
-  animation?: keyof typeof IconAnimationEnum
   onClick?: () => {} | void | Promise<void>
-}
-
-enum IconSizeEnum {
-  small = '12px',
-  medium = '16px',
-  large = '24px',
-}
-
-const mapColor = (color?: IconColor) => {
-  switch (color) {
-    case 'primary':
-      return theme.palette.primary.main
-    case 'success':
-      return theme.palette.success.main
-    case 'error':
-      return theme.palette.error.main
-    case 'warning':
-      return theme.palette.warning.main
-    case 'info':
-      return theme.palette.info.main
-    case 'light':
-      return theme.palette.common.white
-    case 'black':
-      return theme.palette.grey[700]
-    case 'dark':
-      return theme.palette.grey[600]
-    case 'input':
-      return theme.palette.grey[500]
-    case 'disabled':
-      return theme.palette.grey[400]
-    case 'skeleton':
-      return theme.palette.grey[100]
-    default:
-      return 'inherit'
-  }
 }
 
 export const Icon = ({
@@ -79,53 +64,13 @@ export const Icon = ({
   const SVGIcon = ALL_ICONS[name]
 
   return (
-    <StyledIcon
+    <SVGIcon
       title={`${name}/${size}`}
       data-test={`${name}/${size}`}
-      $size={size}
-      $canClick={!!onClick}
-      className={cx('svg-icon', className, { [`icon-animation--${animation}`]: animation })}
-      $color={mapColor(color)}
-      component={<SVGIcon />}
+      className={tw(iconStyles({ animation, color, size }), className, {
+        'cursor-pointer': !!onClick,
+      })}
       onClick={onClick}
     />
   )
 }
-
-const StyledIcon = styled(({ component, ...props }) => cloneElement(component, props))`
-  width: ${(props: { $size: keyof typeof IconSizeEnum }) => IconSizeEnum[props.$size]};
-  min-width: ${(props: { $size: keyof typeof IconSizeEnum }) => IconSizeEnum[props.$size]};
-  height: ${(props: { $size: keyof typeof IconSizeEnum }) => IconSizeEnum[props.$size]};
-  color: ${(props) => props.$color};
-  cursor: ${({ $canClick }) => ($canClick ? 'pointer' : 'initial')};
-
-  &.icon-animation--${IconAnimationEnum.spin} {
-    animation: spin 1s linear infinite;
-  }
-
-  &.icon-animation--${IconAnimationEnum.pulse} {
-    animation: pulse 1.5s ease-in-out 0.5s infinite;
-  }
-
-  @keyframes pulse {
-    0% {
-      opacity: 1;
-    }
-
-    50% {
-      opacity: 0.4;
-    }
-    100% {
-      opacity: 1;
-    }
-  }
-
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-`

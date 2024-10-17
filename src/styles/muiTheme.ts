@@ -262,12 +262,12 @@ export const theme = createTheme({
         adornedEnd: {
           paddingRight: 0,
           '& .MuiButton-root': {
-            '& .svg-icon': {
+            '& svg': {
               padding: '0',
             },
           },
           '& .MuiInputAdornment-positionEnd': {
-            '& .svg-icon': {
+            '& svg': {
               padding: '0 0 0 0',
             },
           },
@@ -279,11 +279,11 @@ export const theme = createTheme({
           },
           '& .MuiButton-root': {
             marginLeft: '4px',
-            '& .svg-icon': {
+            '& svg': {
               padding: '0',
             },
           },
-          '& .MuiInputAdornment-positionStart .svg-icon': {
+          '& .MuiInputAdornment-positionStart svg': {
             padding: '0 12px 0 16px',
           },
         },
