@@ -103,6 +103,7 @@ const config = {
       avatar: colors.avatar,
       black: '#000000',
       white: '#FFFFFF',
+      inherit: 'inherit',
     },
     boxShadow: {
       sm: '0px 2px 4px 0px rgba(25, 33, 46, 0.20)',
