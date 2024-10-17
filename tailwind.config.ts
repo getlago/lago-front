@@ -143,6 +143,15 @@ const config = {
         navBar: 1200,
         sectionHead: 1000,
       },
+      keyframes: {
+        enter: {
+          '0%': { transform: 'translateX(-120%)' },
+          '100%': { transform: 'translateX(0)' },
+        },
+      },
+      animation: {
+        enter: 'enter 250ms cubic-bezier(0.4, 0, 0.2, 1) 1',
+      },
     },
   },
   plugins: [

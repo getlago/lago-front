@@ -1,9 +1,7 @@
 import { useReactiveVar } from '@apollo/client'
 import { createRef, useEffect, useRef } from 'react'
-import styled from 'styled-components'
 
 import { removeAllToasts, toastsVar } from '~/core/apolloClient'
-import { theme } from '~/styles'
 
 import { Toast } from './Toast'
 
@@ -43,21 +41,11 @@ export const ToastContainer = () => {
   }, [])
 
   return (
-    <Container>
+    <div className="fixed bottom-0 left-0 z-toast mb-4 ml-4 cursor-default">
       {toasts.map((toast) => (
         // @ts-expect-error
         <Toast key={toast.id} ref={elementsRefs.current[toast.id]} toast={toast} />
       ))}
-    </Container>
+    </div>
   )
 }
-
-const Container = styled.div`
-  cursor: default;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  margin-bottom: ${theme.spacing(4)};
-  margin-left: ${theme.spacing(4)};
-  z-index: ${theme.zIndex.toast};
-`
