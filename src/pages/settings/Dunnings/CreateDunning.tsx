@@ -20,6 +20,7 @@ import {
   CurrencyEnum,
   LagoApiError,
   useCreateDunningCampaignMutation,
+  useCreateDunningCampaignPaymentProviderQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -41,6 +42,14 @@ gql`
       appliedToOrganization
     }
   }
+
+  query CreateDunningCampaignPaymentProvider {
+    paymentProviders {
+      collection {
+        __typename
+      }
+    }
+  }
 `
 
 type TCreateDunningCampaignInput = Omit<
@@ -59,6 +68,12 @@ const CreateDunning = () => {
   const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
 
   const { organization: { defaultCurrency } = {} } = useOrganizationInfos()
+
+  const { data, loading } = useCreateDunningCampaignPaymentProviderQuery()
+
+  const hasPaymentProviderExcludingGoCardless = !!data?.paymentProviders?.collection.filter(
+    (provider) => provider.__typename !== 'GocardlessProvider',
+  ).length
 
   const [create] = useCreateDunningCampaignMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
@@ -115,6 +130,11 @@ const CreateDunning = () => {
           }),
         )
         .min(1, '')
+        .test((thresholds) => {
+          const currencies = thresholds?.map((t) => t.currency)
+
+          return new Set(currencies).size === currencies?.length
+        })
         .required(''),
       daysBetweenAttempts: number().min(1, '').required(''),
       maxAttempts: number().min(1, '').required(''),
@@ -317,7 +337,9 @@ const CreateDunning = () => {
                 {translate('text_1728584028187ij19lperkhf')}
               </Typography>
               <Typography variant="caption">
-                {translate('text_1728584028187l2wdjy4s5cs')}
+                    {hasPaymentProviderExcludingGoCardless
+                      ? translate('text_1728584028187l2wdjy4s5cs')
+                      : translate('text_17291534666709ytr7mi4jjl')}
               </Typography>
             </div>
 
@@ -370,7 +392,10 @@ const CreateDunning = () => {
                     onConfirm: () => formikProps.setFieldValue('appliedToOrganization', true),
                   })
                 } else {
-                  formikProps.setFieldValue('isDefault', !formikProps.values.appliedToOrganization)
+                      formikProps.setFieldValue(
+                        'appliedToOrganization',
+                        !formikProps.values.appliedToOrganization,
+                      )
                 }
               }}
               label={translate('text_1728584028187cpxux50bk4n')}
