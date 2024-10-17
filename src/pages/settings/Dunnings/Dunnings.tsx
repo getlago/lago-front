@@ -1,3 +1,4 @@
+import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -25,37 +26,42 @@ import {
   DefaultCampaignDialogRef,
 } from '~/components/settings/dunnings/DefaultCampaignDialog'
 import { addToast } from '~/core/apolloClient'
+import { useGetDunningCampaignsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
+
+gql`
+  fragment DunningCampaignItem on DunningCampaign {
+    id
+    name
+    code
+    appliedToOrganization
+  }
+
+  query getDunningCampaigns($limit: Int, $page: Int) {
+    dunningCampaigns(limit: $limit, page: $page, order: "name") {
+      metadata {
+        currentPage
+        totalPages
+      }
+      collection {
+        id
+        ...DunningCampaignItem
+      }
+    }
+  }
+`
 
 const Dunnings = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const defaultCampaignDialogRef = useRef<DefaultCampaignDialogRef>(null)
 
-  const loading = false
-  const error = false
-  const FAKE_DATA = [
-    {
-      id: '1',
-      name: 'Dunning 1',
-      code: 'DUN-1',
-      isDefault: true,
+  const { data, loading, error, fetchMore } = useGetDunningCampaignsQuery({
+    variables: {
+      limit: 20,
     },
-    {
-      id: '2',
-      name: 'Dunning 2',
-      code: 'DUN-2',
-      isDefault: false,
-    },
-    {
-      id: '3',
-      name: 'Dunning 3',
-      code: 'DUN-3',
-      isDefault: false,
-    },
-  ]
-  const hasData = false
+  })
 
   if (!!error && !loading) {
     return (
@@ -107,23 +113,30 @@ const Dunnings = () => {
                     </Button>
                   }
                 />
-                {!hasData ? (
+                {!data?.dunningCampaigns.collection.length ? (
                   <Typography variant="body" color="grey500">
                     {translate('text_17285860642666dsgcx901iq')}
                   </Typography>
                 ) : (
                   <InfiniteScroll
-                    onBottom={
-                      // TODO: fetch more data
-                      () => {}
-                    }
+                    onBottom={() => {
+                      const { currentPage, totalPages } = data.dunningCampaigns.metadata
+
+                      currentPage < totalPages &&
+                        !loading &&
+                        fetchMore({
+                          variables: {
+                            page: currentPage + 1,
+                          },
+                        })
+                    }}
                   >
                     <Table
                       name="dunnings-settings-list"
                       containerSize={{ default: 0 }}
                       rowSize={72}
                       isLoading={loading}
-                      data={FAKE_DATA}
+                      data={data.dunningCampaigns.collection}
                       columns={[
                         {
                           key: 'name',
@@ -146,15 +159,16 @@ const Dunnings = () => {
                           ),
                         },
                         {
-                          key: 'isDefault',
+                          key: 'appliedToOrganization',
                           title: translate('text_63ac86d797f728a87b2f9fa7'),
-                          content: ({ isDefault }) => isDefault && <Chip label="Default" />,
+                          content: ({ appliedToOrganization }) =>
+                            appliedToOrganization && <Chip label="Default" />,
                         },
                       ]}
                       actionColumnTooltip={() => translate('text_17285747264959xu1spelnh9')}
                       actionColumn={(campaign) => {
                         return [
-                          campaign.isDefault
+                          campaign.appliedToOrganization
                             ? {
                                 startIcon: 'star-outlined-hidden',
                                 title: translate('text_1728574726495j7n9zqj7o71'),
