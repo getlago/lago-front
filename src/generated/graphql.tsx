@@ -6854,6 +6854,13 @@ export type UpdateOktaIntegrationMutationVariables = Exact<{
 
 export type UpdateOktaIntegrationMutation = { __typename?: 'Mutation', updateOktaIntegration?: { __typename?: 'OktaIntegration', id: string } | null };
 
+export type OrganizationInfoForPreviewDunningCampaignFragment = { __typename?: 'CurrentOrganization', name: string, email?: string | null };
+
+export type GetOrganizationInfoForPreviewDunningCampaignQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetOrganizationInfoForPreviewDunningCampaignQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', name: string, email?: string | null } | null };
+
 export type UpdateOrganizationLogoMutationVariables = Exact<{
   input: UpdateOrganizationInput;
 }>;
@@ -9266,6 +9273,12 @@ export const AddOktaIntegrationDialogFragmentDoc = gql`
   ...DeleteOktaIntegrationDialog
 }
     ${DeleteOktaIntegrationDialogFragmentDoc}`;
+export const OrganizationInfoForPreviewDunningCampaignFragmentDoc = gql`
+    fragment OrganizationInfoForPreviewDunningCampaign on CurrentOrganization {
+  name
+  email
+}
+    `;
 export const AddAdyenProviderDialogFragmentDoc = gql`
     fragment AddAdyenProviderDialog on AdyenProvider {
   id
@@ -15480,6 +15493,45 @@ export function useUpdateOktaIntegrationMutation(baseOptions?: Apollo.MutationHo
 export type UpdateOktaIntegrationMutationHookResult = ReturnType<typeof useUpdateOktaIntegrationMutation>;
 export type UpdateOktaIntegrationMutationResult = Apollo.MutationResult<UpdateOktaIntegrationMutation>;
 export type UpdateOktaIntegrationMutationOptions = Apollo.BaseMutationOptions<UpdateOktaIntegrationMutation, UpdateOktaIntegrationMutationVariables>;
+export const GetOrganizationInfoForPreviewDunningCampaignDocument = gql`
+    query getOrganizationInfoForPreviewDunningCampaign {
+  organization {
+    ...OrganizationInfoForPreviewDunningCampaign
+  }
+}
+    ${OrganizationInfoForPreviewDunningCampaignFragmentDoc}`;
+
+/**
+ * __useGetOrganizationInfoForPreviewDunningCampaignQuery__
+ *
+ * To run a query within a React component, call `useGetOrganizationInfoForPreviewDunningCampaignQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationInfoForPreviewDunningCampaignQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrganizationInfoForPreviewDunningCampaignQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetOrganizationInfoForPreviewDunningCampaignQuery(baseOptions?: Apollo.QueryHookOptions<GetOrganizationInfoForPreviewDunningCampaignQuery, GetOrganizationInfoForPreviewDunningCampaignQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetOrganizationInfoForPreviewDunningCampaignQuery, GetOrganizationInfoForPreviewDunningCampaignQueryVariables>(GetOrganizationInfoForPreviewDunningCampaignDocument, options);
+      }
+export function useGetOrganizationInfoForPreviewDunningCampaignLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrganizationInfoForPreviewDunningCampaignQuery, GetOrganizationInfoForPreviewDunningCampaignQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetOrganizationInfoForPreviewDunningCampaignQuery, GetOrganizationInfoForPreviewDunningCampaignQueryVariables>(GetOrganizationInfoForPreviewDunningCampaignDocument, options);
+        }
+export function useGetOrganizationInfoForPreviewDunningCampaignSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationInfoForPreviewDunningCampaignQuery, GetOrganizationInfoForPreviewDunningCampaignQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetOrganizationInfoForPreviewDunningCampaignQuery, GetOrganizationInfoForPreviewDunningCampaignQueryVariables>(GetOrganizationInfoForPreviewDunningCampaignDocument, options);
+        }
+export type GetOrganizationInfoForPreviewDunningCampaignQueryHookResult = ReturnType<typeof useGetOrganizationInfoForPreviewDunningCampaignQuery>;
+export type GetOrganizationInfoForPreviewDunningCampaignLazyQueryHookResult = ReturnType<typeof useGetOrganizationInfoForPreviewDunningCampaignLazyQuery>;
+export type GetOrganizationInfoForPreviewDunningCampaignSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationInfoForPreviewDunningCampaignSuspenseQuery>;
+export type GetOrganizationInfoForPreviewDunningCampaignQueryResult = Apollo.QueryResult<GetOrganizationInfoForPreviewDunningCampaignQuery, GetOrganizationInfoForPreviewDunningCampaignQueryVariables>;
 export const UpdateOrganizationLogoDocument = gql`
     mutation updateOrganizationLogo($input: UpdateOrganizationInput!) {
   updateOrganization(input: $input) {

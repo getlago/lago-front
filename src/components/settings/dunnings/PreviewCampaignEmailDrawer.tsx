@@ -1,29 +1,62 @@
+import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import { Button, Drawer, DrawerRef, Skeleton, Typography } from '~/components/designSystem'
+import { Button, Drawer, DrawerRef, Typography } from '~/components/designSystem'
+import { DunningEmail, DunningEmailSkeleton } from '~/components/emails/DunningEmail'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { LocaleEnum } from '~/core/translations'
+import {
+  CurrencyEnum,
+  useGetOrganizationInfoForPreviewDunningCampaignLazyQuery,
+} from '~/generated/graphql'
+import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { LanguageSettingsButton } from '../LanguageSettingsButton'
 import { PreviewEmailLayout } from '../PreviewEmailLayout'
 
+gql`
+  fragment OrganizationInfoForPreviewDunningCampaign on CurrentOrganization {
+    name
+    email
+  }
+
+  query getOrganizationInfoForPreviewDunningCampaign {
+    organization {
+      ...OrganizationInfoForPreviewDunningCampaign
+    }
+  }
+`
+
 export interface PreviewCampaignEmailDrawerRef extends DrawerRef {
-  openDrawer: (data?: any) => unknown
+  openDrawer: () => void
   closeDrawer: () => void
 }
 
+const DUMMY_OVERDUE_AMOUNT_CENTS = 73000
+const DUMMY_INVOICES_COUNT = 5
+
 export const PreviewCampaignEmailDrawer = forwardRef<PreviewCampaignEmailDrawerRef>(
-  (props, ref) => {
+  (_props, ref) => {
     const { translate } = useInternationalization()
     const drawerRef = useRef<DrawerRef>(null)
     const [locale, setLocale] = useState<LocaleEnum>(LocaleEnum.en)
-    const [localData, setLocalData] = useState<any>()
+    const { translateWithContextualLocal } = useContextualLocale(locale)
 
-    const loading = false
+    const [getOrganizationInfo, { loading, data }] =
+      useGetOrganizationInfoForPreviewDunningCampaignLazyQuery()
+
+    const invoices = Array.from({ length: DUMMY_INVOICES_COUNT }).map((_, index) => ({
+      id: `${index}`,
+      number: `${data?.organization?.name.slice(0, 3).toUpperCase()}-1234-567-89${index + 1}`,
+      totalAmountCents:
+        index === 0 ? DUMMY_OVERDUE_AMOUNT_CENTS - 10000 * (DUMMY_INVOICES_COUNT - 1) : 10000,
+      currency: CurrencyEnum.Usd,
+    }))
 
     useImperativeHandle(ref, () => ({
-      openDrawer: (data) => {
-        setLocalData(data)
+      openDrawer: () => {
+        getOrganizationInfo()
         drawerRef.current?.openDrawer()
       },
       closeDrawer: () => drawerRef.current?.closeDrawer(),
@@ -35,13 +68,13 @@ export const PreviewCampaignEmailDrawer = forwardRef<PreviewCampaignEmailDrawerR
         withPadding={false}
         stickyBottomBar={({ closeDrawer }) => (
           <div className="flex justify-end">
-            <Button onClick={closeDrawer}>{translate('Close preview')}</Button>
+            <Button onClick={closeDrawer}>{translate('text_1729594310368kstqhifkf5p')}</Button>
           </div>
         )}
         title={
           <div className="flex flex-1 flex-row items-center justify-between gap-1">
             <Typography variant="bodyHl" color="textSecondary">
-              {translate('Preview email template')}
+              {translate('text_1728584028187udjepvgj8ra')}
             </Typography>
             <LanguageSettingsButton
               language={locale}
@@ -50,23 +83,40 @@ export const PreviewCampaignEmailDrawer = forwardRef<PreviewCampaignEmailDrawerR
           </div>
         }
       >
-        <div className="h-full bg-grey-100 p-12">
-          <PreviewEmailLayout
-            isLoading={loading}
-            language={locale}
-            emailObject={translate('Your overdue balance from Banco')}
-          >
-            {loading ? (
-              <div className="flex flex-col gap-7">
-                <Skeleton color="dark" variant="text" width={104} />
-                <Skeleton color="dark" variant="text" width="100%" />
-                <Skeleton color="dark" variant="text" width={160} />
-              </div>
-            ) : (
-              // TODO: Extract from manual dunning
-              <></>
-            )}
-          </PreviewEmailLayout>
+        <div className="h-full bg-grey-100 p-12 pb-0">
+          <div className="max-w-150 mx-auto">
+            <PreviewEmailLayout
+              isLoading={loading}
+              language={locale}
+              emailObject={translateWithContextualLocal('text_1729256593854oiy13slixjr', {
+                companyName: data?.organization?.name,
+              })}
+              emailFrom={`<${data?.organization?.email || '{{organization_email}}'}>`}
+            >
+              {loading ? (
+                <div className="flex flex-col gap-7">
+                  <DunningEmailSkeleton />
+                </div>
+              ) : (
+                <div className="flex flex-col gap-6">
+                  <DunningEmail
+                    locale={locale}
+                    invoices={invoices}
+                    currency={CurrencyEnum.Usd}
+                    overdueAmount={deserializeAmount(DUMMY_OVERDUE_AMOUNT_CENTS, CurrencyEnum.Usd)}
+                    organization={{
+                      name: data?.organization?.name ?? '{{organization_name}}',
+                      netPaymentTerm: '{{net_payment_term}}',
+                      email: data?.organization?.email || '{{organization_email}}',
+                    }}
+                    customer={{
+                      displayName: `{{customer_name}}`,
+                    }}
+                  />
+                </div>
+              )}
+            </PreviewEmailLayout>
+          </div>
         </div>
       </Drawer>
     )
