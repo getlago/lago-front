@@ -1,8 +1,5 @@
-import styled from 'styled-components'
-
 import { Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { HEADER_TABLE_HEIGHT, theme } from '~/styles'
 
 import { FiltersItemCurrency } from './filtersElements/FiltersItemCurrency'
 import { FiltersItemCustomer } from './filtersElements/FiltersItemCustomer'
@@ -29,7 +26,7 @@ export const FiltersPanelItemTypeSwitch = ({
   const { translate } = useInternationalization()
 
   if (!filterType) {
-    return <NoFilterTypePlaceholder />
+    return <div className="h-[46px] rounded-xl border border-dashed border-grey-300 lg:flex-1" />
   }
 
   return (
@@ -64,14 +61,3 @@ export const FiltersPanelItemTypeSwitch = ({
     </>
   )
 }
-
-const NoFilterTypePlaceholder = styled.div`
-  /* -2px stand for the border witdh included on both top and bottom */
-  height: ${HEADER_TABLE_HEIGHT - 2}px;
-  border: 1px dashed ${theme.palette.grey[300]};
-  border-radius: ${theme.shape.borderRadius}px;
-
-  ${theme.breakpoints.up('lg')} {
-    flex: 1;
-  }
-`

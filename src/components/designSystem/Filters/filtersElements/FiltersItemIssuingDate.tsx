@@ -1,10 +1,8 @@
 /* eslint-disable tailwindcss/no-custom-classname */
 import { DateTime } from 'luxon'
-import styled from 'styled-components'
 
 import { DatePicker } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 import { Typography } from '../../Typography'
 import { FiltersFormValues } from '../FiltersPanelPoper'
@@ -21,9 +19,10 @@ export const FiltersItemIssuingDate = ({
   const { translate } = useInternationalization()
 
   return (
-    <IssuingDateContainer>
-      <CustomDatePicker
+    <div className="flex items-center gap-2 lg:gap-3">
+      <DatePicker
         showErrorInTooltip
+        className="flex-1"
         onChange={(issuingDateFrom) => {
           // replace the value.split(',')[0] with the new value
           setFilterValue(
@@ -33,13 +32,14 @@ export const FiltersItemIssuingDate = ({
         value={value.split(',')[0]}
       />
       <Typography variant="body" color="grey700">
-        <div className="show-bellow-lg">-</div>
-        <div className="show-above-lg">
+        <div className="block lg:hidden">-</div>
+        <div className="hidden lg:block">
           {translate('text_65f8472df7593301061e27d6').toLowerCase()}
         </div>
       </Typography>
-      <CustomDatePicker
+      <DatePicker
         showErrorInTooltip
+        className="flex-1"
         onChange={(issuingDateTo) => {
           // replace the value.split(',')[1] with the new value
           setFilterValue(
@@ -48,40 +48,6 @@ export const FiltersItemIssuingDate = ({
         }}
         value={value.split(',')[1]}
       />
-    </IssuingDateContainer>
+    </div>
   )
 }
-
-const IssuingDateContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(2)};
-
-  ${theme.breakpoints.up('lg')} {
-    gap: ${theme.spacing(3)};
-  }
-
-  .MuiTextField-root {
-    width: 100%;
-  }
-
-  .show-above-lg {
-    display: none;
-
-    ${theme.breakpoints.up('lg')} {
-      display: block;
-    }
-  }
-
-  .show-bellow-lg {
-    display: block;
-
-    ${theme.breakpoints.up('lg')} {
-      display: none;
-    }
-  }
-`
-
-const CustomDatePicker = styled(DatePicker)`
-  flex: 1;
-`

@@ -1,51 +1,15 @@
-import styled, { css } from 'styled-components'
-
-import { theme } from '~/styles'
-
 import { InvoiceStatusQuickFilter } from './InvoiceStatusQuickFilter'
 import { AvailableQuickFilters } from './types'
 
 interface QuickFiltersProps {
   type: AvailableQuickFilters
-  hideBorderBottom?: boolean
   noPadding?: boolean
 }
 
-export const QuickFilters = ({
-  hideBorderBottom,
-  noPadding,
-  type,
-  ...props
-}: QuickFiltersProps) => {
+export const QuickFilters = ({ type }: QuickFiltersProps) => {
   return (
-    <QuickFiltersContainer $hideBorderBottom={hideBorderBottom} $noPadding={noPadding} {...props}>
+    <div className="flex w-full flex-wrap items-center gap-3 overflow-y-auto">
       {type === AvailableQuickFilters.InvoiceStatus ? <InvoiceStatusQuickFilter /> : null}
-    </QuickFiltersContainer>
+    </div>
   )
 }
-
-const QuickFiltersContainer = styled.div<{ $hideBorderBottom?: boolean; $noPadding?: boolean }>`
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-  overflow-y: auto;
-  box-sizing: border-box;
-
-  ${({ $noPadding }) =>
-    !$noPadding &&
-    css`
-      padding: ${theme.spacing(3)} ${theme.spacing(12)};
-    `}
-
-  ${({ $hideBorderBottom }) =>
-    !$hideBorderBottom &&
-    css`
-      box-shadow: ${theme.shadows[7]};
-    `}
-
-  ${theme.breakpoints.down('md')} {
-    padding: ${theme.spacing(4)};
-  }
-`
