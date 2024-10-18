@@ -1,9 +1,8 @@
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import styled, { css } from 'styled-components'
 
 import { Button, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { palette } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import {
   buildDraftUrlParams,
@@ -20,6 +19,27 @@ import {
   isVoidedUrlParams,
 } from './utils'
 
+const QuickFilter = ({
+  children,
+  isSelected,
+  onClick,
+}: {
+  children: React.ReactNode
+  isSelected: boolean
+  onClick: () => void
+}) => (
+  <Button
+    className={tw({
+      'text-blue-600 [&>div]:text-blue-600': isSelected,
+    })}
+    variant="tertiary"
+    align="left"
+    onClick={onClick}
+  >
+    {children}
+  </Button>
+)
+
 export const InvoiceStatusQuickFilter = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
@@ -27,20 +47,13 @@ export const InvoiceStatusQuickFilter = () => {
 
   return (
     <>
-      <QuickFilter
-        variant="tertiary"
-        align="left"
-        $isSelected={searchParams.size === 0}
-        onClick={() => navigate({ search: '' })}
-      >
+      <QuickFilter isSelected={searchParams.size === 0} onClick={() => navigate({ search: '' })}>
         <Typography variant="captionHl" color="grey600">
           {translate('text_63ac86d797f728a87b2f9f8b')}
         </Typography>
       </QuickFilter>
       <QuickFilter
-        variant="tertiary"
-        align="left"
-        $isSelected={isDraftUrlParams(searchParams)}
+        isSelected={isDraftUrlParams(searchParams)}
         onClick={() => navigate({ search: buildDraftUrlParams() })}
       >
         <Typography variant="captionHl" color="grey600">
@@ -48,9 +61,7 @@ export const InvoiceStatusQuickFilter = () => {
         </Typography>
       </QuickFilter>
       <QuickFilter
-        variant="tertiary"
-        align="left"
-        $isSelected={isOutstandingUrlParams(searchParams)}
+        isSelected={isOutstandingUrlParams(searchParams)}
         onClick={() => navigate({ search: buildOutstandingUrlParams() })}
       >
         <Typography variant="captionHl" color="grey600">
@@ -58,9 +69,7 @@ export const InvoiceStatusQuickFilter = () => {
         </Typography>
       </QuickFilter>
       <QuickFilter
-        variant="tertiary"
-        align="left"
-        $isSelected={isPaymentOverdueUrlParams(searchParams)}
+        isSelected={isPaymentOverdueUrlParams(searchParams)}
         onClick={() => navigate({ search: buildPaymentOverdueUrlParams() })}
       >
         <Typography variant="captionHl" color="grey600">
@@ -68,9 +77,7 @@ export const InvoiceStatusQuickFilter = () => {
         </Typography>
       </QuickFilter>
       <QuickFilter
-        variant="tertiary"
-        align="left"
-        $isSelected={isSucceededUrlParams(searchParams)}
+        isSelected={isSucceededUrlParams(searchParams)}
         onClick={() => navigate({ search: buildSucceededUrlParams() })}
       >
         <Typography variant="captionHl" color="grey600">
@@ -78,9 +85,7 @@ export const InvoiceStatusQuickFilter = () => {
         </Typography>
       </QuickFilter>
       <QuickFilter
-        variant="tertiary"
-        align="left"
-        $isSelected={isVoidedUrlParams(searchParams)}
+        isSelected={isVoidedUrlParams(searchParams)}
         onClick={() => navigate({ search: buildVoidedUrlParams() })}
       >
         <Typography variant="captionHl" color="grey600">
@@ -88,9 +93,7 @@ export const InvoiceStatusQuickFilter = () => {
         </Typography>
       </QuickFilter>
       <QuickFilter
-        variant="tertiary"
-        align="left"
-        $isSelected={isPaymentDisputeLostUrlParams(searchParams)}
+        isSelected={isPaymentDisputeLostUrlParams(searchParams)}
         onClick={() => navigate({ search: buildPaymentDisputeLostUrlParams() })}
       >
         <Typography variant="captionHl" color="grey600">
@@ -100,18 +103,3 @@ export const InvoiceStatusQuickFilter = () => {
     </>
   )
 }
-
-const QuickFilter = styled(Button)<{ $isSelected: boolean }>`
-  height: 44px;
-  flex-shrink: 0;
-
-  ${({ $isSelected }) =>
-    $isSelected &&
-    css`
-      color: ${palette.primary.main};
-
-      > div {
-        color: ${palette.primary.main};
-      }
-    `};
-`

@@ -1,10 +1,8 @@
 import { Typography } from '@mui/material'
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 import { AvailableFiltersEnum, mapFilterToTranslationKey } from './types'
 import { formatActiveFilterValueDisplay } from './utils'
@@ -53,22 +51,15 @@ export const ActiveFiltersList = ({ filters }: ActiveFiltersListProps) => {
   return (
     <>
       {activeFilters.map(({ label, value }, index) => (
-        <ActiveFilterChip key={`active-filter-${index}`}>
+        <div
+          className="flex h-8 items-center rounded-[100px] bg-grey-100 px-3 py-0"
+          key={`active-filter-${index}`}
+        >
           <Typography variant="captionHl" color="grey600">
             {translate(label)}: {value}
           </Typography>
-        </ActiveFilterChip>
+        </div>
       ))}
     </>
   )
 }
-
-const ActiveFilterChip = styled.div`
-  display: flex;
-  align-items: center;
-  height: 32px;
-  background-color: ${theme.palette.grey[100]};
-  border-radius: 100px;
-  padding: 0 ${theme.spacing(3)};
-  box-sizing: border-box;
-`

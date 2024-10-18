@@ -1,7 +1,6 @@
 import { ApolloError, LazyQueryHookOptions } from '@apollo/client'
 import { useEffect, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import {
   InfiniteScroll,
@@ -39,7 +38,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
-import { theme } from '~/styles'
 
 import { Filters } from '../designSystem/Filters/Filters'
 import { AvailableFiltersEnum, AvailableQuickFilters } from '../designSystem/Filters/types'
@@ -124,8 +122,8 @@ const InvoicesList = ({
 
   return (
     <>
-      <FiltersWrapper>
-        <QuickFilters hideBorderBottom type={AvailableQuickFilters.InvoiceStatus} />
+      <div className="box-border flex w-full flex-col gap-3 p-4 shadow-b md:px-12 md:py-3">
+        <QuickFilters type={AvailableQuickFilters.InvoiceStatus} />
         <Filters
           filters={[
             AvailableFiltersEnum.status,
@@ -138,7 +136,7 @@ const InvoicesList = ({
             AvailableFiltersEnum.paymentOverdue,
           ]}
         />
-      </FiltersWrapper>
+      </div>
 
       <div ref={listContainerElementRef}>
         <InfiniteScroll
@@ -464,20 +462,3 @@ const InvoicesList = ({
 }
 
 export default InvoicesList
-
-const FiltersWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(3)};
-  box-sizing: border-box;
-  gap: ${theme.spacing(3)};
-
-  > *:first-child {
-    padding-bottom: 0;
-  }
-
-  > *:last-child {
-    padding-top: 0;
-  }
-`

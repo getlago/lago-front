@@ -3,13 +3,11 @@ import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
 import { useMemo, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import styled from 'styled-components'
 import { array, lazy, object, string } from 'yup'
 
 import { Button, Popper, Tooltip, Typography } from '~/components/designSystem'
 import { ComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { NAV_HEIGHT, theme } from '~/styles'
 
 import { FiltersPanelItemTypeSwitch } from './FiltersPanelItemTypeSwitch'
 import { AvailableFiltersEnum, mapFilterToTranslationKey } from './types'
@@ -119,8 +117,10 @@ export const FiltersPanelPoper = ({ filters }: FiltersPanelPoperProps) => {
       }
     >
       {({ closePopper }) => (
-        <FiltersContainer>
-          <FiltersHeader>
+        /* About w-[calc(100vw_-_2px)], we needed to force the container to stick on max-width */
+        /* Also, need to remove 2px to prevent border to get out of screen view, and trigger underlying elements scroll to be trigger by scroll on the popper element: https://linear.app/getlago/issue/LAGO-180/when-panel-touch-screen-borders-window-can-scroll-horizontally */
+        <div className="grid max-h-[480px] w-[calc(100vw_-_2px)] max-w-[864px] grid-rows-[64px_1fr_72px]">
+          <div className="flex h-16 items-center justify-between px-4 py-0 shadow-b lg:px-6">
             <Typography variant="bodyHl" color="grey700">
               {translate('text_66ab42d4ece7e6b7078993ad')}
             </Typography>
@@ -133,17 +133,23 @@ export const FiltersPanelPoper = ({ filters }: FiltersPanelPoperProps) => {
             >
               {translate('text_66ab42d4ece7e6b7078993a9')}
             </Button>
-          </FiltersHeader>
-          <FiltersBody ref={listContainerElementRef}>
+          </div>
+          <div
+            className="flex flex-col gap-6 overflow-y-auto p-4 lg:gap-3 lg:px-6 lg:py-4"
+            ref={listContainerElementRef}
+          >
             {formikProps.values.filters.map((filter, filterIndex) => (
-              <FilterItem key={`filter-item-${filterIndex}`}>
-                <FilterItemPrefix>
-                  <div className="show-bellow-lg">
+              <div
+                key={`filter-item-${filterIndex}`}
+                className="border-1 flex flex-col justify-start gap-4 rounded-xl border border-solid border-grey-300 p-4 lg:flex-1 lg:flex-row lg:items-center lg:border-none lg:p-0"
+              >
+                <div className="lg:w-[49px]">
+                  <div className="block lg:hidden">
                     <Typography variant="bodyHl" color="grey700">
                       {`${translate('text_65e9c6d183491188fbbcf070')} ${filterIndex + 1}`}
                     </Typography>
                   </div>
-                  <div className="show-above-lg">
+                  <div className="hidden lg:block">
                     {filterIndex === 0 ? (
                       <Typography variant="body" color="grey700">
                         {translate('text_66ab42d4ece7e6b7078993b5')}
@@ -154,9 +160,8 @@ export const FiltersPanelPoper = ({ filters }: FiltersPanelPoperProps) => {
                       </Typography>
                     )}
                   </div>
-                </FilterItemPrefix>
-
-                <div className="filter-item-inner-container">
+                </div>
+                <div className="flex flex-col justify-start gap-2 lg:flex-1 lg:flex-row lg:items-center lg:gap-3 lg:[&>div:first-child]:w-[200px] lg:[&>div:last-child]:flex-1">
                   <ComboBox
                     disableClearable
                     data={comboboxFiltersData}
@@ -184,7 +189,7 @@ export const FiltersPanelPoper = ({ filters }: FiltersPanelPoperProps) => {
                 </div>
 
                 {/* Actions */}
-                <div className="show-bellow-lg">
+                <div className="block lg:hidden">
                   <Button
                     fitContent
                     align="left"
@@ -203,7 +208,7 @@ export const FiltersPanelPoper = ({ filters }: FiltersPanelPoperProps) => {
                     {translate('text_66ab4ad87fc8510054f237c2')}
                   </Button>
                 </div>
-                <div className="show-above-lg">
+                <div className="hidden lg:block">
                   <Tooltip
                     title={translate('text_63ea0f84f400488553caa786')}
                     placement="top-end"
@@ -223,10 +228,10 @@ export const FiltersPanelPoper = ({ filters }: FiltersPanelPoperProps) => {
                     />
                   </Tooltip>
                 </div>
-              </FilterItem>
+              </div>
             ))}
-          </FiltersBody>
-          <FiltersFooter>
+          </div>
+          <div className="flex h-18 items-center justify-between px-4 py-0 shadow-t lg:px-6">
             <Button
               startIcon="plus"
               disabled={formikProps.values.filters.length === filters.length}
@@ -267,125 +272,9 @@ export const FiltersPanelPoper = ({ filters }: FiltersPanelPoperProps) => {
                 {translate('text_66ab42d4ece7e6b7078993c1')}
               </Button>
             </Stack>
-          </FiltersFooter>
-        </FiltersContainer>
+          </div>
+        </div>
       )}
     </Popper>
   )
 }
-
-const FiltersContainer = styled.div`
-  display: grid;
-  grid-template-rows: 64px 1fr 72px;
-  max-height: 480px;
-  max-width: 864px;
-  /* Needed to force the container to stick on max-width */
-  /* Also, need to remove 2px to prevent border to get out of screen view, and trigger underlying elements scroll to be trigger by scroll on the popper element: https://linear.app/getlago/issue/LAGO-180/when-panel-touch-screen-borders-window-can-scroll-horizontally */
-  width: calc(100vw - 2px);
-`
-
-const FiltersHeader = styled.div`
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 ${theme.spacing(4)};
-  box-sizing: border-box;
-  box-shadow: ${theme.shadows[7]};
-
-  ${theme.breakpoints.up('lg')} {
-    padding: 0 ${theme.spacing(6)};
-  }
-`
-
-const FiltersBody = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: ${theme.spacing(6)};
-  box-sizing: border-box;
-  padding: ${theme.spacing(4)};
-  gap: ${theme.spacing(6)};
-  overflow-y: auto;
-
-  ${theme.breakpoints.up('lg')} {
-    gap: ${theme.spacing(3)};
-    padding: ${theme.spacing(4)} ${theme.spacing(6)};
-  }
-`
-
-const FiltersFooter = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 ${theme.spacing(4)};
-  box-sizing: border-box;
-  /* NOTE: -1 stands to include the border-top 1px */
-  height: ${NAV_HEIGHT - 1};
-  border-top: 1px solid ${theme.palette.grey[300]};
-
-  ${theme.breakpoints.up('lg')} {
-    padding: 0 ${theme.spacing(6)};
-  }
-`
-
-const FilterItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  padding: ${theme.spacing(4)};
-  gap: ${theme.spacing(4)};
-  border: 1px solid ${theme.palette.grey[300]};
-  border-radius: 12px;
-
-  .show-above-lg {
-    display: none;
-
-    ${theme.breakpoints.up('lg')} {
-      display: block;
-    }
-  }
-
-  .show-bellow-lg {
-    display: block;
-
-    ${theme.breakpoints.up('lg')} {
-      display: none;
-    }
-  }
-
-  .filter-item-inner-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    gap: ${theme.spacing(2)};
-  }
-
-  ${theme.breakpoints.up('lg')} {
-    flex: 1;
-    border: none;
-    align-items: center;
-    flex-direction: row;
-    padding: 0;
-
-    .filter-item-inner-container {
-      align-items: center;
-      flex-direction: row;
-      flex: 1;
-      gap: ${theme.spacing(3)};
-
-      > :nth-child(1) {
-        width: 200px;
-      }
-
-      > :nth-child(3) {
-        flex: 1;
-      }
-    }
-  }
-`
-
-const FilterItemPrefix = styled.div`
-  ${theme.breakpoints.up('lg')} {
-    width: 49px;
-  }
-`
