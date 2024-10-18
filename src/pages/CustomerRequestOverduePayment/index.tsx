@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { FC, useEffect } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Typography } from '~/components/designSystem'
@@ -30,7 +29,7 @@ import {
   serializeEmails,
   validateEmails,
 } from '~/pages/CustomerRequestOverduePayment/validateEmails'
-import { NAV_HEIGHT, PageHeader, theme } from '~/styles'
+import { PageHeader } from '~/styles'
 
 import { FreemiumAlert } from './components/FreemiumAlert'
 import {
@@ -79,8 +78,6 @@ gql`
     }
   }
 `
-
-const FOOTER_HEIGHT = 80
 
 const CustomerRequestOverduePayment: FC = () => {
   const { translate } = useInternationalization()
@@ -210,10 +207,10 @@ const CustomerRequestOverduePayment: FC = () => {
         />
       </PageHeader>
 
-      <Main>
-        <LeftSection>
+      <main className="height-minus-nav-footer overflow-auto md:height-minus-nav md:flex md:overflow-auto">
+        <section className="bg-white md:height-minus-nav-footer md:shrink md:grow md:basis-1/2 md:overflow-auto">
           {!hasDunningIntegration && <FreemiumAlert />}
-          <Wrapper>
+          <div className="px-4 py-12 md:px-12">
             <RequestPaymentForm
               invoicesLoading={loading}
               formikProps={formikProps}
@@ -222,10 +219,10 @@ const CustomerRequestOverduePayment: FC = () => {
               invoices={invoicesCollection}
               lastSentDate={paymentRequests?.collection?.[0]}
             />
-          </Wrapper>
-        </LeftSection>
-        <RightSection>
-          <Wrapper>
+          </div>
+        </section>
+        <section className="bg-grey-100 md:shrink md:grow md:basis-1/2 md:overflow-auto md:shadow-l">
+          <div className="px-4 py-12 md:px-12">
             <EmailPreview
               isLoading={loading}
               locale={LocaleEnum[documentLocale]}
@@ -235,12 +232,12 @@ const CustomerRequestOverduePayment: FC = () => {
               currency={defaultCurrency}
               invoices={invoicesCollection}
             />
-          </Wrapper>
-        </RightSection>
-      </Main>
+          </div>
+        </section>
+      </main>
 
-      <PageFooter>
-        <PageFooterWrapper>
+      <footer className="fixed bottom-0 z-navBar h-footer w-full bg-white shadow-t md:w-1/2">
+        <div className="flex h-full items-center justify-end gap-3 px-4 md:px-12">
           <Button
             variant="quaternary"
             size="large"
@@ -258,79 +255,10 @@ const CustomerRequestOverduePayment: FC = () => {
           >
             {translate('text_66b258f62100490d0eb5caa2')}
           </Button>
-        </PageFooterWrapper>
-      </PageFooter>
+        </div>
+      </footer>
     </>
   )
 }
 
 export default CustomerRequestOverduePayment
-
-const Main = styled.main`
-  height: calc(100vh - ${NAV_HEIGHT}px - ${FOOTER_HEIGHT}px);
-  overflow-y: auto;
-
-  ${theme.breakpoints.up('lg')} {
-    height: calc(100vh - ${NAV_HEIGHT}px);
-    display: flex;
-    overflow-y: unset;
-  }
-`
-
-const Section = styled.section`
-  ${theme.breakpoints.up('lg')} {
-    flex: 1 1 50%;
-    overflow-y: auto;
-  }
-`
-
-const LeftSection = styled(Section)`
-  background-color: ${theme.palette.background.paper};
-
-  ${theme.breakpoints.up('lg')} {
-    height: calc(100vh - ${NAV_HEIGHT}px - ${FOOTER_HEIGHT}px);
-  }
-`
-
-const RightSection = styled(Section)`
-  background-color: ${theme.palette.grey[100]};
-  box-shadow: ${theme.shadows[8]};
-`
-
-const Wrapper = styled.div`
-  padding: ${theme.spacing(12)} ${theme.spacing(4)};
-
-  ${theme.breakpoints.up('lg')} {
-    padding: ${theme.spacing(12)};
-  }
-`
-
-const PageFooter = styled.footer`
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  background-color: ${theme.palette.background.paper};
-  box-shadow: ${theme.shadows[5]};
-  height: ${FOOTER_HEIGHT}px;
-  z-index: ${theme.zIndex.appBar};
-
-  ${theme.breakpoints.up('lg')} {
-    width: 50%;
-  }
-`
-
-const PageFooterWrapper = styled.div`
-  height: 100%;
-  display: flex;
-  gap: ${theme.spacing(3)};
-  align-items: center;
-  justify-content: flex-end;
-  box-sizing: initial;
-
-  padding: 0 ${theme.spacing(4)};
-
-  ${theme.breakpoints.up('lg')} {
-    max-width: 584px;
-    padding: 0 ${theme.spacing(12)};
-  }
-`

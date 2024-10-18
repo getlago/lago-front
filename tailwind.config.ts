@@ -138,7 +138,10 @@ const config = {
         18: '4.5rem',
         98: '24.5rem',
         150: '37.5rem',
+        170: '42.5rem',
         192: '48rem',
+        footer: '5rem',
+        nav: '4.5rem',
       },
       zIndex: {
         tooltip: 2400,
@@ -161,7 +164,10 @@ const config = {
     },
   },
   plugins: [
-    plugin(function ({ addUtilities, addVariant, theme }) {
+    plugin(function ({ addUtilities, addVariant, addComponents, theme }) {
+      /**
+       * Utilities
+       */
       // Dividers
       addUtilities({
         '.shadow-t': {
@@ -180,7 +186,6 @@ const config = {
           boxShadow: `1px 0px 0px 0px ${theme('colors.grey.300')} inset`,
         },
       })
-
       // Outline ring
       addUtilities({
         '.ring': {
@@ -195,23 +200,36 @@ const config = {
         },
       })
 
+      /**
+       * Variants
+       */
       // Focus not active
       addVariant('focus-not-active', '&:focus:not(:active)')
-
       // Hover not active
       addVariant('hover-not-active', '&:hover:not(:active)')
-
       // Not first child
       addVariant('not-first-child', '&>*:not(:first-child)')
-
       // Not first element
       addVariant('not-first', '&:not(:first-child)')
-
       // Not last child
       addVariant('not-last-child', '&>*:not(:last-child)')
-
       // Not last element
       addVariant('not-last', '&:not(:last-child)')
+
+      /**
+       * Components
+       */
+      addComponents({
+        '.height-minus-nav': {
+          height: `calc(100vh - ${theme('spacing.nav')})`,
+        },
+        '.height-minus-nav-footer': {
+          height: `calc(100vh - ${theme('spacing.nav')} - ${theme('spacing.footer')})`,
+        },
+        '.height-minus-footer': {
+          height: `calc(100vh - ${theme('spacing.footer')})`,
+        },
+      })
     }),
   ],
 }
