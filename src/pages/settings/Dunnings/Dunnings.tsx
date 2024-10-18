@@ -1,7 +1,15 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 
-import { Avatar, Chip, Icon, InfiniteScroll, Table, Typography } from '~/components/designSystem'
+import {
+  Avatar,
+  ButtonLink,
+  Chip,
+  Icon,
+  InfiniteScroll,
+  Table,
+  Typography,
+} from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PageBannerHeader } from '~/components/layouts/Pages'
 import {
@@ -18,10 +26,12 @@ import {
 } from '~/components/settings/dunnings/DefaultCampaignDialog'
 import { addToast } from '~/core/apolloClient'
 import {
+  PremiumIntegrationTypeEnum,
   useGetDunningCampaignsQuery,
   useUpdateDunningCampaignStatusMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 gql`
@@ -57,11 +67,15 @@ const Dunnings = () => {
   const { translate } = useInternationalization()
   const defaultCampaignDialogRef = useRef<DefaultCampaignDialogRef>(null)
 
+  const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
+
   const { data, loading, error, fetchMore } = useGetDunningCampaignsQuery({
     variables: {
       limit: 20,
     },
   })
+
+  const hasAccessToFeature = premiumIntegrations?.includes(PremiumIntegrationTypeEnum.AutoDunning)
 
   const [updateStatus] = useUpdateDunningCampaignStatusMutation({
     refetchQueries: ['getDunningCampaigns'],
@@ -121,7 +135,31 @@ const Dunnings = () => {
                   label={translate('text_1728574726495w5aylnynne9')}
                   sublabel={translate('text_1728574726495kqlx1l8crvp')}
                 />
-                {!data?.dunningCampaigns.collection.length ? (
+
+                {!hasAccessToFeature ? (
+                  <div className="flex items-center justify-between gap-4 rounded-lg bg-grey-100 px-6 py-4">
+                    <div>
+                      <Typography variant="bodyHl" color="textSecondary">
+                        {translate('text_1729263759370k8po52j4m2n')} <Icon name="sparkles" />
+                      </Typography>
+                      <Typography variant="caption">
+                        {translate('text_1729263759370rhgayszv6yq')}
+                      </Typography>
+                    </div>
+                    <ButtonLink
+                      buttonProps={{
+                        variant: 'tertiary',
+                        size: 'medium',
+                        endIcon: 'sparkles',
+                      }}
+                      type="button"
+                      external
+                      to={`mailto:hello@getlago.com?subject=${translate('text_1729263868504ljw2poh51w4')}&body=${translate('text_17292638685046z36ct98v0l')}`}
+                    >
+                      {translate('text_65ae73ebe3a66bec2b91d72d')}
+                    </ButtonLink>
+                  </div>
+                ) : !data?.dunningCampaigns.collection.length ? (
                   <Typography variant="body" color="grey500">
                     {translate('text_17285860642666dsgcx901iq')}
                   </Typography>
