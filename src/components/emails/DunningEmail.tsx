@@ -49,7 +49,10 @@ export interface DunningEmailProps {
   locale: LocaleEnum
   invoices: InvoicesForDunningEmailFragment[]
   customer?: CustomerForDunningEmailFragment
-  organization?: OrganizationForDunningEmailFragment
+  // Omit the netPaymentTerm from the organization and add it possible string
+  organization?: Omit<OrganizationForDunningEmailFragment, 'netPaymentTerm'> & {
+    netPaymentTerm: OrganizationForDunningEmailFragment['netPaymentTerm'] | string
+  }
   currency: CurrencyEnum
   overdueAmount: number
 }
@@ -84,6 +87,8 @@ export const DunningEmail: FC<DunningEmailProps> = ({
     currencyDisplay: 'narrowSymbol',
   })
 
+  const netPaymentTerm = customer?.netPaymentTerm ?? organization?.netPaymentTerm
+
   return (
     <>
       <div className="flex flex-col gap-6">
@@ -99,8 +104,11 @@ export const DunningEmail: FC<DunningEmailProps> = ({
         <Typography className={paragraphStyle} color="textSecondary">
           {translate(
             'text_66b378e748cda1004ff00db3',
-            { netPaymentTerm: customer?.netPaymentTerm ?? organization?.netPaymentTerm },
-            customer?.netPaymentTerm ?? organization?.netPaymentTerm,
+            { netPaymentTerm: netPaymentTerm },
+            typeof netPaymentTerm === 'number'
+              ? netPaymentTerm
+              : // If netPaymentTerm is a string (fake data), the plural version is returned
+                2,
           )}
         </Typography>
         <Typography className={paragraphStyle} color="textSecondary">
