@@ -17,12 +17,16 @@ import { Avatar, Button, Skeleton, Tooltip, Typography } from '../designSystem'
 interface PreviewEmailLayoutProps extends PropsWithChildren {
   language: LocaleEnum
   emailObject: string
+  emailFrom?: string
+  emailTo?: string
   isLoading?: boolean
 }
 
 export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
   language,
   emailObject,
+  emailFrom,
+  emailTo,
   isLoading,
   children,
 }) => {
@@ -68,11 +72,11 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
                     {name}
                   </Typography>
                   <Typography variant="note" component="span" className="ml-1">
-                    {translate('text_64188b3d9735d5007d712260')}
+                    {emailFrom || translate('text_64188b3d9735d5007d712260')}
                   </Typography>
                 </div>
                 <Typography variant="note" component="span">
-                  {translateWithContextualLocal('text_64188b3d9735d5007d712262')}
+                  {emailTo || translateWithContextualLocal('text_64188b3d9735d5007d712262')}
                 </Typography>
               </div>
             </>
