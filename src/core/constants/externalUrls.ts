@@ -1,3 +1,5 @@
+import { HubspotTargetedObjectsEnum } from '~/generated/graphql'
+
 export const DOCUMENTATION_URL = 'https://docs.getlago.com/'
 export const LAGO_TAX_DOCUMENTATION_URL =
   'https://docs.getlago.com/integrations/taxes/lago-eu-taxes'
@@ -58,4 +60,20 @@ export const buildXeroInvoiceUrl = (xeroInvoiceId?: string | null) => {
 }
 export const buildXeroCreditNoteUrl = (xeroCreditNoteId?: string | null) => {
   return `https://go.xero.com/AccountsReceivable/ViewCreditNote.aspx?creditNoteID=${xeroCreditNoteId}`
+}
+export const buildHubsportRecordUrl = ({
+  portalId,
+  recordId,
+  targetedObject,
+}: {
+  portalId: string
+  recordId: string
+  targetedObject: HubspotTargetedObjectsEnum
+}) => {
+  const targetedObjectMap = {
+    [HubspotTargetedObjectsEnum.Contacts]: '0-1',
+    [HubspotTargetedObjectsEnum.Companies]: '0-2',
+  }
+
+  return `https://app.hubspot.com/contacts/${portalId}/record/${targetedObjectMap[targetedObject]}/${recordId}`
 }

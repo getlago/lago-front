@@ -2,6 +2,7 @@ import {
   ChargeModelEnum,
   CouponFrequency,
   CouponTypeEnum,
+  HubspotTargetedObjectsEnum,
   InvoiceAppliedTaxOnWholeInvoiceCodeEnum,
   MembershipRole,
   PlanInterval,
@@ -40,6 +41,7 @@ export const SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME = 'searchTaxForCustomerInpu
 export const ADD_CUSTOMER_PAYMENT_PROVIDER_ACCORDION = 'addCustomerPaymentProviderAccordion'
 export const ADD_CUSTOMER_ACCOUNTING_PROVIDER_ACCORDION = 'addCustomerAccountingProviderAccordion'
 export const ADD_CUSTOMER_TAX_PROVIDER_ACCORDION = 'addCustomerTaxProviderAccordion'
+export const ADD_CUSTOMER_CRM_PROVIDER_ACCORDION = 'addCustomerCrmProviderAccordion'
 
 /**** DATA ****/
 // Plan form types
@@ -106,4 +108,14 @@ export const appliedTaxEnumedTaxCodeTranslationKey: Record<
   [InvoiceAppliedTaxOnWholeInvoiceCodeEnum.NotCollecting]: 'text_1724857130376u3cph3amxmh',
   [InvoiceAppliedTaxOnWholeInvoiceCodeEnum.JurisHasNoTax]: 'text_1724857130376u3cph3amxmh',
   [InvoiceAppliedTaxOnWholeInvoiceCodeEnum.UnknownTaxation]: 'text_17250100329108guatmyl9tj',
+}
+
+export const getHubspotTargetedObjectTranslationKey: Record<HubspotTargetedObjectsEnum, string> = {
+  [HubspotTargetedObjectsEnum.Companies]: 'text_1727190044775zgd0l3fpwdj',
+  [HubspotTargetedObjectsEnum.Contacts]: 'text_1727190044775keiwznwv16s',
+}
+
+export const getTargetedObjectTranslationKey: Record<HubspotTargetedObjectsEnum, string> = {
+  [HubspotTargetedObjectsEnum.Companies]: 'text_1727281892403pmg1yza7x1e',
+  [HubspotTargetedObjectsEnum.Contacts]: 'text_1729003289241opvevwwhr7n',
 }

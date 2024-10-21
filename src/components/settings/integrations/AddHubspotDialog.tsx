@@ -10,12 +10,13 @@ import { Alert, Button, Chip, Dialog, DialogRef, Typography } from '~/components
 import { Checkbox, CheckboxField, ComboBoxField, TextInputField } from '~/components/form'
 import { DeleteHubspotIntegrationDialogRef } from '~/components/settings/integrations/DeleteHubspotIntegrationDialog'
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
+import { getHubspotTargetedObjectTranslationKey } from '~/core/constants/form'
 import { HUBSPOT_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   CreateHubspotIntegrationInput,
   DeleteHubspotIntegrationDialogFragmentDoc,
   HubspotForCreateDialogFragment,
-  TargetedObjectsEnum,
+  HubspotTargetedObjectsEnum,
   useCreateHubspotIntegrationMutation,
   useUpdateHubspotIntegrationMutation,
 } from '~/generated/graphql'
@@ -28,7 +29,6 @@ gql`
     name
     code
     defaultTargetedObject
-    privateAppToken
     syncInvoices
     syncSubscriptions
     ...DeleteHubspotIntegrationDialog
@@ -105,8 +105,7 @@ export const AddHubspotDialog = forwardRef<AddHubspotDialogRef>((_, ref) => {
       name: hubspotProvider?.name || '',
       code: hubspotProvider?.code || '',
       defaultTargetedObject:
-        hubspotProvider?.defaultTargetedObject || TargetedObjectsEnum.Companies,
-      privateAppToken: hubspotProvider?.privateAppToken || '',
+        hubspotProvider?.defaultTargetedObject || HubspotTargetedObjectsEnum.Companies,
       syncInvoices: !!hubspotProvider?.syncInvoices,
       syncSubscriptions: !!hubspotProvider?.syncSubscriptions,
     },
@@ -114,7 +113,6 @@ export const AddHubspotDialog = forwardRef<AddHubspotDialogRef>((_, ref) => {
       name: string().required(''),
       code: string().required(''),
       defaultTargetedObject: string().required(''),
-      privateAppToken: string().required(''),
       syncInvoices: boolean(),
       syncSubscriptions: boolean(),
     }),
@@ -261,13 +259,6 @@ export const AddHubspotDialog = forwardRef<AddHubspotDialogRef>((_, ref) => {
           />
         </div>
 
-        <TextInputField
-          name="privateAppToken"
-          label={translate('text_1727189568054lp1npj548nk')}
-          placeholder={translate('text_172718956805412kz5w7o2m2')}
-          formikProps={formikProps}
-        />
-
         <div className="flex flex-col gap-12">
           <ComboBoxField
             name="defaultTargetedObject"
@@ -275,12 +266,16 @@ export const AddHubspotDialog = forwardRef<AddHubspotDialogRef>((_, ref) => {
             formikProps={formikProps}
             data={[
               {
-                label: translate('text_1727190044775zgd0l3fpwdj'),
-                value: TargetedObjectsEnum.Companies,
+                label: translate(
+                  getHubspotTargetedObjectTranslationKey[HubspotTargetedObjectsEnum.Companies],
+                ),
+                value: HubspotTargetedObjectsEnum.Companies,
               },
               {
-                label: translate('text_1727190044775keiwznwv16s'),
-                value: TargetedObjectsEnum.Contacts,
+                label: translate(
+                  getHubspotTargetedObjectTranslationKey[HubspotTargetedObjectsEnum.Contacts],
+                ),
+                value: HubspotTargetedObjectsEnum.Contacts,
               },
             ]}
             PopperProps={{ displayInDialog: true }}
