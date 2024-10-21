@@ -208,7 +208,9 @@ const Dunnings = () => {
                           key: 'appliedToOrganization',
                           title: translate('text_63ac86d797f728a87b2f9fa7'),
                           content: ({ appliedToOrganization }) =>
-                            appliedToOrganization && <Chip label="Default" />,
+                            appliedToOrganization && (
+                              <Chip label={translate('text_65281f686a80b400c8e2f6d1')} />
+                            ),
                           minWidth: 96,
                         },
                       ]}

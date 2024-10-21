@@ -32,17 +32,16 @@ export const DefaultCampaignDialog = forwardRef<DefaultCampaignDialogRef, unknow
       },
     }))
 
-    if (!localData) return null
     return (
       <Dialog
         ref={dialogRef}
         title={
-          localData.type === 'setDefault'
+          localData?.type === 'setDefault'
             ? translate('text_1728574726495xzb3xvrlprn')
             : translate('text_1728575305796wa2yf2sn2ct')
         }
         description={translate(
-          localData.type === 'setDefault'
+          localData?.type === 'setDefault'
             ? 'text_17285753057960sioe6ltl0p'
             : 'text_1728575305796optuxlg8q3p',
         )}
@@ -55,12 +54,12 @@ export const DefaultCampaignDialog = forwardRef<DefaultCampaignDialogRef, unknow
             <Button
               variant="primary"
               onClick={async () => {
-                await localData.onConfirm()
+                await localData?.onConfirm()
                 closeDialog()
               }}
               data-test="set-organization-dunning-default-campaign"
             >
-              {localData.type === 'setDefault'
+              {localData?.type === 'setDefault'
                 ? translate('text_1728574726495n9jdse2hnrf')
                 : translate('text_1728575305796o7kwackkbj6')}
             </Button>
