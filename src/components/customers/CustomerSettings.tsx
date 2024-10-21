@@ -37,6 +37,7 @@ import {
   DeleteCustomerGracePeriodFragmentDoc,
   DeleteCustomerNetPaymentTermFragmentDoc,
   EditCustomerDocumentLocaleFragmentDoc,
+  EditCustomerDunningCampaignFragmentDoc,
   EditCustomerInvoiceGracePeriodFragmentDoc,
   EditCustomerVatRateFragmentDoc,
   FinalizeZeroAmountInvoiceEnum,
@@ -69,6 +70,10 @@ import {
   EditCustomerDocumentLocaleDialog,
   EditCustomerDocumentLocaleDialogRef,
 } from './EditCustomerDocumentLocaleDialog'
+import {
+  EditCustomerDunningCampaignDialog,
+  EditCustomerDunningCampaignDialogRef,
+} from './EditCustomerDunningCampaignDialog'
 import {
   EditCustomerInvoiceGracePeriodDialog,
   EditCustomerInvoiceGracePeriodDialogRef,
@@ -125,6 +130,7 @@ gql`
 
       ...EditCustomerVatRate
       ...EditCustomerDocumentLocale
+      ...EditCustomerDunningCampaign
       ...EditCustomerInvoiceGracePeriod
       ...DeleteCustomerGracePeriod
       ...DeleteCustomerDocumentLocale
@@ -147,6 +153,7 @@ gql`
   ${EditCustomerVatRateFragmentDoc}
   ${EditCustomerInvoiceGracePeriodFragmentDoc}
   ${EditCustomerDocumentLocaleFragmentDoc}
+  ${EditCustomerDunningCampaignFragmentDoc}
   ${DeleteCustomerGracePeriodFragmentDoc}
   ${DeleteCustomerDocumentLocaleFragmentDoc}
   ${CustomerForDeleteVatRateDialogFragmentDoc}
@@ -172,6 +179,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const editInvoiceGracePeriodDialogRef = useRef<EditCustomerInvoiceGracePeriodDialogRef>(null)
   const deleteGracePeriodDialogRef = useRef<DeleteCustomerGracePeriodeDialogRef>(null)
   const editCustomerDocumentLocale = useRef<EditCustomerDocumentLocaleDialogRef>(null)
+  const editCustomerDunningCampaignDialogRef = useRef<EditCustomerDunningCampaignDialogRef>(null)
   const deleteCustomerDocumentLocale = useRef<DeleteCustomerDocumentLocaleDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)
@@ -294,12 +302,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                     <Button
                       disabled={loading}
                       variant="quaternary"
-                      endIcon={isPremium ? undefined : 'sparkles'}
-                      onClick={() =>
-                        isPremium
-                          ? editCustomerDocumentLocale?.current?.openDialog()
-                          : premiumWarningDialogRef.current?.openDialog()
-                      }
+                      onClick={() => editCustomerDunningCampaignDialogRef?.current?.openDialog()}
                     >
                       {translate('text_63e51ef4985f0ebd75c212fc')}
                     </Button>
@@ -711,6 +714,10 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
             invoiceGracePeriod={customer?.invoiceGracePeriod}
           />
           <EditCustomerDocumentLocaleDialog ref={editCustomerDocumentLocale} customer={customer} />
+          <EditCustomerDunningCampaignDialog
+            ref={editCustomerDunningCampaignDialogRef}
+            customer={customer}
+          />
           <DeleteCustomerGracePeriodeDialog ref={deleteGracePeriodDialogRef} customer={customer} />
           <DeleteCustomerDocumentLocaleDialog
             ref={deleteCustomerDocumentLocale}

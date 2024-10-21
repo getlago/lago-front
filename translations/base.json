@@ -2614,5 +2614,14 @@
   "text_17295411491091t7ii66l5ex": "No dunning campaign matching the customer’s currency is applied at the organization level.",
   "text_1729541149109r8u8nlsu75e": "No dunning campaign applies to this customer.",
   "text_1729542024833rpf3nsekh42": "Campaign name",
-  "text_1729542098338prhjz7s29kt": "From organization"
+  "text_1729542098338prhjz7s29kt": "From organization",
+  "text_1729543665906svxp253ug1g": "Edit dunning behavior for this customer",
+  "text_1729543665907gw6pj8jsj3z": "Select a specific dunning campaign behavior to apply only to this specific customer. Once applied, a dunning attempt may be triggered if the threshold is met.",
+  "text_1729543665907g5bbnbl8yvr": "Fallback to default dunning behavior from organization",
+  "text_17295436659071kau9ol0axk": "Apply a specific campaign to this customer",
+  "text_1729543690326ndlmz7bdmy1": "Deactivate dunning",
+  "text_17295436903267b0kiid8h8r": "No automatic dunning attempt will be triggered for this customer.",
+  "text_17295436903260tlyb1gp1i7": "Edit behavior",
+  "text_1729543690326d4dmmcw7n89": "Search and select a dunning campaign",
+  "text_17295437652543pf2j5lqe67": "Dunning campaign behavior successfully applied"
 }
