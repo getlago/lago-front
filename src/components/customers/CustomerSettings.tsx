@@ -9,7 +9,16 @@ import {
   EditCustomerVatRateDialog,
   EditCustomerVatRateDialogRef,
 } from '~/components/customers/EditCustomerVatRateDialog'
-import { Avatar, Button, Icon, Popper, Table, Tooltip, Typography } from '~/components/designSystem'
+import {
+  Avatar,
+  Button,
+  Chip,
+  Icon,
+  Popper,
+  Table,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
@@ -38,6 +47,7 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import {
   DeleteCustomerDocumentLocaleDialog,
@@ -84,6 +94,20 @@ gql`
     }
   }
 
+  fragment CustomerAppliedDunningCampaignForSettings on Customer {
+    currency
+    appliedDunningCampaign {
+      id
+      appliedToOrganization
+      code
+      name
+      thresholds {
+        currency
+      }
+    }
+    excludeFromDunningCampaign
+  }
+
   query getCustomerSettings($id: ID!) {
     customer(id: $id) {
       id
@@ -97,6 +121,7 @@ gql`
       }
 
       ...CustomerAppliedTaxRatesForSettings
+      ...CustomerAppliedDunningCampaignForSettings
 
       ...EditCustomerVatRate
       ...EditCustomerDocumentLocale
@@ -169,6 +194,12 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
       />
     )
   }
+
+  const isDunningCampaignApplicable =
+    !customer?.excludeFromDunningCampaign &&
+    !!customer?.appliedDunningCampaign?.thresholds.some(
+      (threshold) => threshold.currency === customer.currency,
+    )
 
   return (
     <>
@@ -252,6 +283,78 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                         value: DocumentLocales['en'],
                       })}
                 </Typography>
+              </SettingsListItem>
+
+              {/* Dunnings campaign */}
+              <SettingsListItem className={tw(isDunningCampaignApplicable && 'shadow-inherit')}>
+                <SettingsListItemHeader
+                  label={translate('text_1728584028187fg2ebhssz6r')}
+                  sublabel={translate('text_1729541146351qyno3mh09gi')}
+                  action={
+                    <Button
+                      disabled={loading}
+                      variant="quaternary"
+                      endIcon={isPremium ? undefined : 'sparkles'}
+                      onClick={() =>
+                        isPremium
+                          ? editCustomerDocumentLocale?.current?.openDialog()
+                          : premiumWarningDialogRef.current?.openDialog()
+                      }
+                    >
+                      {translate('text_63e51ef4985f0ebd75c212fc')}
+                    </Button>
+                  }
+                />
+
+                {!!(customer?.appliedDunningCampaign && !customer?.excludeFromDunningCampaign) ? (
+                  isDunningCampaignApplicable ? (
+                    <Table
+                      name="customer-dunnings-settings"
+                      containerSize={{ default: 0 }}
+                      rowSize={72}
+                      isLoading={loading}
+                      data={[customer.appliedDunningCampaign]}
+                      columns={[
+                        {
+                          key: 'name',
+                          title: translate('text_1729542024833rpf3nsekh42'),
+                          maxSpace: true,
+                          content: ({ name, code }) => (
+                            <div className="flex flex-1 items-center gap-3" data-test={code}>
+                              <Avatar size="big" variant="connector">
+                                <Icon size="medium" name="coin-dollar" color="dark" />
+                              </Avatar>
+                              <div>
+                                <Typography color="textSecondary" variant="bodyHl" noWrap>
+                                  {name}
+                                </Typography>
+                                <Typography variant="caption" noWrap>
+                                  {code}
+                                </Typography>
+                              </div>
+                            </div>
+                          ),
+                        },
+                        {
+                          key: 'appliedToOrganization',
+                          title: translate('text_63ac86d797f728a87b2f9fa7'),
+                          content: ({ appliedToOrganization }) =>
+                            appliedToOrganization && (
+                              <Chip label={translate('text_1729542098338prhjz7s29kt')} />
+                            ),
+                        },
+                      ]}
+                    />
+                  ) : (
+                    <Typography variant="body" color="grey700">
+                      {translate('text_17295411491091t7ii66l5ex')}
+                    </Typography>
+                  )
+                ) : (
+                  <Typography variant="body" color="grey700">
+                    {translate('text_1729541149109r8u8nlsu75e')}
+                  </Typography>
+                )}
               </SettingsListItem>
 
               {/* Finalize empty invoice setting */}
