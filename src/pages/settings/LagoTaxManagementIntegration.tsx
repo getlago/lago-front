@@ -128,7 +128,7 @@ const LagoTaxManagementIntegration = () => {
           </>
         ) : (
           <>
-            <Avatar className="mr-4" variant="connector" size="large">
+            <Avatar className="mr-4" variant="connector-full" size="large">
               <LagoTaxManagement />
             </Avatar>
             <Stack spacing={1}>

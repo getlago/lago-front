@@ -116,7 +116,7 @@ const XeroIntegrations = () => {
           </>
         ) : (
           <>
-            <Avatar className="mr-4" variant="connector" size="large">
+            <Avatar className="mr-4" variant="connector-full" size="large">
               <Xero />
             </Avatar>
             <div>

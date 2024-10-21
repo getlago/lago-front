@@ -92,7 +92,7 @@ const Authentication = () => {
                 title={translate('text_664c732c264d7eed1c74fda2')}
                 subtitle={translate('text_664c732c264d7eed1c74fda8')}
                 icon={
-                  <Avatar size="big" variant="connector">
+                  <Avatar size="big" variant="connector-full">
                     <Okta />
                   </Avatar>
                 }

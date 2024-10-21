@@ -342,7 +342,7 @@ const DesignSystem = () => {
                     title="A simple selector"
                     subtitle="with more info"
                     icon={
-                      <Avatar variant="connector">
+                      <Avatar variant="connector-full">
                         <Stripe />
                       </Avatar>
                     }
@@ -677,7 +677,7 @@ const DesignSystem = () => {
                     </Avatar>
                   </Tooltip>
                   <Tooltip title="Connector with image">
-                    <Avatar variant="connector">
+                    <Avatar variant="connector-full">
                       <Stripe />
                     </Avatar>
                   </Tooltip>

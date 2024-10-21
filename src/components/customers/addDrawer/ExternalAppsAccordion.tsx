@@ -377,7 +377,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
               summary={
                 <Stack gap={3} flex={1} direction="row" alignItems="center">
                   <Stack gap={3} flex={1} direction="row" alignItems="center">
-                    <Avatar size="big" variant="connector">
+                    <Avatar size="big" variant="connector-full">
                       {!!formikProps.values.paymentProvider ? (
                         <>
                           {formikProps.values.paymentProvider === ProviderTypeEnum?.Stripe ? (
@@ -731,15 +731,19 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
               summary={
                 <Stack gap={3} flex={1} direction="row" alignItems="center">
                   <Stack gap={3} flex={1} direction="row" alignItems="center">
-                    <Avatar size="big" variant="connector">
-                      {!!selectedNetsuiteIntegrationSettings ? (
+                    {!!selectedNetsuiteIntegrationSettings ? (
+                      <Avatar size="big" variant="connector-full">
                         <Netsuite />
-                      ) : !!selectedXeroIntegrationSettings ? (
+                      </Avatar>
+                    ) : !!selectedXeroIntegrationSettings ? (
+                      <Avatar size="big" variant="connector-full">
                         <Xero />
-                      ) : (
+                      </Avatar>
+                    ) : (
+                      <Avatar size="big" variant="connector">
                         <Icon name="plug" color="dark" />
-                      )}
-                    </Avatar>
+                      </Avatar>
+                    )}
                     <Stack>
                       <Typography variant="bodyHl" color="grey700">
                         {!selectedNetsuiteIntegrationSettings
@@ -942,13 +946,15 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
               summary={
                 <Stack gap={3} flex={1} direction="row" alignItems="center">
                   <Stack gap={3} flex={1} direction="row" alignItems="center">
-                    <Avatar size="big" variant="connector">
-                      {showTaxIntegrationSection && !!selectedAnrokIntegrationSettings ? (
+                    {showTaxIntegrationSection && !!selectedAnrokIntegrationSettings ? (
+                      <Avatar size="big" variant="connector-full">
                         <Anrok />
-                      ) : (
+                      </Avatar>
+                    ) : (
+                      <Avatar size="big" variant="connector">
                         <Icon name="plug" color="dark" />
-                      )}
-                    </Avatar>
+                      </Avatar>
+                    )}
                     <Stack>
                       <Typography variant="bodyHl" color="grey700">
                         {!selectedAnrokIntegrationSettings

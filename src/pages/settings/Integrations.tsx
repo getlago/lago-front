@@ -203,7 +203,7 @@ const Integrations = () => {
                   ) : undefined
                 }
                 icon={
-                  <Avatar size="big" variant="connector">
+                  <Avatar size="big" variant="connector-full">
                     {<Anrok />}
                   </Avatar>
                 }
@@ -226,7 +226,7 @@ const Integrations = () => {
                 title={translate('text_645d071272418a14c1c76a6d')}
                 subtitle={translate('text_634ea0ecc6147de10ddb6631')}
                 icon={
-                  <Avatar size="big" variant="connector">
+                  <Avatar size="big" variant="connector-full">
                     <Adyen />
                   </Avatar>
                 }
@@ -251,7 +251,7 @@ const Integrations = () => {
                 title={translate('text_639c334c3fa0e9c6ca3512b2')}
                 subtitle={translate('text_639c334c3fa0e9c6ca3512b4')}
                 icon={
-                  <Avatar size="big" variant="connector">
+                  <Avatar size="big" variant="connector-full">
                     {<Airbyte />}
                   </Avatar>
                 }
@@ -264,7 +264,7 @@ const Integrations = () => {
                 title={translate('text_63e26d8308d03687188221a5')}
                 subtitle={translate('text_63e26d8308d03687188221a6')}
                 icon={
-                  <Avatar size="big" variant="connector">
+                  <Avatar size="big" variant="connector-full">
                     {<Oso />}
                   </Avatar>
                 }
@@ -277,7 +277,7 @@ const Integrations = () => {
                 title={translate('text_634ea0ecc6147de10ddb6625')}
                 subtitle={translate('text_634ea0ecc6147de10ddb6631')}
                 icon={
-                  <Avatar size="big" variant="connector">
+                  <Avatar size="big" variant="connector-full">
                     <GoCardless />
                   </Avatar>
                 }
@@ -299,7 +299,7 @@ const Integrations = () => {
                 title={translate('text_641b41f3cec373009a265e9e')}
                 subtitle={translate('text_641b41fa604ef10070cab5ea')}
                 icon={
-                  <Avatar size="big" variant="connector">
+                  <Avatar size="big" variant="connector-full">
                     {<HightTouch />}
                   </Avatar>
                 }
@@ -313,7 +313,7 @@ const Integrations = () => {
                   title={translate('text_1727189568053s79ks5q07tr')}
                   subtitle={translate('text_1727189568053q2gpkjzpmxr')}
                   icon={
-                    <Avatar size="big" variant="connector">
+                    <Avatar size="big" variant="connector-full">
                       {<Hubspot />}
                     </Avatar>
                   }
@@ -346,7 +346,7 @@ const Integrations = () => {
                 title={translate('text_657078c28394d6b1ae1b9713')}
                 subtitle={translate('text_657078c28394d6b1ae1b971f')}
                 icon={
-                  <Avatar size="big" variant="connector">
+                  <Avatar size="big" variant="connector-full">
                     {<LagoTaxManagement />}
                   </Avatar>
                 }
@@ -375,7 +375,7 @@ const Integrations = () => {
                   ) : undefined
                 }
                 icon={
-                  <Avatar size="big" variant="connector">
+                  <Avatar size="big" variant="connector-full">
                     {<Netsuite />}
                   </Avatar>
                 }
@@ -398,7 +398,7 @@ const Integrations = () => {
                 title={translate('text_641b42035d62fd004e07cdde')}
                 subtitle={translate('text_641b420ccd75240062f2386e')}
                 icon={
-                  <Avatar size="big" variant="connector">
+                  <Avatar size="big" variant="connector-full">
                     {<Segment />}
                   </Avatar>
                 }
@@ -411,7 +411,7 @@ const Integrations = () => {
                 title={translate('text_62b1edddbf5f461ab971277d')}
                 subtitle={translate('text_62b1edddbf5f461ab9712795')}
                 icon={
-                  <Avatar size="big" variant="connector">
+                  <Avatar size="big" variant="connector-full">
                     <Stripe />
                   </Avatar>
                 }
@@ -445,7 +445,7 @@ const Integrations = () => {
                   ) : undefined
                 }
                 icon={
-                  <Avatar size="big" variant="connector">
+                  <Avatar size="big" variant="connector-full">
                     {<Xero />}
                   </Avatar>
                 }
