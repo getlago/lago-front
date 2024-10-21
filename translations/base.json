@@ -2609,5 +2609,10 @@
   "text_17307389878820u8ldpctozo": "NetSuite Item ID",
   "text_173073898788226ev6fudddk": "Type your NetSuite Item Id",
   "text_1730738987882c15jo2dyc9f": "NetSuite Item Account ID",
-  "text_1730738987882h2yy21a82k2": "Type the Account ID for this item"
+  "text_1730738987882h2yy21a82k2": "Type the Account ID for this item",
+  "text_1729541146351qyno3mh09gi": "Automatic payment retries and targeted emails to settle the overdue balance.",
+  "text_17295411491091t7ii66l5ex": "No dunning campaign matching the customer’s currency is applied at the organization level.",
+  "text_1729541149109r8u8nlsu75e": "No dunning campaign applies to this customer.",
+  "text_1729542024833rpf3nsekh42": "Campaign name",
+  "text_1729542098338prhjz7s29kt": "From organization"
 }
