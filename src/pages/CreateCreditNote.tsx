@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import _get from 'lodash/get'
 import { DateTime } from 'luxon'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { array, object, string } from 'yup'
@@ -10,9 +10,10 @@ import { array, object, string } from 'yup'
 import { CreditNoteCodeSnippet } from '~/components/creditNote/CreditNoteCodeSnippet'
 import { CreditNoteFormCalculation } from '~/components/creditNote/CreditNoteFormCalculation'
 import { CreditNoteFormItem } from '~/components/creditNote/CreditNoteFormItem'
-import { CreditNoteForm, FromFee, GroupedFee } from '~/components/creditNote/types'
+import { CreditNoteForm, CreditTypeEnum, FromFee, GroupedFee } from '~/components/creditNote/types'
 import { creditNoteFormCalculationCalculation } from '~/components/creditNote/utils'
 import {
+  Alert,
   Avatar,
   Button,
   Icon,
@@ -28,12 +29,17 @@ import { hasDefinedGQLError } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { generateAddOnFeesSchema, generateFeesSchema } from '~/formValidation/feesSchema'
+import {
+  generateAddOnFeesSchema,
+  generateCreditFeesSchema,
+  generateFeesSchema,
+} from '~/formValidation/feesSchema'
 import {
   CreditNoteReasonEnum,
   CurrencyEnum,
   InvoiceForCreditNoteFormCalculationFragmentDoc,
   InvoicePaymentStatusTypeEnum,
+  InvoiceTypeEnum,
   LagoApiError,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -51,7 +57,9 @@ gql`
     creditableAmountCents
     refundableAmountCents
     subTotalIncludingTaxesAmountCents
+    availableToCreditAmountCents
     paymentDisputeLostAt
+    invoiceType
     ...InvoiceForCreditNoteFormCalculation
   }
 
@@ -97,7 +105,8 @@ const CreateCreditNote = () => {
   const { translate } = useInternationalization()
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const { customerId, invoiceId } = useParams()
-  const { loading, invoice, feesPerInvoice, feeForAddOn, onCreate } = useCreateCreditNote()
+  const { loading, invoice, feesPerInvoice, feeForAddOn, feeForCredit, onCreate } =
+    useCreateCreditNote()
   const currency = invoice?.currency || CurrencyEnum.Usd
 
   const addOnFeesValidation = useMemo(
@@ -110,6 +119,11 @@ const CreateCreditNote = () => {
     [feesPerInvoice, currency],
   )
 
+  const creditFeeValidation = useMemo(
+    () => generateCreditFeesSchema(feeForCredit || [], currency),
+    [feeForCredit, currency],
+  )
+
   const [payBackValidation, setPayBackValidation] = useState(array())
 
   const statusMap = mapStatus(invoice?.paymentStatus)
@@ -119,6 +133,7 @@ const CreateCreditNote = () => {
       reason: undefined,
       fees: feesPerInvoice,
       addOnFee: feeForAddOn,
+      creditFee: feeForCredit,
       payBack: [{ type: undefined, value: undefined }],
       creditAmount: undefined,
       refundAmount: undefined,
@@ -127,6 +142,7 @@ const CreateCreditNote = () => {
       reason: string().required(''),
       fees: feesValidation,
       addOnFee: addOnFeesValidation,
+      creditFee: creditFeeValidation,
       payBack: payBackValidation,
     }),
     validateOnMount: true,
@@ -207,6 +223,22 @@ const CreateCreditNote = () => {
       }),
     [currency, formikProps.values.addOnFee, formikProps.values.fees, hasError],
   )
+
+  const isPrepaidCreditsInvoice = invoice?.invoiceType === InvoiceTypeEnum.Credit
+
+  const creditFeeValue = formikProps.values.creditFee?.[0]?.value
+
+  useEffect(() => {
+    if (isPrepaidCreditsInvoice && creditFeeValue) {
+      formikProps.setFieldValue('payBack', [
+        {
+          type: CreditTypeEnum.refund,
+          value: creditFeeValue,
+        },
+      ])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPrepaidCreditsInvoice, creditFeeValue])
 
   return (
     <div>
@@ -359,7 +391,12 @@ const CreateCreditNote = () => {
                       {translate('text_636bedf292786b19d3398edc', {
                         invoiceNumber: invoice?.number,
                         subtotal: intlFormatNumber(
-                          deserializeAmount(invoice?.creditableAmountCents || 0, currency),
+                          deserializeAmount(
+                            isPrepaidCreditsInvoice
+                              ? invoice?.availableToCreditAmountCents
+                              : invoice?.creditableAmountCents || 0,
+                            currency,
+                          ),
                           {
                             currency,
                           },
@@ -367,6 +404,34 @@ const CreateCreditNote = () => {
                       })}
                     </Typography>
                   </div>
+
+                  {isPrepaidCreditsInvoice && (
+                    <HeaderLine className="!mb-0">
+                      <Checkbox
+                        label={'Items'}
+                        value={formikProps.values.creditFee?.[0]?.checked}
+                        onChange={(_, value) => {
+                          formikProps.setFieldValue(`creditFee.0.checked`, value)
+                        }}
+                      />
+
+                      <Typography variant="bodyHl" color="grey500">
+                        {translate('text_636bedf292786b19d3398ee0')}
+                      </Typography>
+                    </HeaderLine>
+                  )}
+
+                  {feeForCredit &&
+                    feeForCredit.map((fee, i) => (
+                      <CreditNoteFormItem
+                        key={fee?.id}
+                        formikProps={formikProps}
+                        currency={currency}
+                        feeName={translate('text_1729262241097k3cnpci6p5j')}
+                        formikKey={`creditFee.${i}`}
+                        maxValue={fee?.maxAmount}
+                      />
+                    ))}
 
                   {feeForAddOn &&
                     feeForAddOn.map((fee, i) => (
@@ -494,13 +559,38 @@ const CreateCreditNote = () => {
                       )
                     })}
 
-                  <CreditNoteFormCalculation
-                    hasError={hasError}
-                    invoice={invoice}
-                    formikProps={formikProps}
-                    feeForEstimate={feeForEstimate}
-                    setPayBackValidation={setPayBackValidation}
-                  />
+                  {isPrepaidCreditsInvoice ? (
+                    <>
+                      <div className="ml-auto max-w-[400px]">
+                        <div className="flex justify-between">
+                          <Typography className="text-base font-medium text-grey-700">
+                            {translate('text_1729262339446mk289ygp31g')}
+                          </Typography>
+
+                          <Typography className="text-base font-normal text-grey-700">
+                            {intlFormatNumber(
+                              Number(formikProps.values.creditFee?.[0]?.value || 0),
+                              {
+                                currency,
+                              },
+                            )}
+                          </Typography>
+                        </div>
+                      </div>
+
+                      <Alert className="mt-6" type="info">
+                        {translate('text_1729084495407pcn1mei0hyd')}
+                      </Alert>
+                    </>
+                  ) : (
+                    <CreditNoteFormCalculation
+                      hasError={hasError}
+                      invoice={invoice}
+                      formikProps={formikProps}
+                      feeForEstimate={feeForEstimate}
+                      setPayBackValidation={setPayBackValidation}
+                    />
+                  )}
                 </Card>
                 <ButtonContainer>
                   <Button

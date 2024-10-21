@@ -118,6 +118,7 @@ type UseCreateCreditNoteReturn = {
   invoice?: InvoiceCreateCreditNoteFragment
   feesPerInvoice?: FeesPerInvoice
   feeForAddOn?: FromFee[]
+  feeForCredit?: FromFee[]
   onCreate: (
     value: CreditNoteForm,
   ) => Promise<{ data?: { createCreditNote?: { id?: string } }; errors?: ApolloError }>
@@ -163,6 +164,27 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
   ) {
     navigate(ERROR_404_ROUTE)
   }
+
+  const feeForCredit = useMemo(() => {
+    if (data?.invoice?.invoiceType === InvoiceTypeEnum.Credit) {
+      return data?.invoice?.fees?.reduce<FromFee[]>((acc, fee) => {
+        if (Number(fee?.creditableAmountCents) > 0) {
+          acc.push({
+            id: fee?.id,
+            checked: true,
+            value: deserializeAmount(fee?.creditableAmountCents, fee.amountCurrency),
+            name: fee?.invoiceName || fee.itemName,
+            maxAmount: fee?.creditableAmountCents,
+            appliedTaxes: fee?.appliedTaxes || [],
+          })
+        }
+
+        return acc
+      }, [])
+    }
+
+    return undefined
+  }, [data?.invoice])
 
   const feeForAddOn = useMemo(() => {
     if (
@@ -385,6 +407,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
     invoice: data?.invoice || undefined,
     feesPerInvoice,
     feeForAddOn,
+    feeForCredit,
     onCreate: async (values) => {
       const answer = await create({
         variables: {

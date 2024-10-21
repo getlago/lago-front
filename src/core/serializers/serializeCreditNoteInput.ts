@@ -18,7 +18,7 @@ export const serializeCreditNoteInput: (
   formValues: CreditNoteForm,
   currency: CurrencyEnum,
 ) => CreateCreditNoteInput = (invoiceId, formValues, currency) => {
-  const { reason, description, payBack, fees = [], addOnFee } = formValues
+  const { reason, description, payBack, fees = [], addOnFee, creditFee } = formValues
 
   return {
     invoiceId: invoiceId as string,
@@ -38,6 +38,16 @@ export const serializeCreditNoteInput: (
         ) || 0,
     items: [
       ...(addOnFee?.reduce<CreditNoteItemInput[]>((acc, fee) => {
+        if (fee.checked && Number(fee.value) > 0) {
+          acc.push({
+            feeId: fee.id,
+            amountCents: serializeAmount(fee.value, currency),
+          })
+        }
+
+        return acc
+      }, []) || []),
+      ...(creditFee?.reduce<CreditNoteItemInput[]>((acc, fee) => {
         if (fee.checked && Number(fee.value) > 0) {
           acc.push({
             feeId: fee.id,
