@@ -265,7 +265,7 @@
   "text_66ba5a76e614f000a738c97d": "to recalculate tax information.",
   "text_66ba5a76e614f000a738c97e": "Sync invoices",
   "text_66ba5a76e614f000a738c97f": "Re-syncing invoices for tax calculation. This operation may take several minutes to complete.",
-  "text_66ba5ca33713b600c4e8fcf0": "All invoices has been successfully synchronized to Anrok!",
+  "text_66ba5ca33713b600c4e8fcf0": "Invoice syncing in progress…",
   "text_646e2d0cc536351b62ba6f8c": "Arrears",
   "text_646e2d0cc536351b62ba6faa": "Advance",
   "text_646e2d0cc536351b62ba6f01": "More option",
