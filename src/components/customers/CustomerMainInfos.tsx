@@ -429,7 +429,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
           <div>
             <Typography variant="caption">{translate('text_62b1edddbf5f461ab9712795')}</Typography>
             <Stack direction="row" spacing={2} alignItems="center">
-              <Avatar variant="connector" size="small">
+              <Avatar variant="connector-full" size="small">
                 {paymentProvider === ProviderTypeEnum?.Stripe ? (
                   <Stripe />
                 ) : paymentProvider === ProviderTypeEnum?.Gocardless ? (
@@ -467,7 +467,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
             ) : !!connectedNetsuiteIntegration && customer?.netsuiteCustomer?.externalCustomerId ? (
               <Stack>
                 <Stack direction="row" spacing={2} alignItems="center">
-                  <Avatar variant="connector" size="small">
+                  <Avatar variant="connector-full" size="small">
                     <Netsuite />
                   </Avatar>
                   <Typography color="grey700">{connectedNetsuiteIntegration?.name}</Typography>
@@ -500,7 +500,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
             ) : !!connectedXeroIntegration && customer?.xeroCustomer?.externalCustomerId ? (
               <Stack>
                 <Stack direction="row" spacing={2} alignItems="center">
-                  <Avatar variant="connector" size="small">
+                  <Avatar variant="connector-full" size="small">
                     <Xero />
                   </Avatar>
                   <Typography color="grey700">{connectedXeroIntegration?.name}</Typography>
@@ -530,7 +530,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
             ) : !!connectedAnrokIntegration && customer?.anrokCustomer?.integrationId ? (
               <Stack>
                 <Stack direction="row" spacing={2} alignItems="center">
-                  <Avatar variant="connector" size="small">
+                  <Avatar variant="connector-full" size="small">
                     <Anrok />
                   </Avatar>
                   <Typography color="grey700">{connectedAnrokIntegration?.name}</Typography>

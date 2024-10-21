@@ -1,5 +1,5 @@
 import { cva, cx } from 'class-variance-authority'
-import { isValidElement, ReactNode } from 'react'
+import { ReactNode } from 'react'
 
 import { tw } from '~/styles/utils'
 
@@ -8,10 +8,10 @@ import { Typography } from './Typography'
 import { colors } from '../../../tailwind.config'
 
 export type AvatarSize = 'small' | 'intermediate' | 'medium' | 'big' | 'large'
-type AvatarVariant = 'connector' | 'user' | 'company'
+type AvatarVariant = 'connector' | 'user' | 'company' | 'connector-full'
 
 interface AvatarConnectorProps {
-  variant: Extract<AvatarVariant, 'connector'>
+  variant: Extract<AvatarVariant, 'connector' | 'connector-full'>
   children: ReactNode | string
   size?: AvatarSize
   initials?: never
@@ -125,16 +125,12 @@ export const Avatar = ({
   children,
   className,
 }: AvatarGenericProps | AvatarConnectorProps) => {
-  if (variant === 'connector') {
-    // If children is a valid element, check if it's an SVG directly rendered (not wrapped in an Icon component)
-    // If it is, apply the full size to it
-    const isSvg = isValidElement(children) ? children.type?.toString().includes('Svg') : null
-
+  if (variant === 'connector' || variant === 'connector-full') {
     return (
       <div
         className={tw(
           avatarStyles({ size, rounded: true }),
-          isSvg && '[&>svg]:size-full',
+          variant === 'connector-full' && '[&>svg]:size-full',
           className,
         )}
         data-test={`${variant}/${size}`}

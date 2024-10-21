@@ -155,7 +155,7 @@ const OktaAuthenticationDetails = () => {
           </>
         ) : (
           <>
-            <Avatar className="mr-4" variant="connector" size="large">
+            <Avatar className="mr-4" variant="connector-full" size="large">
               <Okta />
             </Avatar>
             <div>

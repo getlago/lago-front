@@ -174,7 +174,7 @@ const HubspotIntegrationDetails = () => {
             </>
           ) : (
             <>
-              <Avatar className="mr-4" variant="connector" size="large">
+              <Avatar className="mr-4" variant="connector-full" size="large">
                 <Hubspot />
               </Avatar>
               <div className="flex flex-col gap-1">

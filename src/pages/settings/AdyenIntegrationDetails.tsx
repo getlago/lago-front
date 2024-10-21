@@ -182,7 +182,7 @@ const AdyenIntegrationDetails = () => {
           </>
         ) : (
           <>
-            <Avatar className="mr-4" variant="connector" size="large">
+            <Avatar className="mr-4" variant="connector-full" size="large">
               <Adyen />
             </Avatar>
             <div>

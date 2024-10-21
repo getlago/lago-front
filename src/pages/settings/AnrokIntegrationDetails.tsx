@@ -180,7 +180,7 @@ const AnrokIntegrationDetails = () => {
           </>
         ) : (
           <>
-            <Avatar className="mr-4" variant="connector" size="large">
+            <Avatar className="mr-4" variant="connector-full" size="large">
               <Anrok />
             </Avatar>
             <div>
