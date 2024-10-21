@@ -2573,5 +2573,9 @@
   "text_1729756690073w4jrdeesayy": "Hubspot synchronisation successfully triggered.",
   "text_17290829949642fgof01loxo": "The credit note cannot be issued because the invoice is unpaid.",
   "text_172908299496461z9ejmm2j7": "The credit note can’t be issued as the invoice is linked to a terminated wallet.",
-  "text_1729082994964zccpjmtotdy": "The credit note can’t be issued as the creditable amount is already fully covered."
+  "text_1729082994964zccpjmtotdy": "The credit note can’t be issued as the creditable amount is already fully covered.",
+  "text_1729084495407pcn1mei0hyd": "Refunding this prepaid invoice will void automatically the wallet credits once the credit note refund status is marked as succeeded.",
+  "text_1729262241097k3cnpci6p5j": "Prepaid credits",
+  "text_1729262339446mk289ygp31g": "Refund customer"
 }
+
