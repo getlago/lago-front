@@ -6315,6 +6315,15 @@ export type UpdateCustomerDocumentLocaleMutationVariables = Exact<{
 
 export type UpdateCustomerDocumentLocaleMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null } | null };
 
+export type EditCustomerDunningCampaignFragment = { __typename?: 'Customer', currency?: CurrencyEnum | null };
+
+export type GetApplicableDunningCampaignsQueryVariables = Exact<{
+  currency?: InputMaybe<Array<CurrencyEnum> | CurrencyEnum>;
+}>;
+
+
+export type GetApplicableDunningCampaignsQuery = { __typename?: 'Query', dunningCampaigns: { __typename?: 'DunningCampaignCollection', collection: Array<{ __typename?: 'DunningCampaign', id: string, name: string, code: string }> } };
+
 export type EditCustomerInvoiceGracePeriodFragment = { __typename?: 'Customer', id: string, invoiceGracePeriod?: number | null };
 
 export type UpdateCustomerInvoiceGracePeriodMutationVariables = Exact<{
@@ -9008,6 +9017,11 @@ export const EditCustomerDocumentLocaleFragmentDoc = gql`
     id
     documentLocale
   }
+}
+    `;
+export const EditCustomerDunningCampaignFragmentDoc = gql`
+    fragment EditCustomerDunningCampaign on Customer {
+  currency
 }
     `;
 export const EditCustomerInvoiceGracePeriodFragmentDoc = gql`
@@ -12935,6 +12949,7 @@ export const GetCustomerSettingsDocument = gql`
     ...CustomerAppliedDunningCampaignForSettings
     ...EditCustomerVatRate
     ...EditCustomerDocumentLocale
+    ...EditCustomerDunningCampaign
     ...EditCustomerInvoiceGracePeriod
     ...DeleteCustomerGracePeriod
     ...DeleteCustomerDocumentLocale
@@ -12956,6 +12971,7 @@ export const GetCustomerSettingsDocument = gql`
 ${CustomerAppliedDunningCampaignForSettingsFragmentDoc}
 ${EditCustomerVatRateFragmentDoc}
 ${EditCustomerDocumentLocaleFragmentDoc}
+${EditCustomerDunningCampaignFragmentDoc}
 ${EditCustomerInvoiceGracePeriodFragmentDoc}
 ${DeleteCustomerGracePeriodFragmentDoc}
 ${DeleteCustomerDocumentLocaleFragmentDoc}
@@ -13236,6 +13252,50 @@ export function useUpdateCustomerDocumentLocaleMutation(baseOptions?: Apollo.Mut
 export type UpdateCustomerDocumentLocaleMutationHookResult = ReturnType<typeof useUpdateCustomerDocumentLocaleMutation>;
 export type UpdateCustomerDocumentLocaleMutationResult = Apollo.MutationResult<UpdateCustomerDocumentLocaleMutation>;
 export type UpdateCustomerDocumentLocaleMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerDocumentLocaleMutation, UpdateCustomerDocumentLocaleMutationVariables>;
+export const GetApplicableDunningCampaignsDocument = gql`
+    query GetApplicableDunningCampaigns($currency: [CurrencyEnum!]) {
+  dunningCampaigns(currency: $currency) {
+    collection {
+      id
+      name
+      code
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetApplicableDunningCampaignsQuery__
+ *
+ * To run a query within a React component, call `useGetApplicableDunningCampaignsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetApplicableDunningCampaignsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetApplicableDunningCampaignsQuery({
+ *   variables: {
+ *      currency: // value for 'currency'
+ *   },
+ * });
+ */
+export function useGetApplicableDunningCampaignsQuery(baseOptions?: Apollo.QueryHookOptions<GetApplicableDunningCampaignsQuery, GetApplicableDunningCampaignsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetApplicableDunningCampaignsQuery, GetApplicableDunningCampaignsQueryVariables>(GetApplicableDunningCampaignsDocument, options);
+      }
+export function useGetApplicableDunningCampaignsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetApplicableDunningCampaignsQuery, GetApplicableDunningCampaignsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetApplicableDunningCampaignsQuery, GetApplicableDunningCampaignsQueryVariables>(GetApplicableDunningCampaignsDocument, options);
+        }
+export function useGetApplicableDunningCampaignsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetApplicableDunningCampaignsQuery, GetApplicableDunningCampaignsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetApplicableDunningCampaignsQuery, GetApplicableDunningCampaignsQueryVariables>(GetApplicableDunningCampaignsDocument, options);
+        }
+export type GetApplicableDunningCampaignsQueryHookResult = ReturnType<typeof useGetApplicableDunningCampaignsQuery>;
+export type GetApplicableDunningCampaignsLazyQueryHookResult = ReturnType<typeof useGetApplicableDunningCampaignsLazyQuery>;
+export type GetApplicableDunningCampaignsSuspenseQueryHookResult = ReturnType<typeof useGetApplicableDunningCampaignsSuspenseQuery>;
+export type GetApplicableDunningCampaignsQueryResult = Apollo.QueryResult<GetApplicableDunningCampaignsQuery, GetApplicableDunningCampaignsQueryVariables>;
 export const UpdateCustomerInvoiceGracePeriodDocument = gql`
     mutation updateCustomerInvoiceGracePeriod($input: UpdateCustomerInvoiceGracePeriodInput!) {
   updateCustomerInvoiceGracePeriod(input: $input) {
