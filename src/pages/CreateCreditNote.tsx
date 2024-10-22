@@ -388,20 +388,25 @@ const CreateCreditNote = () => {
                       {translate('text_636bedf292786b19d3398eda')}
                     </Typography>
                     <Typography variant="bodyHl" color="grey700">
-                      {translate('text_636bedf292786b19d3398edc', {
-                        invoiceNumber: invoice?.number,
-                        subtotal: intlFormatNumber(
-                          deserializeAmount(
-                            isPrepaidCreditsInvoice
-                              ? invoice?.availableToCreditAmountCents
-                              : invoice?.creditableAmountCents || 0,
-                            currency,
+                      {translate(
+                        isPrepaidCreditsInvoice
+                          ? 'text_17295725378539prq3x0wpry'
+                          : 'text_636bedf292786b19d3398edc',
+                        {
+                          invoiceNumber: invoice?.number,
+                          subtotal: intlFormatNumber(
+                            deserializeAmount(
+                              isPrepaidCreditsInvoice
+                                ? invoice?.availableToCreditAmountCents
+                                : invoice?.creditableAmountCents || 0,
+                              currency,
+                            ),
+                            {
+                              currency,
+                            },
                           ),
-                          {
-                            currency,
-                          },
-                        ),
-                      })}
+                        },
+                      )}
                     </Typography>
                   </div>
 
