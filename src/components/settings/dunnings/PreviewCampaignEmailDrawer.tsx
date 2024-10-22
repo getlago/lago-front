@@ -84,7 +84,7 @@ export const PreviewCampaignEmailDrawer = forwardRef<PreviewCampaignEmailDrawerR
         }
       >
         <div className="h-full bg-grey-100 p-12 pb-0">
-          <div className="max-w-150 mx-auto">
+          <div className="mx-auto max-w-150">
             <PreviewEmailLayout
               isLoading={loading}
               language={locale}
