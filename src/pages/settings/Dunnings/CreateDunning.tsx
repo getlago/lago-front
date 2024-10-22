@@ -11,6 +11,10 @@ import {
   DefaultCampaignDialog,
   DefaultCampaignDialogRef,
 } from '~/components/settings/dunnings/DefaultCampaignDialog'
+import {
+  PreviewCampaignEmailDrawer,
+  PreviewCampaignEmailDrawerRef,
+} from '~/components/settings/dunnings/PreviewCampaignEmailDrawer'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { DUNNINGS_SETTINGS_ROUTE } from '~/core/router'
@@ -64,8 +68,9 @@ const CreateDunning = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
 
-  const defaultCampaignDialog = useRef<DefaultCampaignDialogRef>(null)
+  const defaultCampaignDialogRef = useRef<DefaultCampaignDialogRef>(null)
   const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
+  const previewCampaignEmailDrawerRef = useRef<PreviewCampaignEmailDrawerRef>(null)
 
   const { organization: { defaultCurrency } = {} } = useOrganizationInfos()
 
@@ -359,6 +364,13 @@ const CreateDunning = () => {
                     {hasPaymentProviderExcludingGoCardless
                       ? translate('text_1728584028187l2wdjy4s5cs')
                       : translate('text_17291534666709ytr7mi4jjl')}
+
+                    <button
+                      className="ml-1 h-auto p-0 text-blue-600 hover:underline focus:underline"
+                      onClick={() => previewCampaignEmailDrawerRef.current?.openDrawer()}
+                    >
+                      {translate('text_1728584028187udjepvgj8ra')}
+                    </button>
                   </Typography>
                 </div>
 
@@ -406,7 +418,7 @@ const CreateDunning = () => {
                   checked={formikProps.values.appliedToOrganization}
                   onChange={() => {
                     if (!formikProps.values.appliedToOrganization) {
-                      defaultCampaignDialog.current?.openDialog({
+                      defaultCampaignDialogRef.current?.openDialog({
                         type: 'setDefault',
                         onConfirm: () => formikProps.setFieldValue('appliedToOrganization', true),
                       })
@@ -458,7 +470,8 @@ const CreateDunning = () => {
         onContinue={() => navigate(DUNNINGS_SETTINGS_ROUTE)}
       />
 
-      <DefaultCampaignDialog ref={defaultCampaignDialog} />
+      <DefaultCampaignDialog ref={defaultCampaignDialogRef} />
+      <PreviewCampaignEmailDrawer ref={previewCampaignEmailDrawerRef} />
     </>
   )
 }

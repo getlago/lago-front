@@ -2555,5 +2555,8 @@
   "text_1728584028187qei3xba4i02": "Only one campaign can be applied to an organization. For more flexibility, override it at the customer level.",
   "text_1728584028187oqpu20oxuxq": "Add campaign",
   "text_17290016117598ws4m1j6wvy": "Dunning campaign successfully created",
-  "text_17291534666709ytr7mi4jjl": "Customers will receive an email reminder to pay their overdue balance based on the settings below."
+  "text_17291534666709ytr7mi4jjl": "Customers will receive an email reminder to pay their overdue balance based on the settings below.",
+  "text_1729256593854oiy13slixjr": "Your overdue balance from {{companyName}}",
+  "text_1728584028187udjepvgj8ra": "Preview email template",
+  "text_1729594310368kstqhifkf5p": "Close preview"
 }
