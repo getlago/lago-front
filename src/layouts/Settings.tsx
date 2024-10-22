@@ -106,8 +106,7 @@ const Settings = () => {
               //   title: translate('text_17285747264958mqbtws3em8'),
               //   link: DUNNINGS_SETTINGS_ROUTE,
               //   match: [DUNNINGS_SETTINGS_ROUTE],
-              //   // TODO: Add permission
-              //   hidden: !hasPermissions([]),
+              //   hidden: !hasPermissions(['dunningCampaignsView']),
               // },
               {
                 title: translate('text_6407684eaf41130074c4b2a1'),

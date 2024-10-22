@@ -310,8 +310,7 @@ export const settingRoutes: CustomRouteObject[] = [
         path: DUNNINGS_SETTINGS_ROUTE,
         private: true,
         element: <DunningsSettings />,
-        // TODO: Add permissions
-        permissions: [],
+        permissions: ['dunningCampaignsView'],
       },
     ],
   },
@@ -319,7 +318,6 @@ export const settingRoutes: CustomRouteObject[] = [
     path: CREATE_DUNNING_ROUTE,
     private: true,
     element: <CreateDunning />,
-    // TODO: Add permissions
-    permissions: [],
+    permissions: ['dunningCampaignsCreate', 'dunningCampaignsView'],
   },
 ]
