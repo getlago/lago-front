@@ -167,6 +167,7 @@ const LocalTabs = styled(Tabs)<{
   ${({ $leftSpacing }) => {
     return css`
       ${setResponsiveProperty('paddingLeft', $leftSpacing)}
+      ${setResponsiveProperty('paddingRight', $leftSpacing)}
     `
   }}
 
