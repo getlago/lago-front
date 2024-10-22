@@ -249,6 +249,41 @@ const getErrorMessageFromErrorDetails = (
   }
 }
 
+export const TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED = {
+  unpaid: 'text_17290829949642fgof01loxo',
+  terminatedWallet: 'text_172908299496461z9ejmm2j7',
+  fullyCovered: 'text_1729082994964zccpjmtotdy',
+}
+
+export const createCreditNoteForInvoiceButtonProps = ({
+  paymentStatus,
+  invoiceType,
+  associatedActiveWalletPresent,
+  creditableAmountCents,
+  refundableAmountCents,
+}: Partial<Invoice>) => {
+  const isUnpaid =
+    paymentStatus === InvoicePaymentStatusTypeEnum.Pending ||
+    paymentStatus === InvoicePaymentStatusTypeEnum.Failed
+
+  const isAssociatedWithTerminatedWallet =
+    invoiceType === InvoiceTypeEnum.Credit && !associatedActiveWalletPresent
+
+  const disabledIssueCreditNoteButton =
+    creditableAmountCents === '0' && refundableAmountCents === '0'
+
+  const disabledIssueCreditNoteButtonLabel =
+    disabledIssueCreditNoteButton &&
+    TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED[
+      isUnpaid ? 'unpaid' : isAssociatedWithTerminatedWallet ? 'terminatedWallet' : 'fullyCovered'
+    ]
+
+  return {
+    disabledIssueCreditNoteButton,
+    disabledIssueCreditNoteButtonLabel,
+  }
+}
+
 const CustomerInvoiceDetails = () => {
   const { translate } = useInternationalization()
   const { customerId, invoiceId } = useParams()
@@ -404,29 +439,14 @@ const CustomerInvoiceDetails = () => {
   )
   const errorMessage = getErrorMessageFromErrorDetails(errorDetails)
 
-  const TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED = {
-    unpaid: 'text_17290829949642fgof01loxo',
-    terminatedWallet: 'text_172908299496461z9ejmm2j7',
-    fullyCovered: 'text_1729082994964zccpjmtotdy',
-  }
-
-  const isUnpaid =
-    paymentStatus === InvoicePaymentStatusTypeEnum.Pending ||
-    paymentStatus === InvoicePaymentStatusTypeEnum.Failed
-
-  const isAssociatedWithTerminatedWallet =
-    invoiceType === InvoiceTypeEnum.Credit && !associatedActiveWalletPresent
-
-  const disabledIssueCreditNoteButton =
-    creditableAmountCents === '0' && refundableAmountCents === '0'
-
-  const disabledIssueCreditNoteButtonLabel =
-    disabledIssueCreditNoteButton &&
-    translate(
-      TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED[
-        isUnpaid ? 'unpaid' : isAssociatedWithTerminatedWallet ? 'terminatedWallet' : 'fullyCovered'
-      ],
-    )
+  const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
+    createCreditNoteForInvoiceButtonProps({
+      invoiceType,
+      paymentStatus,
+      creditableAmountCents,
+      refundableAmountCents,
+      associatedActiveWalletPresent,
+    })
 
   const goToPreviousRoute = useCallback(
     () =>
@@ -487,10 +507,7 @@ const CustomerInvoiceDetails = () => {
       },
     ]
 
-    if (
-      invoiceType !== InvoiceTypeEnum.Credit &&
-      ![InvoiceStatusTypeEnum.Draft, InvoiceStatusTypeEnum.Failed].includes(status)
-    ) {
+    if (![InvoiceStatusTypeEnum.Draft, InvoiceStatusTypeEnum.Failed].includes(status)) {
       tabs.push({
         title: translate('text_636bdef6565341dcb9cfb125'),
         link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
@@ -531,7 +548,6 @@ const CustomerInvoiceDetails = () => {
     goToPreviousRoute,
     syncCrmIntegrationInvoice,
     loadingSyncCrmIntegrationInvoice,
-    invoiceType,
     status,
   ])
 
@@ -630,7 +646,10 @@ const CustomerInvoiceDetails = () => {
                                     ],
                                   },
                                 }}
-                                title={disabledIssueCreditNoteButtonLabel}
+                                title={
+                                  disabledIssueCreditNoteButtonLabel &&
+                                  translate(disabledIssueCreditNoteButtonLabel)
+                                }
                                 placement="left"
                               >
                                 <Button

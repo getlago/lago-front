@@ -8040,9 +8040,9 @@ export type GetInvoiceCreditNotesQueryVariables = Exact<{
 }>;
 
 
-export type GetInvoiceCreditNotesQuery = { __typename?: 'Query', invoiceCreditNotes?: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, taxProviderSyncable: boolean, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null }> } | null, invoice?: { __typename?: 'Invoice', id: string, refundableAmountCents: any, creditableAmountCents: any, status: InvoiceStatusTypeEnum, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, displayName: string } } | null };
+export type GetInvoiceCreditNotesQuery = { __typename?: 'Query', invoiceCreditNotes?: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, taxProviderSyncable: boolean, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null }> } | null, invoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, associatedActiveWalletPresent: boolean, paymentStatus: InvoicePaymentStatusTypeEnum, refundableAmountCents: any, creditableAmountCents: any, status: InvoiceStatusTypeEnum, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, displayName: string } } | null };
 
-export type InvoiceDetailsForInvoiceOverviewFragment = { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, issuingDate: any, externalIntegrationId?: string | null, taxProviderVoidable: boolean, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, externalAccountId?: string | null } | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', externalCustomerId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', externalCustomerId?: string | null } | null } };
+export type InvoiceDetailsForInvoiceOverviewFragment = { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, status: InvoiceStatusTypeEnum, issuingDate: any, externalIntegrationId?: string | null, taxProviderVoidable: boolean, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, externalAccountId?: string | null } | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', externalCustomerId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', externalCustomerId?: string | null } | null } };
 
 export type NetsuiteIntegrationInfosForInvoiceOverviewFragment = { __typename?: 'NetsuiteIntegration', id: string, accountId?: string | null, name: string };
 
@@ -9994,6 +9994,7 @@ export const CustomerMetadatasForInvoiceOverviewFragmentDoc = gql`
 export const InvoiceDetailsForInvoiceOverviewFragmentDoc = gql`
     fragment InvoiceDetailsForInvoiceOverview on Invoice {
   id
+  invoiceType
   status
   issuingDate
   externalIntegrationId
@@ -21055,6 +21056,9 @@ export const GetInvoiceCreditNotesDocument = gql`
   }
   invoice(id: $invoiceId) {
     id
+    invoiceType
+    associatedActiveWalletPresent
+    paymentStatus
     refundableAmountCents
     creditableAmountCents
     status
