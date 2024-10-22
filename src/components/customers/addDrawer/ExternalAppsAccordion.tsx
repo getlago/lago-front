@@ -60,6 +60,20 @@ import Stripe from '~/public/images/stripe.svg'
 import Xero from '~/public/images/xero.svg'
 import { MenuPopper, theme } from '~/styles'
 
+const hubspotExternalIdTypeCopyMap: Record<
+  HubspotTargetedObjectsEnum,
+  Record<'label' | 'placeholder', string>
+> = {
+  [HubspotTargetedObjectsEnum.Companies]: {
+    label: 'text_1729602057769exfgebgaj4g',
+    placeholder: 'text_1729602057769w37ljj318sn',
+  },
+  [HubspotTargetedObjectsEnum.Contacts]: {
+    label: 'text_1729067791880uwec7af9cpq',
+    placeholder: 'text_1729067791880y0th6mtz2av',
+  },
+}
+
 gql`
   fragment CustomerForExternalAppsAccordion on Customer {
     id
@@ -1269,40 +1283,52 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                       formikProps={formikProps}
                     />
 
-                    <TextInputField
-                      label={translate('text_1729067791880uwec7af9cpq')}
-                      placeholder={translate('text_1729067791880y0th6mtz2av')}
-                      name={`${hubspotIntegrationpointerInIntegrationCustomer}.externalCustomerId`}
-                      disabled={
-                        !!selectedHubspotIntegration?.syncWithProvider ||
-                        hadInitialHubspotIntegrationCustomer
-                      }
-                      formikProps={formikProps}
-                    />
+                    {!!!!selectedHubspotIntegration.targetedObject && (
+                      <>
+                        <TextInputField
+                          label={translate(
+                            hubspotExternalIdTypeCopyMap[selectedHubspotIntegration.targetedObject][
+                              'label'
+                            ],
+                          )}
+                          placeholder={translate(
+                            hubspotExternalIdTypeCopyMap[selectedHubspotIntegration.targetedObject][
+                              'placeholder'
+                            ],
+                          )}
+                          name={`${hubspotIntegrationpointerInIntegrationCustomer}.externalCustomerId`}
+                          disabled={
+                            !!selectedHubspotIntegration?.syncWithProvider ||
+                            hadInitialHubspotIntegrationCustomer
+                          }
+                          formikProps={formikProps}
+                        />
 
-                    <Checkbox
-                      name={`${hubspotIntegrationpointerInIntegrationCustomer}.syncWithProvider`}
-                      disabled={hadInitialHubspotIntegrationCustomer}
-                      value={!!selectedHubspotIntegration?.syncWithProvider}
-                      label={translate('text_66423cad72bbad009f2f569e', {
-                        connectionName: selectedHubspotIntegrationSettings?.name,
-                      })}
-                      onChange={(_, checked) => {
-                        const newHubspotIntegrationObject = {
-                          ...selectedHubspotIntegration,
-                          syncWithProvider: checked,
-                        }
+                        <Checkbox
+                          name={`${hubspotIntegrationpointerInIntegrationCustomer}.syncWithProvider`}
+                          disabled={hadInitialHubspotIntegrationCustomer}
+                          value={!!selectedHubspotIntegration?.syncWithProvider}
+                          label={translate('text_66423cad72bbad009f2f569e', {
+                            connectionName: selectedHubspotIntegrationSettings?.name,
+                          })}
+                          onChange={(_, checked) => {
+                            const newHubspotIntegrationObject = {
+                              ...selectedHubspotIntegration,
+                              syncWithProvider: checked,
+                            }
 
-                        if (!isEdition && checked) {
-                          newHubspotIntegrationObject.externalCustomerId = ''
-                        }
+                            if (!isEdition && checked) {
+                              newHubspotIntegrationObject.externalCustomerId = ''
+                            }
 
-                        formikProps.setFieldValue(
-                          `${hubspotIntegrationpointerInIntegrationCustomer}`,
-                          newHubspotIntegrationObject,
-                        )
-                      }}
-                    />
+                            formikProps.setFieldValue(
+                              `${hubspotIntegrationpointerInIntegrationCustomer}`,
+                              newHubspotIntegrationObject,
+                            )
+                          }}
+                        />
+                      </>
+                    )}
                   </>
                 )}
 
