@@ -465,22 +465,21 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
               summary={
                 <Stack gap={3} flex={1} direction="row" alignItems="center">
                   <Stack gap={3} flex={1} direction="row" alignItems="center">
-                    <Avatar size="big" variant="connector-full">
-                      {!!formikProps.values.paymentProvider ? (
-                        <>
-                          {formikProps.values.paymentProvider === ProviderTypeEnum?.Stripe ? (
-                            <Stripe />
-                          ) : formikProps.values.paymentProvider ===
-                            ProviderTypeEnum?.Gocardless ? (
-                            <GoCardless />
-                          ) : formikProps.values.paymentProvider === ProviderTypeEnum?.Adyen ? (
-                            <Adyen />
-                          ) : null}
-                        </>
-                      ) : (
+                    {!!formikProps.values.paymentProvider ? (
+                      <Avatar size="big" variant="connector-full">
+                        {formikProps.values.paymentProvider === ProviderTypeEnum?.Stripe ? (
+                          <Stripe />
+                        ) : formikProps.values.paymentProvider === ProviderTypeEnum?.Gocardless ? (
+                          <GoCardless />
+                        ) : formikProps.values.paymentProvider === ProviderTypeEnum?.Adyen ? (
+                          <Adyen />
+                        ) : null}
+                      </Avatar>
+                    ) : (
+                      <Avatar size="big" variant="connector">
                         <Icon name="plug" color="dark" />
-                      )}
-                    </Avatar>
+                      </Avatar>
+                    )}
                     <Stack>
                       <Typography variant="bodyHl" color="grey700">
                         {!selectedPaymentProvider
