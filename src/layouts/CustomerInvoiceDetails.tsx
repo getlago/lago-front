@@ -634,6 +634,7 @@ const CustomerInvoiceDetails = () => {
                                 placement="left"
                               >
                                 <Button
+                                  className="w-full"
                                   variant="quaternary"
                                   align="left"
                                   disabled={disabledIssueCreditNoteButton}
