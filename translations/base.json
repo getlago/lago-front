@@ -2625,5 +2625,13 @@
   "text_17295437652543pf2j5lqe67": "Dunning campaign behavior successfully applied",
   "text_1731078338811aok1u8oopxl": "No dunning campaign available for this customer",
   "text_173142196943714qsq737sre": "This subscription is not yet active. Current usage is displayed only for active subscriptions.",
-  "text_1731423623190elua4pl3ccr": "This subscription is not yet active. Lifetime usage is displayed only for active subscriptions."
+  "text_1731423623190elua4pl3ccr": "This subscription is not yet active. Lifetime usage is displayed only for active subscriptions.",
+  "text_1729594310368kstqhifkf5p": "Close preview",
+  "text_1729604107534r3hsj7i64gp": "Impact overridden subscriptions",
+  "text_17296041075348k56saczddu": "This plan is linked to overridden subscriptions, do you want to impact the changes made to these subscriptions?",
+  "text_17296041075346803c5xv8um": "Do not impact overridden subscriptions",
+  "text_1729604107534v8b3vembdla": "These changes will impact only non-overridden subscriptions.",
+  "text_1729604107534vznb0h27kje": "Impact overridden subscriptions",
+  "text_1729604107534rrec9gxuh54": "These changes will impact both overridden subscriptions and those not overridden.",
+  "text_1729604107534dfyz8j53ho5": "Save editions"
 }
