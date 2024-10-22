@@ -12,6 +12,10 @@ import {
 import { ChargesSection } from '~/components/plans/ChargesSection'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FixedFeeSection } from '~/components/plans/FixedFeeSection'
+import {
+  ImpactOverridenSubscriptionsDialog,
+  ImpactOverridenSubscriptionsDialogRef,
+} from '~/components/plans/ImpactOverridenSubscriptionsDialog'
 import { PlanCodeSnippet } from '~/components/plans/PlanCodeSnippet'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
@@ -75,6 +79,7 @@ gql`
     trialPeriod
     subscriptionsCount
     billChargesMonthly
+    hasOverriddenPlans
     minimumCommitment {
       amountCents
       commitmentType
@@ -128,6 +133,7 @@ const CreatePlan = () => {
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { errorCode, formikProps, isEdition, loading, plan, type } = usePlanForm({})
   const warningDialogRef = useRef<WarningDialogRef>(null)
+  const impactOverridenSubscriptionsDialogRef = useRef<ImpactOverridenSubscriptionsDialogRef>(null)
   const editInvoiceDisplayNameRef = useRef<EditInvoiceDisplayNameRef>(null)
 
   const canBeEdited = !plan?.subscriptionsCount
@@ -278,7 +284,19 @@ const CreatePlan = () => {
                 <Button
                   disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
                   size="large"
-                  onClick={formikProps.submitForm}
+                  onClick={() => {
+                    if (plan?.hasOverriddenPlans) {
+                      return impactOverridenSubscriptionsDialogRef.current?.openDialog({
+                        onSave: async (cascadeUpdates) => {
+                          await formikProps.setFieldValue('cascadeUpdates', cascadeUpdates)
+
+                          return formikProps.submitForm()
+                        },
+                      })
+                    }
+
+                    return formikProps.submitForm()
+                  }}
                   data-test="submit"
                 >
                   {translate(
@@ -302,6 +320,8 @@ const CreatePlan = () => {
         continueText={translate('text_645388d5bdbd7b00abffa033')}
         onContinue={() => planCloseRedirection()}
       />
+
+      <ImpactOverridenSubscriptionsDialog ref={impactOverridenSubscriptionsDialogRef} />
       <EditInvoiceDisplayName ref={editInvoiceDisplayNameRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </div>

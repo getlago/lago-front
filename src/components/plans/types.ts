@@ -47,4 +47,5 @@ export type PlanFormInput = Omit<
   // NOTE: this is used for display purpose but will be replaced by usageThresholds[] on save
   nonRecurringUsageThresholds?: LocalUsageThresholdInput[]
   recurringUsageThreshold?: LocalUsageThresholdInput
+  cascadeUpdates?: boolean
 }
