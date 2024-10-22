@@ -2547,7 +2547,6 @@
   "text_1728584028187rmbbvaboadk": "Add currency",
   "text_1728584028187ij19lperkhf": "Attempt settings",
   "text_1728584028187l2wdjy4s5cs": "Payments will be attempted based on the settings below. If a payment fails, customers will receive an email reminder.",
-  "text_1728584028187udjepvgj8ra": "Preview email template",
   "text_1728584028187al65i47z3qn": "Delay between attempts",
   "text_17285840281879mpfdrz2mmi": "End the flow after",
   "text_17285840281874du2dlbui5u": "Dunning campaign will end after {{attempts}} attempts.",
