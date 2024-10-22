@@ -33,7 +33,6 @@ import {
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { CustomerWalletsList } from '~/components/wallets/CustomerWalletList'
-import { addToast } from '~/core/apolloClient'
 import {
   CREATE_INVOICE_ROUTE,
   CREATE_SUBSCRIPTION,
@@ -43,6 +42,7 @@ import {
   CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE,
   CUSTOMERS_LIST_ROUTE,
 } from '~/core/router'
+import { handleDownloadFile } from '~/core/utils/downloadFiles'
 import {
   AddCustomerDrawerFragmentDoc,
   CustomerMainInfosFragmentDoc,
@@ -115,25 +115,7 @@ const CustomerDetails = () => {
   })
   const [generatePortalUrl] = useGenerateCustomerPortalUrlMutation({
     onCompleted({ generateCustomerPortalUrl }) {
-      if (generateCustomerPortalUrl?.url) {
-        // We open a window, add url then focus on different lines, in order to prevent browsers to block page opening
-        // It could be seen as unexpected popup as not immediatly done on user action
-        // https://stackoverflow.com/questions/2587677/avoid-browser-popup-blockers
-        setTimeout(() => {
-          const myWindow = window.open('', '_blank')
-
-          if (myWindow?.location?.href) {
-            myWindow.location.href = generateCustomerPortalUrl.url
-            return myWindow?.focus()
-          }
-
-          myWindow?.close()
-          addToast({
-            severity: 'danger',
-            translateKey: 'text_62b31e1f6a5b8b1b745ece48',
-          })
-        }, 0)
-      }
+      handleDownloadFile(generateCustomerPortalUrl?.url)
     },
   })
   const {

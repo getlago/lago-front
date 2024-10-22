@@ -44,6 +44,7 @@ import {
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { handleDownloadFile } from '~/core/utils/downloadFiles'
 import {
   CreditNote,
   CreditNoteCreditStatusEnum,
@@ -263,25 +264,7 @@ const CreditNoteDetails = () => {
   const [downloadCreditNote, { loading: loadingCreditNoteDownload }] =
     useDownloadCreditNoteMutation({
       onCompleted({ downloadCreditNote: downloadCreditNoteData }) {
-        const fileUrl = downloadCreditNoteData?.fileUrl
-
-        if (fileUrl) {
-          // We open a window, add url then focus on different lines, in order to prevent browsers to block page opening
-          // It could be seen as unexpected popup as not immediatly done on user action
-          // https://stackoverflow.com/questions/2587677/avoid-browser-popup-blockers
-          const myWindow = window.open('', '_blank')
-
-          if (myWindow?.location?.href) {
-            myWindow.location.href = fileUrl
-            return myWindow?.focus()
-          }
-
-          myWindow?.close()
-          addToast({
-            severity: 'danger',
-            translateKey: 'text_62b31e1f6a5b8b1b745ece48',
-          })
-        }
+        handleDownloadFile(downloadCreditNoteData?.fileUrl)
       },
     })
 
