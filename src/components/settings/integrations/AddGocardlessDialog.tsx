@@ -10,6 +10,7 @@ import { object, string } from 'yup'
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
+import { buildGocardlessAuthUrl } from '~/core/constants/externalUrls'
 import { GOCARDLESS_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   AddGocardlessPaymentProviderInput,
@@ -134,10 +135,25 @@ export const AddGocardlessDialog = forwardRef<AddGocardlessDialogRef>((_, ref) =
 
         dialogRef.current?.closeDialog()
       } else {
-        window.open(
-          `${lagoOauthProxyUrl}/gocardless/auth?lago_name=${values.name}&lago_code=${values.code}`,
-        )
-        dialogRef.current?.closeDialog()
+        setTimeout(() => {
+          const myWindow = window.open('', '_blank')
+
+          if (myWindow?.location?.href) {
+            myWindow.location.href = buildGocardlessAuthUrl(
+              lagoOauthProxyUrl,
+              values.name,
+              values.code,
+            )
+            dialogRef.current?.closeDialog()
+            return myWindow?.focus()
+          }
+
+          myWindow?.close()
+          addToast({
+            severity: 'danger',
+            translateKey: 'text_62b31e1f6a5b8b1b745ece48',
+          })
+        }, 0)
       }
     },
     validateOnMount: true,

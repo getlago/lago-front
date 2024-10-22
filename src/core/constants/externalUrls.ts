@@ -46,6 +46,9 @@ export const buildNetsuiteCreditNoteUrl = (
 ) => {
   return `https://${connectionAccountId}.app.netsuite.com/app/accounting/transactions/custcred.nl?id=${netsuiteCreditNoteId}`
 }
+export const buildGocardlessAuthUrl = (proxyUrl: string, lagoName: string, lagoCode: string) => {
+  return `${proxyUrl}/gocardless/auth?lago_name=${lagoName}&lago_code=${lagoCode}`
+}
 export const buildAnrokCustomerUrl = (
   connectionAccountId?: string | null,
   anrokCustomerId?: string | null,
