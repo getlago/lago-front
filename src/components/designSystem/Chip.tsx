@@ -56,6 +56,7 @@ export const Chip = ({
         <Typography
           variant={!!beta ? 'captionCode' : 'captionHl'}
           color={!!beta ? 'info600' : !!error ? 'danger600' : color}
+          noWrap
         >
           {label}
         </Typography>

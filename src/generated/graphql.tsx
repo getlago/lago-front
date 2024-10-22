@@ -8294,6 +8294,23 @@ export type GetOktaIntegrationQueryVariables = Exact<{
 
 export type GetOktaIntegrationQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration', id: string, clientId?: string | null, clientSecret?: string | null, code: string, organizationName: string, domain: string, name: string } | { __typename?: 'XeroIntegration' } | null };
 
+export type DunningCampaignItemFragment = { __typename?: 'DunningCampaign', id: string, name: string, code: string, appliedToOrganization: boolean };
+
+export type GetDunningCampaignsQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetDunningCampaignsQuery = { __typename?: 'Query', dunningCampaigns: { __typename?: 'DunningCampaignCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'DunningCampaign', id: string, name: string, code: string, appliedToOrganization: boolean }> } };
+
+export type UpdateDunningCampaignStatusMutationVariables = Exact<{
+  input: UpdateDunningCampaignInput;
+}>;
+
+
+export type UpdateDunningCampaignStatusMutation = { __typename?: 'Mutation', updateDunningCampaign?: { __typename?: 'DunningCampaign', id: string, appliedToOrganization: boolean } | null };
+
 export type GocardlessIntegrationDetailsFragment = { __typename?: 'GocardlessProvider', id: string, code: string, name: string, successRedirectUrl?: string | null, webhookSecret?: string | null };
 
 export type GetGocardlessIntegrationsDetailsQueryVariables = Exact<{
@@ -11111,6 +11128,14 @@ export const OktaIntegrationDetailsFragmentDoc = gql`
   organizationName
   domain
   name
+}
+    `;
+export const DunningCampaignItemFragmentDoc = gql`
+    fragment DunningCampaignItem on DunningCampaign {
+  id
+  name
+  code
+  appliedToOrganization
 }
     `;
 export const GocardlessIntegrationDetailsFragmentDoc = gql`
@@ -22422,6 +22447,88 @@ export type GetOktaIntegrationQueryHookResult = ReturnType<typeof useGetOktaInte
 export type GetOktaIntegrationLazyQueryHookResult = ReturnType<typeof useGetOktaIntegrationLazyQuery>;
 export type GetOktaIntegrationSuspenseQueryHookResult = ReturnType<typeof useGetOktaIntegrationSuspenseQuery>;
 export type GetOktaIntegrationQueryResult = Apollo.QueryResult<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>;
+export const GetDunningCampaignsDocument = gql`
+    query getDunningCampaigns($limit: Int, $page: Int) {
+  dunningCampaigns(limit: $limit, page: $page, order: "name") {
+    metadata {
+      currentPage
+      totalPages
+    }
+    collection {
+      id
+      ...DunningCampaignItem
+    }
+  }
+}
+    ${DunningCampaignItemFragmentDoc}`;
+
+/**
+ * __useGetDunningCampaignsQuery__
+ *
+ * To run a query within a React component, call `useGetDunningCampaignsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetDunningCampaignsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetDunningCampaignsQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      page: // value for 'page'
+ *   },
+ * });
+ */
+export function useGetDunningCampaignsQuery(baseOptions?: Apollo.QueryHookOptions<GetDunningCampaignsQuery, GetDunningCampaignsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetDunningCampaignsQuery, GetDunningCampaignsQueryVariables>(GetDunningCampaignsDocument, options);
+      }
+export function useGetDunningCampaignsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetDunningCampaignsQuery, GetDunningCampaignsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetDunningCampaignsQuery, GetDunningCampaignsQueryVariables>(GetDunningCampaignsDocument, options);
+        }
+export function useGetDunningCampaignsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetDunningCampaignsQuery, GetDunningCampaignsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetDunningCampaignsQuery, GetDunningCampaignsQueryVariables>(GetDunningCampaignsDocument, options);
+        }
+export type GetDunningCampaignsQueryHookResult = ReturnType<typeof useGetDunningCampaignsQuery>;
+export type GetDunningCampaignsLazyQueryHookResult = ReturnType<typeof useGetDunningCampaignsLazyQuery>;
+export type GetDunningCampaignsSuspenseQueryHookResult = ReturnType<typeof useGetDunningCampaignsSuspenseQuery>;
+export type GetDunningCampaignsQueryResult = Apollo.QueryResult<GetDunningCampaignsQuery, GetDunningCampaignsQueryVariables>;
+export const UpdateDunningCampaignStatusDocument = gql`
+    mutation updateDunningCampaignStatus($input: UpdateDunningCampaignInput!) {
+  updateDunningCampaign(input: $input) {
+    id
+    appliedToOrganization
+  }
+}
+    `;
+export type UpdateDunningCampaignStatusMutationFn = Apollo.MutationFunction<UpdateDunningCampaignStatusMutation, UpdateDunningCampaignStatusMutationVariables>;
+
+/**
+ * __useUpdateDunningCampaignStatusMutation__
+ *
+ * To run a mutation, you first call `useUpdateDunningCampaignStatusMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateDunningCampaignStatusMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateDunningCampaignStatusMutation, { data, loading, error }] = useUpdateDunningCampaignStatusMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateDunningCampaignStatusMutation(baseOptions?: Apollo.MutationHookOptions<UpdateDunningCampaignStatusMutation, UpdateDunningCampaignStatusMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateDunningCampaignStatusMutation, UpdateDunningCampaignStatusMutationVariables>(UpdateDunningCampaignStatusDocument, options);
+      }
+export type UpdateDunningCampaignStatusMutationHookResult = ReturnType<typeof useUpdateDunningCampaignStatusMutation>;
+export type UpdateDunningCampaignStatusMutationResult = Apollo.MutationResult<UpdateDunningCampaignStatusMutation>;
+export type UpdateDunningCampaignStatusMutationOptions = Apollo.BaseMutationOptions<UpdateDunningCampaignStatusMutation, UpdateDunningCampaignStatusMutationVariables>;
 export const GetGocardlessIntegrationsDetailsDocument = gql`
     query getGocardlessIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
   paymentProvider(id: $id) {
