@@ -39,6 +39,9 @@ gql`
       developersKeysManage
       developersManage
       draftInvoicesUpdate
+      dunningCampaignsCreate
+      dunningCampaignsUpdate
+      dunningCampaignsView
       invoicesCreate
       invoicesSend
       invoicesUpdate
