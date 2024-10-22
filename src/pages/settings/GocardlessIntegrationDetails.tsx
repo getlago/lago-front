@@ -28,6 +28,7 @@ import {
   DeleteGocardlessIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteGocardlessIntegrationDialog'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
+import { buildGocardlessAuthUrl } from '~/core/constants/externalUrls'
 import { GOCARDLESS_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
@@ -154,10 +155,25 @@ const GocardlessIntegrationDetails = () => {
                       fullWidth
                       align="left"
                       onClick={() => {
-                        window.open(
-                          `${lagoOauthProxyUrl}/gocardless/auth?lago_name=${gocardlessPaymentProvider.name}&lago_code=${gocardlessPaymentProvider.code}`,
-                        )
-                        closePopper()
+                        setTimeout(() => {
+                          const myWindow = window.open('', '_blank')
+
+                          if (myWindow?.location?.href) {
+                            myWindow.location.href = buildGocardlessAuthUrl(
+                              lagoOauthProxyUrl,
+                              gocardlessPaymentProvider.name,
+                              gocardlessPaymentProvider.code,
+                            )
+                            closePopper()
+                            return myWindow?.focus()
+                          }
+
+                          myWindow?.close()
+                          addToast({
+                            severity: 'danger',
+                            translateKey: 'text_62b31e1f6a5b8b1b745ece48',
+                          })
+                        }, 0)
                       }}
                     >
                       {translate('text_658567dffff71e31ea5f0d33')}
