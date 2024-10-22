@@ -127,6 +127,7 @@ export const serializePlanInput = (values: PlanFormInput) => {
     minimumCommitment,
     nonRecurringUsageThresholds,
     recurringUsageThreshold,
+    cascadeUpdates,
     ...otherValues
   } = values
 
@@ -191,6 +192,7 @@ export const serializePlanInput = (values: PlanFormInput) => {
         }
       },
     ),
+    cascadeUpdates,
     ...otherValues,
   }
 }

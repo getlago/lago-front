@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { FormikProps, useFormik } from 'formik'
 import { useEffect, useMemo } from 'react'
 import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { array, number, object, string } from 'yup'
+import { array, boolean, number, object, string } from 'yup'
 
 import { LocalChargeInput, PlanFormInput } from '~/components/plans/types'
 import { transformFilterObjectToString } from '~/components/plans/utils'
@@ -230,6 +230,7 @@ export const usePlanForm: ({
             }),
           ) as LocalChargeInput[])
         : ([] as LocalChargeInput[]),
+      cascadeUpdates: false,
     },
     validationSchema: object().shape({
       name: string().required(''),
@@ -311,6 +312,7 @@ export const usePlanForm: ({
         })
         .nullable()
         .default(undefined),
+      cascadeUpdates: boolean(),
     }),
     enableReinitialize: true,
     validateOnMount: true,
