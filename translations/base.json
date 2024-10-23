@@ -1603,7 +1603,7 @@
   "text_632d68358f1fedc68eed3e60": "Fixed amount discount",
   "text_632d68358f1fedc68eed3e9d": "Frequency",
   "text_632d68358f1fedc68eed3ea3": "Once",
-  "text_632d68358f1fedc68eed3eab": "Determines the number of billing periods to which the coupon will be applied once redeemed.",
+  "text_632d68358f1fedc68eed3eab": "Determines how many times the coupon value will be renewed.",
   "text_632d68358f1fedc68eed3eb7": "Limit the date by which customers can redeem this coupon",
   "text_632d68358f1fedc68eed3e64": "Recurring",
   "text_632d68358f1fedc68eed3e80": "Duration",
