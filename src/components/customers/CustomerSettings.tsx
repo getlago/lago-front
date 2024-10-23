@@ -16,6 +16,7 @@ import {
   Icon,
   Popper,
   Table,
+  TableColumn,
   Tooltip,
   Typography,
 } from '~/components/designSystem'
@@ -338,14 +339,20 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                             </div>
                           ),
                         },
-                        {
-                          key: 'appliedToOrganization',
-                          title: translate('text_63ac86d797f728a87b2f9fa7'),
-                          content: ({ appliedToOrganization }) =>
-                            appliedToOrganization && (
-                              <Chip label={translate('text_1729542098338prhjz7s29kt')} />
-                            ),
-                        },
+                        ...(!!customer.appliedDunningCampaign.appliedToOrganization
+                          ? [
+                              {
+                                key: 'appliedToOrganization',
+                                title: translate('text_63ac86d797f728a87b2f9fa7'),
+                                content: ({ appliedToOrganization }) =>
+                                  appliedToOrganization && (
+                                    <Chip label={translate('text_1729542098338prhjz7s29kt')} />
+                                  ),
+                              } as TableColumn<{
+                                appliedToOrganization: boolean
+                              }>,
+                            ]
+                          : []),
                       ]}
                     />
                   ) : (
