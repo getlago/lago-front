@@ -230,7 +230,7 @@ export const usePlanForm: ({
             }),
           ) as LocalChargeInput[])
         : ([] as LocalChargeInput[]),
-      cascadeUpdates: false,
+      cascadeUpdates: undefined,
     },
     validationSchema: object().shape({
       name: string().required(''),

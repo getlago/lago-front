@@ -192,7 +192,7 @@ export const serializePlanInput = (values: PlanFormInput) => {
         }
       },
     ),
-    cascadeUpdates,
+    ...(typeof cascadeUpdates === 'undefined' ? {} : { cascadeUpdates }),
     ...otherValues,
   }
 }
