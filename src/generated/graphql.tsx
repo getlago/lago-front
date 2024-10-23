@@ -6390,7 +6390,7 @@ export type UpdateCustomerDocumentLocaleMutationVariables = Exact<{
 
 export type UpdateCustomerDocumentLocaleMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null } | null };
 
-export type EditCustomerDunningCampaignFragment = { __typename?: 'Customer', currency?: CurrencyEnum | null };
+export type EditCustomerDunningCampaignFragment = { __typename?: 'Customer', id: string, externalId: string, currency?: CurrencyEnum | null };
 
 export type GetApplicableDunningCampaignsQueryVariables = Exact<{
   currency?: InputMaybe<Array<CurrencyEnum> | CurrencyEnum>;
@@ -6398,6 +6398,13 @@ export type GetApplicableDunningCampaignsQueryVariables = Exact<{
 
 
 export type GetApplicableDunningCampaignsQuery = { __typename?: 'Query', dunningCampaigns: { __typename?: 'DunningCampaignCollection', collection: Array<{ __typename?: 'DunningCampaign', id: string, name: string, code: string }> } };
+
+export type EditCustomerDunningCampaignMutationVariables = Exact<{
+  input: UpdateCustomerInput;
+}>;
+
+
+export type EditCustomerDunningCampaignMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, excludeFromDunningCampaign: boolean, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string } | null } | null };
 
 export type EditCustomerInvoiceGracePeriodFragment = { __typename?: 'Customer', id: string, invoiceGracePeriod?: number | null };
 
@@ -9076,6 +9083,8 @@ export const EditCustomerDocumentLocaleFragmentDoc = gql`
     `;
 export const EditCustomerDunningCampaignFragmentDoc = gql`
     fragment EditCustomerDunningCampaign on Customer {
+  id
+  externalId
   currency
 }
     `;
@@ -13342,6 +13351,43 @@ export type GetApplicableDunningCampaignsQueryHookResult = ReturnType<typeof use
 export type GetApplicableDunningCampaignsLazyQueryHookResult = ReturnType<typeof useGetApplicableDunningCampaignsLazyQuery>;
 export type GetApplicableDunningCampaignsSuspenseQueryHookResult = ReturnType<typeof useGetApplicableDunningCampaignsSuspenseQuery>;
 export type GetApplicableDunningCampaignsQueryResult = Apollo.QueryResult<GetApplicableDunningCampaignsQuery, GetApplicableDunningCampaignsQueryVariables>;
+export const EditCustomerDunningCampaignDocument = gql`
+    mutation editCustomerDunningCampaign($input: UpdateCustomerInput!) {
+  updateCustomer(input: $input) {
+    id
+    appliedDunningCampaign {
+      id
+    }
+    excludeFromDunningCampaign
+  }
+}
+    `;
+export type EditCustomerDunningCampaignMutationFn = Apollo.MutationFunction<EditCustomerDunningCampaignMutation, EditCustomerDunningCampaignMutationVariables>;
+
+/**
+ * __useEditCustomerDunningCampaignMutation__
+ *
+ * To run a mutation, you first call `useEditCustomerDunningCampaignMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useEditCustomerDunningCampaignMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [editCustomerDunningCampaignMutation, { data, loading, error }] = useEditCustomerDunningCampaignMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useEditCustomerDunningCampaignMutation(baseOptions?: Apollo.MutationHookOptions<EditCustomerDunningCampaignMutation, EditCustomerDunningCampaignMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<EditCustomerDunningCampaignMutation, EditCustomerDunningCampaignMutationVariables>(EditCustomerDunningCampaignDocument, options);
+      }
+export type EditCustomerDunningCampaignMutationHookResult = ReturnType<typeof useEditCustomerDunningCampaignMutation>;
+export type EditCustomerDunningCampaignMutationResult = Apollo.MutationResult<EditCustomerDunningCampaignMutation>;
+export type EditCustomerDunningCampaignMutationOptions = Apollo.BaseMutationOptions<EditCustomerDunningCampaignMutation, EditCustomerDunningCampaignMutationVariables>;
 export const UpdateCustomerInvoiceGracePeriodDocument = gql`
     mutation updateCustomerInvoiceGracePeriod($input: UpdateCustomerInvoiceGracePeriodInput!) {
   updateCustomerInvoiceGracePeriod(input: $input) {

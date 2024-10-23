@@ -1,11 +1,14 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef } from 'react'
+import { mixed, object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 import {
   EditCustomerDunningCampaignFragment,
+  UpdateCustomerInput,
+  useEditCustomerDunningCampaignMutation,
   useGetApplicableDunningCampaignsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -14,6 +17,8 @@ import { ComboBoxField, RadioField } from '../form'
 
 gql`
   fragment EditCustomerDunningCampaign on Customer {
+    id
+    externalId
     currency
   }
 
@@ -26,7 +31,24 @@ gql`
       }
     }
   }
+
+  mutation editCustomerDunningCampaign($input: UpdateCustomerInput!) {
+    updateCustomer(input: $input) {
+      id
+      appliedDunningCampaign {
+        id
+      }
+      excludeFromDunningCampaign
+    }
+  }
 `
+
+enum BehaviorType {
+  FALLBACK = 'fallback',
+  NEW_CAMPAIGN = 'newCampaign',
+  DEACTIVATE = 'deactivate',
+}
+
 export interface EditCustomerDunningCampaignDialogRef extends DialogRef {}
 
 interface EditCustomerDunningCampaignDialogProps {
@@ -44,13 +66,9 @@ export const EditCustomerDunningCampaignDialog = forwardRef<
     },
   })
 
-  const formikProps = useFormik({
-    initialValues: {
-      behavior: 'fallback',
-      campaignId: '',
-    },
-    onSubmit: async (values) => {
-      console.log(values)
+  const [editCustomerDunningCampaignBehavior] = useEditCustomerDunningCampaignMutation({
+    refetchQueries: ['getCustomerSettings'],
+    onCompleted: () => {
       addToast({
         severity: 'success',
         message: translate('text_17295437652543pf2j5lqe67'),
@@ -58,10 +76,57 @@ export const EditCustomerDunningCampaignDialog = forwardRef<
     },
   })
 
+  const formikProps = useFormik<{
+    behavior: BehaviorType | ''
+    appliedDunningCampaignId: string
+  }>({
+    initialValues: {
+      behavior: '',
+      appliedDunningCampaignId: '',
+    },
+    validationSchema: object().shape({
+      behavior: mixed().oneOf(Object.values(BehaviorType)).required(''),
+      appliedDunningCampaignId: string().when('behavior', {
+        is: (val: BehaviorType) => val === BehaviorType.NEW_CAMPAIGN,
+        then: (schema) => schema.required(''),
+      }),
+    }),
+    onSubmit: async (values) => {
+      let formattedValues: UpdateCustomerInput = {
+        id: customer.id,
+        externalId: customer.externalId,
+      }
+
+      switch (values.behavior) {
+        case BehaviorType.FALLBACK:
+          formattedValues = {
+            ...formattedValues,
+            excludeFromDunningCampaign: false,
+          }
+          break
+        case BehaviorType.NEW_CAMPAIGN:
+          formattedValues = {
+            ...formattedValues,
+            appliedDunningCampaignId: values.appliedDunningCampaignId,
+          }
+          break
+        case BehaviorType.DEACTIVATE:
+          formattedValues = {
+            ...formattedValues,
+            excludeFromDunningCampaign: true,
+          }
+          break
+      }
+
+      await editCustomerDunningCampaignBehavior({ variables: { input: formattedValues } })
+    },
+  })
+
   return (
     <Dialog
       ref={ref}
-      onOpen={() => {
+      onOpen={async () => {
+        await formikProps.resetForm()
         getDunningCampaigns()
       }}
       title={translate('text_1729543665906svxp253ug1g')}
@@ -88,20 +153,20 @@ export const EditCustomerDunningCampaignDialog = forwardRef<
         <RadioField
           name="behavior"
           formikProps={formikProps}
-          value="fallback"
+          value={BehaviorType.FALLBACK}
           label={translate('text_1729543665907g5bbnbl8yvr')}
           labelVariant="body"
         />
         <RadioField
           name="behavior"
           formikProps={formikProps}
-          value="newCampaign"
+          value={BehaviorType.NEW_CAMPAIGN}
           label={translate('text_17295436659071kau9ol0axk')}
           labelVariant="body"
         />
         {formikProps.values.behavior === 'newCampaign' && (
           <ComboBoxField
-            name="campaignId"
+            name="appliedDunningCampaignId"
             formikProps={formikProps}
             loading={loading}
             data={
@@ -118,7 +183,7 @@ export const EditCustomerDunningCampaignDialog = forwardRef<
         <RadioField
           name="behavior"
           formikProps={formikProps}
-          value="deactivate"
+          value={BehaviorType.DEACTIVATE}
           label={translate('text_1729543690326ndlmz7bdmy1')}
           sublabel={translate('text_17295436903267b0kiid8h8r')}
           labelVariant="body"
