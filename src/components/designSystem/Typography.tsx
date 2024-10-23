@@ -3,7 +3,8 @@ import _isEqual from 'lodash/isEqual'
 import { ElementType, memo } from 'react'
 import { Link } from 'react-router-dom'
 import sanitizeHtml from 'sanitize-html'
-import styled, { css } from 'styled-components'
+
+import { tw } from '~/styles/utils'
 
 const defaultSanitizerOptions = {
   allowedTags: ['b', 'i', 'em', 'strong', 'a', 'sup', 'span'],
@@ -74,8 +75,8 @@ export const Typography = memo(
     html,
     component = 'div',
     noWrap,
-    forceBreak,
-    blur,
+    forceBreak = false,
+    blur = false,
     ...props
   }: TypographyProps) => {
     const getSanitizedHtml = (htmlString: string) => {
@@ -130,9 +131,17 @@ export const Typography = memo(
     }
 
     return (
-      <StyledMuiTypography
+      <MuiTypography
         variant={variant}
-        className={className}
+        className={tw(
+          {
+            'whitespace-pre-line': !noWrap && variant !== 'captionCode',
+            'whitespace-pre': !noWrap && variant === 'captionCode',
+            'pointer-events-none select-none blur-sm': blur,
+            'line-break-anywhere': forceBreak,
+          },
+          className,
+        )}
         color={mapColor(variant, color)}
         data-test={variant}
         variantMapping={{
@@ -142,16 +151,12 @@ export const Typography = memo(
           noteHl: 'div',
           captionCode: 'code',
         }}
-        $code={variant === 'captionCode'}
-        $forceBreak={forceBreak}
-        $noWrap={noWrap}
-        $blur={blur}
         noWrap={noWrap}
         component={component}
         {...props}
       >
         {html ? getSanitizedHtml(html) : children}
-      </StyledMuiTypography>
+      </MuiTypography>
     )
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -160,31 +165,3 @@ export const Typography = memo(
 )
 
 Typography.displayName = 'Typography'
-
-const StyledMuiTypography = styled(MuiTypography)<{
-  component?: unknown
-  $code?: boolean
-  $noWrap?: boolean
-  $forceBreak?: boolean
-  $blur?: boolean
-}>`
-  ${({ $noWrap, $code }) =>
-    !$noWrap &&
-    css`
-      white-space: ${$code ? 'pre' : 'pre-line'};
-    `}
-
-  ${({ $forceBreak }) =>
-    !!$forceBreak &&
-    css`
-      line-break: anywhere;
-    `}
-
-    ${({ $blur }) =>
-    $blur &&
-    css`
-      filter: blur(4px);
-      pointer-events: none;
-      user-select: none;
-    `}
-`
