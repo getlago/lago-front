@@ -2560,5 +2560,10 @@
   "text_17291534666709ytr7mi4jjl": "Customers will receive an email reminder to pay their overdue balance based on the settings below.",
   "text_1729256593854oiy13slixjr": "Your overdue balance from {{companyName}}",
   "text_1728584028187udjepvgj8ra": "Preview email template",
-  "text_1729594310368kstqhifkf5p": "Close preview"
+  "text_1729594310368kstqhifkf5p": "Close preview",
+  "text_1729611609136sul07rowhfi": "Sync invoice to HubSpot",
+  "text_1729613902412cy033eh4vvt": "HubSpot invoice url",
+  "text_1729678728144lfukq2wzred": "Invoice not synced to HubSpot",
+  "text_1729679289432l7pa9bgih1v": "Sync invoice to HubSpot",
+  "text_1729756690073w4jrdeesayy": "Hubspot synchronisation successfully triggered."
 }

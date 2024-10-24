@@ -24,6 +24,7 @@ import { InvoiceCustomerInfos } from '~/components/invoices/InvoiceCustomerInfos
 import { Metadatas } from '~/components/invoices/Metadatas'
 import {
   buildAnrokInvoiceUrl,
+  buildHubsportInvoiceUrl,
   buildNetsuiteInvoiceUrl,
   buildXeroInvoiceUrl,
 } from '~/core/constants/externalUrls'
@@ -33,6 +34,7 @@ import {
   CreditNote,
   CreditNoteItem,
   Customer,
+  HubspotIntegrationInfosForInvoiceOverviewFragment,
   Invoice,
   InvoiceStatusTypeEnum,
   NetsuiteIntegrationInfosForInvoiceOverviewFragment,
@@ -49,6 +51,8 @@ gql`
     issuingDate
     externalIntegrationId
     taxProviderVoidable
+    integrationCrmSyncable
+    externalCrmIntegrationId
     customer {
       id
       applicableTimezone
@@ -62,6 +66,9 @@ gql`
       xeroCustomer {
         externalCustomerId
       }
+      hubspotCustomer {
+        externalCustomerId
+      }
     }
   }
 
@@ -69,6 +76,12 @@ gql`
     id
     accountId
     name
+  }
+
+  fragment HubspotIntegrationInfosForInvoiceOverview on HubspotIntegration {
+    id
+    portalId
+    invoicesObjectTypeId
   }
 `
 
@@ -86,7 +99,10 @@ interface InvoiceOverviewProps {
   retryInvoice: Function
   retryTaxProviderVoiding: Function
   connectedNetsuiteIntegration: NetsuiteIntegrationInfosForInvoiceOverviewFragment | undefined
+  connectedHubspotIntegration: HubspotIntegrationInfosForInvoiceOverviewFragment | undefined
   goToPreviousRoute?: Function
+  syncCrmIntegrationInvoice: Function
+  loadingSyncCrmIntegrationInvoice: boolean
 }
 
 const InvoiceOverview = memo(
@@ -104,7 +120,10 @@ const InvoiceOverview = memo(
     retryInvoice,
     retryTaxProviderVoiding,
     connectedNetsuiteIntegration,
+    connectedHubspotIntegration,
     goToPreviousRoute,
+    syncCrmIntegrationInvoice,
+    loadingSyncCrmIntegrationInvoice,
   }: InvoiceOverviewProps) => {
     const { translate } = useInternationalization()
     const { invoiceId } = useParams()
@@ -143,8 +162,17 @@ const InvoiceOverview = memo(
       (invoice?.status === InvoiceStatusTypeEnum.Finalized ||
         invoice?.status === InvoiceStatusTypeEnum.Voided) &&
       !!invoice?.customer?.anrokCustomer?.externalAccountId
+    const showHubspotReSyncButton = invoice?.integrationCrmSyncable
+    const showHubspotLink =
+      !!invoice?.customer?.hubspotCustomer?.externalCustomerId &&
+      !!invoice?.externalCrmIntegrationId &&
+      !!connectedHubspotIntegration?.portalId &&
+      (invoice?.status === InvoiceStatusTypeEnum.Finalized ||
+        invoice?.status === InvoiceStatusTypeEnum.Voided)
+    const showHubspotSection = showHubspotLink || showHubspotReSyncButton
     const showAnrokSection = showAnrokReSyncButton || showAnrokLink
-    const showExternalAppsSection = showXeroSection || showNetsuiteSection || showAnrokSection
+    const showExternalAppsSection =
+      showXeroSection || showNetsuiteSection || showAnrokSection || showHubspotSection
 
     return (
       <>
@@ -311,7 +339,11 @@ const InvoiceOverview = memo(
                             invoice?.id,
                           )}
                         >
-                          <Typography variant="body" color="info600">
+                          <Typography
+                            className="flex items-center gap-1"
+                            variant="body"
+                            color="info600"
+                          >
                             {invoice?.id} <Icon name="outside" />
                           </Typography>
                         </InlineLink>
@@ -355,7 +387,11 @@ const InvoiceOverview = memo(
                             invoice?.externalIntegrationId,
                           )}
                         >
-                          <Typography variant="body" color="info600">
+                          <Typography
+                            className="flex items-center gap-1"
+                            variant="body"
+                            color="info600"
+                          >
                             {invoice?.externalIntegrationId} <Icon name="outside" />
                           </Typography>
                         </InlineLink>
@@ -374,12 +410,66 @@ const InvoiceOverview = memo(
                           rel="noopener noreferrer"
                           to={buildXeroInvoiceUrl(invoice?.externalIntegrationId)}
                         >
-                          <Typography variant="body" color="info600">
+                          <Typography
+                            className="flex items-center gap-1"
+                            variant="body"
+                            color="info600"
+                          >
                             {invoice?.externalIntegrationId} <Icon name="outside" />
                           </Typography>
                         </InlineLink>
                       </InfoLine>
                     </div>
+                  )}
+
+                  {showHubspotSection && (
+                    <InfoLine>
+                      <Typography variant="caption" color="grey600" noWrap>
+                        {translate('text_1729613902412cy033eh4vvt')}
+                      </Typography>
+
+                      {showHubspotLink ? (
+                        <InlineLink
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          to={buildHubsportInvoiceUrl({
+                            portalId: connectedHubspotIntegration?.portalId,
+                            resourceId: connectedHubspotIntegration?.invoicesObjectTypeId,
+                            externalCrmIntegrationId: invoice?.externalCrmIntegrationId,
+                          })}
+                        >
+                          <Typography
+                            className="flex items-center gap-1"
+                            variant="body"
+                            color="info600"
+                          >
+                            {invoice?.externalCrmIntegrationId} <Icon name="outside" />
+                          </Typography>
+                        </InlineLink>
+                      ) : (
+                        <Stack direction="row" alignItems="center" gap={2}>
+                          <Icon name="warning-filled" color="warning" />
+                          <Typography variant="body" color="grey600" noWrap>
+                            {translate('text_1729678728144lfukq2wzred')}
+                          </Typography>
+                          <span>•</span>
+                          <InlineLink
+                            to={'#'}
+                            onClick={(e) => {
+                              e.preventDefault()
+                              syncCrmIntegrationInvoice()
+                            }}
+                          >
+                            <Typography variant="body" color="info600">
+                              {translate('text_1729679289432l7pa9bgih1v')}
+                            </Typography>
+                          </InlineLink>
+                          {loadingSyncCrmIntegrationInvoice && (
+                            <Icon name="processing" color="info" size="small" animation="spin" />
+                          )}
+                        </Stack>
+                      )}
+                    </InfoLine>
                   )}
                 </Stack>
               )}
