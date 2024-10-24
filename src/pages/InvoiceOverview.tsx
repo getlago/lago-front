@@ -47,6 +47,7 @@ import { SectionHeader } from '~/styles/customer'
 gql`
   fragment InvoiceDetailsForInvoiceOverview on Invoice {
     id
+    invoiceType
     status
     issuingDate
     externalIntegrationId
@@ -316,6 +317,7 @@ const InvoiceOverview = memo(
                     customerId={customer?.id || ''}
                     formatedCreditNotes={formatedCreditNotes}
                     invoiceId={invoiceId || ''}
+                    invoiceType={invoice?.invoiceType}
                   />
                 )}
 

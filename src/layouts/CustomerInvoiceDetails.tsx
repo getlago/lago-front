@@ -105,6 +105,7 @@ gql`
     externalIntegrationId
     taxProviderVoidable
     integrationCrmSyncable
+    associatedActiveWalletPresent
     errorDetails {
       errorCode
       errorDetails
@@ -245,6 +246,41 @@ const getErrorMessageFromErrorDetails = (
     }
 
     return 'text_17238318811307ghoc4v7mt9'
+  }
+}
+
+export const TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED = {
+  unpaid: 'text_17290829949642fgof01loxo',
+  terminatedWallet: 'text_172908299496461z9ejmm2j7',
+  fullyCovered: 'text_1729082994964zccpjmtotdy',
+}
+
+export const createCreditNoteForInvoiceButtonProps = ({
+  paymentStatus,
+  invoiceType,
+  associatedActiveWalletPresent,
+  creditableAmountCents,
+  refundableAmountCents,
+}: Partial<Invoice>) => {
+  const isUnpaid =
+    paymentStatus === InvoicePaymentStatusTypeEnum.Pending ||
+    paymentStatus === InvoicePaymentStatusTypeEnum.Failed
+
+  const isAssociatedWithTerminatedWallet =
+    invoiceType === InvoiceTypeEnum.Credit && !associatedActiveWalletPresent
+
+  const disabledIssueCreditNoteButton =
+    creditableAmountCents === '0' && refundableAmountCents === '0'
+
+  const disabledIssueCreditNoteButtonLabel =
+    disabledIssueCreditNoteButton &&
+    TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED[
+      isUnpaid ? 'unpaid' : isAssociatedWithTerminatedWallet ? 'terminatedWallet' : 'fullyCovered'
+    ]
+
+  return {
+    disabledIssueCreditNoteButton,
+    disabledIssueCreditNoteButtonLabel,
   }
 }
 
@@ -394,6 +430,7 @@ const CustomerInvoiceDetails = () => {
     voidable,
     errorDetails,
     taxProviderVoidable,
+    associatedActiveWalletPresent,
   } = (data?.invoice as AllInvoiceDetailsForCustomerInvoiceDetailsFragment) || {}
 
   const hasError = (!!error || !data?.invoice) && !loading
@@ -401,6 +438,15 @@ const CustomerInvoiceDetails = () => {
     ({ errorCode }) => errorCode === ErrorCodesEnum.TaxError,
   )
   const errorMessage = getErrorMessageFromErrorDetails(errorDetails)
+
+  const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
+    createCreditNoteForInvoiceButtonProps({
+      invoiceType,
+      paymentStatus,
+      creditableAmountCents,
+      refundableAmountCents,
+      associatedActiveWalletPresent,
+    })
 
   const goToPreviousRoute = useCallback(
     () =>
@@ -461,10 +507,7 @@ const CustomerInvoiceDetails = () => {
       },
     ]
 
-    if (
-      invoiceType !== InvoiceTypeEnum.Credit &&
-      ![InvoiceStatusTypeEnum.Draft, InvoiceStatusTypeEnum.Failed].includes(status)
-    ) {
+    if (![InvoiceStatusTypeEnum.Draft, InvoiceStatusTypeEnum.Failed].includes(status)) {
       tabs.push({
         title: translate('text_636bdef6565341dcb9cfb125'),
         link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
@@ -505,7 +548,6 @@ const CustomerInvoiceDetails = () => {
     goToPreviousRoute,
     syncCrmIntegrationInvoice,
     loadingSyncCrmIntegrationInvoice,
-    invoiceType,
     status,
   ])
 
@@ -591,23 +633,42 @@ const CustomerInvoiceDetails = () => {
                         hasPermissions(['creditNotesCreate']) && (
                           <>
                             {isPremium ? (
-                              <Button
-                                variant="quaternary"
-                                align="left"
-                                disabled={
-                                  creditableAmountCents === '0' && refundableAmountCents === '0'
-                                }
-                                onClick={async () => {
-                                  navigate(
-                                    generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
-                                      customerId: customerId as string,
-                                      invoiceId: invoiceId as string,
-                                    }),
-                                  )
+                              <Tooltip
+                                PopperProps={{
+                                  popperOptions: {
+                                    modifiers: [
+                                      {
+                                        name: 'offset',
+                                        options: {
+                                          offset: [0, 8],
+                                        },
+                                      },
+                                    ],
+                                  },
                                 }}
+                                title={
+                                  disabledIssueCreditNoteButtonLabel &&
+                                  translate(disabledIssueCreditNoteButtonLabel)
+                                }
+                                placement="left"
                               >
-                                {translate('text_6386589e4e82fa85eadcaa7a')}
-                              </Button>
+                                <Button
+                                  className="w-full"
+                                  variant="quaternary"
+                                  align="left"
+                                  disabled={disabledIssueCreditNoteButton}
+                                  onClick={async () => {
+                                    navigate(
+                                      generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
+                                        customerId: customerId as string,
+                                        invoiceId: invoiceId as string,
+                                      }),
+                                    )
+                                  }}
+                                >
+                                  {translate('text_6386589e4e82fa85eadcaa7a')}
+                                </Button>
+                              </Tooltip>
                             ) : (
                               <Button
                                 variant="quaternary"

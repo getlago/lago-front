@@ -52,6 +52,7 @@ import {
   CreditNoteRefundStatusEnum,
   CurrencyEnum,
   FeeTypesEnum,
+  InvoiceTypeEnum,
   NetsuiteIntegration,
   useDownloadCreditNoteMutation,
   useGetCreditNoteQuery,
@@ -112,6 +113,7 @@ gql`
       }
       invoice {
         id
+        invoiceType
         number
       }
       appliedTaxes {
@@ -309,6 +311,8 @@ const CreditNoteDetails = () => {
   const groupedData = formatCreditNotesItems(creditNote?.items as CreditNoteItem[])
 
   const customerName = creditNote?.customer?.displayName
+
+  const isPrepaidCreditsInvoice = data?.creditNote?.invoice?.invoiceType === InvoiceTypeEnum.Credit
 
   const retryTaxSync = async () => {
     if (!data?.creditNote?.id) return
@@ -658,11 +662,13 @@ const CreditNoteDetails = () => {
                               {invoiceDisplayName}
                             </Typography>
                           </th>
-                          <th>
-                            <Typography variant="captionHl" color="grey600">
-                              {translate('text_636bedf292786b19d3398f06')}
-                            </Typography>
-                          </th>
+                          {!isPrepaidCreditsInvoice && (
+                            <th>
+                              <Typography variant="captionHl" color="grey600">
+                                {translate('text_636bedf292786b19d3398f06')}
+                              </Typography>
+                            </th>
+                          )}
                           <th>
                             <Typography variant="captionHl" color="grey600">
                               {translate('text_637655cb50f04bf1c8379d12')}
@@ -677,43 +683,52 @@ const CreditNoteDetails = () => {
                               <React.Fragment key={`groupSubscriptionItem-${i}-list-item-${k}`}>
                                 <tr key={`groupSubscriptionItem-${i}-charge-${j}-item-${k}`}>
                                   <td>
-                                    <Typography variant="bodyHl" color="grey700">
-                                      {item?.fee?.feeType === FeeTypesEnum.AddOn
-                                        ? translate('text_6388baa2e514213fed583611', {
-                                            name: item.fee.invoiceName || item?.fee?.itemName,
-                                          })
-                                        : item?.fee?.feeType === FeeTypesEnum.Commitment
-                                          ? item.fee.invoiceName || 'Minimum commitment - True up'
-                                          : composeMultipleValuesWithSepator([
-                                              item.fee?.invoiceName ||
-                                                item?.fee?.charge?.billableMetric.name ||
-                                                invoiceDisplayName,
-                                              composeGroupedByDisplayName(item?.fee?.groupedBy),
-                                              composeChargeFilterDisplayName(item.fee.chargeFilter),
-                                              item?.fee?.trueUpParentFee?.id
-                                                ? ` - ${translate('text_64463aaa34904c00a23be4f7')}`
-                                                : '',
-                                            ])}
-                                    </Typography>
+                                    {isPrepaidCreditsInvoice ? (
+                                      <Typography variant="bodyHl" color="grey700">
+                                        {translate('text_1729262241097k3cnpci6p5j')}
+                                      </Typography>
+                                    ) : (
+                                      <Typography variant="bodyHl" color="grey700">
+                                        {item?.fee?.feeType === FeeTypesEnum.AddOn
+                                          ? translate('text_6388baa2e514213fed583611', {
+                                              name: item.fee.invoiceName || item?.fee?.itemName,
+                                            })
+                                          : item?.fee?.feeType === FeeTypesEnum.Commitment
+                                            ? item.fee.invoiceName || 'Minimum commitment - True up'
+                                            : composeMultipleValuesWithSepator([
+                                                item.fee?.invoiceName ||
+                                                  item?.fee?.charge?.billableMetric.name ||
+                                                  invoiceDisplayName,
+                                                composeGroupedByDisplayName(item?.fee?.groupedBy),
+                                                composeChargeFilterDisplayName(
+                                                  item.fee.chargeFilter,
+                                                ),
+                                                item?.fee?.trueUpParentFee?.id
+                                                  ? ` - ${translate('text_64463aaa34904c00a23be4f7')}`
+                                                  : '',
+                                              ])}
+                                      </Typography>
+                                    )}
                                   </td>
-                                  <td>
-                                    <Typography variant="body" color="grey700">
-                                      {item.fee.appliedTaxes?.length
-                                        ? item.fee.appliedTaxes?.map((appliedTaxe) => (
-                                            <Typography
-                                              key={`fee-${item.fee.id}-applied-taxe-${appliedTaxe.id}`}
-                                              variant="body"
-                                              color="grey700"
-                                            >
-                                              {intlFormatNumber(appliedTaxe.taxRate / 100 || 0, {
-                                                style: 'percent',
-                                              })}
-                                            </Typography>
-                                          ))
-                                        : '0%'}
-                                    </Typography>
-                                  </td>
-
+                                  {!isPrepaidCreditsInvoice && (
+                                    <td>
+                                      <Typography variant="body" color="grey700">
+                                        {item.fee.appliedTaxes?.length
+                                          ? item.fee.appliedTaxes?.map((appliedTaxe) => (
+                                              <Typography
+                                                key={`fee-${item.fee.id}-applied-taxe-${appliedTaxe.id}`}
+                                                variant="body"
+                                                color="grey700"
+                                              >
+                                                {intlFormatNumber(appliedTaxe.taxRate / 100 || 0, {
+                                                  style: 'percent',
+                                                })}
+                                              </Typography>
+                                            ))
+                                          : '0%'}
+                                      </Typography>
+                                    </td>
+                                  )}
                                   <td>
                                     <Typography variant="body" color="success600">
                                       -
@@ -766,29 +781,31 @@ const CreditNoteDetails = () => {
                         </td>
                       </tr>
                     )}
-                    <tr>
-                      <td></td>
-                      <td>
-                        <Typography variant="bodyHl" color="grey600">
-                          {translate('text_637655cb50f04bf1c8379d20')}
-                        </Typography>
-                      </td>
-                      <td>
-                        <Typography variant="body" color="success600">
-                          -
-                          {intlFormatNumber(
-                            deserializeAmount(
-                              creditNote?.subTotalExcludingTaxesAmountCents || 0,
-                              creditNote?.currency || CurrencyEnum.Usd,
-                            ),
-                            {
-                              currencyDisplay: 'symbol',
-                              currency: creditNote?.currency || CurrencyEnum.Usd,
-                            },
-                          )}
-                        </Typography>
-                      </td>
-                    </tr>
+                    {!isPrepaidCreditsInvoice && (
+                      <tr>
+                        <td></td>
+                        <td>
+                          <Typography variant="bodyHl" color="grey600">
+                            {translate('text_637655cb50f04bf1c8379d20')}
+                          </Typography>
+                        </td>
+                        <td>
+                          <Typography variant="body" color="success600">
+                            -
+                            {intlFormatNumber(
+                              deserializeAmount(
+                                creditNote?.subTotalExcludingTaxesAmountCents || 0,
+                                creditNote?.currency || CurrencyEnum.Usd,
+                              ),
+                              {
+                                currencyDisplay: 'symbol',
+                                currency: creditNote?.currency || CurrencyEnum.Usd,
+                              },
+                            )}
+                          </Typography>
+                        </td>
+                      </tr>
+                    )}
                     {!!creditNote?.appliedTaxes?.length ? (
                       <>
                         {creditNote?.appliedTaxes.map((appliedTax) => (
@@ -833,23 +850,27 @@ const CreditNoteDetails = () => {
                         ))}
                       </>
                     ) : (
-                      <tr>
-                        <td></td>
-                        <td>
-                          <Typography variant="bodyHl" color="grey600">
-                            {`${translate('text_637655cb50f04bf1c8379d24')} (0%)`}
-                          </Typography>
-                        </td>
-                        <td>
-                          <Typography variant="body" color="success600">
-                            -
-                            {intlFormatNumber(0, {
-                              currencyDisplay: 'symbol',
-                              currency: creditNote?.currency || CurrencyEnum.Usd,
-                            })}
-                          </Typography>
-                        </td>
-                      </tr>
+                      <>
+                        {!isPrepaidCreditsInvoice && (
+                          <tr>
+                            <td></td>
+                            <td>
+                              <Typography variant="bodyHl" color="grey600">
+                                {`${translate('text_637655cb50f04bf1c8379d24')} (0%)`}
+                              </Typography>
+                            </td>
+                            <td>
+                              <Typography variant="body" color="success600">
+                                -
+                                {intlFormatNumber(0, {
+                                  currencyDisplay: 'symbol',
+                                  currency: creditNote?.currency || CurrencyEnum.Usd,
+                                })}
+                              </Typography>
+                            </td>
+                          </tr>
+                        )}
+                      </>
                     )}
 
                     {Number(creditNote?.creditAmountCents || 0) > 0 && (

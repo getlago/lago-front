@@ -8,7 +8,7 @@ import {
   VoidCreditNoteDialog,
   VoidCreditNoteDialogRef,
 } from '~/components/customers/creditNotes/VoidCreditNoteDialog'
-import { Button, ButtonLink, Typography } from '~/components/designSystem'
+import { Button, ButtonLink, Tooltip, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE } from '~/core/router'
@@ -20,6 +20,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { createCreditNoteForInvoiceButtonProps } from '~/layouts/CustomerInvoiceDetails'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { NAV_HEIGHT, theme } from '~/styles'
 
@@ -31,6 +32,9 @@ gql`
 
     invoice(id: $invoiceId) {
       id
+      invoiceType
+      associatedActiveWalletPresent
+      paymentStatus
       refundableAmountCents
       creditableAmountCents
       status
@@ -57,6 +61,17 @@ const InvoiceCreditNoteList = () => {
   })
   const creditNotes = data?.invoiceCreditNotes?.collection
 
+  const invoice = data?.invoice
+
+  const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
+    createCreditNoteForInvoiceButtonProps({
+      invoiceType: invoice?.invoiceType,
+      paymentStatus: invoice?.paymentStatus,
+      creditableAmountCents: invoice?.creditableAmountCents,
+      refundableAmountCents: invoice?.refundableAmountCents,
+      associatedActiveWalletPresent: invoice?.associatedActiveWalletPresent,
+    })
+
   return (
     <div>
       {(!loading || !!creditNotes?.length) && (
@@ -67,20 +82,25 @@ const InvoiceCreditNoteList = () => {
               {data?.invoice?.status !== InvoiceStatusTypeEnum.Voided && (
                 <>
                   {isPremium ? (
-                    <ButtonLink
-                      type="button"
-                      disabled={
-                        data?.invoice?.creditableAmountCents === '0' &&
-                        data?.invoice?.refundableAmountCents === '0'
+                    <Tooltip
+                      title={
+                        disabledIssueCreditNoteButtonLabel &&
+                        translate(disabledIssueCreditNoteButtonLabel)
                       }
-                      buttonProps={{ variant: 'quaternary' }}
-                      to={generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
-                        customerId: customerId as string,
-                        invoiceId: invoiceId as string,
-                      })}
+                      placement="top-start"
                     >
-                      {translate('text_636bdef6565341dcb9cfb127')}
-                    </ButtonLink>
+                      <ButtonLink
+                        type="button"
+                        disabled={disabledIssueCreditNoteButton}
+                        buttonProps={{ variant: 'quaternary' }}
+                        to={generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
+                          customerId: customerId as string,
+                          invoiceId: invoiceId as string,
+                        })}
+                      >
+                        {translate('text_636bdef6565341dcb9cfb127')}
+                      </ButtonLink>
+                    </Tooltip>
                   ) : (
                     <Button
                       variant="quaternary"
