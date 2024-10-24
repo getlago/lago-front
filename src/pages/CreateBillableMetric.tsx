@@ -20,6 +20,7 @@ import {
   BasicMultipleComboBoxData,
   ButtonSelector,
   ComboBoxField,
+  JsonEditorField,
   MultipleComboBox,
   TextInputField,
 } from '~/components/form'
@@ -42,6 +43,7 @@ import {
 } from '~/styles/mainObjectsForm'
 
 const NOT_UNIQUE_KEY_ERROR = 'key_not_unique'
+const CUSTOM_EXPRESSION_DEFAULT_FIELD_NAME = 'result'
 
 gql`
   fragment EditBillableMetric on BillableMetric {
@@ -83,6 +85,12 @@ const CreateBillableMetric = () => {
       name: string().required(''),
       code: string().required(''),
       aggregationType: string().required(''),
+      expression: string().when('aggregationType', {
+        is: (aggregationType: AggregationTypeEnum) =>
+          !!aggregationType &&
+          ![AggregationTypeEnum.CountAgg, AggregationTypeEnum.CustomAgg].includes(aggregationType),
+        then: (schema) => schema.required(''),
+      }),
       fieldName: string().when('aggregationType', {
         is: (aggregationType: AggregationTypeEnum) =>
           !!aggregationType &&
@@ -136,6 +144,14 @@ const CreateBillableMetric = () => {
     !!formikProps.initialValues.description,
   )
 
+  const [aggregateOnTab, setAggregateOnTab] = useState<'field' | 'custom-expression'>('field')
+
+  const showAggregateOn =
+    !!formikProps.values?.aggregationType &&
+    ![AggregationTypeEnum.CountAgg, AggregationTypeEnum.CustomAgg].includes(
+      formikProps.values?.aggregationType,
+    )
+
   useEffect(() => {
     setShouldDisplayDescription(!!formikProps.initialValues.description)
   }, [formikProps.initialValues.description])
@@ -149,6 +165,15 @@ const CreateBillableMetric = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formikProps.values.aggregationType, formikProps.values.fieldName])
+
+  useEffect(() => {
+    formikProps.setFieldValue(
+      'fieldName',
+      aggregateOnTab === 'custom-expression' ? CUSTOM_EXPRESSION_DEFAULT_FIELD_NAME : undefined,
+    )
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aggregateOnTab])
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
@@ -453,18 +478,66 @@ const CreateBillableMetric = () => {
                         }
                       />
 
-                      {!!formikProps.values?.aggregationType &&
-                        ![AggregationTypeEnum.CountAgg, AggregationTypeEnum.CustomAgg].includes(
-                          formikProps.values?.aggregationType,
-                        ) && (
-                          <TextInputField
-                            name="fieldName"
+                      {showAggregateOn && (
+                        <div>
+                          <ButtonSelector
+                            className="mb-4"
                             disabled={isEdition && !canBeEdited}
-                            label={translate('text_62694d9181be8d00a33f20fe')}
-                            placeholder={translate('text_62694d9181be8d00a33f2105')}
-                            formikProps={formikProps}
+                            label={translate('text_1729771640162n696lisyg7u')}
+                            options={[
+                              {
+                                label: translate('text_1729771640162c43hsk6e4tg'),
+                                value: 'field',
+                              },
+                              {
+                                label: translate('text_1729771640162wd2k9x6mrvh'),
+                                value: 'custom-expression',
+                              },
+                            ]}
+                            value={aggregateOnTab}
+                            onChange={(value) =>
+                              setAggregateOnTab(value as 'field' | 'custom-expression')
+                            }
+                            data-test="aggregate-on-switch"
                           />
-                        )}
+
+                          {aggregateOnTab === 'field' && (
+                            <div>
+                              <TextInputField
+                                name="fieldName"
+                                disabled={isEdition && !canBeEdited}
+                                placeholder={translate('text_1729771640162l0f5uuitglm')}
+                                helperText={translate('text_172977164016216e9fgnuf1w')}
+                                formikProps={formikProps}
+                              />
+                            </div>
+                          )}
+
+                          {aggregateOnTab === 'custom-expression' && (
+                            <div>
+                              <JsonEditorField
+                                name="expression"
+                                disabled={isEdition && !canBeEdited}
+                                editorMode="text"
+                                label=""
+                                hideLabel={true}
+                                formikProps={formikProps}
+                                placeholder={translate('text_1729771640162kaf49b93e20') + '\n'}
+                                onExpand={() => {}}
+                              />
+
+                              <TextInputField
+                                name="fieldName"
+                                disabled={isEdition && !canBeEdited}
+                                className="mt-4"
+                                placeholder={translate('text_1729771640162l0f5uuitglm')}
+                                helperText={translate('text_1729771640162zvj44b3l84g')}
+                                formikProps={formikProps}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
 
                       {formikProps.values?.aggregationType ===
                         AggregationTypeEnum.WeightedSumAgg && (
