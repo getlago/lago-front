@@ -8,6 +8,10 @@ import { array, bool, object, string } from 'yup'
 
 import { BillableMetricCodeSnippet } from '~/components/billableMetrics/BillableMetricCodeSnippet'
 import {
+  CustomExpressionDrawer,
+  CustomExpressionDrawerRef,
+} from '~/components/billableMetrics/CustomExpressionDrawer'
+import {
   Accordion,
   Alert,
   Button,
@@ -68,6 +72,7 @@ const CreateBillableMetric = () => {
   let navigate = useNavigate()
   const { isEdition, loading, billableMetric, errorCode, onSave } = useCreateEditBillableMetric()
   const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
+  const customExpressionDrawerRef = useRef<CustomExpressionDrawerRef>(null)
   const canBeEdited = !billableMetric?.subscriptionsCount && !billableMetric?.plansCount
 
   const formikProps = useFormik<CreateBillableMetricInput>({
@@ -523,7 +528,9 @@ const CreateBillableMetric = () => {
                                 hideLabel={true}
                                 formikProps={formikProps}
                                 placeholder={translate('text_1729771640162kaf49b93e20') + '\n'}
-                                onExpand={() => {}}
+                                onExpand={() => {
+                                  customExpressionDrawerRef?.current?.openDrawer()
+                                }}
                               />
 
                               <TextInputField
@@ -747,6 +754,11 @@ const CreateBillableMetric = () => {
           <BillableMetricCodeSnippet loading={loading} billableMetric={formikProps.values} />
         </Side>
       </Content>
+
+      <CustomExpressionDrawer
+        ref={customExpressionDrawerRef}
+        onSave={(expression: string) => formikProps.setFieldValue('expression', expression)}
+      />
 
       <WarningDialog
         ref={warningDirtyAttributesDialogRef}
