@@ -34,6 +34,7 @@ export interface JsonEditorProps {
   readOnly?: boolean
   height?: string
   hideLabel?: boolean
+  editorMode?: 'text' | 'json'
   onBlur?: (props: unknown) => void
   onChange?: (value: string) => void
   onError?: (err: keyof typeof JSON_EDITOR_ERROR_ENUM) => void
@@ -54,6 +55,7 @@ export const JsonEditor = ({
   readOnly,
   height,
   hideLabel,
+  editorMode = 'json',
   onChange,
   onError,
   onBlur,
@@ -137,17 +139,19 @@ export const JsonEditor = ({
             editor.renderer.setPadding(4)
             editor.renderer.setScrollMargin(10, 10, 0, 0)
           }}
-          mode="json"
+          mode={editorMode}
           onChange={(code) => {
             setJsonQuery(code)
             onChange && onChange(code)
           }}
           onBlur={(event) => {
             if (!jsonQuery) return true
-            try {
-              JSON.parse(jsonQuery)
-            } catch (e) {
-              onError && onError(JSON_EDITOR_ERROR_ENUM.invalid)
+            if (editorMode === 'json') {
+              try {
+                JSON.parse(jsonQuery)
+              } catch (e) {
+                onError && onError(JSON_EDITOR_ERROR_ENUM.invalid)
+              }
             }
             setShowOverlay(true)
             onBlur && onBlur(event)

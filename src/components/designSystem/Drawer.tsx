@@ -20,6 +20,7 @@ import {
 
 interface DrawerProps extends Pick<MuiDrawerProps, 'anchor'> {
   className?: string
+  stickyBottomBarClassName?: string
   title: string | ReactNode
   opener?: ReactElement
   forceOpen?: boolean
@@ -49,6 +50,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
       title,
       fullContentHeight,
       withPadding = true,
+      stickyBottomBarClassName,
       onOpen,
       onClose,
     }: DrawerProps,
@@ -128,7 +130,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
           </Content>
 
           {!!stickyBottomBar && (
-            <StickyBottomBar>
+            <StickyBottomBar className={stickyBottomBarClassName}>
               {typeof stickyBottomBar === 'function'
                 ? stickyBottomBar({ closeDrawer: () => setIsOpen(false) })
                 : stickyBottomBar}
