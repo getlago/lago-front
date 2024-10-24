@@ -11,7 +11,6 @@ import {
 import { Button, Chip, Drawer, DrawerRef, Icon } from '~/components/designSystem'
 import { JsonEditorField } from '~/components/form/JsonEditor'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Divider } from '~/styles/mainObjectsForm'
 
 type CustomExpressionDrawerState = {
   expression?: string | null
@@ -174,39 +173,37 @@ export const CustomExpressionDrawer = forwardRef<
           {translate('text_1729771640162c0o1estqusi')}
         </Typography>
 
-        <JsonEditorField
-          name="expression"
-          disabled={!localData?.isEditable}
-          label={translate('text_17297736554164pkbpqi0ke8')}
-          editorMode="text"
-          customInvalidError={translate('text_1729864793151rrlucly2t6d')}
-          showHelperOnError={true}
-          formikProps={formikProps}
-          placeholder={translate('text_1729771640162kaf49b93e20') + '\n'}
-          helperText={
-            <div className="mt-1">
-              <Typography className="text-sm font-normal text-grey-600">
-                {translate('text_1729773655417n5w5fu02lbm')}
-              </Typography>
+        <div className="mb-12 pb-12 shadow-b">
+          <JsonEditorField
+            name="expression"
+            disabled={!localData?.isEditable}
+            label={translate('text_17297736554164pkbpqi0ke8')}
+            editorMode="text"
+            customInvalidError={translate('text_1729864793151rrlucly2t6d')}
+            showHelperOnError={true}
+            formikProps={formikProps}
+            placeholder={translate('text_1729771640162kaf49b93e20') + '\n'}
+            helperText={
+              <div className="mt-1">
+                <Typography className="text-sm font-normal text-grey-600">
+                  {translate('text_1729773655417n5w5fu02lbm')}
+                </Typography>
 
-              <div className="mt-1 flex flex-col items-start gap-1">
-                {CUSTOM_EXPRESSION_EXAMPLES.map((example, index) => (
-                  <Chip
-                    key={`ce-drawer-${index}`}
-                    className="!px-2 !py-0.5"
-                    size="small"
-                    variant="captionCode"
-                    color="grey600"
-                    label={example}
-                  />
-                ))}
+                <div className="mt-1 flex flex-col items-start gap-1">
+                  {CUSTOM_EXPRESSION_EXAMPLES.map((example, index) => (
+                    <Chip
+                      key={`ce-drawer-${index}`}
+                      className="!px-2 !py-0.5"
+                      size="small"
+                      variant="captionCode"
+                      color="grey600"
+                      label={example}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          }
-        />
-
-        <div className="my-12">
-          <Divider />
+            }
+          />
         </div>
 
         <div className="mb-6">
