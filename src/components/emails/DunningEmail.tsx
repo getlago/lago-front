@@ -12,7 +12,6 @@ import {
   ProviderTypeEnum,
 } from '~/generated/graphql'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
-import { Divider } from '~/styles/mainObjectsForm'
 import { tw } from '~/styles/utils'
 
 import { Button, Skeleton, Table, Typography } from '../designSystem'
@@ -91,7 +90,7 @@ export const DunningEmail: FC<DunningEmailProps> = ({
 
   return (
     <>
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-6 pb-8 shadow-b">
         <Typography className={paragraphStyle} color="textSecondary">
           {translate('text_66b378e748cda1004ff00db0', { customerName: customer?.displayName })}
         </Typography>
@@ -118,7 +117,7 @@ export const DunningEmail: FC<DunningEmailProps> = ({
           {translate('text_66b378e748cda1004ff00db5')}
         </Typography>
       </div>
-      <Divider />
+
       <div className="flex flex-col items-start gap-4">
         <div>
           <Typography className={captionStyle}>

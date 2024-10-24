@@ -117,7 +117,3 @@ export const SectionTitle = styled(Typography)`
     margin-bottom: ${theme.spacing(3)};
   }
 `
-
-// ------------------------------------------------------------
-
-export const Divider = () => <div className="h-px w-full shadow-b" />

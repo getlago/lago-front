@@ -29,7 +29,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { PageHeader } from '~/styles'
-import { Divider } from '~/styles/mainObjectsForm'
 
 gql`
   mutation CreateDunningCampaign($input: CreateDunningCampaignInput!) {
@@ -205,12 +204,11 @@ const CreateDunning = () => {
             </div>
             {[0, 1].map((_, index) => (
               <div key={`loading-${index}`}>
-                <div className="mb-12 flex flex-col gap-5">
+                <div className="flex flex-col gap-5 pb-12 shadow-b">
                   <Skeleton variant="text" width={160} />
                   <Skeleton variant="text" width={400} />
                   <Skeleton variant="text" width={296} />
                 </div>
-                <Divider />
               </div>
             ))}
           </div>
