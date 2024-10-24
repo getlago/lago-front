@@ -149,6 +149,18 @@ gql`
         documentLocale
       }
     }
+
+    dunningCampaigns(appliedToOrganization: true) {
+      collection {
+        id
+        name
+        code
+        appliedToOrganization
+        thresholds {
+          currency
+        }
+      }
+    }
   }
 
   ${EditCustomerVatRateFragmentDoc}
@@ -204,11 +216,12 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
     )
   }
 
+  const dunningCampaign =
+    customer?.appliedDunningCampaign ?? data?.dunningCampaigns.collection?.[0] ?? undefined
+
   const isDunningCampaignApplicable =
-    !customer?.excludeFromDunningCampaign &&
-    !!customer?.appliedDunningCampaign?.thresholds.some(
-      (threshold) => threshold.currency === customer.currency,
-    )
+    !!dunningCampaign &&
+    !!dunningCampaign?.thresholds.some((threshold) => threshold.currency === customer?.currency)
 
   return (
     <>
@@ -295,7 +308,13 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
               </SettingsListItem>
 
               {/* Dunnings campaign */}
-              <SettingsListItem className={tw(isDunningCampaignApplicable && 'shadow-inherit')}>
+              <SettingsListItem
+                className={tw(
+                  isDunningCampaignApplicable &&
+                    !customer?.excludeFromDunningCampaign &&
+                    'shadow-inherit',
+                )}
+              >
                 <SettingsListItemHeader
                   label={translate('text_1728584028187fg2ebhssz6r')}
                   sublabel={translate('text_1729541146351qyno3mh09gi')}
@@ -310,14 +329,14 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                   }
                 />
 
-                {!!(customer?.appliedDunningCampaign && !customer?.excludeFromDunningCampaign) ? (
+                {!!dunningCampaign && !customer?.excludeFromDunningCampaign ? (
                   isDunningCampaignApplicable ? (
                     <Table
                       name="customer-dunnings-settings"
                       containerSize={{ default: 0 }}
                       rowSize={72}
                       isLoading={loading}
-                      data={[customer.appliedDunningCampaign]}
+                      data={[dunningCampaign]}
                       columns={[
                         {
                           key: 'name',
@@ -339,15 +358,14 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                             </div>
                           ),
                         },
-                        ...(!!customer.appliedDunningCampaign.appliedToOrganization
+                        ...(!customer?.appliedDunningCampaign
                           ? [
                               {
                                 key: 'appliedToOrganization',
                                 title: translate('text_63ac86d797f728a87b2f9fa7'),
-                                content: ({ appliedToOrganization }) =>
-                                  appliedToOrganization && (
-                                    <Chip label={translate('text_1729542098338prhjz7s29kt')} />
-                                  ),
+                                content: () => (
+                                  <Chip label={translate('text_1729542098338prhjz7s29kt')} />
+                                ),
                               } as TableColumn<{
                                 appliedToOrganization: boolean
                               }>,
