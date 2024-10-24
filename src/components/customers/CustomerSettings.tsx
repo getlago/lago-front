@@ -148,10 +148,7 @@ gql`
         invoiceGracePeriod
         documentLocale
       }
-    }
-
-    dunningCampaigns(appliedToOrganization: true) {
-      collection {
+      appliedDunningCampaign {
         id
         name
         code
@@ -217,7 +214,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   }
 
   const dunningCampaign =
-    customer?.appliedDunningCampaign ?? data?.dunningCampaigns.collection?.[0] ?? undefined
+    customer?.appliedDunningCampaign ?? organization?.appliedDunningCampaign ?? undefined
 
   const isDunningCampaignApplicable =
     !!dunningCampaign &&
