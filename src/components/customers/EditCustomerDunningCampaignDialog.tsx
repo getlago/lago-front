@@ -20,9 +20,13 @@ gql`
     id
     externalId
     currency
+    appliedDunningCampaign {
+      id
+    }
+    excludeFromDunningCampaign
   }
 
-  query GetApplicableDunningCampaigns($currency: [CurrencyEnum!]) {
+  query getApplicableDunningCampaigns($currency: [CurrencyEnum!]) {
     dunningCampaigns(currency: $currency) {
       collection {
         id
@@ -81,8 +85,12 @@ export const EditCustomerDunningCampaignDialog = forwardRef<
     appliedDunningCampaignId: string
   }>({
     initialValues: {
-      behavior: '',
-      appliedDunningCampaignId: '',
+      behavior: customer.appliedDunningCampaign?.id
+        ? BehaviorType.NEW_CAMPAIGN
+        : customer.excludeFromDunningCampaign
+          ? BehaviorType.DEACTIVATE
+          : BehaviorType.FALLBACK,
+      appliedDunningCampaignId: customer.appliedDunningCampaign?.id ?? '',
     },
     validationSchema: object().shape({
       behavior: mixed().oneOf(Object.values(BehaviorType)).required(''),
@@ -101,6 +109,7 @@ export const EditCustomerDunningCampaignDialog = forwardRef<
         case BehaviorType.FALLBACK:
           formattedValues = {
             ...formattedValues,
+            appliedDunningCampaignId: null,
             excludeFromDunningCampaign: false,
           }
           break
@@ -120,14 +129,15 @@ export const EditCustomerDunningCampaignDialog = forwardRef<
 
       await editCustomerDunningCampaignBehavior({ variables: { input: formattedValues } })
     },
+    validateOnMount: true,
+    enableReinitialize: true,
   })
 
   return (
     <Dialog
       ref={ref}
       onOpen={async () => {
-        await formikProps.resetForm()
-        getDunningCampaigns()
+        await getDunningCampaigns()
       }}
       title={translate('text_1729543665906svxp253ug1g')}
       description={translate('text_1729543665907gw6pj8jsj3z')}
