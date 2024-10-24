@@ -9,7 +9,7 @@ import { Avatar, Button, Icon, Skeleton, Typography } from '~/components/designS
 import { CountryCodes } from '~/core/constants/countryCodes'
 import {
   buildAnrokCustomerUrl,
-  buildHubsportRecordUrl,
+  buildHubsportObjectUrl,
   buildNetsuiteCustomerUrl,
   buildXeroCustomerUrl,
 } from '~/core/constants/externalUrls'
@@ -584,9 +584,9 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                     <InlineLink
                       target="_blank"
                       rel="noopener noreferrer"
-                      to={buildHubsportRecordUrl({
+                      to={buildHubsportObjectUrl({
                         portalId: connectedHubspotIntegration.portalId,
-                        recordId: customer?.hubspotCustomer?.externalCustomerId,
+                        objectId: customer?.hubspotCustomer?.externalCustomerId,
                         targetedObject: customer?.hubspotCustomer.targetedObject,
                       })}
                     >

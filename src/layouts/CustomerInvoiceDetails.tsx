@@ -51,6 +51,8 @@ import {
   CurrencyEnum,
   CustomerMetadatasForInvoiceOverviewFragmentDoc,
   ErrorCodesEnum,
+  HubspotIntegration,
+  HubspotIntegrationInfosForInvoiceOverviewFragmentDoc,
   Invoice,
   InvoiceDetailsForInvoiceOverviewFragmentDoc,
   InvoiceForCreditNotesTableFragmentDoc,
@@ -73,6 +75,7 @@ import {
   useRefreshInvoiceMutation,
   useRetryInvoiceMutation,
   useRetryTaxProviderVoidingMutation,
+  useSyncCrmIntegrationInvoiceMutation,
   useSyncIntegrationInvoiceMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -101,6 +104,7 @@ gql`
     integrationSyncable
     externalIntegrationId
     taxProviderVoidable
+    integrationCrmSyncable
     errorDetails {
       errorCode
       errorDetails
@@ -115,6 +119,10 @@ gql`
         externalCustomerId
       }
       xeroCustomer {
+        id
+        integrationId
+      }
+      hubspotCustomer {
         id
         integrationId
       }
@@ -144,6 +152,12 @@ gql`
           id
           ...NetsuiteIntegrationInfosForInvoiceOverview
         }
+
+        ... on HubspotIntegration {
+          __typename
+          id
+          ...HubspotIntegrationInfosForInvoiceOverview
+        }
       }
     }
   }
@@ -164,6 +178,12 @@ gql`
 
   mutation syncIntegrationInvoice($input: SyncIntegrationInvoiceInput!) {
     syncIntegrationInvoice(input: $input) {
+      invoiceId
+    }
+  }
+
+  mutation syncCrmIntegrationInvoice($input: SyncCrmIntegrationInvoiceInput!) {
+    syncCrmIntegrationInvoice(input: $input) {
       invoiceId
     }
   }
@@ -191,6 +211,7 @@ gql`
   ${InvoiceMetadatasForInvoiceOverviewFragmentDoc}
   ${InvoiceMetadatasForMetadataDrawerFragmentDoc}
   ${NetsuiteIntegrationInfosForInvoiceOverviewFragmentDoc}
+  ${HubspotIntegrationInfosForInvoiceOverviewFragmentDoc}
 `
 
 export enum CustomerInvoiceDetailsTabsOptionsEnum {
@@ -313,6 +334,19 @@ const CustomerInvoiceDetails = () => {
       },
     })
 
+  const [syncCrmIntegrationInvoice, { loading: loadingSyncCrmIntegrationInvoice }] =
+    useSyncCrmIntegrationInvoiceMutation({
+      variables: { input: { invoiceId: invoiceId || '' } },
+      onCompleted({ syncCrmIntegrationInvoice: syncCrmIntegrationInvoiceResult }) {
+        if (syncCrmIntegrationInvoiceResult?.invoiceId) {
+          addToast({
+            severity: 'success',
+            translateKey: 'text_1729756690073w4jrdeesayy',
+          })
+        }
+      },
+    })
+
   const [downloadInvoice, { loading: loadingInvoiceDownload }] = useDownloadInvoiceMutation({
     onCompleted({ downloadInvoice: downloadInvoiceData }) {
       handleDownloadFile(downloadInvoiceData?.fileUrl)
@@ -328,16 +362,25 @@ const CustomerInvoiceDetails = () => {
     variables: { limit: 1000 },
     skip:
       !data?.invoice?.customer?.netsuiteCustomer?.integrationId &&
-      !data?.invoice?.customer?.xeroCustomer?.integrationId,
+      !data?.invoice?.customer?.xeroCustomer?.integrationId &&
+      !data?.invoice?.customer?.hubspotCustomer?.integrationId,
   })
 
   const allNetsuiteIntegrations = integrationsData?.integrations?.collection.filter(
     (i) => i.__typename === 'NetsuiteIntegration',
   ) as NetsuiteIntegration[] | undefined
 
+  const allHubsportIntegrations = integrationsData?.integrations?.collection.filter(
+    (i) => i.__typename === 'HubspotIntegration',
+  ) as HubspotIntegration[] | undefined
+
   const connectedNetsuiteIntegration = allNetsuiteIntegrations?.find(
     (integration) => integration?.id === data?.invoice?.customer?.netsuiteCustomer?.integrationId,
   ) as NetsuiteIntegration
+
+  const connectedHubspotIntegration = allHubsportIntegrations?.find(
+    (integration) => integration?.id === data?.invoice?.customer?.hubspotCustomer?.integrationId,
+  ) as HubspotIntegration
 
   const {
     invoiceType,
@@ -409,7 +452,10 @@ const CustomerInvoiceDetails = () => {
             retryInvoice={retryInvoice}
             retryTaxProviderVoiding={retryTaxProviderVoiding}
             connectedNetsuiteIntegration={connectedNetsuiteIntegration}
+            connectedHubspotIntegration={connectedHubspotIntegration}
             goToPreviousRoute={goToPreviousRoute}
+            syncCrmIntegrationInvoice={syncCrmIntegrationInvoice}
+            loadingSyncCrmIntegrationInvoice={loadingSyncCrmIntegrationInvoice}
           />
         ),
       },
@@ -439,14 +485,13 @@ const CustomerInvoiceDetails = () => {
 
     return tabs
   }, [
-    connectedNetsuiteIntegration,
+    translate,
     customerId,
-    data?.invoice,
+    invoiceId,
     downloadInvoice,
     hasError,
     hasTaxProviderError,
-    invoiceId,
-    invoiceType,
+    data?.invoice,
     loading,
     loadingInvoiceDownload,
     loadingRefreshInvoice,
@@ -455,9 +500,13 @@ const CustomerInvoiceDetails = () => {
     refreshInvoice,
     retryInvoice,
     retryTaxProviderVoiding,
-    status,
-    translate,
+    connectedNetsuiteIntegration,
+    connectedHubspotIntegration,
     goToPreviousRoute,
+    syncCrmIntegrationInvoice,
+    loadingSyncCrmIntegrationInvoice,
+    invoiceType,
+    status,
   ])
 
   return (
@@ -632,6 +681,19 @@ const CustomerInvoiceDetails = () => {
                           ? 'text_6650b36fc702a4014c8788fd'
                           : 'text_6690ef918777230093114d90',
                       )}
+                    </Button>
+                  )}
+                  {!!data?.invoice?.integrationCrmSyncable && (
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      disabled={loadingSyncCrmIntegrationInvoice}
+                      onClick={async () => {
+                        await syncCrmIntegrationInvoice()
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_1729611609136sul07rowhfi')}
                     </Button>
                   )}
                   {status === InvoiceStatusTypeEnum.Finalized &&

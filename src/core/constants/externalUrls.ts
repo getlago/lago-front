@@ -64,13 +64,13 @@ export const buildXeroInvoiceUrl = (xeroInvoiceId?: string | null) => {
 export const buildXeroCreditNoteUrl = (xeroCreditNoteId?: string | null) => {
   return `https://go.xero.com/AccountsReceivable/ViewCreditNote.aspx?creditNoteID=${xeroCreditNoteId}`
 }
-export const buildHubsportRecordUrl = ({
+export const buildHubsportObjectUrl = ({
   portalId,
-  recordId,
+  objectId,
   targetedObject,
 }: {
   portalId: string
-  recordId: string
+  objectId: string
   targetedObject: HubspotTargetedObjectsEnum
 }) => {
   const targetedObjectMap = {
@@ -78,5 +78,17 @@ export const buildHubsportRecordUrl = ({
     [HubspotTargetedObjectsEnum.Companies]: '0-2',
   }
 
-  return `https://app.hubspot.com/contacts/${portalId}/record/${targetedObjectMap[targetedObject]}/${recordId}`
+  return `https://app.hubspot.com/contacts/${portalId}/record/${targetedObjectMap[targetedObject]}/${objectId}`
+}
+
+export const buildHubsportInvoiceUrl = ({
+  portalId,
+  resourceId,
+  externalCrmIntegrationId,
+}: {
+  portalId?: string | null
+  resourceId?: string | null
+  externalCrmIntegrationId?: string | null
+}) => {
+  return `https://app.hubspot.com/contacts/${portalId}/record/${resourceId}/${externalCrmIntegrationId}`
 }
