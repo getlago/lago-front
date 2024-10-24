@@ -1,6 +1,8 @@
 import { Tooltip as MuiTooltip, TooltipProps as MuiTooltipProps } from '@mui/material'
 import { forwardRef, ReactNode, useState } from 'react'
 
+import { tw } from '~/styles/utils'
+
 interface TooltipProps
   extends Pick<
     MuiTooltipProps,
@@ -11,23 +13,25 @@ interface TooltipProps
   maxWidth?: string
 }
 
-export const Tooltip = forwardRef(
-  (
-    { children, disableHoverListener, className, maxWidth = '320px', ...props }: TooltipProps,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ref: any,
-  ) => {
+export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
+  ({ children, disableHoverListener, className, maxWidth = '320px', ...props }, ref) => {
     const [isOpen, setIsOpen] = useState(false)
 
     return (
       <div
-        className={className}
+        className={tw(className)}
         ref={ref}
         onMouseEnter={() => !disableHoverListener && setIsOpen(true)}
         onMouseLeave={() => setIsOpen(false)}
       >
         <MuiTooltip
-          componentsProps={{ tooltip: { style: { maxWidth: maxWidth } } }}
+          componentsProps={{
+            tooltip: {
+              style: {
+                maxWidth: maxWidth,
+              },
+            },
+          }}
           open={isOpen}
           enterDelay={400}
           leaveDelay={0}
