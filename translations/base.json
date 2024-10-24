@@ -2547,7 +2547,6 @@
   "text_1728584028187l2wdjy4s5cs": "Payments will be attempted based on the settings below. If a payment fails, customers will receive an email reminder.",
   "text_1728584028187al65i47z3qn": "Delay between attempts",
   "text_17285840281879mpfdrz2mmi": "End the flow after",
-  "text_17285840281874du2dlbui5u": "Dunning campaign will end after {{attempts}} attempts.",
   "text_172858402818763zwy2u9e3t": "attempts",
   "text_1728584028187cpxux50bk4n": "Set as default campaign for your organization",
   "text_1728584028187qei3xba4i02": "Only one campaign can be applied to an organization. For more flexibility, override it at the customer level.",
