@@ -10,41 +10,39 @@ import { object, string } from 'yup'
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
-import { ADYEN_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
+import { CASHFREE_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
-  AddAdyenPaymentProviderInput,
-  AddAdyenProviderDialogFragment,
-  AdyenIntegrationDetailsFragmentDoc,
+  AddCashfreePaymentProviderInput,
+  AddCashfreeProviderDialogFragment,
+  CashfreeIntegrationDetailsFragmentDoc,
   LagoApiError,
-  useAddAdyenApiKeyMutation,
-  useGetProviderByCodeForAdyenLazyQuery,
-  useUpdateAdyenApiKeyMutation,
+  useAddCashfreeApiKeyMutation,
+  useGetProviderByCodeForCashfreeLazyQuery,
+  useUpdateCashfreeApiKeyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
-import { DeleteAdyenIntegrationDialogRef } from './DeleteAdyenIntegrationDialog'
+import { DeleteCashfreeIntegrationDialogRef } from './DeleteCashfreeIntegrationDialog'
 
 gql`
-  fragment AddAdyenProviderDialog on AdyenProvider {
+  fragment AddCashfreeProviderDialog on CashfreeProvider {
     id
     name
     code
-    apiKey
-    hmacKey
-    livePrefix
-    merchantAccount
+    clientId
+    clientSecret
   }
 
-  query getProviderByCodeForAdyen($code: String) {
+  query getProviderByCodeForCashfree($code: String) {
     paymentProvider(code: $code) {
-      ... on AdyenProvider {
+      ... on CashfreeProvider {
         id
       }
       ... on GocardlessProvider {
         id
       }
-      ... on CashfreeProvider {
+      ... on AdyenProvider {
         id
       }
       ... on StripeProvider {
@@ -53,95 +51,96 @@ gql`
     }
   }
 
-  mutation addAdyenApiKey($input: AddAdyenPaymentProviderInput!) {
-    addAdyenPaymentProvider(input: $input) {
+  mutation addCashfreeApiKey($input: AddCashfreePaymentProviderInput!) {
+    addCashfreePaymentProvider(input: $input) {
       id
-
-      ...AddAdyenProviderDialog
-      ...AdyenIntegrationDetails
+      ...AddCashfreeProviderDialog
+      ...CashfreeIntegrationDetails
     }
   }
 
-  mutation updateAdyenApiKey($input: UpdateAdyenPaymentProviderInput!) {
-    updateAdyenPaymentProvider(input: $input) {
+  mutation updateCashfreeApiKey($input: UpdateCashfreePaymentProviderInput!) {
+    updateCashfreePaymentProvider(input: $input) {
       id
-
-      ...AddAdyenProviderDialog
-      ...AdyenIntegrationDetails
+      ...AddCashfreeProviderDialog
+      ...CashfreeIntegrationDetails
     }
   }
 
-  ${AdyenIntegrationDetailsFragmentDoc}
+  ${CashfreeIntegrationDetailsFragmentDoc}
 `
 
-type TAddAdyenDialogProps = Partial<{
-  deleteModalRef: RefObject<DeleteAdyenIntegrationDialogRef>
-  provider: AddAdyenProviderDialogFragment
+type TAddCashfreeDialogProps = Partial<{
+  deleteModalRef: RefObject<DeleteCashfreeIntegrationDialogRef>
+  provider: AddCashfreeProviderDialogFragment
   deleteDialogCallback: Function
 }>
 
-export interface AddAdyenDialogRef {
-  openDialog: (props?: TAddAdyenDialogProps) => unknown
+export interface AddCashfreeDialogRef {
+  openDialog: (props?: TAddCashfreeDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
-  const { translate } = useInternationalization()
+export const AddCashfreeDialog = forwardRef<AddCashfreeDialogRef>((_, ref) => {
   const navigate = useNavigate()
   const dialogRef = useRef<DialogRef>(null)
-  const [localData, setLocalData] = useState<TAddAdyenDialogProps | undefined>(undefined)
-  const adyenProvider = localData?.provider
-  const isEdition = !!adyenProvider
 
-  const [addApiKey] = useAddAdyenApiKeyMutation({
-    onCompleted({ addAdyenPaymentProvider }) {
-      if (addAdyenPaymentProvider?.id) {
+  const { translate } = useInternationalization()
+  const [localData, setLocalData] = useState<TAddCashfreeDialogProps | undefined>(undefined)
+  const cashfreeProvider = localData?.provider
+  const isEdition = !!cashfreeProvider
+
+  const [addApiKey] = useAddCashfreeApiKeyMutation({
+    onCompleted({ addCashfreePaymentProvider }) {
+      if (addCashfreePaymentProvider?.id) {
         navigate(
-          generatePath(ADYEN_INTEGRATION_DETAILS_ROUTE, {
-            integrationId: addAdyenPaymentProvider.id,
+          generatePath(CASHFREE_INTEGRATION_DETAILS_ROUTE, {
+            integrationId: addCashfreePaymentProvider.id,
           }),
         )
 
         addToast({
-          message: translate('text_645d071272418a14c1c76a93'),
+          message: translate('text_17276219350329d36mgsotee'),
           severity: 'success',
         })
       }
     },
   })
 
-  const [updateApiKey] = useUpdateAdyenApiKeyMutation({
-    onCompleted({ updateAdyenPaymentProvider }) {
-      if (updateAdyenPaymentProvider?.id) {
+  const [updateApiKey] = useUpdateCashfreeApiKeyMutation({
+    onCompleted({ updateCashfreePaymentProvider }) {
+      if (updateCashfreePaymentProvider?.id) {
+        navigate(
+          generatePath(CASHFREE_INTEGRATION_DETAILS_ROUTE, {
+            integrationId: updateCashfreePaymentProvider.id,
+          }),
+        )
+
         addToast({
-          message: translate('text_645d071272418a14c1c76a3e'),
+          message: translate('text_1727621947600tg14usmdbb0'),
           severity: 'success',
         })
       }
     },
   })
 
-  const [getAdyenProviderByCode] = useGetProviderByCodeForAdyenLazyQuery()
+  const [getCashfreeProviderByCode] = useGetProviderByCodeForCashfreeLazyQuery()
 
-  const formikProps = useFormik<AddAdyenPaymentProviderInput>({
+  const formikProps = useFormik<AddCashfreePaymentProviderInput>({
     initialValues: {
-      name: adyenProvider?.name || '',
-      code: adyenProvider?.code || '',
-      apiKey: adyenProvider?.apiKey || '',
-      hmacKey: adyenProvider?.hmacKey || undefined,
-      livePrefix: adyenProvider?.livePrefix || undefined,
-      merchantAccount: adyenProvider?.merchantAccount || '',
+      code: cashfreeProvider?.code || '',
+      name: cashfreeProvider?.name || '',
+      clientId: cashfreeProvider?.clientId || '',
+      clientSecret: cashfreeProvider?.clientSecret || '',
     },
     validationSchema: object().shape({
       name: string(),
       code: string().required(''),
-      apiKey: string().required(''),
-      hmacKey: string(),
-      livePrefix: string(),
-      merchantAccount: string().required(''),
+      clientId: string().required(''),
+      clientSecret: string().required(''),
     }),
-    onSubmit: async ({ apiKey, merchantAccount, hmacKey, livePrefix, ...values }, formikBag) => {
-      const res = await getAdyenProviderByCode({
+    onSubmit: async ({ clientId, clientSecret, ...values }, formikBag) => {
+      const res = await getCashfreeProviderByCode({
         context: { silentErrorCodes: [LagoApiError.NotFound] },
         variables: {
           code: values.code,
@@ -151,7 +150,7 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
         (!!res.data?.paymentProvider?.id && !isEdition) ||
         (isEdition &&
           !!res.data?.paymentProvider?.id &&
-          res.data?.paymentProvider?.id !== adyenProvider?.id)
+          res.data?.paymentProvider?.id !== cashfreeProvider?.id)
 
       if (isNotAllowedToMutate) {
         formikBag.setFieldError('code', translate('text_632a2d437e341dcc76817556'))
@@ -162,19 +161,18 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
         await updateApiKey({
           variables: {
             input: {
+              id: cashfreeProvider?.id || '',
               ...values,
-              id: adyenProvider?.id || '',
             },
           },
         })
       } else {
         await addApiKey({
           variables: {
-            input: { ...values, apiKey, merchantAccount, hmacKey, livePrefix },
+            input: { clientId, clientSecret, ...values },
           },
         })
       }
-
       dialogRef.current?.closeDialog()
     },
     validateOnMount: true,
@@ -193,15 +191,17 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
     <Dialog
       ref={dialogRef}
       title={translate(
-        isEdition ? 'text_658461066530343fe1808cd9' : 'text_658466afe6140b469140e1fa',
+        isEdition ? 'text_658461066530343fe1808cd9' : 'text_172450747075633492aqpbm2',
         {
-          name: adyenProvider?.name,
+          name: cashfreeProvider?.name,
         },
       )}
       description={translate(
-        isEdition ? 'text_65846a0ed9fdbd46c4afc42d' : 'text_658466afe6140b469140e1fc',
+        isEdition ? 'text_1724507963056bu20ky8z98g' : 'text_17245079170372xxmw737fhf',
       )}
-      onClose={formikProps.resetForm}
+      onClose={() => {
+        formikProps.resetForm()
+      }}
       actions={({ closeDialog }) => (
         <Stack
           direction="row"
@@ -217,8 +217,8 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
               onClick={() => {
                 closeDialog()
                 localData?.deleteModalRef?.current?.openDialog({
-                  provider: adyenProvider,
-                  callback: localData.deleteDialogCallback,
+                  provider: cashfreeProvider,
+                  callback: localData?.deleteDialogCallback,
                 })
               }}
             >
@@ -227,7 +227,7 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
           )}
           <Stack direction="row" spacing={3} alignItems="center">
             <Button variant="quaternary" onClick={closeDialog}>
-              {translate('text_63eba8c65a6c8043feee2a14')}
+              {translate('text_62b1edddbf5f461ab971276d')}
             </Button>
             <Button
               variant="primary"
@@ -235,7 +235,7 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
               onClick={formikProps.submitForm}
             >
               {translate(
-                isEdition ? 'text_645d071272418a14c1c76a67' : 'text_645d071272418a14c1c76ad8',
+                isEdition ? 'text_65845f35d7d69c3ab4793dac' : 'text_172450747075633492aqpbm2',
               )}
             </Button>
           </Stack>
@@ -259,39 +259,22 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
             placeholder={translate('text_6584550dc4cec7adf8615053')}
           />
         </InlineInputs>
-
-        <TextInputField
-          name="apiKey"
-          disabled={isEdition}
-          label={translate('text_645d071272418a14c1c76a77')}
-          placeholder={translate('text_645d071272418a14c1c76a83')}
-          formikProps={formikProps}
-        />
-        <TextInputField
-          name="merchantAccount"
-          disabled={isEdition}
-          label={translate('text_645d071272418a14c1c76a8f')}
-          placeholder={translate('text_645d071272418a14c1c76a9c')}
-          formikProps={formikProps}
-        />
-        {(!isEdition || !!adyenProvider.livePrefix) && (
+        <InlineInputs>
           <TextInputField
-            name="livePrefix"
-            disabled={isEdition}
-            label={translate('text_645d071272418a14c1c76aa6')}
-            placeholder={translate('text_645d071272418a14c1c76ab0')}
             formikProps={formikProps}
+            disabled={isEdition}
+            name="clientId"
+            label={translate('text_1727620558031ftsky1vpr55')}
+            placeholder={translate('text_1727624537843s2ublm4rsyj')}
           />
-        )}
-        {(!isEdition || !!adyenProvider.hmacKey) && (
           <TextInputField
-            name="hmacKey"
-            disabled={isEdition}
-            label={translate('text_645d071272418a14c1c76aba')}
-            placeholder={translate('text_645d071272418a14c1c76ac4')}
             formikProps={formikProps}
+            disabled={isEdition}
+            name="clientSecret"
+            label={translate('text_1727620574228qfyoqtsdih7')}
+            placeholder={translate('text_17276245391922l9540z7f78')}
           />
-        )}
+        </InlineInputs>
       </Content>
     </Dialog>
   )
@@ -316,4 +299,4 @@ const InlineInputs = styled.div`
   }
 `
 
-AddAdyenDialog.displayName = 'AddAdyenDialog'
+AddCashfreeDialog.displayName = 'AddCashfreeDialog'

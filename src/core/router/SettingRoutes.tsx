@@ -74,6 +74,16 @@ const StripeIntegrationDetails = lazyLoad(
       /* webpackChunkName: 'stripe-integration-details' */ '~/pages/settings/StripeIntegrationDetails'
     ),
 )
+const CashfreeIntegrations = lazyLoad(
+  () =>
+    import(/* webpackChunkName: 'cashfree-integrations' */ '~/pages/settings/CashfreeIntegrations'),
+)
+const CashfreeIntegrationDetails = lazyLoad(
+  () =>
+    import(
+      /* webpackChunkName: 'cashfree-integration-details' */ '~/pages/settings/CashfreeIntegrationDetails'
+    ),
+)
 const GocardlessIntegrationOauthCallback = lazyLoad(
   () =>
     import(
@@ -139,6 +149,8 @@ export const NETSUITE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/netsuite`
 export const NETSUITE_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/netsuite/:integrationId/:tab`
 export const STRIPE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/stripe`
 export const STRIPE_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/stripe/:integrationId`
+export const CASHFREE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/cashfree`
+export const CASHFREE_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/cashfree/:integrationId`
 export const GOCARDLESS_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/gocardless`
 export const GOCARDLESS_INTEGRATION_OAUTH_CALLBACK_ROUTE = `${INTEGRATIONS_ROUTE}/gocardless/callback`
 export const GOCARDLESS_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/gocardless/:integrationId`
@@ -268,6 +280,18 @@ export const settingRoutes: CustomRouteObject[] = [
         path: GOCARDLESS_INTEGRATION_OAUTH_CALLBACK_ROUTE,
         private: true,
         element: <GocardlessIntegrationOauthCallback />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: CASHFREE_INTEGRATION_ROUTE,
+        private: true,
+        element: <CashfreeIntegrations />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: CASHFREE_INTEGRATION_DETAILS_ROUTE,
+        private: true,
+        element: <CashfreeIntegrationDetails />,
         permissions: ['organizationIntegrationsView'],
       },
       {
