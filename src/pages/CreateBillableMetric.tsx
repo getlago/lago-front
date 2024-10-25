@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
+import _omit from 'lodash/omit'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
@@ -47,13 +48,13 @@ import {
 } from '~/styles/mainObjectsForm'
 
 const NOT_UNIQUE_KEY_ERROR = 'key_not_unique'
-const CUSTOM_EXPRESSION_DEFAULT_FIELD_NAME = 'result'
 
 gql`
   fragment EditBillableMetric on BillableMetric {
     id
     name
     code
+    expression
     description
     aggregationType
     fieldName
@@ -67,33 +68,46 @@ gql`
   }
 `
 
+enum AggregateOnTab {
+  UniqueField,
+  CustomExpression,
+}
+
 const CreateBillableMetric = () => {
   const { translate } = useInternationalization()
   let navigate = useNavigate()
   const { isEdition, loading, billableMetric, errorCode, onSave } = useCreateEditBillableMetric()
+
   const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
   const customExpressionDrawerRef = useRef<CustomExpressionDrawerRef>(null)
   const canBeEdited = !billableMetric?.subscriptionsCount && !billableMetric?.plansCount
 
-  const formikProps = useFormik<CreateBillableMetricInput>({
+  const formikProps = useFormik<
+    CreateBillableMetricInput & {
+      aggregateOnTab: AggregateOnTab
+      fieldNameCustomExpression: string
+    }
+  >({
     initialValues: {
       name: billableMetric?.name || '',
       code: billableMetric?.code || '',
       description: billableMetric?.description || '',
+      expression: billableMetric?.expression || '',
       // @ts-ignore
       aggregationType: billableMetric?.aggregationType || '',
       fieldName: billableMetric?.fieldName || undefined,
       recurring: billableMetric?.recurring || false,
       filters: billableMetric?.filters || [],
+      aggregateOnTab: billableMetric?.expression
+        ? AggregateOnTab.CustomExpression
+        : AggregateOnTab.UniqueField,
     },
     validationSchema: object().shape({
       name: string().required(''),
       code: string().required(''),
       aggregationType: string().required(''),
-      expression: string().when('aggregationType', {
-        is: (aggregationType: AggregationTypeEnum) =>
-          !!aggregationType &&
-          ![AggregationTypeEnum.CountAgg, AggregationTypeEnum.CustomAgg].includes(aggregationType),
+      expression: string().when('aggregateOnTab', {
+        is: (aggregateOnTab: AggregateOnTab) => aggregateOnTab === AggregateOnTab.CustomExpression,
         then: (schema) => schema.required(''),
       }),
       fieldName: string().when('aggregationType', {
@@ -142,14 +156,18 @@ const CreateBillableMetric = () => {
     }),
     enableReinitialize: true,
     validateOnMount: true,
-    onSubmit: onSave,
+    onSubmit: (values) => {
+      if (values.aggregateOnTab === AggregateOnTab.CustomExpression) {
+        return onSave(_omit(values, ['aggregateOnTab']))
+      }
+
+      return onSave(_omit(values, ['aggregateOnTab', 'expression']))
+    },
   })
 
   const [shouldDisplayDescription, setShouldDisplayDescription] = useState<boolean>(
     !!formikProps.initialValues.description,
   )
-
-  const [aggregateOnTab, setAggregateOnTab] = useState<'field' | 'custom-expression'>('field')
 
   const showAggregateOn =
     !!formikProps.values?.aggregationType &&
@@ -170,15 +188,6 @@ const CreateBillableMetric = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formikProps.values.aggregationType, formikProps.values.fieldName])
-
-  useEffect(() => {
-    formikProps.setFieldValue(
-      'fieldName',
-      aggregateOnTab === 'custom-expression' ? CUSTOM_EXPRESSION_DEFAULT_FIELD_NAME : undefined,
-    )
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [aggregateOnTab])
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
@@ -492,21 +501,22 @@ const CreateBillableMetric = () => {
                             options={[
                               {
                                 label: translate('text_1729771640162c43hsk6e4tg'),
-                                value: 'field',
+                                value: AggregateOnTab.UniqueField,
                               },
                               {
                                 label: translate('text_1729771640162wd2k9x6mrvh'),
-                                value: 'custom-expression',
+                                value: AggregateOnTab.CustomExpression,
                               },
                             ]}
-                            value={aggregateOnTab}
-                            onChange={(value) =>
-                              setAggregateOnTab(value as 'field' | 'custom-expression')
-                            }
+                            value={formikProps.values.aggregateOnTab}
+                            onChange={(value) => {
+                              formikProps.setFieldValue('aggregateOnTab', value)
+                              formikProps.setFieldValue('fieldName', '')
+                            }}
                             data-test="aggregate-on-switch"
                           />
 
-                          {aggregateOnTab === 'field' && (
+                          {formikProps.values.aggregateOnTab === AggregateOnTab.UniqueField && (
                             <div>
                               <TextInputField
                                 name="fieldName"
@@ -518,7 +528,8 @@ const CreateBillableMetric = () => {
                             </div>
                           )}
 
-                          {aggregateOnTab === 'custom-expression' && (
+                          {formikProps.values.aggregateOnTab ===
+                            AggregateOnTab.CustomExpression && (
                             <div>
                               <JsonEditorField
                                 name="expression"
@@ -529,7 +540,11 @@ const CreateBillableMetric = () => {
                                 formikProps={formikProps}
                                 placeholder={translate('text_1729771640162kaf49b93e20') + '\n'}
                                 onExpand={() => {
-                                  customExpressionDrawerRef?.current?.openDrawer()
+                                  customExpressionDrawerRef?.current?.openDrawer({
+                                    expression: formikProps.values.expression,
+                                    billableMetricCode: formikProps.values.code,
+                                    isEditable: canBeEdited,
+                                  })
                                 }}
                               />
 
