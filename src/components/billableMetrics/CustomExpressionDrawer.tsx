@@ -8,8 +8,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Divider } from '~/styles/mainObjectsForm'
 
 type CustomExpressionDrawerState = {
-  expression?: string
-  billableMetricCode?: string
+  expression?: string | null
+  billableMetricCode?: string | null
   isEditable?: boolean
 }
 
@@ -52,6 +52,8 @@ const validateExpression = async (expression: string): Promise<ValidationResult>
   }
 }
 
+const TIMESTAMP = new Date().getTime()
+
 export const CustomExpressionDrawer = forwardRef<
   CustomExpressionDrawerRef,
   CustomExpressionDrawerProps
@@ -59,10 +61,14 @@ export const CustomExpressionDrawer = forwardRef<
   const { translate } = useInternationalization()
 
   const drawerRef = useRef<DrawerRef>(null)
-
   const [localData, setLocalData] = useState<CustomExpressionDrawerState>()
-
   const [validationResult, setValidationResult] = useState<ValidationResult>()
+
+  const closeDrawer = () => {
+    formikProps.resetForm()
+    setValidationResult({})
+    drawerRef.current?.closeDrawer()
+  }
 
   const formikProps = useFormik<CustomExpressionInput>({
     initialValues: {
@@ -72,7 +78,7 @@ export const CustomExpressionDrawer = forwardRef<
           transaction_id: 'trx_id_123456789',
           external_subscription_id: 'sub_id_123456789',
           code: localData?.billableMetricCode || '__BILLABLE_METRIC_CODE__',
-          timestamp: new Date().getTime(),
+          timestamp: TIMESTAMP,
           properties: {},
         },
       },
@@ -83,7 +89,7 @@ export const CustomExpressionDrawer = forwardRef<
       if (values?.expression) {
         onSave(values.expression)
 
-        drawerRef?.current?.closeDrawer()
+        closeDrawer()
       }
     },
   })
@@ -107,7 +113,7 @@ export const CustomExpressionDrawer = forwardRef<
       className="px-12 pt-12"
       ref={drawerRef}
       title={translate('text_1729771640162lug0w6ztlyr')}
-      onClose={() => {}}
+      onClose={closeDrawer}
       stickyBottomBarClassName="z-10"
       stickyBottomBar={() => {
         return (
