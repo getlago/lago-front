@@ -236,6 +236,7 @@ export type BillableMetric = {
   deletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   draftInvoicesCount: Scalars['Int']['output'];
+  expression?: Maybe<Scalars['String']['output']>;
   fieldName?: Maybe<Scalars['String']['output']>;
   filters?: Maybe<Array<BillableMetricFilter>>;
   id: Scalars['ID']['output'];
@@ -1048,6 +1049,7 @@ export type CreateBillableMetricInput = {
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code: Scalars['String']['input'];
   description: Scalars['String']['input'];
+  expression?: InputMaybe<Scalars['String']['input']>;
   fieldName?: InputMaybe<Scalars['String']['input']>;
   filters?: InputMaybe<Array<BillableMetricFiltersInput>>;
   name: Scalars['String']['input'];
@@ -5387,6 +5389,7 @@ export type UpdateBillableMetricInput = {
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code: Scalars['String']['input'];
   description: Scalars['String']['input'];
+  expression?: InputMaybe<Scalars['String']['input']>;
   fieldName?: InputMaybe<Scalars['String']['input']>;
   filters?: InputMaybe<Array<BillableMetricFiltersInput>>;
   id: Scalars['String']['input'];
@@ -7656,7 +7659,7 @@ export type GetSingleBillableMetricQueryVariables = Exact<{
 }>;
 
 
-export type GetSingleBillableMetricQuery = { __typename?: 'Query', billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, subscriptionsCount: number, plansCount: number, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', key: string, values: Array<string> }> | null } | null };
+export type GetSingleBillableMetricQuery = { __typename?: 'Query', billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, expression?: string | null, description?: string | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, subscriptionsCount: number, plansCount: number, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', key: string, values: Array<string> }> | null } | null };
 
 export type CreateBillableMetricMutationVariables = Exact<{
   input: CreateBillableMetricInput;
@@ -7885,7 +7888,7 @@ export type GetTaxesForAddOnFormQueryVariables = Exact<{
 
 export type GetTaxesForAddOnFormQuery = { __typename?: 'Query', taxes: { __typename?: 'TaxCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> } };
 
-export type EditBillableMetricFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, subscriptionsCount: number, plansCount: number, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', key: string, values: Array<string> }> | null };
+export type EditBillableMetricFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, expression?: string | null, description?: string | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, subscriptionsCount: number, plansCount: number, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', key: string, values: Array<string> }> | null };
 
 export type CreateCreditNoteInvoiceFragment = { __typename?: 'Invoice', id: string, currency?: CurrencyEnum | null, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, creditableAmountCents: any, refundableAmountCents: any, subTotalIncludingTaxesAmountCents: any, availableToCreditAmountCents: any, paymentDisputeLostAt?: any | null, invoiceType: InvoiceTypeEnum, couponsAmountCents: any, feesAmountCents: any, versionNumber: number, fees?: Array<{ __typename?: 'Fee', id: string, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxName: string, taxRate: number }> | null }> | null };
 
@@ -10671,6 +10674,7 @@ export const EditBillableMetricFragmentDoc = gql`
   id
   name
   code
+  expression
   description
   aggregationType
   fieldName
