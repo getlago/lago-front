@@ -19,6 +19,7 @@ ace.config.setModuleUrl('ace/mode/json_worker', jsonWorkerUrl)
 
 enum JSON_EDITOR_ERROR_ENUM {
   invalid = 'invalid',
+  invalidCustomValidate = 'invalidCustomValidate',
 }
 export interface JsonEditorProps {
   label: string
@@ -35,6 +36,8 @@ export interface JsonEditorProps {
   height?: string
   hideLabel?: boolean
   editorMode?: 'text' | 'json'
+  showHelperOnError?: boolean
+  validate?: (value: string) => Promise<void>
   onBlur?: (props: unknown) => void
   onChange?: (value: string) => void
   onError?: (err: keyof typeof JSON_EDITOR_ERROR_ENUM) => void
@@ -56,6 +59,8 @@ export const JsonEditor = ({
   height,
   hideLabel,
   editorMode = 'json',
+  showHelperOnError,
+  validate,
   onChange,
   onError,
   onBlur,
@@ -146,7 +151,12 @@ export const JsonEditor = ({
           }}
           onBlur={(event) => {
             if (!jsonQuery) return true
-            if (editorMode === 'json') {
+
+            if (validate) {
+              validate(jsonQuery).catch((e) => {
+                onError && onError(JSON_EDITOR_ERROR_ENUM.invalidCustomValidate)
+              })
+            } else if (editorMode === 'json') {
               try {
                 JSON.parse(jsonQuery)
               } catch (e) {
@@ -172,15 +182,29 @@ export const JsonEditor = ({
         />
       </EditorContainer>
 
-      {(helperText || error) && (
-        <Helper variant="caption" color={error ? 'danger600' : 'textPrimary'}>
-          {!!error
-            ? translate(
-                error === JSON_EDITOR_ERROR_ENUM.invalid && customInvalidError
-                  ? customInvalidError
-                  : 'text_6638a3538de76801ac2f451b',
-              )
-            : helperText}
+      {helperText && !error && (
+        <Helper variant="caption" color="textPrimary">
+          {helperText}
+        </Helper>
+      )}
+
+      {error && (
+        <Helper variant="caption" color="danger600">
+          {customInvalidError && translate(customInvalidError)}
+
+          {!customInvalidError &&
+            error === JSON_EDITOR_ERROR_ENUM.invalid &&
+            translate('text_6638a3538de76801ac2f451b')}
+
+          {!customInvalidError &&
+            error === JSON_EDITOR_ERROR_ENUM.invalidCustomValidate &&
+            translate('text_1729864971171gfdioq71rvt')}
+        </Helper>
+      )}
+
+      {helperText && showHelperOnError && error && (
+        <Helper className="mt-5" variant="caption" color="textPrimary">
+          {helperText}
         </Helper>
       )}
     </Container>
