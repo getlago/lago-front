@@ -38,8 +38,16 @@ type ValidationResult = {
   error?: string | null
 }
 
+const parseExpression = async (expression: string) => {
+  if (expression === 'break-parse') {
+    throw new Error('Invalid')
+  }
+
+  return
+}
+
 const validateExpression = async (expression: string): Promise<ValidationResult> => {
-  if (expression === 'invalid') {
+  if (expression === 'break-validate') {
     return {
       result: null,
       error: 'The expression you have provided is not valid',
@@ -79,7 +87,9 @@ export const CustomExpressionDrawer = forwardRef<
           external_subscription_id: 'sub_id_123456789',
           code: localData?.billableMetricCode || '__BILLABLE_METRIC_CODE__',
           timestamp: TIMESTAMP,
-          properties: {},
+          properties: {
+            property_name: '__YOUR__VALUE__',
+          },
         },
       },
     },
@@ -164,6 +174,9 @@ export const CustomExpressionDrawer = forwardRef<
           disabled={!localData?.isEditable}
           label={translate('text_17297736554164pkbpqi0ke8')}
           editorMode="text"
+          validate={parseExpression}
+          customInvalidError="text_1729864793151rrlucly2t6d"
+          showHelperOnError={true}
           formikProps={formikProps}
           placeholder={translate('text_1729771640162kaf49b93e20') + '\n'}
           helperText={
