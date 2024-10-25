@@ -2577,7 +2577,7 @@
   "text_1729771640162c43hsk6e4tg": "Unique field",
   "text_1729771640162wd2k9x6mrvh": "Custom expression",
   "text_1729771640162kaf49b93e20": "Type your expression",
-  "text_1729771640162zvj44b3l84g": "Lago will store the result of the custom expression in this field to calculate the aggregation",
+  "text_1729771640162zvj44b3l84g": "This field is used to store the result of the custom expression. You can define it as ‘lago_result’.",
   "text_1729771640162l0f5uuitglm": "Type a field name",
   "text_172977164016216e9fgnuf1w": "Lago will use this single field to calculate the aggregation",
   "text_1729771640162lug0w6ztlyr": "Define and test your expression",
