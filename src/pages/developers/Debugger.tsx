@@ -76,7 +76,7 @@ const Debugger = () => {
   const groupedEvent = useMemo(
     () =>
       (data?.events?.collection || []).reduce<Record<string, EventListFragment[]>>((acc, item) => {
-        const date = formatTimeOrgaTZ(item.timestamp)
+        const date = formatTimeOrgaTZ(item.receivedAt)
 
         acc[date] = [...(acc[date] ? acc[date] : []), item]
 
@@ -145,11 +145,11 @@ const Debugger = () => {
                   >
                     <ListContent>
                       {!refetchLoading &&
-                        Object.keys(groupedEvent).map((eventDate) => {
+                        Object.keys(groupedEvent).map((eventReceivedAt) => {
                           return (
-                            <div key={eventDate}>
-                              <DateHeader>{eventDate}</DateHeader>
-                              {groupedEvent[eventDate].map((event) => {
+                            <div key={eventReceivedAt}>
+                              <DateHeader>{eventReceivedAt}</DateHeader>
+                              {groupedEvent[eventReceivedAt].map((event) => {
                                 const { id } = event
 
                                 index += 1

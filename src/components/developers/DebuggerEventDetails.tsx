@@ -35,6 +35,7 @@ export const DebuggerEventDetails = ({ event }: DebuggerEventDetailsProps) => {
   const {
     billableMetricName,
     timestamp,
+    receivedAt,
     payload,
     transactionId,
     apiClient,
@@ -69,9 +70,17 @@ export const DebuggerEventDetails = ({ event }: DebuggerEventDetailsProps) => {
           </WideLine>
         )}
 
-        <PropertyLabel variant="caption">
-          {translate('text_6298bd525e359200d5ea018f')}
-        </PropertyLabel>
+        <Typography variant="caption">{translate('text_1730132579304cmiwba11ha6')}</Typography>
+        <PropertyValue color="grey700">
+          <StyledTimezoneDate
+            date={receivedAt}
+            customerTimezone={customerTimezone}
+            mainTimezone="utc0"
+            mainDateFormat="LLL. dd, yyyy HH:mm:ss 'UTC'"
+          />
+        </PropertyValue>
+
+        <Typography variant="caption">{translate('text_6298bd525e359200d5ea018f')}</Typography>
         <PropertyValue color="grey700">
           <StyledTimezoneDate
             date={timestamp}
@@ -81,24 +90,16 @@ export const DebuggerEventDetails = ({ event }: DebuggerEventDetailsProps) => {
           />
         </PropertyValue>
 
-        <PropertyLabel variant="caption">
-          {translate('text_62e0feac0a543924c8f67ae5')}
-        </PropertyLabel>
+        <Typography variant="caption">{translate('text_62e0feac0a543924c8f67ae5')}</Typography>
         <PropertyValue color="textSecondary">{externalSubscriptionId}</PropertyValue>
 
-        <PropertyLabel variant="caption">
-          {translate('text_6298bd525e359200d5ea01c1')}
-        </PropertyLabel>
+        <Typography variant="caption">{translate('text_6298bd525e359200d5ea01c1')}</Typography>
         <PropertyValue color="textSecondary">{code}</PropertyValue>
 
-        <PropertyLabel variant="caption">
-          {translate('text_6298bd525e359200d5ea01da')}
-        </PropertyLabel>
+        <Typography variant="caption">{translate('text_6298bd525e359200d5ea01da')}</Typography>
         <PropertyValue color="textSecondary">{billableMetricName}</PropertyValue>
 
-        <PropertyLabel variant="caption">
-          {translate('text_6298bd525e359200d5ea01f2')}
-        </PropertyLabel>
+        <Typography variant="caption">{translate('text_6298bd525e359200d5ea01f2')}</Typography>
         <PropertyValue color="textSecondary">
           {transactionId}
           <Tooltip
@@ -112,9 +113,7 @@ export const DebuggerEventDetails = ({ event }: DebuggerEventDetailsProps) => {
 
         {!!ipAddress && (
           <>
-            <PropertyLabel variant="caption">
-              {translate('text_6298bd525e359200d5ea020a')}
-            </PropertyLabel>
+            <Typography variant="caption">{translate('text_6298bd525e359200d5ea020a')}</Typography>
             <PropertyValue color="textSecondary" noWrap>
               {ipAddress}
             </PropertyValue>
@@ -123,9 +122,7 @@ export const DebuggerEventDetails = ({ event }: DebuggerEventDetailsProps) => {
 
         {!!apiClient && (
           <>
-            <PropertyLabel variant="caption">
-              {translate('text_6298bd525e359200d5ea0222')}
-            </PropertyLabel>
+            <Typography variant="caption">{translate('text_6298bd525e359200d5ea0222')}</Typography>
             <PropertyValue color="textSecondary" noWrap>
               {apiClient}
             </PropertyValue>
@@ -177,14 +174,11 @@ const PropertiesContainer = styled.div`
   display: grid;
   grid-template-columns: 140px 1fr;
   gap: ${theme.spacing(3)};
+  align-items: baseline;
 `
 
 const WideLine = styled.div`
   grid-column: span 2;
-`
-
-const PropertyLabel = styled(Typography)`
-  padding-top: 4px;
 `
 
 const PropertyValue = styled(Typography)`
