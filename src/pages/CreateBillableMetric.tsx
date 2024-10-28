@@ -161,7 +161,15 @@ const CreateBillableMetric = () => {
         return onSave(_omit(values, ['aggregateOnTab']))
       }
 
-      return onSave(_omit(values, ['aggregateOnTab', 'expression']))
+      return onSave(
+        _omit(
+          {
+            ...values,
+            expression: null,
+          },
+          ['aggregateOnTab'],
+        ),
+      )
     },
   })
 
@@ -511,7 +519,6 @@ const CreateBillableMetric = () => {
                             value={formikProps.values.aggregateOnTab}
                             onChange={(value) => {
                               formikProps.setFieldValue('aggregateOnTab', value)
-                              formikProps.setFieldValue('fieldName', '')
                             }}
                             data-test="aggregate-on-switch"
                           />
