@@ -1,11 +1,10 @@
 import { gql } from '@apollo/client'
-import styled, { css } from 'styled-components'
 
 import { Avatar, Icon, Skeleton, Typography } from '~/components/designSystem'
 import { WebhookLogItemFragment, WebhookStatusEnum } from '~/generated/graphql'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { BaseListItem, ItemContainer, ListItem, theme } from '~/styles'
+import { BaseListItem, ItemContainer, ListItem } from '~/styles'
 import { tw } from '~/styles/utils'
 
 gql`
@@ -22,9 +21,11 @@ interface WebhookLogItemProps {
   navigationProps?: ListKeyNavigationItemProps
   selected: boolean
   onClick: () => void
+  className?: string
 }
 
 export const WebhookLogItem = ({
+  className,
   log,
   navigationProps,
   selected,
@@ -36,60 +37,40 @@ export const WebhookLogItem = ({
 
   return (
     <ItemContainer>
-      <Item tabIndex={0} onClick={onClick} {...navigationProps} $active={selected}>
-        <NameSection>
+      <ListItem
+        className={tw({ 'bg-grey-200': selected }, className)}
+        tabIndex={0}
+        onClick={onClick}
+        {...navigationProps}
+      >
+        <div className="mr-auto flex min-w-0 items-center">
           <Avatar size="big" variant="connector" className={tw('mr-3', { 'bg-red-100': hasError })}>
             <Icon
               name={hasError ? 'close-circle-unfilled' : 'checkmark'}
               color={hasError ? 'error' : 'dark'}
             />
           </Avatar>
-          <NameBlock>
+          <div className="min-w-0">
             <Typography color="textSecondary" variant="bodyHl" noWrap>
               {webhookType}
             </Typography>
             <Typography variant="caption" noWrap>
               {id}
             </Typography>
-          </NameBlock>
-        </NameSection>
+          </div>
+        </div>
         <Typography>{formatTimeOrgaTZ(updatedAt, 'HH:mm:ss')}</Typography>
-      </Item>
+      </ListItem>
     </ItemContainer>
   )
 }
 
 export const WebhookLogItemSkeleton = () => {
   return (
-    <SkeletonItem>
-      <Skeleton variant="connectorAvatar" size="big" marginRight={theme.spacing(3)} />
-      <Skeleton variant="text" height={12} width={264} marginRight="auto" />
-      <Skeleton variant="text" height={12} width={80} />
-    </SkeletonItem>
+    <BaseListItem>
+      <Skeleton className="mr-3" variant="connectorAvatar" size="big" />
+      <Skeleton className="mr-auto" variant="text" height={12} width={264} />
+      <Skeleton className="ml-3" variant="text" height={12} width={80} />
+    </BaseListItem>
   )
 }
-
-const SkeletonItem = styled(BaseListItem)`
-  > *:last-child {
-    margin-left: ${theme.spacing(3)};
-  }
-`
-
-const NameSection = styled.div`
-  margin-right: auto;
-  display: flex;
-  align-items: center;
-  min-width: 0;
-`
-
-const NameBlock = styled.div`
-  min-width: 0;
-`
-
-const Item = styled(ListItem)<{ $active: boolean }>`
-  ${({ $active }) =>
-    $active &&
-    css`
-      background-color: ${theme.palette.grey[200]};
-    `}
-`

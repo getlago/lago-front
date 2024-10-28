@@ -1,11 +1,10 @@
 import { gql } from '@apollo/client'
-import styled, { css } from 'styled-components'
 
 import { Avatar, Icon, Skeleton, Typography } from '~/components/designSystem'
 import { formatDateToTZ } from '~/core/timezone'
 import { EventItemFragment, TimezoneEnum } from '~/generated/graphql'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
-import { BaseListItem, ItemContainer, ListItem, theme } from '~/styles'
+import { BaseListItem, ItemContainer, ListItem } from '~/styles'
 import { tw } from '~/styles/utils'
 
 gql`
@@ -30,8 +29,13 @@ export const EventItem = ({ event, navigationProps, selected, onClick }: EventIt
 
   return (
     <ItemContainer>
-      <Item tabIndex={0} onClick={onClick} {...navigationProps} $active={selected}>
-        <NameSection>
+      <ListItem
+        className={tw({ 'bg-grey-200': selected })}
+        tabIndex={0}
+        onClick={onClick}
+        {...navigationProps}
+      >
+        <div className="mr-auto flex min-w-0 items-center">
           <Avatar
             className={tw('mr-3', {
               'bg-yellow-100': hasWarning,
@@ -43,49 +47,22 @@ export const EventItem = ({ event, navigationProps, selected, onClick }: EventIt
               color={hasWarning ? 'warning' : 'dark'}
             />
           </Avatar>
-          <NameBlock>
-            <Typography color="textSecondary" variant="bodyHl" noWrap>
-              {code}
-            </Typography>
-          </NameBlock>
-        </NameSection>
+          <Typography className="mr-1 min-w-0" color="textSecondary" variant="bodyHl" noWrap>
+            {code}
+          </Typography>
+        </div>
         <Typography>{formatDateToTZ(receivedAt, TimezoneEnum.TzUtc, 'HH:mm:ss')}</Typography>
-      </Item>
+      </ListItem>
     </ItemContainer>
   )
 }
 
 export const EventItemSkeleton = () => {
   return (
-    <SkeletonItem>
-      <Skeleton variant="text" height={12} width={68} marginRight="12px" />
-      <Skeleton variant="text" height={12} width={264} marginRight="auto" />
-      <Skeleton variant="text" height={12} width={80} />
-    </SkeletonItem>
+    <BaseListItem>
+      <Skeleton className="mr-3" variant="connectorAvatar" size="big" />
+      <Skeleton className="mr-auto" variant="text" height={12} width={264} />
+      <Skeleton className="ml-3" variant="text" height={12} width={80} />
+    </BaseListItem>
   )
 }
-
-const SkeletonItem = styled(BaseListItem)`
-  > *:last-child {
-    margin-left: ${theme.spacing(3)};
-  }
-`
-
-const NameSection = styled.div`
-  margin-right: auto;
-  display: flex;
-  align-items: center;
-  min-width: 0;
-`
-
-const NameBlock = styled.div`
-  min-width: 0;
-`
-
-const Item = styled(ListItem)<{ $active: boolean }>`
-  ${({ $active }) =>
-    $active &&
-    css`
-      background-color: ${theme.palette.grey[200]};
-    `}
-`
