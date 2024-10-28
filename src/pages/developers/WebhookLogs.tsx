@@ -178,7 +178,7 @@ const WebhookLogs = () => {
                     icon="reload"
                     variant="quaternary"
                     onClick={async () => {
-                      await refetch({ page: 0 })
+                      await refetch()
                     }}
                   />
                 </Tooltip>

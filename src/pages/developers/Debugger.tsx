@@ -115,7 +115,7 @@ const Debugger = () => {
                     onClick={async () => {
                       setRefetchLoading(true)
                       setSelectedEventId(undefined)
-                      await refetch({ page: 0 })
+                      await refetch()
                       setRefetchLoading(false)
                     }}
                   />
