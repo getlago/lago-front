@@ -6469,7 +6469,7 @@ export type DeleteWebhookMutationVariables = Exact<{
 
 export type DeleteWebhookMutation = { __typename?: 'Mutation', destroyWebhookEndpoint?: { __typename?: 'DestroyWebhookEndpointPayload', id?: string | null } | null };
 
-export type EventItemFragment = { __typename?: 'Event', id: string, code: string, timestamp?: any | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null };
+export type EventItemFragment = { __typename?: 'Event', id: string, code: string, receivedAt?: any | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null };
 
 export type WebhookLogDetailsFragment = { __typename?: 'Webhook', id: string, webhookType: string, status: WebhookStatusEnum, payload?: string | null, response?: string | null, httpStatus?: number | null, endpoint: string, retries: number, updatedAt: any };
 
@@ -11076,7 +11076,7 @@ export const EventItemFragmentDoc = gql`
     fragment EventItem on Event {
   id
   code
-  timestamp
+  receivedAt
   matchBillableMetric
   matchCustomField
 }

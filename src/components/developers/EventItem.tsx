@@ -2,9 +2,9 @@ import { gql } from '@apollo/client'
 import styled, { css } from 'styled-components'
 
 import { Avatar, Icon, Skeleton, Typography } from '~/components/designSystem'
-import { EventItemFragment } from '~/generated/graphql'
+import { formatDateToTZ } from '~/core/timezone'
+import { EventItemFragment, TimezoneEnum } from '~/generated/graphql'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { BaseListItem, ItemContainer, ListItem, theme } from '~/styles'
 import { tw } from '~/styles/utils'
 
@@ -12,7 +12,7 @@ gql`
   fragment EventItem on Event {
     id
     code
-    timestamp
+    receivedAt
     matchBillableMetric
     matchCustomField
   }
@@ -25,9 +25,8 @@ interface EventItemProps {
 }
 
 export const EventItem = ({ event, navigationProps, selected, onClick }: EventItemProps) => {
-  const { code, timestamp, matchBillableMetric, matchCustomField } = event
+  const { code, receivedAt, matchBillableMetric, matchCustomField } = event
   const hasWarning = !matchBillableMetric || !matchCustomField
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
 
   return (
     <ItemContainer>
@@ -50,7 +49,7 @@ export const EventItem = ({ event, navigationProps, selected, onClick }: EventIt
             </Typography>
           </NameBlock>
         </NameSection>
-        <Typography>{formatTimeOrgaTZ(timestamp, 'HH:mm:ss')}</Typography>
+        <Typography>{formatDateToTZ(receivedAt, TimezoneEnum.TzUtc, 'HH:mm:ss')}</Typography>
       </Item>
     </ItemContainer>
   )
