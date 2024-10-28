@@ -23,7 +23,6 @@ gql`
   fragment EventList on Event {
     id
     code
-    externalCustomerId
     transactionId
     timestamp
     receivedAt

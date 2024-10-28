@@ -2332,16 +2332,15 @@ export type Event = {
   code: Scalars['String']['output'];
   customerTimezone: TimezoneEnum;
   deletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
-  externalCustomerId?: Maybe<Scalars['String']['output']>;
   externalSubscriptionId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   ipAddress?: Maybe<Scalars['String']['output']>;
-  matchBillableMetric: Scalars['Boolean']['output'];
-  matchCustomField: Scalars['Boolean']['output'];
-  matchCustomer: Scalars['Boolean']['output'];
-  matchSubscription: Scalars['Boolean']['output'];
+  matchBillableMetric?: Maybe<Scalars['Boolean']['output']>;
+  matchCustomField?: Maybe<Scalars['Boolean']['output']>;
+  matchCustomer?: Maybe<Scalars['Boolean']['output']>;
+  matchSubscription?: Maybe<Scalars['Boolean']['output']>;
   payload: Scalars['JSON']['output'];
-  receivedAt: Scalars['ISO8601DateTime']['output'];
+  receivedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   timestamp?: Maybe<Scalars['ISO8601DateTime']['output']>;
   transactionId?: Maybe<Scalars['String']['output']>;
 };
@@ -6461,7 +6460,7 @@ export type UpdateWebhookEndpointMutationVariables = Exact<{
 
 export type UpdateWebhookEndpointMutation = { __typename?: 'Mutation', updateWebhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null } | null };
 
-export type DebuggerEventDetailsFragment = { __typename?: 'Event', id: string, code: string, externalCustomerId?: string | null, transactionId?: string | null, timestamp?: any | null, receivedAt: any, payload: any, billableMetricName?: string | null, matchBillableMetric: boolean, matchCustomField: boolean, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum };
+export type DebuggerEventDetailsFragment = { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum };
 
 export type DeleteWebhookMutationVariables = Exact<{
   input: DestroyWebhookEndpointInput;
@@ -6470,7 +6469,7 @@ export type DeleteWebhookMutationVariables = Exact<{
 
 export type DeleteWebhookMutation = { __typename?: 'Mutation', destroyWebhookEndpoint?: { __typename?: 'DestroyWebhookEndpointPayload', id?: string | null } | null };
 
-export type EventItemFragment = { __typename?: 'Event', id: string, code: string, externalCustomerId?: string | null, timestamp?: any | null, matchBillableMetric: boolean, matchCustomField: boolean };
+export type EventItemFragment = { __typename?: 'Event', id: string, code: string, timestamp?: any | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null };
 
 export type WebhookLogDetailsFragment = { __typename?: 'Webhook', id: string, webhookType: string, status: WebhookStatusEnum, payload?: string | null, response?: string | null, httpStatus?: number | null, endpoint: string, retries: number, updatedAt: any };
 
@@ -8248,7 +8247,7 @@ export type GetOrganizationApiKeyQueryVariables = Exact<{ [key: string]: never; 
 
 export type GetOrganizationApiKeyQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, apiKey?: string | null } | null };
 
-export type EventListFragment = { __typename?: 'Event', id: string, code: string, externalCustomerId?: string | null, transactionId?: string | null, timestamp?: any | null, receivedAt: any, payload: any, billableMetricName?: string | null, matchBillableMetric: boolean, matchCustomField: boolean, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum };
+export type EventListFragment = { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum };
 
 export type EventsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -8256,7 +8255,7 @@ export type EventsQueryVariables = Exact<{
 }>;
 
 
-export type EventsQuery = { __typename?: 'Query', events?: { __typename?: 'EventCollection', collection: Array<{ __typename?: 'Event', id: string, code: string, externalCustomerId?: string | null, transactionId?: string | null, timestamp?: any | null, receivedAt: any, payload: any, billableMetricName?: string | null, matchBillableMetric: boolean, matchCustomField: boolean, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+export type EventsQuery = { __typename?: 'Query', events?: { __typename?: 'EventCollection', collection: Array<{ __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
 
 export type GetWebhookInformationsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -11077,7 +11076,6 @@ export const EventItemFragmentDoc = gql`
     fragment EventItem on Event {
   id
   code
-  externalCustomerId
   timestamp
   matchBillableMetric
   matchCustomField
@@ -11087,7 +11085,6 @@ export const DebuggerEventDetailsFragmentDoc = gql`
     fragment DebuggerEventDetails on Event {
   id
   code
-  externalCustomerId
   transactionId
   timestamp
   receivedAt
@@ -11105,7 +11102,6 @@ export const EventListFragmentDoc = gql`
     fragment EventList on Event {
   id
   code
-  externalCustomerId
   transactionId
   timestamp
   receivedAt

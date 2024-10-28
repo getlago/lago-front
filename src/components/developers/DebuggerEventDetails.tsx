@@ -12,7 +12,6 @@ gql`
   fragment DebuggerEventDetails on Event {
     id
     code
-    externalCustomerId
     transactionId
     timestamp
     receivedAt
@@ -37,7 +36,6 @@ export const DebuggerEventDetails = ({ event }: DebuggerEventDetailsProps) => {
     billableMetricName,
     timestamp,
     payload,
-    externalCustomerId,
     transactionId,
     apiClient,
     code,
@@ -89,11 +87,6 @@ export const DebuggerEventDetails = ({ event }: DebuggerEventDetailsProps) => {
         <PropertyValue color="textSecondary">{externalSubscriptionId}</PropertyValue>
 
         <PropertyLabel variant="caption">
-          {translate('text_6298bd525e359200d5ea01a7')}
-        </PropertyLabel>
-        <PropertyValue color="textSecondary">{externalCustomerId}</PropertyValue>
-
-        <PropertyLabel variant="caption">
           {translate('text_6298bd525e359200d5ea01c1')}
         </PropertyLabel>
         <PropertyValue color="textSecondary">{code}</PropertyValue>
@@ -117,19 +110,27 @@ export const DebuggerEventDetails = ({ event }: DebuggerEventDetailsProps) => {
           </Tooltip>
         </PropertyValue>
 
-        <PropertyLabel variant="caption">
-          {translate('text_6298bd525e359200d5ea020a')}
-        </PropertyLabel>
-        <PropertyValue color="textSecondary" noWrap>
-          {ipAddress}
-        </PropertyValue>
+        {!!ipAddress && (
+          <>
+            <PropertyLabel variant="caption">
+              {translate('text_6298bd525e359200d5ea020a')}
+            </PropertyLabel>
+            <PropertyValue color="textSecondary" noWrap>
+              {ipAddress}
+            </PropertyValue>
+          </>
+        )}
 
-        <PropertyLabel variant="caption">
-          {translate('text_6298bd525e359200d5ea0222')}
-        </PropertyLabel>
-        <PropertyValue color="textSecondary" noWrap>
-          {apiClient}
-        </PropertyValue>
+        {!!apiClient && (
+          <>
+            <PropertyLabel variant="caption">
+              {translate('text_6298bd525e359200d5ea0222')}
+            </PropertyLabel>
+            <PropertyValue color="textSecondary" noWrap>
+              {apiClient}
+            </PropertyValue>
+          </>
+        )}
       </PropertiesContainer>
 
       <CodeBlock>
