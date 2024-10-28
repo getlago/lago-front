@@ -112,7 +112,7 @@ const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
               ) : (
                 <InfiniteScroll
                   onBottom={() => {
-                    const { currentPage = 0, totalPages = 0 } =
+                    const { currentPage = 1, totalPages = 0 } =
                       subscriptionResult?.subscriptions?.metadata || {}
 
                     currentPage < totalPages &&

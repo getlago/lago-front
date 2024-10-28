@@ -113,7 +113,7 @@ const AnrokIntegrationItemsListBillableMetrics = ({
       ) : (
         <InfiniteScroll
           onBottom={() => {
-            const { currentPage = 0, totalPages = 0 } = data?.billableMetrics?.metadata || {}
+            const { currentPage = 1, totalPages = 0 } = data?.billableMetrics?.metadata || {}
 
             currentPage < totalPages &&
               !isLoading &&

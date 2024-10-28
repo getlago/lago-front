@@ -158,7 +158,7 @@ const CouponsList = () => {
         ) : (
           <InfiniteScroll
             onBottom={() => {
-              const { currentPage = 0, totalPages = 0 } = data?.coupons?.metadata || {}
+              const { currentPage = 1, totalPages = 0 } = data?.coupons?.metadata || {}
 
               currentPage < totalPages &&
                 !isLoading &&

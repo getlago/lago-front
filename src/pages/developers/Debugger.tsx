@@ -134,7 +134,7 @@ const Debugger = () => {
                   {((loading && !data?.events?.collection) || refetchLoading) && <DateHeader />}
                   <InfiniteScroll
                     onBottom={() => {
-                      const { currentPage = 0, totalPages = 0 } = data?.events?.metadata || {}
+                      const { currentPage = 1, totalPages = 0 } = data?.events?.metadata || {}
 
                       currentPage < totalPages &&
                         !loading &&

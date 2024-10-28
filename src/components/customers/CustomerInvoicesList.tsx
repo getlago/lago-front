@@ -148,7 +148,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
         onBottom={() => {
           if (!fetchMore) return
 
-          const { currentPage = 0, totalPages = 0 } = invoiceData?.metadata || {}
+          const { currentPage = 1, totalPages = 0 } = invoiceData?.metadata || {}
 
           currentPage < totalPages &&
             !isLoading &&

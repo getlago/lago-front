@@ -149,7 +149,7 @@ const CustomersList = () => {
         ) : (
           <InfiniteScroll
             onBottom={() => {
-              const { currentPage = 0, totalPages = 0 } = data?.customers?.metadata || {}
+              const { currentPage = 1, totalPages = 0 } = data?.customers?.metadata || {}
 
               currentPage < totalPages &&
                 !isLoading &&

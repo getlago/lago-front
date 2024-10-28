@@ -60,7 +60,7 @@ export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTran
         notifyOnNetworkStatusChange: true,
       })
     const list = data?.walletTransactions?.collection
-    const { currentPage = 0, totalPages = 0 } = data?.walletTransactions?.metadata || {}
+    const { currentPage = 1, totalPages = 0 } = data?.walletTransactions?.metadata || {}
     const hasData = !!list && !!list?.length
 
     useEffect(() => {

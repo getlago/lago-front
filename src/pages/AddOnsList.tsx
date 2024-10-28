@@ -143,7 +143,7 @@ const AddOnsList = () => {
         ) : (
           <InfiniteScroll
             onBottom={() => {
-              const { currentPage = 0, totalPages = 0 } = data?.addOns?.metadata || {}
+              const { currentPage = 1, totalPages = 0 } = data?.addOns?.metadata || {}
 
               currentPage < totalPages &&
                 !isLoading &&

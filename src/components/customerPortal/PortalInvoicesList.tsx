@@ -212,7 +212,7 @@ const PortalInvoicesList = () => {
   const hasSearchTerm = !!variables?.searchTerm
   const hasNoInvoices = !loading && !error && !metadata?.totalCount && !hasSearchTerm
 
-  const { currentPage = 0, totalPages = 0 } = metadata || {}
+  const { currentPage = 1, totalPages = 0 } = metadata || {}
 
   if (error) {
     return (

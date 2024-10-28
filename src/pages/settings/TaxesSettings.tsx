@@ -142,7 +142,7 @@ const TaxesSettings = () => {
                   <InfiniteScroll
                     onBottom={() => {
                       if (!fetchMore) return
-                      const { currentPage = 0, totalPages = 0 } = metadata || {}
+                      const { currentPage = 1, totalPages = 0 } = metadata || {}
 
                       currentPage < totalPages &&
                         !loading &&

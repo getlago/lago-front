@@ -143,7 +143,7 @@ const Members = () => {
   const invitesMetadata = invitesData?.invites.metadata
   const membersMetadata = membersData?.memberships.metadata
   const hasInvites = !!invitesMetadata?.totalCount
-  const { currentPage: inviteCurrentPage = 0, totalPages: inviteTotalPages = 0 } =
+  const { currentPage: inviteCurrentPage = 1, totalPages: inviteTotalPages = 0 } =
     invitesMetadata || {}
 
   return (
@@ -319,7 +319,7 @@ const Members = () => {
 
                 <InfiniteScroll
                   onBottom={() => {
-                    const { currentPage = 0, totalPages = 0 } = membersMetadata || {}
+                    const { currentPage = 1, totalPages = 0 } = membersMetadata || {}
 
                     currentPage < totalPages &&
                       !membersLoading &&

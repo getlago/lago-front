@@ -204,7 +204,7 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerW
         ) : (
           <InfiniteScroll
             onBottom={() => {
-              const { currentPage = 0, totalPages = 0 } = data?.wallets?.metadata || {}
+              const { currentPage = 1, totalPages = 0 } = data?.wallets?.metadata || {}
 
               currentPage < totalPages &&
                 !loading &&

@@ -246,7 +246,7 @@ const WebhookLogs = () => {
                 {isLoading && !fetchMoreLoading && !hasLogs && <DateHeader />}
                 <InfiniteScroll
                   onBottom={async () => {
-                    const { currentPage = 0, totalPages = 0 } = data?.webhooks?.metadata || {}
+                    const { currentPage = 1, totalPages = 0 } = data?.webhooks?.metadata || {}
 
                     if (currentPage < totalPages && !isLoading) {
                       setFetchMoreLoading(true)

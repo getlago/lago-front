@@ -123,7 +123,7 @@ const InvoicesList = ({
       <div ref={listContainerElementRef}>
         <InfiniteScroll
           onBottom={() => {
-            const { currentPage = 0, totalPages = 0 } = metadata || {}
+            const { currentPage = 1, totalPages = 0 } = metadata || {}
 
             currentPage < totalPages &&
               !isLoading &&

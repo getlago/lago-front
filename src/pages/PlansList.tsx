@@ -155,7 +155,7 @@ const PlansList = () => {
         ) : (
           <InfiniteScroll
             onBottom={() => {
-              const { currentPage = 0, totalPages = 0 } = data?.plans?.metadata || {}
+              const { currentPage = 1, totalPages = 0 } = data?.plans?.metadata || {}
 
               currentPage < totalPages &&
                 !isLoading &&
