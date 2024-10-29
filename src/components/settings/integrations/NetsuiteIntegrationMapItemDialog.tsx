@@ -368,7 +368,6 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
                   externalName,
                   integrationId: localData?.integrationId as string,
                   mappingType: localData?.type as MappingTypeEnum,
-                  ...values,
                 },
               },
             })
@@ -382,7 +381,6 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
                   integrationId: localData?.integrationId as string,
                   mappableType: localData?.type as MappableTypeEnum,
                   mappableId: localData?.lagoMappableId as string,
-                  ...values,
                 },
               },
             })
@@ -406,7 +404,6 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
                   externalName,
                   integrationId: localData?.integrationId as string,
                   mappingType: localData?.type as unknown as MappingTypeEnum,
-                  ...values,
                 },
               },
             })
@@ -421,7 +418,6 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
                   integrationId: localData?.integrationId as string,
                   mappableType: localData?.type as unknown as MappableTypeEnum,
                   mappableId: localData?.lagoMappableId as string,
-                  ...values,
                 },
               },
             })
