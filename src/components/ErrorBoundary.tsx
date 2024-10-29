@@ -1,4 +1,4 @@
-import * as Sentry from '@sentry/browser'
+import { captureException, withScope } from '@sentry/react'
 import { Component, ErrorInfo, ReactNode } from 'react'
 
 import { addToast } from '~/core/apolloClient'
@@ -9,12 +9,12 @@ interface ErrorBoundaryProps {
 
 export class ErrorBoundary extends Component<ErrorBoundaryProps, {}> {
   componentDidCatch(error: { message: string; name: string }, errorInfo: ErrorInfo) {
-    Sentry.withScope((scope) => {
+    withScope((scope) => {
       Object.keys(errorInfo).forEach((key) => {
         // @ts-ignore
         scope.setExtra(key, errorInfo[key])
       })
-      Sentry.captureException(error)
+      captureException(error)
     })
 
     addToast({

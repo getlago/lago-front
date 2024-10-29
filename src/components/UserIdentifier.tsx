@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import * as Sentry from '@sentry/browser'
+import { getCurrentScope } from '@sentry/react'
 import { Settings } from 'luxon'
 import { useEffect, useRef } from 'react'
 
@@ -37,7 +37,7 @@ export const UserIdentifier = () => {
   useEffect(() => {
     if (!isAuthenticated) {
       refetchCountRef.current = 0
-      Sentry.configureScope((scope) => scope.setUser(null))
+      getCurrentScope().setUser(null)
     } else if (!data) {
       if (refetchCountRef.current <= 3) {
         refetch()
@@ -53,7 +53,7 @@ export const UserIdentifier = () => {
 
       Settings.defaultZone = getTimezoneConfig(data?.organization?.timezone).name
 
-      Sentry.configureScope((scope) => scope.setUser({ id, email: email || undefined }))
+      getCurrentScope().setUser({ id, email: email || undefined })
     }
   }, [data, isAuthenticated, refetch])
 

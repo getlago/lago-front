@@ -1,4 +1,4 @@
-import * as Sentry from '@sentry/browser'
+import { captureMessage } from '@sentry/react'
 import { DateTime } from 'luxon'
 
 import { LocaleEnum } from '~/core/translations'
@@ -20,7 +20,7 @@ export const getTimezoneConfig = (timezone: TimezoneEnum | null | undefined) => 
     // However, it's pretty critical as UI and date calculation will be wrong.
     // Calling sentry to make sure we notice and add missing timezone to the TimeZonesConfig enum then.
     if (!!sentryDsn) {
-      Sentry.captureMessage(`Timezone ${timezone} is missing in TimeZonesConfig`)
+      captureMessage(`Timezone ${timezone} is missing in TimeZonesConfig`)
     }
 
     return TimeZonesConfig[TimezoneEnum.TzUtc]
