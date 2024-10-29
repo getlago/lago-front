@@ -368,6 +368,9 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
                   externalName,
                   integrationId: localData?.integrationId as string,
                   mappingType: localData?.type as MappingTypeEnum,
+                  taxCode: isTaxContext ? values.taxCode : undefined,
+                  taxNexus: isTaxContext ? values.taxNexus : undefined,
+                  taxType: isTaxContext ? values.taxType : undefined,
                 },
               },
             })
@@ -404,6 +407,9 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
                   externalName,
                   integrationId: localData?.integrationId as string,
                   mappingType: localData?.type as unknown as MappingTypeEnum,
+                  taxCode: isTaxContext ? values.taxCode : undefined,
+                  taxNexus: isTaxContext ? values.taxNexus : undefined,
+                  taxType: isTaxContext ? values.taxType : undefined,
                 },
               },
             })
