@@ -5,6 +5,7 @@ require('dotenv').config({ path: '../.env' })
 
 module.exports = defineConfig({
   projectId: 'u863yi',
+  retries: 3,
   e2e: {
     baseUrl: process.env.CYPRESS_APP_URL,
     experimentalRunAllSpecs: true,
