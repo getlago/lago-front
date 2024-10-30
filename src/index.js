@@ -1,4 +1,3 @@
-import { BrowserTracing } from '@sentry/browser'
 import * as Sentry from '@sentry/react'
 import { createRoot } from 'react-dom/client'
 
@@ -14,7 +13,7 @@ const { appEnv, sentryDsn } = envGlobalVar()
 if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
   Sentry.init({
     dsn: sentryDsn,
-    integrations: [new BrowserTracing()],
+    integrations: [browserTracingIntegration()],
     environment: appEnv,
   })
 }
