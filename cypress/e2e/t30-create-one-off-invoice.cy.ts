@@ -58,7 +58,11 @@ describe('Create one-off', () => {
     })
     cy.get('#table-customer-invoices-row-0').should('exist')
 
-    cy.get('#table-customer-invoices-row-0').click().url().should('include', '/overview')
+    cy.get('#table-customer-invoices-row-0')
+      .focus()
+      .click({ force: true })
+      .url()
+      .should('include', '/overview')
 
     cy.get('[data-test="invoice-details-table-footer-subtotal-excl-tax-value"]').should(
       'have.text',
