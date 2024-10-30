@@ -232,7 +232,7 @@ const SubscriptionDetails = () => {
         </ContentContainer>
       ) : (
         <NavigationTab
-          leftSpacing={48}
+          className="px-12"
           tabs={[
             {
               title: translate('text_628cf761cbe6820138b8f2e4'),

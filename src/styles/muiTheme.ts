@@ -335,6 +335,52 @@ export const theme = createTheme({
         },
       },
     },
+    MuiTabs: {
+      styleOverrides: {
+        indicator: {
+          /* We hide the default MUI selected tab indicator. It's manually handled by us bellow */
+          display: 'none',
+        },
+        flexContainer: {
+          overflow: 'visible',
+          gap: '8px',
+        },
+        scroller: {
+          overflowY: 'auto',
+          height: 'min-content',
+          paddingLeft: '16px',
+          paddingRight: '16px',
+          marginLeft: '-16px',
+          marginRight: '-16px',
+        },
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          '&.Mui-focusVisible': {
+            outline: `4px solid ${palette.primary[100]}`,
+          },
+          '&.Mui-selected': {
+            // Color have to be important to override the TW color definition in the component
+            color: `${palette.primary.main} !important`,
+
+            '&::after': {
+              content: '""',
+              display: 'block',
+              height: '2px',
+              backgroundColor: palette.primary.main,
+              width: 'calc(100% - 16px)',
+              position: 'absolute',
+              bottom: '-8px',
+            },
+          },
+          '&.Mui-disabled': {
+            color: palette.grey[400],
+          },
+        },
+      },
+    },
     MuiTooltip: {
       styleOverrides: {
         tooltip: {

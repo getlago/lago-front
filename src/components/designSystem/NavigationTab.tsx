@@ -1,20 +1,16 @@
-import { Box, Tab, Tabs, Typography } from '@mui/material'
+import { Tab, Tabs, Typography } from '@mui/material'
 import { ReactNode, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import styled, { css } from 'styled-components'
 
-import { ResponsiveStyleValue, setResponsiveProperty } from '~/core/utils/responsiveProps'
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import { Icon, IconName } from './Icon'
 import { Skeleton } from './Skeleton'
 
-type LeftSpacing = 0 | 16 | 48
-
 type NavigationTabProps = {
-  leftSpacing?: ResponsiveStyleValue<LeftSpacing>
   loading?: boolean
   name?: string
+  className?: string
   tabs: {
     link: string
     title: string
@@ -56,7 +52,7 @@ const a11yProps = (index: number) => {
 }
 
 export const NavigationTab = ({
-  leftSpacing = 16,
+  className,
   loading,
   name = 'Navigation tab',
   tabs,
@@ -91,55 +87,57 @@ export const NavigationTab = ({
   if (value === null) return null
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <TabsWrapper>
-        <LocalTabs
-          variant="scrollable"
-          role="navigation"
-          scrollButtons={false}
-          aria-label={name}
-          onChange={handleChange}
-          value={value}
-          $leftSpacing={leftSpacing}
-          $nonHiddenTabsLength={nonHiddenTabs.length}
-        >
-          {nonHiddenTabs.length >= 2
-            ? nonHiddenTabs.map((tab, tabIndex) => {
-                if (loading) {
-                  return (
-                    <Skeleton
-                      key={`loding-tab-${tabIndex}`}
-                      variant="text"
-                      width={80}
-                      height={12}
-                      marginRight={tabIndex !== nonHiddenTabs.length - 1 ? '16px' : 0}
-                    />
-                  )
-                }
-
+    <>
+      <Tabs
+        className={tw(
+          'min-h-0 items-center overflow-visible shadow-b',
+          {
+            'min-h-13': nonHiddenTabs.length > 1,
+          },
+          className,
+        )}
+        variant="scrollable"
+        role="navigation"
+        scrollButtons={false}
+        aria-label={name}
+        onChange={handleChange}
+        value={value}
+      >
+        {nonHiddenTabs.length >= 2
+          ? nonHiddenTabs.map((tab, tabIndex) => {
+              if (loading) {
                 return (
-                  <Tab
-                    key={`tab-${tabIndex}`}
-                    disableFocusRipple
-                    disableRipple
-                    role="tab"
-                    // eslint-disable-next-line tailwindcss/no-custom-classname
-                    className="navigation-tab-item"
-                    disabled={loading || tab.disabled}
-                    icon={!!tab.icon ? <Icon name={tab.icon} /> : undefined}
-                    iconPosition="start"
-                    label={<Typography variant="captionHl">{tab.title}</Typography>}
-                    value={tabIndex}
-                    onClick={() => {
-                      !!tab.link && navigate(tab.link)
-                    }}
-                    {...a11yProps(tabIndex)}
+                  <Skeleton
+                    key={`loding-tab-${tabIndex}`}
+                    className={tw('mr-0 h-3 w-20', {
+                      'mr-4': tabIndex !== nonHiddenTabs.length - 1,
+                    })}
+                    variant="text"
                   />
                 )
-              })
-            : null}
-        </LocalTabs>
-      </TabsWrapper>
+              }
+
+              return (
+                <Tab
+                  key={`tab-${tabIndex}`}
+                  disableFocusRipple
+                  disableRipple
+                  role="tab"
+                  className="relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700"
+                  disabled={loading || tab.disabled}
+                  icon={!!tab.icon ? <Icon name={tab.icon} /> : undefined}
+                  iconPosition="start"
+                  label={<Typography variant="captionHl">{tab.title}</Typography>}
+                  value={tabIndex}
+                  onClick={() => {
+                    !!tab.link && navigate(tab.link)
+                  }}
+                  {...a11yProps(tabIndex)}
+                />
+              )
+            })
+          : null}
+      </Tabs>
       {value !== null &&
         nonHiddenTabs.map((tab, index) => {
           return (
@@ -148,95 +146,6 @@ export const NavigationTab = ({
             </CustomTabPanel>
           )
         })}
-    </Box>
+    </>
   )
 }
-
-const TabsWrapper = styled.div`
-  box-shadow: ${theme.shadows[7]};
-`
-
-const LocalTabs = styled(Tabs)<{
-  $leftSpacing: ResponsiveStyleValue<LeftSpacing>
-  $nonHiddenTabsLength: number
-}>`
-  align-items: center;
-  overflow: visible;
-  min-height: ${({ $nonHiddenTabsLength }) => ($nonHiddenTabsLength > 1 ? theme.spacing(13) : 0)};
-
-  ${({ $leftSpacing }) => {
-    return css`
-      ${setResponsiveProperty('paddingLeft', $leftSpacing)}
-      ${setResponsiveProperty('paddingRight', $leftSpacing)}
-    `
-  }}
-
-  .MuiTabs-indicator {
-    /* We hide the default MUI selected tab indicator. It's manually handled by us bellow */
-    display: none;
-  }
-
-  .MuiTabs-flexContainer {
-    overflow: visible;
-    gap: ${theme.spacing(2)};
-  }
-
-  .MuiTabs-scroller {
-    overflow-y: auto;
-    height: min-content;
-    padding-left: 16px;
-    padding-right: 16px;
-    margin-left: -16px;
-    margin-right: -16px;
-  }
-
-  .navigation-tab-item {
-    height: ${theme.spacing(9)};
-    position: relative;
-    border-radius: 12px;
-    overflow: visible;
-    margin: ${theme.spacing(2)} 0;
-    color: ${theme.palette.grey[600]};
-    text-decoration: none;
-    padding: ${theme.spacing(2)};
-    box-sizing: border-box;
-    gap: ${theme.spacing(1)};
-    justify-content: space-between;
-    min-width: unset;
-    min-height: unset;
-
-    &:first-child {
-      margin-left: -${theme.spacing(2)};
-    }
-    &:last-child {
-      margin-right: -${theme.spacing(2)};
-    }
-
-    &:hover {
-      color: ${theme.palette.grey[700]};
-      background-color: ${theme.palette.grey[100]};
-    }
-
-    &.Mui-focusVisible {
-      outline: 4px solid ${theme.palette.primary[100]};
-    }
-
-    &.Mui-selected {
-      color: ${theme.palette.primary.main};
-
-      &::after {
-        content: '';
-        display: block;
-        height: 2px;
-        background-color: ${theme.palette.primary.main};
-        width: calc(100% - 16px);
-        position: absolute;
-        bottom: -8px;
-      }
-    }
-
-    &.Mui-disabled {
-      color: ${theme.palette.grey[400]};
-    }
-  }
-`
