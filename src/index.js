@@ -13,7 +13,7 @@ const { appEnv, sentryDsn } = envGlobalVar()
 if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
   Sentry.init({
     dsn: sentryDsn,
-    integrations: [browserTracingIntegration()],
+    integrations: [Sentry.browserTracingIntegration()],
     environment: appEnv,
   })
 }
