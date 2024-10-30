@@ -186,6 +186,7 @@ export const EditCustomerDunningCampaignDialog = forwardRef<
                 value: campaign.id,
               })) ?? []
             }
+            isEmptyNull={false}
             placeholder={translate('text_1729543690326d4dmmcw7n89')}
             PopperProps={{ displayInDialog: true }}
           />

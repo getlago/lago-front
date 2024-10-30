@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import {
@@ -102,6 +102,15 @@ const Dunnings = () => {
     },
   })
 
+  const sortedTable = useMemo(
+    () =>
+      [...(data?.dunningCampaigns.collection ?? [])].sort((a) => {
+        // Put items with appliedToOrganization: true first
+        return a.appliedToOrganization ? -1 : 1
+      }),
+    [data?.dunningCampaigns.collection],
+  )
+
   if (!!error && !loading) {
     return (
       <GenericPlaceholder
@@ -200,7 +209,7 @@ const Dunnings = () => {
                       containerSize={{ default: 0 }}
                       rowSize={72}
                       isLoading={loading}
-                      data={data.dunningCampaigns.collection}
+                      data={sortedTable}
                       columns={[
                         {
                           key: 'name',
