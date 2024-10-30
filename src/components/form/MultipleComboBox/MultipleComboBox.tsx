@@ -56,9 +56,10 @@ export const MultipleComboBox = ({
         : rawData
     ) as MultipleComboBoxData[]
   }, [rawData, sortValues])
+
   const filter = createFilterOptions<MultipleComboBoxData>({
-    matchFrom: 'start',
     stringify: (option) => option.label || option.value,
+    trim: true,
   })
 
   return (

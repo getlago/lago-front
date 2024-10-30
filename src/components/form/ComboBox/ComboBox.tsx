@@ -79,6 +79,7 @@ export const ComboBox = ({
   const filter = createFilterOptions<ComboBoxData>({
     matchFrom: allowAddValue ? 'start' : 'any',
     stringify: (option) => option.label || option.value,
+    trim: true,
   })
   const startAdornmentValue = useMemo(() => {
     if (!renderGroupInputStartAdornment || !value) return undefined
