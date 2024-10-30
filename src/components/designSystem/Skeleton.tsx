@@ -25,8 +25,17 @@ interface SkeletonConnectorProps {
   width?: never
   height?: never
   className?: string
+  /**
+   * @deprecated Use `className` and TailwindCSS instead
+   */
   marginRight?: number | string
+  /**
+   * @deprecated Use `className` and TailwindCSS instead
+   */
   marginBottom?: number | string
+  /**
+   * @deprecated Use `className` and TailwindCSS instead
+   */
   marginTop?: number | string
   color?: keyof typeof SkeletonColorEnum
 }
@@ -37,8 +46,17 @@ interface SkeletonGenericProps {
   height?: number | string
   size?: never
   className?: string
+  /**
+   * @deprecated Use `className` and TailwindCSS instead
+   */
   marginRight?: number | string
+  /**
+   * @deprecated Use `className` and TailwindCSS instead
+   */
   marginBottom?: number | string
+  /**
+   * @deprecated Use `className` and TailwindCSS instead
+   */
   marginTop?: number | string
   color?: keyof typeof SkeletonColorEnum
 }
