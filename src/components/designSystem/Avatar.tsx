@@ -77,7 +77,7 @@ const getBackgroundColorKey = (identifier?: string): keyof typeof colors.avatar 
   return colorKeys[colorIndex]
 }
 
-const avatarSizeStyles: Record<AvatarSize, string> = {
+export const avatarSizeStyles: Record<AvatarSize, string> = {
   small: cx('w-4 min-w-4 h-4 rounded'),
   intermediate: cx('w-6 min-w-6 h-6 rounded-lg'),
   medium: cx('w-8 min-w-8 h-8 rounded-xl'),

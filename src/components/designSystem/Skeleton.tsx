@@ -1,9 +1,9 @@
-import { cx } from 'class-variance-authority'
+import { cva } from 'class-variance-authority'
 import styled from 'styled-components'
 
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
-import { AvatarSize, mapAvatarSize } from './Avatar'
+import { AvatarSize, avatarSizeStyles, mapAvatarSize } from './Avatar'
 
 enum SkeletonVariantEnum {
   connectorAvatar = 'connectorAvatar', // squared with rounded corners
@@ -22,7 +22,13 @@ type TSkeletonVariant = keyof typeof SkeletonVariantEnum
 interface SkeletonConnectorProps {
   variant: Extract<TSkeletonVariant, 'userAvatar' | 'connectorAvatar'>
   size: AvatarSize
+  /**
+   * @deprecated Use `className` and TailwindCSS instead
+   */
   width?: never
+  /**
+   * @deprecated Use `className` and TailwindCSS instead
+   */
   height?: never
   className?: string
   /**
@@ -42,7 +48,13 @@ interface SkeletonConnectorProps {
 
 interface SkeletonGenericProps {
   variant: Extract<TSkeletonVariant, 'text' | 'circular'>
+  /**
+   * @deprecated Use `className` and TailwindCSS instead
+   */
   width?: number | string
+  /**
+   * @deprecated Use `className` and TailwindCSS instead
+   */
   height?: number | string
   size?: never
   className?: string
@@ -61,80 +73,76 @@ interface SkeletonGenericProps {
   color?: keyof typeof SkeletonColorEnum
 }
 
+const skeletonStyles = cva('w-full animate-pulse bg-grey-100', {
+  variants: {
+    size: avatarSizeStyles,
+    variant: {
+      connectorAvatar: '', // defined in avatarSizeStyles
+      userAvatar: '', // defined in avatarSizeStyles
+      text: 'h-3 rounded-3xl',
+      circular: 'rounded-full',
+    },
+    color: {
+      dark: 'bg-grey-300',
+      light: 'bg-grey-100',
+    },
+    defaultVariants: {
+      color: 'light',
+    },
+  },
+})
+
 export const Skeleton = ({
   className,
   variant,
-  marginRight,
-  marginBottom,
-  marginTop,
+  color,
   size,
-  height,
+  marginBottom,
+  marginRight,
+  marginTop,
   width,
-  color = SkeletonColorEnum.light,
+  height,
 }: SkeletonConnectorProps | SkeletonGenericProps) => {
   return (
     <SkeletonContainer
       $marginRight={marginRight}
       $marginBottom={marginBottom}
       $marginTop={marginTop}
-      $height={(size ? mapAvatarSize(size) : height) || 12}
-      $width={(size ? mapAvatarSize(size) : width) || 90}
-      className={cx(className, {
-        'skeleton-variant--circular': [
-          SkeletonVariantEnum.circular,
-          SkeletonVariantEnum.userAvatar,
-        ].includes(SkeletonVariantEnum[variant]),
-        'skeleton-variant--text': variant === SkeletonVariantEnum.text,
-        'skeleton-variant--rounded': variant === SkeletonVariantEnum.connectorAvatar,
-        'skeleton-color--dark': color === SkeletonColorEnum.dark,
-      })}
+      $height={size ? mapAvatarSize(size) : height}
+      $width={size ? mapAvatarSize(size) : width}
+      className={tw(skeletonStyles({ variant, color, size }), className)}
     />
   )
 }
 
 const SkeletonContainer = styled.div<{
-  $height: number | string
-  $width: number | string
+  $height?: number | string
+  $width?: number | string
   $marginRight?: number | string
   $marginBottom?: number | string
   $marginTop?: number | string
 }>`
-  animation: pulse 1.5s ease-in-out 0.5s infinite;
-  background-color: ${theme.palette.grey[100]};
   height: ${({ $height }) =>
     !$height ? 0 : typeof $height === 'number' ? `${$height}px` : $height};
-  width: 100%;
-  max-width: ${({ $width }) => (!$width ? 0 : typeof $width === 'number' ? `${$width}px` : $width)};
+
+  width: ${({ $width }) =>
+    !$width ? 0 : typeof $width === 'number' ? `${$width}px !important` : `${$width} !important`};
   margin-right: ${({ $marginRight }) =>
-    !$marginRight ? 0 : typeof $marginRight === 'number' ? `${$marginRight}px` : $marginRight};
+    !$marginRight
+      ? 0
+      : typeof $marginRight === 'number'
+        ? `${$marginRight}px ! important`
+        : `${$marginRight} !important`};
   margin-bottom: ${({ $marginBottom }) =>
-    !$marginBottom ? 0 : typeof $marginBottom === 'number' ? `${$marginBottom}px` : $marginBottom};
+    !$marginBottom
+      ? 0
+      : typeof $marginBottom === 'number'
+        ? `${$marginBottom}px ! important`
+        : `${$marginBottom} !important`};
   margin-top: ${({ $marginTop }) =>
-    !$marginTop ? 0 : typeof $marginTop === 'number' ? `${$marginTop}px` : $marginTop};
-
-  &.skeleton-color--dark {
-    background-color: ${theme.palette.grey[300]};
-  }
-
-  &.skeleton-variant--circular {
-    border-radius: 50%;
-  }
-  &.skeleton-variant--text {
-    border-radius: 32px;
-  }
-  &.skeleton-variant--rounded {
-    border-radius: 12px;
-  }
-
-  @keyframes pulse {
-    0% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.4;
-    }
-    100% {
-      opacity: 1;
-    }
-  }
+    !$marginTop
+      ? 0
+      : typeof $marginTop === 'number'
+        ? `${$marginTop}px ! important`
+        : `${$marginTop} !important`};
 `
