@@ -57,7 +57,6 @@ import {
   TAX_MANAGEMENT_INTEGRATION_ROUTE,
   XERO_INTEGRATION_ROUTE,
 } from '~/core/router'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { PremiumIntegrationTypeEnum, useIntegrationsSettingQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -167,7 +166,6 @@ const Integrations = () => {
     (integration) => integration?.__typename === 'XeroIntegration',
   )
 
-  const isHubspotFeatureFlagEnabled = isFeatureFlagActive(FeatureFlags.HUBSPOT_INTEGRATION)
   const hasHubspotIntegration = data?.integrations?.collection?.some(
     (integration) => integration?.__typename === 'HubspotIntegration',
   )
@@ -308,39 +306,37 @@ const Integrations = () => {
                 }}
                 fullWidth
               />
-              {isHubspotFeatureFlagEnabled && (
-                <Selector
-                  title={translate('text_1727189568053s79ks5q07tr')}
-                  subtitle={translate('text_1727189568053q2gpkjzpmxr')}
-                  icon={
-                    <Avatar size="big" variant="connector-full">
-                      {<Hubspot />}
-                    </Avatar>
+              <Selector
+                title={translate('text_1727189568053s79ks5q07tr')}
+                subtitle={translate('text_1727189568053q2gpkjzpmxr')}
+                icon={
+                  <Avatar size="big" variant="connector-full">
+                    {<Hubspot />}
+                  </Avatar>
+                }
+                endIcon={
+                  !hasAccessToHubspotPremiumIntegration ? (
+                    'sparkles'
+                  ) : hasHubspotIntegration ? (
+                    <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+                  ) : undefined
+                }
+                onClick={() => {
+                  if (!hasAccessToHubspotPremiumIntegration) {
+                    premiumWarningDialogRef.current?.openDialog({
+                      title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                      description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                      mailtoSubject: translate('text_172718956805392syzumhdlm'),
+                      mailtoBody: translate('text_1727189568053f91r4b3f4rl'),
+                    })
+                  } else if (hasHubspotIntegration) {
+                    navigate(HUBSPOT_INTEGRATION_ROUTE)
+                  } else {
+                    addHubspotDialogRef.current?.openDialog()
                   }
-                  endIcon={
-                    !hasAccessToHubspotPremiumIntegration ? (
-                      'sparkles'
-                    ) : hasHubspotIntegration ? (
-                      <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
-                    ) : undefined
-                  }
-                  onClick={() => {
-                    if (!hasAccessToHubspotPremiumIntegration) {
-                      premiumWarningDialogRef.current?.openDialog({
-                        title: translate('text_661ff6e56ef7e1b7c542b1ea'),
-                        description: translate('text_661ff6e56ef7e1b7c542b1f6'),
-                        mailtoSubject: translate('text_172718956805392syzumhdlm'),
-                        mailtoBody: translate('text_1727189568053f91r4b3f4rl'),
-                      })
-                    } else if (hasHubspotIntegration) {
-                      navigate(HUBSPOT_INTEGRATION_ROUTE)
-                    } else {
-                      addHubspotDialogRef.current?.openDialog()
-                    }
-                  }}
-                  fullWidth
-                />
-              )}
+                }}
+                fullWidth
+              />
               <Selector
                 fullWidth
                 title={translate('text_657078c28394d6b1ae1b9713')}

@@ -1,6 +1,6 @@
 // You can list your features such as FTR_ENABLED = 'ftr_enabled'
 export enum FeatureFlags {
-  HUBSPOT_INTEGRATION = 'hubspot_integration',
+  FTR_ENABLED = 'ftr_enabled',
 }
 
 const FF_KEY = 'featureFlags'
