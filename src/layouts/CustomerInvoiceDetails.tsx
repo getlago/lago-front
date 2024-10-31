@@ -896,12 +896,7 @@ const CustomerInvoiceDetails = () => {
               </div>
             </MainInfos>
           )}
-          <NavigationTab
-            leftSpacing={0}
-            name="Invoice details tab switcher"
-            tabs={tabsOptions}
-            loading={loading}
-          />
+          <NavigationTab name="Invoice details tab switcher" tabs={tabsOptions} loading={loading} />
           <Outlet />
         </Content>
       )}

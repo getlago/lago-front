@@ -198,10 +198,7 @@ const NetsuiteIntegrationDetails = () => {
       </MainInfos>
 
       <NavigationTab
-        leftSpacing={{
-          default: 16,
-          md: 48,
-        }}
+        className="px-4 md:px-12"
         loading={loading}
         tabs={[
           {

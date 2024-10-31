@@ -143,7 +143,7 @@ const DesignSystem = () => {
         <Typography variant="caption">Only visible in dev mode</Typography>
       </PageHeader>
       <NavigationTab
-        leftSpacing={48}
+        className="px-12"
         name="Design system tab switcher"
         tabs={[
           {
@@ -1567,6 +1567,13 @@ const DesignSystem = () => {
                 </Block>
               </Container>
             ),
+          },
+          // disabled simple tab
+          {
+            disabled: true,
+            title: 'Disabled',
+            link: '',
+            component: <></>,
           },
         ]}
       />

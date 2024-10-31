@@ -351,7 +351,6 @@ const CustomerDetails = () => {
 
             <StyledTabs data-test="customer-navigation-wrapper">
               <NavigationTab
-                leftSpacing={0}
                 tabs={[
                   {
                     title: translate('text_628cf761cbe6820138b8f2e4'),
