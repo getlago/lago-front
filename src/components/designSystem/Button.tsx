@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button as MuiButton, ButtonProps as MuiButtonProps } from '@mui/material'
-import { cx } from 'class-variance-authority'
+import { cva } from 'class-variance-authority'
 import { forwardRef, MouseEvent, useEffect, useRef, useState } from 'react'
-import styled, { css } from 'styled-components'
+
+import { tw } from '~/styles/utils'
 
 import { Icon, IconName } from './Icon'
 
@@ -58,17 +58,24 @@ interface ButtonIconProps
 export type ButtonProps = ButtonIconProps | SimpleButtonProps
 
 // Map the names used in our design system to match the MUI ones
-const mapProperties = (variant: ButtonVariant, inheritColor: boolean) => {
+const mapProperties = (
+  variant: ButtonVariant,
+  inheritColor: boolean,
+): {
+  color: MuiColor
+  variant: MuiVariant
+  sx?: { borderColor: MuiColor }
+} => {
   switch (variant) {
     case ButtonVariantEnum.secondary:
       return {
-        color: 'inherit' as MuiColor,
-        variant: 'contained' as MuiVariant,
+        color: 'inherit',
+        variant: 'contained',
       }
     case ButtonVariantEnum.tertiary:
       return {
-        color: 'inherit' as MuiColor,
-        variant: 'outlined' as MuiVariant,
+        color: 'inherit',
+        variant: 'outlined',
         sx: {
           borderColor: 'inherit',
         },
@@ -77,17 +84,34 @@ const mapProperties = (variant: ButtonVariant, inheritColor: boolean) => {
     case ButtonVariantEnum['quaternary-light']:
     case ButtonVariantEnum['quaternary-dark']:
       return {
-        color: inheritColor ? 'inherit' : ('inherit' as MuiColor),
-        variant: 'text' as MuiVariant,
+        color: inheritColor ? 'inherit' : undefined,
+        variant: 'text',
       }
     case ButtonVariantEnum.primary:
     default:
       return {
-        color: 'primary' as MuiColor,
-        variant: 'contained' as MuiVariant,
+        color: 'primary',
+        variant: 'contained',
       }
   }
 }
+
+const buttonVariants = cva('min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer', {
+  variants: {
+    fitContent: {
+      true: 'w-fit',
+    },
+    align: {
+      center: 'justify-center',
+      left: 'justify-start',
+      'space-between': 'justify-between',
+    },
+  },
+  defaultVariants: {
+    align: 'center',
+    fitContent: false,
+  },
+})
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
@@ -114,7 +138,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const mountedRef = useRef(false)
 
     useEffect(() => {
-      // This is for preventing setstate on unmounted component
+      // This is for preventing set state on unmounted component
       mountedRef.current = true
 
       return () => {
@@ -128,14 +152,14 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       if (onClick && !localLoading) {
         const res = onClick(e)
 
-        if (res !== null && (res as any) instanceof Promise) {
+        if (res !== null && (res as unknown) instanceof Promise) {
           let realLoading = true
 
-          // This is to prenvent icon blink if the loading time is really small
+          // This is to prevent icon blink if the loading time is really small
           setTimeout(() => {
             if (mountedRef.current && realLoading) setIsLoading(true)
           }, 100)
-          ;(res as unknown as Promise<any>).finally(() => {
+          ;(res as unknown as Promise<unknown>).finally(() => {
             if (mountedRef.current) {
               realLoading = false
               setIsLoading(false)
@@ -146,15 +170,20 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     return (
-      <StyledButton
-        className={cx(className, {
-          'button-danger': danger,
-          'button-icon-only': icon && !children,
-          'button-quaternary-light': variant === 'quaternary-light',
-          'button-quaternary-dark': variant === 'quaternary-dark',
-        })}
-        $align={align}
-        $fitContent={fitContent}
+      <MuiButton
+        className={tw(
+          {
+            'button-danger': danger,
+            'button-icon-only': icon && !children,
+            'button-quaternary-light': variant === 'quaternary-light',
+            'button-quaternary-dark': variant === 'quaternary-dark',
+          },
+          buttonVariants({
+            align,
+            fitContent,
+          }),
+          className,
+        )}
         onClick={handleClick}
         size={size}
         data-test="button"
@@ -188,24 +217,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ) : (
           children
         )}
-      </StyledButton>
+      </MuiButton>
     )
   },
 )
 
 Button.displayName = 'Button'
-
-const StyledButton = styled(MuiButton)<{ $align?: ButtonAlign; $fitContent?: boolean }>`
-  white-space: nowrap;
-  justify-content: ${({ $align }) => $align ?? 'inherit'} !important;
-  min-width: unset;
-  ${({ $fitContent }) =>
-    $fitContent &&
-    css`
-      width: fit-content;
-    `}
-
-  > svg:hover {
-    cursor: pointer;
-  }
-`
