@@ -1,8 +1,14 @@
 import { Typography } from '@mui/material'
 import { useFormik } from 'formik'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { mixed, object, string } from 'yup'
 
-import { Button, Drawer, DrawerRef } from '~/components/designSystem'
+import {
+  isValidJSON,
+  wrappedEvaluateExpression,
+  wrappedParseExpression,
+} from '~/components/billableMetrics/utils'
+import { Button, Drawer, DrawerRef, Icon } from '~/components/designSystem'
 import { JsonEditorField } from '~/components/form/JsonEditor'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Divider } from '~/styles/mainObjectsForm'
@@ -22,9 +28,26 @@ type CustomExpressionDrawerProps = {
   onSave: (expression: string) => void
 }
 
+export type EventPayload = {
+  events: {
+    transaction_id: string
+    external_subscription_id: string
+    code: string
+    timestamp: number
+    properties: {
+      [key: string]: string
+    }
+  }
+}
+
 type CustomExpressionInput = {
   expression: string
-  eventPayload: object
+  eventPayload: EventPayload
+}
+
+export type ValidationResult = {
+  result?: string | null
+  error?: string | null
 }
 
 const CUSTOM_EXPRESSION_EXAMPLES = [
@@ -32,33 +55,6 @@ const CUSTOM_EXPRESSION_EXAMPLES = [
   'concat(event.properties.user_id, ‘-‘ , event.properties.app_id)',
   '(event.properties.ended_at - event.timestamp) / 3600',
 ]
-
-type ValidationResult = {
-  result?: string | null
-  error?: string | null
-}
-
-const parseExpression = async (expression: string) => {
-  if (expression === 'break-parse') {
-    throw new Error('Invalid')
-  }
-
-  return
-}
-
-const validateExpression = async (expression: string): Promise<ValidationResult> => {
-  if (expression === 'break-validate') {
-    return {
-      result: null,
-      error: 'The expression you have provided is not valid',
-    }
-  }
-
-  return {
-    result: '5.12345',
-    error: null,
-  }
-}
 
 const TIMESTAMP = new Date().getTime()
 
@@ -93,6 +89,10 @@ export const CustomExpressionDrawer = forwardRef<
         },
       },
     },
+    validationSchema: object().shape({
+      expression: string().test((value) => wrappedParseExpression(value)),
+      eventPayload: mixed().test((value) => isValidJSON(value)),
+    }),
     validateOnMount: true,
     enableReinitialize: true,
     onSubmit: (values) => {
@@ -105,7 +105,10 @@ export const CustomExpressionDrawer = forwardRef<
   })
 
   const onValidateExpression = async () => {
-    const result = await validateExpression(formikProps.values.expression)
+    const result = wrappedEvaluateExpression(
+      formikProps.values.expression,
+      formikProps.values.eventPayload,
+    )
 
     setValidationResult(result)
   }
@@ -117,6 +120,8 @@ export const CustomExpressionDrawer = forwardRef<
     },
     closeDrawer: () => drawerRef.current?.closeDrawer(),
   }))
+
+  const hasErrors = !!(formikProps.errors.expression || formikProps.errors.eventPayload)
 
   return (
     <Drawer
@@ -132,7 +137,7 @@ export const CustomExpressionDrawer = forwardRef<
               size="large"
               variant="secondary"
               onClick={onValidateExpression}
-              disabled={!formikProps.values.expression}
+              disabled={hasErrors}
             >
               {translate('text_1729773655417m826qhyr465')}
             </Button>
@@ -174,25 +179,26 @@ export const CustomExpressionDrawer = forwardRef<
           disabled={!localData?.isEditable}
           label={translate('text_17297736554164pkbpqi0ke8')}
           editorMode="text"
-          validate={parseExpression}
           customInvalidError="text_1729864793151rrlucly2t6d"
           showHelperOnError={true}
           formikProps={formikProps}
           placeholder={translate('text_1729771640162kaf49b93e20') + '\n'}
           helperText={
-            <div className="mt-1 flex flex-col gap-1">
+            <div className="mt-1">
               <Typography className="text-sm font-normal text-grey-600">
                 {translate('text_1729773655417n5w5fu02lbm')}
               </Typography>
 
-              {CUSTOM_EXPRESSION_EXAMPLES.map((example) => (
-                <Typography
-                  key={example}
-                  className="rounded-lg border border-grey-300 bg-grey-100 px-2 py-0.5 text-sm font-normal text-grey-600"
-                >
-                  {example}
-                </Typography>
-              ))}
+              <div className="mt-1 flex flex-col items-start gap-1">
+                {CUSTOM_EXPRESSION_EXAMPLES.map((example) => (
+                  <Typography
+                    key={example}
+                    className="rounded-lg border border-grey-300 bg-grey-100 px-2 py-0.5 text-sm font-normal text-grey-600"
+                  >
+                    {example}
+                  </Typography>
+                ))}
+              </div>
             </div>
           }
         />
@@ -215,6 +221,7 @@ export const CustomExpressionDrawer = forwardRef<
           height="300px"
           label={translate('text_1729773655417k0y7nxt5c5j')}
           formikProps={formikProps}
+          customInvalidError="text_6638a3538de76801ac2f451b"
           placeholder={translate('text_17297753616921jc1iyf6mke')}
         />
 
@@ -223,7 +230,15 @@ export const CustomExpressionDrawer = forwardRef<
             {translate('text_1729773655417b4y4j7oatnq')}
           </Typography>
 
-          {validationResult?.error && <div>Error</div>}
+          {validationResult?.error && (
+            <div className="flex items-center gap-2">
+              <Icon name="warning-filled" color="warning" />
+
+              <Typography className="text-base font-normal text-grey-600">
+                {validationResult?.error}
+              </Typography>
+            </div>
+          )}
 
           {!validationResult?.result && !validationResult?.error && (
             <Typography className="text-base font-normal text-grey-500">
