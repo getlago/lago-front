@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import React, { memo, useRef } from 'react'
+import { memo, useRef } from 'react'
 import styled from 'styled-components'
 
 import { Button, Typography } from '~/components/designSystem'

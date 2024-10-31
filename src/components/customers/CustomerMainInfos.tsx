@@ -610,7 +610,6 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
           ))}
       </InfosBlock>
       {shouldSeeMoreButton && !showMore && (
-        // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
         <ShowMoreButton
           onClick={() => {
             const hiddenItems = Array.from(

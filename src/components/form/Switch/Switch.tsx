@@ -97,7 +97,7 @@ export const Switch = ({
           onBlur={() => setFocused(false)}
         />
         {loading && <Loader animation="spin" name="processing" color="light" />}
-        <StyledTypography color={disabled ? 'inherit' : 'contrast'} variant="noteHl">
+        <StyledTypography color={disabled ? 'inherit' : 'white'} variant="noteHl">
           On
         </StyledTypography>
         <StyledTypography color={disabled ? 'inherit' : 'disabled'} variant="noteHl">

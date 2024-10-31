@@ -148,7 +148,7 @@ export const AddAnrokDialog = forwardRef<AddAnrokDialogRef>((_, ref) => {
             },
             context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
           })
-        } catch (error) {}
+        } catch {}
       }
 
       const { errors } = res as

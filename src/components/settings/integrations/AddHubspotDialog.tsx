@@ -166,7 +166,7 @@ export const AddHubspotDialog = forwardRef<AddHubspotDialogRef>((_, ref) => {
               return handleError(res.errors)
             }
           }
-        } catch (error) {
+        } catch {
           setShowGlobalError(true)
           return
         }

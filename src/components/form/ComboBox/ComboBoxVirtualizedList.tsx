@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { ReactElement, useEffect, useRef } from 'react'
 import { VariableSizeList } from 'react-window'
 

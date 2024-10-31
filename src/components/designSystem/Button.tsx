@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
-/* eslint-disable react/prop-types */
 import { Button as MuiButton, ButtonProps as MuiButtonProps } from '@mui/material'
 import { cx } from 'class-variance-authority'
 import { forwardRef, MouseEvent, useEffect, useRef, useState } from 'react'

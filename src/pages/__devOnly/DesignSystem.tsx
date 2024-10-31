@@ -806,7 +806,7 @@ const DesignSystem = () => {
                     <Typography color="grey500">color grey500</Typography>
                     <Typography color="disabled">color disabled</Typography>
                     <Typography color="danger600">color danger600</Typography>
-                    <Typography color="contrast">color contrast</Typography>
+                    <Typography color="white">color white</Typography>
                   </VerticalBlock>
                 </Block>
               </Container>

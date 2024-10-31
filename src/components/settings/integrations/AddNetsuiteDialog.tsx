@@ -195,7 +195,7 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
               return handleError(res.errors)
             }
           }
-        } catch (error) {
+        } catch {
           setShowGlobalError(true)
           return
         }

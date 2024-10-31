@@ -30,7 +30,6 @@ enum ColorTypeEnum {
   warning700 = 'warning.700',
   success600 = 'success.600',
   inherit = 'inherit',
-  contrast = 'common.white',
   white = 'common.white',
   disabled = 'text.disabled', // This is to maintain the existing code
   textPrimary = 'text.primary', // This is to maintain the existing code

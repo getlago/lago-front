@@ -5,22 +5,16 @@ import { tw } from '~/styles/utils'
 
 import { AvatarSize, avatarSizeStyles, mapAvatarSize } from './Avatar'
 
-enum SkeletonVariantEnum {
-  connectorAvatar = 'connectorAvatar', // squared with rounded corners
-  userAvatar = 'userAvatar', // rounded
-  text = 'text',
-  circular = 'circular',
-}
+type SkeletonVariant =
+  | 'connectorAvatar' // squared with rounded corners
+  | 'userAvatar' // rounded
+  | 'text'
+  | 'circular'
 
-enum SkeletonColorEnum {
-  dark = 'dark',
-  light = 'light',
-}
-
-type TSkeletonVariant = keyof typeof SkeletonVariantEnum
+type SkeletonColor = 'dark' | 'light'
 
 interface SkeletonConnectorProps {
-  variant: Extract<TSkeletonVariant, 'userAvatar' | 'connectorAvatar'>
+  variant: Extract<SkeletonVariant, 'userAvatar' | 'connectorAvatar'>
   size: AvatarSize
   /**
    * @deprecated Use `className` and TailwindCSS instead
@@ -43,11 +37,11 @@ interface SkeletonConnectorProps {
    * @deprecated Use `className` and TailwindCSS instead
    */
   marginTop?: number | string
-  color?: keyof typeof SkeletonColorEnum
+  color?: SkeletonColor
 }
 
 interface SkeletonGenericProps {
-  variant: Extract<TSkeletonVariant, 'text' | 'circular'>
+  variant: Extract<SkeletonVariant, 'text' | 'circular'>
   /**
    * @deprecated Use `className` and TailwindCSS instead
    */
@@ -70,7 +64,7 @@ interface SkeletonGenericProps {
    * @deprecated Use `className` and TailwindCSS instead
    */
   marginTop?: number | string
-  color?: keyof typeof SkeletonColorEnum
+  color?: SkeletonColor
 }
 
 const skeletonStyles = cva('w-full animate-pulse bg-grey-100', {

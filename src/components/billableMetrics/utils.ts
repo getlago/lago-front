@@ -39,7 +39,7 @@ export const wrappedParseExpression = (expression?: string | null): boolean => {
     parseExpression(expression)
 
     return true
-  } catch (e) {
+  } catch {
     return false
   }
 }
@@ -59,7 +59,7 @@ export const isValidJSON = (json?: unknown) => {
     }
 
     return true
-  } catch (e) {
+  } catch {
     return false
   }
 }

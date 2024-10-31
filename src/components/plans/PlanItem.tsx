@@ -94,7 +94,6 @@ export const PlanItem = memo(
           <Popper
             PopperProps={{ placement: 'bottom-end' }}
             opener={({ isOpen }) => (
-              // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
               <PopperOpener>
                 <Tooltip
                   placement="top-end"
