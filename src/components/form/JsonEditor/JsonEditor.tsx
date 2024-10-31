@@ -192,7 +192,7 @@ export const JsonEditor = ({
 
       {error && (
         <Helper variant="caption" color="danger600">
-          {customInvalidError && translate(customInvalidError)}
+          {customInvalidError}
 
           {!customInvalidError &&
             error === JSON_EDITOR_ERROR_ENUM.invalid &&

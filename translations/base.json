@@ -2190,8 +2190,6 @@
   "text_62694d9181be8d00a33f20f8": "Max",
   "text_62694d9181be8d00a33f2100": "Sum",
   "text_62694d9181be8d00a33f20f6": "Determines the number of unique values associated with the custom property",
-  "text_62694d9181be8d00a33f20fe": "Property to aggregate",
-  "text_62694d9181be8d00a33f2105": "Type the name of a property",
   "text_62694d9181be8d00a33f20f2": "Only takes into account the highest value received",
   "text_62694d9181be8d00a33f20ec": "Adds up all the values received for the defined property",
   "text_63971043c9668f1ba5221bac": "0|0.00|0.000",
@@ -2596,4 +2594,3 @@
   "text_1729864793151rrlucly2t6d": "Invalid expression",
   "text_1729864971171gfdioq71rvt": "Not valid"
 }
-
