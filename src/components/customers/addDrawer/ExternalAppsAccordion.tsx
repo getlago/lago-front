@@ -31,7 +31,6 @@ import {
   MUI_BUTTON_BASE_ROOT_CLASSNAME,
 } from '~/core/constants/form'
 import { INTEGRATIONS_ROUTE } from '~/core/router'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   AnrokIntegration,
   CreateCustomerInput,
@@ -182,8 +181,6 @@ type TExternalAppsAccordionProps = {
 
 export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsAccordionProps) => {
   const { translate } = useInternationalization()
-
-  const isHubspotFeatureFlagEnabled = isFeatureFlagActive(FeatureFlags.HUBSPOT_INTEGRATION)
 
   const [getPaymentProvidersData, { data: paymentProvidersData }] =
     usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQuery({
@@ -1152,7 +1149,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
             </Accordion>
           </Stack>
         )}
-        {isHubspotFeatureFlagEnabled && showCRMIntegrationSection && (
+        {showCRMIntegrationSection && (
           <Stack gap={1}>
             <Typography variant="captionHl" color="grey700">
               {translate('text_1728658962985xpfdvl5ru8a')}
@@ -1430,31 +1427,29 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                 {translate('text_6668821d94e4da4dfd8b3840')}
               </Button>
 
-              {isHubspotFeatureFlagEnabled && (
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  disabled={showCRMIntegrationSection}
-                  onClick={() => {
-                    setShowCRMIntegrationSection(true)
+              <Button
+                variant="quaternary"
+                align="left"
+                disabled={showCRMIntegrationSection}
+                onClick={() => {
+                  setShowCRMIntegrationSection(true)
 
-                    setTimeout(() => {
-                      const element = document.querySelector(
-                        `.${ADD_CUSTOMER_CRM_PROVIDER_ACCORDION} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
-                      ) as HTMLElement
+                  setTimeout(() => {
+                    const element = document.querySelector(
+                      `.${ADD_CUSTOMER_CRM_PROVIDER_ACCORDION} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
+                    ) as HTMLElement
 
-                      if (!element) return
+                    if (!element) return
 
-                      element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                      element.click()
-                    }, 1)
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                    element.click()
+                  }, 1)
 
-                    closePopper()
-                  }}
-                >
-                  {translate('text_1728658962985xpfdvl5ru8a')}
-                </Button>
-              )}
+                  closePopper()
+                }}
+              >
+                {translate('text_1728658962985xpfdvl5ru8a')}
+              </Button>
             </MenuPopper>
           )}
         </Popper>
