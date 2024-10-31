@@ -9,7 +9,7 @@ interface JsonEditorFieldProps extends Omit<JsonEditorProps, 'onChange' | 'name'
   formikProps: FormikValues
   name: string
   editorMode?: 'text' | 'json'
-  validate?: (value: string) => Promise<void>
+  validate?: (value: string) => void
   customInvalidError?: string
   showHelperOnError?: boolean
 }

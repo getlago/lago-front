@@ -37,7 +37,7 @@ export interface JsonEditorProps {
   hideLabel?: boolean
   editorMode?: 'text' | 'json'
   showHelperOnError?: boolean
-  validate?: (value: string) => Promise<void>
+  validate?: (value: string) => void
   onBlur?: (props: unknown) => void
   onChange?: (value: string) => void
   onError?: (err: keyof typeof JSON_EDITOR_ERROR_ENUM) => void
@@ -153,9 +153,11 @@ export const JsonEditor = ({
             if (!jsonQuery) return true
 
             if (validate) {
-              validate(jsonQuery).catch((e) => {
+              try {
+                validate(jsonQuery)
+              } catch (e) {
                 onError && onError(JSON_EDITOR_ERROR_ENUM.invalidCustomValidate)
-              })
+              }
             } else if (editorMode === 'json') {
               try {
                 JSON.parse(jsonQuery)
