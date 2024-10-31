@@ -14,9 +14,8 @@ import {
   useRef,
   useState,
 } from 'react'
-import styled from 'styled-components'
 
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 interface PopperProps {
   className?: string
@@ -85,7 +84,7 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
 
     return (
       <ClickAwayListener onClickAway={onClickAwayProxy}>
-        <div className={className}>
+        <div className={tw(className)}>
           {typeof opener === 'function'
             ? cloneElement(opener({ isOpen }), {
                 onClick: (e: MouseEvent<HTMLDivElement>) => {
@@ -98,16 +97,16 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
               })
             : // @ts-expect-error
               cloneElement(opener, { onClick: toggle, ref: openerRef })}
-          <StyledPopper
+          <MuiPopper
+            className={tw(displayInDialog ? 'z-dialog' : 'z-popper')}
+            style={{ minWidth: `${minWidth ?? openerRef?.current?.offsetWidth ?? 0}px` }}
             onKeyDown={(e) => {
               if (e.code === 'Escape') {
                 updateIsOpen(false)
               }
             }}
-            $displayInDialog={displayInDialog}
             open={isOpen}
             anchorEl={openerRef.current}
-            $minWidth={minWidth ?? openerRef?.current?.offsetWidth ?? 0}
             modifiers={[
               {
                 name: 'flip',
@@ -123,12 +122,24 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
             ]}
             {...PopperProps}
           >
-            <StyledCard ref={cardRef} tabIndex={0} $maxHeight={maxHeight}>
+            <div
+              ref={cardRef}
+              className={tw(
+                'overflow-auto scroll-smooth rounded-xl border border-grey-200 bg-white shadow-md focus:outline-none not-last-child:mb-1',
+              )}
+              style={{
+                maxHeight: maxHeight
+                  ? typeof maxHeight === 'string'
+                    ? maxHeight
+                    : `${maxHeight}px`
+                  : '90vh',
+              }}
+            >
               {typeof children === 'function'
                 ? children({ closePopper: () => updateIsOpen(false) })
                 : children}
-            </StyledCard>
-          </StyledPopper>
+            </div>
+          </MuiPopper>
         </div>
       </ClickAwayListener>
     )
@@ -136,28 +147,3 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
 )
 
 Popper.displayName = 'Popper'
-
-const StyledPopper = styled(MuiPopper)<{ $minWidth?: number; $displayInDialog?: boolean }>`
-  min-width: ${({ $minWidth }) => $minWidth}px;
-  z-index: ${({ $displayInDialog }) =>
-    $displayInDialog ? theme.zIndex.dialog + 1 : theme.zIndex.popper};
-`
-
-const StyledCard = styled.div<{ $maxHeight?: number | string }>`
-  background-color: ${theme.palette.background.default};
-  box-shadow: ${theme.shadows[2]};
-  border: 1px solid ${theme.palette.grey[200]};
-  border-radius: 12px;
-  overflow: auto;
-  scroll-behavior: smooth;
-  max-height: ${({ $maxHeight }) =>
-    $maxHeight ? (typeof $maxHeight === 'string' ? $maxHeight : `${$maxHeight}px`) : '90vh'};
-
-  :focus {
-    outline: none;
-  }
-
-  > :not(:last-child) {
-    margin-bottom: ${theme.spacing(1)};
-  }
-`
