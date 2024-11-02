@@ -5,7 +5,7 @@ import _omit from 'lodash/omit'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { array, bool, object, string } from 'yup'
+import { array, bool, number, object, string } from 'yup'
 
 import { BillableMetricCodeSnippet } from '~/components/billableMetrics/BillableMetricCodeSnippet'
 import {
@@ -32,7 +32,11 @@ import {
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { BILLABLE_METRICS_ROUTE } from '~/core/router'
-import { AggregationTypeEnum, CreateBillableMetricInput } from '~/generated/graphql'
+import {
+  AggregationTypeEnum,
+  CreateBillableMetricInput,
+  RoundingFunctionEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditBillableMetric } from '~/hooks/useCreateEditBillableMetric'
 import { Card, PageHeader, theme } from '~/styles'
@@ -61,6 +65,8 @@ gql`
     subscriptionsCount
     plansCount
     recurring
+    roundingFunction
+    roundingPrecision
     filters {
       key
       values
@@ -101,6 +107,8 @@ const CreateBillableMetric = () => {
       aggregateOnTab: billableMetric?.expression
         ? AggregateOnTab.CustomExpression
         : AggregateOnTab.UniqueField,
+      roundingFunction: billableMetric?.roundingFunction || undefined,
+      roundingPrecision: billableMetric?.roundingPrecision || 0,
     },
     validationSchema: object().shape({
       name: string().required(''),
@@ -117,6 +125,7 @@ const CreateBillableMetric = () => {
         then: (schema) => schema.required(''),
       }),
       recurring: bool().required(''),
+      roundingPrecision: number(),
       filters: array()
         .of(
           object().test({

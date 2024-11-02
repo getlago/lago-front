@@ -101,6 +101,8 @@ export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricRetur
   const mutationInput = (values: CreateBillableMetricInput | UpdateBillableMetricInput) => {
     return {
       ...values,
+      roundingPrecision: values.roundingPrecision ? Number(values.roundingPrecision) : null,
+      roundingFunction: values.roundingFunction ?? null,
       weightedInterval:
         values.aggregationType === AggregationTypeEnum.WeightedSumAgg
           ? WeightedIntervalEnum.Seconds
