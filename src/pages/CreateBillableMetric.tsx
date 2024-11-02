@@ -79,6 +79,24 @@ enum AggregateOnTab {
   CustomExpression,
 }
 
+const TRANSLATIONS_MAP_ROUNDING_FUNCTION: Record<
+  RoundingFunctionEnum,
+  { label: string; description: string }
+> = {
+  [RoundingFunctionEnum.Round]: {
+    label: 'text_1730554642648p1mngqwys8n',
+    description: 'text_1730554642648qe9wjveh3fv',
+  },
+  [RoundingFunctionEnum.Floor]: {
+    label: 'text_1730554642648f6pn2krp9sh',
+    description: 'text_173055464264830liis0ojbc',
+  },
+  [RoundingFunctionEnum.Ceil]: {
+    label: 'text_17305546426481bes2lelpqf',
+    description: 'text_1730554642648grbu07mq6u3',
+  },
+}
+
 const CreateBillableMetric = () => {
   const { translate } = useInternationalization()
   let navigate = useNavigate()
