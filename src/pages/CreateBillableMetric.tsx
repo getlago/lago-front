@@ -602,6 +602,112 @@ const CreateBillableMetric = () => {
                       )}
                     </Stack>
 
+                    {!(isEdition && !canBeEdited && !billableMetric?.roundingFunction) && (
+                      <div>
+                        <div className="mb-6">
+                          <Typography className="text-base font-medium text-grey-700">
+                            {translate('text_1730554642648mbs3upovd2q')}
+                          </Typography>
+
+                          <Typography className="text-sm font-normal leading-6 text-grey-600">
+                            {translate('text_1730554642648xg3fknfme8w')}
+                          </Typography>
+                        </div>
+
+                        {formikProps.values.roundingFunction === undefined && (
+                          <div>
+                            <Button
+                              variant="quaternary"
+                              startIcon="plus"
+                              onClick={() => {
+                                formikProps.setFieldValue('roundingFunction', null)
+                                formikProps.setFieldValue('roundingPrecision', 0)
+                              }}
+                            >
+                              {translate('text_173055464264877451cjmqa1')}
+                            </Button>
+                          </div>
+                        )}
+
+                        {(formikProps.values.roundingFunction ||
+                          formikProps.values.roundingFunction === null) && (
+                          <div className="mb-1 flex items-center gap-4">
+                            <div className="flex grow items-center gap-6">
+                              <ComboBoxField
+                                name="roundingFunction"
+                                formikProps={formikProps}
+                                disabled={isEdition && !canBeEdited}
+                                disableClearable={isEdition && !canBeEdited}
+                                sortValues={false}
+                                virtualized={false}
+                                containerClassName="w-full"
+                                label={
+                                  <Typography className="text-sm font-medium text-grey-700">
+                                    {translate('text_17305547268320wyhpbm8hh0')}
+                                  </Typography>
+                                }
+                                placeholder={translate('text_1730554642648npqmnqnsynd')}
+                                data={Object.values(RoundingFunctionEnum)
+                                  .filter(
+                                    (roundingFunction) =>
+                                      !!TRANSLATIONS_MAP_ROUNDING_FUNCTION[roundingFunction],
+                                  )
+                                  .map((roundingFunction) => ({
+                                    label: translate(
+                                      TRANSLATIONS_MAP_ROUNDING_FUNCTION[roundingFunction].label,
+                                    ),
+                                    description: translate(
+                                      TRANSLATIONS_MAP_ROUNDING_FUNCTION[roundingFunction]
+                                        .description,
+                                    ),
+                                    value: roundingFunction,
+                                  }))}
+                              />
+
+                              {formikProps.values.roundingFunction && (
+                                <TextInputField
+                                  name="roundingPrecision"
+                                  type="number"
+                                  disabled={isEdition && !canBeEdited}
+                                  label={
+                                    <Typography className="whitespace-nowrap text-sm font-medium text-grey-700">
+                                      {translate('text_1730554726832vyn9bep4u0f')}
+                                    </Typography>
+                                  }
+                                  placeholder="0"
+                                  formikProps={formikProps}
+                                />
+                              )}
+                            </div>
+
+                            {!(isEdition && !canBeEdited) && (
+                              <div className="flex w-7 items-center justify-center pt-6">
+                                <Button
+                                  icon="trash"
+                                  variant="quaternary"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+
+                                    formikProps.setFieldValue('roundingFunction', undefined)
+                                    formikProps.setFieldValue('roundingPrecision', 0)
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        <Typography className="text-sm font-normal text-grey-600">
+                          {formikProps.values.roundingFunction &&
+                            translate(
+                              TRANSLATIONS_MAP_ROUNDING_FUNCTION[
+                                formikProps.values.roundingFunction
+                              ].description,
+                            )}
+                        </Typography>
+                      </div>
+                    )}
+
                     <Stack spacing={6}>
                       <div>
                         <Typography variant="bodyHl" color="grey700">
