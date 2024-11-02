@@ -221,7 +221,7 @@ export const CustomExpressionDrawer = forwardRef<
           height="300px"
           label={translate('text_1729773655417k0y7nxt5c5j')}
           formikProps={formikProps}
-          customInvalidError="text_6638a3538de76801ac2f451b"
+          customInvalidError={translate('text_6638a3538de76801ac2f451b')}
           placeholder={translate('text_17297753616921jc1iyf6mke')}
         />
 
