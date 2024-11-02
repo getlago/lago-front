@@ -15,9 +15,9 @@ export const wrappedEvaluateExpression = (
 
     const res = evaluateExpression(
       parseExpression(expression),
-      eventPayload.events.code,
-      eventPayload.events.timestamp,
-      eventPayload.events.properties,
+      eventPayload.event.code,
+      eventPayload.event.timestamp,
+      eventPayload.event.properties,
     )
 
     return {

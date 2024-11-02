@@ -29,7 +29,7 @@ type CustomExpressionDrawerProps = {
 }
 
 export type EventPayload = {
-  events: {
+  event: {
     transaction_id: string
     external_subscription_id: string
     code: string
@@ -78,7 +78,7 @@ export const CustomExpressionDrawer = forwardRef<
     initialValues: {
       expression: localData?.expression || '',
       eventPayload: {
-        events: {
+        event: {
           transaction_id: 'trx_id_123456789',
           external_subscription_id: 'sub_id_123456789',
           code: localData?.billableMetricCode || '__BILLABLE_METRIC_CODE__',
