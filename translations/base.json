@@ -2570,6 +2570,7 @@
   "text_1729262241097k3cnpci6p5j": "Prepaid credits",
   "text_1729262339446mk289ygp31g": "Refund customer",
   "text_17295725378539prq3x0wpry": "{{invoiceNumber}} for a remaining subtotal of {{subtotal}}",
+<<<<<<< HEAD
   "text_1730132579304cmiwba11ha6": "Received at",
   "text_1729771640162n696lisyg7u": "Aggregate on",
   "text_1729771640162c43hsk6e4tg": "Unique field",
@@ -2592,5 +2593,19 @@
   "text_1729773655417m826qhyr465": "Test expression",
   "text_17297736554176g6clgo34du": "Define expression",
   "text_1729864793151rrlucly2t6d": "Invalid expression",
-  "text_1729864971171gfdioq71rvt": "Not valid"
+  "text_1729864971171gfdioq71rvt": "Not valid",
+  "text_1730132579304cmiwba11ha6": "Received at",
+  "text_1730554642648mbs3upovd2q": "Apply rounding to aggregated total units",
+  "text_1730554642648xg3fknfme8w": "By default, Lago does not round this data, but you can specify custom rounding rules to adjust the aggregated total units.",
+  "text_173055464264877451cjmqa1": "Add a rounding rule",
+  "text_1730554642648npqmnqnsynd": "Search and select a rounding rule",
+  "text_17305546426481bes2lelpqf": "Ceil",
+  "text_1730554642648grbu07mq6u3": "Rounds a number up to the nearest integer (e.g. 4.2 = 5)",
+  "text_1730554642648f6pn2krp9sh": "Floor",
+  "text_173055464264830liis0ojbc": "Rounds a number down to the nearest integer (e.g. 4.2 = 4)",
+  "text_1730554642648p1mngqwys8n": "Round",
+  "text_1730554642648qe9wjveh3fv": "Rounds a number based on the decimals value (e.g. 4.2 = 4 or 4.6 = 5)",
+  "text_17305547268320wyhpbm8hh0": "Rounding rule",
+  "text_1730554726832vyn9bep4u0f": "Precision (optional)"
 }
+
