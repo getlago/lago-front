@@ -31,6 +31,7 @@ export const ComboBox = ({
   error,
   PopperProps,
   className,
+  containerClassName = '',
   searchQuery,
   emptyText,
   disableClearable = false,
@@ -91,6 +92,7 @@ export const ComboBox = ({
 
   return (
     <Autocomplete
+      className={containerClassName}
       options={data}
       disabled={disabled}
       onOpen={() => {
