@@ -8,7 +8,7 @@ import {
   wrappedEvaluateExpression,
   wrappedParseExpression,
 } from '~/components/billableMetrics/utils'
-import { Button, Drawer, DrawerRef, Icon } from '~/components/designSystem'
+import { Button, Chip, Drawer, DrawerRef, Icon } from '~/components/designSystem'
 import { JsonEditorField } from '~/components/form/JsonEditor'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Divider } from '~/styles/mainObjectsForm'
@@ -190,13 +190,15 @@ export const CustomExpressionDrawer = forwardRef<
               </Typography>
 
               <div className="mt-1 flex flex-col items-start gap-1">
-                {CUSTOM_EXPRESSION_EXAMPLES.map((example) => (
-                  <Typography
-                    key={example}
-                    className="rounded-lg border border-grey-300 bg-grey-100 px-2 py-0.5 text-sm font-normal text-grey-600"
-                  >
-                    {example}
-                  </Typography>
+                {CUSTOM_EXPRESSION_EXAMPLES.map((example, index) => (
+                  <Chip
+                    key={`ce-drawer-${index}`}
+                    className="!px-2 !py-0.5"
+                    size="small"
+                    variant="captionCode"
+                    color="grey600"
+                    label={example}
+                  />
                 ))}
               </div>
             </div>
