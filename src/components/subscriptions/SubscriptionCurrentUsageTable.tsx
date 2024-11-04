@@ -198,7 +198,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
                 : formatDateToTZ(usageData?.fromDatetime, customerTimezone),
               toDate: locale
                 ? intlFormatDateToDateMed(usageData?.toDatetime, customerTimezone, locale)
-                : formatDateToTZ(usageData?.fromDatetime, customerTimezone),
+                : formatDateToTZ(usageData?.toDatetime, customerTimezone),
             })}
           </Typography>
         ) : null}
