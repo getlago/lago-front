@@ -1,6 +1,6 @@
 name: Lint
 
-on:
+on: 
   pull_request:
     types: [opened, reopened, review_requested, ready_for_review, synchronize]
 
@@ -8,6 +8,7 @@ jobs:
   run-linters:
     name: Run linters
     runs-on: ubuntu-latest
+
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
@@ -21,15 +22,10 @@ jobs:
       - name: Install Node.js dependencies
         run: yarn
 
-      - name: Run linters
-        uses: wearerequired/lint-action@v2
-        with:
-          eslint: true
-          eslint_extensions: js,ts,tsx
-          continue_on_error: false
-          prettier: true
-          prettier_extensions: ts,tsx,svg,html
-
       - name: Run Translation Check
         run: |
           yarn translations:inspect
+
+      - name: Run linters
+        run: |
+          yarn lint
