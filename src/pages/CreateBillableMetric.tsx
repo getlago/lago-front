@@ -126,7 +126,7 @@ const CreateBillableMetric = () => {
         ? AggregateOnTab.CustomExpression
         : AggregateOnTab.UniqueField,
       roundingFunction: billableMetric?.roundingFunction || undefined,
-      roundingPrecision: billableMetric?.roundingPrecision || 0,
+      roundingPrecision: billableMetric?.roundingPrecision || undefined,
     },
     validationSchema: object().shape({
       name: string().required(''),
@@ -621,7 +621,6 @@ const CreateBillableMetric = () => {
                               startIcon="plus"
                               onClick={() => {
                                 formikProps.setFieldValue('roundingFunction', null)
-                                formikProps.setFieldValue('roundingPrecision', 0)
                               }}
                             >
                               {translate('text_173055464264877451cjmqa1')}
@@ -689,7 +688,7 @@ const CreateBillableMetric = () => {
                                     e.stopPropagation()
 
                                     formikProps.setFieldValue('roundingFunction', undefined)
-                                    formikProps.setFieldValue('roundingPrecision', 0)
+                                    formikProps.setFieldValue('roundingPrecision', undefined)
                                   }}
                                 />
                               </div>
