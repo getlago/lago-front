@@ -541,6 +541,7 @@ const CreateBillableMetric = () => {
                               <JsonEditorField
                                 name="expression"
                                 disabled={isEdition && !canBeEdited}
+                                readOnlyWithoutStyles
                                 editorMode="text"
                                 label=""
                                 hideLabel={true}
