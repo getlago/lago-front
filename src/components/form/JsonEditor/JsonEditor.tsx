@@ -5,6 +5,7 @@ import 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/src-noconflict/mode-json'
 import 'ace-builds/src-noconflict/theme-github'
 import 'ace-builds/webpack-resolver'
+import { clsx } from 'clsx'
 // @ts-ignore
 import jsonWorkerUrl from 'file-loader!ace-builds/src-noconflict/worker-json'
 import { ReactNode, useEffect, useRef, useState } from 'react'
@@ -33,6 +34,7 @@ export interface JsonEditorProps {
   customInvalidError?: string
   disabled?: boolean
   readOnly?: boolean
+  readOnlyWithoutStyles?: boolean
   height?: string
   hideLabel?: boolean
   editorMode?: 'text' | 'json'
@@ -56,6 +58,7 @@ export const JsonEditor = ({
   customInvalidError,
   disabled,
   readOnly,
+  readOnlyWithoutStyles,
   height,
   hideLabel,
   editorMode = 'json',
@@ -136,9 +139,11 @@ export const JsonEditor = ({
         <LineNumbersBackground />
         <Editor
           ref={editorRef}
-          className={
-            disabled ? 'json-editor--disabled' : readOnly ? 'json-editor--readonly' : undefined
-          }
+          className={clsx(
+            disabled && 'json-editor--disabled',
+            readOnly && 'json-editor--readonly',
+            readOnlyWithoutStyles && 'json-editor--readonlywithoutstyles',
+          )}
           value={jsonQuery}
           onLoad={(editor) => {
             editor.renderer.setPadding(4)
@@ -179,7 +184,7 @@ export const JsonEditor = ({
             showLineNumbers: true,
             tabSize: 2,
             showPrintMargin: false,
-            readOnly: readOnly,
+            readOnly: readOnly || readOnlyWithoutStyles,
           }}
         />
       </EditorContainer>
@@ -434,6 +439,13 @@ const Editor = styled(AceEditor)`
     }
 
     &.json-editor--readonly {
+      .ace_cursor,
+      .ace_active-line {
+        display: none !important;
+      }
+    }
+
+    &.json-editor--readonlywithoutstyles {
       .ace_cursor,
       .ace_active-line {
         display: none !important;
