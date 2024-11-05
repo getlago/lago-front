@@ -16,7 +16,7 @@ export const wrappedEvaluateExpression = (
     const res = evaluateExpression(
       parseExpression(expression),
       eventPayload.event.code,
-      eventPayload.event.timestamp,
+      BigInt(eventPayload.event.timestamp),
       eventPayload.event.properties,
     )
 
