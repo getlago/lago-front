@@ -6,3 +6,4 @@ globals.d.ts
 ci
 cypress/downloads
 cypress/screenshots
+/src/lago-expression/*

@@ -4,3 +4,4 @@ dist
 globals.d.ts
 generated
 cypress/*
+src/lago-expression/*

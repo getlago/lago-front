@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { Button } from './Button'
 import { Icon, IconName } from './Icon'
 import { Tooltip } from './Tooltip'
-import { Typography, TypographyColor } from './Typography'
+import { Typography, TypographyColor, TypographyProps } from './Typography'
 
 import { ConditionalWrapper } from '../ConditionalWrapper'
 
@@ -18,7 +18,7 @@ type ChipSize = 'small' | 'medium' | 'big'
 type ChipType = keyof typeof ChipTypeEnum
 
 type ChipProps = Omit<ChipOwnProps, 'color' | 'variant' | 'size' | 'deleteIcon' | 'icon'> & {
-  beta?: boolean
+  className?: string
   color?: TypographyColor
   deleteIcon?: IconName
   deleteIconLabel?: string
@@ -26,12 +26,13 @@ type ChipProps = Omit<ChipOwnProps, 'color' | 'variant' | 'size' | 'deleteIcon' 
   icon?: IconName
   size?: ChipSize
   type?: ChipType
+  variant?: TypographyProps['variant']
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onDelete?: React.EventHandler<any>
 }
 
 export const Chip = ({
-  beta,
+  className,
   color = 'textSecondary',
   deleteIcon,
   deleteIconLabel,
@@ -40,28 +41,28 @@ export const Chip = ({
   label,
   size = 'medium',
   type,
+  variant,
   onDelete,
   ...chipProps
 }: ChipProps) => {
   return (
     <MuiChip
       {...chipProps}
-      className={clsx({
-        'chip--error': !!error,
-        'chip-size--small': size === 'small',
-        'chip-size--big': size === 'big',
-      })}
+      className={clsx(
+        {
+          'chip--error': !!error,
+          'chip-size--small': size === 'small',
+          'chip-size--big': size === 'big',
+        },
+        className,
+      )}
       icon={icon ? <StyledIcon name={icon} /> : undefined}
       label={
-        <Typography
-          variant={!!beta ? 'captionCode' : 'captionHl'}
-          color={!!beta ? 'info600' : !!error ? 'danger600' : color}
-          noWrap
-        >
+        <Typography variant={variant || 'captionHl'} color={!!error ? 'danger600' : color} noWrap>
           {label}
         </Typography>
       }
-      variant={beta ? 'filled' : type === ChipTypeEnum.secondary ? 'outlined' : 'filled'}
+      variant={type === ChipTypeEnum.secondary ? 'outlined' : 'filled'}
       color="default"
       deleteIcon={
         <ConditionalWrapper

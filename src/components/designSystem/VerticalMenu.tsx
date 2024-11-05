@@ -69,7 +69,7 @@ export const VerticalMenu = ({
                       {title}
                     </Typography>
                     {!!beta && (
-                      <Chip beta size="small" label={translate('text_65d8d71a640c5400917f8a13')} />
+                      <Chip size="small" label={translate('text_65d8d71a640c5400917f8a13')} />
                     )}
                   </div>
                   {!!external && <Icon name="outside" />}

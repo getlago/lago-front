@@ -253,9 +253,6 @@ const DesignSystem = () => {
                       console.log('Chip clicked')
                     }}
                   />
-                  <Chip beta label="Small beta" size="small" />
-                  <Chip beta label="Beta" />
-                  <Chip beta label="Beta big" size="big" />
                 </Block>
 
                 <GroupTitle variant="headline">Poppers</GroupTitle>

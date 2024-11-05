@@ -5,6 +5,7 @@ import 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/src-noconflict/mode-json'
 import 'ace-builds/src-noconflict/theme-github'
 import 'ace-builds/webpack-resolver'
+import { clsx } from 'clsx'
 // @ts-ignore
 import jsonWorkerUrl from 'file-loader!ace-builds/src-noconflict/worker-json'
 import { ReactNode, useEffect, useRef, useState } from 'react'
@@ -19,6 +20,7 @@ ace.config.setModuleUrl('ace/mode/json_worker', jsonWorkerUrl)
 
 enum JSON_EDITOR_ERROR_ENUM {
   invalid = 'invalid',
+  invalidCustomValidate = 'invalidCustomValidate',
 }
 export interface JsonEditorProps {
   label: string
@@ -32,8 +34,12 @@ export interface JsonEditorProps {
   customInvalidError?: string
   disabled?: boolean
   readOnly?: boolean
+  readOnlyWithoutStyles?: boolean
   height?: string
   hideLabel?: boolean
+  editorMode?: 'text' | 'json'
+  showHelperOnError?: boolean
+  validate?: (value: string) => void
   onBlur?: (props: unknown) => void
   onChange?: (value: string) => void
   onError?: (err: keyof typeof JSON_EDITOR_ERROR_ENUM) => void
@@ -52,8 +58,12 @@ export const JsonEditor = ({
   customInvalidError,
   disabled,
   readOnly,
+  readOnlyWithoutStyles,
   height,
   hideLabel,
+  editorMode = 'json',
+  showHelperOnError,
+  validate,
   onChange,
   onError,
   onBlur,
@@ -129,25 +139,36 @@ export const JsonEditor = ({
         <LineNumbersBackground />
         <Editor
           ref={editorRef}
-          className={
-            disabled ? 'json-editor--disabled' : readOnly ? 'json-editor--readonly' : undefined
-          }
+          className={clsx(
+            disabled && 'json-editor--disabled',
+            readOnly && 'json-editor--readonly',
+            readOnlyWithoutStyles && 'json-editor--readonlywithoutstyles',
+          )}
           value={jsonQuery}
           onLoad={(editor) => {
             editor.renderer.setPadding(4)
             editor.renderer.setScrollMargin(10, 10, 0, 0)
           }}
-          mode="json"
+          mode={editorMode}
           onChange={(code) => {
             setJsonQuery(code)
             onChange && onChange(code)
           }}
           onBlur={(event) => {
             if (!jsonQuery) return true
-            try {
-              JSON.parse(jsonQuery)
-            } catch (e) {
-              onError && onError(JSON_EDITOR_ERROR_ENUM.invalid)
+
+            if (validate) {
+              try {
+                validate(jsonQuery)
+              } catch (e) {
+                onError && onError(JSON_EDITOR_ERROR_ENUM.invalidCustomValidate)
+              }
+            } else if (editorMode === 'json') {
+              try {
+                JSON.parse(jsonQuery)
+              } catch (e) {
+                onError && onError(JSON_EDITOR_ERROR_ENUM.invalid)
+              }
             }
             setShowOverlay(true)
             onBlur && onBlur(event)
@@ -163,20 +184,34 @@ export const JsonEditor = ({
             showLineNumbers: true,
             tabSize: 2,
             showPrintMargin: false,
-            readOnly: readOnly,
+            readOnly: readOnly || readOnlyWithoutStyles,
           }}
         />
       </EditorContainer>
 
-      {(helperText || error) && (
-        <Helper variant="caption" color={error ? 'danger600' : 'textPrimary'}>
-          {!!error
-            ? translate(
-                error === JSON_EDITOR_ERROR_ENUM.invalid && customInvalidError
-                  ? customInvalidError
-                  : 'text_6638a3538de76801ac2f451b',
-              )
-            : helperText}
+      {helperText && !error && (
+        <Helper variant="caption" color="textPrimary">
+          {helperText}
+        </Helper>
+      )}
+
+      {error && (
+        <Helper variant="caption" color="danger600">
+          {customInvalidError}
+
+          {!customInvalidError &&
+            error === JSON_EDITOR_ERROR_ENUM.invalid &&
+            translate('text_6638a3538de76801ac2f451b')}
+
+          {!customInvalidError &&
+            error === JSON_EDITOR_ERROR_ENUM.invalidCustomValidate &&
+            translate('text_1729864971171gfdioq71rvt')}
+        </Helper>
+      )}
+
+      {helperText && showHelperOnError && error && (
+        <Helper className="mt-5" variant="caption" color="textPrimary">
+          {helperText}
         </Helper>
       )}
     </Container>
@@ -404,6 +439,13 @@ const Editor = styled(AceEditor)`
     }
 
     &.json-editor--readonly {
+      .ace_cursor,
+      .ace_active-line {
+        display: none !important;
+      }
+    }
+
+    &.json-editor--readonlywithoutstyles {
       .ace_cursor,
       .ace_active-line {
         display: none !important;

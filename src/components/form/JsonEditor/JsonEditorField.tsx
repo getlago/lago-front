@@ -8,10 +8,22 @@ import { JsonEditor, JsonEditorProps } from './JsonEditor'
 interface JsonEditorFieldProps extends Omit<JsonEditorProps, 'onChange' | 'name'> {
   formikProps: FormikValues
   name: string
+  editorMode?: 'text' | 'json'
+  validate?: (value: string) => void
+  customInvalidError?: string
+  showHelperOnError?: boolean
 }
 
 export const JsonEditorField = memo(
-  ({ name, formikProps, ...props }: JsonEditorFieldProps) => {
+  ({
+    name,
+    formikProps,
+    editorMode,
+    validate,
+    customInvalidError,
+    showHelperOnError,
+    ...props
+  }: JsonEditorFieldProps) => {
     const { values, errors, touched, setFieldValue, setFieldError, setFieldTouched } = formikProps
 
     return (
@@ -19,6 +31,10 @@ export const JsonEditorField = memo(
         name={name}
         value={_get(values, name)}
         error={_get(touched, name) ? (_get(errors, name) as string) : undefined}
+        editorMode={editorMode}
+        validate={validate}
+        showHelperOnError={showHelperOnError}
+        customInvalidError={customInvalidError}
         onError={(err) => {
           setFieldError(name, err)
         }}

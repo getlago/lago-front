@@ -36,5 +36,8 @@ module.exports = () => {
         SENTRY_DSN: JSON.stringify(process.env.SENTRY_DSN),
       }),
     ],
+    experiments: {
+      asyncWebAssembly: true,
+    },
   }
 }

@@ -1,12 +1,17 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
+import _omit from 'lodash/omit'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { array, bool, object, string } from 'yup'
 
 import { BillableMetricCodeSnippet } from '~/components/billableMetrics/BillableMetricCodeSnippet'
+import {
+  CustomExpressionDrawer,
+  CustomExpressionDrawerRef,
+} from '~/components/billableMetrics/CustomExpressionDrawer'
 import {
   Accordion,
   Alert,
@@ -20,6 +25,7 @@ import {
   BasicMultipleComboBoxData,
   ButtonSelector,
   ComboBoxField,
+  JsonEditorField,
   MultipleComboBox,
   TextInputField,
 } from '~/components/form'
@@ -48,6 +54,7 @@ gql`
     id
     name
     code
+    expression
     description
     aggregationType
     fieldName
@@ -61,28 +68,48 @@ gql`
   }
 `
 
+enum AggregateOnTab {
+  UniqueField,
+  CustomExpression,
+}
+
 const CreateBillableMetric = () => {
   const { translate } = useInternationalization()
   let navigate = useNavigate()
   const { isEdition, loading, billableMetric, errorCode, onSave } = useCreateEditBillableMetric()
+
   const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
+  const customExpressionDrawerRef = useRef<CustomExpressionDrawerRef>(null)
   const canBeEdited = !billableMetric?.subscriptionsCount && !billableMetric?.plansCount
 
-  const formikProps = useFormik<CreateBillableMetricInput>({
+  const formikProps = useFormik<
+    CreateBillableMetricInput & {
+      aggregateOnTab: AggregateOnTab
+      fieldNameCustomExpression: string
+    }
+  >({
     initialValues: {
       name: billableMetric?.name || '',
       code: billableMetric?.code || '',
       description: billableMetric?.description || '',
+      expression: billableMetric?.expression || '',
       // @ts-ignore
       aggregationType: billableMetric?.aggregationType || '',
       fieldName: billableMetric?.fieldName || undefined,
       recurring: billableMetric?.recurring || false,
       filters: billableMetric?.filters || [],
+      aggregateOnTab: billableMetric?.expression
+        ? AggregateOnTab.CustomExpression
+        : AggregateOnTab.UniqueField,
     },
     validationSchema: object().shape({
       name: string().required(''),
       code: string().required(''),
       aggregationType: string().required(''),
+      expression: string().when('aggregateOnTab', {
+        is: (aggregateOnTab: AggregateOnTab) => aggregateOnTab === AggregateOnTab.CustomExpression,
+        then: (schema) => schema.required(''),
+      }),
       fieldName: string().when('aggregationType', {
         is: (aggregationType: AggregationTypeEnum) =>
           !!aggregationType &&
@@ -129,12 +156,32 @@ const CreateBillableMetric = () => {
     }),
     enableReinitialize: true,
     validateOnMount: true,
-    onSubmit: onSave,
+    onSubmit: (values) => {
+      if (values.aggregateOnTab === AggregateOnTab.CustomExpression) {
+        return onSave(_omit(values, ['aggregateOnTab']))
+      }
+
+      return onSave(
+        _omit(
+          {
+            ...values,
+            expression: null,
+          },
+          ['aggregateOnTab'],
+        ),
+      )
+    },
   })
 
   const [shouldDisplayDescription, setShouldDisplayDescription] = useState<boolean>(
     !!formikProps.initialValues.description,
   )
+
+  const showAggregateOn =
+    !!formikProps.values?.aggregationType &&
+    ![AggregationTypeEnum.CountAgg, AggregationTypeEnum.CustomAgg].includes(
+      formikProps.values?.aggregationType,
+    )
 
   useEffect(() => {
     setShouldDisplayDescription(!!formikProps.initialValues.description)
@@ -453,18 +500,74 @@ const CreateBillableMetric = () => {
                         }
                       />
 
-                      {!!formikProps.values?.aggregationType &&
-                        ![AggregationTypeEnum.CountAgg, AggregationTypeEnum.CustomAgg].includes(
-                          formikProps.values?.aggregationType,
-                        ) && (
-                          <TextInputField
-                            name="fieldName"
+                      {showAggregateOn && (
+                        <div>
+                          <ButtonSelector
+                            className="mb-4"
                             disabled={isEdition && !canBeEdited}
-                            label={translate('text_62694d9181be8d00a33f20fe')}
-                            placeholder={translate('text_62694d9181be8d00a33f2105')}
-                            formikProps={formikProps}
+                            label={translate('text_1729771640162n696lisyg7u')}
+                            options={[
+                              {
+                                label: translate('text_1729771640162c43hsk6e4tg'),
+                                value: AggregateOnTab.UniqueField,
+                              },
+                              {
+                                label: translate('text_1729771640162wd2k9x6mrvh'),
+                                value: AggregateOnTab.CustomExpression,
+                              },
+                            ]}
+                            value={formikProps.values.aggregateOnTab}
+                            onChange={(value) => {
+                              formikProps.setFieldValue('aggregateOnTab', value)
+                            }}
+                            data-test="aggregate-on-switch"
                           />
-                        )}
+
+                          {formikProps.values.aggregateOnTab === AggregateOnTab.UniqueField && (
+                            <div>
+                              <TextInputField
+                                name="fieldName"
+                                disabled={isEdition && !canBeEdited}
+                                placeholder={translate('text_1729771640162l0f5uuitglm')}
+                                helperText={translate('text_172977164016216e9fgnuf1w')}
+                                formikProps={formikProps}
+                              />
+                            </div>
+                          )}
+
+                          {formikProps.values.aggregateOnTab ===
+                            AggregateOnTab.CustomExpression && (
+                            <div>
+                              <JsonEditorField
+                                name="expression"
+                                disabled={isEdition && !canBeEdited}
+                                readOnlyWithoutStyles
+                                editorMode="text"
+                                label=""
+                                hideLabel={true}
+                                formikProps={formikProps}
+                                placeholder={translate('text_1729771640162kaf49b93e20') + '\n'}
+                                onExpand={() => {
+                                  customExpressionDrawerRef?.current?.openDrawer({
+                                    expression: formikProps.values.expression,
+                                    billableMetricCode: formikProps.values.code,
+                                    isEditable: canBeEdited,
+                                  })
+                                }}
+                              />
+
+                              <TextInputField
+                                name="fieldName"
+                                disabled={isEdition && !canBeEdited}
+                                className="mt-4"
+                                placeholder={translate('text_1729771640162l0f5uuitglm')}
+                                helperText={translate('text_1729771640162zvj44b3l84g')}
+                                formikProps={formikProps}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
 
                       {formikProps.values?.aggregationType ===
                         AggregationTypeEnum.WeightedSumAgg && (
@@ -674,6 +777,11 @@ const CreateBillableMetric = () => {
           <BillableMetricCodeSnippet loading={loading} billableMetric={formikProps.values} />
         </Side>
       </Content>
+
+      <CustomExpressionDrawer
+        ref={customExpressionDrawerRef}
+        onSave={(expression: string) => formikProps.setFieldValue('expression', expression)}
+      />
 
       <WarningDialog
         ref={warningDirtyAttributesDialogRef}
