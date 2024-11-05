@@ -3,55 +3,23 @@ import { useFormik } from 'formik'
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { object, string } from 'yup'
 
-import { Button, Dialog, Typography } from '~/components/designSystem'
-import { ComboBox, ComboBoxProps, TextInputField } from '~/components/form'
-import { Item } from '~/components/form/ComboBox/ComboBoxItem'
+import { Button, Dialog } from '~/components/designSystem'
+import { TextInputField } from '~/components/form'
 import { WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import {
-  IntegrationItemTypeEnum,
   MappableTypeEnum,
   MappingTypeEnum,
   useCreateNetsuiteIntegrationCollectionMappingMutation,
   useCreateNetsuiteIntegrationMappingMutation,
   useDeleteNetsuiteIntegrationCollectionMappingMutation,
   useDeleteNetsuiteIntegrationMappingMutation,
-  useGetNetsuiteIntegrationItemsLazyQuery,
-  useTriggerNetsuiteIntegrationItemsRefetchMutation,
   useUpdateNetsuiteIntegrationCollectionMappingMutation,
   useUpdateNetsuiteIntegrationMappingMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-const OPTION_VALUE_SEPARATOR = ':::'
-
-const stringifyOptionValue = ({
-  externalId,
-  externalAccountCode,
-  externalName,
-}: {
-  externalId: string
-  externalAccountCode: string
-  externalName: string
-}) => {
-  return `${externalId}${OPTION_VALUE_SEPARATOR}${externalAccountCode}${OPTION_VALUE_SEPARATOR}${externalName}`
-}
-
-const extractOptionValue = (optionValue: string) => {
-  const [externalId, externalAccountCode, externalName] = optionValue.split(OPTION_VALUE_SEPARATOR)
-
-  return { externalId, externalAccountCode, externalName }
-}
-
 gql`
-  fragment NetsuiteIntegrationMapItemDialog on IntegrationItem {
-    id
-    externalId
-    externalName
-    externalAccountCode
-    itemType
-  }
-
   fragment NetsuiteIntegrationMapItemDialogCollectionMappingItem on CollectionMapping {
     id
     externalId
@@ -64,40 +32,6 @@ gql`
     externalId
     externalName
     externalAccountCode
-  }
-
-  # Item fetch
-  query getNetsuiteIntegrationItems(
-    $integrationId: ID!
-    $itemType: IntegrationItemTypeEnum
-    $page: Int
-    $limit: Int
-    $searchTerm: String
-  ) {
-    integrationItems(
-      integrationId: $integrationId
-      itemType: $itemType
-      page: $page
-      limit: $limit
-      searchTerm: $searchTerm
-    ) {
-      collection {
-        ...NetsuiteIntegrationMapItemDialog
-      }
-      metadata {
-        currentPage
-        totalPages
-        totalCount
-      }
-    }
-  }
-
-  mutation triggerNetsuiteIntegrationItemsRefetch($input: FetchIntegrationItemsInput!) {
-    fetchIntegrationItems(input: $input) {
-      collection {
-        ...NetsuiteIntegrationMapItemDialog
-      }
-    }
   }
 
   # Mapping Creation
@@ -163,10 +97,12 @@ type TNetsuiteIntegrationMapItemDialogProps = {
 }
 
 type FormValuesType = {
-  selectedElementValue: string
   taxCode: string
   taxNexus: string
   taxType: string
+  externalId: string
+  externalName: string
+  externalAccountCode: string
 }
 
 export interface NetsuiteIntegrationMapItemDialogRef {
@@ -191,24 +127,6 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
         : localData?.type === MappableTypeEnum.BillableMetric
           ? ['getBillableMetricsForNetsuiteItemsList']
           : ['getNetsuiteIntegrationCollectionMappings']
-
-    // Item fetch
-    const [
-      getNetsuiteIntegrationItems,
-      { loading: initialItemFetchLoading, data: initialItemFetchData },
-    ] = useGetNetsuiteIntegrationItemsLazyQuery({
-      variables: {
-        limit: 50,
-        integrationId: localData?.integrationId as string,
-        itemType: IntegrationItemTypeEnum.Standard,
-      },
-      fetchPolicy: 'no-cache',
-    })
-    const [triggerItemRefetch, { loading: itemsLoading }] =
-      useTriggerNetsuiteIntegrationItemsRefetchMutation({
-        variables: { input: { integrationId: localData?.integrationId as string } },
-        refetchQueries: ['getNetsuiteIntegrationItems'],
-      })
 
     // Mapping Creation
     const [createCollectionMapping] = useCreateNetsuiteIntegrationCollectionMappingMutation({
@@ -287,48 +205,50 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
         taxCode: localData?.taxCode || '',
         taxNexus: localData?.taxNexus || '',
         taxType: localData?.taxType || '',
-        selectedElementValue: localData?.itemExternalId
-          ? stringifyOptionValue({
-              externalId: localData?.itemExternalId || '',
-              externalName: localData?.itemExternalName || '',
-              externalAccountCode: localData?.itemExternalCode || '',
-            })
-          : '',
+        externalId: localData?.itemExternalId || '',
+        externalName: localData?.itemExternalName || '',
+        externalAccountCode: localData?.itemExternalCode || '',
+      },
+      validate(values) {
+        // For delete action, form needs to be empty but valid
+        if (Object.values(values).filter((v) => !!v).length === 0) {
+          return {}
+        }
+
+        if (isTaxContext && (!values.taxCode || !values.taxNexus || !values.taxType)) {
+          return { error: 'Fill in all inputs' }
+        }
+
+        if (
+          !isTaxContext &&
+          (!values.externalId || !values.externalName || !values.externalAccountCode)
+        ) {
+          return { error: 'Fill in all inputs' }
+        }
+
+        return {}
       },
       validationSchema: object().shape({
-        taxCode: string().test({
-          test: function (value, { from }) {
-            return !value ? true : !!from?.[0]?.value?.taxNexus && !!from?.[0]?.value?.taxType
-          },
-        }),
-        taxNexus: string().test({
-          test: function (value, { from }) {
-            return !value ? true : !!from?.[0]?.value?.taxCode && !!from?.[0]?.value?.taxType
-          },
-        }),
-        taxType: string().test({
-          test: function (value, { from }) {
-            return !value ? true : !!from?.[0]?.value?.taxCode && !!from?.[0]?.value?.taxNexus
-          },
-        }),
+        taxCode: string(),
+        taxNexus: string(),
+        taxType: string(),
+        externalId: string(),
+        externalName: string(),
+        externalAccountCode: string(),
       }),
       validateOnMount: true,
       enableReinitialize: true,
-      onSubmit: async ({ selectedElementValue, ...values }) => {
+      onSubmit: async (values) => {
+        const hasTaxItemValues = !!values.taxCode && !!values.taxNexus && !!values.taxType
+        const hasItemValues =
+          !!values.externalId && !!values.externalName && !!values.externalAccountCode
         const hasInitialDatas =
           !!localData?.itemExternalId ||
           (!!localData?.taxCode && !!localData?.taxNexus && !!localData?.taxType)
-        const hasInputDatas =
-          !!selectedElementValue || (!!values.taxCode && !!values.taxNexus && !!values.taxType)
+        const hasInputDatas = hasItemValues || hasTaxItemValues
         const isCreate = !localData?.itemId
         const isEdit = !isCreate && hasInitialDatas && hasInputDatas
-        const isDelete =
-          !isCreate &&
-          !isEdit &&
-          (!selectedElementValue || (!values.taxCode && !values.taxNexus && !values.taxType))
-
-        const { externalAccountCode, externalId, externalName } =
-          extractOptionValue(selectedElementValue)
+        const isDelete = !isCreate && !isEdit && (!hasItemValues || !hasTaxItemValues)
 
         if (isDelete) {
           let answer
@@ -363,9 +283,9 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
             answer = await createCollectionMapping({
               variables: {
                 input: {
-                  externalId,
-                  externalAccountCode,
-                  externalName,
+                  externalId: values.externalId,
+                  externalAccountCode: values.externalAccountCode,
+                  externalName: values.externalName,
                   integrationId: localData?.integrationId as string,
                   mappingType: localData?.type as MappingTypeEnum,
                   taxCode: isTaxContext ? values.taxCode : undefined,
@@ -378,9 +298,9 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
             answer = await createMapping({
               variables: {
                 input: {
-                  externalId,
-                  externalAccountCode,
-                  externalName,
+                  externalId: values.externalId,
+                  externalAccountCode: values.externalAccountCode,
+                  externalName: values.externalName,
                   integrationId: localData?.integrationId as string,
                   mappableType: localData?.type as MappableTypeEnum,
                   mappableId: localData?.lagoMappableId as string,
@@ -402,9 +322,9 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
               variables: {
                 input: {
                   id: localData?.itemId as string,
-                  externalId,
-                  externalAccountCode,
-                  externalName,
+                  externalId: values.externalId,
+                  externalAccountCode: values.externalAccountCode,
+                  externalName: values.externalName,
                   integrationId: localData?.integrationId as string,
                   mappingType: localData?.type as unknown as MappingTypeEnum,
                   taxCode: isTaxContext ? values.taxCode : undefined,
@@ -418,9 +338,9 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
               variables: {
                 input: {
                   id: localData?.itemId as string,
-                  externalId,
-                  externalAccountCode,
-                  externalName,
+                  externalId: values.externalId,
+                  externalAccountCode: values.externalAccountCode,
+                  externalName: values.externalName,
                   integrationId: localData?.integrationId as string,
                   mappableType: localData?.type as unknown as MappableTypeEnum,
                   mappableId: localData?.lagoMappableId as string,
@@ -437,40 +357,6 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
         }
       },
     })
-
-    const isLoading = initialItemFetchLoading || itemsLoading
-
-    const comboboxData = useMemo(() => {
-      return (initialItemFetchData?.integrationItems?.collection || []).map((item) => {
-        const { externalId, externalName, externalAccountCode, itemType } = item
-
-        return {
-          label: `${externalId} - ${externalName}${
-            itemType === IntegrationItemTypeEnum.Standard ? ` (${externalAccountCode})` : ''
-          }`,
-          labelNode: (
-            <Item>
-              <Typography variant="body" color="grey700" noWrap>
-                {externalId}&nbsp;-&nbsp;{externalName}
-              </Typography>
-              {itemType === IntegrationItemTypeEnum.Standard && (
-                <>
-                  &nbsp;
-                  <Typography variant="body" color="grey600" noWrap>
-                    ({externalAccountCode})
-                  </Typography>
-                </>
-              )}
-            </Item>
-          ),
-          value: stringifyOptionValue({
-            externalId,
-            externalName: externalName || '',
-            externalAccountCode: externalAccountCode || '',
-          }),
-        }
-      })
-    }, [initialItemFetchData?.integrationItems?.collection])
 
     const [title, description] = useMemo(() => {
       switch (localData?.type) {
@@ -577,12 +463,6 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
           formikProps.resetForm()
           formikProps.validateForm()
         }}
-        onOpen={() => {
-          // Have to delay the ececution of the query, as the dialog props are not present immediatly after the dialog is opened
-          setTimeout(() => {
-            getNetsuiteIntegrationItems()
-          }, 1)
-        }}
         actions={({ closeDialog }) => (
           <>
             <Button variant="quaternary" onClick={closeDialog}>
@@ -597,9 +477,9 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
           </>
         )}
       >
-        <>
+        <div className="mb-8 flex flex-col gap-6">
           {isTaxContext ? (
-            <div className="mb-8 flex flex-col gap-6">
+            <>
               <TextInputField
                 name="taxNexus"
                 autoComplete="off"
@@ -626,41 +506,38 @@ export const NetsuiteIntegrationMapItemDialog = forwardRef<NetsuiteIntegrationMa
                 formikProps={formikProps}
                 error={undefined}
               />
-            </div>
+            </>
           ) : (
-            <div className="mb-8 flex flex-1 gap-3 [&>*:first-child]:flex [&>*:first-child]:flex-1">
-              <ComboBox
-                className="flex-1"
-                value={formikProps.values.selectedElementValue}
-                data={comboboxData}
-                loading={isLoading}
-                label={translate('text_6630e51df0a194013daea621')}
-                placeholder={translate('text_6630e51df0a194013daea622')}
-                helperText={
-                  !isLoading && !comboboxData.length
-                    ? translate('text_6630ec823adac97d3bf0fb4b')
-                    : undefined
-                }
-                searchQuery={getNetsuiteIntegrationItems as unknown as ComboBoxProps['searchQuery']}
-                onChange={(value) => {
-                  formikProps.setFieldValue('selectedElementValue', value)
-                }}
-                PopperProps={{ displayInDialog: true }}
+            <>
+              <TextInputField
+                name="externalName"
+                autoComplete="off"
+                label={translate('text_1730738987881evzsfqnn1tr')}
+                placeholder={translate('text_1730738987882hhl5gijws0m')}
+                formikProps={formikProps}
+                error={undefined}
               />
 
-              <Button
-                className="mt-8"
-                icon="reload"
-                variant="quaternary"
-                disabled={isLoading}
-                loading={isLoading}
-                onClick={() => {
-                  triggerItemRefetch()
-                }}
+              <TextInputField
+                name="externalId"
+                autoComplete="off"
+                label={translate('text_17307389878820u8ldpctozo')}
+                placeholder={translate('text_173073898788226ev6fudddk')}
+                formikProps={formikProps}
+                error={undefined}
               />
-            </div>
+
+              <TextInputField
+                name="externalAccountCode"
+                autoComplete="off"
+                label={translate('text_1730738987882c15jo2dyc9f')}
+                placeholder={translate('text_1730738987882h2yy21a82k2')}
+                formikProps={formikProps}
+                error={undefined}
+              />
+            </>
           )}
-        </>
+        </div>
       </Dialog>
     )
   },

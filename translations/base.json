@@ -428,7 +428,6 @@
   "text_6630e3210c13c500cd398eb0": "For all wallets",
   "text_6630e51df0a194013daea61f": "Define a fallback item",
   "text_6630e51df0a194013daea620": "This item serves as a fallback in case your mapping is incorrect, ensuring that your actions to NetSuite do not fail.",
-  "text_6630e51df0a194013daea621": "NetSuite item",
   "text_6630e51df0a194013daea622": "Search and select an item",
   "text_6630e51df0a194013daea624": "Map item",
   "text_6630e560a830417bd3b119fb": "Map your taxes with a {{integrationType}} tax item",
@@ -2604,5 +2603,11 @@
   "text_1730554642648p1mngqwys8n": "Round",
   "text_1730554642648qe9wjveh3fv": "Rounds a number based on the decimals value (e.g. 4.2 = 4 or 4.6 = 5)",
   "text_17305547268320wyhpbm8hh0": "Rounding rule",
-  "text_1730554726832vyn9bep4u0f": "Precision (optional)"
+  "text_1730554726832vyn9bep4u0f": "Precision (optional)",
+  "text_1730738987881evzsfqnn1tr": "NetSuite Item name",
+  "text_1730738987882hhl5gijws0m": "Type your NetSuite Item name",
+  "text_17307389878820u8ldpctozo": "NetSuite Item ID",
+  "text_173073898788226ev6fudddk": "Type your NetSuite Item Id",
+  "text_1730738987882c15jo2dyc9f": "NetSuite Item Account ID",
+  "text_1730738987882h2yy21a82k2": "Type the Account ID for this item"
 }
