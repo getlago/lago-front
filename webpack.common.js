@@ -29,6 +29,7 @@ module.exports = () => {
       new webpack.DefinePlugin({
         APP_ENV: JSON.stringify(APP_ENV),
         API_URL: JSON.stringify(process.env.API_URL),
+        DOMAIN: JSON.stringify(process.env.LAGO_DOMAIN),
         APP_VERSION: JSON.stringify(version),
         LAGO_OAUTH_PROXY_URL: JSON.stringify(process.env.LAGO_OAUTH_PROXY_URL),
         LAGO_DISABLE_SIGNUP: JSON.stringify(process.env.LAGO_DISABLE_SIGNUP),
