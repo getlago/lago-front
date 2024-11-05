@@ -167,7 +167,7 @@ function addBorrowedObject(obj) {
 /**
  * @param {Expression} expression
  * @param {string} code
- * @param {number} timestamp
+ * @param {bigint} timestamp
  * @param {any} js_properties
  * @returns {any}
  */
@@ -237,6 +237,11 @@ export function __wbindgen_is_string(arg0) {
     return ret;
 };
 
+export function __wbindgen_is_bigint(arg0) {
+    const ret = typeof(getObject(arg0)) === 'bigint';
+    return ret;
+};
+
 export function __wbindgen_try_into_number(arg0) {
     let result;
 try { result = +getObject(arg0) } catch (e) { result = e }
@@ -255,6 +260,16 @@ export function __wbindgen_object_drop_ref(arg0) {
     takeObject(arg0);
 };
 
+export function __wbindgen_bigint_from_u64(arg0) {
+    const ret = BigInt.asUintN(64, arg0);
+    return addHeapObject(ret);
+};
+
+export function __wbindgen_jsval_eq(arg0, arg1) {
+    const ret = getObject(arg0) === getObject(arg1);
+    return ret;
+};
+
 export function __wbindgen_string_get(arg0, arg1) {
     const obj = getObject(arg1);
     const ret = typeof(obj) === 'string' ? obj : undefined;
@@ -267,10 +282,6 @@ export function __wbindgen_string_get(arg0, arg1) {
 export function __wbindgen_number_new(arg0) {
     const ret = arg0;
     return addHeapObject(ret);
-};
-
-export function __wbg_log_f740dc2253ea759b(arg0) {
-    console.log(getObject(arg0));
 };
 
 export function __wbg_get_5419cf6b954aa11d(arg0, arg1) {
@@ -316,6 +327,13 @@ export function __wbg_error_f851667af71bcfc6(arg0, arg1) {
     } finally {
         wasm.__wbindgen_free(deferred0_0, deferred0_1, 1);
     }
+};
+
+export function __wbindgen_bigint_get_as_i64(arg0, arg1) {
+    const v = getObject(arg1);
+    const ret = typeof(v) === 'bigint' ? v : undefined;
+    getDataViewMemory0().setBigInt64(arg0 + 8 * 1, isLikeNone(ret) ? BigInt(0) : ret, true);
+    getDataViewMemory0().setInt32(arg0 + 4 * 0, !isLikeNone(ret), true);
 };
 
 export function __wbindgen_throw(arg0, arg1) {

@@ -9,11 +9,11 @@ export function parseExpression(expression: string): Expression;
 /**
  * @param {Expression} expression
  * @param {string} code
- * @param {number} timestamp
+ * @param {bigint} timestamp
  * @param {any} js_properties
  * @returns {any}
  */
-export function evaluateExpression(expression: Expression, code: string, timestamp: number, js_properties: any): any;
+export function evaluateExpression(expression: Expression, code: string, timestamp: bigint, js_properties: any): any;
 export class Expression {
   free(): void;
 }
