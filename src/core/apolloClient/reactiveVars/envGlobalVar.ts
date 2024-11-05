@@ -12,9 +12,15 @@ interface EnvGlobal {
   sentryDsn: string
 }
 
+var apiUrl = !!window.API_URL
+  ? window.API_URL
+  : !!window.LAGO_DOMAIN
+    ? `https://${window.LAGO_DOMAIN}/api`
+    : API_URL
+
 export const envGlobalVar = makeVar<EnvGlobal>({
+  apiUrl,
   appEnv: window.APP_ENV || APP_ENV,
-  apiUrl: window.API_URL || API_URL,
   lagoOauthProxyUrl: window.LAGO_OAUTH_PROXY_URL || LAGO_OAUTH_PROXY_URL,
   disableSignUp: (window.LAGO_DISABLE_SIGNUP || LAGO_DISABLE_SIGNUP) === 'true',
   appVersion: APP_VERSION,
