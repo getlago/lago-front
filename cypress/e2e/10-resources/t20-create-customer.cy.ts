@@ -2,7 +2,7 @@ import { customerName } from '../../support/reusableConstants'
 
 describe('Create customer', () => {
   beforeEach(() => {
-    cy.visit('/customers')
+    cy.login().visit('/customers')
   })
 
   it('should create customer', () => {

@@ -1,4 +1,8 @@
 describe('Invitations', () => {
+  beforeEach(() => {
+    cy.login()
+  })
+
   const inviteEmail = `test-invite-${Math.round(Math.random() * 10000)}@gmail.com`
 
   it('should be able to create an invitation', () => {

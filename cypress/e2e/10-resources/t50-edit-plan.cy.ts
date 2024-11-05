@@ -5,6 +5,10 @@ import {
 } from '../../support/reusableConstants'
 
 describe('Edit plan', () => {
+  beforeEach(() => {
+    cy.login()
+  })
+
   it('should be able to close the form without warning dialog when no data has changed', () => {
     cy.visit('/plans')
     cy.get(`[data-test="${planWithChargesName}-wrapper"]`).within(() => {

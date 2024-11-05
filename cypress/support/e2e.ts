@@ -17,25 +17,6 @@ import './commands'
 import { userEmail, userPassword } from './reusableConstants'
 
 beforeEach(() => {
-  const { currentTest } = Cypress.mocha.getRunner().suite.ctx
-
-  if (
-    // Prevent to log for all "auth" test suite
-    !currentTest.invocationDetails.relativeFile.includes('auth') &&
-    // In case we ever need to skip login before one test, add '::preventLogin' in the test name
-    !currentTest.title.includes('::preventLogin')
-  ) {
-    cy.session(
-      'LoginTestUser',
-      () => {
-        cy.login(userEmail, userPassword)
-      },
-      {
-        cacheAcrossSpecs: true,
-      },
-    )
-  }
-
   // Allow access to broswer's clipboard api
   Cypress.automation('remote:debugger:protocol', {
     command: 'Browser.grantPermissions',

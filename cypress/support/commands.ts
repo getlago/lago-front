@@ -1,4 +1,6 @@
 /// <reference types="cypress" />
+import { userEmail, userPassword } from './reusableConstants'
+
 // ***********************************************
 // This example commands.ts shows you how to
 // create various custom commands and overwrite
@@ -36,7 +38,7 @@
 //   }
 // }
 
-Cypress.Commands.add('login', (email: string, password: string) => {
+Cypress.Commands.add('login', (email: string = userEmail, password: string = userPassword) => {
   cy.visit('/login')
   cy.get('input[name="email"]').type(email)
   cy.get('input[name="password"]').type(password)

@@ -6,6 +6,10 @@ import {
 import { customerName } from '../support/reusableConstants'
 
 describe('Create one-off', () => {
+  beforeEach(() => {
+    cy.login()
+  })
+
   it('should create a one-off invoice with correct amounts', () => {
     cy.visit('/customers')
     cy.get(`[data-test="${customerName}"]`).click({ force: true })
@@ -18,7 +22,7 @@ describe('Create one-off', () => {
     cy.get('[data-option-index="0"]').click({ force: true })
     cy.get('[data-test="invoice-item"]').should('have.length', 1)
 
-    // // Edit it's tax rate
+    // Edit it's tax rate
     cy.get('[data-test="invoice-item-actions-button"]').click({ force: true })
     cy.get('[data-test="invoice-item-edit-taxes"]').click({ force: true })
     cy.get(`[data-test="add-tax-button"]`).click({ force: true })
