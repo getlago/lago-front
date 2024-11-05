@@ -7313,29 +7313,9 @@ export type NetsuiteIntegrationItemsListBillableMetricsFragment = { __typename?:
 
 export type NetsuiteIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId: string, externalAccountCode?: string | null, externalName?: string | null, taxCode?: string | null, taxNexus?: string | null, taxType?: string | null };
 
-export type NetsuiteIntegrationMapItemDialogFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
-
 export type NetsuiteIntegrationMapItemDialogCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
 
 export type NetsuiteIntegrationMapItemDialogCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
-
-export type GetNetsuiteIntegrationItemsQueryVariables = Exact<{
-  integrationId: Scalars['ID']['input'];
-  itemType?: InputMaybe<IntegrationItemTypeEnum>;
-  page?: InputMaybe<Scalars['Int']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  searchTerm?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type GetNetsuiteIntegrationItemsQuery = { __typename?: 'Query', integrationItems: { __typename?: 'IntegrationItemCollection', collection: Array<{ __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
-
-export type TriggerNetsuiteIntegrationItemsRefetchMutationVariables = Exact<{
-  input: FetchIntegrationItemsInput;
-}>;
-
-
-export type TriggerNetsuiteIntegrationItemsRefetchMutation = { __typename?: 'Mutation', fetchIntegrationItems: { __typename?: 'IntegrationItemCollection', collection: Array<{ __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum }> } };
 
 export type CreateNetsuiteIntegrationCollectionMappingMutationVariables = Exact<{
   input: CreateIntegrationCollectionMappingInput;
@@ -9568,15 +9548,6 @@ export const NetsuiteIntegrationItemsListDefaultFragmentDoc = gql`
   taxCode
   taxNexus
   taxType
-}
-    `;
-export const NetsuiteIntegrationMapItemDialogFragmentDoc = gql`
-    fragment NetsuiteIntegrationMapItemDialog on IntegrationItem {
-  id
-  externalId
-  externalName
-  externalAccountCode
-  itemType
 }
     `;
 export const NetsuiteIntegrationMapItemDialogCollectionMappingItemFragmentDoc = gql`
@@ -17141,98 +17112,6 @@ export type GetBillableMetricsForNetsuiteItemsListQueryHookResult = ReturnType<t
 export type GetBillableMetricsForNetsuiteItemsListLazyQueryHookResult = ReturnType<typeof useGetBillableMetricsForNetsuiteItemsListLazyQuery>;
 export type GetBillableMetricsForNetsuiteItemsListSuspenseQueryHookResult = ReturnType<typeof useGetBillableMetricsForNetsuiteItemsListSuspenseQuery>;
 export type GetBillableMetricsForNetsuiteItemsListQueryResult = Apollo.QueryResult<GetBillableMetricsForNetsuiteItemsListQuery, GetBillableMetricsForNetsuiteItemsListQueryVariables>;
-export const GetNetsuiteIntegrationItemsDocument = gql`
-    query getNetsuiteIntegrationItems($integrationId: ID!, $itemType: IntegrationItemTypeEnum, $page: Int, $limit: Int, $searchTerm: String) {
-  integrationItems(
-    integrationId: $integrationId
-    itemType: $itemType
-    page: $page
-    limit: $limit
-    searchTerm: $searchTerm
-  ) {
-    collection {
-      ...NetsuiteIntegrationMapItemDialog
-    }
-    metadata {
-      currentPage
-      totalPages
-      totalCount
-    }
-  }
-}
-    ${NetsuiteIntegrationMapItemDialogFragmentDoc}`;
-
-/**
- * __useGetNetsuiteIntegrationItemsQuery__
- *
- * To run a query within a React component, call `useGetNetsuiteIntegrationItemsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetNetsuiteIntegrationItemsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetNetsuiteIntegrationItemsQuery({
- *   variables: {
- *      integrationId: // value for 'integrationId'
- *      itemType: // value for 'itemType'
- *      page: // value for 'page'
- *      limit: // value for 'limit'
- *      searchTerm: // value for 'searchTerm'
- *   },
- * });
- */
-export function useGetNetsuiteIntegrationItemsQuery(baseOptions: Apollo.QueryHookOptions<GetNetsuiteIntegrationItemsQuery, GetNetsuiteIntegrationItemsQueryVariables> & ({ variables: GetNetsuiteIntegrationItemsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetNetsuiteIntegrationItemsQuery, GetNetsuiteIntegrationItemsQueryVariables>(GetNetsuiteIntegrationItemsDocument, options);
-      }
-export function useGetNetsuiteIntegrationItemsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetNetsuiteIntegrationItemsQuery, GetNetsuiteIntegrationItemsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetNetsuiteIntegrationItemsQuery, GetNetsuiteIntegrationItemsQueryVariables>(GetNetsuiteIntegrationItemsDocument, options);
-        }
-export function useGetNetsuiteIntegrationItemsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetNetsuiteIntegrationItemsQuery, GetNetsuiteIntegrationItemsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetNetsuiteIntegrationItemsQuery, GetNetsuiteIntegrationItemsQueryVariables>(GetNetsuiteIntegrationItemsDocument, options);
-        }
-export type GetNetsuiteIntegrationItemsQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationItemsQuery>;
-export type GetNetsuiteIntegrationItemsLazyQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationItemsLazyQuery>;
-export type GetNetsuiteIntegrationItemsSuspenseQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationItemsSuspenseQuery>;
-export type GetNetsuiteIntegrationItemsQueryResult = Apollo.QueryResult<GetNetsuiteIntegrationItemsQuery, GetNetsuiteIntegrationItemsQueryVariables>;
-export const TriggerNetsuiteIntegrationItemsRefetchDocument = gql`
-    mutation triggerNetsuiteIntegrationItemsRefetch($input: FetchIntegrationItemsInput!) {
-  fetchIntegrationItems(input: $input) {
-    collection {
-      ...NetsuiteIntegrationMapItemDialog
-    }
-  }
-}
-    ${NetsuiteIntegrationMapItemDialogFragmentDoc}`;
-export type TriggerNetsuiteIntegrationItemsRefetchMutationFn = Apollo.MutationFunction<TriggerNetsuiteIntegrationItemsRefetchMutation, TriggerNetsuiteIntegrationItemsRefetchMutationVariables>;
-
-/**
- * __useTriggerNetsuiteIntegrationItemsRefetchMutation__
- *
- * To run a mutation, you first call `useTriggerNetsuiteIntegrationItemsRefetchMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useTriggerNetsuiteIntegrationItemsRefetchMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [triggerNetsuiteIntegrationItemsRefetchMutation, { data, loading, error }] = useTriggerNetsuiteIntegrationItemsRefetchMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useTriggerNetsuiteIntegrationItemsRefetchMutation(baseOptions?: Apollo.MutationHookOptions<TriggerNetsuiteIntegrationItemsRefetchMutation, TriggerNetsuiteIntegrationItemsRefetchMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<TriggerNetsuiteIntegrationItemsRefetchMutation, TriggerNetsuiteIntegrationItemsRefetchMutationVariables>(TriggerNetsuiteIntegrationItemsRefetchDocument, options);
-      }
-export type TriggerNetsuiteIntegrationItemsRefetchMutationHookResult = ReturnType<typeof useTriggerNetsuiteIntegrationItemsRefetchMutation>;
-export type TriggerNetsuiteIntegrationItemsRefetchMutationResult = Apollo.MutationResult<TriggerNetsuiteIntegrationItemsRefetchMutation>;
-export type TriggerNetsuiteIntegrationItemsRefetchMutationOptions = Apollo.BaseMutationOptions<TriggerNetsuiteIntegrationItemsRefetchMutation, TriggerNetsuiteIntegrationItemsRefetchMutationVariables>;
 export const CreateNetsuiteIntegrationCollectionMappingDocument = gql`
     mutation createNetsuiteIntegrationCollectionMapping($input: CreateIntegrationCollectionMappingInput!) {
   createIntegrationCollectionMapping(input: $input) {
