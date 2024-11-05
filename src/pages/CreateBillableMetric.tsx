@@ -5,7 +5,7 @@ import _omit from 'lodash/omit'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { array, bool, object, string } from 'yup'
+import { array, bool, number, object, string } from 'yup'
 
 import { BillableMetricCodeSnippet } from '~/components/billableMetrics/BillableMetricCodeSnippet'
 import {
@@ -32,7 +32,11 @@ import {
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { BILLABLE_METRICS_ROUTE } from '~/core/router'
-import { AggregationTypeEnum, CreateBillableMetricInput } from '~/generated/graphql'
+import {
+  AggregationTypeEnum,
+  CreateBillableMetricInput,
+  RoundingFunctionEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditBillableMetric } from '~/hooks/useCreateEditBillableMetric'
 import { Card, PageHeader, theme } from '~/styles'
@@ -61,6 +65,8 @@ gql`
     subscriptionsCount
     plansCount
     recurring
+    roundingFunction
+    roundingPrecision
     filters {
       key
       values
@@ -71,6 +77,24 @@ gql`
 enum AggregateOnTab {
   UniqueField,
   CustomExpression,
+}
+
+const TRANSLATIONS_MAP_ROUNDING_FUNCTION: Record<
+  RoundingFunctionEnum,
+  { label: string; description: string }
+> = {
+  [RoundingFunctionEnum.Round]: {
+    label: 'text_1730554642648p1mngqwys8n',
+    description: 'text_1730554642648qe9wjveh3fv',
+  },
+  [RoundingFunctionEnum.Floor]: {
+    label: 'text_1730554642648f6pn2krp9sh',
+    description: 'text_173055464264830liis0ojbc',
+  },
+  [RoundingFunctionEnum.Ceil]: {
+    label: 'text_17305546426481bes2lelpqf',
+    description: 'text_1730554642648grbu07mq6u3',
+  },
 }
 
 const CreateBillableMetric = () => {
@@ -101,6 +125,8 @@ const CreateBillableMetric = () => {
       aggregateOnTab: billableMetric?.expression
         ? AggregateOnTab.CustomExpression
         : AggregateOnTab.UniqueField,
+      roundingFunction: billableMetric?.roundingFunction || undefined,
+      roundingPrecision: billableMetric?.roundingPrecision || undefined,
     },
     validationSchema: object().shape({
       name: string().required(''),
@@ -117,6 +143,7 @@ const CreateBillableMetric = () => {
         then: (schema) => schema.required(''),
       }),
       recurring: bool().required(''),
+      roundingPrecision: number(),
       filters: array()
         .of(
           object().test({
@@ -574,6 +601,111 @@ const CreateBillableMetric = () => {
                         <Alert type="info">{translate('text_650062226a33c46e8205048e')}</Alert>
                       )}
                     </Stack>
+
+                    {!(isEdition && !canBeEdited && !billableMetric?.roundingFunction) && (
+                      <div>
+                        <div className="mb-6">
+                          <Typography className="text-base font-medium text-grey-700">
+                            {translate('text_1730554642648mbs3upovd2q')}
+                          </Typography>
+
+                          <Typography className="text-sm font-normal leading-6 text-grey-600">
+                            {translate('text_1730554642648xg3fknfme8w')}
+                          </Typography>
+                        </div>
+
+                        {formikProps.values.roundingFunction === undefined && (
+                          <div>
+                            <Button
+                              variant="quaternary"
+                              startIcon="plus"
+                              onClick={() => {
+                                formikProps.setFieldValue('roundingFunction', null)
+                              }}
+                            >
+                              {translate('text_173055464264877451cjmqa1')}
+                            </Button>
+                          </div>
+                        )}
+
+                        {(formikProps.values.roundingFunction ||
+                          formikProps.values.roundingFunction === null) && (
+                          <div className="mb-1 flex items-center gap-4">
+                            <div className="flex grow items-center gap-6">
+                              <ComboBoxField
+                                name="roundingFunction"
+                                formikProps={formikProps}
+                                disabled={isEdition && !canBeEdited}
+                                disableClearable={isEdition && !canBeEdited}
+                                sortValues={false}
+                                virtualized={false}
+                                containerClassName="w-full"
+                                label={
+                                  <Typography className="text-sm font-medium text-grey-700">
+                                    {translate('text_17305547268320wyhpbm8hh0')}
+                                  </Typography>
+                                }
+                                placeholder={translate('text_1730554642648npqmnqnsynd')}
+                                data={Object.values(RoundingFunctionEnum)
+                                  .filter(
+                                    (roundingFunction) =>
+                                      !!TRANSLATIONS_MAP_ROUNDING_FUNCTION[roundingFunction],
+                                  )
+                                  .map((roundingFunction) => ({
+                                    label: translate(
+                                      TRANSLATIONS_MAP_ROUNDING_FUNCTION[roundingFunction].label,
+                                    ),
+                                    description: translate(
+                                      TRANSLATIONS_MAP_ROUNDING_FUNCTION[roundingFunction]
+                                        .description,
+                                    ),
+                                    value: roundingFunction,
+                                  }))}
+                              />
+
+                              {formikProps.values.roundingFunction && (
+                                <TextInputField
+                                  name="roundingPrecision"
+                                  type="number"
+                                  disabled={isEdition && !canBeEdited}
+                                  label={
+                                    <Typography className="whitespace-nowrap text-sm font-medium text-grey-700">
+                                      {translate('text_1730554726832vyn9bep4u0f')}
+                                    </Typography>
+                                  }
+                                  placeholder="0"
+                                  formikProps={formikProps}
+                                />
+                              )}
+                            </div>
+
+                            {!(isEdition && !canBeEdited) && (
+                              <div className="flex w-7 items-center justify-center pt-6">
+                                <Button
+                                  icon="trash"
+                                  variant="quaternary"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+
+                                    formikProps.setFieldValue('roundingFunction', undefined)
+                                    formikProps.setFieldValue('roundingPrecision', undefined)
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        <Typography className="text-sm font-normal text-grey-600">
+                          {formikProps.values.roundingFunction &&
+                            translate(
+                              TRANSLATIONS_MAP_ROUNDING_FUNCTION[
+                                formikProps.values.roundingFunction
+                              ].description,
+                            )}
+                        </Typography>
+                      </div>
+                    )}
 
                     <Stack spacing={6}>
                       <div>

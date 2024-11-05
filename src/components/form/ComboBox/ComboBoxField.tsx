@@ -11,6 +11,7 @@ interface ComboBoxFieldProps extends Omit<ComboBoxProps, 'onChange' | 'value' | 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formikProps: FormikProps<any>
   isEmptyNull?: Boolean // If false, on field reset the combobox will return an empty string
+  containerClassName?: string
 }
 
 export const ComboBoxField = memo(
@@ -20,12 +21,14 @@ export const ComboBoxField = memo(
     formikProps,
     renderGroupHeader,
     data,
+    containerClassName,
     ...props
   }: ComboBoxFieldProps) => {
     const { setFieldValue, values, errors, touched } = formikProps
 
     return renderGroupHeader ? (
       <ComboBox
+        containerClassName={containerClassName}
         name={name}
         data={data as ComboboxDataGrouped[]}
         renderGroupHeader={renderGroupHeader}
@@ -36,6 +39,7 @@ export const ComboBoxField = memo(
       />
     ) : (
       <ComboBox
+        containerClassName={containerClassName}
         data={data as BasicComboBoxData[]}
         name={name}
         value={_get(values, name)}

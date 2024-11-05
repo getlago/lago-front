@@ -58,6 +58,7 @@ interface BasicComboboxProps extends Omit<ComboBoxInputProps, 'params' | 'search
       searchTerm?: InputMaybe<string> | undefined
     }>
   >
+  containerClassName?: string
 }
 
 interface GroupedComboboxProps extends Omit<BasicComboboxProps, 'data' | 'renderGroupHeader'> {
