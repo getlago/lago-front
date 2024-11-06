@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { RefObject } from 'react'
 import { generatePath } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { CouponCaption } from '~/components/coupons/CouponCaption'
@@ -25,14 +24,8 @@ import { CouponItemFragment, CouponStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import {
-  BaseListItem,
-  ItemContainer,
-  ListItemLink,
-  MenuPopper,
-  PopperOpener,
-  theme,
-} from '~/styles'
+import { BaseListItem, ItemContainer, ListItemLink, MenuPopper, PopperOpener } from '~/styles'
+import { tw } from '~/styles/utils'
 
 gql`
   fragment CouponItem on Coupon {
@@ -102,27 +95,31 @@ export const CouponItem = ({
           </ListItemLink>
         )}
       >
-        <CouponNameSection>
+        <div className="mr-auto flex min-w-0 items-center">
           <Avatar className="mr-3" size="big" variant="connector">
             <Icon name="coupon" color="dark" />
           </Avatar>
-          <NameBlock>
+          <div className="min-w-0">
             <Typography color="textSecondary" variant="bodyHl" noWrap>
               {name}
             </Typography>
             <CouponCaption coupon={coupon} variant="caption" />
-          </NameBlock>
-        </CouponNameSection>
-        <CouponInfosSection $shouldShowItemActions={shouldShowItemActions}>
-          <SmallCell>{customersCount}</SmallCell>
-          <MediumCell>
+          </div>
+        </div>
+        <div
+          className={tw('mr-0 flex', {
+            'mr-6': shouldShowItemActions,
+          })}
+        >
+          <div className="mr-6 hidden w-24 text-right md:block">{customersCount}</div>
+          <div className="mr-6 hidden w-28 md:block">
             {!expirationAt
               ? translate('text_62876a50ea3bba00b56d2c2c')
               : formatTimeOrgaTZ(expirationAt)}
-          </MediumCell>
-          <StatusCell>{<Status {...formattedStatus} />}</StatusCell>
-        </CouponInfosSection>
-        {shouldShowItemActions && <ButtonMock />}
+          </div>
+          <div className="hidden w-26 md:block">{<Status {...formattedStatus} />}</div>
+        </div>
+        {shouldShowItemActions && <div className="w-10" />}
       </ConditionalWrapper>
 
       {shouldShowItemActions && (
@@ -211,63 +208,13 @@ export const CouponItem = ({
 export const CouponItemSkeleton = () => {
   return (
     <BaseListItem>
-      <Skeleton variant="connectorAvatar" size="big" marginRight={theme.spacing(3)} />
-      <Skeleton variant="text" height={12} width={240} />
-      <RightSkeletonContainer>
-        <Skeleton variant="text" height={12} width={100} />
-        <Skeleton variant="text" height={12} width={100} />
-        <Skeleton variant="text" height={12} width={100} />
-      </RightSkeletonContainer>
+      <Skeleton className="mr-3" variant="connectorAvatar" size="big" />
+      <Skeleton className="w-60" variant="text" />
+      <div className="mr-17 flex w-full justify-end gap-7">
+        <Skeleton className="w-25" variant="text" />
+        <Skeleton className="w-25" variant="text" />
+        <Skeleton className="w-25" variant="text" />
+      </div>
     </BaseListItem>
   )
 }
-
-const CouponNameSection = styled.div`
-  margin-right: auto;
-  display: flex;
-  align-items: center;
-  min-width: 0;
-`
-
-const NameBlock = styled.div`
-  min-width: 0;
-`
-
-const CouponInfosSection = styled.div<{ $shouldShowItemActions: boolean }>`
-  display: flex;
-
-  margin-right: ${({ $shouldShowItemActions }) => ($shouldShowItemActions ? theme.spacing(6) : 0)};
-
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(6)};
-
-    ${theme.breakpoints.down('md')} {
-      display: none;
-    }
-  }
-`
-
-const MediumCell = styled(Typography)`
-  width: 112px;
-`
-
-const StatusCell = styled.div`
-  width: 104px;
-`
-
-const SmallCell = styled(Typography)`
-  text-align: right;
-  width: 96px;
-`
-
-const ButtonMock = styled.div`
-  width: 40px;
-`
-
-const RightSkeletonContainer = styled.div`
-  width: 100%;
-  display: flex;
-  gap: 27px;
-  justify-content: end;
-  margin-right: 70px;
-`

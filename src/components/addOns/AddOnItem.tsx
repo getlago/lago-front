@@ -22,14 +22,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-import {
-  BaseListItem,
-  ItemContainer,
-  ListItemLink,
-  MenuPopper,
-  PopperOpener,
-  theme,
-} from '~/styles'
+import { BaseListItem, ItemContainer, ListItemLink, MenuPopper, PopperOpener } from '~/styles'
 
 gql`
   fragment AddOnItem on AddOn {
@@ -160,9 +153,9 @@ export const AddOnItem = ({
 export const AddOnItemSkeleton = () => {
   return (
     <BaseListItem>
-      <Skeleton variant="connectorAvatar" size="big" marginRight={theme.spacing(3)} />
-      <Skeleton variant="text" height={12} width={240} marginRight="auto" />
-      <Skeleton variant="text" height={12} width={160} />
+      <Skeleton className="mr-3" variant="connectorAvatar" size="big" />
+      <Skeleton className="mr-auto w-60" variant="text" />
+      <Skeleton className="w-40" variant="text" />
     </BaseListItem>
   )
 }

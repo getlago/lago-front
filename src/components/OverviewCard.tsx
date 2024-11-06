@@ -1,9 +1,7 @@
-import { Stack } from '@mui/material'
 import { FC } from 'react'
-import styled from 'styled-components'
 
 import { Icon, Skeleton, Tooltip, Typography } from '~/components/designSystem'
-import { Card, theme } from '~/styles'
+import { Card } from '~/styles'
 
 interface OverviewCardProps {
   title: string
@@ -25,47 +23,32 @@ export const OverviewCard: FC<OverviewCardProps> = ({
   return (
     <Card $padding={6} $flexItem $childSpacing={4}>
       {isLoading ? (
-        <SkeletonWrapper>
-          <Skeleton width={90} variant="text" />
-          <Stack gap={4}>
-            <Skeleton width={200} variant="text" />
-            <Skeleton width={50} variant="text" />
-          </Stack>
-        </SkeletonWrapper>
+        <div className="h-22">
+          <Skeleton className="mb-8 w-22" variant="text" />
+          <div className="flex flex-col gap-4">
+            <Skeleton className="w-50" variant="text" />
+            <Skeleton className="w-12" variant="text" />
+          </div>
+        </div>
       ) : (
         <>
-          <CardHeader>
+          <div className="mb-4 flex items-center gap-2">
             <Typography variant="captionHl">{title}</Typography>
             {tooltipContent && (
               <Tooltip className="flex h-5 items-end" placement="top-start" title={tooltipContent}>
                 <Icon name="info-circle" />
               </Tooltip>
             )}
-          </CardHeader>
+          </div>
 
-          <Stack gap={1}>
+          <div className="flex flex-col gap-1">
             <Typography variant="subhead" color={isAccentContent ? 'warning700' : 'grey700'}>
               {content}
             </Typography>
             <Typography variant="caption">{caption}</Typography>
-          </Stack>
+          </div>
         </>
       )}
     </Card>
   )
 }
-
-const CardHeader = styled.div`
-  display: flex;
-  gap: ${theme.spacing(2)};
-  align-items: center;
-  margin-bottom: ${theme.spacing(4)};
-`
-
-const SkeletonWrapper = styled.div`
-  height: 88px;
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(8)};
-  }
-`

@@ -76,7 +76,7 @@ export const DeleteBillableMetricDialog = forwardRef<DeleteBillableMetricDialogR
       disableOnContinue={loading}
       title={
         loading ? (
-          <Skeleton variant="text" width="100%" height={16} marginBottom={20} />
+          <Skeleton className="mb-5 h-4 w-full" variant="text" />
         ) : (
           translate('text_6256f824b6368e01153caa47', {
             billableMetricName: name,
@@ -86,9 +86,9 @@ export const DeleteBillableMetricDialog = forwardRef<DeleteBillableMetricDialogR
       description={
         loading ? (
           <>
-            <Skeleton variant="text" width="100%" marginBottom={16} />
-            <Skeleton variant="text" width="100%" marginBottom={16} />
-            <Skeleton variant="text" width="100%" />
+            <Skeleton className="mb-4 w-full" variant="text" />
+            <Skeleton className="mb-4 w-full" variant="text" />
+            <Skeleton className="w-full" variant="text" />
           </>
         ) : (billableMetric?.draftInvoicesCount || 0) > 0 ||
           billableMetric?.activeSubscriptionsCount ||
