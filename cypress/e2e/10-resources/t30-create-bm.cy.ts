@@ -1,6 +1,6 @@
 describe('Create billable metrics', () => {
   beforeEach(() => {
-    cy.visit('/billable-metrics')
+    cy.login().visit('/billable-metrics')
   })
 
   it('should create count billable metric', () => {

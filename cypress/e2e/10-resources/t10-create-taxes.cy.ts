@@ -1,6 +1,10 @@
 import { TAX_TEN_CODE, TAX_TWENTY_CODE } from '../../support/reusableConstants'
 
 describe('Create taxes', () => {
+  beforeEach(() => {
+    cy.login()
+  })
+
   it('should create taxes', () => {
     cy.visit('/settings/taxes')
     cy.url().should('include', '/settings/taxes')

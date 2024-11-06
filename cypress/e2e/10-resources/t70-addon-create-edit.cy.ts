@@ -1,4 +1,8 @@
 describe('Add On', () => {
+  beforeEach(() => {
+    cy.login()
+  })
+
   const addOnName = `AddOn-${Math.round(Math.random() * 10000)}`
   const description =
     'Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus aliquam at dolor consectetur tempore quis molestiae cumque voluptatem deserunt similique blanditiis aperiam, distinctio nam, asperiores enim officiis culpa aut. Molestias?'

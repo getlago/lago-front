@@ -2,7 +2,7 @@ import { planWithChargesName } from '../../support/reusableConstants'
 
 describe('Create plan', () => {
   beforeEach(() => {
-    cy.visit('/plans')
+    cy.login().visit('/plans')
   })
 
   it('should be able to access plans', () => {

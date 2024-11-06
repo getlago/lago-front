@@ -4,7 +4,7 @@ import { customerName } from '../support/reusableConstants'
 
 describe('Subscriptions', () => {
   beforeEach(() => {
-    cy.visit('/customers')
+    cy.login().visit('/customers')
     cy.get(`[data-test="${customerName}"]`).click()
   })
 

@@ -8,7 +8,7 @@ declare namespace Cypress {
      * @example
      * cy.login('usertest@lago.com', 'P@ssw0rd')
      */
-    login(email: string, password: string): Chainable<unknown>
+    login(email?: string, password?: string): Chainable<unknown>
   }
 
   interface Cypress {

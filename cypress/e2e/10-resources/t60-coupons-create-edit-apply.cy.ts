@@ -3,6 +3,10 @@ import { customerName } from '../../support/reusableConstants'
 const couponName = `Coupon-${Math.round(Math.random() * 10000)}`
 
 describe('Coupons', () => {
+  beforeEach(() => {
+    cy.login()
+  })
+
   it('should be able create a coupon with plan limitation', () => {
     cy.visit('/coupons')
     cy.get(`[data-test="add-coupon"]`).click()
