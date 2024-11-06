@@ -369,45 +369,7 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
                   </Typography>
                   <Chip
                     size="small"
-                    label={translate('text_661ff6e56ef7e1b7c542b2a6')}
-                    color="danger600"
-                  />
-                  <Typography variant="body" color="grey700">
-                    {translate('text_661ff6e56ef7e1b7c542b29e')}
-                  </Typography>
-                </Stack>
-              }
-              value={true}
-            />
-            <Checkbox
-              disabled
-              label={
-                <Stack spacing={1} direction="row" alignItems="center" flexWrap="wrap">
-                  <Typography variant="body" color="grey700">
-                    {translate('text_661ff6e56ef7e1b7c542b296')}
-                  </Typography>
-                  <Chip
-                    size="small"
                     label={translate('text_661ff6e56ef7e1b7c542b2c2')}
-                    color="danger600"
-                  />
-                  <Typography variant="body" color="grey700">
-                    {translate('text_661ff6e56ef7e1b7c542b29e')}
-                  </Typography>
-                </Stack>
-              }
-              value={true}
-            />
-            <Checkbox
-              disabled
-              label={
-                <Stack spacing={1} direction="row" alignItems="center" flexWrap="wrap">
-                  <Typography variant="body" color="grey700">
-                    {translate('text_661ff6e56ef7e1b7c542b296')}
-                  </Typography>
-                  <Chip
-                    size="small"
-                    label={translate('text_661ff6e56ef7e1b7c542b2d7')}
                     color="danger600"
                   />
                   <Typography variant="body" color="grey700">
