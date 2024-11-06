@@ -76,11 +76,7 @@ gql`
 `
 
 const buildEnabledSynchronizedLabelKeys = (integration?: NetsuiteIntegrationSettingsFragment) => {
-  const labels = [
-    'text_661ff6e56ef7e1b7c542b2a6',
-    'text_661ff6e56ef7e1b7c542b2c2',
-    'text_661ff6e56ef7e1b7c542b2d7',
-  ]
+  const labels = ['text_661ff6e56ef7e1b7c542b2c2']
 
   if (integration?.syncInvoices) {
     labels.push('text_661ff6e56ef7e1b7c542b2ff')
