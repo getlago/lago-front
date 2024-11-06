@@ -50,24 +50,29 @@ const NetsuiteIntegrationItemsListDefault = ({
     subscriptionFee,
     tax,
   } = useMemo(() => {
+    const findDefaultItem = (mappingType: MappingTypeEnum) =>
+      defaultItems?.find(
+        (mapping) =>
+          mapping.mappingType === mappingType &&
+          !!mapping.externalId &&
+          !!mapping.externalName &&
+          !!mapping.externalAccountCode,
+      )
+
     return {
-      fallbackItem: defaultItems?.find(
-        (mapping) => mapping.mappingType === MappingTypeEnum.FallbackItem,
+      fallbackItem: findDefaultItem(MappingTypeEnum.FallbackItem),
+      coupon: findDefaultItem(MappingTypeEnum.Coupon),
+      creditNote: findDefaultItem(MappingTypeEnum.CreditNote),
+      minimumCommitment: findDefaultItem(MappingTypeEnum.MinimumCommitment),
+      prepaidCredit: findDefaultItem(MappingTypeEnum.PrepaidCredit),
+      subscriptionFee: findDefaultItem(MappingTypeEnum.SubscriptionFee),
+      tax: defaultItems?.find(
+        (mapping) =>
+          mapping.mappingType === MappingTypeEnum.Tax &&
+          !!mapping.taxCode &&
+          !!mapping.taxNexus &&
+          !!mapping.taxType,
       ),
-      coupon: defaultItems?.find((mapping) => mapping.mappingType === MappingTypeEnum.Coupon),
-      creditNote: defaultItems?.find(
-        (mapping) => mapping.mappingType === MappingTypeEnum.CreditNote,
-      ),
-      minimumCommitment: defaultItems?.find(
-        (mapping) => mapping.mappingType === MappingTypeEnum.MinimumCommitment,
-      ),
-      prepaidCredit: defaultItems?.find(
-        (mapping) => mapping.mappingType === MappingTypeEnum.PrepaidCredit,
-      ),
-      subscriptionFee: defaultItems?.find(
-        (mapping) => mapping.mappingType === MappingTypeEnum.SubscriptionFee,
-      ),
-      tax: defaultItems?.find((mapping) => mapping.mappingType === MappingTypeEnum.Tax),
     }
   }, [defaultItems])
 
