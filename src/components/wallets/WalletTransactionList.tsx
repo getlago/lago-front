@@ -81,7 +81,6 @@ export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTran
             </Typography>
           </TransactionListHeader>
         )}
-
         <TransactionListWrapper>
           {!!error && !loading ? (
             <GenericState
@@ -97,22 +96,12 @@ export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTran
               <Loader key={`wallet-transaction-skeleton-${i}`}>
                 <Skeleton variant="connectorAvatar" size="big" marginRight={theme.spacing(3)} />
                 <LeftLoader>
-                  <Skeleton
-                    variant="text"
-                    height={12}
-                    width={144}
-                    marginBottom={theme.spacing(3)}
-                  />
-                  <Skeleton variant="text" height={12} width={80} />
+                  <Skeleton variant="text" width={144} marginBottom={theme.spacing(3)} />
+                  <Skeleton variant="text" width={80} />
                 </LeftLoader>
                 <RightLoader>
-                  <Skeleton
-                    variant="text"
-                    height={12}
-                    width={144}
-                    marginBottom={theme.spacing(3)}
-                  />
-                  <Skeleton variant="text" height={12} width={80} />
+                  <Skeleton variant="text" width={144} marginBottom={theme.spacing(3)} />
+                  <Skeleton variant="text" width={80} />
                 </RightLoader>
               </Loader>
             ))

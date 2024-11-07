@@ -80,7 +80,7 @@ const HubspotIntegrations = () => {
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
           {loading ? (
-            <Skeleton variant="text" height={12} width={120} />
+            <Skeleton variant="text" width={120} />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
               {translate('text_1727189568053s79ks5q07tr')}
@@ -91,15 +91,14 @@ const HubspotIntegrations = () => {
           {translate('text_65846763e6140b469140e235')}
         </Button>
       </PageHeader>
-
       <div className="container">
         <section className="flex items-center py-8">
           {loading ? (
             <>
               <Skeleton variant="connectorAvatar" size="large" marginRight="16px" />
               <div className="flex-1">
-                <Skeleton variant="text" width={200} height={12} marginBottom="22px" />
-                <Skeleton variant="text" width={128} height={12} />
+                <Skeleton variant="text" width={200} marginBottom="22px" />
+                <Skeleton variant="text" width={128} />
               </div>
             </>
           ) : (
@@ -138,7 +137,7 @@ const HubspotIntegrations = () => {
                       key={`item-skeleton-item-${i}`}
                     >
                       <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
-                      <Skeleton variant="text" width={240} height={12} />
+                      <Skeleton variant="text" width={240} />
                     </div>
                   ))}
                 </>
@@ -229,7 +228,6 @@ const HubspotIntegrations = () => {
           </section>
         </div>
       </div>
-
       <AddHubspotDialog ref={addHubspotDialogRef} />
       <DeleteHubspotIntegrationDialog ref={deleteDialogRef} />
     </>

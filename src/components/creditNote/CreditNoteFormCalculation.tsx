@@ -243,7 +243,7 @@ export const CreditNoteFormCalculation = ({
             </InlineLabel>
             <Typography color="grey700" data-test="prorated-coupon-amount">
               {estiationLoading ? (
-                <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} height={12} />
+                <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} />
               ) : !proRatedCouponAmount || hasError ? (
                 '-'
               ) : (
@@ -258,7 +258,7 @@ export const CreditNoteFormCalculation = ({
           <Typography variant="bodyHl">{translate('text_636bedf292786b19d3398f02')}</Typography>
           <Typography color="grey700" data-test="total-excluded-tax">
             {estiationLoading ? (
-              <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} height={12} />
+              <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} />
             ) : !totalExcludedTax || hasError ? (
               '-'
             ) : (
@@ -273,7 +273,7 @@ export const CreditNoteFormCalculation = ({
             <Typography variant="bodyHl">{translate('text_636bedf292786b19d3398f06')}</Typography>
             <Typography color="grey700">
               {estiationLoading ? (
-                <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} height={12} />
+                <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} />
               ) : (
                 '-'
               )}
@@ -289,11 +289,7 @@ export const CreditNoteFormCalculation = ({
                 </Typography>
                 <Typography color="grey700" data-test={`tax-${tax.taxRate}-amount`}>
                   {estiationLoading ? (
-                    <ValueSkeleton
-                      variant="text"
-                      width={LOADING_VALUE_SKELETON_WIDTH}
-                      height={12}
-                    />
+                    <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} />
                   ) : !tax.amount || hasError ? (
                     '-'
                   ) : (
@@ -311,7 +307,7 @@ export const CreditNoteFormCalculation = ({
             )} (0%)`}</Typography>
             <Typography color="grey700">
               {estiationLoading ? (
-                <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} height={12} />
+                <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} />
               ) : hasError ? (
                 '-'
               ) : (
@@ -328,7 +324,7 @@ export const CreditNoteFormCalculation = ({
           </Typography>
           <Typography color="grey700" data-test="total-tax-included">
             {estiationLoading ? (
-              <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} height={12} />
+              <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} />
             ) : !totalTaxIncluded || hasError ? (
               '-'
             ) : (
@@ -345,7 +341,7 @@ export const CreditNoteFormCalculation = ({
             </Typography>
             <Typography color="grey700">
               {estiationLoading ? (
-                <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} height={12} />
+                <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} />
               ) : totalTaxIncluded === undefined || hasError ? (
                 '-'
               ) : (
@@ -453,7 +449,7 @@ export const CreditNoteFormCalculation = ({
             ) : (
               <Typography color="grey700">
                 {estiationLoading ? (
-                  <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} height={12} />
+                  <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} />
                 ) : !payBack[0]?.value || hasError ? (
                   '-'
                 ) : (

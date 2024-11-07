@@ -37,8 +37,8 @@ export const DetailsHeaderSkeleton = () => {
 
       <HeaderDetailsWrapper>
         <LoadingWrapper>
-          <Skeleton variant="text" width={200} height={12} marginBottom={20} />
-          <Skeleton variant="text" width={200} height={12} />
+          <Skeleton variant="text" width={200} marginBottom={20} />
+          <Skeleton variant="text" width={200} />
         </LoadingWrapper>
       </HeaderDetailsWrapper>
     </HeaderWrapper>

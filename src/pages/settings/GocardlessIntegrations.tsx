@@ -102,7 +102,7 @@ const GocardlessIntegrations = () => {
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
           {loading ? (
-            <Skeleton variant="text" height={12} width={120} />
+            <Skeleton variant="text" width={120} />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
               {translate('text_634ea0ecc6147de10ddb6625')}
@@ -126,8 +126,8 @@ const GocardlessIntegrations = () => {
           <>
             <Skeleton variant="connectorAvatar" size="large" marginRight="16px" />
             <div>
-              <Skeleton variant="text" width={200} height={12} marginBottom="22px" />
-              <Skeleton variant="text" width={128} height={12} />
+              <Skeleton variant="text" width={200} marginBottom="22px" />
+              <Skeleton variant="text" width={128} />
             </div>
           </>
         ) : (
@@ -147,7 +147,6 @@ const GocardlessIntegrations = () => {
           </>
         )}
       </MainInfos>
-
       <ListWrapper>
         <section>
           <InlineTitle>
@@ -160,7 +159,7 @@ const GocardlessIntegrations = () => {
                 {[1, 2].map((i) => (
                   <ListItem key={`item-skeleton-item-${i}`}>
                     <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
-                    <Skeleton variant="text" width={240} height={12} />
+                    <Skeleton variant="text" width={240} />
                   </ListItem>
                 ))}
               </>
@@ -257,7 +256,6 @@ const GocardlessIntegrations = () => {
           </>
         </section>
       </ListWrapper>
-
       <AddGocardlessDialog ref={addGocardlessDialogRef} />
       <DeleteGocardlessIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />

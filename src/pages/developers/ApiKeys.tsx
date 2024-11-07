@@ -28,7 +28,6 @@ const ApiKeys = () => {
       <Subtitle variant="body" color="grey600">
         {translate('text_637f813d31381b1ed90ab300')}
       </Subtitle>
-
       <InlineSectionTitle>
         <Typography variant="subhead" color="grey700">
           {translate('text_637f813d31381b1ed90ab313')}
@@ -50,11 +49,10 @@ const ApiKeys = () => {
           </Button>
         )}
       </InlineSectionTitle>
-
       {loading ? (
         <>
-          <Skeleton variant="text" height={12} width={240} marginBottom={theme.spacing(3)} />
-          <Skeleton variant="text" height={12} width={160} />
+          <Skeleton variant="text" width={240} marginBottom={theme.spacing(3)} />
+          <Skeleton variant="text" width={160} />
         </>
       ) : (
         <InfoBlock>
@@ -66,7 +64,6 @@ const ApiKeys = () => {
           </Typography>
         </InfoBlock>
       )}
-
       <InlineSectionTitle>
         <Typography variant="subhead" color="grey700">
           {translate('text_636df520279a9e1b3c68cc75')}
@@ -88,11 +85,10 @@ const ApiKeys = () => {
           </Button>
         )}
       </InlineSectionTitle>
-
       {loading ? (
         <>
-          <Skeleton variant="text" height={12} width={240} marginBottom={theme.spacing(3)} />
-          <Skeleton variant="text" height={12} width={160} />
+          <Skeleton variant="text" width={240} marginBottom={theme.spacing(3)} />
+          <Skeleton variant="text" width={160} />
         </>
       ) : (
         <InfoBlock>

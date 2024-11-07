@@ -350,7 +350,7 @@ const CreditNoteDetails = () => {
             }
           />
           {loading ? (
-            <Skeleton variant="text" height={12} width={120} />
+            <Skeleton variant="text" width={120} />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
               {creditNote?.number}
@@ -465,8 +465,8 @@ const CreditNoteDetails = () => {
             <MainInfos>
               <Skeleton variant="connectorAvatar" size="large" />
               <div>
-                <Skeleton variant="text" height={12} width={200} marginBottom={theme.spacing(5)} />
-                <Skeleton variant="text" height={12} width={128} />
+                <Skeleton variant="text" width={200} marginBottom={theme.spacing(5)} />
+                <Skeleton variant="text" width={128} />
               </div>
             </MainInfos>
           ) : (
@@ -527,10 +527,10 @@ const CreditNoteDetails = () => {
               <>
                 {[1, 2, 3, 4].map((i) => (
                   <SkeletonLine key={`key-skeleton-line-${i}`}>
-                    <Skeleton variant="text" width="12%" height={12} marginRight="6.4%" />
-                    <Skeleton variant="text" width="38%" height={12} marginRight="11.2%" />
-                    <Skeleton variant="text" width="12%" height={12} marginRight="6.4%" />
-                    <Skeleton variant="text" width="38%" height={12} marginRight="9.25%" />
+                    <Skeleton variant="text" width="12%" marginRight="6.4%" />
+                    <Skeleton variant="text" width="38%" marginRight="11.2%" />
+                    <Skeleton variant="text" width="12%" marginRight="6.4%" />
+                    <Skeleton variant="text" width="38%" marginRight="9.25%" />
                   </SkeletonLine>
                 ))}
               </>

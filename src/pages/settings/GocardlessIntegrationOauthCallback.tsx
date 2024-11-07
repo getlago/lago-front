@@ -88,7 +88,7 @@ const GocardlessIntegrationOauthCallback = () => {
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
           {loading ? (
-            <Skeleton variant="text" height={12} width={120} />
+            <Skeleton variant="text" width={120} />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
               {translate('text_634ea0ecc6147de10ddb6625')}
@@ -101,8 +101,8 @@ const GocardlessIntegrationOauthCallback = () => {
           <>
             <Skeleton variant="connectorAvatar" size="large" marginRight="16px" />
             <div>
-              <Skeleton variant="text" width={200} height={12} marginBottom="22px" />
-              <Skeleton variant="text" width={128} height={12} />
+              <Skeleton variant="text" width={200} marginBottom="22px" />
+              <Skeleton variant="text" width={128} />
             </div>
           </>
         ) : (
@@ -122,7 +122,6 @@ const GocardlessIntegrationOauthCallback = () => {
           </>
         )}
       </MainInfos>
-
       {loading || !error ? (
         <Loader>
           <Icon name="processing" color="info" size="large" animation="spin" />

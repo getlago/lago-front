@@ -30,13 +30,13 @@ export const EmailPreview: FC<EmailPreviewProps> = ({
       <div className="mx-auto flex max-w-150 flex-col gap-8">
         <div className="flex flex-1 items-center justify-center gap-3">
           <Skeleton variant="connectorAvatar" size="medium" color="dark" />
-          <Skeleton variant="text" width={120} height={12} color="dark" />
+          <Skeleton variant="text" width={120} color="dark" />
         </div>
         <Card $childSpacing={4}>
           <DunningEmailSkeleton />
         </Card>
         <div className="flex justify-center">
-          <Skeleton variant="text" width={120} height={12} color="dark" />
+          <Skeleton variant="text" width={120} color="dark" />
         </div>
       </div>
     )

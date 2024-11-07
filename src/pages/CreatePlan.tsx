@@ -182,43 +182,22 @@ const CreatePlan = () => {
           data-test="close-create-plan-button"
         />
       </PageHeader>
-
       <Content>
         <Main>
           <MainMinimumContent>
             {loading && !plan ? (
               <>
                 <SkeletonHeader>
-                  <Skeleton
-                    variant="text"
-                    width={280}
-                    height={12}
-                    marginBottom={theme.spacing(5)}
-                  />
-                  <Skeleton
-                    variant="text"
-                    width="inherit"
-                    height={12}
-                    marginBottom={theme.spacing(4)}
-                  />
-                  <Skeleton variant="text" width={120} height={12} />
+                  <Skeleton variant="text" width={280} marginBottom={theme.spacing(5)} />
+                  <Skeleton variant="text" width="inherit" marginBottom={theme.spacing(4)} />
+                  <Skeleton variant="text" width={120} />
                 </SkeletonHeader>
 
                 {[0, 1, 2].map((skeletonCard) => (
                   <Card key={`skeleton-${skeletonCard}`}>
-                    <Skeleton
-                      variant="text"
-                      width={280}
-                      height={12}
-                      marginBottom={theme.spacing(9)}
-                    />
-                    <Skeleton
-                      variant="text"
-                      width="inherit"
-                      height={12}
-                      marginBottom={theme.spacing(4)}
-                    />
-                    <Skeleton variant="text" width={120} height={12} />
+                    <Skeleton variant="text" width={280} marginBottom={theme.spacing(9)} />
+                    <Skeleton variant="text" width="inherit" marginBottom={theme.spacing(4)} />
+                    <Skeleton variant="text" width={120} />
                   </Card>
                 ))}
               </>
@@ -316,7 +295,6 @@ const CreatePlan = () => {
           <PlanCodeSnippet loading={loading} plan={formikProps.values} />
         </Side>
       </Content>
-
       <WarningDialog
         ref={warningDialogRef}
         title={translate('text_665deda4babaf700d603ea13')}
@@ -324,7 +302,6 @@ const CreatePlan = () => {
         continueText={translate('text_645388d5bdbd7b00abffa033')}
         onContinue={() => planCloseRedirection()}
       />
-
       <EditInvoiceDisplayName ref={editInvoiceDisplayNameRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </div>

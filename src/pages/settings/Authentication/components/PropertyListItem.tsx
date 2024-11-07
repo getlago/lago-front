@@ -33,8 +33,8 @@ export const SkeletonPropertyListItem: FC = () => {
     <Container>
       <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
       <SkeletonText>
-        <Skeleton variant="text" width={300} height={12} marginBottom="12px" />
-        <Skeleton variant="text" width={240} height={12} />
+        <Skeleton variant="text" width={300} marginBottom="12px" />
+        <Skeleton variant="text" width={240} />
       </SkeletonText>
     </Container>
   )

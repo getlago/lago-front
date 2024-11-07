@@ -102,7 +102,7 @@ const StripeIntegrations = () => {
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
           {loading ? (
-            <Skeleton variant="text" height={12} width={120} />
+            <Skeleton variant="text" width={120} />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
               {translate('text_62b1edddbf5f461ab971277d')}
@@ -126,8 +126,8 @@ const StripeIntegrations = () => {
           <>
             <Skeleton variant="connectorAvatar" size="large" marginRight="16px" />
             <div>
-              <Skeleton variant="text" width={200} height={12} marginBottom="22px" />
-              <Skeleton variant="text" width={128} height={12} />
+              <Skeleton variant="text" width={200} marginBottom="22px" />
+              <Skeleton variant="text" width={128} />
             </div>
           </>
         ) : (
@@ -147,7 +147,6 @@ const StripeIntegrations = () => {
           </>
         )}
       </MainInfos>
-
       <ListWrapper>
         <section>
           <InlineTitle>
@@ -160,7 +159,7 @@ const StripeIntegrations = () => {
                 {[1, 2].map((i) => (
                   <ListItem key={`item-skeleton-item-${i}`}>
                     <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
-                    <Skeleton variant="text" width={240} height={12} />
+                    <Skeleton variant="text" width={240} />
                   </ListItem>
                 ))}
               </>
@@ -258,7 +257,6 @@ const StripeIntegrations = () => {
           </>
         </section>
       </ListWrapper>
-
       <AddStripeDialog ref={addStripeDialogRef} />
       <DeleteStripeIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />

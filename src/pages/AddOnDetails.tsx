@@ -75,7 +75,7 @@ const AddOnDetails = () => {
           />
           {isAddOnLoading && !addOn ? (
             <AddOnTitleLoadingWrapper>
-              <Skeleton variant="text" width={200} height={12} />
+              <Skeleton variant="text" width={200} />
             </AddOnTitleLoadingWrapper>
           ) : (
             <Typography
@@ -134,7 +134,6 @@ const AddOnDetails = () => {
           </Popper>
         )}
       </PageHeader>
-
       {isAddOnLoading ? (
         <DetailsHeaderSkeleton />
       ) : (
@@ -144,7 +143,6 @@ const AddOnDetails = () => {
           description={translate('text_629728388c4d2300e2d3810b', { amountWithCurrency })}
         />
       )}
-
       <Container>
         <section>
           <DetailsSectionTitle variant="subhead" noWrap>
@@ -203,7 +201,6 @@ const AddOnDetails = () => {
           </DetailsCard>
         </section>
       </Container>
-
       <DeleteAddOnDialog ref={deleteDialogRef} />
     </>
   )

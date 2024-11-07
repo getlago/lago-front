@@ -100,7 +100,7 @@ const SubscriptionDetails = () => {
           />
           {isSubscriptionLoading ? (
             <TitleSkeletonWrapper>
-              <Skeleton variant="text" width={200} height={12} />
+              <Skeleton variant="text" width={200} />
             </TitleSkeletonWrapper>
           ) : (
             <Typography variant="bodyHl" color="textSecondary" noWrap>
@@ -207,7 +207,7 @@ const SubscriptionDetails = () => {
           {isSubscriptionLoading ? (
             <>
               <Skeleton variant="text" width={200} height={16} marginBottom={18} />
-              <Skeleton variant="text" width={200} height={12} />
+              <Skeleton variant="text" width={200} />
             </>
           ) : (
             <>
@@ -303,7 +303,6 @@ const SubscriptionDetails = () => {
           ]}
         />
       )}
-
       <TerminateCustomerSubscriptionDialog ref={terminateSubscriptionDialogRef} />
     </>
   )

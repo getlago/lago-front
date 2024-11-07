@@ -557,7 +557,7 @@ const CustomerInvoiceDetails = () => {
         <HeaderLeft>
           <Button icon="arrow-left" variant="quaternary" onClick={() => goToPreviousRoute()} />
           {loading ? (
-            <Skeleton variant="text" height={12} width={120} />
+            <Skeleton variant="text" width={120} />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
               {number}
@@ -820,7 +820,6 @@ const CustomerInvoiceDetails = () => {
           </Popper>
         )}
       </PageHeader>
-
       {!!errorMessage && (
         <Alert fullWidth className="md:px-12" type="warning">
           <Stack>
@@ -832,7 +831,6 @@ const CustomerInvoiceDetails = () => {
           </Stack>
         </Alert>
       )}
-
       {hasError ? (
         <GenericPlaceholder
           title={translate('text_634812d6f16b31ce5cbf4111')}
@@ -848,8 +846,8 @@ const CustomerInvoiceDetails = () => {
             <MainInfos>
               <Skeleton variant="connectorAvatar" size="large" />
               <div>
-                <Skeleton variant="text" height={12} width={200} marginBottom={theme.spacing(5)} />
-                <Skeleton variant="text" height={12} width={128} />
+                <Skeleton variant="text" width={200} marginBottom={theme.spacing(5)} />
+                <Skeleton variant="text" width={128} />
               </div>
             </MainInfos>
           ) : (

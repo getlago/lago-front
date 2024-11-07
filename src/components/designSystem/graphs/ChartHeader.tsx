@@ -22,8 +22,8 @@ const ChartHeader = ({
     <>
       {!!loading ? (
         <div className="flex h-14 flex-col justify-between pb-2 pt-1">
-          <Skeleton variant="text" width={72} height={12} marginBottom={4} />
-          <Skeleton variant="text" width={160} height={12} />
+          <Skeleton variant="text" width={72} marginBottom={4} />
+          <Skeleton variant="text" width={160} />
         </div>
       ) : (
         <ChartWrapper className="flex flex-col items-start justify-between gap-2" blur={blur}>

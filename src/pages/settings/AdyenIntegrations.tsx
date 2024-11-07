@@ -102,7 +102,7 @@ const AdyenIntegrations = () => {
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
           {loading ? (
-            <Skeleton variant="text" height={12} width={120} />
+            <Skeleton variant="text" width={120} />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
               {translate('text_645d071272418a14c1c76a6d')}
@@ -126,8 +126,8 @@ const AdyenIntegrations = () => {
           <>
             <Skeleton variant="connectorAvatar" size="large" marginRight="16px" />
             <div>
-              <Skeleton variant="text" width={200} height={12} marginBottom="22px" />
-              <Skeleton variant="text" width={128} height={12} />
+              <Skeleton variant="text" width={200} marginBottom="22px" />
+              <Skeleton variant="text" width={128} />
             </div>
           </>
         ) : (
@@ -147,7 +147,6 @@ const AdyenIntegrations = () => {
           </>
         )}
       </MainInfos>
-
       <ListWrapper>
         <section>
           <InlineTitle>
@@ -160,7 +159,7 @@ const AdyenIntegrations = () => {
                 {[1, 2].map((i) => (
                   <ListItem key={`item-skeleton-item-${i}`}>
                     <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
-                    <Skeleton variant="text" width={240} height={12} />
+                    <Skeleton variant="text" width={240} />
                   </ListItem>
                 ))}
               </>
@@ -257,7 +256,6 @@ const AdyenIntegrations = () => {
           </>
         </section>
       </ListWrapper>
-
       <AddAdyenDialog ref={addAdyenDialogRef} />
       <DeleteAdyenIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />

@@ -127,7 +127,6 @@ export const CommitmentsSection = ({
           })}
         </Typography>
       </SectionTitle>
-
       {displayMinimumCommitment ? (
         <StyledAccordion
           summary={

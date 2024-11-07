@@ -134,8 +134,8 @@ export const SubscriptionItemSkeleton = () => {
     <SkeletonItem>
       <Skeleton variant="connectorAvatar" size="big" marginRight="12px" />
       <div>
-        <Skeleton variant="text" width={240} height={12} marginBottom="12px" />
-        <Skeleton variant="text" width={120} height={12} />
+        <Skeleton variant="text" width={240} marginBottom="12px" />
+        <Skeleton variant="text" width={120} />
       </div>
     </SkeletonItem>
   )

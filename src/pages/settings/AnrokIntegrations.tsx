@@ -92,7 +92,7 @@ const AnrokIntegrations = () => {
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
           {loading ? (
-            <Skeleton variant="text" height={12} width={120} />
+            <Skeleton variant="text" width={120} />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
               {translate('text_6668821d94e4da4dfd8b3834')}
@@ -113,8 +113,8 @@ const AnrokIntegrations = () => {
           <>
             <Skeleton variant="connectorAvatar" size="large" marginRight="16px" />
             <div>
-              <Skeleton variant="text" width={200} height={12} marginBottom="22px" />
-              <Skeleton variant="text" width={128} height={12} />
+              <Skeleton variant="text" width={200} marginBottom="22px" />
+              <Skeleton variant="text" width={128} />
             </div>
           </>
         ) : (
@@ -134,7 +134,6 @@ const AnrokIntegrations = () => {
           </>
         )}
       </MainInfos>
-
       <ListWrapper>
         <section>
           <InlineTitle>
@@ -147,7 +146,7 @@ const AnrokIntegrations = () => {
                 {[1, 2].map((i) => (
                   <ListItem key={`item-skeleton-item-${i}`}>
                     <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
-                    <Skeleton variant="text" width={240} height={12} />
+                    <Skeleton variant="text" width={240} />
                   </ListItem>
                 ))}
               </>
@@ -238,7 +237,6 @@ const AnrokIntegrations = () => {
           </>
         </section>
       </ListWrapper>
-
       <AddAnrokDialog ref={addAnrokDialogRef} />
       <DeleteAnrokIntegrationDialog ref={deleteDialogRef} />
     </>

@@ -102,7 +102,7 @@ const CouponDetails = () => {
           />
           {isCouponLoading && !coupon ? (
             <CouponTitleLoadingWrapper>
-              <Skeleton variant="text" width={200} height={12} />
+              <Skeleton variant="text" width={200} />
             </CouponTitleLoadingWrapper>
           ) : (
             <Typography
@@ -162,7 +162,6 @@ const CouponDetails = () => {
           </Popper>
         )}
       </PageHeader>
-
       {isCouponLoading ? (
         <DetailsHeaderSkeleton />
       ) : (
@@ -172,7 +171,6 @@ const CouponDetails = () => {
           description={`${couponValue} ${coupon?.frequency}`}
         />
       )}
-
       <Container>
         <section>
           <DetailsSectionTitle variant="subhead" noWrap>
@@ -330,7 +328,6 @@ const CouponDetails = () => {
           </section>
         )}
       </Container>
-
       <DeleteCouponDialog ref={deleteDialogRef} />
     </>
   )

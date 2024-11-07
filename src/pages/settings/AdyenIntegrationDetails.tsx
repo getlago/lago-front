@@ -116,7 +116,7 @@ const AdyenIntegrationDetails = () => {
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
           {loading ? (
-            <Skeleton variant="text" height={12} width={120} />
+            <Skeleton variant="text" width={120} />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
               {adyenPaymentProvider?.name}
@@ -170,14 +170,13 @@ const AdyenIntegrationDetails = () => {
           </Popper>
         )}
       </PageHeader>
-
       <MainInfos>
         {loading ? (
           <>
             <Skeleton variant="connectorAvatar" size="large" marginRight="16px" />
             <div>
-              <Skeleton variant="text" width={200} height={12} marginBottom="22px" />
-              <Skeleton variant="text" width={128} height={12} />
+              <Skeleton variant="text" width={200} marginBottom="22px" />
+              <Skeleton variant="text" width={128} />
             </div>
           </>
         ) : (
@@ -198,7 +197,6 @@ const AdyenIntegrationDetails = () => {
           </>
         )}
       </MainInfos>
-
       <Settings>
         <section>
           <InlineTitle>
@@ -227,7 +225,7 @@ const AdyenIntegrationDetails = () => {
                 {[0, 1, 2].map((i) => (
                   <ApiKeyItem key={`item-skeleton-item-${i}`}>
                     <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
-                    <Skeleton variant="text" width={240} height={12} />
+                    <Skeleton variant="text" width={240} />
                   </ApiKeyItem>
                 ))}
               </>
@@ -343,7 +341,7 @@ const AdyenIntegrationDetails = () => {
           {loading ? (
             <HeaderBlock>
               <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
-              <Skeleton variant="text" width={240} height={12} />
+              <Skeleton variant="text" width={240} />
             </HeaderBlock>
           ) : (
             <>
@@ -432,7 +430,6 @@ const AdyenIntegrationDetails = () => {
           )}
         </section>
       </Settings>
-
       <AddAdyenDialog ref={addAdyenDialogRef} />
       <DeleteAdyenIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />

@@ -142,7 +142,7 @@ const WebhookLogs = () => {
             }
           />
           {webhookUrlLoading ? (
-            <Skeleton variant="text" width={240} height={12} />
+            <Skeleton variant="text" width={240} />
           ) : (
             <>
               <Title color="textSecondary" variant="bodyHl" noWrap>
@@ -307,13 +307,13 @@ const WebhookLogs = () => {
             {isLoading && (
               <>
                 <HeaderBlock $loading>
-                  <Skeleton variant="text" width={180} height={12} />
+                  <Skeleton variant="text" width={180} />
                 </HeaderBlock>
                 <LogPropertiesSkeleton>
                   {[0, 1, 2, 3, 4, 5, 6].map((i) => (
                     <div key={`skeleton-event-${i}`}>
-                      <Skeleton variant="text" width={80} height={12} marginRight="72px" />
-                      <Skeleton variant="text" width={240} height={12} marginRight="auto" />
+                      <Skeleton variant="text" width={80} marginRight="72px" />
+                      <Skeleton variant="text" width={240} marginRight="auto" />
                     </div>
                   ))}
                 </LogPropertiesSkeleton>

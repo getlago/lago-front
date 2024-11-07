@@ -92,7 +92,7 @@ const NetsuiteIntegrations = () => {
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
           {loading ? (
-            <Skeleton variant="text" height={12} width={120} />
+            <Skeleton variant="text" width={120} />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
               {translate('text_661ff6e56ef7e1b7c542b239')}
@@ -113,8 +113,8 @@ const NetsuiteIntegrations = () => {
           <>
             <Skeleton variant="connectorAvatar" size="large" marginRight="16px" />
             <div>
-              <Skeleton variant="text" width={200} height={12} marginBottom="22px" />
-              <Skeleton variant="text" width={128} height={12} />
+              <Skeleton variant="text" width={200} marginBottom="22px" />
+              <Skeleton variant="text" width={128} />
             </div>
           </>
         ) : (
@@ -134,7 +134,6 @@ const NetsuiteIntegrations = () => {
           </>
         )}
       </MainInfos>
-
       <ListWrapper>
         <section>
           <InlineTitle>
@@ -147,7 +146,7 @@ const NetsuiteIntegrations = () => {
                 {[1, 2].map((i) => (
                   <ListItem key={`item-skeleton-item-${i}`}>
                     <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
-                    <Skeleton variant="text" width={240} height={12} />
+                    <Skeleton variant="text" width={240} />
                   </ListItem>
                 ))}
               </>
@@ -238,7 +237,6 @@ const NetsuiteIntegrations = () => {
           </>
         </section>
       </ListWrapper>
-
       <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
       <DeleteNetsuiteIntegrationDialog ref={deleteDialogRef} />
     </>
