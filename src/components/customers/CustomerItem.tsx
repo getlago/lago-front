@@ -135,7 +135,6 @@ export const CustomerItem = memo(({ rowId, customer, editDialogRef }: CustomerIt
           )}
         </Popper>
       )}
-
       <DeleteCustomerDialog ref={deleteDialogRef} customer={customer} />
     </ItemContainer>
   )
@@ -147,8 +146,8 @@ export const CustomerItemSkeleton = () => {
   return (
     <BaseListItem>
       <Skeleton variant="connectorAvatar" size="big" marginRight={theme.spacing(3)} />
-      <Skeleton variant="text" height={12} width={240} marginRight="auto" />
-      <Skeleton variant="text" height={12} width={240} />
+      <Skeleton variant="text" width={240} marginRight="auto" />
+      <Skeleton variant="text" width={240} />
     </BaseListItem>
   )
 }

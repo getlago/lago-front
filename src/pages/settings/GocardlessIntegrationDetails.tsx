@@ -117,7 +117,7 @@ const GocardlessIntegrationDetails = () => {
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
           {loading ? (
-            <Skeleton variant="text" height={12} width={120} />
+            <Skeleton variant="text" width={120} />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
               {gocardlessPaymentProvider?.name}
@@ -207,8 +207,8 @@ const GocardlessIntegrationDetails = () => {
           <>
             <Skeleton variant="connectorAvatar" size="large" marginRight="16px" />
             <div>
-              <Skeleton variant="text" width={200} height={12} marginBottom="22px" />
-              <Skeleton variant="text" width={128} height={12} />
+              <Skeleton variant="text" width={200} marginBottom="22px" />
+              <Skeleton variant="text" width={128} />
             </div>
           </>
         ) : (
@@ -231,7 +231,6 @@ const GocardlessIntegrationDetails = () => {
           </>
         )}
       </MainInfos>
-
       <ContentWrapper>
         <section>
           <InlineTitle>
@@ -258,11 +257,11 @@ const GocardlessIntegrationDetails = () => {
               {[0, 1, 2].map((i) => (
                 <Item key={`item-skeleton-${i}`} direction="row" alignItems="center">
                   <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
-                  <Skeleton variant="text" width={240} height={12} />
+                  <Skeleton variant="text" width={240} />
                 </Item>
               ))}
               <div style={{ height: 20 }} />
-              <Skeleton variant="text" width={240} height={12} marginBottom={16} />
+              <Skeleton variant="text" width={240} marginBottom={16} />
             </>
           ) : (
             <>
@@ -356,7 +355,7 @@ const GocardlessIntegrationDetails = () => {
           {loading ? (
             <HeaderBlock>
               <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
-              <Skeleton variant="text" width={240} height={12} />
+              <Skeleton variant="text" width={240} />
             </HeaderBlock>
           ) : (
             <>
@@ -445,7 +444,6 @@ const GocardlessIntegrationDetails = () => {
           )}
         </section>
       </ContentWrapper>
-
       <AddGocardlessDialog ref={addDialogRef} />
       <DeleteGocardlessIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />

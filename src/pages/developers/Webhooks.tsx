@@ -78,7 +78,6 @@ const Webhooks = () => {
           {translate('text_6271200984178801ba8bdf1a')}
         </Button>
       </Head>
-
       {!webhooks.length && !loading ? (
         <EmptyText variant="caption" color="grey600">
           {translate('text_63e27c56dfe64b846474ef0c')}
@@ -86,7 +85,7 @@ const Webhooks = () => {
       ) : loading ? (
         <LoadingBlock>
           <Skeleton variant="connectorAvatar" size="big" marginRight={theme.spacing(3)} />
-          <Skeleton variant="text" width={160} height={12} />
+          <Skeleton variant="text" width={160} />
         </LoadingBlock>
       ) : (
         <>

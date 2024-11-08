@@ -94,7 +94,7 @@ const OktaAuthenticationDetails = () => {
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
           {loading ? (
-            <Skeleton variant="text" height={12} width={120} />
+            <Skeleton variant="text" width={120} />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
               {translate('text_664c732c264d7eed1c74fda2')}
@@ -143,14 +143,13 @@ const OktaAuthenticationDetails = () => {
           )}
         </Popper>
       </PageHeader>
-
       <MainInfos>
         {loading ? (
           <>
             <Skeleton variant="connectorAvatar" size="large" marginRight="16px" />
             <SkeletonText>
-              <Skeleton variant="text" width={200} height={12} marginBottom="22px" />
-              <Skeleton variant="text" width={128} height={12} />
+              <Skeleton variant="text" width={200} marginBottom="22px" />
+              <Skeleton variant="text" width={128} />
             </SkeletonText>
           </>
         ) : (
@@ -170,7 +169,6 @@ const OktaAuthenticationDetails = () => {
           </>
         )}
       </MainInfos>
-
       <Settings>
         <section>
           <InlineTitle>
@@ -221,7 +219,6 @@ const OktaAuthenticationDetails = () => {
           </>
         </section>
       </Settings>
-
       <AddOktaDialog ref={addOktaDialogRef} />
       <DeleteOktaIntegrationDialog ref={deleteOktaDialogRef} />
     </>

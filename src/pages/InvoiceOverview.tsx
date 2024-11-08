@@ -230,7 +230,6 @@ const InvoiceOverview = memo(
             )}
           </NavigationRightActions>
         </SectionHeader>
-
         <>
           {loading ? (
             <>
@@ -272,10 +271,10 @@ const InvoiceOverview = memo(
                       <LoadingTR key={`invoice-details-table-footer-loading-${i}`}>
                         <td></td>
                         <td colSpan={3}>
-                          <Skeleton variant="text" height={12} width={160} />
+                          <Skeleton variant="text" width={160} />
                         </td>
                         <td>
-                          <RightSkeleton variant="text" height={12} width={120} />
+                          <RightSkeleton variant="text" width={120} />
                         </td>
                       </LoadingTR>
                     ))}

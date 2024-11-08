@@ -245,7 +245,7 @@ const CreateCreditNote = () => {
       <PageHeader>
         {loading ? (
           <div>
-            <Skeleton variant="text" height={12} width={120} />
+            <Skeleton variant="text" width={120} />
           </div>
         ) : (
           <Typography variant="bodyHl" color="textSecondary" noWrap>
@@ -270,22 +270,21 @@ const CreateCreditNote = () => {
           }
         />
       </PageHeader>
-
       <Content>
         <Main>
           <div>
             {loading ? (
               <>
-                <Skeleton variant="text" height={12} width={280} marginBottom="22px" />
-                <Skeleton variant="text" height={12} width={480} marginBottom="40px" />
+                <Skeleton variant="text" width={280} marginBottom="22px" />
+                <Skeleton variant="text" width={480} marginBottom="40px" />
                 <StyledCard $loading>
                   <Skeleton variant="connectorAvatar" size="medium" marginRight="12px" />
-                  <Skeleton variant="text" height={12} width={160} />
+                  <Skeleton variant="text" width={160} />
                 </StyledCard>
                 <Card>
-                  <Skeleton variant="text" height={12} width={416} marginBottom="36px" />
-                  <Skeleton variant="text" height={12} width={656} marginBottom="16px" />
-                  <Skeleton variant="text" height={12} width={256} />
+                  <Skeleton variant="text" width={416} marginBottom="36px" />
+                  <Skeleton variant="text" width={656} marginBottom="16px" />
+                  <Skeleton variant="text" width={256} />
                 </Card>
                 <ButtonContainer>
                   <Button size="large" disabled fullWidth>
@@ -620,7 +619,6 @@ const CreateCreditNote = () => {
           />
         </Side>
       </Content>
-
       <WarningDialog
         ref={warningDialogRef}
         title={translate('text_636bdf192a28e7cf28abf00d')}

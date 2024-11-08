@@ -150,7 +150,7 @@ const CustomerDetails = () => {
             onClick={() => navigate(CUSTOMERS_LIST_ROUTE)}
           />
           {loading ? (
-            <Skeleton variant="text" height={12} width={120} />
+            <Skeleton variant="text" width={120} />
           ) : (
             <Typography
               variant="bodyHl"
@@ -323,13 +323,8 @@ const CustomerDetails = () => {
               <MainInfos>
                 <Skeleton variant="userAvatar" size="large" />
                 <div>
-                  <Skeleton
-                    variant="text"
-                    height={12}
-                    width={200}
-                    marginBottom={theme.spacing(5)}
-                  />
-                  <Skeleton variant="text" height={12} width={128} />
+                  <Skeleton variant="text" width={200} marginBottom={theme.spacing(5)} />
+                  <Skeleton variant="text" width={128} />
                 </div>
               </MainInfos>
             ) : (
@@ -469,7 +464,6 @@ const CustomerDetails = () => {
           <AddCouponToCustomerDialog ref={addCouponDialogRef} customer={data?.customer} />
         </>
       )}
-
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </div>
   )

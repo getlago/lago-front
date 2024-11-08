@@ -121,7 +121,6 @@ export const CouponItem = ({
         </div>
         {shouldShowItemActions && <div className="w-10" />}
       </ConditionalWrapper>
-
       {shouldShowItemActions && (
         <Popper
           PopperProps={{ placement: 'bottom-end' }}

@@ -120,7 +120,7 @@ const NetsuiteIntegrationDetails = () => {
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
           {loading ? (
-            <Skeleton variant="text" height={12} width={120} />
+            <Skeleton variant="text" width={120} />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
               {netsuiteIntegration?.name}
@@ -168,14 +168,13 @@ const NetsuiteIntegrationDetails = () => {
           )}
         </Popper>
       </PageHeader>
-
       <MainInfos>
         {loading ? (
           <>
             <Skeleton variant="connectorAvatar" size="large" marginRight="16px" />
             <div>
-              <Skeleton variant="text" width={200} height={12} marginBottom="22px" />
-              <Skeleton variant="text" width={128} height={12} />
+              <Skeleton variant="text" width={200} marginBottom="22px" />
+              <Skeleton variant="text" width={128} />
             </div>
           </>
         ) : (
@@ -196,7 +195,6 @@ const NetsuiteIntegrationDetails = () => {
           </>
         )}
       </MainInfos>
-
       <NavigationTab
         className="px-4 md:px-12"
         loading={loading}
@@ -219,7 +217,6 @@ const NetsuiteIntegrationDetails = () => {
           },
         ]}
       />
-
       <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
       <DeleteNetsuiteIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />

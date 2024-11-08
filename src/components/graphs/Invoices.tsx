@@ -302,14 +302,14 @@ const Invoices = ({
             <GraphWrapper>
               {!!isLoading ? (
                 <>
-                  <Skeleton variant="text" width="100%" height={12} />
+                  <Skeleton variant="text" width="100%" />
 
                   <div>
                     {[...Array(3)].map((_, index) => (
                       <SkeletonLine key={`invoices-skeleton-${index}`}>
                         <Skeleton variant="circular" width={8} height={8} />
-                        <Skeleton variant="text" width="32%" height={12} />
-                        <Skeleton variant="text" width="32%" height={12} />
+                        <Skeleton variant="text" width="32%" />
+                        <Skeleton variant="text" width="32%" />
                       </SkeletonLine>
                     ))}
                   </div>

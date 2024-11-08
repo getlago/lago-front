@@ -36,9 +36,9 @@ export const SettingsListItemLoadingSkeleton = ({ count = 1 }: { count?: number 
       key={`settings-list-item-skeleton-${index}`}
       className="flex w-full flex-col justify-between pb-8 shadow-b last:pb-0 last:[box-shadow:none]"
     >
-      <Skeleton variant="text" width={160} height={12} marginBottom={24} />
-      <Skeleton variant="text" width={320} height={12} marginBottom={28} />
-      <Skeleton variant="text" width={240} height={12} marginBottom={8} />
+      <Skeleton variant="text" width={160} marginBottom={24} />
+      <Skeleton variant="text" width={320} marginBottom={28} />
+      <Skeleton variant="text" width={240} marginBottom={8} />
     </div>
   ))
 

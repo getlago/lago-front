@@ -60,9 +60,9 @@ export interface DunningEmailProps {
 export const DunningEmailSkeleton = () => {
   return (
     <>
-      <Skeleton variant="text" width={104} height={12} color="dark" />
-      <Skeleton variant="text" width="100%" height={12} color="dark" />
-      <Skeleton variant="text" width={160} height={12} color="dark" />
+      <Skeleton variant="text" width={104} color="dark" />
+      <Skeleton variant="text" width="100%" color="dark" />
+      <Skeleton variant="text" width={160} color="dark" />
     </>
   )
 }

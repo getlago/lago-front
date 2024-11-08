@@ -84,43 +84,22 @@ const CreateTaxRate = () => {
           }
         />
       </PageHeader>
-
       <Content>
         <Main>
           <div>
             {loading && !tax ? (
               <>
                 <SkeletonHeader>
-                  <Skeleton
-                    variant="text"
-                    width={280}
-                    height={12}
-                    marginBottom={theme.spacing(5)}
-                  />
-                  <Skeleton
-                    variant="text"
-                    width="inherit"
-                    height={12}
-                    marginBottom={theme.spacing(4)}
-                  />
-                  <Skeleton variant="text" width={120} height={12} />
+                  <Skeleton variant="text" width={280} marginBottom={theme.spacing(5)} />
+                  <Skeleton variant="text" width="inherit" marginBottom={theme.spacing(4)} />
+                  <Skeleton variant="text" width={120} />
                 </SkeletonHeader>
 
                 {[0, 1, 2].map((skeletonCard) => (
                   <Card key={`skeleton-${skeletonCard}`}>
-                    <Skeleton
-                      variant="text"
-                      width={280}
-                      height={12}
-                      marginBottom={theme.spacing(9)}
-                    />
-                    <Skeleton
-                      variant="text"
-                      width="inherit"
-                      height={12}
-                      marginBottom={theme.spacing(4)}
-                    />
-                    <Skeleton variant="text" width={120} height={12} />
+                    <Skeleton variant="text" width={280} marginBottom={theme.spacing(9)} />
+                    <Skeleton variant="text" width="inherit" marginBottom={theme.spacing(4)} />
+                    <Skeleton variant="text" width={120} />
                   </Card>
                 ))}
               </>
@@ -248,7 +227,6 @@ const CreateTaxRate = () => {
           />
         </Side>
       </Content>
-
       <WarningDialog
         ref={leavingNotSavedChagesWarningDialogRef}
         title={translate('text_645bb193927b375079d289cb')}

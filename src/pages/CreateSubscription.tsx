@@ -134,12 +134,11 @@ const LoadingSkeleton = () => {
         <Typography variant="headline">{translate('text_6335e8900c69f8ebdfef5312')}</Typography>
         <Card>
           <div>
-            <Skeleton variant="text" height={12} width={160} marginBottom={theme.spacing(3)} />
-            <Skeleton variant="text" height={12} width={384} />
+            <Skeleton variant="text" width={160} marginBottom={theme.spacing(3)} />
+            <Skeleton variant="text" width={384} />
           </div>
         </Card>
       </SectionWrapper>
-
       <SectionWrapper>
         <SectionTitle>
           <Typography variant="headline">{translate('text_642d5eb2783a2ad10d67031a')}</Typography>
@@ -148,7 +147,7 @@ const LoadingSkeleton = () => {
         <Card>
           <AccordionSkeleton>
             <Icon name="chevron-right" />
-            <Skeleton variant="text" height={12} width={160} />
+            <Skeleton variant="text" width={160} />
           </AccordionSkeleton>
         </Card>
       </SectionWrapper>
@@ -160,29 +159,29 @@ const LoadingSkeleton = () => {
         <Section>
           <Card>
             <div>
-              <Skeleton variant="text" height={12} width={160} marginBottom={theme.spacing(3)} />
-              <Skeleton variant="text" height={12} width={384} />
+              <Skeleton variant="text" width={160} marginBottom={theme.spacing(3)} />
+              <Skeleton variant="text" width={384} />
             </div>
             {Array(3)
               .fill('')
               .map((_, skeletonIndex) => (
                 <AccordionSkeleton key={`loading-skeleton-${skeletonIndex}`}>
                   <Icon name="chevron-right" />
-                  <Skeleton variant="text" height={12} width={160} />
+                  <Skeleton variant="text" width={160} />
                 </AccordionSkeleton>
               ))}
           </Card>
           <Card>
             <div>
-              <Skeleton variant="text" height={12} width={160} marginBottom={theme.spacing(3)} />
-              <Skeleton variant="text" height={12} width={384} />
+              <Skeleton variant="text" width={160} marginBottom={theme.spacing(3)} />
+              <Skeleton variant="text" width={384} />
             </div>
             {Array(2)
               .fill('')
               .map((_, skeletonIndex) => (
                 <AccordionSkeleton key={`loading-skeleton-${skeletonIndex}`}>
                   <Icon name="chevron-right" />
-                  <Skeleton variant="text" height={12} width={160} />
+                  <Skeleton variant="text" width={160} />
                 </AccordionSkeleton>
               ))}
           </Card>

@@ -165,8 +165,8 @@ export const PlanItemSkeleton = () => {
   return (
     <BaseListItem>
       <Skeleton variant="connectorAvatar" size="big" marginRight={theme.spacing(3)} />
-      <Skeleton variant="text" height={12} width={240} marginRight="auto" />
-      <Skeleton variant="text" height={12} width={240} />
+      <Skeleton variant="text" width={240} marginRight="auto" />
+      <Skeleton variant="text" width={240} />
     </BaseListItem>
   )
 }

@@ -131,7 +131,7 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
         </div>
 
         {isLoading ? (
-          <Skeleton variant="text" height={12} width={144} marginTop={8} />
+          <Skeleton variant="text" width={144} marginTop={8} />
         ) : !subscriptionError && !!lifetimeUsage ? (
           <Typography
             variant="caption"
@@ -206,11 +206,11 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
                   <div className="flex flex-col gap-3">
                     {!!isLoading ? (
                       <div className="flex flex-col gap-3">
-                        <Skeleton variant="text" width="100%" height={12} />
+                        <Skeleton variant="text" width="100%" />
 
                         <div className="flex h-6 items-center gap-2">
-                          <Skeleton variant="text" width="32%" height={12} />
-                          <Skeleton variant="text" width="32%" height={12} className="ml-auto" />
+                          <Skeleton variant="text" width="32%" />
+                          <Skeleton variant="text" width="32%" className="ml-auto" />
                         </div>
                       </div>
                     ) : (

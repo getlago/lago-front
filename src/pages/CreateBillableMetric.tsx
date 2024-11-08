@@ -266,43 +266,22 @@ const CreateBillableMetric = () => {
           }
         />
       </PageHeader>
-
       <Content>
         <Main>
           <div>
             {loading ? (
               <>
                 <SkeletonHeader>
-                  <Skeleton
-                    variant="text"
-                    width={280}
-                    height={12}
-                    marginBottom={theme.spacing(5)}
-                  />
-                  <Skeleton
-                    variant="text"
-                    width="inherit"
-                    height={12}
-                    marginBottom={theme.spacing(4)}
-                  />
-                  <Skeleton variant="text" width={120} height={12} />
+                  <Skeleton variant="text" width={280} marginBottom={theme.spacing(5)} />
+                  <Skeleton variant="text" width="inherit" marginBottom={theme.spacing(4)} />
+                  <Skeleton variant="text" width={120} />
                 </SkeletonHeader>
 
                 {[0, 1, 2].map((skeletonCard) => (
                   <Card key={`skeleton-${skeletonCard}`}>
-                    <Skeleton
-                      variant="text"
-                      width={280}
-                      height={12}
-                      marginBottom={theme.spacing(9)}
-                    />
-                    <Skeleton
-                      variant="text"
-                      width="inherit"
-                      height={12}
-                      marginBottom={theme.spacing(4)}
-                    />
-                    <Skeleton variant="text" width={120} height={12} />
+                    <Skeleton variant="text" width={280} marginBottom={theme.spacing(9)} />
+                    <Skeleton variant="text" width="inherit" marginBottom={theme.spacing(4)} />
+                    <Skeleton variant="text" width={120} />
                   </Card>
                 ))}
               </>
@@ -909,12 +888,10 @@ const CreateBillableMetric = () => {
           <BillableMetricCodeSnippet loading={loading} billableMetric={formikProps.values} />
         </Side>
       </Content>
-
       <CustomExpressionDrawer
         ref={customExpressionDrawerRef}
         onSave={(expression: string) => formikProps.setFieldValue('expression', expression)}
       />
-
       <WarningDialog
         ref={warningDirtyAttributesDialogRef}
         title={translate(

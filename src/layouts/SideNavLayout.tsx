@@ -200,8 +200,8 @@ const SideNav = () => {
                     </Button>
                     {!!loading && !error ? (
                       <Version>
-                        <Skeleton variant="text" height={12} width={48} />
-                        <Skeleton variant="text" height={12} width={120} />
+                        <Skeleton variant="text" width={48} />
+                        <Skeleton variant="text" width={120} />
                       </Version>
                     ) : !!data && !error ? (
                       <Version>

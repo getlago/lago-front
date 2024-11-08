@@ -243,15 +243,15 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     return (
       <LoadingDetails>
         <SectionHeader>
-          <Skeleton variant="text" height={12} width={200} />
+          <Skeleton variant="text" width={200} />
         </SectionHeader>
         <div>
-          <Skeleton variant="text" height={12} width={80} marginBottom={theme.spacing(3)} />
-          <Skeleton variant="text" height={12} width={200} />
+          <Skeleton variant="text" width={80} marginBottom={theme.spacing(3)} />
+          <Skeleton variant="text" width={200} />
         </div>
         <div>
-          <Skeleton variant="text" height={12} width={80} marginBottom={theme.spacing(3)} />
-          <Skeleton variant="text" height={12} width={200} />
+          <Skeleton variant="text" width={80} marginBottom={theme.spacing(3)} />
+          <Skeleton variant="text" width={200} />
         </div>
       </LoadingDetails>
     )
@@ -292,7 +292,6 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
           {translate('text_626162c62f790600f850b75a')}
         </Button>
       </SectionHeader>
-
       <InfosBlock
         ref={(node) => {
           infosRef.current = node
@@ -461,8 +460,8 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
             <Typography variant="caption">{translate('text_66423cad72bbad009f2f568f')}</Typography>
             {integrationsLoading ? (
               <Stack flex={1} gap={3} marginTop={1}>
-                <Skeleton variant="text" height={12} width={200} />
-                <Skeleton variant="text" height={12} width={200} />
+                <Skeleton variant="text" width={200} />
+                <Skeleton variant="text" width={200} />
               </Stack>
             ) : !!connectedNetsuiteIntegration && customer?.netsuiteCustomer?.externalCustomerId ? (
               <Stack>
@@ -494,8 +493,8 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
             <Typography variant="caption">{translate('text_66423cad72bbad009f2f568f')}</Typography>
             {integrationsLoading ? (
               <Stack flex={1} gap={3} marginTop={1}>
-                <Skeleton variant="text" height={12} width={200} />
-                <Skeleton variant="text" height={12} width={200} />
+                <Skeleton variant="text" width={200} />
+                <Skeleton variant="text" width={200} />
               </Stack>
             ) : !!connectedXeroIntegration && customer?.xeroCustomer?.externalCustomerId ? (
               <Stack>
@@ -524,8 +523,8 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
             <Typography variant="caption">{translate('text_6668821d94e4da4dfd8b3840')}</Typography>
             {integrationsLoading ? (
               <Stack flex={1} gap={3} marginTop={1}>
-                <Skeleton variant="text" height={12} width={200} />
-                <Skeleton variant="text" height={12} width={200} />
+                <Skeleton variant="text" width={200} />
+                <Skeleton variant="text" width={200} />
               </Stack>
             ) : !!connectedAnrokIntegration && customer?.anrokCustomer?.integrationId ? (
               <Stack>
@@ -560,8 +559,8 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
             <Typography variant="caption">{translate('text_1728658962985xpfdvl5ru8a')}</Typography>
             {integrationsLoading ? (
               <Stack flex={1} gap={3} marginTop={1}>
-                <Skeleton variant="text" height={12} width={200} />
-                <Skeleton variant="text" height={12} width={200} />
+                <Skeleton variant="text" width={200} />
+                <Skeleton variant="text" width={200} />
               </Stack>
             ) : !!connectedHubspotIntegration &&
               customer?.hubspotCustomer?.integrationId &&
@@ -610,7 +609,6 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
             </div>
           ))}
       </InfosBlock>
-
       {shouldSeeMoreButton && !showMore && (
         // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
         <ShowMoreButton

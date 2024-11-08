@@ -299,9 +299,9 @@ const Invitation = () => {
           </>
         ) : !!loading ? (
           <>
-            <Skeleton variant="text" width={208} height={12} marginBottom={theme.spacing(8)} />
-            <Skeleton variant="text" width={440} height={12} marginBottom={theme.spacing(4)} />
-            <Skeleton variant="text" width={304} height={12} />
+            <Skeleton variant="text" width={208} marginBottom={theme.spacing(8)} />
+            <Skeleton variant="text" width={440} marginBottom={theme.spacing(4)} />
+            <Skeleton variant="text" width={304} />
           </>
         ) : (
           <Stack spacing={8}>

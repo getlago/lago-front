@@ -100,7 +100,7 @@ const LagoTaxManagementIntegration = () => {
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
           {loading ? (
-            <Skeleton variant="text" height={12} width={120} />
+            <Skeleton variant="text" width={120} />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
               {translate('text_657078c28394d6b1ae1b9713')}
@@ -122,8 +122,8 @@ const LagoTaxManagementIntegration = () => {
           <>
             <Skeleton variant="connectorAvatar" size="large" marginRight="16px" />
             <div>
-              <Skeleton variant="text" width={200} height={12} marginBottom="22px" />
-              <Skeleton variant="text" width={128} height={12} />
+              <Skeleton variant="text" width={200} marginBottom="22px" />
+              <Skeleton variant="text" width={128} />
             </div>
           </>
         ) : (
@@ -145,7 +145,6 @@ const LagoTaxManagementIntegration = () => {
           </>
         )}
       </MainInfos>
-
       <ContentWrapper>
         <section>
           <Title variant="subhead">{translate('text_657078c28394d6b1ae1b9725')}</Title>
@@ -153,7 +152,7 @@ const LagoTaxManagementIntegration = () => {
             {loading ? (
               <>
                 <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
-                <Skeleton variant="text" width={240} height={12} />
+                <Skeleton variant="text" width={240} />
               </>
             ) : (
               <>
@@ -201,7 +200,7 @@ const LagoTaxManagementIntegration = () => {
           {loading ? (
             <HeaderBlock>
               <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
-              <Skeleton variant="text" width={240} height={12} />
+              <Skeleton variant="text" width={240} />
             </HeaderBlock>
           ) : (
             <>
@@ -230,7 +229,6 @@ const LagoTaxManagementIntegration = () => {
           )}
         </section>
       </ContentWrapper>
-
       <WarningDialog
         ref={deleteConnectionRef}
         title={translate('text_657078c28394d6b1ae1b9707')}

@@ -97,14 +97,13 @@ const CustomerDraftInvoicesList = () => {
           </Typography>
         </HeaderLeft>
       </PageHeader>
-
       <Wrapper>
         {customerLoading ? (
           <MainInfos>
             <Skeleton variant="userAvatar" size="large" />
             <div>
-              <Skeleton variant="text" height={12} width={200} marginBottom={theme.spacing(5)} />
-              <Skeleton variant="text" height={12} width={128} />
+              <Skeleton variant="text" width={200} marginBottom={theme.spacing(5)} />
+              <Skeleton variant="text" width={128} />
             </div>
           </MainInfos>
         ) : (

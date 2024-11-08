@@ -474,14 +474,13 @@ const CreateInvoice = () => {
           />
         )}
       </PageHeader>
-
       <PageWrapper>
         <CenteredWrapper>
           <BorderedCard $disableChildSpacing>
             {loading ? (
               <>
                 <InvoiceHeader>
-                  <Skeleton variant="text" width={120} height={12} />
+                  <Skeleton variant="text" width={120} />
                   <Skeleton
                     // eslint-disable-next-line tailwindcss/no-custom-classname
                     className="rounded-conector-skeleton"
@@ -491,26 +490,26 @@ const CreateInvoice = () => {
                 </InvoiceHeader>
                 <div>
                   <InlineSkeleton>
-                    <Skeleton variant="text" width={104} height={12} marginRight={52} />
-                    <Skeleton variant="text" width={96} height={12} />
+                    <Skeleton variant="text" width={104} marginRight={52} />
+                    <Skeleton variant="text" width={96} />
                   </InlineSkeleton>
                   <InlineSkeleton>
-                    <Skeleton variant="text" width={104} height={12} marginRight={52} />
-                    <Skeleton variant="text" width={96} height={12} />
+                    <Skeleton variant="text" width={104} marginRight={52} />
+                    <Skeleton variant="text" width={96} />
                   </InlineSkeleton>
                 </div>
                 <InlineSkeletonBlocks>
                   <div>
-                    <InfoSkeleton variant="text" width={104} height={12} />
-                    <InfoSkeleton variant="text" width={184} height={12} />
-                    <InfoSkeleton variant="text" width={184} height={12} />
-                    <InfoSkeleton variant="text" width={184} height={12} />
+                    <InfoSkeleton variant="text" width={104} />
+                    <InfoSkeleton variant="text" width={184} />
+                    <InfoSkeleton variant="text" width={184} />
+                    <InfoSkeleton variant="text" width={184} />
                   </div>
                   <div>
-                    <InfoSkeleton variant="text" width={104} height={12} />
-                    <InfoSkeleton variant="text" width={184} height={12} />
-                    <InfoSkeleton variant="text" width={184} height={12} />
-                    <InfoSkeleton variant="text" width={184} height={12} />
+                    <InfoSkeleton variant="text" width={104} />
+                    <InfoSkeleton variant="text" width={184} />
+                    <InfoSkeleton variant="text" width={184} />
+                    <InfoSkeleton variant="text" width={184} />
                   </div>
                 </InlineSkeletonBlocks>
               </>
@@ -1215,7 +1214,6 @@ const CreateInvoice = () => {
           </CustomStickySubmitBar>
         )}
       </PageWrapper>
-
       <WarningDialog
         ref={warningDialogRef}
         title={translate('text_645388d5bdbd7b00abffa030')}
@@ -1223,7 +1221,6 @@ const CreateInvoice = () => {
         continueText={translate('text_645388d5bdbd7b00abffa033')}
         onContinue={handleClosePage}
       />
-
       <EditInvoiceItemDescriptionDialog ref={editDescriptionDialogRef} />
       <EditInvoiceItemTaxDialog ref={editTaxDialogRef} />
       <EditInvoiceDisplayName ref={editInvoiceDisplayNameRef} />

@@ -232,43 +232,22 @@ const CreateCoupon = () => {
           }
         />
       </PageHeader>
-
       <Content>
         <Main>
           <div>
             {loading ? (
               <>
                 <SkeletonHeader>
-                  <Skeleton
-                    variant="text"
-                    width={280}
-                    height={12}
-                    marginBottom={theme.spacing(5)}
-                  />
-                  <Skeleton
-                    variant="text"
-                    width="inherit"
-                    height={12}
-                    marginBottom={theme.spacing(4)}
-                  />
-                  <Skeleton variant="text" width={120} height={12} />
+                  <Skeleton variant="text" width={280} marginBottom={theme.spacing(5)} />
+                  <Skeleton variant="text" width="inherit" marginBottom={theme.spacing(4)} />
+                  <Skeleton variant="text" width={120} />
                 </SkeletonHeader>
 
                 {[0, 1].map((skeletonCard) => (
                   <Card key={`skeleton-${skeletonCard}`}>
-                    <Skeleton
-                      variant="text"
-                      width={280}
-                      height={12}
-                      marginBottom={theme.spacing(9)}
-                    />
-                    <Skeleton
-                      variant="text"
-                      width="inherit"
-                      height={12}
-                      marginBottom={theme.spacing(4)}
-                    />
-                    <Skeleton variant="text" width={120} height={12} />
+                    <Skeleton variant="text" width={280} marginBottom={theme.spacing(9)} />
+                    <Skeleton variant="text" width="inherit" marginBottom={theme.spacing(4)} />
+                    <Skeleton variant="text" width={120} />
                   </Card>
                 ))}
               </>
@@ -664,7 +643,6 @@ const CreateCoupon = () => {
           />
         </Side>
       </Content>
-
       <WarningDialog
         ref={warningDialogRef}
         title={translate('text_665deda4babaf700d603ea13')}
@@ -672,13 +650,11 @@ const CreateCoupon = () => {
         continueText={translate('text_645388d5bdbd7b00abffa033')}
         onContinue={() => couponCloseRedirection()}
       />
-
       <AddPlanToCouponDialog
         ref={addPlanToCouponDialogRef}
         onSubmit={attachPlanToCoupon}
         attachedPlansIds={limitPlansList.map((p) => p.id)}
       />
-
       <AddBillableMetricToCouponDialog
         ref={addBillableMetricToCouponDialogRef}
         onSubmit={attachBillableMetricToCoupon}

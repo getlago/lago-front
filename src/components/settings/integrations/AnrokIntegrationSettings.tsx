@@ -155,7 +155,7 @@ const AnrokIntegrationSettings = () => {
                 {[0, 1, 2].map((i) => (
                   <Item key={`item-skeleton-item-${i}`}>
                     <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
-                    <Skeleton variant="text" width={240} height={12} />
+                    <Skeleton variant="text" width={240} />
                   </Item>
                 ))}
               </>
@@ -224,7 +224,7 @@ const AnrokIntegrationSettings = () => {
               {translate('text_66ba5a76e614f000a738c97a')}
             </Typography>
             {loading ? (
-              <CustomSkeleton variant="text" width="100%" height={12} />
+              <CustomSkeleton variant="text" width="100%" />
             ) : !!anrokIntegration?.failedInvoicesCount ? (
               <Stack display="inline" divider={<>{/* Space here is important */} </>}>
                 <Typography component="span" variant="caption" color="grey600">

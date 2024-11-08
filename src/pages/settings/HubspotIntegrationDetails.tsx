@@ -111,7 +111,7 @@ const HubspotIntegrationDetails = () => {
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
           {loading ? (
-            <Skeleton variant="text" height={12} width={120} />
+            <Skeleton variant="text" width={120} />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
               {hubspotIntegration?.name}
@@ -161,15 +161,14 @@ const HubspotIntegrationDetails = () => {
           )}
         </Popper>
       </PageHeader>
-
       <div className="container">
         <section className="flex items-center py-8">
           {loading ? (
             <>
               <Skeleton variant="connectorAvatar" size="large" marginRight="16px" />
               <div className="flex-1">
-                <Skeleton variant="text" width={200} height={12} marginBottom="22px" />
-                <Skeleton variant="text" width={128} height={12} />
+                <Skeleton variant="text" width={200} marginBottom="22px" />
+                <Skeleton variant="text" width={128} />
               </div>
             </>
           ) : (
@@ -218,7 +217,7 @@ const HubspotIntegrationDetails = () => {
               {[1, 2].map((i) => (
                 <div className="flex h-18 items-center shadow-b" key={`item-skeleton-item-${i}`}>
                   <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
-                  <Skeleton variant="text" width={240} height={12} />
+                  <Skeleton variant="text" width={240} />
                 </div>
               ))}
             </>
@@ -256,7 +255,6 @@ const HubspotIntegrationDetails = () => {
           )}
         </>
       </div>
-
       <AddHubspotDialog ref={addHubspotDialogRef} />
       <DeleteHubspotIntegrationDialog ref={deleteHubspotDialogRef} />
     </>

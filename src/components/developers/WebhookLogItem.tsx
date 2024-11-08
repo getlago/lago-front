@@ -69,8 +69,8 @@ export const WebhookLogItemSkeleton = () => {
   return (
     <BaseListItem>
       <Skeleton className="mr-3" variant="connectorAvatar" size="big" />
-      <Skeleton className="mr-auto" variant="text" height={12} width={264} />
-      <Skeleton className="ml-3" variant="text" height={12} width={80} />
+      <Skeleton className="mr-auto" variant="text" width={264} />
+      <Skeleton className="ml-3" variant="text" width={80} />
     </BaseListItem>
   )
 }
