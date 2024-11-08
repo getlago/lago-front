@@ -759,19 +759,23 @@ const CreateInvoice = () => {
                             <TaxCell variant="body" color="grey700">
                               {hasTaxProvider
                                 ? !!taxProviderTaxesResult?.collection.length
-                                  ? taxProviderTaxesResult?.collection
-                                      ?.find((t) => t.itemId === fee.addOnId)
-                                      ?.taxBreakdown?.map((tax) => (
-                                        <Typography
-                                          key={`fee-${i}-applied-taxe-${tax.name}`}
-                                          variant="body"
-                                          color="grey700"
-                                        >
-                                          {intlFormatNumber(tax?.rate || 0, {
-                                            style: 'percent',
-                                          })}
-                                        </Typography>
-                                      ))
+                                  ? taxProviderTaxesResult?.collection?.find(
+                                      (t) => t.itemId === fee.addOnId,
+                                    )?.taxBreakdown?.length
+                                    ? taxProviderTaxesResult?.collection
+                                        ?.find((t) => t.itemId === fee.addOnId)
+                                        ?.taxBreakdown?.map((tax) => (
+                                          <Typography
+                                            key={`fee-${i}-applied-taxe-${tax.name}`}
+                                            variant="body"
+                                            color="grey700"
+                                          >
+                                            {intlFormatNumber(tax?.rate || 0, {
+                                              style: 'percent',
+                                            })}
+                                          </Typography>
+                                        ))
+                                    : '0%'
                                   : '-'
                                 : fee.taxes?.length
                                   ? fee.taxes.map((tax) => (
