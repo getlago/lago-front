@@ -2620,7 +2620,8 @@
   "text_17295436659071kau9ol0axk": "Apply a specific campaign to this customer",
   "text_1729543690326ndlmz7bdmy1": "Deactivate dunning",
   "text_17295436903267b0kiid8h8r": "No automatic dunning attempt will be triggered for this customer.",
-  "text_17295436903260tlyb1gp1i7": "Edit behavior",
+  "text_17295436903260tlyb1gp1i7": "Save edits",
   "text_1729543690326d4dmmcw7n89": "Search and select a dunning campaign",
-  "text_17295437652543pf2j5lqe67": "Dunning campaign behavior successfully applied"
+  "text_17295437652543pf2j5lqe67": "Dunning campaign behavior successfully applied",
+  "text_1731078338811aok1u8oopxl": "No dunning campaign available for this customer"
 }

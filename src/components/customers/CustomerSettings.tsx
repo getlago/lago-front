@@ -42,10 +42,12 @@ import {
   EditCustomerInvoiceGracePeriodFragmentDoc,
   EditCustomerVatRateFragmentDoc,
   FinalizeZeroAmountInvoiceEnum,
+  PremiumIntegrationTypeEnum,
   useGetCustomerSettingsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper } from '~/styles'
@@ -178,6 +180,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
+  const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const { data, loading, error } = useGetCustomerSettingsQuery({
     variables: { id: customerId as string },
     skip: !customerId,
@@ -213,6 +216,9 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
     )
   }
 
+  const hasAutoDunningIntegration = premiumIntegrations?.includes(
+    PremiumIntegrationTypeEnum.AutoDunning,
+  )
   const dunningCampaign =
     customer?.appliedDunningCampaign ?? organization?.appliedDunningCampaign ?? undefined
 
@@ -305,82 +311,84 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
               </SettingsListItem>
 
               {/* Dunnings campaign */}
-              <SettingsListItem
-                className={tw(
-                  isDunningCampaignApplicable &&
-                    !customer?.excludeFromDunningCampaign &&
-                    'shadow-inherit',
-                )}
-              >
-                <SettingsListItemHeader
-                  label={translate('text_1728584028187fg2ebhssz6r')}
-                  sublabel={translate('text_1729541146351qyno3mh09gi')}
-                  action={
-                    <Button
-                      disabled={loading}
-                      variant="quaternary"
-                      onClick={() => editCustomerDunningCampaignDialogRef?.current?.openDialog()}
-                    >
-                      {translate('text_63e51ef4985f0ebd75c212fc')}
-                    </Button>
-                  }
-                />
+              {hasAutoDunningIntegration && (
+                <SettingsListItem
+                  className={tw(
+                    isDunningCampaignApplicable &&
+                      !customer?.excludeFromDunningCampaign &&
+                      'shadow-inherit',
+                  )}
+                >
+                  <SettingsListItemHeader
+                    label={translate('text_1728584028187fg2ebhssz6r')}
+                    sublabel={translate('text_1729541146351qyno3mh09gi')}
+                    action={
+                      <Button
+                        disabled={loading}
+                        variant="quaternary"
+                        onClick={() => editCustomerDunningCampaignDialogRef?.current?.openDialog()}
+                      >
+                        {translate('text_63e51ef4985f0ebd75c212fc')}
+                      </Button>
+                    }
+                  />
 
-                {!!dunningCampaign && !customer?.excludeFromDunningCampaign ? (
-                  isDunningCampaignApplicable ? (
-                    <Table
-                      name="customer-dunnings-settings"
-                      containerSize={{ default: 0 }}
-                      rowSize={72}
-                      isLoading={loading}
-                      data={[dunningCampaign]}
-                      columns={[
-                        {
-                          key: 'name',
-                          title: translate('text_1729542024833rpf3nsekh42'),
-                          maxSpace: true,
-                          content: ({ name, code }) => (
-                            <div className="flex flex-1 items-center gap-3" data-test={code}>
-                              <Avatar size="big" variant="connector">
-                                <Icon size="medium" name="coin-dollar" color="dark" />
-                              </Avatar>
-                              <div>
-                                <Typography color="textSecondary" variant="bodyHl" noWrap>
-                                  {name}
-                                </Typography>
-                                <Typography variant="caption" noWrap>
-                                  {code}
-                                </Typography>
+                  {!!dunningCampaign && !customer?.excludeFromDunningCampaign ? (
+                    isDunningCampaignApplicable ? (
+                      <Table
+                        name="customer-dunnings-settings"
+                        containerSize={{ default: 0 }}
+                        rowSize={72}
+                        isLoading={loading}
+                        data={[dunningCampaign]}
+                        columns={[
+                          {
+                            key: 'name',
+                            title: translate('text_1729542024833rpf3nsekh42'),
+                            maxSpace: true,
+                            content: ({ name, code }) => (
+                              <div className="flex flex-1 items-center gap-3" data-test={code}>
+                                <Avatar size="big" variant="connector">
+                                  <Icon size="medium" name="coin-dollar" color="dark" />
+                                </Avatar>
+                                <div>
+                                  <Typography color="textSecondary" variant="bodyHl" noWrap>
+                                    {name}
+                                  </Typography>
+                                  <Typography variant="caption" noWrap>
+                                    {code}
+                                  </Typography>
+                                </div>
                               </div>
-                            </div>
-                          ),
-                        },
-                        ...(!customer?.appliedDunningCampaign
-                          ? [
-                              {
-                                key: 'appliedToOrganization',
-                                title: translate('text_63ac86d797f728a87b2f9fa7'),
-                                content: () => (
-                                  <Chip label={translate('text_1729542098338prhjz7s29kt')} />
-                                ),
-                              } as TableColumn<{
-                                appliedToOrganization: boolean
-                              }>,
-                            ]
-                          : []),
-                      ]}
-                    />
+                            ),
+                          },
+                          ...(!customer?.appliedDunningCampaign
+                            ? [
+                                {
+                                  key: 'appliedToOrganization',
+                                  title: translate('text_63ac86d797f728a87b2f9fa7'),
+                                  content: () => (
+                                    <Chip label={translate('text_1729542098338prhjz7s29kt')} />
+                                  ),
+                                } as TableColumn<{
+                                  appliedToOrganization: boolean
+                                }>,
+                              ]
+                            : []),
+                        ]}
+                      />
+                    ) : (
+                      <Typography variant="body" color="grey700">
+                        {translate('text_17295411491091t7ii66l5ex')}
+                      </Typography>
+                    )
                   ) : (
                     <Typography variant="body" color="grey700">
-                      {translate('text_17295411491091t7ii66l5ex')}
+                      {translate('text_1729541149109r8u8nlsu75e')}
                     </Typography>
-                  )
-                ) : (
-                  <Typography variant="body" color="grey700">
-                    {translate('text_1729541149109r8u8nlsu75e')}
-                  </Typography>
-                )}
-              </SettingsListItem>
+                  )}
+                </SettingsListItem>
+              )}
 
               {/* Finalize empty invoice setting */}
               <SettingsListItem>

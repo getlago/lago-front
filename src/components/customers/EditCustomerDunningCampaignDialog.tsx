@@ -189,6 +189,7 @@ export const EditCustomerDunningCampaignDialog = forwardRef<
             isEmptyNull={false}
             placeholder={translate('text_1729543690326d4dmmcw7n89')}
             PopperProps={{ displayInDialog: true }}
+            emptyText={translate('text_1731078338811aok1u8oopxl')}
           />
         )}
         <RadioField
