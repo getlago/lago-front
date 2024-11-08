@@ -786,7 +786,7 @@ const CreateSubscription = () => {
                     </Button>
                   </FreemiumCard>
                 ) : formType !== FORM_TYPE_ENUM.edition || !subscription?.plan.parent?.id ? (
-                  <OverridePlanSeparatorTypography variant="captionHl" color="grey500">
+                  <OverridePlanSeparatorTypography noWrap variant="captionHl" color="grey500">
                     {translate('text_65118a52df984447c18694d0')}
                   </OverridePlanSeparatorTypography>
                 ) : null}
@@ -1071,7 +1071,6 @@ const AccordionSkeleton = styled.div`
 const OverridePlanSeparatorTypography = styled(Typography)`
   display: flex;
   align-items: center;
-  white-space: nowrap;
   text-transform: uppercase;
   gap: ${theme.spacing(4)};
 
