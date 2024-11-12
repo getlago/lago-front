@@ -81,7 +81,6 @@ export default [
       '@typescript-eslint/no-shadow': 'error',
 
       // TO FIX
-      'no-irregular-whitespace': 'off',
       'no-extra-boolean-cast': 'off',
       'no-unsafe-optional-chaining': 'off',
       'prefer-const': 'off',

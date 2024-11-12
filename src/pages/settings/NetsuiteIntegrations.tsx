@@ -247,7 +247,7 @@ const HeaderBlock = styled.div`
   display: flex;
   align-items: center;
 
-  > *:first-child  {
+  > *:first-child {
     margin-right: ${theme.spacing(3)};
   }
 `
