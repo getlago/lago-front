@@ -12,6 +12,7 @@ import {
   CurrencyEnum,
   GetSubscriptionForSubscriptionUsageLifetimeGraphQuery,
   PremiumIntegrationTypeEnum,
+  StatusTypeEnum,
   SubscriptionUsageLifetimeGraphForLifetimeGraphFragment,
   useGetSubscriptionForSubscriptionUsageLifetimeGraphQuery,
 } from '~/generated/graphql'
@@ -35,6 +36,7 @@ export const REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE = 'subscriptionUsage'
 gql`
   fragment SubscriptionUsageLifetimeGraphForLifetimeGraph on Subscription {
     id
+    status
     lifetimeUsage {
       lastThresholdAmountCents
       nextThresholdAmountCents
@@ -172,7 +174,11 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
           />
         ) : (
           <>
-            {!lifetimeUsage && !isLoading && hasProgressiveBillingPremiumIntegration ? (
+            {subscription?.status === StatusTypeEnum.Pending ? (
+              <Typography variant="body" color="grey600">
+                {translate('text_1731423623190elua4pl3ccr')}
+              </Typography>
+            ) : !lifetimeUsage && !isLoading && hasProgressiveBillingPremiumIntegration ? (
               <Typography
                 variant="body"
                 color="grey600"
