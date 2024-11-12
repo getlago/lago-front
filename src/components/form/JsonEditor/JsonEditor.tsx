@@ -79,7 +79,9 @@ export const JsonEditor = ({
     if (typeof value === 'object') {
       try {
         setJsonQuery(JSON.stringify(value, null, 2))
-      } catch {} // Nothing is supposed to happen here
+      } catch {
+        // Nothing is supposed to happen here
+      }
     } else {
       setJsonQuery(value)
     }

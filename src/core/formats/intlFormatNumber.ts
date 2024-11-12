@@ -54,7 +54,7 @@ export const getCurrencySymbol = (currencyCode: CurrencyEnum) => {
       currency: currencyCode,
       currencyDisplay: 'symbol',
     })
-    .replace(/[\d\., ]/g, '')
+    .replace(/[\d., ]/g, '')
 }
 
 // Current limitation: does not add the space between amount and currency symbol if the locale notation has one
