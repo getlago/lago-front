@@ -45,7 +45,6 @@ gql`
     syncCreditNotes
     syncInvoices
     syncPayments
-    syncSalesOrders
   }
 
   query getNetsuiteIntegrationsSettings(
@@ -84,10 +83,6 @@ const buildEnabledSynchronizedLabelKeys = (integration?: NetsuiteIntegrationSett
 
   if (integration?.syncCreditNotes) {
     labels.push('text_661ff6e56ef7e1b7c542b2e9')
-  }
-
-  if (integration?.syncSalesOrders) {
-    labels.push('text_661ff6e56ef7e1b7c542b31e')
   }
 
   if (integration?.syncPayments) {
