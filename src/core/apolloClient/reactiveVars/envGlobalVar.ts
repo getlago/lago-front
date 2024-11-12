@@ -12,7 +12,7 @@ interface EnvGlobal {
   sentryDsn: string
 }
 
-var apiUrl = !!window.API_URL
+const apiUrl = !!window.API_URL
   ? window.API_URL
   : !!window.LAGO_DOMAIN
     ? `https://${window.LAGO_DOMAIN}/api`

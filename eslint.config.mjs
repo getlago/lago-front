@@ -82,7 +82,6 @@ export default [
 
       // TO FIX
       'no-extra-boolean-cast': 'off',
-      'no-var': 'off',
       'prefer-rest-params': 'off',
       '@typescript-eslint/no-unused-expressions': 'off',
       '@typescript-eslint/no-unsafe-function-type': 'off',

@@ -25,7 +25,7 @@ export const OrganizationLogoPicker = ({
   const hiddenFileInputRef = useRef<HTMLInputElement>(null)
 
   const getBase64 = (file: Blob) => {
-    var reader = new FileReader()
+    const reader = new FileReader()
 
     if (file.size > FILE_MAX_SIZE) {
       setLogoUploadError(true)
