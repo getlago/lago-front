@@ -1839,7 +1839,7 @@
   "text_62c3f3fca8a1625624e83379": "Something went wrong",
   "text_62c3f3fca8a1625624e8337e": "Please refresh the page or contact us if the error persists.",
   "text_62c3f3fca8a1625624e83382": "Refresh the page",
-  "text_62c3f454e5d7f4ec8888c1d5": "No usage reported",
+  "text_62c3f454e5d7f4ec8888c1d5": "No usage has been reported",
   "text_62c3f454e5d7f4ec8888c1d7": "Add a plan with charges to this customer to start reporting the current usage",
   "text_62b1edddbf5f461ab9712733": "Integrations",
   "text_62b1edddbf5f461ab9712750": "Integrations",
@@ -2623,5 +2623,7 @@
   "text_17295436903260tlyb1gp1i7": "Save edits",
   "text_1729543690326d4dmmcw7n89": "Search and select a dunning campaign",
   "text_17295437652543pf2j5lqe67": "Dunning campaign behavior successfully applied",
-  "text_1731078338811aok1u8oopxl": "No dunning campaign available for this customer"
+  "text_1731078338811aok1u8oopxl": "No dunning campaign available for this customer",
+  "text_173142196943714qsq737sre": "This subscription is not yet active. Current usage is displayed only for active subscriptions.",
+  "text_1731423623190elua4pl3ccr": "This subscription is not yet active. Lifetime usage is displayed only for active subscriptions."
 }

@@ -18,8 +18,9 @@ import {
   CustomerForSubscriptionUsageQuery,
   CustomerUsageForUsageDetailsFragmentDoc,
   GetCustomerUsageForPortalQuery,
-  GetSubscriptionForSubscriptionUsageLifetimeGraphQuery,
   LagoApiError,
+  StatusTypeEnum,
+  SubscrptionForSubscriptionUsageQuery,
   TimezoneEnum,
   UsageForSubscriptionUsageQuery,
   useCustomerForSubscriptionUsageQuery,
@@ -48,6 +49,7 @@ gql`
     subscription(id: $subscription) {
       id
       name
+      status
       plan {
         id
         name
@@ -116,7 +118,7 @@ type SubscriptionCurrentUsageTableComponentProps = {
   usageLoading: boolean
   usageError?: ApolloError
 
-  subscription?: GetSubscriptionForSubscriptionUsageLifetimeGraphQuery['subscription']
+  subscription?: SubscrptionForSubscriptionUsageQuery['subscription']
   subscriptionLoading: boolean
 
   subscriptionError?: ApolloError
@@ -241,7 +243,11 @@ export const SubscriptionCurrentUsageTableComponent = ({
           ) : (
             <GenericPlaceholder
               title={translate('text_62c3f454e5d7f4ec8888c1d5')}
-              subtitle={translate('text_62c3f454e5d7f4ec8888c1d7')}
+              subtitle={
+                subscription?.status === StatusTypeEnum.Pending
+                  ? translate('text_173142196943714qsq737sre')
+                  : translate('text_62c3f454e5d7f4ec8888c1d7')
+              }
               image={<EmptyImage width="136" height="104" />}
             />
           )}
@@ -433,7 +439,7 @@ export const SubscriptionCurrentUsageTable = ({
       customerId: (customerId || subscription?.customer.id) as string,
       subscriptionId: subscription?.id || '',
     },
-    skip: !customerId || !subscription,
+    skip: !customerId || !subscription || subscription.status === StatusTypeEnum.Pending,
     fetchPolicy: 'no-cache',
   })
 
