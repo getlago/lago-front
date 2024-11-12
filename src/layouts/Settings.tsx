@@ -6,7 +6,9 @@ import styled from 'styled-components'
 import { Button, Typography, VerticalMenu } from '~/components/designSystem'
 import {
   AUTHENTICATION_ROUTE,
+  CREATE_DUNNING_ROUTE,
   CREATE_TAX_ROUTE,
+  DUNNINGS_SETTINGS_ROUTE,
   EMAILS_SETTINGS_ROUTE,
   HOME_ROUTE,
   INTEGRATIONS_ROUTE,
@@ -43,7 +45,7 @@ const Settings = () => {
       }
       return acc
     },
-    [CREATE_TAX_ROUTE, UPDATE_TAX_ROUTE],
+    [CREATE_TAX_ROUTE, UPDATE_TAX_ROUTE, CREATE_DUNNING_ROUTE],
   )
 
   return (
@@ -101,13 +103,12 @@ const Settings = () => {
                 match: [TAXES_SETTINGS_ROUTE],
                 hidden: !hasPermissions(['organizationTaxesView']),
               },
-              // TODO: Uncomment when dunnings feature is implemented
-              // {
-              //   title: translate('text_17285747264958mqbtws3em8'),
-              //   link: DUNNINGS_SETTINGS_ROUTE,
-              //   match: [DUNNINGS_SETTINGS_ROUTE],
-              //   hidden: !hasPermissions(['dunningCampaignsView']),
-              // },
+              {
+                title: translate('text_17285747264958mqbtws3em8'),
+                link: DUNNINGS_SETTINGS_ROUTE,
+                match: [DUNNINGS_SETTINGS_ROUTE],
+                hidden: !hasPermissions(['dunningCampaignsView']),
+              },
               {
                 title: translate('text_6407684eaf41130074c4b2a1'),
                 link: EMAILS_SETTINGS_ROUTE,

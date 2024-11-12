@@ -9,7 +9,17 @@ import {
   EditCustomerVatRateDialog,
   EditCustomerVatRateDialogRef,
 } from '~/components/customers/EditCustomerVatRateDialog'
-import { Avatar, Button, Icon, Popper, Table, Tooltip, Typography } from '~/components/designSystem'
+import {
+  Avatar,
+  Button,
+  Chip,
+  Icon,
+  Popper,
+  Table,
+  TableColumn,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
@@ -28,16 +38,20 @@ import {
   DeleteCustomerGracePeriodFragmentDoc,
   DeleteCustomerNetPaymentTermFragmentDoc,
   EditCustomerDocumentLocaleFragmentDoc,
+  EditCustomerDunningCampaignFragmentDoc,
   EditCustomerInvoiceGracePeriodFragmentDoc,
   EditCustomerVatRateFragmentDoc,
   FinalizeZeroAmountInvoiceEnum,
+  PremiumIntegrationTypeEnum,
   useGetCustomerSettingsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import {
   DeleteCustomerDocumentLocaleDialog,
@@ -59,6 +73,10 @@ import {
   EditCustomerDocumentLocaleDialog,
   EditCustomerDocumentLocaleDialogRef,
 } from './EditCustomerDocumentLocaleDialog'
+import {
+  EditCustomerDunningCampaignDialog,
+  EditCustomerDunningCampaignDialogRef,
+} from './EditCustomerDunningCampaignDialog'
 import {
   EditCustomerInvoiceGracePeriodDialog,
   EditCustomerInvoiceGracePeriodDialogRef,
@@ -84,6 +102,20 @@ gql`
     }
   }
 
+  fragment CustomerAppliedDunningCampaignForSettings on Customer {
+    currency
+    appliedDunningCampaign {
+      id
+      appliedToOrganization
+      code
+      name
+      thresholds {
+        currency
+      }
+    }
+    excludeFromDunningCampaign
+  }
+
   query getCustomerSettings($id: ID!) {
     customer(id: $id) {
       id
@@ -97,9 +129,11 @@ gql`
       }
 
       ...CustomerAppliedTaxRatesForSettings
+      ...CustomerAppliedDunningCampaignForSettings
 
       ...EditCustomerVatRate
       ...EditCustomerDocumentLocale
+      ...EditCustomerDunningCampaign
       ...EditCustomerInvoiceGracePeriod
       ...DeleteCustomerGracePeriod
       ...DeleteCustomerDocumentLocale
@@ -116,12 +150,22 @@ gql`
         invoiceGracePeriod
         documentLocale
       }
+      appliedDunningCampaign {
+        id
+        name
+        code
+        appliedToOrganization
+        thresholds {
+          currency
+        }
+      }
     }
   }
 
   ${EditCustomerVatRateFragmentDoc}
   ${EditCustomerInvoiceGracePeriodFragmentDoc}
   ${EditCustomerDocumentLocaleFragmentDoc}
+  ${EditCustomerDunningCampaignFragmentDoc}
   ${DeleteCustomerGracePeriodFragmentDoc}
   ${DeleteCustomerDocumentLocaleFragmentDoc}
   ${CustomerForDeleteVatRateDialogFragmentDoc}
@@ -136,6 +180,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
+  const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const { data, loading, error } = useGetCustomerSettingsQuery({
     variables: { id: customerId as string },
     skip: !customerId,
@@ -147,6 +192,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const editInvoiceGracePeriodDialogRef = useRef<EditCustomerInvoiceGracePeriodDialogRef>(null)
   const deleteGracePeriodDialogRef = useRef<DeleteCustomerGracePeriodeDialogRef>(null)
   const editCustomerDocumentLocale = useRef<EditCustomerDocumentLocaleDialogRef>(null)
+  const editCustomerDunningCampaignDialogRef = useRef<EditCustomerDunningCampaignDialogRef>(null)
   const deleteCustomerDocumentLocale = useRef<DeleteCustomerDocumentLocaleDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)
@@ -169,6 +215,16 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
       />
     )
   }
+
+  const hasAutoDunningIntegration = premiumIntegrations?.includes(
+    PremiumIntegrationTypeEnum.AutoDunning,
+  )
+  const dunningCampaign =
+    customer?.appliedDunningCampaign ?? organization?.appliedDunningCampaign ?? undefined
+
+  const isDunningCampaignApplicable =
+    !!dunningCampaign &&
+    !!dunningCampaign?.thresholds.some((threshold) => threshold.currency === customer?.currency)
 
   return (
     <>
@@ -253,6 +309,86 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                       })}
                 </Typography>
               </SettingsListItem>
+
+              {/* Dunnings campaign */}
+              {hasAutoDunningIntegration && (
+                <SettingsListItem
+                  className={tw(
+                    isDunningCampaignApplicable &&
+                      !customer?.excludeFromDunningCampaign &&
+                      'shadow-inherit',
+                  )}
+                >
+                  <SettingsListItemHeader
+                    label={translate('text_1728584028187fg2ebhssz6r')}
+                    sublabel={translate('text_1729541146351qyno3mh09gi')}
+                    action={
+                      <Button
+                        disabled={loading}
+                        variant="quaternary"
+                        onClick={() => editCustomerDunningCampaignDialogRef?.current?.openDialog()}
+                      >
+                        {translate('text_63e51ef4985f0ebd75c212fc')}
+                      </Button>
+                    }
+                  />
+
+                  {!!dunningCampaign && !customer?.excludeFromDunningCampaign ? (
+                    isDunningCampaignApplicable ? (
+                      <Table
+                        name="customer-dunnings-settings"
+                        containerSize={{ default: 0 }}
+                        rowSize={72}
+                        isLoading={loading}
+                        data={[dunningCampaign]}
+                        columns={[
+                          {
+                            key: 'name',
+                            title: translate('text_1729542024833rpf3nsekh42'),
+                            maxSpace: true,
+                            content: ({ name, code }) => (
+                              <div className="flex flex-1 items-center gap-3" data-test={code}>
+                                <Avatar size="big" variant="connector">
+                                  <Icon size="medium" name="coin-dollar" color="dark" />
+                                </Avatar>
+                                <div>
+                                  <Typography color="textSecondary" variant="bodyHl" noWrap>
+                                    {name}
+                                  </Typography>
+                                  <Typography variant="caption" noWrap>
+                                    {code}
+                                  </Typography>
+                                </div>
+                              </div>
+                            ),
+                          },
+                          ...(!customer?.appliedDunningCampaign
+                            ? [
+                                {
+                                  key: 'appliedToOrganization',
+                                  title: translate('text_63ac86d797f728a87b2f9fa7'),
+                                  content: () => (
+                                    <Chip label={translate('text_1729542098338prhjz7s29kt')} />
+                                  ),
+                                } as TableColumn<{
+                                  appliedToOrganization: boolean
+                                }>,
+                              ]
+                            : []),
+                        ]}
+                      />
+                    ) : (
+                      <Typography variant="body" color="grey700">
+                        {translate('text_17295411491091t7ii66l5ex')}
+                      </Typography>
+                    )
+                  ) : (
+                    <Typography variant="body" color="grey700">
+                      {translate('text_1729541149109r8u8nlsu75e')}
+                    </Typography>
+                  )}
+                </SettingsListItem>
+              )}
 
               {/* Finalize empty invoice setting */}
               <SettingsListItem>
@@ -608,6 +744,10 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
             invoiceGracePeriod={customer?.invoiceGracePeriod}
           />
           <EditCustomerDocumentLocaleDialog ref={editCustomerDocumentLocale} customer={customer} />
+          <EditCustomerDunningCampaignDialog
+            ref={editCustomerDunningCampaignDialogRef}
+            customer={customer}
+          />
           <DeleteCustomerGracePeriodeDialog ref={deleteGracePeriodDialogRef} customer={customer} />
           <DeleteCustomerDocumentLocaleDialog
             ref={deleteCustomerDocumentLocale}

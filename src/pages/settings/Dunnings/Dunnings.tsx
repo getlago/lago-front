@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import {
@@ -102,6 +102,15 @@ const Dunnings = () => {
     },
   })
 
+  const sortedTable = useMemo(
+    () =>
+      [...(data?.dunningCampaigns.collection ?? [])].sort((a) => {
+        // Put items with appliedToOrganization: true first
+        return a.appliedToOrganization ? -1 : 1
+      }),
+    [data?.dunningCampaigns.collection],
+  )
+
   if (!!error && !loading) {
     return (
       <GenericPlaceholder
@@ -139,16 +148,18 @@ const Dunnings = () => {
                   label={translate('text_1728574726495w5aylnynne9')}
                   sublabel={translate('text_1728574726495kqlx1l8crvp')}
                   action={
-                    <Button
-                      variant="quaternary"
-                      disabled={loading}
-                      onClick={() => {
-                        navigate(CREATE_DUNNING_ROUTE)
-                      }}
-                      data-test="create-dunning-button"
-                    >
-                      {translate('text_645bb193927b375079d28ad2')}
-                    </Button>
+                    hasAccessToFeature ? (
+                      <Button
+                        variant="quaternary"
+                        disabled={loading}
+                        onClick={() => {
+                          navigate(CREATE_DUNNING_ROUTE)
+                        }}
+                        data-test="create-dunning-button"
+                      >
+                        {translate('text_645bb193927b375079d28ad2')}
+                      </Button>
+                    ) : undefined
                   }
                 />
 
@@ -198,7 +209,7 @@ const Dunnings = () => {
                       containerSize={{ default: 0 }}
                       rowSize={72}
                       isLoading={loading}
-                      data={data.dunningCampaigns.collection}
+                      data={sortedTable}
                       columns={[
                         {
                           key: 'name',
