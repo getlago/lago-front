@@ -34,7 +34,7 @@ export type AddPlanToCouponDialogRef = DialogRef
 
 interface AddPlanToCouponDialogProps {
   onSubmit: Function
-  attachedPlansIds?: String[]
+  attachedPlansIds?: string[]
 }
 
 export const AddPlanToCouponDialog = forwardRef<DialogRef, AddPlanToCouponDialogProps>(

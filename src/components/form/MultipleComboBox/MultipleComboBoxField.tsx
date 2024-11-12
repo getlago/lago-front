@@ -15,7 +15,7 @@ interface MultipleComboBoxFieldProps
   name: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formikProps: FormikProps<any>
-  isEmptyNull?: Boolean // If false, on field reset the Multiplecombobox will return an empty string
+  isEmptyNull?: boolean // If false, on field reset the Multiplecombobox will return an empty string
 }
 
 export const MultipleComboBoxField = memo(

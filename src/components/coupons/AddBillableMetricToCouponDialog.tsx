@@ -34,7 +34,7 @@ export type AddBillableMetricToCouponDialogRef = DialogRef
 
 interface AddBillableMetricToCouponDialogProps {
   onSubmit: Function
-  attachedBillableMetricsIds?: String[]
+  attachedBillableMetricsIds?: string[]
 }
 
 export const AddBillableMetricToCouponDialog = forwardRef<
