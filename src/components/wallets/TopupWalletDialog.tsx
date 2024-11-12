@@ -34,7 +34,7 @@ gql`
   }
 `
 
-export interface TopupWalletDialogRef extends DialogRef {}
+export type TopupWalletDialogRef = DialogRef
 
 interface TopupWalletDialogProps {
   wallet: WalletForTopupFragment

@@ -29,7 +29,7 @@ gql`
   }
 `
 
-export interface DeleteCustomerDocumentLocaleDialogRef extends WarningDialogRef {}
+export type DeleteCustomerDocumentLocaleDialogRef = WarningDialogRef
 
 interface DeleteCustomerDocumentLocaleDialogProps {
   customer: DeleteCustomerDocumentLocaleFragment

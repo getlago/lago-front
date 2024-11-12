@@ -28,7 +28,7 @@ gql`
   }
 `
 
-export interface EditCustomerInvoiceGracePeriodDialogRef extends DialogRef {}
+export type EditCustomerInvoiceGracePeriodDialogRef = DialogRef
 
 interface EditCustomerInvoiceGracePeriodDialogProps {
   invoiceGracePeriod: number | undefined | null

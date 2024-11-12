@@ -17,7 +17,7 @@ gql`
   }
 `
 
-export interface UpdateOrganizationLogoDialogRef extends DialogRef {}
+export type UpdateOrganizationLogoDialogRef = DialogRef
 
 export const UpdateOrganizationLogoDialog = forwardRef<UpdateOrganizationLogoDialogRef>(
   (_, ref) => {

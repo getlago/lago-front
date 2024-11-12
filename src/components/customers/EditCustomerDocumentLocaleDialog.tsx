@@ -36,7 +36,7 @@ gql`
     }
   }
 `
-export interface EditCustomerDocumentLocaleDialogRef extends DialogRef {}
+export type EditCustomerDocumentLocaleDialogRef = DialogRef
 
 interface EditCustomerDocumentLocaleDialogProps {
   customer: EditCustomerDocumentLocaleFragment

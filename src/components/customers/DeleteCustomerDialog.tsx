@@ -21,7 +21,7 @@ gql`
   }
 `
 
-export interface DeleteCustomerDialogRef extends WarningDialogRef {}
+export type DeleteCustomerDialogRef = WarningDialogRef
 
 interface DeleteCustomerDialogProps {
   customer: DeleteCustomerDialogFragment

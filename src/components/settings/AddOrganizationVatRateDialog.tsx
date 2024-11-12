@@ -39,7 +39,7 @@ gql`
     }
   }
 `
-export interface AddOrganizationVatRateDialogRef extends DialogRef {}
+export type AddOrganizationVatRateDialogRef = DialogRef
 
 interface AddOrganizationVatRateDialogProps {
   appliedTaxRatesTaxesIds?: string[]

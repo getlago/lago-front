@@ -94,7 +94,7 @@ type FormType = CreateAppliedCouponInput & {
   billableMetrics?: CouponBillableMetricsForCustomerFragment[] | null
 }
 
-export interface AddCouponToCustomerDialogRef extends DialogRef {}
+export type AddCouponToCustomerDialogRef = DialogRef
 
 interface AddCouponToCustomerDialogProps {
   customer?: Pick<Customer, 'id' | 'displayName'> | null

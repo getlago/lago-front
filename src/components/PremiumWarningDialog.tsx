@@ -11,9 +11,7 @@ type TProps = {
   mailtoBody?: string
 }
 
-export interface PremiumWarningDialogRef extends DialogRef {}
-
-export interface PremiumWarningDialogRef {
+export interface PremiumWarningDialogRef extends DialogRef {
   openDialog: (data?: TProps) => unknown
   closeDialog: () => unknown
 }

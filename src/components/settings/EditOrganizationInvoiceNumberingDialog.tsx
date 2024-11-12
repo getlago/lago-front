@@ -36,7 +36,7 @@ gql`
   }
 `
 
-export interface EditOrganizationInvoiceNumberingDialogRef extends DialogRef {}
+export type EditOrganizationInvoiceNumberingDialogRef = DialogRef
 
 interface EditOrganizationInvoiceNumberingDialogProps {
   documentNumbering?: DocumentNumberingEnum

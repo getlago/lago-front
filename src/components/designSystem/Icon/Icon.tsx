@@ -50,7 +50,7 @@ type IconVariantProps = VariantProps<typeof iconStyles>
 interface IconProps extends IconVariantProps {
   name: IconName
   className?: string
-  onClick?: () => {} | void | Promise<void>
+  onClick?: () => void | void | Promise<void>
 }
 
 export const Icon = ({

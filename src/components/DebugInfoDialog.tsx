@@ -10,7 +10,7 @@ import { theme } from '~/styles'
 
 const { appEnv, apiUrl, appVersion } = envGlobalVar()
 
-export interface DebugInfoDialogRef extends DialogRef {}
+export type DebugInfoDialogRef = DialogRef
 
 export const DebugInfoDialog = forwardRef<DialogRef>((_props, ref) => {
   const { translate } = useInternationalization()

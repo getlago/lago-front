@@ -44,7 +44,7 @@ gql`
   ${OrganizationInformationsFragmentDoc}
 `
 
-export interface EditOrganizationInformationsDialogRef extends DialogRef {}
+export type EditOrganizationInformationsDialogRef = DialogRef
 
 interface EditOrganizationInformationsProps {
   organization: EditOrganizationInformationsDialogFragment

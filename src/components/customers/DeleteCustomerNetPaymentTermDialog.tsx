@@ -27,7 +27,7 @@ gql`
   }
 `
 
-export interface DeleteOrganizationNetPaymentTermDialogRef extends WarningDialogRef {}
+export type DeleteOrganizationNetPaymentTermDialogRef = WarningDialogRef
 
 interface DeleteOrganizationNetPaymentTermDialogProps {
   customer: DeleteCustomerNetPaymentTermFragment

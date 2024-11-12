@@ -30,7 +30,7 @@ gql`
   ${BillableMetricsForCouponsFragmentDoc}
 `
 
-export interface AddBillableMetricToCouponDialogRef extends DialogRef {}
+export type AddBillableMetricToCouponDialogRef = DialogRef
 
 interface AddBillableMetricToCouponDialogProps {
   onSubmit: Function

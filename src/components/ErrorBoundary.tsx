@@ -7,7 +7,7 @@ interface ErrorBoundaryProps {
   children: ReactNode
 }
 
-export class ErrorBoundary extends Component<ErrorBoundaryProps, {}> {
+export class ErrorBoundary extends Component<ErrorBoundaryProps> {
   componentDidCatch(error: { message: string; name: string }, errorInfo: ErrorInfo) {
     withScope((scope) => {
       Object.keys(errorInfo).forEach((key) => {

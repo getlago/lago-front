@@ -30,7 +30,7 @@ gql`
   ${PlansForCouponsFragmentDoc}
 `
 
-export interface AddPlanToCouponDialogRef extends DialogRef {}
+export type AddPlanToCouponDialogRef = DialogRef
 
 interface AddPlanToCouponDialogProps {
   onSubmit: Function

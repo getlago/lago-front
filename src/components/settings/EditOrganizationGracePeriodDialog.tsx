@@ -27,7 +27,7 @@ gql`
   }
 `
 
-export interface EditOrganizationGracePeriodDialogRef extends DialogRef {}
+export type EditOrganizationGracePeriodDialogRef = DialogRef
 
 interface EditOrganizationGracePeriodDialogProps {
   invoiceGracePeriod: number

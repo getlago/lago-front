@@ -39,7 +39,7 @@ gql`
   }
 `
 
-export interface AddMetadataDrawerRef extends DrawerRef {}
+export type AddMetadataDrawerRef = DrawerRef
 
 interface AddMetadataDrawerProps {
   invoice?: InvoiceMetadatasForMetadataDrawerFragment
