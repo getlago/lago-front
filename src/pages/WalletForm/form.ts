@@ -50,7 +50,7 @@ export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
       test: function (paidCredits) {
         if (formType === FORM_TYPE_ENUM.edition) return true
 
-        const { grantedCredits } = this?.parent
+        const { grantedCredits } = this?.parent || {}
 
         return !isNaN(Number(paidCredits)) || !isNaN(Number(grantedCredits))
       },
@@ -59,7 +59,7 @@ export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
       test: function (grantedCredits) {
         if (formType === FORM_TYPE_ENUM.edition) return true
 
-        const { paidCredits } = this?.parent
+        const { paidCredits } = this?.parent || {}
 
         return !isNaN(Number(grantedCredits)) || !isNaN(Number(paidCredits))
       },
@@ -74,7 +74,7 @@ export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
           interval: string()
             .test({
               test: function (interval) {
-                const { trigger } = this?.parent
+                const { trigger } = this?.parent || {}
 
                 if (!!trigger && trigger !== RecurringTransactionTriggerEnum.Interval) {
                   return true
@@ -87,7 +87,7 @@ export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
           thresholdCredits: string()
             .test({
               test: function (thresholdCredits, { path }) {
-                const { trigger, targetOngoingBalance, method } = this?.parent
+                const { trigger, targetOngoingBalance, method } = this?.parent || {}
 
                 if (!!trigger && trigger !== RecurringTransactionTriggerEnum.Threshold) {
                   return true
@@ -111,7 +111,7 @@ export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
             .nullable(),
           paidCredits: string().test({
             test: function (paidCredits) {
-              const { grantedCredits: ruleGrantedCredit, method } = this?.parent
+              const { grantedCredits: ruleGrantedCredit, method } = this?.parent || {}
 
               if (!!method && method !== RecurringTransactionMethodEnum.Fixed) {
                 return true
@@ -122,7 +122,7 @@ export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
           }),
           grantedCredits: string().test({
             test: function (grantedCredits) {
-              const { paidCredits: rulePaidCredit, method } = this?.parent
+              const { paidCredits: rulePaidCredit, method } = this?.parent || {}
 
               if (!!method && method !== RecurringTransactionMethodEnum.Fixed) {
                 return true
@@ -135,7 +135,7 @@ export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
             .nullable()
             .test({
               test: function (targetOngoingBalance, { path }) {
-                const { method, thresholdCredits, trigger } = this?.parent
+                const { method, thresholdCredits, trigger } = this?.parent || {}
 
                 if (!!method && method !== RecurringTransactionMethodEnum.Target) {
                   return true
@@ -164,7 +164,7 @@ export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
             .nullable()
             .test({
               test: function (startedAt, { path }) {
-                const { trigger } = this?.parent
+                const { trigger } = this?.parent || {}
 
                 if (!!trigger && trigger !== RecurringTransactionTriggerEnum.Interval) {
                   return true

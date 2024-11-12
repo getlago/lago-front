@@ -82,7 +82,6 @@ export default [
 
       // TO FIX
       'no-extra-boolean-cast': 'off',
-      'no-unsafe-optional-chaining': 'off',
       'prefer-const': 'off',
       'no-case-declarations': 'off',
       'no-empty': 'off',

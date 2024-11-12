@@ -68,9 +68,9 @@ export const useShortcuts: UseShortcutReturn = (shortcuts) => {
       shortcuts.reduce<ReducedShortcut>((acc, shortcut) => {
         if (shortcut.disabled) return acc
         // Get keys according to OS
-        const keys = (
-          !!shortcut?.windowsKeys && !isMac ? shortcut?.windowsKeys : shortcut?.keys
-        ).map((key) => getCleanKey(key))
+        const keys = (!!shortcut?.windowsKeys && !isMac ? shortcut.windowsKeys : shortcut.keys).map(
+          (key) => getCleanKey(key),
+        )
         const shortcutId = getShortcutId(keys)
 
         acc[shortcutId] = { keys, action: shortcut.action }

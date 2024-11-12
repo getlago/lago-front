@@ -663,7 +663,7 @@ export const ChargeAccordion = memo(
                             }}
                             deleteFilterValue={(valueIndex) => {
                               const newValuesArray = [
-                                ...(localCharge.filters || [])?.[filterIndex].values,
+                                ...((localCharge.filters || [])?.[filterIndex].values || {}),
                               ]
 
                               newValuesArray.splice(valueIndex, 1)

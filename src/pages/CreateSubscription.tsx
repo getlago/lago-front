@@ -350,7 +350,7 @@ const CreateSubscription = () => {
   const comboboxPlansData = useMemo(() => {
     if (!planData?.plans?.collection?.length) return []
 
-    const localPlanCollection = [...planData?.plans?.collection]
+    const localPlanCollection = [...(planData?.plans?.collection || {})]
 
     // If sub plan is not part of the plans collection, add it
     if (!localPlanCollection.find((p) => p.id === subscription?.plan.id) && !!subscription?.plan) {
