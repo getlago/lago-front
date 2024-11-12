@@ -76,14 +76,23 @@ export default [
         },
       ],
       '@typescript-eslint/no-non-null-assertion': 'error',
-      // Note: we must disable the base rule as it can report incorrect errors
+      // https://typescript-eslint.io/rules/no-shadow/
       'no-shadow': 'off',
       '@typescript-eslint/no-shadow': 'error',
+      // https://typescript-eslint.io/rules/no-unused-expressions/
+      'no-unused-expressions': 'off',
+      '@typescript-eslint/no-unused-expressions': [
+        'error',
+        {
+          allowTernary: true,
+          allowShortCircuit: true,
+          allowTaggedTemplates: true,
+        },
+      ],
 
       // TO FIX
       'no-extra-boolean-cast': 'off',
       'prefer-rest-params': 'off',
-      '@typescript-eslint/no-unused-expressions': 'off',
       '@typescript-eslint/no-unsafe-function-type': 'off',
       '@typescript-eslint/ban-ts-comment': 'off',
     },
