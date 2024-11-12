@@ -62,7 +62,7 @@ gql`
 
 const CreateAddOn = () => {
   const { translate } = useInternationalization()
-  let navigate = useNavigate()
+  const navigate = useNavigate()
   const { organization } = useOrganizationInfos()
   const { addOnId } = useParams()
   const { isEdition, loading, addOn, errorCode, onSave } = useCreateEditAddOn()

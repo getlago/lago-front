@@ -9,7 +9,7 @@ import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 const InvitationInit = () => {
   const { token } = useParams()
   const { isAuthenticated } = useIsAuthenticated()
-  let navigate = useNavigate()
+  const navigate = useNavigate()
   const client = useApolloClient()
 
   useEffect(() => {

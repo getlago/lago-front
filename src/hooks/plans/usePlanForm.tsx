@@ -87,7 +87,7 @@ export const usePlanForm: ({
   const navigate = useNavigate()
   const { organization } = useOrganizationInfos()
   const { translate } = useInternationalization()
-  let [searchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const { planId: id } = useParams()
   const { parentId, type: actionType } = useDuplicatePlanVar()
   const { data, loading, error } = useGetSinglePlanQuery({

@@ -46,7 +46,7 @@ gql`
 
 const CouponsList = () => {
   const { translate } = useInternationalization()
-  let navigate = useNavigate()
+  const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
   const deleteDialogRef = useRef<DeleteCouponDialogRef>(null)
   const terminateDialogRef = useRef<TerminateCouponDialogRef>(null)

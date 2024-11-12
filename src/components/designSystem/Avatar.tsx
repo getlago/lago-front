@@ -141,7 +141,7 @@ export const Avatar = ({
   }
 
   const getContent = () => {
-    let cursor = size === 'small' || size === 'intermediate' ? 1 : 2
+    const cursor = size === 'small' || size === 'intermediate' ? 1 : 2
 
     return (
       <Typography color="inherit" variant={mapTypographyVariant(size)}>

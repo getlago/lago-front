@@ -30,7 +30,7 @@ export const ComboBoxVirtualizedList = (props: ComboBoxVirtualizedListProps) => 
   )
 
   const itemCount = elements?.length
-  let elementHeight = hasDescription ? ITEM_HEIGHT + 4 : ITEM_HEIGHT
+  const elementHeight = hasDescription ? ITEM_HEIGHT + 4 : ITEM_HEIGHT
 
   const getHeight = () => {
     // recommended perf best practice

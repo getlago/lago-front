@@ -49,7 +49,7 @@ const GoogleAuthButton = ({
   mode,
 }: BasicGoogleAuthButtonProps) => {
   const { translate } = useInternationalization()
-  let [searchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
 
   const [errorCode, setErrorCode] = useState<string | undefined>(undefined)
   const lagoErrorCode = searchParams.get('lago_error_code') || ''

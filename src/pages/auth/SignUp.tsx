@@ -69,7 +69,7 @@ const PASSWORD_VALIDATION = [
 ]
 
 const SignUp = () => {
-  let [searchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const googleCode = searchParams.get('code') || ''
   const { translate } = useInternationalization()
   const [isGoogleRegister, setIsGoogleRegister] = useState<boolean>(!!googleCode)

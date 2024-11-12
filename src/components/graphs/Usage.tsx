@@ -128,7 +128,7 @@ export function getDataForUsageDisplay({
     return acc
   }, {})
 
-  let filteredGroupedDatasByCode = Object.entries(groupedDatasByCode).sort((a, b) =>
+  const filteredGroupedDatasByCode = Object.entries(groupedDatasByCode).sort((a, b) =>
     Number(a[1]) > Number(b[1]) ? -1 : 1,
   )
 

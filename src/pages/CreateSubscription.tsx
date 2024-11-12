@@ -203,9 +203,9 @@ const EmptyState = () => {
 }
 
 const CreateSubscription = () => {
-  let location = useLocation()
+  const location = useLocation()
   const navigate = useNavigate()
-  let [searchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
   const { customerId, subscriptionId } = useParams()

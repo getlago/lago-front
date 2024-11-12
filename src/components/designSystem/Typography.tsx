@@ -107,7 +107,7 @@ export const Typography = memo(
 
       // Otherwise, replace all the {{link}} by the <Link /> component
       const splitted = sanitized.__html.split('{{link}}')
-      let sanitizedWithInternalLinks: JSX.Element[] = []
+      const sanitizedWithInternalLinks: JSX.Element[] = []
 
       // Add each string + the links in between
       splitted.forEach((string, i) => {

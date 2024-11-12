@@ -33,7 +33,7 @@ const GoogleAuthCallback = () => {
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
   })
 
-  let [searchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const code = searchParams.get('code') || ''
   const state = JSON.parse(searchParams.get('state') || '{}')
   const invitationToken = state.invitationToken || ''

@@ -7,8 +7,8 @@ export const addValuesToUrlState = ({
   values: Record<string, string>
   stateType: 'string' | 'object'
 }) => {
-  let urlObj = new URL(url)
-  let urlSearchParams = urlObj.searchParams
+  const urlObj = new URL(url)
+  const urlSearchParams = urlObj.searchParams
 
   const oldState = urlSearchParams.get('state') || ('{}' as string)
 

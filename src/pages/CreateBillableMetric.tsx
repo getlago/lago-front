@@ -99,7 +99,7 @@ const TRANSLATIONS_MAP_ROUNDING_FUNCTION: Record<
 
 const CreateBillableMetric = () => {
   const { translate } = useInternationalization()
-  let navigate = useNavigate()
+  const navigate = useNavigate()
   const { isEdition, loading, billableMetric, errorCode, onSave } = useCreateEditBillableMetric()
 
   const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)

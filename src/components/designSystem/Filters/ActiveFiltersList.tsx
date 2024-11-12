@@ -15,7 +15,7 @@ interface ActiveFiltersListProps {
 
 export const ActiveFiltersList = ({ filters }: ActiveFiltersListProps) => {
   const { translate } = useInternationalization()
-  let [searchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
 
   const activeFilters = useMemo(() => {
     const setFilters = Object.fromEntries(searchParams.entries())

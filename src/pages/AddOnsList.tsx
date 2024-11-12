@@ -37,7 +37,7 @@ gql`
 
 const AddOnsList = () => {
   const { translate } = useInternationalization()
-  let navigate = useNavigate()
+  const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
   const deleteDialogRef = useRef<DeleteAddOnDialogRef>(null)
   const { onKeyDown } = useListKeysNavigation({

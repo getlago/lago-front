@@ -42,7 +42,7 @@ export const ExportInvoicesDialog = forwardRef<ExportInvoicesDialogRef, ExportIn
   ({ invoicesTotalCount, invoicesVariablesSearchTerm }: ExportInvoicesDialogProps, ref) => {
     const { translate } = useInternationalization()
     const { currentUser } = useCurrentUser()
-    let [searchParams] = useSearchParams()
+    const [searchParams] = useSearchParams()
     const [triggerCreateInvoicesDataExport] = useCreateInvoicesDataExportMutation({
       onCompleted({ createInvoicesDataExport }) {
         if (createInvoicesDataExport) {

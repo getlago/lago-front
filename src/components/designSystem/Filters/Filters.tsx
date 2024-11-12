@@ -16,7 +16,7 @@ interface FiltersProps {
 export const Filters = ({ className, filters }: FiltersProps) => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
-  let [searchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
 
   return (
     <div className={tw('flex w-full flex-wrap items-center gap-3 overflow-y-scroll', className)}>

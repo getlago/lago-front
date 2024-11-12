@@ -287,7 +287,7 @@ export const createCreditNoteForInvoiceButtonProps = ({
 const CustomerInvoiceDetails = () => {
   const { translate } = useInternationalization()
   const { customerId, invoiceId } = useParams()
-  let navigate = useNavigate()
+  const navigate = useNavigate()
   const { goBack } = useLocationHistory()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()

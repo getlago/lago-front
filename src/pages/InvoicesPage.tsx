@@ -109,7 +109,7 @@ const InvoicesPage = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { tab = InvoiceListTabEnum.invoices } = useParams<{ tab?: InvoiceListTabEnum }>()
-  let [searchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)

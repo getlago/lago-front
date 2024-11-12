@@ -199,7 +199,7 @@ export const getWordingForWalletCreationAlert = ({
     return text
   }
 
-  let startSentence = setStartOfSentence({
+  const startSentence = setStartOfSentence({
     recurringRulesValues,
     walletValues,
     currency,
@@ -207,7 +207,7 @@ export const getWordingForWalletCreationAlert = ({
     translate,
   })
 
-  let endSentence = setEndOfSentence({
+  const endSentence = setEndOfSentence({
     recurringRulesValues,
     walletValues,
     customerTimezone,

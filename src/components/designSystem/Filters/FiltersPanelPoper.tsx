@@ -26,7 +26,7 @@ export type FiltersFormValues = {
 export const FiltersPanelPoper = ({ filters }: FiltersPanelPoperProps) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  let [searchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const listContainerElementRef = useRef<HTMLDivElement>(null)
   const filtersAlreadySet = Object.fromEntries(searchParams.entries())
 

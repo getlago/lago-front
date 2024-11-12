@@ -102,9 +102,9 @@ const cleanPlanValues = (planValues: PlanOverridesInput, formType: keyof typeof 
 export const useAddSubscription: UseAddSubscription = ({
   existingSubscription,
 }): UseAddSubscriptionReturn => {
-  let location = useLocation()
+  const location = useLocation()
   const navigate = useNavigate()
-  let [searchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const { translate } = useInternationalization()
   const { emitSalesForceEvent, isRunningInSalesForceIframe } = useSalesForceConfig()
 

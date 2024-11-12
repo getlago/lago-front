@@ -27,7 +27,7 @@ export const intlFormatNumber: (amount: number, options?: FormatterOptions) => s
   amount,
   options,
 ) => {
-  let formattedToUnit = amount
+  const formattedToUnit = amount
 
   const {
     currencyDisplay = CurrencyDisplay.symbol,

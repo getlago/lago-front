@@ -285,7 +285,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
             const fee = groupedFees[groupKey][0]
 
             if (fee?.creditableAmountCents > 0) {
-              let composableName = composeMultipleValuesWithSepator([
+              const composableName = composeMultipleValuesWithSepator([
                 fee?.invoiceName || subscriptionName,
                 composeChargeFilterDisplayName(fee?.chargeFilter),
                 composeGroupedByDisplayName(fee.groupedBy),
@@ -319,7 +319,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
             ) &&
             firstFee?.creditableAmountCents > 0
           ) {
-            let composableName =
+            const composableName =
               firstFee.invoiceDisplayName ||
               (firstFee.feeType === FeeTypesEnum.Commitment
                 ? 'Minimum commitment - True up'

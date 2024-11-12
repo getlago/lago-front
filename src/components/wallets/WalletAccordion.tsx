@@ -106,8 +106,8 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
     const { isPremium } = useCurrentUser()
     const { formatTimeOrgaTZ } = useOrganizationInfos()
     const statusMap = mapStatus(status)
-    let [creditAmountUnit = '0', creditAmountCents = '00'] = String(creditsBalance).split('.')
-    let [consumedCreditUnit = '0', consumedCreditCents = '00'] =
+    const [creditAmountUnit = '0', creditAmountCents = '00'] = String(creditsBalance).split('.')
+    const [consumedCreditUnit = '0', consumedCreditCents = '00'] =
       String(creditsOngoingBalance).split('.')
     const { translate } = useInternationalization()
     const isWalletActive = status === WalletStatusEnum.Active

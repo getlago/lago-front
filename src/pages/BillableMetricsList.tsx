@@ -42,7 +42,7 @@ gql`
 
 const BillableMetricsList = () => {
   const { translate } = useInternationalization()
-  let navigate = useNavigate()
+  const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
   const deleteDialogRef = useRef<DeleteBillableMetricDialogRef>(null)
   const [getBillableMetrics, { data, error, loading, fetchMore, variables }] =

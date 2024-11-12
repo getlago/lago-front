@@ -35,7 +35,7 @@ gql`
 `
 
 const GocardlessIntegrationOauthCallback = () => {
-  let [searchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const accessCode = searchParams.get('code') || ''
   const code = searchParams.get('lago_code') || ''
   const name = searchParams.get('lago_name') || ''
