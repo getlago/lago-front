@@ -144,9 +144,7 @@ const setEndOfSentence = ({
 
     switch (recurringRulesValues?.interval) {
       case RecurringTransactionIntervalEnum.Weekly:
-        const dayOfWeek = dateRef.weekdayLong
-
-        text = translate('text_6657be42151661006d2f3b79', { dayOfWeek })
+        text = translate('text_6657be42151661006d2f3b79', { dayOfWeek: dateRef.weekdayLong })
         break
       case RecurringTransactionIntervalEnum.Monthly:
         text = isDayPotentiallyNotReachableOnEntirePeriod
@@ -159,10 +157,8 @@ const setEndOfSentence = ({
           : translate('text_6657be42151661006d2f3b7f')
         break
       case RecurringTransactionIntervalEnum.Yearly:
-        const month = dateRef.monthLong
-
         text = isDayPotentiallyNotReachableOnEntirePeriod
-          ? translate('text_6657be42151661006d2f3b85', { month })
+          ? translate('text_6657be42151661006d2f3b85', { month: dateRef.monthLong })
           : translate('text_6657be42151661006d2f3b83')
         break
       default:
