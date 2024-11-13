@@ -18,6 +18,8 @@ import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PopperOpener, theme } from '~/styles'
 
+const PADDING_SPACING_RIGHT_PX = 32
+
 type Align = 'left' | 'center' | 'right'
 
 type DotPrefix<T extends string> = T extends '' ? '' : `.${T}`
@@ -349,7 +351,13 @@ const LoadingRows = <T,>({
       {columns.map((col, j) => (
         <TableCell key={`${id}-loading-cell-${i}-${j}`}>
           <TableInnerCell $minWidth={col.minWidth} $align={col.textAlign}>
-            <Skeleton variant="text" width={col.minWidth ?? '100%'} />
+            <div
+              style={{
+                width: !!col.minWidth ? `${col.minWidth - PADDING_SPACING_RIGHT_PX}px` : '100%',
+              }}
+            >
+              <Skeleton className="w-full" variant="text" />
+            </div>
           </TableInnerCell>
         </TableCell>
       ))}
@@ -442,7 +450,7 @@ const TableCell = styled(MUITableCell)<{
   border-bottom: 1px solid ${theme.palette.grey[300]};
 
   ${TableInnerCell} {
-    padding-right: ${theme.spacing(8)};
+    padding-right: ${PADDING_SPACING_RIGHT_PX}px;
   }
 
   &:first-of-type ${TableInnerCell} {
