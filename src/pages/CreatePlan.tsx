@@ -285,7 +285,7 @@ const CreatePlan = () => {
                   disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
                   size="large"
                   onClick={() => {
-                    if (plan?.hasOverriddenPlans) {
+                    if (plan?.hasOverriddenPlans && isEdition) {
                       return impactOverridenSubscriptionsDialogRef.current?.openDialog({
                         onSave: async (cascadeUpdates) => {
                           await formikProps.setFieldValue('cascadeUpdates', cascadeUpdates)
