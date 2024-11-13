@@ -37,7 +37,6 @@ gql`
     syncCreditNotes
     syncInvoices
     syncPayments
-    syncSalesOrders
     tokenId
     tokenSecret
   }
@@ -121,7 +120,6 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
       syncCreditNotes: !!netsuiteProvider?.syncCreditNotes,
       syncInvoices: !!netsuiteProvider?.syncInvoices,
       syncPayments: !!netsuiteProvider?.syncPayments,
-      syncSalesOrders: !!netsuiteProvider?.syncSalesOrders,
     },
     validationSchema: object().shape({
       name: string().required(''),
@@ -135,7 +133,6 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
       syncCreditNotes: boolean(),
       syncInvoices: boolean(),
       syncPayments: boolean(),
-      syncSalesOrders: boolean(),
     }),
     onSubmit: async ({ ...values }, formikBag) => {
       setShowGlobalError(false)
@@ -427,25 +424,6 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
                   <Chip
                     size="small"
                     label={translate('text_661ff6e56ef7e1b7c542b311')}
-                    color="danger600"
-                  />
-                  <Typography variant="body" color="grey700">
-                    {translate('text_661ff6e56ef7e1b7c542b29e')}
-                  </Typography>
-                </Stack>
-              }
-              formikProps={formikProps}
-            />
-            <CheckboxField
-              name="syncSalesOrders"
-              label={
-                <Stack spacing={1} direction="row" alignItems="center" flexWrap="wrap">
-                  <Typography variant="body" color="grey700">
-                    {translate('text_661ff6e56ef7e1b7c542b296')}
-                  </Typography>
-                  <Chip
-                    size="small"
-                    label={translate('text_661ff6e56ef7e1b7c542b31e')}
                     color="danger600"
                   />
                   <Typography variant="body" color="grey700">
