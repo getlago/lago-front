@@ -234,7 +234,8 @@ export const InvoiceDetailsTableBodyLine = memo(
               </td>
               {canHaveUnitPrice && (
                 <>
-                  {chargeModel === ChargeModelEnum.Percentage ? (
+                  {chargeModel === ChargeModelEnum.Percentage &&
+                  fee?.adjustedFeeType !== AdjustedFeeTypeEnum.AdjustedAmount ? (
                     <td>
                       <Typography variant="body" color="grey700">
                         {fee?.amountDetails?.rate}%
