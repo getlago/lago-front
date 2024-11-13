@@ -1,11 +1,9 @@
 import { Outlet } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { NavigationTab, Typography } from '~/components/designSystem'
+import { PageBannerHeader } from '~/components/layouts/Pages'
 import { API_KEYS_ROUTE, DEBUGGER_ROUTE, DEVELOPERS_ROUTE, WEBHOOK_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { PageHeader } from '~/styles'
-import { NAV_HEIGHT } from '~/styles'
 
 const Developers = () => {
   const { translate } = useInternationalization()
@@ -26,24 +24,16 @@ const Developers = () => {
   ]
 
   return (
-    <div>
-      <PageHeader $withSide>
+    <>
+      <PageBannerHeader>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_6271200984178801ba8bdebe')}
         </Typography>
-      </PageHeader>
+      </PageBannerHeader>
       <NavigationTab className="px-4 md:px-12" tabs={tabsOptions} />
-      <Content>
-        <Outlet />
-      </Content>
-    </div>
+      <Outlet />
+    </>
   )
 }
-
-const Content = styled.div`
-  display: flex;
-  min-height: calc(100vh - ${NAV_HEIGHT * 2}px);
-  flex-direction: column;
-`
 
 export default Developers
