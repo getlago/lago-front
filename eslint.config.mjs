@@ -65,7 +65,8 @@ export default [
       eqeqeq: 'error',
       'no-else-return': 'warn',
       'no-unused-vars': 'off',
-      'newline-after-var': ['warn'], // Note: Deprecated rule
+      'newline-after-var': ['warn'], // TOFIX: Deprecated rule
+      'no-extra-boolean-cast': 'off',
 
       // Plugins
       'import/order': [
@@ -89,12 +90,8 @@ export default [
           allowTaggedTemplates: true,
         },
       ],
-
-      // TO FIX
-      'no-extra-boolean-cast': 'off',
-      'prefer-rest-params': 'off',
-      '@typescript-eslint/no-unsafe-function-type': 'off',
-      '@typescript-eslint/ban-ts-comment': 'off',
+      '@typescript-eslint/no-unsafe-function-type': 'warn',
+      '@typescript-eslint/ban-ts-comment': 'warn',
     },
   },
   {
