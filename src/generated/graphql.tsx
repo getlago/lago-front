@@ -7391,6 +7391,8 @@ export type DeleteHubspotIntegrationDialogFragment = { __typename?: 'HubspotInte
 
 export type DeleteNetsuiteIntegrationDialogFragment = { __typename?: 'NetsuiteIntegration', id: string, name: string };
 
+export type DeleteSalesforceIntegrationDialogFragment = { __typename?: 'SalesforceIntegration', id: string, name: string };
+
 export type DeleteStripeIntegrationDialogFragment = { __typename?: 'StripeProvider', id: string, name: string };
 
 export type DeleteStripeMutationVariables = Exact<{
@@ -8703,6 +8705,27 @@ export type GetOrganizationInformationsQueryVariables = Exact<{ [key: string]: n
 
 export type GetOrganizationInformationsQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, timezone?: TimezoneEnum | null } | null };
 
+export type SalesforceIntegrationDetailsFragment = { __typename?: 'SalesforceIntegration', id: string, name: string, code: string, instanceId: string };
+
+export type GetSalesforceIntegrationsDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  integrationsType: IntegrationTypeEnum;
+}>;
+
+
+export type GetSalesforceIntegrationsDetailsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration', id: string, name: string, code: string, instanceId: string } | { __typename?: 'XeroIntegration' } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration', id: string } | { __typename?: 'XeroIntegration' }> } | null };
+
+export type SalesforceIntegrationsFragment = { __typename?: 'SalesforceIntegration', id: string, name: string, code: string, instanceId: string };
+
+export type GetSalesforceIntegrationsListQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<IntegrationTypeEnum>;
+}>;
+
+
+export type GetSalesforceIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration', id: string, name: string, code: string, instanceId: string } | { __typename?: 'XeroIntegration' }> } | null };
+
 export type StripeIntegrationDetailsFragment = { __typename?: 'StripeProvider', id: string, code: string, name: string, secretKey?: string | null, successRedirectUrl?: string | null };
 
 export type GetStripeIntegrationsDetailsQueryVariables = Exact<{
@@ -9588,14 +9611,6 @@ export const AddGocardlessProviderDialogFragmentDoc = gql`
   id
   name
   code
-}
-    `;
-export const SalesforceForCreateDialogFragmentDoc = gql`
-    fragment SalesforceForCreateDialog on SalesforceIntegration {
-  id
-  name
-  code
-  instanceId
 }
     `;
 export const AddStripeProviderDialogFragmentDoc = gql`
@@ -11639,6 +11654,39 @@ export const OrganizationInformationsFragmentDoc = gql`
   timezone
 }
     `;
+export const SalesforceForCreateDialogFragmentDoc = gql`
+    fragment SalesforceForCreateDialog on SalesforceIntegration {
+  id
+  name
+  code
+  instanceId
+}
+    `;
+export const DeleteSalesforceIntegrationDialogFragmentDoc = gql`
+    fragment DeleteSalesforceIntegrationDialog on SalesforceIntegration {
+  id
+  name
+}
+    `;
+export const SalesforceIntegrationDetailsFragmentDoc = gql`
+    fragment SalesforceIntegrationDetails on SalesforceIntegration {
+  id
+  name
+  code
+  instanceId
+  ...SalesforceForCreateDialog
+  ...DeleteSalesforceIntegrationDialog
+}
+    ${SalesforceForCreateDialogFragmentDoc}
+${DeleteSalesforceIntegrationDialogFragmentDoc}`;
+export const SalesforceIntegrationsFragmentDoc = gql`
+    fragment SalesforceIntegrations on SalesforceIntegration {
+  id
+  name
+  code
+  ...SalesforceForCreateDialog
+}
+    ${SalesforceForCreateDialogFragmentDoc}`;
 export const StripeIntegrationDetailsFragmentDoc = gql`
     fragment StripeIntegrationDetails on StripeProvider {
   id
@@ -24002,6 +24050,106 @@ export type GetOrganizationInformationsQueryHookResult = ReturnType<typeof useGe
 export type GetOrganizationInformationsLazyQueryHookResult = ReturnType<typeof useGetOrganizationInformationsLazyQuery>;
 export type GetOrganizationInformationsSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationInformationsSuspenseQuery>;
 export type GetOrganizationInformationsQueryResult = Apollo.QueryResult<GetOrganizationInformationsQuery, GetOrganizationInformationsQueryVariables>;
+export const GetSalesforceIntegrationsDetailsDocument = gql`
+    query getSalesforceIntegrationsDetails($id: ID!, $limit: Int, $integrationsType: IntegrationTypeEnum!) {
+  integration(id: $id) {
+    ... on SalesforceIntegration {
+      id
+      ...SalesforceIntegrationDetails
+    }
+  }
+  integrations(limit: $limit, type: $integrationsType) {
+    collection {
+      ... on SalesforceIntegration {
+        id
+      }
+    }
+  }
+}
+    ${SalesforceIntegrationDetailsFragmentDoc}`;
+
+/**
+ * __useGetSalesforceIntegrationsDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetSalesforceIntegrationsDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSalesforceIntegrationsDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSalesforceIntegrationsDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      limit: // value for 'limit'
+ *      integrationsType: // value for 'integrationsType'
+ *   },
+ * });
+ */
+export function useGetSalesforceIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetSalesforceIntegrationsDetailsQuery, GetSalesforceIntegrationsDetailsQueryVariables> & ({ variables: GetSalesforceIntegrationsDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSalesforceIntegrationsDetailsQuery, GetSalesforceIntegrationsDetailsQueryVariables>(GetSalesforceIntegrationsDetailsDocument, options);
+      }
+export function useGetSalesforceIntegrationsDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSalesforceIntegrationsDetailsQuery, GetSalesforceIntegrationsDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSalesforceIntegrationsDetailsQuery, GetSalesforceIntegrationsDetailsQueryVariables>(GetSalesforceIntegrationsDetailsDocument, options);
+        }
+export function useGetSalesforceIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSalesforceIntegrationsDetailsQuery, GetSalesforceIntegrationsDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetSalesforceIntegrationsDetailsQuery, GetSalesforceIntegrationsDetailsQueryVariables>(GetSalesforceIntegrationsDetailsDocument, options);
+        }
+export type GetSalesforceIntegrationsDetailsQueryHookResult = ReturnType<typeof useGetSalesforceIntegrationsDetailsQuery>;
+export type GetSalesforceIntegrationsDetailsLazyQueryHookResult = ReturnType<typeof useGetSalesforceIntegrationsDetailsLazyQuery>;
+export type GetSalesforceIntegrationsDetailsSuspenseQueryHookResult = ReturnType<typeof useGetSalesforceIntegrationsDetailsSuspenseQuery>;
+export type GetSalesforceIntegrationsDetailsQueryResult = Apollo.QueryResult<GetSalesforceIntegrationsDetailsQuery, GetSalesforceIntegrationsDetailsQueryVariables>;
+export const GetSalesforceIntegrationsListDocument = gql`
+    query getSalesforceIntegrationsList($limit: Int, $type: IntegrationTypeEnum) {
+  integrations(limit: $limit, type: $type) {
+    collection {
+      ... on SalesforceIntegration {
+        id
+        ...SalesforceIntegrations
+        ...SalesforceForCreateDialog
+      }
+    }
+  }
+}
+    ${SalesforceIntegrationsFragmentDoc}
+${SalesforceForCreateDialogFragmentDoc}`;
+
+/**
+ * __useGetSalesforceIntegrationsListQuery__
+ *
+ * To run a query within a React component, call `useGetSalesforceIntegrationsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSalesforceIntegrationsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSalesforceIntegrationsListQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      type: // value for 'type'
+ *   },
+ * });
+ */
+export function useGetSalesforceIntegrationsListQuery(baseOptions?: Apollo.QueryHookOptions<GetSalesforceIntegrationsListQuery, GetSalesforceIntegrationsListQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSalesforceIntegrationsListQuery, GetSalesforceIntegrationsListQueryVariables>(GetSalesforceIntegrationsListDocument, options);
+      }
+export function useGetSalesforceIntegrationsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSalesforceIntegrationsListQuery, GetSalesforceIntegrationsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSalesforceIntegrationsListQuery, GetSalesforceIntegrationsListQueryVariables>(GetSalesforceIntegrationsListDocument, options);
+        }
+export function useGetSalesforceIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSalesforceIntegrationsListQuery, GetSalesforceIntegrationsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetSalesforceIntegrationsListQuery, GetSalesforceIntegrationsListQueryVariables>(GetSalesforceIntegrationsListDocument, options);
+        }
+export type GetSalesforceIntegrationsListQueryHookResult = ReturnType<typeof useGetSalesforceIntegrationsListQuery>;
+export type GetSalesforceIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetSalesforceIntegrationsListLazyQuery>;
+export type GetSalesforceIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetSalesforceIntegrationsListSuspenseQuery>;
+export type GetSalesforceIntegrationsListQueryResult = Apollo.QueryResult<GetSalesforceIntegrationsListQuery, GetSalesforceIntegrationsListQueryVariables>;
 export const GetStripeIntegrationsDetailsDocument = gql`
     query getStripeIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
   paymentProvider(id: $id) {

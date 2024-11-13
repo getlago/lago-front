@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { GraphQLFormattedError } from 'graphql'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
 import { generatePath, useNavigate } from 'react-router'
 import { object, string } from 'yup'
 
@@ -11,6 +11,7 @@ import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { SALESFORCE_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   CreateSalesforceIntegrationInput,
+  DeleteSalesforceIntegrationDialogFragmentDoc,
   SalesforceForCreateDialogFragment,
   useCreateSalesforceIntegrationMutation,
   useUpdateSalesforceIntegrationMutation,
@@ -18,12 +19,15 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'
 
+import { DeleteSalesforceIntegrationDialogRef } from './DeleteSalesforceIntegrationDialog'
+
 gql`
   fragment SalesforceForCreateDialog on SalesforceIntegration {
     id
     name
     code
     instanceId
+    ...DeleteSalesforceIntegrationDialog
   }
 
   mutation createSalesforceIntegration($input: CreateSalesforceIntegrationInput!) {
@@ -37,11 +41,12 @@ gql`
       ...SalesforceForCreateDialog
     }
   }
+
+  ${DeleteSalesforceIntegrationDialogFragmentDoc}
 `
-// ${DeleteSalesforceIntegrationDialogFragmentDoc}
 
 type TAddSalesforceDialogProps = Partial<{
-  // deleteModalRef: RefObject<DeleteSalesforceIntegrationDialogRef>
+  deleteModalRef: RefObject<DeleteSalesforceIntegrationDialogRef>
   provider: SalesforceForCreateDialogFragment
   deleteDialogCallback: () => void
 }>
@@ -185,10 +190,10 @@ export const AddSalesforceDialog = forwardRef<AddSalesforceDialogRef>((_, ref) =
               variant="quaternary"
               onClick={() => {
                 closeDialog()
-                // localData?.deleteModalRef?.current?.openDialog({
-                //   provider: salesforceProvider,
-                //   callback: localData.deleteDialogCallback,
-                // })
+                localData?.deleteModalRef?.current?.openDialog({
+                  provider: salesforceProvider,
+                  callback: localData.deleteDialogCallback,
+                })
               }}
             >
               {translate('text_65845f35d7d69c3ab4793dad')}

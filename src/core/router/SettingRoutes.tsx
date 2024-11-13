@@ -67,12 +67,14 @@ const NetsuiteIntegrationDetails = lazyLoad(
 )
 const SalesforceIntegrations = lazyLoad(
   () =>
-    import(/* webpackChunkName: 'salesforce-integrations' */ '~/pages/settings/StripeIntegrations'),
+    import(
+      /* webpackChunkName: 'salesforce-integrations' */ '~/pages/settings/SalesforceIntegrations'
+    ),
 )
 const SalesforceIntegrationDetails = lazyLoad(
   () =>
     import(
-      /* webpackChunkName: 'salesforce-integration-details' */ '~/pages/settings/StripeIntegrationDetails'
+      /* webpackChunkName: 'salesforce-integration-details' */ '~/pages/settings/SalesforceIntegrationDetails'
     ),
 )
 const StripeIntegrations = lazyLoad(
@@ -262,6 +264,18 @@ export const settingRoutes: CustomRouteObject[] = [
         path: NETSUITE_INTEGRATION_ROUTE,
         private: true,
         element: <NetsuiteIntegrations />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: SALESFORCE_INTEGRATION_DETAILS_ROUTE,
+        private: true,
+        element: <SalesforceIntegrationDetails />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: SALESFORCE_INTEGRATION_ROUTE,
+        private: true,
+        element: <SalesforceIntegrations />,
         permissions: ['organizationIntegrationsView'],
       },
       {

@@ -2658,4 +2658,6 @@
   "text_1731510123491o9q0fi9aov2": "Edit information linked to this Salesforce connection.",
   "text_1731510123491jw90gdbc5kj": "Salesforce integration successfully connected.",
   "text_1731510123491t2zwypps84n": "Salesforce integration successfully updated.",
+  "text_1731510123491gx2nw155ce0": "Salesforce • Accounting",
+  "text_1731511951723v0hq5fotjrx": "By deleting the connection, it will no longer be utilized, and upcoming data will not be synchronized to the connected Salesforce account. Additionally, please note that deleting this connection will also result in the removal of all connections with Lago customers. Are you sure you want to proceed?"
 }
