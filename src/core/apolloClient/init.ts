@@ -109,7 +109,6 @@ export const initializeApolloClient = async () => {
 
   await persistCache({
     cache,
-
     storage: new LocalForageWrapper(localForage),
     key: `apollo-cache-persist-lago-${appVersion}`,
   })
