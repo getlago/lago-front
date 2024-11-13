@@ -53,7 +53,7 @@ enum BehaviorType {
   DEACTIVATE = 'deactivate',
 }
 
-export interface EditCustomerDunningCampaignDialogRef extends DialogRef {}
+export type EditCustomerDunningCampaignDialogRef = DialogRef
 
 interface EditCustomerDunningCampaignDialogProps {
   customer: EditCustomerDunningCampaignFragment

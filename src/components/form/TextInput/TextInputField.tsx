@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { FormikProps } from 'formik'
 import _get from 'lodash/get'
 import _isEqual from 'lodash/isEqual'

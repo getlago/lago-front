@@ -12,7 +12,7 @@ type TUseSalesForceConfigReturn = {
 }
 
 export const useSalesForceConfig = (): TUseSalesForceConfigReturn => {
-  let [searchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
 
   const isRunningInSalesForceIframe = !!searchParams.get('sfdc')
 

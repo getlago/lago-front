@@ -49,7 +49,7 @@ export const UserIdentifier = () => {
         })
       }
     } else {
-      const { id, email } = data?.me
+      const { id, email } = data?.me || {}
 
       Settings.defaultZone = getTimezoneConfig(data?.organization?.timezone).name
 

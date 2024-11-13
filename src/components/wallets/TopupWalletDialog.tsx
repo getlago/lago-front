@@ -34,7 +34,7 @@ gql`
   }
 `
 
-export interface TopupWalletDialogRef extends DialogRef {}
+export type TopupWalletDialogRef = DialogRef
 
 interface TopupWalletDialogProps {
   wallet: WalletForTopupFragment
@@ -63,7 +63,7 @@ export const TopupWalletDialog = forwardRef<DialogRef, TopupWalletDialogProps>(
       validationSchema: object().shape({
         paidCredits: string().test({
           test: function (paidCredits) {
-            const { grantedCredits } = this?.parent
+            const { grantedCredits } = this?.parent || {}
 
             return !isNaN(Number(paidCredits)) || !isNaN(Number(grantedCredits))
           },
@@ -71,7 +71,7 @@ export const TopupWalletDialog = forwardRef<DialogRef, TopupWalletDialogProps>(
         invoiceRequiresSuccessfulPayment: boolean(),
         grantedCredits: string().test({
           test: function (grantedCredits) {
-            const { paidCredits } = this?.parent
+            const { paidCredits } = this?.parent || {}
 
             return !isNaN(Number(grantedCredits)) || !isNaN(Number(paidCredits))
           },

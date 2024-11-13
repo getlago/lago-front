@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { ReactElement, useEffect, useRef } from 'react'
 import { VariableSizeList } from 'react-window'
 
@@ -29,7 +28,7 @@ export const MultipleComboBoxVirtualizedList = (props: MultipleComboBoxVirtualiz
   const hasDescription = elements.some(
     (el) => (el.props?.children?.props?.option?.description as string)?.length > 0,
   )
-  let elementHeight = hasDescription ? ITEM_HEIGHT + 4 : ITEM_HEIGHT
+  const elementHeight = hasDescription ? ITEM_HEIGHT + 4 : ITEM_HEIGHT
 
   const getHeight = () => {
     // recommended perf best practice

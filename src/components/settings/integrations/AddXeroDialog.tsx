@@ -167,7 +167,7 @@ export const AddXeroDialog = forwardRef<AddXeroDialogRef>((_, ref) => {
               return handleError(res.errors)
             }
           }
-        } catch (error) {
+        } catch {
           setShowGlobalError(true)
           return
         }

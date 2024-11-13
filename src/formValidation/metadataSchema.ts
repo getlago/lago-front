@@ -12,15 +12,13 @@ export const metadataSchema = ({ valueMaxLength = METADATA_VALUE_MAX_LENGTH_DEFA
   array().of(
     object().shape({
       key: string().test({
-        test: function (value, { createError, path }) {
+        test: function (value, { createError, path, from }) {
           if (!value) {
             return false
           }
 
-          if (arguments[1].from[1]?.value?.metadata?.length > 1) {
-            const keysList = arguments[1].from[1]?.value?.metadata?.map(
-              (m: { key: string }) => m.key,
-            )
+          if (from?.[1]?.value?.metadata?.length > 1) {
+            const keysList = from?.[1]?.value?.metadata?.map((m: { key: string }) => m.key)
 
             // Check key unicity
             if (keysList?.indexOf(value) !== keysList?.lastIndexOf(value)) {

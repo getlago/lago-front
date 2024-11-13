@@ -41,7 +41,7 @@ gql`
   ${InviteItemForMembersSettingsFragmentDoc}
 `
 
-export interface CreateInviteDialogRef extends DialogRef {}
+export type CreateInviteDialogRef = DialogRef
 
 export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
   const { translate } = useInternationalization()

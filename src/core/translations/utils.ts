@@ -10,7 +10,7 @@ export const getTranslations: (locale: Locale) => Promise<Record<string, string>
   // Translations are dinamically imported according to the selected locale
   try {
     loadedTranslation = (await import(`../../../translations/${locale}.json`)) as Translation
-  } catch (err) {
+  } catch {
     loadedTranslation = (await import(`../../../translations/base.json`)) as unknown as Translation
   }
 

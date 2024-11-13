@@ -88,7 +88,7 @@ export const Selector = ({
       )}
       onClick={async () => {
         if (loading || disabled) return
-        let result = !!onClick && onClick()
+        const result = !!onClick && onClick()
 
         if (result instanceof Promise) {
           setLoading(true)

@@ -99,7 +99,9 @@ gql`
 const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) => {
   const { translate } = useInternationalization()
   const xeroIntegrationMapItemDialogRef = useRef<XeroIntegrationMapItemDialogRef>(null)
-  let [searchParams, setSearchParams] = useSearchParams({ item_type: SelectedItemTypeEnum.Default })
+  const [searchParams, setSearchParams] = useSearchParams({
+    item_type: SelectedItemTypeEnum.Default,
+  })
   const [selectedItemType, setSelectedItemType] = useState<keyof typeof SelectedItemTypeEnum>(
     searchParams.get('item_type') as keyof typeof SelectedItemTypeEnum,
   )

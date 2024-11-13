@@ -13,7 +13,6 @@ export interface RadioFieldProps extends Omit<RadioProps, 'checked' | 'name'> {
 
 export const RadioField = memo(
   forwardRef<HTMLInputElement, RadioFieldProps>(
-    /* eslint-disable react/prop-types */
     ({ name, value, formikProps, ...props }: RadioFieldProps, ref) => {
       const { values, setFieldValue } = formikProps
 

@@ -99,7 +99,9 @@ gql`
 const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string }) => {
   const { translate } = useInternationalization()
   const netsuiteIntegrationMapItemDialogRef = useRef<NetsuiteIntegrationMapItemDialogRef>(null)
-  let [searchParams, setSearchParams] = useSearchParams({ item_type: SelectedItemTypeEnum.Default })
+  const [searchParams, setSearchParams] = useSearchParams({
+    item_type: SelectedItemTypeEnum.Default,
+  })
   const [selectedItemType, setSelectedItemType] = useState<keyof typeof SelectedItemTypeEnum>(
     searchParams.get('item_type') as keyof typeof SelectedItemTypeEnum,
   )

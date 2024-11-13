@@ -29,7 +29,7 @@ gql`
   }
 `
 
-export interface EditOrganizationInvoiceTemplateDialogRef extends DialogRef {}
+export type EditOrganizationInvoiceTemplateDialogRef = DialogRef
 
 interface EditOrganizationInvoiceTemplateDialogProps {
   invoiceFooter: string

@@ -85,7 +85,7 @@ export const ComboBox = ({
   const startAdornmentValue = useMemo(() => {
     if (!renderGroupInputStartAdornment || !value) return undefined
 
-    let foundGroup = data.find((item) => item.value === value)?.group
+    const foundGroup = data.find((item) => item.value === value)?.group
 
     return foundGroup ? renderGroupInputStartAdornment[foundGroup] : undefined
   }, [data, renderGroupInputStartAdornment, value])

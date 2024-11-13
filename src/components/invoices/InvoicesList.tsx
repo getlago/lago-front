@@ -71,7 +71,7 @@ const InvoicesList = ({
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const navigate = useNavigate()
-  let [searchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
 
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)

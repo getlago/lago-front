@@ -28,7 +28,7 @@ gql`
   ${WalletAccordionFragmentDoc}
 `
 
-export interface TerminateCustomerWalletDialogRef extends WarningDialogRef {}
+export type TerminateCustomerWalletDialogRef = WarningDialogRef
 
 interface TerminateCustomerWalletDialogProps {
   walletId: string

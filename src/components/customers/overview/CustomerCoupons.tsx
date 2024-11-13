@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { gql } from '@apollo/client'
 import { memo, useRef } from 'react'
 import { useParams } from 'react-router-dom'

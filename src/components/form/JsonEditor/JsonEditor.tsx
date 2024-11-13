@@ -79,7 +79,9 @@ export const JsonEditor = ({
     if (typeof value === 'object') {
       try {
         setJsonQuery(JSON.stringify(value, null, 2))
-      } catch (e) {} // Nothing is supposed to happen here
+      } catch {
+        // Nothing is supposed to happen here
+      }
     } else {
       setJsonQuery(value)
     }
@@ -160,13 +162,13 @@ export const JsonEditor = ({
             if (validate) {
               try {
                 validate(jsonQuery)
-              } catch (e) {
+              } catch {
                 onError && onError(JSON_EDITOR_ERROR_ENUM.invalidCustomValidate)
               }
             } else if (editorMode === 'json') {
               try {
                 JSON.parse(jsonQuery)
-              } catch (e) {
+              } catch {
                 onError && onError(JSON_EDITOR_ERROR_ENUM.invalid)
               }
             }

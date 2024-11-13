@@ -22,7 +22,7 @@ gql`
   }
 `
 
-export interface EditOrganizationTimezoneDialogRef extends DialogRef {}
+export type EditOrganizationTimezoneDialogRef = DialogRef
 interface EditOrganizationTimezoneProps {
   timezone?: TimezoneEnum | null
 }

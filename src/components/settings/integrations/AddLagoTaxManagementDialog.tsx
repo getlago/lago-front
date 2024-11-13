@@ -28,7 +28,7 @@ gql`
   }
 `
 
-export interface AddLagoTaxManagementDialogRef extends DialogRef {}
+export type AddLagoTaxManagementDialogRef = DialogRef
 
 interface AddStripDialog {
   country?: CountryCode | null

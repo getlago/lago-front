@@ -59,7 +59,7 @@ export const CouponCaption = memo(({ coupon, variant = 'caption' }: CouponCaptio
       frequencyDuration,
       frequencyDurationRemaining,
     } = coupon
-    let couponType = amountCents ? CouponTypeEnum.FixedAmount : CouponTypeEnum.Percentage
+    const couponType = amountCents ? CouponTypeEnum.FixedAmount : CouponTypeEnum.Percentage
 
     if (couponType === CouponTypeEnum.FixedAmount && frequency === CouponFrequency.Once) {
       return translate(

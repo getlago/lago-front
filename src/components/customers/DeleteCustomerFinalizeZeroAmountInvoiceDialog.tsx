@@ -28,7 +28,7 @@ gql`
   }
 `
 
-export interface DeleteCustomerFinalizeZeroAmountInvoiceDialogRef extends WarningDialogRef {}
+export type DeleteCustomerFinalizeZeroAmountInvoiceDialogRef = WarningDialogRef
 
 interface DeleteCustomerFinalizeZeroAmountInvoiceDialogProps {
   customer: DeleteCustomerFinalizeZeroAmountInvoiceFragment

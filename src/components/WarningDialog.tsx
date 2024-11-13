@@ -16,7 +16,7 @@ interface WarningDialogProps extends Omit<DialogProps, 'actions'> {
   disableOnContinue?: boolean
 }
 
-export interface WarningDialogRef extends DialogRef {}
+export type WarningDialogRef = DialogRef
 
 export const WarningDialog = forwardRef<DialogRef, WarningDialogProps>(
   (

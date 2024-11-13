@@ -99,7 +99,7 @@ export const MultipleComboBox = ({
         )}
         onChange={(_, newValue) => {
           // Format all values to have the correct format
-          let formatedValues = newValue.map((val) => {
+          const formatedValues = newValue.map((val) => {
             if (typeof val === 'string') {
               return { value: val }
             }

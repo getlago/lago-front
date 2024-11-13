@@ -10,7 +10,7 @@ interface ComboBoxFieldProps extends Omit<ComboBoxProps, 'onChange' | 'value' | 
   name: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formikProps: FormikProps<any>
-  isEmptyNull?: Boolean // If false, on field reset the combobox will return an empty string
+  isEmptyNull?: boolean // If false, on field reset the combobox will return an empty string
   containerClassName?: string
 }
 

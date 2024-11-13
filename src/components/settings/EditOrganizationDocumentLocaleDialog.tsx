@@ -27,7 +27,7 @@ gql`
     }
   }
 `
-export interface EditOrganizationDocumentLocaleDialogRef extends DialogRef {}
+export type EditOrganizationDocumentLocaleDialogRef = DialogRef
 
 interface EditOrganizationDocumentLocaleDialogProps {
   documentLocale: string

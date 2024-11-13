@@ -105,7 +105,7 @@ export const ChargesSection = memo(
     const [showAddRecurringCharge, setShowAddRecurringCharge] = useState(false)
     const newChargeId = useRef<string | null>(null)
     const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
-    const [alreadyUsedBmsIds, setAlreadyUsedBmsIds] = useState<Map<String, number>>(new Map())
+    const [alreadyUsedBmsIds, setAlreadyUsedBmsIds] = useState<Map<string, number>>(new Map())
     const hasAnyMeteredCharge = useMemo(
       () => formikProps.values.charges.some((c) => !c.billableMetric.recurring),
       // eslint-disable-next-line react-hooks/exhaustive-deps

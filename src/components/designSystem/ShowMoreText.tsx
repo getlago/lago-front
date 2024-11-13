@@ -6,7 +6,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 interface ShowMoreTextProps extends TypographyProps {
   text: string
   limit: number
-  showMore?: String | ReactElement
+  showMore?: string | ReactElement
 }
 
 export const ShowMoreText = ({ text, limit, showMore, ...props }: ShowMoreTextProps) => {

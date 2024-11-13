@@ -28,10 +28,10 @@ async function extract(replaceMode) {
   const files = globSync(path.join(SRC_DIR, '**/*.@(ts|js|tsx|jsx)'))
   const usedKeysWithoutTranslate = files.reduce((acc, file) => {
     const content = fs.readFileSync(file, 'utf-8')
-    const usedKeys = content.match(/\'text_(.*?)\'/g)
+    const usedKeys = content.match(/'text_(.*?)'/g)
 
     if (usedKeys && usedKeys.length) {
-      acc = [...acc, ...usedKeys.map((key) => key.replace(/\'/g, ''))]
+      acc = [...acc, ...usedKeys.map((key) => key.replace(/'/g, ''))]
     }
 
     return acc

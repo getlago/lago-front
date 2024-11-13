@@ -129,7 +129,7 @@ const CreatePlan = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const { type: actionType } = useDuplicatePlanVar()
-  let [searchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { errorCode, formikProps, isEdition, loading, plan, type } = usePlanForm({})
   const warningDialogRef = useRef<WarningDialogRef>(null)

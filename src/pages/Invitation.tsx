@@ -101,7 +101,7 @@ const Invitation = () => {
   const { isAuthenticated } = useIsAuthenticated()
   const { translate } = useInternationalization()
   const { token } = useParams()
-  let [searchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const googleCode = searchParams.get('code') || ''
   const oktaCode = searchParams.get('oktaCode') || ''
   const oktaState = searchParams.get('oktaState') || ''

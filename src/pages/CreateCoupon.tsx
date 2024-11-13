@@ -63,7 +63,7 @@ import { CouponCodeSnippet } from '../components/coupons/CouponCodeSnippet'
 
 const CreateCoupon = () => {
   const { translate } = useInternationalization()
-  let navigate = useNavigate()
+  const navigate = useNavigate()
   const { organization } = useOrganizationInfos()
   const {
     isEdition,

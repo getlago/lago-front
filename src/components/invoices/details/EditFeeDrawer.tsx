@@ -77,9 +77,9 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
     validationSchema: object().shape({
       invoiceDisplayName: string(),
       unitAmountCents: number().test({
-        test: function (value) {
+        test: function (value, { from }) {
           if (
-            arguments[1].from[0]?.value?.adjustmentType === AdjustedFeeTypeEnum.AdjustedAmount &&
+            from?.[0]?.value?.adjustmentType === AdjustedFeeTypeEnum.AdjustedAmount &&
             !value &&
             Number(value) !== 0
           ) {
@@ -90,8 +90,8 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
         },
       }),
       units: number().test({
-        test: function (value) {
-          if (!!arguments[1].from[0]?.value?.adjustmentType && !value && Number(value) !== 0) {
+        test: function (value, { from }) {
+          if (!!from?.[0]?.value?.adjustmentType && !value && Number(value) !== 0) {
             return false
           }
 

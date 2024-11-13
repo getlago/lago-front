@@ -38,7 +38,7 @@ gql`
 
 const PlansList = () => {
   const { translate } = useInternationalization()
-  let navigate = useNavigate()
+  const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
   const deleteDialogRef = useRef<DeletePlanDialogRef>(null)
   const [getPlans, { data, error, loading, fetchMore, variables }] = usePlansLazyQuery({

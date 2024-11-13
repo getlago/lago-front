@@ -176,8 +176,6 @@ export const CreditNoteFormCalculation = ({
         : (estimationData?.creditNoteEstimate?.maxCreditableAmountCents || 0) >
           (estimationData?.creditNoteEstimate?.maxRefundableAmountCents || 0),
     }
-    // IMPORTANT: not not add feeForEstimate to the dependencies, as it will cause an unexpected pre-reload of the prompted data, before BE has time to respond
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currency, estimationData?.creditNoteEstimate, estimationError])
 
   const payBack = formikProps.values.payBack || []

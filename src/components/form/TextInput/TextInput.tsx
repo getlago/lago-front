@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import {
   InputAdornment,
   TextField as MuiTextField,
@@ -62,7 +61,7 @@ export const formatValue = (
   ) {
     if (
       (formattedValue !== null || formattedValue !== undefined) &&
-      isNaN(Number(String(formattedValue).replace(/\.|\-/g, '')))
+      isNaN(Number(String(formattedValue).replace(/\.|-/g, '')))
     ) {
       return null
     }

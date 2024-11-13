@@ -202,7 +202,7 @@ const TaxesSettings = () => {
                         !hasPermissions(['organizationTaxesUpdate'])
                           ? undefined
                           : (tax) => {
-                              let actions: ActionItem<TaxItemForTaxSettingsFragment>[] = [
+                              const actions: ActionItem<TaxItemForTaxSettingsFragment>[] = [
                                 {
                                   title: translate('text_645bb193927b375079d28b7c'),
                                   startIcon: 'pen',

@@ -7,7 +7,9 @@ export const formatFiltersForInvoiceQuery = (searchParams: URLSearchParams) => {
 
   return Object.entries(filtersSetInUrl).reduce(
     (acc, cur) => {
-      let [key, value] = cur as [AvailableFiltersEnum, string | string[] | boolean]
+      const current = cur as [AvailableFiltersEnum, string | string[] | boolean]
+      const key = current[0]
+      let value = current[1]
 
       if (!InvoiceAvailableFilters.includes(key)) {
         return acc

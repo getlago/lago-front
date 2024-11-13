@@ -53,7 +53,7 @@ type EditFinalizeZeroAmountInvoiceDialogProps = {
   finalizeZeroAmountInvoice?: FinalizeZeroAmountInvoiceEnum | boolean | null
 }
 
-export interface EditFinalizeZeroAmountInvoiceDialogRef extends DialogRef {}
+export type EditFinalizeZeroAmountInvoiceDialogRef = DialogRef
 
 export const EditFinalizeZeroAmountInvoiceDialog = forwardRef<
   EditFinalizeZeroAmountInvoiceDialogRef,

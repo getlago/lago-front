@@ -55,7 +55,7 @@ gql`
   ${CustomerAppliedTaxRatesForSettingsFragmentDoc}
 `
 
-export interface EditCustomerVatRateDialogRef extends DialogRef {}
+export type EditCustomerVatRateDialogRef = DialogRef
 
 interface EditCustomerVatRateDialogProps {
   customer: EditCustomerVatRateFragment

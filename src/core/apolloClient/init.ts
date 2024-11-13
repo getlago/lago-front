@@ -41,7 +41,6 @@ export const initializeApolloClient = async () => {
     const currentOrganizationId = getItemFromLS(ORGANIZATION_LS_KEY_ID)
 
     if (operation.variables && !operation.variables.file) {
-      // eslint-disable-next-line
       operation.variables = omitDeep(operation.variables, '__typename')
     }
 
@@ -110,7 +109,6 @@ export const initializeApolloClient = async () => {
 
   await persistCache({
     cache,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     storage: new LocalForageWrapper(localForage),
     key: `apollo-cache-persist-lago-${appVersion}`,
   })

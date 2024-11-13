@@ -1,4 +1,3 @@
-/* eslint-disable tailwindcss/no-custom-classname */
 import { DateTime } from 'luxon'
 
 import { DatePicker } from '~/components/form'

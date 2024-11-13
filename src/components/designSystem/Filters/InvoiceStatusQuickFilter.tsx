@@ -43,7 +43,7 @@ const QuickFilter = ({
 export const InvoiceStatusQuickFilter = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  let [searchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
 
   return (
     <>

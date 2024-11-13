@@ -15,7 +15,7 @@ export const copyToClipboard: (value: string, options?: { ignoreComment?: boolea
 
   try {
     navigator.clipboard.writeText(serializedValue)
-  } catch (error) {
+  } catch {
     addToast({
       severity: 'danger',
       translateKey: 'text_63a5ba11eb4e7e17ef88e9f0',

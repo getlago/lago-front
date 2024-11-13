@@ -34,7 +34,7 @@ gql`
   }
 `
 
-export interface VoidWalletDialogRef extends WarningDialogRef {}
+export type VoidWalletDialogRef = WarningDialogRef
 
 interface VoidWalletDialogProps {
   wallet: WalletForVoidTransactionFragment

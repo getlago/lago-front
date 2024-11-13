@@ -1,5 +1,4 @@
-import { gql } from '@apollo/client'
-import { ApolloClient } from '@apollo/client'
+import { ApolloClient, gql } from '@apollo/client'
 
 import { CurrentUserFragment } from '~/generated/graphql'
 
@@ -28,7 +27,7 @@ export const getItemFromLS = (key: string) => {
 
   try {
     return data === 'undefined' ? undefined : !!data ? JSON.parse(data) : data
-  } catch (err) {
+  } catch {
     return data
   }
 }

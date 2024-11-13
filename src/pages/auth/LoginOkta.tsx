@@ -37,7 +37,7 @@ gql`
 
 const LoginOkta = () => {
   const { translate } = useInternationalization()
-  let [searchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const [errorAlert, setErrorAlert] = useState<LagoApiError>()
   const [errorField, setErrorField] = useState<LagoApiError>()
 
