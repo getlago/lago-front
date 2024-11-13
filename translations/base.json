@@ -2646,5 +2646,16 @@
   "text_1731675102864bisv94uujh1": "Key used to securely create an HMAC signature, enabling verification of webhook message authenticity.",
   "text_1731675102864b4dna9o03pv": "HMAC Token successfully copied to clipboard",
   "text_1731675102864gvpxnduhhu7": "Start now to share real-time information thanks to webhooks and see logs related to each webhook",
-  "text_1731675102864qdlsq84v1o8": "Endpoints"
+  "text_1731675102864qdlsq84v1o8": "Endpoints",
+  "text_1731507195246vu9kt6xnhv6": "Salesforce",
+  "text_1731507195246zr2p61vihmw": "CRM",
+  "text_173150719524652xb2nd3f7r": "Request access to premium Salesforce add-on",
+  "text_1731507195246xxr17pdnb7s": "Hello, I would like to access your Salesforce add-on. \nPlease let me know if you need more info!",
+  "text_1731510123491sksb908hxue": "Connect to Salesforce",
+  "text_1731510123491i56n7tz55bx": "To connect to Salesforce, please enter the following information",
+  "text_1731510123491s8iyc3roglx": "Salesforce Instance Id",
+  "text_1731510123491bap94avpqyz": "Type your Salesforce Instance Id",
+  "text_1731510123491o9q0fi9aov2": "Edit information linked to this Salesforce connection.",
+  "text_1731510123491jw90gdbc5kj": "Salesforce integration successfully connected.",
+  "text_1731510123491t2zwypps84n": "Salesforce integration successfully updated.",
 }

@@ -37,6 +37,10 @@ import {
   AddNetsuiteDialogRef,
 } from '~/components/settings/integrations/AddNetsuiteDialog'
 import {
+  AddSalesforceDialog,
+  AddSalesforceDialogRef,
+} from '~/components/settings/integrations/AddSalesforceDialog'
+import {
   AddStripeDialog,
   AddStripeDialogRef,
 } from '~/components/settings/integrations/AddStripeDialog'
@@ -53,6 +57,7 @@ import {
   GOCARDLESS_INTEGRATION_ROUTE,
   HUBSPOT_INTEGRATION_ROUTE,
   NETSUITE_INTEGRATION_ROUTE,
+  SALESFORCE_INTEGRATION_ROUTE,
   STRIPE_INTEGRATION_ROUTE,
   TAX_MANAGEMENT_INTEGRATION_ROUTE,
   XERO_INTEGRATION_ROUTE,
@@ -70,6 +75,7 @@ import Hubspot from '~/public/images/hubspot.svg'
 import LagoTaxManagement from '~/public/images/lago-tax-management.svg'
 import Netsuite from '~/public/images/netsuite.svg'
 import Oso from '~/public/images/oso.svg'
+import Salesforce from '~/public/images/salesforce.svg'
 import Segment from '~/public/images/segment.svg'
 import Stripe from '~/public/images/stripe.svg'
 import Xero from '~/public/images/xero.svg'
@@ -112,6 +118,9 @@ gql`
         ... on HubspotIntegration {
           id
         }
+        ... on SalesforceIntegration {
+          id
+        }
       }
     }
   }
@@ -129,6 +138,7 @@ const Integrations = () => {
   const addGocardlessDialogRef = useRef<AddGocardlessDialogRef>(null)
   const addLagoTaxManagementDialog = useRef<AddLagoTaxManagementDialogRef>(null)
   const addNetsuiteDialogRef = useRef<AddNetsuiteDialogRef>(null)
+  const addSalesforceDialogRef = useRef<AddSalesforceDialogRef>(null)
   const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
   const addHubspotDialogRef = useRef<AddHubspotDialogRef>(null)
 
@@ -156,6 +166,9 @@ const Integrations = () => {
   const hasAccessToHubspotPremiumIntegration = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.Hubspot,
   )
+  const hasAccessToSalesforcePremiumIntegration = !!premiumIntegrations?.includes(
+    PremiumIntegrationTypeEnum.Salesforce,
+  )
   const hasNetsuiteIntegration = data?.integrations?.collection?.some(
     (integration) => integration?.__typename === 'NetsuiteIntegration',
   )
@@ -165,9 +178,11 @@ const Integrations = () => {
   const hasXeroIntegration = data?.integrations?.collection?.some(
     (integration) => integration?.__typename === 'XeroIntegration',
   )
-
   const hasHubspotIntegration = data?.integrations?.collection?.some(
     (integration) => integration?.__typename === 'HubspotIntegration',
+  )
+  const hasSalesforceIntegration = data?.integrations?.collection.some(
+    (integration) => integration.__typename === 'SalesforceIntegration',
   )
 
   return (
@@ -391,6 +406,31 @@ const Integrations = () => {
                 }}
               />
               <Selector
+                fullWidth
+                title={translate('text_1731507195246vu9kt6xnhv6')}
+                subtitle={translate('text_1731507195246zr2p61vihmw')}
+                icon={
+                  <Avatar size="big" variant="connector-full">
+                    {<Salesforce />}
+                  </Avatar>
+                }
+                endIcon={!hasAccessToSalesforcePremiumIntegration ? 'sparkles' : undefined}
+                onClick={() => {
+                  if (!hasAccessToSalesforcePremiumIntegration) {
+                    premiumWarningDialogRef.current?.openDialog({
+                      title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                      description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                      mailtoSubject: translate('text_173150719524652xb2nd3f7r'),
+                      mailtoBody: translate('text_1731507195246xxr17pdnb7s'),
+                    })
+                  } else if (hasSalesforceIntegration) {
+                    navigate(SALESFORCE_INTEGRATION_ROUTE)
+                  } else {
+                    addSalesforceDialogRef.current?.openDialog()
+                  }
+                }}
+              />
+              <Selector
                 title={translate('text_641b42035d62fd004e07cdde')}
                 subtitle={translate('text_641b420ccd75240062f2386e')}
                 icon={
@@ -428,7 +468,6 @@ const Integrations = () => {
                 }}
                 fullWidth
               />
-
               <Selector
                 fullWidth
                 title={translate('text_6672ebb8b1b50be550eccaf8')}
@@ -476,6 +515,7 @@ const Integrations = () => {
       <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
       <AddXeroDialog ref={addXeroDialogRef} />
       <AddHubspotDialog ref={addHubspotDialogRef} />
+      <AddSalesforceDialog ref={addSalesforceDialogRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
