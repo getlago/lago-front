@@ -2,11 +2,11 @@ import { Stack } from '@mui/material'
 import styled from 'styled-components'
 
 import { Accordion, Typography } from '~/components/designSystem'
+import { chargeModelLookupTranslation } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   Charge,
-  ChargeModelEnum,
   CurrencyEnum,
   EditPlanFragment,
   PlanInterval,
@@ -19,17 +19,6 @@ import { DetailsInfoGrid } from '~/styles/detailsPage'
 import PlanDetailsChargesSectionAccordion from './PlanDetailsChargesSectionAccordion'
 
 import { mapChargeIntervalCopy } from '../ChargeAccordion'
-
-const chargeModelLookupTranslation: Record<string, string> = {
-  [ChargeModelEnum.Graduated]: 'text_65201b8216455901fe273e11',
-  [ChargeModelEnum.GraduatedPercentage]: 'text_65201b8216455901fe273e32',
-  [ChargeModelEnum.Package]: 'text_65201b8216455901fe273de5',
-  [ChargeModelEnum.Percentage]: 'text_65201b8216455901fe273df8',
-  [ChargeModelEnum.Standard]: 'text_65201b8216455901fe273dd6',
-  [ChargeModelEnum.Volume]: 'text_65201b8216455901fe273e4f',
-  [ChargeModelEnum.Custom]: 'text_6641dd21c0cffd005b5e2a8b',
-  [ChargeModelEnum.Dynamic]: 'text_1727770512968tj58xr3h64p',
-}
 
 const PlanDetailsChargesSection = ({
   currency,

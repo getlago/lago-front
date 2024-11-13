@@ -7,6 +7,7 @@ import { number, object, string } from 'yup'
 
 import { Alert, Button, Drawer, DrawerRef, Typography } from '~/components/designSystem'
 import { AmountInputField, ComboBoxField, TextInputField } from '~/components/form'
+import { chargeModelLookupTranslation } from '~/core/constants/form'
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
@@ -282,13 +283,16 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
                 )}
               </InlineElements>
 
-              <Alert type="info">
-                {translate(
-                  formikProps.values.adjustmentType === AdjustedFeeTypeEnum.AdjustedAmount
-                    ? 'text_65a6b4e2cb38d9b70ec53d93'
-                    : 'text_6613b48da4efd500cacc44d3',
-                )}
-              </Alert>
+              {!!fee?.charge && (
+                <Alert type="info">
+                  {translate(
+                    formikProps.values.adjustmentType === AdjustedFeeTypeEnum.AdjustedAmount
+                      ? 'text_65a6b4e2cb38d9b70ec53d93'
+                      : 'text_6613b48da4efd500cacc44d3',
+                    { model: translate(chargeModelLookupTranslation[fee?.charge?.chargeModel]) },
+                  )}
+                </Alert>
+              )}
             </>
           )}
         </Card>

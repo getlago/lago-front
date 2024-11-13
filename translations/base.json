@@ -1273,7 +1273,7 @@
   "text_65a6b4e2cb38d9b70ec53d41": "Type an invoice display name",
   "text_65a6b4e2cb38d9b70ec53d49": "Adjustment",
   "text_65a6b4e2cb38d9b70ec53d83": "Total amount",
-  "text_65a6b4e2cb38d9b70ec53d93": "Adjusting the total amount of the fee will replace the current fee, you'll lose the detailed breakdown linked to the Graduated charge model.",
+  "text_65a6b4e2cb38d9b70ec53d93": "Adjusting the total amount of the fee will replace the current fee, you'll lose the detailed breakdown linked to the {{model}} charge model.",
   "text_65a6b4e2cb38d9b70ec53d9b": "Adjust fee",
   "text_65a6b4e2cb38d9b70ec53dec": "(edited fee)",
   "text_65a6b4e2cb38d9b70ec54035": "Reset to initial fee",
