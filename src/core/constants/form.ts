@@ -86,6 +86,17 @@ export enum LocalTaxProviderErrorsEnum {
   GenericErrorMessage = 'text_17238318811307ghoc4v7mt9',
 }
 
+export const chargeModelLookupTranslation: Record<string, string> = {
+  [ChargeModelEnum.Graduated]: 'text_65201b8216455901fe273e11',
+  [ChargeModelEnum.GraduatedPercentage]: 'text_65201b8216455901fe273e32',
+  [ChargeModelEnum.Package]: 'text_65201b8216455901fe273de5',
+  [ChargeModelEnum.Percentage]: 'text_65201b8216455901fe273df8',
+  [ChargeModelEnum.Standard]: 'text_65201b8216455901fe273dd6',
+  [ChargeModelEnum.Volume]: 'text_65201b8216455901fe273e4f',
+  [ChargeModelEnum.Custom]: 'text_6641dd21c0cffd005b5e2a8b',
+  [ChargeModelEnum.Dynamic]: 'text_1727770512968tj58xr3h64p',
+}
+
 export const getChargeModelHelpTextTranslationKey = {
   [ChargeModelEnum.Percentage]: 'text_62ff5d01a306e274d4ffcc06',
   [ChargeModelEnum.Graduated]: 'text_62793bbb599f1c01522e91a1',
