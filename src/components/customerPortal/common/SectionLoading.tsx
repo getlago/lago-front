@@ -127,7 +127,7 @@ export const LoaderInvoicesListTotal = () => (
 
 export const LoaderSidebarOrganization = () => (
   <div className="flex flex-col gap-8">
-    <Skeleton className="!rounded-[8px] bg-grey-200" variant="text" height={32} width={32} />
+    <Skeleton className="!rounded-[8px] bg-grey-200" variant="text" width={32} />
     <Skeleton className="bg-grey-200" variant="text" width={228} />
   </div>
 )

@@ -206,7 +206,7 @@ const SubscriptionDetails = () => {
         <PlanBlockInfos>
           {isSubscriptionLoading ? (
             <>
-              <Skeleton variant="text" width={200} height={16} marginBottom={18} />
+              <Skeleton variant="text" width={200} marginBottom={18} />
               <Skeleton variant="text" width={200} />
             </>
           ) : (

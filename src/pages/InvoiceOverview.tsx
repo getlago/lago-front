@@ -236,10 +236,10 @@ const InvoiceOverview = memo(
               <LoadingInfosWrapper>
                 {[1, 2, 3, 4, 5].map((i) => (
                   <SkeletonLine key={`key-skeleton-line-${i}`}>
-                    <Skeleton variant="text" width="12%" height={13} marginRight="6.4%" />
-                    <Skeleton variant="text" width="38%" height={13} marginRight="11.2%" />
-                    <Skeleton variant="text" width="12%" height={13} marginRight="6.4%" />
-                    <Skeleton variant="text" width="38%" height={13} marginRight="9.25%" />
+                    <Skeleton variant="text" width="12%" marginRight="6.4%" />
+                    <Skeleton variant="text" width="38%" marginRight="11.2%" />
+                    <Skeleton variant="text" width="12%" marginRight="6.4%" />
+                    <Skeleton variant="text" width="38%" marginRight="9.25%" />
                   </SkeletonLine>
                 ))}
               </LoadingInfosWrapper>
@@ -249,19 +249,19 @@ const InvoiceOverview = memo(
                     {[1, 2, 3, 4, 5].map((k) => (
                       <tr key={`invoice-details-loading-${k}`}>
                         <td>
-                          <Skeleton variant="text" height={13} width={240} />
+                          <Skeleton variant="text" width={240} />
                         </td>
                         <td>
-                          <RightSkeleton variant="text" height={13} width={80} />
+                          <RightSkeleton variant="text" width={80} />
                         </td>
                         <td>
-                          <RightSkeleton variant="text" height={13} width={40} />
+                          <RightSkeleton variant="text" width={40} />
                         </td>
                         <td>
-                          <RightSkeleton variant="text" height={13} width={120} />
+                          <RightSkeleton variant="text" width={120} />
                         </td>
                         <td>
-                          <RightSkeleton variant="text" height={13} width={120} />
+                          <RightSkeleton variant="text" width={120} />
                         </td>
                       </tr>
                     ))}

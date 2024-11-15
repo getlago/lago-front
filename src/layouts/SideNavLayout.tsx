@@ -225,20 +225,17 @@ const SideNav = () => {
               <VerticalMenu
                 loading={currentUserLoading}
                 loadingComponent={
-                  <Stack flex={1} gap={4}>
+                  <div className="flex flex-1 flex-col gap-4">
                     {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-                      <Stack
+                      <div
                         key={`skeleton-upper-nav-${i}`}
-                        flex={1}
-                        gap={3}
-                        direction={'row'}
-                        paddingTop={3}
+                        className="flex flex-1 flex-row items-center gap-3 pt-3"
                       >
                         <Skeleton variant="circular" width={16} height={16} />
-                        <Skeleton variant="text" height={16} width={120} />
-                      </Stack>
+                        <Skeleton variant="text" width={120} />
+                      </div>
                     ))}
-                  </Stack>
+                  </div>
                 }
                 onClick={() => setOpen(false)}
                 tabs={[
@@ -315,8 +312,8 @@ const SideNav = () => {
                         direction={'row'}
                         paddingTop={3}
                       >
-                        <Skeleton variant="circular" width={16} height={16} />
-                        <Skeleton variant="text" height={16} width={120} />
+                        <Skeleton variant="circular" size="small" />
+                        <Skeleton variant="text" width={120} />
                       </Stack>
                     ))}
                   </Stack>

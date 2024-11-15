@@ -40,7 +40,7 @@ const IntegrationItemLine = ({
           </Stack>
         </Stack>
 
-        <Skeleton variant="text" width={200} height={26} />
+        <Skeleton variant="text" width={200} />
       </SkeletonWrapper>
     )
   }
