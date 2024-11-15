@@ -1790,6 +1790,7 @@ export type CurrentOrganization = {
   euTaxManagement: Scalars['Boolean']['output'];
   finalizeZeroAmountInvoice: Scalars['Boolean']['output'];
   gocardlessPaymentProviders?: Maybe<Array<GocardlessProvider>>;
+  hmacKey?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   legalName?: Maybe<Scalars['String']['output']>;
   legalNumber?: Maybe<Scalars['String']['output']>;
@@ -4923,7 +4924,9 @@ export type RevokeMembershipInput = {
 export type RotateApiKeyInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  expiresAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   id: Scalars['ID']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
 };
 
 export enum RoundingFunctionEnum {
@@ -8401,6 +8404,11 @@ export type GetWebhookLogQueryVariables = Exact<{
 
 
 export type GetWebhookLogQuery = { __typename?: 'Query', webhooks: { __typename?: 'WebhookCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Webhook', id: string, createdAt: any, endpoint: string, status: WebhookStatusEnum, updatedAt: any, webhookType: string, payload?: string | null, response?: string | null, httpStatus?: number | null, retries: number }> } };
+
+export type GetOrganizationHmacDataQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetOrganizationHmacDataQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, hmacKey?: string | null } | null };
 
 export type GetWebhookListQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -22555,13 +22563,52 @@ export type GetWebhookLogQueryHookResult = ReturnType<typeof useGetWebhookLogQue
 export type GetWebhookLogLazyQueryHookResult = ReturnType<typeof useGetWebhookLogLazyQuery>;
 export type GetWebhookLogSuspenseQueryHookResult = ReturnType<typeof useGetWebhookLogSuspenseQuery>;
 export type GetWebhookLogQueryResult = Apollo.QueryResult<GetWebhookLogQuery, GetWebhookLogQueryVariables>;
+export const GetOrganizationHmacDataDocument = gql`
+    query getOrganizationHmacData {
+  organization {
+    id
+    hmacKey
+  }
+}
+    `;
+
+/**
+ * __useGetOrganizationHmacDataQuery__
+ *
+ * To run a query within a React component, call `useGetOrganizationHmacDataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationHmacDataQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrganizationHmacDataQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetOrganizationHmacDataQuery(baseOptions?: Apollo.QueryHookOptions<GetOrganizationHmacDataQuery, GetOrganizationHmacDataQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetOrganizationHmacDataQuery, GetOrganizationHmacDataQueryVariables>(GetOrganizationHmacDataDocument, options);
+      }
+export function useGetOrganizationHmacDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrganizationHmacDataQuery, GetOrganizationHmacDataQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetOrganizationHmacDataQuery, GetOrganizationHmacDataQueryVariables>(GetOrganizationHmacDataDocument, options);
+        }
+export function useGetOrganizationHmacDataSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationHmacDataQuery, GetOrganizationHmacDataQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetOrganizationHmacDataQuery, GetOrganizationHmacDataQueryVariables>(GetOrganizationHmacDataDocument, options);
+        }
+export type GetOrganizationHmacDataQueryHookResult = ReturnType<typeof useGetOrganizationHmacDataQuery>;
+export type GetOrganizationHmacDataLazyQueryHookResult = ReturnType<typeof useGetOrganizationHmacDataLazyQuery>;
+export type GetOrganizationHmacDataSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationHmacDataSuspenseQuery>;
+export type GetOrganizationHmacDataQueryResult = Apollo.QueryResult<GetOrganizationHmacDataQuery, GetOrganizationHmacDataQueryVariables>;
 export const GetWebhookListDocument = gql`
     query getWebhookList($limit: Int) {
   webhookEndpoints(limit: $limit) {
     collection {
       id
       webhookUrl
-      signatureAlgo
       ...WebhookForCreateAndEdit
     }
   }

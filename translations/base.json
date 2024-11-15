@@ -59,7 +59,6 @@
   "text_645d071272418a14c1c76b25": "Adyen connection successfully deleted",
   "text_645d0728ea0a5a7bbf76d5c7": "Create automatically this customer in Adyen",
   "text_645d0728ea0a5a7bbf76d5c9": "To ensure customer creation, their external ID must contain a minimum of 3 characters, and the payment registration must be completed using the checkout URL sent via webhook.",
-  "text_63e27c56dfe64b846474ef0c": "Start now to share real-time information thanks to webhooks",
   "text_63ebaf555f88d954d73beb7e": "No webhook message here",
   "text_63ebafc2c3d08550e5c0341c": "There are no webhook messages here. Play a bit with Lago to trigger events or consult our <a rel=\"external\" target=\"_blank\" href=\"https://docs.getlago.com/api-reference/webhooks/messages\">documentation</a> to see events started by Lago.",
   "text_63ebafd12755e50052a86e13": "This webhook message cannot be found",
@@ -824,8 +823,6 @@
   "text_64d23a81a7d807f8aa57051b": "No size limitation issues as the header payload is shorter",
   "text_64d23a81a7d807f8aa57051f": "Edit webhook",
   "text_64d23b49d481ab00681c229b": "Add webhooks and provide real-time information to other applications. Once added, see logs by clicking on items.",
-  "text_64d23b49d481ab00681c229f": "JWT header signature",
-  "text_64d23b49d481ab00681c22a1": "HMAC header signature",
   "text_64d23b49d481ab00681c22ab": "Webhook successfully edited",
   "text_6560809c38fb9de88d8a505e": "Create wallet",
   "text_6560809c38fb9de88d8a5090": "Wallet settings",
@@ -2644,5 +2641,10 @@
   "text_17315063604211fznu9haor8": "Roll key",
   "text_173151476175058ugha8fd08": "Roll API key",
   "text_1731514761750dnh1s073j9o": "Rolling the key will deactivate this API key instantly and generate a new one. After the current key expires, it will no longer be usable for any actions. Would you like to proceed?",
-  "text_1731515447290xbe4iqm5n6r": "Last used"
+  "text_1731515447290xbe4iqm5n6r": "Last used",
+  "text_1731675102863c4rd5s6gdlw": "HMAC signature token",
+  "text_1731675102864bisv94uujh1": "Key used to securely create an HMAC signature, enabling verification of webhook message authenticity.",
+  "text_1731675102864b4dna9o03pv": "HMAC Token successfully copied to clipboard",
+  "text_1731675102864gvpxnduhhu7": "Start now to share real-time information thanks to webhooks and see logs related to each webhook",
+  "text_1731675102864qdlsq84v1o8": "Endpoints"
 }

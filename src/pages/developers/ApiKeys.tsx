@@ -12,6 +12,7 @@ import {
   SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
 import { addToast } from '~/core/apolloClient'
+import { obfuscateValue } from '~/core/formats/obfuscate'
 import { formatDateToTZ } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
@@ -64,8 +65,6 @@ gql`
 
   ${ApiKeyForRollApiKeyDialogFragmentDoc}
 `
-
-const obfuscateValue = (value: string) => `${'•'.repeat(8)}${value.slice(-3)}`
 
 const ApiKeys = () => {
   const { translate } = useInternationalization()
@@ -128,26 +127,32 @@ const ApiKeys = () => {
                       maxSpace: true,
                       content: ({ id }) => (
                         <div className="flex items-center gap-2 py-3">
-                          <Typography
-                            className={tw('line-break-auto [text-wrap:auto]', {
-                              'cursor-pointer': showOrganizationId,
-                            })}
-                            color="grey700"
-                            variant="captionCode"
-                            onClick={
-                              showOrganizationId
-                                ? () => {
-                                    copyToClipboard(id)
-                                    addToast({
-                                      severity: 'info',
-                                      translateKey: 'text_636df520279a9e1b3c68cc7d',
-                                    })
-                                  }
-                                : undefined
-                            }
+                          <Tooltip
+                            placement="top-start"
+                            title={translate('text_623b42ff8ee4e000ba87d0c6')}
+                            disableHoverListener={!showOrganizationId}
                           >
-                            {showOrganizationId ? id : obfuscateValue(id)}
-                          </Typography>
+                            <Typography
+                              className={tw('line-break-auto [text-wrap:auto]', {
+                                'cursor-pointer': showOrganizationId,
+                              })}
+                              color="grey700"
+                              variant="captionCode"
+                              onClick={
+                                showOrganizationId
+                                  ? () => {
+                                      copyToClipboard(id)
+                                      addToast({
+                                        severity: 'info',
+                                        translateKey: 'text_636df520279a9e1b3c68cc7d',
+                                      })
+                                    }
+                                  : undefined
+                              }
+                            >
+                              {showOrganizationId ? id : obfuscateValue(id)}
+                            </Typography>
+                          </Tooltip>
 
                           <Tooltip
                             placement="top-start"
