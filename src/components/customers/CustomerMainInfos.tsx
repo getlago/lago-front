@@ -9,8 +9,9 @@ import { Avatar, Button, Icon, Skeleton, Typography } from '~/components/designS
 import { CountryCodes } from '~/core/constants/countryCodes'
 import {
   buildAnrokCustomerUrl,
-  buildHubsportObjectUrl,
+  buildHubspotObjectUrl,
   buildNetsuiteCustomerUrl,
+  buildSalesforceUrl,
   buildXeroCustomerUrl,
 } from '~/core/constants/externalUrls'
 import { getTargetedObjectTranslationKey } from '~/core/constants/form'
@@ -22,6 +23,7 @@ import {
   NetsuiteIntegration,
   ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
+  SalesforceIntegration,
   TimezoneEnum,
   useIntegrationsListForCustomerMainInfosQuery,
   usePaymentProvidersListForCustomerMainInfosQuery,
@@ -33,6 +35,7 @@ import Anrok from '~/public/images/anrok.svg'
 import Gocardless from '~/public/images/gocardless.svg'
 import Hubspot from '~/public/images/hubspot.svg'
 import Netsuite from '~/public/images/netsuite.svg'
+import Salesforce from '~/public/images/salesforce.svg'
 import Stripe from '~/public/images/stripe.svg'
 import Xero from '~/public/images/xero.svg'
 import { theme } from '~/styles'
@@ -104,6 +107,11 @@ gql`
       externalCustomerId
       targetedObject
     }
+    salesforceCustomer {
+      id
+      integrationId
+      externalCustomerId
+    }
     metadata {
       id
       key
@@ -162,6 +170,12 @@ gql`
           name
           portalId
         }
+        ... on SalesforceIntegration {
+          __typename
+          id
+          name
+          instanceId
+        }
       }
     }
   }
@@ -191,7 +205,8 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
         !customer?.netsuiteCustomer &&
         !customer?.anrokCustomer &&
         !customer?.xeroCustomer &&
-        !customer?.hubspotCustomer,
+        !customer?.hubspotCustomer &&
+        !customer?.salesforceCustomer,
     })
 
   const linkedProvider = paymentProvidersData?.paymentProviders?.collection?.find(
@@ -214,6 +229,10 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     (i) => i.__typename === 'HubspotIntegration',
   ) as HubspotIntegration[] | undefined
 
+  const allSalesforceIntegrations = integrationsData?.integrations?.collection.filter(
+    (i) => i.__typename === 'SalesforceIntegration',
+  ) as SalesforceIntegration[] | undefined
+
   const connectedNetsuiteIntegration = allNetsuiteIntegrations?.find(
     (integration) => integration?.id === customer?.netsuiteCustomer?.integrationId,
   ) as NetsuiteIntegration
@@ -229,6 +248,10 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
   const connectedHubspotIntegration = allHubspotIntegrations?.find(
     (integration) => integration?.id === customer?.hubspotCustomer?.integrationId,
   ) as HubspotIntegration
+
+  const connectedSalesforceIntegration = allSalesforceIntegrations?.find(
+    (integration) => integration?.id === customer?.salesforceCustomer?.integrationId,
+  ) as SalesforceIntegration
 
   const updateRef = useCallback(
     (node: HTMLDivElement) => {
@@ -583,7 +606,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                     <InlineLink
                       target="_blank"
                       rel="noopener noreferrer"
-                      to={buildHubsportObjectUrl({
+                      to={buildHubspotObjectUrl({
                         portalId: connectedHubspotIntegration.portalId,
                         objectId: customer?.hubspotCustomer?.externalCustomerId,
                         targetedObject: customer?.hubspotCustomer.targetedObject,
@@ -591,6 +614,42 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                     >
                       <Typography className="flex flex-row items-center gap-1" color="info600">
                         {customer?.hubspotCustomer?.externalCustomerId} <Icon name="outside" />
+                      </Typography>
+                    </InlineLink>
+                  )}
+              </Stack>
+            ) : null}
+          </div>
+        )}
+
+        {!!connectedSalesforceIntegration && (
+          <div>
+            <Typography variant="caption">{translate('text_1728658962985xpfdvl5ru8a')}</Typography>
+            {integrationsLoading ? (
+              <Stack flex={1} gap={3} marginTop={1}>
+                <Skeleton variant="text" width={200} />
+                <Skeleton variant="text" width={200} />
+              </Stack>
+            ) : !!connectedSalesforceIntegration && customer?.salesforceCustomer?.integrationId ? (
+              <Stack>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <Avatar variant="connector-full" size="small">
+                    <Salesforce />
+                  </Avatar>
+                  <Typography color="grey700">{connectedSalesforceIntegration?.name}</Typography>
+                </Stack>
+                {!!connectedSalesforceIntegration.instanceId &&
+                  customer?.salesforceCustomer?.externalCustomerId && (
+                    <InlineLink
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      to={buildSalesforceUrl({
+                        instanceId: connectedSalesforceIntegration.instanceId,
+                        externalCustomerId: customer.salesforceCustomer.externalCustomerId,
+                      })}
+                    >
+                      <Typography color="info600">
+                        {customer?.salesforceCustomer?.externalCustomerId} <Icon name="outside" />
                       </Typography>
                     </InlineLink>
                   )}

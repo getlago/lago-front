@@ -24,7 +24,7 @@ import { InvoiceCustomerInfos } from '~/components/invoices/InvoiceCustomerInfos
 import { Metadatas } from '~/components/invoices/Metadatas'
 import {
   buildAnrokInvoiceUrl,
-  buildHubsportInvoiceUrl,
+  buildHubspotInvoiceUrl,
   buildNetsuiteInvoiceUrl,
   buildXeroInvoiceUrl,
 } from '~/core/constants/externalUrls'
@@ -433,7 +433,7 @@ const InvoiceOverview = memo(
                         <InlineLink
                           target="_blank"
                           rel="noopener noreferrer"
-                          to={buildHubsportInvoiceUrl({
+                          to={buildHubspotInvoiceUrl({
                             portalId: connectedHubspotIntegration?.portalId,
                             resourceId: connectedHubspotIntegration?.invoicesObjectTypeId,
                             externalCrmIntegrationId: invoice?.externalCrmIntegrationId,
