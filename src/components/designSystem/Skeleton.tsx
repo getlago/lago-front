@@ -14,16 +14,12 @@ type SkeletonVariant =
 type SkeletonColor = 'dark' | 'light'
 
 interface SkeletonConnectorProps {
-  variant: Extract<SkeletonVariant, 'userAvatar' | 'connectorAvatar'>
+  variant: Extract<SkeletonVariant, 'userAvatar' | 'connectorAvatar' | 'circular'>
   size: AvatarSize
   /**
    * @deprecated Use `className` and TailwindCSS instead
    */
   width?: never
-  /**
-   * @deprecated Use `className` and TailwindCSS instead
-   */
-  height?: never
   className?: string
   /**
    * @deprecated Use `className` and TailwindCSS instead
@@ -41,15 +37,11 @@ interface SkeletonConnectorProps {
 }
 
 interface SkeletonGenericProps {
-  variant: Extract<SkeletonVariant, 'text' | 'circular'>
+  variant: Extract<SkeletonVariant, 'text'>
   /**
    * @deprecated Use `className` and TailwindCSS instead
    */
   width?: number | string
-  /**
-   * @deprecated Use `className` and TailwindCSS instead
-   */
-  height?: number | string
   size?: never
   className?: string
   /**
@@ -95,14 +87,12 @@ export const Skeleton = ({
   marginRight,
   marginTop,
   width,
-  height,
 }: SkeletonConnectorProps | SkeletonGenericProps) => {
   return (
     <SkeletonContainer
       $marginRight={marginRight}
       $marginBottom={marginBottom}
       $marginTop={marginTop}
-      $height={size ? mapAvatarSize(size) : height}
       $width={size ? mapAvatarSize(size) : width}
       className={tw(skeletonStyles({ variant, color, size }), className)}
     />
@@ -110,15 +100,11 @@ export const Skeleton = ({
 }
 
 const SkeletonContainer = styled.div<{
-  $height?: number | string
   $width?: number | string
   $marginRight?: number | string
   $marginBottom?: number | string
   $marginTop?: number | string
 }>`
-  height: ${({ $height }) =>
-    !$height ? 0 : typeof $height === 'number' ? `${$height}px` : $height};
-
   width: ${({ $width }) =>
     !$width ? 0 : typeof $width === 'number' ? `${$width}px !important` : `${$width} !important`};
   margin-right: ${({ $marginRight }) =>

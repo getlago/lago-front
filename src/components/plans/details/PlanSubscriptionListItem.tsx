@@ -105,7 +105,7 @@ export const PlanSubscriptionListItemSkeleton = ({
   return (
     <SkeletonWrapper className={className}>
       <CustomerNameWrapper>
-        <Skeleton variant="circular" width={40} height={40} />
+        <Skeleton variant="circular" size="big" />
         <CustomerBlockInfos>
           <Skeleton variant="text" width={160} marginBottom={14} />
           <Skeleton variant="text" width={100} />

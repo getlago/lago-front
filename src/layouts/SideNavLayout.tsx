@@ -225,13 +225,13 @@ const SideNav = () => {
               <VerticalMenu
                 loading={currentUserLoading}
                 loadingComponent={
-                  <div className="flex flex-1 flex-col gap-4">
+                  <div className="flex flex-1 gap-4">
                     {[1, 2, 3, 4, 5, 6, 7].map((i) => (
                       <div
                         key={`skeleton-upper-nav-${i}`}
                         className="flex flex-1 flex-row items-center gap-3 pt-3"
                       >
-                        <Skeleton variant="circular" width={16} height={16} />
+                        <Skeleton variant="circular" size="small" />
                         <Skeleton variant="text" width={120} />
                       </div>
                     ))}
