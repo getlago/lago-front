@@ -42,6 +42,7 @@ import {
   NetsuiteIntegration,
   ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
+  SalesforceIntegration,
   UpdateCustomerInput,
   useAccountingIntegrationsListForCustomerEditExternalAppsAccordionLazyQuery,
   usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQuery,
@@ -55,6 +56,7 @@ import GoCardless from '~/public/images/gocardless.svg'
 import Hubspot from '~/public/images/hubspot.svg'
 import Netsuite from '~/public/images/netsuite.svg'
 import PSPIcons from '~/public/images/psp-icons.svg'
+import Salesforce from '~/public/images/salesforce.svg'
 import Stripe from '~/public/images/stripe.svg'
 import Xero from '~/public/images/xero.svg'
 import { MenuPopper, theme } from '~/styles'
@@ -98,6 +100,12 @@ gql`
       syncWithProvider
     }
     hubspotCustomer {
+      externalCustomerId
+      integrationCode
+      integrationType
+      syncWithProvider
+    }
+    salesforceCustomer {
       externalCustomerId
       integrationCode
       integrationType
@@ -160,6 +168,12 @@ gql`
           name
           defaultTargetedObject
         }
+        ... on SalesforceIntegration {
+          __typename
+          id
+          code
+          name
+        }
       }
     }
   }
@@ -212,6 +226,10 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     (i) => i.__typename === 'HubspotIntegration',
   ) as HubspotIntegration[] | undefined
 
+  const allSalesforceIntegrations = allIntegrationsData?.integrations?.collection.filter(
+    (i) => i.__typename === 'SalesforceIntegration',
+  ) as SalesforceIntegration[] | undefined
+
   const selectedNetsuiteIntegrationIndex =
     formikProps.values.integrationCustomers?.findIndex(
       (i) => i.integrationType === IntegrationTypeEnum.Netsuite,
@@ -228,11 +246,16 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     formikProps.values.integrationCustomers?.findIndex(
       (i) => i.integrationType === IntegrationTypeEnum.Hubspot,
     ) || 0
+  const selectedSalesforceIntegrationIndex =
+    formikProps.values.integrationCustomers?.findIndex(
+      (i) => i.integrationType === IntegrationTypeEnum.Salesforce,
+    ) || 0
 
   const netsuiteIntegrationpointerInIntegrationCustomer = `integrationCustomers.${selectedNetsuiteIntegrationIndex}`
   const anrokIntegrationpointerInIntegration = `integrationCustomers.${selectedAnrokIntegrationIndex}`
   const xeroIntegrationpointerInIntegrationCustomer = `integrationCustomers.${selectedXeroIntegrationIndex}`
   const hubspotIntegrationpointerInIntegrationCustomer = `integrationCustomers.${selectedHubspotIntegrationIndex}`
+  const salesforceIntegrationpointerInIntegrationCustomer = `integrationCustomers.${selectedSalesforceIntegrationIndex}`
 
   const selectedNetsuiteIntegration =
     formikProps.values.integrationCustomers?.[selectedNetsuiteIntegrationIndex]
@@ -242,6 +265,8 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     formikProps.values.integrationCustomers?.[selectedXeroIntegrationIndex]
   const selectedHubspotIntegration =
     formikProps.values.integrationCustomers?.[selectedHubspotIntegrationIndex]
+  const selectedSalesforceIntegration =
+    formikProps.values.integrationCustomers?.[selectedSalesforceIntegrationIndex]
 
   const selectedNetsuiteIntegrationSettings = allNetsuiteIntegrations?.find(
     (i) => i.code === selectedNetsuiteIntegration?.integrationCode,
@@ -259,13 +284,17 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     (i) => i.code === selectedHubspotIntegration?.integrationCode,
   ) as HubspotIntegration
 
+  const selectedSalesforceIntegrationSettings = allSalesforceIntegrations?.find(
+    (i) => i.code === selectedSalesforceIntegration?.integrationCode,
+  ) as SalesforceIntegration
+
   const allAccountingIntegrationsData = useMemo(() => {
     return [...(allNetsuiteIntegrations || []), ...(allXeroIntegrations || [])]
   }, [allNetsuiteIntegrations, allXeroIntegrations])
 
   const allCRMIntegrationsData = useMemo(() => {
-    return [...(allHubspotIntegrations || [])]
-  }, [allHubspotIntegrations])
+    return [...(allHubspotIntegrations || []), ...(allSalesforceIntegrations || [])]
+  }, [allHubspotIntegrations, allSalesforceIntegrations])
 
   const { data: subsidiariesData } =
     useSubsidiariesListForCustomerCreateEditExternalAppsAccordionQuery({
@@ -288,11 +317,14 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     !!formikProps.initialValues.integrationCustomers?.find(
       (i) => i.integrationType === IntegrationTypeEnum.Hubspot,
     )
+  const hadInitialSalesforceIntegrationCustomer =
+    !!formikProps.initialValues.integrationCustomers?.find(
+      (i) => i.integrationType === IntegrationTypeEnum.Salesforce,
+    )
 
   const [showPaymentProviderSection, setShowPaymentProviderSection] = useState<boolean>(
     !!formikProps.values.paymentProvider,
   )
-
   const [showAccountingProviderSection, setShowAccountingProviderSection] = useState<boolean>(
     hadInitialNetsuiteIntegrationCustomer || hadInitialXeroIntegrationCustomer,
   )
@@ -300,7 +332,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     hadInitialAnrokIntegrationCustomer,
   )
   const [showCRMIntegrationSection, setShowCRMIntegrationSection] = useState<boolean>(
-    hadInitialHubspotIntegrationCustomer,
+    hadInitialHubspotIntegrationCustomer || hadInitialSalesforceIntegrationCustomer,
   )
 
   const connectedPaymentProvidersData: ComboboxDataGrouped[] | [] = useMemo(() => {
@@ -421,8 +453,10 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
   }, [hadInitialAnrokIntegrationCustomer])
 
   useEffect(() => {
-    setShowCRMIntegrationSection(hadInitialHubspotIntegrationCustomer)
-  }, [hadInitialHubspotIntegrationCustomer])
+    setShowCRMIntegrationSection(
+      hadInitialHubspotIntegrationCustomer || hadInitialSalesforceIntegrationCustomer,
+    )
+  }, [hadInitialHubspotIntegrationCustomer, hadInitialSalesforceIntegrationCustomer])
 
   return (
     <Accordion
@@ -803,7 +837,6 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
             </Accordion>
           </Stack>
         )}
-
         {showAccountingProviderSection && (
           <Stack gap={1}>
             <Typography variant="captionHl" color="grey700">
@@ -1163,19 +1196,23 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                     <Avatar size="big" variant="connector">
                       {!!selectedHubspotIntegrationSettings ? (
                         <Hubspot />
+                      ) : !!selectedSalesforceIntegrationSettings ? (
+                        <Salesforce />
                       ) : (
                         <Icon name="plug" color="dark" />
                       )}
                     </Avatar>
                     <Stack>
                       <Typography variant="bodyHl" color="grey700">
-                        {!selectedHubspotIntegrationSettings
-                          ? translate('text_66423cad72bbad009f2f5691')
-                          : selectedHubspotIntegrationSettings.name}
+                        {selectedHubspotIntegrationSettings?.name ??
+                          selectedSalesforceIntegrationSettings?.name ??
+                          translate('text_66423cad72bbad009f2f5691')}
                       </Typography>
-                      {!!selectedHubspotIntegrationSettings?.code && (
+                      {(selectedHubspotIntegrationSettings ||
+                        selectedSalesforceIntegrationSettings) && (
                         <Typography variant="caption">
-                          {selectedHubspotIntegrationSettings.code}
+                          {selectedHubspotIntegrationSettings?.code ??
+                            selectedSalesforceIntegrationSettings?.code}
                         </Typography>
                       )}
                     </Stack>
@@ -1188,7 +1225,9 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                       formikProps.setFieldValue(
                         'integrationCustomers',
                         formikProps.values.integrationCustomers?.filter(
-                          (i) => i.integrationType !== IntegrationTypeEnum.Hubspot,
+                          (i) =>
+                            i.integrationType !== IntegrationTypeEnum.Hubspot &&
+                            i.integrationType !== IntegrationTypeEnum.Salesforce,
                         ),
                       )
                       setShowCRMIntegrationSection(false)
@@ -1205,47 +1244,81 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                 {/* Select Integration account */}
                 <ComboBox
                   onOpen={getAccountingIntegrationsData}
-                  disabled={hadInitialHubspotIntegrationCustomer}
+                  disabled={
+                    hadInitialHubspotIntegrationCustomer || hadInitialSalesforceIntegrationCustomer
+                  }
                   data={connectedCRMIntegrationsData}
                   label={translate('text_66423cad72bbad009f2f5695')}
                   placeholder={translate('text_66423cad72bbad009f2f5697')}
                   emptyText={translate('text_6645daa0468420011304aded')}
                   PopperProps={{ displayInDialog: true }}
-                  value={selectedHubspotIntegration?.integrationCode as string}
+                  value={
+                    selectedHubspotIntegration
+                      ? (selectedHubspotIntegration.integrationCode as string)
+                      : selectedSalesforceIntegration
+                        ? (selectedSalesforceIntegration.integrationCode as string)
+                        : undefined
+                  }
                   onChange={(value) => {
-                    let localDefaultTargetedObject
+                    const selectedIntegration = connectedCRMIntegrationsData.find(
+                      (data) => data.value === value,
+                    )
 
-                    if (formikProps.values.customerType === CustomerTypeEnum.Company) {
-                      localDefaultTargetedObject = HubspotTargetedObjectsEnum.Companies
-                    } else if (formikProps.values.customerType === CustomerTypeEnum.Individual) {
-                      localDefaultTargetedObject = HubspotTargetedObjectsEnum.Contacts
-                    } else {
-                      const { defaultTargetedObject } = allHubspotIntegrations?.find(
-                        (i) => i.code === value,
-                      ) as HubspotIntegration
+                    if (selectedIntegration?.group === 'Hubspot') {
+                      let localDefaultTargetedObject
 
-                      localDefaultTargetedObject = defaultTargetedObject
-                    }
+                      if (formikProps.values.customerType === CustomerTypeEnum.Company) {
+                        localDefaultTargetedObject = HubspotTargetedObjectsEnum.Companies
+                      } else if (formikProps.values.customerType === CustomerTypeEnum.Individual) {
+                        localDefaultTargetedObject = HubspotTargetedObjectsEnum.Contacts
+                      } else {
+                        const { defaultTargetedObject } = allHubspotIntegrations?.find(
+                          (i) => i.code === value,
+                        ) as HubspotIntegration
 
-                    const newHubspotIntegrationObject = {
-                      integrationCode: value,
-                      integrationType: IntegrationTypeEnum.Hubspot,
-                      syncWithProvider: false,
-                      targetedObject: localDefaultTargetedObject,
-                    }
+                        localDefaultTargetedObject = defaultTargetedObject
+                      }
 
-                    // If no existing hubspot integration, add it
-                    if (!selectedHubspotIntegration) {
-                      formikProps.setFieldValue('integrationCustomers', [
-                        ...(formikProps.values.integrationCustomers || []),
-                        newHubspotIntegrationObject,
-                      ])
-                    } else {
-                      // If existing hubspot integration, update it
-                      formikProps.setFieldValue(
-                        `${hubspotIntegrationpointerInIntegrationCustomer}`,
-                        newHubspotIntegrationObject,
-                      )
+                      const newHubspotIntegrationObject = {
+                        integrationCode: value,
+                        integrationType: IntegrationTypeEnum.Hubspot,
+                        syncWithProvider: false,
+                        targetedObject: localDefaultTargetedObject,
+                      }
+
+                      // If no existing hubspot integration, add it
+                      if (!selectedHubspotIntegration) {
+                        formikProps.setFieldValue('integrationCustomers', [
+                          ...(formikProps.values.integrationCustomers || []),
+                          newHubspotIntegrationObject,
+                        ])
+                      } else {
+                        // If existing hubspot integration, update it
+                        formikProps.setFieldValue(
+                          `${hubspotIntegrationpointerInIntegrationCustomer}`,
+                          newHubspotIntegrationObject,
+                        )
+                      }
+                    } else if (selectedIntegration?.group === 'Salesforce') {
+                      const newSalesforceIntegrationObject = {
+                        integrationCode: value,
+                        integrationType: IntegrationTypeEnum.Salesforce,
+                        syncWithProvider: false,
+                      }
+
+                      // If no existing salesforce integration, add it
+                      if (!selectedSalesforceIntegration) {
+                        formikProps.setFieldValue('integrationCustomers', [
+                          ...(formikProps.values.integrationCustomers || []),
+                          newSalesforceIntegrationObject,
+                        ])
+                      } else {
+                        // If existing salesforce integration, update it
+                        formikProps.setFieldValue(
+                          `${salesforceIntegrationpointerInIntegrationCustomer}`,
+                          newSalesforceIntegrationObject,
+                        )
+                      }
                     }
                   }}
                 />
@@ -1325,6 +1398,44 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                         />
                       </>
                     )}
+                  </>
+                )}
+
+                {!!selectedSalesforceIntegration && (
+                  <>
+                    <TextInputField
+                      label={translate('text_1731677317443jcgfo7s0iqh')}
+                      placeholder={translate('text_1731677317443j3iga5orbb6')}
+                      name={`${salesforceIntegrationpointerInIntegrationCustomer}.externalCustomerId`}
+                      disabled={
+                        !!selectedSalesforceIntegration.syncWithProvider ||
+                        hadInitialSalesforceIntegrationCustomer
+                      }
+                      formikProps={formikProps}
+                    />
+                    <Checkbox
+                      name={`${salesforceIntegrationpointerInIntegrationCustomer}.syncWithProvider`}
+                      disabled={hadInitialSalesforceIntegrationCustomer}
+                      value={!!selectedSalesforceIntegration.syncWithProvider}
+                      label={translate('text_66423cad72bbad009f2f569e', {
+                        connectionName: selectedSalesforceIntegrationSettings?.name,
+                      })}
+                      onChange={(_, checked) => {
+                        const newSalesforceIntegrationObject = {
+                          ...selectedSalesforceIntegration,
+                          syncWithProvider: checked,
+                        }
+
+                        if (!isEdition && checked) {
+                          newSalesforceIntegrationObject.externalCustomerId = ''
+                        }
+
+                        formikProps.setFieldValue(
+                          `${salesforceIntegrationpointerInIntegrationCustomer}`,
+                          newSalesforceIntegrationObject,
+                        )
+                      }}
+                    />
                   </>
                 )}
 
