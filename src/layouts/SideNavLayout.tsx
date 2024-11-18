@@ -225,7 +225,7 @@ const SideNav = () => {
               <VerticalMenu
                 loading={currentUserLoading}
                 loadingComponent={
-                  <div className="flex flex-1 gap-4">
+                  <div className="flex flex-1 flex-col gap-4">
                     {[1, 2, 3, 4, 5, 6, 7].map((i) => (
                       <div
                         key={`skeleton-upper-nav-${i}`}
