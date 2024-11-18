@@ -75,7 +75,7 @@ const AddOnDetails = () => {
           />
           {isAddOnLoading && !addOn ? (
             <AddOnTitleLoadingWrapper>
-              <Skeleton variant="text" width={200} />
+              <Skeleton variant="text" className="w-50" />
             </AddOnTitleLoadingWrapper>
           ) : (
             <Typography

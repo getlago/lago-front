@@ -199,15 +199,15 @@ const CreateDunning = () => {
         {loading ? (
           <div className="container mx-auto mb-15 mt-12 flex flex-col gap-12">
             <div>
-              <Skeleton variant="text" width={160} className="mb-4" />
-              <Skeleton variant="text" width={400} />
+              <Skeleton variant="text" className="mb-4 w-40" />
+              <Skeleton variant="text" className="w-100" />
             </div>
             {[0, 1].map((_, index) => (
               <div key={`loading-${index}`}>
                 <div className="flex flex-col gap-5 pb-12 shadow-b">
-                  <Skeleton variant="text" width={160} />
-                  <Skeleton variant="text" width={400} />
-                  <Skeleton variant="text" width={296} />
+                  <Skeleton variant="text" className="w-40" />
+                  <Skeleton variant="text" className="w-100" />
+                  <Skeleton variant="text" className="w-74" />
                 </div>
               </div>
             ))}
@@ -452,7 +452,6 @@ const CreateDunning = () => {
           </>
         )}
       </div>
-
       <WarningDialog
         ref={warningDirtyAttributesDialogRef}
         title={translate('text_6244277fe0975300fe3fb940')}
@@ -460,7 +459,6 @@ const CreateDunning = () => {
         continueText={translate('text_6244277fe0975300fe3fb94c')}
         onContinue={() => navigate(DUNNINGS_SETTINGS_ROUTE)}
       />
-
       <DefaultCampaignDialog ref={defaultCampaignDialogRef} />
       <PreviewCampaignEmailDrawer ref={previewCampaignEmailDrawerRef} />
     </>

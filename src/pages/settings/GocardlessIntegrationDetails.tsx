@@ -117,7 +117,7 @@ const GocardlessIntegrationDetails = () => {
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
           {loading ? (
-            <Skeleton variant="text" width={120} />
+            <Skeleton variant="text" className="w-30" />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
               {gocardlessPaymentProvider?.name}
@@ -207,8 +207,8 @@ const GocardlessIntegrationDetails = () => {
           <>
             <Skeleton variant="connectorAvatar" size="large" className="mr-4" />
             <div>
-              <Skeleton variant="text" width={200} className="mb-5" />
-              <Skeleton variant="text" width={128} />
+              <Skeleton variant="text" className="mb-5 w-50" />
+              <Skeleton variant="text" className="w-32" />
             </div>
           </>
         ) : (
@@ -257,11 +257,11 @@ const GocardlessIntegrationDetails = () => {
               {[0, 1, 2].map((i) => (
                 <Item key={`item-skeleton-${i}`} direction="row" alignItems="center">
                   <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
-                  <Skeleton variant="text" width={240} />
+                  <Skeleton variant="text" className="w-60" />
                 </Item>
               ))}
               <div style={{ height: 20 }} />
-              <Skeleton variant="text" width={240} className="mb-4" />
+              <Skeleton variant="text" className="mb-4 w-60" />
             </>
           ) : (
             <>
@@ -355,7 +355,7 @@ const GocardlessIntegrationDetails = () => {
           {loading ? (
             <HeaderBlock>
               <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
-              <Skeleton variant="text" width={240} />
+              <Skeleton variant="text" className="w-60" />
             </HeaderBlock>
           ) : (
             <>

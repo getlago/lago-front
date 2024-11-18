@@ -94,7 +94,7 @@ const OktaAuthenticationDetails = () => {
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
           {loading ? (
-            <Skeleton variant="text" width={120} />
+            <Skeleton variant="text" className="w-30" />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
               {translate('text_664c732c264d7eed1c74fda2')}
@@ -148,8 +148,8 @@ const OktaAuthenticationDetails = () => {
           <>
             <Skeleton variant="connectorAvatar" size="large" className="mr-4" />
             <SkeletonText>
-              <Skeleton variant="text" width={200} className="mb-5" />
-              <Skeleton variant="text" width={128} />
+              <Skeleton variant="text" className="mb-5 w-50" />
+              <Skeleton variant="text" className="w-32" />
             </SkeletonText>
           </>
         ) : (

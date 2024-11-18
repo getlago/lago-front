@@ -365,8 +365,8 @@ export const WalletAccordionSkeleton = () => {
         <Icon name="chevron-right" color="disabled" />
         <Skeleton variant="connectorAvatar" size="big" />
         <SummaryInfos $isLoading>
-          <Skeleton variant="text" width={240} className="mb-3" />
-          <Skeleton variant="text" width={120} />
+          <Skeleton variant="text" className="mb-3 w-60" />
+          <Skeleton variant="text" className="w-30" />
         </SummaryInfos>
       </SummaryLeft>
     </SkeletonContainer>

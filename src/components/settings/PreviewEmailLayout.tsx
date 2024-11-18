@@ -40,7 +40,7 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
     <>
       <div>
         {isLoading ? (
-          <Skeleton color="dark" variant="text" width={360} className="mb-5" />
+          <Skeleton color="dark" variant="text" className="mb-5 w-90" />
         ) : (
           <Typography className="mb-4" variant="bodyHl" color="grey700">
             {emailObject}
@@ -52,8 +52,8 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
             <>
               <Skeleton color="dark" variant="circular" size="big" className="mr-4" />
               <div>
-                <Skeleton color="dark" variant="text" width={240} className="mb-2" />
-                <Skeleton color="dark" variant="text" width={120} />
+                <Skeleton color="dark" variant="text" className="mb-2 w-60" />
+                <Skeleton color="dark" variant="text" className="w-30" />
               </div>
             </>
           ) : (
@@ -81,7 +81,7 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
             {isLoading ? (
               <>
                 <Skeleton color="dark" variant="connectorAvatar" size="medium" className="mr-3" />
-                <Skeleton color="dark" variant="text" width={120} />
+                <Skeleton color="dark" variant="text" className="w-30" />
               </>
             ) : (
               <>
@@ -112,7 +112,7 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
 
           <div className="mb-20 flex items-center justify-center [&>svg]:mx-1">
             {isLoading ? (
-              <Skeleton color="dark" variant="text" width={220} />
+              <Skeleton color="dark" variant="text" className="w-55" />
             ) : (
               <>
                 <Typography variant="note" color="grey500">
@@ -124,7 +124,6 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
           </div>
         </div>
       </div>
-
       <UpdateOrganizationLogoDialog ref={updateLogoDialogRef} />
     </>
   )

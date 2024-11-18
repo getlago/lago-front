@@ -41,23 +41,6 @@ const mapTypographyVariant = (size: AvatarSize) => {
   }
 }
 
-// TODO: To remove once migration is done for Skeleton component
-// Use avatarSizeStyles instead of mapAvatarSize
-export const mapAvatarSize = (size: AvatarSize) => {
-  switch (size) {
-    case 'small':
-      return 16
-    case 'intermediate':
-      return 24
-    case 'medium':
-      return 32
-    case 'big':
-      return 40
-    case 'large':
-      return 64
-  }
-}
-
 // The need here is to get a color from the AVATAR_PALETTE according to
 // an identifier (can be an id, fullname, company name... whaterver)
 const getBackgroundColorKey = (identifier?: string): keyof typeof colors.avatar | null => {

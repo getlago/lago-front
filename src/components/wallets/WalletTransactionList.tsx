@@ -96,12 +96,12 @@ export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTran
               <Loader key={`wallet-transaction-skeleton-${i}`}>
                 <Skeleton variant="connectorAvatar" size="big" className="mr-3" />
                 <LeftLoader>
-                  <Skeleton variant="text" width={144} className="mb-3" />
-                  <Skeleton variant="text" width={80} />
+                  <Skeleton variant="text" className="mb-3 w-36" />
+                  <Skeleton variant="text" className="w-20" />
                 </LeftLoader>
                 <RightLoader>
-                  <Skeleton variant="text" width={144} className="mb-3" />
-                  <Skeleton variant="text" width={80} />
+                  <Skeleton variant="text" className="mb-3 w-36" />
+                  <Skeleton variant="text" className="w-20" />
                 </RightLoader>
               </Loader>
             ))

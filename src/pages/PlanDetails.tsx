@@ -98,7 +98,7 @@ const PlanDetails = () => {
           />
           {isPlanLoading && !plan ? (
             <PlanTitleLoadingWrapper>
-              <Skeleton variant="text" width={200} />
+              <Skeleton variant="text" className="w-50" />
             </PlanTitleLoadingWrapper>
           ) : (
             <Typography variant="bodyHl" color="textSecondary" noWrap>
@@ -167,8 +167,8 @@ const PlanDetails = () => {
         <PlanBlockInfos>
           {isPlanLoading && !plan ? (
             <PlanTitleLoadingWrapper>
-              <Skeleton variant="text" width={200} className="mb-5" />
-              <Skeleton variant="text" width={200} />
+              <Skeleton variant="text" className="mb-5 w-50" />
+              <Skeleton variant="text" className="w-50" />
             </PlanTitleLoadingWrapper>
           ) : (
             <>

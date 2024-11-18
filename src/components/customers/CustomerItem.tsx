@@ -145,8 +145,8 @@ export const CustomerItemSkeleton = () => {
   return (
     <BaseListItem>
       <Skeleton variant="connectorAvatar" size="big" className="mr-3" />
-      <Skeleton variant="text" width={240} className="mr-auto" />
-      <Skeleton variant="text" width={240} />
+      <Skeleton variant="text" className="mr-auto w-60" />
+      <Skeleton variant="text" className="w-60" />
     </BaseListItem>
   )
 }

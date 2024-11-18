@@ -102,8 +102,8 @@ const CustomerDraftInvoicesList = () => {
           <MainInfos>
             <Skeleton variant="userAvatar" size="large" />
             <div>
-              <Skeleton variant="text" width={200} className="mb-5" />
-              <Skeleton variant="text" width={128} />
+              <Skeleton variant="text" className="mb-5 w-50" />
+              <Skeleton variant="text" className="w-32" />
             </div>
           </MainInfos>
         ) : (

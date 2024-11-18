@@ -1,9 +1,8 @@
 import { cva } from 'class-variance-authority'
-import styled from 'styled-components'
 
 import { tw } from '~/styles/utils'
 
-import { AvatarSize, avatarSizeStyles, mapAvatarSize } from './Avatar'
+import { AvatarSize, avatarSizeStyles } from './Avatar'
 
 type SkeletonVariant =
   | 'connectorAvatar' // squared with rounded corners
@@ -16,20 +15,12 @@ type SkeletonColor = 'dark' | 'light'
 interface SkeletonConnectorProps {
   variant: Extract<SkeletonVariant, 'userAvatar' | 'connectorAvatar' | 'circular'>
   size: AvatarSize
-  /**
-   * @deprecated Use `className` and TailwindCSS instead
-   */
-  width?: never
   className?: string
   color?: SkeletonColor
 }
 
 interface SkeletonGenericProps {
   variant: Extract<SkeletonVariant, 'text'>
-  /**
-   * @deprecated Use `className` and TailwindCSS instead
-   */
-  width?: number | string
   size?: never
   className?: string
   color?: SkeletonColor
@@ -59,19 +50,6 @@ export const Skeleton = ({
   variant,
   color,
   size,
-  width,
 }: SkeletonConnectorProps | SkeletonGenericProps) => {
-  return (
-    <SkeletonContainer
-      $width={size ? mapAvatarSize(size) : width}
-      className={tw(skeletonStyles({ variant, color, size }), className)}
-    />
-  )
+  return <div className={tw(skeletonStyles({ variant, color, size }), className)} />
 }
-
-const SkeletonContainer = styled.div<{
-  $width?: number | string
-}>`
-  width: ${({ $width }) =>
-    !$width ? 0 : typeof $width === 'number' ? `${$width}px !important` : `${$width} !important`};
-`

@@ -163,7 +163,7 @@ const XeroIntegrationSettings = () => {
                 {[0, 1, 2].map((i) => (
                   <Item key={`item-skeleton-item-${i}`}>
                     <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
-                    <Skeleton variant="text" width={240} />
+                    <Skeleton variant="text" className="w-60" />
                   </Item>
                 ))}
               </>

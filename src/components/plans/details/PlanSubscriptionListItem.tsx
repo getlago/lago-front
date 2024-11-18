@@ -107,13 +107,13 @@ export const PlanSubscriptionListItemSkeleton = ({
       <CustomerNameWrapper>
         <Skeleton variant="circular" size="big" />
         <CustomerBlockInfos>
-          <Skeleton variant="text" width={160} className="mb-3" />
-          <Skeleton variant="text" width={100} />
+          <Skeleton variant="text" className="mb-3 w-40" />
+          <Skeleton variant="text" className="w-25" />
         </CustomerBlockInfos>
       </CustomerNameWrapper>
-      <Skeleton variant="text" width={80} />
-      <Skeleton variant="text" width={80} />
-      <Skeleton variant="text" width={80} />
+      <Skeleton variant="text" className="w-20" />
+      <Skeleton variant="text" className="w-20" />
+      <Skeleton variant="text" className="w-20" />
     </SkeletonWrapper>
   )
 }

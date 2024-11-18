@@ -7,7 +7,7 @@ const { run: jscodeshift } = require('jscodeshift/src/Runner')
 
 const SRC_DIR = './src/'
 
-const transformPath = path.resolve('./scripts/transforms/skeleton-migrate-margin-values.js')
+const transformPath = path.resolve('./scripts/transforms/skeleton-migrate-width-values.js')
 const paths = globSync(path.join(SRC_DIR, '**/*.@(tsx)'), {
   ignore: ['**/node_modules/**', '**/graphql.tsx', '**/dist/**'],
 })

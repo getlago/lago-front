@@ -480,7 +480,7 @@ const CreateInvoice = () => {
             {loading ? (
               <>
                 <InvoiceHeader>
-                  <Skeleton variant="text" width={120} />
+                  <Skeleton variant="text" className="w-30" />
                   <Skeleton
                     // eslint-disable-next-line tailwindcss/no-custom-classname
                     className="rounded-conector-skeleton"
@@ -490,12 +490,12 @@ const CreateInvoice = () => {
                 </InvoiceHeader>
                 <div>
                   <InlineSkeleton>
-                    <Skeleton variant="text" width={104} className="mr-13" />
-                    <Skeleton variant="text" width={96} />
+                    <Skeleton variant="text" className="mr-13 w-26" />
+                    <Skeleton variant="text" className="w-24" />
                   </InlineSkeleton>
                   <InlineSkeleton>
-                    <Skeleton variant="text" width={104} className="mr-13" />
-                    <Skeleton variant="text" width={96} />
+                    <Skeleton variant="text" className="mr-13 w-26" />
+                    <Skeleton variant="text" className="w-24" />
                   </InlineSkeleton>
                 </div>
                 <InlineSkeletonBlocks>

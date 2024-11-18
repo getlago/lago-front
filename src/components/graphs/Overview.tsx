@@ -100,8 +100,8 @@ const Overview: FC<TGraphProps & { externalCustomerId?: string }> = ({
         />
       ) : !!loading ? (
         <Stack flexDirection="column" gap={5} height={56}>
-          <Skeleton variant="text" width={100} />
-          <Skeleton variant="text" width={300} />
+          <Skeleton variant="text" className="w-25" />
+          <Skeleton variant="text" className="w-75" />
         </Stack>
       ) : (
         <Stack flexDirection="column" gap={2}>

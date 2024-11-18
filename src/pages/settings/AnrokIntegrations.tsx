@@ -92,7 +92,7 @@ const AnrokIntegrations = () => {
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
           {loading ? (
-            <Skeleton variant="text" width={120} />
+            <Skeleton variant="text" className="w-30" />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
               {translate('text_6668821d94e4da4dfd8b3834')}
@@ -113,8 +113,8 @@ const AnrokIntegrations = () => {
           <>
             <Skeleton variant="connectorAvatar" size="large" className="mr-4" />
             <div>
-              <Skeleton variant="text" width={200} className="mb-5" />
-              <Skeleton variant="text" width={128} />
+              <Skeleton variant="text" className="mb-5 w-50" />
+              <Skeleton variant="text" className="w-32" />
             </div>
           </>
         ) : (
@@ -146,7 +146,7 @@ const AnrokIntegrations = () => {
                 {[1, 2].map((i) => (
                   <ListItem key={`item-skeleton-item-${i}`}>
                     <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
-                    <Skeleton variant="text" width={240} />
+                    <Skeleton variant="text" className="w-60" />
                   </ListItem>
                 ))}
               </>

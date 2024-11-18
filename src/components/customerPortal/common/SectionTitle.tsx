@@ -13,7 +13,7 @@ const SectionTitle = ({ className, title, action, loading }: SectionTitleProps) 
   <div className={tw('mb-6 flex items-center pb-4 shadow-b', className)}>
     {loading ? (
       <div className="flex h-7 w-full items-center">
-        <Skeleton variant="text" width={160} />
+        <Skeleton variant="text" className="w-40" />
       </div>
     ) : (
       <>

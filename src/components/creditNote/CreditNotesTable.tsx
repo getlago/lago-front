@@ -113,12 +113,12 @@ type TCreditNoteTableProps = {
 const CreditNoteTableItemSkeleton = () => {
   return (
     <SkeletonLine>
-      <Skeleton variant="text" width={180} />
-      <Skeleton variant="text" width={80} />
-      <Skeleton variant="text" width={160} />
+      <Skeleton variant="text" className="w-45" />
+      <Skeleton variant="text" className="w-20" />
+      <Skeleton variant="text" className="w-40" />
       <RightSkeleton variant="text" width={160} />
-      <Skeleton variant="text" width={112} />
-      <Skeleton variant="text" width={40} />
+      <Skeleton variant="text" className="w-28" />
+      <Skeleton variant="text" className="w-10" />
     </SkeletonLine>
   )
 }

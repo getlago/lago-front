@@ -100,7 +100,7 @@ const SubscriptionDetails = () => {
           />
           {isSubscriptionLoading ? (
             <TitleSkeletonWrapper>
-              <Skeleton variant="text" width={200} />
+              <Skeleton variant="text" className="w-50" />
             </TitleSkeletonWrapper>
           ) : (
             <Typography variant="bodyHl" color="textSecondary" noWrap>
@@ -206,8 +206,8 @@ const SubscriptionDetails = () => {
         <PlanBlockInfos>
           {isSubscriptionLoading ? (
             <>
-              <Skeleton variant="text" width={200} className="mb-4" />
-              <Skeleton variant="text" width={200} />
+              <Skeleton variant="text" className="mb-4 w-50" />
+              <Skeleton variant="text" className="w-50" />
             </>
           ) : (
             <>

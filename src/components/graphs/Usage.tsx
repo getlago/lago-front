@@ -234,14 +234,14 @@ const Usage = ({
             <GraphWrapper>
               {!!isLoading ? (
                 <>
-                  <Skeleton variant="text" width="100%" />
+                  <Skeleton variant="text" className="" />
 
                   <div>
                     {[...Array(3)].map((_, index) => (
                       <SkeletonLine key={`usage-skeleton-${index}`}>
                         <Skeleton variant="circular" size="tiny" />
-                        <Skeleton variant="text" width="32%" />
-                        <Skeleton variant="text" width="32%" />
+                        <Skeleton variant="text" className="w-[32%]" />
+                        <Skeleton variant="text" className="w-[32%]" />
                       </SkeletonLine>
                     ))}
                   </div>

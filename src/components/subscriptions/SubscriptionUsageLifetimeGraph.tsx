@@ -133,7 +133,7 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
         </div>
 
         {isLoading ? (
-          <Skeleton variant="text" width={144} className="mt-2" />
+          <Skeleton variant="text" className="mt-2 w-36" />
         ) : !subscriptionError && !!lifetimeUsage ? (
           <Typography
             variant="caption"
@@ -160,7 +160,6 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
           </Typography>
         ) : null}
       </Stack>
-
       <div className="flex flex-col gap-6 bg-white py-6">
         {!!subscriptionError ? (
           <GenericPlaceholder
@@ -212,11 +211,11 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
                   <div className="flex flex-col gap-3">
                     {!!isLoading ? (
                       <div className="flex flex-col gap-3">
-                        <Skeleton variant="text" width="100%" />
+                        <Skeleton variant="text" className="" />
 
                         <div className="flex h-6 items-center gap-2">
-                          <Skeleton variant="text" width="32%" />
-                          <Skeleton variant="text" width="32%" className="ml-auto" />
+                          <Skeleton variant="text" className="w-[32%]" />
+                          <Skeleton variant="text" className="ml-auto w-[32%]" />
                         </div>
                       </div>
                     ) : (

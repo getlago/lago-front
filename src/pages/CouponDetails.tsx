@@ -102,7 +102,7 @@ const CouponDetails = () => {
           />
           {isCouponLoading && !coupon ? (
             <CouponTitleLoadingWrapper>
-              <Skeleton variant="text" width={200} />
+              <Skeleton variant="text" className="w-50" />
             </CouponTitleLoadingWrapper>
           ) : (
             <Typography

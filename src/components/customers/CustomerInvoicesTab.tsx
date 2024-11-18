@@ -93,7 +93,7 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
     <div>
       {initialLoad ? (
         <LoadingState>
-          <Skeleton variant="text" width={224} className="mb-7" />
+          <Skeleton variant="text" className="mb-7 w-56" />
           <CustomerInvoicesList
             isLoading
             customerTimezone={customerTimezone}
