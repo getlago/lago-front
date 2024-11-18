@@ -62,6 +62,7 @@ import {
   TAX_MANAGEMENT_INTEGRATION_ROUTE,
   XERO_INTEGRATION_ROUTE,
 } from '~/core/router'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { PremiumIntegrationTypeEnum, useIntegrationsSettingQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -131,6 +132,8 @@ const Integrations = () => {
   const navigate = useNavigate()
   const { isPremium } = useCurrentUser()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
+  const isFeatureSalesforceEnabled = isFeatureFlagActive(FeatureFlags.FTR_SALESFORCE_ENABLED)
+
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const addAnrokDialogRef = useRef<AddAnrokDialogRef>(null)
   const addStripeDialogRef = useRef<AddStripeDialogRef>(null)
@@ -405,31 +408,33 @@ const Integrations = () => {
                   }
                 }}
               />
-              <Selector
-                fullWidth
-                title={translate('text_1731507195246vu9kt6xnhv6')}
-                subtitle={translate('text_1731507195246zr2p61vihmw')}
-                icon={
-                  <Avatar size="big" variant="connector-full">
-                    {<Salesforce />}
-                  </Avatar>
-                }
-                endIcon={!hasAccessToSalesforcePremiumIntegration ? 'sparkles' : undefined}
-                onClick={() => {
-                  if (!hasAccessToSalesforcePremiumIntegration) {
-                    premiumWarningDialogRef.current?.openDialog({
-                      title: translate('text_661ff6e56ef7e1b7c542b1ea'),
-                      description: translate('text_661ff6e56ef7e1b7c542b1f6'),
-                      mailtoSubject: translate('text_173150719524652xb2nd3f7r'),
-                      mailtoBody: translate('text_1731507195246xxr17pdnb7s'),
-                    })
-                  } else if (hasSalesforceIntegration) {
-                    navigate(SALESFORCE_INTEGRATION_ROUTE)
-                  } else {
-                    addSalesforceDialogRef.current?.openDialog()
+              {isFeatureSalesforceEnabled && (
+                <Selector
+                  fullWidth
+                  title={translate('text_1731507195246vu9kt6xnhv6')}
+                  subtitle={translate('text_1731507195246zr2p61vihmw')}
+                  icon={
+                    <Avatar size="big" variant="connector-full">
+                      {<Salesforce />}
+                    </Avatar>
                   }
-                }}
-              />
+                  endIcon={!hasAccessToSalesforcePremiumIntegration ? 'sparkles' : undefined}
+                  onClick={() => {
+                    if (!hasAccessToSalesforcePremiumIntegration) {
+                      premiumWarningDialogRef.current?.openDialog({
+                        title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                        description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                        mailtoSubject: translate('text_173150719524652xb2nd3f7r'),
+                        mailtoBody: translate('text_1731507195246xxr17pdnb7s'),
+                      })
+                    } else if (hasSalesforceIntegration) {
+                      navigate(SALESFORCE_INTEGRATION_ROUTE)
+                    } else {
+                      addSalesforceDialogRef.current?.openDialog()
+                    }
+                  }}
+                />
+              )}
               <Selector
                 title={translate('text_641b42035d62fd004e07cdde')}
                 subtitle={translate('text_641b420ccd75240062f2386e')}

@@ -101,7 +101,7 @@ export const buildSalesforceUrl = ({
   externalCustomerId: string
 }) => {
   // Remove last slash if it exists
-  const baseUrl = instanceId.replace('/$', '')
+  const baseUrl = instanceId.replace(RegExp('/$'), '')
 
   return `${baseUrl}/${externalCustomerId}`
 }
