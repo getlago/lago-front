@@ -69,6 +69,8 @@ import {
   LagoApiError,
   NetsuiteIntegration,
   NetsuiteIntegrationInfosForInvoiceOverviewFragmentDoc,
+  SalesforceIntegration,
+  SalesforceIntegrationInfosForInvoiceOverviewFragmentDoc,
   useDownloadInvoiceMutation,
   useGetInvoiceDetailsQuery,
   useIntegrationsListForCustomerInvoiceDetailsQuery,
@@ -77,6 +79,7 @@ import {
   useRetryTaxProviderVoidingMutation,
   useSyncCrmIntegrationInvoiceMutation,
   useSyncIntegrationInvoiceMutation,
+  useSyncSalesforceInvoiceMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
@@ -127,6 +130,10 @@ gql`
         id
         integrationId
       }
+      salesforceCustomer {
+        id
+        integrationId
+      }
     }
     ...InvoiceDetailsForInvoiceOverview
     ...InvoiceForCreditNotesTable
@@ -159,6 +166,12 @@ gql`
           id
           ...HubspotIntegrationInfosForInvoiceOverview
         }
+
+        ... on SalesforceIntegration {
+          __typename
+          id
+          ...SalesforceIntegrationInfosForInvoiceOverview
+        }
       }
     }
   }
@@ -189,6 +202,12 @@ gql`
     }
   }
 
+  mutation syncSalesforceInvoice($input: SyncSalesforceInvoiceInput!) {
+    syncSalesforceInvoice(input: $input) {
+      invoiceId
+    }
+  }
+
   mutation retryInvoice($input: RetryInvoiceInput!) {
     retryInvoice(input: $input) {
       id
@@ -213,6 +232,7 @@ gql`
   ${InvoiceMetadatasForMetadataDrawerFragmentDoc}
   ${NetsuiteIntegrationInfosForInvoiceOverviewFragmentDoc}
   ${HubspotIntegrationInfosForInvoiceOverviewFragmentDoc}
+  ${SalesforceIntegrationInfosForInvoiceOverviewFragmentDoc}
 `
 
 export enum CustomerInvoiceDetailsTabsOptionsEnum {
@@ -383,6 +403,19 @@ const CustomerInvoiceDetails = () => {
       },
     })
 
+  const [syncSalesforceIntegrationInvoice, { loading: loadingSyncSalesforceIntegrationInvoice }] =
+    useSyncSalesforceInvoiceMutation({
+      variables: { input: { invoiceId: invoiceId || '' } },
+      onCompleted({ syncSalesforceInvoice: syncSalesforceInvoiceResult }) {
+        if (syncSalesforceInvoiceResult?.invoiceId) {
+          addToast({
+            severity: 'success',
+            translateKey: 'text_17316853046485zk7ibjnwbb',
+          })
+        }
+      },
+    })
+
   const [downloadInvoice, { loading: loadingInvoiceDownload }] = useDownloadInvoiceMutation({
     onCompleted({ downloadInvoice: downloadInvoiceData }) {
       handleDownloadFile(downloadInvoiceData?.fileUrl)
@@ -399,24 +432,33 @@ const CustomerInvoiceDetails = () => {
     skip:
       !data?.invoice?.customer?.netsuiteCustomer?.integrationId &&
       !data?.invoice?.customer?.xeroCustomer?.integrationId &&
-      !data?.invoice?.customer?.hubspotCustomer?.integrationId,
+      !data?.invoice?.customer?.hubspotCustomer?.integrationId &&
+      !data?.invoice?.customer?.salesforceCustomer?.integrationId,
   })
 
   const allNetsuiteIntegrations = integrationsData?.integrations?.collection.filter(
     (i) => i.__typename === 'NetsuiteIntegration',
   ) as NetsuiteIntegration[] | undefined
 
-  const allHubsportIntegrations = integrationsData?.integrations?.collection.filter(
+  const allHubspotIntegrations = integrationsData?.integrations?.collection.filter(
     (i) => i.__typename === 'HubspotIntegration',
   ) as HubspotIntegration[] | undefined
+
+  const allSalesforceIntegration = integrationsData?.integrations?.collection.filter(
+    (i) => i.__typename === 'SalesforceIntegration',
+  ) as SalesforceIntegration[] | undefined
 
   const connectedNetsuiteIntegration = allNetsuiteIntegrations?.find(
     (integration) => integration?.id === data?.invoice?.customer?.netsuiteCustomer?.integrationId,
   ) as NetsuiteIntegration
 
-  const connectedHubspotIntegration = allHubsportIntegrations?.find(
+  const connectedHubspotIntegration = allHubspotIntegrations?.find(
     (integration) => integration?.id === data?.invoice?.customer?.hubspotCustomer?.integrationId,
   ) as HubspotIntegration
+
+  const connectedSalesforceIntegration = allSalesforceIntegration?.find(
+    (integration) => integration?.id === data?.invoice?.customer?.salesforceCustomer?.integrationId,
+  ) as SalesforceIntegration
 
   const {
     invoiceType,
@@ -499,9 +541,12 @@ const CustomerInvoiceDetails = () => {
             retryTaxProviderVoiding={retryTaxProviderVoiding}
             connectedNetsuiteIntegration={connectedNetsuiteIntegration}
             connectedHubspotIntegration={connectedHubspotIntegration}
+            connectedSalesforceIntegration={connectedSalesforceIntegration}
             goToPreviousRoute={goToPreviousRoute}
             syncCrmIntegrationInvoice={syncCrmIntegrationInvoice}
+            syncSalesforceIntegrationInvoice={syncSalesforceIntegrationInvoice}
             loadingSyncCrmIntegrationInvoice={loadingSyncCrmIntegrationInvoice}
+            loadingSyncSalesforceIntegrationInvoice={loadingSyncSalesforceIntegrationInvoice}
           />
         ),
       },
@@ -545,9 +590,12 @@ const CustomerInvoiceDetails = () => {
     retryTaxProviderVoiding,
     connectedNetsuiteIntegration,
     connectedHubspotIntegration,
+    connectedSalesforceIntegration,
     goToPreviousRoute,
     syncCrmIntegrationInvoice,
     loadingSyncCrmIntegrationInvoice,
+    syncSalesforceIntegrationInvoice,
+    loadingSyncSalesforceIntegrationInvoice,
     status,
   ])
 

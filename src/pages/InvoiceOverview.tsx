@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql, MutationFunction } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { memo, useRef } from 'react'
 import { Link, useParams } from 'react-router-dom'
@@ -26,6 +26,7 @@ import {
   buildAnrokInvoiceUrl,
   buildHubspotInvoiceUrl,
   buildNetsuiteInvoiceUrl,
+  buildSalesforceUrl,
   buildXeroInvoiceUrl,
 } from '~/core/constants/externalUrls'
 import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
@@ -38,6 +39,9 @@ import {
   Invoice,
   InvoiceStatusTypeEnum,
   NetsuiteIntegrationInfosForInvoiceOverviewFragment,
+  SalesforceIntegrationInfosForInvoiceOverviewFragment,
+  SyncCrmIntegrationInvoiceMutation,
+  SyncSalesforceInvoiceMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -70,6 +74,9 @@ gql`
       hubspotCustomer {
         externalCustomerId
       }
+      salesforceCustomer {
+        externalCustomerId
+      }
     }
   }
 
@@ -83,6 +90,12 @@ gql`
     id
     portalId
     invoicesObjectTypeId
+  }
+
+  fragment SalesforceIntegrationInfosForInvoiceOverview on SalesforceIntegration {
+    id
+    name
+    instanceId
   }
 `
 
@@ -101,9 +114,12 @@ interface InvoiceOverviewProps {
   retryTaxProviderVoiding: Function
   connectedNetsuiteIntegration: NetsuiteIntegrationInfosForInvoiceOverviewFragment | undefined
   connectedHubspotIntegration: HubspotIntegrationInfosForInvoiceOverviewFragment | undefined
+  connectedSalesforceIntegration: SalesforceIntegrationInfosForInvoiceOverviewFragment | undefined
   goToPreviousRoute?: Function
-  syncCrmIntegrationInvoice: Function
+  syncCrmIntegrationInvoice: MutationFunction<SyncCrmIntegrationInvoiceMutation>
+  syncSalesforceIntegrationInvoice: MutationFunction<SyncSalesforceInvoiceMutation>
   loadingSyncCrmIntegrationInvoice: boolean
+  loadingSyncSalesforceIntegrationInvoice: boolean
 }
 
 const InvoiceOverview = memo(
@@ -122,9 +138,12 @@ const InvoiceOverview = memo(
     retryTaxProviderVoiding,
     connectedNetsuiteIntegration,
     connectedHubspotIntegration,
+    connectedSalesforceIntegration,
     goToPreviousRoute,
     syncCrmIntegrationInvoice,
+    syncSalesforceIntegrationInvoice,
     loadingSyncCrmIntegrationInvoice,
+    loadingSyncSalesforceIntegrationInvoice,
   }: InvoiceOverviewProps) => {
     const { translate } = useInternationalization()
     const { invoiceId } = useParams()
@@ -132,7 +151,7 @@ const InvoiceOverview = memo(
     const deleteAdjustedFeeDialogRef = useRef<DeleteAdjustedFeeDialogRef>(null)
     const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
     const editFeeDrawerRef = useRef<EditFeeDrawerRef>(null)
-    const formatedCreditNotes = invoice?.creditNotes
+    const formattedCreditNotes = invoice?.creditNotes
       ?.reduce<{ creditNote: CreditNote; items: CreditNoteItem[][][] }[]>((acc, cur) => {
         const newItems = formatCreditNotesItems(cur.items as CreditNoteItem[])
 
@@ -156,13 +175,17 @@ const InvoiceOverview = memo(
 
     const showXeroSection =
       !!invoice?.customer?.xeroCustomer?.externalCustomerId && !!invoice?.externalIntegrationId
+
     const showNetsuiteSection =
       !!connectedNetsuiteIntegration?.accountId && !!invoice?.externalIntegrationId
+
     const showAnrokReSyncButton = invoice?.taxProviderVoidable
     const showAnrokLink =
       (invoice?.status === InvoiceStatusTypeEnum.Finalized ||
         invoice?.status === InvoiceStatusTypeEnum.Voided) &&
       !!invoice?.customer?.anrokCustomer?.externalAccountId
+    const showAnrokSection = showAnrokReSyncButton || showAnrokLink
+
     const showHubspotReSyncButton = invoice?.integrationCrmSyncable
     const showHubspotLink =
       !!invoice?.customer?.hubspotCustomer?.externalCustomerId &&
@@ -171,9 +194,17 @@ const InvoiceOverview = memo(
       (invoice?.status === InvoiceStatusTypeEnum.Finalized ||
         invoice?.status === InvoiceStatusTypeEnum.Voided)
     const showHubspotSection = showHubspotLink || showHubspotReSyncButton
-    const showAnrokSection = showAnrokReSyncButton || showAnrokLink
+
+    const showSalesforceLink =
+      customer?.salesforceCustomer?.externalCustomerId && connectedSalesforceIntegration?.instanceId
+    const showSalesforceSection = showSalesforceLink
+
     const showExternalAppsSection =
-      showXeroSection || showNetsuiteSection || showAnrokSection || showHubspotSection
+      showXeroSection ||
+      showNetsuiteSection ||
+      showAnrokSection ||
+      showHubspotSection ||
+      showSalesforceSection
 
     return (
       <>
@@ -309,12 +340,12 @@ const InvoiceOverview = memo(
                 editFeeDrawerRef={editFeeDrawerRef}
                 deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
               />
-              {!!formatedCreditNotes?.length &&
+              {!!formattedCreditNotes?.length &&
                 invoice?.status !== InvoiceStatusTypeEnum.Draft &&
                 !loadingRefreshInvoice && (
                   <InvoiceCreditNotesTable
                     customerId={customer?.id || ''}
-                    formatedCreditNotes={formatedCreditNotes}
+                    formatedCreditNotes={formattedCreditNotes}
                     invoiceId={invoiceId || ''}
                     invoiceType={invoice?.invoiceType}
                   />
@@ -466,6 +497,56 @@ const InvoiceOverview = memo(
                             </Typography>
                           </InlineLink>
                           {loadingSyncCrmIntegrationInvoice && (
+                            <Icon name="processing" color="info" size="small" animation="spin" />
+                          )}
+                        </Stack>
+                      )}
+                    </InfoLine>
+                  )}
+
+                  {showSalesforceSection && (
+                    <InfoLine>
+                      <Typography variant="caption" color="grey600" noWrap>
+                        {translate('text_17316852355256pb6ga10vb4')}
+                      </Typography>
+
+                      {showSalesforceLink ? (
+                        <InlineLink
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          to={buildSalesforceUrl({
+                            externalCustomerId:
+                              customer.salesforceCustomer?.externalCustomerId ?? '',
+                            instanceId: connectedSalesforceIntegration.instanceId,
+                          })}
+                        >
+                          <Typography
+                            className="flex items-center gap-1"
+                            variant="body"
+                            color="info600"
+                          >
+                            {invoice.externalCrmIntegrationId} <Icon name="outside" />
+                          </Typography>
+                        </InlineLink>
+                      ) : (
+                        <Stack direction="row" alignItems="center" gap={2}>
+                          <Icon name="warning-filled" color="warning" />
+                          <Typography variant="body" color="grey600" noWrap>
+                            {translate('text_1731685304648t5kyi5j9fju')}
+                          </Typography>
+                          <span>•</span>
+                          <InlineLink
+                            to={'#'}
+                            onClick={(e) => {
+                              e.preventDefault()
+                              syncSalesforceIntegrationInvoice()
+                            }}
+                          >
+                            <Typography variant="body" color="info600">
+                              {translate('text_1731685235525jazy82715wh')}
+                            </Typography>
+                          </InlineLink>
+                          {loadingSyncSalesforceIntegrationInvoice && (
                             <Icon name="processing" color="info" size="small" animation="spin" />
                           )}
                         </Stack>
