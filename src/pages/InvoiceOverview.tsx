@@ -1,4 +1,4 @@
-import { gql, MutationFunction } from '@apollo/client'
+import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { memo, useRef } from 'react'
 import { Link, useParams } from 'react-router-dom'
@@ -35,13 +35,17 @@ import {
   CreditNote,
   CreditNoteItem,
   Customer,
+  DownloadInvoiceItemMutationFn,
   HubspotIntegrationInfosForInvoiceOverviewFragment,
   Invoice,
   InvoiceStatusTypeEnum,
   NetsuiteIntegrationInfosForInvoiceOverviewFragment,
+  RefreshInvoiceMutationFn,
+  RetryInvoiceMutationFn,
+  RetryTaxProviderVoidingMutationFn,
   SalesforceIntegrationInfosForInvoiceOverviewFragment,
-  SyncCrmIntegrationInvoiceMutation,
-  SyncSalesforceInvoiceMutation,
+  SyncCrmIntegrationInvoiceMutationFn,
+  SyncSalesforceInvoiceMutationFn,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -100,7 +104,7 @@ gql`
 `
 
 interface InvoiceOverviewProps {
-  downloadInvoice: Function
+  downloadInvoice: DownloadInvoiceItemMutationFn
   hasError: boolean
   hasTaxProviderError: boolean
   invoice: Invoice
@@ -109,15 +113,15 @@ interface InvoiceOverviewProps {
   loadingRefreshInvoice: boolean
   loadingRetryInvoice: boolean
   loadingRetryTaxProviderVoiding: boolean
-  refreshInvoice: Function
-  retryInvoice: Function
-  retryTaxProviderVoiding: Function
+  refreshInvoice: RefreshInvoiceMutationFn
+  retryInvoice: RetryInvoiceMutationFn
+  retryTaxProviderVoiding: RetryTaxProviderVoidingMutationFn
   connectedNetsuiteIntegration: NetsuiteIntegrationInfosForInvoiceOverviewFragment | undefined
   connectedHubspotIntegration: HubspotIntegrationInfosForInvoiceOverviewFragment | undefined
   connectedSalesforceIntegration: SalesforceIntegrationInfosForInvoiceOverviewFragment | undefined
-  goToPreviousRoute?: Function
-  syncCrmIntegrationInvoice: MutationFunction<SyncCrmIntegrationInvoiceMutation>
-  syncSalesforceIntegrationInvoice: MutationFunction<SyncSalesforceInvoiceMutation>
+  goToPreviousRoute?: () => void
+  syncCrmIntegrationInvoice: SyncCrmIntegrationInvoiceMutationFn
+  syncSalesforceIntegrationInvoice: SyncSalesforceInvoiceMutationFn
   loadingSyncCrmIntegrationInvoice: boolean
   loadingSyncSalesforceIntegrationInvoice: boolean
 }
