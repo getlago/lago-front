@@ -10,7 +10,6 @@ import { AmountInputField, ComboBoxField, TextInputField } from '~/components/fo
 import { chargeModelLookupTranslation } from '~/core/constants/form'
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   AdjustedFeeTypeEnum,
   ChargeModelEnum,
@@ -70,13 +69,13 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
   >({
     initialValues: {
       invoiceDisplayName: fee?.invoiceDisplayName || '',
-      unitAmountCents: undefined,
+      unitPreciseAmount: undefined,
       units: undefined,
       adjustmentType: undefined,
     },
     validationSchema: object().shape({
       invoiceDisplayName: string(),
-      unitAmountCents: number().test({
+      unitPreciseAmount: number().test({
         test: function (value, { from }) {
           if (
             from?.[0]?.value?.adjustmentType === AdjustedFeeTypeEnum.AdjustedAmount &&
@@ -102,16 +101,16 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
     }),
     validateOnMount: true,
     enableReinitialize: true,
-    onSubmit: async ({ adjustmentType, unitAmountCents, units, ...values }) => {
+    onSubmit: async ({ adjustmentType, unitPreciseAmount, units, ...values }) => {
       await createFee({
         variables: {
           input: {
             ...values,
             feeId: fee?.id as string,
             units: !!adjustmentType ? Number(units || 0) : undefined,
-            unitAmountCents:
+            unitPreciseAmount:
               adjustmentType === AdjustedFeeTypeEnum.AdjustedAmount
-                ? Number(serializeAmount(unitAmountCents, currency) || 0)
+                ? String(unitPreciseAmount)
                 : undefined,
             invoiceDisplayName: values.invoiceDisplayName || undefined,
           },
@@ -120,9 +119,9 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
     },
   })
 
-  // Reset unitAmountCents and units if adjustmentType changes
+  // Reset unitPreciseAmount and units if adjustmentType changes
   useEffect(() => {
-    formikProps.setFieldValue('unitAmountCents', undefined)
+    formikProps.setFieldValue('unitPreciseAmount', undefined)
     formikProps.setFieldValue('units', undefined)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formikProps.values.adjustmentType])
@@ -247,9 +246,9 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
                   <>
                     <AmountInputField
                       label={translate('text_6453819268763979024ad089')}
-                      name="unitAmountCents"
+                      name="unitPreciseAmount"
                       currency={currency}
-                      beforeChangeFormatter={['positiveNumber']}
+                      beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
                       placeholder={translate('text_62a0b7107afa2700a65ef700')}
                       formikProps={formikProps}
                       error={undefined}
@@ -270,11 +269,12 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
                         {intlFormatNumber(
                           Number(
                             Number(formikProps.values.units || 0) *
-                              Number(formikProps.values.unitAmountCents || 0) || 0,
+                              Number(formikProps.values.unitPreciseAmount || 0) || 0,
                           ),
                           {
                             currencyDisplay: 'symbol',
                             currency: currency,
+                            maximumFractionDigits: 15,
                           },
                         )}
                       </Typography>
