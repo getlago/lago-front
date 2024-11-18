@@ -111,12 +111,14 @@ export const CouponItem = ({
             'mr-6': shouldShowItemActions,
           })}
         >
-          <div className="mr-6 hidden w-24 text-right md:block">{customersCount}</div>
-          <div className="mr-6 hidden w-28 md:block">
+          <Typography color="grey600" className="mr-6 hidden w-24 text-right md:block">
+            {customersCount}
+          </Typography>
+          <Typography color="grey600" className="mr-6 hidden w-28 md:block">
             {!expirationAt
               ? translate('text_62876a50ea3bba00b56d2c2c')
               : formatTimeOrgaTZ(expirationAt)}
-          </div>
+          </Typography>
           <div className="hidden w-26 md:block">{<Status {...formattedStatus} />}</div>
         </div>
         {shouldShowItemActions && <div className="w-10" />}
