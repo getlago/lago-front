@@ -7,7 +7,7 @@ import { Typography } from './Typography'
 
 import { colors } from '../../../tailwind.config'
 
-export type AvatarSize = 'small' | 'intermediate' | 'medium' | 'big' | 'large'
+export type AvatarSize = 'tiny' | 'small' | 'intermediate' | 'medium' | 'big' | 'large'
 type AvatarVariant = 'connector' | 'user' | 'company' | 'connector-full'
 
 interface AvatarConnectorProps {
@@ -30,6 +30,7 @@ export interface AvatarGenericProps {
 
 const mapTypographyVariant = (size: AvatarSize) => {
   switch (size) {
+    case 'tiny':
     case 'small':
     case 'intermediate':
       return 'noteHl'
@@ -78,6 +79,7 @@ const getBackgroundColorKey = (identifier?: string): keyof typeof colors.avatar 
 }
 
 export const avatarSizeStyles: Record<AvatarSize, string> = {
+  tiny: cx('w-2 min-w-2 h-2 rounded'),
   small: cx('w-4 min-w-4 h-4 rounded'),
   intermediate: cx('w-6 min-w-6 h-6 rounded-lg'),
   medium: cx('w-8 min-w-8 h-8 rounded-xl'),

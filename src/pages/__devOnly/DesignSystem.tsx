@@ -480,7 +480,7 @@ const DesignSystem = () => {
                   <Skeleton variant="userAvatar" size="large" />
                 </Block>
                 <div>
-                  <Skeleton className="mb-4 size-15" variant="circular" />
+                  <Skeleton className="mb-4" size="large" variant="circular" />
                   <Skeleton className="mb-4 h-3 w-30" variant="text" />
                   <Skeleton className="mb-4 h-3 w-1/2" variant="text" />
                   <Skeleton className="mb-4 h-3" variant="text" color="dark" />

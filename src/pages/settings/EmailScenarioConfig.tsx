@@ -186,7 +186,7 @@ const EmailScenarioConfig = () => {
                     marginBottom={theme.spacing(5)}
                   />
                   <Skeleton color="dark" variant="text" width={120} marginBottom={30} />
-                  <Skeleton color="dark" variant="text" width="100%" height={1} marginBottom={30} />
+                  <Skeleton color="dark" variant="text" width="100%" marginBottom={30} />
                   <LoadingBlock>
                     <Skeleton
                       color="dark"

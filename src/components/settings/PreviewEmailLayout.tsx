@@ -51,13 +51,7 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
         <div className="mb-12 flex w-full items-center">
           {isLoading ? (
             <>
-              <Skeleton
-                color="dark"
-                variant="circular"
-                width={40}
-                height={40}
-                marginRight={theme.spacing(4)}
-              />
+              <Skeleton color="dark" variant="circular" size="big" className="mr-4" />
               <div>
                 <Skeleton color="dark" variant="text" width={240} marginBottom={theme.spacing(2)} />
                 <Skeleton color="dark" variant="text" width={120} />

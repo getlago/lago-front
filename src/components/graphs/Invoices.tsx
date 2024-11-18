@@ -307,7 +307,7 @@ const Invoices = ({
                   <div>
                     {[...Array(3)].map((_, index) => (
                       <SkeletonLine key={`invoices-skeleton-${index}`}>
-                        <Skeleton variant="circular" width={8} height={8} />
+                        <Skeleton variant="circular" size="tiny" />
                         <Skeleton variant="text" width="32%" />
                         <Skeleton variant="text" width="32%" />
                       </SkeletonLine>
