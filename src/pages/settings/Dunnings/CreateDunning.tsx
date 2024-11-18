@@ -199,7 +199,7 @@ const CreateDunning = () => {
         {loading ? (
           <div className="container mx-auto mb-15 mt-12 flex flex-col gap-12">
             <div>
-              <Skeleton variant="text" width={160} marginBottom={20} />
+              <Skeleton variant="text" width={160} className="mb-4" />
               <Skeleton variant="text" width={400} />
             </div>
             {[0, 1].map((_, index) => (

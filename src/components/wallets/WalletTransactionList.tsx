@@ -94,13 +94,13 @@ export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTran
           ) : !!loading ? (
             [1, 2, 3].map((i) => (
               <Loader key={`wallet-transaction-skeleton-${i}`}>
-                <Skeleton variant="connectorAvatar" size="big" marginRight={theme.spacing(3)} />
+                <Skeleton variant="connectorAvatar" size="big" className="mr-3" />
                 <LeftLoader>
-                  <Skeleton variant="text" width={144} marginBottom={theme.spacing(3)} />
+                  <Skeleton variant="text" width={144} className="mb-3" />
                   <Skeleton variant="text" width={80} />
                 </LeftLoader>
                 <RightLoader>
-                  <Skeleton variant="text" width={144} marginBottom={theme.spacing(3)} />
+                  <Skeleton variant="text" width={144} className="mb-3" />
                   <Skeleton variant="text" width={80} />
                 </RightLoader>
               </Loader>

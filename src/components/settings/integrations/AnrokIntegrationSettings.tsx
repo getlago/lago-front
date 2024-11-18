@@ -154,7 +154,7 @@ const AnrokIntegrationSettings = () => {
               <>
                 {[0, 1, 2].map((i) => (
                   <Item key={`item-skeleton-item-${i}`}>
-                    <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
+                    <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
                     <Skeleton variant="text" width={240} />
                   </Item>
                 ))}
@@ -259,7 +259,6 @@ const AnrokIntegrationSettings = () => {
           </Button>
         </Stack>
       </Settings>
-
       <AddAnrokDialog ref={addAnrokDialogRef} />
       <DeleteAnrokIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />

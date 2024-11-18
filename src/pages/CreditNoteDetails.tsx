@@ -465,7 +465,7 @@ const CreditNoteDetails = () => {
             <MainInfos>
               <Skeleton variant="connectorAvatar" size="large" />
               <div>
-                <Skeleton variant="text" width={200} marginBottom={theme.spacing(5)} />
+                <Skeleton variant="text" width={200} className="mb-5" />
                 <Skeleton variant="text" width={128} />
               </div>
             </MainInfos>
@@ -527,10 +527,10 @@ const CreditNoteDetails = () => {
               <>
                 {[1, 2, 3, 4].map((i) => (
                   <SkeletonLine key={`key-skeleton-line-${i}`}>
-                    <Skeleton variant="text" width="12%" marginRight="6.4%" />
-                    <Skeleton variant="text" width="38%" marginRight="11.2%" />
-                    <Skeleton variant="text" width="12%" marginRight="6.4%" />
-                    <Skeleton variant="text" width="38%" marginRight="9.25%" />
+                    <Skeleton variant="text" width="12%" className="mr-[6.4%]" />
+                    <Skeleton variant="text" width="38%" className="mr-[11.2%]" />
+                    <Skeleton variant="text" width="12%" className="mr-[6.4%]" />
+                    <Skeleton variant="text" width="38%" className="mr-[9.25%]" />
                   </SkeletonLine>
                 ))}
               </>

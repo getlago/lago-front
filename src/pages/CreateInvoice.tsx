@@ -490,11 +490,11 @@ const CreateInvoice = () => {
                 </InvoiceHeader>
                 <div>
                   <InlineSkeleton>
-                    <Skeleton variant="text" width={104} marginRight={52} />
+                    <Skeleton variant="text" width={104} className="mr-13" />
                     <Skeleton variant="text" width={96} />
                   </InlineSkeleton>
                   <InlineSkeleton>
-                    <Skeleton variant="text" width={104} marginRight={52} />
+                    <Skeleton variant="text" width={104} className="mr-13" />
                     <Skeleton variant="text" width={96} />
                   </InlineSkeleton>
                 </div>

@@ -99,9 +99,9 @@ const GocardlessIntegrationOauthCallback = () => {
       <MainInfos>
         {loading ? (
           <>
-            <Skeleton variant="connectorAvatar" size="large" marginRight="16px" />
+            <Skeleton variant="connectorAvatar" size="large" className="mr-4" />
             <div>
-              <Skeleton variant="text" width={200} marginBottom="22px" />
+              <Skeleton variant="text" width={200} className="mb-5" />
               <Skeleton variant="text" width={128} />
             </div>
           </>

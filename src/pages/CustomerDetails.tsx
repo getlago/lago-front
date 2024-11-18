@@ -323,7 +323,7 @@ const CustomerDetails = () => {
               <MainInfos>
                 <Skeleton variant="userAvatar" size="large" />
                 <div>
-                  <Skeleton variant="text" width={200} marginBottom={theme.spacing(5)} />
+                  <Skeleton variant="text" width={200} className="mb-5" />
                   <Skeleton variant="text" width={128} />
                 </div>
               </MainInfos>

@@ -275,15 +275,15 @@ const CreateCreditNote = () => {
           <div>
             {loading ? (
               <>
-                <Skeleton variant="text" width={280} marginBottom="22px" />
-                <Skeleton variant="text" width={480} marginBottom="40px" />
+                <Skeleton variant="text" width={280} className="mb-5" />
+                <Skeleton variant="text" width={480} className="mb-10" />
                 <StyledCard $loading>
-                  <Skeleton variant="connectorAvatar" size="medium" marginRight="12px" />
+                  <Skeleton variant="connectorAvatar" size="medium" className="mr-3" />
                   <Skeleton variant="text" width={160} />
                 </StyledCard>
                 <Card>
-                  <Skeleton variant="text" width={416} marginBottom="36px" />
-                  <Skeleton variant="text" width={656} marginBottom="16px" />
+                  <Skeleton variant="text" width={416} className="mb-9" />
+                  <Skeleton variant="text" width={656} className="mb-4" />
                   <Skeleton variant="text" width={256} />
                 </Card>
                 <ButtonContainer>

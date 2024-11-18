@@ -133,7 +133,7 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
         </div>
 
         {isLoading ? (
-          <Skeleton variant="text" width={144} marginTop={8} />
+          <Skeleton variant="text" width={144} className="mt-2" />
         ) : !subscriptionError && !!lifetimeUsage ? (
           <Typography
             variant="caption"

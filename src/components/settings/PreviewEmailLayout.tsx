@@ -5,7 +5,6 @@ import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useEmailConfig } from '~/hooks/useEmailConfig'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
-import { theme } from '~/styles'
 
 import {
   UpdateOrganizationLogoDialog,
@@ -41,7 +40,7 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
     <>
       <div>
         {isLoading ? (
-          <Skeleton color="dark" variant="text" width={360} marginBottom={22} />
+          <Skeleton color="dark" variant="text" width={360} className="mb-5" />
         ) : (
           <Typography className="mb-4" variant="bodyHl" color="grey700">
             {emailObject}
@@ -53,7 +52,7 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
             <>
               <Skeleton color="dark" variant="circular" size="big" className="mr-4" />
               <div>
-                <Skeleton color="dark" variant="text" width={240} marginBottom={theme.spacing(2)} />
+                <Skeleton color="dark" variant="text" width={240} className="mb-2" />
                 <Skeleton color="dark" variant="text" width={120} />
               </div>
             </>
@@ -81,12 +80,7 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
           <div className="mb-8 flex items-center justify-center not-last-child:mr-3">
             {isLoading ? (
               <>
-                <Skeleton
-                  color="dark"
-                  variant="connectorAvatar"
-                  size="medium"
-                  marginRight={theme.spacing(3)}
-                />
+                <Skeleton color="dark" variant="connectorAvatar" size="medium" className="mr-3" />
                 <Skeleton color="dark" variant="text" width={120} />
               </>
             ) : (

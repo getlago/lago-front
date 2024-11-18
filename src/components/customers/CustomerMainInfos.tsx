@@ -246,11 +246,11 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
           <Skeleton variant="text" width={200} />
         </SectionHeader>
         <div>
-          <Skeleton variant="text" width={80} marginBottom={theme.spacing(3)} />
+          <Skeleton variant="text" width={80} className="mb-3" />
           <Skeleton variant="text" width={200} />
         </div>
         <div>
-          <Skeleton variant="text" width={80} marginBottom={theme.spacing(3)} />
+          <Skeleton variant="text" width={80} className="mb-3" />
           <Skeleton variant="text" width={200} />
         </div>
       </LoadingDetails>

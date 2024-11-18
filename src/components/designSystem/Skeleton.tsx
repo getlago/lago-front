@@ -21,18 +21,6 @@ interface SkeletonConnectorProps {
    */
   width?: never
   className?: string
-  /**
-   * @deprecated Use `className` and TailwindCSS instead
-   */
-  marginRight?: number | string
-  /**
-   * @deprecated Use `className` and TailwindCSS instead
-   */
-  marginBottom?: number | string
-  /**
-   * @deprecated Use `className` and TailwindCSS instead
-   */
-  marginTop?: number | string
   color?: SkeletonColor
 }
 
@@ -44,18 +32,6 @@ interface SkeletonGenericProps {
   width?: number | string
   size?: never
   className?: string
-  /**
-   * @deprecated Use `className` and TailwindCSS instead
-   */
-  marginRight?: number | string
-  /**
-   * @deprecated Use `className` and TailwindCSS instead
-   */
-  marginBottom?: number | string
-  /**
-   * @deprecated Use `className` and TailwindCSS instead
-   */
-  marginTop?: number | string
   color?: SkeletonColor
 }
 
@@ -83,16 +59,10 @@ export const Skeleton = ({
   variant,
   color,
   size,
-  marginBottom,
-  marginRight,
-  marginTop,
   width,
 }: SkeletonConnectorProps | SkeletonGenericProps) => {
   return (
     <SkeletonContainer
-      $marginRight={marginRight}
-      $marginBottom={marginBottom}
-      $marginTop={marginTop}
       $width={size ? mapAvatarSize(size) : width}
       className={tw(skeletonStyles({ variant, color, size }), className)}
     />
@@ -101,28 +71,7 @@ export const Skeleton = ({
 
 const SkeletonContainer = styled.div<{
   $width?: number | string
-  $marginRight?: number | string
-  $marginBottom?: number | string
-  $marginTop?: number | string
 }>`
   width: ${({ $width }) =>
     !$width ? 0 : typeof $width === 'number' ? `${$width}px !important` : `${$width} !important`};
-  margin-right: ${({ $marginRight }) =>
-    !$marginRight
-      ? 0
-      : typeof $marginRight === 'number'
-        ? `${$marginRight}px ! important`
-        : `${$marginRight} !important`};
-  margin-bottom: ${({ $marginBottom }) =>
-    !$marginBottom
-      ? 0
-      : typeof $marginBottom === 'number'
-        ? `${$marginBottom}px ! important`
-        : `${$marginBottom} !important`};
-  margin-top: ${({ $marginTop }) =>
-    !$marginTop
-      ? 0
-      : typeof $marginTop === 'number'
-        ? `${$marginTop}px ! important`
-        : `${$marginTop} !important`};
 `

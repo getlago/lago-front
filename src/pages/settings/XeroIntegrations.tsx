@@ -108,9 +108,9 @@ const XeroIntegrations = () => {
       <MainInfos>
         {loading ? (
           <>
-            <Skeleton variant="connectorAvatar" size="large" marginRight="16px" />
+            <Skeleton variant="connectorAvatar" size="large" className="mr-4" />
             <div>
-              <Skeleton variant="text" width={200} marginBottom="22px" />
+              <Skeleton variant="text" width={200} className="mb-5" />
               <Skeleton variant="text" width={128} />
             </div>
           </>
@@ -142,7 +142,7 @@ const XeroIntegrations = () => {
               <>
                 {[1, 2].map((i) => (
                   <ListItem key={`item-skeleton-item-${i}`}>
-                    <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
+                    <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
                     <Skeleton variant="text" width={240} />
                   </ListItem>
                 ))}

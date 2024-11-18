@@ -107,7 +107,7 @@ export const PlanSubscriptionListItemSkeleton = ({
       <CustomerNameWrapper>
         <Skeleton variant="circular" size="big" />
         <CustomerBlockInfos>
-          <Skeleton variant="text" width={160} marginBottom={14} />
+          <Skeleton variant="text" width={160} className="mb-3" />
           <Skeleton variant="text" width={100} />
         </CustomerBlockInfos>
       </CustomerNameWrapper>

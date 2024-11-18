@@ -165,9 +165,9 @@ const HubspotIntegrationDetails = () => {
         <section className="flex items-center py-8">
           {loading ? (
             <>
-              <Skeleton variant="connectorAvatar" size="large" marginRight="16px" />
+              <Skeleton variant="connectorAvatar" size="large" className="mr-4" />
               <div className="flex-1">
-                <Skeleton variant="text" width={200} marginBottom="22px" />
+                <Skeleton variant="text" width={200} className="mb-5" />
                 <Skeleton variant="text" width={128} />
               </div>
             </>
@@ -216,7 +216,7 @@ const HubspotIntegrationDetails = () => {
             <>
               {[1, 2].map((i) => (
                 <div className="flex h-18 items-center shadow-b" key={`item-skeleton-item-${i}`}>
-                  <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
+                  <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
                   <Skeleton variant="text" width={240} />
                 </div>
               ))}

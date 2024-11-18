@@ -22,7 +22,7 @@ const ChartHeader = ({
     <>
       {!!loading ? (
         <div className="flex h-14 flex-col justify-between pb-2 pt-1">
-          <Skeleton variant="text" width={72} marginBottom={4} />
+          <Skeleton variant="text" width={72} className="mb-1" />
           <Skeleton variant="text" width={160} />
         </div>
       ) : (

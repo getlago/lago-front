@@ -134,7 +134,7 @@ const LoadingSkeleton = () => {
         <Typography variant="headline">{translate('text_6335e8900c69f8ebdfef5312')}</Typography>
         <Card>
           <div>
-            <Skeleton variant="text" width={160} marginBottom={theme.spacing(3)} />
+            <Skeleton variant="text" width={160} className="mb-3" />
             <Skeleton variant="text" width={384} />
           </div>
         </Card>
@@ -159,7 +159,7 @@ const LoadingSkeleton = () => {
         <Section>
           <Card>
             <div>
-              <Skeleton variant="text" width={160} marginBottom={theme.spacing(3)} />
+              <Skeleton variant="text" width={160} className="mb-3" />
               <Skeleton variant="text" width={384} />
             </div>
             {Array(3)
@@ -173,7 +173,7 @@ const LoadingSkeleton = () => {
           </Card>
           <Card>
             <div>
-              <Skeleton variant="text" width={160} marginBottom={theme.spacing(3)} />
+              <Skeleton variant="text" width={160} className="mb-3" />
               <Skeleton variant="text" width={384} />
             </div>
             {Array(2)

@@ -162,7 +162,7 @@ const XeroIntegrationSettings = () => {
               <>
                 {[0, 1, 2].map((i) => (
                   <Item key={`item-skeleton-item-${i}`}>
-                    <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
+                    <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
                     <Skeleton variant="text" width={240} />
                   </Item>
                 ))}
@@ -216,7 +216,6 @@ const XeroIntegrationSettings = () => {
           </>
         </section>
       </Settings>
-
       <AddXeroDialog ref={addXeroDialogRef} />
       <DeleteXeroIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />

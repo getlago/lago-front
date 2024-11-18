@@ -167,7 +167,7 @@ const PlanDetails = () => {
         <PlanBlockInfos>
           {isPlanLoading && !plan ? (
             <PlanTitleLoadingWrapper>
-              <Skeleton variant="text" width={200} marginBottom={20} />
+              <Skeleton variant="text" width={200} className="mb-5" />
               <Skeleton variant="text" width={200} />
             </PlanTitleLoadingWrapper>
           ) : (

@@ -312,8 +312,8 @@ const WebhookLogs = () => {
                 <LogPropertiesSkeleton>
                   {[0, 1, 2, 3, 4, 5, 6].map((i) => (
                     <div key={`skeleton-event-${i}`}>
-                      <Skeleton variant="text" width={80} marginRight="72px" />
-                      <Skeleton variant="text" width={240} marginRight="auto" />
+                      <Skeleton variant="text" width={80} className="mr-18" />
+                      <Skeleton variant="text" width={240} className="mr-auto" />
                     </div>
                   ))}
                 </LogPropertiesSkeleton>
