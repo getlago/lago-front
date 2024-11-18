@@ -1790,6 +1790,7 @@ export type CurrentOrganization = {
   euTaxManagement: Scalars['Boolean']['output'];
   finalizeZeroAmountInvoice: Scalars['Boolean']['output'];
   gocardlessPaymentProviders?: Maybe<Array<GocardlessProvider>>;
+  hmacKey?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   legalName?: Maybe<Scalars['String']['output']>;
   legalNumber?: Maybe<Scalars['String']['output']>;
@@ -4923,7 +4924,9 @@ export type RevokeMembershipInput = {
 export type RotateApiKeyInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  expiresAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   id: Scalars['ID']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
 };
 
 export enum RoundingFunctionEnum {
@@ -6589,6 +6592,15 @@ export type DeleteWebhookMutationVariables = Exact<{
 export type DeleteWebhookMutation = { __typename?: 'Mutation', destroyWebhookEndpoint?: { __typename?: 'DestroyWebhookEndpointPayload', id?: string | null } | null };
 
 export type EventItemFragment = { __typename?: 'Event', id: string, code: string, receivedAt?: any | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null };
+
+export type ApiKeyForRollApiKeyDialogFragment = { __typename?: 'SanitizedApiKey', id: string, lastUsedAt?: any | null };
+
+export type RotateApiKeyMutationVariables = Exact<{
+  input: RotateApiKeyInput;
+}>;
+
+
+export type RotateApiKeyMutation = { __typename?: 'Mutation', rotateApiKey?: { __typename?: 'ApiKey', id: string, value: string } | null };
 
 export type WebhookLogDetailsFragment = { __typename?: 'Webhook', id: string, webhookType: string, status: WebhookStatusEnum, payload?: string | null, response?: string | null, httpStatus?: number | null, endpoint: string, retries: number, updatedAt: any };
 
@@ -8341,10 +8353,27 @@ export type GetPortalOrgaInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetPortalOrgaInfosQuery = { __typename?: 'Query', customerPortalOrganization?: { __typename?: 'CustomerPortalOrganization', id: string, name: string, logoUrl?: string | null, premiumIntegrations: Array<PremiumIntegrationTypeEnum> } | null };
 
-export type GetOrganizationApiKeyQueryVariables = Exact<{ [key: string]: never; }>;
+export type ApiKeyRevealedForApiKeysListFragment = { __typename?: 'ApiKey', id: string, value: string };
+
+export type GetOrganizationInfosForApiKeyQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetOrganizationApiKeyQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, apiKey?: string | null } | null };
+export type GetOrganizationInfosForApiKeyQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, name: string, createdAt: any } | null };
+
+export type GetApiKeysQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetApiKeysQuery = { __typename?: 'Query', apiKeys: { __typename?: 'SanitizedApiKeyCollection', collection: Array<{ __typename?: 'SanitizedApiKey', id: string, createdAt: any, value: string, lastUsedAt?: any | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+
+export type GetApiKeyValueQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetApiKeyValueQuery = { __typename?: 'Query', apiKey: { __typename?: 'ApiKey', id: string, value: string } };
 
 export type EventListFragment = { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum };
 
@@ -8375,6 +8404,11 @@ export type GetWebhookLogQueryVariables = Exact<{
 
 
 export type GetWebhookLogQuery = { __typename?: 'Query', webhooks: { __typename?: 'WebhookCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Webhook', id: string, createdAt: any, endpoint: string, status: WebhookStatusEnum, updatedAt: any, webhookType: string, payload?: string | null, response?: string | null, httpStatus?: number | null, retries: number }> } };
+
+export type GetOrganizationHmacDataQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetOrganizationHmacDataQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, hmacKey?: string | null } | null };
 
 export type GetWebhookListQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -9242,6 +9276,12 @@ export const WebhookForCreateAndEditFragmentDoc = gql`
   id
   webhookUrl
   signatureAlgo
+}
+    `;
+export const ApiKeyForRollApiKeyDialogFragmentDoc = gql`
+    fragment ApiKeyForRollApiKeyDialog on SanitizedApiKey {
+  id
+  lastUsedAt
 }
     `;
 export const CustomerForDunningEmailFragmentDoc = gql`
@@ -11190,6 +11230,12 @@ export const HubspotIntegrationInfosForInvoiceOverviewFragmentDoc = gql`
   id
   portalId
   invoicesObjectTypeId
+}
+    `;
+export const ApiKeyRevealedForApiKeysListFragmentDoc = gql`
+    fragment ApiKeyRevealedForApiKeysList on ApiKey {
+  id
+  value
 }
     `;
 export const EventItemFragmentDoc = gql`
@@ -14207,6 +14253,40 @@ export function useDeleteWebhookMutation(baseOptions?: Apollo.MutationHookOption
 export type DeleteWebhookMutationHookResult = ReturnType<typeof useDeleteWebhookMutation>;
 export type DeleteWebhookMutationResult = Apollo.MutationResult<DeleteWebhookMutation>;
 export type DeleteWebhookMutationOptions = Apollo.BaseMutationOptions<DeleteWebhookMutation, DeleteWebhookMutationVariables>;
+export const RotateApiKeyDocument = gql`
+    mutation rotateApiKey($input: RotateApiKeyInput!) {
+  rotateApiKey(input: $input) {
+    id
+    ...ApiKeyRevealedForApiKeysList
+  }
+}
+    ${ApiKeyRevealedForApiKeysListFragmentDoc}`;
+export type RotateApiKeyMutationFn = Apollo.MutationFunction<RotateApiKeyMutation, RotateApiKeyMutationVariables>;
+
+/**
+ * __useRotateApiKeyMutation__
+ *
+ * To run a mutation, you first call `useRotateApiKeyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRotateApiKeyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [rotateApiKeyMutation, { data, loading, error }] = useRotateApiKeyMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useRotateApiKeyMutation(baseOptions?: Apollo.MutationHookOptions<RotateApiKeyMutation, RotateApiKeyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RotateApiKeyMutation, RotateApiKeyMutationVariables>(RotateApiKeyDocument, options);
+      }
+export type RotateApiKeyMutationHookResult = ReturnType<typeof useRotateApiKeyMutation>;
+export type RotateApiKeyMutationResult = Apollo.MutationResult<RotateApiKeyMutation>;
+export type RotateApiKeyMutationOptions = Apollo.BaseMutationOptions<RotateApiKeyMutation, RotateApiKeyMutationVariables>;
 export const RetryWebhookDocument = gql`
     mutation retryWebhook($input: RetryWebhookInput!) {
   retryWebhook(input: $input) {
@@ -22206,46 +22286,139 @@ export type GetPortalOrgaInfosQueryHookResult = ReturnType<typeof useGetPortalOr
 export type GetPortalOrgaInfosLazyQueryHookResult = ReturnType<typeof useGetPortalOrgaInfosLazyQuery>;
 export type GetPortalOrgaInfosSuspenseQueryHookResult = ReturnType<typeof useGetPortalOrgaInfosSuspenseQuery>;
 export type GetPortalOrgaInfosQueryResult = Apollo.QueryResult<GetPortalOrgaInfosQuery, GetPortalOrgaInfosQueryVariables>;
-export const GetOrganizationApiKeyDocument = gql`
-    query getOrganizationApiKey {
+export const GetOrganizationInfosForApiKeyDocument = gql`
+    query getOrganizationInfosForApiKey {
   organization {
     id
-    apiKey
+    name
+    createdAt
   }
 }
     `;
 
 /**
- * __useGetOrganizationApiKeyQuery__
+ * __useGetOrganizationInfosForApiKeyQuery__
  *
- * To run a query within a React component, call `useGetOrganizationApiKeyQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetOrganizationApiKeyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetOrganizationInfosForApiKeyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationInfosForApiKeyQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetOrganizationApiKeyQuery({
+ * const { data, loading, error } = useGetOrganizationInfosForApiKeyQuery({
  *   variables: {
  *   },
  * });
  */
-export function useGetOrganizationApiKeyQuery(baseOptions?: Apollo.QueryHookOptions<GetOrganizationApiKeyQuery, GetOrganizationApiKeyQueryVariables>) {
+export function useGetOrganizationInfosForApiKeyQuery(baseOptions?: Apollo.QueryHookOptions<GetOrganizationInfosForApiKeyQuery, GetOrganizationInfosForApiKeyQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetOrganizationApiKeyQuery, GetOrganizationApiKeyQueryVariables>(GetOrganizationApiKeyDocument, options);
+        return Apollo.useQuery<GetOrganizationInfosForApiKeyQuery, GetOrganizationInfosForApiKeyQueryVariables>(GetOrganizationInfosForApiKeyDocument, options);
       }
-export function useGetOrganizationApiKeyLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrganizationApiKeyQuery, GetOrganizationApiKeyQueryVariables>) {
+export function useGetOrganizationInfosForApiKeyLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrganizationInfosForApiKeyQuery, GetOrganizationInfosForApiKeyQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetOrganizationApiKeyQuery, GetOrganizationApiKeyQueryVariables>(GetOrganizationApiKeyDocument, options);
+          return Apollo.useLazyQuery<GetOrganizationInfosForApiKeyQuery, GetOrganizationInfosForApiKeyQueryVariables>(GetOrganizationInfosForApiKeyDocument, options);
         }
-export function useGetOrganizationApiKeySuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationApiKeyQuery, GetOrganizationApiKeyQueryVariables>) {
+export function useGetOrganizationInfosForApiKeySuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationInfosForApiKeyQuery, GetOrganizationInfosForApiKeyQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetOrganizationApiKeyQuery, GetOrganizationApiKeyQueryVariables>(GetOrganizationApiKeyDocument, options);
+          return Apollo.useSuspenseQuery<GetOrganizationInfosForApiKeyQuery, GetOrganizationInfosForApiKeyQueryVariables>(GetOrganizationInfosForApiKeyDocument, options);
         }
-export type GetOrganizationApiKeyQueryHookResult = ReturnType<typeof useGetOrganizationApiKeyQuery>;
-export type GetOrganizationApiKeyLazyQueryHookResult = ReturnType<typeof useGetOrganizationApiKeyLazyQuery>;
-export type GetOrganizationApiKeySuspenseQueryHookResult = ReturnType<typeof useGetOrganizationApiKeySuspenseQuery>;
-export type GetOrganizationApiKeyQueryResult = Apollo.QueryResult<GetOrganizationApiKeyQuery, GetOrganizationApiKeyQueryVariables>;
+export type GetOrganizationInfosForApiKeyQueryHookResult = ReturnType<typeof useGetOrganizationInfosForApiKeyQuery>;
+export type GetOrganizationInfosForApiKeyLazyQueryHookResult = ReturnType<typeof useGetOrganizationInfosForApiKeyLazyQuery>;
+export type GetOrganizationInfosForApiKeySuspenseQueryHookResult = ReturnType<typeof useGetOrganizationInfosForApiKeySuspenseQuery>;
+export type GetOrganizationInfosForApiKeyQueryResult = Apollo.QueryResult<GetOrganizationInfosForApiKeyQuery, GetOrganizationInfosForApiKeyQueryVariables>;
+export const GetApiKeysDocument = gql`
+    query getApiKeys($page: Int, $limit: Int) {
+  apiKeys(page: $page, limit: $limit) {
+    collection {
+      id
+      createdAt
+      value
+      ...ApiKeyForRollApiKeyDialog
+    }
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+  }
+}
+    ${ApiKeyForRollApiKeyDialogFragmentDoc}`;
+
+/**
+ * __useGetApiKeysQuery__
+ *
+ * To run a query within a React component, call `useGetApiKeysQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetApiKeysQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetApiKeysQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetApiKeysQuery(baseOptions?: Apollo.QueryHookOptions<GetApiKeysQuery, GetApiKeysQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetApiKeysQuery, GetApiKeysQueryVariables>(GetApiKeysDocument, options);
+      }
+export function useGetApiKeysLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetApiKeysQuery, GetApiKeysQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetApiKeysQuery, GetApiKeysQueryVariables>(GetApiKeysDocument, options);
+        }
+export function useGetApiKeysSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetApiKeysQuery, GetApiKeysQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetApiKeysQuery, GetApiKeysQueryVariables>(GetApiKeysDocument, options);
+        }
+export type GetApiKeysQueryHookResult = ReturnType<typeof useGetApiKeysQuery>;
+export type GetApiKeysLazyQueryHookResult = ReturnType<typeof useGetApiKeysLazyQuery>;
+export type GetApiKeysSuspenseQueryHookResult = ReturnType<typeof useGetApiKeysSuspenseQuery>;
+export type GetApiKeysQueryResult = Apollo.QueryResult<GetApiKeysQuery, GetApiKeysQueryVariables>;
+export const GetApiKeyValueDocument = gql`
+    query getApiKeyValue($id: ID!) {
+  apiKey(id: $id) {
+    id
+    ...ApiKeyRevealedForApiKeysList
+  }
+}
+    ${ApiKeyRevealedForApiKeysListFragmentDoc}`;
+
+/**
+ * __useGetApiKeyValueQuery__
+ *
+ * To run a query within a React component, call `useGetApiKeyValueQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetApiKeyValueQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetApiKeyValueQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetApiKeyValueQuery(baseOptions: Apollo.QueryHookOptions<GetApiKeyValueQuery, GetApiKeyValueQueryVariables> & ({ variables: GetApiKeyValueQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetApiKeyValueQuery, GetApiKeyValueQueryVariables>(GetApiKeyValueDocument, options);
+      }
+export function useGetApiKeyValueLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetApiKeyValueQuery, GetApiKeyValueQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetApiKeyValueQuery, GetApiKeyValueQueryVariables>(GetApiKeyValueDocument, options);
+        }
+export function useGetApiKeyValueSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetApiKeyValueQuery, GetApiKeyValueQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetApiKeyValueQuery, GetApiKeyValueQueryVariables>(GetApiKeyValueDocument, options);
+        }
+export type GetApiKeyValueQueryHookResult = ReturnType<typeof useGetApiKeyValueQuery>;
+export type GetApiKeyValueLazyQueryHookResult = ReturnType<typeof useGetApiKeyValueLazyQuery>;
+export type GetApiKeyValueSuspenseQueryHookResult = ReturnType<typeof useGetApiKeyValueSuspenseQuery>;
+export type GetApiKeyValueQueryResult = Apollo.QueryResult<GetApiKeyValueQuery, GetApiKeyValueQueryVariables>;
 export const EventsDocument = gql`
     query events($page: Int, $limit: Int) {
   events(page: $page, limit: $limit) {
@@ -22390,13 +22563,52 @@ export type GetWebhookLogQueryHookResult = ReturnType<typeof useGetWebhookLogQue
 export type GetWebhookLogLazyQueryHookResult = ReturnType<typeof useGetWebhookLogLazyQuery>;
 export type GetWebhookLogSuspenseQueryHookResult = ReturnType<typeof useGetWebhookLogSuspenseQuery>;
 export type GetWebhookLogQueryResult = Apollo.QueryResult<GetWebhookLogQuery, GetWebhookLogQueryVariables>;
+export const GetOrganizationHmacDataDocument = gql`
+    query getOrganizationHmacData {
+  organization {
+    id
+    hmacKey
+  }
+}
+    `;
+
+/**
+ * __useGetOrganizationHmacDataQuery__
+ *
+ * To run a query within a React component, call `useGetOrganizationHmacDataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationHmacDataQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrganizationHmacDataQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetOrganizationHmacDataQuery(baseOptions?: Apollo.QueryHookOptions<GetOrganizationHmacDataQuery, GetOrganizationHmacDataQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetOrganizationHmacDataQuery, GetOrganizationHmacDataQueryVariables>(GetOrganizationHmacDataDocument, options);
+      }
+export function useGetOrganizationHmacDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrganizationHmacDataQuery, GetOrganizationHmacDataQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetOrganizationHmacDataQuery, GetOrganizationHmacDataQueryVariables>(GetOrganizationHmacDataDocument, options);
+        }
+export function useGetOrganizationHmacDataSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationHmacDataQuery, GetOrganizationHmacDataQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetOrganizationHmacDataQuery, GetOrganizationHmacDataQueryVariables>(GetOrganizationHmacDataDocument, options);
+        }
+export type GetOrganizationHmacDataQueryHookResult = ReturnType<typeof useGetOrganizationHmacDataQuery>;
+export type GetOrganizationHmacDataLazyQueryHookResult = ReturnType<typeof useGetOrganizationHmacDataLazyQuery>;
+export type GetOrganizationHmacDataSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationHmacDataSuspenseQuery>;
+export type GetOrganizationHmacDataQueryResult = Apollo.QueryResult<GetOrganizationHmacDataQuery, GetOrganizationHmacDataQueryVariables>;
 export const GetWebhookListDocument = gql`
     query getWebhookList($limit: Int) {
   webhookEndpoints(limit: $limit) {
     collection {
       id
       webhookUrl
-      signatureAlgo
       ...WebhookForCreateAndEdit
     }
   }

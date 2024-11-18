@@ -143,6 +143,7 @@ const config = {
         25: '6.25rem',
         26: '6.5rem',
         30: '7.5rem',
+        35: '8.75rem',
         50: '12.5rem',
         78: '19.5rem',
         98: '24.5rem',
@@ -206,6 +207,9 @@ const config = {
       addUtilities({
         '.line-break-anywhere': {
           lineBreak: 'anywhere',
+        },
+        '.line-break-auto': {
+          lineBreak: 'auto',
         },
       })
 
