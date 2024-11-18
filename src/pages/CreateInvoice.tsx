@@ -500,16 +500,16 @@ const CreateInvoice = () => {
                 </div>
                 <InlineSkeletonBlocks>
                   <div>
-                    <InfoSkeleton variant="text" width={104} />
-                    <InfoSkeleton variant="text" width={184} />
-                    <InfoSkeleton variant="text" width={184} />
-                    <InfoSkeleton variant="text" width={184} />
+                    <Skeleton className="mb-3 w-26" variant="text" />
+                    <Skeleton className="mb-3 w-26" variant="text" />
+                    <Skeleton className="mb-3 w-26" variant="text" />
+                    <Skeleton className="mb-3 w-26" variant="text" />
                   </div>
                   <div>
-                    <InfoSkeleton variant="text" width={104} />
-                    <InfoSkeleton variant="text" width={184} />
-                    <InfoSkeleton variant="text" width={184} />
-                    <InfoSkeleton variant="text" width={184} />
+                    <Skeleton className="mb-3 w-26" variant="text" />
+                    <Skeleton className="mb-3 w-26" variant="text" />
+                    <Skeleton className="mb-3 w-26" variant="text" />
+                    <Skeleton className="w-26" variant="text" />
                   </div>
                 </InlineSkeletonBlocks>
               </>
@@ -1276,12 +1276,6 @@ const InlineSkeletonBlocks = styled.div`
 
   > * {
     flex: 1;
-  }
-`
-
-const InfoSkeleton = styled(Skeleton)`
-  &:not(:last-child) {
-    margin-bottom: ${theme.spacing(3)};
   }
 `
 

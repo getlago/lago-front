@@ -252,16 +252,16 @@ const InvoiceOverview = memo(
                           <Skeleton variant="text" className="w-60" />
                         </td>
                         <td>
-                          <RightSkeleton variant="text" width={80} />
+                          <Skeleton className="float-right w-20" variant="text" />
                         </td>
                         <td>
-                          <RightSkeleton variant="text" width={40} />
+                          <Skeleton className="float-right w-10" variant="text" />
                         </td>
                         <td>
-                          <RightSkeleton variant="text" width={120} />
+                          <Skeleton className="float-right w-30" variant="text" />
                         </td>
                         <td>
-                          <RightSkeleton variant="text" width={120} />
+                          <Skeleton className="float-right w-30" variant="text" />
                         </td>
                       </tr>
                     ))}
@@ -274,7 +274,7 @@ const InvoiceOverview = memo(
                           <Skeleton variant="text" className="w-40" />
                         </td>
                         <td>
-                          <RightSkeleton variant="text" width={120} />
+                          <Skeleton className="float-right w-30" variant="text" />
                         </td>
                       </LoadingTR>
                     ))}
@@ -514,10 +514,6 @@ const LoadingTR = styled.tr`
     box-sizing: border-box;
     padding: ${theme.spacing(3)} 0;
   }
-`
-
-const RightSkeleton = styled(Skeleton)`
-  float: right;
 `
 
 const LoadingInfosWrapper = styled.div`

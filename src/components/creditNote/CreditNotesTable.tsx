@@ -116,7 +116,7 @@ const CreditNoteTableItemSkeleton = () => {
       <Skeleton variant="text" className="w-45" />
       <Skeleton variant="text" className="w-20" />
       <Skeleton variant="text" className="w-40" />
-      <RightSkeleton variant="text" width={160} />
+      <Skeleton className="hidden w-40 justify-self-end md:flex" variant="text" />
       <Skeleton variant="text" className="w-28" />
       <Skeleton variant="text" className="w-10" />
     </SkeletonLine>
@@ -382,15 +382,6 @@ const Grid = () => css`
 
 const SkeletonLine = styled(BaseListItem)`
   ${Grid()}
-`
-
-const RightSkeleton = styled(Skeleton)`
-  display: flex;
-  justify-self: end;
-
-  ${theme.breakpoints.down('md')} {
-    display: none;
-  }
 `
 
 const CustomerColumn = styled(Typography)`
