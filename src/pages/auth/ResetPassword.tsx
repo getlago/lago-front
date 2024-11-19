@@ -207,7 +207,7 @@ const ResetPassword = () => {
                       )
                     })
                   ) : (
-                    <Alert className="mb-3" type="success" data-test="success">
+                    <Alert className="mb-3 w-full" type="success" data-test="success">
                       {translate('text_63246f875e2228ab7b63dd02')}
                     </Alert>
                   )}
