@@ -75,7 +75,7 @@ export const switchCurrentOrganization = async (
 ) => {
   setItemFromLS(ORGANIZATION_LS_KEY_ID, organizationId)
 
-  await client.resetStore()
+  await client.clearStore()
 }
 
 export const onAccessCustomerPortal = (token?: string) => {
