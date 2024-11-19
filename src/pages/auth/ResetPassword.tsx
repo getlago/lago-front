@@ -143,9 +143,9 @@ const ResetPassword = () => {
 
         {!!loading && !error ? (
           <>
-            <Skeleton variant="text" width={208} marginBottom={theme.spacing(8)} />
-            <Skeleton variant="text" width={440} marginBottom={theme.spacing(4)} />
-            <Skeleton variant="text" width={304} />
+            <Skeleton variant="text" className="mb-8 w-52" />
+            <Skeleton variant="text" className="mb-4 w-110" />
+            <Skeleton variant="text" className="w-76" />
           </>
         ) : !!error && !loading ? (
           <>

@@ -115,7 +115,7 @@ const StripeIntegrationDetails = () => {
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
           {loading ? (
-            <Skeleton variant="text" width={120} />
+            <Skeleton variant="text" className="w-30" />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
               {stripePaymentProvider?.name}
@@ -173,10 +173,10 @@ const StripeIntegrationDetails = () => {
       <MainInfos>
         {loading ? (
           <>
-            <Skeleton variant="connectorAvatar" size="large" marginRight="16px" />
+            <Skeleton variant="connectorAvatar" size="large" className="mr-4" />
             <div>
-              <Skeleton variant="text" width={200} marginBottom="22px" />
-              <Skeleton variant="text" width={128} />
+              <Skeleton variant="text" className="mb-5 w-50" />
+              <Skeleton variant="text" className="w-32" />
             </div>
           </>
         ) : (
@@ -222,8 +222,8 @@ const StripeIntegrationDetails = () => {
           <LineItem>
             {loading ? (
               <>
-                <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
-                <Skeleton variant="text" width={240} />
+                <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
+                <Skeleton variant="text" className="w-60" />
               </>
             ) : (
               <>
@@ -242,8 +242,8 @@ const StripeIntegrationDetails = () => {
           <LineItem>
             {loading ? (
               <>
-                <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
-                <Skeleton variant="text" width={240} />
+                <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
+                <Skeleton variant="text" className="w-60" />
               </>
             ) : (
               <>
@@ -262,8 +262,8 @@ const StripeIntegrationDetails = () => {
           <LineItem>
             {loading ? (
               <>
-                <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
-                <Skeleton variant="text" width={240} />
+                <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
+                <Skeleton variant="text" className="w-60" />
               </>
             ) : (
               <>
@@ -307,8 +307,8 @@ const StripeIntegrationDetails = () => {
 
           {loading ? (
             <LineItem>
-              <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
-              <Skeleton variant="text" width={240} />
+              <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
+              <Skeleton variant="text" className="w-60" />
             </LineItem>
           ) : (
             <>

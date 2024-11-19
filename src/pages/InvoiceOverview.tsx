@@ -236,10 +236,10 @@ const InvoiceOverview = memo(
               <LoadingInfosWrapper>
                 {[1, 2, 3, 4, 5].map((i) => (
                   <SkeletonLine key={`key-skeleton-line-${i}`}>
-                    <Skeleton variant="text" width="12%" marginRight="6.4%" />
-                    <Skeleton variant="text" width="38%" marginRight="11.2%" />
-                    <Skeleton variant="text" width="12%" marginRight="6.4%" />
-                    <Skeleton variant="text" width="38%" marginRight="9.25%" />
+                    <Skeleton variant="text" className="mr-[6.4%] w-[mr-[6.4%]]" />
+                    <Skeleton variant="text" className="mr-[11.2%] w-[mr-[11.2%]]" />
+                    <Skeleton variant="text" className="mr-[6.4%] w-[mr-[6.4%]]" />
+                    <Skeleton variant="text" className="mr-[9.25%] w-[mr-[9.25%]]" />
                   </SkeletonLine>
                 ))}
               </LoadingInfosWrapper>
@@ -249,19 +249,19 @@ const InvoiceOverview = memo(
                     {[1, 2, 3, 4, 5].map((k) => (
                       <tr key={`invoice-details-loading-${k}`}>
                         <td>
-                          <Skeleton variant="text" width={240} />
+                          <Skeleton variant="text" className="w-60" />
                         </td>
                         <td>
-                          <RightSkeleton variant="text" width={80} />
+                          <Skeleton className="float-right w-20" variant="text" />
                         </td>
                         <td>
-                          <RightSkeleton variant="text" width={40} />
+                          <Skeleton className="float-right w-10" variant="text" />
                         </td>
                         <td>
-                          <RightSkeleton variant="text" width={120} />
+                          <Skeleton className="float-right w-30" variant="text" />
                         </td>
                         <td>
-                          <RightSkeleton variant="text" width={120} />
+                          <Skeleton className="float-right w-30" variant="text" />
                         </td>
                       </tr>
                     ))}
@@ -271,10 +271,10 @@ const InvoiceOverview = memo(
                       <LoadingTR key={`invoice-details-table-footer-loading-${i}`}>
                         <td></td>
                         <td colSpan={3}>
-                          <Skeleton variant="text" width={160} />
+                          <Skeleton variant="text" className="w-40" />
                         </td>
                         <td>
-                          <RightSkeleton variant="text" width={120} />
+                          <Skeleton className="float-right w-30" variant="text" />
                         </td>
                       </LoadingTR>
                     ))}
@@ -514,10 +514,6 @@ const LoadingTR = styled.tr`
     box-sizing: border-box;
     padding: ${theme.spacing(3)} 0;
   }
-`
-
-const RightSkeleton = styled(Skeleton)`
-  float: right;
 `
 
 const LoadingInfosWrapper = styled.div`

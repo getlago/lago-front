@@ -25,8 +25,6 @@ import { theme } from '~/styles'
 
 import { CreditNoteForm, CreditTypeEnum, PayBackErrorEnum } from './types'
 
-const LOADING_VALUE_SKELETON_WIDTH = 90
-
 gql`
   fragment InvoiceForCreditNoteFormCalculation on Invoice {
     id
@@ -241,7 +239,7 @@ export const CreditNoteFormCalculation = ({
             </InlineLabel>
             <Typography color="grey700" data-test="prorated-coupon-amount">
               {estiationLoading ? (
-                <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} />
+                <Skeleton variant="text" className="w-22" />
               ) : !proRatedCouponAmount || hasError ? (
                 '-'
               ) : (
@@ -256,7 +254,7 @@ export const CreditNoteFormCalculation = ({
           <Typography variant="bodyHl">{translate('text_636bedf292786b19d3398f02')}</Typography>
           <Typography color="grey700" data-test="total-excluded-tax">
             {estiationLoading ? (
-              <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} />
+              <Skeleton variant="text" className="w-22" />
             ) : !totalExcludedTax || hasError ? (
               '-'
             ) : (
@@ -270,11 +268,7 @@ export const CreditNoteFormCalculation = ({
           <Line>
             <Typography variant="bodyHl">{translate('text_636bedf292786b19d3398f06')}</Typography>
             <Typography color="grey700">
-              {estiationLoading ? (
-                <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} />
-              ) : (
-                '-'
-              )}
+              {estiationLoading ? <Skeleton variant="text" className="w-22" /> : '-'}
             </Typography>
           </Line>
         ) : !!taxes?.size ? (
@@ -287,7 +281,7 @@ export const CreditNoteFormCalculation = ({
                 </Typography>
                 <Typography color="grey700" data-test={`tax-${tax.taxRate}-amount`}>
                   {estiationLoading ? (
-                    <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} />
+                    <Skeleton variant="text" className="w-22" />
                   ) : !tax.amount || hasError ? (
                     '-'
                   ) : (
@@ -305,7 +299,7 @@ export const CreditNoteFormCalculation = ({
             )} (0%)`}</Typography>
             <Typography color="grey700">
               {estiationLoading ? (
-                <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} />
+                <Skeleton variant="text" className="w-22" />
               ) : hasError ? (
                 '-'
               ) : (
@@ -322,7 +316,7 @@ export const CreditNoteFormCalculation = ({
           </Typography>
           <Typography color="grey700" data-test="total-tax-included">
             {estiationLoading ? (
-              <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} />
+              <Skeleton variant="text" className="w-22" />
             ) : !totalTaxIncluded || hasError ? (
               '-'
             ) : (
@@ -339,7 +333,7 @@ export const CreditNoteFormCalculation = ({
             </Typography>
             <Typography color="grey700">
               {estiationLoading ? (
-                <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} />
+                <Skeleton variant="text" className="w-22" />
               ) : totalTaxIncluded === undefined || hasError ? (
                 '-'
               ) : (
@@ -447,7 +441,7 @@ export const CreditNoteFormCalculation = ({
             ) : (
               <Typography color="grey700">
                 {estiationLoading ? (
-                  <ValueSkeleton variant="text" width={LOADING_VALUE_SKELETON_WIDTH} />
+                  <Skeleton variant="text" className="w-22" />
                 ) : !payBack[0]?.value || hasError ? (
                   '-'
                 ) : (
@@ -629,8 +623,4 @@ const InlineLabel = styled.div`
   > *:last-child {
     margin-left: ${theme.spacing(2)};
   }
-`
-
-const ValueSkeleton = styled(Skeleton)`
-  width: ${LOADING_VALUE_SKELETON_WIDTH}px;
 `

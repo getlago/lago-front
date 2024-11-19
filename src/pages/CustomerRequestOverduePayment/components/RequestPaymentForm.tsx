@@ -79,15 +79,14 @@ export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
           </Typography>
         </Alert>
       )}
-
       {invoicesLoading ? (
         <div>
           <Box marginBottom={10}>
-            <Skeleton variant="text" width={320} />
+            <Skeleton variant="text" className="w-80" />
           </Box>
           <Stack gap={6}>
-            <Skeleton variant="text" width={480} />
-            <Skeleton variant="text" width={160} />
+            <Skeleton variant="text" className="w-120" />
+            <Skeleton variant="text" className="w-40" />
           </Stack>
         </div>
       ) : (
@@ -108,7 +107,6 @@ export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
           />
         </>
       )}
-
       <OverviewCard
         title={translate('text_6670a7222702d70114cc795a')}
         caption={translate('text_6670a7222702d70114cc795c', { count }, count)}

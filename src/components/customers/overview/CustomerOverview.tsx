@@ -200,8 +200,8 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
               >
                 {overdueBalancesLoading ? (
                   <Stack flexDirection="column" gap={1}>
-                    <Skeleton variant="text" width={150} />
-                    <Skeleton variant="text" width={80} />
+                    <Skeleton variant="text" className="w-37" />
+                    <Skeleton variant="text" className="w-20" />
                   </Stack>
                 ) : (
                   <Stack flexDirection="column" gap={1}>
@@ -273,9 +273,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
           </Stack>
         </section>
       )}
-
       {!isLoading && <CustomerCoupons />}
-
       <CustomerSubscriptionsList customerTimezone={customerTimezone} />
     </>
   )

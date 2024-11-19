@@ -238,16 +238,16 @@ const CreateCoupon = () => {
             {loading ? (
               <>
                 <SkeletonHeader>
-                  <Skeleton variant="text" width={280} marginBottom={theme.spacing(5)} />
-                  <Skeleton variant="text" width="inherit" marginBottom={theme.spacing(4)} />
-                  <Skeleton variant="text" width={120} />
+                  <Skeleton variant="text" className="mb-5 w-70" />
+                  <Skeleton variant="text" className="mb-4" />
+                  <Skeleton variant="text" className="w-30" />
                 </SkeletonHeader>
 
                 {[0, 1].map((skeletonCard) => (
                   <Card key={`skeleton-${skeletonCard}`}>
-                    <Skeleton variant="text" width={280} marginBottom={theme.spacing(9)} />
-                    <Skeleton variant="text" width="inherit" marginBottom={theme.spacing(4)} />
-                    <Skeleton variant="text" width={120} />
+                    <Skeleton variant="text" className="mb-9 w-70" />
+                    <Skeleton variant="text" className="mb-4" />
+                    <Skeleton variant="text" className="w-30" />
                   </Card>
                 ))}
               </>

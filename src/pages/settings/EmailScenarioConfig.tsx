@@ -116,8 +116,8 @@ const EmailScenarioConfig = () => {
           <>
             <Skeleton variant="connectorAvatar" size="large" />
             <div>
-              <Skeleton variant="text" width={240} marginBottom={22} />
-              <Skeleton variant="text" width={120} />
+              <Skeleton variant="text" className="mb-5 w-60" />
+              <Skeleton variant="text" className="w-30" />
             </div>
           </>
         ) : (
@@ -173,47 +173,17 @@ const EmailScenarioConfig = () => {
             <div className="flex flex-col items-center justify-center">
               {loading ? (
                 <>
-                  <Skeleton
-                    color="dark"
-                    variant="text"
-                    width={120}
-                    marginBottom={theme.spacing(5)}
-                  />
-                  <Skeleton
-                    color="dark"
-                    variant="text"
-                    width={160}
-                    marginBottom={theme.spacing(5)}
-                  />
-                  <Skeleton color="dark" variant="text" width={120} marginBottom={30} />
-                  <Skeleton color="dark" variant="text" width="100%" marginBottom={30} />
+                  <Skeleton color="dark" variant="text" className="mb-5 w-30" />
+                  <Skeleton color="dark" variant="text" className="mb-5 w-40" />
+                  <Skeleton color="dark" variant="text" className="mb-7 w-30" />
+                  <Skeleton color="dark" variant="text" className="mb-7" />
                   <LoadingBlock>
-                    <Skeleton
-                      color="dark"
-                      variant="text"
-                      width={120}
-                      marginBottom={theme.spacing(4)}
-                    />
-                    <Skeleton
-                      color="dark"
-                      variant="text"
-                      width={160}
-                      marginBottom={theme.spacing(4)}
-                    />
+                    <Skeleton color="dark" variant="text" className="mb-4 w-30" />
+                    <Skeleton color="dark" variant="text" className="mb-4 w-40" />
                   </LoadingBlock>
                   <LoadingBlock>
-                    <Skeleton
-                      color="dark"
-                      variant="text"
-                      width={120}
-                      marginBottom={theme.spacing(4)}
-                    />
-                    <Skeleton
-                      color="dark"
-                      variant="text"
-                      width={160}
-                      marginBottom={theme.spacing(4)}
-                    />
+                    <Skeleton color="dark" variant="text" className="mb-4 w-30" />
+                    <Skeleton color="dark" variant="text" className="mb-4 w-40" />
                   </LoadingBlock>
                 </>
               ) : (

@@ -7,13 +7,13 @@ const group = (
 
     <div className="grid grid-cols-2">
       <div className="flex flex-col gap-3">
-        <Skeleton variant="text" width={72} />
-        <Skeleton variant="text" width={160} />
+        <Skeleton variant="text" className="w-18" />
+        <Skeleton variant="text" className="w-40" />
       </div>
 
       <div className="flex flex-col gap-3">
-        <Skeleton variant="text" width={72} />
-        <Skeleton variant="text" width={160} />
+        <Skeleton variant="text" className="w-18" />
+        <Skeleton variant="text" className="w-40" />
       </div>
     </div>
   </div>
@@ -22,27 +22,27 @@ const group = (
 export const LoaderUsageSection = () => (
   <div className="grid grid-cols-2">
     <div className="flex flex-col gap-3">
-      <Skeleton variant="text" width={72} />
-      <Skeleton variant="text" width={160} />
-      <Skeleton variant="text" width={240} />
-      <Skeleton variant="text" width={72} />
+      <Skeleton variant="text" className="w-18" />
+      <Skeleton variant="text" className="w-40" />
+      <Skeleton variant="text" className="w-60" />
+      <Skeleton variant="text" className="w-18" />
     </div>
 
     <div className="flex flex-col gap-3">
-      <Skeleton variant="text" width={72} />
-      <Skeleton variant="text" width={160} />
-      <Skeleton variant="text" width={240} />
-      <Skeleton variant="text" width={72} />
+      <Skeleton variant="text" className="w-18" />
+      <Skeleton variant="text" className="w-40" />
+      <Skeleton variant="text" className="w-60" />
+      <Skeleton variant="text" className="w-18" />
     </div>
   </div>
 )
 
 export const LoaderUsageSubscriptionItem = () => (
   <div className="flex flex-col gap-3">
-    <Skeleton variant="text" width={72} />
-    <Skeleton variant="text" width={160} />
-    <Skeleton variant="text" width={240} />
-    <Skeleton variant="text" width={72} />
+    <Skeleton variant="text" className="w-18" />
+    <Skeleton variant="text" className="w-40" />
+    <Skeleton variant="text" className="w-60" />
+    <Skeleton variant="text" className="w-18" />
   </div>
 )
 
@@ -57,13 +57,13 @@ export const LoaderWalletPage = () => (
 export const LoaderWalletSection = () => (
   <div className="grid grid-cols-2">
     <div className="flex flex-col gap-3">
-      <Skeleton variant="text" width={72} />
-      <Skeleton variant="text" width={160} />
+      <Skeleton variant="text" className="w-18" />
+      <Skeleton variant="text" className="w-40" />
     </div>
 
     <div className="flex flex-col gap-3">
-      <Skeleton variant="text" width={72} />
-      <Skeleton variant="text" width={160} />
+      <Skeleton variant="text" className="w-18" />
+      <Skeleton variant="text" className="w-40" />
     </div>
   </div>
 )
@@ -71,33 +71,33 @@ export const LoaderWalletSection = () => (
 export const LoaderCustomerInformationSection = () => (
   <div className="grid grid-cols-2 gap-6">
     <div className="flex flex-col gap-3">
-      <Skeleton variant="text" width={72} />
-      <Skeleton variant="text" width={240} />
+      <Skeleton variant="text" className="w-18" />
+      <Skeleton variant="text" className="w-60" />
     </div>
 
     <div className="flex flex-col gap-3">
-      <Skeleton variant="text" width={72} />
-      <Skeleton variant="text" width={240} />
+      <Skeleton variant="text" className="w-18" />
+      <Skeleton variant="text" className="w-60" />
     </div>
 
     <div className="flex flex-col gap-3">
-      <Skeleton variant="text" width={72} />
-      <Skeleton variant="text" width={240} />
+      <Skeleton variant="text" className="w-18" />
+      <Skeleton variant="text" className="w-60" />
     </div>
 
     <div className="flex flex-col gap-3">
-      <Skeleton variant="text" width={72} />
-      <Skeleton variant="text" width={240} />
+      <Skeleton variant="text" className="w-18" />
+      <Skeleton variant="text" className="w-60" />
     </div>
 
     <div className="flex flex-col gap-3">
-      <Skeleton variant="text" width={72} />
-      <Skeleton variant="text" width={240} />
+      <Skeleton variant="text" className="w-18" />
+      <Skeleton variant="text" className="w-60" />
     </div>
 
     <div className="flex flex-col gap-3">
-      <Skeleton variant="text" width={72} />
-      <Skeleton variant="text" width={240} />
+      <Skeleton variant="text" className="w-18" />
+      <Skeleton variant="text" className="w-60" />
     </div>
   </div>
 )
@@ -120,24 +120,24 @@ export const LoaderInvoicesListSection = () => (
 
 export const LoaderInvoicesListTotal = () => (
   <div className="flex flex-col gap-3">
-    <Skeleton variant="text" width={72} />
-    <Skeleton variant="text" width={240} />
+    <Skeleton variant="text" className="w-18" />
+    <Skeleton variant="text" className="w-60" />
   </div>
 )
 
 export const LoaderSidebarOrganization = () => (
   <div className="flex flex-col gap-8">
-    <Skeleton className="!rounded-[8px] bg-grey-200" variant="text" width={32} />
-    <Skeleton className="bg-grey-200" variant="text" width={228} />
+    <Skeleton className="w-8 !rounded-[8px] bg-grey-200" variant="text" />
+    <Skeleton className="w-57 bg-grey-200" variant="text" />
   </div>
 )
 
 export const SectionLoading = () => {
   return (
     <div className="flex flex-col gap-2">
-      <Skeleton variant="text" width={120} />
-      <Skeleton variant="text" width={160} />
-      <Skeleton variant="text" width={200} />
+      <Skeleton variant="text" className="w-30" />
+      <Skeleton variant="text" className="w-40" />
+      <Skeleton variant="text" className="w-50" />
     </div>
   )
 }

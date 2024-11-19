@@ -154,8 +154,8 @@ const AnrokIntegrationSettings = () => {
               <>
                 {[0, 1, 2].map((i) => (
                   <Item key={`item-skeleton-item-${i}`}>
-                    <Skeleton variant="connectorAvatar" size="big" marginRight="16px" />
-                    <Skeleton variant="text" width={240} />
+                    <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
+                    <Skeleton variant="text" className="w-60" />
                   </Item>
                 ))}
               </>
@@ -224,7 +224,7 @@ const AnrokIntegrationSettings = () => {
               {translate('text_66ba5a76e614f000a738c97a')}
             </Typography>
             {loading ? (
-              <CustomSkeleton variant="text" width="100%" />
+              <Skeleton className="mb-1 mt-2" variant="text" />
             ) : !!anrokIntegration?.failedInvoicesCount ? (
               <Stack display="inline" divider={<>{/* Space here is important */} </>}>
                 <Typography component="span" variant="caption" color="grey600">
@@ -259,7 +259,6 @@ const AnrokIntegrationSettings = () => {
           </Button>
         </Stack>
       </Settings>
-
       <AddAnrokDialog ref={addAnrokDialogRef} />
       <DeleteAnrokIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
@@ -302,9 +301,4 @@ const Item = styled.div`
   > *:first-child {
     margin-right: ${theme.spacing(3)};
   }
-`
-
-const CustomSkeleton = styled(Skeleton)`
-  margin-top: 8px;
-  margin-bottom: 4px;
 `

@@ -34,11 +34,10 @@ export const DetailsHeaderSkeleton = () => {
   return (
     <HeaderWrapper>
       <Skeleton variant="connectorAvatar" size="large" />
-
       <HeaderDetailsWrapper>
         <LoadingWrapper>
-          <Skeleton variant="text" width={200} marginBottom={20} />
-          <Skeleton variant="text" width={200} />
+          <Skeleton variant="text" className="mb-4 w-50" />
+          <Skeleton variant="text" className="w-50" />
         </LoadingWrapper>
       </HeaderDetailsWrapper>
     </HeaderWrapper>

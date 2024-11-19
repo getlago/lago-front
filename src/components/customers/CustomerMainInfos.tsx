@@ -243,15 +243,15 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     return (
       <LoadingDetails>
         <SectionHeader>
-          <Skeleton variant="text" width={200} />
+          <Skeleton variant="text" className="w-50" />
         </SectionHeader>
         <div>
-          <Skeleton variant="text" width={80} marginBottom={theme.spacing(3)} />
-          <Skeleton variant="text" width={200} />
+          <Skeleton variant="text" className="mb-3 w-20" />
+          <Skeleton variant="text" className="w-50" />
         </div>
         <div>
-          <Skeleton variant="text" width={80} marginBottom={theme.spacing(3)} />
-          <Skeleton variant="text" width={200} />
+          <Skeleton variant="text" className="mb-3 w-20" />
+          <Skeleton variant="text" className="w-50" />
         </div>
       </LoadingDetails>
     )
@@ -460,8 +460,8 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
             <Typography variant="caption">{translate('text_66423cad72bbad009f2f568f')}</Typography>
             {integrationsLoading ? (
               <Stack flex={1} gap={3} marginTop={1}>
-                <Skeleton variant="text" width={200} />
-                <Skeleton variant="text" width={200} />
+                <Skeleton variant="text" className="w-50" />
+                <Skeleton variant="text" className="w-50" />
               </Stack>
             ) : !!connectedNetsuiteIntegration && customer?.netsuiteCustomer?.externalCustomerId ? (
               <Stack>
@@ -493,8 +493,8 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
             <Typography variant="caption">{translate('text_66423cad72bbad009f2f568f')}</Typography>
             {integrationsLoading ? (
               <Stack flex={1} gap={3} marginTop={1}>
-                <Skeleton variant="text" width={200} />
-                <Skeleton variant="text" width={200} />
+                <Skeleton variant="text" className="w-50" />
+                <Skeleton variant="text" className="w-50" />
               </Stack>
             ) : !!connectedXeroIntegration && customer?.xeroCustomer?.externalCustomerId ? (
               <Stack>
@@ -523,8 +523,8 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
             <Typography variant="caption">{translate('text_6668821d94e4da4dfd8b3840')}</Typography>
             {integrationsLoading ? (
               <Stack flex={1} gap={3} marginTop={1}>
-                <Skeleton variant="text" width={200} />
-                <Skeleton variant="text" width={200} />
+                <Skeleton variant="text" className="w-50" />
+                <Skeleton variant="text" className="w-50" />
               </Stack>
             ) : !!connectedAnrokIntegration && customer?.anrokCustomer?.integrationId ? (
               <Stack>
@@ -559,8 +559,8 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
             <Typography variant="caption">{translate('text_1728658962985xpfdvl5ru8a')}</Typography>
             {integrationsLoading ? (
               <Stack flex={1} gap={3} marginTop={1}>
-                <Skeleton variant="text" width={200} />
-                <Skeleton variant="text" width={200} />
+                <Skeleton variant="text" className="w-50" />
+                <Skeleton variant="text" className="w-50" />
               </Stack>
             ) : !!connectedHubspotIntegration &&
               customer?.hubspotCustomer?.integrationId &&

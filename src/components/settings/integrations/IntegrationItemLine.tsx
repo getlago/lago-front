@@ -35,12 +35,11 @@ const IntegrationItemLine = ({
         <Stack direction="row" alignItems="center" gap={3} sx={{ flex: 1 }}>
           <Skeleton variant="connectorAvatar" size="big" />
           <Stack sx={{ flex: 1 }}>
-            <Skeleton variant="text" width={180} marginBottom={10} />
-            <Skeleton variant="text" width={80} />
+            <Skeleton variant="text" className="mb-2 w-45" />
+            <Skeleton variant="text" className="w-20" />
           </Stack>
         </Stack>
-
-        <Skeleton variant="text" width={200} />
+        <Skeleton variant="text" className="w-50" />
       </SkeletonWrapper>
     )
   }

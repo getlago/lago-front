@@ -245,7 +245,7 @@ const CreateCreditNote = () => {
       <PageHeader>
         {loading ? (
           <div>
-            <Skeleton variant="text" width={120} />
+            <Skeleton variant="text" className="w-30" />
           </div>
         ) : (
           <Typography variant="bodyHl" color="textSecondary" noWrap>
@@ -275,16 +275,16 @@ const CreateCreditNote = () => {
           <div>
             {loading ? (
               <>
-                <Skeleton variant="text" width={280} marginBottom="22px" />
-                <Skeleton variant="text" width={480} marginBottom="40px" />
+                <Skeleton variant="text" className="mb-5 w-70" />
+                <Skeleton variant="text" className="mb-10 w-120" />
                 <StyledCard $loading>
-                  <Skeleton variant="connectorAvatar" size="medium" marginRight="12px" />
-                  <Skeleton variant="text" width={160} />
+                  <Skeleton variant="connectorAvatar" size="medium" className="mr-3" />
+                  <Skeleton variant="text" className="w-40" />
                 </StyledCard>
                 <Card>
-                  <Skeleton variant="text" width={416} marginBottom="36px" />
-                  <Skeleton variant="text" width={656} marginBottom="16px" />
-                  <Skeleton variant="text" width={256} />
+                  <Skeleton variant="text" className="mb-9 w-104" />
+                  <Skeleton variant="text" className="mb-4 w-164" />
+                  <Skeleton variant="text" className="w-64" />
                 </Card>
                 <ButtonContainer>
                   <Button size="large" disabled fullWidth>

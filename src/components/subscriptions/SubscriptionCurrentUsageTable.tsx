@@ -191,7 +191,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
         </Stack>
 
         {isLoading ? (
-          <Skeleton variant="text" width={144} marginTop={8} />
+          <Skeleton variant="text" className="mt-2 w-36" />
         ) : !hasError && !!usageData?.fromDatetime && !!usageData?.toDatetime ? (
           <Typography variant="caption" color="grey600" noWrap>
             {translate('text_633dae57ca9a923dd53c2097', {
@@ -205,7 +205,6 @@ export const SubscriptionCurrentUsageTableComponent = ({
           </Typography>
         ) : null}
       </Stack>
-
       {!!hasError && !isLoading ? (
         <>
           {(usageError?.graphQLErrors?.length || 0) > 0 &&
@@ -266,7 +265,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
             </Typography>
 
             {isLoading ? (
-              <Skeleton variant="text" width={144} marginTop={8} />
+              <Skeleton variant="text" className="mt-2 w-36" />
             ) : (
               <Typography variant="bodyHl" color="grey700" noWrap>
                 {intlFormatNumber(deserializeAmount(usageData?.amountCents, currency) || 0, {
@@ -387,7 +386,6 @@ export const SubscriptionCurrentUsageTableComponent = ({
           />
         </>
       )}
-
       <SubscriptionUsageDetailDrawer
         ref={subscriptionUsageDetailDrawerRef}
         currency={currency}
@@ -464,10 +462,10 @@ export const SubscriptionCurrentUsageTableSkeleton = () => {
   return (
     <SkeletonItem>
       <Button size="small" variant="quaternary" disabled icon="chevron-right" />
-      <Skeleton variant="connectorAvatar" size="big" marginRight="12px" />
+      <Skeleton variant="connectorAvatar" size="big" className="mr-3" />
       <div>
-        <Skeleton variant="text" width={240} marginBottom="12px" />
-        <Skeleton variant="text" width={120} />
+        <Skeleton variant="text" className="mb-3 w-60" />
+        <Skeleton variant="text" className="w-30" />
       </div>
     </SkeletonItem>
   )

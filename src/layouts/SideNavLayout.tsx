@@ -200,8 +200,8 @@ const SideNav = () => {
                     </Button>
                     {!!loading && !error ? (
                       <Version>
-                        <Skeleton variant="text" width={48} />
-                        <Skeleton variant="text" width={120} />
+                        <Skeleton variant="text" className="w-12" />
+                        <Skeleton variant="text" className="w-30" />
                       </Version>
                     ) : !!data && !error ? (
                       <Version>
@@ -225,14 +225,14 @@ const SideNav = () => {
               <VerticalMenu
                 loading={currentUserLoading}
                 loadingComponent={
-                  <div className="flex flex-1 gap-4">
+                  <div className="flex flex-1 flex-col gap-4">
                     {[1, 2, 3, 4, 5, 6, 7].map((i) => (
                       <div
                         key={`skeleton-upper-nav-${i}`}
                         className="flex flex-1 flex-row items-center gap-3 pt-3"
                       >
                         <Skeleton variant="circular" size="small" />
-                        <Skeleton variant="text" width={120} />
+                        <Skeleton variant="text" className="w-30" />
                       </div>
                     ))}
                   </div>
@@ -313,7 +313,7 @@ const SideNav = () => {
                         paddingTop={3}
                       >
                         <Skeleton variant="circular" size="small" />
-                        <Skeleton variant="text" width={120} />
+                        <Skeleton variant="text" className="w-30" />
                       </Stack>
                     ))}
                   </Stack>

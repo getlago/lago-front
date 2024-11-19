@@ -1,7 +1,7 @@
 import { FC } from 'react'
 
 import { Skeleton } from '~/components/designSystem'
-import { Card, theme } from '~/styles'
+import { Card } from '~/styles'
 import { SkeletonHeader } from '~/styles/mainObjectsForm'
 
 interface LoadingViewProps {
@@ -14,17 +14,17 @@ export const LoadingView: FC<LoadingViewProps> = ({ cardCount }) => {
   return (
     <>
       <SkeletonHeader>
-        <Skeleton variant="text" width={280} marginBottom={theme.spacing(5)} />
-        <Skeleton variant="text" width="inherit" marginBottom={theme.spacing(4)} />
-        <Skeleton variant="text" width={120} />
+        <Skeleton variant="text" className="mb-5 w-70" />
+        <Skeleton variant="text" className="mb-4" />
+        <Skeleton variant="text" className="w-30" />
       </SkeletonHeader>
       {skeletonCards.map((skeletonCard) => (
         <Card key={`skeleton-${skeletonCard}`}>
-          <Skeleton variant="text" width={280} marginBottom={theme.spacing(9)} />
-          <Skeleton variant="text" width={280} marginBottom={theme.spacing(9)} />
-          <Skeleton variant="text" width={280} marginBottom={theme.spacing(9)} />
-          <Skeleton variant="text" width="inherit" marginBottom={theme.spacing(4)} />
-          <Skeleton variant="text" width={120} />
+          <Skeleton variant="text" className="mb-9 w-70" />
+          <Skeleton variant="text" className="mb-9 w-70" />
+          <Skeleton variant="text" className="mb-9 w-70" />
+          <Skeleton variant="text" className="mb-4" />
+          <Skeleton variant="text" className="w-30" />
         </Card>
       ))}
     </>

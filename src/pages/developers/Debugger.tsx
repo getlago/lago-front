@@ -195,13 +195,13 @@ const Debugger = () => {
             {loading && (
               <>
                 <HeaderBillableMetric>
-                  <Skeleton variant="text" width={180} />
+                  <Skeleton variant="text" className="w-45" />
                 </HeaderBillableMetric>
                 <EventInfosSkeleton>
                   {[0, 1, 2, 3, 4, 5, 6].map((i) => (
                     <div key={`skeleton-event-${i}`}>
-                      <Skeleton variant="text" width={80} marginRight="72px" />
-                      <Skeleton variant="text" width={240} marginRight="auto" />
+                      <Skeleton variant="text" className="mr-18 w-20" />
+                      <Skeleton variant="text" className="mr-auto w-60" />
                     </div>
                   ))}
                 </EventInfosSkeleton>

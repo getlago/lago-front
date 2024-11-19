@@ -150,7 +150,7 @@ const CustomerDetails = () => {
             onClick={() => navigate(CUSTOMERS_LIST_ROUTE)}
           />
           {loading ? (
-            <Skeleton variant="text" width={120} />
+            <Skeleton variant="text" className="w-30" />
           ) : (
             <Typography
               variant="bodyHl"
@@ -323,8 +323,8 @@ const CustomerDetails = () => {
               <MainInfos>
                 <Skeleton variant="userAvatar" size="large" />
                 <div>
-                  <Skeleton variant="text" width={200} marginBottom={theme.spacing(5)} />
-                  <Skeleton variant="text" width={128} />
+                  <Skeleton variant="text" className="mb-5 w-50" />
+                  <Skeleton variant="text" className="w-32" />
                 </div>
               </MainInfos>
             ) : (

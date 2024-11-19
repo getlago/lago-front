@@ -144,9 +144,9 @@ CustomerItem.displayName = 'CustomerItem'
 export const CustomerItemSkeleton = () => {
   return (
     <BaseListItem>
-      <Skeleton variant="connectorAvatar" size="big" marginRight={theme.spacing(3)} />
-      <Skeleton variant="text" width={240} marginRight="auto" />
-      <Skeleton variant="text" width={240} />
+      <Skeleton variant="connectorAvatar" size="big" className="mr-3" />
+      <Skeleton variant="text" className="mr-auto w-60" />
+      <Skeleton variant="text" className="w-60" />
     </BaseListItem>
   )
 }

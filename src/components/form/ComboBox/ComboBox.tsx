@@ -135,8 +135,8 @@ export const ComboBox = ({
         <LoadingIemsWrapper>
           {[1, 2, 3].map((i) => (
             <LoadingItem key={`combobox-loading-item-${i}`}>
-              <Skeleton variant="circular" size="small" marginRight="16px" />
-              <Skeleton variant="text" width="100%" />
+              <Skeleton variant="circular" size="small" className="mr-4" />
+              <Skeleton variant="text" className="" />
             </LoadingItem>
           ))}
         </LoadingIemsWrapper>
