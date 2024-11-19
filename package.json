@@ -73,7 +73,7 @@
     "cypress": "13.14.2",
     "dotenv": "16.3.1",
     "duplicate-package-checker-webpack-plugin": "3.0.0",
-    "eslint": "^9.14.0",
+    "eslint": "^9.15.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
