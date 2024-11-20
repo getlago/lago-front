@@ -44,7 +44,7 @@ import {
   RetryInvoiceMutationFn,
   RetryTaxProviderVoidingMutationFn,
   SalesforceIntegrationInfosForInvoiceOverviewFragment,
-  SyncCrmIntegrationInvoiceMutationFn,
+  SyncHubspotIntegrationInvoiceMutationFn,
   SyncSalesforceInvoiceMutationFn,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -60,8 +60,10 @@ gql`
     issuingDate
     externalIntegrationId
     taxProviderVoidable
-    integrationCrmSyncable
-    externalCrmIntegrationId
+    integrationHubspotSyncable
+    externalHubspotIntegrationId
+    integrationSalesforceSyncable
+    externalSalesforceIntegrationId
     customer {
       id
       applicableTimezone
@@ -120,9 +122,9 @@ interface InvoiceOverviewProps {
   connectedHubspotIntegration: HubspotIntegrationInfosForInvoiceOverviewFragment | undefined
   connectedSalesforceIntegration: SalesforceIntegrationInfosForInvoiceOverviewFragment | undefined
   goToPreviousRoute?: () => void
-  syncCrmIntegrationInvoice: SyncCrmIntegrationInvoiceMutationFn
+  syncHubspotIntegrationInvoice: SyncHubspotIntegrationInvoiceMutationFn
   syncSalesforceIntegrationInvoice: SyncSalesforceInvoiceMutationFn
-  loadingSyncCrmIntegrationInvoice: boolean
+  loadingSyncHubspotIntegrationInvoice: boolean
   loadingSyncSalesforceIntegrationInvoice: boolean
 }
 
@@ -144,9 +146,9 @@ const InvoiceOverview = memo(
     connectedHubspotIntegration,
     connectedSalesforceIntegration,
     goToPreviousRoute,
-    syncCrmIntegrationInvoice,
+    syncHubspotIntegrationInvoice,
     syncSalesforceIntegrationInvoice,
-    loadingSyncCrmIntegrationInvoice,
+    loadingSyncHubspotIntegrationInvoice,
     loadingSyncSalesforceIntegrationInvoice,
   }: InvoiceOverviewProps) => {
     const { translate } = useInternationalization()
@@ -190,18 +192,24 @@ const InvoiceOverview = memo(
       !!invoice?.customer?.anrokCustomer?.externalAccountId
     const showAnrokSection = showAnrokReSyncButton || showAnrokLink
 
-    const showHubspotReSyncButton = invoice?.integrationCrmSyncable
+    const showHubspotReSyncButton = invoice?.integrationHubspotSyncable
     const showHubspotLink =
       !!invoice?.customer?.hubspotCustomer?.externalCustomerId &&
-      !!invoice?.externalCrmIntegrationId &&
+      !!invoice?.externalHubspotIntegrationId &&
       !!connectedHubspotIntegration?.portalId &&
       (invoice?.status === InvoiceStatusTypeEnum.Finalized ||
         invoice?.status === InvoiceStatusTypeEnum.Voided)
     const showHubspotSection = showHubspotLink || showHubspotReSyncButton
 
+    const showSalesforceReSyncButton = invoice?.integrationSalesforceSyncable
     const showSalesforceLink =
-      customer?.salesforceCustomer?.externalCustomerId && connectedSalesforceIntegration?.instanceId
-    const showSalesforceSection = showSalesforceLink
+      customer?.salesforceCustomer?.externalCustomerId &&
+      connectedSalesforceIntegration?.instanceId &&
+      !!invoice.externalSalesforceIntegrationId &&
+      (invoice?.status === InvoiceStatusTypeEnum.Finalized ||
+        invoice?.status === InvoiceStatusTypeEnum.Voided)
+
+    const showSalesforceSection = showSalesforceLink || showSalesforceReSyncButton
 
     const showExternalAppsSection =
       showXeroSection ||
@@ -471,7 +479,7 @@ const InvoiceOverview = memo(
                           to={buildHubspotInvoiceUrl({
                             portalId: connectedHubspotIntegration?.portalId,
                             resourceId: connectedHubspotIntegration?.invoicesObjectTypeId,
-                            externalCrmIntegrationId: invoice?.externalCrmIntegrationId,
+                            externalHubspotIntegrationId: invoice?.externalHubspotIntegrationId,
                           })}
                         >
                           <Typography
@@ -479,7 +487,7 @@ const InvoiceOverview = memo(
                             variant="body"
                             color="info600"
                           >
-                            {invoice?.externalCrmIntegrationId} <Icon name="outside" />
+                            {invoice?.externalHubspotIntegrationId} <Icon name="outside" />
                           </Typography>
                         </InlineLink>
                       ) : (
@@ -493,14 +501,14 @@ const InvoiceOverview = memo(
                             to={'#'}
                             onClick={(e) => {
                               e.preventDefault()
-                              syncCrmIntegrationInvoice()
+                              syncHubspotIntegrationInvoice()
                             }}
                           >
                             <Typography variant="body" color="info600">
                               {translate('text_1729679289432l7pa9bgih1v')}
                             </Typography>
                           </InlineLink>
-                          {loadingSyncCrmIntegrationInvoice && (
+                          {loadingSyncHubspotIntegrationInvoice && (
                             <Icon name="processing" color="info" size="small" animation="spin" />
                           )}
                         </Stack>
@@ -529,7 +537,7 @@ const InvoiceOverview = memo(
                             variant="body"
                             color="info600"
                           >
-                            {invoice.externalCrmIntegrationId} <Icon name="outside" />
+                            {invoice?.externalSalesforceIntegrationId} <Icon name="outside" />
                           </Typography>
                         </InlineLink>
                       ) : (

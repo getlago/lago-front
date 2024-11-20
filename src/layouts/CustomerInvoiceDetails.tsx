@@ -77,7 +77,7 @@ import {
   useRefreshInvoiceMutation,
   useRetryInvoiceMutation,
   useRetryTaxProviderVoidingMutation,
-  useSyncCrmIntegrationInvoiceMutation,
+  useSyncHubspotIntegrationInvoiceMutation,
   useSyncIntegrationInvoiceMutation,
   useSyncSalesforceInvoiceMutation,
 } from '~/generated/graphql'
@@ -107,7 +107,7 @@ gql`
     integrationSyncable
     externalIntegrationId
     taxProviderVoidable
-    integrationCrmSyncable
+    integrationHubspotSyncable
     associatedActiveWalletPresent
     errorDetails {
       errorCode
@@ -196,15 +196,15 @@ gql`
     }
   }
 
-  mutation syncCrmIntegrationInvoice($input: SyncCrmIntegrationInvoiceInput!) {
-    syncCrmIntegrationInvoice(input: $input) {
+  mutation syncHubspotIntegrationInvoice($input: SyncHubspotIntegrationInvoiceInput!) {
+    syncHubspotIntegrationInvoice(input: $input) {
       invoiceId
     }
   }
 
   mutation syncSalesforceInvoice($input: SyncSalesforceInvoiceInput!) {
     syncSalesforceInvoice(input: $input) {
-      invoiceId
+      id
     }
   }
 
@@ -390,11 +390,11 @@ const CustomerInvoiceDetails = () => {
       },
     })
 
-  const [syncCrmIntegrationInvoice, { loading: loadingSyncCrmIntegrationInvoice }] =
-    useSyncCrmIntegrationInvoiceMutation({
+  const [syncHubspotIntegrationInvoice, { loading: loadingSyncHubspotIntegrationInvoice }] =
+    useSyncHubspotIntegrationInvoiceMutation({
       variables: { input: { invoiceId: invoiceId || '' } },
-      onCompleted({ syncCrmIntegrationInvoice: syncCrmIntegrationInvoiceResult }) {
-        if (syncCrmIntegrationInvoiceResult?.invoiceId) {
+      onCompleted({ syncHubspotIntegrationInvoice: syncHubspotIntegrationInvoiceResult }) {
+        if (syncHubspotIntegrationInvoiceResult?.invoiceId) {
           addToast({
             severity: 'success',
             translateKey: 'text_1729756690073w4jrdeesayy',
@@ -407,7 +407,7 @@ const CustomerInvoiceDetails = () => {
     useSyncSalesforceInvoiceMutation({
       variables: { input: { invoiceId: invoiceId || '' } },
       onCompleted({ syncSalesforceInvoice: syncSalesforceInvoiceResult }) {
-        if (syncSalesforceInvoiceResult?.invoiceId) {
+        if (syncSalesforceInvoiceResult?.id) {
           addToast({
             severity: 'success',
             translateKey: 'text_17316853046485zk7ibjnwbb',
@@ -543,9 +543,9 @@ const CustomerInvoiceDetails = () => {
             connectedHubspotIntegration={connectedHubspotIntegration}
             connectedSalesforceIntegration={connectedSalesforceIntegration}
             goToPreviousRoute={goToPreviousRoute}
-            syncCrmIntegrationInvoice={syncCrmIntegrationInvoice}
+            syncHubspotIntegrationInvoice={syncHubspotIntegrationInvoice}
             syncSalesforceIntegrationInvoice={syncSalesforceIntegrationInvoice}
-            loadingSyncCrmIntegrationInvoice={loadingSyncCrmIntegrationInvoice}
+            loadingSyncHubspotIntegrationInvoice={loadingSyncHubspotIntegrationInvoice}
             loadingSyncSalesforceIntegrationInvoice={loadingSyncSalesforceIntegrationInvoice}
           />
         ),
@@ -592,8 +592,8 @@ const CustomerInvoiceDetails = () => {
     connectedHubspotIntegration,
     connectedSalesforceIntegration,
     goToPreviousRoute,
-    syncCrmIntegrationInvoice,
-    loadingSyncCrmIntegrationInvoice,
+    syncHubspotIntegrationInvoice,
+    loadingSyncHubspotIntegrationInvoice,
     syncSalesforceIntegrationInvoice,
     loadingSyncSalesforceIntegrationInvoice,
     status,
@@ -792,13 +792,13 @@ const CustomerInvoiceDetails = () => {
                       )}
                     </Button>
                   )}
-                  {!!data?.invoice?.integrationCrmSyncable && (
+                  {!!data?.invoice?.integrationHubspotSyncable && (
                     <Button
                       variant="quaternary"
                       align="left"
-                      disabled={loadingSyncCrmIntegrationInvoice}
+                      disabled={loadingSyncHubspotIntegrationInvoice}
                       onClick={async () => {
-                        await syncCrmIntegrationInvoice()
+                        await syncHubspotIntegrationInvoice()
                         closePopper()
                       }}
                     >

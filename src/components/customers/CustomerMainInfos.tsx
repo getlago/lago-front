@@ -627,8 +627,8 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
             <Typography variant="caption">{translate('text_1728658962985xpfdvl5ru8a')}</Typography>
             {integrationsLoading ? (
               <Stack flex={1} gap={3} marginTop={1}>
-                <Skeleton variant="text" width={200} />
-                <Skeleton variant="text" width={200} />
+                <Skeleton variant="text" className="w-50" />
+                <Skeleton variant="text" className="w-50" />
               </Stack>
             ) : !!connectedSalesforceIntegration && customer?.salesforceCustomer?.integrationId ? (
               <Stack>

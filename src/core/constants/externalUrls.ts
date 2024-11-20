@@ -84,13 +84,13 @@ export const buildHubspotObjectUrl = ({
 export const buildHubspotInvoiceUrl = ({
   portalId,
   resourceId,
-  externalCrmIntegrationId,
+  externalHubspotIntegrationId,
 }: {
   portalId?: string | null
   resourceId?: string | null
-  externalCrmIntegrationId?: string | null
+  externalHubspotIntegrationId?: string | null
 }) => {
-  return `https://app.hubspot.com/contacts/${portalId}/record/${resourceId}/${externalCrmIntegrationId}`
+  return `https://app.hubspot.com/contacts/${portalId}/record/${resourceId}/${externalHubspotIntegrationId}`
 }
 
 export const buildSalesforceUrl = ({
