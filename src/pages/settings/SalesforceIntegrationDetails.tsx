@@ -30,7 +30,7 @@ import {
   useGetSalesforceIntegrationsDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import Salesforce from '~/public/images/salesforce-large.svg'
+import Salesforce from '~/public/images/salesforce.svg'
 import { MenuPopper, PageHeader } from '~/styles'
 
 const PROVIDER_CONNECTION_LIMIT = 2

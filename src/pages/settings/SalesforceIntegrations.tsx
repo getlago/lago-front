@@ -30,7 +30,7 @@ import {
   useGetSalesforceIntegrationsListQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import SalesforceLarge from '~/public/images/salesforce-large.svg'
+import Salesforce from '~/public/images/salesforce.svg'
 import { ListItemLink, MenuPopper, PageHeader, PopperOpener } from '~/styles'
 
 gql`
@@ -107,7 +107,7 @@ const SalesforceIntegrations = () => {
           ) : (
             <>
               <Avatar className="mr-4" variant="connector-full" size="large">
-                <SalesforceLarge />
+                <Salesforce />
               </Avatar>
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
