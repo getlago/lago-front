@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useMemo, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { generatePath, useNavigate } from 'react-router-dom'
 
 import {
   Avatar,
@@ -31,7 +31,7 @@ import {
   DeleteCampaignDialogRef,
 } from '~/components/settings/dunnings/DeleteCampaignDialog'
 import { addToast } from '~/core/apolloClient'
-import { CREATE_DUNNING_ROUTE } from '~/core/router'
+import { CREATE_DUNNING_ROUTE, UPDATE_DUNNING_ROUTE } from '~/core/router'
 import {
   DeleteCampaignFragmentDoc,
   PremiumIntegrationTypeEnum,
@@ -257,7 +257,11 @@ const Dunnings = () => {
                             startIcon: 'pen',
                             title: translate('text_17321873136602nzwuvcycbr'),
                             onAction: () => {
-                              // TODO: Implement edit dunning campaign
+                              navigate(
+                                generatePath(UPDATE_DUNNING_ROUTE, {
+                                  campaignId: campaign?.id || '',
+                                }),
+                              )
                             },
                           },
                           campaign.appliedToOrganization
@@ -268,14 +272,14 @@ const Dunnings = () => {
                                   defaultCampaignDialogRef.current?.openDialog({
                                     type: 'removeDefault',
                                     onConfirm: () => {
-                                      // updateStatus({
-                                      //   variables: {
-                                      //     input: {
-                                      //       id: campaign.id,
-                                      //       appliedToOrganization: false,
-                                      //     },
-                                      //   },
-                                      // })
+                                      updateStatus({
+                                        variables: {
+                                          input: {
+                                            id: campaign.id,
+                                            appliedToOrganization: false,
+                                          },
+                                        },
+                                      })
                                     },
                                   })
                                 },
@@ -287,14 +291,14 @@ const Dunnings = () => {
                                   defaultCampaignDialogRef.current?.openDialog({
                                     type: 'setDefault',
                                     onConfirm: () => {
-                                      // updateStatus({
-                                      //   variables: {
-                                      //     input: {
-                                      //       id: campaign.id,
-                                      //       appliedToOrganization: true,
-                                      //     },
-                                      //   },
-                                      // })
+                                      updateStatus({
+                                        variables: {
+                                          input: {
+                                            id: campaign.id,
+                                            appliedToOrganization: true,
+                                          },
+                                        },
+                                      })
                                     },
                                   })
                                 },

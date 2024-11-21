@@ -1,11 +1,10 @@
-import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { array, boolean, number, object, string } from 'yup'
 
-import { Button, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { Alert, Button, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInputField, ComboBoxField, SwitchField, TextInputField } from '~/components/form'
 import {
   DefaultCampaignDialog,
@@ -16,54 +15,27 @@ import {
   PreviewCampaignEmailDrawerRef,
 } from '~/components/settings/dunnings/PreviewCampaignEmailDrawer'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { DUNNINGS_SETTINGS_ROUTE } from '~/core/router'
-import { serializeAmount } from '~/core/serializers/serializeAmount'
-import {
-  CreateDunningCampaignInput,
-  CurrencyEnum,
-  LagoApiError,
-  useCreateDunningCampaignMutation,
-  useCreateDunningCampaignPaymentProviderQuery,
-} from '~/generated/graphql'
+import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import {
+  DunningCampaignFormInput,
+  useCreateEditDunningCampaign,
+} from '~/hooks/useCreateEditDunningCampaign'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { PageHeader } from '~/styles'
 
-gql`
-  mutation CreateDunningCampaign($input: CreateDunningCampaignInput!) {
-    createDunningCampaign(input: $input) {
-      name
-      code
-      description
-      thresholds {
-        amountCents
-        currency
-      }
-      daysBetweenAttempts
-      maxAttempts
-      appliedToOrganization
-    }
-  }
-
-  query CreateDunningCampaignPaymentProvider {
-    paymentProviders {
-      collection {
-        __typename
-      }
-    }
-  }
-`
-
-type TCreateDunningCampaignInput = Omit<
-  CreateDunningCampaignInput,
-  'daysBetweenAttempts' | 'maxAttempts'
-> & {
-  daysBetweenAttempts: string
-  maxAttempts: string
-}
-
 const CreateDunning = () => {
+  const {
+    isEdition,
+    errorCode,
+    loading,
+    onClose,
+    onSave,
+    campaign,
+    hasPaymentProviderExcludingGoCardless,
+  } = useCreateEditDunningCampaign()
   const { translate } = useInternationalization()
   const navigate = useNavigate()
 
@@ -73,54 +45,33 @@ const CreateDunning = () => {
 
   const { organization: { defaultCurrency } = {} } = useOrganizationInfos()
 
-  const { data, loading } = useCreateDunningCampaignPaymentProviderQuery()
-
-  const hasPaymentProviderExcludingGoCardless = !!data?.paymentProviders?.collection.filter(
-    (provider) => provider.__typename !== 'GocardlessProvider',
-  ).length
-
-  const [create] = useCreateDunningCampaignMutation({
-    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-    onCompleted({ createDunningCampaign }) {
-      if (!!createDunningCampaign) {
-        addToast({
-          severity: 'success',
-          message: translate('text_17290016117598ws4m1j6wvy'),
-        })
-      }
-      navigate(DUNNINGS_SETTINGS_ROUTE)
-    },
-    onError(error) {
-      if (hasDefinedGQLError('ValueAlreadyExist', error)) {
-        formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
-      } else {
-        addToast({
-          severity: 'danger',
-          message: translate('text_62b31e1f6a5b8b1b745ece48'),
-        })
-      }
-
+  useEffect(() => {
+    if (errorCode === FORM_ERRORS_ENUM.existingCode) {
+      formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
       const rootElement = document.getElementById('root')
 
       if (!rootElement) return
       rootElement.scrollTo({ top: 0 })
-    },
-  })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [errorCode])
 
-  const formikProps = useFormik<TCreateDunningCampaignInput>({
+  const formikProps = useFormik<DunningCampaignFormInput>({
     initialValues: {
-      name: '',
-      code: '',
-      description: '',
-      thresholds: [
+      name: campaign?.name || '',
+      code: campaign?.code || '',
+      description: campaign?.description || '',
+      thresholds: campaign?.thresholds || [
         {
           currency: defaultCurrency ?? CurrencyEnum.Usd,
           amountCents: undefined,
         },
       ],
-      daysBetweenAttempts: '',
-      maxAttempts: '',
-      appliedToOrganization: false,
+      daysBetweenAttempts: campaign?.daysBetweenAttempts
+        ? String(campaign.daysBetweenAttempts)
+        : '',
+      maxAttempts: campaign?.maxAttempts ? String(campaign.maxAttempts) : '',
+      appliedToOrganization: campaign?.appliedToOrganization || false,
     },
     validationSchema: object().shape({
       name: string().required(''),
@@ -146,21 +97,7 @@ const CreateDunning = () => {
     }),
     enableReinitialize: true,
     validateOnMount: true,
-    onSubmit: async (values) => {
-      await create({
-        variables: {
-          input: {
-            ...values,
-            daysBetweenAttempts: Number(values.daysBetweenAttempts),
-            maxAttempts: Number(values.maxAttempts),
-            thresholds: values.thresholds.map((threshold) => ({
-              ...threshold,
-              amountCents: serializeAmount(threshold.amountCents, threshold.currency),
-            })),
-          },
-        },
-      })
-    },
+    onSubmit: onSave,
   })
 
   const [shouldDisplayDescription, setShouldDisplayDescription] = useState(
@@ -168,7 +105,12 @@ const CreateDunning = () => {
   )
 
   const onSubmit = () => {
-    if (!!formikProps.values.appliedToOrganization) {
+    if (
+      // If the appliedToOrganization field has changed and is now true, open the default campaign dialog
+      formikProps.initialValues.appliedToOrganization !==
+        formikProps.values.appliedToOrganization &&
+      formikProps.values.appliedToOrganization === true
+    ) {
       defaultCampaignDialogRef.current?.openDialog({
         type: 'setDefault',
         onConfirm: () => formikProps.submitForm(),
@@ -183,15 +125,15 @@ const CreateDunning = () => {
       <div>
         <PageHeader>
           <Typography variant="bodyHl" color="textSecondary" noWrap>
-            {translate('text_17285840281865oxs4lxfs6j')}
+            {translate(
+              isEdition ? 'text_17322041874138xkertqxbqz' : 'text_17285840281865oxs4lxfs6j',
+            )}
           </Typography>
           <Button
             variant="quaternary"
             icon="close"
             onClick={() =>
-              formikProps.dirty
-                ? warningDirtyAttributesDialogRef.current?.openDialog()
-                : navigate(DUNNINGS_SETTINGS_ROUTE)
+              formikProps.dirty ? warningDirtyAttributesDialogRef.current?.openDialog() : onClose()
             }
           />
         </PageHeader>
@@ -215,6 +157,12 @@ const CreateDunning = () => {
         ) : (
           <>
             <div className="container mx-auto mb-15 mt-12">
+              {isEdition && (
+                <Alert type="warning" className="mb-12">
+                  {translate('text_1732187313660ghhrj235mxg')}
+                </Alert>
+              )}
+
               <div className="mb-12 not-last-child:mb-1">
                 <Typography variant="headline" color="textSecondary">
                   {translate('text_1728584028187fg2ebhssz6r')}
@@ -444,7 +392,9 @@ const CreateDunning = () => {
                     disabled={!formikProps.isValid || !formikProps.dirty}
                     onClick={onSubmit}
                   >
-                    {translate('text_1728584028187oqpu20oxuxq')}
+                    {translate(
+                      isEdition ? 'text_17295436903260tlyb1gp1i7' : 'text_1728584028187oqpu20oxuxq',
+                    )}
                   </Button>
                 </div>
               </div>

@@ -165,6 +165,7 @@ export const XERO_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/xero`
 export const XERO_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/xero/:integrationId/:tab`
 export const DUNNINGS_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/dunnings`
 export const CREATE_DUNNING_ROUTE = `${SETTINGS_ROUTE}/dunnings/create`
+export const UPDATE_DUNNING_ROUTE = `${SETTINGS_ROUTE}/dunnings/:campaignId/edit`
 
 export const settingRoutes: CustomRouteObject[] = [
   {
@@ -342,9 +343,9 @@ export const settingRoutes: CustomRouteObject[] = [
     ],
   },
   {
-    path: CREATE_DUNNING_ROUTE,
+    path: [CREATE_DUNNING_ROUTE, UPDATE_DUNNING_ROUTE],
     private: true,
     element: <CreateDunning />,
-    permissions: ['dunningCampaignsCreate', 'dunningCampaignsView'],
+    permissions: ['dunningCampaignsCreate', 'dunningCampaignsView', 'dunningCampaignsUpdate'],
   },
 ]

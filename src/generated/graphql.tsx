@@ -7958,6 +7958,34 @@ export type UpdateCustomerMutationVariables = Exact<{
 
 export type UpdateCustomerMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, paymentProvider?: ProviderTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProviderCode?: string | null, displayName: string, createdAt: any, activeSubscriptionsCount: number, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, hubspotCustomer?: { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, salesforceCustomer?: { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null } | null };
 
+export type DunningCampaignFormFragment = { __typename?: 'DunningCampaign', name: string, code: string, description?: string | null, daysBetweenAttempts: number, maxAttempts: number, appliedToOrganization: boolean, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', amountCents: any, currency: CurrencyEnum }> };
+
+export type GetSingleCampaignQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetSingleCampaignQuery = { __typename?: 'Query', dunningCampaign: { __typename?: 'DunningCampaign', id: string, name: string, code: string, description?: string | null, daysBetweenAttempts: number, maxAttempts: number, appliedToOrganization: boolean, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', amountCents: any, currency: CurrencyEnum }> } };
+
+export type CreateDunningCampaignPaymentProviderQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CreateDunningCampaignPaymentProviderQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename: 'AdyenProvider' } | { __typename: 'GocardlessProvider' } | { __typename: 'StripeProvider' }> } | null };
+
+export type CreateDunningCampaignMutationVariables = Exact<{
+  input: CreateDunningCampaignInput;
+}>;
+
+
+export type CreateDunningCampaignMutation = { __typename?: 'Mutation', createDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string, description?: string | null, daysBetweenAttempts: number, maxAttempts: number, appliedToOrganization: boolean, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', amountCents: any, currency: CurrencyEnum }> } | null };
+
+export type UpdateDunningCampaignMutationVariables = Exact<{
+  input: UpdateDunningCampaignInput;
+}>;
+
+
+export type UpdateDunningCampaignMutation = { __typename?: 'Mutation', updateDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string, description?: string | null, daysBetweenAttempts: number, maxAttempts: number, appliedToOrganization: boolean, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', amountCents: any, currency: CurrencyEnum }> } | null };
+
 export type TaxFormFragment = { __typename?: 'Tax', id: string, code: string, description?: string | null, name: string, rate: number, customersCount: number };
 
 export type TaxFormQueryShapeFragment = { __typename?: 'Tax', autoGenerated: boolean, id: string, code: string, description?: string | null, name: string, rate: number, customersCount: number };
@@ -8619,18 +8647,6 @@ export type GetOktaIntegrationQueryVariables = Exact<{
 
 
 export type GetOktaIntegrationQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration', id: string, clientId?: string | null, clientSecret?: string | null, code: string, organizationName: string, domain: string, name: string } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' } | null };
-
-export type CreateDunningCampaignMutationVariables = Exact<{
-  input: CreateDunningCampaignInput;
-}>;
-
-
-export type CreateDunningCampaignMutation = { __typename?: 'Mutation', createDunningCampaign?: { __typename?: 'DunningCampaign', name: string, code: string, description?: string | null, daysBetweenAttempts: number, maxAttempts: number, appliedToOrganization: boolean, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', amountCents: any, currency: CurrencyEnum }> } | null };
-
-export type CreateDunningCampaignPaymentProviderQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type CreateDunningCampaignPaymentProviderQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename: 'AdyenProvider' } | { __typename: 'GocardlessProvider' } | { __typename: 'StripeProvider' }> } | null };
 
 export type DunningCampaignItemFragment = { __typename?: 'DunningCampaign', id: string, name: string, code: string, appliedToOrganization: boolean };
 
@@ -10312,6 +10328,20 @@ export const EditCouponFragmentDoc = gql`
 }
     ${PlansForCouponsFragmentDoc}
 ${BillableMetricsForCouponsFragmentDoc}`;
+export const DunningCampaignFormFragmentDoc = gql`
+    fragment DunningCampaignForm on DunningCampaign {
+  name
+  code
+  description
+  thresholds {
+    amountCents
+    currency
+  }
+  daysBetweenAttempts
+  maxAttempts
+  appliedToOrganization
+}
+    `;
 export const TaxFormFragmentDoc = gql`
     fragment TaxForm on Tax {
   id
@@ -19733,6 +19763,156 @@ export function useUpdateCustomerMutation(baseOptions?: Apollo.MutationHookOptio
 export type UpdateCustomerMutationHookResult = ReturnType<typeof useUpdateCustomerMutation>;
 export type UpdateCustomerMutationResult = Apollo.MutationResult<UpdateCustomerMutation>;
 export type UpdateCustomerMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerMutation, UpdateCustomerMutationVariables>;
+export const GetSingleCampaignDocument = gql`
+    query GetSingleCampaign($id: ID!) {
+  dunningCampaign(id: $id) {
+    id
+    ...DunningCampaignForm
+  }
+}
+    ${DunningCampaignFormFragmentDoc}`;
+
+/**
+ * __useGetSingleCampaignQuery__
+ *
+ * To run a query within a React component, call `useGetSingleCampaignQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSingleCampaignQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSingleCampaignQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetSingleCampaignQuery(baseOptions: Apollo.QueryHookOptions<GetSingleCampaignQuery, GetSingleCampaignQueryVariables> & ({ variables: GetSingleCampaignQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSingleCampaignQuery, GetSingleCampaignQueryVariables>(GetSingleCampaignDocument, options);
+      }
+export function useGetSingleCampaignLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSingleCampaignQuery, GetSingleCampaignQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSingleCampaignQuery, GetSingleCampaignQueryVariables>(GetSingleCampaignDocument, options);
+        }
+export function useGetSingleCampaignSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleCampaignQuery, GetSingleCampaignQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetSingleCampaignQuery, GetSingleCampaignQueryVariables>(GetSingleCampaignDocument, options);
+        }
+export type GetSingleCampaignQueryHookResult = ReturnType<typeof useGetSingleCampaignQuery>;
+export type GetSingleCampaignLazyQueryHookResult = ReturnType<typeof useGetSingleCampaignLazyQuery>;
+export type GetSingleCampaignSuspenseQueryHookResult = ReturnType<typeof useGetSingleCampaignSuspenseQuery>;
+export type GetSingleCampaignQueryResult = Apollo.QueryResult<GetSingleCampaignQuery, GetSingleCampaignQueryVariables>;
+export const CreateDunningCampaignPaymentProviderDocument = gql`
+    query CreateDunningCampaignPaymentProvider {
+  paymentProviders {
+    collection {
+      __typename
+    }
+  }
+}
+    `;
+
+/**
+ * __useCreateDunningCampaignPaymentProviderQuery__
+ *
+ * To run a query within a React component, call `useCreateDunningCampaignPaymentProviderQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCreateDunningCampaignPaymentProviderQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCreateDunningCampaignPaymentProviderQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useCreateDunningCampaignPaymentProviderQuery(baseOptions?: Apollo.QueryHookOptions<CreateDunningCampaignPaymentProviderQuery, CreateDunningCampaignPaymentProviderQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CreateDunningCampaignPaymentProviderQuery, CreateDunningCampaignPaymentProviderQueryVariables>(CreateDunningCampaignPaymentProviderDocument, options);
+      }
+export function useCreateDunningCampaignPaymentProviderLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CreateDunningCampaignPaymentProviderQuery, CreateDunningCampaignPaymentProviderQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CreateDunningCampaignPaymentProviderQuery, CreateDunningCampaignPaymentProviderQueryVariables>(CreateDunningCampaignPaymentProviderDocument, options);
+        }
+export function useCreateDunningCampaignPaymentProviderSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CreateDunningCampaignPaymentProviderQuery, CreateDunningCampaignPaymentProviderQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<CreateDunningCampaignPaymentProviderQuery, CreateDunningCampaignPaymentProviderQueryVariables>(CreateDunningCampaignPaymentProviderDocument, options);
+        }
+export type CreateDunningCampaignPaymentProviderQueryHookResult = ReturnType<typeof useCreateDunningCampaignPaymentProviderQuery>;
+export type CreateDunningCampaignPaymentProviderLazyQueryHookResult = ReturnType<typeof useCreateDunningCampaignPaymentProviderLazyQuery>;
+export type CreateDunningCampaignPaymentProviderSuspenseQueryHookResult = ReturnType<typeof useCreateDunningCampaignPaymentProviderSuspenseQuery>;
+export type CreateDunningCampaignPaymentProviderQueryResult = Apollo.QueryResult<CreateDunningCampaignPaymentProviderQuery, CreateDunningCampaignPaymentProviderQueryVariables>;
+export const CreateDunningCampaignDocument = gql`
+    mutation CreateDunningCampaign($input: CreateDunningCampaignInput!) {
+  createDunningCampaign(input: $input) {
+    id
+    ...DunningCampaignForm
+  }
+}
+    ${DunningCampaignFormFragmentDoc}`;
+export type CreateDunningCampaignMutationFn = Apollo.MutationFunction<CreateDunningCampaignMutation, CreateDunningCampaignMutationVariables>;
+
+/**
+ * __useCreateDunningCampaignMutation__
+ *
+ * To run a mutation, you first call `useCreateDunningCampaignMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateDunningCampaignMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createDunningCampaignMutation, { data, loading, error }] = useCreateDunningCampaignMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateDunningCampaignMutation(baseOptions?: Apollo.MutationHookOptions<CreateDunningCampaignMutation, CreateDunningCampaignMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateDunningCampaignMutation, CreateDunningCampaignMutationVariables>(CreateDunningCampaignDocument, options);
+      }
+export type CreateDunningCampaignMutationHookResult = ReturnType<typeof useCreateDunningCampaignMutation>;
+export type CreateDunningCampaignMutationResult = Apollo.MutationResult<CreateDunningCampaignMutation>;
+export type CreateDunningCampaignMutationOptions = Apollo.BaseMutationOptions<CreateDunningCampaignMutation, CreateDunningCampaignMutationVariables>;
+export const UpdateDunningCampaignDocument = gql`
+    mutation UpdateDunningCampaign($input: UpdateDunningCampaignInput!) {
+  updateDunningCampaign(input: $input) {
+    id
+    ...DunningCampaignForm
+  }
+}
+    ${DunningCampaignFormFragmentDoc}`;
+export type UpdateDunningCampaignMutationFn = Apollo.MutationFunction<UpdateDunningCampaignMutation, UpdateDunningCampaignMutationVariables>;
+
+/**
+ * __useUpdateDunningCampaignMutation__
+ *
+ * To run a mutation, you first call `useUpdateDunningCampaignMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateDunningCampaignMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateDunningCampaignMutation, { data, loading, error }] = useUpdateDunningCampaignMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateDunningCampaignMutation(baseOptions?: Apollo.MutationHookOptions<UpdateDunningCampaignMutation, UpdateDunningCampaignMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateDunningCampaignMutation, UpdateDunningCampaignMutationVariables>(UpdateDunningCampaignDocument, options);
+      }
+export type UpdateDunningCampaignMutationHookResult = ReturnType<typeof useUpdateDunningCampaignMutation>;
+export type UpdateDunningCampaignMutationResult = Apollo.MutationResult<UpdateDunningCampaignMutation>;
+export type UpdateDunningCampaignMutationOptions = Apollo.BaseMutationOptions<UpdateDunningCampaignMutation, UpdateDunningCampaignMutationVariables>;
 export const GetSingleTaxDocument = gql`
     query getSingleTax($id: ID!) {
   tax(id: $id) {
@@ -23340,89 +23520,6 @@ export type GetOktaIntegrationQueryHookResult = ReturnType<typeof useGetOktaInte
 export type GetOktaIntegrationLazyQueryHookResult = ReturnType<typeof useGetOktaIntegrationLazyQuery>;
 export type GetOktaIntegrationSuspenseQueryHookResult = ReturnType<typeof useGetOktaIntegrationSuspenseQuery>;
 export type GetOktaIntegrationQueryResult = Apollo.QueryResult<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>;
-export const CreateDunningCampaignDocument = gql`
-    mutation CreateDunningCampaign($input: CreateDunningCampaignInput!) {
-  createDunningCampaign(input: $input) {
-    name
-    code
-    description
-    thresholds {
-      amountCents
-      currency
-    }
-    daysBetweenAttempts
-    maxAttempts
-    appliedToOrganization
-  }
-}
-    `;
-export type CreateDunningCampaignMutationFn = Apollo.MutationFunction<CreateDunningCampaignMutation, CreateDunningCampaignMutationVariables>;
-
-/**
- * __useCreateDunningCampaignMutation__
- *
- * To run a mutation, you first call `useCreateDunningCampaignMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateDunningCampaignMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createDunningCampaignMutation, { data, loading, error }] = useCreateDunningCampaignMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateDunningCampaignMutation(baseOptions?: Apollo.MutationHookOptions<CreateDunningCampaignMutation, CreateDunningCampaignMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateDunningCampaignMutation, CreateDunningCampaignMutationVariables>(CreateDunningCampaignDocument, options);
-      }
-export type CreateDunningCampaignMutationHookResult = ReturnType<typeof useCreateDunningCampaignMutation>;
-export type CreateDunningCampaignMutationResult = Apollo.MutationResult<CreateDunningCampaignMutation>;
-export type CreateDunningCampaignMutationOptions = Apollo.BaseMutationOptions<CreateDunningCampaignMutation, CreateDunningCampaignMutationVariables>;
-export const CreateDunningCampaignPaymentProviderDocument = gql`
-    query CreateDunningCampaignPaymentProvider {
-  paymentProviders {
-    collection {
-      __typename
-    }
-  }
-}
-    `;
-
-/**
- * __useCreateDunningCampaignPaymentProviderQuery__
- *
- * To run a query within a React component, call `useCreateDunningCampaignPaymentProviderQuery` and pass it any options that fit your needs.
- * When your component renders, `useCreateDunningCampaignPaymentProviderQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useCreateDunningCampaignPaymentProviderQuery({
- *   variables: {
- *   },
- * });
- */
-export function useCreateDunningCampaignPaymentProviderQuery(baseOptions?: Apollo.QueryHookOptions<CreateDunningCampaignPaymentProviderQuery, CreateDunningCampaignPaymentProviderQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<CreateDunningCampaignPaymentProviderQuery, CreateDunningCampaignPaymentProviderQueryVariables>(CreateDunningCampaignPaymentProviderDocument, options);
-      }
-export function useCreateDunningCampaignPaymentProviderLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CreateDunningCampaignPaymentProviderQuery, CreateDunningCampaignPaymentProviderQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<CreateDunningCampaignPaymentProviderQuery, CreateDunningCampaignPaymentProviderQueryVariables>(CreateDunningCampaignPaymentProviderDocument, options);
-        }
-export function useCreateDunningCampaignPaymentProviderSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CreateDunningCampaignPaymentProviderQuery, CreateDunningCampaignPaymentProviderQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<CreateDunningCampaignPaymentProviderQuery, CreateDunningCampaignPaymentProviderQueryVariables>(CreateDunningCampaignPaymentProviderDocument, options);
-        }
-export type CreateDunningCampaignPaymentProviderQueryHookResult = ReturnType<typeof useCreateDunningCampaignPaymentProviderQuery>;
-export type CreateDunningCampaignPaymentProviderLazyQueryHookResult = ReturnType<typeof useCreateDunningCampaignPaymentProviderLazyQuery>;
-export type CreateDunningCampaignPaymentProviderSuspenseQueryHookResult = ReturnType<typeof useCreateDunningCampaignPaymentProviderSuspenseQuery>;
-export type CreateDunningCampaignPaymentProviderQueryResult = Apollo.QueryResult<CreateDunningCampaignPaymentProviderQuery, CreateDunningCampaignPaymentProviderQueryVariables>;
 export const GetDunningCampaignsDocument = gql`
     query getDunningCampaigns($limit: Int, $page: Int) {
   dunningCampaigns(limit: $limit, page: $page, order: "name") {
