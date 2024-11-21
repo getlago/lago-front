@@ -26,9 +26,14 @@ import {
   DefaultCampaignDialog,
   DefaultCampaignDialogRef,
 } from '~/components/settings/dunnings/DefaultCampaignDialog'
+import {
+  DeleteCampaignDialog,
+  DeleteCampaignDialogRef,
+} from '~/components/settings/dunnings/DeleteCampaignDialog'
 import { addToast } from '~/core/apolloClient'
 import { CREATE_DUNNING_ROUTE } from '~/core/router'
 import {
+  DeleteCampaignFragmentDoc,
   PremiumIntegrationTypeEnum,
   useGetDunningCampaignsQuery,
   useUpdateDunningCampaignStatusMutation,
@@ -54,6 +59,7 @@ gql`
       collection {
         id
         ...DunningCampaignItem
+        ...DeleteCampaign
       }
     }
   }
@@ -64,12 +70,15 @@ gql`
       appliedToOrganization
     }
   }
+
+  ${DeleteCampaignFragmentDoc}
 `
 
 const Dunnings = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const defaultCampaignDialogRef = useRef<DefaultCampaignDialogRef>(null)
+  const deleteCampaignDialogRef = useRef<DeleteCampaignDialogRef>(null)
 
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
 
@@ -244,6 +253,13 @@ const Dunnings = () => {
                       actionColumnTooltip={() => translate('text_17285747264959xu1spelnh9')}
                       actionColumn={(campaign) => {
                         return [
+                          {
+                            startIcon: 'pen',
+                            title: translate('text_17321873136602nzwuvcycbr'),
+                            onAction: () => {
+                              // TODO: Implement edit dunning campaign
+                            },
+                          },
                           campaign.appliedToOrganization
                             ? {
                                 startIcon: 'star-outlined-hidden',
@@ -252,14 +268,14 @@ const Dunnings = () => {
                                   defaultCampaignDialogRef.current?.openDialog({
                                     type: 'removeDefault',
                                     onConfirm: () => {
-                                      updateStatus({
-                                        variables: {
-                                          input: {
-                                            id: campaign.id,
-                                            appliedToOrganization: false,
-                                          },
-                                        },
-                                      })
+                                      // updateStatus({
+                                      //   variables: {
+                                      //     input: {
+                                      //       id: campaign.id,
+                                      //       appliedToOrganization: false,
+                                      //     },
+                                      //   },
+                                      // })
                                     },
                                   })
                                 },
@@ -271,18 +287,25 @@ const Dunnings = () => {
                                   defaultCampaignDialogRef.current?.openDialog({
                                     type: 'setDefault',
                                     onConfirm: () => {
-                                      updateStatus({
-                                        variables: {
-                                          input: {
-                                            id: campaign.id,
-                                            appliedToOrganization: true,
-                                          },
-                                        },
-                                      })
+                                      // updateStatus({
+                                      //   variables: {
+                                      //     input: {
+                                      //       id: campaign.id,
+                                      //       appliedToOrganization: true,
+                                      //     },
+                                      //   },
+                                      // })
                                     },
                                   })
                                 },
                               },
+                          {
+                            startIcon: 'trash',
+                            title: translate('text_1732187313660we30lb9kg57'),
+                            onAction: () => {
+                              deleteCampaignDialogRef.current?.openDialog(campaign)
+                            },
+                          },
                         ]
                       }}
                     />
@@ -295,6 +318,7 @@ const Dunnings = () => {
       </SettingsPaddedContainer>
 
       <DefaultCampaignDialog ref={defaultCampaignDialogRef} />
+      <DeleteCampaignDialog ref={deleteCampaignDialogRef} />
     </>
   )
 }

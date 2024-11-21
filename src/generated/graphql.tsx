@@ -2772,6 +2772,7 @@ export enum IntegrationItemTypeEnum {
 
 export enum IntegrationTypeEnum {
   Anrok = 'anrok',
+  ApiPermissions = 'api_permissions',
   AutoDunning = 'auto_dunning',
   Hubspot = 'hubspot',
   Netsuite = 'netsuite',
@@ -4247,6 +4248,7 @@ export type PlanOverridesInput = {
 };
 
 export enum PremiumIntegrationTypeEnum {
+  ApiPermissions = 'api_permissions',
   AutoDunning = 'auto_dunning',
   Hubspot = 'hubspot',
   Netsuite = 'netsuite',
@@ -6981,90 +6983,6 @@ export type GetSubscribtionsForPlanDetailsQuery = { __typename?: 'Query', subscr
 
 export type PlanSubscriptionListItemForSubscriptionListFragment = { __typename?: 'Subscription', id: string, endingAt?: any | null, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, parent?: { __typename?: 'Plan', id: string } | null }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string } };
 
-export type GetTaxRatesForEditOrgaQueryVariables = Exact<{
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  page?: InputMaybe<Scalars['Int']['input']>;
-  searchTerm?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type GetTaxRatesForEditOrgaQuery = { __typename?: 'Query', taxes: { __typename?: 'TaxCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Tax', id: string, name: string, rate: number }> } };
-
-export type AssignTaxRateToOrganizationMutationVariables = Exact<{
-  input: TaxUpdateInput;
-}>;
-
-
-export type AssignTaxRateToOrganizationMutation = { __typename?: 'Mutation', updateTax?: { __typename?: 'Tax', id: string } | null };
-
-export type DeleteOrganizationVatRateFragment = { __typename?: 'Tax', id: string, name: string, appliedToOrganization: boolean };
-
-export type UnassignTaxRateToOrganizationMutationVariables = Exact<{
-  input: TaxUpdateInput;
-}>;
-
-
-export type UnassignTaxRateToOrganizationMutation = { __typename?: 'Mutation', updateTax?: { __typename?: 'Tax', id: string, name: string, appliedToOrganization: boolean } | null };
-
-export type EditOrganizationDefaultCurrencyForDialogFragment = { __typename?: 'CurrentOrganization', id: string, defaultCurrency: CurrencyEnum };
-
-export type UpdateOrganizationDefaultCurrencyMutationVariables = Exact<{
-  input: UpdateOrganizationInput;
-}>;
-
-
-export type UpdateOrganizationDefaultCurrencyMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, defaultCurrency: CurrencyEnum } | null };
-
-export type EditCustomerFinalizeZeroAmountInvoiceForDialogFragment = { __typename?: 'Customer', id: string, externalId: string, name?: string | null, finalizeZeroAmountInvoice?: FinalizeZeroAmountInvoiceEnum | null };
-
-export type EditOrganizationFinalizeZeroAmountInvoiceForDialogFragment = { __typename?: 'CurrentOrganization', id: string, finalizeZeroAmountInvoice: boolean };
-
-export type UpdateCustomerFinalizeZeroAmountInvoiceMutationVariables = Exact<{
-  input: UpdateCustomerInput;
-}>;
-
-
-export type UpdateCustomerFinalizeZeroAmountInvoiceMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, finalizeZeroAmountInvoice?: FinalizeZeroAmountInvoiceEnum | null } | null };
-
-export type UpdateOrganizationFinalizeZeroAmountInvoiceMutationVariables = Exact<{
-  input: UpdateOrganizationInput;
-}>;
-
-
-export type UpdateOrganizationFinalizeZeroAmountInvoiceMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, finalizeZeroAmountInvoice: boolean } | null };
-
-export type EditCustomerNetPaymentTermForDialogFragment = { __typename?: 'Customer', id: string, externalId: string, name?: string | null, netPaymentTerm?: number | null };
-
-export type EditOrganizationNetPaymentTermForDialogFragment = { __typename?: 'CurrentOrganization', id: string, netPaymentTerm: number };
-
-export type UpdateCustomerNetPaymentTermMutationVariables = Exact<{
-  input: UpdateCustomerInput;
-}>;
-
-
-export type UpdateCustomerNetPaymentTermMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, netPaymentTerm?: number | null } | null };
-
-export type UpdateOrganizationNetPaymentTermMutationVariables = Exact<{
-  input: UpdateOrganizationInput;
-}>;
-
-
-export type UpdateOrganizationNetPaymentTermMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, netPaymentTerm: number } | null };
-
-export type UpdateDocumentLocaleOrganizationMutationVariables = Exact<{
-  input: UpdateOrganizationInput;
-}>;
-
-
-export type UpdateDocumentLocaleOrganizationMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, documentLocale?: string | null } | null } | null };
-
-export type UpdateOrganizationGracePeriodMutationVariables = Exact<{
-  input: UpdateOrganizationInput;
-}>;
-
-
-export type UpdateOrganizationGracePeriodMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, invoiceGracePeriod: number } | null } | null };
-
 export type EditOrganizationInformationsDialogFragment = { __typename?: 'CurrentOrganization', id: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null };
 
 export type UpdateOrganizationInformationsMutationVariables = Exact<{
@@ -7073,24 +6991,6 @@ export type UpdateOrganizationInformationsMutationVariables = Exact<{
 
 
 export type UpdateOrganizationInformationsMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, timezone?: TimezoneEnum | null } | null };
-
-export type EditOrganizationInvoiceNumberingDialogFragment = { __typename?: 'CurrentOrganization', id: string, documentNumbering: DocumentNumberingEnum, documentNumberPrefix: string };
-
-export type UpdateOrganizationInvoiceNumberingMutationVariables = Exact<{
-  input: UpdateOrganizationInput;
-}>;
-
-
-export type UpdateOrganizationInvoiceNumberingMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, documentNumbering: DocumentNumberingEnum, documentNumberPrefix: string } | null };
-
-export type EditOrganizationInvoiceTemplateDialogFragment = { __typename?: 'CurrentOrganization', billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, invoiceFooter?: string | null } | null };
-
-export type UpdateOrganizationInvoiceTemplateMutationVariables = Exact<{
-  input: UpdateOrganizationInput;
-}>;
-
-
-export type UpdateOrganizationInvoiceTemplateMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, invoiceFooter?: string | null } | null } | null };
 
 export type UpdateOrganizationTimezoneMutationVariables = Exact<{
   input: UpdateOrganizationInput;
@@ -7123,6 +7023,15 @@ export type UpdateOktaIntegrationMutationVariables = Exact<{
 
 
 export type UpdateOktaIntegrationMutation = { __typename?: 'Mutation', updateOktaIntegration?: { __typename?: 'OktaIntegration', id: string } | null };
+
+export type DeleteCampaignFragment = { __typename?: 'DunningCampaign', id: string, appliedToOrganization: boolean };
+
+export type DeleteDunningCampaignMutationVariables = Exact<{
+  input: DestroyDunningCampaignInput;
+}>;
+
+
+export type DeleteDunningCampaignMutation = { __typename?: 'Mutation', destroyDunningCampaign?: { __typename?: 'DestroyDunningCampaignPayload', id?: string | null } | null };
 
 export type OrganizationInfoForPreviewDunningCampaignFragment = { __typename?: 'CurrentOrganization', name: string, email?: string | null };
 
@@ -7668,6 +7577,108 @@ export type GetXeroIntegrationsSettingsQueryVariables = Exact<{
 
 
 export type GetXeroIntegrationsSettingsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration', id: string, code: string, connectionId: string, hasMappingsConfigured?: boolean | null, name: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration', id: string }> } | null };
+
+export type GetTaxRatesForEditOrgaQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetTaxRatesForEditOrgaQuery = { __typename?: 'Query', taxes: { __typename?: 'TaxCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Tax', id: string, name: string, rate: number }> } };
+
+export type AssignTaxRateToOrganizationMutationVariables = Exact<{
+  input: TaxUpdateInput;
+}>;
+
+
+export type AssignTaxRateToOrganizationMutation = { __typename?: 'Mutation', updateTax?: { __typename?: 'Tax', id: string } | null };
+
+export type DeleteOrganizationVatRateFragment = { __typename?: 'Tax', id: string, name: string, appliedToOrganization: boolean };
+
+export type UnassignTaxRateToOrganizationMutationVariables = Exact<{
+  input: TaxUpdateInput;
+}>;
+
+
+export type UnassignTaxRateToOrganizationMutation = { __typename?: 'Mutation', updateTax?: { __typename?: 'Tax', id: string, name: string, appliedToOrganization: boolean } | null };
+
+export type EditOrganizationDefaultCurrencyForDialogFragment = { __typename?: 'CurrentOrganization', id: string, defaultCurrency: CurrencyEnum };
+
+export type UpdateOrganizationDefaultCurrencyMutationVariables = Exact<{
+  input: UpdateOrganizationInput;
+}>;
+
+
+export type UpdateOrganizationDefaultCurrencyMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, defaultCurrency: CurrencyEnum } | null };
+
+export type EditCustomerFinalizeZeroAmountInvoiceForDialogFragment = { __typename?: 'Customer', id: string, externalId: string, name?: string | null, finalizeZeroAmountInvoice?: FinalizeZeroAmountInvoiceEnum | null };
+
+export type EditOrganizationFinalizeZeroAmountInvoiceForDialogFragment = { __typename?: 'CurrentOrganization', id: string, finalizeZeroAmountInvoice: boolean };
+
+export type UpdateCustomerFinalizeZeroAmountInvoiceMutationVariables = Exact<{
+  input: UpdateCustomerInput;
+}>;
+
+
+export type UpdateCustomerFinalizeZeroAmountInvoiceMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, finalizeZeroAmountInvoice?: FinalizeZeroAmountInvoiceEnum | null } | null };
+
+export type UpdateOrganizationFinalizeZeroAmountInvoiceMutationVariables = Exact<{
+  input: UpdateOrganizationInput;
+}>;
+
+
+export type UpdateOrganizationFinalizeZeroAmountInvoiceMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, finalizeZeroAmountInvoice: boolean } | null };
+
+export type EditCustomerNetPaymentTermForDialogFragment = { __typename?: 'Customer', id: string, externalId: string, name?: string | null, netPaymentTerm?: number | null };
+
+export type EditOrganizationNetPaymentTermForDialogFragment = { __typename?: 'CurrentOrganization', id: string, netPaymentTerm: number };
+
+export type UpdateCustomerNetPaymentTermMutationVariables = Exact<{
+  input: UpdateCustomerInput;
+}>;
+
+
+export type UpdateCustomerNetPaymentTermMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, netPaymentTerm?: number | null } | null };
+
+export type UpdateOrganizationNetPaymentTermMutationVariables = Exact<{
+  input: UpdateOrganizationInput;
+}>;
+
+
+export type UpdateOrganizationNetPaymentTermMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, netPaymentTerm: number } | null };
+
+export type UpdateDocumentLocaleOrganizationMutationVariables = Exact<{
+  input: UpdateOrganizationInput;
+}>;
+
+
+export type UpdateDocumentLocaleOrganizationMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, documentLocale?: string | null } | null } | null };
+
+export type UpdateOrganizationGracePeriodMutationVariables = Exact<{
+  input: UpdateOrganizationInput;
+}>;
+
+
+export type UpdateOrganizationGracePeriodMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, invoiceGracePeriod: number } | null } | null };
+
+export type EditOrganizationInvoiceNumberingDialogFragment = { __typename?: 'CurrentOrganization', id: string, documentNumbering: DocumentNumberingEnum, documentNumberPrefix: string };
+
+export type UpdateOrganizationInvoiceNumberingMutationVariables = Exact<{
+  input: UpdateOrganizationInput;
+}>;
+
+
+export type UpdateOrganizationInvoiceNumberingMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, documentNumbering: DocumentNumberingEnum, documentNumberPrefix: string } | null };
+
+export type EditOrganizationInvoiceTemplateDialogFragment = { __typename?: 'CurrentOrganization', billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, invoiceFooter?: string | null } | null };
+
+export type UpdateOrganizationInvoiceTemplateMutationVariables = Exact<{
+  input: UpdateOrganizationInput;
+}>;
+
+
+export type UpdateOrganizationInvoiceTemplateMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, invoiceFooter?: string | null } | null } | null };
 
 export type CreateInviteMutationVariables = Exact<{
   input: CreateInviteInput;
@@ -9556,47 +9567,6 @@ export const PlanSubscriptionListItemForSubscriptionListFragmentDoc = gql`
   }
 }
     `;
-export const DeleteOrganizationVatRateFragmentDoc = gql`
-    fragment DeleteOrganizationVatRate on Tax {
-  id
-  name
-  appliedToOrganization
-}
-    `;
-export const EditOrganizationDefaultCurrencyForDialogFragmentDoc = gql`
-    fragment EditOrganizationDefaultCurrencyForDialog on CurrentOrganization {
-  id
-  defaultCurrency
-}
-    `;
-export const EditCustomerFinalizeZeroAmountInvoiceForDialogFragmentDoc = gql`
-    fragment EditCustomerFinalizeZeroAmountInvoiceForDialog on Customer {
-  id
-  externalId
-  name
-  finalizeZeroAmountInvoice
-}
-    `;
-export const EditOrganizationFinalizeZeroAmountInvoiceForDialogFragmentDoc = gql`
-    fragment EditOrganizationFinalizeZeroAmountInvoiceForDialog on CurrentOrganization {
-  id
-  finalizeZeroAmountInvoice
-}
-    `;
-export const EditCustomerNetPaymentTermForDialogFragmentDoc = gql`
-    fragment EditCustomerNetPaymentTermForDialog on Customer {
-  id
-  externalId
-  name
-  netPaymentTerm
-}
-    `;
-export const EditOrganizationNetPaymentTermForDialogFragmentDoc = gql`
-    fragment EditOrganizationNetPaymentTermForDialog on CurrentOrganization {
-  id
-  netPaymentTerm
-}
-    `;
 export const EditOrganizationInformationsDialogFragmentDoc = gql`
     fragment EditOrganizationInformationsDialog on CurrentOrganization {
   id
@@ -9612,21 +9582,6 @@ export const EditOrganizationInformationsDialogFragmentDoc = gql`
   city
   state
   country
-}
-    `;
-export const EditOrganizationInvoiceNumberingDialogFragmentDoc = gql`
-    fragment EditOrganizationInvoiceNumberingDialog on CurrentOrganization {
-  id
-  documentNumbering
-  documentNumberPrefix
-}
-    `;
-export const EditOrganizationInvoiceTemplateDialogFragmentDoc = gql`
-    fragment EditOrganizationInvoiceTemplateDialog on CurrentOrganization {
-  billingConfiguration {
-    id
-    invoiceFooter
-  }
 }
     `;
 export const DeleteOktaIntegrationDialogFragmentDoc = gql`
@@ -9645,6 +9600,12 @@ export const AddOktaIntegrationDialogFragmentDoc = gql`
   ...DeleteOktaIntegrationDialog
 }
     ${DeleteOktaIntegrationDialogFragmentDoc}`;
+export const DeleteCampaignFragmentDoc = gql`
+    fragment DeleteCampaign on DunningCampaign {
+  id
+  appliedToOrganization
+}
+    `;
 export const OrganizationInfoForPreviewDunningCampaignFragmentDoc = gql`
     fragment OrganizationInfoForPreviewDunningCampaign on CurrentOrganization {
   name
@@ -9928,6 +9889,62 @@ export const XeroIntegrationSettingsFragmentDoc = gql`
   syncCreditNotes
   syncInvoices
   syncPayments
+}
+    `;
+export const DeleteOrganizationVatRateFragmentDoc = gql`
+    fragment DeleteOrganizationVatRate on Tax {
+  id
+  name
+  appliedToOrganization
+}
+    `;
+export const EditOrganizationDefaultCurrencyForDialogFragmentDoc = gql`
+    fragment EditOrganizationDefaultCurrencyForDialog on CurrentOrganization {
+  id
+  defaultCurrency
+}
+    `;
+export const EditCustomerFinalizeZeroAmountInvoiceForDialogFragmentDoc = gql`
+    fragment EditCustomerFinalizeZeroAmountInvoiceForDialog on Customer {
+  id
+  externalId
+  name
+  finalizeZeroAmountInvoice
+}
+    `;
+export const EditOrganizationFinalizeZeroAmountInvoiceForDialogFragmentDoc = gql`
+    fragment EditOrganizationFinalizeZeroAmountInvoiceForDialog on CurrentOrganization {
+  id
+  finalizeZeroAmountInvoice
+}
+    `;
+export const EditCustomerNetPaymentTermForDialogFragmentDoc = gql`
+    fragment EditCustomerNetPaymentTermForDialog on Customer {
+  id
+  externalId
+  name
+  netPaymentTerm
+}
+    `;
+export const EditOrganizationNetPaymentTermForDialogFragmentDoc = gql`
+    fragment EditOrganizationNetPaymentTermForDialog on CurrentOrganization {
+  id
+  netPaymentTerm
+}
+    `;
+export const EditOrganizationInvoiceNumberingDialogFragmentDoc = gql`
+    fragment EditOrganizationInvoiceNumberingDialog on CurrentOrganization {
+  id
+  documentNumbering
+  documentNumberPrefix
+}
+    `;
+export const EditOrganizationInvoiceTemplateDialogFragmentDoc = gql`
+    fragment EditOrganizationInvoiceTemplateDialog on CurrentOrganization {
+  billingConfiguration {
+    id
+    invoiceFooter
+  }
 }
     `;
 export const InviteForRolePickerFieldFragmentDoc = gql`
@@ -15483,367 +15500,6 @@ export type GetSubscribtionsForPlanDetailsQueryHookResult = ReturnType<typeof us
 export type GetSubscribtionsForPlanDetailsLazyQueryHookResult = ReturnType<typeof useGetSubscribtionsForPlanDetailsLazyQuery>;
 export type GetSubscribtionsForPlanDetailsSuspenseQueryHookResult = ReturnType<typeof useGetSubscribtionsForPlanDetailsSuspenseQuery>;
 export type GetSubscribtionsForPlanDetailsQueryResult = Apollo.QueryResult<GetSubscribtionsForPlanDetailsQuery, GetSubscribtionsForPlanDetailsQueryVariables>;
-export const GetTaxRatesForEditOrgaDocument = gql`
-    query getTaxRatesForEditOrga($limit: Int, $page: Int, $searchTerm: String) {
-  taxes(limit: $limit, page: $page, searchTerm: $searchTerm) {
-    metadata {
-      currentPage
-      totalPages
-    }
-    collection {
-      id
-      name
-      rate
-    }
-  }
-}
-    `;
-
-/**
- * __useGetTaxRatesForEditOrgaQuery__
- *
- * To run a query within a React component, call `useGetTaxRatesForEditOrgaQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetTaxRatesForEditOrgaQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetTaxRatesForEditOrgaQuery({
- *   variables: {
- *      limit: // value for 'limit'
- *      page: // value for 'page'
- *      searchTerm: // value for 'searchTerm'
- *   },
- * });
- */
-export function useGetTaxRatesForEditOrgaQuery(baseOptions?: Apollo.QueryHookOptions<GetTaxRatesForEditOrgaQuery, GetTaxRatesForEditOrgaQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetTaxRatesForEditOrgaQuery, GetTaxRatesForEditOrgaQueryVariables>(GetTaxRatesForEditOrgaDocument, options);
-      }
-export function useGetTaxRatesForEditOrgaLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetTaxRatesForEditOrgaQuery, GetTaxRatesForEditOrgaQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetTaxRatesForEditOrgaQuery, GetTaxRatesForEditOrgaQueryVariables>(GetTaxRatesForEditOrgaDocument, options);
-        }
-export function useGetTaxRatesForEditOrgaSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxRatesForEditOrgaQuery, GetTaxRatesForEditOrgaQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetTaxRatesForEditOrgaQuery, GetTaxRatesForEditOrgaQueryVariables>(GetTaxRatesForEditOrgaDocument, options);
-        }
-export type GetTaxRatesForEditOrgaQueryHookResult = ReturnType<typeof useGetTaxRatesForEditOrgaQuery>;
-export type GetTaxRatesForEditOrgaLazyQueryHookResult = ReturnType<typeof useGetTaxRatesForEditOrgaLazyQuery>;
-export type GetTaxRatesForEditOrgaSuspenseQueryHookResult = ReturnType<typeof useGetTaxRatesForEditOrgaSuspenseQuery>;
-export type GetTaxRatesForEditOrgaQueryResult = Apollo.QueryResult<GetTaxRatesForEditOrgaQuery, GetTaxRatesForEditOrgaQueryVariables>;
-export const AssignTaxRateToOrganizationDocument = gql`
-    mutation assignTaxRateToOrganization($input: TaxUpdateInput!) {
-  updateTax(input: $input) {
-    id
-  }
-}
-    `;
-export type AssignTaxRateToOrganizationMutationFn = Apollo.MutationFunction<AssignTaxRateToOrganizationMutation, AssignTaxRateToOrganizationMutationVariables>;
-
-/**
- * __useAssignTaxRateToOrganizationMutation__
- *
- * To run a mutation, you first call `useAssignTaxRateToOrganizationMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAssignTaxRateToOrganizationMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [assignTaxRateToOrganizationMutation, { data, loading, error }] = useAssignTaxRateToOrganizationMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useAssignTaxRateToOrganizationMutation(baseOptions?: Apollo.MutationHookOptions<AssignTaxRateToOrganizationMutation, AssignTaxRateToOrganizationMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<AssignTaxRateToOrganizationMutation, AssignTaxRateToOrganizationMutationVariables>(AssignTaxRateToOrganizationDocument, options);
-      }
-export type AssignTaxRateToOrganizationMutationHookResult = ReturnType<typeof useAssignTaxRateToOrganizationMutation>;
-export type AssignTaxRateToOrganizationMutationResult = Apollo.MutationResult<AssignTaxRateToOrganizationMutation>;
-export type AssignTaxRateToOrganizationMutationOptions = Apollo.BaseMutationOptions<AssignTaxRateToOrganizationMutation, AssignTaxRateToOrganizationMutationVariables>;
-export const UnassignTaxRateToOrganizationDocument = gql`
-    mutation unassignTaxRateToOrganization($input: TaxUpdateInput!) {
-  updateTax(input: $input) {
-    id
-    ...DeleteOrganizationVatRate
-  }
-}
-    ${DeleteOrganizationVatRateFragmentDoc}`;
-export type UnassignTaxRateToOrganizationMutationFn = Apollo.MutationFunction<UnassignTaxRateToOrganizationMutation, UnassignTaxRateToOrganizationMutationVariables>;
-
-/**
- * __useUnassignTaxRateToOrganizationMutation__
- *
- * To run a mutation, you first call `useUnassignTaxRateToOrganizationMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUnassignTaxRateToOrganizationMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [unassignTaxRateToOrganizationMutation, { data, loading, error }] = useUnassignTaxRateToOrganizationMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUnassignTaxRateToOrganizationMutation(baseOptions?: Apollo.MutationHookOptions<UnassignTaxRateToOrganizationMutation, UnassignTaxRateToOrganizationMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UnassignTaxRateToOrganizationMutation, UnassignTaxRateToOrganizationMutationVariables>(UnassignTaxRateToOrganizationDocument, options);
-      }
-export type UnassignTaxRateToOrganizationMutationHookResult = ReturnType<typeof useUnassignTaxRateToOrganizationMutation>;
-export type UnassignTaxRateToOrganizationMutationResult = Apollo.MutationResult<UnassignTaxRateToOrganizationMutation>;
-export type UnassignTaxRateToOrganizationMutationOptions = Apollo.BaseMutationOptions<UnassignTaxRateToOrganizationMutation, UnassignTaxRateToOrganizationMutationVariables>;
-export const UpdateOrganizationDefaultCurrencyDocument = gql`
-    mutation updateOrganizationDefaultCurrency($input: UpdateOrganizationInput!) {
-  updateOrganization(input: $input) {
-    id
-    ...EditOrganizationDefaultCurrencyForDialog
-  }
-}
-    ${EditOrganizationDefaultCurrencyForDialogFragmentDoc}`;
-export type UpdateOrganizationDefaultCurrencyMutationFn = Apollo.MutationFunction<UpdateOrganizationDefaultCurrencyMutation, UpdateOrganizationDefaultCurrencyMutationVariables>;
-
-/**
- * __useUpdateOrganizationDefaultCurrencyMutation__
- *
- * To run a mutation, you first call `useUpdateOrganizationDefaultCurrencyMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateOrganizationDefaultCurrencyMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateOrganizationDefaultCurrencyMutation, { data, loading, error }] = useUpdateOrganizationDefaultCurrencyMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateOrganizationDefaultCurrencyMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrganizationDefaultCurrencyMutation, UpdateOrganizationDefaultCurrencyMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateOrganizationDefaultCurrencyMutation, UpdateOrganizationDefaultCurrencyMutationVariables>(UpdateOrganizationDefaultCurrencyDocument, options);
-      }
-export type UpdateOrganizationDefaultCurrencyMutationHookResult = ReturnType<typeof useUpdateOrganizationDefaultCurrencyMutation>;
-export type UpdateOrganizationDefaultCurrencyMutationResult = Apollo.MutationResult<UpdateOrganizationDefaultCurrencyMutation>;
-export type UpdateOrganizationDefaultCurrencyMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationDefaultCurrencyMutation, UpdateOrganizationDefaultCurrencyMutationVariables>;
-export const UpdateCustomerFinalizeZeroAmountInvoiceDocument = gql`
-    mutation updateCustomerFinalizeZeroAmountInvoice($input: UpdateCustomerInput!) {
-  updateCustomer(input: $input) {
-    id
-    ...EditCustomerFinalizeZeroAmountInvoiceForDialog
-  }
-}
-    ${EditCustomerFinalizeZeroAmountInvoiceForDialogFragmentDoc}`;
-export type UpdateCustomerFinalizeZeroAmountInvoiceMutationFn = Apollo.MutationFunction<UpdateCustomerFinalizeZeroAmountInvoiceMutation, UpdateCustomerFinalizeZeroAmountInvoiceMutationVariables>;
-
-/**
- * __useUpdateCustomerFinalizeZeroAmountInvoiceMutation__
- *
- * To run a mutation, you first call `useUpdateCustomerFinalizeZeroAmountInvoiceMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateCustomerFinalizeZeroAmountInvoiceMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateCustomerFinalizeZeroAmountInvoiceMutation, { data, loading, error }] = useUpdateCustomerFinalizeZeroAmountInvoiceMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateCustomerFinalizeZeroAmountInvoiceMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCustomerFinalizeZeroAmountInvoiceMutation, UpdateCustomerFinalizeZeroAmountInvoiceMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateCustomerFinalizeZeroAmountInvoiceMutation, UpdateCustomerFinalizeZeroAmountInvoiceMutationVariables>(UpdateCustomerFinalizeZeroAmountInvoiceDocument, options);
-      }
-export type UpdateCustomerFinalizeZeroAmountInvoiceMutationHookResult = ReturnType<typeof useUpdateCustomerFinalizeZeroAmountInvoiceMutation>;
-export type UpdateCustomerFinalizeZeroAmountInvoiceMutationResult = Apollo.MutationResult<UpdateCustomerFinalizeZeroAmountInvoiceMutation>;
-export type UpdateCustomerFinalizeZeroAmountInvoiceMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerFinalizeZeroAmountInvoiceMutation, UpdateCustomerFinalizeZeroAmountInvoiceMutationVariables>;
-export const UpdateOrganizationFinalizeZeroAmountInvoiceDocument = gql`
-    mutation updateOrganizationFinalizeZeroAmountInvoice($input: UpdateOrganizationInput!) {
-  updateOrganization(input: $input) {
-    id
-    ...EditOrganizationFinalizeZeroAmountInvoiceForDialog
-  }
-}
-    ${EditOrganizationFinalizeZeroAmountInvoiceForDialogFragmentDoc}`;
-export type UpdateOrganizationFinalizeZeroAmountInvoiceMutationFn = Apollo.MutationFunction<UpdateOrganizationFinalizeZeroAmountInvoiceMutation, UpdateOrganizationFinalizeZeroAmountInvoiceMutationVariables>;
-
-/**
- * __useUpdateOrganizationFinalizeZeroAmountInvoiceMutation__
- *
- * To run a mutation, you first call `useUpdateOrganizationFinalizeZeroAmountInvoiceMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateOrganizationFinalizeZeroAmountInvoiceMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateOrganizationFinalizeZeroAmountInvoiceMutation, { data, loading, error }] = useUpdateOrganizationFinalizeZeroAmountInvoiceMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateOrganizationFinalizeZeroAmountInvoiceMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrganizationFinalizeZeroAmountInvoiceMutation, UpdateOrganizationFinalizeZeroAmountInvoiceMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateOrganizationFinalizeZeroAmountInvoiceMutation, UpdateOrganizationFinalizeZeroAmountInvoiceMutationVariables>(UpdateOrganizationFinalizeZeroAmountInvoiceDocument, options);
-      }
-export type UpdateOrganizationFinalizeZeroAmountInvoiceMutationHookResult = ReturnType<typeof useUpdateOrganizationFinalizeZeroAmountInvoiceMutation>;
-export type UpdateOrganizationFinalizeZeroAmountInvoiceMutationResult = Apollo.MutationResult<UpdateOrganizationFinalizeZeroAmountInvoiceMutation>;
-export type UpdateOrganizationFinalizeZeroAmountInvoiceMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationFinalizeZeroAmountInvoiceMutation, UpdateOrganizationFinalizeZeroAmountInvoiceMutationVariables>;
-export const UpdateCustomerNetPaymentTermDocument = gql`
-    mutation updateCustomerNetPaymentTerm($input: UpdateCustomerInput!) {
-  updateCustomer(input: $input) {
-    id
-    ...EditCustomerNetPaymentTermForDialog
-  }
-}
-    ${EditCustomerNetPaymentTermForDialogFragmentDoc}`;
-export type UpdateCustomerNetPaymentTermMutationFn = Apollo.MutationFunction<UpdateCustomerNetPaymentTermMutation, UpdateCustomerNetPaymentTermMutationVariables>;
-
-/**
- * __useUpdateCustomerNetPaymentTermMutation__
- *
- * To run a mutation, you first call `useUpdateCustomerNetPaymentTermMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateCustomerNetPaymentTermMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateCustomerNetPaymentTermMutation, { data, loading, error }] = useUpdateCustomerNetPaymentTermMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateCustomerNetPaymentTermMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCustomerNetPaymentTermMutation, UpdateCustomerNetPaymentTermMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateCustomerNetPaymentTermMutation, UpdateCustomerNetPaymentTermMutationVariables>(UpdateCustomerNetPaymentTermDocument, options);
-      }
-export type UpdateCustomerNetPaymentTermMutationHookResult = ReturnType<typeof useUpdateCustomerNetPaymentTermMutation>;
-export type UpdateCustomerNetPaymentTermMutationResult = Apollo.MutationResult<UpdateCustomerNetPaymentTermMutation>;
-export type UpdateCustomerNetPaymentTermMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerNetPaymentTermMutation, UpdateCustomerNetPaymentTermMutationVariables>;
-export const UpdateOrganizationNetPaymentTermDocument = gql`
-    mutation updateOrganizationNetPaymentTerm($input: UpdateOrganizationInput!) {
-  updateOrganization(input: $input) {
-    id
-    ...EditOrganizationNetPaymentTermForDialog
-  }
-}
-    ${EditOrganizationNetPaymentTermForDialogFragmentDoc}`;
-export type UpdateOrganizationNetPaymentTermMutationFn = Apollo.MutationFunction<UpdateOrganizationNetPaymentTermMutation, UpdateOrganizationNetPaymentTermMutationVariables>;
-
-/**
- * __useUpdateOrganizationNetPaymentTermMutation__
- *
- * To run a mutation, you first call `useUpdateOrganizationNetPaymentTermMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateOrganizationNetPaymentTermMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateOrganizationNetPaymentTermMutation, { data, loading, error }] = useUpdateOrganizationNetPaymentTermMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateOrganizationNetPaymentTermMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrganizationNetPaymentTermMutation, UpdateOrganizationNetPaymentTermMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateOrganizationNetPaymentTermMutation, UpdateOrganizationNetPaymentTermMutationVariables>(UpdateOrganizationNetPaymentTermDocument, options);
-      }
-export type UpdateOrganizationNetPaymentTermMutationHookResult = ReturnType<typeof useUpdateOrganizationNetPaymentTermMutation>;
-export type UpdateOrganizationNetPaymentTermMutationResult = Apollo.MutationResult<UpdateOrganizationNetPaymentTermMutation>;
-export type UpdateOrganizationNetPaymentTermMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationNetPaymentTermMutation, UpdateOrganizationNetPaymentTermMutationVariables>;
-export const UpdateDocumentLocaleOrganizationDocument = gql`
-    mutation updateDocumentLocaleOrganization($input: UpdateOrganizationInput!) {
-  updateOrganization(input: $input) {
-    id
-    billingConfiguration {
-      id
-      documentLocale
-    }
-  }
-}
-    `;
-export type UpdateDocumentLocaleOrganizationMutationFn = Apollo.MutationFunction<UpdateDocumentLocaleOrganizationMutation, UpdateDocumentLocaleOrganizationMutationVariables>;
-
-/**
- * __useUpdateDocumentLocaleOrganizationMutation__
- *
- * To run a mutation, you first call `useUpdateDocumentLocaleOrganizationMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateDocumentLocaleOrganizationMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateDocumentLocaleOrganizationMutation, { data, loading, error }] = useUpdateDocumentLocaleOrganizationMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateDocumentLocaleOrganizationMutation(baseOptions?: Apollo.MutationHookOptions<UpdateDocumentLocaleOrganizationMutation, UpdateDocumentLocaleOrganizationMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateDocumentLocaleOrganizationMutation, UpdateDocumentLocaleOrganizationMutationVariables>(UpdateDocumentLocaleOrganizationDocument, options);
-      }
-export type UpdateDocumentLocaleOrganizationMutationHookResult = ReturnType<typeof useUpdateDocumentLocaleOrganizationMutation>;
-export type UpdateDocumentLocaleOrganizationMutationResult = Apollo.MutationResult<UpdateDocumentLocaleOrganizationMutation>;
-export type UpdateDocumentLocaleOrganizationMutationOptions = Apollo.BaseMutationOptions<UpdateDocumentLocaleOrganizationMutation, UpdateDocumentLocaleOrganizationMutationVariables>;
-export const UpdateOrganizationGracePeriodDocument = gql`
-    mutation updateOrganizationGracePeriod($input: UpdateOrganizationInput!) {
-  updateOrganization(input: $input) {
-    id
-    billingConfiguration {
-      id
-      invoiceGracePeriod
-    }
-  }
-}
-    `;
-export type UpdateOrganizationGracePeriodMutationFn = Apollo.MutationFunction<UpdateOrganizationGracePeriodMutation, UpdateOrganizationGracePeriodMutationVariables>;
-
-/**
- * __useUpdateOrganizationGracePeriodMutation__
- *
- * To run a mutation, you first call `useUpdateOrganizationGracePeriodMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateOrganizationGracePeriodMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateOrganizationGracePeriodMutation, { data, loading, error }] = useUpdateOrganizationGracePeriodMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateOrganizationGracePeriodMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrganizationGracePeriodMutation, UpdateOrganizationGracePeriodMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateOrganizationGracePeriodMutation, UpdateOrganizationGracePeriodMutationVariables>(UpdateOrganizationGracePeriodDocument, options);
-      }
-export type UpdateOrganizationGracePeriodMutationHookResult = ReturnType<typeof useUpdateOrganizationGracePeriodMutation>;
-export type UpdateOrganizationGracePeriodMutationResult = Apollo.MutationResult<UpdateOrganizationGracePeriodMutation>;
-export type UpdateOrganizationGracePeriodMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationGracePeriodMutation, UpdateOrganizationGracePeriodMutationVariables>;
 export const UpdateOrganizationInformationsDocument = gql`
     mutation updateOrganizationInformations($input: UpdateOrganizationInput!) {
   updateOrganization(input: $input) {
@@ -15879,74 +15535,6 @@ export function useUpdateOrganizationInformationsMutation(baseOptions?: Apollo.M
 export type UpdateOrganizationInformationsMutationHookResult = ReturnType<typeof useUpdateOrganizationInformationsMutation>;
 export type UpdateOrganizationInformationsMutationResult = Apollo.MutationResult<UpdateOrganizationInformationsMutation>;
 export type UpdateOrganizationInformationsMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationInformationsMutation, UpdateOrganizationInformationsMutationVariables>;
-export const UpdateOrganizationInvoiceNumberingDocument = gql`
-    mutation updateOrganizationInvoiceNumbering($input: UpdateOrganizationInput!) {
-  updateOrganization(input: $input) {
-    id
-    ...EditOrganizationInvoiceNumberingDialog
-  }
-}
-    ${EditOrganizationInvoiceNumberingDialogFragmentDoc}`;
-export type UpdateOrganizationInvoiceNumberingMutationFn = Apollo.MutationFunction<UpdateOrganizationInvoiceNumberingMutation, UpdateOrganizationInvoiceNumberingMutationVariables>;
-
-/**
- * __useUpdateOrganizationInvoiceNumberingMutation__
- *
- * To run a mutation, you first call `useUpdateOrganizationInvoiceNumberingMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateOrganizationInvoiceNumberingMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateOrganizationInvoiceNumberingMutation, { data, loading, error }] = useUpdateOrganizationInvoiceNumberingMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateOrganizationInvoiceNumberingMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrganizationInvoiceNumberingMutation, UpdateOrganizationInvoiceNumberingMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateOrganizationInvoiceNumberingMutation, UpdateOrganizationInvoiceNumberingMutationVariables>(UpdateOrganizationInvoiceNumberingDocument, options);
-      }
-export type UpdateOrganizationInvoiceNumberingMutationHookResult = ReturnType<typeof useUpdateOrganizationInvoiceNumberingMutation>;
-export type UpdateOrganizationInvoiceNumberingMutationResult = Apollo.MutationResult<UpdateOrganizationInvoiceNumberingMutation>;
-export type UpdateOrganizationInvoiceNumberingMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationInvoiceNumberingMutation, UpdateOrganizationInvoiceNumberingMutationVariables>;
-export const UpdateOrganizationInvoiceTemplateDocument = gql`
-    mutation updateOrganizationInvoiceTemplate($input: UpdateOrganizationInput!) {
-  updateOrganization(input: $input) {
-    id
-    ...EditOrganizationInvoiceTemplateDialog
-  }
-}
-    ${EditOrganizationInvoiceTemplateDialogFragmentDoc}`;
-export type UpdateOrganizationInvoiceTemplateMutationFn = Apollo.MutationFunction<UpdateOrganizationInvoiceTemplateMutation, UpdateOrganizationInvoiceTemplateMutationVariables>;
-
-/**
- * __useUpdateOrganizationInvoiceTemplateMutation__
- *
- * To run a mutation, you first call `useUpdateOrganizationInvoiceTemplateMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateOrganizationInvoiceTemplateMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateOrganizationInvoiceTemplateMutation, { data, loading, error }] = useUpdateOrganizationInvoiceTemplateMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateOrganizationInvoiceTemplateMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrganizationInvoiceTemplateMutation, UpdateOrganizationInvoiceTemplateMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateOrganizationInvoiceTemplateMutation, UpdateOrganizationInvoiceTemplateMutationVariables>(UpdateOrganizationInvoiceTemplateDocument, options);
-      }
-export type UpdateOrganizationInvoiceTemplateMutationHookResult = ReturnType<typeof useUpdateOrganizationInvoiceTemplateMutation>;
-export type UpdateOrganizationInvoiceTemplateMutationResult = Apollo.MutationResult<UpdateOrganizationInvoiceTemplateMutation>;
-export type UpdateOrganizationInvoiceTemplateMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationInvoiceTemplateMutation, UpdateOrganizationInvoiceTemplateMutationVariables>;
 export const UpdateOrganizationTimezoneDocument = gql`
     mutation updateOrganizationTimezone($input: UpdateOrganizationInput!) {
   updateOrganization(input: $input) {
@@ -16080,6 +15668,39 @@ export function useUpdateOktaIntegrationMutation(baseOptions?: Apollo.MutationHo
 export type UpdateOktaIntegrationMutationHookResult = ReturnType<typeof useUpdateOktaIntegrationMutation>;
 export type UpdateOktaIntegrationMutationResult = Apollo.MutationResult<UpdateOktaIntegrationMutation>;
 export type UpdateOktaIntegrationMutationOptions = Apollo.BaseMutationOptions<UpdateOktaIntegrationMutation, UpdateOktaIntegrationMutationVariables>;
+export const DeleteDunningCampaignDocument = gql`
+    mutation deleteDunningCampaign($input: DestroyDunningCampaignInput!) {
+  destroyDunningCampaign(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteDunningCampaignMutationFn = Apollo.MutationFunction<DeleteDunningCampaignMutation, DeleteDunningCampaignMutationVariables>;
+
+/**
+ * __useDeleteDunningCampaignMutation__
+ *
+ * To run a mutation, you first call `useDeleteDunningCampaignMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteDunningCampaignMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteDunningCampaignMutation, { data, loading, error }] = useDeleteDunningCampaignMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteDunningCampaignMutation(baseOptions?: Apollo.MutationHookOptions<DeleteDunningCampaignMutation, DeleteDunningCampaignMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteDunningCampaignMutation, DeleteDunningCampaignMutationVariables>(DeleteDunningCampaignDocument, options);
+      }
+export type DeleteDunningCampaignMutationHookResult = ReturnType<typeof useDeleteDunningCampaignMutation>;
+export type DeleteDunningCampaignMutationResult = Apollo.MutationResult<DeleteDunningCampaignMutation>;
+export type DeleteDunningCampaignMutationOptions = Apollo.BaseMutationOptions<DeleteDunningCampaignMutation, DeleteDunningCampaignMutationVariables>;
 export const GetOrganizationInfoForPreviewDunningCampaignDocument = gql`
     query getOrganizationInfoForPreviewDunningCampaign {
   organization {
@@ -18438,6 +18059,435 @@ export type GetXeroIntegrationsSettingsQueryHookResult = ReturnType<typeof useGe
 export type GetXeroIntegrationsSettingsLazyQueryHookResult = ReturnType<typeof useGetXeroIntegrationsSettingsLazyQuery>;
 export type GetXeroIntegrationsSettingsSuspenseQueryHookResult = ReturnType<typeof useGetXeroIntegrationsSettingsSuspenseQuery>;
 export type GetXeroIntegrationsSettingsQueryResult = Apollo.QueryResult<GetXeroIntegrationsSettingsQuery, GetXeroIntegrationsSettingsQueryVariables>;
+export const GetTaxRatesForEditOrgaDocument = gql`
+    query getTaxRatesForEditOrga($limit: Int, $page: Int, $searchTerm: String) {
+  taxes(limit: $limit, page: $page, searchTerm: $searchTerm) {
+    metadata {
+      currentPage
+      totalPages
+    }
+    collection {
+      id
+      name
+      rate
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetTaxRatesForEditOrgaQuery__
+ *
+ * To run a query within a React component, call `useGetTaxRatesForEditOrgaQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTaxRatesForEditOrgaQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTaxRatesForEditOrgaQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      page: // value for 'page'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetTaxRatesForEditOrgaQuery(baseOptions?: Apollo.QueryHookOptions<GetTaxRatesForEditOrgaQuery, GetTaxRatesForEditOrgaQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetTaxRatesForEditOrgaQuery, GetTaxRatesForEditOrgaQueryVariables>(GetTaxRatesForEditOrgaDocument, options);
+      }
+export function useGetTaxRatesForEditOrgaLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetTaxRatesForEditOrgaQuery, GetTaxRatesForEditOrgaQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetTaxRatesForEditOrgaQuery, GetTaxRatesForEditOrgaQueryVariables>(GetTaxRatesForEditOrgaDocument, options);
+        }
+export function useGetTaxRatesForEditOrgaSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxRatesForEditOrgaQuery, GetTaxRatesForEditOrgaQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetTaxRatesForEditOrgaQuery, GetTaxRatesForEditOrgaQueryVariables>(GetTaxRatesForEditOrgaDocument, options);
+        }
+export type GetTaxRatesForEditOrgaQueryHookResult = ReturnType<typeof useGetTaxRatesForEditOrgaQuery>;
+export type GetTaxRatesForEditOrgaLazyQueryHookResult = ReturnType<typeof useGetTaxRatesForEditOrgaLazyQuery>;
+export type GetTaxRatesForEditOrgaSuspenseQueryHookResult = ReturnType<typeof useGetTaxRatesForEditOrgaSuspenseQuery>;
+export type GetTaxRatesForEditOrgaQueryResult = Apollo.QueryResult<GetTaxRatesForEditOrgaQuery, GetTaxRatesForEditOrgaQueryVariables>;
+export const AssignTaxRateToOrganizationDocument = gql`
+    mutation assignTaxRateToOrganization($input: TaxUpdateInput!) {
+  updateTax(input: $input) {
+    id
+  }
+}
+    `;
+export type AssignTaxRateToOrganizationMutationFn = Apollo.MutationFunction<AssignTaxRateToOrganizationMutation, AssignTaxRateToOrganizationMutationVariables>;
+
+/**
+ * __useAssignTaxRateToOrganizationMutation__
+ *
+ * To run a mutation, you first call `useAssignTaxRateToOrganizationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAssignTaxRateToOrganizationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [assignTaxRateToOrganizationMutation, { data, loading, error }] = useAssignTaxRateToOrganizationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAssignTaxRateToOrganizationMutation(baseOptions?: Apollo.MutationHookOptions<AssignTaxRateToOrganizationMutation, AssignTaxRateToOrganizationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AssignTaxRateToOrganizationMutation, AssignTaxRateToOrganizationMutationVariables>(AssignTaxRateToOrganizationDocument, options);
+      }
+export type AssignTaxRateToOrganizationMutationHookResult = ReturnType<typeof useAssignTaxRateToOrganizationMutation>;
+export type AssignTaxRateToOrganizationMutationResult = Apollo.MutationResult<AssignTaxRateToOrganizationMutation>;
+export type AssignTaxRateToOrganizationMutationOptions = Apollo.BaseMutationOptions<AssignTaxRateToOrganizationMutation, AssignTaxRateToOrganizationMutationVariables>;
+export const UnassignTaxRateToOrganizationDocument = gql`
+    mutation unassignTaxRateToOrganization($input: TaxUpdateInput!) {
+  updateTax(input: $input) {
+    id
+    ...DeleteOrganizationVatRate
+  }
+}
+    ${DeleteOrganizationVatRateFragmentDoc}`;
+export type UnassignTaxRateToOrganizationMutationFn = Apollo.MutationFunction<UnassignTaxRateToOrganizationMutation, UnassignTaxRateToOrganizationMutationVariables>;
+
+/**
+ * __useUnassignTaxRateToOrganizationMutation__
+ *
+ * To run a mutation, you first call `useUnassignTaxRateToOrganizationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUnassignTaxRateToOrganizationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [unassignTaxRateToOrganizationMutation, { data, loading, error }] = useUnassignTaxRateToOrganizationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUnassignTaxRateToOrganizationMutation(baseOptions?: Apollo.MutationHookOptions<UnassignTaxRateToOrganizationMutation, UnassignTaxRateToOrganizationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UnassignTaxRateToOrganizationMutation, UnassignTaxRateToOrganizationMutationVariables>(UnassignTaxRateToOrganizationDocument, options);
+      }
+export type UnassignTaxRateToOrganizationMutationHookResult = ReturnType<typeof useUnassignTaxRateToOrganizationMutation>;
+export type UnassignTaxRateToOrganizationMutationResult = Apollo.MutationResult<UnassignTaxRateToOrganizationMutation>;
+export type UnassignTaxRateToOrganizationMutationOptions = Apollo.BaseMutationOptions<UnassignTaxRateToOrganizationMutation, UnassignTaxRateToOrganizationMutationVariables>;
+export const UpdateOrganizationDefaultCurrencyDocument = gql`
+    mutation updateOrganizationDefaultCurrency($input: UpdateOrganizationInput!) {
+  updateOrganization(input: $input) {
+    id
+    ...EditOrganizationDefaultCurrencyForDialog
+  }
+}
+    ${EditOrganizationDefaultCurrencyForDialogFragmentDoc}`;
+export type UpdateOrganizationDefaultCurrencyMutationFn = Apollo.MutationFunction<UpdateOrganizationDefaultCurrencyMutation, UpdateOrganizationDefaultCurrencyMutationVariables>;
+
+/**
+ * __useUpdateOrganizationDefaultCurrencyMutation__
+ *
+ * To run a mutation, you first call `useUpdateOrganizationDefaultCurrencyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateOrganizationDefaultCurrencyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateOrganizationDefaultCurrencyMutation, { data, loading, error }] = useUpdateOrganizationDefaultCurrencyMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateOrganizationDefaultCurrencyMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrganizationDefaultCurrencyMutation, UpdateOrganizationDefaultCurrencyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateOrganizationDefaultCurrencyMutation, UpdateOrganizationDefaultCurrencyMutationVariables>(UpdateOrganizationDefaultCurrencyDocument, options);
+      }
+export type UpdateOrganizationDefaultCurrencyMutationHookResult = ReturnType<typeof useUpdateOrganizationDefaultCurrencyMutation>;
+export type UpdateOrganizationDefaultCurrencyMutationResult = Apollo.MutationResult<UpdateOrganizationDefaultCurrencyMutation>;
+export type UpdateOrganizationDefaultCurrencyMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationDefaultCurrencyMutation, UpdateOrganizationDefaultCurrencyMutationVariables>;
+export const UpdateCustomerFinalizeZeroAmountInvoiceDocument = gql`
+    mutation updateCustomerFinalizeZeroAmountInvoice($input: UpdateCustomerInput!) {
+  updateCustomer(input: $input) {
+    id
+    ...EditCustomerFinalizeZeroAmountInvoiceForDialog
+  }
+}
+    ${EditCustomerFinalizeZeroAmountInvoiceForDialogFragmentDoc}`;
+export type UpdateCustomerFinalizeZeroAmountInvoiceMutationFn = Apollo.MutationFunction<UpdateCustomerFinalizeZeroAmountInvoiceMutation, UpdateCustomerFinalizeZeroAmountInvoiceMutationVariables>;
+
+/**
+ * __useUpdateCustomerFinalizeZeroAmountInvoiceMutation__
+ *
+ * To run a mutation, you first call `useUpdateCustomerFinalizeZeroAmountInvoiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCustomerFinalizeZeroAmountInvoiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCustomerFinalizeZeroAmountInvoiceMutation, { data, loading, error }] = useUpdateCustomerFinalizeZeroAmountInvoiceMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCustomerFinalizeZeroAmountInvoiceMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCustomerFinalizeZeroAmountInvoiceMutation, UpdateCustomerFinalizeZeroAmountInvoiceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCustomerFinalizeZeroAmountInvoiceMutation, UpdateCustomerFinalizeZeroAmountInvoiceMutationVariables>(UpdateCustomerFinalizeZeroAmountInvoiceDocument, options);
+      }
+export type UpdateCustomerFinalizeZeroAmountInvoiceMutationHookResult = ReturnType<typeof useUpdateCustomerFinalizeZeroAmountInvoiceMutation>;
+export type UpdateCustomerFinalizeZeroAmountInvoiceMutationResult = Apollo.MutationResult<UpdateCustomerFinalizeZeroAmountInvoiceMutation>;
+export type UpdateCustomerFinalizeZeroAmountInvoiceMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerFinalizeZeroAmountInvoiceMutation, UpdateCustomerFinalizeZeroAmountInvoiceMutationVariables>;
+export const UpdateOrganizationFinalizeZeroAmountInvoiceDocument = gql`
+    mutation updateOrganizationFinalizeZeroAmountInvoice($input: UpdateOrganizationInput!) {
+  updateOrganization(input: $input) {
+    id
+    ...EditOrganizationFinalizeZeroAmountInvoiceForDialog
+  }
+}
+    ${EditOrganizationFinalizeZeroAmountInvoiceForDialogFragmentDoc}`;
+export type UpdateOrganizationFinalizeZeroAmountInvoiceMutationFn = Apollo.MutationFunction<UpdateOrganizationFinalizeZeroAmountInvoiceMutation, UpdateOrganizationFinalizeZeroAmountInvoiceMutationVariables>;
+
+/**
+ * __useUpdateOrganizationFinalizeZeroAmountInvoiceMutation__
+ *
+ * To run a mutation, you first call `useUpdateOrganizationFinalizeZeroAmountInvoiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateOrganizationFinalizeZeroAmountInvoiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateOrganizationFinalizeZeroAmountInvoiceMutation, { data, loading, error }] = useUpdateOrganizationFinalizeZeroAmountInvoiceMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateOrganizationFinalizeZeroAmountInvoiceMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrganizationFinalizeZeroAmountInvoiceMutation, UpdateOrganizationFinalizeZeroAmountInvoiceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateOrganizationFinalizeZeroAmountInvoiceMutation, UpdateOrganizationFinalizeZeroAmountInvoiceMutationVariables>(UpdateOrganizationFinalizeZeroAmountInvoiceDocument, options);
+      }
+export type UpdateOrganizationFinalizeZeroAmountInvoiceMutationHookResult = ReturnType<typeof useUpdateOrganizationFinalizeZeroAmountInvoiceMutation>;
+export type UpdateOrganizationFinalizeZeroAmountInvoiceMutationResult = Apollo.MutationResult<UpdateOrganizationFinalizeZeroAmountInvoiceMutation>;
+export type UpdateOrganizationFinalizeZeroAmountInvoiceMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationFinalizeZeroAmountInvoiceMutation, UpdateOrganizationFinalizeZeroAmountInvoiceMutationVariables>;
+export const UpdateCustomerNetPaymentTermDocument = gql`
+    mutation updateCustomerNetPaymentTerm($input: UpdateCustomerInput!) {
+  updateCustomer(input: $input) {
+    id
+    ...EditCustomerNetPaymentTermForDialog
+  }
+}
+    ${EditCustomerNetPaymentTermForDialogFragmentDoc}`;
+export type UpdateCustomerNetPaymentTermMutationFn = Apollo.MutationFunction<UpdateCustomerNetPaymentTermMutation, UpdateCustomerNetPaymentTermMutationVariables>;
+
+/**
+ * __useUpdateCustomerNetPaymentTermMutation__
+ *
+ * To run a mutation, you first call `useUpdateCustomerNetPaymentTermMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCustomerNetPaymentTermMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCustomerNetPaymentTermMutation, { data, loading, error }] = useUpdateCustomerNetPaymentTermMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCustomerNetPaymentTermMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCustomerNetPaymentTermMutation, UpdateCustomerNetPaymentTermMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCustomerNetPaymentTermMutation, UpdateCustomerNetPaymentTermMutationVariables>(UpdateCustomerNetPaymentTermDocument, options);
+      }
+export type UpdateCustomerNetPaymentTermMutationHookResult = ReturnType<typeof useUpdateCustomerNetPaymentTermMutation>;
+export type UpdateCustomerNetPaymentTermMutationResult = Apollo.MutationResult<UpdateCustomerNetPaymentTermMutation>;
+export type UpdateCustomerNetPaymentTermMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerNetPaymentTermMutation, UpdateCustomerNetPaymentTermMutationVariables>;
+export const UpdateOrganizationNetPaymentTermDocument = gql`
+    mutation updateOrganizationNetPaymentTerm($input: UpdateOrganizationInput!) {
+  updateOrganization(input: $input) {
+    id
+    ...EditOrganizationNetPaymentTermForDialog
+  }
+}
+    ${EditOrganizationNetPaymentTermForDialogFragmentDoc}`;
+export type UpdateOrganizationNetPaymentTermMutationFn = Apollo.MutationFunction<UpdateOrganizationNetPaymentTermMutation, UpdateOrganizationNetPaymentTermMutationVariables>;
+
+/**
+ * __useUpdateOrganizationNetPaymentTermMutation__
+ *
+ * To run a mutation, you first call `useUpdateOrganizationNetPaymentTermMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateOrganizationNetPaymentTermMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateOrganizationNetPaymentTermMutation, { data, loading, error }] = useUpdateOrganizationNetPaymentTermMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateOrganizationNetPaymentTermMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrganizationNetPaymentTermMutation, UpdateOrganizationNetPaymentTermMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateOrganizationNetPaymentTermMutation, UpdateOrganizationNetPaymentTermMutationVariables>(UpdateOrganizationNetPaymentTermDocument, options);
+      }
+export type UpdateOrganizationNetPaymentTermMutationHookResult = ReturnType<typeof useUpdateOrganizationNetPaymentTermMutation>;
+export type UpdateOrganizationNetPaymentTermMutationResult = Apollo.MutationResult<UpdateOrganizationNetPaymentTermMutation>;
+export type UpdateOrganizationNetPaymentTermMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationNetPaymentTermMutation, UpdateOrganizationNetPaymentTermMutationVariables>;
+export const UpdateDocumentLocaleOrganizationDocument = gql`
+    mutation updateDocumentLocaleOrganization($input: UpdateOrganizationInput!) {
+  updateOrganization(input: $input) {
+    id
+    billingConfiguration {
+      id
+      documentLocale
+    }
+  }
+}
+    `;
+export type UpdateDocumentLocaleOrganizationMutationFn = Apollo.MutationFunction<UpdateDocumentLocaleOrganizationMutation, UpdateDocumentLocaleOrganizationMutationVariables>;
+
+/**
+ * __useUpdateDocumentLocaleOrganizationMutation__
+ *
+ * To run a mutation, you first call `useUpdateDocumentLocaleOrganizationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateDocumentLocaleOrganizationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateDocumentLocaleOrganizationMutation, { data, loading, error }] = useUpdateDocumentLocaleOrganizationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateDocumentLocaleOrganizationMutation(baseOptions?: Apollo.MutationHookOptions<UpdateDocumentLocaleOrganizationMutation, UpdateDocumentLocaleOrganizationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateDocumentLocaleOrganizationMutation, UpdateDocumentLocaleOrganizationMutationVariables>(UpdateDocumentLocaleOrganizationDocument, options);
+      }
+export type UpdateDocumentLocaleOrganizationMutationHookResult = ReturnType<typeof useUpdateDocumentLocaleOrganizationMutation>;
+export type UpdateDocumentLocaleOrganizationMutationResult = Apollo.MutationResult<UpdateDocumentLocaleOrganizationMutation>;
+export type UpdateDocumentLocaleOrganizationMutationOptions = Apollo.BaseMutationOptions<UpdateDocumentLocaleOrganizationMutation, UpdateDocumentLocaleOrganizationMutationVariables>;
+export const UpdateOrganizationGracePeriodDocument = gql`
+    mutation updateOrganizationGracePeriod($input: UpdateOrganizationInput!) {
+  updateOrganization(input: $input) {
+    id
+    billingConfiguration {
+      id
+      invoiceGracePeriod
+    }
+  }
+}
+    `;
+export type UpdateOrganizationGracePeriodMutationFn = Apollo.MutationFunction<UpdateOrganizationGracePeriodMutation, UpdateOrganizationGracePeriodMutationVariables>;
+
+/**
+ * __useUpdateOrganizationGracePeriodMutation__
+ *
+ * To run a mutation, you first call `useUpdateOrganizationGracePeriodMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateOrganizationGracePeriodMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateOrganizationGracePeriodMutation, { data, loading, error }] = useUpdateOrganizationGracePeriodMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateOrganizationGracePeriodMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrganizationGracePeriodMutation, UpdateOrganizationGracePeriodMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateOrganizationGracePeriodMutation, UpdateOrganizationGracePeriodMutationVariables>(UpdateOrganizationGracePeriodDocument, options);
+      }
+export type UpdateOrganizationGracePeriodMutationHookResult = ReturnType<typeof useUpdateOrganizationGracePeriodMutation>;
+export type UpdateOrganizationGracePeriodMutationResult = Apollo.MutationResult<UpdateOrganizationGracePeriodMutation>;
+export type UpdateOrganizationGracePeriodMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationGracePeriodMutation, UpdateOrganizationGracePeriodMutationVariables>;
+export const UpdateOrganizationInvoiceNumberingDocument = gql`
+    mutation updateOrganizationInvoiceNumbering($input: UpdateOrganizationInput!) {
+  updateOrganization(input: $input) {
+    id
+    ...EditOrganizationInvoiceNumberingDialog
+  }
+}
+    ${EditOrganizationInvoiceNumberingDialogFragmentDoc}`;
+export type UpdateOrganizationInvoiceNumberingMutationFn = Apollo.MutationFunction<UpdateOrganizationInvoiceNumberingMutation, UpdateOrganizationInvoiceNumberingMutationVariables>;
+
+/**
+ * __useUpdateOrganizationInvoiceNumberingMutation__
+ *
+ * To run a mutation, you first call `useUpdateOrganizationInvoiceNumberingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateOrganizationInvoiceNumberingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateOrganizationInvoiceNumberingMutation, { data, loading, error }] = useUpdateOrganizationInvoiceNumberingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateOrganizationInvoiceNumberingMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrganizationInvoiceNumberingMutation, UpdateOrganizationInvoiceNumberingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateOrganizationInvoiceNumberingMutation, UpdateOrganizationInvoiceNumberingMutationVariables>(UpdateOrganizationInvoiceNumberingDocument, options);
+      }
+export type UpdateOrganizationInvoiceNumberingMutationHookResult = ReturnType<typeof useUpdateOrganizationInvoiceNumberingMutation>;
+export type UpdateOrganizationInvoiceNumberingMutationResult = Apollo.MutationResult<UpdateOrganizationInvoiceNumberingMutation>;
+export type UpdateOrganizationInvoiceNumberingMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationInvoiceNumberingMutation, UpdateOrganizationInvoiceNumberingMutationVariables>;
+export const UpdateOrganizationInvoiceTemplateDocument = gql`
+    mutation updateOrganizationInvoiceTemplate($input: UpdateOrganizationInput!) {
+  updateOrganization(input: $input) {
+    id
+    ...EditOrganizationInvoiceTemplateDialog
+  }
+}
+    ${EditOrganizationInvoiceTemplateDialogFragmentDoc}`;
+export type UpdateOrganizationInvoiceTemplateMutationFn = Apollo.MutationFunction<UpdateOrganizationInvoiceTemplateMutation, UpdateOrganizationInvoiceTemplateMutationVariables>;
+
+/**
+ * __useUpdateOrganizationInvoiceTemplateMutation__
+ *
+ * To run a mutation, you first call `useUpdateOrganizationInvoiceTemplateMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateOrganizationInvoiceTemplateMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateOrganizationInvoiceTemplateMutation, { data, loading, error }] = useUpdateOrganizationInvoiceTemplateMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateOrganizationInvoiceTemplateMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrganizationInvoiceTemplateMutation, UpdateOrganizationInvoiceTemplateMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateOrganizationInvoiceTemplateMutation, UpdateOrganizationInvoiceTemplateMutationVariables>(UpdateOrganizationInvoiceTemplateDocument, options);
+      }
+export type UpdateOrganizationInvoiceTemplateMutationHookResult = ReturnType<typeof useUpdateOrganizationInvoiceTemplateMutation>;
+export type UpdateOrganizationInvoiceTemplateMutationResult = Apollo.MutationResult<UpdateOrganizationInvoiceTemplateMutation>;
+export type UpdateOrganizationInvoiceTemplateMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationInvoiceTemplateMutation, UpdateOrganizationInvoiceTemplateMutationVariables>;
 export const CreateInviteDocument = gql`
     mutation createInvite($input: CreateInviteInput!) {
   createInvite(input: $input) {
@@ -23383,10 +23433,12 @@ export const GetDunningCampaignsDocument = gql`
     collection {
       id
       ...DunningCampaignItem
+      ...DeleteCampaign
     }
   }
 }
-    ${DunningCampaignItemFragmentDoc}`;
+    ${DunningCampaignItemFragmentDoc}
+${DeleteCampaignFragmentDoc}`;
 
 /**
  * __useGetDunningCampaignsQuery__
