@@ -88,7 +88,7 @@ const SideNav = () => {
   const [open, setOpen] = useState(false)
   const { currentUser, loading: currentUserLoading } = useCurrentUser()
   const { hasPermissions } = usePermissions()
-  const { organization } = useOrganizationInfos()
+  const { organization, loading: currentOrganizationLoading } = useOrganizationInfos()
   const { translate } = useInternationalization()
   const { data, loading, error } = useSideNavInfosQuery()
   const { pathname, state } = location as Location & { state: { disableScrollTop?: boolean } }
@@ -124,25 +124,38 @@ const SideNav = () => {
               maxHeight={`calc(100vh - 64px - 16px)`}
               enableFlip={false}
               opener={
-                <HeaderButton data-test="side-nav-name" variant="quaternary">
-                  {organization?.logoUrl ? (
-                    <Avatar size="small" variant="connector">
-                      <img
-                        src={organization?.logoUrl as string}
-                        alt={`${organization?.name}'s logo`}
-                      />
-                    </Avatar>
+                <HeaderButton
+                  data-test="side-nav-name"
+                  variant="quaternary"
+                  disabled={currentOrganizationLoading}
+                >
+                  {currentOrganizationLoading ? (
+                    <div className="flex flex-row items-center gap-2">
+                      <Skeleton variant="circular" size="small" />
+                      <Skeleton variant="text" className="w-30" />
+                    </div>
                   ) : (
-                    <Avatar
-                      variant="company"
-                      identifier={organization?.name || ''}
-                      size="small"
-                      initials={(organization?.name ?? 'Lago')[0]}
-                    />
+                    <>
+                      {organization?.logoUrl ? (
+                        <Avatar size="small" variant="connector">
+                          <img
+                            src={organization?.logoUrl as string}
+                            alt={`${organization?.name}'s logo`}
+                          />
+                        </Avatar>
+                      ) : (
+                        <Avatar
+                          variant="company"
+                          identifier={organization?.name || ''}
+                          size="small"
+                          initials={(organization?.name ?? 'Lago')[0]}
+                        />
+                      )}
+                      <Typography color="textSecondary" noWrap>
+                        {organization?.name}
+                      </Typography>
+                    </>
                   )}
-                  <Typography color="textSecondary" noWrap>
-                    {organization?.name}
-                  </Typography>
                 </HeaderButton>
               }
             >

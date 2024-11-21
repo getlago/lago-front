@@ -40,7 +40,9 @@ type UseOrganizationInfos = () => {
 export const useOrganizationInfos: UseOrganizationInfos = () => {
   const { data, loading } = useGetOrganizationInfosQuery({
     fetchPolicy: 'cache-first',
+    nextFetchPolicy: 'cache-first',
     canonizeResults: true,
+    notifyOnNetworkStatusChange: true,
   })
   const orgaTimezone = data?.organization?.timezone || TimezoneEnum.TzUtc
   const timezoneConfig = TimeZonesConfig[orgaTimezone]
