@@ -4,7 +4,7 @@
   "description": "Front application of Lago",
   "main": "index.js",
   "repository": "git@gitlab.com:getlago/lago-front.git",
-  "author": "MorganeLecurieux <morgane.lecurieux.lafayette@gmail.com>",
+  "author": "Lago tech team <tech@getlago.com>",
   "license": "MIT",
   "private": true,
   "changelog": {
