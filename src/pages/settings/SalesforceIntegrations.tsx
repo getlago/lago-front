@@ -86,7 +86,7 @@ const SalesforceIntegrations = () => {
             <Skeleton variant="text" className="w-30" />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
-              {translate('text_1727189568053s79ks5q07tr')}
+              {translate('text_1731507195246vu9kt6xnhv6')}
             </Typography>
           )}
         </div>
