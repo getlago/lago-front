@@ -204,7 +204,7 @@ gql`
 
   mutation syncSalesforceInvoice($input: SyncSalesforceInvoiceInput!) {
     syncSalesforceInvoice(input: $input) {
-      id
+      invoiceId
     }
   }
 
@@ -407,7 +407,7 @@ const CustomerInvoiceDetails = () => {
     useSyncSalesforceInvoiceMutation({
       variables: { input: { invoiceId: invoiceId || '' } },
       onCompleted({ syncSalesforceInvoice: syncSalesforceInvoiceResult }) {
-        if (syncSalesforceInvoiceResult?.id) {
+        if (syncSalesforceInvoiceResult?.invoiceId) {
           addToast({
             severity: 'success',
             translateKey: 'text_17316853046485zk7ibjnwbb',
