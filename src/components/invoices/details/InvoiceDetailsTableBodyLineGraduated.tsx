@@ -46,18 +46,22 @@ export const InvoiceDetailsTableBodyLineGraduated = memo(
           <tr key={`fee-${fee.id}-graduated-range-fee-per-unit-${i}`} className="details-line">
             <td>
               <Typography variant="body" color="grey600">
-                {i === 0
-                  ? translate('text_659e67cd63512ef532843070', {
-                      toValue: Number(graduatedRange?.toValue),
+                {(fee?.amountDetails?.graduatedRanges?.length || 0) === 1
+                  ? translate('text_659e67cd63512ef5328430e6', {
+                      fromValue: Number(graduatedRange?.fromValue),
                     })
-                  : i === (fee?.amountDetails?.graduatedRanges?.length || 0) - 1
-                    ? translate('text_659e67cd63512ef5328430e6', {
-                        fromValue: Number(graduatedRange?.fromValue),
-                      })
-                    : translate('text_659e67cd63512ef5328430af', {
-                        fromValue: Number(graduatedRange?.fromValue),
+                  : i === 0
+                    ? translate('text_659e67cd63512ef532843070', {
                         toValue: Number(graduatedRange?.toValue),
-                      })}
+                      })
+                    : i === (fee?.amountDetails?.graduatedRanges?.length || 0) - 1
+                      ? translate('text_659e67cd63512ef5328430e6', {
+                          fromValue: Number(graduatedRange?.fromValue),
+                        })
+                      : translate('text_659e67cd63512ef5328430af', {
+                          fromValue: Number(graduatedRange?.fromValue),
+                          toValue: Number(graduatedRange?.toValue),
+                        })}
               </Typography>
             </td>
             <td>
@@ -113,18 +117,22 @@ export const InvoiceDetailsTableBodyLineGraduated = memo(
               <tr key={`fee-${fee.id}-graduated-range-flat-fee-${i}`} className="details-line">
                 <td>
                   <Typography variant="body" color="grey600">
-                    {i === 0
-                      ? translate('text_659e67cd63512ef53284310e', {
-                          toValue: Number(graduatedRange?.toValue),
+                    {(fee?.amountDetails?.graduatedRanges?.length || 0) === 1
+                      ? translate('text_659e67cd63512ef53284314a', {
+                          fromValue: Number(graduatedRange?.fromValue),
                         })
-                      : i === (fee?.amountDetails?.graduatedRanges?.length || 0) - 1
-                        ? translate('text_659e67cd63512ef53284314a', {
-                            fromValue: Number(graduatedRange?.fromValue),
-                          })
-                        : translate('text_659e67cd63512ef532843136', {
-                            fromValue: Number(graduatedRange?.fromValue),
+                      : i === 0
+                        ? translate('text_659e67cd63512ef53284310e', {
                             toValue: Number(graduatedRange?.toValue),
-                          })}
+                          })
+                        : i === (fee?.amountDetails?.graduatedRanges?.length || 0) - 1
+                          ? translate('text_659e67cd63512ef53284314a', {
+                              fromValue: Number(graduatedRange?.fromValue),
+                            })
+                          : translate('text_659e67cd63512ef532843136', {
+                              fromValue: Number(graduatedRange?.fromValue),
+                              toValue: Number(graduatedRange?.toValue),
+                            })}
                   </Typography>
                 </td>
                 <td>
