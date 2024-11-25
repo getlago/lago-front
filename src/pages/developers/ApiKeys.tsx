@@ -1,8 +1,17 @@
 import { gql } from '@apollo/client'
-import { useRef, useState } from 'react'
+import { DateTime } from 'luxon'
+import { useEffect, useRef, useState } from 'react'
+import { generatePath, useLocation, useNavigate } from 'react-router-dom'
 
-import { ActionItem, Button, Table, Tooltip, Typography } from '~/components/designSystem'
-import { RollApiKeyDialog, RollApiKeyDialogRef } from '~/components/developers/RollApiKeyDialog'
+import { ActionItem, Button, Icon, Table, Tooltip, Typography } from '~/components/designSystem'
+import {
+  DeleteApiKeyDialog,
+  DeleteApiKeyDialogRef,
+} from '~/components/developers/DeleteApiKeyDialog'
+import {
+  RotateApiKeyDialog,
+  RotateApiKeyDialogRef,
+} from '~/components/developers/RotateApiKeyDialog'
 import {
   SettingsListItem,
   SettingsListItemHeader,
@@ -11,12 +20,15 @@ import {
   SettingsPaddedContainer,
   SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { obfuscateValue } from '~/core/formats/obfuscate'
+import { CREATE_API_KEYS_ROUTE, UPDATE_API_KEYS_ROUTE } from '~/core/router'
 import { formatDateToTZ } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
-  ApiKeyForRollApiKeyDialogFragmentDoc,
+  ApiKeyForDeleteApiKeyDialogFragmentDoc,
+  ApiKeyForRotateApiKeyDialogFragmentDoc,
   GetOrganizationInfosForApiKeyQuery,
   TimezoneEnum,
   useGetApiKeysQuery,
@@ -24,7 +36,11 @@ import {
   useGetOrganizationInfosForApiKeyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { usePermissions } from '~/hooks/usePermissions'
 import { tw } from '~/styles/utils'
+
+import { STATE_KEY_ID_TO_REVEAL } from './ApiKeysForm'
 
 gql`
   fragment ApiKeyRevealedForApiKeysList on ApiKey {
@@ -45,8 +61,12 @@ gql`
       collection {
         id
         createdAt
+        expiresAt
+        lastUsedAt
+        name
         value
-        ...ApiKeyForRollApiKeyDialog
+        ...ApiKeyForRotateApiKeyDialog
+        ...ApiKeyForDeleteApiKeyDialog
       }
       metadata {
         currentPage
@@ -63,12 +83,19 @@ gql`
     }
   }
 
-  ${ApiKeyForRollApiKeyDialogFragmentDoc}
+  ${ApiKeyForRotateApiKeyDialogFragmentDoc}
+  ${ApiKeyForDeleteApiKeyDialogFragmentDoc}
 `
 
 const ApiKeys = () => {
+  const navigate = useNavigate()
+  const { hasPermissions } = usePermissions()
+  const { isPremium } = useCurrentUser()
+  const { state } = useLocation()
   const { translate } = useInternationalization()
-  const rollApiKeyDialogRef = useRef<RollApiKeyDialogRef>(null)
+  const rotateApiKeyDialogRef = useRef<RotateApiKeyDialogRef>(null)
+  const deleteApiKeyDialogRef = useRef<DeleteApiKeyDialogRef>(null)
+  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const [showOrganizationId, setShowOrganizationId] = useState(false)
   const [shownApiKeysMap, setShownApiKeysMap] = useState<Map<string, string>>(new Map())
 
@@ -82,6 +109,28 @@ const ApiKeys = () => {
     fetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: true,
   })
+
+  const showPremiumAddApiKeyState = !isPremium && !!apiKeysData?.apiKeys.collection.length
+
+  useEffect(() => {
+    const revealGivenKey = async () => {
+      const res = await getApiKeyValue({ variables: { id: state[STATE_KEY_ID_TO_REVEAL] } })
+
+      if (!!res?.data?.apiKey?.value) {
+        setShownApiKeysMap(
+          (prev) => new Map(prev.set(state[STATE_KEY_ID_TO_REVEAL], res.data?.apiKey.value || '')),
+        )
+
+        // Remove the keyIdToReveal from the state
+        window.history.replaceState({}, '')
+      }
+    }
+
+    // Incase we're redirected here with a keyIdToReveal, trigger the query
+    if (!!state?.[STATE_KEY_ID_TO_REVEAL]) {
+      revealGivenKey()
+    }
+  }, [getApiKeyValue, state])
 
   return (
     <>
@@ -217,6 +266,21 @@ const ApiKeys = () => {
                 <SettingsListItemHeader
                   label={translate('text_637f813d31381b1ed90ab313')}
                   sublabel={translate('text_637f813d31381b1ed90ab320')}
+                  action={
+                    hasPermissions(['developersKeysManage']) ? (
+                      <Button
+                        variant="quaternary"
+                        endIcon={showPremiumAddApiKeyState ? 'sparkles' : undefined}
+                        onClick={() =>
+                          showPremiumAddApiKeyState
+                            ? premiumWarningDialogRef.current?.openDialog()
+                            : navigate(CREATE_API_KEYS_ROUTE)
+                        }
+                      >
+                        {translate('text_1732286530467q437l0kqrwg')}
+                      </Button>
+                    ) : undefined
+                  }
                 />
 
                 <Table
@@ -230,10 +294,26 @@ const ApiKeys = () => {
                       key: 'id',
                       title: translate('text_6419c64eace749372fc72b0f'),
                       minWidth: 88,
-                      content: () => (
-                        <Typography color="grey700" variant="body">
-                          {translate('text_637f813d31381b1ed90ab313')}
-                        </Typography>
+                      content: ({ name, expiresAt }) => (
+                        <Tooltip
+                          placement="top-start"
+                          title={translate('text_1732182455718np5v78j6dro', {
+                            date: DateTime.fromISO(expiresAt)
+                              .setLocale('en')
+                              .toLocaleString({ ...DateTime.DATETIME_FULL, second: 'numeric' }),
+                          })}
+                          disableHoverListener={!expiresAt}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Typography color="grey700" variant="body" noWrap>
+                              {name || '-'}
+                            </Typography>
+
+                            {!!expiresAt && (
+                              <Icon name="warning-filled" color="error" size="medium" />
+                            )}
+                          </div>
+                        </Tooltip>
                       ),
                     },
                     {
@@ -317,9 +397,21 @@ const ApiKeys = () => {
                       },
                     },
                     {
+                      key: 'lastUsedAt',
+                      title: translate('text_1731515447290xbe4iqm5n6r'),
+                      minWidth: 140,
+                      content: ({ lastUsedAt }) => (
+                        <Typography color="grey700" variant="body">
+                          {!!lastUsedAt
+                            ? formatDateToTZ(lastUsedAt, TimezoneEnum.TzUtc, 'LLL. dd, yyyy')
+                            : '-'}
+                        </Typography>
+                      ),
+                    },
+                    {
                       key: 'createdAt',
                       title: translate('text_1731080136186pvllfpt35on'),
-                      minWidth: 138,
+                      minWidth: 140,
                       content: ({ createdAt }) => (
                         <Typography color="grey700" variant="body">
                           {formatDateToTZ(createdAt, TimezoneEnum.TzUtc, 'LLL. dd, yyyy')}
@@ -386,7 +478,7 @@ const ApiKeys = () => {
                         disabled: apiKeysLoading,
                         title: translate('text_17315063604211fznu9haor8'),
                         onAction: () => {
-                          rollApiKeyDialogRef.current?.openDialog({
+                          rotateApiKeyDialogRef.current?.openDialog({
                             apiKey: item,
                             callBack: (itemToReveal) => {
                               setShownApiKeysMap(
@@ -396,6 +488,26 @@ const ApiKeys = () => {
                           })
                         },
                       },
+
+                      {
+                        startIcon: 'pen',
+                        disabled: apiKeysLoading,
+                        title: translate('text_1732286530467nu5f8jeg0ov'),
+                        onAction: () => {
+                          navigate(generatePath(UPDATE_API_KEYS_ROUTE, { apiKeyId: id }))
+                        },
+                      },
+
+                      (apiKeysData?.apiKeys.collection || []).length > 1
+                        ? {
+                            startIcon: 'trash',
+                            disabled: apiKeysLoading,
+                            title: translate('text_17322865304679l26k2dpiw2'),
+                            onAction: () => {
+                              deleteApiKeyDialogRef.current?.openDialog({ apiKey: item })
+                            },
+                          }
+                        : null,
                     ]
                   }}
                 />
@@ -405,7 +517,12 @@ const ApiKeys = () => {
         </SettingsListWrapper>
       </SettingsPaddedContainer>
 
-      <RollApiKeyDialog ref={rollApiKeyDialogRef} />
+      <PremiumWarningDialog ref={premiumWarningDialogRef} />
+      <RotateApiKeyDialog
+        ref={rotateApiKeyDialogRef}
+        openPremiumDialog={() => premiumWarningDialogRef.current?.openDialog()}
+      />
+      <DeleteApiKeyDialog ref={deleteApiKeyDialogRef} />
     </>
   )
 }
