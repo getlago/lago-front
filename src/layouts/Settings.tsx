@@ -7,6 +7,7 @@ import { Button, Typography, VerticalMenu } from '~/components/designSystem'
 import {
   AUTHENTICATION_ROUTE,
   CREATE_DUNNING_ROUTE,
+  CREATE_INVOICE_CUSTOM_FOOTER,
   CREATE_TAX_ROUTE,
   DUNNINGS_SETTINGS_ROUTE,
   EMAILS_SETTINGS_ROUTE,
@@ -46,7 +47,13 @@ const Settings = () => {
       }
       return acc
     },
-    [CREATE_TAX_ROUTE, UPDATE_TAX_ROUTE, CREATE_DUNNING_ROUTE, UPDATE_DUNNING_ROUTE],
+    [
+      CREATE_TAX_ROUTE,
+      UPDATE_TAX_ROUTE,
+      CREATE_DUNNING_ROUTE,
+      UPDATE_DUNNING_ROUTE,
+      CREATE_INVOICE_CUSTOM_FOOTER,
+    ],
   )
 
   return (

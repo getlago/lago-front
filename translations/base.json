@@ -1,6 +1,6 @@
 {
-  "text_65118a52df984447c1869463": "Assign plan",
-  "text_65118a52df984447c1869469": "Select a plan to setup the subscription",
+"text_65118a52df984447c1869463": "Assign plan",
+"text_65118a52df984447c1869469": "Select a plan to setup the subscription",
   "text_65118a52df984447c186940f": "Assign a plan to {{customerName}}",
   "text_65118a52df984447c1869472": "Add an external id",
   "text_65118a52df984447c186947c": "Add a subscription name",
@@ -2734,5 +2734,17 @@
   "text_1734774653389kvylgxjiltu": "Is between",
   "text_1734774653389pt3rhh3lspa": "Is equal to",
   "text_1734792781750cot2uyp6f1x": "Is up to",
-  "text_17347927817503hromltntvm": "Is at least"
+  "text_17347927817503hromltntvm": "Is at least",
+  "text_1732553358445p5bxpiijc65": "Add an invoice custom section",
+  "text_1732553358445168zt8fopyf": "Invoice custom section",
+  "text_1732553358445p7rg0i0dzws": "Display custom information like bank details on invoice documents.",
+  "text_1732553358445sjgzrnstueo": "Custom section settings",
+  "text_17325533584451rema9e6rs5": "Define a custom section name to easily identify it.",
+  "text_1732553358445ia697d93gbj": "Custom section content",
+  "text_1732553358445diim0lbo5nl": "Define the content to be displayed on invoices. This content will appear at the end of the invoices, just before the invoice footer.",
+  "text_1732553358445fhl5zibpn2l": "Content",
+  "text_1732553358446t0zh79g9ruk": "Add custom section content",
+  "text_1732553889947h4iijpzflwj": "Set as default for all invoices",
+  "text_1732553889948thkn4jonnyy": "For more flexibility, override it at the customer level.",
+  "text_17325538899488ftsvph8ko5": "Add custom section"
 }
