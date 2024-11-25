@@ -25,11 +25,11 @@ import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/Prem
 import {
   EditFinalizeZeroAmountInvoiceDialog,
   EditFinalizeZeroAmountInvoiceDialogRef,
-} from '~/components/settings/EditFinalizeZeroAmountInvoiceDialog'
+} from '~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog'
 import {
   EditNetPaymentTermDialog,
   EditNetPaymentTermDialogRef,
-} from '~/components/settings/EditNetPaymentTermDialog'
+} from '~/components/settings/invoices/EditNetPaymentTermDialog'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { DocumentLocales } from '~/core/translations/documentLocales'
 import {

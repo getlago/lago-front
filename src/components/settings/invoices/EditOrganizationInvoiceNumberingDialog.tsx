@@ -8,12 +8,12 @@ import { object, string } from 'yup'
 import { Button, Chip, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { RadioField, TextInput, TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
+import { getInvoiceNumberPreview } from '~/core/utils/invoiceNumberPreview'
 import {
   DocumentNumberingEnum,
   useUpdateOrganizationInvoiceNumberingMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { getInvoiceNumberPreview } from '~/pages/settings/InvoiceSettings'
 import { theme } from '~/styles'
 
 const DynamicPrefixTranslationLoohup = {

@@ -10,7 +10,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { WarningDialog } from '../WarningDialog'
+import { WarningDialog } from '../../WarningDialog'
 
 gql`
   fragment DeleteOrganizationVatRate on Tax {

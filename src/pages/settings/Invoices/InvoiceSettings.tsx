@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { DateTime } from 'luxon'
 import { useRef } from 'react'
 
 import {
@@ -25,41 +24,42 @@ import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/Prem
 import {
   AddOrganizationVatRateDialog,
   AddOrganizationVatRateDialogRef,
-} from '~/components/settings/AddOrganizationVatRateDialog'
+} from '~/components/settings/invoices/AddOrganizationVatRateDialog'
 import {
   DeleteOrganizationVatRateDialog,
   DeleteOrganizationVatRateDialogRef,
-} from '~/components/settings/DeleteOrganizationVatRateDialog'
+} from '~/components/settings/invoices/DeleteOrganizationVatRateDialog'
 import {
   EditDefaultCurrencyDialog,
   EditDefaultCurrencyDialogRef,
-} from '~/components/settings/EditDefaultCurrencyDialog'
+} from '~/components/settings/invoices/EditDefaultCurrencyDialog'
 import {
   EditFinalizeZeroAmountInvoiceDialog,
   EditFinalizeZeroAmountInvoiceDialogRef,
-} from '~/components/settings/EditFinalizeZeroAmountInvoiceDialog'
+} from '~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog'
 import {
   EditNetPaymentTermDialog,
   EditNetPaymentTermDialogRef,
-} from '~/components/settings/EditNetPaymentTermDialog'
+} from '~/components/settings/invoices/EditNetPaymentTermDialog'
 import {
   EditOrganizationDocumentLocaleDialog,
   EditOrganizationDocumentLocaleDialogRef,
-} from '~/components/settings/EditOrganizationDocumentLocaleDialog'
+} from '~/components/settings/invoices/EditOrganizationDocumentLocaleDialog'
 import {
   EditOrganizationGracePeriodDialog,
   EditOrganizationGracePeriodDialogRef,
-} from '~/components/settings/EditOrganizationGracePeriodDialog'
+} from '~/components/settings/invoices/EditOrganizationGracePeriodDialog'
 import {
   EditOrganizationInvoiceNumberingDialog,
   EditOrganizationInvoiceNumberingDialogRef,
-} from '~/components/settings/EditOrganizationInvoiceNumberingDialog'
+} from '~/components/settings/invoices/EditOrganizationInvoiceNumberingDialog'
 import {
   EditOrganizationInvoiceTemplateDialog,
   EditOrganizationInvoiceTemplateDialogRef,
-} from '~/components/settings/EditOrganizationInvoiceTemplateDialog'
+} from '~/components/settings/invoices/EditOrganizationInvoiceTemplateDialog'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { DocumentLocales } from '~/core/translations/documentLocales'
+import { getInvoiceNumberPreview } from '~/core/utils/invoiceNumberPreview'
 import {
   DeleteOrganizationVatRateFragmentDoc,
   DocumentNumberingEnum,
@@ -79,20 +79,6 @@ const MAX_FOOTER_LENGTH_DISPLAY_LIMIT = 200
 const InvoiceNumberingTypeLabelTranslationKey = {
   [DocumentNumberingEnum.PerCustomer]: 'text_6566f920a1d6c35693d6cdca',
   [DocumentNumberingEnum.PerOrganization]: 'text_6566f920a1d6c35693d6cd26',
-}
-
-export const getInvoiceNumberPreview = (
-  documentNumbering: DocumentNumberingEnum,
-  documentNumberPrefix: string,
-) => {
-  const date = DateTime.now().toFormat('yyyyMM')
-
-  const numberEndging = {
-    [DocumentNumberingEnum.PerCustomer]: '001-001',
-    [DocumentNumberingEnum.PerOrganization]: `${date}-001`,
-  }
-
-  return `${documentNumberPrefix}-${numberEndging[documentNumbering]}`
 }
 
 gql`
