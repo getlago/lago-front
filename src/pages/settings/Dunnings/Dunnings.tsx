@@ -13,7 +13,7 @@ import {
   Typography,
 } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { PageBannerHeader } from '~/components/layouts/Pages'
+import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/Pages'
 import {
   SettingsListItem,
   SettingsListItemHeader,
@@ -135,11 +135,11 @@ const Dunnings = () => {
 
   return (
     <>
-      <PageBannerHeader>
+      <PageBannerHeaderWithBurgerMenu>
         <Typography variant="bodyHl" color="grey700">
           {translate('text_17285747264958mqbtws3em8')}
         </Typography>
-      </PageBannerHeader>
+      </PageBannerHeaderWithBurgerMenu>
 
       <SettingsPaddedContainer>
         <SettingsPageHeaderContainer>

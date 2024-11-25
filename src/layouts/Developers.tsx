@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom'
 
 import { NavigationTab, Typography } from '~/components/designSystem'
-import { PageBannerHeader } from '~/components/layouts/Pages'
+import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/Pages'
 import { API_KEYS_ROUTE, DEBUGGER_ROUTE, DEVELOPERS_ROUTE, WEBHOOK_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -25,11 +25,11 @@ const Developers = () => {
 
   return (
     <>
-      <PageBannerHeader>
+      <PageBannerHeaderWithBurgerMenu>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_6271200984178801ba8bdebe')}
         </Typography>
-      </PageBannerHeader>
+      </PageBannerHeaderWithBurgerMenu>
       <NavigationTab className="px-4 md:px-12" tabs={tabsOptions} />
       <Outlet />
     </>

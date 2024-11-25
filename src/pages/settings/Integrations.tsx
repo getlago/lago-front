@@ -3,7 +3,7 @@ import { useRef } from 'react'
 import { useNavigate } from 'react-router'
 
 import { Avatar, Chip, Selector, Typography } from '~/components/designSystem'
-import { PageBannerHeader } from '~/components/layouts/Pages'
+import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/Pages'
 import {
   SettingsListItem,
   SettingsListItemLoadingSkeleton,
@@ -190,11 +190,11 @@ const Integrations = () => {
 
   return (
     <>
-      <PageBannerHeader>
+      <PageBannerHeaderWithBurgerMenu>
         <Typography variant="bodyHl" color="grey700">
           {translate('text_62b1edddbf5f461ab9712733')}
         </Typography>
-      </PageBannerHeader>
+      </PageBannerHeaderWithBurgerMenu>
 
       <SettingsPaddedContainer>
         <SettingsPageHeaderContainer>
