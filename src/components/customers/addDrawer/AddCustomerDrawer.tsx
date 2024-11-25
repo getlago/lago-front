@@ -44,6 +44,7 @@ import {
   NetsuiteCustomer,
   ProviderCustomer,
   ProviderPaymentMethodsEnum,
+  SalesforceCustomer,
   TimezoneEnum,
   UpdateCustomerInput,
   XeroCustomer,
@@ -105,6 +106,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
         ...(!!customer?.anrokCustomer ? [customer?.anrokCustomer] : []),
         ...(!!customer?.xeroCustomer ? [customer?.xeroCustomer] : []),
         ...(!!customer?.hubspotCustomer ? [customer?.hubspotCustomer] : []),
+        ...(!!customer?.salesforceCustomer ? [customer?.salesforceCustomer] : []),
       ],
       paymentProviderCode: customer?.paymentProviderCode ?? undefined,
       providerCustomer: {
@@ -156,7 +158,8 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                   | Omit<NetsuiteCustomer, 'id'>
                   | Omit<AnrokCustomer, 'id'>
                   | Omit<XeroCustomer, 'id'>
-                  | Omit<HubspotCustomer, 'id'>,
+                  | Omit<HubspotCustomer, 'id'>
+                  | Omit<SalesforceCustomer, 'id'>,
               ) {
                 if (!!value) {
                   if (value.integrationType === IntegrationTypeEnum.Netsuite) {
@@ -209,6 +212,18 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                     }
 
                     // if syncWithProvider is false, externalCustomerId is required
+                    if (!value?.syncWithProvider && !value?.externalCustomerId) {
+                      return false
+                    }
+                  } else if (value.integrationType === IntegrationTypeEnum.Salesforce) {
+                    value = value as SalesforceCustomer
+
+                    // If Salesforce integrationCode is not selected
+                    if (!value.integrationCode) {
+                      return false
+                    }
+
+                    // if syncWithProvider is false then externalCustomerId is required
                     if (!value?.syncWithProvider && !value?.externalCustomerId) {
                       return false
                     }

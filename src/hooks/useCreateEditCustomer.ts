@@ -79,6 +79,11 @@ gql`
       id
       integrationId
     }
+    salesforceCustomer {
+      __typename
+      id
+      integrationId
+    }
     metadata {
       id
       key

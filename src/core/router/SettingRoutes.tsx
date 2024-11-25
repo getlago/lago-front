@@ -65,6 +65,18 @@ const NetsuiteIntegrationDetails = lazyLoad(
       /* webpackChunkName: 'netsuite-integration-details' */ '~/pages/settings/NetsuiteIntegrationDetails'
     ),
 )
+const SalesforceIntegrations = lazyLoad(
+  () =>
+    import(
+      /* webpackChunkName: 'salesforce-integrations' */ '~/pages/settings/SalesforceIntegrations'
+    ),
+)
+const SalesforceIntegrationDetails = lazyLoad(
+  () =>
+    import(
+      /* webpackChunkName: 'salesforce-integration-details' */ '~/pages/settings/SalesforceIntegrationDetails'
+    ),
+)
 const StripeIntegrations = lazyLoad(
   () => import(/* webpackChunkName: 'stripe-integrations' */ '~/pages/settings/StripeIntegrations'),
 )
@@ -137,6 +149,8 @@ export const HUBSPOT_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/hubspot`
 export const HUBSPOT_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/hubspot/:integrationId`
 export const NETSUITE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/netsuite`
 export const NETSUITE_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/netsuite/:integrationId/:tab`
+export const SALESFORCE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/salesforce`
+export const SALESFORCE_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/salesforce/:integrationId`
 export const STRIPE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/stripe`
 export const STRIPE_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/stripe/:integrationId`
 export const GOCARDLESS_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/gocardless`
@@ -250,6 +264,18 @@ export const settingRoutes: CustomRouteObject[] = [
         path: NETSUITE_INTEGRATION_ROUTE,
         private: true,
         element: <NetsuiteIntegrations />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: SALESFORCE_INTEGRATION_DETAILS_ROUTE,
+        private: true,
+        element: <SalesforceIntegrationDetails />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: SALESFORCE_INTEGRATION_ROUTE,
+        private: true,
+        element: <SalesforceIntegrations />,
         permissions: ['organizationIntegrationsView'],
       },
       {

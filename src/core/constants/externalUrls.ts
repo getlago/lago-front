@@ -64,7 +64,7 @@ export const buildXeroInvoiceUrl = (xeroInvoiceId?: string | null) => {
 export const buildXeroCreditNoteUrl = (xeroCreditNoteId?: string | null) => {
   return `https://go.xero.com/AccountsReceivable/ViewCreditNote.aspx?creditNoteID=${xeroCreditNoteId}`
 }
-export const buildHubsportObjectUrl = ({
+export const buildHubspotObjectUrl = ({
   portalId,
   objectId,
   targetedObject,
@@ -81,14 +81,27 @@ export const buildHubsportObjectUrl = ({
   return `https://app.hubspot.com/contacts/${portalId}/record/${targetedObjectMap[targetedObject]}/${objectId}`
 }
 
-export const buildHubsportInvoiceUrl = ({
+export const buildHubspotInvoiceUrl = ({
   portalId,
   resourceId,
-  externalCrmIntegrationId,
+  externalHubspotIntegrationId,
 }: {
   portalId?: string | null
   resourceId?: string | null
-  externalCrmIntegrationId?: string | null
+  externalHubspotIntegrationId?: string | null
 }) => {
-  return `https://app.hubspot.com/contacts/${portalId}/record/${resourceId}/${externalCrmIntegrationId}`
+  return `https://app.hubspot.com/contacts/${portalId}/record/${resourceId}/${externalHubspotIntegrationId}`
+}
+
+export const buildSalesforceUrl = ({
+  instanceId,
+  externalCustomerId,
+}: {
+  instanceId: string
+  externalCustomerId: string
+}) => {
+  // Remove last slash if it exists
+  const baseUrl = instanceId.replace(RegExp('/$'), '')
+
+  return `${baseUrl}/${externalCustomerId}`
 }
