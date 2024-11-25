@@ -54,18 +54,22 @@ export const InvoiceDetailsTableBodyLineGraduatedPercentage = memo(
           >
             <td>
               <Typography variant="body" color="grey600">
-                {i === 0
-                  ? translate('text_659e67cd63512ef532843070', {
-                      toValue: Number(graduatedPercentageRange?.toValue),
+                {(fee?.amountDetails?.graduatedPercentageRanges?.length || 0) === 1
+                  ? translate('text_659e67cd63512ef5328430e6', {
+                      fromValue: Number(graduatedPercentageRange?.fromValue),
                     })
-                  : i === (fee?.amountDetails?.graduatedPercentageRanges?.length || 0) - 1
-                    ? translate('text_659e67cd63512ef5328430e6', {
-                        fromValue: Number(graduatedPercentageRange?.fromValue),
-                      })
-                    : translate('text_659e67cd63512ef5328430af', {
-                        fromValue: Number(graduatedPercentageRange?.fromValue),
+                  : i === 0
+                    ? translate('text_659e67cd63512ef532843070', {
                         toValue: Number(graduatedPercentageRange?.toValue),
-                      })}
+                      })
+                    : i === (fee?.amountDetails?.graduatedPercentageRanges?.length || 0) - 1
+                      ? translate('text_659e67cd63512ef5328430e6', {
+                          fromValue: Number(graduatedPercentageRange?.fromValue),
+                        })
+                      : translate('text_659e67cd63512ef5328430af', {
+                          fromValue: Number(graduatedPercentageRange?.fromValue),
+                          toValue: Number(graduatedPercentageRange?.toValue),
+                        })}
               </Typography>
             </td>
             <td>
@@ -120,18 +124,22 @@ export const InvoiceDetailsTableBodyLineGraduatedPercentage = memo(
               >
                 <td>
                   <Typography variant="body" color="grey600">
-                    {i === 0
-                      ? translate('text_659e67cd63512ef53284310e', {
-                          toValue: Number(graduatedPercentageRange?.toValue),
+                    {fee?.amountDetails?.graduatedPercentageRanges?.length || 0
+                      ? translate('text_659e67cd63512ef53284314a', {
+                          fromValue: Number(graduatedPercentageRange?.fromValue),
                         })
-                      : i === (fee?.amountDetails?.graduatedPercentageRanges?.length || 0) - 1
-                        ? translate('text_659e67cd63512ef53284314a', {
-                            fromValue: Number(graduatedPercentageRange?.fromValue),
-                          })
-                        : translate('text_659e67cd63512ef532843136', {
-                            fromValue: Number(graduatedPercentageRange?.fromValue),
+                      : i === 0
+                        ? translate('text_659e67cd63512ef53284310e', {
                             toValue: Number(graduatedPercentageRange?.toValue),
-                          })}
+                          })
+                        : i === (fee?.amountDetails?.graduatedPercentageRanges?.length || 0) - 1
+                          ? translate('text_659e67cd63512ef53284314a', {
+                              fromValue: Number(graduatedPercentageRange?.fromValue),
+                            })
+                          : translate('text_659e67cd63512ef532843136', {
+                              fromValue: Number(graduatedPercentageRange?.fromValue),
+                              toValue: Number(graduatedPercentageRange?.toValue),
+                            })}
                   </Typography>
                 </td>
                 <td>
