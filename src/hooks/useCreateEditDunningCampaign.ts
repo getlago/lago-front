@@ -124,7 +124,7 @@ export const useCreateEditDunningCampaign = (): UseCreateEditDunningCampaignRetu
       if (!!updateDunningCampaign) {
         addToast({
           severity: 'success',
-          translateKey: 'text_1732204187413kppnqvk78zc',
+          translateKey: 'text_1732187313660tetkzao72e1',
         })
       }
       navigate(DUNNINGS_SETTINGS_ROUTE)

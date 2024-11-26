@@ -2675,10 +2675,8 @@
   "text_1732187313660ayamm4mu716": "Dunning campaign successfully deleted",
   "text_1732187313660ghhrj235mxg": "This campaign can be applied to some customers. Any change you make will be instantly live.",
   "text_17321873136600ctyqurb2n2": "Delete this dunning campaign",
-  "text_1732204187413c7jslwjs9e5": "Please note that deleting this dunning campaign is a permanent action. Are you sure you want to proceed with this deletion?",
   "text_1732187375488dzhyehimjs3": "This default campaign can be applied to some of your customers. Deleting it will immediately stop new attempts from being triggered for them. They will no longer be impacted by a dunning campaign until a new default one is set. \nDo you want to proceed?|This default campaign is currently applied to some of your customers. Deleting it will immediately stop new attempts from being triggered for them. They will no longer be impacted by a dunning campaign until a new default one is set. \nDo you want to proceed?",
   "text_1732187375488g4igt5sf7kg": "This campaign can be applied applied to some of your customers. Deleting it will immediately stop new attempts from being triggered for them. They will now be impacted by the default dunning campaign, if one is set. \nDo you want to proceed?|This campaign is currently applied to some of your customers. Deleting it will immediately stop new attempts from being triggered for them. They will now be impacted by the default dunning campaign, if one is set. \nDo you want to proceed?",
-  "text_17322041874138xkertqxbqz": "Edit dunning campaign",
-  "text_1732204187413kppnqvk78zc": "Dunning campaign successfully edited"
+  "text_17322041874138xkertqxbqz": "Edit dunning campaign"
 }
 
