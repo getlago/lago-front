@@ -2755,5 +2755,8 @@
   "text_17326350108761jc0z8eusa8": "Invoice preview",
   "text_173255335844629sa49oljif": "Preview invoice",
   "text_1735045451930tezr0et3e6l": "Invoice is pending finalization.",
-  "text_1735045451931zfgc6yvvcfm": "This invoice is in the queue, waiting to be finalized. It may take a bit of time. Please refresh or check back later."
+  "text_1735045451931zfgc6yvvcfm": "This invoice is in the queue, waiting to be finalized. It may take a bit of time. Please refresh or check back later.",
+  "text_1732638001460kne05vskb7e": "Edit details",
+  "text_1732638001460kdzkctjfegi": "Delete details",
+  "text_17326382475765mx3dfl4v6t": "Edit, delete and more"
 }
