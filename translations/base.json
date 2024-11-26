@@ -2754,5 +2754,8 @@
   "text_1735828930375zjo8m3yh5ra": "Sync this customer data to an integration connected to Lago.",
   "text_1732638001460kne05vskb7e": "Edit details",
   "text_1732638001460kdzkctjfegi": "Delete details",
-  "text_17326382475765mx3dfl4v6t": "Edit, delete and more"
+  "text_17326382475765mx3dfl4v6t": "Edit, delete and more",
+  "text_1732639579760vrvtea9dbua": "Delete these invoice custom section",
+  "text_1732639579760siwe29e2rqg": "This will remove them from all associated organizations and customers. Future invoices will no longer use these banking details. Are you sure you want to proceed?",
+  "text_1732639603661uwmv1793v9b": "Delete bank details"
 }
