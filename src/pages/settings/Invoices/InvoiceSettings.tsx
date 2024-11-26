@@ -32,6 +32,10 @@ import {
   DefaultCustomSectionDialogRef,
 } from '~/components/settings/invoices/DefaultCustomSectionDialog'
 import {
+  DeleteCustomSectionDialog,
+  DeleteCustomSectionDialogRef,
+} from '~/components/settings/invoices/DeleteCustomSectionDialog'
+import {
   DeleteOrganizationVatRateDialog,
   DeleteOrganizationVatRateDialogRef,
 } from '~/components/settings/invoices/DeleteOrganizationVatRateDialog'
@@ -146,6 +150,8 @@ const InvoiceSettings = () => {
     useRef<EditFinalizeZeroAmountInvoiceDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const defaultCustomSectionDialogRef = useRef<DefaultCustomSectionDialogRef>(null)
+  const deleteCustomSectionDialogRef = useRef<DeleteCustomSectionDialogRef>(null)
+
   const { data, error, loading } = useGetOrganizationSettingsQuery()
   const organization = data?.organization
   const appliedTaxRates = data?.taxes?.collection || undefined
@@ -364,7 +370,7 @@ const InvoiceSettings = () => {
                       {
                         startIcon: 'trash',
                         title: translate('text_1732638001460kdzkctjfegi'),
-                        onAction: () => {},
+                        onAction: () => deleteCustomSectionDialogRef.current?.openDialog(),
                       },
                     ]}
                   />
@@ -586,6 +592,7 @@ const InvoiceSettings = () => {
       <EditDefaultCurrencyDialog ref={editDefaultCurrencyDialogRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <DefaultCustomSectionDialog ref={defaultCustomSectionDialogRef} />
+      <DeleteCustomSectionDialog ref={deleteCustomSectionDialogRef} />
     </>
   )
 }
