@@ -2,7 +2,6 @@ import { ReactNode, Suspense, useEffect } from 'react'
 import { useRoutes } from 'react-router-dom'
 import { useLocation } from 'react-router-dom'
 import type { RouteObject } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { Icon } from '~/components/designSystem'
 import { CustomRouteObject, routes } from '~/core/router'
@@ -35,9 +34,9 @@ const routesFormatter: (routesToFormat: CustomRouteObject[], loggedIn: boolean) 
         <PageWrapper routeConfig={route}>
           <Suspense
             fallback={
-              <Loader>
+              <div className="m-auto flex size-full items-center justify-center">
                 <Icon name="processing" color="info" size="large" animation="spin" />
-              </Loader>
+              </div>
             }
           >
             {route.element}
@@ -71,15 +70,6 @@ const routesFormatter: (routesToFormat: CustomRouteObject[], loggedIn: boolean) 
     return acc
   }, [])
 }
-
-const Loader = styled.div`
-  height: 100%;
-  width: 100%;
-  margin: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`
 
 export const RouteWrapper = () => {
   const { isAuthenticated } = useIsAuthenticated()
