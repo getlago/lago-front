@@ -136,6 +136,7 @@ const UsagePage = () => {
       {customerId && subscriptionId && (
         <div className="mt-12">
           <SubscriptionCurrentUsageTableComponent
+            showExcludingTaxLabel
             usageData={usageData?.customerPortalCustomerUsage}
             usageLoading={usageLoading}
             usageError={usageError}

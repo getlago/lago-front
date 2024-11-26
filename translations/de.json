@@ -162,5 +162,7 @@
   "text_62da6ec24a8e24e44f8128aa": "Mehr laden",
   "text_62da6ec24a8e24e44f81288c": "Kein Ablaufdatum",
   "text_634687079be251fdb43833cb": "Kundenname",
-  "text_1729256593854oiy13slixjr": "Ihr überfälliger Saldo von {{companyName}}"
+  "text_1729256593854oiy13slixjr": "Ihr überfälliger Saldo von {{companyName}}",
+  "text_17326262367759e7w9yfbeno": "{{amount}} (zzgl. MwSt.)",
+  "text_17326286491076m81w5uy3el": "Gesamte aktuelle Nutzung (zzgl. MwSt.)"
 }

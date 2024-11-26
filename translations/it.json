@@ -135,5 +135,7 @@
   "text_62da6ec24a8e24e44f8128aa": "Carica altro",
   "text_62da6ec24a8e24e44f81288c": "Nessuna data di scadenza",
   "text_634687079be251fdb43833cb": "Nome del cliente",
-  "text_1729256593854oiy13slixjr": "Il tuo saldo in ritardo da {{companyName}}"
+  "text_1729256593854oiy13slixjr": "Il tuo saldo in ritardo da {{companyName}}",
+  "text_17326262367759e7w9yfbeno": "{{amount}} (escl. tasse)",
+  "text_17326286491076m81w5uy3el": "Utilizzo totale corrente (escl. tasse)"
 }

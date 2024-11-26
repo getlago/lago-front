@@ -162,5 +162,7 @@
   "text_62da6ec24a8e24e44f8128aa": "Cargar más",
   "text_62da6ec24a8e24e44f81288c": "Sin fecha de vencimiento",
   "text_634687079be251fdb43833cb": "Nombre del cliente",
-  "text_1729256593854oiy13slixjr": "Su saldo vencido de {{companyName}}"
+  "text_1729256593854oiy13slixjr": "Su saldo vencido de {{companyName}}",
+  "text_17326262367759e7w9yfbeno": "{{amount}} (sin impuestos)",
+  "text_17326286491076m81w5uy3el": "Uso total actual (sin impuestos)"
 }
