@@ -7890,6 +7890,11 @@ export type UpdateOrganizationInvoiceTemplateMutationVariables = Exact<{
 
 export type UpdateOrganizationInvoiceTemplateMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, invoiceFooter?: string | null } | null } | null };
 
+export type GetOrganizationCustomFooterForInvoiceQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetOrganizationCustomFooterForInvoiceQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', invoiceFooter?: string | null } | null } | null };
+
 export type CreateInviteMutationVariables = Exact<{
   input: CreateInviteInput;
 }>;
@@ -18864,6 +18869,47 @@ export function useUpdateOrganizationInvoiceTemplateMutation(baseOptions?: Apoll
 export type UpdateOrganizationInvoiceTemplateMutationHookResult = ReturnType<typeof useUpdateOrganizationInvoiceTemplateMutation>;
 export type UpdateOrganizationInvoiceTemplateMutationResult = Apollo.MutationResult<UpdateOrganizationInvoiceTemplateMutation>;
 export type UpdateOrganizationInvoiceTemplateMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationInvoiceTemplateMutation, UpdateOrganizationInvoiceTemplateMutationVariables>;
+export const GetOrganizationCustomFooterForInvoiceDocument = gql`
+    query GetOrganizationCustomFooterForInvoice {
+  organization {
+    billingConfiguration {
+      invoiceFooter
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetOrganizationCustomFooterForInvoiceQuery__
+ *
+ * To run a query within a React component, call `useGetOrganizationCustomFooterForInvoiceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationCustomFooterForInvoiceQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrganizationCustomFooterForInvoiceQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetOrganizationCustomFooterForInvoiceQuery(baseOptions?: Apollo.QueryHookOptions<GetOrganizationCustomFooterForInvoiceQuery, GetOrganizationCustomFooterForInvoiceQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetOrganizationCustomFooterForInvoiceQuery, GetOrganizationCustomFooterForInvoiceQueryVariables>(GetOrganizationCustomFooterForInvoiceDocument, options);
+      }
+export function useGetOrganizationCustomFooterForInvoiceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrganizationCustomFooterForInvoiceQuery, GetOrganizationCustomFooterForInvoiceQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetOrganizationCustomFooterForInvoiceQuery, GetOrganizationCustomFooterForInvoiceQueryVariables>(GetOrganizationCustomFooterForInvoiceDocument, options);
+        }
+export function useGetOrganizationCustomFooterForInvoiceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationCustomFooterForInvoiceQuery, GetOrganizationCustomFooterForInvoiceQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetOrganizationCustomFooterForInvoiceQuery, GetOrganizationCustomFooterForInvoiceQueryVariables>(GetOrganizationCustomFooterForInvoiceDocument, options);
+        }
+export type GetOrganizationCustomFooterForInvoiceQueryHookResult = ReturnType<typeof useGetOrganizationCustomFooterForInvoiceQuery>;
+export type GetOrganizationCustomFooterForInvoiceLazyQueryHookResult = ReturnType<typeof useGetOrganizationCustomFooterForInvoiceLazyQuery>;
+export type GetOrganizationCustomFooterForInvoiceSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationCustomFooterForInvoiceSuspenseQuery>;
+export type GetOrganizationCustomFooterForInvoiceQueryResult = Apollo.QueryResult<GetOrganizationCustomFooterForInvoiceQuery, GetOrganizationCustomFooterForInvoiceQueryVariables>;
 export const CreateInviteDocument = gql`
     mutation createInvite($input: CreateInviteInput!) {
   createInvite(input: $input) {
