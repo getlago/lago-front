@@ -3,6 +3,9 @@ import { cva } from 'class-variance-authority'
 import { tw } from '~/styles/utils'
 
 import { AvatarSize, avatarSizeStyles } from './Avatar'
+import { TypographyProps } from './Typography'
+
+import { ConditionalWrapper } from '../ConditionalWrapper'
 
 type SkeletonVariant =
   | 'connectorAvatar' // squared with rounded corners
@@ -13,18 +16,38 @@ type SkeletonVariant =
 type SkeletonColor = 'dark' | 'light'
 
 interface SkeletonConnectorProps {
-  variant: Extract<SkeletonVariant, 'userAvatar' | 'connectorAvatar' | 'circular'>
-  size: AvatarSize
   className?: string
   color?: SkeletonColor
+  size: AvatarSize
+  textVariant?: never
+  variant: Extract<SkeletonVariant, 'userAvatar' | 'connectorAvatar' | 'circular'>
 }
 
 interface SkeletonGenericProps {
-  variant: Extract<SkeletonVariant, 'text'>
-  size?: never
   className?: string
   color?: SkeletonColor
+  size?: never
+  textVariant?: TypographyProps['variant']
+  variant: Extract<SkeletonVariant, 'text'>
 }
+
+const textWrapperStyles = cva('flex items-center', {
+  variants: {
+    textVariant: {
+      headline: 'h-8',
+      subhead: 'h-6',
+      bodyHl: 'h-6',
+      body: 'h-6',
+      captionHl: 'h-6',
+      caption: 'h-6',
+      captionCode: 'h-6',
+      noteHl: 'h-4',
+      note: 'h-4',
+      button: '', // here to satisfy the type
+      inherit: '', // here to satisfy the type
+    },
+  },
+})
 
 const skeletonStyles = cva('w-full animate-pulse bg-grey-100', {
   variants: {
@@ -47,9 +70,20 @@ const skeletonStyles = cva('w-full animate-pulse bg-grey-100', {
 
 export const Skeleton = ({
   className,
-  variant,
   color,
   size,
+  textVariant = 'body',
+  variant,
 }: SkeletonConnectorProps | SkeletonGenericProps) => {
-  return <div className={tw(skeletonStyles({ variant, color, size }), className)} />
+  return (
+    <ConditionalWrapper
+      condition={!!textVariant}
+      validWrapper={(children) => (
+        <div className={tw(textWrapperStyles({ textVariant }))}>{children}</div>
+      )}
+      invalidWrapper={(children) => <>{children}</>}
+    >
+      <div className={tw(skeletonStyles({ variant, color, size }), className)} />
+    </ConditionalWrapper>
+  )
 }
