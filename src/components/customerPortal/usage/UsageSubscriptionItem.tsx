@@ -64,17 +64,19 @@ const UsageSubscriptionItem = ({
       {typeof subscription.plan?.amountCurrency !== 'undefined' && (
         <div className="flex gap-1">
           <Typography className="text-base font-normal text-grey-700">
-            {intlFormatNumber(
-              deserializeAmount(
-                subscription.plan?.amountCents || 0,
-                subscription.plan?.amountCurrency,
+            {translate('text_17326262367759e7w9yfbeno', {
+              amount: intlFormatNumber(
+                deserializeAmount(
+                  subscription.plan?.amountCents || 0,
+                  subscription.plan?.amountCurrency,
+                ),
+                {
+                  currencyDisplay: 'narrowSymbol',
+                  currency: subscription.plan?.amountCurrency,
+                  locale: documentLocale,
+                },
               ),
-              {
-                currencyDisplay: 'narrowSymbol',
-                currency: subscription.plan?.amountCurrency,
-                locale: documentLocale,
-              },
-            )}
+            })}
           </Typography>
 
           {subscription?.plan?.interval && (

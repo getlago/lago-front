@@ -161,5 +161,7 @@
   "text_62da6ec24a8e24e44f8128aa": "Last inn mer",
   "text_62da6ec24a8e24e44f81288c": "Ingen utløpsdato",
   "text_634687079be251fdb43833cb": "Kundenavn",
-  "text_1729256593854oiy13slixjr": "Din forfalte saldo fra {{companyName}}"
+  "text_1729256593854oiy13slixjr": "Din forfalte saldo fra {{companyName}}",
+  "text_17326262367759e7w9yfbeno": "{{amount}} (eks. mva)",
+  "text_17326286491076m81w5uy3el": "Total nåværende bruk (eks. mva)"
 }

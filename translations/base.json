@@ -2665,5 +2665,7 @@
   "text_17316852355256pb6ga10vb4": "Salesforce invoice url",
   "text_1731685235525jazy82715wh": "Sync invoice to Salesforce",
   "text_1731685304648t5kyi5j9fju": "Invoice not synced to Salesforce",
-  "text_17316853046485zk7ibjnwbb": "Salesforce synchronization successfully triggered."
+  "text_17316853046485zk7ibjnwbb": "Salesforce synchronization successfully triggered.",
+  "text_17326262367759e7w9yfbeno": "{{amount}} (excl. tax)",
+  "text_17326286491076m81w5uy3el": "Total current usage (excl. tax)"
 }

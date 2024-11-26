@@ -126,6 +126,7 @@ type SubscriptionCurrentUsageTableComponentProps = {
   customerData?: CustomerForSubscriptionUsageQuery['customer']
   customerLoading: boolean
   customerError?: ApolloError
+  showExcludingTaxLabel?: boolean
 
   refetchUsage: () => void
 
@@ -147,6 +148,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
   customerData,
   customerLoading,
   customerError,
+  showExcludingTaxLabel = false,
 
   refetchUsage,
 
@@ -261,7 +263,9 @@ export const SubscriptionCurrentUsageTableComponent = ({
             justifyContent={'space-between'}
           >
             <Typography variant="bodyHl" color="grey700" noWrap>
-              {translate('text_62c3f3fca8a1625624e83380')}
+              {showExcludingTaxLabel
+                ? translate('text_17326286491076m81w5uy3el')
+                : translate('text_62c3f3fca8a1625624e83380')}
             </Typography>
 
             {isLoading ? (

@@ -162,5 +162,7 @@
   "text_62da6ec24a8e24e44f8128aa": "Charger plus",
   "text_62da6ec24a8e24e44f81288c": "Pas de date d'expiration",
   "text_634687079be251fdb43833cb": "Nom du client",
-  "text_1729256593854oiy13slixjr": "Votre solde impayé pour {{companyName}}"
+  "text_1729256593854oiy13slixjr": "Votre solde impayé pour {{companyName}}",
+  "text_17326262367759e7w9yfbeno": "{{amount}} (HT)",
+  "text_17326286491076m81w5uy3el": "Utilisation totale actuelle (HT)"
 }
