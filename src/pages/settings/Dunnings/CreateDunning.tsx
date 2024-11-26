@@ -17,6 +17,7 @@ import {
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { DUNNINGS_SETTINGS_ROUTE } from '~/core/router'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
@@ -61,12 +62,17 @@ const CreateDunning = () => {
       name: campaign?.name || '',
       code: campaign?.code || '',
       description: campaign?.description || '',
-      thresholds: campaign?.thresholds || [
-        {
-          currency: defaultCurrency ?? CurrencyEnum.Usd,
-          amountCents: undefined,
-        },
-      ],
+      thresholds: campaign?.thresholds
+        ? campaign.thresholds.map((threshold) => ({
+            ...threshold,
+            amountCents: deserializeAmount(threshold.amountCents, threshold.currency),
+          }))
+        : [
+            {
+              currency: defaultCurrency ?? CurrencyEnum.Usd,
+              amountCents: undefined,
+            },
+          ],
       daysBetweenAttempts: campaign?.daysBetweenAttempts
         ? String(campaign.daysBetweenAttempts)
         : '',
