@@ -5,6 +5,10 @@ import { boolean, object, string } from 'yup'
 
 import { Button, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { SwitchField, TextInputField } from '~/components/form'
+import {
+  DefaultCustomSectionDialog,
+  DefaultCustomSectionDialogRef,
+} from '~/components/settings/invoices/DefaultCustomSectionDialog'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { INVOICE_SETTINGS_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -15,7 +19,9 @@ const CreateInvoiceCustomFooter = () => {
   const navigate = useNavigate()
 
   const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
+  const defaultCustomSectionDialogRef = useRef<DefaultCustomSectionDialogRef>(null)
 
+  // TODO: Replace with real data
   const loading = false
 
   const formikProps = useFormik({
@@ -41,6 +47,7 @@ const CreateInvoiceCustomFooter = () => {
     enableReinitialize: true,
     validateOnMount: true,
     onSubmit: async (values) => {
+      // TODO: Implement submit logic
       console.log(values)
     },
   })
@@ -51,7 +58,10 @@ const CreateInvoiceCustomFooter = () => {
 
   const onSubmit = () => {
     if (!!formikProps.values.selected) {
-      console.log('dialog')
+      defaultCustomSectionDialogRef.current?.openDialog({
+        type: 'setDefault',
+        onConfirm: formikProps.submitForm,
+      })
     } else {
       formikProps.submitForm()
     }
@@ -234,6 +244,7 @@ const CreateInvoiceCustomFooter = () => {
         continueText={translate('text_6244277fe0975300fe3fb94c')}
         onContinue={() => navigate(INVOICE_SETTINGS_ROUTE)}
       />
+      <DefaultCustomSectionDialog ref={defaultCustomSectionDialogRef} />
     </>
   )
 }
