@@ -16,7 +16,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import { theme } from '~/styles'
 
-import { Item } from '../form/ComboBox/ComboBoxItem'
+import { Item } from '../../form/ComboBox/ComboBoxItem'
 
 gql`
   query getTaxRatesForEditOrga($limit: Int, $page: Int, $searchTerm: String) {

@@ -15,7 +15,8 @@ const OrganizationInformations = lazyLoad(
     ),
 )
 const InvoiceSettings = lazyLoad(
-  () => import(/* webpackChunkName: 'invoice-settings' */ '~/pages/settings/InvoiceSettings'),
+  () =>
+    import(/* webpackChunkName: 'invoice-settings' */ '~/pages/settings/Invoices/InvoiceSettings'),
 )
 const TaxesSettings = lazyLoad(
   () => import(/* webpackChunkName: 'tax-settings' */ '~/pages/settings/TaxesSettings'),
