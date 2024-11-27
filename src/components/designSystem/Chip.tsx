@@ -1,6 +1,5 @@
 import { ChipOwnProps, Chip as MuiChip } from '@mui/material'
 import { clsx } from 'clsx'
-import styled from 'styled-components'
 
 import { Button } from './Button'
 import { Icon, IconName } from './Icon'
@@ -56,7 +55,7 @@ export const Chip = ({
         },
         className,
       )}
-      icon={icon ? <StyledIcon name={icon} /> : undefined}
+      icon={icon ? <Icon className="!m-0" name={icon} /> : undefined}
       label={
         <Typography variant={variant || 'captionHl'} color={!!error ? 'danger600' : color} noWrap>
           {label}
@@ -87,7 +86,3 @@ export const Chip = ({
     />
   )
 }
-
-const StyledIcon = styled(Icon)`
-  margin: 0px !important;
-`
