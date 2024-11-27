@@ -2,10 +2,10 @@ import { AccordionDetails, AccordionSummary, Accordion as MuiAccordion } from '@
 import { TransitionProps } from '@mui/material/transitions'
 import { useState } from 'react'
 import { ReactNode } from 'react'
-import styled from 'styled-components'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NAV_HEIGHT, theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import { Button } from './Button'
 import { Tooltip } from './Tooltip'
@@ -45,11 +45,11 @@ export const Accordion = ({
   const { translate } = useInternationalization()
 
   return (
-    <StyledAccordion
+    <MuiAccordion
       square
-      className={className}
       id={id}
       expanded={isOpen}
+      className={tw('border border-solid border-grey-400', className)}
       onChange={(_, expanded) => {
         setIsOpen(expanded)
 
@@ -58,8 +58,19 @@ export const Accordion = ({
       TransitionProps={{ unmountOnExit: true, ...transitionProps }}
       {...props}
     >
-      <Summary $size={size}>
+      <AccordionSummary
+        className={tw('h-23 rounded-xl', {
+          'h-18': size === AccordionSizeEnum.medium,
+        })}
+        sx={{
+          '& .MuiAccordionSummary-content': {
+            height: size === AccordionSizeEnum.medium ? NAV_HEIGHT : 92,
+            padding: size === AccordionSizeEnum.medium ? theme.spacing(4) : theme.spacing(8),
+          },
+        }}
+      >
         <Tooltip
+          className="mr-3"
           placement="top-start"
           title={translate(
             isOpen ? 'text_624aa732d6af4e0103d40e61' : 'text_624aa79870f60300a3c4d074',
@@ -74,87 +85,15 @@ export const Accordion = ({
           />
         </Tooltip>
         {summary}
-      </Summary>
-      <Details $size={size} $noContentMargin={noContentMargin}>
+      </AccordionSummary>
+      <AccordionDetails
+        className={tw('flex flex-col p-8 shadow-t', {
+          'p-0': noContentMargin,
+          'p-4': size === AccordionSizeEnum.medium,
+        })}
+      >
         {typeof children === 'function' ? children({ isOpen }) : children}
-      </Details>
-    </StyledAccordion>
+      </AccordionDetails>
+    </MuiAccordion>
   )
 }
-
-const StyledAccordion = styled(MuiAccordion)`
-  border: 1px solid ${theme.palette.grey[400]};
-  border-radius: 12px;
-  overflow: hidden;
-
-  &.MuiAccordion-root.MuiPaper-root {
-    border-radius: 12px;
-    background-color: transparent;
-  }
-  &.MuiAccordion-root {
-    overflow: inherit;
-
-    &:before {
-      height: 0;
-    }
-  }
-
-  .MuiAccordionSummary-content {
-    width: 100%;
-  }
-`
-
-const Summary = styled(AccordionSummary)<{ $size?: AccordionSize }>`
-  && {
-    height: ${({ $size }) => ($size === AccordionSizeEnum.medium ? NAV_HEIGHT : 92)}px;
-    border-radius: 12px;
-
-    &.Mui-expanded {
-      border-radius: 12px 12px 0 0;
-    }
-
-    &.MuiAccordionSummary-root.Mui-focusVisible {
-      background-color: inherit;
-      box-shadow: 0px 0px 0px 4px ${theme.palette.primary[200]};
-      &:hover {
-        background-color: ${theme.palette.grey[100]};
-      }
-    }
-
-    &:hover {
-      background-color: ${theme.palette.grey[100]};
-    }
-
-    &:active {
-      background-color: ${theme.palette.grey[200]};
-    }
-
-    .MuiAccordionSummary-content {
-      display: flex;
-      height: ${({ $size }) => ($size === AccordionSizeEnum.medium ? NAV_HEIGHT : 92)}px;
-      box-sizing: border-box;
-      align-items: center;
-      padding: ${({ $size }) =>
-        $size === AccordionSizeEnum.medium ? theme.spacing(4) : theme.spacing(8)};
-
-      > *:first-child {
-        margin-right: ${theme.spacing(3)};
-      }
-    }
-  }
-`
-
-const Details = styled(AccordionDetails)<{ $size?: AccordionSize; $noContentMargin?: boolean }>`
-  display: flex;
-  flex-direction: column;
-  box-shadow: ${theme.shadows[5]};
-
-  &.MuiAccordionDetails-root {
-    padding: ${({ $size, $noContentMargin }) =>
-      $noContentMargin
-        ? 0
-        : $size === AccordionSizeEnum.medium
-          ? theme.spacing(4)
-          : theme.spacing(8)};
-  }
-`

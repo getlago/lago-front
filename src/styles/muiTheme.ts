@@ -407,7 +407,11 @@ export const theme = createTheme({
     MuiAccordion: {
       styleOverrides: {
         root: {
+          '&::before': {
+            height: 0,
+          },
           '&.MuiPaper-root': {
+            backgroundColor: 'transparent',
             borderRadius: '12px',
           },
           '&.Mui-expanded': {
@@ -416,27 +420,55 @@ export const theme = createTheme({
           '&.MuiPaper-elevation1': {
             boxShadow: 'none',
           },
-          '& .MuiAccordionSummary-content': {
-            margin: '0 !important',
+        },
+      },
+    },
+    MuiAccordionSummary: {
+      styleOverrides: {
+        root: {
+          overflow: 'inherit',
+          minHeight: 'auto',
+          padding: '0',
+          '&::hover': {
+            backgroundColor: palette.grey[100],
           },
-          '& .MuiAccordionSummary-root': {
+          '&::active': {
+            backgroundColor: palette.grey[200],
+          },
+          '&.Mui-expanded': {
             minHeight: 'auto',
-            padding: '0',
+          },
+          '&.Mui-focused': {
             '&.Mui-expanded': {
               minHeight: 'auto',
             },
-            '&.Mui-focused': {
-              '&.Mui-expanded': {
-                minHeight: 'auto',
-              },
-              backgroundColor: 'transparent',
-              boxShadow: `0px 0px 0px 4px ${palette.primary[200]} !important`,
-              borderRadius: '12px',
+            backgroundColor: 'transparent',
+            boxShadow: `0px 0px 0px 4px ${palette.primary[200]} !important`,
+            borderRadius: '12px',
+          },
+          '&.Mui-focusVisible': {
+            backgroundColor: 'inherit',
+            boxShadow: `0px 0px 0px 4px ${palette.primary[200]}`,
+            '&::hover': {
+              backgroundColor: palette.grey[100],
             },
           },
-          '& .MuiAccordionDetails-root': {
-            padding: '0',
-          },
+        },
+        expanded: {
+          borderRadius: '12px 12px 0 0',
+        },
+        content: {
+          width: '100%',
+          margin: '0 !important',
+          display: 'flex',
+          alignItems: 'center',
+        },
+      },
+    },
+    MuiAccordionDetails: {
+      styleOverrides: {
+        root: {
+          padding: '0',
         },
       },
     },
