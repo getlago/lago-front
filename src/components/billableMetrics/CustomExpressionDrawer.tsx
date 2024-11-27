@@ -107,6 +107,7 @@ export const CustomExpressionDrawer = forwardRef<
     const result = wrappedEvaluateExpression(
       formikProps.values.expression,
       formikProps.values.eventPayload,
+      translate,
     )
 
     setValidationResult(result)
