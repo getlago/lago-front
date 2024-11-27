@@ -1,10 +1,18 @@
 import { EventPayload, ValidationResult } from '~/components/billableMetrics/CustomExpressionDrawer'
+import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 import { evaluateExpression, parseExpression } from '../../lago-expression/expression_js'
+
+const REQUIRED_EVENT_FIELDS: Array<keyof EventPayload['event']> = [
+  'code',
+  'timestamp',
+  'properties',
+]
 
 export const wrappedEvaluateExpression = (
   expression: string,
   payload: EventPayload,
+  translate: TranslateFunc,
 ): ValidationResult => {
   try {
     let eventPayload = payload
@@ -12,6 +20,16 @@ export const wrappedEvaluateExpression = (
     if (typeof payload === 'string') {
       eventPayload = JSON.parse(payload)
     }
+
+    REQUIRED_EVENT_FIELDS.forEach((property) => {
+      if (!eventPayload?.event?.[property]) {
+        throw new Error(
+          translate('text_17326923760161haoak0v6km', {
+            property,
+          }),
+        )
+      }
+    })
 
     const res = evaluateExpression(
       parseExpression(expression),
@@ -25,7 +43,7 @@ export const wrappedEvaluateExpression = (
     }
   } catch (e) {
     return {
-      error: e as string,
+      error: String(e),
     }
   }
 }
