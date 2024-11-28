@@ -83,7 +83,8 @@ export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTran
         )}
         <TransactionListWrapper>
           {!!error && !loading ? (
-            <GenericState
+            <GenericPlaceholder
+              className="mx-auto py-6 text-center"
               title={translate('text_62d7ffcb1c57d7e6d15bdce3')}
               subtitle={translate('text_62d7ffcb1c57d7e6d15bdce5')}
               buttonTitle={translate('text_62d7ffcb1c57d7e6d15bdce7')}
@@ -106,7 +107,8 @@ export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTran
               </Loader>
             ))
           ) : !hasData && wallet?.status !== WalletStatusEnum.Terminated ? (
-            <GenericState
+            <GenericPlaceholder
+              className="mx-auto py-6 text-center"
               title={translate('text_62e0ee200a543924c8f67755')}
               subtitle={translate('text_62e0ee200a543924c8f67759')}
               buttonTitle={translate('text_62e0ee200a543924c8f6775d')}
@@ -160,12 +162,6 @@ const TransactionListHeader = styled.div`
 
 const TransactionListWrapper = styled.div`
   box-shadow: ${theme.shadows[7]};
-`
-
-const GenericState = styled(GenericPlaceholder)`
-  padding: ${theme.spacing(6)} 0;
-  margin: 0 auto;
-  text-align: center;
 `
 
 const Loadmore = styled.div`

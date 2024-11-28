@@ -226,7 +226,8 @@ const WebhookLogs = () => {
             </FilterButtonsWrapper>
 
             {!loading && !isLoading && !hasLogs ? (
-              <StyledGenericPlaceholder
+              <GenericPlaceholder
+                className="m-12"
                 title={translate(
                   !!variables?.searchTerm
                     ? 'text_63ebafd12755e50052a86e13'
@@ -448,10 +449,6 @@ const DateHeader = styled.div`
   position: sticky;
   top: 0;
   z-index: 1;
-`
-
-const StyledGenericPlaceholder = styled(GenericPlaceholder)`
-  margin: ${theme.spacing(12)};
 `
 
 const ListContent = styled.div`

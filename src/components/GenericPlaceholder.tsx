@@ -1,7 +1,6 @@
 import { ReactNode } from 'react'
-import styled from 'styled-components'
 
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import { Button, ButtonVariant } from './designSystem/Button'
 import { Typography } from './designSystem/Typography'
@@ -31,44 +30,36 @@ export const GenericPlaceholder = ({
   const hasButton = !!buttonTitle && !!buttonAction
 
   return (
-    <Container className={className} $noMargins={noMargins} {...props}>
+    <div
+      className={tw(
+        'mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3 [&>img]:size-10',
+        {
+          'm-0': noMargins,
+          'p-0': noMargins,
+        },
+        className,
+      )}
+      {...props}
+    >
       {image}
-      {title && <Title variant="subhead">{title}</Title>}
-      <Body $withButton={hasButton}>{subtitle}</Body>
+      {title && (
+        <Typography className="mb-3" variant="subhead">
+          {title}
+        </Typography>
+      )}
+      <Typography
+        className={tw({
+          'mb-5': hasButton,
+        })}
+      >
+        {subtitle}
+      </Typography>
 
       {hasButton && (
         <Button variant={buttonVariant} onClick={buttonAction}>
           {buttonTitle}
         </Button>
       )}
-    </Container>
+    </div>
   )
 }
-
-const Container = styled.div<{ $noMargins?: boolean }>`
-  margin: ${({ $noMargins }) => ($noMargins ? 0 : '0 auto')};
-  padding: ${({ $noMargins }) =>
-    $noMargins ? 0 : `${theme.spacing(12)} ${theme.spacing(4)} ${theme.spacing(4)}`};
-  max-width: 496px;
-
-  img {
-    width: 40px;
-    height: 40px;
-  }
-
-  > *:first-child {
-    margin-bottom: ${theme.spacing(5)};
-  }
-`
-
-const Title = styled(Typography)`
-  && {
-    margin-bottom: ${theme.spacing(3)};
-  }
-`
-
-const Body = styled(Typography)<{ $withButton?: boolean }>`
-  && {
-    margin-bottom: ${({ $withButton }) => ($withButton ? theme.spacing(5) : 0)};
-  }
-`

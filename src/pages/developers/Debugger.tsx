@@ -123,7 +123,8 @@ const Debugger = () => {
               )}
             </Header>
             {!loading && (!data?.events?.collection || !data?.events?.collection.length) ? (
-              <StyledGenericPlaceholder
+              <GenericPlaceholder
+                className="m-12"
                 title={translate('text_6298bd525e359200d5ea002a')}
                 subtitle={translate('text_6298bd525e359200d5ea0036')}
                 image={<EmptyImage width="136" height="104" />}
@@ -328,10 +329,6 @@ const Payload = styled.div`
 
 const ListContent = styled.div`
   margin-bottom: ${theme.spacing(20)};
-`
-
-const StyledGenericPlaceholder = styled(GenericPlaceholder)`
-  margin: ${theme.spacing(12)};
 `
 
 export default Debugger

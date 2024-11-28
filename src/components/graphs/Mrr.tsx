@@ -101,7 +101,8 @@ const Mrr = ({
   return (
     <Wrapper className={className}>
       {!!error ? (
-        <Error
+        <GenericPlaceholder
+          className="m-0 p-0"
           title={translate('text_636d023ce11a9d038819b579')}
           subtitle={translate('text_636d023ce11a9d038819b57b')}
           image={<ErrorImage width="136" height="104" />}
@@ -143,9 +144,4 @@ const Wrapper = styled.div`
   padding: ${theme.spacing(6)} 0;
   box-sizing: border-box;
   background-color: ${theme.palette.common.white};
-`
-
-const Error = styled(GenericPlaceholder)`
-  margin: 0;
-  padding: 0;
 `
