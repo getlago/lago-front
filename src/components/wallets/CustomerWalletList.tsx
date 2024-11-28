@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { Button, InfiniteScroll, Popper, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
@@ -18,7 +17,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { MenuPopper, theme } from '~/styles'
+import { MenuPopper } from '~/styles'
 import { SectionHeader, SideSection } from '~/styles/customer'
 
 import {
@@ -194,11 +193,11 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerW
         </SectionHeader>
 
         {!!loading ? (
-          <WalletList>
+          <div className="flex flex-col gap-4">
             {[1, 2, 3].map((i) => (
               <WalletAccordionSkeleton key={`customer-wallet-skeleton-${i}`} />
             ))}
-          </WalletList>
+          </div>
         ) : !loading && !!hasNoWallet ? (
           <Typography>{translate('text_62d175066d2dbf1d50bc9386')}</Typography>
         ) : (
@@ -213,7 +212,7 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerW
                 })
             }}
           >
-            <WalletList>
+            <div className="flex flex-col gap-4">
               {list.map((wallet) => (
                 <WalletAccordion
                   key={`wallet-${wallet.id}`}
@@ -223,7 +222,7 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerW
                   customerTimezone={customerTimezone}
                 />
               ))}
-            </WalletList>
+            </div>
           </InfiniteScroll>
         )}
 
@@ -243,11 +242,5 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerW
     </>
   )
 }
-
-const WalletList = styled.div`
-  > * {
-    margin-bottom: ${theme.spacing(4)};
-  }
-`
 
 CustomerWalletsList.displayName = 'CustomerWalletsList'
