@@ -258,7 +258,7 @@ const CreateDunning = () => {
                         const key = `thresholds.${index}`
 
                         return (
-                          <div key={key} className="flex flex-1 items-start gap-4">
+                          <div key={key} className="flex flex-1 items-center gap-4">
                             <ComboBoxField
                               className="w-30"
                               name={`${key}.currency`}
