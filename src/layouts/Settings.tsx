@@ -18,6 +18,7 @@ import {
   settingRoutes,
   SETTINGS_ROUTE,
   TAXES_SETTINGS_ROUTE,
+  UPDATE_DUNNING_ROUTE,
   UPDATE_TAX_ROUTE,
 } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -45,7 +46,7 @@ const Settings = () => {
       }
       return acc
     },
-    [CREATE_TAX_ROUTE, UPDATE_TAX_ROUTE, CREATE_DUNNING_ROUTE],
+    [CREATE_TAX_ROUTE, UPDATE_TAX_ROUTE, CREATE_DUNNING_ROUTE, UPDATE_DUNNING_ROUTE],
   )
 
   return (

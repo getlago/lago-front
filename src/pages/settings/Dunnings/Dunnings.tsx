@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useMemo, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { generatePath, useNavigate } from 'react-router-dom'
 
 import {
   Avatar,
@@ -26,9 +26,14 @@ import {
   DefaultCampaignDialog,
   DefaultCampaignDialogRef,
 } from '~/components/settings/dunnings/DefaultCampaignDialog'
-import { addToast } from '~/core/apolloClient'
-import { CREATE_DUNNING_ROUTE } from '~/core/router'
 import {
+  DeleteCampaignDialog,
+  DeleteCampaignDialogRef,
+} from '~/components/settings/dunnings/DeleteCampaignDialog'
+import { addToast } from '~/core/apolloClient'
+import { CREATE_DUNNING_ROUTE, UPDATE_DUNNING_ROUTE } from '~/core/router'
+import {
+  DeleteCampaignFragmentDoc,
   PremiumIntegrationTypeEnum,
   useGetDunningCampaignsQuery,
   useUpdateDunningCampaignStatusMutation,
@@ -54,6 +59,7 @@ gql`
       collection {
         id
         ...DunningCampaignItem
+        ...DeleteCampaign
       }
     }
   }
@@ -64,12 +70,15 @@ gql`
       appliedToOrganization
     }
   }
+
+  ${DeleteCampaignFragmentDoc}
 `
 
 const Dunnings = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const defaultCampaignDialogRef = useRef<DefaultCampaignDialogRef>(null)
+  const deleteCampaignDialogRef = useRef<DeleteCampaignDialogRef>(null)
 
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
 
@@ -244,6 +253,17 @@ const Dunnings = () => {
                       actionColumnTooltip={() => translate('text_17285747264959xu1spelnh9')}
                       actionColumn={(campaign) => {
                         return [
+                          {
+                            startIcon: 'pen',
+                            title: translate('text_17321873136602nzwuvcycbr'),
+                            onAction: () => {
+                              navigate(
+                                generatePath(UPDATE_DUNNING_ROUTE, {
+                                  campaignId: campaign?.id || '',
+                                }),
+                              )
+                            },
+                          },
                           campaign.appliedToOrganization
                             ? {
                                 startIcon: 'star-outlined-hidden',
@@ -283,6 +303,13 @@ const Dunnings = () => {
                                   })
                                 },
                               },
+                          {
+                            startIcon: 'trash',
+                            title: translate('text_1732187313660we30lb9kg57'),
+                            onAction: () => {
+                              deleteCampaignDialogRef.current?.openDialog(campaign)
+                            },
+                          },
                         ]
                       }}
                     />
@@ -295,6 +322,7 @@ const Dunnings = () => {
       </SettingsPaddedContainer>
 
       <DefaultCampaignDialog ref={defaultCampaignDialogRef} />
+      <DeleteCampaignDialog ref={deleteCampaignDialogRef} />
     </>
   )
 }

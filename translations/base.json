@@ -2668,6 +2668,15 @@
   "text_17316853046485zk7ibjnwbb": "Salesforce synchronization successfully triggered.",
   "text_17326262367759e7w9yfbeno": "{{amount}} (excl. tax)",
   "text_17326286491076m81w5uy3el": "Total current usage (excl. tax)",
-  "text_17326923760161haoak0v6km": "Missing \"{{property}}\" from payload"
+  "text_17326923760161haoak0v6km": "Missing \"{{property}}\" from payload",
+  "text_17321873136602nzwuvcycbr": "Edit campaign",
+  "text_1732187313660we30lb9kg57": "Delete campaign",
+  "text_1732187313660tetkzao72e1": "Dunning campaign successfully edited",
+  "text_1732187313660ayamm4mu716": "Dunning campaign successfully deleted",
+  "text_1732187313660ghhrj235mxg": "This campaign can be applied to some customers. Any change you make will be instantly live.",
+  "text_17321873136600ctyqurb2n2": "Delete this dunning campaign",
+  "text_1732187375488dzhyehimjs3": "This default campaign can be applied to some of your customers. Deleting it will immediately stop new attempts from being triggered for them. They will no longer be impacted by a dunning campaign until a new default one is set. \nDo you want to proceed?|This default campaign is currently applied to some of your customers. Deleting it will immediately stop new attempts from being triggered for them. They will no longer be impacted by a dunning campaign until a new default one is set. \nDo you want to proceed?",
+  "text_1732187375488g4igt5sf7kg": "This campaign can be applied applied to some of your customers. Deleting it will immediately stop new attempts from being triggered for them. They will now be impacted by the default dunning campaign, if one is set. \nDo you want to proceed?|This campaign is currently applied to some of your customers. Deleting it will immediately stop new attempts from being triggered for them. They will now be impacted by the default dunning campaign, if one is set. \nDo you want to proceed?",
+  "text_17322041874138xkertqxbqz": "Edit dunning campaign"
 }
 
