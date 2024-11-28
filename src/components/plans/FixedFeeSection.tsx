@@ -6,9 +6,9 @@ import styled from 'styled-components'
 
 import { Accordion, Button, Chip, Icon, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInputField, RadioGroupField, TextInputField } from '~/components/form'
-import { FORM_TYPE_ENUM } from '~/core/constants/form'
+import { FORM_TYPE_ENUM, getIntervalTranslationKey } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
+import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { Card, NAV_HEIGHT, theme } from '~/styles'
 
@@ -34,23 +34,6 @@ interface FixedFeeSectionProps {
   formikProps: FormikProps<PlanFormInput>
   isEdition?: boolean
   isInitiallyOpen?: boolean
-}
-
-const mapIntervalCopy = (interval: string) => {
-  if (interval === PlanInterval.Monthly) {
-    return 'text_624453d52e945301380e49aa'
-  }
-  if (interval === PlanInterval.Yearly) {
-    return 'text_624453d52e945301380e49ac'
-  }
-  if (interval === PlanInterval.Weekly) {
-    return 'text_62b32ec6b0434070791c2d4c'
-  }
-  if (interval === PlanInterval.Quarterly) {
-    return 'text_64d6357b00dea100ad1cb9e9'
-  }
-
-  return ''
 }
 
 export const FixedFeeSection = memo(
@@ -80,7 +63,7 @@ export const FixedFeeSection = memo(
           <Typography variant="subhead">{translate('text_642d5eb2783a2ad10d670336')}</Typography>
           <Typography variant="caption">
             {translate('text_6661fc17337de3591e29e3ed', {
-              interval: translate(mapIntervalCopy(formikProps.values.interval)),
+              interval: translate(getIntervalTranslationKey[formikProps.values.interval]),
             })}
           </Typography>
         </SectionTitle>
@@ -135,7 +118,7 @@ export const FixedFeeSection = memo(
                     )}
                   />
                 )}
-                <Chip label={translate(mapIntervalCopy(formikProps.values.interval))} />
+                <Chip label={translate(getIntervalTranslationKey[formikProps.values.interval])} />
               </BoxHeaderGroupRight>
             </BoxHeader>
           }

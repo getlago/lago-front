@@ -9,6 +9,7 @@ import { Item } from '~/components/form/ComboBox/ComboBoxItem'
 import {
   FORM_ERRORS_ENUM,
   FORM_TYPE_ENUM,
+  getIntervalTranslationKey,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME,
 } from '~/core/constants/form'
@@ -190,19 +191,19 @@ export const PlanSettingsSection = memo(
           formikProps={formikProps}
           options={[
             {
-              label: translate('text_62b32ec6b0434070791c2d4c'),
+              label: translate(getIntervalTranslationKey[PlanInterval.Weekly]),
               value: PlanInterval.Weekly,
             },
             {
-              label: translate('text_624453d52e945301380e49aa'),
+              label: translate(getIntervalTranslationKey[PlanInterval.Monthly]),
               value: PlanInterval.Monthly,
             },
             {
-              label: translate('text_64d6357b00dea100ad1cb9e9'),
+              label: translate(getIntervalTranslationKey[PlanInterval.Quarterly]),
               value: PlanInterval.Quarterly,
             },
             {
-              label: translate('text_624453d52e945301380e49ac'),
+              label: translate(getIntervalTranslationKey[PlanInterval.Yearly]),
               value: PlanInterval.Yearly,
             },
           ]}
