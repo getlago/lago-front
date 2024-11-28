@@ -173,9 +173,10 @@ export const Table = <T extends DataItem>({
     if (hasError) {
       return (
         <TableRow>
-          <TableCell colSpan={colSpan}>
-            <StyledGenericPlaceholder
+          <TableCell $hasPlaceholderDisplayed colSpan={colSpan}>
+            <GenericPlaceholder
               noMargins
+              className="mx-auto py-12 [&>svg]:w-[136px]"
               title={placeholder?.errorState?.title || translate('text_62b31e1f6a5b8b1b745ece48')}
               subtitle={
                 placeholder?.errorState?.subtitle || translate('text_62bb102b66ff57dbfe7905c2')
@@ -193,9 +194,10 @@ export const Table = <T extends DataItem>({
     if (!isLoading && data.length === 0) {
       return (
         <TableRow>
-          <TableCell colSpan={colSpan}>
-            <StyledGenericPlaceholder
+          <TableCell $hasPlaceholderDisplayed colSpan={colSpan}>
+            <GenericPlaceholder
               noMargins
+              className="mx-auto py-12 [&>svg]:w-[136px]"
               title={placeholder?.emptyState?.title || translate('text_62b31e1f6a5b8b1b745ece48')}
               subtitle={
                 placeholder?.emptyState?.subtitle || translate('text_62bb102b66ff57dbfe7905c2')
@@ -349,7 +351,7 @@ const LoadingRows = <T,>({
   return Array.from({ length: LOADING_ROW_COUNT }).map((_, i) => (
     <TableRow key={`${id}-loading-row-${i}`}>
       {columns.map((col, j) => (
-        <TableCell key={`${id}-loading-cell-${i}-${j}`}>
+        <TableCell $hasPlaceholderDisplayed={false} key={`${id}-loading-cell-${i}-${j}`}>
           <TableInnerCell $minWidth={col.minWidth} $align={col.textAlign}>
             <div
               style={{
@@ -430,24 +432,17 @@ const TableInnerCell = styled.div<{
   }};
 `
 
-const StyledGenericPlaceholder = styled(GenericPlaceholder)`
-  margin: 0 auto;
-  padding: ${theme.spacing(12)} 0;
-
-  svg {
-    width: 136px;
-  }
-`
-
 const TableCell = styled(MUITableCell)<{
   $isBlurred?: boolean
+  $hasPlaceholderDisplayed?: boolean
   $maxSpace?: number
 }>`
   width: ${({ $maxSpace }) => ($maxSpace ? `${$maxSpace}%` : 'auto')};
   padding: 0;
   box-sizing: border-box;
   white-space: nowrap;
-  border-bottom: 1px solid ${theme.palette.grey[300]};
+  border-bottom: ${({ $hasPlaceholderDisplayed }) =>
+    $hasPlaceholderDisplayed ? 'none' : `1px solid ${theme.palette.grey[300]}`};
 
   ${TableInnerCell} {
     padding-right: ${PADDING_SPACING_RIGHT_PX}px;
@@ -459,10 +454,6 @@ const TableCell = styled(MUITableCell)<{
 
   &:last-of-type ${TableInnerCell} {
     padding-right: 0;
-  }
-
-  :has(${StyledGenericPlaceholder}) {
-    border-bottom: none;
   }
 `
 

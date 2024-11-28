@@ -168,7 +168,8 @@ const InvoiceOverview = memo(
 
     if (hasError) {
       return (
-        <ErrorPlaceholder
+        <GenericPlaceholder
+          className="pt-12"
           title={translate('text_634812d6f16b31ce5cbf4126')}
           subtitle={translate('text_634812d6f16b31ce5cbf4128')}
           buttonTitle={translate('text_634812d6f16b31ce5cbf412a')}
@@ -583,10 +584,6 @@ const InvoiceOverview = memo(
 )
 
 InvoiceOverview.displayName = 'InvoiceOverview'
-
-const ErrorPlaceholder = styled(GenericPlaceholder)`
-  padding-top: ${theme.spacing(12)};
-`
 
 const SkeletonLine = styled.div`
   display: flex;

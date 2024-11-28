@@ -45,6 +45,7 @@ import {
   TextInputField,
 } from '~/components/form'
 import { AmountInputField } from '~/components/form/AmountInput'
+import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
@@ -55,6 +56,8 @@ import {
   POSSIBLE_TOAST,
   tableData,
 } from '~/pages/__devOnly/fixtures'
+import EmptyImage from '~/public/images/maneki/empty.svg'
+import ErrorImage from '~/public/images/maneki/error.svg'
 import Stripe from '~/public/images/stripe.svg'
 import { MenuPopper, PageHeader, theme } from '~/styles'
 
@@ -460,6 +463,21 @@ const DesignSystem = () => {
                     text="Custom show more with button. Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium praesentium minus necessitatibus. Placeat, ratione ipsam dolor, quas iste obcaecati tenetur esse tempora quidem eveniet iure quasi repellat debitis doloribus? Distinctio iure quisquam ipsam minus dolorum corporis, eligendi iusto. Animi assumenda reprehenderit atque corrupti, a iste illo porro facilis maxime. Quod eaque ratione, ullam tempore blanditiis placeat odit, assumenda labore accusamus libero nostrum qui et architecto inventore atque, veritatis vitae nisi quas veniam sit! Quasi natus, neque sed soluta perspiciatis officiis?"
                     limit={30}
                     showMore={<Button variant="secondary" size="small" icon="plus" />}
+                  />
+                </Block>
+                <Block $marginBottom={theme.spacing(6)}>
+                  <GenericPlaceholder
+                    title="Something went wrong"
+                    subtitle="Please refresh the page or contact us if the error persists."
+                    buttonTitle="Refresh the page"
+                    buttonVariant="primary"
+                    buttonAction={() => location.reload()}
+                    image={<ErrorImage width="136" height="104" />}
+                  />
+                  <GenericPlaceholder
+                    title="This add-on cannot be found"
+                    subtitle="Could you enter another keyword?"
+                    image={<EmptyImage width="136" height="104" />}
                   />
                 </Block>
               </Container>
