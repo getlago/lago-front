@@ -31,7 +31,7 @@ interface SkeletonGenericProps {
   variant: Extract<SkeletonVariant, 'text'>
 }
 
-const textWrapperStyles = cva('flex items-center', {
+const textWrapperStyles = cva('flex w-full items-center', {
   variants: {
     textVariant: {
       headline: 'h-8',
@@ -49,13 +49,13 @@ const textWrapperStyles = cva('flex items-center', {
   },
 })
 
-const skeletonStyles = cva('w-full animate-pulse bg-grey-100', {
+const skeletonStyles = cva('animate-pulse bg-grey-100', {
   variants: {
     size: avatarSizeStyles,
     variant: {
       connectorAvatar: '', // defined in avatarSizeStyles
       userAvatar: '', // defined in avatarSizeStyles
-      text: 'h-3 rounded-3xl',
+      text: 'h-3 w-full rounded-3xl',
       circular: 'rounded-full',
     },
     color: {
@@ -77,7 +77,7 @@ export const Skeleton = ({
 }: SkeletonConnectorProps | SkeletonGenericProps) => {
   return (
     <ConditionalWrapper
-      condition={!!textVariant}
+      condition={!!textVariant && variant === 'text'}
       validWrapper={(children) => (
         <div className={tw(textWrapperStyles({ textVariant }))}>{children}</div>
       )}
