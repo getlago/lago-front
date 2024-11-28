@@ -2,7 +2,7 @@ import { alpha, Dialog as MuiDialog } from '@mui/material'
 import { forwardRef, ReactNode, useEffect, useImperativeHandle, useState } from 'react'
 import styled from 'styled-components'
 
-import { ButtonGroup, theme } from '~/styles'
+import { theme } from '~/styles'
 
 import { Typography } from './Typography'
 
@@ -69,7 +69,9 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
 
           {children && children}
 
-          <StyledButtonGroup>{actions({ closeDialog })}</StyledButtonGroup>
+          <div className="flex flex-col-reverse flex-wrap justify-end gap-3 md:flex-row">
+            {actions({ closeDialog })}
+          </div>
         </StyledDialog>
       </>
     )
@@ -122,17 +124,5 @@ const Title = styled(Typography)<{ $hasDescription?: boolean }>`
 const Description = styled(Typography)`
   && {
     margin-bottom: ${theme.spacing(8)};
-  }
-`
-
-const StyledButtonGroup = styled(ButtonGroup)`
-  && {
-    align-items: initial;
-    justify-content: flex-end;
-
-    ${theme.breakpoints.down('md')} {
-      margin-left: 0;
-      flex-direction: column-reverse;
-    }
   }
 `
