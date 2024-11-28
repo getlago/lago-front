@@ -211,7 +211,7 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
                   <div className="flex flex-col gap-3">
                     {!!isLoading ? (
                       <div className="flex flex-col gap-3">
-                        <Skeleton variant="text" className="" />
+                        <Skeleton variant="text" className="mt-2 w-36" />
 
                         <div className="flex h-6 items-center gap-2">
                           <Skeleton variant="text" className="w-[32%]" />
