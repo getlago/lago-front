@@ -437,6 +437,7 @@ export const theme = createTheme({
           },
           '&.Mui-expanded': {
             minHeight: 'auto',
+            borderRadius: '12px 12px 0 0',
           },
           '&.Mui-focused': {
             '&.Mui-expanded': {
@@ -453,9 +454,6 @@ export const theme = createTheme({
               backgroundColor: palette.grey[100],
             },
           },
-        },
-        expanded: {
-          borderRadius: '12px 12px 0 0',
         },
         content: {
           width: '100%',
