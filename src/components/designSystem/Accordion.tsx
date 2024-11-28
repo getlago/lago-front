@@ -88,7 +88,7 @@ export const Accordion = ({
       </AccordionSummary>
       <AccordionDetails
         className={tw('flex flex-col p-8 shadow-t', {
-          'p-0': noContentMargin,
+          '!p-0': noContentMargin,
           'p-4': size === AccordionSizeEnum.medium,
         })}
       >
