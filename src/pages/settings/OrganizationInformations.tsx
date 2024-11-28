@@ -3,7 +3,7 @@ import { useRef } from 'react'
 
 import { Avatar, Button, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { PageBannerHeader } from '~/components/layouts/Pages'
+import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/Pages'
 import {
   SettingsListItem,
   SettingsListItemHeader,
@@ -101,11 +101,11 @@ const OrganizationInformations = () => {
   }
   return (
     <>
-      <PageBannerHeader>
+      <PageBannerHeaderWithBurgerMenu>
         <Typography variant="bodyHl" color="grey700">
           {translate('text_62ab2d0396dd6b0361614d2c')}
         </Typography>
-      </PageBannerHeader>
+      </PageBannerHeaderWithBurgerMenu>
 
       <SettingsPaddedContainer>
         <SettingsPageHeaderContainer>

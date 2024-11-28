@@ -12,7 +12,7 @@ import {
   Table,
   Typography,
 } from '~/components/designSystem'
-import { PageBannerHeader } from '~/components/layouts/Pages'
+import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/Pages'
 import {
   SettingsListItem,
   SettingsListItemHeader,
@@ -148,11 +148,11 @@ const Members = () => {
 
   return (
     <>
-      <PageBannerHeader>
+      <PageBannerHeaderWithBurgerMenu>
         <Typography variant="bodyHl" color="grey700">
           {translate('text_63208b630aaf8df6bbfb2655')}
         </Typography>
-      </PageBannerHeader>
+      </PageBannerHeaderWithBurgerMenu>
 
       <SettingsPaddedContainer>
         <SettingsPageHeaderContainer>

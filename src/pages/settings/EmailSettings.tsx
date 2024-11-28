@@ -11,7 +11,7 @@ import {
   Typography,
 } from '~/components/designSystem'
 import { Switch } from '~/components/form'
-import { PageBannerHeader } from '~/components/layouts/Pages'
+import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/Pages'
 import {
   SettingsListItem,
   SettingsListItemHeader,
@@ -60,11 +60,11 @@ const EmailSettings = () => {
 
   return (
     <>
-      <PageBannerHeader>
+      <PageBannerHeaderWithBurgerMenu>
         <Typography variant="bodyHl" color="grey700">
           {translate('text_6407684eaf41130074c4b2a1')}
         </Typography>
-      </PageBannerHeader>
+      </PageBannerHeaderWithBurgerMenu>
 
       <SettingsPaddedContainer>
         <SettingsPageHeaderContainer>

@@ -3,7 +3,7 @@ import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import { Avatar, Chip, Selector, Typography } from '~/components/designSystem'
-import { PageBannerHeader } from '~/components/layouts/Pages'
+import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/Pages'
 import {
   SettingsListItem,
   SettingsListItemLoadingSkeleton,
@@ -71,11 +71,11 @@ const Authentication = () => {
 
   return (
     <>
-      <PageBannerHeader>
+      <PageBannerHeaderWithBurgerMenu>
         <Typography variant="bodyHl" color="grey700">
           {translate('text_664c732c264d7eed1c74fd96')}
         </Typography>
-      </PageBannerHeader>
+      </PageBannerHeaderWithBurgerMenu>
 
       <SettingsPaddedContainer>
         <SettingsPageHeaderContainer>

@@ -18,6 +18,9 @@ const InvoicesPage = lazyLoad(
 )
 
 // Creation
+const ApiKeysForm = lazyLoad(
+  () => import(/* webpackChunkName: 'api-keys-form' */ '~/pages/developers/ApiKeysForm'),
+)
 const CreateBillableMetric = lazyLoad(
   () => import(/* webpackChunkName: 'create-billable-metrics' */ '~/pages/CreateBillableMetric'),
 )
@@ -65,6 +68,9 @@ export const INVOICES_ROUTE = '/invoices'
 export const INVOICES_TAB_ROUTE = '/invoices/:tab'
 
 // Creation
+export const CREATE_API_KEYS_ROUTE = `/api-keys/create`
+export const UPDATE_API_KEYS_ROUTE = `/api-keys/:apiKeyId/edit`
+
 export const CREATE_BILLABLE_METRIC_ROUTE = '/create/billable-metrics'
 export const UPDATE_BILLABLE_METRIC_ROUTE = '/update/billable-metric/:billableMetricId'
 
@@ -134,6 +140,12 @@ export const objectListRoutes: CustomRouteObject[] = [
 ]
 
 export const objectCreationRoutes: CustomRouteObject[] = [
+  {
+    path: [CREATE_API_KEYS_ROUTE, UPDATE_API_KEYS_ROUTE],
+    private: true,
+    element: <ApiKeysForm />,
+    permissions: ['developersManage', 'developersKeysManage'],
+  },
   {
     path: [CREATE_ADD_ON_ROUTE, UPDATE_ADD_ON_ROUTE],
     private: true,
