@@ -47,7 +47,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { ButtonGroup, Card, PageHeader, theme } from '~/styles'
+import { Card, PageHeader, theme } from '~/styles'
 import {
   ButtonContainer,
   Content,
@@ -580,26 +580,28 @@ const CreateCoupon = () => {
                         ))}
 
                       {(!isEdition || !coupon?.appliedCouponsCount) && (
-                        <StyledButtonGroup>
-                          <Button
-                            variant="quaternary"
-                            startIcon="plus"
-                            disabled={hasBillableMetricLimit && !hasPlanLimit}
-                            onClick={addPlanToCouponDialogRef.current?.openDialog}
-                            data-test="add-plan-limit"
-                          >
-                            {translate('text_63d3a201113866a7fa5e6f6b')}
-                          </Button>
-                          <Button
-                            variant="quaternary"
-                            startIcon="plus"
-                            disabled={hasPlanLimit && !hasBillableMetricLimit}
-                            onClick={addBillableMetricToCouponDialogRef.current?.openDialog}
-                            data-test="add-billable-metric-limit"
-                          >
-                            {translate('text_64352657267c3d916f9627bc')}
-                          </Button>
-                        </StyledButtonGroup>
+                        <>
+                          <div className="flex flex-row flex-wrap gap-3">
+                            <Button
+                              variant="quaternary"
+                              startIcon="plus"
+                              disabled={hasBillableMetricLimit && !hasPlanLimit}
+                              onClick={addPlanToCouponDialogRef.current?.openDialog}
+                              data-test="add-plan-limit"
+                            >
+                              {translate('text_63d3a201113866a7fa5e6f6b')}
+                            </Button>
+                            <Button
+                              variant="quaternary"
+                              startIcon="plus"
+                              disabled={hasPlanLimit && !hasBillableMetricLimit}
+                              onClick={addBillableMetricToCouponDialogRef.current?.openDialog}
+                              data-test="add-billable-metric-limit"
+                            >
+                              {translate('text_64352657267c3d916f9627bc')}
+                            </Button>
+                          </div>
+                        </>
                       )}
                     </>
                   )}
@@ -726,13 +728,6 @@ const PlanLeftBlockInfos = styled.div`
   margin-left: ${theme.spacing(3)};
   display: flex;
   flex-direction: column;
-`
-
-const StyledButtonGroup = styled(ButtonGroup)`
-  && {
-    margin-left: auto;
-    align-items: initial;
-  }
 `
 
 export default CreateCoupon

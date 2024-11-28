@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components'
 
 import { Icon, Tooltip, Typography } from '~/components/designSystem'
-import { ButtonGroup, theme } from '~/styles'
+import { theme } from '~/styles'
 
 import { TabButton } from './TabButton'
 
@@ -58,7 +58,7 @@ export const ButtonSelector = ({
           <Typography variant="caption">{description}</Typography>
         </Description>
       )}
-      <ButtonGroup>
+      <div className="flex flex-row flex-wrap items-center gap-3">
         {options.map(({ value: optionValue, label: optionLabel, disabled: optionDisabled }) => {
           return (
             <TabButton
@@ -71,7 +71,7 @@ export const ButtonSelector = ({
             />
           )
         })}
-      </ButtonGroup>
+      </div>
       {(!!error || !!helperText) && (
         <StyledTypography variant="caption" color={error ? 'danger600' : 'textPrimary'}>
           {error || helperText}
