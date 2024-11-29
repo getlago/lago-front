@@ -303,7 +303,7 @@ const Invoices = ({
             <GraphWrapper>
               {!!isLoading ? (
                 <>
-                  <Skeleton variant="text" className="" />
+                  <Skeleton variant="text" />
 
                   <div>
                     {[...Array(3)].map((_, index) => (

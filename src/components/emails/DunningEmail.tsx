@@ -60,7 +60,7 @@ export const DunningEmailSkeleton = () => {
   return (
     <>
       <Skeleton variant="text" color="dark" className="w-26" />
-      <Skeleton variant="text" color="dark" className="" />
+      <Skeleton variant="text" color="dark" />
       <Skeleton variant="text" color="dark" className="w-40" />
     </>
   )
