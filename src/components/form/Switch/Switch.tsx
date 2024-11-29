@@ -196,7 +196,7 @@ const SwitchContainer = styled.div<{ $checked: boolean }>`
   align-items: center;
   padding: 0 ${theme.spacing(1)};
 
-  :not(.switchField--disabled):not(.switchField--loading) {
+  &:not(.switchField--disabled):not(.switchField--loading) {
     cursor: pointer;
     background-color: ${(props) =>
       props.$checked ? theme.palette.primary.main : theme.palette.grey[200]};
