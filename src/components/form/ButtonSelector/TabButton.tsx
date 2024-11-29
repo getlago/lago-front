@@ -106,7 +106,7 @@ const Container = styled.button<{ $active: boolean }>`
   ${({ $active }) =>
     !$active &&
     css`
-      :hover:not(:disabled) {
+      &:hover:not(:disabled) {
         background-color: ${theme.palette.grey[200]};
         color: ${theme.palette.text.primary};
       }
