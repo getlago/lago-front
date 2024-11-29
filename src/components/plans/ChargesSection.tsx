@@ -4,7 +4,7 @@ import { FormikProps } from 'formik'
 import { memo, RefObject, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 
-import { Button, Popper, Tooltip, Typography } from '~/components/designSystem'
+import { Button, Card, Popper, Tooltip, Typography } from '~/components/designSystem'
 import { ComboBox, SwitchField } from '~/components/form'
 import { Item } from '~/components/form/ComboBox/ComboBoxItem'
 import {
@@ -22,7 +22,7 @@ import {
   useGetRecurringBillableMetricsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Card, MenuPopper, theme } from '~/styles'
+import { MenuPopper, theme } from '~/styles'
 
 import { ChargeAccordion } from './ChargeAccordion'
 import {
@@ -221,7 +221,7 @@ export const ChargesSection = memo(
 
     return (
       <>
-        <Card $childSpacing={8}>
+        <Card className="gap-8">
           <SectionTitle>
             <Stack gap={2}>
               <Typography variant="subhead">

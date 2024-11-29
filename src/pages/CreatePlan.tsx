@@ -4,7 +4,7 @@ import { useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Button, Skeleton, Typography } from '~/components/designSystem'
+import { Button, Card, Skeleton, Typography } from '~/components/designSystem'
 import {
   EditInvoiceDisplayName,
   EditInvoiceDisplayNameRef,
@@ -39,7 +39,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
-import { Card, NAV_HEIGHT, PageHeader, theme } from '~/styles'
+import { NAV_HEIGHT, PageHeader, theme } from '~/styles'
 import { Content, Main, MAIN_PADDING, Side, SkeletonHeader } from '~/styles/mainObjectsForm'
 
 import { PlanDetailsTabsOptionsEnum } from './PlanDetails'
@@ -201,8 +201,8 @@ const CreatePlan = () => {
 
                 {[0, 1, 2].map((skeletonCard) => (
                   <Card key={`skeleton-${skeletonCard}`}>
-                    <Skeleton variant="text" className="mb-9 w-70" />
-                    <Skeleton variant="text" className="mb-4" />
+                    <Skeleton variant="text" className="w-70" />
+                    <Skeleton variant="text" />
                     <Skeleton variant="text" className="w-30" />
                   </Card>
                 ))}
@@ -265,7 +265,7 @@ const CreatePlan = () => {
                     </Typography>
                   </SectionTitle>
 
-                  <Card $childSpacing={8}>
+                  <Card className="gap-8">
                     <ProgressiveBillingSection formikProps={formikProps} />
                     <CommitmentsSection
                       formikProps={formikProps}

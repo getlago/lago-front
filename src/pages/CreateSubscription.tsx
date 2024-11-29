@@ -18,6 +18,7 @@ import {
   Alert,
   Avatar,
   Button,
+  Card,
   Icon,
   Selector,
   SELECTOR_HEIGHT,
@@ -71,7 +72,7 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
 import ThinkingManeki from '~/public/images/maneki/thinking.svg'
-import { BREAKPOINT_LG, Card, NAV_HEIGHT, PageHeader, theme } from '~/styles'
+import { BREAKPOINT_LG, NAV_HEIGHT, PageHeader, theme } from '~/styles'
 
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from './SubscriptionDetails'
 
@@ -764,7 +765,7 @@ const CreateSubscription = () => {
                 </SectionWrapper>
 
                 {!isPremium ? (
-                  <FreemiumCard>
+                  <Card className="flex-row items-center justify-between gap-3">
                     <FreemiumCardLeft>
                       <FreemiumCardLeftTitleContainer>
                         <Icon name="sparkles" />
@@ -784,7 +785,7 @@ const CreateSubscription = () => {
                     >
                       {translate('text_65118a52df984447c18694d0')}
                     </Button>
-                  </FreemiumCard>
+                  </Card>
                 ) : formType !== FORM_TYPE_ENUM.edition || !subscription?.plan.parent?.id ? (
                   <OverridePlanSeparatorTypography noWrap variant="captionHl" color="grey500">
                     {translate('text_65118a52df984447c18694d0')}
@@ -845,7 +846,7 @@ const CreateSubscription = () => {
                         {translate('text_66676ed0d8c3d481637e99b7')}
                       </Typography>
                     </SectionTitle>
-                    <Card $childSpacing={8}>
+                    <Card className="gap-8">
                       <ProgressiveBillingSection
                         formikProps={planFormikProps}
                         isInSubscriptionForm={isInSubscriptionForm}
@@ -1000,18 +1001,6 @@ const ResponsiveButtonWrapper = styled.div`
   height: fit-content;
   background-color: ${theme.palette.common.white};
   padding: ${theme.spacing(3)} ${theme.spacing(12)};
-`
-
-const FreemiumCard = styled(Card)`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-
-  /* Reset <Card> style */
-  > * {
-    margin-bottom: 0 !important;
-  }
 `
 
 const FreemiumCardLeft = styled.div`

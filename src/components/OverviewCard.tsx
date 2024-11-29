@@ -1,7 +1,6 @@
 import { FC } from 'react'
 
-import { Icon, Skeleton, Tooltip, Typography } from '~/components/designSystem'
-import { Card } from '~/styles'
+import { Card, Icon, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 
 interface OverviewCardProps {
   title: string
@@ -21,7 +20,7 @@ export const OverviewCard: FC<OverviewCardProps> = ({
   isLoading,
 }) => {
   return (
-    <Card $padding={6} $flexItem $childSpacing={4}>
+    <Card className="flex-1 gap-4 p-6">
       {isLoading ? (
         <div className="h-22">
           <Skeleton className="mb-8 w-22" variant="text" />
@@ -32,7 +31,7 @@ export const OverviewCard: FC<OverviewCardProps> = ({
         </div>
       ) : (
         <>
-          <div className="mb-4 flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <Typography variant="captionHl">{title}</Typography>
             {tooltipContent && (
               <Tooltip className="flex h-5 items-end" placement="top-start" title={tooltipContent}>

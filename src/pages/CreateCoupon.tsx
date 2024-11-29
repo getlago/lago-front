@@ -19,6 +19,7 @@ import {
   Alert,
   Avatar,
   Button,
+  Card,
   Icon,
   Skeleton,
   Tooltip,
@@ -47,7 +48,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { Card, PageHeader, theme } from '~/styles'
+import { PageHeader, theme } from '~/styles'
 import {
   ButtonContainer,
   Content,
@@ -245,8 +246,8 @@ const CreateCoupon = () => {
 
                 {[0, 1].map((skeletonCard) => (
                   <Card key={`skeleton-${skeletonCard}`}>
-                    <Skeleton variant="text" className="mb-9 w-70" />
-                    <Skeleton variant="text" className="mb-4" />
+                    <Skeleton variant="text" className="w-70" />
+                    <Skeleton variant="text" />
                     <Skeleton variant="text" className="w-30" />
                   </Card>
                 ))}
@@ -314,6 +315,7 @@ const CreateCoupon = () => {
                     </InlineDescription>
                   ) : (
                     <Button
+                      className="self-start"
                       startIcon="plus"
                       variant="quaternary"
                       onClick={() => setShouldDisplayDescription(true)}
@@ -435,7 +437,7 @@ const CreateCoupon = () => {
                     )}
                 </Card>
 
-                <LimitationCard $disableChildSpacing>
+                <Card className="gap-3">
                   <Typography variant="subhead">
                     {translate('text_63c83d58e697e8e9236da806')}
                   </Typography>
@@ -605,7 +607,7 @@ const CreateCoupon = () => {
                       )}
                     </>
                   )}
-                </LimitationCard>
+                </Card>
 
                 <ButtonContainer>
                   <Button
@@ -698,12 +700,6 @@ const TextArea = styled(TextInputField)`
 
 const CloseDescriptionTooltip = styled(Tooltip)`
   margin-top: ${theme.spacing(6)};
-`
-
-const LimitationCard = styled(Card)`
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(3)};
-  }
 `
 
 const StyledPlanLimitCheckbox = styled(Checkbox)`

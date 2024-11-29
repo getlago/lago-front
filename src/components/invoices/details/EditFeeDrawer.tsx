@@ -5,7 +5,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 import styled from 'styled-components'
 import { number, object, string } from 'yup'
 
-import { Alert, Button, Drawer, DrawerRef, Typography } from '~/components/designSystem'
+import { Alert, Button, Card, Drawer, DrawerRef, Typography } from '~/components/designSystem'
 import { AmountInputField, ComboBoxField, TextInputField } from '~/components/form'
 import { chargeModelLookupTranslation } from '~/core/constants/form'
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
@@ -18,7 +18,7 @@ import {
   useCreateAdjustedFeeMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Card, DrawerContent, DrawerSubmitButton, DrawerTitle, theme } from '~/styles'
+import { DrawerContent, DrawerSubmitButton, DrawerTitle, theme } from '~/styles'
 
 import { InvoiceWrapper } from './InvoiceDetailsTable'
 import { InvoiceDetailsTableBodyLine } from './InvoiceDetailsTableBodyLine'

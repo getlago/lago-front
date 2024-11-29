@@ -3,7 +3,7 @@ import { FormikProps } from 'formik'
 import { memo, useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
-import { Button, Chip, Tooltip, Typography } from '~/components/designSystem'
+import { Button, Card, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { ButtonSelectorField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
 import { Item } from '~/components/form/ComboBox/ComboBoxItem'
 import {
@@ -16,7 +16,7 @@ import {
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, PlanInterval, useGetTaxesForPlanLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Card, theme } from '~/styles'
+import { theme } from '~/styles'
 
 import { PlanFormInput } from './types'
 
@@ -286,6 +286,7 @@ export const PlanSettingsSection = memo(
           </div>
         ) : (
           <Button
+            className="self-start"
             startIcon="plus"
             variant="quaternary"
             onClick={() => {

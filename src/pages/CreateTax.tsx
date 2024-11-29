@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { number, object, string } from 'yup'
 
-import { Button, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { Button, Card, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { TaxCodeSnippet } from '~/components/taxes/TaxCodeSnippet'
 import { TaxFormInput } from '~/components/taxes/types'
@@ -12,7 +12,7 @@ import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditTax } from '~/hooks/useCreateEditTax'
-import { Card, PageHeader, theme } from '~/styles'
+import { PageHeader, theme } from '~/styles'
 import {
   ButtonContainer,
   Content,
@@ -97,8 +97,8 @@ const CreateTaxRate = () => {
 
                 {[0, 1, 2].map((skeletonCard) => (
                   <Card key={`skeleton-${skeletonCard}`}>
-                    <Skeleton variant="text" className="mb-9 w-70" />
-                    <Skeleton variant="text" className="mb-4" />
+                    <Skeleton variant="text" className="w-70" />
+                    <Skeleton variant="text" />
                     <Skeleton variant="text" className="w-30" />
                   </Card>
                 ))}
@@ -171,6 +171,7 @@ const CreateTaxRate = () => {
                     </InlineDescription>
                   ) : (
                     <Button
+                      className="self-start"
                       startIcon="plus"
                       variant="quaternary"
                       onClick={() => setShouldDisplayDescription(true)}
