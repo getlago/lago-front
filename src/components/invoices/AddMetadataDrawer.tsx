@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { FieldWithPossiblyUndefined } from 'lodash'
 import _get from 'lodash/get'
 import React, { forwardRef, RefObject } from 'react'
 import styled, { css } from 'styled-components'
@@ -119,20 +118,14 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
                 </MetadataGrid>
                 <MetadataGrid>
                   {formikProps?.values?.metadata?.map((m, i) => {
-                    const metadataItemKeyError: FieldWithPossiblyUndefined<
-                      string | undefined,
-                      `${number}`
-                    > = _get(formikProps.errors, `metadata.${i}.key`)
-                    const metadataItemValueError: FieldWithPossiblyUndefined<
-                      string | undefined,
-                      `${number}`
-                    > = _get(formikProps.errors, `metadata.${i}.value`)
-                    const hasCustomKeyError = Object.keys(MetadataErrorsEnum).includes(
-                      metadataItemKeyError || '',
-                    )
-                    const hasCustomValueError = Object.keys(MetadataErrorsEnum).includes(
-                      metadataItemValueError || '',
-                    )
+                    const metadataItemKeyError: string =
+                      _get(formikProps.errors, `metadata.${i}.key`) || ''
+                    const metadataItemValueError: string =
+                      _get(formikProps.errors, `metadata.${i}.value`) || ''
+                    const hasCustomKeyError =
+                      Object.keys(MetadataErrorsEnum).includes(metadataItemKeyError)
+                    const hasCustomValueError =
+                      Object.keys(MetadataErrorsEnum).includes(metadataItemValueError)
 
                     return (
                       <React.Fragment key={`metadata-item-${m.id || i}`}>

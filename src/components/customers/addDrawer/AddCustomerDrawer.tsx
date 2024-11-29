@@ -1,6 +1,5 @@
 import { Grid } from '@mui/material'
 import { useFormik } from 'formik'
-import { FieldWithPossiblyUndefined } from 'lodash'
 import _get from 'lodash/get'
 import React, {
   forwardRef,
@@ -592,20 +591,14 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
                 </MetadataGrid>
                 <MetadataGrid>
                   {formikProps?.values?.metadata?.map((m: LocalCustomerMetadata, i) => {
-                    const metadataItemKeyError: FieldWithPossiblyUndefined<
-                      string | undefined,
-                      `${number}`
-                    > = _get(formikProps.errors, `metadata.${i}.key`)
-                    const metadataItemValueError: FieldWithPossiblyUndefined<
-                      string | undefined,
-                      `${number}`
-                    > = _get(formikProps.errors, `metadata.${i}.value`)
-                    const hasCustomKeyError = Object.keys(MetadataErrorsEnum).includes(
-                      metadataItemKeyError || '',
-                    )
-                    const hasCustomValueError = Object.keys(MetadataErrorsEnum).includes(
-                      metadataItemValueError || '',
-                    )
+                    const metadataItemKeyError: string =
+                      _get(formikProps.errors, `metadata.${i}.key`) || ''
+                    const metadataItemValueError: string =
+                      _get(formikProps.errors, `metadata.${i}.value`) || ''
+                    const hasCustomKeyError =
+                      Object.keys(MetadataErrorsEnum).includes(metadataItemKeyError)
+                    const hasCustomValueError =
+                      Object.keys(MetadataErrorsEnum).includes(metadataItemValueError)
 
                     return (
                       <React.Fragment key={`metadata-item-${m.id || m.localId || i}`}>
