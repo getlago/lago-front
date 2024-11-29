@@ -1,7 +1,7 @@
+import { evaluateExpression, parseExpression } from 'lago-expression'
+
 import { EventPayload, ValidationResult } from '~/components/billableMetrics/CustomExpressionDrawer'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
-
-import { evaluateExpression, parseExpression } from '../../lago-expression/expression_js'
 
 const REQUIRED_EVENT_FIELDS: Array<keyof EventPayload['event']> = [
   'code',
