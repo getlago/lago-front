@@ -20,6 +20,7 @@ import {
   ALL_FILTER_VALUES,
   FORM_TYPE_ENUM,
   getChargeModelHelpTextTranslationKey,
+  getIntervalTranslationKey,
   MUI_BUTTON_BASE_ROOT_CLASSNAME,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME,
@@ -144,16 +145,14 @@ gql`
 `
 
 export const mapChargeIntervalCopy = (interval: string, forceMonthlyCharge: boolean): string => {
-  if (forceMonthlyCharge) {
-    return 'text_624453d52e945301380e49aa'
-  } else if (interval === PlanInterval.Monthly) {
-    return 'text_624453d52e945301380e49aa'
+  if (forceMonthlyCharge || interval === PlanInterval.Monthly) {
+    return getIntervalTranslationKey[PlanInterval.Monthly]
   } else if (interval === PlanInterval.Yearly) {
-    return 'text_624453d52e945301380e49ac'
+    return getIntervalTranslationKey[PlanInterval.Yearly]
   } else if (interval === PlanInterval.Quarterly) {
-    return 'text_64d6357b00dea100ad1cb9e9'
+    return getIntervalTranslationKey[PlanInterval.Quarterly]
   } else if (interval === PlanInterval.Weekly) {
-    return 'text_62b32ec6b0434070791c2d4c'
+    return getIntervalTranslationKey[PlanInterval.Weekly]
   }
 
   return ''

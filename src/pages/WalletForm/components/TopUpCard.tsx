@@ -17,7 +17,7 @@ import {
 } from '~/components/form'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { getWordingForWalletCreationAlert } from '~/components/wallets/utils'
-import { FORM_TYPE_ENUM } from '~/core/constants/form'
+import { FORM_TYPE_ENUM, getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   CurrencyEnum,
@@ -424,19 +424,27 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                         placeholder={translate('text_6560c252c4f33631aff1ab27')}
                         data={[
                           {
-                            label: translate('text_62b32ec6b0434070791c2d4c'),
+                            label: translate(
+                              getIntervalTranslationKey[RecurringTransactionIntervalEnum.Weekly],
+                            ),
                             value: RecurringTransactionIntervalEnum.Weekly,
                           },
                           {
-                            label: translate('text_624453d52e945301380e49aa'),
+                            label: translate(
+                              getIntervalTranslationKey[RecurringTransactionIntervalEnum.Monthly],
+                            ),
                             value: RecurringTransactionIntervalEnum.Monthly,
                           },
                           {
-                            label: translate('text_64d6357b00dea100ad1cb9e9'),
+                            label: translate(
+                              getIntervalTranslationKey[RecurringTransactionIntervalEnum.Quarterly],
+                            ),
                             value: RecurringTransactionIntervalEnum.Quarterly,
                           },
                           {
-                            label: translate('text_624453d52e945301380e49ac'),
+                            label: translate(
+                              getIntervalTranslationKey[RecurringTransactionIntervalEnum.Yearly],
+                            ),
                             value: RecurringTransactionIntervalEnum.Yearly,
                           },
                         ]}
