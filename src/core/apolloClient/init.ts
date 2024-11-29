@@ -65,8 +65,9 @@ export const initializeApolloClient = async () => {
       silentErrorCodes.push(...AUTH_ERRORS, LagoApiError.Forbidden)
 
       if (graphQLErrors) {
-        // @ts-expect-error
-        graphQLErrors.forEach(({ message, locations, path, extensions }: LagoGQLError) => {
+        graphQLErrors.forEach((value) => {
+          const { message, path, locations, extensions } = value as LagoGQLError
+
           const isUnauthorized = extensions && AUTH_ERRORS.includes(extensions?.code)
 
           if (isUnauthorized && globalApolloClient) {
@@ -100,11 +101,10 @@ export const initializeApolloClient = async () => {
         console.warn(`[Network error]: ${JSON.stringify(networkError)}`)
       }
     }),
-    // afterwareLink.concat(
+
     createUploadLink({
       uri: `${apiUrl}/graphql`,
     }) as unknown as ApolloLink,
-    // ),
   ]
 
   await persistCache({
