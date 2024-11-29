@@ -429,10 +429,10 @@ export const theme = createTheme({
           overflow: 'inherit',
           minHeight: 'auto',
           padding: '0',
-          '&::hover': {
+          '&:hover': {
             backgroundColor: palette.grey[100],
           },
-          '&::active': {
+          '&:active': {
             backgroundColor: palette.grey[200],
           },
           '&.Mui-expanded': {
@@ -450,7 +450,7 @@ export const theme = createTheme({
           '&.Mui-focusVisible': {
             backgroundColor: 'inherit',
             boxShadow: `0px 0px 0px 4px ${palette.primary[200]}`,
-            '&::hover': {
+            '&:hover': {
               backgroundColor: palette.grey[100],
             },
           },
