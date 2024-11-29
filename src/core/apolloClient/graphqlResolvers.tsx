@@ -54,6 +54,30 @@ export const typeDefs = gql`
     taxDateTooFarInFuture
     taxDateTooFarInPast
   }
+
+  enum ApiKeysPermissionsEnum {
+    add_on
+    analytic
+    applied_coupon
+    billable_metric
+    coupon
+    credit_note
+    customer
+    customer_usage
+    event
+    fee
+    invoice
+    lifetime_usage
+    organization
+    payment_request
+    plan
+    subscription
+    tax
+    wallet
+    wallet_transaction
+    webhook_endpoint
+    webhook_jwt_public_key
+  }
 `
 
 export const resolvers = {}

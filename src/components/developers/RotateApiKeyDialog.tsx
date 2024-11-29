@@ -194,7 +194,7 @@ export const RotateApiKeyDialog = forwardRef<
               formikProps={formikProps}
             />
             {!isPremium && (
-              <div className="flex w-full flex-row justify-between gap-2 rounded-xl bg-grey-100 px-6 py-4">
+              <div className="flex w-full flex-row items-center justify-between gap-2 rounded-xl bg-grey-100 px-6 py-4">
                 <div className="flex flex-col">
                   <div className="flex flex-row items-center gap-2">
                     <Typography variant="bodyHl" color="grey700">
