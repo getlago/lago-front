@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import {
+  Chip,
   InfiniteScroll,
   QuickFilters,
   Status,
@@ -329,6 +330,14 @@ const InvoicesList = ({
                     </Tooltip>
                   )
                 },
+              },
+              {
+                key: 'paymentOverdue',
+                title: translate('text_666c5b12fea4aa1e1b26bf55'),
+                content: ({ paymentOverdue }) =>
+                  paymentOverdue && (
+                    <Chip error={true} label={translate('text_666c5b12fea4aa1e1b26bf55')} />
+                  ),
               },
               {
                 key: 'customer.name',
