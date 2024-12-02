@@ -5,7 +5,7 @@ import React, { forwardRef, RefObject } from 'react'
 import styled, { css } from 'styled-components'
 import { object } from 'yup'
 
-import { Button, Drawer, DrawerRef, Tooltip, Typography } from '~/components/designSystem'
+import { Button, Card, Drawer, DrawerRef, Tooltip, Typography } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { MetadataErrorsEnum, metadataSchema } from '~/formValidation/metadataSchema'
@@ -15,7 +15,7 @@ import {
   useUpdateInvoiceMetadataMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Card, DrawerContent, DrawerSubmitButton, DrawerTitle, theme } from '~/styles'
+import { DrawerContent, DrawerSubmitButton, DrawerTitle, theme } from '~/styles'
 
 const MAX_METADATA_COUNT = 5
 const METADATA_VALUE_MAX_LENGTH = 255
@@ -103,7 +103,7 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
             <Typography>{translate('text_6405cac5c833dcf18cacff38')}</Typography>
           </DrawerTitle>
 
-          <Card>
+          <Card className="items-start">
             <Typography variant="subhead">{translate('text_6405cac5c833dcf18cacff3e')}</Typography>
 
             {!!formikProps?.values?.metadata?.length && (

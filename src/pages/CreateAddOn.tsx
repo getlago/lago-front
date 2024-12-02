@@ -6,7 +6,7 @@ import styled from 'styled-components'
 import { number, object, string } from 'yup'
 
 import { AddOnFormInput } from '~/components/addOns/types'
-import { Button, Chip, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { Button, Card, Chip, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInputField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
 import { Item } from '~/components/form/ComboBox/ComboBoxItem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
@@ -26,12 +26,10 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditAddOn } from '~/hooks/useCreateEditAddOn'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { Card, PageHeader, theme } from '~/styles'
+import { PageHeader, theme } from '~/styles'
 import {
   ButtonContainer,
   Content,
-  Line,
-  LineAmount,
   Main,
   Side,
   SkeletonHeader,
@@ -176,10 +174,10 @@ const CreateAddOn = () => {
                   <Skeleton variant="text" className="w-30" />
                 </SkeletonHeader>
 
-                {[0, 1, 2].map((skeletonCard) => (
+                {[0, 1].map((skeletonCard) => (
                   <Card key={`skeleton-${skeletonCard}`}>
-                    <Skeleton variant="text" className="mb-9 w-70" />
-                    <Skeleton variant="text" className="mb-4" />
+                    <Skeleton variant="text" className="w-70" />
+                    <Skeleton variant="text" />
                     <Skeleton variant="text" className="w-30" />
                   </Card>
                 ))}
@@ -198,13 +196,15 @@ const CreateAddOn = () => {
                     )}
                   </Subtitle>
                 </div>
-                <Card>
-                  <SectionTitle variant="subhead">
-                    {translate('text_629728388c4d2300e2d38079')}
-                  </SectionTitle>
 
-                  <Line>
+                <Card>
+                  <Typography variant="subhead">
+                    {translate('text_629728388c4d2300e2d38079')}
+                  </Typography>
+
+                  <div className="flex flex-wrap gap-3">
                     <TextInputField
+                      className="min-w-[110px] flex-1"
                       name="name"
                       label={translate('text_629728388c4d2300e2d38091')}
                       placeholder={translate('text_629728388c4d2300e2d380a5')}
@@ -213,6 +213,7 @@ const CreateAddOn = () => {
                       formikProps={formikProps}
                     />
                     <TextInputField
+                      className="min-w-[110px] flex-1"
                       name="code"
                       beforeChangeFormatter="code"
                       label={translate('text_629728388c4d2300e2d380b7')}
@@ -220,10 +221,10 @@ const CreateAddOn = () => {
                       formikProps={formikProps}
                       infoText={translate('text_629778b2a517d100c19bc524')}
                     />
-                  </Line>
+                  </div>
 
                   {shouldDisplayDescription ? (
-                    <InlineDescription>
+                    <div className="flex items-center">
                       <TextArea
                         multiline
                         name="description"
@@ -245,9 +246,10 @@ const CreateAddOn = () => {
                           }}
                         />
                       </CloseDescriptionTooltip>
-                    </InlineDescription>
+                    </div>
                   ) : (
                     <Button
+                      className="self-start"
                       startIcon="plus"
                       variant="quaternary"
                       onClick={() => setShouldDisplayDescription(true)}
@@ -257,13 +259,15 @@ const CreateAddOn = () => {
                     </Button>
                   )}
                 </Card>
-                <Card>
-                  <SectionTitle variant="subhead">
-                    {translate('text_629728388c4d2300e2d38117')}
-                  </SectionTitle>
 
-                  <LineAmount>
+                <Card>
+                  <Typography variant="subhead">
+                    {translate('text_629728388c4d2300e2d38117')}
+                  </Typography>
+
+                  <div className="flex flex-row items-end gap-3">
                     <AmountInputField
+                      className="flex-1"
                       name="amountCents"
                       currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
                       beforeChangeFormatter={['positiveNumber']}
@@ -271,6 +275,7 @@ const CreateAddOn = () => {
                       formikProps={formikProps}
                     />
                     <ComboBoxField
+                      className="max-w-30"
                       name="amountCurrency"
                       data={Object.values(CurrencyEnum).map((currencyType) => ({
                         value: currencyType,
@@ -278,7 +283,7 @@ const CreateAddOn = () => {
                       disableClearable
                       formikProps={formikProps}
                     />
-                  </LineAmount>
+                  </div>
 
                   {!!formikProps?.values?.taxes?.length && (
                     <div>
@@ -349,6 +354,7 @@ const CreateAddOn = () => {
                     </div>
                   ) : (
                     <Button
+                      className="self-start"
                       startIcon="plus"
                       variant="quaternary"
                       onClick={() => {
@@ -404,10 +410,6 @@ const CreateAddOn = () => {
   )
 }
 
-const SectionTitle = styled(Typography)`
-  margin-bottom: ${theme.spacing(6)};
-`
-
 const TextArea = styled(TextInputField)`
   flex: 1;
   margin-right: ${theme.spacing(3)};
@@ -415,11 +417,6 @@ const TextArea = styled(TextInputField)`
 
 const CloseDescriptionTooltip = styled(Tooltip)`
   margin-top: ${theme.spacing(6)};
-`
-
-const InlineDescription = styled.div`
-  display: flex;
-  align-items: center;
 `
 
 const TaxLabel = styled(Typography)`

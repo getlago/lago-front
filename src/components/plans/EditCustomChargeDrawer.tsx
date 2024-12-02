@@ -2,11 +2,11 @@ import { useFormik } from 'formik'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { object } from 'yup'
 
-import { Button, Drawer, DrawerRef, Typography } from '~/components/designSystem'
+import { Button, Card, Drawer, DrawerRef, Typography } from '~/components/designSystem'
 import { JsonEditor } from '~/components/form'
 import { customShape } from '~/formValidation/chargeSchema'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Card, DrawerContent, DrawerSubmitButton, DrawerTitle } from '~/styles'
+import { DrawerContent, DrawerSubmitButton, DrawerTitle } from '~/styles'
 
 type EditCustomChargeState = {
   customProperties: string | undefined

@@ -16,6 +16,7 @@ import {
   Alert,
   Avatar,
   Button,
+  Card,
   Icon,
   Skeleton,
   Status,
@@ -45,7 +46,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateCreditNote } from '~/hooks/useCreateCreditNote'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
-import { Card, HEADER_TABLE_HEIGHT, PageHeader, theme } from '~/styles'
+import { HEADER_TABLE_HEIGHT, PageHeader, theme } from '~/styles'
 import { Content, Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
 gql`
@@ -282,8 +283,8 @@ const CreateCreditNote = () => {
                   <Skeleton variant="text" className="w-40" />
                 </StyledCard>
                 <Card>
-                  <Skeleton variant="text" className="mb-9 w-104" />
-                  <Skeleton variant="text" className="mb-4 w-164" />
+                  <Skeleton variant="text" className="w-104" />
+                  <Skeleton variant="text" className="w-164" />
                   <Skeleton variant="text" className="w-64" />
                 </Card>
                 <ButtonContainer>

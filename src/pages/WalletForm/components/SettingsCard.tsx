@@ -4,7 +4,7 @@ import { DateTime } from 'luxon'
 import { FC } from 'react'
 import styled, { css } from 'styled-components'
 
-import { Button, Tooltip, Typography } from '~/components/designSystem'
+import { Button, Card, Tooltip, Typography } from '~/components/designSystem'
 import {
   AmountInputField,
   ComboBoxField,
@@ -16,7 +16,7 @@ import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, GetCustomerInfosForWalletFormQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { Card, theme } from '~/styles'
+import { theme } from '~/styles'
 
 import { TWalletDataForm } from '../types'
 
@@ -111,6 +111,7 @@ export const SettingsCard: FC<SettingsCardProps> = ({
         </InlineExpirationInput>
       ) : (
         <Button
+          className="self-start"
           startIcon="plus"
           variant="quaternary"
           onClick={() => setShowExpirationDate(true)}

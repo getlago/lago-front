@@ -12,6 +12,7 @@ import {
   Alert,
   Avatar,
   Button,
+  Card,
   Popper,
   Skeleton,
   Tooltip,
@@ -59,7 +60,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { Card, HEADER_TABLE_HEIGHT, MenuPopper, PageHeader, theme } from '~/styles'
+import { HEADER_TABLE_HEIGHT, MenuPopper, PageHeader, theme } from '~/styles'
 import { StickySubmitBar } from '~/styles/mainObjectsForm'
 
 const CELL_HEIGHT = 68
@@ -476,7 +477,7 @@ const CreateInvoice = () => {
       </PageHeader>
       <PageWrapper>
         <CenteredWrapper>
-          <BorderedCard $disableChildSpacing>
+          <Card className="gap-8">
             {loading ? (
               <>
                 <InvoiceHeader>
@@ -1132,7 +1133,7 @@ const CreateInvoice = () => {
                 </InvoiceFooter>
               </>
             )}
-          </BorderedCard>
+          </Card>
         </CenteredWrapper>
 
         {!loading && (
@@ -1233,14 +1234,6 @@ export default CreateInvoice
 const PageWrapper = styled.div`
   width: 100%;
   height: 100%;
-`
-
-const BorderedCard = styled(Card)`
-  margin-bottom: ${theme.spacing(8)};
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(8)};
-  }
 `
 
 const CenteredWrapper = styled.div`

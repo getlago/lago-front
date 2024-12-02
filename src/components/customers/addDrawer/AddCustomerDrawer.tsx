@@ -16,6 +16,7 @@ import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import {
   Accordion,
   Button,
+  Card,
   Drawer,
   DrawerRef,
   Tooltip,
@@ -52,7 +53,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditCustomer } from '~/hooks/useCreateEditCustomer'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { Card, DrawerContent, DrawerSubmitButton, DrawerTitle, theme } from '~/styles'
+import { DrawerContent, DrawerSubmitButton, DrawerTitle, theme } from '~/styles'
 
 import { ExternalAppsAccordion } from './ExternalAppsAccordion'
 
@@ -323,7 +324,7 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
           </Typography>
         </DrawerTitle>
 
-        <Card>
+        <Card className="items-stretch">
           <Typography variant="subhead">{translate('text_626c0c09812bbc00e4c59df1')}</Typography>
           <ComboBoxField
             name="customerType"

@@ -1,6 +1,6 @@
 import { FC } from 'react'
 
-import { Avatar, Skeleton, Typography } from '~/components/designSystem'
+import { Avatar, Card, Skeleton, Typography } from '~/components/designSystem'
 import {
   DunningEmail,
   DunningEmailProps,
@@ -8,7 +8,6 @@ import {
 } from '~/components/emails/DunningEmail'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
-import { Card } from '~/styles/designSystem'
 
 interface EmailPreviewProps extends DunningEmailProps {
   isLoading: boolean
@@ -27,12 +26,12 @@ export const EmailPreview: FC<EmailPreviewProps> = ({
 
   if (isLoading) {
     return (
-      <div className="mx-auto flex max-w-150 flex-col gap-8">
+      <div className="mx-auto flex max-w-150 flex-col items-center gap-8">
         <div className="flex flex-1 items-center justify-center gap-3">
           <Skeleton variant="connectorAvatar" size="medium" color="dark" />
           <Skeleton variant="text" color="dark" className="w-30" />
         </div>
-        <Card $childSpacing={4}>
+        <Card className="w-full gap-4">
           <DunningEmailSkeleton />
         </Card>
         <div className="flex justify-center">
@@ -61,7 +60,7 @@ export const EmailPreview: FC<EmailPreviewProps> = ({
           {organization?.name}
         </Typography>
       </div>
-      <Card $childSpacing={8}>
+      <Card className="gap-8">
         <DunningEmail
           locale={locale}
           invoices={invoices}
