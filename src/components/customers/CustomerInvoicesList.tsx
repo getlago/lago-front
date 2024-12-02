@@ -3,7 +3,7 @@ import { FC, useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { InfiniteScroll, Status, Table, Tooltip, Typography } from '~/components/designSystem'
+import { Chip, InfiniteScroll, Status, Table, Tooltip, Typography } from '~/components/designSystem'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -236,7 +236,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                   key: 'paymentStatus',
                   minWidth: 120,
                   title: translate('text_63b5d225b075850e0fe489f4'),
-                  content: ({ status, paymentStatus, paymentOverdue, paymentDisputeLostAt }) => {
+                  content: ({ status, paymentStatus, paymentDisputeLostAt }) => {
                     if (status !== InvoiceStatusTypeEnum.Finalized) {
                       return null
                     }
@@ -254,13 +254,22 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                           {...paymentStatusMapping({
                             status,
                             paymentStatus,
-                            paymentOverdue,
                           })}
                           endIcon={!!paymentDisputeLostAt ? 'warning-unfilled' : undefined}
                         />
                       </Tooltip>
                     )
                   },
+                }
+              : null,
+            context === 'finalized'
+              ? {
+                  key: 'paymentOverdue',
+                  title: translate('text_666c5b12fea4aa1e1b26bf55'),
+                  content: ({ paymentOverdue }) =>
+                    paymentOverdue && (
+                      <Chip error={true} label={translate('text_666c5b12fea4aa1e1b26bf55')} />
+                    ),
                 }
               : null,
             {

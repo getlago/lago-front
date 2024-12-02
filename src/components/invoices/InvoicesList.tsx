@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import {
+  Chip,
   InfiniteScroll,
   QuickFilters,
   Status,
@@ -305,7 +306,7 @@ const InvoicesList = ({
                 key: 'paymentStatus',
                 title: translate('text_6419c64eace749372fc72b40'),
                 minWidth: 80,
-                content: ({ status, paymentStatus, paymentOverdue, paymentDisputeLostAt }) => {
+                content: ({ status, paymentStatus, paymentDisputeLostAt }) => {
                   if (status !== InvoiceStatusTypeEnum.Finalized) {
                     return null
                   }
@@ -323,13 +324,20 @@ const InvoicesList = ({
                         {...paymentStatusMapping({
                           status,
                           paymentStatus,
-                          paymentOverdue,
                         })}
                         endIcon={!!paymentDisputeLostAt ? 'warning-unfilled' : undefined}
                       />
                     </Tooltip>
                   )
                 },
+              },
+              {
+                key: 'paymentOverdue',
+                title: translate('text_666c5b12fea4aa1e1b26bf55'),
+                content: ({ paymentOverdue }) =>
+                  paymentOverdue && (
+                    <Chip error={true} label={translate('text_666c5b12fea4aa1e1b26bf55')} />
+                  ),
               },
               {
                 key: 'customer.name',

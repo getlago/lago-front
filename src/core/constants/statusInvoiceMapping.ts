@@ -23,16 +23,10 @@ export const invoiceStatusMapping = ({
 export const paymentStatusMapping = ({
   status,
   paymentStatus,
-  paymentOverdue,
 }: {
   status: InvoiceStatusTypeEnum
   paymentStatus: InvoicePaymentStatusTypeEnum
-  paymentOverdue?: boolean
 }): StatusProps => {
-  if (paymentOverdue) {
-    return { label: 'overdue', type: StatusType.danger }
-  }
-
   if (status === InvoiceStatusTypeEnum.Finalized) {
     switch (paymentStatus) {
       case InvoicePaymentStatusTypeEnum.Pending:
