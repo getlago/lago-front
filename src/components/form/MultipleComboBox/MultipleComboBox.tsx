@@ -135,11 +135,9 @@ export const MultipleComboBox = ({
             return (
               <Chip
                 {...tagOptions}
+                className="my-2 ml-2 mr-0"
                 key={tagOptions.key}
                 label={option.value}
-                sx={{
-                  margin: '8px 0px 8px 8px',
-                }}
               />
             )
           })
