@@ -1,4 +1,4 @@
-import { alpha, Drawer as MuiDrawer, DrawerProps as MuiDrawerProps } from '@mui/material'
+import { Drawer as MuiDrawer, DrawerProps as MuiDrawerProps } from '@mui/material'
 import {
   cloneElement,
   forwardRef,
@@ -8,10 +8,9 @@ import {
   useRef,
   useState,
 } from 'react'
-import styled, { css } from 'styled-components'
 
 import { Button, Typography } from '~/components/designSystem'
-import { NAV_HEIGHT, theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import {
   PreventClosingDrawerDialog,
@@ -70,8 +69,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
     return (
       <>
         {!!opener && cloneElement(opener, { onClick: () => setIsOpen((prev) => !prev) })}
-        <StyledDrawer
-          $hasStickyBottomBar={!!stickyBottomBar}
+        <MuiDrawer
           open={isOpen}
           anchor={anchor}
           elevation={4}
@@ -92,9 +90,21 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
             }
           }}
           transitionDuration={250}
-          PaperProps={{ className: 'drawerPaper' }}
+          slotProps={{
+            backdrop: {
+              classes: {
+                root: 'bg-grey-700/40',
+              },
+            },
+          }}
+          PaperProps={{
+            className: tw(
+              'w-full max-w-[816px] md:w-[calc(100vw-48px)]',
+              !!stickyBottomBar && 'grid grid-rows-[72px_1fr_80px]',
+            ),
+          }}
         >
-          <Header>
+          <div className="sticky top-0 z-drawer flex h-nav min-h-nav items-center justify-between bg-white px-4 py-0 shadow-b md:px-12">
             {typeof title === 'string' ? (
               <Typography variant="bodyHl" color="textSecondary" noWrap>
                 {title}
@@ -122,21 +132,31 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
                 }
               }}
             />
-          </Header>
-          <Content $fullContentHeight={fullContentHeight} $withPadding={withPadding}>
+          </div>
+          <div
+            className={tw(
+              fullContentHeight && 'h-full',
+              withPadding && 'px-4 pb-20 pt-12 md:px-12',
+            )}
+          >
             {typeof children === 'function'
               ? children({ closeDrawer: () => setIsOpen(false) })
               : children}
-          </Content>
+          </div>
 
           {!!stickyBottomBar && (
-            <StickyBottomBar className={stickyBottomBarClassName}>
+            <div
+              className={tw(
+                'sticky bottom-0 box-border bg-white p-4 text-right shadow-t md:px-12 md:py-4',
+                stickyBottomBarClassName,
+              )}
+            >
               {typeof stickyBottomBar === 'function'
                 ? stickyBottomBar({ closeDrawer: () => setIsOpen(false) })
                 : stickyBottomBar}
-            </StickyBottomBar>
+            </div>
           )}
-        </StyledDrawer>
+        </MuiDrawer>
 
         <PreventClosingDrawerDialog ref={preventClosingDrawerDialogRef} />
       </>
@@ -145,70 +165,3 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
 )
 
 Drawer.displayName = 'Drawer'
-
-const StyledDrawer = styled(MuiDrawer)<{ $hasStickyBottomBar?: boolean }>`
-  .drawerPaper {
-    max-width: 816px;
-    width: calc(100vw - ${theme.spacing(12)});
-
-    ${({ $hasStickyBottomBar }) =>
-      $hasStickyBottomBar &&
-      css`
-        display: grid;
-        grid-template-rows: 72px 1fr 80px;
-      `}
-
-    ${theme.breakpoints.down('md')} {
-      width: 100%;
-    }
-  }
-
-  .MuiBackdrop-root {
-    background-color: ${alpha(theme.palette.grey[700], 0.4)};
-  }
-`
-
-const Header = styled.div`
-  height: ${NAV_HEIGHT}px;
-  min-height: ${NAV_HEIGHT}px;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 ${theme.spacing(12)};
-  position: sticky;
-  top: 0;
-  background-color: ${theme.palette.common.white};
-  z-index: ${theme.zIndex.drawer};
-
-  ${theme.breakpoints.down('md')} {
-    padding: 0 ${theme.spacing(4)};
-  }
-`
-
-const Content = styled.div<{ $fullContentHeight?: boolean; $withPadding?: boolean }>`
-  height: ${({ $fullContentHeight }) => ($fullContentHeight ? '100%' : ' ')};
-  padding: ${({ $withPadding }) =>
-    $withPadding ? `${theme.spacing(12)} ${theme.spacing(12)} ${theme.spacing(20)}` : undefined};
-
-  ${theme.breakpoints.down('md')} {
-    padding: ${({ $withPadding }) =>
-      $withPadding
-        ? `${theme.spacing(12)} ${theme.spacing(4)} ${theme.spacing(20)} ${theme.spacing(4)}`
-        : undefined};
-  }
-`
-
-const StickyBottomBar = styled.div`
-  position: sticky;
-  bottom: 0;
-  border-top: 1px solid ${theme.palette.grey[200]};
-  padding: ${theme.spacing(4)} ${theme.spacing(12)};
-  box-sizing: border-box;
-  text-align: right;
-  background-color: ${theme.palette.background.paper};
-
-  ${theme.breakpoints.down('md')} {
-    padding: ${theme.spacing(4)};
-  }
-`
