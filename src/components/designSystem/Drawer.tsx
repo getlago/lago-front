@@ -71,8 +71,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
     return (
       <>
         {!!opener && cloneElement(opener, { onClick: () => setIsOpen((prev) => !prev) })}
-        <StyledDrawer
-          $hasStickyBottomBar={!!stickyBottomBar}
+        <MuiDrawer
           open={isOpen}
           anchor={anchor}
           elevation={4}
@@ -93,7 +92,19 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
             }
           }}
           transitionDuration={250}
-          PaperProps={{ className: 'drawerPaper' }}
+          slotProps={{
+            backdrop: {
+              classes: {
+                root: 'bg-grey-700/40',
+              },
+            },
+          }}
+          PaperProps={{
+            className: tw(
+              'w-full max-w-[816px] md:w-[calc(100vw-48px)]',
+              !!stickyBottomBar && 'grid grid-rows-[72px_1fr_80px]',
+            ),
+          }}
         >
           <div className="sticky top-0 z-drawer flex h-nav min-h-nav items-center justify-between bg-white px-4 py-0 shadow-b md:px-12">
             {typeof title === 'string' ? (
@@ -142,7 +153,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
                 : stickyBottomBar}
             </div>
           )}
-        </StyledDrawer>
+        </MuiDrawer>
 
         <PreventClosingDrawerDialog ref={preventClosingDrawerDialogRef} />
       </>
@@ -151,28 +162,6 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
 )
 
 Drawer.displayName = 'Drawer'
-
-const StyledDrawer = styled(MuiDrawer)<{ $hasStickyBottomBar?: boolean }>`
-  .drawerPaper {
-    max-width: 816px;
-    width: calc(100vw - ${theme.spacing(12)});
-
-    ${({ $hasStickyBottomBar }) =>
-      $hasStickyBottomBar &&
-      css`
-        display: grid;
-        grid-template-rows: 72px 1fr 80px;
-      `}
-
-    ${theme.breakpoints.down('md')} {
-      width: 100%;
-    }
-  }
-
-  .MuiBackdrop-root {
-    background-color: ${alpha(theme.palette.grey[700], 0.4)};
-  }
-`
 
 const Content = styled.div<{ $fullContentHeight?: boolean; $withPadding?: boolean }>`
   height: ${({ $fullContentHeight }) => ($fullContentHeight ? '100%' : ' ')};
