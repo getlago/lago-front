@@ -1,4 +1,4 @@
-import { alpha, Drawer as MuiDrawer, DrawerProps as MuiDrawerProps } from '@mui/material'
+import { Drawer as MuiDrawer, DrawerProps as MuiDrawerProps } from '@mui/material'
 import {
   cloneElement,
   forwardRef,
@@ -8,10 +8,8 @@ import {
   useRef,
   useState,
 } from 'react'
-import styled, { css } from 'styled-components'
 
 import { Button, Typography } from '~/components/designSystem'
-import { theme } from '~/styles'
 import { tw } from '~/styles/utils'
 
 import {
@@ -135,11 +133,16 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
               }}
             />
           </div>
-          <Content $fullContentHeight={fullContentHeight} $withPadding={withPadding}>
+          <div
+            className={tw(
+              fullContentHeight && 'h-full',
+              withPadding && 'px-4 pb-20 pt-12 md:px-12',
+            )}
+          >
             {typeof children === 'function'
               ? children({ closeDrawer: () => setIsOpen(false) })
               : children}
-          </Content>
+          </div>
 
           {!!stickyBottomBar && (
             <div
@@ -162,16 +165,3 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
 )
 
 Drawer.displayName = 'Drawer'
-
-const Content = styled.div<{ $fullContentHeight?: boolean; $withPadding?: boolean }>`
-  height: ${({ $fullContentHeight }) => ($fullContentHeight ? '100%' : ' ')};
-  padding: ${({ $withPadding }) =>
-    $withPadding ? `${theme.spacing(12)} ${theme.spacing(12)} ${theme.spacing(20)}` : undefined};
-
-  ${theme.breakpoints.down('md')} {
-    padding: ${({ $withPadding }) =>
-      $withPadding
-        ? `${theme.spacing(12)} ${theme.spacing(4)} ${theme.spacing(20)} ${theme.spacing(4)}`
-        : undefined};
-  }
-`
