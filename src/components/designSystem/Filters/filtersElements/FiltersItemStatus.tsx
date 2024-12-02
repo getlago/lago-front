@@ -17,9 +17,24 @@ export const FiltersItemStatus = ({ value, setFilterValue }: FiltersItemStatusPr
       disableClearable
       disableCloseOnSelect
       placeholder={translate('text_66ab42d4ece7e6b7078993b1')}
-      data={Object.values(InvoiceStatusTypeEnum).map((status) => ({
-        value: status,
-      }))}
+      data={[
+        {
+          label: translate('text_63ac86d797f728a87b2f9f91'),
+          value: InvoiceStatusTypeEnum.Draft,
+        },
+        {
+          label: translate('text_63e27c56dfe64b846474ef4e'),
+          value: InvoiceStatusTypeEnum.Failed,
+        },
+        {
+          label: translate('text_65269c2e471133226211fd74'),
+          value: InvoiceStatusTypeEnum.Finalized,
+        },
+        {
+          label: translate('text_6376641a2a9c70fff5bddcd5'),
+          value: InvoiceStatusTypeEnum.Voided,
+        },
+      ]}
       onChange={(status) => {
         setFilterValue(String(status.map((v) => v.value).join(',')))
       }}
