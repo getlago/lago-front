@@ -12,6 +12,7 @@ import styled, { css } from 'styled-components'
 
 import { Button, Typography } from '~/components/designSystem'
 import { NAV_HEIGHT, theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import {
   PreventClosingDrawerDialog,
@@ -130,11 +131,16 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
           </Content>
 
           {!!stickyBottomBar && (
-            <StickyBottomBar className={stickyBottomBarClassName}>
+            <div
+              className={tw(
+                'border-t-grey200 sticky bottom-0 box-border border-t border-solid bg-white p-4 text-right md:px-12 md:py-4',
+                stickyBottomBarClassName,
+              )}
+            >
               {typeof stickyBottomBar === 'function'
                 ? stickyBottomBar({ closeDrawer: () => setIsOpen(false) })
                 : stickyBottomBar}
-            </StickyBottomBar>
+            </div>
           )}
         </StyledDrawer>
 
@@ -196,19 +202,5 @@ const Content = styled.div<{ $fullContentHeight?: boolean; $withPadding?: boolea
       $withPadding
         ? `${theme.spacing(12)} ${theme.spacing(4)} ${theme.spacing(20)} ${theme.spacing(4)}`
         : undefined};
-  }
-`
-
-const StickyBottomBar = styled.div`
-  position: sticky;
-  bottom: 0;
-  border-top: 1px solid ${theme.palette.grey[200]};
-  padding: ${theme.spacing(4)} ${theme.spacing(12)};
-  box-sizing: border-box;
-  text-align: right;
-  background-color: ${theme.palette.background.paper};
-
-  ${theme.breakpoints.down('md')} {
-    padding: ${theme.spacing(4)};
   }
 `
