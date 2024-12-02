@@ -305,7 +305,7 @@ const InvoicesList = ({
                 key: 'paymentStatus',
                 title: translate('text_6419c64eace749372fc72b40'),
                 minWidth: 80,
-                content: ({ status, paymentStatus, paymentOverdue, paymentDisputeLostAt }) => {
+                content: ({ status, paymentStatus, paymentDisputeLostAt }) => {
                   if (status !== InvoiceStatusTypeEnum.Finalized) {
                     return null
                   }
@@ -323,7 +323,6 @@ const InvoicesList = ({
                         {...paymentStatusMapping({
                           status,
                           paymentStatus,
-                          paymentOverdue,
                         })}
                         endIcon={!!paymentDisputeLostAt ? 'warning-unfilled' : undefined}
                       />

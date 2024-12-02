@@ -236,7 +236,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                   key: 'paymentStatus',
                   minWidth: 120,
                   title: translate('text_63b5d225b075850e0fe489f4'),
-                  content: ({ status, paymentStatus, paymentOverdue, paymentDisputeLostAt }) => {
+                  content: ({ status, paymentStatus, paymentDisputeLostAt }) => {
                     if (status !== InvoiceStatusTypeEnum.Finalized) {
                       return null
                     }
@@ -254,7 +254,6 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                           {...paymentStatusMapping({
                             status,
                             paymentStatus,
-                            paymentOverdue,
                           })}
                           endIcon={!!paymentDisputeLostAt ? 'warning-unfilled' : undefined}
                         />
