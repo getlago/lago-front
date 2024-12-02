@@ -147,7 +147,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
           {!!stickyBottomBar && (
             <div
               className={tw(
-                'border-t-grey200 sticky bottom-0 box-border border-t border-solid bg-white p-4 text-right md:px-12 md:py-4',
+                'sticky bottom-0 box-border bg-white p-4 text-right shadow-t md:px-12 md:py-4',
                 stickyBottomBarClassName,
               )}
             >
