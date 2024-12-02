@@ -11,7 +11,7 @@ import {
 import styled, { css } from 'styled-components'
 
 import { Button, Typography } from '~/components/designSystem'
-import { NAV_HEIGHT, theme } from '~/styles'
+import { theme } from '~/styles'
 import { tw } from '~/styles/utils'
 
 import {
@@ -95,7 +95,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
           transitionDuration={250}
           PaperProps={{ className: 'drawerPaper' }}
         >
-          <Header>
+          <div className="sticky top-0 z-drawer flex h-nav min-h-nav items-center justify-between bg-white px-4 py-0 shadow-b md:px-12">
             {typeof title === 'string' ? (
               <Typography variant="bodyHl" color="textSecondary" noWrap>
                 {title}
@@ -123,7 +123,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
                 }
               }}
             />
-          </Header>
+          </div>
           <Content $fullContentHeight={fullContentHeight} $withPadding={withPadding}>
             {typeof children === 'function'
               ? children({ closeDrawer: () => setIsOpen(false) })
@@ -171,24 +171,6 @@ const StyledDrawer = styled(MuiDrawer)<{ $hasStickyBottomBar?: boolean }>`
 
   .MuiBackdrop-root {
     background-color: ${alpha(theme.palette.grey[700], 0.4)};
-  }
-`
-
-const Header = styled.div`
-  height: ${NAV_HEIGHT}px;
-  min-height: ${NAV_HEIGHT}px;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 ${theme.spacing(12)};
-  position: sticky;
-  top: 0;
-  background-color: ${theme.palette.common.white};
-  z-index: ${theme.zIndex.drawer};
-
-  ${theme.breakpoints.down('md')} {
-    padding: 0 ${theme.spacing(4)};
   }
 `
 
