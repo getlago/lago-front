@@ -38,14 +38,14 @@ export const CodeSnippet = memo(
     const { translate } = useInternationalization()
 
     useEffect(() => {
-      if (codeRef && codeRef.current) {
+      if (codeRef?.current) {
         Prism.highlightElement(codeRef.current)
       }
     })
 
     return (
       <div className={tw('code-snippet', 'relative h-full', className)}>
-        {loading ? null : (
+        {!loading && (
           <>
             {displayHead && (
               <div className="flex h-nav items-center px-8 shadow-b">
@@ -56,6 +56,7 @@ export const CodeSnippet = memo(
             )}
             <pre
               className={tw(
+                // Line-numbers is a Prism className and is required
                 // https://prismjs.com/plugins/line-numbers/
                 'line-numbers',
                 'pb-30',
