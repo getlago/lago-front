@@ -1,5 +1,3 @@
-import { css } from 'styled-components'
-
 import { theme } from '~/styles'
 
 type Breakpoint = keyof typeof theme.breakpoints.values
@@ -24,18 +22,18 @@ export const setResponsiveProperty = <T extends string | number>(
         ...curr,
 
         [theme.breakpoints.up(breakpoint)]: {
-          [cssProperty]: value[breakpoint] ?? defaultValue,
+          [cssProperty]: !!value[breakpoint] ? `${value[breakpoint]}px` : `${defaultValue}px`,
         },
       }
     }, {})
 
-    return css({
-      [cssProperty]: defaultValue,
+    return {
       ...responsiveCssProperties,
-    })
+      [cssProperty]: `${defaultValue}px`,
+    }
   }
 
-  return css({
-    [cssProperty]: value,
-  })
+  return {
+    [cssProperty]: `${value}px`,
+  }
 }

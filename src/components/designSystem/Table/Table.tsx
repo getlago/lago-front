@@ -1,13 +1,13 @@
 import {
-  Box,
   Table as MUITable,
   TableBody as MUITableBody,
   TableCell as MUITableCell,
   TableHead as MUITableHead,
   TableRow as MUITableRow,
+  TableCellProps,
+  TableRowProps,
 } from '@mui/material'
-import { MouseEvent, ReactNode, useRef } from 'react'
-import styled from 'styled-components'
+import { MouseEvent, PropsWithChildren, ReactNode, useRef } from 'react'
 
 import { Button, IconName, Popper, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { GenericPlaceholder, GenericPlaceholderProps } from '~/components/GenericPlaceholder'
@@ -17,6 +17,7 @@ import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PopperOpener, theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 const PADDING_SPACING_RIGHT_PX = 32
 
@@ -91,6 +92,227 @@ const countMaxSpaceColumns = <T,>(columns: TableColumn<T>[]) =>
 
     return acc
   }, 0)
+
+const TableRow = ({
+  children,
+  className,
+  isClickable,
+  ...props
+}: TableRowProps & {
+  isClickable?: boolean
+}) => {
+  return (
+    <MUITableRow
+      className={tw(
+        {
+          'cursor-pointer': !!isClickable,
+        },
+        className,
+      )}
+      sx={{
+        '&:hover:not(:active), &:focus:not(:active), &:hover:not(:active) .lago-table-action-cell, &:focus:not(:active) .lago-table-action-cell':
+          {
+            backgroundColor: isClickable ? theme.palette.grey[100] : undefined,
+          },
+        '&:active, &:active .lago-table-action-cell': {
+          backgroundColor: isClickable ? theme.palette.grey[200] : undefined,
+        },
+        // Remove hover effect when action column is hovered
+        '&:has([data-id="actionColumn"] button:hover)': {
+          backgroundColor: 'unset !important',
+
+          '& .lago-table-action-cell': {
+            backgroundColor: theme.palette.background.paper,
+          },
+        },
+      }}
+      {...props}
+    >
+      {children}
+    </MUITableRow>
+  )
+}
+
+const TableCell = ({
+  children,
+  className,
+  hasPlaceholderDisplayed,
+  isBlurred,
+  maxSpace,
+  ...props
+}: PropsWithChildren &
+  TableCellProps & {
+    className?: string
+    isBlurred?: boolean
+    hasPlaceholderDisplayed?: boolean
+    maxSpace?: number
+  }) => {
+  return (
+    <MUITableCell
+      className={tw('lago-table-cell', 'w-auto whitespace-nowrap p-0', className)}
+      style={{
+        width: !!maxSpace ? `${maxSpace}%` : 'auto',
+        borderBottom: !!hasPlaceholderDisplayed ? 'none' : `1px solid ${theme.palette.grey[300]}`,
+        boxShadow: !!isBlurred ? theme.shadows[7] : 'none',
+      }}
+      sx={{
+        '& > div': {
+          paddingRight: `${PADDING_SPACING_RIGHT_PX}px`,
+        },
+        '&:first-of-type > div': {
+          paddingLeft: 0,
+        },
+        '&:last-of-type > div': {
+          paddingRight: 0,
+        },
+      }}
+      {...props}
+    >
+      {children}
+    </MUITableCell>
+  )
+}
+
+const TableActionCell = ({
+  children,
+  className,
+  ...props
+}: PropsWithChildren & TableCellProps & { className?: string }) => {
+  return (
+    <TableCell
+      className={tw(
+        'lago-table-action-cell',
+        'sticky right-0 z-10 w-10 bg-white animate-shadow-left [box-shadow:none]',
+        className,
+      )}
+      sx={{
+        '& > div': {
+          justifyContent: 'center',
+          paddingLeft: theme.spacing(3),
+        },
+      }}
+      {...props}
+    >
+      {children}
+    </TableCell>
+  )
+}
+
+const TableInnerCell = ({
+  align,
+  children,
+  className,
+  minWidth,
+  style,
+  truncateOverflow,
+}: PropsWithChildren & {
+  align?: Align
+  className?: string
+  minWidth?: number
+  style?: React.CSSProperties
+  truncateOverflow?: boolean
+}) => {
+  return (
+    <div
+      className={tw(
+        'lago-table-inner-cell',
+        'flex items-center',
+        {
+          'justify-start': align === 'left',
+          'justify-center': align === 'center',
+          'justify-end': align === 'right',
+          grid: !!truncateOverflow,
+        },
+        className,
+      )}
+      style={{
+        minWidth: minWidth ? `${minWidth}px` : 'auto',
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  )
+}
+
+const LoadingRows = <T,>({
+  columns,
+  id,
+  shouldDisplayActionColumn,
+  actionColumn,
+}: Pick<TableProps<T>, 'actionColumn'> & {
+  columns: Array<TableColumn<T>>
+  id: string
+  shouldDisplayActionColumn: boolean
+}) => {
+  return Array.from({ length: LOADING_ROW_COUNT }).map((_, i) => (
+    <TableRow key={`${id}-loading-row-${i}`}>
+      {columns.map((col, j) => (
+        <TableCell hasPlaceholderDisplayed={false} key={`${id}-loading-cell-${i}-${j}`}>
+          <TableInnerCell minWidth={col.minWidth} align={col.textAlign}>
+            <div
+              style={{
+                width: !!col.minWidth ? `${col.minWidth - PADDING_SPACING_RIGHT_PX}px` : '100%',
+              }}
+            >
+              <Skeleton className="w-full" variant="text" />
+            </div>
+          </TableInnerCell>
+        </TableCell>
+      ))}
+      {shouldDisplayActionColumn && (
+        <TableActionCell>
+          <TableInnerCell>
+            {Array.isArray(actionColumn?.({} as T)) ? (
+              <Button disabled icon="dots-horizontal" variant="quaternary" />
+            ) : (
+              (actionColumn?.({} as T) as ReactNode)
+            )}
+          </TableInnerCell>
+        </TableActionCell>
+      )}
+    </TableRow>
+  ))
+}
+
+const ActionItemButton = <T,>({
+  action,
+  item,
+  closePopper,
+}: {
+  action: ActionItem<T>
+  item: T
+  closePopper: VoidFunction
+}) => {
+  const button = (
+    <Button
+      fullWidth
+      startIcon={action.startIcon}
+      variant="quaternary"
+      align="left"
+      disabled={action.disabled}
+      onClick={async () => {
+        await action.onAction(item)
+        closePopper()
+      }}
+      data-test={action.dataTest}
+    >
+      {action.title}
+    </Button>
+  )
+
+  const withTooltip = (
+    <Tooltip title={action.tooltip} disableHoverListener={action.tooltipListener}>
+      {button}
+    </Tooltip>
+  )
+
+  if (action.tooltip) {
+    return withTooltip
+  }
+
+  return button
+}
 
 export const Table = <T extends DataItem>({
   name,
@@ -173,7 +395,7 @@ export const Table = <T extends DataItem>({
     if (hasError) {
       return (
         <TableRow>
-          <TableCell $hasPlaceholderDisplayed colSpan={colSpan}>
+          <TableCell hasPlaceholderDisplayed colSpan={colSpan}>
             <GenericPlaceholder
               noMargins
               className="mx-auto py-12 [&>svg]:w-[136px]"
@@ -194,7 +416,7 @@ export const Table = <T extends DataItem>({
     if (!isLoading && data.length === 0) {
       return (
         <TableRow>
-          <TableCell $hasPlaceholderDisplayed colSpan={colSpan}>
+          <TableCell hasPlaceholderDisplayed colSpan={colSpan}>
             <GenericPlaceholder
               noMargins
               className="mx-auto py-12 [&>svg]:w-[136px]"
@@ -216,38 +438,51 @@ export const Table = <T extends DataItem>({
   return (
     // Width is set to 0 and minWidth to 100% to prevent table from overflowing its container
     // cf. https://stackoverflow.com/a/73091777
-    <Box
-      width={0}
-      minWidth="100%"
-      overflow="auto"
-      height="100%"
-      sx={{
-        transform: 'translateZ(0)',
-      }}
-    >
-      <StyledTable
+    <div className="h-full w-0 min-w-full overflow-auto">
+      <MUITable
+        className="border-collapse"
         data-test={TABLE_ID}
         id={TABLE_ID}
         ref={tableRef}
-        $containerSize={containerSize}
-        $rowSize={rowSize}
+        sx={{
+          '& .lago-table-cell:first-of-type .lago-table-inner-cell': {
+            ...setResponsiveProperty('paddingLeft', containerSize),
+          },
+          '& .lago-table-cell:last-of-type .lago-table-inner-cell': {
+            ...setResponsiveProperty('paddingRight', containerSize),
+          },
+          '& .lago-table-inner-cell': {
+            minHeight: rowSize,
+          },
+        }}
       >
-        <TableHead>
+        <MUITableHead>
           <tr>
             <>
               {filteredColumns.map((column, i) => (
                 <TableCell
+                  className="sticky top-0 z-10 border-b-0 bg-white shadow-b"
                   key={`${TABLE_ID}-head-${i}`}
                   align={column.textAlign || 'left'}
-                  $maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
+                  maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
                 >
-                  <TableInnerCell $align={column.textAlign}>{column.title}</TableInnerCell>
+                  <TableInnerCell
+                    className="min-h-10 text-grey-600"
+                    align={column.textAlign}
+                    style={{
+                      fontSize: theme.typography.captionHl.fontSize,
+                      fontWeight: theme.typography.captionHl.fontWeight,
+                      lineHeight: theme.typography.captionHl.lineHeight,
+                    }}
+                  >
+                    {column.title}
+                  </TableInnerCell>
                 </TableCell>
               ))}
               {shouldDisplayActionColumn && <TableActionCell />}
             </>
           </tr>
-        </TableHead>
+        </MUITableHead>
 
         <MUITableBody>
           {renderPlaceholder() ??
@@ -257,7 +492,7 @@ export const Table = <T extends DataItem>({
                   key={`${TABLE_ID}-row-${i}`}
                   id={`${TABLE_ID}-row-${i}`}
                   data-id={item.id}
-                  $isClickable={isClickable}
+                  isClickable={isClickable}
                   tabIndex={isClickable ? 0 : undefined}
                   onKeyDown={isClickable ? onKeyDown : undefined}
                   onClick={isClickable ? (e) => handleRowClick(e, item) : undefined}
@@ -266,12 +501,12 @@ export const Table = <T extends DataItem>({
                     <TableCell
                       key={`${TABLE_ID}-cell-${i}-${j}`}
                       align={column.textAlign || 'left'}
-                      $maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
+                      maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
                     >
                       <TableInnerCell
-                        $minWidth={column.minWidth}
-                        $align={column.textAlign}
-                        $truncateOverflow={column.truncateOverflow}
+                        minWidth={column.minWidth}
+                        align={column.textAlign}
+                        truncateOverflow={column.truncateOverflow}
                       >
                         <Typography noWrap>{column.content(item)}</Typography>
                       </TableInnerCell>
@@ -285,15 +520,16 @@ export const Table = <T extends DataItem>({
                             popperGroupName={`${TABLE_ID}-action-cell`}
                             PopperProps={{ placement: 'bottom-end' }}
                             opener={({ isOpen }) => (
-                              <LocalPopperOpener>
+                              <PopperOpener className="relative right-0 top-0 h-full">
                                 <Tooltip
+                                  className="right-0"
                                   placement="top-end"
                                   disableHoverListener={isOpen}
                                   title={actionColumnTooltip?.(item) || null}
                                 >
                                   <Button icon="dots-horizontal" variant="quaternary" />
                                 </Tooltip>
-                              </LocalPopperOpener>
+                              </PopperOpener>
                             )}
                           >
                             {({ closePopper }) => (
@@ -333,249 +569,7 @@ export const Table = <T extends DataItem>({
               actionColumn,
             })}
         </MUITableBody>
-      </StyledTable>
-    </Box>
+      </MUITable>
+    </div>
   )
 }
-
-const LoadingRows = <T,>({
-  columns,
-  id,
-  shouldDisplayActionColumn,
-  actionColumn,
-}: Pick<TableProps<T>, 'actionColumn'> & {
-  columns: Array<TableColumn<T>>
-  id: string
-  shouldDisplayActionColumn: boolean
-}) => {
-  return Array.from({ length: LOADING_ROW_COUNT }).map((_, i) => (
-    <TableRow key={`${id}-loading-row-${i}`}>
-      {columns.map((col, j) => (
-        <TableCell $hasPlaceholderDisplayed={false} key={`${id}-loading-cell-${i}-${j}`}>
-          <TableInnerCell $minWidth={col.minWidth} $align={col.textAlign}>
-            <div
-              style={{
-                width: !!col.minWidth ? `${col.minWidth - PADDING_SPACING_RIGHT_PX}px` : '100%',
-              }}
-            >
-              <Skeleton className="w-full" variant="text" />
-            </div>
-          </TableInnerCell>
-        </TableCell>
-      ))}
-      {shouldDisplayActionColumn && (
-        <TableActionCell>
-          <TableInnerCell>
-            {Array.isArray(actionColumn?.({} as T)) ? (
-              <Button disabled icon="dots-horizontal" variant="quaternary" />
-            ) : (
-              (actionColumn?.({} as T) as ReactNode)
-            )}
-          </TableInnerCell>
-        </TableActionCell>
-      )}
-    </TableRow>
-  ))
-}
-
-const ActionItemButton = <T,>({
-  action,
-  item,
-  closePopper,
-}: {
-  action: ActionItem<T>
-  item: T
-  closePopper: VoidFunction
-}) => {
-  const button = (
-    <Button
-      fullWidth
-      startIcon={action.startIcon}
-      variant="quaternary"
-      align="left"
-      disabled={action.disabled}
-      onClick={async () => {
-        await action.onAction(item)
-        closePopper()
-      }}
-      data-test={action.dataTest}
-    >
-      {action.title}
-    </Button>
-  )
-
-  const withTooltip = (
-    <Tooltip title={action.tooltip} disableHoverListener={action.tooltipListener}>
-      {button}
-    </Tooltip>
-  )
-
-  if (action.tooltip) {
-    return withTooltip
-  }
-
-  return button
-}
-
-const TableInnerCell = styled.div<{
-  $minWidth?: number
-  $align?: Align
-  $truncateOverflow?: boolean
-}>`
-  min-width: ${({ $minWidth }) => ($minWidth ? `${$minWidth}px` : 'auto')};
-  display: ${({ $truncateOverflow }) => ($truncateOverflow ? 'grid' : 'flex')};
-  align-items: center;
-  justify-content: ${({ $align }) => {
-    if ($align === 'left') return 'flex-start'
-    if ($align === 'center') return 'center'
-    if ($align === 'right') return 'flex-end'
-  }};
-`
-
-const TableCell = styled(MUITableCell)<{
-  $isBlurred?: boolean
-  $hasPlaceholderDisplayed?: boolean
-  $maxSpace?: number
-}>`
-  width: ${({ $maxSpace }) => ($maxSpace ? `${$maxSpace}%` : 'auto')};
-  padding: 0;
-  box-sizing: border-box;
-  white-space: nowrap;
-  border-bottom: ${({ $hasPlaceholderDisplayed }) =>
-    $hasPlaceholderDisplayed ? 'none' : `1px solid ${theme.palette.grey[300]}`};
-
-  ${TableInnerCell} {
-    padding-right: ${PADDING_SPACING_RIGHT_PX}px;
-  }
-
-  &:first-of-type ${TableInnerCell} {
-    padding-left: 0;
-  }
-
-  &:last-of-type ${TableInnerCell} {
-    padding-right: 0;
-  }
-`
-
-const StyledTable = styled(MUITable)<{
-  $containerSize: ResponsiveStyleValue<TableContainerSize>
-  $rowSize: RowSize
-}>`
-  border-collapse: collapse;
-
-  ${TableCell}:first-of-type ${TableInnerCell} {
-    ${({ $containerSize }) => setResponsiveProperty('paddingLeft', $containerSize)}
-  }
-
-  ${TableCell}:last-of-type ${TableInnerCell} {
-    ${({ $containerSize }) => setResponsiveProperty('paddingRight', $containerSize)}
-  }
-
-  ${TableInnerCell} {
-    min-height: ${({ $rowSize }) => $rowSize}px;
-  }
-`
-
-const TableActionCell = styled(TableCell)`
-  width: 40px;
-  position: sticky;
-  right: 0;
-  z-index: 1;
-  box-shadow: none;
-  background-color: ${theme.palette.background.paper};
-
-  ${TableInnerCell} {
-    justify-content: center;
-    padding-left: ${theme.spacing(3)};
-  }
-
-  @supports (animation-timeline: scroll(inline)) {
-    animation-name: shadow;
-    animation-duration: 1s;
-    animation-timing-function: ease-in-out;
-    animation-timeline: scroll(inline);
-  }
-
-  @keyframes shadow {
-    0% {
-      box-shadow: ${theme.shadows[8]};
-    }
-
-    90% {
-      box-shadow: ${theme.shadows[8]};
-    }
-
-    99% {
-      box-shadow: none;
-    }
-  }
-`
-
-const TableHead = styled(MUITableHead)`
-  ${TableCell} {
-    background-color: ${theme.palette.background.paper};
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    border-bottom: none;
-    box-shadow: ${theme.shadows[7]};
-  }
-
-  ${TableInnerCell} {
-    font-size: ${theme.typography.captionHl.fontSize};
-    font-weight: ${theme.typography.captionHl.fontWeight};
-    line-height: ${theme.typography.captionHl.lineHeight};
-    color: ${theme.palette.grey[600]};
-    min-height: 40px;
-  }
-
-  ${TableActionCell} {
-    z-index: 10;
-
-    &::after {
-      content: '';
-      display: block;
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      height: 1px;
-      box-shadow: ${theme.shadows[7]};
-    }
-  }
-`
-
-const TableRow = styled(MUITableRow)<{ $isClickable?: boolean }>`
-  cursor: ${({ $isClickable }) => ($isClickable ? 'pointer' : 'initial')};
-
-  &:hover:not(:active),
-  &:focus:not(:active),
-  &:hover:not(:active) ${TableActionCell}, &:focus:not(:active) ${TableActionCell} {
-    background-color: ${({ $isClickable }) =>
-      $isClickable ? `${theme.palette.grey[100]}` : undefined};
-  }
-
-  &:active,
-  &:active ${TableActionCell} {
-    background-color: ${({ $isClickable }) =>
-      $isClickable ? `${theme.palette.grey[200]}` : undefined};
-  }
-
-  // Remove hover effect when action column is hovered
-  &:has([data-id='${ACTION_COLUMN_ID}'] button:hover) {
-    background-color: unset !important;
-
-    ${TableActionCell} {
-      background-color: ${theme.palette.background.paper};
-    }
-  }
-`
-
-const LocalPopperOpener = styled(PopperOpener)`
-  position: relative;
-  top: 0;
-  right: 0;
-  height: 100%;
-  > *:first-child {
-    right: 0;
-  }
-`

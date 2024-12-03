@@ -216,6 +216,25 @@ const config = {
           boxShadow: `1px 0px 0px 0px ${theme('colors.grey.300')} inset`,
         },
       })
+
+      // Animation
+      addUtilities({
+        '.animate-shadow-left': {
+          '@supports (animation-timeline: scroll(inline))': {
+            animationName: 'shadowLeft',
+            animationDuration: '1s',
+            animationTimingFunction: 'ease-in-out',
+            animationTimeline: 'scroll(inline)',
+          },
+
+          '@keyframes shadowLeft': {
+            '0%': { boxShadow: `1px 0px 0px 0px ${theme('colors.grey.300')} inset` },
+            '90%': { boxShadow: `1px 0px 0px 0px ${theme('colors.grey.300')} inset` },
+            '99%': { boxShadow: 'none' },
+          },
+        },
+      })
+
       // Outline ring
       addUtilities({
         '.ring': {
