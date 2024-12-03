@@ -46,7 +46,7 @@ export const PremiumWarningDialog = forwardRef<PremiumWarningDialogRef>((_, ref)
               localData?.mailtoSubject || translate('text_63b3f676d44671bf24d81411')
             }&body=${localData?.mailtoBody || translate('text_63b3f676d44671bf24d81413')}`}
           >
-            <FullWidthButton>{translate('text_63b3155768489ee342482f55')}</FullWidthButton>
+            <Button className="w-full">{translate('text_63b3155768489ee342482f55')}</Button>
           </LinkTo>
         </>
       )}
@@ -57,11 +57,6 @@ export const PremiumWarningDialog = forwardRef<PremiumWarningDialogRef>((_, ref)
 const LinkTo = styled.a`
   margin-right: 0;
   margin-bottom: 0;
-`
-
-const FullWidthButton = styled(Button)`
-  /* Fixes the button witdh on small screens */
-  width: 100%;
 `
 
 PremiumWarningDialog.displayName = 'PremiumWarningDialog'

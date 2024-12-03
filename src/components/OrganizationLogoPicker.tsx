@@ -62,9 +62,13 @@ export const OrganizationLogoPicker = ({
         />
       )}
       <AvatarUploadWrapper>
-        <ChooseFileButton variant="secondary" onClick={() => hiddenFileInputRef?.current?.click()}>
+        <Button
+          className="w-fit"
+          variant="secondary"
+          onClick={() => hiddenFileInputRef?.current?.click()}
+        >
           {translate('text_62ab2d0396dd6b0361614d18')}
-        </ChooseFileButton>
+        </Button>
         <Typography variant="caption" color={logoUploadError ? 'danger600' : undefined}>
           {logoUploadError
             ? translate('text_62ab2d0396dd6b0361614d1e')
@@ -103,10 +107,6 @@ const AvatarUploadWrapper = styled.div`
   > button {
     margin-bottom: ${theme.spacing(2)};
   }
-`
-
-const ChooseFileButton = styled(Button)`
-  width: fit-content;
 `
 
 const HiddenInput = styled.input`

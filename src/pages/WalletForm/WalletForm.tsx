@@ -344,7 +344,7 @@ const WalletForm = () => {
                 premiumWarningDialogRef={premiumWarningDialogRef}
               />
 
-              <CustomButtonContainer>
+              <ButtonContainer className="!max-w-168">
                 <Button
                   disabled={
                     !formikProps.isValid ||
@@ -361,7 +361,7 @@ const WalletForm = () => {
                       : 'text_6560809c38fb9de88d8a505e',
                   )}
                 </Button>
-              </CustomButtonContainer>
+              </ButtonContainer>
             </>
           )}
         </Main>
@@ -415,8 +415,4 @@ const Main = styled.div`
 
 const Title = styled(Typography)`
   margin-bottom: ${theme.spacing(1)};
-`
-
-const CustomButtonContainer = styled(ButtonContainer)`
-  max-width: 672px !important;
 `

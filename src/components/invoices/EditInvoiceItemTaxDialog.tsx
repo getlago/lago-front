@@ -205,7 +205,8 @@ export const EditInvoiceItemTaxDialog = forwardRef<EditInvoiceItemTaxDialogRef>(
         </>
       )}
 
-      <AddTaxButton
+      <Button
+        className="mb-8 flex w-fit"
         startIcon="plus"
         variant="quaternary"
         onClick={() => {
@@ -214,7 +215,7 @@ export const EditInvoiceItemTaxDialog = forwardRef<EditInvoiceItemTaxDialogRef>(
         data-test="add-tax-button"
       >
         {translate('text_645bb193927b375079d289af')}
-      </AddTaxButton>
+      </Button>
     </Dialog>
   )
 })
@@ -244,10 +245,4 @@ const InlineTaxItemWrapper = styled.div`
   > *:first-child {
     flex: 1;
   }
-`
-
-const AddTaxButton = styled(Button)`
-  display: flex;
-  width: fit-content;
-  margin-bottom: ${theme.spacing(8)};
 `

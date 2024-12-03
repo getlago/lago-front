@@ -1,10 +1,10 @@
 import { InputAdornment } from '@mui/material'
-import { cx } from 'class-variance-authority'
 import _omit from 'lodash/omit'
 import styled from 'styled-components'
 
 import { Button, Typography } from '~/components/designSystem'
 import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import { ComboBoxInputProps } from './types'
 
@@ -54,9 +54,9 @@ export const ComboBoxInput = ({
         endAdornment: (
           <InputAdornment position="end">
             {!disableClearable && (
-              <StyledButton
+              <Button
                 // To make sure the "clear button" is displayed only on hover or focus
-                className={cx('MuiAutocomplete-clearIndicator', {
+                className={tw('MuiAutocomplete-clearIndicator', 'hidden', {
                   'MuiAutocomplete-clearIndicatorDirty': inputProps?.value,
                 })}
                 disabled={restParams.disabled}
@@ -93,17 +93,6 @@ export const ComboBoxInput = ({
     />
   )
 }
-
-const StyledButton = styled(Button)`
-  &.MuiAutocomplete-clearIndicator {
-    display: none;
-
-    &.MuiAutocomplete-clearIndicatorDirty {
-      display: inherit;
-      display: none;
-    }
-  }
-`
 
 const StyledTextInput = styled(TextInput)`
   &:hover {

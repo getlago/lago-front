@@ -157,7 +157,8 @@ export const DatePicker = ({
                 />
               ),
               switchViewButton: () => (
-                <SwitchViewButton
+                <Button
+                  className="m-1"
                   variant="quaternary"
                   disabled={disabled}
                   icon="chevron-down"
@@ -257,8 +258,4 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${theme.spacing(1)};
-`
-
-const SwitchViewButton = styled(Button)`
-  margin: ${theme.spacing(1)};
 `

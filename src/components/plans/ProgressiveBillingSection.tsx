@@ -120,9 +120,14 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
         >
           <Stack gap={6}>
             <Box display="flex" flexDirection="column">
-              <AddButton startIcon="plus" variant="quaternary" onClick={addNonRecurringThreshold}>
+              <Button
+                className="mb-2 ml-auto"
+                startIcon="plus"
+                variant="quaternary"
+                onClick={addNonRecurringThreshold}
+              >
                 {translate('text_1724233213997l2ksi40t8q6')}
-              </AddButton>
+              </Button>
               <TableContainer>
                 <ChargeTable
                   name="graduated-percentage-charge-table"
@@ -383,11 +388,6 @@ const ValidationIcon = styled(Icon)`
 
 const StyledAccordion = styled(Accordion)`
   width: 100%;
-`
-
-const AddButton = styled(Button)`
-  margin-left: auto;
-  margin-bottom: ${theme.spacing(2)};
 `
 
 const TableContainer = styled.div`

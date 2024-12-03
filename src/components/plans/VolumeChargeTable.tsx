@@ -56,7 +56,8 @@ export const VolumeChargeTable = memo(
 
     return (
       <Container>
-        <AddButton
+        <Button
+          className="mb-2 ml-auto"
           startIcon="plus"
           variant="quaternary"
           onClick={addRange}
@@ -64,7 +65,7 @@ export const VolumeChargeTable = memo(
           data-test="add-tier"
         >
           {translate('text_6304e74aab6dbc18d615f38e')}
-        </AddButton>
+        </Button>
         <TableContainer>
           <ChargeTable
             name="volume-charge-table"
@@ -314,9 +315,4 @@ const CellAmount = styled(AmountInput)`
       }
     }
   }
-`
-
-const AddButton = styled(Button)`
-  margin-left: auto;
-  margin-bottom: ${theme.spacing(2)};
 `

@@ -167,6 +167,7 @@ const config = {
         124: '31rem',
         150: '37.5rem',
         164: '41rem',
+        168: '42rem',
         170: '42.5rem',
         192: '48rem',
         footer: '5rem',

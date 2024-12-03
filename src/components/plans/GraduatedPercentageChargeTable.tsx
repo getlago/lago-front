@@ -56,7 +56,8 @@ export const GraduatedPercentageChargeTable = memo(
 
     return (
       <Container>
-        <AddButton
+        <Button
+          className="mb-2 ml-auto"
           startIcon="plus"
           variant="quaternary"
           onClick={addRange}
@@ -64,7 +65,7 @@ export const GraduatedPercentageChargeTable = memo(
           data-test="add-tier"
         >
           {translate('text_62793bbb599f1c01522e91a5')}
-        </AddButton>
+        </Button>
         <TableContainer>
           <ChargeTable
             name="graduated-percentage-charge-table"
@@ -349,9 +350,4 @@ const CellAmount = styled(AmountInput)`
       }
     }
   }
-`
-
-const AddButton = styled(Button)`
-  margin-left: auto;
-  margin-bottom: ${theme.spacing(2)};
 `
