@@ -112,8 +112,9 @@ const config = {
       xl: '0px 16px 24px 0px rgba(25, 33, 46, 0.10)',
     },
     fontFamily: {
-      sans: ['Inter, Arial, Verdana, Helvetica, sans-serif'],
-      email: ['Helvetica, Arial, sans-serif'],
+      sans: ['Inter', 'Arial', 'Verdana', 'Helvetica', 'sans-serif'],
+      email: ['Helvetica', 'Arial', 'sans-serif'],
+      code: ['IBM Plex Mono', 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', 'monospace'],
     },
     container: {
       center: false,
