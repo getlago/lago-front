@@ -11,6 +11,7 @@ import { Checkbox, CheckboxField, ComboBoxField, TextInputField } from '~/compon
 import { DeleteHubspotIntegrationDialogRef } from '~/components/settings/integrations/DeleteHubspotIntegrationDialog'
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { getHubspotTargetedObjectTranslationKey } from '~/core/constants/form'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { HUBSPOT_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   CreateHubspotIntegrationInput,
@@ -21,7 +22,6 @@ import {
   useUpdateHubspotIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { IntegrationsTabsOptionsEnum } from '~/pages/settings/Integrations'
 import { tw } from '~/styles/utils'
 
 gql`

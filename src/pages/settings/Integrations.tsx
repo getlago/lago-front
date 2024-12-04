@@ -55,6 +55,7 @@ import {
   DOCUMENTATION_OSO,
   DOCUMENTATION_SEGMENT,
 } from '~/core/constants/externalUrls'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   ADYEN_INTEGRATION_ROUTE,
   ANROK_INTEGRATION_ROUTE,
@@ -86,11 +87,6 @@ import Salesforce from '~/public/images/salesforce.svg'
 import Segment from '~/public/images/segment.svg'
 import Stripe from '~/public/images/stripe.svg'
 import Xero from '~/public/images/xero.svg'
-
-export enum IntegrationsTabsOptionsEnum {
-  Lago = 'lago',
-  Community = 'community',
-}
 
 gql`
   query integrationsSetting($limit: Int) {

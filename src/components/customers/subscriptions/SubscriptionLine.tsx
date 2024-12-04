@@ -15,6 +15,7 @@ import {
 } from '~/components/designSystem'
 import { TimezoneDate } from '~/components/TimezoneDate'
 import { addToast } from '~/core/apolloClient'
+import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   UPDATE_SUBSCRIPTION,
@@ -24,7 +25,6 @@ import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { StatusTypeEnum, SubscriptionLinePlanFragment, TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
-import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/pages/SubscriptionDetails'
 import { ItemContainer, ListItemLink, MenuPopper, NAV_HEIGHT, PopperOpener, theme } from '~/styles'
 
 import { TerminateCustomerSubscriptionDialogRef } from './TerminateCustomerSubscriptionDialog'

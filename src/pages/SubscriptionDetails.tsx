@@ -21,6 +21,10 @@ import SubscriptionDetailsOverview from '~/components/subscriptions/Subscription
 import SubscriptionUsageTabContent from '~/components/subscriptions/SubscriptionUsageTabContent'
 import { addToast } from '~/core/apolloClient'
 import {
+  CustomerSubscriptionDetailsTabsOptionsEnum,
+  PlanDetailsTabsOptionsEnum,
+} from '~/core/constants/tabsOptions'
+import {
   CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   PLAN_DETAILS_ROUTE,
@@ -33,13 +37,6 @@ import { StatusTypeEnum, useGetSubscriptionForDetailsQuery } from '~/generated/g
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper, PageHeader, theme } from '~/styles'
-
-import { PlanDetailsTabsOptionsEnum } from './PlanDetails'
-
-export enum CustomerSubscriptionDetailsTabsOptionsEnum {
-  overview = 'overview',
-  usage = 'usage',
-}
 
 gql`
   query getSubscriptionForDetails($subscriptionId: ID!) {

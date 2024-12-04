@@ -25,6 +25,7 @@ import {
   DeleteCashfreeIntegrationDialog,
   DeleteCashfreeIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteCashfreeIntegrationDialog'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CASHFREE_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
 import {
   AddCashfreeProviderDialogFragmentDoc,
@@ -38,8 +39,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import Cashfree from '~/public/images/cashfree.svg'
 import { ListItemLink, MenuPopper, PageHeader, PopperOpener } from '~/styles'
-
-import { IntegrationsTabsOptionsEnum } from './Integrations'
 
 gql`
   fragment CashfreeIntegrations on CashfreeProvider {
@@ -92,7 +91,7 @@ const CashfreeIntegrations = () => {
 
   return (
     <>
-      <PageHeader $withSide>
+      <PageHeader withSide>
         <div className="flex items-center">
           <ButtonLink
             to={generatePath(INTEGRATIONS_ROUTE, {

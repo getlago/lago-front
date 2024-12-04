@@ -9,6 +9,7 @@ import { object, string } from 'yup'
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CASHFREE_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   AddCashfreePaymentProviderInput,
@@ -20,7 +21,6 @@ import {
   useUpdateCashfreeApiKeyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { IntegrationsTabsOptionsEnum } from '~/pages/settings/Integrations'
 
 import { DeleteCashfreeIntegrationDialogRef } from './DeleteCashfreeIntegrationDialog'
 
