@@ -1,11 +1,8 @@
-import styled from 'styled-components'
-
 import { Icon, Tooltip, Typography, TypographyProps } from '~/components/designSystem'
 import { formatDateToTZ, getTimezoneConfig } from '~/core/timezone'
 import { TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { theme } from '~/styles'
 
 enum MainTimezoneEnum {
   utc0 = 'utc0',
@@ -35,16 +32,16 @@ export const TimezoneDate = ({
   const formattedCustomerTZ = getTimezoneConfig(customerTimezone || timezone)
 
   return (
-    <StyledTooltip
+    <Tooltip
       className={className}
       maxWidth="unset"
       title={
         <div>
-          <Header variant="captionHl" color="white">
+          <Typography className="mb-3" variant="captionHl" color="white">
             {translate('text_6390bbcc05db04e825d347a7')}
-          </Header>
+          </Typography>
 
-          <Grid>
+          <div className="grid w-full grid-cols-[16px_40px_85px_max-content] gap-2">
             <Icon name="user" color="disabled" />
             <Typography variant="caption" color="grey400">
               {translate('text_6390bbe826d6143fdecb81e1')}
@@ -66,12 +63,17 @@ export const TimezoneDate = ({
             <Typography variant="caption" color="white">
               {formatTimeOrgaTZ(date, 'EEE dd LLL, yyyy HH:mm:ss')}
             </Typography>
-          </Grid>
+          </div>
         </div>
       }
       placement="top-end"
     >
-      <Date color="grey700" {...mainTypographyProps} noWrap>
+      <Typography
+        className="w-max border-b-2 border-dotted border-grey-400"
+        color="grey700"
+        {...mainTypographyProps}
+        noWrap
+      >
         {formatDateToTZ(
           date,
           mainTimezone === MainTimezoneEnum.organization
@@ -81,30 +83,7 @@ export const TimezoneDate = ({
               : TimezoneEnum.TzUtc,
           mainDateFormat,
         )}
-      </Date>
-    </StyledTooltip>
+      </Typography>
+    </Tooltip>
   )
 }
-
-const Date = styled(Typography)`
-  border-bottom: 2px dotted ${theme.palette.grey[400]};
-  width: max-content;
-`
-
-const Header = styled(Typography)`
-  margin-bottom: ${theme.spacing(3)};
-`
-
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: 16px 40px 85px max-content;
-  gap: ${theme.spacing(2)};
-  width: 100%;
-`
-
-const StyledTooltip = styled(Tooltip)`
-  max-width: unset !important;
-  .MuiTooltip-tooltip {
-    max-width: unset !important;
-  }
-`
