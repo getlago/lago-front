@@ -624,7 +624,8 @@ const CreateSubscription = () => {
                           placeholder={translate('text_642ac1d1407baafb9e4390ee')}
                           helperText={translate('text_642ac28c65c2180085afe31a')}
                         />
-                        <InlineFieldTooltip
+                        <Tooltip
+                          className="mt-7 h-fit"
                           disableHoverListener={formType !== FORM_TYPE_ENUM.creation}
                           placement="top-end"
                           title={translate('text_63aa085d28b8510cd46443ff')}
@@ -638,7 +639,7 @@ const CreateSubscription = () => {
                               setShouldDisplaySubscriptionExternalId(false)
                             }}
                           />
-                        </InlineFieldTooltip>
+                        </Tooltip>
                       </InlineFieldWithDelete>
                     )}
 
@@ -651,7 +652,8 @@ const CreateSubscription = () => {
                           placeholder={translate('text_62d7f6178ec94cd09370e2cb')}
                           helperText={translate('text_62d7f6178ec94cd09370e2d9')}
                         />
-                        <InlineFieldTooltip
+                        <Tooltip
+                          className="mt-7 h-fit"
                           disableHoverListener={formType !== FORM_TYPE_ENUM.creation}
                           placement="top-end"
                           title={translate('text_63aa085d28b8510cd46443ff')}
@@ -664,7 +666,7 @@ const CreateSubscription = () => {
                               setShouldDisplaySubscriptionName(false)
                             }}
                           />
-                        </InlineFieldTooltip>
+                        </Tooltip>
                       </InlineFieldWithDelete>
                     )}
 
@@ -972,11 +974,6 @@ const InlineFieldWithDelete = styled.div`
   > *:first-child {
     flex: 1;
   }
-`
-
-const InlineFieldTooltip = styled(Tooltip)`
-  height: fit-content;
-  margin-top: ${theme.spacing(7)};
 `
 
 const InlineAddButtonsActions = styled.div`

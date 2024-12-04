@@ -148,7 +148,8 @@ export const PlanSettingsSection = memo(
                 rows="3"
                 formikProps={formikProps}
               />
-              <CloseDescriptionTooltip
+              <Tooltip
+                className="mt-6"
                 placement="top-end"
                 title={translate('text_63aa085d28b8510cd46443ff')}
               >
@@ -160,7 +161,7 @@ export const PlanSettingsSection = memo(
                     setShouldDisplayDescription(false)
                   }}
                 />
-              </CloseDescriptionTooltip>
+              </Tooltip>
             </InlineDescription>
           ) : (
             <Button
@@ -349,8 +350,4 @@ const InlineTaxesWrapper = styled.div`
 const TextArea = styled(TextInputField)`
   flex: 1;
   margin-right: ${theme.spacing(3)};
-`
-
-const CloseDescriptionTooltip = styled(Tooltip)`
-  margin-top: ${theme.spacing(6)};
 `
