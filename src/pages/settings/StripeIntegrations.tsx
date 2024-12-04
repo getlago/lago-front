@@ -27,6 +27,7 @@ import {
   DeleteStripeIntegrationDialog,
   DeleteStripeIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteStripeIntegrationDialog'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE, STRIPE_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   AddStripeProviderDialogFragmentDoc,
@@ -48,8 +49,6 @@ import {
   PopperOpener,
   theme,
 } from '~/styles'
-
-import { IntegrationsTabsOptionsEnum } from './Integrations'
 
 gql`
   fragment StripeIntegrations on StripeProvider {

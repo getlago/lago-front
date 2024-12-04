@@ -34,6 +34,7 @@ import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/V
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, LagoGQLError } from '~/core/apolloClient'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
+import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE,
@@ -234,11 +235,6 @@ gql`
   ${HubspotIntegrationInfosForInvoiceOverviewFragmentDoc}
   ${SalesforceIntegrationInfosForInvoiceOverviewFragmentDoc}
 `
-
-export enum CustomerInvoiceDetailsTabsOptionsEnum {
-  overview = 'overview',
-  creditNotes = 'credit-notes',
-}
 
 const getErrorMessageFromErrorDetails = (
   errors: AllInvoiceDetailsForCustomerInvoiceDetailsFragment['errorDetails'],

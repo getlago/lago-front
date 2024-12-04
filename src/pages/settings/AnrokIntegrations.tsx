@@ -23,6 +23,7 @@ import {
   DeleteAnrokIntegrationDialog,
   DeleteAnrokIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteAnrokIntegrationDialog'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ANROK_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
 import {
   AddAnrokIntegrationDialogFragmentDoc,
@@ -44,7 +45,6 @@ import {
 } from '~/styles'
 
 import { AnrokIntegrationDetailsTabs } from './AnrokIntegrationDetails'
-import { IntegrationsTabsOptionsEnum } from './Integrations'
 
 gql`
   fragment AnrokIntegrations on AnrokIntegration {

@@ -8,6 +8,7 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
 import { PlanItem, PlanItemSkeleton } from '~/components/plans/PlanItem'
 import { SearchInput } from '~/components/SearchInput'
+import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CREATE_PLAN_ROUTE, PLAN_DETAILS_ROUTE } from '~/core/router'
 import { PlanItemFragmentDoc, usePlansLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -17,8 +18,6 @@ import { usePermissions } from '~/hooks/usePermissions'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { ListContainer, ListHeader, PageHeader, theme } from '~/styles'
-
-import { PlanDetailsTabsOptionsEnum } from './PlanDetails'
 
 gql`
   query plans($page: Int, $limit: Int, $searchTerm: String) {

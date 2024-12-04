@@ -27,6 +27,7 @@ import {
   DeleteGocardlessIntegrationDialog,
   DeleteGocardlessIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteGocardlessIntegrationDialog'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { GOCARDLESS_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
 import {
   AddGocardlessProviderDialogFragmentDoc,
@@ -48,8 +49,6 @@ import {
   PopperOpener,
   theme,
 } from '~/styles'
-
-import { IntegrationsTabsOptionsEnum } from './Integrations'
 
 gql`
   fragment GocardlessIntegrations on GocardlessProvider {

@@ -24,6 +24,7 @@ import {
 } from '~/components/settings/integrations/DeleteXeroIntegrationDialog'
 import XeroIntegrationItemsList from '~/components/settings/integrations/XeroIntegrationItemsList'
 import XeroIntegrationSettings from '~/components/settings/integrations/XeroIntegrationSettings'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   INTEGRATIONS_ROUTE,
   XERO_INTEGRATION_DETAILS_ROUTE,
@@ -40,8 +41,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Xero from '~/public/images/xero.svg'
 import { MenuPopper, PageHeader, theme } from '~/styles'
-
-import { IntegrationsTabsOptionsEnum } from './Integrations'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 

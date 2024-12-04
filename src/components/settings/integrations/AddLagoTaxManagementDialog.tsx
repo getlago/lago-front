@@ -9,6 +9,7 @@ import { Alert, Button, Dialog, DialogRef, Typography } from '~/components/desig
 import { ComboBoxField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { LAGO_TAX_DOCUMENTATION_URL } from '~/core/constants/externalUrls'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 import { TAX_MANAGEMENT_INTEGRATION_ROUTE } from '~/core/router'
 import {
@@ -18,7 +19,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useIntegrations } from '~/hooks/useIntegrations'
-import { IntegrationsTabsOptionsEnum } from '~/pages/settings/Integrations'
 import { theme } from '~/styles'
 
 gql`

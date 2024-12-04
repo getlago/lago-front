@@ -26,6 +26,7 @@ import {
   DeleteAdyenIntegrationDialog,
   DeleteAdyenIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteAdyenIntegrationDialog'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ADYEN_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
 import {
   AddAdyenProviderDialogFragmentDoc,
@@ -39,8 +40,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import Adyen from '~/public/images/adyen.svg'
 import { MenuPopper, NAV_HEIGHT, PageHeader, PopperOpener, theme } from '~/styles'
-
-import { IntegrationsTabsOptionsEnum } from './Integrations'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 

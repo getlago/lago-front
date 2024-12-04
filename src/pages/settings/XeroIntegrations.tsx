@@ -20,6 +20,7 @@ import {
   DeleteXeroIntegrationDialog,
   DeleteXeroIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteXeroIntegrationDialog'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE, XERO_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   DeleteXeroIntegrationDialogFragmentDoc,
@@ -40,7 +41,6 @@ import {
   theme,
 } from '~/styles'
 
-import { IntegrationsTabsOptionsEnum } from './Integrations'
 import { XeroIntegrationDetailsTabs } from './XeroIntegrationDetails'
 
 gql`

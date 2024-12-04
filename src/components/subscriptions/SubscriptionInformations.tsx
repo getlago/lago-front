@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 import { generatePath, Link } from 'react-router-dom'
 import styled from 'styled-components'
 
+import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS } from '~/core/router'
 import {
   StatusTypeEnum,
@@ -10,7 +11,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { PlanDetailsTabsOptionsEnum } from '~/pages/PlanDetails'
 import { theme } from '~/styles'
 import { DetailsInfoGrid, DetailsInfoItem, DetailsSectionTitle } from '~/styles/detailsPage'
 

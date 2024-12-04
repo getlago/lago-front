@@ -27,6 +27,7 @@ import {
   DeleteAnrokIntegrationDialog,
   DeleteAnrokIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteAnrokIntegrationDialog'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   ANROK_INTEGRATION_DETAILS_ROUTE,
   ANROK_INTEGRATION_ROUTE,
@@ -43,8 +44,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Anrok from '~/public/images/anrok.svg'
 import { MenuPopper, PageHeader, theme } from '~/styles'
-
-import { IntegrationsTabsOptionsEnum } from './Integrations'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 

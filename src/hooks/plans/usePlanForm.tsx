@@ -15,6 +15,10 @@ import {
 } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
 import { FORM_ERRORS_ENUM, FORM_TYPE_ENUM } from '~/core/constants/form'
 import {
+  CustomerSubscriptionDetailsTabsOptionsEnum,
+  PlanDetailsTabsOptionsEnum,
+} from '~/core/constants/tabsOptions'
+import {
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   ERROR_404_ROUTE,
   PLAN_DETAILS_ROUTE,
@@ -36,8 +40,6 @@ import {
   useGetSinglePlanQuery,
   useUpdatePlanMutation,
 } from '~/generated/graphql'
-import { PlanDetailsTabsOptionsEnum } from '~/pages/PlanDetails'
-import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/pages/SubscriptionDetails'
 
 import { useInternationalization } from '../core/useInternationalization'
 import { useOrganizationInfos } from '../useOrganizationInfos'
