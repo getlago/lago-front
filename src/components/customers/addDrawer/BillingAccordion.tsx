@@ -2,15 +2,61 @@ import { FormikProps } from 'formik'
 import { FC, useEffect, useState } from 'react'
 
 import { Accordion, Typography } from '~/components/designSystem'
-import { Checkbox, ComboBoxField, TextInputField } from '~/components/form'
+import { Checkbox, ComboBoxField, ComboBoxProps, TextInputField } from '~/components/form'
 import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 import {
   AddCustomerDrawerFragment,
   CreateCustomerInput,
   CurrencyEnum,
+  CustomerAddress,
   UpdateCustomerInput,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+const billingFields: Array<
+  { name: keyof CustomerAddress; label?: string; placeholder?: string } & (
+    | {
+        type: 'text'
+      }
+    | {
+        type: 'combobox'
+        data: ComboBoxProps['data']
+      }
+  )
+> = [
+  {
+    name: 'addressLine1',
+    type: 'text',
+    label: 'text_626c0c09812bbc00e4c59e1b',
+    placeholder: 'text_626c0c09812bbc00e4c59e1d',
+  },
+  {
+    name: 'addressLine2',
+    type: 'text',
+    placeholder: 'text_626c0c09812bbc00e4c59e1f',
+  },
+  {
+    name: 'zipcode',
+    type: 'text',
+    placeholder: 'text_626c0c09812bbc00e4c59e21',
+  },
+  {
+    name: 'city',
+    type: 'text',
+    placeholder: 'text_626c0c09812bbc00e4c59e23',
+  },
+  {
+    name: 'state',
+    type: 'text',
+    placeholder: 'text_626c0c09812bbc00e4c59e25',
+  },
+  {
+    name: 'country',
+    type: 'combobox',
+    placeholder: 'text_626c0c09812bbc00e4c59e27',
+    data: countryDataForCombobox,
+  },
+]
 
 interface BillingAccordionProps {
   formikProps: FormikProps<CreateCustomerInput | UpdateCustomerInput>
@@ -103,7 +149,6 @@ export const BillingAccordion: FC<BillingAccordionProps> = ({
             formikProps={formikProps}
             helperText={translate('text_641394c4c936000079c5639a')}
           />
-
           <TextInputField
             name="url"
             label={translate('text_641b15b0df87eb00848944ea')}
@@ -121,39 +166,31 @@ export const BillingAccordion: FC<BillingAccordionProps> = ({
           <Typography variant="bodyHl" color="textSecondary">
             {translate('text_626c0c09812bbc00e4c59e19')}
           </Typography>
-          <TextInputField
-            name="addressLine1"
-            label={translate('text_626c0c09812bbc00e4c59e1b')}
-            placeholder={translate('text_626c0c09812bbc00e4c59e1d')}
-            formikProps={formikProps}
-          />
-          <TextInputField
-            name="addressLine2"
-            placeholder={translate('text_626c0c09812bbc00e4c59e1f')}
-            formikProps={formikProps}
-          />
-          <TextInputField
-            name="zipcode"
-            placeholder={translate('text_626c0c09812bbc00e4c59e21')}
-            formikProps={formikProps}
-          />
-          <TextInputField
-            name="city"
-            placeholder={translate('text_626c0c09812bbc00e4c59e23')}
-            formikProps={formikProps}
-          />
-          <TextInputField
-            name="state"
-            placeholder={translate('text_626c0c09812bbc00e4c59e25')}
-            formikProps={formikProps}
-          />
-          <ComboBoxField
-            data={countryDataForCombobox}
-            name="country"
-            placeholder={translate('text_626c0c09812bbc00e4c59e27')}
-            formikProps={formikProps}
-            PopperProps={{ displayInDialog: true }}
-          />
+
+          {billingFields.map((field) => {
+            if (field.type === 'text') {
+              return (
+                <TextInputField
+                  key={field.name}
+                  name={field.name}
+                  label={field.label && translate(field.label)}
+                  placeholder={field.placeholder && translate(field.placeholder)}
+                  formikProps={formikProps}
+                />
+              )
+            }
+
+            return (
+              <ComboBoxField
+                key={field.name}
+                data={field.data}
+                name={field.name}
+                placeholder={field.placeholder && translate(field.placeholder)}
+                formikProps={formikProps}
+                PopperProps={{ displayInDialog: true }}
+              />
+            )
+          })}
         </div>
         <div className="not-last-child:mb-4">
           <Typography variant="bodyHl" color="textSecondary">
@@ -164,45 +201,32 @@ export const BillingAccordion: FC<BillingAccordionProps> = ({
             value={isShippingEqualBillingAddress}
             onChange={() => setIsShippingEqualBillingAddress((prev) => !prev)}
           />
-          <TextInputField
-            name="shippingAddress.addressLine1"
-            label={translate('text_626c0c09812bbc00e4c59e1b')}
-            placeholder={translate('text_626c0c09812bbc00e4c59e1d')}
-            formikProps={formikProps}
-            disabled={isShippingEqualBillingAddress}
-          />
-          <TextInputField
-            name="shippingAddress.addressLine2"
-            placeholder={translate('text_626c0c09812bbc00e4c59e1f')}
-            formikProps={formikProps}
-            disabled={isShippingEqualBillingAddress}
-          />
-          <TextInputField
-            name="shippingAddress.zipcode"
-            placeholder={translate('text_626c0c09812bbc00e4c59e21')}
-            formikProps={formikProps}
-            disabled={isShippingEqualBillingAddress}
-          />
-          <TextInputField
-            name="shippingAddress.city"
-            placeholder={translate('text_626c0c09812bbc00e4c59e23')}
-            formikProps={formikProps}
-            disabled={isShippingEqualBillingAddress}
-          />
-          <TextInputField
-            name="shippingAddress.state"
-            placeholder={translate('text_626c0c09812bbc00e4c59e25')}
-            formikProps={formikProps}
-            disabled={isShippingEqualBillingAddress}
-          />
-          <ComboBoxField
-            data={countryDataForCombobox}
-            name="shippingAddress.country"
-            placeholder={translate('text_626c0c09812bbc00e4c59e27')}
-            formikProps={formikProps}
-            disabled={isShippingEqualBillingAddress}
-            PopperProps={{ displayInDialog: true }}
-          />
+          {billingFields.map((field) => {
+            if (field.type === 'text') {
+              return (
+                <TextInputField
+                  key={`shippingAddress.${field.name}`}
+                  name={`shippingAddress.${field.name}`}
+                  label={field.label && translate(field.label)}
+                  placeholder={field.placeholder && translate(field.placeholder)}
+                  formikProps={formikProps}
+                  disabled={isShippingEqualBillingAddress}
+                />
+              )
+            }
+
+            return (
+              <ComboBoxField
+                key={`shippingAddress.${field.name}`}
+                name={`shippingAddress.${field.name}`}
+                placeholder={field.placeholder && translate(field.placeholder)}
+                formikProps={formikProps}
+                disabled={isShippingEqualBillingAddress}
+                PopperProps={{ displayInDialog: true }}
+                data={field.data}
+              />
+            )
+          })}
         </div>
       </div>
     </Accordion>
