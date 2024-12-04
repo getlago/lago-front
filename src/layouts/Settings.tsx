@@ -4,6 +4,7 @@ import { generatePath, Outlet } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { Button, Typography, VerticalMenu } from '~/components/designSystem'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   AUTHENTICATION_ROUTE,
   CREATE_DUNNING_ROUTE,
@@ -26,7 +27,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { usePermissions } from '~/hooks/usePermissions'
-import { IntegrationsTabsOptionsEnum } from '~/pages/settings/Integrations'
 import { theme } from '~/styles'
 
 const NAV_WIDTH = 240

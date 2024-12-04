@@ -4,6 +4,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { Alert, Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   INTEGRATIONS_ROUTE,
   XERO_INTEGRATION_DETAILS_ROUTE,
@@ -17,7 +18,6 @@ import {
   XeroIntegrationSettingsFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { IntegrationsTabsOptionsEnum } from '~/pages/settings/Integrations'
 import { XeroIntegrationDetailsTabs } from '~/pages/settings/XeroIntegrationDetails'
 import { NAV_HEIGHT, theme } from '~/styles'
 

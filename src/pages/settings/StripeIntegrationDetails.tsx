@@ -27,6 +27,7 @@ import {
   DeleteStripeIntegrationDialog,
   DeleteStripeIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteStripeIntegrationDialog'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE, STRIPE_INTEGRATION_ROUTE } from '~/core/router'
 import {
   AddStripeProviderDialogFragmentDoc,
@@ -40,8 +41,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import Stripe from '~/public/images/stripe.svg'
 import { MenuPopper, NAV_HEIGHT, PageHeader, PopperOpener, theme } from '~/styles'
-
-import { IntegrationsTabsOptionsEnum } from './Integrations'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 

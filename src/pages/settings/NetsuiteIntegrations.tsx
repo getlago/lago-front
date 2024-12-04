@@ -23,6 +23,7 @@ import {
   DeleteNetsuiteIntegrationDialog,
   DeleteNetsuiteIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteNetsuiteIntegrationDialog'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE, NETSUITE_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   DeleteNetsuiteIntegrationDialogFragmentDoc,
@@ -43,7 +44,6 @@ import {
   theme,
 } from '~/styles'
 
-import { IntegrationsTabsOptionsEnum } from './Integrations'
 import { NetsuiteIntegrationDetailsTabs } from './NetsuiteIntegrationDetails'
 
 gql`

@@ -21,6 +21,7 @@ import {
   DeleteHubspotIntegrationDialog,
   DeleteHubspotIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteHubspotIntegrationDialog'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { HUBSPOT_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
 import {
   DeleteHubspotIntegrationDialogFragmentDoc,
@@ -32,8 +33,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Hubspot from '~/public/images/hubspot.svg'
 import { MenuPopper, PageHeader } from '~/styles'
-
-import { IntegrationsTabsOptionsEnum } from './Integrations'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 

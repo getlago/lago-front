@@ -27,6 +27,7 @@ import {
   DeleteAdyenIntegrationDialog,
   DeleteAdyenIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteAdyenIntegrationDialog'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ADYEN_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
 import {
   AddAdyenProviderDialogFragmentDoc,
@@ -48,8 +49,6 @@ import {
   PopperOpener,
   theme,
 } from '~/styles'
-
-import { IntegrationsTabsOptionsEnum } from './Integrations'
 
 gql`
   fragment AdyenIntegrations on AdyenProvider {

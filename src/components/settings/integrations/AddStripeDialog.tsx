@@ -10,6 +10,7 @@ import { object, string } from 'yup'
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { STRIPE_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   AddStripePaymentProviderInput,
@@ -21,7 +22,6 @@ import {
   useUpdateStripeApiKeyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { IntegrationsTabsOptionsEnum } from '~/pages/settings/Integrations'
 import { theme } from '~/styles'
 
 import { DeleteStripeIntegrationDialogRef } from './DeleteStripeIntegrationDialog'

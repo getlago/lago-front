@@ -17,6 +17,7 @@ import {
 import { WarningDialog } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { CountryCodes } from '~/core/constants/countryCodes'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   INTEGRATIONS_ROUTE,
@@ -33,8 +34,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import LagoTaxManagement from '~/public/images/lago-tax-management.svg'
 import { NAV_HEIGHT, PageHeader, theme } from '~/styles'
-
-import { IntegrationsTabsOptionsEnum } from './Integrations'
 
 gql`
   query lagoTaxManagementIntegrationsSetting {
