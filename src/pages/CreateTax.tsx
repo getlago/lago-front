@@ -1,7 +1,6 @@
 import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
 import { useEffect, useRef, useState } from 'react'
-import styled from 'styled-components'
 import { number, object, string } from 'yup'
 
 import { Button, Card, Skeleton, Tooltip, Typography } from '~/components/designSystem'
@@ -12,7 +11,7 @@ import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditTax } from '~/hooks/useCreateEditTax'
-import { PageHeader, theme } from '~/styles'
+import { PageHeader } from '~/styles'
 import {
   ButtonContainer,
   Content,
@@ -27,7 +26,7 @@ import {
 
 const CreateTaxRate = () => {
   const { isEdition, errorCode, loading, onClose, onSave, tax } = useCreateEditTax()
-  const leavingNotSavedChagesWarningDialogRef = useRef<WarningDialogRef>(null)
+  const leavingNotSavedChargesWarningDialogRef = useRef<WarningDialogRef>(null)
   const savingAppliedTaxRateWarningDialogRef = useRef<WarningDialogRef>(null)
   const { translate } = useInternationalization()
   const formikProps = useFormik<TaxFormInput>({
@@ -79,7 +78,7 @@ const CreateTaxRate = () => {
           icon="close"
           onClick={() =>
             formikProps.dirty
-              ? leavingNotSavedChagesWarningDialogRef.current?.openDialog()
+              ? leavingNotSavedChargesWarningDialogRef.current?.openDialog()
               : onClose()
           }
         />
@@ -144,8 +143,9 @@ const CreateTaxRate = () => {
                   </LineSplit>
 
                   {shouldDisplayDescription ? (
-                    <InlineDescription>
-                      <TextArea
+                    <div className="flex items-center">
+                      <TextInputField
+                        className="mr-3 flex-1"
                         // eslint-disable-next-line jsx-a11y/no-autofocus
                         autoFocus
                         multiline
@@ -155,7 +155,8 @@ const CreateTaxRate = () => {
                         rows="3"
                         formikProps={formikProps}
                       />
-                      <CloseDescriptionTooltip
+                      <Tooltip
+                        className="mt-6"
                         placement="top-end"
                         title={translate('text_63aa085d28b8510cd46443ff')}
                       >
@@ -167,8 +168,8 @@ const CreateTaxRate = () => {
                             setShouldDisplayDescription(false)
                           }}
                         />
-                      </CloseDescriptionTooltip>
-                    </InlineDescription>
+                      </Tooltip>
+                    </div>
                   ) : (
                     <Button
                       className="self-start"
@@ -229,7 +230,7 @@ const CreateTaxRate = () => {
         </Side>
       </Content>
       <WarningDialog
-        ref={leavingNotSavedChagesWarningDialogRef}
+        ref={leavingNotSavedChargesWarningDialogRef}
         title={translate('text_645bb193927b375079d289cb')}
         description={translate('text_645bb193927b375079d289d9')}
         continueText={translate('text_645bb193927b375079d289f9')}
@@ -256,17 +257,3 @@ const CreateTaxRate = () => {
 }
 
 export default CreateTaxRate
-
-const InlineDescription = styled.div`
-  display: flex;
-  align-items: center;
-`
-
-const TextArea = styled(TextInputField)`
-  flex: 1;
-  margin-right: ${theme.spacing(3)};
-`
-
-const CloseDescriptionTooltip = styled(Tooltip)`
-  margin-top: ${theme.spacing(6)};
-`
