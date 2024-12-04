@@ -21,6 +21,7 @@ import {
   DeleteSalesforceIntegrationDialog,
   DeleteSalesforceIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteSalesforceIntegrationDialog'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE, SALESFORCE_INTEGRATION_ROUTE } from '~/core/router'
 import {
   DeleteSalesforceIntegrationDialogFragmentDoc,
@@ -32,8 +33,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Salesforce from '~/public/images/salesforce.svg'
 import { MenuPopper, PageHeader } from '~/styles'
-
-import { IntegrationsTabsOptionsEnum } from './Integrations'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 

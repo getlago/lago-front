@@ -10,6 +10,7 @@ import { object, string } from 'yup'
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ANROK_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   AddAnrokIntegrationDialogFragment,
@@ -23,7 +24,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { AnrokIntegrationDetailsTabs } from '~/pages/settings/AnrokIntegrationDetails'
-import { IntegrationsTabsOptionsEnum } from '~/pages/settings/Integrations'
 import { theme } from '~/styles'
 
 import { DeleteAnrokIntegrationDialogRef } from './DeleteAnrokIntegrationDialog'

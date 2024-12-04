@@ -6,6 +6,7 @@ import styled from 'styled-components'
 
 import { Alert, Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   ANROK_INTEGRATION_DETAILS_ROUTE,
   ANROK_INTEGRATION_ROUTE,
@@ -20,7 +21,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { AnrokIntegrationDetailsTabs } from '~/pages/settings/AnrokIntegrationDetails'
-import { IntegrationsTabsOptionsEnum } from '~/pages/settings/Integrations'
 import { NAV_HEIGHT, theme } from '~/styles'
 
 import { AddAnrokDialog, AddAnrokDialogRef } from './AddAnrokDialog'

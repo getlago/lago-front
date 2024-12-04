@@ -6,6 +6,7 @@ import styled from 'styled-components'
 import { Avatar, ButtonLink, Chip, Icon, Skeleton, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { addToast } from '~/core/apolloClient'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { GOCARDLESS_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
 import {
   AddGocardlessProviderDialogFragmentDoc,
@@ -15,8 +16,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Gocardless from '~/public/images/gocardless.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { PageHeader, theme } from '~/styles'
-
-import { IntegrationsTabsOptionsEnum } from './Integrations'
 
 gql`
   fragment GocardlessIntegrationOauthCallback on GocardlessProvider {

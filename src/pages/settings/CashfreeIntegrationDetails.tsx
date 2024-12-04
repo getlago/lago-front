@@ -24,6 +24,7 @@ import {
   DeleteCashfreeIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteCashfreeIntegrationDialog'
 import { addToast, envGlobalVar, getItemFromLS, ORGANIZATION_LS_KEY_ID } from '~/core/apolloClient'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CASHFREE_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
@@ -37,8 +38,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import Cashfree from '~/public/images/cashfree.svg'
 import { MenuPopper, PageHeader } from '~/styles'
-
-import { IntegrationsTabsOptionsEnum } from './Integrations'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -120,7 +119,7 @@ const CashfreeIntegrationDetails = () => {
 
   return (
     <div>
-      <PageHeader $withSide>
+      <PageHeader withSide>
         <div className="flex items-center">
           <ButtonLink
             to={generatePath(CASHFREE_INTEGRATION_ROUTE, {

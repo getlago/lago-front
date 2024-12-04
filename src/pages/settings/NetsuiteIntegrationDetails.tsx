@@ -27,6 +27,7 @@ import {
 } from '~/components/settings/integrations/DeleteNetsuiteIntegrationDialog'
 import NetsuiteIntegrationItemsList from '~/components/settings/integrations/NetsuiteIntegrationItemsList'
 import NetsuiteIntegrationSettings from '~/components/settings/integrations/NetsuiteIntegrationSettings'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   INTEGRATIONS_ROUTE,
   NETSUITE_INTEGRATION_DETAILS_ROUTE,
@@ -43,8 +44,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Netsuite from '~/public/images/netsuite.svg'
 import { MenuPopper, PageHeader, theme } from '~/styles'
-
-import { IntegrationsTabsOptionsEnum } from './Integrations'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 

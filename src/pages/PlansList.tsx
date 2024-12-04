@@ -14,6 +14,7 @@ import {
 import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { updateDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
+import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CREATE_PLAN_ROUTE, PLAN_DETAILS_ROUTE, UPDATE_PLAN_ROUTE } from '~/core/router'
 import { DeletePlanDialogFragmentDoc, usePlansLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -21,8 +22,6 @@ import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { PageHeader, theme } from '~/styles'
-
-import { PlanDetailsTabsOptionsEnum } from './PlanDetails'
 
 gql`
   fragment PlanItem on Plan {

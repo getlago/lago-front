@@ -12,6 +12,7 @@ import { boolean, object, string } from 'yup'
 import { Alert, Button, Chip, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { Checkbox, CheckboxField, TextInputField } from '~/components/form'
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { NETSUITE_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   CreateNetsuiteIntegrationInput,
@@ -20,7 +21,6 @@ import {
   useUpdateNetsuiteIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { IntegrationsTabsOptionsEnum } from '~/pages/settings/Integrations'
 import { NetsuiteIntegrationDetailsTabs } from '~/pages/settings/NetsuiteIntegrationDetails'
 import { theme } from '~/styles'
 

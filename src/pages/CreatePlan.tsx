@@ -25,6 +25,10 @@ import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { useDuplicatePlanVar } from '~/core/apolloClient'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import {
+  CustomerSubscriptionDetailsTabsOptionsEnum,
+  PlanDetailsTabsOptionsEnum,
+} from '~/core/constants/tabsOptions'
+import {
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   PLAN_DETAILS_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
@@ -40,9 +44,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
 import { PageHeader } from '~/styles'
 import { Content, Main, Side, SkeletonHeader } from '~/styles/mainObjectsForm'
-
-import { PlanDetailsTabsOptionsEnum } from './PlanDetails'
-import { CustomerSubscriptionDetailsTabsOptionsEnum } from './SubscriptionDetails'
 
 gql`
   fragment TaxForPlanAndChargesInPlanForm on Tax {
