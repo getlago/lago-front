@@ -1,7 +1,6 @@
 import { FormikProps } from 'formik'
 import _get from 'lodash/get'
 import React, { FC } from 'react'
-import { css, styled } from 'styled-components'
 
 import { Accordion, Button, Tooltip, Typography } from '~/components/designSystem'
 import { Switch, TextInputField } from '~/components/form'
@@ -15,7 +14,7 @@ import {
   UpdateCustomerInput,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 const MAX_METADATA_COUNT = 5
 
@@ -30,6 +29,8 @@ export interface LocalCustomerMetadata extends CustomerMetadataInput {
 export const MetadataAccordion: FC<MetadataAccordionProps> = ({ formikProps }) => {
   const { translate } = useInternationalization()
 
+  const gridClassName = 'grid grid-cols-[200px_1fr_60px_24px] gap-x-3 gap-y-6'
+
   return (
     <Accordion
       size="large"
@@ -37,13 +38,13 @@ export const MetadataAccordion: FC<MetadataAccordionProps> = ({ formikProps }) =
         <Typography variant="subhead">{translate('text_63fcc3218d35b9377840f59b')}</Typography>
       }
     >
-      <AccordionContentWrapper>
+      <div className="not-last-child:mb-4">
         <Typography variant="body" color="grey600">
           {translate('text_63fcc3218d35b9377840f59f')}
         </Typography>
         {!!formikProps?.values?.metadata?.length && (
           <div>
-            <MetadataGrid $isHeader>
+            <div className={tw(gridClassName, 'mb-1 [&>*:nth-child(3)]:col-span-2')}>
               <Typography variant="captionHl" color="grey700">
                 {translate('text_63fcc3218d35b9377840f5a3')}
               </Typography>
@@ -53,8 +54,9 @@ export const MetadataAccordion: FC<MetadataAccordionProps> = ({ formikProps }) =
               <Typography variant="captionHl" color="grey700">
                 {translate('text_63fcc3218d35b9377840f5b3')}
               </Typography>
-            </MetadataGrid>
-            <MetadataGrid>
+            </div>
+
+            <div className={gridClassName}>
               {formikProps?.values?.metadata?.map((m: LocalCustomerMetadata, i) => {
                 const metadataItemKeyError: string =
                   _get(formikProps.errors, `metadata.${i}.key`) || ''
@@ -115,7 +117,8 @@ export const MetadataAccordion: FC<MetadataAccordionProps> = ({ formikProps }) =
                         formikProps.setFieldValue(`metadata.${i}.displayInInvoice`, newValue)
                       }}
                     />
-                    <StyledTooltip
+                    <Tooltip
+                      className="flex items-center"
                       placement="top-end"
                       title={translate('text_63fcc3218d35b9377840f5e1')}
                     >
@@ -131,11 +134,11 @@ export const MetadataAccordion: FC<MetadataAccordionProps> = ({ formikProps }) =
                           ])
                         }}
                       />
-                    </StyledTooltip>
+                    </Tooltip>
                   </React.Fragment>
                 )
               })}
-            </MetadataGrid>
+            </div>
           </div>
         )}
         <Button
@@ -157,38 +160,7 @@ export const MetadataAccordion: FC<MetadataAccordionProps> = ({ formikProps }) =
         >
           {translate('text_63fcc3218d35b9377840f5bb')}
         </Button>
-      </AccordionContentWrapper>
+      </div>
     </Accordion>
   )
 }
-
-const AccordionContentWrapper = styled.div<{ $largeSpacing?: boolean }>`
-  &:not(:last-child) {
-    margin-bottom: ${theme.spacing(8)};
-  }
-
-  > *:not(:last-child) {
-    margin-bottom: ${({ $largeSpacing }) => ($largeSpacing ? theme.spacing(6) : theme.spacing(4))};
-  }
-`
-
-const MetadataGrid = styled.div<{ $isHeader?: boolean }>`
-  display: grid;
-  grid-template-columns: 200px 1fr 60px 24px;
-  gap: ${theme.spacing(6)} ${theme.spacing(3)};
-
-  ${({ $isHeader }) =>
-    $isHeader &&
-    css`
-      margin-bottom: ${theme.spacing(1)};
-
-      > div:nth-child(3) {
-        grid-column: span 2;
-      }
-    `};
-`
-
-const StyledTooltip = styled(Tooltip)`
-  display: flex;
-  align-items: center;
-`
