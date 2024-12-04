@@ -214,7 +214,8 @@ const ResetPassword = () => {
                 </PasswordValidation>
               </PasswordBlock>
 
-              <SubmitButton
+              <Button
+                className="mb-8"
                 data-test="submit-button"
                 disabled={errors.length > 0}
                 fullWidth
@@ -222,7 +223,7 @@ const ResetPassword = () => {
                 onClick={onResetPassword}
               >
                 {translate('text_642707b0da1753a9bb6672c4')}
-              </SubmitButton>
+              </Button>
             </form>
           </>
         )}
@@ -259,12 +260,6 @@ const ValidationLine = styled.div`
 
   svg {
     margin-right: ${theme.spacing(3)};
-  }
-`
-
-const SubmitButton = styled(Button)`
-  && {
-    margin-bottom: ${theme.spacing(8)};
   }
 `
 

@@ -367,7 +367,8 @@ export const ChargePercentage = memo(
           >
             {({ closePopper }) => (
               <MenuPopper>
-                <FreeUnitButton
+                <Button
+                  className="justify-start"
                   variant="quaternary"
                   disabled={disabled || valuePointer?.freeUnitsPerEvents !== undefined}
                   onClick={() => {
@@ -380,8 +381,9 @@ export const ChargePercentage = memo(
                   data-test="add-free-units-events"
                 >
                   {translate('text_62ff5d01a306e274d4ffcc3e')}
-                </FreeUnitButton>
-                <FreeUnitButton
+                </Button>
+                <Button
+                  className="justify-start"
                   variant="quaternary"
                   disabled={disabled || valuePointer?.freeUnitsPerTotalAggregation !== undefined}
                   onClick={() => {
@@ -395,7 +397,7 @@ export const ChargePercentage = memo(
                   data-test="add-free-units-total-amount"
                 >
                   {translate('text_62ff5d01a306e274d4ffcc44')}
-                </FreeUnitButton>
+                </Button>
               </MenuPopper>
             )}
           </Popper>
@@ -420,7 +422,8 @@ export const ChargePercentage = memo(
           >
             {({ closePopper }) => (
               <MenuPopper>
-                <FreeUnitButton
+                <Button
+                  className="justify-start"
                   variant="quaternary"
                   endIcon={isPremium ? undefined : 'sparkles'}
                   disabled={disabled || valuePointer?.perTransactionMinAmount !== undefined}
@@ -439,8 +442,9 @@ export const ChargePercentage = memo(
                   data-test="add-min-cta"
                 >
                   {translate('text_64e7b273b046851c46d781e5')}
-                </FreeUnitButton>
-                <FreeUnitButton
+                </Button>
+                <Button
+                  className="justify-start"
                   variant="quaternary"
                   endIcon={isPremium ? undefined : 'sparkles'}
                   disabled={disabled || valuePointer?.perTransactionMaxAmount !== undefined}
@@ -459,7 +463,7 @@ export const ChargePercentage = memo(
                   data-test="add-max-cta"
                 >
                   {translate('text_64e7b273b046851c46d78205')}
-                </FreeUnitButton>
+                </Button>
               </MenuPopper>
             )}
           </Popper>
@@ -586,10 +590,6 @@ const LineAmount = styled.div`
   > *:last-child {
     margin-top: 34px;
   }
-`
-
-const FreeUnitButton = styled(Button)`
-  justify-content: flex-start !important;
 `
 
 const OrText = styled(Typography)`

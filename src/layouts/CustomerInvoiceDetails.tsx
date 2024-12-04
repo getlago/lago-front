@@ -836,7 +836,8 @@ const CustomerInvoiceDetails = () => {
                         placement="bottom-end"
                         disableHoverListener={voidable}
                       >
-                        <VoidInvoiceButton
+                        <Button
+                          className="w-full"
                           variant="quaternary"
                           align="left"
                           disabled={!voidable}
@@ -846,7 +847,7 @@ const CustomerInvoiceDetails = () => {
                           }}
                         >
                           {translate('text_65269b43d4d2b15dd929a259')}
-                        </VoidInvoiceButton>
+                        </Button>
                       </Tooltip>
                     )}
                   {data?.invoice?.taxProviderVoidable && (
@@ -1002,10 +1003,6 @@ const InlineTripleTypography = styled(Typography)`
   > span:nth-child(2) {
     margin: 0 ${theme.spacing(2)};
   }
-`
-
-const VoidInvoiceButton = styled(Button)`
-  width: 100%;
 `
 
 export default CustomerInvoiceDetails

@@ -163,15 +163,16 @@ const CustomerDetails = () => {
           )}
         </HeaderInlineBreadcrumbBlock>
         <HeaderInlineActionsBlock>
-          <GoToPortalButton
-            startIcon={'outside'}
+          <Button
+            className="shrink-0"
+            startIcon="outside"
             variant="quaternary"
             onClick={async () => {
               await generatePortalUrl({ variables: { input: { id: customerId as string } } })
             }}
           >
             {translate('text_641b1b19d6e64300632ca60c')}
-          </GoToPortalButton>
+          </Button>
 
           {hasAnyActionsPermission && (
             <Popper
@@ -485,10 +486,6 @@ const HeaderInlineActionsBlock = styled.div`
   display: flex;
   align-items: center;
   gap: ${theme.spacing(3)};
-  flex-shrink: 0;
-`
-
-const GoToPortalButton = styled(Button)`
   flex-shrink: 0;
 `
 

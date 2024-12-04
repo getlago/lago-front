@@ -96,14 +96,15 @@ const SideNav = () => {
   const organizationList = currentUser?.memberships.map((membership) => membership.organization)
 
   useEffect(() => {
-    // Avoid weird scroll behaviour on navigation
+    // Avoid weird scroll behavior on navigation
     if (!contentRef.current || state?.disableScrollTop) return
     contentRef.current?.scrollTo(0, 0)
   }, [pathname, contentRef, state?.disableScrollTop])
 
   return (
     <Container>
-      <BurgerButton
+      <Button
+        className="absolute left-4 top-4 z-drawer md:hidden"
         onClick={(e) => {
           e.stopPropagation()
           setOpen((prev) => !prev)
@@ -124,7 +125,8 @@ const SideNav = () => {
               maxHeight={`calc(100vh - 64px - 16px)`}
               enableFlip={false}
               opener={
-                <HeaderButton
+                <Button
+                  className="max-w-[calc(240px-theme(space.8))] text-left *:first:mr-2"
                   data-test="side-nav-name"
                   variant="quaternary"
                   disabled={currentOrganizationLoading}
@@ -156,7 +158,7 @@ const SideNav = () => {
                       </Typography>
                     </>
                   )}
-                </HeaderButton>
+                </Button>
               }
             >
               {({ closePopper }) => (
@@ -403,19 +405,6 @@ const Container = styled.div`
   height: 100vh;
 `
 
-const BurgerButton = styled(Button)`
-  && {
-    position: absolute;
-    z-index: ${theme.zIndex.drawer};
-    left: ${theme.spacing(4)};
-    top: ${theme.spacing(4)};
-
-    ${theme.breakpoints.up('md')} {
-      display: none;
-    }
-  }
-`
-
 const Drawer = styled.div<{ $open: boolean }>`
   height: 100vh;
   box-shadow: ${theme.shadows[6]};
@@ -438,15 +427,6 @@ const Header = styled.div`
 
   ${theme.breakpoints.down('md')} {
     margin-top: calc(40px + ${theme.spacing(4)});
-  }
-`
-
-const HeaderButton = styled(Button)`
-  max-width: calc(${NAV_WIDTH}px - ${theme.spacing(8)});
-  text-align: left;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(2)};
   }
 `
 

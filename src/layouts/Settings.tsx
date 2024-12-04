@@ -51,7 +51,8 @@ const Settings = () => {
 
   return (
     <SettingsLayoutWrapper>
-      <BurgerButton
+      <Button
+        className="absolute left-4 top-4 z-drawer md:hidden"
         onClick={(e) => {
           e.stopPropagation()
           setOpen((prev) => !prev)
@@ -142,19 +143,6 @@ const Settings = () => {
 }
 
 export default Settings
-
-const BurgerButton = styled(Button)`
-  && {
-    position: absolute;
-    z-index: ${theme.zIndex.drawer};
-    left: ${theme.spacing(4)};
-    top: ${theme.spacing(4)};
-
-    ${theme.breakpoints.up('md')} {
-      display: none;
-    }
-  }
-`
 
 const SettingsLayoutWrapper = styled.div`
   width: 100vw;
