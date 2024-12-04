@@ -25,6 +25,7 @@ export const AmountInputField = memo(
         silentError = false,
         formikProps,
         displayErrorText = true,
+        inputProps,
         ...props
       }: AmountInputFieldProps,
       ref,
@@ -39,6 +40,7 @@ export const AmountInputField = memo(
           onBlur={handleBlur}
           cleanable={cleanable}
           displayErrorText={displayErrorText}
+          inputProps={inputProps}
           error={
             !silentError
               ? displayErrorText
