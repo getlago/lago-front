@@ -33,7 +33,7 @@ gql`
 export type AddBillableMetricToCouponDialogRef = DialogRef
 
 interface AddBillableMetricToCouponDialogProps {
-  onSubmit: Function
+  onSubmit: (billableMetric: BillableMetricsForCouponsFragment) => void
   attachedBillableMetricsIds?: string[]
 }
 
@@ -42,8 +42,9 @@ export const AddBillableMetricToCouponDialog = forwardRef<
   AddBillableMetricToCouponDialogProps
 >(({ attachedBillableMetricsIds, onSubmit }: AddBillableMetricToCouponDialogProps, ref) => {
   const { translate } = useInternationalization()
-  const [selectedBillableMetric, setSelectedBillableMetric] =
-    useState<BillableMetricsForCouponsFragment>()
+  const [selectedBillableMetric, setSelectedBillableMetric] = useState<
+    BillableMetricsForCouponsFragment | undefined
+  >()
   const [getBillableMetrics, { loading, data }] = useGetBillableMetricsForCouponsLazyQuery({
     variables: { limit: 50 },
   })
@@ -93,7 +94,7 @@ export const AddBillableMetricToCouponDialog = forwardRef<
           <Button
             disabled={!selectedBillableMetric}
             onClick={async () => {
-              onSubmit(selectedBillableMetric)
+              !!selectedBillableMetric && onSubmit(selectedBillableMetric)
               closeDialog()
             }}
             data-test="submitAddBillableMetricToCouponDialog"

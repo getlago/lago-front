@@ -11,7 +11,7 @@ import { theme } from '~/styles'
 
 type EditInvoiceDisplayNameProps = {
   invoiceDisplayName: InputMaybe<string> | undefined
-  callback: Function
+  callback: (invoiceDisplayName: string) => void
 }
 
 export interface EditInvoiceDisplayNameRef {
@@ -34,7 +34,7 @@ export const EditInvoiceDisplayName = forwardRef<EditInvoiceDisplayNameRef>((_, 
     validateOnMount: true,
     enableReinitialize: true,
     onSubmit: async (values, formikBag) => {
-      data?.callback(values.invoiceDisplayName)
+      !!values.invoiceDisplayName && data?.callback(values.invoiceDisplayName)
 
       dialogRef?.current?.closeDialog()
       formikBag.resetForm()

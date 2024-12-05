@@ -12,7 +12,7 @@ const MAX_CHAR_LIMIT = 255
 
 type EditInvoiceItemDescriptionDialogProps = {
   description?: string
-  callback: Function
+  callback: (description: string) => void
 }
 
 export interface EditInvoiceItemDescriptionDialogRef {
@@ -35,8 +35,8 @@ export const EditInvoiceItemDescriptionDialog = forwardRef<EditInvoiceItemDescri
       }),
       validateOnMount: true,
       enableReinitialize: true,
-      onSubmit: async (values, formikBag) => {
-        await data?.callback(values.description)
+      onSubmit: (values, formikBag) => {
+        !!values.description && data?.callback(values.description)
 
         dialogRef?.current?.closeDialog()
         formikBag.resetForm()
