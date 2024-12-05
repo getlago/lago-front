@@ -114,7 +114,7 @@ export const Checkbox = ({
 }
 
 const InputContainer = styled.div`
-  margin-right: ${theme.spacing(4)};
+  margin-right: ${theme.spacing(3)};
   display: inline-flex;
   align-items: center;
 

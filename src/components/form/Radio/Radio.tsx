@@ -136,7 +136,7 @@ const Container = styled.div`
 `
 
 const RadioContainer = styled.div`
-  margin-right: ${theme.spacing(4)};
+  margin-right: ${theme.spacing(3)};
   display: flex;
   align-items: flex-start;
   padding-top: 4px;
