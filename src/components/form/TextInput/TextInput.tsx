@@ -4,11 +4,10 @@ import {
   TextFieldProps as MuiTextFieldProps,
 } from '@mui/material'
 import { ChangeEvent, forwardRef, ReactNode, useCallback, useEffect, useState } from 'react'
-import styled, { css } from 'styled-components'
 
 import { Button, Icon, Tooltip, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 export enum ValueFormatter {
   int = 'int',
@@ -178,31 +177,27 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
     )
 
     return (
-      <Container className={className}>
+      <div className={tw('flex flex-col gap-1', className)}>
         {!!label && (
-          <InlineLabelContainer>
-            {label && (
-              <Label $withInfo={!!infoText}>
-                <Typography
-                  variant="captionHl"
-                  color="textSecondary"
-                  component={(labelProps) => <label htmlFor={name} {...labelProps} />}
-                >
-                  {label}
-                </Typography>
-                {!!infoText && (
-                  <Tooltip placement="top-start" title={infoText}>
-                    <Icon name="info-circle" />
-                  </Tooltip>
-                )}
-              </Label>
+          <div className="flex items-center gap-1">
+            <Typography
+              variant="captionHl"
+              color="textSecondary"
+              component={(labelProps) => <label htmlFor={name} {...labelProps} />}
+            >
+              {label}
+            </Typography>
+            {!!infoText && (
+              <Tooltip placement="top-start" title={infoText}>
+                <Icon name="info-circle" />
+              </Tooltip>
             )}
-          </InlineLabelContainer>
+          </div>
         )}
         {!!description && (
-          <Description>
+          <div>
             <Typography variant="caption">{description}</Typography>
-          </Description>
+          </div>
         )}
         <MuiTextField
           ref={ref}
@@ -264,43 +259,9 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
             {typeof error === 'string' && !!error ? translate(error as string) : helperText}
           </Typography>
         )}
-      </Container>
+      </div>
     )
   },
 )
 
 TextInput.displayName = 'TextInput'
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(1)};
-  }
-`
-
-const InlineLabelContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-`
-
-const Label = styled.div<{ $withInfo?: boolean }>`
-  display: flex;
-  align-items: center;
-
-  ${({ $withInfo }) =>
-    $withInfo &&
-    css`
-      > *:first-child {
-        margin-right: ${theme.spacing(1)};
-      }
-
-      > *:last-child {
-        margin-top: -${theme.spacing(1)};
-      }
-    `}
-`
-
-const Description = styled.div`
-  margin-bottom: ${theme.spacing(4)} !important;
-`
