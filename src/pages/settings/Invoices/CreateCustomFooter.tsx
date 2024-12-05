@@ -11,7 +11,9 @@ import {
 } from '~/components/settings/invoices/DefaultCustomSectionDialog'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { INVOICE_SETTINGS_ROUTE } from '~/core/router'
+import { CreateInvoiceCustomSectionInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCreateEditInvoiceCustomSection } from '~/hooks/useCreateEditInvoiceCustomSection'
 import { PageHeader } from '~/styles'
 
 const CreateInvoiceCustomFooter = () => {
@@ -21,15 +23,14 @@ const CreateInvoiceCustomFooter = () => {
   const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
   const defaultCustomSectionDialogRef = useRef<DefaultCustomSectionDialogRef>(null)
 
-  // TODO: Replace with real data
-  const loading = false
+  const { loading, onSave } = useCreateEditInvoiceCustomSection()
 
-  const formikProps = useFormik({
+  const formikProps = useFormik<CreateInvoiceCustomSectionInput>({
     initialValues: {
       name: '',
       code: '',
       description: '',
-      invoiceDisplayName: '',
+      displayName: '',
       details: '',
       selected: false,
     },
@@ -37,7 +38,7 @@ const CreateInvoiceCustomFooter = () => {
       name: string().required(''),
       code: string().required(''),
       description: string(),
-      invoiceDisplayName: string().when('details', {
+      displayName: string().when('details', {
         is: (details: string) => !details,
         then: (schema) => schema.required(''),
         otherwise: (schema) => schema.notRequired(),
@@ -47,8 +48,7 @@ const CreateInvoiceCustomFooter = () => {
     enableReinitialize: true,
     validateOnMount: true,
     onSubmit: async (values) => {
-      // TODO: Implement submit logic
-      console.log(values)
+      onSave(values)
     },
   })
 
@@ -61,6 +61,7 @@ const CreateInvoiceCustomFooter = () => {
       defaultCustomSectionDialogRef.current?.openDialog({
         type: 'setDefault',
         onConfirm: formikProps.submitForm,
+        onCancel: () => formikProps.setFieldValue('selected', false),
       })
     } else {
       formikProps.submitForm()
@@ -184,7 +185,7 @@ const CreateInvoiceCustomFooter = () => {
                     </Typography>
                   </div>
                   <TextInputField
-                    name="invoiceDisplayName"
+                    name="displayName"
                     formikProps={formikProps}
                     label={translate('text_65018c8e5c6b626f030bcf26')}
                     placeholder={translate('text_65a6b4e2cb38d9b70ec53d41')}
