@@ -11,6 +11,7 @@ import { Checkbox, CheckboxField, ComboBoxField, TextInputField } from '~/compon
 import { DeleteHubspotIntegrationDialogRef } from '~/components/settings/integrations/DeleteHubspotIntegrationDialog'
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { getHubspotTargetedObjectTranslationKey } from '~/core/constants/form'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { HUBSPOT_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   CreateHubspotIntegrationInput,
@@ -78,6 +79,7 @@ export const AddHubspotDialog = forwardRef<AddHubspotDialogRef>((_, ref) => {
         navigate(
           generatePath(HUBSPOT_INTEGRATION_DETAILS_ROUTE, {
             integrationId: createHubspotIntegration.id,
+            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
           }),
         )
 

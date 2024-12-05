@@ -52,6 +52,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Adyen from '~/public/images/adyen.svg'
 import Anrok from '~/public/images/anrok.svg'
+import Cashfree from '~/public/images/cashfree.svg'
 import GoCardless from '~/public/images/gocardless.svg'
 import Hubspot from '~/public/images/hubspot.svg'
 import Netsuite from '~/public/images/netsuite.svg'
@@ -124,6 +125,13 @@ gql`
         }
 
         ... on GocardlessProvider {
+          __typename
+          id
+          name
+          code
+        }
+
+        ... on CashfreeProvider {
           __typename
           id
           name
@@ -303,6 +311,14 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     })
 
   const isSyncWithProviderDisabled = !!formikProps.values.providerCustomer?.syncWithProvider
+
+  const isSyncWithProviderSupported = useMemo(() => {
+    if (!formikProps.values.paymentProvider) return false
+    const unsupportedPaymentProviders: ProviderTypeEnum[] = [ProviderTypeEnum.Cashfree]
+
+    return !unsupportedPaymentProviders.includes(formikProps.values.paymentProvider)
+  }, [formikProps.values.paymentProvider])
+
   const hadInitialNetsuiteIntegrationCustomer =
     !!formikProps.initialValues.integrationCustomers?.find(
       (i) => i.integrationType === IntegrationTypeEnum.Netsuite,
@@ -504,6 +520,8 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                           <GoCardless />
                         ) : formikProps.values.paymentProvider === ProviderTypeEnum?.Adyen ? (
                           <Adyen />
+                        ) : formikProps.values.paymentProvider === ProviderTypeEnum?.Cashfree ? (
+                          <Cashfree />
                         ) : null}
                       </Avatar>
                     ) : (
@@ -527,15 +545,23 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                     variant="quaternary"
                     icon="trash"
                     onClick={() => {
-                      formikProps.setFieldValue('paymentProvider', null)
-                      formikProps.setFieldValue('providerCustomer.providerCustomerId', '')
-                      formikProps.setFieldValue('providerCustomer.syncWithProvider', false)
-                      formikProps.setFieldValue(
-                        'providerCustomer.providerPaymentMethods',
-                        formikProps.values.currency !== CurrencyEnum.Eur
-                          ? [ProviderPaymentMethodsEnum.Card]
-                          : [ProviderPaymentMethodsEnum.Card, ProviderPaymentMethodsEnum.SepaDebit],
-                      )
+                      const newFormValues = {
+                        ...formikProps.values,
+                        paymentProvider: null,
+                        providerCustomer: {
+                          providerCustomerId: '',
+                          syncWithProvider: false,
+                          providerPaymentMethods:
+                            formikProps.values.currency !== CurrencyEnum.Eur
+                              ? [ProviderPaymentMethodsEnum.Card]
+                              : [
+                                  ProviderPaymentMethodsEnum.Card,
+                                  ProviderPaymentMethodsEnum.SepaDebit,
+                                ],
+                        },
+                      }
+
+                      formikProps.setValues(newFormValues)
                       setShowPaymentProviderSection(false)
                     }}
                   />
@@ -558,20 +584,20 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                     PopperProps={{ displayInDialog: true }}
                     value={formikProps.values.paymentProviderCode as string}
                     onChange={(value) => {
-                      formikProps.setFieldValue('paymentProviderCode', value)
                       const selectedProvider = connectedPaymentProvidersData.find(
                         (provider) => provider.value === value,
                       )?.group
+                      const newFormValues = {
+                        ...formikProps.values,
+                        paymentProviderCode: value,
+                        paymentProvider: selectedProvider as ProviderTypeEnum,
+                      }
 
-                      // Set paymentProvider depending on selected value
-                      formikProps.setFieldValue(
-                        'paymentProvider',
-                        selectedProvider as ProviderTypeEnum,
-                      )
+                      formikProps.setValues(newFormValues)
                     }}
                   />
 
-                  {!!formikProps.values.paymentProviderCode && (
+                  {!!formikProps.values.paymentProviderCode && isSyncWithProviderSupported && (
                     <>
                       <TextInputField
                         name="providerCustomer.providerCustomerId"

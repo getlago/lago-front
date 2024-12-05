@@ -10,6 +10,7 @@ import { object, string } from 'yup'
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ANROK_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   AddAnrokIntegrationDialogFragment,
@@ -82,6 +83,7 @@ export const AddAnrokDialog = forwardRef<AddAnrokDialogRef>((_, ref) => {
           generatePath(ANROK_INTEGRATION_DETAILS_ROUTE, {
             integrationId: createAnrokIntegration.id,
             tab: AnrokIntegrationDetailsTabs.Settings,
+            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
           }),
         )
 

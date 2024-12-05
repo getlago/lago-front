@@ -21,6 +21,7 @@ import {
   DeleteSalesforceIntegrationDialog,
   DeleteSalesforceIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteSalesforceIntegrationDialog'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE, SALESFORCE_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   DeleteSalesforceIntegrationDialogFragmentDoc,
@@ -71,14 +72,23 @@ const SalesforceIntegrations = () => {
 
   const connections = data?.integrations?.collection as SalesforceIntegrationsFragment[] | undefined
   const deleteDialogCallback =
-    connections && connections?.length === 1 ? () => navigate(INTEGRATIONS_ROUTE) : undefined
+    connections && connections?.length === 1
+      ? () =>
+          navigate(
+            generatePath(INTEGRATIONS_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            }),
+          )
+      : undefined
 
   return (
     <>
       <PageHeader $withSide>
         <div className="flex items-center gap-3">
           <ButtonLink
-            to={INTEGRATIONS_ROUTE}
+            to={generatePath(INTEGRATIONS_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            })}
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
@@ -154,6 +164,7 @@ const SalesforceIntegrations = () => {
                           className="p-0"
                           to={generatePath(SALESFORCE_INTEGRATION_DETAILS_ROUTE, {
                             integrationId: connection.id,
+                            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
                           })}
                         >
                           <div className="flex flex-row items-center gap-3">

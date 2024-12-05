@@ -10,6 +10,7 @@ import { object, string } from 'yup'
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ADYEN_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   AddAdyenPaymentProviderInput,
@@ -42,6 +43,9 @@ gql`
         id
       }
       ... on GocardlessProvider {
+        id
+      }
+      ... on CashfreeProvider {
         id
       }
       ... on StripeProvider {
@@ -96,6 +100,7 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
         navigate(
           generatePath(ADYEN_INTEGRATION_DETAILS_ROUTE, {
             integrationId: addAdyenPaymentProvider.id,
+            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
           }),
         )
 

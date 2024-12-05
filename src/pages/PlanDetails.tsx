@@ -16,6 +16,7 @@ import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/Delete
 import PlanDetailsOverview from '~/components/plans/details/PlanDetailsOverview'
 import PlanSubscriptionList from '~/components/plans/details/PlanSubscriptionList'
 import { updateDuplicatePlanVar } from '~/core/apolloClient'
+import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   CREATE_PLAN_ROUTE,
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
@@ -32,11 +33,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper, PageHeader, theme } from '~/styles'
-
-export enum PlanDetailsTabsOptionsEnum {
-  overview = 'overview',
-  subscriptions = 'subscriptions',
-}
 
 gql`
   query getPlanForDetails($planId: ID!) {

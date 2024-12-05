@@ -10,6 +10,7 @@ import { object, string } from 'yup'
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { STRIPE_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   AddStripePaymentProviderInput,
@@ -39,6 +40,9 @@ gql`
         id
       }
       ... on GocardlessProvider {
+        id
+      }
+      ... on CashfreeProvider {
         id
       }
       ... on AdyenProvider {
@@ -91,6 +95,7 @@ export const AddStripeDialog = forwardRef<AddStripeDialogRef>((_, ref) => {
         navigate(
           generatePath(STRIPE_INTEGRATION_DETAILS_ROUTE, {
             integrationId: addStripePaymentProvider.id,
+            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
           }),
         )
 

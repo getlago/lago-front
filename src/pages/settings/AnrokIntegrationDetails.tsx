@@ -27,6 +27,7 @@ import {
   DeleteAnrokIntegrationDialog,
   DeleteAnrokIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteAnrokIntegrationDialog'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   ANROK_INTEGRATION_DETAILS_ROUTE,
   ANROK_INTEGRATION_ROUTE,
@@ -104,9 +105,15 @@ const AnrokIntegrationDetails = () => {
   const anrokIntegration = data?.integration as AnrokIntegrationDetailsFragment
   const deleteDialogCallback = () => {
     if ((data?.integrations?.collection.length || 0) >= PROVIDER_CONNECTION_LIMIT) {
-      navigate(ANROK_INTEGRATION_ROUTE)
+      navigate(
+        generatePath(ANROK_INTEGRATION_ROUTE, {
+          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+        }),
+      )
     } else {
-      navigate(INTEGRATIONS_ROUTE)
+      navigate(
+        generatePath(INTEGRATIONS_ROUTE, { integrationGroup: IntegrationsTabsOptionsEnum.Lago }),
+      )
     }
   }
 
@@ -115,7 +122,9 @@ const AnrokIntegrationDetails = () => {
       <PageHeader $withSide>
         <HeaderBlock>
           <ButtonLink
-            to={ANROK_INTEGRATION_ROUTE}
+            to={generatePath(ANROK_INTEGRATION_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            })}
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
@@ -204,6 +213,7 @@ const AnrokIntegrationDetails = () => {
             link: generatePath(ANROK_INTEGRATION_DETAILS_ROUTE, {
               integrationId,
               tab: AnrokIntegrationDetailsTabs.Settings,
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
             component: <AnrokIntegrationSettings />,
           },
@@ -212,6 +222,7 @@ const AnrokIntegrationDetails = () => {
             link: generatePath(ANROK_INTEGRATION_DETAILS_ROUTE, {
               integrationId,
               tab: AnrokIntegrationDetailsTabs.Items,
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
             component: <AnrokIntegrationItemsList integrationId={anrokIntegration?.id} />,
           },

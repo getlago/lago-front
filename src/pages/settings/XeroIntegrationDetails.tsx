@@ -24,6 +24,7 @@ import {
 } from '~/components/settings/integrations/DeleteXeroIntegrationDialog'
 import XeroIntegrationItemsList from '~/components/settings/integrations/XeroIntegrationItemsList'
 import XeroIntegrationSettings from '~/components/settings/integrations/XeroIntegrationSettings'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   INTEGRATIONS_ROUTE,
   XERO_INTEGRATION_DETAILS_ROUTE,
@@ -97,9 +98,15 @@ const XeroIntegrationDetails = () => {
   const xeroIntegration = data?.integration as XeroIntegrationDetailsFragment
   const deleteDialogCallback = () => {
     if ((data?.integrations?.collection.length || 0) >= PROVIDER_CONNECTION_LIMIT) {
-      navigate(XERO_INTEGRATION_ROUTE)
+      navigate(
+        generatePath(XERO_INTEGRATION_ROUTE, {
+          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+        }),
+      )
     } else {
-      navigate(INTEGRATIONS_ROUTE)
+      navigate(
+        generatePath(INTEGRATIONS_ROUTE, { integrationGroup: IntegrationsTabsOptionsEnum.Lago }),
+      )
     }
   }
 
@@ -108,7 +115,9 @@ const XeroIntegrationDetails = () => {
       <PageHeader $withSide>
         <HeaderBlock>
           <ButtonLink
-            to={XERO_INTEGRATION_ROUTE}
+            to={generatePath(XERO_INTEGRATION_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            })}
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
@@ -197,6 +206,7 @@ const XeroIntegrationDetails = () => {
             link: generatePath(XERO_INTEGRATION_DETAILS_ROUTE, {
               integrationId,
               tab: XeroIntegrationDetailsTabs.Settings,
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
             component: <XeroIntegrationSettings />,
           },
@@ -205,6 +215,7 @@ const XeroIntegrationDetails = () => {
             link: generatePath(XERO_INTEGRATION_DETAILS_ROUTE, {
               integrationId,
               tab: XeroIntegrationDetailsTabs.Items,
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
             component: <XeroIntegrationItemsList integrationId={xeroIntegration?.id} />,
           },

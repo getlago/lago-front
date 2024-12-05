@@ -8,6 +8,7 @@ import { object, string } from 'yup'
 import { Alert, Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { SALESFORCE_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   CreateSalesforceIntegrationInput,
@@ -72,6 +73,7 @@ export const AddSalesforceDialog = forwardRef<AddSalesforceDialogRef>((_, ref) =
         navigate(
           generatePath(SALESFORCE_INTEGRATION_DETAILS_ROUTE, {
             integrationId: createSalesforceIntegration.id,
+            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
           }),
         )
 

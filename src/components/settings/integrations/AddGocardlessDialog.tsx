@@ -11,6 +11,7 @@ import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { buildGocardlessAuthUrl } from '~/core/constants/externalUrls'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { GOCARDLESS_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   AddGocardlessPaymentProviderInput,
@@ -35,6 +36,9 @@ gql`
   query getProviderByCodeForGocardless($code: String) {
     paymentProvider(code: $code) {
       ... on GocardlessProvider {
+        id
+      }
+      ... on CashfreeProvider {
         id
       }
       ... on AdyenProvider {
@@ -84,6 +88,7 @@ export const AddGocardlessDialog = forwardRef<AddGocardlessDialogRef>((_, ref) =
         navigate(
           generatePath(GOCARDLESS_INTEGRATION_DETAILS_ROUTE, {
             integrationId: updateGocardlessPaymentProvider.id,
+            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
           }),
         )
 

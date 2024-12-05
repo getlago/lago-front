@@ -6,6 +6,7 @@ import styled from 'styled-components'
 
 import { Alert, Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   ANROK_INTEGRATION_DETAILS_ROUTE,
   ANROK_INTEGRATION_ROUTE,
@@ -103,9 +104,15 @@ const AnrokIntegrationSettings = () => {
   const anrokIntegration = data?.integration as AnrokIntegrationSettingsFragment | undefined
   const deleteDialogCallback = () => {
     if ((data?.integrations?.collection.length || 0) >= PROVIDER_CONNECTION_LIMIT) {
-      navigate(ANROK_INTEGRATION_ROUTE)
+      navigate(
+        generatePath(ANROK_INTEGRATION_ROUTE, {
+          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+        }),
+      )
     } else {
-      navigate(INTEGRATIONS_ROUTE)
+      navigate(
+        generatePath(INTEGRATIONS_ROUTE, { integrationGroup: IntegrationsTabsOptionsEnum.Lago }),
+      )
     }
   }
 
@@ -122,6 +129,7 @@ const AnrokIntegrationSettings = () => {
                   generatePath(ANROK_INTEGRATION_DETAILS_ROUTE, {
                     integrationId,
                     tab: AnrokIntegrationDetailsTabs.Items,
+                    integrationGroup: IntegrationsTabsOptionsEnum.Lago,
                   }),
                 )
               },

@@ -4,6 +4,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { Alert, Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   INTEGRATIONS_ROUTE,
   XERO_INTEGRATION_DETAILS_ROUTE,
@@ -111,9 +112,15 @@ const XeroIntegrationSettings = () => {
   const xeroIntegration = data?.integration as XeroIntegrationSettingsFragment | undefined
   const deleteDialogCallback = () => {
     if ((data?.integrations?.collection.length || 0) >= PROVIDER_CONNECTION_LIMIT) {
-      navigate(XERO_INTEGRATION_ROUTE)
+      navigate(
+        generatePath(XERO_INTEGRATION_ROUTE, {
+          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+        }),
+      )
     } else {
-      navigate(INTEGRATIONS_ROUTE)
+      navigate(
+        generatePath(INTEGRATIONS_ROUTE, { integrationGroup: IntegrationsTabsOptionsEnum.Lago }),
+      )
     }
   }
 
@@ -130,6 +137,7 @@ const XeroIntegrationSettings = () => {
                   generatePath(XERO_INTEGRATION_DETAILS_ROUTE, {
                     integrationId,
                     tab: XeroIntegrationDetailsTabs.Items,
+                    integrationGroup: IntegrationsTabsOptionsEnum.Lago,
                   }),
                 )
               },

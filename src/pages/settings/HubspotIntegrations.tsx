@@ -21,6 +21,7 @@ import {
   DeleteHubspotIntegrationDialog,
   DeleteHubspotIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteHubspotIntegrationDialog'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { HUBSPOT_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
 import {
   HubspotForCreateDialogFragmentDoc,
@@ -68,14 +69,23 @@ const HubspotIntegrations = () => {
 
   const connections = data?.integrations?.collection as HubspotIntegrationsFragment[] | undefined
   const deleteDialogCallback =
-    connections && connections?.length === 1 ? () => navigate(INTEGRATIONS_ROUTE) : undefined
+    connections && connections?.length === 1
+      ? () =>
+          navigate(
+            generatePath(INTEGRATIONS_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            }),
+          )
+      : undefined
 
   return (
     <>
       <PageHeader $withSide>
         <div className="flex items-center gap-3">
           <ButtonLink
-            to={INTEGRATIONS_ROUTE}
+            to={generatePath(INTEGRATIONS_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            })}
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
@@ -151,6 +161,7 @@ const HubspotIntegrations = () => {
                           className="p-0"
                           to={generatePath(HUBSPOT_INTEGRATION_DETAILS_ROUTE, {
                             integrationId: connection.id,
+                            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
                           })}
                         >
                           <div className="flex flex-row items-center gap-3">

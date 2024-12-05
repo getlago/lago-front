@@ -1,9 +1,10 @@
 import { ClickAwayListener, Stack } from '@mui/material'
 import { useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { generatePath, Outlet } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { Button, Typography, VerticalMenu } from '~/components/designSystem'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   AUTHENTICATION_ROUTE,
   CREATE_DUNNING_ROUTE,
@@ -118,7 +119,9 @@ const Settings = () => {
               },
               {
                 title: translate('text_62b1edddbf5f461ab9712733'),
-                link: INTEGRATIONS_ROUTE,
+                link: generatePath(INTEGRATIONS_ROUTE, {
+                  integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                }),
                 hidden: !hasPermissions(['organizationIntegrationsView']),
               },
               {

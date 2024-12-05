@@ -27,6 +27,7 @@ import {
   DeleteGocardlessIntegrationDialog,
   DeleteGocardlessIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteGocardlessIntegrationDialog'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { GOCARDLESS_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
 import {
   AddGocardlessProviderDialogFragmentDoc,
@@ -86,7 +87,14 @@ const GocardlessIntegrations = () => {
   })
   const connections = data?.paymentProviders?.collection as GocardlessProvider[] | undefined
   const deleteDialogCallback =
-    connections && connections.length === 1 ? () => navigate(INTEGRATIONS_ROUTE) : undefined
+    connections && connections.length === 1
+      ? () =>
+          navigate(
+            generatePath(INTEGRATIONS_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            }),
+          )
+      : undefined
 
   const canCreateIntegration = hasPermissions(['organizationIntegrationsCreate'])
   const canEditIntegration = hasPermissions(['organizationIntegrationsUpdate'])
@@ -97,7 +105,9 @@ const GocardlessIntegrations = () => {
       <PageHeader $withSide>
         <HeaderBlock>
           <ButtonLink
-            to={INTEGRATIONS_ROUTE}
+            to={generatePath(INTEGRATIONS_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            })}
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
@@ -172,6 +182,7 @@ const GocardlessIntegrations = () => {
                         tabIndex={0}
                         to={generatePath(GOCARDLESS_INTEGRATION_DETAILS_ROUTE, {
                           integrationId: connection.id,
+                          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
                         })}
                       >
                         <Stack direction="row" spacing={3} alignItems="center">

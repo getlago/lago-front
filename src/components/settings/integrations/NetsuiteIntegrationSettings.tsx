@@ -4,6 +4,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { Alert, Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   INTEGRATIONS_ROUTE,
   NETSUITE_INTEGRATION_DETAILS_ROUTE,
@@ -110,9 +111,15 @@ const NetsuiteIntegrationSettings = () => {
   const netsuiteIntegration = data?.integration as NetsuiteIntegrationSettingsFragment | undefined
   const deleteDialogCallback = () => {
     if ((data?.integrations?.collection.length || 0) >= PROVIDER_CONNECTION_LIMIT) {
-      navigate(NETSUITE_INTEGRATION_ROUTE)
+      navigate(
+        generatePath(NETSUITE_INTEGRATION_ROUTE, {
+          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+        }),
+      )
     } else {
-      navigate(INTEGRATIONS_ROUTE)
+      navigate(
+        generatePath(INTEGRATIONS_ROUTE, { integrationGroup: IntegrationsTabsOptionsEnum.Lago }),
+      )
     }
   }
 
@@ -129,6 +136,7 @@ const NetsuiteIntegrationSettings = () => {
                   generatePath(NETSUITE_INTEGRATION_DETAILS_ROUTE, {
                     integrationId,
                     tab: NetsuiteIntegrationDetailsTabs.Items,
+                    integrationGroup: IntegrationsTabsOptionsEnum.Lago,
                   }),
                 )
               },

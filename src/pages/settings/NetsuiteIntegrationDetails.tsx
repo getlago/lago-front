@@ -27,6 +27,7 @@ import {
 } from '~/components/settings/integrations/DeleteNetsuiteIntegrationDialog'
 import NetsuiteIntegrationItemsList from '~/components/settings/integrations/NetsuiteIntegrationItemsList'
 import NetsuiteIntegrationSettings from '~/components/settings/integrations/NetsuiteIntegrationSettings'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   INTEGRATIONS_ROUTE,
   NETSUITE_INTEGRATION_DETAILS_ROUTE,
@@ -104,9 +105,15 @@ const NetsuiteIntegrationDetails = () => {
   const netsuiteIntegration = data?.integration as NetsuiteIntegrationDetailsFragment
   const deleteDialogCallback = () => {
     if ((data?.integrations?.collection.length || 0) >= PROVIDER_CONNECTION_LIMIT) {
-      navigate(NETSUITE_INTEGRATION_ROUTE)
+      navigate(
+        generatePath(NETSUITE_INTEGRATION_ROUTE, {
+          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+        }),
+      )
     } else {
-      navigate(INTEGRATIONS_ROUTE)
+      navigate(
+        generatePath(INTEGRATIONS_ROUTE, { integrationGroup: IntegrationsTabsOptionsEnum.Lago }),
+      )
     }
   }
 
@@ -115,7 +122,9 @@ const NetsuiteIntegrationDetails = () => {
       <PageHeader $withSide>
         <HeaderBlock>
           <ButtonLink
-            to={NETSUITE_INTEGRATION_ROUTE}
+            to={generatePath(NETSUITE_INTEGRATION_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            })}
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
@@ -204,6 +213,7 @@ const NetsuiteIntegrationDetails = () => {
             link: generatePath(NETSUITE_INTEGRATION_DETAILS_ROUTE, {
               integrationId,
               tab: NetsuiteIntegrationDetailsTabs.Settings,
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
             component: <NetsuiteIntegrationSettings />,
           },
@@ -212,6 +222,7 @@ const NetsuiteIntegrationDetails = () => {
             link: generatePath(NETSUITE_INTEGRATION_DETAILS_ROUTE, {
               integrationId,
               tab: NetsuiteIntegrationDetailsTabs.Items,
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
             component: <NetsuiteIntegrationItemsList integrationId={netsuiteIntegration?.id} />,
           },

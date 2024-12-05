@@ -12,6 +12,7 @@ import { boolean, object, string } from 'yup'
 import { Alert, Button, Chip, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { Checkbox, CheckboxField, TextInputField } from '~/components/form'
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { NETSUITE_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   CreateNetsuiteIntegrationInput,
@@ -84,6 +85,7 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
           generatePath(NETSUITE_INTEGRATION_DETAILS_ROUTE, {
             integrationId: createNetsuiteIntegration.id,
             tab: NetsuiteIntegrationDetailsTabs.Settings,
+            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
           }),
         )
 

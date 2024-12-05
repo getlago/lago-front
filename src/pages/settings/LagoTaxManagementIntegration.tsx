@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { generatePath, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
 import {
@@ -17,6 +17,7 @@ import {
 import { WarningDialog } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { CountryCodes } from '~/core/constants/countryCodes'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   INTEGRATIONS_ROUTE,
@@ -95,7 +96,9 @@ const LagoTaxManagementIntegration = () => {
       <PageHeader $withSide>
         <HeaderBlock>
           <ButtonLink
-            to={INTEGRATIONS_ROUTE}
+            to={generatePath(INTEGRATIONS_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            })}
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
@@ -243,7 +246,11 @@ const LagoTaxManagementIntegration = () => {
             },
           })
 
-          navigate(INTEGRATIONS_ROUTE)
+          navigate(
+            generatePath(INTEGRATIONS_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            }),
+          )
         }}
       />
     </>
