@@ -153,7 +153,7 @@ const CreateCreditNote = () => {
 
       if (hasDefinedGQLError('DoesNotMatchItemAmounts', answer?.errors)) {
         formikBag.setErrors({
-          // @ts-ignore - Formik doesn't know it here but we have 2 values in the array if we get this error
+          // @ts-expect-error - Formik doesn't know it here but we have 2 values in the array if we get this error
           payBack: [
             { value: LagoApiError.DoesNotMatchItemAmounts },
             { value: LagoApiError.DoesNotMatchItemAmounts },

@@ -33,7 +33,7 @@ gql`
 export type AddPlanToCouponDialogRef = DialogRef
 
 interface AddPlanToCouponDialogProps {
-  onSubmit: Function
+  onSubmit: (plan: PlansForCouponsFragment) => void
   attachedPlansIds?: string[]
 }
 
@@ -90,7 +90,7 @@ export const AddPlanToCouponDialog = forwardRef<DialogRef, AddPlanToCouponDialog
             <Button
               disabled={!selectedPlan}
               onClick={async () => {
-                onSubmit(selectedPlan)
+                !!selectedPlan && onSubmit(selectedPlan)
                 closeDialog()
               }}
               data-test="submitAddPlanToCouponDialog"
