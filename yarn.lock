@@ -8848,10 +8848,10 @@ kleur@^3.0.3:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.3.tgz#a79c9ecc86ee1ce3fa6206d1216c501f147fc07e"
   integrity sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==
 
-lago-expression@0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/lago-expression/-/lago-expression-0.1.1.tgz#e185369401a324d2cd9202a2f29b40c142de4735"
-  integrity sha512-2P83bPbhbyzNVHhADIDc5jFMcKo4J8oJZuky+W3fMq+oYsEIo6cjgCfX9MNI+zXBAqDkIOnUgcgVqbmz6SJiDA==
+lago-expression@0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/lago-expression/-/lago-expression-0.1.2.tgz#30a42f1d2b76e96e575298ec5275dde217371afc"
+  integrity sha512-qE+CsNFbs1fTrEGMlzOThkXsoMRPAUU/sA/uHsDhtpldMw0AfiI6MeHbxN+5hoylGuZNTMQQabe/qchAdUQ+ww==
 
 language-subtag-registry@^0.3.20:
   version "0.3.23"
