@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef, RefObject, useMemo } from 'react'
-import styled from 'styled-components'
 import { number, object, string } from 'yup'
 
 import { CouponCaption } from '~/components/coupons/CouponCaption'
@@ -30,7 +29,6 @@ import {
   useGetCouponForCustomerLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 import { LineAmount } from '~/styles/mainObjectsForm'
 
 gql`
@@ -270,9 +268,9 @@ export const AddCouponToCustomerDialog = forwardRef<
       return {
         label: name,
         labelNode: (
-          <Item>
+          <div className="flex whitespace-pre">
             {name} - <CouponCaption coupon={coupon as CouponItemFragment} variant="body" />
-          </Item>
+          </div>
         ),
         value: id,
       }
@@ -307,7 +305,7 @@ export const AddCouponToCustomerDialog = forwardRef<
         </>
       )}
     >
-      <Container>
+      <div className="mb-8 flex flex-col gap-6">
         <ComboBox
           name="selectCoupon"
           value={formikProps.values.couponId ? String(formikProps.values.couponId) : ''}
@@ -343,27 +341,27 @@ export const AddCouponToCustomerDialog = forwardRef<
 
         {!!formikProps.values.plans?.length && (
           <div data-test="plan-limitation-section">
-            <PlanListLabel variant="captionHl" color="grey700">
+            <Typography className="mb-1" variant="captionHl" color="grey700">
               {translate('text_63d66aa2471035c8ff598857')}
-            </PlanListLabel>
-            <PlanChipWrapper>
+            </Typography>
+            <div className="flex flex-wrap gap-1">
               {formikProps.values.plans.map((plan) => (
                 <Chip key={`coupon-plan-appied-to-${plan.id}`} label={plan.name} />
               ))}
-            </PlanChipWrapper>
+            </div>
           </div>
         )}
 
         {!!formikProps.values.billableMetrics?.length && (
           <div data-test="billable-metric-limitation-section">
-            <PlanListLabel variant="captionHl" color="grey700">
+            <Typography className="mb-1" variant="captionHl" color="grey700">
               {translate('text_63d66aa2471035c8ff598857')}
-            </PlanListLabel>
-            <PlanChipWrapper>
+            </Typography>
+            <div className="flex flex-wrap gap-1">
               {formikProps.values.billableMetrics.map((bm) => (
                 <Chip key={`coupon-billable-metric-appied-to-${bm.id}`} label={bm.name} />
               ))}
-            </PlanChipWrapper>
+            </div>
           </div>
         )}
 
@@ -398,9 +396,9 @@ export const AddCouponToCustomerDialog = forwardRef<
                 formikProps={formikProps}
                 InputProps={{
                   endAdornment: (
-                    <InputEnd variant="body" color="textSecondary">
+                    <Typography className="mr-4 shrink-0" variant="body" color="textSecondary">
                       {translate('text_632d68358f1fedc68eed3e93')}
-                    </InputEnd>
+                    </Typography>
                   ),
                 }}
               />
@@ -438,9 +436,9 @@ export const AddCouponToCustomerDialog = forwardRef<
                 formikProps={formikProps}
                 InputProps={{
                   endAdornment: (
-                    <InputEnd variant="body" color="textSecondary">
+                    <Typography className="mr-4 shrink-0" variant="body" color="textSecondary">
                       {translate('text_632d68358f1fedc68eed3e95')}
-                    </InputEnd>
+                    </Typography>
                   ),
                 }}
               />
@@ -457,37 +455,9 @@ export const AddCouponToCustomerDialog = forwardRef<
         {!!formikProps.values.couponId && formikProps.errors.couponId === '' && (
           <Alert type="danger">{translate('text_64352657267c3d916f96278a')}</Alert>
         )}
-      </Container>
+      </div>
     </Dialog>
   )
 })
-
-const Container = styled.div`
-  margin-bottom: ${theme.spacing(8)};
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
-  }
-`
-
-const Item = styled.span`
-  display: flex;
-  white-space: pre;
-`
-
-const InputEnd = styled(Typography)`
-  flex-shrink: 0;
-  margin-right: ${theme.spacing(4)};
-`
-
-const PlanListLabel = styled(Typography)`
-  margin-bottom: ${theme.spacing(1)};
-`
-
-const PlanChipWrapper = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-`
 
 AddCouponToCustomerDialog.displayName = 'AddCouponToCustomerDialog'

@@ -1,7 +1,5 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
 import { generatePath } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { ButtonLink, Skeleton, Typography } from '~/components/designSystem'
 import { CUSTOMER_DRAFT_INVOICES_LIST_ROUTE } from '~/core/router'
@@ -14,7 +12,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { NAV_HEIGHT, theme } from '~/styles'
 
 import { CustomerInvoicesList } from './CustomerInvoicesList'
 
@@ -92,7 +89,7 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
   return (
     <div>
       {initialLoad ? (
-        <LoadingState>
+        <div className="mt-7">
           <Skeleton variant="text" className="mb-7 w-56" />
           <CustomerInvoicesList
             isLoading
@@ -100,20 +97,20 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
             customerId={customerId}
             context="finalized"
           />
-        </LoadingState>
+        </div>
       ) : !invoicesDraft?.length &&
         !invoicesFinalized?.length &&
         !variablesFinalized?.searchTerm ? (
-        <EmptyTitle>{translate('text_6250304370f0f700a8fdc293')}</EmptyTitle>
+        <Typography className="mt-6">{translate('text_6250304370f0f700a8fdc293')}</Typography>
       ) : (
         <>
           {!!invoicesDraft?.length && (
-            <DraftWrapper>
-              <Header>
+            <div className="mb-12">
+              <div className="flex h-18 items-center justify-between">
                 <Typography variant="subhead" color="grey700">
                   {translate('text_638f4d756d899445f18a49ee')}
                 </Typography>
-              </Header>
+              </div>
 
               <CustomerInvoicesList
                 isLoading={loadingDraft}
@@ -123,12 +120,7 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
                 invoiceData={dataDraft?.customerInvoices}
               />
               {invoicesDraftCount > DRAFT_INVOICES_ITEMS_COUNT && (
-                <Stack
-                  alignItems="center"
-                  justifyContent="center"
-                  py={theme.spacing(2)}
-                  boxShadow={theme.shadows[7]}
-                >
+                <div className="flex flex-col items-center justify-center py-2 shadow-b">
                   <ButtonLink
                     type="button"
                     to={generatePath(CUSTOMER_DRAFT_INVOICES_LIST_ROUTE, { customerId })}
@@ -138,16 +130,16 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
                   >
                     {translate('text_638f4d756d899445f18a4a0e')}
                   </ButtonLink>
-                </Stack>
+                </div>
               )}
-            </DraftWrapper>
+            </div>
           )}
 
           {(loadingFinalized ||
             !!invoicesFinalized?.length ||
             !!variablesFinalized?.searchTerm) && (
             <>
-              <Header>
+              <div className="flex h-18 items-center justify-between">
                 <Typography variant="subhead" color="grey700">
                   {translate('text_6250304370f0f700a8fdc291')}
                 </Typography>
@@ -155,7 +147,7 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
                   onChange={debouncedSearch}
                   placeholder={translate('text_63c6861d9991cdd5a92c1419')}
                 />
-              </Header>
+              </div>
               <CustomerInvoicesList
                 isLoading={isLoading}
                 hasError={!!errorFinalized}
@@ -172,22 +164,3 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
     </div>
   )
 }
-
-const DraftWrapper = styled.div`
-  margin-bottom: ${theme.spacing(12)};
-`
-
-const Header = styled.div`
-  height: ${NAV_HEIGHT}px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
-
-const EmptyTitle = styled(Typography)`
-  margin-top: ${theme.spacing(6)};
-`
-
-const LoadingState = styled.div`
-  margin-top: 30px;
-`
