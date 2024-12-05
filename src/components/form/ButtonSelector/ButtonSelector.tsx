@@ -1,7 +1,5 @@
-import styled, { css } from 'styled-components'
-
 import { Icon, Tooltip, Typography } from '~/components/designSystem'
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import { TabButton } from './TabButton'
 
@@ -40,9 +38,9 @@ export const ButtonSelector = ({
   ...props
 }: ButtonSelectorProps) => {
   return (
-    <Container className={className} {...props}>
+    <div className={tw('flex flex-col gap-1', className)} {...props}>
       {!!label && (
-        <Label $withInfo={!!infoText}>
+        <div className="flex items-center gap-1">
           <Typography variant="captionHl" color="textSecondary">
             {label}
           </Typography>
@@ -51,13 +49,9 @@ export const ButtonSelector = ({
               <Icon name="info-circle" />
             </Tooltip>
           )}
-        </Label>
+        </div>
       )}
-      {!!description && (
-        <Description>
-          <Typography variant="caption">{description}</Typography>
-        </Description>
-      )}
+      {!!description && <Typography variant="caption">{description}</Typography>}
       <div className="flex flex-row flex-wrap items-center gap-3">
         {options.map(({ value: optionValue, label: optionLabel, disabled: optionDisabled }) => {
           return (
@@ -73,42 +67,10 @@ export const ButtonSelector = ({
         })}
       </div>
       {(!!error || !!helperText) && (
-        <StyledTypography variant="caption" color={error ? 'danger600' : 'textPrimary'}>
+        <Typography variant="caption" color={error ? 'danger600' : 'textPrimary'}>
           {error || helperText}
-        </StyledTypography>
+        </Typography>
       )}
-    </Container>
+    </div>
   )
 }
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-
-  > *:first-child {
-    margin-bottom: ${theme.spacing(1)};
-  }
-`
-
-const StyledTypography = styled(Typography)`
-  && {
-    margin-top: ${theme.spacing(1)};
-  }
-`
-
-const Label = styled.div<{ $withInfo?: boolean }>`
-  display: flex;
-  align-items: center;
-
-  ${({ $withInfo }) =>
-    $withInfo &&
-    css`
-      > *:first-child {
-        margin-right: ${theme.spacing(1)};
-      }
-    `}
-`
-
-const Description = styled.div`
-  margin-bottom: ${theme.spacing(4)} !important;
-`
