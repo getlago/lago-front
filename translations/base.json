@@ -2726,5 +2726,6 @@
   "text_1732895022171dkdzjnjtk10": "Set specific permissions for your API keys, allowing access levels of read, write, or full read and write access.",
   "text_17328950221712tn2kbvuqrg": "Request access to premium API key permissions add-on",
   "text_1732895022171rrj3kk58023": "Hello, I would like to access your API key permissions add-on. \nPlease let me know if you need more info!",
-  "text_1732895022171f9vnwh5gm3q": "Resource type"
+  "text_1732895022171f9vnwh5gm3q": "Resource type",
+  "text_17333939568926k978cvbly9": "A default charge must be set. Please set it to 0 to not charge your customer."
 }
