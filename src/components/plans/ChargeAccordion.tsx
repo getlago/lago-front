@@ -485,60 +485,69 @@ export const ChargeAccordion = memo(
                     invalidWrapper={(children) => (
                       <div data-test="default-charge-accordion-without-filters">{children}</div>
                     )}
-                    validWrapper={(children) => (
-                      <Accordion
-                        noContentMargin
-                        className={buildChargeDefaultPropertyId(index)}
-                        summary={
-                          <BoxHeader>
-                            <BoxHeaderGroupLeft>
-                              <div>
-                                <Typography noWrap variant="bodyHl" color="grey700">
-                                  {translate('text_64e620bca31226337ffc62ad')}
-                                </Typography>
-                                <Typography noWrap variant="caption" color="grey600">
-                                  {translate('text_65f847a944603a01034f5830')}
-                                </Typography>
-                              </div>
-                            </BoxHeaderGroupLeft>
-                            <BoxHeaderGroupRight>
-                              <Tooltip
-                                placement="top-end"
-                                title={
-                                  hasDefaultPropertiesErrors
-                                    ? translate('text_635b975ecea4296eb76924b7')
-                                    : translate('text_635b975ecea4296eb76924b1')
-                                }
-                              >
-                                <ValidationIcon
-                                  name="validate-filled"
-                                  color={hasDefaultPropertiesErrors ? 'disabled' : 'success'}
-                                />
-                              </Tooltip>
-                              <Tooltip
-                                placement="top-end"
-                                title={translate('text_63aa085d28b8510cd46443ff')}
-                              >
-                                <Button
-                                  size="small"
-                                  icon="trash"
-                                  variant="quaternary"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
+                    validWrapper={(children) => {
+                      const cannotDeleteDefaultProperties = !!isInSubscriptionForm
 
-                                    // Remove the default charge
-                                    handleUpdate('properties', undefined)
-                                  }}
-                                />
-                              </Tooltip>
-                            </BoxHeaderGroupRight>
-                          </BoxHeader>
-                        }
-                        data-test={buildChargeDefaultPropertyId(index)}
-                      >
-                        {children}
-                      </Accordion>
-                    )}
+                      return (
+                        <Accordion
+                          noContentMargin
+                          className={buildChargeDefaultPropertyId(index)}
+                          summary={
+                            <BoxHeader>
+                              <BoxHeaderGroupLeft>
+                                <div>
+                                  <Typography noWrap variant="bodyHl" color="grey700">
+                                    {translate('text_64e620bca31226337ffc62ad')}
+                                  </Typography>
+                                  <Typography noWrap variant="caption" color="grey600">
+                                    {translate('text_65f847a944603a01034f5830')}
+                                  </Typography>
+                                </div>
+                              </BoxHeaderGroupLeft>
+                              <BoxHeaderGroupRight>
+                                <Tooltip
+                                  placement="top-end"
+                                  title={
+                                    hasDefaultPropertiesErrors
+                                      ? translate('text_635b975ecea4296eb76924b7')
+                                      : translate('text_635b975ecea4296eb76924b1')
+                                  }
+                                >
+                                  <ValidationIcon
+                                    name="validate-filled"
+                                    color={hasDefaultPropertiesErrors ? 'disabled' : 'success'}
+                                  />
+                                </Tooltip>
+                                <Tooltip
+                                  placement="top-end"
+                                  title={
+                                    cannotDeleteDefaultProperties
+                                      ? translate('text_17333939568926k978cvbly9')
+                                      : translate('text_63aa085d28b8510cd46443ff')
+                                  }
+                                >
+                                  <Button
+                                    size="small"
+                                    icon="trash"
+                                    variant="quaternary"
+                                    disabled={cannotDeleteDefaultProperties}
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+
+                                      // Remove the default charge
+                                      handleUpdate('properties', undefined)
+                                    }}
+                                  />
+                                </Tooltip>
+                              </BoxHeaderGroupRight>
+                            </BoxHeader>
+                          }
+                          data-test={buildChargeDefaultPropertyId(index)}
+                        >
+                          {children}
+                        </Accordion>
+                      )
+                    }}
                   >
                     <ChargeWrapperSwitch
                       currency={currency}
