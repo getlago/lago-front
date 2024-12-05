@@ -45,6 +45,7 @@ export type TableColumn<T> = {
   maxSpace?: boolean
   minWidth?: number
   truncateOverflow?: boolean
+  tdCellClassName?: string
 }
 
 type DataItem = {
@@ -139,6 +140,7 @@ const TableCell = ({
   hasPlaceholderDisplayed,
   isBlurred,
   maxSpace,
+  tdCellClassName,
   ...props
 }: PropsWithChildren &
   TableCellProps & {
@@ -146,10 +148,11 @@ const TableCell = ({
     isBlurred?: boolean
     hasPlaceholderDisplayed?: boolean
     maxSpace?: number
+    tdCellClassName?: string
   }) => {
   return (
     <MUITableCell
-      className={tw('lago-table-cell', 'w-auto whitespace-nowrap p-0', className)}
+      className={tw('lago-table-cell', 'w-auto whitespace-nowrap p-0', className, tdCellClassName)}
       style={{
         width: !!maxSpace ? `${maxSpace}%` : 'auto',
         borderBottom: !!hasPlaceholderDisplayed ? 'none' : `1px solid ${theme.palette.grey[300]}`,
@@ -248,7 +251,11 @@ const LoadingRows = <T,>({
   return Array.from({ length: LOADING_ROW_COUNT }).map((_, i) => (
     <TableRow key={`${id}-loading-row-${i}`}>
       {columns.map((col, j) => (
-        <TableCell hasPlaceholderDisplayed={false} key={`${id}-loading-cell-${i}-${j}`}>
+        <TableCell
+          tdCellClassName={col.tdCellClassName}
+          hasPlaceholderDisplayed={false}
+          key={`${id}-loading-cell-${i}-${j}`}
+        >
           <TableInnerCell minWidth={col.minWidth} align={col.textAlign}>
             <div
               style={{
@@ -465,6 +472,7 @@ export const Table = <T extends DataItem>({
                   key={`${TABLE_ID}-head-${i}`}
                   align={column.textAlign || 'left'}
                   maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
+                  tdCellClassName={column.tdCellClassName}
                 >
                   <TableInnerCell
                     className="min-h-10 text-grey-600"
@@ -502,6 +510,7 @@ export const Table = <T extends DataItem>({
                       key={`${TABLE_ID}-cell-${i}-${j}`}
                       align={column.textAlign || 'left'}
                       maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
+                      tdCellClassName={column.tdCellClassName}
                     >
                       <TableInnerCell
                         minWidth={column.minWidth}

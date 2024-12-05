@@ -326,11 +326,12 @@ const CreditNotesTable = ({
                         key: 'invoice.customer.displayName',
                         title: translate('text_63ac86d797f728a87b2f9fb3'),
                         content: (creditNote: CreditNoteTableItemFragment) => (
-                          <CustomerColumn variant="body" color="grey600" noWrap>
+                          <Typography variant="body" color="grey600" noWrap>
                             {creditNote.invoice?.customer.displayName}
-                          </CustomerColumn>
+                          </Typography>
                         ),
                         maxSpace: true,
+                        tdCellClassName: 'hidden md:table-cell',
                       } as TableColumn<CreditNoteTableItemFragment>,
                     ]
                   : []),
@@ -382,10 +383,4 @@ const Grid = () => css`
 
 const SkeletonLine = styled(BaseListItem)`
   ${Grid()}
-`
-
-const CustomerColumn = styled(Typography)`
-  ${theme.breakpoints.down('md')} {
-    display: none;
-  }
 `
