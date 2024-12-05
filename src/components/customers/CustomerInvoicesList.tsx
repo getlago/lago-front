@@ -1,7 +1,6 @@
 import { FetchMoreQueryOptions, gql } from '@apollo/client'
 import { FC, useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { Chip, InfiniteScroll, Status, Table, Tooltip, Typography } from '~/components/designSystem'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -27,7 +26,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
-import { theme } from '~/styles'
 
 import {
   UpdateInvoicePaymentStatusDialog,
@@ -282,9 +280,14 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                     offset: getTimezoneConfig(customerTimezone).offset,
                   })}
                 >
-                  <WithTooltip variant="captionHl" color="grey600" noWrap>
+                  <Typography
+                    className="float-right mt-[2px] w-fit border-b-2 border-dotted border-b-grey-400"
+                    variant="captionHl"
+                    color="grey600"
+                    noWrap
+                  >
                     {translate('text_62544c1db13ca10187214d7f')}
-                  </WithTooltip>
+                  </Typography>
                 </Tooltip>
               ),
               content: ({ issuingDate, customer }) =>
@@ -403,10 +406,3 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
     </>
   )
 }
-
-const WithTooltip = styled(Typography)`
-  border-bottom: 2px dotted ${theme.palette.grey[400]};
-  width: fit-content;
-  margin-top: 2px;
-  float: right;
-`
