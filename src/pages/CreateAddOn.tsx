@@ -233,7 +233,8 @@ const CreateAddOn = () => {
                         rows="3"
                         formikProps={formikProps}
                       />
-                      <CloseDescriptionTooltip
+                      <Tooltip
+                        className="mt-6"
                         placement="top-end"
                         title={translate('text_63aa085d28b8510cd46443ff')}
                       >
@@ -245,7 +246,7 @@ const CreateAddOn = () => {
                             setShouldDisplayDescription(false)
                           }}
                         />
-                      </CloseDescriptionTooltip>
+                      </Tooltip>
                     </div>
                   ) : (
                     <Button
@@ -413,10 +414,6 @@ const CreateAddOn = () => {
 const TextArea = styled(TextInputField)`
   flex: 1;
   margin-right: ${theme.spacing(3)};
-`
-
-const CloseDescriptionTooltip = styled(Tooltip)`
-  margin-top: ${theme.spacing(6)};
 `
 
 const TaxLabel = styled(Typography)`

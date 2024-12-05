@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import _get from 'lodash/get'
 import React, { forwardRef, RefObject } from 'react'
-import styled, { css } from 'styled-components'
 import { object } from 'yup'
 
 import { Button, Card, Drawer, DrawerRef, Tooltip, Typography } from '~/components/designSystem'
@@ -15,7 +14,8 @@ import {
   useUpdateInvoiceMetadataMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { DrawerContent, DrawerSubmitButton, DrawerTitle, theme } from '~/styles'
+import { DrawerContent, DrawerSubmitButton, DrawerTitle } from '~/styles'
+import { tw } from '~/styles/utils'
 
 const MAX_METADATA_COUNT = 5
 const METADATA_VALUE_MAX_LENGTH = 255
@@ -82,6 +82,8 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
       },
     })
 
+    const metadataGridClassname = 'grid grid-cols-[200px_1fr_24px] gap-x-6 gap-y-3'
+
     return (
       <Drawer
         ref={ref}
@@ -108,15 +110,15 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
 
             {!!formikProps?.values?.metadata?.length && (
               <div>
-                <MetadataGrid $isHeader>
+                <div className={tw(metadataGridClassname, 'mb-1 [&>*:nth-child(2)]:col-span-2')}>
                   <Typography variant="captionHl" color="grey700">
                     {translate('text_6405cac5c833dcf18cacff66')}
                   </Typography>
                   <Typography variant="captionHl" color="grey700">
                     {translate('text_6405cac5c833dcf18cacff7c')}
                   </Typography>
-                </MetadataGrid>
-                <MetadataGrid>
+                </div>
+                <div className={metadataGridClassname}>
                   {formikProps?.values?.metadata?.map((m, i) => {
                     const metadataItemKeyError: string =
                       _get(formikProps.errors, `metadata.${i}.key`) || ''
@@ -167,7 +169,8 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
                             displayErrorText={false}
                           />
                         </Tooltip>
-                        <StyledTooltip
+                        <Tooltip
+                          className="flex items-center"
                           placement="top-end"
                           title={translate('text_63fcc3218d35b9377840f5e1')}
                         >
@@ -183,11 +186,11 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
                               ])
                             }}
                           />
-                        </StyledTooltip>
+                        </Tooltip>
                       </React.Fragment>
                     )
                   })}
-                </MetadataGrid>
+                </div>
               </div>
             )}
             <Button
@@ -232,26 +235,5 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
     )
   },
 )
-
-const MetadataGrid = styled.div<{ $isHeader?: boolean }>`
-  display: grid;
-  grid-template-columns: 200px 1fr 24px;
-  gap: ${theme.spacing(6)} ${theme.spacing(3)};
-
-  ${({ $isHeader }) =>
-    $isHeader &&
-    css`
-      margin-bottom: ${theme.spacing(1)};
-
-      > div:nth-child(2) {
-        grid-column: span 2;
-      }
-    `};
-`
-
-const StyledTooltip = styled(Tooltip)`
-  display: flex;
-  align-items: center;
-`
 
 AddMetadataDrawer.displayName = 'AddMetadataDrawer'

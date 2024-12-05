@@ -1,7 +1,6 @@
 import { InputAdornment } from '@mui/material'
 import { FormikProps } from 'formik'
 import _get from 'lodash/get'
-import styled from 'styled-components'
 
 import { CreditNoteFeeErrorEnum } from '~/components/creditNote/types'
 import { Tooltip, Typography } from '~/components/designSystem'
@@ -10,12 +9,11 @@ import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNu
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 import { CreditNoteForm } from './types'
 
 interface CreditNoteFormItemProps {
-  formikProps: FormikProps<Partial<CreditNoteForm>> // TOSO
+  formikProps: FormikProps<Partial<CreditNoteForm>>
   currency: CurrencyEnum
   feeName: string
   formikKey: string
@@ -35,7 +33,7 @@ export const CreditNoteFormItem = ({
   const error = _get(formikProps.errors, `${formikKey}.value`)
 
   return (
-    <FeeLine>
+    <div className="flex min-h-17 items-center justify-between gap-8 py-2 shadow-b">
       <CheckboxField
         name={`${formikKey}.checked`}
         formikProps={formikProps}
@@ -54,7 +52,8 @@ export const CreditNoteFormItem = ({
           </Typography>
         }
       />
-      <StyledTooltip
+      <Tooltip
+        className="shrink-0"
         placement="top-end"
         title={
           error === CreditNoteFeeErrorEnum?.minZero
@@ -73,7 +72,13 @@ export const CreditNoteFormItem = ({
         }
         disableHoverListener={!error}
       >
-        <StyledAmountField
+        <AmountInputField
+          className="max-w-42"
+          inputProps={{
+            style: {
+              textAlign: 'right',
+            },
+          }}
           name={`${formikKey}.value`}
           currency={currency}
           displayErrorText={false}
@@ -90,28 +95,7 @@ export const CreditNoteFormItem = ({
           }
           formikProps={formikProps}
         />
-      </StyledTooltip>
-    </FeeLine>
+      </Tooltip>
+    </div>
   )
 }
-
-const StyledAmountField = styled(AmountInputField)`
-  max-width: 168px;
-  .MuiOutlinedInput-input {
-    text-align: right;
-  }
-`
-
-const FeeLine = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 10px 0;
-  box-sizing: border-box;
-  box-shadow: ${theme.shadows[7]};
-  min-height: 68px;
-  justify-content: space-between;
-  gap: ${theme.spacing(8)};
-`
-const StyledTooltip = styled(Tooltip)`
-  flex-shrink: 0;
-`

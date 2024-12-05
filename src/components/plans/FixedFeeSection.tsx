@@ -187,7 +187,7 @@ export const FixedFeeSection = memo(
                       ),
                     }}
                   />
-                  <CloseTrialPeriodTooltip
+                  <Tooltip
                     placement="top-end"
                     title={translate('text_63aa085d28b8510cd46443ff')}
                     disableHoverListener={
@@ -206,7 +206,7 @@ export const FixedFeeSection = memo(
                         setShouldDisplayTrialPeriod(false)
                       }}
                     />
-                  </CloseTrialPeriodTooltip>
+                  </Tooltip>
                 </InlineTrialPeriod>
               ) : (
                 <Button
@@ -245,11 +245,6 @@ const InlineTrialPeriod = styled.div`
 
 const InputTrialPeriod = styled(TextInputField)`
   flex: 1;
-  /* margin-right: ${theme.spacing(3)}; */
-`
-
-const CloseTrialPeriodTooltip = styled(Tooltip)`
-  /* margin-top: ${theme.spacing(6)}; */
 `
 
 const BoxHeader = styled.div`

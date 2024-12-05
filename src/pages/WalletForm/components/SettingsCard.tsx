@@ -2,7 +2,6 @@ import { InputAdornment } from '@mui/material'
 import { FormikProps } from 'formik'
 import { DateTime } from 'luxon'
 import { FC } from 'react'
-import styled, { css } from 'styled-components'
 
 import { Button, Card, Tooltip, Typography } from '~/components/designSystem'
 import {
@@ -16,7 +15,7 @@ import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, GetCustomerInfosForWalletFormQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import { TWalletDataForm } from '../types'
 
@@ -47,7 +46,12 @@ export const SettingsCard: FC<SettingsCardProps> = ({
         placeholder={translate('text_62d18855b22699e5cf55f877')}
         formikProps={formikProps}
       />
-      <InlineInputs $hasOnlyThreeColumn={!!customerData?.customer?.currency}>
+      <div
+        className={tw('grid grid-cols-[48px_48px_1fr_120px] items-end gap-3', {
+          'grid-cols-[minmax(48px,120px)_48px_minmax(160px,1fr)]':
+            !!customerData?.customer?.currency,
+        })}
+      >
         <TextInput value="1" label={translate('text_62d18855b22699e5cf55f879')} disabled={true} />
         <TextInput value="=" disabled={true} />
         <AmountInputField
@@ -76,11 +80,12 @@ export const SettingsCard: FC<SettingsCardProps> = ({
             PopperProps={{ displayInDialog: true }}
           />
         )}
-      </InlineInputs>
+      </div>
 
       {showExpirationDate ? (
-        <InlineExpirationInput>
+        <div className="flex items-center gap-4">
           <DatePickerField
+            className="grow"
             disablePast
             name="expirationAt"
             placement="top-end"
@@ -95,7 +100,8 @@ export const SettingsCard: FC<SettingsCardProps> = ({
                 : undefined
             }
           />
-          <CloseExpirationTooltip
+          <Tooltip
+            className="mt-6"
             placement="top-end"
             title={translate('text_63aa085d28b8510cd46443ff')}
           >
@@ -107,8 +113,8 @@ export const SettingsCard: FC<SettingsCardProps> = ({
                 setShowExpirationDate(false)
               }}
             />
-          </CloseExpirationTooltip>
-        </InlineExpirationInput>
+          </Tooltip>
+        </div>
       ) : (
         <Button
           className="self-start"
@@ -123,30 +129,3 @@ export const SettingsCard: FC<SettingsCardProps> = ({
     </Card>
   )
 }
-
-const InlineInputs = styled.div<{ $hasOnlyThreeColumn?: boolean }>`
-  display: grid;
-  grid-template-columns: 48px 48px 1fr 120px;
-  gap: ${theme.spacing(3)};
-  align-items: flex-end;
-
-  ${({ $hasOnlyThreeColumn }) =>
-    $hasOnlyThreeColumn &&
-    css`
-      grid-template-columns: minmax(48px, 120px) 48px minmax(160px, 1fr);
-    `}
-`
-
-const InlineExpirationInput = styled.div`
-  display: flex;
-  gap: ${theme.spacing(4)};
-  align-items: center;
-
-  > *:first-child {
-    flex-grow: 1;
-  }
-`
-
-const CloseExpirationTooltip = styled(Tooltip)`
-  margin-top: ${theme.spacing(6)};
-`

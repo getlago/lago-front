@@ -117,7 +117,8 @@ export const CustomerCoupons = memo(() => {
                 />
               </NameBlock>
               {hasPermissions(['couponsDetach']) && (
-                <DeleteTooltip
+                <Tooltip
+                  className="ml-auto"
                   placement="top-end"
                   title={translate('text_628b8c693e464200e00e4a10')}
                 >
@@ -129,7 +130,7 @@ export const CustomerCoupons = memo(() => {
                       removeDialogRef?.current?.openDialog()
                     }}
                   />
-                </DeleteTooltip>
+                </Tooltip>
               )}
             </CouponNameSection>
           ))}
@@ -181,10 +182,6 @@ const CouponNameSection = styled.div`
 
 const NameBlock = styled.div`
   min-width: 0;
-`
-
-const DeleteTooltip = styled(Tooltip)`
-  margin-left: auto;
 `
 
 CustomerCoupons.displayName = 'CustomerCoupons'
