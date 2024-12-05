@@ -1,5 +1,4 @@
 import { forwardRef } from 'react'
-import styled, { css } from 'styled-components'
 
 import { getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum } from '~/generated/graphql'
@@ -17,7 +16,6 @@ type AmountValueFormatterType = AmountValueFormatter
 export interface AmountInputProps extends Omit<TextInputProps, 'beforeChangeFormatter'> {
   currency: CurrencyEnum
   beforeChangeFormatter?: AmountValueFormatterType[] | AmountValueFormatterType
-  displayErrorText?: boolean
 }
 
 const defineNewBeforeChangeFormatter = (
@@ -62,24 +60,14 @@ const definedDefaultPlaceholder = (currency: CurrencyEnum, translate: TranslateF
 }
 
 export const AmountInput = forwardRef<HTMLDivElement, AmountInputProps>(
-  (
-    {
-      currency,
-      beforeChangeFormatter,
-      placeholder,
-      displayErrorText = true,
-      ...props
-    }: AmountInputProps,
-    ref,
-  ) => {
+  ({ currency, beforeChangeFormatter, placeholder, ...props }: AmountInputProps, ref) => {
     const { translate } = useInternationalization()
     const newBeforeChangeFormatter = defineNewBeforeChangeFormatter(beforeChangeFormatter, currency)
     const newPlaceholder = placeholder ?? definedDefaultPlaceholder(currency, translate)
 
     return (
-      <StyledTextInput
+      <TextInput
         ref={ref}
-        $displayErrorText={displayErrorText}
         beforeChangeFormatter={newBeforeChangeFormatter}
         placeholder={newPlaceholder}
         {...props}
@@ -89,13 +77,3 @@ export const AmountInput = forwardRef<HTMLDivElement, AmountInputProps>(
 )
 
 AmountInput.displayName = 'AmountInput'
-
-const StyledTextInput = styled(TextInput)<{ $displayErrorText?: boolean }>`
-  ${({ $displayErrorText }) =>
-    !$displayErrorText &&
-    css`
-      .MuiTextField-root {
-        margin-bottom: 0 !important;
-      }
-    `}
-`
