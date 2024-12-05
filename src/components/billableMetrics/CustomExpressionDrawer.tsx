@@ -51,7 +51,7 @@ export type ValidationResult = {
 
 const CUSTOM_EXPRESSION_EXAMPLES = [
   'event.properties.tokens * event.properties.replicas',
-  'concat(event.properties.user_id, ‘-‘ , event.properties.app_id)',
+  "concat(event.properties.user_id, '-' , event.properties.app_id)",
   '(event.properties.ended_at - event.timestamp) / 3600',
 ]
 
