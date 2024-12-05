@@ -39,7 +39,6 @@ export const AmountInputField = memo(
           ref={ref}
           onBlur={handleBlur}
           cleanable={cleanable}
-          displayErrorText={displayErrorText}
           inputProps={inputProps}
           error={
             !silentError
