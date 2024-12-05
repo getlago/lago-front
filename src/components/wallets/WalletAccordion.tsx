@@ -56,6 +56,8 @@ gql`
     terminatedAt
     ongoingBalanceCents
     creditsOngoingBalance
+    ongoingDraftInvoicesBalanceCents
+    creditsOngoingDraftInvoicesBalance
 
     ...WalletInfosForTransactions
   }
@@ -310,9 +312,16 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                 transaction={{
                   id: 'real-time-transaction-id',
                   amount: String(
-                    deserializeAmount(wallet.ongoingUsageBalanceCents, wallet.currency),
+                    deserializeAmount(
+                      Number(wallet.ongoingUsageBalanceCents) +
+                        Number(wallet.ongoingDraftInvoicesBalanceCents),
+                      wallet.currency,
+                    ),
                   ),
-                  creditAmount: String(wallet.creditsOngoingUsageBalance),
+                  creditAmount: String(
+                    Number(wallet.creditsOngoingUsageBalance) +
+                      Number(wallet.creditsOngoingDraftInvoicesBalance),
+                  ),
                   createdAt: new Date(),
                   settledAt: new Date(),
                   wallet,

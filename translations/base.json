@@ -491,7 +491,7 @@
   "text_65ae73ebe3a66bec2b91d747": "Balance",
   "text_65ae73ebe3a66bec2b91d75f": "Ongoing balance",
   "text_65ae73ebe3a66bec2b91d749": "Ongoing balance updates every 5 minutes to include ongoing usage.",
-  "text_65ae9a58ed65be00a35a0d72": "Current usage (incl. taxes)",
+  "text_65ae9a58ed65be00a35a0d72": "Usage & draft invoices",
   "text_65ae73ece3a66bec2b91d7d7": "Total consumed:",
   "text_6328e70de459381ed4ba50d6": "The subscription upgrade will take effect immediately for your customer\nHowever, the downgrade will be effective after {{subscriptionEndDate}}",
   "text_632a2d437e341dcc76817556": "Code already existing, please type a new one",
