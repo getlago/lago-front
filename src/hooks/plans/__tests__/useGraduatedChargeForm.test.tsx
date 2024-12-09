@@ -195,7 +195,7 @@ describe('useGraduatedRange()', () => {
           {
             fromValue: '0',
             toValue: '1',
-            flatAmount: 4,
+            flatAmount: '4',
             perUnitAmount: undefined,
             disabledDelete: true,
           },
@@ -203,7 +203,7 @@ describe('useGraduatedRange()', () => {
             fromValue: '2',
             toValue: null,
             flatAmount: undefined,
-            perUnitAmount: 5,
+            perUnitAmount: '5',
             disabledDelete: false,
           },
         ])
@@ -506,7 +506,7 @@ describe('useGraduatedRange()', () => {
           {
             fromValue: '0',
             toValue: '1',
-            flatAmount: 4,
+            flatAmount: '4',
             perUnitAmount: undefined,
             disabledDelete: true,
           },
@@ -514,7 +514,7 @@ describe('useGraduatedRange()', () => {
             fromValue: '2',
             toValue: null,
             flatAmount: undefined,
-            perUnitAmount: 5,
+            perUnitAmount: '5',
             disabledDelete: false,
           },
         ])

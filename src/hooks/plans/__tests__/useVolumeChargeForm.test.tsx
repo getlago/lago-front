@@ -309,7 +309,7 @@ describe('useVolumeChargeForm()', () => {
         await act(async () => await result.current.handleUpdate(1, 'flatAmount', '10'))
         expect(result.current.tableDatas).toStrictEqual([
           { ...volumeRanges[0], disabledDelete: true },
-          { ...{ ...volumeRanges[1], flatAmount: 10 }, disabledDelete: false },
+          { ...{ ...volumeRanges[1], flatAmount: '10' }, disabledDelete: false },
           { ...volumeRanges[2], disabledDelete: false },
         ])
         await act(async () => await result.current.handleUpdate(1, 'flatAmount', '1'))
@@ -317,7 +317,7 @@ describe('useVolumeChargeForm()', () => {
         await act(async () => await result.current.handleUpdate(1, 'fromValue', 5))
         expect(result.current.tableDatas).toStrictEqual([
           { ...volumeRanges[0], disabledDelete: true },
-          { ...{ ...volumeRanges[1], flatAmount: 1, fromValue: 5 }, disabledDelete: false },
+          { ...{ ...volumeRanges[1], flatAmount: '1', fromValue: 5 }, disabledDelete: false },
           { ...volumeRanges[2], disabledDelete: false },
         ])
       })
@@ -584,7 +584,7 @@ describe('useVolumeChargeForm()', () => {
         await act(async () => await result.current.handleUpdate(1, 'flatAmount', '10'))
         expect(result.current.tableDatas).toStrictEqual([
           { ...volumeRanges[0], disabledDelete: true },
-          { ...{ ...volumeRanges[1], flatAmount: 10 }, disabledDelete: false },
+          { ...{ ...volumeRanges[1], flatAmount: '10' }, disabledDelete: false },
           { ...volumeRanges[2], disabledDelete: false },
         ])
         await act(async () => await result.current.handleUpdate(1, 'flatAmount', '1'))
@@ -592,7 +592,7 @@ describe('useVolumeChargeForm()', () => {
         await act(async () => await result.current.handleUpdate(1, 'fromValue', 5))
         expect(result.current.tableDatas).toStrictEqual([
           { ...volumeRanges[0], disabledDelete: true },
-          { ...{ ...volumeRanges[1], flatAmount: 1, fromValue: 5 }, disabledDelete: false },
+          { ...{ ...volumeRanges[1], flatAmount: '1', fromValue: 5 }, disabledDelete: false },
           { ...volumeRanges[2], disabledDelete: false },
         ])
       })
