@@ -127,10 +127,7 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
     },
     handleUpdate: (rangeIndex, fieldName, value) => {
       if (fieldName !== 'toValue') {
-        formikProps.setFieldValue(
-          `${formikIdentifier}.${rangeIndex}.${fieldName}`,
-          value !== '' ? Number(value) : value,
-        )
+        formikProps.setFieldValue(`${formikIdentifier}.${rangeIndex}.${fieldName}`, value)
       } else {
         const newVolumeRanges = volumeRanges.reduce<VolumeRangeInput[]>((acc, range, i) => {
           if (rangeIndex === i) {

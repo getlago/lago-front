@@ -165,10 +165,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
     },
     handleUpdate: (rangeIndex, fieldName, value) => {
       if (fieldName !== 'toValue') {
-        formikProps.setFieldValue(
-          `${formikIdentifier}.${rangeIndex}.${fieldName}`,
-          value !== '' ? Number(value) : value,
-        )
+        formikProps.setFieldValue(`${formikIdentifier}.${rangeIndex}.${fieldName}`, value)
       } else {
         const newGraduatedRanges = graduatedRanges.reduce<GraduatedRangeInput[]>(
           (acc, range, i) => {
