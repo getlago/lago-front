@@ -7826,6 +7826,15 @@ export type AssignTaxRateToOrganizationMutationVariables = Exact<{
 
 export type AssignTaxRateToOrganizationMutation = { __typename?: 'Mutation', updateTax?: { __typename?: 'Tax', id: string } | null };
 
+export type DeleteCustomSectionFragment = { __typename?: 'InvoiceCustomSection', id: string };
+
+export type DeleteCustomSectionMutationVariables = Exact<{
+  input: DestroyInvoiceCustomSectionInput;
+}>;
+
+
+export type DeleteCustomSectionMutation = { __typename?: 'Mutation', destroyInvoiceCustomSection?: { __typename?: 'DestroyInvoiceCustomSectionPayload', id?: string | null } | null };
+
 export type DeleteOrganizationVatRateFragment = { __typename?: 'Tax', id: string, name: string, appliedToOrganization: boolean };
 
 export type UnassignTaxRateToOrganizationMutationVariables = Exact<{
@@ -9054,7 +9063,14 @@ export type GetOrganizationSettingsQueryVariables = Exact<{
 }>;
 
 
-export type GetOrganizationSettingsQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, netPaymentTerm: number, defaultCurrency: CurrencyEnum, documentNumbering: DocumentNumberingEnum, documentNumberPrefix: string, finalizeZeroAmountInvoice: boolean, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, invoiceGracePeriod: number, invoiceFooter?: string | null, documentLocale?: string | null } | null } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, appliedToOrganization: boolean }> } };
+export type GetOrganizationSettingsQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, netPaymentTerm: number, defaultCurrency: CurrencyEnum, documentNumbering: DocumentNumberingEnum, documentNumberPrefix: string, finalizeZeroAmountInvoice: boolean, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, invoiceGracePeriod: number, invoiceFooter?: string | null, documentLocale?: string | null } | null } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, appliedToOrganization: boolean }> }, invoiceCustomSections?: { __typename?: 'InvoiceCustomSectionCollection', collection: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string, selected: boolean }> } | null };
+
+export type UpdateInvoiceCustomSectionSelectionMutationVariables = Exact<{
+  input: UpdateInvoiceCustomSectionInput;
+}>;
+
+
+export type UpdateInvoiceCustomSectionSelectionMutation = { __typename?: 'Mutation', updateInvoiceCustomSection?: { __typename?: 'InvoiceCustomSection', id: string, selected: boolean } | null };
 
 export type LagoTaxManagementIntegrationsSettingQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -10065,6 +10081,11 @@ export const XeroIntegrationSettingsFragmentDoc = gql`
   syncCreditNotes
   syncInvoices
   syncPayments
+}
+    `;
+export const DeleteCustomSectionFragmentDoc = gql`
+    fragment DeleteCustomSection on InvoiceCustomSection {
+  id
 }
     `;
 export const DeleteOrganizationVatRateFragmentDoc = gql`
@@ -18713,6 +18734,39 @@ export function useAssignTaxRateToOrganizationMutation(baseOptions?: Apollo.Muta
 export type AssignTaxRateToOrganizationMutationHookResult = ReturnType<typeof useAssignTaxRateToOrganizationMutation>;
 export type AssignTaxRateToOrganizationMutationResult = Apollo.MutationResult<AssignTaxRateToOrganizationMutation>;
 export type AssignTaxRateToOrganizationMutationOptions = Apollo.BaseMutationOptions<AssignTaxRateToOrganizationMutation, AssignTaxRateToOrganizationMutationVariables>;
+export const DeleteCustomSectionDocument = gql`
+    mutation deleteCustomSection($input: DestroyInvoiceCustomSectionInput!) {
+  destroyInvoiceCustomSection(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteCustomSectionMutationFn = Apollo.MutationFunction<DeleteCustomSectionMutation, DeleteCustomSectionMutationVariables>;
+
+/**
+ * __useDeleteCustomSectionMutation__
+ *
+ * To run a mutation, you first call `useDeleteCustomSectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCustomSectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCustomSectionMutation, { data, loading, error }] = useDeleteCustomSectionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteCustomSectionMutation(baseOptions?: Apollo.MutationHookOptions<DeleteCustomSectionMutation, DeleteCustomSectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteCustomSectionMutation, DeleteCustomSectionMutationVariables>(DeleteCustomSectionDocument, options);
+      }
+export type DeleteCustomSectionMutationHookResult = ReturnType<typeof useDeleteCustomSectionMutation>;
+export type DeleteCustomSectionMutationResult = Apollo.MutationResult<DeleteCustomSectionMutation>;
+export type DeleteCustomSectionMutationOptions = Apollo.BaseMutationOptions<DeleteCustomSectionMutation, DeleteCustomSectionMutationVariables>;
 export const UnassignTaxRateToOrganizationDocument = gql`
     mutation unassignTaxRateToOrganization($input: TaxUpdateInput!) {
   updateTax(input: $input) {
@@ -24875,12 +24929,22 @@ export const GetOrganizationSettingsDocument = gql`
       ...DeleteOrganizationVatRate
     }
   }
+  invoiceCustomSections {
+    collection {
+      id
+      name
+      code
+      selected
+      ...DeleteCustomSection
+    }
+  }
 }
     ${EditOrganizationInvoiceTemplateDialogFragmentDoc}
 ${EditOrganizationNetPaymentTermForDialogFragmentDoc}
 ${EditOrganizationDefaultCurrencyForDialogFragmentDoc}
 ${EditOrganizationInvoiceNumberingDialogFragmentDoc}
-${DeleteOrganizationVatRateFragmentDoc}`;
+${DeleteOrganizationVatRateFragmentDoc}
+${DeleteCustomSectionFragmentDoc}`;
 
 /**
  * __useGetOrganizationSettingsQuery__
@@ -24914,6 +24978,40 @@ export type GetOrganizationSettingsQueryHookResult = ReturnType<typeof useGetOrg
 export type GetOrganizationSettingsLazyQueryHookResult = ReturnType<typeof useGetOrganizationSettingsLazyQuery>;
 export type GetOrganizationSettingsSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationSettingsSuspenseQuery>;
 export type GetOrganizationSettingsQueryResult = Apollo.QueryResult<GetOrganizationSettingsQuery, GetOrganizationSettingsQueryVariables>;
+export const UpdateInvoiceCustomSectionSelectionDocument = gql`
+    mutation updateInvoiceCustomSectionSelection($input: UpdateInvoiceCustomSectionInput!) {
+  updateInvoiceCustomSection(input: $input) {
+    id
+    selected
+  }
+}
+    `;
+export type UpdateInvoiceCustomSectionSelectionMutationFn = Apollo.MutationFunction<UpdateInvoiceCustomSectionSelectionMutation, UpdateInvoiceCustomSectionSelectionMutationVariables>;
+
+/**
+ * __useUpdateInvoiceCustomSectionSelectionMutation__
+ *
+ * To run a mutation, you first call `useUpdateInvoiceCustomSectionSelectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateInvoiceCustomSectionSelectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateInvoiceCustomSectionSelectionMutation, { data, loading, error }] = useUpdateInvoiceCustomSectionSelectionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateInvoiceCustomSectionSelectionMutation(baseOptions?: Apollo.MutationHookOptions<UpdateInvoiceCustomSectionSelectionMutation, UpdateInvoiceCustomSectionSelectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateInvoiceCustomSectionSelectionMutation, UpdateInvoiceCustomSectionSelectionMutationVariables>(UpdateInvoiceCustomSectionSelectionDocument, options);
+      }
+export type UpdateInvoiceCustomSectionSelectionMutationHookResult = ReturnType<typeof useUpdateInvoiceCustomSectionSelectionMutation>;
+export type UpdateInvoiceCustomSectionSelectionMutationResult = Apollo.MutationResult<UpdateInvoiceCustomSectionSelectionMutation>;
+export type UpdateInvoiceCustomSectionSelectionMutationOptions = Apollo.BaseMutationOptions<UpdateInvoiceCustomSectionSelectionMutation, UpdateInvoiceCustomSectionSelectionMutationVariables>;
 export const LagoTaxManagementIntegrationsSettingDocument = gql`
     query lagoTaxManagementIntegrationsSetting {
   organization {

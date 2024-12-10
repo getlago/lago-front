@@ -8,7 +8,7 @@ type ActionType = 'setDefault' | 'removeDefault'
 type TDefaultCustomSectionDialogProps = {
   type: ActionType
   onConfirm: () => void
-  onCancel: () => void
+  onCancel?: () => void
 }
 
 export interface DefaultCustomSectionDialogRef {
@@ -51,7 +51,7 @@ export const DefaultCustomSectionDialog = forwardRef<DefaultCustomSectionDialogR
             <Button
               variant="quaternary"
               onClick={async () => {
-                await localData?.onCancel()
+                await localData?.onCancel?.()
                 closeDialog()
               }}
             >

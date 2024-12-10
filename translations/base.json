@@ -2752,10 +2752,13 @@
   "text_1735654189136s548dkluunb": "Search and select a country",
   "text_1735655045719sl0z0pooptb": "Add metadata to the customer and decide if it appears on the invoice.",
   "text_1735828930375zjo8m3yh5ra": "Sync this customer data to an integration connected to Lago.",
-  "text_1732638001460kne05vskb7e": "Edit details",
-  "text_1732638001460kdzkctjfegi": "Delete details",
+  "text_1732638001460kne05vskb7e": "Edit section",
+  "text_1732638001460kdzkctjfegi": "Delete section",
   "text_17326382475765mx3dfl4v6t": "Edit, delete and more",
   "text_1732639579760vrvtea9dbua": "Delete these invoice custom section",
   "text_1732639579760siwe29e2rqg": "This will remove them from all associated organizations and customers. Future invoices will no longer use these banking details. Are you sure you want to proceed?",
-  "text_1732639603661uwmv1793v9b": "Delete bank details"
+  "text_1732639603661uwmv1793v9b": "Delete custom section",
+  "text_1733849149914btq7cvs7ljb": "Invoice custom section successfully set as the default",
+  "text_17338491499140e4tci0yhhe": "Default invoice custom section successfully removed",
+  "text_1733849149914twslm71nuy6": "Invoice custom section successfully deleted"
 }
