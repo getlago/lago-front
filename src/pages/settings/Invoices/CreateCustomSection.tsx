@@ -23,16 +23,16 @@ const CreateInvoiceCustomSection = () => {
   const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
   const defaultCustomSectionDialogRef = useRef<DefaultCustomSectionDialogRef>(null)
 
-  const { loading, onSave } = useCreateEditInvoiceCustomSection()
+  const { loading, isEdition, invoiceCustomSection, onSave } = useCreateEditInvoiceCustomSection()
 
   const formikProps = useFormik<CreateInvoiceCustomSectionInput>({
     initialValues: {
-      name: '',
-      code: '',
-      description: '',
-      displayName: '',
-      details: '',
-      selected: false,
+      name: invoiceCustomSection?.name || '',
+      code: invoiceCustomSection?.code || '',
+      description: invoiceCustomSection?.description || '',
+      displayName: invoiceCustomSection?.displayName || '',
+      details: invoiceCustomSection?.details || '',
+      selected: invoiceCustomSection?.selected || false,
     },
     validationSchema: object().shape({
       name: string().required(''),
@@ -73,7 +73,9 @@ const CreateInvoiceCustomSection = () => {
       <div>
         <PageHeader>
           <Typography variant="bodyHl" color="textSecondary" noWrap>
-            {translate('text_1732553358445168zt8fopyf')}
+            {isEdition
+              ? translate('text_1733841825248s6mxx67rsw7')
+              : translate('text_1732553358445p5bxpiijc65')}
           </Typography>
           <Button
             variant="quaternary"
@@ -229,7 +231,9 @@ const CreateInvoiceCustomSection = () => {
                     disabled={!formikProps.isValid || !formikProps.dirty}
                     onClick={onSubmit}
                   >
-                    {translate('text_17325538899488ftsvph8ko5')}
+                    {isEdition
+                      ? translate('text_17295436903260tlyb1gp1i7')
+                      : translate('text_17325538899488ftsvph8ko5')}
                   </Button>
                 </div>
               </div>

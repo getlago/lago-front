@@ -1,15 +1,17 @@
 import { gql } from '@apollo/client'
-import { useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useMemo } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
-import { INVOICE_SETTINGS_ROUTE } from '~/core/router'
+import { ERROR_404_ROUTE, INVOICE_SETTINGS_ROUTE } from '~/core/router'
 import {
   CreateInvoiceCustomSectionInput,
   InvoiceCustomSectionFormFragment,
   LagoApiError,
   useCreateInvoiceCustomSectionMutation,
+  useGetSingleInvoiceCustomSectionQuery,
+  useUpdateInvoiceCustomSectionMutation,
 } from '~/generated/graphql'
 
 gql`
@@ -22,8 +24,22 @@ gql`
     selected
   }
 
+  query getSingleInvoiceCustomSection($id: ID!) {
+    invoiceCustomSection(id: $id) {
+      id
+      ...InvoiceCustomSectionForm
+    }
+  }
+
   mutation createInvoiceCustomSection($input: CreateInvoiceCustomSectionInput!) {
     createInvoiceCustomSection(input: $input) {
+      id
+      ...InvoiceCustomSectionForm
+    }
+  }
+
+  mutation updateInvoiceCustomSection($input: UpdateInvoiceCustomSectionInput!) {
+    updateInvoiceCustomSection(input: $input) {
       id
       ...InvoiceCustomSectionForm
     }
@@ -41,6 +57,14 @@ interface UseCreateEditInvoiceCustomSectionReturn {
 
 export const useCreateEditInvoiceCustomSection = (): UseCreateEditInvoiceCustomSectionReturn => {
   const navigate = useNavigate()
+  const { sectionId } = useParams<string>()
+
+  const { data, loading, error } = useGetSingleInvoiceCustomSectionQuery({
+    variables: {
+      id: sectionId as string,
+    },
+    skip: !sectionId,
+  })
 
   const [create, { error: createError }] = useCreateInvoiceCustomSectionMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
@@ -48,38 +72,67 @@ export const useCreateEditInvoiceCustomSection = (): UseCreateEditInvoiceCustomS
       if (!!createInvoiceCustomSection) {
         addToast({
           severity: 'success',
-          translateKey: '',
+          translateKey: 'text_17338418252493b2rz0ks49m',
         })
       }
       navigate(INVOICE_SETTINGS_ROUTE)
     },
   })
 
+  const [update, { error: updateError }] = useUpdateInvoiceCustomSectionMutation({
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+    onCompleted({ updateInvoiceCustomSection }) {
+      if (!!updateInvoiceCustomSection) {
+        addToast({
+          severity: 'success',
+          translateKey: 'text_1733841825249i5g7vr4gnzo',
+        })
+      }
+      navigate(INVOICE_SETTINGS_ROUTE)
+    },
+  })
+
+  useEffect(() => {
+    if (hasDefinedGQLError('NotFound', error, 'invoiceCustomSection')) {
+      navigate(ERROR_404_ROUTE)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error])
+
   const errorCode = useMemo(() => {
-    if (hasDefinedGQLError('ValueAlreadyExist', createError)) {
+    if (hasDefinedGQLError('ValueAlreadyExist', createError || updateError)) {
       return FORM_ERRORS_ENUM.existingCode
     }
 
     return undefined
-  }, [createError])
+  }, [createError, updateError])
 
   return useMemo(
     () => ({
-      loading: false,
-      isEdition: false,
-      invoiceCustomSection: undefined,
-      onClose: () => navigate(INVOICE_SETTINGS_ROUTE),
+      loading,
       errorCode,
+      isEdition: !!sectionId,
+      invoiceCustomSection: data?.invoiceCustomSection || undefined,
+      onClose: () => navigate(INVOICE_SETTINGS_ROUTE),
       onSave: async (values) => {
-        await create({
-          variables: {
-            input: {
-              ...values,
-            },
-          },
-        })
+        !!sectionId
+          ? await update({
+              variables: {
+                input: {
+                  ...values,
+                  id: sectionId,
+                },
+              },
+            })
+          : await create({
+              variables: {
+                input: {
+                  ...values,
+                },
+              },
+            })
       },
     }),
-    [create, errorCode, navigate],
+    [sectionId, data?.invoiceCustomSection, errorCode, loading, navigate, create, update],
   )
 }
