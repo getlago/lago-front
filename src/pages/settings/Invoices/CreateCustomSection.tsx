@@ -16,7 +16,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditInvoiceCustomSection } from '~/hooks/useCreateEditInvoiceCustomSection'
 import { PageHeader } from '~/styles'
 
-const CreateInvoiceCustomFooter = () => {
+const CreateInvoiceCustomSection = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
 
@@ -250,4 +250,4 @@ const CreateInvoiceCustomFooter = () => {
   )
 }
 
-export default CreateInvoiceCustomFooter
+export default CreateInvoiceCustomSection
