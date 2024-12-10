@@ -179,7 +179,7 @@ export const DUNNINGS_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/dunnings`
 export const CREATE_DUNNING_ROUTE = `${SETTINGS_ROUTE}/dunnings/create`
 export const UPDATE_DUNNING_ROUTE = `${SETTINGS_ROUTE}/dunnings/:campaignId/edit`
 export const CREATE_INVOICE_CUSTOM_SECTION = `${INVOICE_SETTINGS_ROUTE}/custom-section/create`
-export const EDIT_INVOICE_CUSTOM_SECTION = `${INVOICE_SETTINGS_ROUTE}/custom-section/:sectionId`
+export const EDIT_INVOICE_CUSTOM_SECTION = `${INVOICE_SETTINGS_ROUTE}/custom-section/:sectionId/edit`
 
 export const settingRoutes: CustomRouteObject[] = [
   {
