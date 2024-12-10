@@ -19,10 +19,10 @@ const InvoiceSettings = lazyLoad(
     import(/* webpackChunkName: 'invoice-settings' */ '~/pages/settings/Invoices/InvoiceSettings'),
 )
 
-const CreateInvoiceCustomFooter = lazyLoad(
+const CreateInvoiceCustomSection = lazyLoad(
   () =>
     import(
-      /* webpackChunkName: 'invoice-custom-footer' */ '~/pages/settings/Invoices/CreateCustomFooter'
+      /* webpackChunkName: 'invoice-custom-section' */ '~/pages/settings/Invoices/CreateCustomSection'
     ),
 )
 
@@ -178,8 +178,8 @@ export const DUNNINGS_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/dunnings`
  */
 export const CREATE_DUNNING_ROUTE = `${SETTINGS_ROUTE}/dunnings/create`
 export const UPDATE_DUNNING_ROUTE = `${SETTINGS_ROUTE}/dunnings/:campaignId/edit`
-export const CREATE_INVOICE_CUSTOM_FOOTER = `${INVOICE_SETTINGS_ROUTE}/custom-footer/create`
-export const EDIT_INVOICE_CUSTOM_FOOTER = `${INVOICE_SETTINGS_ROUTE}/custom-footer/:sectionId`
+export const CREATE_INVOICE_CUSTOM_SECTION = `${INVOICE_SETTINGS_ROUTE}/custom-section/create`
+export const EDIT_INVOICE_CUSTOM_SECTION = `${INVOICE_SETTINGS_ROUTE}/custom-section/:sectionId`
 
 export const settingRoutes: CustomRouteObject[] = [
   {
@@ -363,9 +363,9 @@ export const settingRoutes: CustomRouteObject[] = [
     permissions: ['dunningCampaignsCreate', 'dunningCampaignsView', 'dunningCampaignsUpdate'],
   },
   {
-    path: [CREATE_INVOICE_CUSTOM_FOOTER, EDIT_INVOICE_CUSTOM_FOOTER],
+    path: [CREATE_INVOICE_CUSTOM_SECTION, EDIT_INVOICE_CUSTOM_SECTION],
     private: true,
-    element: <CreateInvoiceCustomFooter />,
+    element: <CreateInvoiceCustomSection />,
     // TODO: Add permissions
     permissions: ['organizationInvoicesUpdate'],
   },
