@@ -2756,10 +2756,13 @@
   "text_173255335844629sa49oljif": "Preview invoice",
   "text_1735045451930tezr0et3e6l": "Invoice is pending finalization.",
   "text_1735045451931zfgc6yvvcfm": "This invoice is in the queue, waiting to be finalized. It may take a bit of time. Please refresh or check back later.",
-  "text_1732638001460kne05vskb7e": "Edit details",
-  "text_1732638001460kdzkctjfegi": "Delete details",
+  "text_1732638001460kne05vskb7e": "Edit section",
+  "text_1732638001460kdzkctjfegi": "Delete section",
   "text_17326382475765mx3dfl4v6t": "Edit, delete and more",
   "text_1732639579760vrvtea9dbua": "Delete these invoice custom section",
   "text_1732639579760siwe29e2rqg": "This will remove them from all associated organizations and customers. Future invoices will no longer use these banking details. Are you sure you want to proceed?",
-  "text_1732639603661uwmv1793v9b": "Delete bank details"
+  "text_1732639603661uwmv1793v9b": "Delete custom section",
+  "text_1733849149914btq7cvs7ljb": "Invoice custom section successfully set as the default",
+  "text_17338491499140e4tci0yhhe": "Default invoice custom section successfully removed",
+  "text_1733849149914twslm71nuy6": "Invoice custom section successfully deleted"
 }

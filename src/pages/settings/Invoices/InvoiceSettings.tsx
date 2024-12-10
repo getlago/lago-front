@@ -67,11 +67,13 @@ import {
   EditOrganizationInvoiceTemplateDialog,
   EditOrganizationInvoiceTemplateDialogRef,
 } from '~/components/settings/invoices/EditOrganizationInvoiceTemplateDialog'
+import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CREATE_INVOICE_CUSTOM_FOOTER, EDIT_INVOICE_CUSTOM_FOOTER } from '~/core/router'
+import { CREATE_INVOICE_CUSTOM_SECTION, EDIT_INVOICE_CUSTOM_SECTION } from '~/core/router'
 import { DocumentLocales } from '~/core/translations/documentLocales'
 import { getInvoiceNumberPreview } from '~/core/utils/invoiceNumberPreview'
 import {
+  DeleteCustomSectionFragmentDoc,
   DeleteOrganizationVatRateFragmentDoc,
   DocumentNumberingEnum,
   EditOrganizationDefaultCurrencyForDialogFragmentDoc,
@@ -79,6 +81,7 @@ import {
   EditOrganizationInvoiceTemplateDialogFragmentDoc,
   EditOrganizationNetPaymentTermForDialogFragmentDoc,
   useGetOrganizationSettingsQuery,
+  useUpdateInvoiceCustomSectionMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -124,9 +127,28 @@ gql`
         ...DeleteOrganizationVatRate
       }
     }
+
+    invoiceCustomSections {
+      collection {
+        id
+        name
+        code
+        selected
+
+        ...DeleteCustomSection
+      }
+    }
+  }
+
+  mutation updateInvoiceCustomSectionSelection($input: UpdateInvoiceCustomSectionInput!) {
+    updateInvoiceCustomSection(input: $input) {
+      id
+      selected
+    }
   }
 
   ${DeleteOrganizationVatRateFragmentDoc}
+  ${DeleteCustomSectionFragmentDoc}
   ${EditOrganizationInvoiceTemplateDialogFragmentDoc}
   ${EditOrganizationNetPaymentTermForDialogFragmentDoc}
   ${EditOrganizationDefaultCurrencyForDialogFragmentDoc}
@@ -160,11 +182,28 @@ const InvoiceSettings = () => {
   const documentLocale = organization?.billingConfiguration?.documentLocale || DocumentLocales.en
   const canEditInvoiceSettings = hasPermissions(['organizationInvoicesUpdate'])
 
-  const customSections: Array<{ id: string; name: string; selected: boolean }> = [
-    { id: '1', name: 'Custom Footer', selected: false },
-    { id: '2', name: 'Bank details', selected: true },
-  ]
-  const hasCustomSections = customSections.length > 0
+  const hasCustomSections = !!data?.invoiceCustomSections?.collection?.length
+
+  const [updateCustomSection] = useUpdateInvoiceCustomSectionMutation({
+    refetchQueries: ['getOrganizationSettings'],
+    onCompleted: ({ updateInvoiceCustomSection }) => {
+      if (!updateInvoiceCustomSection) {
+        return
+      }
+
+      if (updateInvoiceCustomSection.selected) {
+        addToast({
+          severity: 'success',
+          message: translate('text_1733849149914btq7cvs7ljb'),
+        })
+      } else {
+        addToast({
+          severity: 'success',
+          message: translate('text_17338491499140e4tci0yhhe'),
+        })
+      }
+    },
+  })
 
   if (!!error && !loading) {
     return (
@@ -304,7 +343,7 @@ const InvoiceSettings = () => {
                     <Button
                       variant="quaternary"
                       disabled={!canEditInvoiceSettings}
-                      onClick={() => navigate(CREATE_INVOICE_CUSTOM_FOOTER)}
+                      onClick={() => navigate(CREATE_INVOICE_CUSTOM_SECTION)}
                     >
                       {translate('text_645bb193927b375079d28ad2')}
                     </Button>
@@ -315,7 +354,7 @@ const InvoiceSettings = () => {
                   <Table
                     name="invoice-custom-section"
                     containerSize={{ default: 0 }}
-                    data={customSections}
+                    data={data.invoiceCustomSections?.collection || []}
                     columns={[
                       {
                         key: 'name',
@@ -334,6 +373,7 @@ const InvoiceSettings = () => {
                           section.selected && (
                             <Chip label={translate('text_65281f686a80b400c8e2f6d1')} />
                           ),
+                        minWidth: 96,
                       },
                     ]}
                     actionColumnTooltip={() => translate('text_17326382475765mx3dfl4v6t')}
@@ -343,7 +383,7 @@ const InvoiceSettings = () => {
                         title: translate('text_1732638001460kne05vskb7e'),
                         onAction: () =>
                           navigate(
-                            generatePath(EDIT_INVOICE_CUSTOM_FOOTER, { sectionId: section.id }),
+                            generatePath(EDIT_INVOICE_CUSTOM_SECTION, { sectionId: section.id }),
                           ),
                       },
                       section.selected
@@ -353,8 +393,15 @@ const InvoiceSettings = () => {
                             onAction: () =>
                               defaultCustomSectionDialogRef.current?.openDialog({
                                 type: 'removeDefault',
-                                // TODO: Implement onConfirm
-                                onConfirm: () => {},
+                                onConfirm: () =>
+                                  updateCustomSection({
+                                    variables: {
+                                      input: {
+                                        id: section.id,
+                                        selected: false,
+                                      },
+                                    },
+                                  }),
                               }),
                           }
                         : {
@@ -363,14 +410,24 @@ const InvoiceSettings = () => {
                             onAction: () =>
                               defaultCustomSectionDialogRef.current?.openDialog({
                                 type: 'setDefault',
-                                // TODO: Implement onConfirm
-                                onConfirm: () => {},
+                                onConfirm: () =>
+                                  updateCustomSection({
+                                    variables: {
+                                      input: {
+                                        id: section.id,
+                                        selected: true,
+                                      },
+                                    },
+                                  }),
                               }),
                           },
                       {
                         startIcon: 'trash',
                         title: translate('text_1732638001460kdzkctjfegi'),
-                        onAction: () => deleteCustomSectionDialogRef.current?.openDialog(),
+                        onAction: () =>
+                          deleteCustomSectionDialogRef.current?.openDialog({
+                            id: section.id,
+                          }),
                       },
                     ]}
                   />
