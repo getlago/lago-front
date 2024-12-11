@@ -65,7 +65,11 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
           <Title $hasDescription={!!description} variant="headline" data-test="dialog-title">
             {title}
           </Title>
-          {description && <Description data-test="dialog-description">{description}</Description>}
+          {description && (
+            <Typography className="mb-8" data-test="dialog-description">
+              {description}
+            </Typography>
+          )}
 
           {children && children}
 
@@ -119,10 +123,5 @@ const Title = styled(Typography)<{ $hasDescription?: boolean }>`
   && {
     margin-bottom: ${({ $hasDescription }) =>
       $hasDescription ? theme.spacing(3) : theme.spacing(8)};
-  }
-`
-const Description = styled(Typography)`
-  && {
-    margin-bottom: ${theme.spacing(8)};
   }
 `
