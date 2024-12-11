@@ -16,6 +16,7 @@ import { getTimezoneConfig } from '~/core/timezone'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 gql`
   fragment OrganizationForDatePicker on CurrentOrganization {
@@ -94,7 +95,7 @@ export const DatePicker = ({
 
   return (
     <LocalizationProvider dateAdapter={AdapterLuxon}>
-      <Container className={className}>
+      <div className={tw('relative flex flex-col gap-1', className)}>
         {!!label && (
           <>
             {typeof label === 'string' ? (
@@ -248,14 +249,7 @@ export const DatePicker = ({
             }}
           />
         </ConditionalWrapper>
-      </Container>
+      </div>
     </LocalizationProvider>
   )
 }
-
-const Container = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(1)};
-`
