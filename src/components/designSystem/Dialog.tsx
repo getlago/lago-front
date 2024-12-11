@@ -3,6 +3,7 @@ import { forwardRef, ReactNode, useEffect, useImperativeHandle, useState } from 
 import styled from 'styled-components'
 
 import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import { Typography } from './Typography'
 
@@ -62,9 +63,14 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
           transitionDuration={80}
           {...props}
         >
-          <Title $hasDescription={!!description} variant="headline" data-test="dialog-title">
+          <Typography
+            className={tw(!!description ? 'mb-3' : 'mb-8')}
+            variant="headline"
+            data-test="dialog-title"
+          >
             {title}
-          </Title>
+          </Typography>
+
           {description && (
             <Typography className="mb-8" data-test="dialog-description">
               {description}
@@ -116,12 +122,5 @@ const StyledDialog = styled(MuiDialog)`
         max-width: 100%;
       }
     }
-  }
-`
-
-const Title = styled(Typography)<{ $hasDescription?: boolean }>`
-  && {
-    margin-bottom: ${({ $hasDescription }) =>
-      $hasDescription ? theme.spacing(3) : theme.spacing(8)};
   }
 `
