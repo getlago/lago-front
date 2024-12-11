@@ -1,9 +1,9 @@
-import { cx } from 'class-variance-authority'
+import { cva } from 'class-variance-authority'
 import { MouseEvent, useEffect, useRef, useState } from 'react'
-import styled, { css } from 'styled-components'
 
 import { Icon, Typography } from '~/components/designSystem'
 import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 enum LabelPositionEnum {
   left = 'left',
@@ -21,6 +21,49 @@ export interface SwitchProps {
   onChange?: (value: boolean, e: MouseEvent<HTMLDivElement>) => Promise<unknown> | void
 }
 
+const switchVariants = cva(
+  'relative flex h-8 w-15 min-w-15 max-w-15 items-center justify-between rounded-[32px] px-1 transition-[background-color] duration-250 ease-in-out',
+  {
+    variants: {
+      loading: {
+        true: 'justify-center bg-blue',
+      },
+      checked: {
+        true: 'bg-blue',
+        false: 'bg-grey-200',
+      },
+      disabled: {
+        true: 'bg-grey-100 text-grey-400',
+      },
+      focused: {
+        true: '',
+      },
+    },
+    compoundVariants: [
+      {
+        loading: false,
+        disabled: false,
+        className: 'cursor-pointer',
+      },
+      {
+        disabled: false,
+        checked: true,
+        className: 'hover:bg-blue-700 active:hover:bg-blue-800',
+      },
+      {
+        disabled: false,
+        checked: false,
+        className: 'hover:bg-grey-300 active:hover:bg-grey-400',
+      },
+      {
+        disabled: false,
+        focused: true,
+        className: 'ring',
+      },
+    ],
+  },
+)
+
 export const Switch = ({
   name,
   label,
@@ -37,7 +80,7 @@ export const Switch = ({
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    // This is for preventing setstate on unmounted component
+    // This is for preventing setState on unmounted component
     mountedRef.current = true
 
     return () => {
@@ -46,8 +89,13 @@ export const Switch = ({
   }, [])
 
   return (
-    <Container
-      $orientation={labelPosition}
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+    <div
+      className={tw('h-[initial] p-0', 'flex items-center', {
+        'flex-row-reverse': labelPosition === LabelPositionEnum.left,
+        'flex-row': labelPosition === LabelPositionEnum.right,
+        'cursor-text': disabled,
+      })}
       onClick={
         disabled
           ? undefined
@@ -60,7 +108,7 @@ export const Switch = ({
                 if (res !== null && res instanceof Promise) {
                   let realLoading = true
 
-                  // This is to prenvent icon blink if the loading time is really small
+                  // This is to prevent icon blink if the loading time is really small
                   setTimeout(() => {
                     if (mountedRef.current && realLoading) setLoading(true)
                   }, 100)
@@ -77,13 +125,17 @@ export const Switch = ({
             }
       }
     >
-      <SwitchContainer
-        $checked={!!checked}
-        className={cx('switchField', {
-          'switchField--disabled': disabled,
-          'switchField--focused': focused,
-          'switchField--loading': loading,
-        })}
+      <div
+        className={tw(
+          'switchField',
+          switchVariants({
+            loading: !!loading,
+            disabled: !!disabled,
+            checked: !!checked,
+            focused: !!focused,
+          }),
+          'transition-all duration-250 ease-in-out',
+        )}
       >
         <input
           readOnly
@@ -95,15 +147,40 @@ export const Switch = ({
           type="checkbox"
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
+          className="absolute m-0 size-0 p-0 opacity-0"
         />
-        {loading && <Loader animation="spin" name="processing" color="light" />}
-        <StyledTypography color={disabled ? 'inherit' : 'white'} variant="noteHl">
+        {loading && (
+          <Icon
+            className="absolute left-5 opacity-100"
+            animation="spin"
+            name="processing"
+            color="light"
+          />
+        )}
+        <Typography
+          className={tw('w-6 text-center', loading ? 'opacity-0' : 'opacity-100')}
+          color={disabled ? 'inherit' : 'white'}
+          variant="noteHl"
+        >
           On
-        </StyledTypography>
-        <StyledTypography color={disabled ? 'inherit' : 'disabled'} variant="noteHl">
+        </Typography>
+        <Typography
+          className={tw('w-6 text-center', loading ? 'opacity-0' : 'opacity-100')}
+          color={disabled ? 'inherit' : 'disabled'}
+          variant="noteHl"
+        >
           Off
-        </StyledTypography>
-        <SwitchElement width="24" height="24" viewBox="0 0 24 24" $checked={!!checked}>
+        </Typography>
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          className={tw(
+            'absolute',
+            loading ? 'opacity-0' : 'opacity-100',
+            checked ? 'left-8' : 'left-1',
+          )}
+        >
           <circle
             cx="12"
             cy="12"
@@ -117,129 +194,26 @@ export const Switch = ({
             }
           />
           <circle cx="12" cy="12" r="11" fill={theme.palette.common.white} />
-        </SwitchElement>
-      </SwitchContainer>
+        </svg>
+      </div>
       {(!!label || !!subLabel) && (
         <>
-          <Space />
-          <LabelContainer $disabled={disabled}>
-            {!!label && <Typography color="textSecondary">{label}</Typography>}
-            {!!subLabel && <Typography variant="caption">{subLabel}</Typography>}
-          </LabelContainer>
+          <div className="flex min-h-px w-3 min-w-3" />
+          <div>
+            {!!label && (
+              <Typography color="textSecondary" className="text-left">
+                {label}
+              </Typography>
+            )}
+            {!!subLabel && (
+              <Typography variant="caption" className="text-left">
+                {subLabel}
+              </Typography>
+            )}
+          </div>
         </>
       )}
-    </Container>
+    </div>
   )
 }
-
 Switch.displayName = 'Switch'
-
-const Container = styled.div<{ $orientation: LabelPosition }>`
-  display: flex;
-  align-items: center;
-  flex-direction: ${({ $orientation }) =>
-    $orientation === LabelPositionEnum.right ? 'row' : 'row-reverse'};
-`
-
-const LabelContainer = styled.div<{ $disabled?: boolean }>`
-  ${({ $disabled }) =>
-    !$disabled &&
-    css`
-      cursor: pointer;
-    `}
-`
-
-const Space = styled.div`
-  width: ${theme.spacing(3)};
-  min-width: ${theme.spacing(3)};
-  min-height: 1px;
-`
-
-const Loader = styled(Icon)`
-  position: absolute;
-  left: 20px;
-  transition:
-    left 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
-    opacity 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-  opacity: 0;
-`
-
-const SwitchElement = styled.svg<{ $checked: boolean }>`
-  position: absolute;
-  left: ${(props) => (props.$checked ? theme.spacing(8) : theme.spacing(1))};
-  transition:
-    left 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
-    opacity 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-  opacity: 1;
-`
-
-const StyledTypography = styled(Typography)`
-  width: 24px;
-  text-align: center;
-  transition:
-    left 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
-    opacity 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-  opacity: 1;
-`
-
-const SwitchContainer = styled.div<{ $checked: boolean }>`
-  border-radius: 32px;
-  width: 60px;
-  max-width: 60px;
-  min-width: 60px;
-  box-sizing: border-box;
-  height: 32px;
-  position: relative;
-  transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 ${theme.spacing(1)};
-
-  &:not(.switchField--disabled):not(.switchField--loading) {
-    cursor: pointer;
-    background-color: ${(props) =>
-      props.$checked ? theme.palette.primary.main : theme.palette.grey[200]};
-
-    &:hover {
-      background-color: ${(props) =>
-        props.$checked ? theme.palette.primary[700] : theme.palette.grey[300]};
-    }
-
-    &:active {
-      background-color: ${(props) =>
-        props.$checked ? theme.palette.primary[800] : theme.palette.grey[400]};
-    }
-
-    &.switchField--focused {
-      box-shadow: 0px 0px 0px 4px ${theme.palette.primary[200]};
-    }
-  }
-
-  &.switchField--loading {
-    justify-content: center;
-    background-color: ${theme.palette.primary.main};
-
-    ${StyledTypography}, ${SwitchElement} {
-      opacity: 0;
-    }
-
-    ${Loader} {
-      opacity: 1;
-    }
-  }
-
-  &.switchField--disabled {
-    background-color: ${theme.palette.grey[100]};
-    color: ${theme.palette.grey[400]};
-  }
-
-  input {
-    opacity: 0;
-    position: absolute;
-    width: 0;
-    height: 0;
-    margin: 0;
-    padding: 0;
-  }
-`
