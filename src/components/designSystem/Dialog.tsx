@@ -1,8 +1,7 @@
-import { alpha, Dialog as MuiDialog } from '@mui/material'
+import { Dialog as MuiDialog } from '@mui/material'
 import { forwardRef, ReactNode, useEffect, useImperativeHandle, useState } from 'react'
-import styled from 'styled-components'
 
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import { Typography } from './Typography'
 
@@ -45,7 +44,12 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
 
     return (
       <>
-        <StyledDialog
+        <MuiDialog
+          className="z-dialog box-border"
+          classes={{
+            container: 'px-4 py-20 box-border',
+            scrollBody: 'after:h-20',
+          }}
           scroll="body"
           onKeyDown={(e) => {
             if (e.code === 'Escape') {
@@ -58,71 +62,43 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
               closeDialog()
             }
           }}
-          PaperProps={{ className: 'dialogPaper' }}
+          slotProps={{
+            backdrop: {
+              classes: {
+                root: 'bg-grey-700/40',
+              },
+            },
+          }}
+          PaperProps={{
+            className:
+              'flex flex-col md:max-w-xl mx-auto my-0 rounded-xl z-dialog p-10 max-w-full shadow-xl',
+          }}
           transitionDuration={80}
           {...props}
         >
-          <Title $hasDescription={!!description} variant="headline" data-test="dialog-title">
+          <Typography
+            className={tw(!!description ? 'mb-3' : 'mb-8')}
+            variant="headline"
+            data-test="dialog-title"
+          >
             {title}
-          </Title>
-          {description && <Description data-test="dialog-description">{description}</Description>}
+          </Typography>
+
+          {description && (
+            <Typography className="mb-8" data-test="dialog-description">
+              {description}
+            </Typography>
+          )}
 
           {children && children}
 
           <div className="flex flex-col-reverse flex-wrap justify-end gap-3 md:flex-row">
             {actions({ closeDialog })}
           </div>
-        </StyledDialog>
+        </MuiDialog>
       </>
     )
   },
 )
 
 Dialog.displayName = 'Dialog'
-
-const StyledDialog = styled(MuiDialog)`
-  && {
-    box-sizing: border-box;
-    z-index: ${theme.zIndex.dialog} !important;
-
-    .MuiDialog-container {
-      padding: ${theme.spacing(20)} ${theme.spacing(4)} 0;
-      box-sizing: border-box;
-    }
-
-    .MuiBackdrop-root {
-      background-color: ${alpha(theme.palette.grey[700], 0.4)};
-    }
-
-    .MuiDialog-scrollBody:after {
-      height: ${theme.spacing(20)};
-    }
-
-    .dialogPaper {
-      display: flex;
-      flex-direction: column;
-      max-width: 576px;
-      margin: 0 auto;
-      border-radius: 12px;
-      box-shadow: ${theme.shadows[4]};
-      padding: ${theme.spacing(10)};
-      z-index: ${theme.zIndex.dialog};
-
-      ${theme.breakpoints.down('md')} {
-        max-width: 100%;
-      }
-    }
-  }
-`
-
-const Title = styled(Typography)<{ $hasDescription?: boolean }>`
-  && {
-    margin-bottom: ${({ $hasDescription }) =>
-      $hasDescription ? theme.spacing(3) : theme.spacing(8)};
-  }
-`
-const Description = styled(Typography)`
-  && {
-    margin-bottom: ${theme.spacing(8)};
-  }
-`
