@@ -134,6 +134,9 @@ const config = {
       screens: {
         md: '776px',
       },
+      transitionDuration: {
+        '250': '250ms',
+      },
       spacing: {
         7: '1.75rem',
         13: '3.25rem',
