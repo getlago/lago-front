@@ -1,6 +1,6 @@
 import { array, object, string } from 'yup'
 
-export const METADATA_VALUE_MAX_LENGTH_DEFAULT = 40
+export const METADATA_VALUE_MAX_LENGTH_DEFAULT = 100
 export const METADATA_KEY_MAX_LENGTH = 20
 
 export enum MetadataErrorsEnum {
