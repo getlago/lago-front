@@ -7,7 +7,6 @@ import { DesktopDatePicker as MuiDatePicker } from '@mui/x-date-pickers/DesktopD
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DateTime, Settings } from 'luxon'
 import { ReactNode, useEffect, useState } from 'react'
-import styled from 'styled-components'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Button, Icon, Tooltip, Typography } from '~/components/designSystem'
