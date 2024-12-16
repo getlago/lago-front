@@ -17,7 +17,7 @@ export interface RadioProps {
   onChange?: (value: string | number | boolean) => void
 }
 
-export const Radio = forwardRef<HTMLDivElement, RadioProps>(
+export const Radio = forwardRef<HTMLLabelElement, RadioProps>(
   (
     { name, checked, label, labelVariant, sublabel, disabled, value, onChange }: RadioProps,
     ref,
@@ -28,10 +28,9 @@ export const Radio = forwardRef<HTMLDivElement, RadioProps>(
     const [focused, setFocused] = useState(false)
 
     return (
-      //  eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
-      <div
-        onClick={() => inputRef.current?.click()}
+      <label
         ref={ref}
+        htmlFor={componentId}
         className={tw('flex w-full items-start', !disabled && 'group/radio-icon cursor-pointer')}
       >
         <div className="mr-3 flex items-start pt-1">
@@ -41,6 +40,7 @@ export const Radio = forwardRef<HTMLDivElement, RadioProps>(
             ref={inputRef}
             disabled={disabled}
             aria-label={name}
+            name={name}
             {...(isBoolean(value) ? { checked: value } : { value: value })}
             type="radio"
             onClick={() => onChange && onChange(value)}
@@ -68,7 +68,7 @@ export const Radio = forwardRef<HTMLDivElement, RadioProps>(
               sublabel
             ))}
         </div>
-      </div>
+      </label>
     )
   },
 )
