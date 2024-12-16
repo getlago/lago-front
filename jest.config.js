@@ -49,6 +49,7 @@ module.exports = {
   moduleNameMapper: {
     '^~/(.*)$': '<rootDir>/src/$1',
     'ace-builds': '<rootDir>/node_modules/ace-builds',
+    '\\.(css|less|sass|scss)$': '<rootDir>/__mocks__/styleMock.js',
   },
 
   // Module file extensions for importing
