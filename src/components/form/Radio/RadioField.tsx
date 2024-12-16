@@ -12,7 +12,7 @@ export interface RadioFieldProps extends Omit<RadioProps, 'checked' | 'name'> {
 }
 
 export const RadioField = memo(
-  forwardRef<HTMLInputElement, RadioFieldProps>(
+  forwardRef<HTMLLabelElement, RadioFieldProps>(
     ({ name, value, formikProps, ...props }: RadioFieldProps, ref) => {
       const { values, setFieldValue } = formikProps
 
