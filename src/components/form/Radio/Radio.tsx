@@ -1,13 +1,8 @@
-/* eslint-disable tailwindcss/no-custom-classname */
-import { cx } from 'class-variance-authority'
 import { isBoolean } from 'lodash'
 import { forwardRef, ReactNode, useId, useRef, useState } from 'react'
-import styled from 'styled-components'
 
 import { Typography, TypographyProps } from '~/components/designSystem'
-import RadioCheckedIcon from '~/public/icons/forms/radio-checked.svg'
-import RadioIcon from '~/public/icons/forms/radio.svg'
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 export interface RadioProps {
   name?: string
@@ -31,17 +26,13 @@ export const Radio = forwardRef<HTMLDivElement, RadioProps>(
     const [focused, setFocused] = useState(false)
 
     return (
-      <Container
-        ref={ref}
+      //  eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
+      <div
         onClick={() => inputRef.current?.click()}
-        className={cx({
-          'radio--disabled': disabled,
-          'radio--focused': focused,
-          'radio--checked': checked,
-          'radio--unchecked': !checked,
-        })}
+        ref={ref}
+        className={tw('flex w-full items-start', !disabled && 'group/radio-icon cursor-pointer')}
       >
-        <RadioContainer>
+        <div className="mr-3 flex items-start pt-1">
           <input
             readOnly
             id={componentId}
@@ -53,17 +44,66 @@ export const Radio = forwardRef<HTMLDivElement, RadioProps>(
             onClick={() => onChange && onChange(value)}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
+            className="absolute m-0 size-0 p-0 opacity-0"
           />
-          {checked ? (
-            <RadioCheckedIcon className="radio-icon" />
-          ) : (
-            <RadioIcon className="radio-icon" />
-          )}
-        </RadioContainer>
-        <RadioLabelWrapper>
+
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className={tw(focused && 'rounded-full ring')}
+          >
+            {checked ? (
+              <>
+                <circle
+                  className={tw(checked && 'fill-blue-700', disabled && 'fill-grey-400')}
+                  cx="8"
+                  cy="8"
+                  r="8"
+                  fill="currentColor"
+                />
+                <circle
+                  className="group-hover/radio-icon:fill-blue-100 group-active/radio-icon:fill-blue-200"
+                  cx="8"
+                  cy="8"
+                  r="7"
+                  fill="white"
+                />
+                <circle
+                  className={tw(checked && 'fill-blue-700', disabled && 'fill-grey-400')}
+                  cx="8"
+                  cy="8"
+                  r="4"
+                  fill="currentColor"
+                />
+              </>
+            ) : (
+              <>
+                <circle
+                  className={tw(disabled && 'fill-grey-400')}
+                  cx="8"
+                  cy="8"
+                  r="8"
+                  fill="currentColor"
+                />
+                <circle
+                  className="group-hover/radio-icon:fill-grey-200 group-active/radio-icon:fill-grey-300"
+                  cx="8"
+                  cy="8"
+                  r="7"
+                  fill="white"
+                />
+              </>
+            )}
+          </svg>
+        </div>
+        <div className="w-full">
           <Typography
             variant={labelVariant || 'bodyHl'}
             color={disabled ? 'disabled' : 'textSecondary'}
+            className={tw(!disabled && 'cursor-pointer')}
             component={(labelProps) => <label htmlFor={componentId} {...labelProps} />}
           >
             {label}
@@ -76,81 +116,10 @@ export const Radio = forwardRef<HTMLDivElement, RadioProps>(
             ) : (
               sublabel
             ))}
-        </RadioLabelWrapper>
-      </Container>
+        </div>
+      </div>
     )
   },
 )
 
 Radio.displayName = 'Radio'
-
-const Container = styled.div`
-  width: 100%;
-  display: flex;
-  align-items: flex-start;
-  cursor: pointer;
-
-  > * {
-    cursor: pointer;
-  }
-
-  &.radio--checked {
-    .radio-coloured,
-    .radio-checked-coloured {
-      fill: ${theme.palette.primary[700]};
-    }
-  }
-
-  &.radio--disabled {
-    > * {
-      cursor: default;
-    }
-    .radio-coloured,
-    .radio-checked-coloured {
-      fill: ${theme.palette.grey[400]};
-    }
-  }
-
-  &.radio--focused .radio-icon {
-    box-shadow: 0px 0px 0px 4px ${theme.palette.primary[200]};
-    border-radius: 50%;
-  }
-
-  &:hover:not(.radio--disabled) {
-    &.radio--checked .radio-inner {
-      fill: ${theme.palette.primary[100]};
-    }
-    &.radio--unchecked .radio-inner {
-      fill: ${theme.palette.grey[200]};
-    }
-  }
-
-  &:active:not(.radio--disabled) {
-    &.radio--checked .radio-inner {
-      fill: ${theme.palette.primary[200]};
-    }
-    &.radio--unchecked .radio-inner {
-      fill: ${theme.palette.grey[300]};
-    }
-  }
-`
-
-const RadioContainer = styled.div`
-  margin-right: ${theme.spacing(3)};
-  display: flex;
-  align-items: flex-start;
-  padding-top: 4px;
-
-  input {
-    opacity: 0;
-    position: absolute;
-    width: 0;
-    height: 0;
-    margin: 0;
-    padding: 0;
-  }
-`
-
-const RadioLabelWrapper = styled.div`
-  width: 100%;
-`
