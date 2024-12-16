@@ -4,6 +4,8 @@ import { forwardRef, ReactNode, useId, useRef, useState } from 'react'
 import { Typography, TypographyProps } from '~/components/designSystem'
 import { tw } from '~/styles/utils'
 
+import { RadioIcon } from './RadioIcon'
+
 export interface RadioProps {
   name?: string
   value: string | number | boolean
@@ -46,58 +48,7 @@ export const Radio = forwardRef<HTMLDivElement, RadioProps>(
             onBlur={() => setFocused(false)}
             className="absolute m-0 size-0 p-0 opacity-0"
           />
-
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className={tw(focused && 'rounded-full ring')}
-          >
-            {checked ? (
-              <>
-                <circle
-                  className={tw(checked && 'fill-blue-700', disabled && 'fill-grey-400')}
-                  cx="8"
-                  cy="8"
-                  r="8"
-                  fill="currentColor"
-                />
-                <circle
-                  className="group-hover/radio-icon:fill-blue-100 group-active/radio-icon:fill-blue-200"
-                  cx="8"
-                  cy="8"
-                  r="7"
-                  fill="white"
-                />
-                <circle
-                  className={tw(checked && 'fill-blue-700', disabled && 'fill-grey-400')}
-                  cx="8"
-                  cy="8"
-                  r="4"
-                  fill="currentColor"
-                />
-              </>
-            ) : (
-              <>
-                <circle
-                  className={tw(disabled && 'fill-grey-400')}
-                  cx="8"
-                  cy="8"
-                  r="8"
-                  fill="currentColor"
-                />
-                <circle
-                  className="group-hover/radio-icon:fill-grey-200 group-active/radio-icon:fill-grey-300"
-                  cx="8"
-                  cy="8"
-                  r="7"
-                  fill="white"
-                />
-              </>
-            )}
-          </svg>
+          <RadioIcon checked={checked} disabled={disabled} focused={focused} />
         </div>
         <div className="w-full">
           <Typography
