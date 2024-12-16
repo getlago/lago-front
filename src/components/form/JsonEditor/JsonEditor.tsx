@@ -1,4 +1,3 @@
-import { Fade } from '@mui/material'
 import ace from 'ace-builds/src-noconflict/ace'
 import 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/src-noconflict/mode-json'
@@ -133,18 +132,22 @@ export const JsonEditor = ({
         }}
       >
         {onExpand && (
-          <Fade in={showOverlay}>
-            <div className="absolute inset-0 z-10 rounded-xl bg-gradient-to-t from-white from-20%">
-              <Fade in={isHover}>
-                <button
-                  className="flex size-full cursor-pointer items-center justify-center rounded-none border-none bg-none"
-                  onClick={() => onExpand(() => setShowOverlay(false))}
-                >
-                  <Chip icon="plus" label={translate('text_663dea5702b60301d8d0650a')} />
-                </button>
-              </Fade>
-            </div>
-          </Fade>
+          <div
+            className={tw(
+              'absolute inset-0 z-10 rounded-xl bg-gradient-to-t from-white from-20% transition-opacity',
+              showOverlay ? 'opacity-100' : 'opacity-0',
+            )}
+          >
+            <button
+              className={tw(
+                'flex size-full cursor-pointer items-center justify-center rounded-none border-none bg-none transition-opacity',
+                isHover ? 'opacity-100' : 'opacity-0',
+              )}
+              onClick={() => onExpand(() => setShowOverlay(false))}
+            >
+              <Chip icon="plus" label={translate('text_663dea5702b60301d8d0650a')} />
+            </button>
+          </div>
         )}
 
         <div className="absolute left-0 top-0 h-full w-[42px] bg-grey-100" />
