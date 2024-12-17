@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 
 import {
   AddCustomerDrawer,
@@ -20,7 +19,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-import { PageHeader, theme } from '~/styles'
+import { PageHeader } from '~/styles'
 
 gql`
   query customers($page: Int, $limit: Int, $searchTerm: String) {
@@ -53,15 +52,16 @@ const CustomersList = () => {
 
   const addCustomerDrawerRef = useRef<AddCustomerDrawerRef>(null)
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
+
   const { debouncedSearch, isLoading } = useDebouncedSearch(getCustomers, loading)
 
   return (
     <div>
-      <Header $withSide>
+      <PageHeader $withSide className="gap-4 whitespace-pre">
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_624efab67eb2570101d117a5')}
         </Typography>
-        <HeaderRigthBlock>
+        <div className="flex items-center gap-3">
           <SearchInput
             onChange={debouncedSearch}
             placeholder={translate('text_63befc65efcd9374da45b801')}
@@ -74,8 +74,8 @@ const CustomersList = () => {
               {translate('text_1734452833961s338w0x3b4s')}
             </Button>
           )}
-        </HeaderRigthBlock>
-      </Header>
+        </div>
+      </PageHeader>
 
       <InfiniteScroll
         onBottom={() => {
@@ -194,21 +194,5 @@ const CustomersList = () => {
     </div>
   )
 }
-
-const Header = styled(PageHeader)`
-  > * {
-    white-space: pre;
-
-    &:first-child {
-      margin-right: ${theme.spacing(4)};
-    }
-  }
-`
-
-const HeaderRigthBlock = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-`
 
 export default CustomersList
