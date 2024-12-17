@@ -287,7 +287,10 @@ const CustomerDetails = () => {
                       align="left"
                       fullWidth
                       onClick={() => {
-                        deleteDialogRef.current?.openDialog()
+                        deleteDialogRef.current?.openDialog({
+                          onDeleted: () => navigate(CUSTOMERS_LIST_ROUTE),
+                          customer: data?.customer ?? undefined,
+                        })
                         closePopper()
                       }}
                     >
@@ -456,12 +459,7 @@ const CustomerDetails = () => {
           </Content>
 
           <AddCustomerDrawer ref={editDialogRef} />
-          <DeleteCustomerDialog
-            ref={deleteDialogRef}
-            onDeleted={() => navigate(CUSTOMERS_LIST_ROUTE)}
-            // @ts-ignore
-            customer={data?.customer}
-          />
+          <DeleteCustomerDialog ref={deleteDialogRef} />
           <AddCouponToCustomerDialog ref={addCouponDialogRef} customer={data?.customer} />
         </>
       )}

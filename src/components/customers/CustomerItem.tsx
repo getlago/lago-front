@@ -123,7 +123,7 @@ export const CustomerItem = memo(({ rowId, customer, editDialogRef }: CustomerIt
                   variant="quaternary"
                   align="left"
                   onClick={() => {
-                    deleteDialogRef.current?.openDialog()
+                    deleteDialogRef.current?.openDialog({ customer })
                     closePopper()
                   }}
                 >
@@ -134,7 +134,7 @@ export const CustomerItem = memo(({ rowId, customer, editDialogRef }: CustomerIt
           )}
         </Popper>
       )}
-      <DeleteCustomerDialog ref={deleteDialogRef} customer={customer} />
+      <DeleteCustomerDialog ref={deleteDialogRef} />
     </ItemContainer>
   )
 })
