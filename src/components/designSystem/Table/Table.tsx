@@ -373,7 +373,8 @@ export const Table = <T extends DataItem>({
 
           return false
         })
-      : true)
+      : false)
+
   const colSpan = filteredColumns.length + (shouldDisplayActionColumn ? 1 : 0)
 
   const handleRowClick = (e: MouseEvent<HTMLTableRowElement>, item: T) => {

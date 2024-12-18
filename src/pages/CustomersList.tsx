@@ -138,6 +138,10 @@ const CustomersList = () => {
           ]}
           actionColumnTooltip={() => translate('text_626162c62f790600f850b7b6')}
           actionColumn={(customer) => {
+            if (!hasPermissions(['customersUpdate']) && !hasPermissions(['customersDelete'])) {
+              return undefined
+            }
+
             return [
               hasPermissions(['customersUpdate'])
                 ? {
