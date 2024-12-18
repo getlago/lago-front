@@ -1,13 +1,9 @@
-/* eslint-disable tailwindcss/no-custom-classname */
-import { cx } from 'class-variance-authority'
-import { ChangeEvent, useRef, useState } from 'react'
-import styled from 'styled-components'
+import { ChangeEvent, useId, useRef, useState } from 'react'
 
 import { Typography } from '~/components/designSystem'
-import CheckedIcon from '~/public/icons/forms/checkbox-checked.svg'
-import IndeterminateIcon from '~/public/icons/forms/checkbox-indeterminate.svg'
-import Icon from '~/public/icons/forms/checkbox.svg'
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
+
+import { CheckboxIcon } from './CheckboxIcon'
 
 export interface CheckboxProps {
   canBeIndeterminate?: boolean
@@ -32,23 +28,21 @@ export const Checkbox = ({
   value,
   onChange,
 }: CheckboxProps) => {
+  const componentId = useId()
+
   const inputRef = useRef<HTMLInputElement>(null)
   const [focused, setFocused] = useState(false)
 
   return (
-    <Container
+    <label
+      htmlFor={componentId}
       data-test={`checkbox-${name}`}
-      className={className}
-      onClick={() => inputRef.current?.click()}
+      className={tw('flex flex-col', !disabled && 'cursor-pointer', className)}
     >
-      <Main
-        className={cx({
-          'checkbox--disabled': disabled,
-          'checkbox--focused': focused,
-        })}
-      >
-        <InputContainer>
+      <div className={tw('mx-0 flex items-start align-middle *:leading-7')}>
+        <div className="mr-3 inline-flex items-center pt-1">
           <input
+            id={componentId}
             aria-checked={value === undefined ? 'mixed' : value}
             aria-labelledby={typeof label === 'string' ? label : name}
             type="checkbox"
@@ -67,15 +61,15 @@ export const Checkbox = ({
             }}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
+            className="absolute m-0 size-0 p-0 opacity-0"
           />
           <CheckboxIcon
             value={value}
             canBeIndeterminate={canBeIndeterminate}
             disabled={disabled}
             focused={focused}
-            />
-          )}
-        </InputContainer>
+          />
+        </div>
         <div>
           {typeof label === 'string' ? (
             <Typography color={disabled ? 'disabled' : 'textSecondary'}>{label}</Typography>
@@ -91,102 +85,12 @@ export const Checkbox = ({
               sublabel
             ))}
         </div>
-      </Main>
+      </div>
       {!!error && (
-        <StyledTypography variant="caption" color="danger600">
+        <Typography className="mt-1" variant="caption" color="danger600">
           {error}
-        </StyledTypography>
+        </Typography>
       )}
-    </Container>
+    </label>
   )
 }
-
-const InputContainer = styled.div`
-  margin-right: ${theme.spacing(3)};
-  display: inline-flex;
-  align-items: center;
-
-  input {
-    opacity: 0;
-    position: absolute;
-    width: 0;
-    height: 0;
-    margin: 0;
-    padding: 0;
-  }
-`
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-`
-
-const Main = styled.div`
-  display: flex;
-  align-items: flex-start;
-  vertical-align: middle;
-  margin-left: -11px;
-  margin-right: 16px;
-  margin-left: 0;
-  margin-right: 0;
-  cursor: pointer;
-
-  > *:first-child {
-    padding-top: 4px;
-  }
-
-  .MuiCheckbox-root {
-    margin-top: 0;
-  }
-
-  > * {
-    line-height: 28px;
-  }
-
-  &.checkbox--disabled {
-    cursor: initial;
-
-    .checkbox-unchecked-icon rect {
-      stroke: ${theme.palette.grey[400]};
-    }
-  }
-
-  &:hover:not(.checkbox--disabled) {
-    .checkbox-unchecked-icon {
-      color: ${theme.palette.grey[200]};
-    }
-    .checkbox-indeterminate-icon {
-      color: ${theme.palette.primary[700]};
-    }
-    .checkbox-checked-icon {
-      color: ${theme.palette.primary[700]};
-    }
-  }
-
-  &:active:not(.checkbox--disabled) {
-    .checkbox-unchecked-icon {
-      color: ${theme.palette.grey[300]};
-    }
-    .checkbox-indeterminate-icon {
-      color: ${theme.palette.primary[800]};
-    }
-    .checkbox-checked-icon {
-      color: ${theme.palette.primary[800]};
-    }
-  }
-
-  &.checkbox--focused {
-    .checkbox-unchecked-icon,
-    .checkbox-indeterminate-icon,
-    .checkbox-checked-icon {
-      box-shadow: 0px 0px 0px 4px ${theme.palette.primary[200]};
-      border-radius: 4px;
-    }
-  }
-`
-
-const StyledTypography = styled(Typography)`
-  && {
-    margin-top: ${theme.spacing(1)};
-  }
-`
