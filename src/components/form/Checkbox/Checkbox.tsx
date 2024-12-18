@@ -68,23 +68,11 @@ export const Checkbox = ({
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
           />
-          {!!value ? (
-            <CheckedIcon
-              aria-hidden="true"
-              className="checkbox-checked-icon"
-              color={disabled ? theme.palette.grey[400] : theme.palette.primary[600]}
-            />
-          ) : value === undefined && canBeIndeterminate ? (
-            <IndeterminateIcon
-              aria-hidden="true"
-              className="checkbox-indeterminate-icon"
-              color={disabled ? theme.palette.grey[400] : theme.palette.primary[600]}
-            />
-          ) : (
-            <Icon
-              aria-hidden="true"
-              className="checkbox-unchecked-icon"
-              color={theme.palette.common.white}
+          <CheckboxIcon
+            value={value}
+            canBeIndeterminate={canBeIndeterminate}
+            disabled={disabled}
+            focused={focused}
             />
           )}
         </InputContainer>
