@@ -18,6 +18,14 @@ const InvoiceSettings = lazyLoad(
   () =>
     import(/* webpackChunkName: 'invoice-settings' */ '~/pages/settings/Invoices/InvoiceSettings'),
 )
+
+const CreateInvoiceCustomSection = lazyLoad(
+  () =>
+    import(
+      /* webpackChunkName: 'invoice-custom-section' */ '~/pages/settings/Invoices/CreateCustomSection'
+    ),
+)
+
 const TaxesSettings = lazyLoad(
   () => import(/* webpackChunkName: 'tax-settings' */ '~/pages/settings/TaxesSettings'),
 )
@@ -164,8 +172,14 @@ export const EMAILS_SCENARIO_CONFIG_ROUTE = `${SETTINGS_ROUTE}/emails/config/:ty
 export const XERO_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/xero`
 export const XERO_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/xero/:integrationId/:tab`
 export const DUNNINGS_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/dunnings`
+
+/**
+ * Creation routes
+ */
 export const CREATE_DUNNING_ROUTE = `${SETTINGS_ROUTE}/dunnings/create`
 export const UPDATE_DUNNING_ROUTE = `${SETTINGS_ROUTE}/dunnings/:campaignId/edit`
+export const CREATE_INVOICE_CUSTOM_SECTION = `${INVOICE_SETTINGS_ROUTE}/custom-section/create`
+export const EDIT_INVOICE_CUSTOM_SECTION = `${INVOICE_SETTINGS_ROUTE}/custom-section/:sectionId/edit`
 
 export const settingRoutes: CustomRouteObject[] = [
   {
@@ -347,5 +361,12 @@ export const settingRoutes: CustomRouteObject[] = [
     private: true,
     element: <CreateDunning />,
     permissions: ['dunningCampaignsCreate', 'dunningCampaignsView', 'dunningCampaignsUpdate'],
+  },
+  {
+    path: [CREATE_INVOICE_CUSTOM_SECTION, EDIT_INVOICE_CUSTOM_SECTION],
+    private: true,
+    element: <CreateInvoiceCustomSection />,
+    // TODO: Add permissions
+    permissions: ['organizationInvoicesUpdate'],
   },
 ]
