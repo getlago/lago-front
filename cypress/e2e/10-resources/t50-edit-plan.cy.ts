@@ -49,7 +49,7 @@ describe('Edit plan', () => {
 
   it('should add plan to customer', () => {
     cy.visit('/customers')
-    cy.get(`[data-test="${customerName}"]`).click()
+    cy.get('[data-test="table-customers-list"] tr').contains(customerName).click()
     cy.get(`[data-test="add-subscription"]`).click()
 
     cy.get('[data-test="submit"]').should('be.disabled')

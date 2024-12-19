@@ -373,7 +373,8 @@ export const Table = <T extends DataItem>({
 
           return false
         })
-      : true)
+      : false)
+
   const colSpan = filteredColumns.length + (shouldDisplayActionColumn ? 1 : 0)
 
   const handleRowClick = (e: MouseEvent<HTMLTableRowElement>, item: T) => {
@@ -401,7 +402,14 @@ export const Table = <T extends DataItem>({
   const renderPlaceholder = () => {
     if (hasError) {
       return (
-        <TableRow>
+        <TableRow
+          sx={{
+            '& .lago-table-cell': {
+              ...setResponsiveProperty('paddingLeft', containerSize),
+              ...setResponsiveProperty('paddingRight', containerSize),
+            },
+          }}
+        >
           <TableCell hasPlaceholderDisplayed colSpan={colSpan}>
             <GenericPlaceholder
               noMargins
@@ -422,7 +430,14 @@ export const Table = <T extends DataItem>({
 
     if (!isLoading && data.length === 0) {
       return (
-        <TableRow>
+        <TableRow
+          sx={{
+            '& .lago-table-cell': {
+              ...setResponsiveProperty('paddingLeft', containerSize),
+              ...setResponsiveProperty('paddingRight', containerSize),
+            },
+          }}
+        >
           <TableCell hasPlaceholderDisplayed colSpan={colSpan}>
             <GenericPlaceholder
               noMargins

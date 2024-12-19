@@ -53,7 +53,7 @@ describe('Coupons', () => {
 
   it('should be able to apply the coupon to a customer', () => {
     cy.visit('/customers')
-    cy.get(`[data-test="${customerName}"]`).click()
+    cy.get('[data-test="table-customers-list"] tr').contains(customerName).click()
     cy.get('[data-test="customer-actions"]').click()
     cy.get('[data-test="apply-coupon-action"]').click()
     cy.get('input[name="selectCoupon"]').click()
@@ -78,7 +78,7 @@ describe('Coupons', () => {
 
   it('should not be able to apply the same coupon to a customer multiple time', () => {
     cy.visit('/customers')
-    cy.get(`[data-test="${customerName}"]`).click()
+    cy.get('[data-test="table-customers-list"] tr').contains(customerName).click()
     cy.get('[data-test="customer-actions"]').click()
     cy.get('[data-test="apply-coupon-action"]').click()
     cy.get('input[name="selectCoupon"]').click()

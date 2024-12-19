@@ -32,7 +32,7 @@ export const GenericPlaceholder = ({
   return (
     <div
       className={tw(
-        'mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3 [&>img]:size-10',
+        'mx-auto my-0 max-w-124 px-4 pb-4 pt-12 first:mb-3 [&>img]:size-10 [&>svg]:mb-5',
         {
           'm-0': noMargins,
           'p-0': noMargins,
