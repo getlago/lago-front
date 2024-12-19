@@ -12,7 +12,7 @@ describe('Create one-off', () => {
 
   it('should create a one-off invoice with correct amounts', () => {
     cy.visit('/customers')
-    cy.get(`[data-test="${customerName}"]`).click({ force: true })
+    cy.get('[data-test="table-customers-list"] tr').contains(customerName).click({ force: true })
     cy.get('[data-test="customer-actions"]').click({ force: true })
     cy.get('[data-test="create-invoice-action"]').click({ force: true })
     cy.url().should('include', '/create-invoice')
@@ -98,7 +98,7 @@ describe('Create one-off', () => {
   describe('anti-regression', () => {
     it('should allow to edit the units and have an effect on totals', () => {
       cy.visit('/customers')
-      cy.get(`[data-test="${customerName}"]`).click({ force: true })
+      cy.get('[data-test="table-customers-list"] tr').contains(customerName).click({ force: true })
       cy.get('[data-test="customer-actions"]').click({ force: true })
       cy.get('[data-test="create-invoice-action"]').click({ force: true })
       cy.url().should('include', '/create-invoice')

@@ -5,7 +5,7 @@ import { customerName } from '../support/reusableConstants'
 describe('Subscriptions', () => {
   beforeEach(() => {
     cy.login().visit('/customers')
-    cy.get(`[data-test="${customerName}"]`).click()
+    cy.get('[data-test="table-customers-list"] tr').contains(customerName).click()
   })
 
   const subscriptionName = `Subscription-${Math.round(Math.random() * 10000)}`
