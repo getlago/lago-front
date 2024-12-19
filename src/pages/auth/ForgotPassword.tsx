@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { useState } from 'react'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, ButtonLink } from '~/components/designSystem'
@@ -11,7 +10,6 @@ import { LOGIN_ROUTE } from '~/core/router'
 import { LagoApiError, useCreatePasswordResetMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
-import { theme } from '~/styles'
 import { Card, Page, StyledLogo, Subtitle, Title } from '~/styles/auth'
 
 gql`
@@ -88,7 +86,8 @@ const ForgotPassword = () => {
             <Title variant="headline">{translate('text_642707b0da1753a9bb66728c')}</Title>
             <Subtitle>{translate('text_642707b0da1753a9bb667296')}</Subtitle>
             <form onSubmit={(e) => e.preventDefault()}>
-              <EmailInput
+              <TextInputField
+                className="mb-8"
                 name="email"
                 beforeChangeFormatter={['lowercase']}
                 formikProps={formikProps}
@@ -115,7 +114,3 @@ const ForgotPassword = () => {
 }
 
 export default ForgotPassword
-
-const EmailInput = styled(TextInputField)`
-  margin-bottom: ${theme.spacing(8)};
-`

@@ -171,7 +171,8 @@ export const FixedFeeSection = memo(
 
               {shouldDisplayTrialPeriod ? (
                 <InlineTrialPeriod>
-                  <InputTrialPeriod
+                  <TextInputField
+                    className="flex-1"
                     name="trialPeriod"
                     disabled={
                       subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
@@ -241,10 +242,6 @@ const InlineTrialPeriod = styled.div`
   display: flex;
   align-items: center;
   gap: ${theme.spacing(3)};
-`
-
-const InputTrialPeriod = styled(TextInputField)`
-  flex: 1;
 `
 
 const BoxHeader = styled.div`

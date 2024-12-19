@@ -6,7 +6,6 @@ import { object, string } from 'yup'
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 const MAX_CHAR_LIMIT = 255
 
@@ -78,11 +77,12 @@ export const EditInvoiceItemDescriptionDialog = forwardRef<EditInvoiceItemDescri
           </>
         )}
       >
-        <TextArea
+        <TextInputField
           // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus
           multiline
           name="description"
+          className="mb-8 whitespace-pre-line"
           rows="3"
           label={translate('text_6453819268763979024ad011')}
           error={formikProps.errors.description}
@@ -106,14 +106,6 @@ export const EditInvoiceItemDescriptionDialog = forwardRef<EditInvoiceItemDescri
 )
 
 EditInvoiceItemDescriptionDialog.displayName = 'forwardRef'
-
-const TextArea = styled(TextInputField)`
-  margin-bottom: ${theme.spacing(8)};
-
-  textarea:first-child {
-    white-space: pre-line;
-  }
-`
 
 const TextInputHelper = styled.div`
   display: flex;

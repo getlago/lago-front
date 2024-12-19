@@ -1,8 +1,7 @@
 import { useState } from 'react'
-import styled from 'styled-components'
 
 import { UseDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import { Icon } from './designSystem'
 import { TextInput } from './form'
@@ -17,8 +16,8 @@ export const SearchInput = ({ className, onChange, placeholder }: SearchInputPro
   const [localValue, setLocalValue] = useState<string>('')
 
   return (
-    <TextInputForSearch
-      className={className}
+    <TextInput
+      className={tw('max-w-60 [&_input]:h-10 [&_input]:!pl-3', className)}
       placeholder={placeholder}
       value={localValue}
       onChange={(value) => {
@@ -32,12 +31,3 @@ export const SearchInput = ({ className, onChange, placeholder }: SearchInputPro
     />
   )
 }
-
-const TextInputForSearch = styled(TextInput)`
-  max-width: 240px;
-
-  .MuiInputBase-inputAdornedStart {
-    height: 40px;
-    padding-left: ${theme.spacing(3)};
-  }
-`

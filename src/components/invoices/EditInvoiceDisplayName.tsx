@@ -1,13 +1,11 @@
 import { useFormik } from 'formik'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { InputMaybe } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 type EditInvoiceDisplayNameProps = {
   invoiceDisplayName: InputMaybe<string> | undefined
@@ -76,10 +74,11 @@ export const EditInvoiceDisplayName = forwardRef<EditInvoiceDisplayNameRef>((_, 
         </>
       )}
     >
-      <Input
+      <TextInputField
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus
         cleanable
+        className="mb-8"
         name="invoiceDisplayName"
         label={translate('text_65018c8e5c6b626f030bcf26')}
         placeholder={translate('text_65018c8e5c6b626f030bcf2a')}
@@ -91,7 +90,3 @@ export const EditInvoiceDisplayName = forwardRef<EditInvoiceDisplayNameRef>((_, 
 })
 
 EditInvoiceDisplayName.displayName = 'forwardRef'
-
-const Input = styled(TextInputField)`
-  margin-bottom: ${theme.spacing(8)};
-`

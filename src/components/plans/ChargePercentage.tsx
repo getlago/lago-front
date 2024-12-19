@@ -98,7 +98,8 @@ export const ChargePercentage = memo(
 
     return (
       <Container>
-        <Input
+        <TextInput
+          className="flex-1"
           name={`${propertyCursor}.rate`}
           label={translate('text_62a0b7107afa2700a65ef6f6')}
           beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
@@ -156,7 +157,8 @@ export const ChargePercentage = memo(
 
         {valuePointer?.freeUnitsPerEvents !== undefined && (
           <LineAmount>
-            <Input
+            <TextInput
+              className="flex-1"
               name={`${propertyCursor}.freeUnitsPerEvents`}
               beforeChangeFormatter={['positiveNumber', 'int']}
               disabled={disabled}
@@ -570,10 +572,6 @@ const Container = styled.div`
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(6)};
   }
-`
-
-const Input = styled(TextInput)`
-  flex: 1;
 `
 
 const Amount = styled(AmountInput)`
