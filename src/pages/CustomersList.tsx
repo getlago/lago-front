@@ -14,7 +14,11 @@ import { Button, InfiniteScroll, Table, Typography } from '~/components/designSy
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { SearchInput } from '~/components/SearchInput'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
-import { CustomerItemFragmentDoc, useCustomersLazyQuery } from '~/generated/graphql'
+import {
+  AddCustomerDrawerFragmentDoc,
+  CustomerItemFragmentDoc,
+  useCustomersLazyQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -22,6 +26,18 @@ import { usePermissions } from '~/hooks/usePermissions'
 import { PageHeader } from '~/styles'
 
 gql`
+  fragment CustomerItem on Customer {
+    id
+    name
+    displayName
+    firstname
+    lastname
+    externalId
+    createdAt
+    activeSubscriptionsCount
+    ...AddCustomerDrawer
+  }
+
   query customers($page: Int, $limit: Int, $searchTerm: String) {
     customers(page: $page, limit: $limit, searchTerm: $searchTerm) {
       metadata {
@@ -35,6 +51,7 @@ gql`
   }
 
   ${CustomerItemFragmentDoc}
+  ${AddCustomerDrawerFragmentDoc}
 `
 
 const CustomersList = () => {
