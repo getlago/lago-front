@@ -119,7 +119,8 @@ export const ChargePercentage = memo(
 
         {valuePointer?.fixedAmount !== undefined && (
           <LineAmount>
-            <Amount
+            <AmountInput
+              className="flex-1"
               name={`${propertyCursor}.fixedAmount`}
               currency={currency}
               beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
@@ -202,7 +203,8 @@ export const ChargePercentage = memo(
               valuePointer?.freeUnitsPerTotalAggregation !== undefined && (
                 <OrText variant="body">{translate('text_62ff5d01a306e274d4ffcc59')}</OrText>
               )}
-            <Amount
+            <AmountInput
+              className="flex-1"
               name={`${propertyCursor}.freeUnitsPerTotalAggregation`}
               currency={currency}
               beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
@@ -242,7 +244,8 @@ export const ChargePercentage = memo(
 
         {valuePointer?.perTransactionMinAmount !== undefined && (
           <LineAmount>
-            <Amount
+            <AmountInput
+              className="flex-1"
               name={`${propertyCursor}.perTransactionMinAmount`}
               beforeChangeFormatter={['positiveNumber']}
               currency={currency}
@@ -295,7 +298,8 @@ export const ChargePercentage = memo(
 
         {valuePointer?.perTransactionMaxAmount !== undefined && (
           <LineAmount>
-            <Amount
+            <AmountInput
+              className="flex-1"
               name={`${propertyCursor}.perTransactionMaxAmount`}
               beforeChangeFormatter={['positiveNumber']}
               currency={currency}
@@ -572,10 +576,6 @@ const Container = styled.div`
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(6)};
   }
-`
-
-const Amount = styled(AmountInput)`
-  flex: 1;
 `
 
 const LineAmount = styled.div`

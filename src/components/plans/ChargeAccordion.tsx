@@ -854,7 +854,8 @@ export const ChargeAccordion = memo(
                   </Button>
                 ) : (
                   <SpendingMinimumWrapper>
-                    <SpendingMinimumInput
+                    <AmountInput
+                      className="flex-1"
                       id={`spending-minimum-input-${index}`}
                       beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
                       currency={currency}
@@ -1017,10 +1018,6 @@ const SpendingMinimumWrapper = styled.div`
   display: flex;
   gap: ${theme.spacing(3)};
   align-items: center;
-`
-
-const SpendingMinimumInput = styled(AmountInput)`
-  flex: 1;
 `
 
 const InlineTaxInputWrapper = styled.div`

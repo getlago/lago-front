@@ -410,7 +410,8 @@ export const CreditNoteFormCalculation = ({
                     _get(formikProps.errors, 'payBack.0.value') !== PayBackErrorEnum.maxRefund
                   }
                 >
-                  <StyledTextInput
+                  <AmountInputField
+                    className="max-w-38 [&_input]:text-right"
                     name="payBack.0.value"
                     currency={currency}
                     formikProps={formikProps}
@@ -518,7 +519,8 @@ export const CreditNoteFormCalculation = ({
                   _get(formikProps.errors, 'payBack.1.value') !== PayBackErrorEnum.maxRefund
                 }
               >
-                <StyledTextInput
+                <AmountInputField
+                  className="max-w-38 [&_input]:text-right"
                   name="payBack.1.value"
                   currency={currency}
                   formikProps={formikProps}
@@ -605,14 +607,6 @@ const PayBackBlock = styled.div`
 
   > *:first-child {
     margin-bottom: ${theme.spacing(6)};
-  }
-`
-
-const StyledTextInput = styled(AmountInputField)`
-  max-width: 152px;
-
-  input {
-    text-align: right;
   }
 `
 
