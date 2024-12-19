@@ -115,7 +115,8 @@ export const GraduatedPercentageChargeTable = memo(
                       })}
                       disableHoverListener={errorIndex !== i}
                     >
-                      <CellInput
+                      <TextInput
+                        resetStyle
                         error={errorIndex === i}
                         value={row.toValue as number | undefined}
                         beforeChangeFormatter={['int', 'positiveNumber']}
@@ -151,7 +152,8 @@ export const GraduatedPercentageChargeTable = memo(
                       <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
                     </DisabledAmountCell>
                   ) : (
-                    <CellAmount
+                    <AmountInput
+                      resetStyle
                       beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                       currency={currency}
                       value={row.rate}
@@ -192,7 +194,8 @@ export const GraduatedPercentageChargeTable = memo(
                       </Typography>
                     </DisabledAmountCell>
                   ) : (
-                    <CellAmount
+                    <AmountInput
+                      resetStyle
                       beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                       currency={currency}
                       value={row.flatAmount}
@@ -299,55 +302,5 @@ const DisabledAmountCell = styled.div`
 
   > *:first-child {
     margin-right: ${theme.spacing(2)};
-  }
-`
-
-const CellInput = styled(TextInput)`
-  .MuiInputBase-formControl {
-    border-radius: 0;
-  }
-
-  && {
-    > * {
-      margin-bottom: 0;
-    }
-    .MuiOutlinedInput-notchedOutline {
-      border: none;
-    }
-
-    .Mui-focused {
-      z-index: 1;
-      .MuiOutlinedInput-notchedOutline {
-        border: 2px solid ${theme.palette.primary.main};
-      }
-    }
-
-    .Mui-error {
-      .MuiOutlinedInput-notchedOutline {
-        border: 2px solid ${theme.palette.error.main};
-      }
-    }
-  }
-`
-
-const CellAmount = styled(AmountInput)`
-  .MuiInputBase-formControl {
-    border-radius: 0;
-  }
-
-  && {
-    > * {
-      margin-bottom: 0;
-    }
-    .MuiOutlinedInput-notchedOutline {
-      border: none;
-    }
-
-    .Mui-focused {
-      z-index: 1;
-      .MuiOutlinedInput-notchedOutline {
-        border: 2px solid ${theme.palette.primary.main};
-      }
-    }
   }
 `
