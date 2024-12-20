@@ -3,7 +3,7 @@ import fs from 'node:fs'
 
 require('dotenv').config({ path: '../.env' })
 
-module.exports = defineConfig({
+export default defineConfig({
   projectId: 'u863yi',
   retries: 3,
   e2e: {

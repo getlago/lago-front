@@ -11,7 +11,7 @@ export default {
   // using ts-jest
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
-    '\\.svg$': '<rootDir>/__mocks__/svgMock.cjs',
+    '\\.svg$': '<rootDir>/__mocks__/svgMock.js',
   },
 
   transformIgnorePatterns: [
@@ -52,7 +52,7 @@ export default {
   moduleNameMapper: {
     '^~/(.*)$': '<rootDir>/src/$1',
     'ace-builds': '<rootDir>/node_modules/ace-builds',
-    '\\.(css|less|sass|scss)$': '<rootDir>/__mocks__/styleMock.cjs',
+    '\\.(css|less|sass|scss)$': '<rootDir>/__mocks__/styleMock.js',
   },
 
   // Module file extensions for importing
