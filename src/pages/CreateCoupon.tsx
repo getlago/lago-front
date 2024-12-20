@@ -482,7 +482,8 @@ const CreateCoupon = () => {
                     )}
                   </Settings>
 
-                  <StyledPlanLimitCheckbox
+                  <Checkbox
+                    className="mb-3"
                     name="hasPlanOrBillableMetricLimit"
                     value={hasPlanLimit || hasBillableMetricLimit}
                     disabled={isEdition && !!coupon?.appliedCouponsCount}
@@ -693,10 +694,6 @@ const Settings = styled.div`
 const InlineDescription = styled.div`
   display: flex;
   align-items: center;
-`
-
-const StyledPlanLimitCheckbox = styled(Checkbox)`
-  margin-bottom: ${theme.spacing(3)};
 `
 
 const PlanLine = styled.div`
