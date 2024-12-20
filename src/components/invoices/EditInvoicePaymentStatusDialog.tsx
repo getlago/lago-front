@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
@@ -16,7 +15,6 @@ import {
   useUpdateInvoicePaymentStatusMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 gql`
   fragment InvoiceForUpdateInvoicePaymentStatus on Invoice {
@@ -120,7 +118,8 @@ export const UpdateInvoicePaymentStatusDialog = forwardRef<UpdateInvoicePaymentS
           </>
         )}
       >
-        <StyledComboBoxField
+        <ComboBoxField
+          className="mb-8"
           name="paymentStatus"
           label={translate('text_63eba8c65a6c8043feee2a0f')}
           data={Object.values(InvoicePaymentStatusTypeEnum).map((status) => ({
@@ -138,7 +137,3 @@ export const UpdateInvoicePaymentStatusDialog = forwardRef<UpdateInvoicePaymentS
 )
 
 UpdateInvoicePaymentStatusDialog.displayName = 'forwardRef'
-
-const StyledComboBoxField = styled(ComboBoxField)`
-  margin-bottom: ${theme.spacing(8)};
-`

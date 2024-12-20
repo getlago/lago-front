@@ -5,6 +5,7 @@ import styled from 'styled-components'
 
 import { Chip, Icon } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { tw } from '~/styles/utils'
 
 import { MultipleComboBoxItem } from './MultipleComboBoxItem'
 import { MultipleComboBoxList } from './MultipleComboBoxList'
@@ -142,6 +143,11 @@ export const MultipleComboBox = ({
             )
           })
         }}
+        componentsProps={{
+          clearIndicator: {
+            className: tw('size-6 rounded-lg'),
+          },
+        }}
         clearIcon={<Icon name="close-circle-filled" />}
         popupIcon={<Icon name="chevron-up-down" />}
         noOptionsText={emptyText ?? translate('text_623b3acb8ee4e000ba87d082')}
@@ -229,7 +235,7 @@ const Container = styled.div`
 
   /* Fix the placement of the adornment elements */
   .MuiAutocomplete-endAdornment {
-    top: calc(50% - 19px);
+    top: calc(50% - 12px);
   }
 
   /* Make sure scursor is visible when overing svg */
