@@ -1,5 +1,5 @@
-const { defineConfig } = require('cypress')
-const fs = require('fs')
+import { defineConfig } from 'cypress'
+import fs from 'node:fs'
 
 require('dotenv').config({ path: '../.env' })
 

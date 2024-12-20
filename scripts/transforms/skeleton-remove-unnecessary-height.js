@@ -1,4 +1,4 @@
-module.exports = function (file, api) {
+export default function (file, api) {
   // Alias the jscodeshift API for ease of use.
   const j = api.jscodeshift
 
