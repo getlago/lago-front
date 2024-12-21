@@ -1,6 +1,86 @@
+import { AmountFilterInterval } from '~/components/designSystem/Filters/filtersElements/FiltersItemAmount'
 import { InvoicePaymentStatusTypeEnum, InvoiceStatusTypeEnum } from '~/generated/graphql'
 
-import { AvailableFiltersEnum, filterDataInlineSeparator, InvoiceAvailableFilters } from './types'
+import {
+  AvailableFiltersEnum,
+  CreditNoteAvailableFilters,
+  filterDataInlineSeparator,
+  InvoiceAvailableFilters,
+} from './types'
+
+type FilterValueMapArgument = any
+
+const FILTER_VALUE_MAP: Partial<
+  Record<AvailableFiltersEnum, (value: FilterValueMapArgument) => any>
+> = {
+  [AvailableFiltersEnum.amount]: (value: string) => {
+    const [interval, from, to] = value.split(',')
+
+    switch (interval) {
+      case AmountFilterInterval.isEqualTo:
+        return {
+          amountFrom: from,
+          amountTo: from,
+        }
+      case AmountFilterInterval.isBetween:
+        return {
+          amountFrom: from,
+          amountTo: to,
+        }
+      case AmountFilterInterval.isUpTo:
+        return {
+          amountFrom: null,
+          amountTo: to,
+        }
+      case AmountFilterInterval.isAtLeast:
+        return {
+          amountFrom: from,
+          amountTo: null,
+        }
+      default:
+        return {
+          amountFrom: null,
+          amountTo: null,
+        }
+    }
+  },
+  [AvailableFiltersEnum.issuingDate]: (value: string) => {
+    return {
+      issuingDateFrom: (value as string).split(',')[0],
+      issuingDateTo: (value as string).split(',')[1],
+    }
+  },
+  [AvailableFiltersEnum.customerExternalId]: (value: string) =>
+    (value as string).split(filterDataInlineSeparator)[0],
+  [AvailableFiltersEnum.paymentDisputeLost]: (value: string) => value === 'true',
+  [AvailableFiltersEnum.paymentOverdue]: (value: string) => value === 'true',
+  [AvailableFiltersEnum.paymentStatus]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.invoiceType]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.status]: (value: string) => (value as string).split(','),
+}
+
+export const formatFiltersForCreditNotesQuery = (searchParams: URLSearchParams) => {
+  const filtersSetInUrl = Object.fromEntries(searchParams.entries())
+
+  return Object.entries(filtersSetInUrl).reduce(
+    (acc, cur) => {
+      const current = cur as [AvailableFiltersEnum, string | string[] | boolean]
+      const key = current[0]
+
+      if (!CreditNoteAvailableFilters.includes(key)) {
+        return acc
+      }
+
+      const value = FILTER_VALUE_MAP[key]?.(current[1]) || current[1]
+
+      return {
+        ...acc,
+        [key]: value,
+      }
+    },
+    {} as Record<string, string | string[] | boolean>,
+  )
+}
 
 export const formatFiltersForInvoiceQuery = (searchParams: URLSearchParams) => {
   const filtersSetInUrl = Object.fromEntries(searchParams.entries())
@@ -9,33 +89,12 @@ export const formatFiltersForInvoiceQuery = (searchParams: URLSearchParams) => {
     (acc, cur) => {
       const current = cur as [AvailableFiltersEnum, string | string[] | boolean]
       const key = current[0]
-      let value = current[1]
 
       if (!InvoiceAvailableFilters.includes(key)) {
         return acc
       }
 
-      // Format values when needed
-      if (
-        key === AvailableFiltersEnum.paymentStatus ||
-        key === AvailableFiltersEnum.invoiceType ||
-        key === AvailableFiltersEnum.status
-      ) {
-        value = (value as string).split(',')
-      } else if (
-        key === AvailableFiltersEnum.paymentDisputeLost ||
-        key === AvailableFiltersEnum.paymentOverdue
-      ) {
-        value = value === 'true'
-      } else if (key === AvailableFiltersEnum.customerExternalId) {
-        value = (value as string).split(filterDataInlineSeparator)[0]
-      } else if (key === AvailableFiltersEnum.issuingDate) {
-        return {
-          ...acc,
-          issuingDateFrom: (value as string).split(',')[0],
-          issuingDateTo: (value as string).split(',')[1],
-        }
-      }
+      const value = FILTER_VALUE_MAP[key]?.(current[1]) || current[1]
 
       return {
         ...acc,
