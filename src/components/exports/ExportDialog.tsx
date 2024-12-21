@@ -30,7 +30,7 @@ export type ExportValues<T> = {
 
 type ExportDialogProps = {
   totalCountLabel: string
-  onExport: (values: any) => void
+  onExport: Function
   disableExport?: boolean
   resourceTypeOptions: {
     label: string

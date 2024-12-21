@@ -172,6 +172,7 @@ const InvoicesPage = () => {
     nextFetchPolicy: 'network-only',
     variables: {
       limit: 20,
+      ...filtersForCreditNotesQuery,
     },
   })
 

@@ -1,5 +1,5 @@
 import { MultipleComboBox } from '~/components/form'
-import { CreditNoteCreditStatusEnum, CreditNoteRefundStatusEnum } from '~/generated/graphql'
+import { CreditNoteRefundStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { FiltersFormValues } from '../FiltersPanelPoper'

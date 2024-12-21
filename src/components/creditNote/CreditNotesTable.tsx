@@ -5,10 +5,7 @@ import styled, { css } from 'styled-components'
 
 import CreditNoteBadge from '~/components/creditNote/CreditNoteBadge'
 import { Filters } from '~/components/designSystem/Filters/Filters'
-import {
-  AvailableFiltersEnum,
-  AvailableQuickFilters,
-} from '~/components/designSystem/Filters/types'
+import { AvailableFiltersEnum } from '~/components/designSystem/Filters/types'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
@@ -41,7 +38,6 @@ import {
 import {
   ActionItem,
   InfiniteScroll,
-  QuickFilters,
   Skeleton,
   Table,
   TableColumn,

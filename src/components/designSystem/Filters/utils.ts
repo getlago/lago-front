@@ -8,11 +8,7 @@ import {
   InvoiceAvailableFilters,
 } from './types'
 
-type FilterValueMapArgument = any
-
-const FILTER_VALUE_MAP: Partial<
-  Record<AvailableFiltersEnum, (value: FilterValueMapArgument) => any>
-> = {
+const FILTER_VALUE_MAP: Partial<Record<AvailableFiltersEnum, Function>> = {
   [AvailableFiltersEnum.amount]: (value: string) => {
     const [interval, from, to] = value.split(',')
 
