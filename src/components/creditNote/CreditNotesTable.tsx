@@ -4,6 +4,11 @@ import { generatePath, useNavigate } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 
 import CreditNoteBadge from '~/components/creditNote/CreditNoteBadge'
+import { Filters } from '~/components/designSystem/Filters/Filters'
+import {
+  AvailableFiltersEnum,
+  AvailableQuickFilters,
+} from '~/components/designSystem/Filters/types'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
@@ -36,6 +41,7 @@ import {
 import {
   ActionItem,
   InfiniteScroll,
+  QuickFilters,
   Skeleton,
   Table,
   TableColumn,
@@ -172,188 +178,210 @@ const CreditNotesTable = ({
   const showCustomerName = !customerTimezone
 
   return (
-    <ScrollContainer ref={listContainerElementRef} role="grid" tabIndex={-1} onKeyDown={onKeyDown}>
-      <div>
-        {isLoading && !!variables?.searchTerm ? (
-          <>
-            {[1, 2, 3, 4].map((i) => (
-              <CreditNoteTableItemSkeleton key={`key-initial-loading-skeleton-line-${i}`} />
-            ))}
-          </>
-        ) : !isLoading && !!variables?.searchTerm && !creditNotes?.length ? (
-          <GenericPlaceholder
-            title={translate('text_63c6edd80c57d0dfaae389a4')}
-            subtitle={translate('text_63c6edd80c57d0dfaae389a8')}
-            image={<EmptyImage width="136" height="104" />}
-          />
-        ) : (
-          <InfiniteScroll
-            onBottom={() => {
-              const { currentPage = 0, totalPages = 0 } = metadata || {}
-
-              currentPage < totalPages &&
-                !isLoading &&
-                fetchMore({
-                  variables: { page: currentPage + 1 },
-                })
-            }}
-          >
-            <Table
-              name="credit-notes-list"
-              data={creditNotes || []}
-              containerSize={
-                tableContainerSize || {
-                  default: 0,
-                }
-              }
-              isLoading={isLoading}
-              hasError={!!error}
-              placeholder={{
-                emptyState: {
-                  title: translate('text_6663014df0a6be0098264dd9'),
-                  subtitle: translate('text_6663014df0a6be0098264dda'),
-                },
-              }}
-              actionColumnTooltip={(creditNote) =>
-                translate(
-                  creditNote.canBeVoided && hasPermissions(['creditNotesVoid'])
-                    ? 'text_63728c6434e1344aea76347d'
-                    : 'text_63728c6434e1344aea76347f',
-                )
-              }
-              actionColumn={(creditNote) => {
-                let actions: ActionItem<CreditNoteTableItemFragment>[] = []
-
-                const canDownload = hasPermissions(['creditNotesView'])
-                const canVoid = creditNote.canBeVoided && hasPermissions(['creditNotesVoid'])
-
-                if (canDownload) {
-                  actions = [
-                    ...actions,
-                    {
-                      title: translate('text_636d12ce54c41fccdf0ef72d'),
-                      disabled: loadingCreditNoteDownload,
-                      onAction: async ({ id }: { id: string }) => {
-                        await downloadCreditNote({
-                          variables: { input: { id } },
-                        })
-                      },
-                    },
-                  ]
-                }
-
-                if (canVoid) {
-                  actions = [
-                    ...actions,
-                    {
-                      title: translate('text_636d12ce54c41fccdf0ef72f'),
-                      onAction: async ({ id, totalAmountCents, currency }) => {
-                        voidCreditNoteDialogRef.current?.openDialog({
-                          id,
-                          totalAmountCents,
-                          currency,
-                        })
-                      },
-                    },
-                  ]
-                }
-
-                actions = [
-                  ...actions,
-                  {
-                    title: translate('text_636d12ce54c41fccdf0ef731'),
-                    onAction: async ({ id }: { id: string }) => {
-                      copyToClipboard(id)
-
-                      addToast({
-                        severity: 'info',
-                        translateKey: 'text_63720bd734e1344aea75b82d',
-                      })
-                    },
-                  },
-                ]
-
-                return actions
-              }}
-              onRowAction={(creditNote) => {
-                navigate(
-                  generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
-                    customerId: creditNote?.invoice?.customer?.id as string,
-                    invoiceId: creditNote?.invoice?.id as string,
-                    creditNoteId: creditNote?.id as string,
-                  }),
-                )
-              }}
-              columns={[
-                {
-                  key: 'totalAmountCents',
-                  title: translate('text_1727078012568v9460bmnh8a'),
-                  content: (creditNote) => <CreditNoteBadge creditNote={creditNote} />,
-                },
-                {
-                  key: 'number',
-                  title: translate('text_64188b3d9735d5007d71227f'),
-                  minWidth: 160,
-                  content: ({ number }) => (
-                    <Typography variant="body" noWrap>
-                      {number}
-                    </Typography>
-                  ),
-                },
-                {
-                  key: 'totalAmountCents',
-                  title: translate('text_62544c1db13ca10187214d85'),
-                  content: ({ totalAmountCents, currency }) => (
-                    <Typography
-                      className="font-medium"
-                      variant="body"
-                      color={showCustomerName ? 'grey700' : 'success600'}
-                      align="right"
-                      noWrap
-                    >
-                      {intlFormatNumber(deserializeAmount(totalAmountCents || 0, currency), {
-                        currencyDisplay: 'symbol',
-                        currency,
-                      })}
-                    </Typography>
-                  ),
-                  maxSpace: !showCustomerName,
-                  textAlign: 'right',
-                },
-                ...(showCustomerName
-                  ? [
-                      {
-                        key: 'invoice.customer.displayName',
-                        title: translate('text_63ac86d797f728a87b2f9fb3'),
-                        content: (creditNote: CreditNoteTableItemFragment) => (
-                          <Typography variant="body" color="grey600" noWrap>
-                            {creditNote.invoice?.customer.displayName}
-                          </Typography>
-                        ),
-                        maxSpace: true,
-                        tdCellClassName: 'hidden md:table-cell',
-                      } as TableColumn<CreditNoteTableItemFragment>,
-                    ]
-                  : []),
-                {
-                  key: 'createdAt',
-                  title: translate('text_62544c1db13ca10187214d7f'),
-                  content: ({ createdAt }) => (
-                    <Typography variant="body" color="grey600" noWrap>
-                      {customerTimezone
-                        ? formatDateToTZ(createdAt, customerTimezone)
-                        : formatTimeOrgaTZ(createdAt)}
-                    </Typography>
-                  ),
-                },
-              ]}
-            />
-          </InfiniteScroll>
-        )}
+    <>
+      <div className="box-border flex w-full flex-col gap-3 p-4 shadow-b md:px-12 md:py-3">
+        <Filters
+          filters={[
+            AvailableFiltersEnum.amount,
+            AvailableFiltersEnum.creditNoteCreditStatus,
+            AvailableFiltersEnum.currency,
+            AvailableFiltersEnum.customerExternalId,
+            AvailableFiltersEnum.invoiceNumber,
+            AvailableFiltersEnum.issuingDate,
+            AvailableFiltersEnum.creditNoteReason,
+            AvailableFiltersEnum.creditNoteRefundStatus,
+          ]}
+        />
       </div>
 
-      <VoidCreditNoteDialog ref={voidCreditNoteDialogRef} />
-    </ScrollContainer>
+      <ScrollContainer
+        ref={listContainerElementRef}
+        role="grid"
+        tabIndex={-1}
+        onKeyDown={onKeyDown}
+      >
+        <div>
+          {isLoading && !!variables?.searchTerm ? (
+            <>
+              {[1, 2, 3, 4].map((i) => (
+                <CreditNoteTableItemSkeleton key={`key-initial-loading-skeleton-line-${i}`} />
+              ))}
+            </>
+          ) : !isLoading && !!variables?.searchTerm && !creditNotes?.length ? (
+            <GenericPlaceholder
+              title={translate('text_63c6edd80c57d0dfaae389a4')}
+              subtitle={translate('text_63c6edd80c57d0dfaae389a8')}
+              image={<EmptyImage width="136" height="104" />}
+            />
+          ) : (
+            <InfiniteScroll
+              onBottom={() => {
+                const { currentPage = 0, totalPages = 0 } = metadata || {}
+
+                currentPage < totalPages &&
+                  !isLoading &&
+                  fetchMore({
+                    variables: { page: currentPage + 1 },
+                  })
+              }}
+            >
+              <Table
+                name="credit-notes-list"
+                data={creditNotes || []}
+                containerSize={
+                  tableContainerSize || {
+                    default: 0,
+                  }
+                }
+                isLoading={isLoading}
+                hasError={!!error}
+                placeholder={{
+                  emptyState: {
+                    title: translate('text_6663014df0a6be0098264dd9'),
+                    subtitle: translate('text_6663014df0a6be0098264dda'),
+                  },
+                }}
+                actionColumnTooltip={(creditNote) =>
+                  translate(
+                    creditNote.canBeVoided && hasPermissions(['creditNotesVoid'])
+                      ? 'text_63728c6434e1344aea76347d'
+                      : 'text_63728c6434e1344aea76347f',
+                  )
+                }
+                actionColumn={(creditNote) => {
+                  let actions: ActionItem<CreditNoteTableItemFragment>[] = []
+
+                  const canDownload = hasPermissions(['creditNotesView'])
+                  const canVoid = creditNote.canBeVoided && hasPermissions(['creditNotesVoid'])
+
+                  if (canDownload) {
+                    actions = [
+                      ...actions,
+                      {
+                        title: translate('text_636d12ce54c41fccdf0ef72d'),
+                        disabled: loadingCreditNoteDownload,
+                        onAction: async ({ id }: { id: string }) => {
+                          await downloadCreditNote({
+                            variables: { input: { id } },
+                          })
+                        },
+                      },
+                    ]
+                  }
+
+                  if (canVoid) {
+                    actions = [
+                      ...actions,
+                      {
+                        title: translate('text_636d12ce54c41fccdf0ef72f'),
+                        onAction: async ({ id, totalAmountCents, currency }) => {
+                          voidCreditNoteDialogRef.current?.openDialog({
+                            id,
+                            totalAmountCents,
+                            currency,
+                          })
+                        },
+                      },
+                    ]
+                  }
+
+                  actions = [
+                    ...actions,
+                    {
+                      title: translate('text_636d12ce54c41fccdf0ef731'),
+                      onAction: async ({ id }: { id: string }) => {
+                        copyToClipboard(id)
+
+                        addToast({
+                          severity: 'info',
+                          translateKey: 'text_63720bd734e1344aea75b82d',
+                        })
+                      },
+                    },
+                  ]
+
+                  return actions
+                }}
+                onRowAction={(creditNote) => {
+                  navigate(
+                    generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
+                      customerId: creditNote?.invoice?.customer?.id as string,
+                      invoiceId: creditNote?.invoice?.id as string,
+                      creditNoteId: creditNote?.id as string,
+                    }),
+                  )
+                }}
+                columns={[
+                  {
+                    key: 'totalAmountCents',
+                    title: translate('text_1727078012568v9460bmnh8a'),
+                    content: (creditNote) => <CreditNoteBadge creditNote={creditNote} />,
+                  },
+                  {
+                    key: 'number',
+                    title: translate('text_64188b3d9735d5007d71227f'),
+                    minWidth: 160,
+                    content: ({ number }) => (
+                      <Typography variant="body" noWrap>
+                        {number}
+                      </Typography>
+                    ),
+                  },
+                  {
+                    key: 'totalAmountCents',
+                    title: translate('text_62544c1db13ca10187214d85'),
+                    content: ({ totalAmountCents, currency }) => (
+                      <Typography
+                        className="font-medium"
+                        variant="body"
+                        color={showCustomerName ? 'grey700' : 'success600'}
+                        align="right"
+                        noWrap
+                      >
+                        {intlFormatNumber(deserializeAmount(totalAmountCents || 0, currency), {
+                          currencyDisplay: 'symbol',
+                          currency,
+                        })}
+                      </Typography>
+                    ),
+                    maxSpace: !showCustomerName,
+                    textAlign: 'right',
+                  },
+                  ...(showCustomerName
+                    ? [
+                        {
+                          key: 'invoice.customer.displayName',
+                          title: translate('text_63ac86d797f728a87b2f9fb3'),
+                          content: (creditNote: CreditNoteTableItemFragment) => (
+                            <Typography variant="body" color="grey600" noWrap>
+                              {creditNote.invoice?.customer.displayName}
+                            </Typography>
+                          ),
+                          maxSpace: true,
+                          tdCellClassName: 'hidden md:table-cell',
+                        } as TableColumn<CreditNoteTableItemFragment>,
+                      ]
+                    : []),
+                  {
+                    key: 'createdAt',
+                    title: translate('text_62544c1db13ca10187214d7f'),
+                    content: ({ createdAt }) => (
+                      <Typography variant="body" color="grey600" noWrap>
+                        {customerTimezone
+                          ? formatDateToTZ(createdAt, customerTimezone)
+                          : formatTimeOrgaTZ(createdAt)}
+                      </Typography>
+                    ),
+                  },
+                ]}
+              />
+            </InfiniteScroll>
+          )}
+        </div>
+
+        <VoidCreditNoteDialog ref={voidCreditNoteDialogRef} />
+      </ScrollContainer>
+    </>
   )
 }
 
