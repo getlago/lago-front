@@ -6,17 +6,15 @@ import styled from 'styled-components'
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
 import { Button, NavigationTab, Typography } from '~/components/designSystem'
 import {
+  formatFiltersForCreditNotesQuery,
   formatFiltersForInvoiceQuery,
   isOutstandingUrlParams,
 } from '~/components/designSystem/Filters/utils'
+import { ExportDialog, ExportDialogRef, ExportValues } from '~/components/exports/ExportDialog'
 import {
   UpdateInvoicePaymentStatusDialog,
   UpdateInvoicePaymentStatusDialogRef,
 } from '~/components/invoices/EditInvoicePaymentStatusDialog'
-import {
-  ExportInvoicesDialog,
-  ExportInvoicesDialogRef,
-} from '~/components/invoices/ExportInvoicesDialog'
 import {
   FinalizeInvoiceDialog,
   FinalizeInvoiceDialogRef,
@@ -27,10 +25,14 @@ import { SearchInput } from '~/components/SearchInput'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { INVOICES_ROUTE, INVOICES_TAB_ROUTE } from '~/core/router'
 import {
+  CreditNoteExportTypeEnum,
   CreditNotesForTableFragmentDoc,
   CreditNoteTableItemFragmentDoc,
+  InvoiceExportTypeEnum,
   InvoiceListItemFragmentDoc,
   LagoApiError,
+  useCreateCreditNotesDataExportMutation,
+  useCreateInvoicesDataExportMutation,
   useGetCreditNotesListLazyQuery,
   useGetInvoicesListLazyQuery,
   useRetryAllInvoicePaymentsMutation,
@@ -95,6 +97,18 @@ gql`
     }
   }
 
+  mutation createInvoicesDataExport($input: CreateDataExportsInvoicesInput!) {
+    createInvoicesDataExport(input: $input) {
+      id
+    }
+  }
+
+  mutation createCreditNotesDataExport($input: CreateDataExportsCreditNotesInput!) {
+    createCreditNotesDataExport(input: $input) {
+      id
+    }
+  }
+
   ${InvoiceListItemFragmentDoc}
   ${CreditNoteTableItemFragmentDoc}
   ${CreditNotesForTableFragmentDoc}
@@ -113,10 +127,15 @@ const InvoicesPage = () => {
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
-  const exportInvoicesDialogRef = useRef<ExportInvoicesDialogRef>(null)
+  const exportInvoicesDialogRef = useRef<ExportDialogRef>(null)
+  const exportCreditNotesDialogRef = useRef<ExportDialogRef>(null)
 
   const filtersForInvoiceQuery = useMemo(() => {
     return formatFiltersForInvoiceQuery(searchParams)
+  }, [searchParams])
+
+  const filtersForCreditNotesQuery = useMemo(() => {
+    return formatFiltersForCreditNotesQuery(searchParams)
   }, [searchParams])
 
   const [
@@ -173,6 +192,67 @@ const InvoicesPage = () => {
     },
   })
 
+  const onInvoicesExport = async (values: ExportValues<InvoiceExportTypeEnum>) => {
+    const filters = {
+      ...formatFiltersForInvoiceQuery(searchParams),
+      searchTerm: variableInvoices?.searchTerm,
+    }
+
+    const res = await triggerCreateInvoicesDataExport({
+      variables: {
+        input: {
+          ...values,
+          filters,
+        },
+      },
+    })
+
+    if (res.errors) return
+  }
+
+  const onCreditNotesExport = async (values: ExportValues<CreditNoteExportTypeEnum>) => {
+    const filters = {
+      ...formatFiltersForCreditNotesQuery(searchParams),
+      searchTerm: variableInvoices?.searchTerm,
+    }
+
+    const res = await triggerCreateCreditNotesDataExport({
+      variables: {
+        input: {
+          ...values,
+          filters,
+        },
+      },
+    })
+
+    if (res.errors) return
+  }
+
+  const [triggerCreateInvoicesDataExport] = useCreateInvoicesDataExportMutation({
+    onCompleted({ createInvoicesDataExport }) {
+      if (createInvoicesDataExport) {
+        addToast({
+          message: translate('text_66b323b63e76c400f78cd342'),
+          severity: 'info',
+        })
+      }
+    },
+  })
+
+  const [triggerCreateCreditNotesDataExport] = useCreateCreditNotesDataExportMutation({
+    onCompleted({ createCreditNotesDataExport }) {
+      if (createCreditNotesDataExport) {
+        addToast({
+          message: translate('text_66b323b63e76c400f78cd342'),
+          severity: 'info',
+        })
+      }
+    },
+  })
+
+  const invoicesTotalCount = dataInvoices?.invoices?.metadata?.totalCount
+  const creditNotesTotalCount = dataCreditNotes?.creditNotes?.metadata?.totalCount
+
   return (
     <>
       <PageHeader $withSide>
@@ -196,10 +276,19 @@ const InvoicesPage = () => {
               </Button>
             </>
           ) : tab === InvoiceListTabEnum.creditNotes ? (
-            <SearchInput
-              onChange={creditNoteDebounceSearch}
-              placeholder={translate('text_63c6edd80c57d0dfaae3898e')}
-            />
+            <>
+              <SearchInput
+                onChange={creditNoteDebounceSearch}
+                placeholder={translate('text_63c6edd80c57d0dfaae3898e')}
+              />
+              <Button
+                variant="secondary"
+                disabled={!dataCreditNotes?.creditNotes?.metadata.totalCount}
+                onClick={exportCreditNotesDialogRef.current?.openDialog}
+              >
+                {translate('text_66b21236c939426d07ff98ca')}
+              </Button>
+            </>
           ) : null}
 
           {isOutstandingUrlParams(searchParams) && hasPermissions(['invoicesSend']) && (
@@ -272,10 +361,51 @@ const InvoicesPage = () => {
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
-      <ExportInvoicesDialog
+
+      <ExportDialog
         ref={exportInvoicesDialogRef}
-        invoicesVariablesSearchTerm={variableInvoices?.searchTerm}
-        invoicesTotalCount={dataInvoices?.invoices?.metadata?.totalCount}
+        totalCountLabel={translate(
+          'text_66b21236c939426d07ff9937',
+          { invoicesTotalCount },
+          invoicesTotalCount,
+        )}
+        onExport={onInvoicesExport}
+        disableExport={invoicesTotalCount === 0}
+        resourceTypeOptions={[
+          {
+            label: translate('text_66b21236c939426d07ff993b'),
+            sublabel: translate('text_66b21236c939426d07ff993c'),
+            value: InvoiceExportTypeEnum.Invoices,
+          },
+          {
+            label: translate('text_66b21236c939426d07ff993d'),
+            sublabel: translate('text_66b21236c939426d07ff993e'),
+            value: InvoiceExportTypeEnum.InvoiceFees,
+          },
+        ]}
+      />
+
+      <ExportDialog
+        ref={exportCreditNotesDialogRef}
+        totalCountLabel={translate(
+          'text_17346987416277yx1mf6nau2',
+          { creditNotesTotalCount },
+          creditNotesTotalCount,
+        )}
+        onExport={onCreditNotesExport}
+        disableExport={creditNotesTotalCount === 0}
+        resourceTypeOptions={[
+          {
+            label: translate('text_1734698741627bges5xz01la'),
+            sublabel: translate('text_173469874162761dxr57rvw7'),
+            value: CreditNoteExportTypeEnum.CreditNotes,
+          },
+          {
+            label: translate('text_1734698741627449t5wdghef'),
+            sublabel: translate('text_1734698875217ppgrrmd10q2'),
+            value: CreditNoteExportTypeEnum.CreditNoteItems,
+          },
+        ]}
       />
     </>
   )
