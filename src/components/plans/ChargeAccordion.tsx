@@ -232,7 +232,6 @@ export const ChargeAccordion = memo(
         hasDefaultPropertiesErrors:
           typeof chargeErrors === 'object' &&
           typeof chargeErrors[index] === 'object' &&
-          // @ts-ignore
           typeof chargeErrors[index].properties === 'object',
         hasErrorInCharges: Boolean(chargeErrors && chargeErrors[index]),
         initialLocalCharge: formikProps.initialValues.charges[index],

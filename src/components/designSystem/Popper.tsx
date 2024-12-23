@@ -95,8 +95,9 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
                 },
                 ref: openerRef,
               })
-            : // @ts-expect-error
-              cloneElement(opener, { onClick: toggle, ref: openerRef })}
+            : !!opener
+              ? cloneElement(opener, { onClick: toggle, ref: openerRef })
+              : null}
           <MuiPopper
             className={tw(displayInDialog ? 'z-dialog' : 'z-popper')}
             style={{ minWidth: `${minWidth ?? openerRef?.current?.offsetWidth ?? 0}px` }}
