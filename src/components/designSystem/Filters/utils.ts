@@ -82,7 +82,9 @@ export const formatFiltersForCreditNotesQuery = (searchParams: URLSearchParams) 
         return acc
       }
 
-      const value = FILTER_VALUE_MAP[key]?.(current[1]) || current[1]
+      const filterFunction = FILTER_VALUE_MAP[key]
+
+      const value = filterFunction ? filterFunction(current[1]) : current[1]
 
       if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
         return {
@@ -112,7 +114,9 @@ export const formatFiltersForInvoiceQuery = (searchParams: URLSearchParams) => {
         return acc
       }
 
-      const value = FILTER_VALUE_MAP[key]?.(current[1]) || current[1]
+      const filterFunction = FILTER_VALUE_MAP[key]
+
+      const value = filterFunction ? filterFunction(current[1]) : current[1]
 
       return {
         ...acc,
