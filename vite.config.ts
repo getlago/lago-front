@@ -1,7 +1,6 @@
 import react from '@vitejs/plugin-react-swc'
-import dotenv from 'dotenv'
 import { resolve } from 'node:path'
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import svgr from 'vite-plugin-svgr'
 import topLevelAwait from 'vite-plugin-top-level-await'
@@ -9,9 +8,9 @@ import wasm from 'vite-plugin-wasm'
 
 import { version } from './package.json'
 
-dotenv.config()
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
 
-export default defineConfig((env) => {
   return {
     plugins: [
       react({
@@ -40,15 +39,15 @@ export default defineConfig((env) => {
         inject: {
           data: {
             title:
-              env.mode === 'development'
+              mode === 'development'
                 ? 'Lago - Local'
-                : env.mode === 'production'
+                : mode === 'production'
                   ? 'Lago'
                   : 'Lago - Cloud',
             favicon:
-              env.mode === 'development'
+              mode === 'development'
                 ? '/favicon-local.svg'
-                : env.mode === 'production'
+                : mode === 'production'
                   ? '/favicon-prod.svg'
                   : '/favicon-staging.svg',
           },
@@ -56,14 +55,14 @@ export default defineConfig((env) => {
       }),
     ],
     define: {
-      APP_ENV: JSON.stringify(env.mode),
-      API_URL: JSON.stringify(process.env.API_URL),
-      DOMAIN: JSON.stringify(process.env.LAGO_DOMAIN),
+      APP_ENV: JSON.stringify(mode),
+      API_URL: JSON.stringify(env.API_URL),
+      DOMAIN: JSON.stringify(env.LAGO_DOMAIN),
       APP_VERSION: JSON.stringify(version),
-      LAGO_OAUTH_PROXY_URL: JSON.stringify(process.env.LAGO_OAUTH_PROXY_URL),
-      LAGO_DISABLE_SIGNUP: JSON.stringify(process.env.LAGO_DISABLE_SIGNUP),
-      NANGO_PUBLIC_KEY: JSON.stringify(process.env.NANGO_PUBLIC_KEY),
-      SENTRY_DSN: JSON.stringify(process.env.SENTRY_DSN),
+      LAGO_OAUTH_PROXY_URL: JSON.stringify(env.LAGO_OAUTH_PROXY_URL),
+      LAGO_DISABLE_SIGNUP: JSON.stringify(env.LAGO_DISABLE_SIGNUP),
+      NANGO_PUBLIC_KEY: JSON.stringify(env.NANGO_PUBLIC_KEY),
+      SENTRY_DSN: JSON.stringify(env.SENTRY_DSN),
     },
     resolve: {
       alias: {
@@ -73,14 +72,17 @@ export default defineConfig((env) => {
       },
     },
     server: {
-      port: process.env.PORT ? parseInt(process.env.PORT) : 8080,
+      port: env.PORT ? parseInt(env.PORT) : 8080,
       proxy: {
         '/api': {
-          target: process.env.API_URL,
+          target: env.API_URL,
           changeOrigin: true,
           secure: false,
         },
       },
+    },
+    preview: {
+      port: env.PORT ? parseInt(env.PORT) : 8080,
     },
     build: {
       outDir: 'dist',

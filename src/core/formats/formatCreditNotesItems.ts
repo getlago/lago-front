@@ -1,13 +1,12 @@
-import chain from 'lodash/chain'
-import groupBy from 'lodash/groupBy'
+import _ from 'lodash'
 
 import { CreditNoteItem } from '~/generated/graphql'
 
 const formatCreditNotesItems = (items: CreditNoteItem[] | null | undefined) => {
   return Object.values(
-    chain(items)
+    _.chain(items)
       .groupBy((item) => item?.fee?.subscription?.id)
-      .map((item) => Object.values(groupBy(item, (element) => element?.fee?.charge?.id)))
+      .map((item) => Object.values(_.groupBy(item, (element) => element?.fee?.charge?.id)))
       .value(),
   )
 }

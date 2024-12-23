@@ -20,16 +20,20 @@ export * from './SettingRoutes'
 const { appEnv } = envGlobalVar()
 
 // ----------- Layouts -----------
-const SideNavLayout = lazyLoad(() => import('~/layouts/SideNavLayout'))
+const SideNavLayout = lazyLoad(
+  () => import(/* webpackChunkName: 'side-nav-layout' */ '~/layouts/SideNavLayout'),
+)
 
 // ----------- Pages -----------
-const Home = lazyLoad(() => import('~/pages/Home'))
-const Error404 = lazyLoad(() => import('~/pages/Error404'))
-const Forbidden = lazyLoad(() => import('~/pages/Forbidden'))
-const Analytic = lazyLoad(() => import('~/pages/Analytics'))
+const Home = lazyLoad(() => import(/* webpackChunkName: 'home' */ '~/pages/Home'))
+const Error404 = lazyLoad(() => import(/* webpackChunkName: 'error-404' */ '~/pages/Error404'))
+const Forbidden = lazyLoad(() => import(/* webpackChunkName: 'forbidden' */ '~/pages/Forbidden'))
+const Analytic = lazyLoad(() => import(/* webpackChunkName: 'analytics' */ '~/pages/Analytics'))
 
 // Route Available only on dev mode
-const DesignSystem = lazyLoad(() => import('~/pages/__devOnly/DesignSystem'))
+const DesignSystem = lazyLoad(
+  () => import(/* webpackChunkName: 'design-system' */ '~/pages/__devOnly/DesignSystem'),
+)
 
 export const HOME_ROUTE = '/'
 export const FORBIDDEN_ROUTE = '/forbidden'

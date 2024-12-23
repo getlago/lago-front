@@ -1,7 +1,7 @@
 /* eslint-disable tailwindcss/no-custom-classname */
 import { Box, InputAdornment, Stack } from '@mui/material'
 import { FormikProps } from 'formik'
-import get from 'lodash/get'
+import { get } from 'lodash'
 import { DateTime } from 'luxon'
 import { FC, RefObject, useMemo, useState } from 'react'
 import styled from 'styled-components'

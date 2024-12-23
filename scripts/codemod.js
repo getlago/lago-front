@@ -15,9 +15,13 @@ const options = {
   parser: 'tsx',
 }
 
-try {
-  await jscodeshift(transformPath, paths, options)
-} catch (e) {
-  console.info('\u001b[' + 31 + 'm' + 'Codemod transform failed' + '\u001b[0m', e)
-  process.exit(1)
+async function main() {
+  try {
+    await jscodeshift(transformPath, paths, options)
+  } catch (e) {
+    console.info('\u001b[' + 31 + 'm' + 'Codemod transform failed' + '\u001b[0m', e)
+    process.exit(1)
+  }
 }
+
+main()
