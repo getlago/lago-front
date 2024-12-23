@@ -8600,6 +8600,16 @@ export type GetInvoicesListQueryVariables = Exact<{
 export type GetInvoicesListQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null }> } };
 
 export type GetCreditNotesListQueryVariables = Exact<{
+  amountFrom?: InputMaybe<Scalars['Int']['input']>;
+  amountTo?: InputMaybe<Scalars['Int']['input']>;
+  creditStatus?: InputMaybe<Array<CreditNoteCreditStatusEnum> | CreditNoteCreditStatusEnum>;
+  currency?: InputMaybe<CurrencyEnum>;
+  customerExternalId?: InputMaybe<Scalars['String']['input']>;
+  invoiceNumber?: InputMaybe<Scalars['String']['input']>;
+  issuingDateFrom?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  issuingDateTo?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  reason?: InputMaybe<Array<CreditNoteReasonEnum> | CreditNoteReasonEnum>;
+  refundStatus?: InputMaybe<Array<CreditNoteRefundStatusEnum> | CreditNoteRefundStatusEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
@@ -22430,8 +22440,22 @@ export type GetInvoicesListLazyQueryHookResult = ReturnType<typeof useGetInvoice
 export type GetInvoicesListSuspenseQueryHookResult = ReturnType<typeof useGetInvoicesListSuspenseQuery>;
 export type GetInvoicesListQueryResult = Apollo.QueryResult<GetInvoicesListQuery, GetInvoicesListQueryVariables>;
 export const GetCreditNotesListDocument = gql`
-    query getCreditNotesList($limit: Int, $page: Int, $searchTerm: String) {
-  creditNotes(limit: $limit, page: $page, searchTerm: $searchTerm) {
+    query getCreditNotesList($amountFrom: Int, $amountTo: Int, $creditStatus: [CreditNoteCreditStatusEnum!], $currency: CurrencyEnum, $customerExternalId: String, $invoiceNumber: String, $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $reason: [CreditNoteReasonEnum!], $refundStatus: [CreditNoteRefundStatusEnum!], $limit: Int, $page: Int, $searchTerm: String) {
+  creditNotes(
+    amountFrom: $amountFrom
+    amountTo: $amountTo
+    creditStatus: $creditStatus
+    currency: $currency
+    customerExternalId: $customerExternalId
+    invoiceNumber: $invoiceNumber
+    issuingDateFrom: $issuingDateFrom
+    issuingDateTo: $issuingDateTo
+    reason: $reason
+    refundStatus: $refundStatus
+    limit: $limit
+    page: $page
+    searchTerm: $searchTerm
+  ) {
     ...CreditNotesForTable
   }
 }
@@ -22449,6 +22473,16 @@ export const GetCreditNotesListDocument = gql`
  * @example
  * const { data, loading, error } = useGetCreditNotesListQuery({
  *   variables: {
+ *      amountFrom: // value for 'amountFrom'
+ *      amountTo: // value for 'amountTo'
+ *      creditStatus: // value for 'creditStatus'
+ *      currency: // value for 'currency'
+ *      customerExternalId: // value for 'customerExternalId'
+ *      invoiceNumber: // value for 'invoiceNumber'
+ *      issuingDateFrom: // value for 'issuingDateFrom'
+ *      issuingDateTo: // value for 'issuingDateTo'
+ *      reason: // value for 'reason'
+ *      refundStatus: // value for 'refundStatus'
  *      limit: // value for 'limit'
  *      page: // value for 'page'
  *      searchTerm: // value for 'searchTerm'
