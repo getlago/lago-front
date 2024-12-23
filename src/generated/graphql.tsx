@@ -4497,6 +4497,8 @@ export type Query = {
   currentVersion: CurrentVersion;
   /** Query a single customer of an organization */
   customer?: Maybe<Customer>;
+  /** Query selected invoice_custom_sections of a customer */
+  customerInvoiceCustomSections?: Maybe<InvoiceCustomSectionCollection>;
   /** Query invoices of a customer */
   customerInvoices: InvoiceCollection;
   /** Query the usage of the customer on the current billing period */
@@ -4689,6 +4691,13 @@ export type QueryCreditNotesArgs = {
 
 export type QueryCustomerArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryCustomerInvoiceCustomSectionsArgs = {
+  customerId: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
