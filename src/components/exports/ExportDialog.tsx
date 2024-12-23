@@ -96,7 +96,7 @@ export const ExportDialog = forwardRef<ExportDialogRef, ExportDialogProps>(
           <InfosLineWrapper>
             <InfoLine>
               <Typography variant="caption" color="grey600">
-                {translate('text_6419c64eace749372fc72b27')} 2
+                {translate('text_6419c64eace749372fc72b27')}
               </Typography>
               <Typography variant="body" color="grey700">
                 {currentUser?.email}
