@@ -1,6 +1,12 @@
+import { Typography } from '@mui/material'
 import { useFormik } from 'formik'
 import { useEffect } from 'react'
 
+import { AmountFilterInterval } from '~/components/designSystem/Filters/types'
+import {
+  AMOUNT_INTERVALS_TRANSLATION_MAP,
+  parseAmountValue,
+} from '~/components/designSystem/Filters/utils'
 import { ComboBoxField, TextInputField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -11,19 +17,12 @@ type FiltersItemAmountProps = {
   setFilterValue: (value: string) => void
 }
 
-export enum AmountFilterInterval {
-  isBetween = 'isBetween',
-  isEqualTo = 'isEqualTo',
-  isUpTo = 'isUpTo',
-  isAtLeast = 'isAtLeast',
-}
-
 const AMOUNT_INTERVALS = [
-  { value: AmountFilterInterval.isBetween, label: 'text_1734774653389kvylgxjiltu' },
-  { value: AmountFilterInterval.isEqualTo, label: 'text_1734774653389pt3rhh3lspa' },
-  { value: AmountFilterInterval.isUpTo, label: 'text_1734792781750cot2uyp6f1x' },
-  { value: AmountFilterInterval.isAtLeast, label: 'text_17347927817503hromltntvm' },
-]
+  AmountFilterInterval.isBetween,
+  AmountFilterInterval.isEqualTo,
+  AmountFilterInterval.isUpTo,
+  AmountFilterInterval.isAtLeast,
+].map((interval) => ({ value: interval, label: AMOUNT_INTERVALS_TRANSLATION_MAP[interval] }))
 
 const FROM_INTERVALS = [
   AmountFilterInterval.isAtLeast,
@@ -38,9 +37,9 @@ export const FiltersItemAmount = ({ value = '', setFilterValue }: FiltersItemAmo
 
   const formikProps = useFormik({
     initialValues: {
-      interval: '',
-      amountFrom: value.split(',')?.[0],
-      amountTo: value.split(',')?.[1],
+      interval: value.split(',')?.[0],
+      amountFrom: value.split(',')?.[1],
+      amountTo: value.split(',')?.[2],
     },
     validateOnMount: true,
     enableReinitialize: true,
@@ -51,22 +50,16 @@ export const FiltersItemAmount = ({ value = '', setFilterValue }: FiltersItemAmo
   const showTo = TO_INTERVALS.includes(formikProps.values.interval as AmountFilterInterval)
 
   useEffect(() => {
-    formikProps.setFieldValue('amountFrom', '')
-    formikProps.setFieldValue('amountTo', '')
+    const { interval, amountFrom, amountTo } = formikProps.values
+
+    const { amountFrom: from, amountTo: to } = parseAmountValue(
+      `${interval},${amountFrom},${amountTo}`,
+    )
+
+    setFilterValue?.(`${interval},${from || ''},${to || ''}`)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formikProps.values.interval])
-
-  useEffect(() => {
-    const amountFrom = formikProps.values.amountFrom
-    const amountTo = formikProps.values.amountTo
-
-    if (setFilterValue) {
-      setFilterValue(`${amountFrom},${amountTo}`)
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formikProps.values.amountFrom, formikProps.values.amountTo])
+  }, [formikProps.values.interval, formikProps.values.amountFrom, formikProps.values.amountTo])
 
   return (
     <div className="flex items-center gap-2 lg:gap-3">
@@ -85,17 +78,19 @@ export const FiltersItemAmount = ({ value = '', setFilterValue }: FiltersItemAmo
           name="amountFrom"
           beforeChangeFormatter={['chargeDecimal']}
           type="number"
-          placeholder="0.00"
+          placeholder="0"
           formikProps={formikProps}
         />
       )}
+
+      {showFrom && showTo && <Typography className="text-grey-700">and</Typography>}
 
       {showTo && (
         <TextInputField
           name="amountTo"
           beforeChangeFormatter={['chargeDecimal']}
           type="number"
-          placeholder="0.00"
+          placeholder="0"
           formikProps={formikProps}
         />
       )}
