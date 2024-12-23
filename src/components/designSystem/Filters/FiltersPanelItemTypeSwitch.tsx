@@ -1,4 +1,9 @@
 import { Typography } from '~/components/designSystem'
+import { FiltersItemAmount } from '~/components/designSystem/Filters/filtersElements/FiltersItemAmount'
+import { FiltersItemCreditNoteCreditStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemCreditNoteCreditStatus'
+import { FiltersItemCreditNoteReason } from '~/components/designSystem/Filters/filtersElements/FiltersItemCreditNoteReason'
+import { FiltersItemCreditNoteRefundStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemCreditNoteRefundStatus'
+import { FiltersItemInvoiceNumber } from '~/components/designSystem/Filters/filtersElements/FiltersItemInvoiceNumber'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { FiltersItemCurrency } from './filtersElements/FiltersItemCurrency'
@@ -29,6 +34,48 @@ export const FiltersPanelItemTypeSwitch = ({
     return <div className="h-[46px] rounded-xl border border-dashed border-grey-300 lg:flex-1" />
   }
 
+  const filterTypeMap: Record<AvailableFiltersEnum, React.ReactNode> = {
+    [AvailableFiltersEnum.currency]: (
+      <FiltersItemCurrency value={value} setFilterValue={setFilterValue} />
+    ),
+    [AvailableFiltersEnum.customerExternalId]: (
+      <FiltersItemCustomer value={value} setFilterValue={setFilterValue} />
+    ),
+    [AvailableFiltersEnum.invoiceType]: (
+      <FiltersItemInvoiceType value={value} setFilterValue={setFilterValue} />
+    ),
+    [AvailableFiltersEnum.issuingDate]: (
+      <FiltersItemIssuingDate value={value} setFilterValue={setFilterValue} />
+    ),
+    [AvailableFiltersEnum.paymentDisputeLost]: (
+      <FiltersItemPaymentDisputeLost value={value} setFilterValue={setFilterValue} />
+    ),
+    [AvailableFiltersEnum.paymentOverdue]: (
+      <FiltersItemPaymentOverdue value={value} setFilterValue={setFilterValue} />
+    ),
+    [AvailableFiltersEnum.paymentStatus]: (
+      <FiltersItemPaymentStatus value={value} setFilterValue={setFilterValue} />
+    ),
+    [AvailableFiltersEnum.status]: (
+      <FiltersItemStatus value={value} setFilterValue={setFilterValue} />
+    ),
+    [AvailableFiltersEnum.invoiceNumber]: (
+      <FiltersItemInvoiceNumber value={value} setFilterValue={setFilterValue} />
+    ),
+    [AvailableFiltersEnum.amount]: (
+      <FiltersItemAmount value={value} setFilterValue={setFilterValue} />
+    ),
+    [AvailableFiltersEnum.creditNoteReason]: (
+      <FiltersItemCreditNoteReason value={value} setFilterValue={setFilterValue} />
+    ),
+    [AvailableFiltersEnum.creditNoteCreditStatus]: (
+      <FiltersItemCreditNoteCreditStatus value={value} setFilterValue={setFilterValue} />
+    ),
+    [AvailableFiltersEnum.creditNoteRefundStatus]: (
+      <FiltersItemCreditNoteRefundStatus value={value} setFilterValue={setFilterValue} />
+    ),
+  }
+
   return (
     <>
       {filterType === AvailableFiltersEnum.issuingDate ? (
@@ -41,23 +88,7 @@ export const FiltersPanelItemTypeSwitch = ({
         </Typography>
       )}
 
-      {filterType === AvailableFiltersEnum.currency ? (
-        <FiltersItemCurrency value={value} setFilterValue={setFilterValue} />
-      ) : filterType === AvailableFiltersEnum.customerExternalId ? (
-        <FiltersItemCustomer value={value} setFilterValue={setFilterValue} />
-      ) : filterType === AvailableFiltersEnum.invoiceType ? (
-        <FiltersItemInvoiceType value={value} setFilterValue={setFilterValue} />
-      ) : filterType === AvailableFiltersEnum.issuingDate ? (
-        <FiltersItemIssuingDate value={value} setFilterValue={setFilterValue} />
-      ) : filterType === AvailableFiltersEnum.paymentDisputeLost ? (
-        <FiltersItemPaymentDisputeLost value={value} setFilterValue={setFilterValue} />
-      ) : filterType === AvailableFiltersEnum.paymentOverdue ? (
-        <FiltersItemPaymentOverdue value={value} setFilterValue={setFilterValue} />
-      ) : filterType === AvailableFiltersEnum.paymentStatus ? (
-        <FiltersItemPaymentStatus value={value} setFilterValue={setFilterValue} />
-      ) : filterType === AvailableFiltersEnum.status ? (
-        <FiltersItemStatus value={value} setFilterValue={setFilterValue} />
-      ) : null}
+      {filterTypeMap[filterType]}
     </>
   )
 }

@@ -67,6 +67,33 @@ gql`
   ${InvoiceForCreditNoteFormCalculationFragmentDoc}
 `
 
+export const CREDIT_NOTE_REASONS: { reason: CreditNoteReasonEnum; label: string }[] = [
+  {
+    reason: CreditNoteReasonEnum?.DuplicatedCharge,
+    label: 'text_636d85ee6459e3fc0a859123',
+  },
+  {
+    reason: CreditNoteReasonEnum?.FraudulentCharge,
+    label: 'text_636d864c7046be9069662e9d',
+  },
+  {
+    reason: CreditNoteReasonEnum?.OrderCancellation,
+    label: 'text_636d86390ce8d6d7ed8ce937',
+  },
+  {
+    reason: CreditNoteReasonEnum?.OrderChange,
+    label: 'text_636d8642904c9f56a8b2d834',
+  },
+  {
+    reason: CreditNoteReasonEnum?.Other,
+    label: 'text_636d86cd9fd41b93c35bf1c7',
+  },
+  {
+    reason: CreditNoteReasonEnum?.ProductUnsatisfactory,
+    label: 'text_636d86201507276b7421a981',
+  },
+]
+
 const determineCheckboxValue = (
   initialValue: boolean | undefined | null,
   additionnalValue: boolean | undefined,
@@ -339,35 +366,10 @@ const CreateCreditNote = () => {
                     formikProps={formikProps}
                     label={translate('text_636bedf292786b19d3398ed0')}
                     placeholder={translate('text_636bedf292786b19d3398ed2')}
-                    data={[
-                      {
-                        value: CreditNoteReasonEnum?.DuplicatedCharge,
-                        label: translate('text_636d85ee6459e3fc0a859123'),
-                      },
-                      {
-                        value: CreditNoteReasonEnum?.FraudulentCharge,
-                        label: translate('text_636d864c7046be9069662e9d'),
-                      },
-                      {
-                        value: CreditNoteReasonEnum?.OrderCancellation,
-                        label: translate('text_636d86390ce8d6d7ed8ce937'),
-                      },
-
-                      {
-                        value: CreditNoteReasonEnum?.OrderChange,
-                        label: translate('text_636d8642904c9f56a8b2d834'),
-                      },
-
-                      {
-                        value: CreditNoteReasonEnum?.Other,
-                        label: translate('text_636d86cd9fd41b93c35bf1c7'),
-                      },
-
-                      {
-                        value: CreditNoteReasonEnum?.ProductUnsatisfactory,
-                        label: translate('text_636d86201507276b7421a981'),
-                      },
-                    ]}
+                    data={CREDIT_NOTE_REASONS.map((reason) => ({
+                      value: reason.reason,
+                      label: translate(reason.label),
+                    }))}
                   />
                   <TextInputField
                     name="description"

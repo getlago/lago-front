@@ -1,88 +1,68 @@
-import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef } from 'react'
-import { useSearchParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Dialog, Typography } from '~/components/designSystem'
-import { addToast } from '~/core/apolloClient'
 import {
-  CreateDataExportsInvoicesInput,
+  CreditNoteExportTypeEnum,
   DataExportFormatTypeEnum,
-  ExportTypeEnum,
-  useCreateInvoicesDataExportMutation,
+  InvoiceExportTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { theme } from '~/styles'
 
-import { formatFiltersForInvoiceQuery } from '../designSystem/Filters/utils'
 import { RadioGroupField } from '../form'
 
-gql`
-  mutation createInvoicesDataExport($input: CreateDataExportsInvoicesInput!) {
-    createInvoicesDataExport(input: $input) {
-      id
-    }
-  }
-`
+type ExportTypeEnum = CreditNoteExportTypeEnum | InvoiceExportTypeEnum
 
-type ExportInvoicesDialogProps = {
-  invoicesTotalCount: number | undefined
-  invoicesVariablesSearchTerm: string | null | undefined
+type ExportForm = {
+  format: DataExportFormatTypeEnum
+  resourceType: ExportTypeEnum
 }
 
-export interface ExportInvoicesDialogRef {
+export type ExportValues<T> = {
+  clientMutationId?: string
+  format: DataExportFormatTypeEnum
+  resourceType: T
+}
+
+type ExportDialogProps = {
+  totalCountLabel: string
+  onExport: Function
+  disableExport?: boolean
+  resourceTypeOptions: {
+    label: string
+    sublabel: string
+    value: ExportForm['resourceType']
+  }[]
+}
+
+export interface ExportDialogRef {
   openDialog: () => unknown
   closeDialog: () => unknown
 }
 
-export const ExportInvoicesDialog = forwardRef<ExportInvoicesDialogRef, ExportInvoicesDialogProps>(
-  ({ invoicesTotalCount, invoicesVariablesSearchTerm }: ExportInvoicesDialogProps, ref) => {
+export const ExportDialog = forwardRef<ExportDialogRef, ExportDialogProps>(
+  (
+    { totalCountLabel, onExport, disableExport = false, resourceTypeOptions }: ExportDialogProps,
+    ref,
+  ) => {
     const { translate } = useInternationalization()
     const { currentUser } = useCurrentUser()
-    const [searchParams] = useSearchParams()
-    const [triggerCreateInvoicesDataExport] = useCreateInvoicesDataExportMutation({
-      onCompleted({ createInvoicesDataExport }) {
-        if (createInvoicesDataExport) {
-          addToast({
-            message: translate('text_66b323b63e76c400f78cd342'),
-            severity: 'info',
-          })
-        }
-      },
-    })
 
-    const formikProps = useFormik<Omit<CreateDataExportsInvoicesInput, 'filters'>>({
+    const formikProps = useFormik<Omit<ExportForm, 'filters'>>({
       initialValues: {
         format: DataExportFormatTypeEnum.Csv,
-        resourceType: ExportTypeEnum.Invoices,
+        resourceType: resourceTypeOptions[0].value,
       },
       validationSchema: object().shape({
         format: string().required(''),
-        resourceType: string().oneOf(Object.values(ExportTypeEnum)).required(''),
       }),
       validateOnMount: true,
       enableReinitialize: true,
-      onSubmit: async (values) => {
-        const filters = {
-          ...formatFiltersForInvoiceQuery(searchParams),
-          searchTerm: invoicesVariablesSearchTerm,
-        }
-
-        const res = await triggerCreateInvoicesDataExport({
-          variables: {
-            input: {
-              ...values,
-              filters,
-            },
-          },
-        })
-
-        // If error, prevent closing the dialog
-        if (res.errors) return
-      },
+      onSubmit: (values) => onExport(values),
     })
 
     return (
@@ -101,7 +81,7 @@ export const ExportInvoicesDialog = forwardRef<ExportInvoicesDialogRef, ExportIn
             </Button>
             <Button
               variant="primary"
-              disabled={!formikProps.isValid || invoicesTotalCount === 0}
+              disabled={!formikProps.isValid || disableExport}
               onClick={async () => {
                 await formikProps.submitForm()
                 closeDialog()
@@ -112,7 +92,7 @@ export const ExportInvoicesDialog = forwardRef<ExportInvoicesDialogRef, ExportIn
           </>
         )}
       >
-        <ExportInvoiceDialogContentWrapper>
+        <ExportDialogContentWrapper>
           <InfosLineWrapper>
             <InfoLine>
               <Typography variant="caption" color="grey600">
@@ -135,11 +115,7 @@ export const ExportInvoicesDialog = forwardRef<ExportInvoicesDialogRef, ExportIn
                 {translate('text_66b21236c939426d07ff9938')}
               </Typography>
               <Typography variant="body" color="grey700">
-                {translate(
-                  'text_66b21236c939426d07ff9937',
-                  { invoicesTotalCount },
-                  invoicesTotalCount,
-                )}
+                {totalCountLabel}
               </Typography>
             </InfoLine>
           </InfosLineWrapper>
@@ -159,29 +135,18 @@ export const ExportInvoicesDialog = forwardRef<ExportInvoicesDialogRef, ExportIn
             name="resourceType"
             optionsGapSpacing={4}
             optionLabelVariant="body"
-            options={[
-              {
-                label: translate('text_66b21236c939426d07ff993b'),
-                sublabel: translate('text_66b21236c939426d07ff993c'),
-                value: ExportTypeEnum.Invoices,
-              },
-              {
-                label: translate('text_66b21236c939426d07ff993d'),
-                sublabel: translate('text_66b21236c939426d07ff993e'),
-                value: ExportTypeEnum.InvoiceFees,
-              },
-            ]}
+            options={resourceTypeOptions}
             formikProps={formikProps}
           />
-        </ExportInvoiceDialogContentWrapper>
+        </ExportDialogContentWrapper>
       </Dialog>
     )
   },
 )
 
-ExportInvoicesDialog.displayName = 'ExportInvoicesDialog'
+ExportDialog.displayName = 'ExportDialog'
 
-const ExportInvoiceDialogContentWrapper = styled.div`
+const ExportDialogContentWrapper = styled.div`
   margin-bottom: ${theme.spacing(8)};
 `
 

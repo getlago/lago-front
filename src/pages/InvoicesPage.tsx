@@ -6,17 +6,15 @@ import styled from 'styled-components'
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
 import { Button, NavigationTab, Typography } from '~/components/designSystem'
 import {
+  formatFiltersForCreditNotesQuery,
   formatFiltersForInvoiceQuery,
   isOutstandingUrlParams,
 } from '~/components/designSystem/Filters/utils'
+import { ExportDialog, ExportDialogRef, ExportValues } from '~/components/exports/ExportDialog'
 import {
   UpdateInvoicePaymentStatusDialog,
   UpdateInvoicePaymentStatusDialogRef,
 } from '~/components/invoices/EditInvoicePaymentStatusDialog'
-import {
-  ExportInvoicesDialog,
-  ExportInvoicesDialogRef,
-} from '~/components/invoices/ExportInvoicesDialog'
 import {
   FinalizeInvoiceDialog,
   FinalizeInvoiceDialogRef,
@@ -26,17 +24,24 @@ import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/V
 import { SearchInput } from '~/components/SearchInput'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { INVOICES_ROUTE, INVOICES_TAB_ROUTE } from '~/core/router'
+import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
+  CreditNoteExportTypeEnum,
   CreditNotesForTableFragmentDoc,
   CreditNoteTableItemFragmentDoc,
+  CurrencyEnum,
+  InvoiceExportTypeEnum,
   InvoiceListItemFragmentDoc,
   LagoApiError,
+  useCreateCreditNotesDataExportMutation,
+  useCreateInvoicesDataExportMutation,
   useGetCreditNotesListLazyQuery,
   useGetInvoicesListLazyQuery,
   useRetryAllInvoicePaymentsMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { PageHeader, theme } from '~/styles'
 
@@ -81,8 +86,36 @@ gql`
     }
   }
 
-  query getCreditNotesList($limit: Int, $page: Int, $searchTerm: String) {
-    creditNotes(limit: $limit, page: $page, searchTerm: $searchTerm) {
+  query getCreditNotesList(
+    $amountFrom: Int
+    $amountTo: Int
+    $creditStatus: [CreditNoteCreditStatusEnum!]
+    $currency: CurrencyEnum
+    $customerExternalId: String
+    $invoiceNumber: String
+    $issuingDateFrom: ISO8601Date
+    $issuingDateTo: ISO8601Date
+    $reason: [CreditNoteReasonEnum!]
+    $refundStatus: [CreditNoteRefundStatusEnum!]
+    $limit: Int
+    $page: Int
+    $searchTerm: String
+  ) {
+    creditNotes(
+      amountFrom: $amountFrom
+      amountTo: $amountTo
+      creditStatus: $creditStatus
+      currency: $currency
+      customerExternalId: $customerExternalId
+      invoiceNumber: $invoiceNumber
+      issuingDateFrom: $issuingDateFrom
+      issuingDateTo: $issuingDateTo
+      reason: $reason
+      refundStatus: $refundStatus
+      limit: $limit
+      page: $page
+      searchTerm: $searchTerm
+    ) {
       ...CreditNotesForTable
     }
   }
@@ -92,6 +125,18 @@ gql`
       metadata {
         totalCount
       }
+    }
+  }
+
+  mutation createInvoicesDataExport($input: CreateDataExportsInvoicesInput!) {
+    createInvoicesDataExport(input: $input) {
+      id
+    }
+  }
+
+  mutation createCreditNotesDataExport($input: CreateDataExportsCreditNotesInput!) {
+    createCreditNotesDataExport(input: $input) {
+      id
     }
   }
 
@@ -105,18 +150,51 @@ enum InvoiceListTabEnum {
   'creditNotes' = 'creditNotes',
 }
 
+// TODO: This is a temporary workaround
+const formatAmountCurrency = (
+  filters: Record<string, string | string[] | boolean | number>,
+  amountCurrency?: CurrencyEnum | null,
+) => {
+  const _filters = {
+    ...filters,
+  }
+
+  if (_filters.amountFrom) {
+    _filters.amountFrom = serializeAmount(
+      Number(_filters.amountFrom),
+      amountCurrency || CurrencyEnum.Usd,
+    )
+  }
+
+  if (_filters.amountTo) {
+    _filters.amountTo = serializeAmount(
+      Number(_filters.amountTo),
+      amountCurrency || CurrencyEnum.Usd,
+    )
+  }
+
+  return _filters
+}
+
 const InvoicesPage = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
+  const { organization } = useOrganizationInfos()
+  const amountCurrency = organization?.defaultCurrency
   const { tab = InvoiceListTabEnum.invoices } = useParams<{ tab?: InvoiceListTabEnum }>()
   const [searchParams] = useSearchParams()
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
-  const exportInvoicesDialogRef = useRef<ExportInvoicesDialogRef>(null)
+  const exportInvoicesDialogRef = useRef<ExportDialogRef>(null)
+  const exportCreditNotesDialogRef = useRef<ExportDialogRef>(null)
 
   const filtersForInvoiceQuery = useMemo(() => {
     return formatFiltersForInvoiceQuery(searchParams)
+  }, [searchParams])
+
+  const filtersForCreditNotesQuery = useMemo(() => {
+    return formatFiltersForCreditNotesQuery(searchParams)
   }, [searchParams])
 
   const [
@@ -153,6 +231,7 @@ const InvoicesPage = () => {
     nextFetchPolicy: 'network-only',
     variables: {
       limit: 20,
+      ...formatAmountCurrency(filtersForCreditNotesQuery, amountCurrency),
     },
   })
 
@@ -172,6 +251,67 @@ const InvoicesPage = () => {
       }
     },
   })
+
+  const onInvoicesExport = async (values: ExportValues<InvoiceExportTypeEnum>) => {
+    const filters = {
+      ...formatFiltersForInvoiceQuery(searchParams),
+      searchTerm: variableInvoices?.searchTerm,
+    }
+
+    const res = await triggerCreateInvoicesDataExport({
+      variables: {
+        input: {
+          ...values,
+          filters,
+        },
+      },
+    })
+
+    if (res.errors) return
+  }
+
+  const onCreditNotesExport = async (values: ExportValues<CreditNoteExportTypeEnum>) => {
+    const filters = {
+      ...formatAmountCurrency(formatFiltersForCreditNotesQuery(searchParams), amountCurrency),
+      searchTerm: variableInvoices?.searchTerm,
+    }
+
+    const res = await triggerCreateCreditNotesDataExport({
+      variables: {
+        input: {
+          ...values,
+          filters,
+        },
+      },
+    })
+
+    if (res.errors) return
+  }
+
+  const [triggerCreateInvoicesDataExport] = useCreateInvoicesDataExportMutation({
+    onCompleted({ createInvoicesDataExport }) {
+      if (createInvoicesDataExport) {
+        addToast({
+          message: translate('text_66b323b63e76c400f78cd342'),
+          severity: 'info',
+        })
+      }
+    },
+  })
+
+  const [triggerCreateCreditNotesDataExport] = useCreateCreditNotesDataExportMutation({
+    onCompleted({ createCreditNotesDataExport }) {
+      if (createCreditNotesDataExport) {
+        addToast({
+          message: translate('text_66b323b63e76c400f78cd342'),
+          severity: 'info',
+        })
+      }
+    },
+  })
+
+  const invoicesTotalCount = dataInvoices?.invoices?.metadata?.totalCount
+  const creditNotesTotalCount = dataCreditNotes?.creditNotes?.metadata?.totalCount
 
   return (
     <>
@@ -196,10 +336,19 @@ const InvoicesPage = () => {
               </Button>
             </>
           ) : tab === InvoiceListTabEnum.creditNotes ? (
-            <SearchInput
-              onChange={creditNoteDebounceSearch}
-              placeholder={translate('text_63c6edd80c57d0dfaae3898e')}
-            />
+            <>
+              <SearchInput
+                onChange={creditNoteDebounceSearch}
+                placeholder={translate('text_63c6edd80c57d0dfaae3898e')}
+              />
+              <Button
+                variant="secondary"
+                disabled={!dataCreditNotes?.creditNotes?.metadata.totalCount}
+                onClick={exportCreditNotesDialogRef.current?.openDialog}
+              >
+                {translate('text_66b21236c939426d07ff98ca')}
+              </Button>
+            </>
           ) : null}
 
           {isOutstandingUrlParams(searchParams) && hasPermissions(['invoicesSend']) && (
@@ -272,10 +421,51 @@ const InvoicesPage = () => {
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
-      <ExportInvoicesDialog
+
+      <ExportDialog
         ref={exportInvoicesDialogRef}
-        invoicesVariablesSearchTerm={variableInvoices?.searchTerm}
-        invoicesTotalCount={dataInvoices?.invoices?.metadata?.totalCount}
+        totalCountLabel={translate(
+          'text_66b21236c939426d07ff9937',
+          { invoicesTotalCount },
+          invoicesTotalCount,
+        )}
+        onExport={onInvoicesExport}
+        disableExport={invoicesTotalCount === 0}
+        resourceTypeOptions={[
+          {
+            label: translate('text_66b21236c939426d07ff993b'),
+            sublabel: translate('text_66b21236c939426d07ff993c'),
+            value: InvoiceExportTypeEnum.Invoices,
+          },
+          {
+            label: translate('text_66b21236c939426d07ff993d'),
+            sublabel: translate('text_66b21236c939426d07ff993e'),
+            value: InvoiceExportTypeEnum.InvoiceFees,
+          },
+        ]}
+      />
+
+      <ExportDialog
+        ref={exportCreditNotesDialogRef}
+        totalCountLabel={translate(
+          'text_17346987416277yx1mf6nau2',
+          { creditNotesTotalCount },
+          creditNotesTotalCount,
+        )}
+        onExport={onCreditNotesExport}
+        disableExport={creditNotesTotalCount === 0}
+        resourceTypeOptions={[
+          {
+            label: translate('text_1734698741627bges5xz01la'),
+            sublabel: translate('text_173469874162761dxr57rvw7'),
+            value: CreditNoteExportTypeEnum.CreditNotes,
+          },
+          {
+            label: translate('text_1734698741627449t5wdghef'),
+            sublabel: translate('text_1734698875217ppgrrmd10q2'),
+            value: CreditNoteExportTypeEnum.CreditNoteItems,
+          },
+        ]}
       />
     </>
   )

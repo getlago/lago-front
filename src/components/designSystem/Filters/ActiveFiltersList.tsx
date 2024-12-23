@@ -32,7 +32,7 @@ export const ActiveFiltersList = ({ filters }: ActiveFiltersListProps) => {
           ...acc,
           {
             label: translate(mapFilterToTranslationKey(key)),
-            value: formatActiveFilterValueDisplay(key, value),
+            value: formatActiveFilterValueDisplay(key, value, translate),
           },
         ]
       },
