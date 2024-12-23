@@ -1,4 +1,4 @@
-import react from '@vitejs/plugin-react'
+import react from '@vitejs/plugin-react-swc'
 import dotenv from 'dotenv'
 import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
@@ -15,20 +15,7 @@ export default defineConfig((env) => {
   return {
     plugins: [
       react({
-        babel: {
-          plugins: [
-            ['babel-plugin-styled-components', { displayName: true }],
-            [
-              'prismjs',
-              {
-                languages: ['javascript', 'bash'],
-                plugins: ['line-numbers'],
-                theme: 'default',
-                css: true,
-              },
-            ],
-          ],
-        },
+        plugins: [['@swc/plugin-styled-components', { displayName: true }]],
       }),
       wasm(),
       topLevelAwait(),
