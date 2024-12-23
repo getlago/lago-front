@@ -6,7 +6,6 @@ import { useGetInvoiceNumbersForFilterItemInvoiceNumbersLazyQuery } from '~/gene
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { FiltersFormValues } from '../FiltersPanelPoper'
-import { filterDataInlineSeparator } from '../types'
 
 gql`
   query getInvoiceNumbersForFilterItemInvoiceNumbers($page: Int, $limit: Int, $searchTerm: String) {
@@ -42,11 +41,11 @@ export const FiltersItemInvoiceNumber = ({
     if (!data?.invoices?.collection) return []
 
     return data.invoices?.collection.map((invoice) => {
-      const { id, number } = invoice
+      const { number } = invoice
 
       return {
         label: number,
-        value: `${id}${filterDataInlineSeparator}${number}`,
+        value: number,
       }
     })
   }, [data])
