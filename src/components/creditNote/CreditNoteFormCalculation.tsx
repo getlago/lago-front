@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { FormikProps } from 'formik'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 import _get from 'lodash/get'
 import { useCallback, useEffect, useMemo } from 'react'
 import styled, { css } from 'styled-components'

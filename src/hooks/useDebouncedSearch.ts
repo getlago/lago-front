@@ -1,5 +1,6 @@
 import { LazyQueryExecFunction } from '@apollo/client'
-import { debounce, DebouncedFunc } from 'lodash'
+import type { DebouncedFunc } from 'lodash'
+import debounce from 'lodash/debounce'
 import { DateTime } from 'luxon'
 import { useCallback, useEffect, useRef, useState } from 'react'
 

@@ -1,4 +1,4 @@
-import { isBoolean } from 'lodash'
+import isBoolean from 'lodash/isBoolean'
 import { forwardRef, ReactNode, useId, useRef, useState } from 'react'
 
 import { Typography, TypographyProps } from '~/components/designSystem'
