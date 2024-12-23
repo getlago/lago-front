@@ -81,6 +81,7 @@ export default defineConfig((env) => {
     resolve: {
       alias: {
         '~': resolve(__dirname, 'src'),
+        lodash: 'lodash-es',
         '@mui/styled-engine': resolve(__dirname, 'node_modules/@mui/styled-engine-sc'),
       },
     },
@@ -96,7 +97,7 @@ export default defineConfig((env) => {
     },
     build: {
       outDir: 'dist',
-      sourcemap: true,
+      sourcemap: false, // TODO: replace this with the sentry vite plugin and don't ship sourcemaps to production
       rollupOptions: {
         output: {
           chunkFileNames: '[name].[hash].js',

@@ -1,121 +1,123 @@
-import Alphabet from '~/public/icons/alphabet.svg'
-import Apps from '~/public/icons/apps.svg'
-import ArrowBottom from '~/public/icons/arrow-bottom.svg'
-import ArrowLeftRight from '~/public/icons/arrow-left-right.svg'
-import ArrowLeft from '~/public/icons/arrow-left.svg'
-import ArrowRight from '~/public/icons/arrow-right.svg'
-import ArrowTop from '~/public/icons/arrow-top.svg'
-import Ascending from '~/public/icons/ascending.svg'
-import At from '~/public/icons/at.svg'
-import AttachmentNa from '~/public/icons/attachment-na.svg'
-import Bank from '~/public/icons/bank.svg'
-import Bell from '~/public/icons/bell.svg'
-import Board from '~/public/icons/board.svg'
-import Book from '~/public/icons/book.svg'
-import Box from '~/public/icons/box.svg'
-import Bulb from '~/public/icons/bulb.svg'
-import Burger from '~/public/icons/burger.svg'
-import Calendar from '~/public/icons/calendar.svg'
-import ChartBar from '~/public/icons/chart-bar.svg'
-import Checkmark from '~/public/icons/checkmark.svg'
-import ChevronDownFilled from '~/public/icons/chevron-down-filled.svg'
-import ChevronDown from '~/public/icons/chevron-down.svg'
-import ChevronLeft from '~/public/icons/chevron-left.svg'
-import ChevronRightFilled from '~/public/icons/chevron-right-filled.svg'
-import ChevronRight from '~/public/icons/chevron-right.svg'
-import ChevronTop from '~/public/icons/chevron-top.svg'
-import ChevronUpDown from '~/public/icons/chevron-up-down.svg'
-import Clock from '~/public/icons/clock.svg'
-import CloseCircleFilled from '~/public/icons/close-circle-filled.svg'
-import CloseCircleUnfilled from '~/public/icons/close-circle-unfilled.svg'
-import Close from '~/public/icons/close.svg'
-import Code from '~/public/icons/code.svg'
-import CoinDollar from '~/public/icons/coin-dollar.svg'
-import Collect from '~/public/icons/collect.svg'
-import Command from '~/public/icons/command.svg'
-import Company from '~/public/icons/company.svg'
-import Condition from '~/public/icons/condition.svg'
-import ContentLeftAlign from '~/public/icons/content-left-align.svg'
-import Coupon from '~/public/icons/coupon.svg'
-import Descending from '~/public/icons/descending.svg'
-import Document from '~/public/icons/document.svg'
-import DotsHorizontal from '~/public/icons/dots-horizontal.svg'
-import Download from '~/public/icons/download.svg'
-import Duplicate from '~/public/icons/duplicate.svg'
-import ErrorFilled from '~/public/icons/error-filled.svg'
-import ErrorUnfilled from '~/public/icons/error-unfilled.svg'
-import EyeHidden from '~/public/icons/eye-hidden.svg'
-import Eye from '~/public/icons/eye.svg'
-import Filter from '~/public/icons/filter.svg'
-import FlashFilled from '~/public/icons/flash-filled.svg'
-import Flash from '~/public/icons/flash.svg'
-import Formulas from '~/public/icons/formulas.svg'
-import Globe from '~/public/icons/globe.svg'
-import Google from '~/public/icons/google.svg'
-import Handle from '~/public/icons/handle.svg'
-import Hashtag from '~/public/icons/hashtag.svg'
-import Heart from '~/public/icons/heart.svg'
-import Id from '~/public/icons/id.svg'
-import InfoCircle from '~/public/icons/info-circle.svg'
-import Key from '~/public/icons/key.svg'
-import KeyboardEnter from '~/public/icons/keyboard-enter.svg'
-import Laptop from '~/public/icons/laptop.svg'
-import Link from '~/public/icons/link.svg'
-import Lock from '~/public/icons/lock.svg'
-import Logout from '~/public/icons/log-out.svg'
-import MagnifyingGlass from '~/public/icons/magnifying-glass.svg'
-import Mail from '~/public/icons/mail.svg'
-import Map from '~/public/icons/map.svg'
-import Micro from '~/public/icons/micro.svg'
-import Minus from '~/public/icons/minus.svg'
-import Okta from '~/public/icons/okta.svg'
-import Outside from '~/public/icons/outside.svg'
-import Paperclip from '~/public/icons/paperclip.svg'
-import PauseCircleFilled from '~/public/icons/pause-circle-filled.svg'
-import PauseCircleUnfilled from '~/public/icons/pause-circle-unfilled.svg'
-import Pen from '~/public/icons/pen.svg'
-import Percentage from '~/public/icons/percentage.svg'
-import Pivot from '~/public/icons/pivot.svg'
-import Play from '~/public/icons/play.svg'
-import Plug from '~/public/icons/plug.svg'
-import Plus from '~/public/icons/plus.svg'
-import Processing from '~/public/icons/processing.svg'
-import Pulse from '~/public/icons/pulse.svg'
-import Push from '~/public/icons/push.svg'
-import Puzzle from '~/public/icons/puzzle.svg'
-import QuestionCircle from '~/public/icons/question-circle.svg'
-import Reload from '~/public/icons/reload.svg'
-import Requested from '~/public/icons/requested.svg'
-import ResizeExpand from '~/public/icons/resize-expand.svg'
-import ResizeReduce from '~/public/icons/resize-reduce.svg'
-import Rocket from '~/public/icons/rocket.svg'
-import Rotate from '~/public/icons/rotate.svg'
-import Schema from '~/public/icons/schema.svg'
-import Scissor from '~/public/icons/scissor.svg'
-import Settings from '~/public/icons/settings.svg'
-import Share from '~/public/icons/share.svg'
-import Smartphone from '~/public/icons/smartphone.svg'
-import Sparkles from '~/public/icons/sparkles.svg'
-import StarFilled from '~/public/icons/star-filled.svg'
-import StarOutlinedHidden from '~/public/icons/star-outlined-hidden.svg'
-import Stop from '~/public/icons/stop.svg'
-import SwitchOff from '~/public/icons/switch-off.svg'
-import Switch from '~/public/icons/switch.svg'
-import Sync from '~/public/icons/sync.svg'
-import TableHorizontale from '~/public/icons/table-horizontale.svg'
-import Table from '~/public/icons/table.svg'
-import Target from '~/public/icons/target.svg'
-import Text from '~/public/icons/text.svg'
-import Trash from '~/public/icons/trash.svg'
-import Unlock from '~/public/icons/unlock.svg'
-import UserAdd from '~/public/icons/user-add.svg'
-import UserMultiple from '~/public/icons/user-multiple.svg'
-import User from '~/public/icons/user.svg'
-import ValidateFilled from '~/public/icons/validate-filled.svg'
-import ValidateUnfilled from '~/public/icons/validate-unfilled.svg'
-import Wallet from '~/public/icons/wallet.svg'
-import WarningFilled from '~/public/icons/warning-filled.svg'
-import WarningUnfilled from '~/public/icons/warning-unfilled.svg'
+import { lazy } from 'react'
+
+const Alphabet = lazy(() => import('~/public/icons/alphabet.svg'))
+const Apps = lazy(() => import('~/public/icons/apps.svg'))
+const ArrowBottom = lazy(() => import('~/public/icons/arrow-bottom.svg'))
+const ArrowLeftRight = lazy(() => import('~/public/icons/arrow-left-right.svg'))
+const ArrowLeft = lazy(() => import('~/public/icons/arrow-left.svg'))
+const ArrowRight = lazy(() => import('~/public/icons/arrow-right.svg'))
+const ArrowTop = lazy(() => import('~/public/icons/arrow-top.svg'))
+const Ascending = lazy(() => import('~/public/icons/ascending.svg'))
+const At = lazy(() => import('~/public/icons/at.svg'))
+const AttachmentNa = lazy(() => import('~/public/icons/attachment-na.svg'))
+const Bank = lazy(() => import('~/public/icons/bank.svg'))
+const Bell = lazy(() => import('~/public/icons/bell.svg'))
+const Board = lazy(() => import('~/public/icons/board.svg'))
+const Book = lazy(() => import('~/public/icons/book.svg'))
+const Box = lazy(() => import('~/public/icons/box.svg'))
+const Bulb = lazy(() => import('~/public/icons/bulb.svg'))
+const Burger = lazy(() => import('~/public/icons/burger.svg'))
+const Calendar = lazy(() => import('~/public/icons/calendar.svg'))
+const ChartBar = lazy(() => import('~/public/icons/chart-bar.svg'))
+const Checkmark = lazy(() => import('~/public/icons/checkmark.svg'))
+const ChevronDown = lazy(() => import('~/public/icons/chevron-down.svg'))
+const ChevronDownFilled = lazy(() => import('~/public/icons/chevron-down-filled.svg'))
+const ChevronLeft = lazy(() => import('~/public/icons/chevron-left.svg'))
+const ChevronRightFilled = lazy(() => import('~/public/icons/chevron-right-filled.svg'))
+const ChevronRight = lazy(() => import('~/public/icons/chevron-right.svg'))
+const ChevronTop = lazy(() => import('~/public/icons/chevron-top.svg'))
+const ChevronUpDown = lazy(() => import('~/public/icons/chevron-up-down.svg'))
+const Clock = lazy(() => import('~/public/icons/clock.svg'))
+const CloseCircleFilled = lazy(() => import('~/public/icons/close-circle-filled.svg'))
+const CloseCircleUnfilled = lazy(() => import('~/public/icons/close-circle-unfilled.svg'))
+const Close = lazy(() => import('~/public/icons/close.svg'))
+const Code = lazy(() => import('~/public/icons/code.svg'))
+const CoinDollar = lazy(() => import('~/public/icons/coin-dollar.svg'))
+const Collect = lazy(() => import('~/public/icons/collect.svg'))
+const Command = lazy(() => import('~/public/icons/command.svg'))
+const Company = lazy(() => import('~/public/icons/company.svg'))
+const Condition = lazy(() => import('~/public/icons/condition.svg'))
+const ContentLeftAlign = lazy(() => import('~/public/icons/content-left-align.svg'))
+const Coupon = lazy(() => import('~/public/icons/coupon.svg'))
+const Descending = lazy(() => import('~/public/icons/descending.svg'))
+const Document = lazy(() => import('~/public/icons/document.svg'))
+const DotsHorizontal = lazy(() => import('~/public/icons/dots-horizontal.svg'))
+const Download = lazy(() => import('~/public/icons/download.svg'))
+const Duplicate = lazy(() => import('~/public/icons/duplicate.svg'))
+const ErrorFilled = lazy(() => import('~/public/icons/error-filled.svg'))
+const ErrorUnfilled = lazy(() => import('~/public/icons/error-unfilled.svg'))
+const EyeHidden = lazy(() => import('~/public/icons/eye-hidden.svg'))
+const Eye = lazy(() => import('~/public/icons/eye.svg'))
+const Filter = lazy(() => import('~/public/icons/filter.svg'))
+const FlashFilled = lazy(() => import('~/public/icons/flash-filled.svg'))
+const Flash = lazy(() => import('~/public/icons/flash.svg'))
+const Formulas = lazy(() => import('~/public/icons/formulas.svg'))
+const Globe = lazy(() => import('~/public/icons/globe.svg'))
+const Google = lazy(() => import('~/public/icons/google.svg'))
+const Handle = lazy(() => import('~/public/icons/handle.svg'))
+const Hashtag = lazy(() => import('~/public/icons/hashtag.svg'))
+const Heart = lazy(() => import('~/public/icons/heart.svg'))
+const Id = lazy(() => import('~/public/icons/id.svg'))
+const InfoCircle = lazy(() => import('~/public/icons/info-circle.svg'))
+const Key = lazy(() => import('~/public/icons/key.svg'))
+const KeyboardEnter = lazy(() => import('~/public/icons/keyboard-enter.svg'))
+const Laptop = lazy(() => import('~/public/icons/laptop.svg'))
+const Link = lazy(() => import('~/public/icons/link.svg'))
+const Lock = lazy(() => import('~/public/icons/lock.svg'))
+const Logout = lazy(() => import('~/public/icons/log-out.svg'))
+const MagnifyingGlass = lazy(() => import('~/public/icons/magnifying-glass.svg'))
+const Mail = lazy(() => import('~/public/icons/mail.svg'))
+const Map = lazy(() => import('~/public/icons/map.svg'))
+const Micro = lazy(() => import('~/public/icons/micro.svg'))
+const Minus = lazy(() => import('~/public/icons/minus.svg'))
+const Okta = lazy(() => import('~/public/icons/okta.svg'))
+const Outside = lazy(() => import('~/public/icons/outside.svg'))
+const Paperclip = lazy(() => import('~/public/icons/paperclip.svg'))
+const PauseCircleFilled = lazy(() => import('~/public/icons/pause-circle-filled.svg'))
+const PauseCircleUnfilled = lazy(() => import('~/public/icons/pause-circle-unfilled.svg'))
+const Pen = lazy(() => import('~/public/icons/pen.svg'))
+const Percentage = lazy(() => import('~/public/icons/percentage.svg'))
+const Pivot = lazy(() => import('~/public/icons/pivot.svg'))
+const Play = lazy(() => import('~/public/icons/play.svg'))
+const Plug = lazy(() => import('~/public/icons/plug.svg'))
+const Plus = lazy(() => import('~/public/icons/plus.svg'))
+const Processing = lazy(() => import('~/public/icons/processing.svg'))
+const Pulse = lazy(() => import('~/public/icons/pulse.svg'))
+const Push = lazy(() => import('~/public/icons/push.svg'))
+const Puzzle = lazy(() => import('~/public/icons/puzzle.svg'))
+const QuestionCircle = lazy(() => import('~/public/icons/question-circle.svg'))
+const Reload = lazy(() => import('~/public/icons/reload.svg'))
+const Requested = lazy(() => import('~/public/icons/requested.svg'))
+const ResizeExpand = lazy(() => import('~/public/icons/resize-expand.svg'))
+const ResizeReduce = lazy(() => import('~/public/icons/resize-reduce.svg'))
+const Rocket = lazy(() => import('~/public/icons/rocket.svg'))
+const Rotate = lazy(() => import('~/public/icons/rotate.svg'))
+const Schema = lazy(() => import('~/public/icons/schema.svg'))
+const Scissor = lazy(() => import('~/public/icons/scissor.svg'))
+const Settings = lazy(() => import('~/public/icons/settings.svg'))
+const Share = lazy(() => import('~/public/icons/share.svg'))
+const Smartphone = lazy(() => import('~/public/icons/smartphone.svg'))
+const Sparkles = lazy(() => import('~/public/icons/sparkles.svg'))
+const StarFilled = lazy(() => import('~/public/icons/star-filled.svg'))
+const StarOutlinedHidden = lazy(() => import('~/public/icons/star-outlined-hidden.svg'))
+const Stop = lazy(() => import('~/public/icons/stop.svg'))
+const SwitchOff = lazy(() => import('~/public/icons/switch-off.svg'))
+const Switch = lazy(() => import('~/public/icons/switch.svg'))
+const Sync = lazy(() => import('~/public/icons/sync.svg'))
+const TableHorizontale = lazy(() => import('~/public/icons/table-horizontale.svg'))
+const Table = lazy(() => import('~/public/icons/table.svg'))
+const Target = lazy(() => import('~/public/icons/target.svg'))
+const Text = lazy(() => import('~/public/icons/text.svg'))
+const Trash = lazy(() => import('~/public/icons/trash.svg'))
+const Unlock = lazy(() => import('~/public/icons/unlock.svg'))
+const UserAdd = lazy(() => import('~/public/icons/user-add.svg'))
+const UserMultiple = lazy(() => import('~/public/icons/user-multiple.svg'))
+const User = lazy(() => import('~/public/icons/user.svg'))
+const ValidateFilled = lazy(() => import('~/public/icons/validate-filled.svg'))
+const ValidateUnfilled = lazy(() => import('~/public/icons/validate-unfilled.svg'))
+const Wallet = lazy(() => import('~/public/icons/wallet.svg'))
+const WarningFilled = lazy(() => import('~/public/icons/warning-filled.svg'))
+const WarningUnfilled = lazy(() => import('~/public/icons/warning-unfilled.svg'))
 
 export const ALL_ICONS = {
   at: At,
