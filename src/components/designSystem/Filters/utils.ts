@@ -75,6 +75,13 @@ export const formatFiltersForCreditNotesQuery = (searchParams: URLSearchParams) 
 
       const value = FILTER_VALUE_MAP[key]?.(current[1]) || current[1]
 
+      if (typeof value === 'object') {
+        return {
+          ...acc,
+          ...value,
+        }
+      }
+
       return {
         ...acc,
         [key]: value,
