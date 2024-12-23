@@ -24,7 +24,7 @@
     "translations:add": "node scripts/translations/add",
     "translations:inspect": "node scripts/translations/inspect",
     "changelog:update": "auto-changelog --template=.changelog/regular.hbs",
-    "codemod": "node scripts/codemod.cjs",
+    "codemod": "node scripts/codemod.js",
     "postinstall": "npx yarn-deduplicate",
     "bundle-analyzer": "vite-bundle-visualizer"
   },
