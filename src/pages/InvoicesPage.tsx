@@ -83,8 +83,36 @@ gql`
     }
   }
 
-  query getCreditNotesList($limit: Int, $page: Int, $searchTerm: String) {
-    creditNotes(limit: $limit, page: $page, searchTerm: $searchTerm) {
+  query getCreditNotesList(
+    $amountFrom: Int
+    $amountTo: Int
+    $creditStatus: [CreditNoteCreditStatusEnum!]
+    $currency: CurrencyEnum
+    $customerExternalId: String
+    $invoiceNumber: String
+    $issuingDateFrom: ISO8601Date
+    $issuingDateTo: ISO8601Date
+    $reason: [CreditNoteReasonEnum!]
+    $refundStatus: [CreditNoteRefundStatusEnum!]
+    $limit: Int
+    $page: Int
+    $searchTerm: String
+  ) {
+    creditNotes(
+      amountFrom: $amountFrom
+      amountTo: $amountTo
+      creditStatus: $creditStatus
+      currency: $currency
+      customerExternalId: $customerExternalId
+      invoiceNumber: $invoiceNumber
+      issuingDateFrom: $issuingDateFrom
+      issuingDateTo: $issuingDateTo
+      reason: $reason
+      refundStatus: $refundStatus
+      limit: $limit
+      page: $page
+      searchTerm: $searchTerm
+    ) {
       ...CreditNotesForTable
     }
   }
