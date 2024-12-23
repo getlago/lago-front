@@ -59,6 +59,9 @@ export const FILTER_VALUE_MAP: Partial<Record<AvailableFiltersEnum, Function>> =
   [AvailableFiltersEnum.paymentStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.invoiceType]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.status]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.creditNoteReason]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.creditNoteRefundStatus]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.creditNoteCreditStatus]: (value: string) => (value as string).split(','),
 }
 
 export const formatFiltersForCreditNotesQuery = (searchParams: URLSearchParams) => {
@@ -81,7 +84,7 @@ export const formatFiltersForCreditNotesQuery = (searchParams: URLSearchParams) 
 
       const value = FILTER_VALUE_MAP[key]?.(current[1]) || current[1]
 
-      if (typeof value === 'object') {
+      if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
         return {
           ...acc,
           ...value,
@@ -139,12 +142,14 @@ export const formatActiveFilterValueDisplay = (
       AMOUNT_INTERVALS_TRANSLATION_MAP[interval as AmountFilterInterval],
     )
 
+    const isEqual = interval === AmountFilterInterval.isEqualTo
+
     const and =
       interval === AmountFilterInterval.isBetween
         ? translate?.('text_65f8472df7593301061e27d6').toLowerCase()
         : ''
 
-    return `${intervalLabel} ${from || ''} ${and} ${to || ''}`
+    return `${intervalLabel} ${from || ''} ${and} ${isEqual ? '' : to || ''}`
   }
 
   switch (key) {
