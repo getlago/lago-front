@@ -64,6 +64,12 @@ export const FILTER_VALUE_MAP: Partial<Record<AvailableFiltersEnum, Function>> =
 export const formatFiltersForCreditNotesQuery = (searchParams: URLSearchParams) => {
   const filtersSetInUrl = Object.fromEntries(searchParams.entries())
 
+  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
+    [AvailableFiltersEnum.creditNoteReason]: 'reason',
+    [AvailableFiltersEnum.creditNoteCreditStatus]: 'creditStatus',
+    [AvailableFiltersEnum.creditNoteRefundStatus]: 'refundStatus',
+  }
+
   return Object.entries(filtersSetInUrl).reduce(
     (acc, cur) => {
       const current = cur as [AvailableFiltersEnum, string | string[] | boolean]
@@ -84,7 +90,7 @@ export const formatFiltersForCreditNotesQuery = (searchParams: URLSearchParams) 
 
       return {
         ...acc,
-        [key]: value,
+        [keyMap[key] || key]: value,
       }
     },
     {} as Record<string, string | string[] | boolean>,
