@@ -114,7 +114,7 @@ export const VolumeChargeTable = memo(
                       disableHoverListener={errorIndex !== i}
                     >
                       <TextInput
-                        resetStyle
+                        variant="outlined"
                         error={errorIndex === i}
                         value={row.toValue as number | undefined}
                         beforeChangeFormatter={['int', 'positiveNumber']}
@@ -151,7 +151,7 @@ export const VolumeChargeTable = memo(
                     </DisabledAmountCell>
                   ) : (
                     <AmountInput
-                      resetStyle
+                      variant="outlined"
                       beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                       currency={currency}
                       value={row.perUnitAmount}
@@ -184,7 +184,7 @@ export const VolumeChargeTable = memo(
                     </DisabledAmountCell>
                   ) : (
                     <AmountInput
-                      resetStyle
+                      variant="outlined"
                       beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                       currency={currency}
                       value={row.flatAmount}

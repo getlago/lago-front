@@ -4,14 +4,14 @@ import { FC, useEffect, useState } from 'react'
 import styled from 'styled-components'
 
 import {
-  Accordion,
-  Alert,
-  Button,
-  ButtonLink,
-  ChargeTable,
-  Icon,
-  Tooltip,
-  Typography,
+    Accordion,
+    Alert,
+    Button,
+    ButtonLink,
+    ChargeTable,
+    Icon,
+    Tooltip,
+    Typography,
 } from '~/components/designSystem'
 import { AmountInput, Switch, TextInput } from '~/components/form'
 import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'
@@ -168,7 +168,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
                           disableHoverListener={errorIndex !== i}
                         >
                           <AmountInput
-                            resetStyle
+                            variant="outlined"
                             error={errorIndex === i}
                             beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                             currency={currency}
@@ -201,7 +201,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
                       ),
                       content: (row, i) => (
                         <TextInput
-                          resetStyle
+                          variant="outlined"
                           placeholder={translate('text_645bb193927b375079d28ace')}
                           value={row.thresholdDisplayName ?? ''}
                           onChange={(value) => {
@@ -250,7 +250,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
                       size: 197,
                       content: (row, i) => (
                         <AmountInput
-                          resetStyle
+                          variant="outlined"
                           beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                           currency={currency}
                           value={row.amountCents}
@@ -276,7 +276,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
                       size: 197,
                       content: (row, i) => (
                         <TextInput
-                          resetStyle
+                          variant="outlined"
                           placeholder={translate('text_645bb193927b375079d28ace')}
                           value={row.thresholdDisplayName ?? ''}
                           onChange={(value) => {

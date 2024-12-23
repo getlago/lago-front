@@ -35,7 +35,7 @@ export interface TextInputProps
   description?: string
   cleanable?: boolean
   password?: boolean
-  resetStyle?: boolean
+  variant?: 'outlined' | 'default'
   value?: string | number
   beforeChangeFormatter?: ValueFormatterType[] | ValueFormatterType
   infoText?: string
@@ -133,7 +133,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
       rows,
       error,
       cleanable = false,
-      resetStyle = false,
+      variant = 'default',
       InputProps,
       type = 'text',
       password,
@@ -252,7 +252,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
             ...InputProps,
           }}
           sx={
-            resetStyle
+            variant === 'outlined'
               ? {
                   marginBottom: 0,
                   '& .MuiInputBase-formControl': {
