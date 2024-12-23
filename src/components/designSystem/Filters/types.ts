@@ -5,6 +5,13 @@ export enum AvailableQuickFilters {
   InvoiceStatus = 'invoiceStatus',
 }
 
+export enum AmountFilterInterval {
+  isBetween = 'isBetween',
+  isEqualTo = 'isEqualTo',
+  isUpTo = 'isUpTo',
+  isAtLeast = 'isAtLeast',
+}
+
 // From keyof Omit<QueryInvoicesArgs, 'page' | 'limit' | 'searchTerm'>
 export enum AvailableFiltersEnum {
   currency = 'currency',
