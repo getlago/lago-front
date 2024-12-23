@@ -24,10 +24,12 @@ import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/V
 import { SearchInput } from '~/components/SearchInput'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { INVOICES_ROUTE, INVOICES_TAB_ROUTE } from '~/core/router'
+import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CreditNoteExportTypeEnum,
   CreditNotesForTableFragmentDoc,
   CreditNoteTableItemFragmentDoc,
+  CurrencyEnum,
   InvoiceExportTypeEnum,
   InvoiceListItemFragmentDoc,
   LagoApiError,
@@ -39,6 +41,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { PageHeader, theme } from '~/styles'
 
@@ -147,9 +150,37 @@ enum InvoiceListTabEnum {
   'creditNotes' = 'creditNotes',
 }
 
+// TODO: This is a temporary workaround
+const formatAmountCurrency = (
+  filters: Record<string, string | string[] | boolean | number>,
+  amountCurrency?: CurrencyEnum | null,
+) => {
+  const _filters = {
+    ...filters,
+  }
+
+  if (_filters.amountFrom) {
+    _filters.amountFrom = serializeAmount(
+      Number(_filters.amountFrom),
+      amountCurrency || CurrencyEnum.Usd,
+    )
+  }
+
+  if (_filters.amountTo) {
+    _filters.amountTo = serializeAmount(
+      Number(_filters.amountTo),
+      amountCurrency || CurrencyEnum.Usd,
+    )
+  }
+
+  return _filters
+}
+
 const InvoicesPage = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
+  const { organization } = useOrganizationInfos()
+  const amountCurrency = organization?.defaultCurrency
   const { tab = InvoiceListTabEnum.invoices } = useParams<{ tab?: InvoiceListTabEnum }>()
   const [searchParams] = useSearchParams()
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
@@ -200,7 +231,7 @@ const InvoicesPage = () => {
     nextFetchPolicy: 'network-only',
     variables: {
       limit: 20,
-      ...filtersForCreditNotesQuery,
+      ...formatAmountCurrency(filtersForCreditNotesQuery, amountCurrency),
     },
   })
 
@@ -241,7 +272,7 @@ const InvoicesPage = () => {
 
   const onCreditNotesExport = async (values: ExportValues<CreditNoteExportTypeEnum>) => {
     const filters = {
-      ...formatFiltersForCreditNotesQuery(searchParams),
+      ...formatAmountCurrency(formatFiltersForCreditNotesQuery(searchParams), amountCurrency),
       searchTerm: variableInvoices?.searchTerm,
     }
 
