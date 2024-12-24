@@ -2754,5 +2754,6 @@
   "text_173255335844629sa49oljif": "Preview invoice",
   "text_1735045451930tezr0et3e6l": "Invoice is pending finalization.",
   "text_1735045451931zfgc6yvvcfm": "This invoice is in the queue, waiting to be finalized. It may take a bit of time. Please refresh or check back later.",
-  "text_17364422965884zgujkr1l7j": "Deleting this coupon will make it permanently unavailable and remove the applied instance. This action is irreversible. Are you sure you want to proceed?|Deleting this coupon will make it permanently unavailable and remove all {{appliedCouponsCount}} applied instances. This action is irreversible. Are you sure you want to proceed?"
+  "text_17364422965884zgujkr1l7j": "Deleting this coupon will make it permanently unavailable and remove the applied instance. This action is irreversible. Are you sure you want to proceed?|Deleting this coupon will make it permanently unavailable and remove all {{appliedCouponsCount}} applied instances. This action is irreversible. Are you sure you want to proceed?",
+  "text_1735651472114fzhjvrrcumw": "Edit a customer"
 }
