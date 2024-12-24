@@ -105,3 +105,7 @@ export const buildSalesforceUrl = ({
 
   return `${baseUrl}/${externalCustomerId}`
 }
+
+export const buildStripeCustomerUrl = (stripeCustomerId: string) => {
+  return `https://dashboard.stripe.com/customers/${stripeCustomerId}`
+}

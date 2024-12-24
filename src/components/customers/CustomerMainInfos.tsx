@@ -12,6 +12,7 @@ import {
   buildHubspotObjectUrl,
   buildNetsuiteCustomerUrl,
   buildSalesforceUrl,
+  buildStripeCustomerUrl,
   buildXeroCustomerUrl,
 } from '~/core/constants/externalUrls'
 import { getTargetedObjectTranslationKey } from '~/core/constants/form'
@@ -463,7 +464,23 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
               <Typography color="grey700">{linkedProvider?.name}</Typography>
             </Stack>
             {!!providerCustomer && !!providerCustomer?.providerCustomerId && (
-              <Typography color="textSecondary">{providerCustomer?.providerCustomerId}</Typography>
+              <>
+                {paymentProvider === ProviderTypeEnum?.Stripe ? (
+                  <InlineLink
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    to={buildStripeCustomerUrl(providerCustomer?.providerCustomerId)}
+                  >
+                    <Typography className="flex items-center gap-1" color="info600">
+                      {providerCustomer?.providerCustomerId} <Icon name="outside" />
+                    </Typography>
+                  </InlineLink>
+                ) : (
+                  <Typography color="textSecondary">
+                    {providerCustomer?.providerCustomerId}
+                  </Typography>
+                )}
+              </>
             )}
             {paymentProvider === ProviderTypeEnum?.Stripe &&
               !!providerCustomer?.providerPaymentMethods?.length && (
@@ -502,7 +519,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                     customer?.netsuiteCustomer?.externalCustomerId,
                   )}
                 >
-                  <Typography color="info600">
+                  <Typography className="flex items-center gap-1" color="info600">
                     {customer?.netsuiteCustomer?.externalCustomerId} <Icon name="outside" />
                   </Typography>
                 </InlineLink>
@@ -532,7 +549,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                   rel="noopener noreferrer"
                   to={buildXeroCustomerUrl(customer?.xeroCustomer?.externalCustomerId)}
                 >
-                  <Typography color="info600">
+                  <Typography className="flex items-center gap-1" color="info600">
                     {customer?.xeroCustomer?.externalCustomerId} <Icon name="outside" />
                   </Typography>
                 </InlineLink>
@@ -567,7 +584,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                         customer?.anrokCustomer?.externalCustomerId,
                       )}
                     >
-                      <Typography color="info600">
+                      <Typography className="flex items-center gap-1" color="info600">
                         {customer?.anrokCustomer?.externalCustomerId} <Icon name="outside" />
                       </Typography>
                     </InlineLink>
@@ -648,7 +665,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                         externalCustomerId: customer.salesforceCustomer.externalCustomerId,
                       })}
                     >
-                      <Typography color="info600">
+                      <Typography className="flex items-center gap-1" color="info600">
                         {customer?.salesforceCustomer?.externalCustomerId} <Icon name="outside" />
                       </Typography>
                     </InlineLink>
@@ -725,6 +742,7 @@ const MetadataValue = styled(Typography)`
 const InlineLink = styled(Link)`
   width: fit-content;
   line-break: anywhere;
+  box-shadow: none;
 
   &:hover {
     text-decoration: none;
