@@ -18,6 +18,7 @@ import {
   InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
+  InvoiceTaxStatusTypeEnum,
   LagoApiError,
   TimezoneEnum,
   useDownloadInvoiceItemMutation,
@@ -38,6 +39,7 @@ gql`
   fragment InvoiceListItem on Invoice {
     id
     status
+    taxStatus
     paymentStatus
     paymentOverdue
     number
@@ -208,7 +210,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
               key: 'number',
               minWidth: 160,
               title: translate('text_63ac86d797f728a87b2f9fad'),
-              content: (invoice) => invoice.number,
+              content: (invoice) => invoice.number || '-',
             },
             {
               key: 'totalAmountCents',
@@ -217,7 +219,11 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
               minWidth: 160,
               title: translate('text_63ac86d797f728a87b2f9fb9'),
               content: (invoice) => {
-                if (invoice.status === InvoiceStatusTypeEnum.Failed) return '-'
+                if (
+                  invoice.status === InvoiceStatusTypeEnum.Failed ||
+                  invoice.taxStatus === InvoiceTaxStatusTypeEnum.Pending
+                )
+                  return '-'
 
                 const currency = invoice.currency || CurrencyEnum.Usd
                 const amount = deserializeAmount(invoice.totalAmountCents, currency)
@@ -295,13 +301,19 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
             },
           ]}
           actionColumn={(invoice) => {
-            const { status, paymentStatus, voidable } = invoice
+            const { status, paymentStatus, voidable, taxStatus } = invoice
 
             const canDownload =
-              ![InvoiceStatusTypeEnum.Draft, InvoiceStatusTypeEnum.Failed].includes(status) &&
+              ![
+                InvoiceStatusTypeEnum.Draft,
+                InvoiceStatusTypeEnum.Failed,
+                InvoiceStatusTypeEnum.Pending,
+              ].includes(status) &&
+              taxStatus !== InvoiceTaxStatusTypeEnum.Pending &&
               hasPermissions(['invoicesView'])
             const canFinalize =
-              ![InvoiceStatusTypeEnum.Failed].includes(status) && hasPermissions(['invoicesUpdate'])
+              ![InvoiceStatusTypeEnum.Failed, InvoiceStatusTypeEnum.Pending].includes(status) &&
+              hasPermissions(['invoicesUpdate'])
             const canRetryCollect =
               status === InvoiceStatusTypeEnum.Finalized &&
               [InvoicePaymentStatusTypeEnum.Failed, InvoicePaymentStatusTypeEnum.Pending].includes(
@@ -313,7 +325,10 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 InvoiceStatusTypeEnum.Draft,
                 InvoiceStatusTypeEnum.Voided,
                 InvoiceStatusTypeEnum.Failed,
-              ].includes(status) && hasPermissions(['invoicesUpdate'])
+                InvoiceStatusTypeEnum.Pending,
+              ].includes(status) &&
+              taxStatus !== InvoiceTaxStatusTypeEnum.Pending &&
+              hasPermissions(['invoicesUpdate'])
             const canVoid =
               status === InvoiceStatusTypeEnum.Finalized &&
               [InvoicePaymentStatusTypeEnum.Pending, InvoicePaymentStatusTypeEnum.Failed].includes(

@@ -10,6 +10,7 @@ import {
   CurrencyEnum,
   InvoiceForDetailsTableFooterFragment,
   InvoiceStatusTypeEnum,
+  InvoiceTaxStatusTypeEnum,
   InvoiceTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -24,6 +25,7 @@ gql`
     currency
     invoiceType
     status
+    taxStatus
     prepaidCreditAmountCents
     progressiveBillingCreditAmountCents
     versionNumber
@@ -354,7 +356,7 @@ export const InvoiceDetailsTableFooter = memo(
               <Alert type="info">{translate('text_63b6f4e9b074e3b8beebb97f')}</Alert>
             </NoShadowTD>
           </tr>
-        ) : hasTaxProviderError ? (
+        ) : hasTaxProviderError || invoice.taxStatus === InvoiceTaxStatusTypeEnum.Pending ? (
           <tr>
             <td></td>
             <NoShadowTD colSpan={4}>

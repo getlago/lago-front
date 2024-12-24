@@ -1199,7 +1199,7 @@
   "text_63ac86d797f728a87b2f9fb9": "Amount",
   "text_63ac86d797f728a87b2f9fbf": "Issuing date",
   "text_63b5d225b075850e0fe489f4": "Payment",
-  "text_63ac86d897f728a87b2fa031": "Copy invoice_id",
+  "text_63ac86d897f728a87b2fa031": "Copy invoice id",
   "text_63ac86d897f728a87b2fa0b0": "Invoice ID copied to clipboard",
   "text_63ac86d897f728a87b2fa039": "Resend for collection",
   "text_63ac86d897f728a87b2fa0b3": "Invoice successfully re-sent for collection",
@@ -1434,7 +1434,7 @@
   "text_63b6f4e9b074e3b8beebb97f": "Coupons, prepaid credits and credit notes will impact the invoice once it’s finalized.",
   "text_634687079be251fdb438338f": "Actions",
   "text_634687079be251fdb4383395": "Download invoice",
-  "text_634687079be251fdb438339b": "Copy invoice_id",
+  "text_634687079be251fdb438339b": "Copy invoice id",
   "text_634687079be251fdb43833ad": "for {{totalAmount}}",
   "text_634687079be251fdb43833b7": "Overview",
   "text_634687079be251fdb43833b9": "Download invoice",
@@ -2734,5 +2734,7 @@
   "text_1734774653389kvylgxjiltu": "Is between",
   "text_1734774653389pt3rhh3lspa": "Is equal to",
   "text_1734792781750cot2uyp6f1x": "Is up to",
-  "text_17347927817503hromltntvm": "Is at least"
+  "text_17347927817503hromltntvm": "Is at least",
+  "text_1735045451930tezr0et3e6l": "Invoice is pending finalization.",
+  "text_1735045451931zfgc6yvvcfm": "This invoice is in the queue, waiting to be finalized. It may take a bit of time. Please refresh or check back later."
 }

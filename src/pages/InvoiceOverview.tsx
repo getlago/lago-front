@@ -39,6 +39,7 @@ import {
   HubspotIntegrationInfosForInvoiceOverviewFragment,
   Invoice,
   InvoiceStatusTypeEnum,
+  InvoiceTaxStatusTypeEnum,
   NetsuiteIntegrationInfosForInvoiceOverviewFragment,
   RefreshInvoiceMutationFn,
   RetryInvoiceMutationFn,
@@ -57,6 +58,7 @@ gql`
     id
     invoiceType
     status
+    taxStatus
     issuingDate
     externalIntegrationId
     taxProviderVoidable
@@ -219,6 +221,8 @@ const InvoiceOverview = memo(
       showHubspotSection ||
       showSalesforceSection
 
+    const isTaxStatusPending = invoice?.taxStatus === InvoiceTaxStatusTypeEnum.Pending
+
     return (
       <>
         <SectionHeader variant="subhead">
@@ -229,7 +233,7 @@ const InvoiceOverview = memo(
                 <Button
                   variant="quaternary"
                   startIcon="reload"
-                  disabled={loading || loadingRefreshInvoice}
+                  disabled={loading || loadingRefreshInvoice || isTaxStatusPending}
                   onClick={async () => {
                     await refreshInvoice()
                   }}
@@ -238,7 +242,7 @@ const InvoiceOverview = memo(
                 </Button>
                 <Button
                   variant="quaternary"
-                  disabled={loading}
+                  disabled={loading || isTaxStatusPending}
                   onClick={() => {
                     finalizeInvoiceRef.current?.openDialog(invoice, goToPreviousRoute)
                   }}
@@ -249,7 +253,7 @@ const InvoiceOverview = memo(
             ) : hasTaxProviderError ? (
               <Button
                 variant="quaternary"
-                disabled={loading || loadingRetryInvoice}
+                disabled={loading || loadingRetryInvoice || isTaxStatusPending}
                 onClick={async () => {
                   await retryInvoice()
                 }}
@@ -261,7 +265,7 @@ const InvoiceOverview = memo(
               !loading && (
                 <Button
                   variant="quaternary"
-                  disabled={loadingInvoiceDownload}
+                  disabled={loadingInvoiceDownload || isTaxStatusPending}
                   onClick={async () => {
                     await downloadInvoice({
                       variables: { input: { id: invoiceId || '' } },
