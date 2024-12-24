@@ -76,6 +76,7 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
         InvoiceStatusTypeEnum.Finalized,
         InvoiceStatusTypeEnum.Voided,
         InvoiceStatusTypeEnum.Failed,
+        InvoiceStatusTypeEnum.Pending,
       ],
     },
     notifyOnNetworkStatusChange: true,

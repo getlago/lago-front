@@ -15,6 +15,8 @@ export const invoiceStatusMapping = ({
       return { label: 'finalized', type: StatusType.success }
     case InvoiceStatusTypeEnum.Voided:
       return { label: 'voided', type: StatusType.disabled }
+    case InvoiceStatusTypeEnum.Pending:
+      return { label: 'pending', type: StatusType.default }
     default:
       return { label: 'n/a', type: StatusType.default }
   }
