@@ -1,10 +1,9 @@
 import { useRef, useState } from 'react'
-import styled from 'styled-components'
 
 import { Avatar, Button, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 interface OrganizationLogoPickerProps {
   logoValue?: string
@@ -43,7 +42,7 @@ export const OrganizationLogoPicker = ({
   }
 
   return (
-    <Container className={className}>
+    <div className={tw('flex gap-4', className)}>
       {logoValue || organization?.logoUrl ? (
         <Avatar size="large" variant="connector">
           <img
@@ -61,7 +60,7 @@ export const OrganizationLogoPicker = ({
             .reduce((acc, n) => (acc = acc + n[0]), '')}
         />
       )}
-      <AvatarUploadWrapper>
+      <div className="flex flex-col gap-2">
         <Button
           className="w-fit"
           variant="secondary"
@@ -74,8 +73,9 @@ export const OrganizationLogoPicker = ({
             ? translate('text_62ab2d0396dd6b0361614d1e')
             : translate('text_62ab2d0396dd6b0361614d20')}
         </Typography>
-      </AvatarUploadWrapper>
-      <HiddenInput
+      </div>
+      <input
+        className="hidden"
         type="file"
         accept="image/png, image/jpeg"
         ref={hiddenFileInputRef}
@@ -88,27 +88,6 @@ export const OrganizationLogoPicker = ({
           }
         }}
       />
-    </Container>
+    </div>
   )
 }
-
-const Container = styled.div`
-  display: flex;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(4)};
-  }
-`
-
-const AvatarUploadWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-
-  > button {
-    margin-bottom: ${theme.spacing(2)};
-  }
-`
-
-const HiddenInput = styled.input`
-  display: none;
-`
