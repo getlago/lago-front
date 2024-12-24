@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { array, boolean, number, object, string } from 'yup'
 
-import { Alert, Button, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { Alert, Button, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInputField, ComboBoxField, SwitchField, TextInputField } from '~/components/form'
+import { CenteredPage } from '~/components/layouts/Pages'
 import {
   DefaultCampaignDialog,
   DefaultCampaignDialogRef,
@@ -25,7 +26,7 @@ import {
   useCreateEditDunningCampaign,
 } from '~/hooks/useCreateEditDunningCampaign'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { PageHeader } from '~/styles'
+import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 const CreateDunning = () => {
   const {
@@ -128,8 +129,8 @@ const CreateDunning = () => {
 
   return (
     <>
-      <div>
-        <PageHeader>
+      <CenteredPage.Wrapper>
+        <CenteredPage.Header>
           <Typography variant="bodyHl" color="textSecondary" noWrap>
             {translate(
               isEdition ? 'text_17322041874138xkertqxbqz' : 'text_17285840281865oxs4lxfs6j',
@@ -142,34 +143,18 @@ const CreateDunning = () => {
               formikProps.dirty ? warningDirtyAttributesDialogRef.current?.openDialog() : onClose()
             }
           />
-        </PageHeader>
+        </CenteredPage.Header>
 
-        {loading ? (
-          <div className="container mx-auto mb-15 mt-12 flex flex-col gap-12">
-            <div>
-              <Skeleton variant="text" className="mb-4 w-40" />
-              <Skeleton variant="text" className="w-100" />
-            </div>
-            {[0, 1].map((_, index) => (
-              <div key={`loading-${index}`}>
-                <div className="flex flex-col gap-5 pb-12 shadow-b">
-                  <Skeleton variant="text" className="w-40" />
-                  <Skeleton variant="text" className="w-100" />
-                  <Skeleton variant="text" className="w-74" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <>
-            <div className="container mx-auto mb-15 mt-12">
+        <CenteredPage.Container>
+          {loading ? (
+            <FormLoadingSkeleton id="create-dunning" />
+          ) : (
+            <>
               {isEdition && (
-                <Alert type="warning" className="mb-12">
-                  {translate('text_1732187313660ghhrj235mxg')}
-                </Alert>
+                <Alert type="warning">{translate('text_1732187313660ghhrj235mxg')}</Alert>
               )}
 
-              <div className="mb-12 not-last-child:mb-1">
+              <div className="not-last-child:mb-1">
                 <Typography variant="headline" color="textSecondary">
                   {translate('text_1728584028187fg2ebhssz6r')}
                 </Typography>
@@ -378,36 +363,35 @@ const CreateDunning = () => {
                   />
                 </section>
               </div>
-            </div>
+            </>
+          )}
+        </CenteredPage.Container>
 
-            <footer className="sticky bottom-0 mt-20 flex h-20 border border-grey-200 bg-white">
-              <div className="container mx-auto flex h-full items-center justify-end">
-                <div className="flex items-center gap-6">
-                  <Button
-                    variant="quaternary"
-                    onClick={() =>
-                      formikProps.dirty
-                        ? warningDirtyAttributesDialogRef.current?.openDialog()
-                        : navigate(DUNNINGS_SETTINGS_ROUTE)
-                    }
-                  >
-                    {translate('text_6411e6b530cb47007488b027')}
-                  </Button>
-                  <Button
-                    variant="primary"
-                    disabled={!formikProps.isValid || !formikProps.dirty}
-                    onClick={onSubmit}
-                  >
-                    {translate(
-                      isEdition ? 'text_17295436903260tlyb1gp1i7' : 'text_1728584028187oqpu20oxuxq',
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </footer>
-          </>
-        )}
-      </div>
+        <CenteredPage.StickyFooter>
+          <Button
+            variant="quaternary"
+            size="large"
+            onClick={() =>
+              formikProps.dirty
+                ? warningDirtyAttributesDialogRef.current?.openDialog()
+                : navigate(DUNNINGS_SETTINGS_ROUTE)
+            }
+          >
+            {translate('text_6411e6b530cb47007488b027')}
+          </Button>
+          <Button
+            variant="primary"
+            size="large"
+            disabled={!formikProps.isValid || !formikProps.dirty}
+            onClick={onSubmit}
+          >
+            {translate(
+              isEdition ? 'text_17295436903260tlyb1gp1i7' : 'text_1728584028187oqpu20oxuxq',
+            )}
+          </Button>
+        </CenteredPage.StickyFooter>
+      </CenteredPage.Wrapper>
+
       <WarningDialog
         ref={warningDirtyAttributesDialogRef}
         title={translate('text_6244277fe0975300fe3fb940')}
