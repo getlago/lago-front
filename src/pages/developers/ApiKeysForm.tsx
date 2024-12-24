@@ -22,6 +22,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 export const STATE_KEY_ID_TO_REVEAL = 'keyIdToReveal'
 
@@ -207,22 +208,7 @@ const ApiKeysForm = () => {
 
         <CenteredPage.Container>
           {apiKeyLoading ? (
-            <>
-              <div className="flex flex-col gap-1">
-                <Skeleton className="w-40" variant="text" textVariant="headline" />
-                <Skeleton className="w-100" variant="text" />
-              </div>
-              {[0, 1].map((_, index) => (
-                <div
-                  key={`api-key-form-loading-block-${index}`}
-                  className="flex flex-col gap-1 pb-12 shadow-b"
-                >
-                  <Skeleton className="w-40" variant="text" />
-                  <Skeleton className="w-100" variant="text" />
-                  <Skeleton className="w-74" variant="text" />
-                </div>
-              ))}
-            </>
+            <FormLoadingSkeleton id="apiKeys" />
           ) : (
             <>
               <div className="flex flex-col gap-1">

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { array, boolean, number, object, string } from 'yup'
 
-import { Alert, Button, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { Alert, Button, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInputField, ComboBoxField, SwitchField, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/Pages'
 import {
@@ -26,6 +26,7 @@ import {
   useCreateEditDunningCampaign,
 } from '~/hooks/useCreateEditDunningCampaign'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 const CreateDunning = () => {
   const {
@@ -146,21 +147,7 @@ const CreateDunning = () => {
 
         <CenteredPage.Container>
           {loading ? (
-            <>
-              <div className="flex flex-col gap-1">
-                <Skeleton className="w-40" variant="text" textVariant="headline" />
-                <Skeleton className="w-100" variant="text" />
-              </div>
-              {[0, 1].map((_, index) => (
-                <div key={`loading-${index}`}>
-                  <div className="flex flex-col gap-1 pb-12 shadow-b">
-                    <Skeleton variant="text" className="w-40" />
-                    <Skeleton variant="text" className="w-100" />
-                    <Skeleton variant="text" className="w-74" />
-                  </div>
-                </div>
-              ))}
-            </>
+            <FormLoadingSkeleton id="create-dunning" />
           ) : (
             <>
               {isEdition && (

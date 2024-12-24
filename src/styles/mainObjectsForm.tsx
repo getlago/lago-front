@@ -3,7 +3,7 @@
 // Parts about spacing between elements should be moved to the components themselves
 import styled from 'styled-components'
 
-import { Typography } from '~/components/designSystem'
+import { Skeleton, Typography } from '~/components/designSystem'
 
 import { NAV_HEIGHT, theme } from './muiTheme'
 
@@ -117,3 +117,25 @@ export const SectionTitle = styled(Typography)`
     margin-bottom: ${theme.spacing(3)};
   }
 `
+
+export const FormLoadingSkeleton = ({ id, length = 2 }: { id: string; length?: number }) => {
+  const array = Array.from({ length }, (_, index) => index)
+
+  return (
+    <>
+      <div className="flex flex-col gap-1">
+        <Skeleton className="w-40" variant="text" textVariant="headline" />
+        <Skeleton className="w-100" variant="text" />
+      </div>
+      {array.map((_, index) => (
+        <div key={`${id}-${index}`}>
+          <div className="flex flex-col gap-1 pb-12 shadow-b">
+            <Skeleton variant="text" className="w-40" />
+            <Skeleton variant="text" className="w-100" />
+            <Skeleton variant="text" className="w-74" />
+          </div>
+        </div>
+      ))}
+    </>
+  )
+}
