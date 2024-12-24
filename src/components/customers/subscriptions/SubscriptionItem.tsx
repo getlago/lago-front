@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
-import { RefObject } from 'react'
-import styled from 'styled-components'
+import { PropsWithChildren, RefObject } from 'react'
 
 import { Skeleton, Typography } from '~/components/designSystem'
 import {
@@ -11,7 +10,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, theme } from '~/styles'
 
 import { SubscriptionLine } from './SubscriptionLine'
 import { TerminateCustomerSubscriptionDialogRef } from './TerminateCustomerSubscriptionDialog'
@@ -40,6 +38,12 @@ gql`
 
   ${SubscriptionLinePlanFragmentDoc}
 `
+
+const DateInfos = ({ children }: PropsWithChildren) => (
+  <Typography variant="caption" className="flex h-12 items-center justify-end px-4">
+    {children}
+  </Typography>
+)
 
 interface SubscriptionItemProps {
   subscription: SubscriptionItemFragment
@@ -74,7 +78,10 @@ export const SubscriptionItem = ({
   if (!subscription) return null
 
   return (
-    <SubscriptionContainer key={id}>
+    <div
+      className="rounded-xl border border-solid border-grey-400 not-last-child:shadow-b"
+      key={id}
+    >
       {isDowngrading && (
         <SubscriptionLine
           terminateSubscriptionDialogRef={terminateSubscriptionDialogRef}
@@ -102,28 +109,28 @@ export const SubscriptionItem = ({
         customerTimezone={customerTimezone}
       />
       {isDowngrading ? (
-        <DateInfos variant="caption">
+        <DateInfos>
           {translate('text_62681c60582e4f00aa82938a', {
             planName: nextPlan?.name,
             dateStartNewPlan: !nextPendingStartDate ? '-' : formatTimeOrgaTZ(nextPendingStartDate),
           })}
         </DateInfos>
       ) : isPending ? (
-        <DateInfos variant="caption">
+        <DateInfos>
           {translate('text_6335e50b0b089e1d8ed50960', {
             planName: plan?.name,
             startDate: formatTimeOrgaTZ(subscriptionAt),
           })}
         </DateInfos>
       ) : hasEndingAtForActive ? (
-        <DateInfos variant="caption">
+        <DateInfos>
           {translate('text_64ef55a730b88e3d2117b44e', {
             planName: plan?.name,
             date: formatTimeOrgaTZ(endingAt),
           })}
         </DateInfos>
       ) : null}
-    </SubscriptionContainer>
+    </div>
   )
 }
 
@@ -131,38 +138,12 @@ SubscriptionItem.displayName = 'SubscriptionItem'
 
 export const SubscriptionItemSkeleton = () => {
   return (
-    <SkeletonItem>
+    <div className="flex h-18 items-center rounded-xl border border-solid border-grey-400 px-4">
       <Skeleton variant="connectorAvatar" size="big" className="mr-3" />
       <div>
         <Skeleton variant="text" className="mb-3 w-60" />
         <Skeleton variant="text" className="w-30" />
       </div>
-    </SkeletonItem>
+    </div>
   )
 }
-
-const SkeletonItem = styled.div`
-  border: 1px solid ${theme.palette.grey[400]};
-  height: ${NAV_HEIGHT}px;
-  align-items: center;
-  display: flex;
-  padding: 0 ${theme.spacing(4)};
-  border-radius: 12px;
-`
-
-const SubscriptionContainer = styled.div`
-  border: 1px solid ${theme.palette.grey[400]};
-  border-radius: 12px;
-
-  > *:not(:last-child) {
-    box-shadow: ${theme.shadows[7]};
-  }
-`
-
-const DateInfos = styled(Typography)`
-  height: ${HEADER_TABLE_HEIGHT}px;
-  display: flex;
-  align-items: center;
-  justify-content: end;
-  padding: 0 ${theme.spacing(4)};
-`
