@@ -4,14 +4,14 @@ import { FC, useEffect, useState } from 'react'
 import styled from 'styled-components'
 
 import {
-    Accordion,
-    Alert,
-    Button,
-    ButtonLink,
-    ChargeTable,
-    Icon,
-    Tooltip,
-    Typography,
+  Accordion,
+  Alert,
+  Button,
+  ButtonLink,
+  ChargeTable,
+  Icon,
+  Tooltip,
+  Typography,
 } from '~/components/designSystem'
 import { AmountInput, Switch, TextInput } from '~/components/form'
 import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'

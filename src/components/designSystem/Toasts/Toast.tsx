@@ -19,7 +19,7 @@ interface ToastRef {
 const AUTO_DISMISS_TIME = 6000
 
 const containerStyles = cva(
-  'mt-4 box-border flex max-h-[300px] w-fit max-w-[360px] animate-enter items-center justify-start overflow-hidden rounded-xl px-4 py-3 text-white transition-all delay-[0ms] duration-[250ms] ease-in-out',
+  'mt-4 box-border flex max-h-[300px] w-fit max-w-[360px] animate-enter items-center justify-start overflow-hidden rounded-xl px-4 py-3 text-white transition-all delay-[0ms] duration-250 ease-in-out',
   {
     variants: {
       severity: {
