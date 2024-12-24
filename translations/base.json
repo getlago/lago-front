@@ -639,9 +639,9 @@
   "text_62e0ee200a543924c8f67759": "Looks like there are no available credits, please top up this wallet. If you already did, it can take some time to be updated.",
   "text_62e0ee200a543924c8f6775d": "Top up credits",
   "text_62e161ceb87c201025388aa2": "Edit wallet",
-  "text_62e161ceb87c201025388ada": "Top up credits",
   "text_62e161ceb87c201025388ade": "Terminate wallet",
   "text_62e257c032ae895bbfead62e": "Wallet successfully terminated",
+  "text_62e161ceb87c201025388ada": "Top up credits",
   "text_62e2a2f2a79d60429eff3035": "Terminated",
   "text_62e79671d23ae6ff149de924": "Top up credits to this customer",
   "text_62e79671d23ae6ff149de928": "A new invoice will be generated for each top up. The credits granted will be added to the available balance once the invoice is paid.",
@@ -2753,5 +2753,7 @@
   "text_1732634307286joro3vhe88v": "This change will remove these invoice custom section as the default option for the organization. All customers currently using it will be affected. These details will no longer appear on their future invoices. Are you sure you want to proceed?",
   "text_1733841825248s6mxx67rsw7": "Edit invoice custom section",
   "text_17338418252493b2rz0ks49m": "Invoice custom section successfully created",
-  "text_1733841825249i5g7vr4gnzo": "Invoice custom section successfully edited"
+  "text_1733841825249i5g7vr4gnzo": "Invoice custom section successfully edited",
+  "text_17326350108761jc0z8eusa8": "Invoice preview",
+  "text_173255335844629sa49oljif": "Preview invoice"
 }

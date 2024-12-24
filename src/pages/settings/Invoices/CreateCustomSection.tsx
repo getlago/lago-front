@@ -10,6 +10,10 @@ import {
   DefaultCustomSectionDialog,
   DefaultCustomSectionDialogRef,
 } from '~/components/settings/invoices/DefaultCustomSectionDialog'
+import {
+  PreviewCustomSectionDrawer,
+  PreviewCustomSectionDrawerRef,
+} from '~/components/settings/invoices/PreviewCustomSectionDrawer'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { INVOICE_SETTINGS_ROUTE } from '~/core/router'
 import { CreateInvoiceCustomSectionInput } from '~/generated/graphql'
@@ -23,6 +27,7 @@ const CreateInvoiceCustomSection = () => {
 
   const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
   const defaultCustomSectionDialogRef = useRef<DefaultCustomSectionDialogRef>(null)
+  const previewCustomSectionDrawerRef = useRef<PreviewCustomSectionDrawerRef>(null)
 
   const { loading, isEdition, invoiceCustomSection, onSave } = useCreateEditInvoiceCustomSection()
 
@@ -187,6 +192,18 @@ const CreateInvoiceCustomSection = () => {
                     rows="3"
                     multiline
                   />
+                  <Button
+                    startIcon="eye"
+                    variant="quaternary"
+                    onClick={() =>
+                      previewCustomSectionDrawerRef.current?.openDrawer({
+                        displayName: formikProps.values.displayName,
+                        details: formikProps.values.details,
+                      })
+                    }
+                  >
+                    {translate('text_173255335844629sa49oljif')}
+                  </Button>
                 </section>
 
                 <section className="not-last-child:mb-6">
@@ -235,6 +252,7 @@ const CreateInvoiceCustomSection = () => {
         onContinue={() => navigate(INVOICE_SETTINGS_ROUTE)}
       />
       <DefaultCustomSectionDialog ref={defaultCustomSectionDialogRef} />
+      <PreviewCustomSectionDrawer ref={previewCustomSectionDrawerRef} />
     </>
   )
 }
