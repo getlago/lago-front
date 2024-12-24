@@ -7890,6 +7890,11 @@ export type UpdateOrganizationInvoiceTemplateMutationVariables = Exact<{
 
 export type UpdateOrganizationInvoiceTemplateMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, invoiceFooter?: string | null } | null } | null };
 
+export type GetOrganizationCustomFooterForInvoiceQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetOrganizationCustomFooterForInvoiceQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', invoiceFooter?: string | null } | null } | null };
+
 export type CreateInviteMutationVariables = Exact<{
   input: CreateInviteInput;
 }>;
@@ -8195,6 +8200,29 @@ export type UpdateDunningCampaignMutationVariables = Exact<{
 
 
 export type UpdateDunningCampaignMutation = { __typename?: 'Mutation', updateDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string, description?: string | null, daysBetweenAttempts: number, maxAttempts: number, appliedToOrganization: boolean, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', amountCents: any, currency: CurrencyEnum }> } | null };
+
+export type InvoiceCustomSectionFormFragment = { __typename?: 'InvoiceCustomSection', name: string, code: string, description?: string | null, details?: string | null, displayName?: string | null, selected: boolean };
+
+export type GetSingleInvoiceCustomSectionQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetSingleInvoiceCustomSectionQuery = { __typename?: 'Query', invoiceCustomSection: { __typename?: 'InvoiceCustomSection', id: string, name: string, code: string, description?: string | null, details?: string | null, displayName?: string | null, selected: boolean } };
+
+export type CreateInvoiceCustomSectionMutationVariables = Exact<{
+  input: CreateInvoiceCustomSectionInput;
+}>;
+
+
+export type CreateInvoiceCustomSectionMutation = { __typename?: 'Mutation', createInvoiceCustomSection?: { __typename?: 'InvoiceCustomSection', id: string, name: string, code: string, description?: string | null, details?: string | null, displayName?: string | null, selected: boolean } | null };
+
+export type UpdateInvoiceCustomSectionMutationVariables = Exact<{
+  input: UpdateInvoiceCustomSectionInput;
+}>;
+
+
+export type UpdateInvoiceCustomSectionMutation = { __typename?: 'Mutation', updateInvoiceCustomSection?: { __typename?: 'InvoiceCustomSection', id: string, name: string, code: string, description?: string | null, details?: string | null, displayName?: string | null, selected: boolean } | null };
 
 export type TaxFormFragment = { __typename?: 'Tax', id: string, code: string, description?: string | null, name: string, rate: number, customersCount: number };
 
@@ -10479,6 +10507,16 @@ export const DunningCampaignFormFragmentDoc = gql`
   daysBetweenAttempts
   maxAttempts
   appliedToOrganization
+}
+    `;
+export const InvoiceCustomSectionFormFragmentDoc = gql`
+    fragment InvoiceCustomSectionForm on InvoiceCustomSection {
+  name
+  code
+  description
+  details
+  displayName
+  selected
 }
     `;
 export const TaxFormFragmentDoc = gql`
@@ -18831,6 +18869,47 @@ export function useUpdateOrganizationInvoiceTemplateMutation(baseOptions?: Apoll
 export type UpdateOrganizationInvoiceTemplateMutationHookResult = ReturnType<typeof useUpdateOrganizationInvoiceTemplateMutation>;
 export type UpdateOrganizationInvoiceTemplateMutationResult = Apollo.MutationResult<UpdateOrganizationInvoiceTemplateMutation>;
 export type UpdateOrganizationInvoiceTemplateMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationInvoiceTemplateMutation, UpdateOrganizationInvoiceTemplateMutationVariables>;
+export const GetOrganizationCustomFooterForInvoiceDocument = gql`
+    query GetOrganizationCustomFooterForInvoice {
+  organization {
+    billingConfiguration {
+      invoiceFooter
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetOrganizationCustomFooterForInvoiceQuery__
+ *
+ * To run a query within a React component, call `useGetOrganizationCustomFooterForInvoiceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationCustomFooterForInvoiceQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrganizationCustomFooterForInvoiceQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetOrganizationCustomFooterForInvoiceQuery(baseOptions?: Apollo.QueryHookOptions<GetOrganizationCustomFooterForInvoiceQuery, GetOrganizationCustomFooterForInvoiceQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetOrganizationCustomFooterForInvoiceQuery, GetOrganizationCustomFooterForInvoiceQueryVariables>(GetOrganizationCustomFooterForInvoiceDocument, options);
+      }
+export function useGetOrganizationCustomFooterForInvoiceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrganizationCustomFooterForInvoiceQuery, GetOrganizationCustomFooterForInvoiceQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetOrganizationCustomFooterForInvoiceQuery, GetOrganizationCustomFooterForInvoiceQueryVariables>(GetOrganizationCustomFooterForInvoiceDocument, options);
+        }
+export function useGetOrganizationCustomFooterForInvoiceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationCustomFooterForInvoiceQuery, GetOrganizationCustomFooterForInvoiceQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetOrganizationCustomFooterForInvoiceQuery, GetOrganizationCustomFooterForInvoiceQueryVariables>(GetOrganizationCustomFooterForInvoiceDocument, options);
+        }
+export type GetOrganizationCustomFooterForInvoiceQueryHookResult = ReturnType<typeof useGetOrganizationCustomFooterForInvoiceQuery>;
+export type GetOrganizationCustomFooterForInvoiceLazyQueryHookResult = ReturnType<typeof useGetOrganizationCustomFooterForInvoiceLazyQuery>;
+export type GetOrganizationCustomFooterForInvoiceSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationCustomFooterForInvoiceSuspenseQuery>;
+export type GetOrganizationCustomFooterForInvoiceQueryResult = Apollo.QueryResult<GetOrganizationCustomFooterForInvoiceQuery, GetOrganizationCustomFooterForInvoiceQueryVariables>;
 export const CreateInviteDocument = gql`
     mutation createInvite($input: CreateInviteInput!) {
   createInvite(input: $input) {
@@ -20226,6 +20305,115 @@ export function useUpdateDunningCampaignMutation(baseOptions?: Apollo.MutationHo
 export type UpdateDunningCampaignMutationHookResult = ReturnType<typeof useUpdateDunningCampaignMutation>;
 export type UpdateDunningCampaignMutationResult = Apollo.MutationResult<UpdateDunningCampaignMutation>;
 export type UpdateDunningCampaignMutationOptions = Apollo.BaseMutationOptions<UpdateDunningCampaignMutation, UpdateDunningCampaignMutationVariables>;
+export const GetSingleInvoiceCustomSectionDocument = gql`
+    query getSingleInvoiceCustomSection($id: ID!) {
+  invoiceCustomSection(id: $id) {
+    id
+    ...InvoiceCustomSectionForm
+  }
+}
+    ${InvoiceCustomSectionFormFragmentDoc}`;
+
+/**
+ * __useGetSingleInvoiceCustomSectionQuery__
+ *
+ * To run a query within a React component, call `useGetSingleInvoiceCustomSectionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSingleInvoiceCustomSectionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSingleInvoiceCustomSectionQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetSingleInvoiceCustomSectionQuery(baseOptions: Apollo.QueryHookOptions<GetSingleInvoiceCustomSectionQuery, GetSingleInvoiceCustomSectionQueryVariables> & ({ variables: GetSingleInvoiceCustomSectionQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSingleInvoiceCustomSectionQuery, GetSingleInvoiceCustomSectionQueryVariables>(GetSingleInvoiceCustomSectionDocument, options);
+      }
+export function useGetSingleInvoiceCustomSectionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSingleInvoiceCustomSectionQuery, GetSingleInvoiceCustomSectionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSingleInvoiceCustomSectionQuery, GetSingleInvoiceCustomSectionQueryVariables>(GetSingleInvoiceCustomSectionDocument, options);
+        }
+export function useGetSingleInvoiceCustomSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleInvoiceCustomSectionQuery, GetSingleInvoiceCustomSectionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetSingleInvoiceCustomSectionQuery, GetSingleInvoiceCustomSectionQueryVariables>(GetSingleInvoiceCustomSectionDocument, options);
+        }
+export type GetSingleInvoiceCustomSectionQueryHookResult = ReturnType<typeof useGetSingleInvoiceCustomSectionQuery>;
+export type GetSingleInvoiceCustomSectionLazyQueryHookResult = ReturnType<typeof useGetSingleInvoiceCustomSectionLazyQuery>;
+export type GetSingleInvoiceCustomSectionSuspenseQueryHookResult = ReturnType<typeof useGetSingleInvoiceCustomSectionSuspenseQuery>;
+export type GetSingleInvoiceCustomSectionQueryResult = Apollo.QueryResult<GetSingleInvoiceCustomSectionQuery, GetSingleInvoiceCustomSectionQueryVariables>;
+export const CreateInvoiceCustomSectionDocument = gql`
+    mutation createInvoiceCustomSection($input: CreateInvoiceCustomSectionInput!) {
+  createInvoiceCustomSection(input: $input) {
+    id
+    ...InvoiceCustomSectionForm
+  }
+}
+    ${InvoiceCustomSectionFormFragmentDoc}`;
+export type CreateInvoiceCustomSectionMutationFn = Apollo.MutationFunction<CreateInvoiceCustomSectionMutation, CreateInvoiceCustomSectionMutationVariables>;
+
+/**
+ * __useCreateInvoiceCustomSectionMutation__
+ *
+ * To run a mutation, you first call `useCreateInvoiceCustomSectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateInvoiceCustomSectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createInvoiceCustomSectionMutation, { data, loading, error }] = useCreateInvoiceCustomSectionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateInvoiceCustomSectionMutation(baseOptions?: Apollo.MutationHookOptions<CreateInvoiceCustomSectionMutation, CreateInvoiceCustomSectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateInvoiceCustomSectionMutation, CreateInvoiceCustomSectionMutationVariables>(CreateInvoiceCustomSectionDocument, options);
+      }
+export type CreateInvoiceCustomSectionMutationHookResult = ReturnType<typeof useCreateInvoiceCustomSectionMutation>;
+export type CreateInvoiceCustomSectionMutationResult = Apollo.MutationResult<CreateInvoiceCustomSectionMutation>;
+export type CreateInvoiceCustomSectionMutationOptions = Apollo.BaseMutationOptions<CreateInvoiceCustomSectionMutation, CreateInvoiceCustomSectionMutationVariables>;
+export const UpdateInvoiceCustomSectionDocument = gql`
+    mutation updateInvoiceCustomSection($input: UpdateInvoiceCustomSectionInput!) {
+  updateInvoiceCustomSection(input: $input) {
+    id
+    ...InvoiceCustomSectionForm
+  }
+}
+    ${InvoiceCustomSectionFormFragmentDoc}`;
+export type UpdateInvoiceCustomSectionMutationFn = Apollo.MutationFunction<UpdateInvoiceCustomSectionMutation, UpdateInvoiceCustomSectionMutationVariables>;
+
+/**
+ * __useUpdateInvoiceCustomSectionMutation__
+ *
+ * To run a mutation, you first call `useUpdateInvoiceCustomSectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateInvoiceCustomSectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateInvoiceCustomSectionMutation, { data, loading, error }] = useUpdateInvoiceCustomSectionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateInvoiceCustomSectionMutation(baseOptions?: Apollo.MutationHookOptions<UpdateInvoiceCustomSectionMutation, UpdateInvoiceCustomSectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateInvoiceCustomSectionMutation, UpdateInvoiceCustomSectionMutationVariables>(UpdateInvoiceCustomSectionDocument, options);
+      }
+export type UpdateInvoiceCustomSectionMutationHookResult = ReturnType<typeof useUpdateInvoiceCustomSectionMutation>;
+export type UpdateInvoiceCustomSectionMutationResult = Apollo.MutationResult<UpdateInvoiceCustomSectionMutation>;
+export type UpdateInvoiceCustomSectionMutationOptions = Apollo.BaseMutationOptions<UpdateInvoiceCustomSectionMutation, UpdateInvoiceCustomSectionMutationVariables>;
 export const GetSingleTaxDocument = gql`
     query getSingleTax($id: ID!) {
   tax(id: $id) {
