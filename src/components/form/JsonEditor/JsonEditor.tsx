@@ -2,7 +2,6 @@ import ace from 'ace-builds/src-noconflict/ace'
 import 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/src-noconflict/mode-json'
 import 'ace-builds/src-noconflict/theme-github'
-// @ts-expect-error https://stackoverflow.com/questions/65616136/how-to-use-json-with-react-ace
 import jsonWorkerUrl from 'ace-builds/src-noconflict/worker-json?url'
 import { ReactNode, useEffect, useRef, useState } from 'react'
 import AceEditor from 'react-ace'

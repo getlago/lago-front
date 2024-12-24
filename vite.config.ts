@@ -8,6 +8,18 @@ import wasm from 'vite-plugin-wasm'
 
 import { version } from './package.json'
 
+const icons: Record<string, string> = {
+  development: '/favicon-local.svg',
+  production: '/favicon-prod.svg',
+  staging: '/favicon-staging.svg',
+}
+
+const titles: Record<string, string> = {
+  development: 'Lago - Local',
+  production: 'Lago',
+  staging: 'Lago - Cloud',
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
@@ -38,24 +50,14 @@ export default defineConfig(({ mode }) => {
       createHtmlPlugin({
         inject: {
           data: {
-            title:
-              mode === 'development'
-                ? 'Lago - Local'
-                : mode === 'production'
-                  ? 'Lago'
-                  : 'Lago - Cloud',
-            favicon:
-              mode === 'development'
-                ? '/favicon-local.svg'
-                : mode === 'production'
-                  ? '/favicon-prod.svg'
-                  : '/favicon-staging.svg',
+            title: titles[env.APP_ENV] || titles.production,
+            favicon: icons[env.APP_ENV] || icons.production,
           },
         },
       }),
     ],
     define: {
-      APP_ENV: JSON.stringify(mode),
+      APP_ENV: JSON.stringify(env.APP_ENV),
       API_URL: JSON.stringify(env.API_URL),
       DOMAIN: JSON.stringify(env.LAGO_DOMAIN),
       APP_VERSION: JSON.stringify(version),
@@ -86,7 +88,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: 'dist',
-      sourcemap: false, // TODO: replace this with the sentry vite plugin and don't ship sourcemaps to production
+      sourcemap: true, // TODO: replace this with the sentry vite plugin and don't ship sourcemaps to production
       rollupOptions: {
         output: {
           chunkFileNames: '[name].[hash].js',
