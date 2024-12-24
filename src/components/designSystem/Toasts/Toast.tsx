@@ -19,7 +19,7 @@ interface ToastRef {
 const AUTO_DISMISS_TIME = 6000
 
 const containerStyles = cva(
-  'mt-4 box-border flex max-h-[300px] w-fit max-w-[360px] animate-enter items-center justify-start overflow-hidden rounded-xl px-4 py-3 text-white transition-all delay-[0ms] duration-[250ms] ease-in-out',
+  'mt-4 box-border flex max-h-[300px] w-fit max-w-[360px] animate-enter items-center justify-start overflow-hidden rounded-xl px-4 py-3 text-white transition-all delay-[0ms] duration-250 ease-in-out',
   {
     variants: {
       severity: {
@@ -33,7 +33,7 @@ const containerStyles = cva(
 
 export const Toast = forwardRef<ToastRef, ToastProps>(({ toast }: ToastProps, ref) => {
   const [closing, setClosing] = useState(false)
-  const timeoutRef = useRef(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const { translate } = useInternationalization()
   const { id, severity = ToastSeverityEnum.info, autoDismiss = true, message, translateKey } = toast
 
@@ -41,7 +41,6 @@ export const Toast = forwardRef<ToastRef, ToastProps>(({ toast }: ToastProps, re
     (time = AUTO_DISMISS_TIME) => {
       if (!autoDismiss) return
 
-      // @ts-expect-error
       timeoutRef.current = setTimeout(() => {
         setClosing(true)
       }, time)

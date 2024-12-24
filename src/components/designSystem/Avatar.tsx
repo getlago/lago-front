@@ -52,12 +52,9 @@ const getBackgroundColorKey = (identifier?: string): keyof typeof colors.avatar 
     return acc
   }, 0)
 
-  // From the modulo of the color number, get the modulo
-  const colorKeys = Object.keys(colors.avatar)
-
+  const colorKeys = Object.keys(colors.avatar) as Array<keyof typeof colors.avatar>
   const colorIndex = charcodeSum % colorKeys.length
 
-  // @ts-expect-error
   return colorKeys[colorIndex]
 }
 

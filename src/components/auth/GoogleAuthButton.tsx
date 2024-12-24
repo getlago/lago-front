@@ -87,8 +87,6 @@ const GoogleAuthButton = ({
         size="large"
         variant="tertiary"
         onClick={async () => {
-          // Ignored because error received here is a 500, and is not well formated for this use case
-          // @ts-ignore
           const { data, errors } = await getGoogleUrl()
 
           // Note: keep underscore notation for some error codes
