@@ -30,13 +30,6 @@ export const TextInputField = memo(
 
       return (
         <TextInput
-          sx={
-            !displayErrorText
-              ? {
-                  '.MuiTextField-root': { marginBottom: '0 !important' },
-                }
-              : {}
-          }
           name={name}
           value={_get(values, name)}
           ref={ref}
