@@ -3,8 +3,9 @@ import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { boolean, object, string } from 'yup'
 
-import { Button, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { Button, Tooltip, Typography } from '~/components/designSystem'
 import { SwitchField, TextInputField } from '~/components/form'
+import { CenteredPage } from '~/components/layouts/Pages'
 import {
   DefaultCustomSectionDialog,
   DefaultCustomSectionDialogRef,
@@ -14,7 +15,7 @@ import { INVOICE_SETTINGS_ROUTE } from '~/core/router'
 import { CreateInvoiceCustomSectionInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditInvoiceCustomSection } from '~/hooks/useCreateEditInvoiceCustomSection'
-import { PageHeader } from '~/styles'
+import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 const CreateInvoiceCustomSection = () => {
   const { translate } = useInternationalization()
@@ -70,8 +71,8 @@ const CreateInvoiceCustomSection = () => {
 
   return (
     <>
-      <div>
-        <PageHeader>
+      <CenteredPage.Wrapper>
+        <CenteredPage.Header>
           <Typography variant="bodyHl" color="textSecondary" noWrap>
             {isEdition
               ? translate('text_1733841825248s6mxx67rsw7')
@@ -86,28 +87,14 @@ const CreateInvoiceCustomSection = () => {
                 : navigate(INVOICE_SETTINGS_ROUTE)
             }
           />
-        </PageHeader>
+        </CenteredPage.Header>
 
-        {loading ? (
-          <div className="container mx-auto mb-15 mt-12 flex flex-col gap-12">
-            <div>
-              <Skeleton variant="text" className="mb-4 w-40" />
-              <Skeleton variant="text" className="w-100" />
-            </div>
-            {[0, 1].map((_, index) => (
-              <div key={`loading-${index}`}>
-                <div className="flex flex-col gap-5 pb-12 shadow-b">
-                  <Skeleton variant="text" className="w-40" />
-                  <Skeleton variant="text" className="w-100" />
-                  <Skeleton variant="text" className="w-74" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <>
-            <div className="container mx-auto min-h-[calc(100vh_-_theme(space.nav)_-_theme(space.footer))] pb-20 pt-12">
-              <div className="mb-12 not-last-child:mb-1">
+        <CenteredPage.Container>
+          {loading ? (
+            <FormLoadingSkeleton id="create-custom-section" />
+          ) : (
+            <>
+              <div className="not-last-child:mb-1">
                 <Typography variant="headline" color="textSecondary">
                   {translate('text_1732553358445168zt8fopyf')}
                 </Typography>
@@ -211,36 +198,34 @@ const CreateInvoiceCustomSection = () => {
                   />
                 </section>
               </div>
-            </div>
+            </>
+          )}
+        </CenteredPage.Container>
 
-            <footer className="sticky bottom-0 flex h-footer border border-grey-200 bg-white">
-              <div className="container mx-auto flex h-full items-center justify-end">
-                <div className="flex items-center gap-6">
-                  <Button
-                    variant="quaternary"
-                    onClick={() =>
-                      formikProps.dirty
-                        ? warningDirtyAttributesDialogRef.current?.openDialog()
-                        : navigate(INVOICE_SETTINGS_ROUTE)
-                    }
-                  >
-                    {translate('text_6411e6b530cb47007488b027')}
-                  </Button>
-                  <Button
-                    variant="primary"
-                    disabled={!formikProps.isValid || !formikProps.dirty}
-                    onClick={onSubmit}
-                  >
-                    {isEdition
-                      ? translate('text_17295436903260tlyb1gp1i7')
-                      : translate('text_17325538899488ftsvph8ko5')}
-                  </Button>
-                </div>
-              </div>
-            </footer>
-          </>
-        )}
-      </div>
+        <CenteredPage.StickyFooter>
+          <Button
+            variant="quaternary"
+            size="large"
+            onClick={() =>
+              formikProps.dirty
+                ? warningDirtyAttributesDialogRef.current?.openDialog()
+                : navigate(INVOICE_SETTINGS_ROUTE)
+            }
+          >
+            {translate('text_6411e6b530cb47007488b027')}
+          </Button>
+          <Button
+            variant="primary"
+            size="large"
+            disabled={!formikProps.isValid || !formikProps.dirty}
+            onClick={onSubmit}
+          >
+            {isEdition
+              ? translate('text_17295436903260tlyb1gp1i7')
+              : translate('text_17325538899488ftsvph8ko5')}
+          </Button>
+        </CenteredPage.StickyFooter>
+      </CenteredPage.Wrapper>
 
       <WarningDialog
         ref={warningDirtyAttributesDialogRef}
