@@ -7,6 +7,7 @@ import { ChangeEvent, forwardRef, ReactNode, useCallback, useEffect, useState } 
 
 import { Button, Icon, Tooltip, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { theme } from '~/styles'
 import { tw } from '~/styles/utils'
 
 export enum ValueFormatter {
@@ -34,6 +35,7 @@ export interface TextInputProps
   description?: string
   cleanable?: boolean
   password?: boolean
+  variant?: 'outlined' | 'default'
   value?: string | number
   beforeChangeFormatter?: ValueFormatterType[] | ValueFormatterType
   infoText?: string
@@ -131,6 +133,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
       rows,
       error,
       cleanable = false,
+      variant = 'default',
       InputProps,
       type = 'text',
       password,
@@ -248,6 +251,31 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
                 : {}),
             ...InputProps,
           }}
+          sx={
+            variant === 'outlined'
+              ? {
+                  marginBottom: 0,
+                  '& .MuiInputBase-formControl': {
+                    borderRadius: 0,
+                  },
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    border: 'none',
+                  },
+                  '& .Mui-focused': {
+                    zIndex: 1,
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      border: `2px solid ${theme.palette.primary.main}`,
+                    },
+                  },
+                  '& .Mui-error': {
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      border: `2px solid ${theme.palette.error.main}`,
+                    },
+                  },
+                  ...props.sx,
+                }
+              : props.sx
+          }
           {...props}
         />
         {(helperText || error) && (

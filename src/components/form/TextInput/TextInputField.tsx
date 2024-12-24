@@ -2,7 +2,6 @@ import { FormikProps } from 'formik'
 import _get from 'lodash/get'
 import _isEqual from 'lodash/isEqual'
 import { forwardRef, memo } from 'react'
-import styled, { css } from 'styled-components'
 
 import { TextInput, TextInputProps } from './TextInput'
 
@@ -30,8 +29,7 @@ export const TextInputField = memo(
       const { values, errors, touched, handleBlur, setFieldValue } = formikProps
 
       return (
-        <StyledTextInput
-          $displayErrorText={displayErrorText}
+        <TextInput
           name={name}
           value={_get(values, name)}
           ref={ref}
@@ -67,13 +65,3 @@ export const TextInputField = memo(
 )
 
 TextInputField.displayName = 'TextInputField'
-
-const StyledTextInput = styled(TextInput)<{ $displayErrorText?: boolean }>`
-  ${({ $displayErrorText }) =>
-    !$displayErrorText &&
-    css`
-      .MuiTextField-root {
-        margin-bottom: 0 !important;
-      }
-    `}
-`

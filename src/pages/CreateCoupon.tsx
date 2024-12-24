@@ -291,7 +291,8 @@ const CreateCoupon = () => {
 
                   {shouldDisplayDescription ? (
                     <InlineDescription>
-                      <TextArea
+                      <TextInputField
+                        className="mr-3 flex-1"
                         multiline
                         name="description"
                         label={translate('text_649e848fa4c023006e94ca32')}
@@ -481,7 +482,8 @@ const CreateCoupon = () => {
                     )}
                   </Settings>
 
-                  <StyledPlanLimitCheckbox
+                  <Checkbox
+                    className="mb-3"
                     name="hasPlanOrBillableMetricLimit"
                     value={hasPlanLimit || hasBillableMetricLimit}
                     disabled={isEdition && !!coupon?.appliedCouponsCount}
@@ -692,15 +694,6 @@ const Settings = styled.div`
 const InlineDescription = styled.div`
   display: flex;
   align-items: center;
-`
-
-const TextArea = styled(TextInputField)`
-  flex: 1;
-  margin-right: ${theme.spacing(3)};
-`
-
-const StyledPlanLimitCheckbox = styled(Checkbox)`
-  margin-bottom: ${theme.spacing(3)};
 `
 
 const PlanLine = styled.div`

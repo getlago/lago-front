@@ -158,8 +158,9 @@ const ResetPassword = () => {
             <Subtitle>{translate('text_642707b0da1753a9bb66729a')}</Subtitle>
 
             <form>
-              <Input
+              <TextInput
                 disabled
+                className="mb-4"
                 name="email"
                 beforeChangeFormatter={['lowercase']}
                 label={translate('text_63246f875e2228ab7b63dcdc')}
@@ -231,12 +232,6 @@ const ResetPassword = () => {
     </Page>
   )
 }
-
-const Input = styled(TextInput)`
-  && {
-    margin-bottom: ${theme.spacing(4)};
-  }
-`
 
 const PasswordBlock = styled.div`
   margin-bottom: ${theme.spacing(8)};

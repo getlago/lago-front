@@ -167,7 +167,8 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
                           })}
                           disableHoverListener={errorIndex !== i}
                         >
-                          <CellAmount
+                          <AmountInput
+                            variant="outlined"
                             error={errorIndex === i}
                             beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                             currency={currency}
@@ -199,7 +200,8 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
                         </TypographyCell>
                       ),
                       content: (row, i) => (
-                        <CellInput
+                        <TextInput
+                          variant="outlined"
                           placeholder={translate('text_645bb193927b375079d28ace')}
                           value={row.thresholdDisplayName ?? ''}
                           onChange={(value) => {
@@ -247,7 +249,8 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
                     {
                       size: 197,
                       content: (row, i) => (
-                        <CellAmount
+                        <AmountInput
+                          variant="outlined"
                           beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                           currency={currency}
                           value={row.amountCents}
@@ -272,7 +275,8 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
                     {
                       size: 197,
                       content: (row, i) => (
-                        <CellInput
+                        <TextInput
+                          variant="outlined"
                           placeholder={translate('text_645bb193927b375079d28ace')}
                           value={row.thresholdDisplayName ?? ''}
                           onChange={(value) => {
@@ -404,62 +408,6 @@ const TableContainer = styled.div`
 
 const TypographyCell = styled(Typography)`
   padding: 0px ${theme.spacing(4)};
-`
-
-const CellAmount = styled(AmountInput)`
-  .MuiInputBase-formControl {
-    border-radius: 0;
-  }
-
-  && {
-    > * {
-      margin-bottom: 0;
-    }
-    .MuiOutlinedInput-notchedOutline {
-      border: none;
-    }
-
-    .Mui-focused {
-      z-index: 1;
-      .MuiOutlinedInput-notchedOutline {
-        border: 2px solid ${theme.palette.primary.main};
-      }
-    }
-
-    .Mui-error {
-      .MuiOutlinedInput-notchedOutline {
-        border: 2px solid ${theme.palette.error.main};
-      }
-    }
-  }
-`
-
-const CellInput = styled(TextInput)`
-  .MuiInputBase-formControl {
-    border-radius: 0;
-  }
-
-  && {
-    > * {
-      margin-bottom: 0;
-    }
-    .MuiOutlinedInput-notchedOutline {
-      border: none;
-    }
-
-    .Mui-focused {
-      z-index: 1;
-      .MuiOutlinedInput-notchedOutline {
-        border: 2px solid ${theme.palette.primary.main};
-      }
-    }
-
-    .Mui-error {
-      .MuiOutlinedInput-notchedOutline {
-        border: 2px solid ${theme.palette.error.main};
-      }
-    }
-  }
 `
 
 const PremiumWarning = styled.div`

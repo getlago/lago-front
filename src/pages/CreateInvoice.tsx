@@ -650,7 +650,8 @@ const CreateInvoice = () => {
                 </FromToInfoWrapper>
 
                 <InvoiceTableWrapper>
-                  <CurrencyComboBoxField
+                  <ComboBoxField
+                    className="w-fit max-w-40"
                     disableClearable
                     data={Object.values(CurrencyEnum).map((currencyType) => ({
                       value: currencyType,
@@ -1292,11 +1293,6 @@ const InvoiceTableWrapper = styled.div`
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(6)};
   }
-`
-
-const CurrencyComboBoxField = styled(ComboBoxField)`
-  max-width: 160px;
-  width: fit-content;
 `
 
 const Grid = () => css`

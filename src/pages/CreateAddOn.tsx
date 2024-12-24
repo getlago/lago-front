@@ -225,7 +225,8 @@ const CreateAddOn = () => {
 
                   {shouldDisplayDescription ? (
                     <div className="flex items-center">
-                      <TextArea
+                      <TextInputField
+                        className="mr-3 flex-1"
                         multiline
                         name="description"
                         label={translate('text_629728388c4d2300e2d380f1')}
@@ -410,11 +411,6 @@ const CreateAddOn = () => {
     </div>
   )
 }
-
-const TextArea = styled(TextInputField)`
-  flex: 1;
-  margin-right: ${theme.spacing(3)};
-`
 
 const TaxLabel = styled(Typography)`
   margin-bottom: ${theme.spacing(1)};

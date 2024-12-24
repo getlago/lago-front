@@ -116,7 +116,8 @@ export const GraduatedChargeTable = memo(
                       })}
                       disableHoverListener={errorIndex !== i}
                     >
-                      <CellInput
+                      <TextInput
+                        variant="outlined"
                         error={errorIndex === i}
                         value={row.toValue as number | undefined}
                         beforeChangeFormatter={['int', 'positiveNumber']}
@@ -152,7 +153,8 @@ export const GraduatedChargeTable = memo(
                       </Typography>
                     </DisabledAmountCell>
                   ) : (
-                    <CellAmount
+                    <AmountInput
+                      variant="outlined"
                       beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                       currency={currency}
                       value={row.perUnitAmount}
@@ -184,7 +186,8 @@ export const GraduatedChargeTable = memo(
                       </Typography>
                     </DisabledAmountCell>
                   ) : (
-                    <CellAmount
+                    <AmountInput
+                      variant="outlined"
                       beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                       currency={currency}
                       value={row.flatAmount}
@@ -323,55 +326,5 @@ const DisabledAmountCell = styled.div`
 
   > *:first-child {
     margin-right: ${theme.spacing(2)};
-  }
-`
-
-const CellInput = styled(TextInput)`
-  .MuiInputBase-formControl {
-    border-radius: 0;
-  }
-
-  && {
-    > * {
-      margin-bottom: 0;
-    }
-    .MuiOutlinedInput-notchedOutline {
-      border: none;
-    }
-
-    .Mui-focused {
-      z-index: 1;
-      .MuiOutlinedInput-notchedOutline {
-        border: 2px solid ${theme.palette.primary.main};
-      }
-    }
-
-    .Mui-error {
-      .MuiOutlinedInput-notchedOutline {
-        border: 2px solid ${theme.palette.error.main};
-      }
-    }
-  }
-`
-
-const CellAmount = styled(AmountInput)`
-  .MuiInputBase-formControl {
-    border-radius: 0;
-  }
-
-  && {
-    > * {
-      margin-bottom: 0;
-    }
-    .MuiOutlinedInput-notchedOutline {
-      border: none;
-    }
-
-    .Mui-focused {
-      z-index: 1;
-      .MuiOutlinedInput-notchedOutline {
-        border: 2px solid ${theme.palette.primary.main};
-      }
-    }
   }
 `

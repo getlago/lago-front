@@ -90,14 +90,15 @@ const Analytics = () => {
             {({ closePopper }) => (
               <CurrencyMenuPopper>
                 <SearchCurrencyTextInputWrapper>
-                  <SearchCurrencyTextInput
+                  <TextInput
+                    className="max-w-50 [&_input]:h-12 [&_input]:!pl-3"
                     id="search-currency-input"
                     placeholder="Search a currency"
                     onChange={(value) => {
                       setCurrencySearch(value)
                     }}
                     InputProps={{
-                      startAdornment: <SearchIcon name="magnifying-glass" />,
+                      startAdornment: <Icon className="ml-4" name="magnifying-glass" />,
                     }}
                   />
                 </SearchCurrencyTextInputWrapper>
@@ -269,18 +270,6 @@ const SearchCurrencyTextInputWrapper = styled.div`
   top: 16px;
   background-color: #fff;
   margin-bottom: 16px;
-`
-
-const SearchCurrencyTextInput = styled(TextInput)`
-  max-width: 200px;
-  height: 48px;
-  .MuiInputBase-inputAdornedStart {
-    padding-left: ${theme.spacing(3)};
-  }
-`
-
-const SearchIcon = styled(Icon)`
-  padding-left: ${theme.spacing(4)};
 `
 
 const CurrencyListWrapper = styled.div`

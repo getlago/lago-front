@@ -98,7 +98,8 @@ export const EditOrganizationInvoiceTemplateDialog = forwardRef<
       )}
     >
       <Content>
-        <TextArea
+        <TextInputField
+          className="whitespace-pre-line"
           name="billingConfiguration.invoiceFooter"
           rows="4"
           multiline
@@ -128,12 +129,6 @@ export const EditOrganizationInvoiceTemplateDialog = forwardRef<
 
 const Content = styled.div`
   margin-bottom: ${theme.spacing(8)};
-`
-
-const TextArea = styled(TextInputField)`
-  textarea:first-child {
-    white-space: pre-line;
-  }
 `
 
 const TextInputHelper = styled.div`

@@ -84,10 +84,8 @@ export const StandardCharge = memo(
           </GroupTitle>
           {shouldDisplayGroupedBy || !!valuePointer?.groupedBy ? (
             <InlineFields>
-              {/* NOTE: should be a single line textarea */}
-              <StyledTextInput
-                // multiline
-                // maxRows={3}
+              <TextInput
+                className="flex-1"
                 name={`${propertyCursor}.groupedBy`}
                 placeholder={translate('text_65ba6d45e780c1ff8acb206f')}
                 helperText={translate('text_65ba6d45e780c1ff8acb2073')}
@@ -138,10 +136,6 @@ const InlineFields = styled.div`
   > *:last-child {
     margin-top: ${theme.spacing(1)};
   }
-`
-
-const StyledTextInput = styled(TextInput)`
-  flex: 1;
 `
 
 const GroupTitle = styled.div`

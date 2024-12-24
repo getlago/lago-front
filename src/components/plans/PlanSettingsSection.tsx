@@ -140,8 +140,9 @@ export const PlanSettingsSection = memo(
 
           {shouldDisplayDescription ? (
             <InlineDescription>
-              <TextArea
+              <TextInputField
                 multiline
+                className="mr-3 flex-1"
                 name="description"
                 label={translate('text_629728388c4d2300e2d380f1')}
                 placeholder={translate('text_6661fc17337de3591e29e3c9')}
@@ -345,9 +346,4 @@ const InlineTaxesWrapper = styled.div`
   align-items: center;
   gap: ${theme.spacing(3)};
   flex-wrap: wrap;
-`
-
-const TextArea = styled(TextInputField)`
-  flex: 1;
-  margin-right: ${theme.spacing(3)};
 `

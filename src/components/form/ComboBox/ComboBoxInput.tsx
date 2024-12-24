@@ -28,13 +28,13 @@ export const ComboBoxInput = ({
   const { inputProps, InputProps, ...restParams } = params
 
   return (
-    <StyledTextInput
+    <TextInput
       onChange={(newVal) => {
         // needed because useAutocomplete expect a DOM onChange listener...
         inputProps.onChange({ target: { value: newVal } })
         searchQuery && searchQuery(newVal)
       }}
-      className={className}
+      className={tw('group/combobox-input', className)}
       name={name}
       placeholder={placeholder}
       label={label}
@@ -56,9 +56,12 @@ export const ComboBoxInput = ({
             {!disableClearable && (
               <Button
                 // To make sure the "clear button" is displayed only on hover or focus
-                className={tw('MuiAutocomplete-clearIndicator', 'hidden', {
-                  'MuiAutocomplete-clearIndicatorDirty': inputProps?.value,
-                })}
+                className={tw(
+                  'MuiAutocomplete-clearIndicator',
+                  'hidden',
+                  inputProps?.value &&
+                    'MuiAutocomplete-clearIndicatorDirty group-hover/combobox-input:flex',
+                )}
                 disabled={restParams.disabled}
                 size="small"
                 icon="close-circle-filled"
@@ -93,14 +96,6 @@ export const ComboBoxInput = ({
     />
   )
 }
-
-const StyledTextInput = styled(TextInput)`
-  &:hover {
-    .MuiAutocomplete-clearIndicatorDirty {
-      display: flex;
-    }
-  }
-`
 
 const StartAdornmentTypography = styled(Typography)`
   > span:first-child {
