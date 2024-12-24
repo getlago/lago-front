@@ -2,9 +2,9 @@ import { PropsWithChildren } from 'react'
 
 export const PageBannerHeaderWithBurgerMenu = ({ children }: PropsWithChildren) => {
   return (
-    <div className="sticky top-0 z-navBar flex min-h-18 flex-row items-center justify-between gap-2 bg-white px-17 py-4 shadow-b md:px-12">
+    <header className="sticky top-0 z-navBar flex min-h-18 flex-row items-center justify-between gap-2 bg-white px-17 py-4 shadow-b md:px-12">
       {children}
-    </div>
+    </header>
   )
 }
 
@@ -14,9 +14,9 @@ const CenteredPageWrapper = ({ children }: PropsWithChildren) => {
 
 const PageBannerHeader = ({ children }: PropsWithChildren) => {
   return (
-    <div className="sticky top-0 z-navBar flex min-h-18 flex-row items-center justify-between gap-2 bg-white p-4 shadow-b md:px-12">
+    <header className="sticky top-0 z-navBar flex min-h-18 flex-row items-center justify-between gap-2 bg-white p-4 shadow-b md:px-12">
       {children}
-    </div>
+    </header>
   )
 }
 
@@ -30,11 +30,11 @@ const CenteredContainer = ({ children }: PropsWithChildren) => {
 
 const CenteredStickyFooter = ({ children }: PropsWithChildren) => {
   return (
-    <div className="sticky bottom-0 z-navBar w-full bg-white shadow-t">
+    <footer className="sticky bottom-0 z-navBar w-full bg-white shadow-t">
       <div className="mx-auto flex min-h-20 w-full max-w-170 flex-row flex-wrap-reverse items-center justify-end gap-3 p-4 md:px-0">
         {children}
       </div>
-    </div>
+    </footer>
   )
 }
 
