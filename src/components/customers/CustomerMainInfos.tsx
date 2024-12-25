@@ -742,7 +742,7 @@ const MetadataValue = styled(Typography)`
 const InlineLink = styled(Link)`
   width: fit-content;
   line-break: anywhere;
-  box-shadow: none;
+  box-shadow: none !important;
 
   &:hover {
     text-decoration: none;
