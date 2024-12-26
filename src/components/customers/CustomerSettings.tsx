@@ -39,6 +39,7 @@ import {
   DeleteCustomerNetPaymentTermFragmentDoc,
   EditCustomerDocumentLocaleFragmentDoc,
   EditCustomerDunningCampaignFragmentDoc,
+  EditCustomerInvoiceCustomSectionFragmentDoc,
   EditCustomerInvoiceGracePeriodFragmentDoc,
   EditCustomerVatRateFragmentDoc,
   FinalizeZeroAmountInvoiceEnum,
@@ -78,6 +79,10 @@ import {
   EditCustomerDunningCampaignDialogRef,
 } from './EditCustomerDunningCampaignDialog'
 import {
+  EditCustomerInvoiceCustomSectionsDialog,
+  EditCustomerInvoiceCustomSectionsDialogRef,
+} from './EditCustomerInvoiceCustomSectionsDialog'
+import {
   EditCustomerInvoiceGracePeriodDialog,
   EditCustomerInvoiceGracePeriodDialogRef,
 } from './EditCustomerInvoiceGracePeriodDialog'
@@ -116,6 +121,16 @@ gql`
     excludeFromDunningCampaign
   }
 
+  fragment CustomerAppliedInvoiceCustomSections on Customer {
+    applicableInvoiceCustomSections {
+      id
+      name
+      selected
+    }
+    skipInvoiceCustomSections
+    hasOverwrittenInvoiceCustomSectionsSelection
+  }
+
   query getCustomerSettings($id: ID!) {
     customer(id: $id) {
       id
@@ -130,6 +145,7 @@ gql`
 
       ...CustomerAppliedTaxRatesForSettings
       ...CustomerAppliedDunningCampaignForSettings
+      ...CustomerAppliedInvoiceCustomSections
 
       ...EditCustomerVatRate
       ...EditCustomerDocumentLocale
@@ -166,6 +182,7 @@ gql`
   ${EditCustomerInvoiceGracePeriodFragmentDoc}
   ${EditCustomerDocumentLocaleFragmentDoc}
   ${EditCustomerDunningCampaignFragmentDoc}
+  ${EditCustomerInvoiceCustomSectionFragmentDoc}
   ${DeleteCustomerGracePeriodFragmentDoc}
   ${DeleteCustomerDocumentLocaleFragmentDoc}
   ${CustomerForDeleteVatRateDialogFragmentDoc}
@@ -193,6 +210,8 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const deleteGracePeriodDialogRef = useRef<DeleteCustomerGracePeriodeDialogRef>(null)
   const editCustomerDocumentLocale = useRef<EditCustomerDocumentLocaleDialogRef>(null)
   const editCustomerDunningCampaignDialogRef = useRef<EditCustomerDunningCampaignDialogRef>(null)
+  const editCustomerInvoiceCustomSectionsDialogRef =
+    useRef<EditCustomerInvoiceCustomSectionsDialogRef>(null)
   const deleteCustomerDocumentLocale = useRef<DeleteCustomerDocumentLocaleDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)
@@ -225,6 +244,8 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const isDunningCampaignApplicable =
     !!dunningCampaign &&
     !!dunningCampaign?.thresholds.some((threshold) => threshold.currency === customer?.currency)
+
+  const isInvoiceCustomSectionApplicable = !!customer?.applicableInvoiceCustomSections?.length
 
   return (
     <>
@@ -553,6 +574,76 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                 </Typography>
               </SettingsListItem>
 
+              {/* Invoice custom section */}
+              <SettingsListItem
+                className={tw(
+                  isInvoiceCustomSectionApplicable &&
+                    !customer.skipInvoiceCustomSections &&
+                    'shadow-inherit',
+                )}
+              >
+                <SettingsListItemHeader
+                  label={translate('text_1732553358445168zt8fopyf')}
+                  sublabel={translate('text_1732553358445p7rg0i0dzws')}
+                  action={
+                    hasPermissions(['customersUpdate']) ? (
+                      <Button
+                        disabled={loading}
+                        variant="quaternary"
+                        endIcon={isPremium ? undefined : 'sparkles'}
+                        onClick={() =>
+                          editCustomerInvoiceCustomSectionsDialogRef?.current?.openDialog()
+                        }
+                      >
+                        {translate('text_63e51ef4985f0ebd75c212fc')}
+                      </Button>
+                    ) : undefined
+                  }
+                />
+
+                {customer?.skipInvoiceCustomSections ? (
+                  <Typography variant="body" color="grey700">
+                    {translate('text_1735223938916tlygbi5v0nd')}
+                  </Typography>
+                ) : isInvoiceCustomSectionApplicable ? (
+                  <Table
+                    name="customer-custom-sections-settings"
+                    containerSize={{ default: 0 }}
+                    rowSize={48}
+                    isLoading={loading}
+                    data={customer.applicableInvoiceCustomSections || []}
+                    columns={[
+                      {
+                        key: 'name',
+                        title: translate('text_6419c64eace749372fc72b0f'),
+                        maxSpace: true,
+                        content: ({ name }) => (
+                          <Typography color="textSecondary" noWrap>
+                            {name}
+                          </Typography>
+                        ),
+                      },
+                      ...(!customer.hasOverwrittenInvoiceCustomSectionsSelection
+                        ? [
+                            {
+                              key: 'selected',
+                              title: translate('text_63ac86d797f728a87b2f9fa7'),
+                              content: ({ selected }) =>
+                                selected && (
+                                  <Chip label={translate('text_1729542098338prhjz7s29kt')} />
+                                ),
+                            } as TableColumn<{ selected: boolean }>,
+                          ]
+                        : []),
+                    ]}
+                  />
+                ) : (
+                  <Typography variant="body" color="grey700">
+                    {translate('text_1735223938916wjmtgs2juy4')}
+                  </Typography>
+                )}
+              </SettingsListItem>
+
               {/* Net payment term */}
               <SettingsListItem>
                 <SettingsListItemHeader
@@ -746,6 +837,10 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
           <EditCustomerDocumentLocaleDialog ref={editCustomerDocumentLocale} customer={customer} />
           <EditCustomerDunningCampaignDialog
             ref={editCustomerDunningCampaignDialogRef}
+            customer={customer}
+          />
+          <EditCustomerInvoiceCustomSectionsDialog
+            ref={editCustomerInvoiceCustomSectionsDialogRef}
             customer={customer}
           />
           <DeleteCustomerGracePeriodeDialog ref={deleteGracePeriodDialogRef} customer={customer} />
