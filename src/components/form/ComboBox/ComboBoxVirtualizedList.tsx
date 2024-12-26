@@ -1,9 +1,9 @@
 import { ReactElement, useEffect, useRef } from 'react'
 import { VariableSizeList } from 'react-window'
 
+import { ITEM_HEIGHT } from '~/styles'
 import { tw } from '~/styles/utils'
 
-import { ITEM_HEIGHT } from './ComboBoxItem'
 import { ComboBoxProps } from './types'
 
 export const GROUP_ITEM_KEY = 'combobox-group-by'

@@ -4,13 +4,11 @@ import styled from 'styled-components'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Icon, Typography } from '~/components/designSystem'
-import { theme } from '~/styles'
+import { ITEM_HEIGHT, theme } from '~/styles'
 
 import { MultipleComboBoxData } from './types'
 
 import { Checkbox } from '../Checkbox'
-
-export const ITEM_HEIGHT = 56
 
 interface MultipleComboBoxItemProps {
   id: string

@@ -4,13 +4,11 @@ import styled from 'styled-components'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Icon, Typography } from '~/components/designSystem'
-import { theme } from '~/styles'
+import { ITEM_HEIGHT, theme } from '~/styles'
 
 import { ComboBoxData } from './types'
 
 import { Radio } from '../Radio'
-
-export const ITEM_HEIGHT = 56
 
 interface ComboBoxItemProps {
   id: string
