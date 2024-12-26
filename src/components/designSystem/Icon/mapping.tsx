@@ -18,6 +18,7 @@ import Burger from '~/public/icons/burger.svg'
 import Calendar from '~/public/icons/calendar.svg'
 import ChartBar from '~/public/icons/chart-bar.svg'
 import Checkmark from '~/public/icons/checkmark.svg'
+import ChevronDownFilled from '~/public/icons/chevron-down-filled.svg'
 import ChevronDown from '~/public/icons/chevron-down.svg'
 import ChevronLeft from '~/public/icons/chevron-left.svg'
 import ChevronRightFilled from '~/public/icons/chevron-right-filled.svg'
@@ -138,6 +139,7 @@ export const ALL_ICONS = {
   'chart-bar': ChartBar,
   checkmark: Checkmark,
   'chevron-down': ChevronDown,
+  'chevron-down-filled': ChevronDownFilled,
   'chevron-left': ChevronLeft,
   'chevron-right': ChevronRight,
   'chevron-right-filled': ChevronRightFilled,
