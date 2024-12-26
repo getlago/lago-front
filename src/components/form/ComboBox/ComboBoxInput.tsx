@@ -1,9 +1,7 @@
 import { InputAdornment } from '@mui/material'
 import _omit from 'lodash/omit'
-import styled from 'styled-components'
 
 import { Button, Typography } from '~/components/designSystem'
-import { theme } from '~/styles'
 import { tw } from '~/styles/utils'
 
 import { ComboBoxInputProps } from './types'
@@ -84,10 +82,10 @@ export const ComboBoxInput = ({
         ),
         startAdornment: startAdornmentValue && (
           <InputAdornment position="start">
-            <StartAdornmentTypography noWrap variant="body" color="grey700">
-              <span>{startAdornmentValue}</span>
+            <Typography noWrap variant="body" color="grey700">
+              <span className="mr-2">{startAdornmentValue}</span>
               <span>•</span>
-            </StartAdornmentTypography>
+            </Typography>
           </InputAdornment>
         ),
       }}
@@ -96,9 +94,3 @@ export const ComboBoxInput = ({
     />
   )
 }
-
-const StartAdornmentTypography = styled(Typography)`
-  > span:first-child {
-    margin-right: ${theme.spacing(2)};
-  }
-`

@@ -54,7 +54,7 @@ export const ComboBoxItem = ({
         >
           {customValue ? (
             <>
-              <AddCustomValueIcon color="dark" name="plus" />
+              <Icon className="mr-4" color="dark" name="plus" />
               <Typography variant="body" noWrap>
                 {labelNode ?? label}
               </Typography>
@@ -97,10 +97,6 @@ const ItemWrapper = styled.div`
     width: calc(100% - 16px) !important;
     margin: 0 ${theme.spacing(2)};
   }
-`
-
-const AddCustomValueIcon = styled(Icon)`
-  margin-right: ${theme.spacing(4)};
 `
 
 export const Item = styled.div<{ $virtualized?: boolean }>`

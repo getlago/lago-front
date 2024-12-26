@@ -106,10 +106,6 @@ const Container = styled.div<{ $virtualized?: boolean }>`
   box-sizing: border-box;
   overflow: ${({ $virtualized }) => ($virtualized ? 'hidden' : 'auto')};
 
-  .MuiAutocomplete-listbox {
-    max-height: inherit;
-  }
-
   ${Item}:not(:last-child) {
     margin: ${({ $virtualized }) =>
       $virtualized ? `0 ${theme.spacing(2)}` : `0 0 ${theme.spacing(1)}`};

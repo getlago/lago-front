@@ -463,6 +463,7 @@ export const theme = createTheme({
           display: 'flex',
           flexDirection: 'column',
           gap: '4px',
+          maxHeight: 'inherit',
           padding: 0,
         },
         root: {

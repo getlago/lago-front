@@ -1,6 +1,8 @@
 import { ReactElement, useEffect, useRef } from 'react'
 import { VariableSizeList } from 'react-window'
 
+import { tw } from '~/styles/utils'
+
 import { ITEM_HEIGHT } from './ComboBoxItem'
 import { ComboBoxProps } from './types'
 
@@ -25,19 +27,18 @@ type ComboBoxVirtualizedListProps = {
 export const ComboBoxVirtualizedList = (props: ComboBoxVirtualizedListProps) => {
   const { elements, value } = props
 
-  const hasDescription = elements.some(
-    (el) => (el.props?.children?.props?.option?.description as string)?.length > 0,
-  )
-
   const itemCount = elements?.length
-  const elementHeight = hasDescription ? ITEM_HEIGHT + 4 : ITEM_HEIGHT
 
   const getHeight = () => {
+    const hasAnyGroupHeader = elements.some((el) => (el.key as string).includes(GROUP_ITEM_KEY))
+
     // recommended perf best practice
     if (itemCount > 5) {
-      return 5 * (elementHeight + 4) - 4 // Last item does not have 4px margin-bottom
+      return 5 * (ITEM_HEIGHT + 4) + 4 // Add 4px for margins
+    } else if (itemCount <= 2 && hasAnyGroupHeader) {
+      return itemCount * (ITEM_HEIGHT + 2) // Add 2px for margins
     }
-    return itemCount * (elementHeight + 4) - 4 // Last item does not have 4px margin-bottom
+    return itemCount * (ITEM_HEIGHT + 4) + 4 // Add 4px for margins
   }
 
   // reset the `VariableSizeList` cache if data gets updated
@@ -63,6 +64,9 @@ export const ComboBoxVirtualizedList = (props: ComboBoxVirtualizedListProps) => 
 
   return (
     <VariableSizeList
+      className={tw({
+        'mb-1': itemCount > 1,
+      })}
       itemData={elements}
       height={getHeight()}
       width="100%"
@@ -70,10 +74,10 @@ export const ComboBoxVirtualizedList = (props: ComboBoxVirtualizedListProps) => 
       innerElementType="div"
       itemSize={(index) => {
         return index === itemCount - 1
-          ? elementHeight
+          ? ITEM_HEIGHT
           : ((elements[index].key as string) || '').includes(GROUP_ITEM_KEY)
-            ? GROUP_HEADER_HEIGHT + (index === 0 ? 8 : 12)
-            : elementHeight + 4
+            ? GROUP_HEADER_HEIGHT + (index === 0 ? 2 : 6)
+            : ITEM_HEIGHT + 8
       }}
       overscanCount={5}
       itemCount={itemCount}
