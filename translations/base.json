@@ -2760,5 +2760,15 @@
   "text_1732639603661uwmv1793v9b": "Delete custom section",
   "text_1733849149914btq7cvs7ljb": "Invoice custom section successfully set as the default",
   "text_17338491499140e4tci0yhhe": "Default invoice custom section successfully removed",
-  "text_1733849149914twslm71nuy6": "Invoice custom section successfully deleted"
+  "text_1733849149914twslm71nuy6": "Invoice custom section successfully deleted",
+  "text_1735223938916wjmtgs2juy4": "No custom section is applied at the organization level.",
+  "text_1735223938916tlygbi5v0nd": "No custom section applies to this customer.",
+  "text_17352239389168sdqd97zo0t": "Edit invoice custom section behavior for this customer",
+  "text_1735223938916hla21yfwyzw": "Select an invoice custom section behavior to apply only to this specific customer. ",
+  "text_17352239389166kugn45zj95": "Fallback to default custom section from organization",
+  "text_1735223938916ed8ef8phwaz": "Apply custom sections to this customer",
+  "text_1735223938916dhd7cyzokib": "Do not display custom sections on customers’ invoices",
+  "text_1735223938916q9pq0j0z0ju": "Edit behavior",
+  "text_1735223938916qvvv12r7je0": "Search and select a custom section",
+  "text_17352280436833uy9uxzbqn7": "Invoice custom section behavior successfully applied"
 }
