@@ -488,12 +488,11 @@ export const theme = createTheme({
           cursor: 'pointer',
         },
         option: {
-          paddingLeft: 0,
-          paddingRight: 0,
-          paddingTop: 0,
-          paddingBottom: 0,
           borderRadius: '12px',
           height: 'auto',
+          minHeight: `${ITEM_HEIGHT}px !important`,
+          width: '100% !important',
+          margin: '0 8px',
           '&.Mui-focused': {
             backgroundColor: `${palette.grey[100]} !important`,
           },

@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Icon, Typography } from '~/components/designSystem'
-import { ITEM_HEIGHT, theme } from '~/styles'
+import { ITEM_HEIGHT } from '~/styles'
 
 import { ComboBoxData } from './types'
 
@@ -88,12 +88,6 @@ const ItemWrapper = styled.div`
       outline: none;
       text-decoration: none;
     }
-  }
-
-  .MuiAutocomplete-option {
-    min-height: ${ITEM_HEIGHT}px;
-    width: calc(100% - 16px) !important;
-    margin: 0 ${theme.spacing(2)};
   }
 `
 

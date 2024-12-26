@@ -85,12 +85,6 @@ const ItemWrapper = styled.div`
       text-decoration: none;
     }
   }
-
-  .MuiAutocomplete-option {
-    min-height: ${ITEM_HEIGHT}px;
-    width: 100% !important;
-    margin: 0 ${theme.spacing(2)};
-  }
 `
 
 const AddCustomValueIcon = styled(Icon)`
