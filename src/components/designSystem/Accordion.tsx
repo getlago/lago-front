@@ -1,7 +1,6 @@
 import { AccordionDetails, AccordionSummary, Accordion as MuiAccordion } from '@mui/material'
 import { TransitionProps } from '@mui/material/transitions'
-import { useState } from 'react'
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NAV_HEIGHT, theme } from '~/styles'
@@ -17,17 +16,29 @@ enum AccordionSizeEnum {
 
 type AccordionSize = keyof typeof AccordionSizeEnum
 
-interface AccordionProps {
+interface AccordionBaseProps {
   id?: string
   className?: string
   summary: ReactNode
   children: ReactNode | ((args: { isOpen: boolean }) => ReactNode)
   initiallyOpen?: boolean
-  size?: AccordionSize
-  noContentMargin?: boolean
   transitionProps?: TransitionProps
   onOpen?: () => void
 }
+
+interface AccordionCardProps extends AccordionBaseProps {
+  variant?: 'card'
+  size?: AccordionSize
+  noContentMargin?: boolean
+}
+
+interface AccordionBorderlessProps extends AccordionBaseProps {
+  variant?: 'borderless'
+  size?: never
+  noContentMargin?: never
+}
+
+type AccordionProps = AccordionCardProps | AccordionBorderlessProps
 
 export const Accordion = ({
   id,
@@ -35,21 +46,29 @@ export const Accordion = ({
   summary,
   children,
   initiallyOpen = false,
-  size = AccordionSizeEnum.medium,
+  size: localSize,
   noContentMargin = false,
   transitionProps = {},
+  variant = 'card',
   onOpen,
   ...props
 }: AccordionProps) => {
   const [isOpen, setIsOpen] = useState(initiallyOpen)
   const { translate } = useInternationalization()
 
+  const size = localSize ?? (variant === 'card' ? 'medium' : undefined)
+
   return (
     <MuiAccordion
       square
       id={id}
       expanded={isOpen}
-      className={tw('border border-solid border-grey-400', className)}
+      className={tw(
+        {
+          'border border-solid border-grey-400': variant === 'card',
+        },
+        className,
+      )}
       onChange={(_, expanded) => {
         setIsOpen(expanded)
 
@@ -59,13 +78,33 @@ export const Accordion = ({
       {...props}
     >
       <AccordionSummary
-        className={tw('h-23 rounded-xl', {
-          'h-18': size === AccordionSizeEnum.medium,
-        })}
+        className={tw(
+          {
+            'h-23': size === AccordionSizeEnum.large,
+            'h-18': size === AccordionSizeEnum.medium,
+          },
+          variant === 'card' && (isOpen ? 'rounded-t-xl' : 'rounded-xl'),
+          {
+            'hover:bg-grey-100 active:bg-grey-200': variant === 'card',
+            'h-auto focus:rounded-lg': variant === 'borderless',
+          },
+          'focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100',
+        )}
         sx={{
           '& .MuiAccordionSummary-content': {
-            height: size === AccordionSizeEnum.medium ? NAV_HEIGHT : 92,
-            padding: size === AccordionSizeEnum.medium ? theme.spacing(4) : theme.spacing(8),
+            padding:
+              size === AccordionSizeEnum.medium
+                ? theme.spacing(4)
+                : size === AccordionSizeEnum.large
+                  ? theme.spacing(8)
+                  : undefined,
+            alignItems: variant === 'borderless' ? 'baseline' : 'center',
+            height:
+              size === AccordionSizeEnum.medium
+                ? NAV_HEIGHT
+                : size === AccordionSizeEnum.large
+                  ? 92
+                  : undefined,
           },
         }}
       >
@@ -81,15 +120,28 @@ export const Accordion = ({
             data-test="open-charge"
             variant="quaternary"
             size="small"
-            icon={isOpen ? 'chevron-down' : 'chevron-right'}
+            icon={
+              variant === 'card'
+                ? isOpen
+                  ? 'chevron-down'
+                  : 'chevron-right'
+                : variant === 'borderless'
+                  ? isOpen
+                    ? 'chevron-down-filled'
+                    : 'chevron-right-filled'
+                  : undefined
+            }
           />
         </Tooltip>
         {summary}
       </AccordionSummary>
       <AccordionDetails
-        className={tw('flex flex-col p-8 shadow-t', {
-          '!p-0': noContentMargin,
+        className={tw('flex flex-col', {
+          'shadow-t': variant === 'card',
+          'mt-6': variant === 'borderless',
           'p-4': size === AccordionSizeEnum.medium,
+          'p-8': size === AccordionSizeEnum.large,
+          'p-0': noContentMargin,
         })}
       >
         {typeof children === 'function' ? children({ isOpen }) : children}
