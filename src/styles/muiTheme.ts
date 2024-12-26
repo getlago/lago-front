@@ -416,6 +416,7 @@ export const theme = createTheme({
           },
           '&.Mui-expanded': {
             margin: '0',
+            minHeight: 'auto',
           },
           '&.MuiPaper-elevation1': {
             boxShadow: 'none',
@@ -429,30 +430,9 @@ export const theme = createTheme({
           overflow: 'inherit',
           minHeight: 'auto',
           padding: '0',
-          '&:hover': {
-            backgroundColor: palette.grey[100],
-          },
-          '&:active': {
-            backgroundColor: palette.grey[200],
-          },
+
           '&.Mui-expanded': {
             minHeight: 'auto',
-            borderRadius: '12px 12px 0 0',
-          },
-          '&.Mui-focused': {
-            '&.Mui-expanded': {
-              minHeight: 'auto',
-            },
-            backgroundColor: 'transparent',
-            boxShadow: `0px 0px 0px 4px ${palette.primary[200]} !important`,
-            borderRadius: '12px',
-          },
-          '&.Mui-focusVisible': {
-            backgroundColor: 'inherit',
-            boxShadow: `0px 0px 0px 4px ${palette.primary[200]}`,
-            '&:hover': {
-              backgroundColor: palette.grey[100],
-            },
           },
         },
         content: {

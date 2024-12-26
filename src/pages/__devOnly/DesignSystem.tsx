@@ -163,6 +163,19 @@ const DesignSystem = () => {
                   <Accordion size="large" summary="large accordion">
                     <Typography variant="body">Content of the accordion</Typography>
                   </Accordion>
+                  <Accordion
+                    variant="borderless"
+                    summary={
+                      <div>
+                        <Typography variant="subhead" className="mb-2">
+                          borderless accordion
+                        </Typography>
+                        <Typography variant="caption">Caption</Typography>
+                      </div>
+                    }
+                  >
+                    <Typography variant="body">Content of the accordion</Typography>
+                  </Accordion>
                 </Stack>
 
                 <GroupTitle variant="headline">Alert</GroupTitle>
