@@ -67,8 +67,8 @@ const StyledPopper = styled(Popper)<{
     max-width: ${({ $minWidth }) => ($minWidth ? `${$minWidth}px` : 'initial')};
   }
 
+  /* During TW migration, the padding should be removed, following Combobox implementation */
   .MuiAutocomplete-paper {
-    border: 1px solid ${theme.palette.grey[200]};
     padding: ${theme.spacing(2)} 0;
   }
 

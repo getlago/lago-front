@@ -37,8 +37,6 @@ interface BasicComboboxProps extends Omit<ComboBoxInputProps, 'params' | 'search
   disableClearable?: boolean
   renderGroupInputStartAdornment?: { [key: string]: string }
   PopperProps?: Pick<MuiPopperProps, 'placement'> & {
-    minWidth?: number
-    maxWidth?: number
     displayInDialog?: boolean
     offset?: string
   }

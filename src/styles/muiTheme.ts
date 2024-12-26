@@ -478,6 +478,10 @@ export const theme = createTheme({
               },
             },
           },
+          '.MuiAutocomplete-paper': {
+            border: `1px solid ${palette.grey[200]}`,
+            boxSizing: 'content-box',
+          },
         },
         popupIndicator: {
           backgroundColor: 'transparent',
