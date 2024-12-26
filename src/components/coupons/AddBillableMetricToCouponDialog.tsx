@@ -2,15 +2,13 @@ import { gql } from '@apollo/client'
 import { forwardRef, useMemo, useState } from 'react'
 
 import { Alert, Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
-import { ComboBox } from '~/components/form'
+import { ComboBox, ComboboxItem } from '~/components/form'
 import {
   BillableMetricsForCouponsFragment,
   BillableMetricsForCouponsFragmentDoc,
   useGetBillableMetricsForCouponsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { Item } from '../form/ComboBox/ComboBoxItem'
 
 gql`
   fragment BillableMetricsForCoupons on BillableMetric {
@@ -57,7 +55,7 @@ export const AddBillableMetricToCouponDialog = forwardRef<
       return {
         label: `${name} - (${code})`,
         labelNode: (
-          <Item>
+          <ComboboxItem>
             <Typography color="grey700" noWrap>
               {name}
             </Typography>
@@ -65,7 +63,7 @@ export const AddBillableMetricToCouponDialog = forwardRef<
             <Typography color="textPrimary" noWrap>
               ({code})
             </Typography>
-          </Item>
+          </ComboboxItem>
         ),
         value: id,
         disabled: attachedBillableMetricsIds?.includes(id),

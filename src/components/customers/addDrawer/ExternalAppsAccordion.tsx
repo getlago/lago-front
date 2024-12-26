@@ -19,9 +19,9 @@ import {
   ComboBox,
   ComboboxDataGrouped,
   ComboBoxField,
+  ComboboxItem,
   TextInputField,
 } from '~/components/form'
-import { Item } from '~/components/form/ComboBox/ComboBoxItem'
 import {
   ADD_CUSTOMER_ACCOUNTING_PROVIDER_ACCORDION,
   ADD_CUSTOMER_CRM_PROVIDER_ACCORDION,
@@ -343,7 +343,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
       label: provider.name,
       group: provider.__typename.toLocaleLowerCase().replace('provider', ''),
       labelNode: (
-        <Item>
+        <ComboboxItem>
           <Typography color="grey700" noWrap>
             {provider.name}
           </Typography>
@@ -351,7 +351,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
           <Typography color="textPrimary" noWrap>
             ({provider.code})
           </Typography>
-        </Item>
+        </ComboboxItem>
       ),
     }))
   }, [paymentProvidersData?.paymentProviders?.collection])
@@ -364,7 +364,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
       label: integration.name,
       group: integration?.__typename?.replace('Integration', '') || '',
       labelNode: (
-        <Item>
+        <ComboboxItem>
           <Typography variant="body" color="grey700" noWrap>
             {integration.name}
           </Typography>
@@ -372,7 +372,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
           <Typography variant="body" color="grey600" noWrap>
             ({integration.code})
           </Typography>
-        </Item>
+        </ComboboxItem>
       ),
     }))
   }, [allAccountingIntegrationsData])
@@ -384,7 +384,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
       value: integrationSubsidiary.externalId,
       label: `${integrationSubsidiary.externalName} (${integrationSubsidiary.externalId})`,
       labelNode: (
-        <Item>
+        <ComboboxItem>
           <Typography variant="body" color="grey700" noWrap>
             {integrationSubsidiary.externalName}
           </Typography>
@@ -392,7 +392,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
           <Typography variant="body" color="grey600" noWrap>
             ({integrationSubsidiary.externalId})
           </Typography>
-        </Item>
+        </ComboboxItem>
       ),
     }))
   }, [subsidiariesData?.integrationSubsidiaries?.collection])
@@ -404,7 +404,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
       value: integration.code,
       label: integration.name,
       labelNode: (
-        <Item>
+        <ComboboxItem>
           <Typography variant="body" color="grey700" noWrap>
             {integration.name}
           </Typography>
@@ -412,7 +412,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
           <Typography variant="body" color="grey600" noWrap>
             ({integration.code})
           </Typography>
-        </Item>
+        </ComboboxItem>
       ),
     }))
   }, [allAnrokIntegrations])
@@ -425,7 +425,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
       label: integration.name,
       group: integration?.__typename?.replace('Integration', '') || '',
       labelNode: (
-        <Item>
+        <ComboboxItem>
           <Typography variant="body" color="grey700" noWrap>
             {integration.name}
           </Typography>
@@ -433,7 +433,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
           <Typography variant="body" color="grey600" noWrap>
             ({integration.code})
           </Typography>
-        </Item>
+        </ComboboxItem>
       ),
     }))
   }, [allCRMIntegrationsData])

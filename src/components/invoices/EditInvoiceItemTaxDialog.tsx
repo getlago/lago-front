@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { array, object, string } from 'yup'
 
 import { Button, Dialog, DialogRef, Tooltip, Typography } from '~/components/designSystem'
-import { ComboBox } from '~/components/form'
+import { ComboBox, ComboboxItem } from '~/components/form'
 import { SEARCH_TAX_INPUT_FOR_INVOICE_ADD_ON_CLASSNAME } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { useGetTaxesForInvoiceEditTaxDialogQuery } from '~/generated/graphql'
@@ -13,8 +13,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
 import { LocalFeeInput } from './types'
-
-import { Item } from '../form/ComboBox/ComboBoxItem'
 
 gql`
   fragment TaxForInvoiceEditTaxDialog on Tax {
@@ -149,7 +147,7 @@ export const EditInvoiceItemTaxDialog = forwardRef<EditInvoiceItemTaxDialogRef>(
                             style: 'percent',
                           })})`,
                           labelNode: (
-                            <Item>
+                            <ComboboxItem>
                               {name}&nbsp;
                               <Typography color="textPrimary">
                                 (
@@ -158,7 +156,7 @@ export const EditInvoiceItemTaxDialog = forwardRef<EditInvoiceItemTaxDialogRef>(
                                 })}
                                 )
                               </Typography>
-                            </Item>
+                            </ComboboxItem>
                           ),
                           value: localTaxId,
                           disabled:

@@ -22,8 +22,7 @@ import { NAV_HEIGHT, theme } from '~/styles'
 import { mapChargeIntervalCopy } from './ChargeAccordion'
 import { PlanFormInput } from './types'
 
-import { AmountInputField, ComboBox } from '../form'
-import { Item } from '../form/ComboBox/ComboBoxItem'
+import { AmountInputField, ComboBox, ComboboxItem } from '../form'
 import { EditInvoiceDisplayNameRef } from '../invoices/EditInvoiceDisplayName'
 import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
@@ -82,7 +81,7 @@ export const CommitmentsSection = ({
           style: 'percent',
         })})`,
         labelNode: (
-          <Item>
+          <ComboboxItem>
             {name}&nbsp;
             <Typography color="textPrimary">
               (
@@ -91,7 +90,7 @@ export const CommitmentsSection = ({
               })}
               )
             </Typography>
-          </Item>
+          </ComboboxItem>
         ),
         value: taxId,
         disabled: minCommitmentsTaxesIds.includes(taxId),

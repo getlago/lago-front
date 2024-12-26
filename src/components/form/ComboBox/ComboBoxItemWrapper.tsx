@@ -1,43 +1,43 @@
 import { cx } from 'class-variance-authority'
 import { Link } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Icon, Typography } from '~/components/designSystem'
-import { ITEM_HEIGHT, theme } from '~/styles'
 
-import { MultipleComboBoxData } from './types'
+import { ComboboxItem } from './ComboBoxItem'
+import { ComboBoxData } from './types'
 
-import { Checkbox } from '../Checkbox'
-import { ComboboxItem } from '../ComboBox'
+import { Radio } from '../Radio'
 
-interface MultipleComboBoxItemProps {
+interface ComboBoxItemWrapperProps {
   id: string
-  option: MultipleComboBoxData
+  option: ComboBoxData
   selected?: boolean
-  multipleComboBoxProps: React.HTMLAttributes<HTMLLIElement>
+  comboboxProps: React.HTMLAttributes<HTMLLIElement>
   virtualized?: boolean
   addValueRedirectionUrl?: string
 }
 
-export const MultipleComboBoxItem = ({
+export const ComboBoxItemWrapper = ({
   id,
   option: { customValue, value, label, description, disabled, labelNode },
   selected,
   virtualized,
-  multipleComboBoxProps,
+  comboboxProps,
   addValueRedirectionUrl,
-}: MultipleComboBoxItemProps) => {
-  const { className, ...allProps } = multipleComboBoxProps
+}: ComboBoxItemWrapperProps) => {
+  const { className, ...allProps } = comboboxProps
 
   return (
-    <ItemWrapper data-test={`multipleComboBox-item-${label}`}>
+    <div
+      className="remove-child-link-style flex min-h-14 items-center"
+      data-test={`combobox-item-${label}`}
+    >
       <ConditionalWrapper
         condition={!!addValueRedirectionUrl}
         invalidWrapper={(children) => <>{children}</>}
         validWrapper={(children) => <Link to={addValueRedirectionUrl as string}>{children}</Link>}
       >
-        {/* @ts-ignore */}
         <ComboboxItem
           id={id}
           virtualized={virtualized}
@@ -53,41 +53,24 @@ export const MultipleComboBoxItem = ({
         >
           {customValue ? (
             <>
-              <AddCustomValueIcon color="dark" name="plus" />
+              <Icon className="mr-4" color="dark" name="plus" />
               <Typography variant="body" noWrap>
                 {labelNode ?? label}
               </Typography>
             </>
           ) : (
-            <Checkbox
+            <Radio
               disabled={disabled}
               name={value}
-              value={!!selected}
-              sublabel={description}
+              value={value}
+              checked={!!selected}
               label={labelNode || label || value}
+              sublabel={description}
+              labelVariant="body"
             />
           )}
         </ComboboxItem>
       </ConditionalWrapper>
-    </ItemWrapper>
+    </div>
   )
 }
-
-const ItemWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  min-height: ${ITEM_HEIGHT}px;
-
-  a {
-    &:focus,
-    &:active,
-    &:hover {
-      outline: none;
-      text-decoration: none;
-    }
-  }
-`
-
-const AddCustomValueIcon = styled(Icon)`
-  margin-right: ${theme.spacing(4)};
-`

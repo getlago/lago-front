@@ -13,7 +13,7 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
-import { AmountInput, ComboBox, RadioGroupField, Switch } from '~/components/form'
+import { AmountInput, ComboBox, ComboboxItem, RadioGroupField, Switch } from '~/components/form'
 import { ChargeBillingRadioGroup } from '~/components/plans/ChargeBillingRadioGroup'
 import { useDuplicatePlanVar } from '~/core/apolloClient'
 import {
@@ -56,7 +56,6 @@ import { RemoveChargeWarningDialogRef } from './RemoveChargeWarningDialog'
 import { LocalChargeInput, PlanFormInput } from './types'
 
 import { ConditionalWrapper } from '../ConditionalWrapper'
-import { Item } from '../form/ComboBox/ComboBoxItem'
 import { EditInvoiceDisplayNameRef } from '../invoices/EditInvoiceDisplayName'
 import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
@@ -324,7 +323,7 @@ export const ChargeAccordion = memo(
             style: 'percent',
           })})`,
           labelNode: (
-            <Item>
+            <ComboboxItem>
               {name}&nbsp;
               <Typography color="textPrimary">
                 (
@@ -333,7 +332,7 @@ export const ChargeAccordion = memo(
                 })}
                 )
               </Typography>
-            </Item>
+            </ComboboxItem>
           ),
           value: taxId,
           disabled: chargeTaxesIds.includes(taxId),

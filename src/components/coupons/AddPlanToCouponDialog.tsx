@@ -2,15 +2,13 @@ import { gql } from '@apollo/client'
 import { forwardRef, useMemo, useState } from 'react'
 
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
-import { ComboBox } from '~/components/form'
+import { ComboBox, ComboboxItem } from '~/components/form'
 import {
   PlansForCouponsFragment,
   PlansForCouponsFragmentDoc,
   useGetPlansForCouponsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { Item } from '../form/ComboBox/ComboBoxItem'
 
 gql`
   fragment PlansForCoupons on Plan {
@@ -53,7 +51,7 @@ export const AddPlanToCouponDialog = forwardRef<DialogRef, AddPlanToCouponDialog
         return {
           label: `${name} - (${code})`,
           labelNode: (
-            <Item>
+            <ComboboxItem>
               <Typography color="grey700" noWrap>
                 {name}
               </Typography>
@@ -61,7 +59,7 @@ export const AddPlanToCouponDialog = forwardRef<DialogRef, AddPlanToCouponDialog
               <Typography color="textPrimary" noWrap>
                 ({code})
               </Typography>
-            </Item>
+            </ComboboxItem>
           ),
           value: id,
           disabled: attachedPlansIds?.includes(id),

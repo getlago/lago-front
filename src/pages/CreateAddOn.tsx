@@ -7,8 +7,13 @@ import { number, object, string } from 'yup'
 
 import { AddOnFormInput } from '~/components/addOns/types'
 import { Button, Card, Chip, Skeleton, Tooltip, Typography } from '~/components/designSystem'
-import { AmountInputField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
-import { Item } from '~/components/form/ComboBox/ComboBoxItem'
+import {
+  AmountInputField,
+  ComboBox,
+  ComboBoxField,
+  ComboboxItem,
+  TextInputField,
+} from '~/components/form'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import {
   FORM_ERRORS_ENUM,
@@ -108,7 +113,7 @@ const CreateAddOn = () => {
           style: 'percent',
         })})`,
         labelNode: (
-          <Item>
+          <ComboboxItem>
             {name}&nbsp;
             <Typography color="textPrimary">
               (
@@ -117,7 +122,7 @@ const CreateAddOn = () => {
               })}
               )
             </Typography>
-          </Item>
+          </ComboboxItem>
         ),
         value: id,
         disabled: addOnTaxesIds.includes(id),

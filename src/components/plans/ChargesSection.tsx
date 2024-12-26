@@ -5,8 +5,7 @@ import { memo, RefObject, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 
 import { Button, Card, Popper, Tooltip, Typography } from '~/components/designSystem'
-import { ComboBox, SwitchField } from '~/components/form'
-import { Item } from '~/components/form/ComboBox/ComboBoxItem'
+import { ComboBox, ComboboxItem, SwitchField } from '~/components/form'
 import {
   FORM_TYPE_ENUM,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
@@ -145,7 +144,7 @@ export const ChargesSection = memo(
         return {
           label: `${name} (${code})`,
           labelNode: (
-            <Item>
+            <ComboboxItem>
               <Typography color="grey700" noWrap>
                 {name}
               </Typography>
@@ -153,7 +152,7 @@ export const ChargesSection = memo(
               <Typography color="textPrimary" noWrap>
                 ({code})
               </Typography>
-            </Item>
+            </ComboboxItem>
           ),
           value: id,
         }
@@ -172,13 +171,13 @@ export const ChargesSection = memo(
         return {
           label: `${name} (${code})`,
           labelNode: (
-            <Item>
+            <ComboboxItem>
               <Typography color="grey700" noWrap>
                 {name}
               </Typography>
               &nbsp;
               <Typography color="textPrimary">({code})</Typography>
-            </Item>
+            </ComboboxItem>
           ),
           value: id,
         }
