@@ -1,12 +1,10 @@
 import { Autocomplete, createFilterOptions } from '@mui/material'
 import _sortBy from 'lodash/sortBy'
 import { useEffect, useMemo, useRef } from 'react'
-import styled from 'styled-components'
 
 import { Skeleton } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { theme } from '~/styles'
 
 import { ComboBoxInput } from './ComboBoxInput'
 import { ComboBoxItem } from './ComboBoxItem'
@@ -132,14 +130,17 @@ export const ComboBox = ({
       value={value || null}
       loading={isLoading}
       loadingText={
-        <LoadingIemsWrapper>
+        <div className="my-4 flex flex-col gap-8">
           {[1, 2, 3].map((i) => (
-            <LoadingItem key={`combobox-loading-item-${i}`}>
+            <div
+              className="mx-2 flex items-center justify-between px-4"
+              key={`combobox-loading-item-${i}`}
+            >
               <Skeleton variant="circular" size="small" className="mr-4" />
               <Skeleton variant="text" />
-            </LoadingItem>
+            </div>
           ))}
-        </LoadingIemsWrapper>
+        </div>
       }
       noOptionsText={emptyText ?? translate('text_623b3acb8ee4e000ba87d082')}
       selectOnFocus={allowAddValue}
@@ -213,19 +214,3 @@ export const ComboBox = ({
     />
   )
 }
-
-const LoadingIemsWrapper = styled.div`
-  margin: ${theme.spacing(4)} 0;
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(8)};
-`
-
-const LoadingItem = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-  margin: 0 ${theme.spacing(2)};
-  padding: 0 ${theme.spacing(4)};
-`
