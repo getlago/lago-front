@@ -2,6 +2,7 @@ import ace from 'ace-builds/src-noconflict/ace'
 import 'ace-builds/src-noconflict/ext-language_tools'
 import 'ace-builds/src-noconflict/mode-json'
 import 'ace-builds/src-noconflict/theme-github'
+// https://github.com/securingsincity/react-ace/issues/725#issuecomment-1086221818
 import jsonWorkerUrl from 'ace-builds/src-noconflict/worker-json?url'
 import { ReactNode, useEffect, useRef, useState } from 'react'
 import AceEditor from 'react-ace'

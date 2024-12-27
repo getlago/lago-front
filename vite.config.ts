@@ -22,15 +22,22 @@ const titles: Record<string, string> = {
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
+  const port = env.PORT ? parseInt(env.PORT) : 8080
 
   return {
     plugins: [
       react({
         plugins: [['@swc/plugin-styled-components', { displayName: true }]],
       }),
+
+      // WASM for ace editor
       wasm(),
       topLevelAwait(),
+
+      // SVG injection + optimization
       svgr({
+        // including all imports that end with `.svg`
+        // defaults to `.svg?react` imports but added this to keep previous behavior
         include: '**/*.svg',
         svgrOptions: {
           plugins: ['@svgr/plugin-svgo', '@svgr/plugin-jsx'],
@@ -47,6 +54,8 @@ export default defineConfig(({ mode }) => {
           },
         },
       }),
+
+      // Title and favicon injection in index.html
       createHtmlPlugin({
         inject: {
           data: {
@@ -69,22 +78,16 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '~': resolve(__dirname, 'src'),
+        // Use lodash-es instead of lodash for tree-shaking
         lodash: 'lodash-es',
         '@mui/styled-engine': resolve(__dirname, 'node_modules/@mui/styled-engine-sc'),
       },
     },
     server: {
-      port: env.PORT ? parseInt(env.PORT) : 8080,
-      proxy: {
-        '/api': {
-          target: env.API_URL,
-          changeOrigin: true,
-          secure: false,
-        },
-      },
+      port,
     },
     preview: {
-      port: env.PORT ? parseInt(env.PORT) : 8080,
+      port,
     },
     build: {
       outDir: 'dist',
@@ -93,6 +96,7 @@ export default defineConfig(({ mode }) => {
         output: {
           chunkFileNames: '[name].[hash].js',
           entryFileNames: '[name].[hash].js',
+          sourcemapFileNames: '[name].[hash].js.map',
         },
       },
     },
