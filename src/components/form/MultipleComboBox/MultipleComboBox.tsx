@@ -138,7 +138,7 @@ export const MultipleComboBox = ({
                 {...tagOptions}
                 className="my-2 ml-2 mr-0"
                 key={tagOptions.key}
-                label={option.value}
+                label={option.label ?? option.value}
               />
             )
           })

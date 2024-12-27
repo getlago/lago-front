@@ -37,7 +37,7 @@ export const FiltersItemPaymentStatus = ({
       onChange={(invoiceType) => {
         setFilterValue(String(invoiceType.map((v) => v.value).join(',')))
       }}
-      value={value
+      value={(value || '')
         ?.split(',')
         .filter((v) => !!v)
         .map((v) => ({ value: v }))}
