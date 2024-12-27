@@ -1,16 +1,16 @@
 import _groupBy from 'lodash/groupBy'
 import { Children, ForwardedRef, forwardRef, ReactElement, ReactNode, useMemo } from 'react'
-import styled, { css } from 'styled-components'
 
 import { Typography } from '~/components/designSystem'
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import {
-  GROUP_HEADER_HEIGHT,
-  GROUP_ITEM_KEY,
+  MULTIPLE_GROUP_ITEM_KEY,
   MultipleComboBoxVirtualizedList,
 } from './MultipleComboBoxVirtualizedList'
 import { MultipleComboBoxData, MultipleComboBoxProps } from './types'
+
+import { ComboboxListItem } from '../ComboBox/ComboboxList'
 
 const randomKey = Math.round(Math.random() * 100000)
 
@@ -37,9 +37,12 @@ export const MultipleComboBoxList = forwardRef(
       if (!isGrouped) {
         return Children.toArray(
           (children as ReactElement[]).map((item, i) => (
-            <Item key={`multipleComboBox-list-item-${randomKey}-${i}`} {...propsToForward}>
+            <ComboboxListItem
+              key={`multipleComboBox-list-item-${randomKey}-${i}`}
+              {...propsToForward}
+            >
               {item}
-            </Item>
+            </ComboboxListItem>
           )),
         )
       }
@@ -61,22 +64,35 @@ export const MultipleComboBoxList = forwardRef(
               ...acc,
               isGrouped
                 ? [
-                    // If renderGroupHeader is provided, render the html, otherewise simply render the key
-                    <GroupHeader
-                      key={`${GROUP_ITEM_KEY}-${key}`}
-                      $isFirst={i === 0}
-                      $virtualized={virtualized}
+                    // If renderGroupHeader is provided, render the html, otherewise simply render the items
+                    <div
+                      key={`${MULTIPLE_GROUP_ITEM_KEY}-${key}`}
+                      data-type={MULTIPLE_GROUP_ITEM_KEY}
+                      className={tw(
+                        'mx-0 my-1 flex h-11 w-[inherit] items-center bg-grey-100 px-6 py-0 shadow-[0px_-1px_0px_0px_#D9DEE7_inset,0px_-1px_0px_0px_#D9DEE7]',
+                        {
+                          '!mt-0': i === 0,
+                          'mb-1': virtualized,
+                          'sticky top-0 z-toast': !virtualized,
+                        },
+                      )}
                     >
                       {(!!renderGroupHeader && (renderGroupHeader[key] as ReactNode)) || (
                         <Typography noWrap>{key}</Typography>
                       )}
-                    </GroupHeader>,
+                    </div>,
                   ]
                 : [],
               ...(groupedBy[key] as ReactElement[]).map((item, j) => (
-                <Item key={`multipleComboBox-list-item-${randomKey}-${i}-${j}`} {...propsToForward}>
+                <ComboboxListItem
+                  key={`multipleComboBox-list-item-${randomKey}-${i}-${j}`}
+                  className={tw({
+                    'mt-1': i === 0 && !isGrouped,
+                  })}
+                  {...propsToForward}
+                >
                   {item}
-                </Item>
+                </ComboboxListItem>
               )),
             ]
           }, []),
@@ -84,55 +100,21 @@ export const MultipleComboBoxList = forwardRef(
     }, [isGrouped, renderGroupHeader, children, propsToForward, virtualized])
 
     return (
-      <Container ref={ref} role="listbox" $virtualized={virtualized}>
+      <div
+        className={tw('relative max-h-[inherit] overflow-auto pb-0', {
+          'overflow-hidden': virtualized,
+        })}
+        ref={ref}
+        role="listbox"
+      >
         {virtualized ? (
           <MultipleComboBoxVirtualizedList value={value} elements={htmlItems as ReactElement[]} />
         ) : (
           htmlItems
         )}
-      </Container>
+      </div>
     )
   },
 )
 
 MultipleComboBoxList.displayName = 'MultipleComboBoxList'
-
-const Item = styled.div``
-
-const Container = styled.div<{ $virtualized?: boolean }>`
-  max-height: inherit;
-  position: relative;
-  padding-bottom: 0;
-  box-sizing: border-box;
-  overflow: ${({ $virtualized }) => ($virtualized ? 'hidden' : 'auto')};
-
-  ${Item}:not(:last-child) {
-    margin: ${({ $virtualized }) =>
-      $virtualized ? `0 ${theme.spacing(2)}` : `0 0 ${theme.spacing(1)}`};
-  }
-`
-
-const GroupHeader = styled.div<{ $isFirst?: boolean; $virtualized?: boolean }>`
-  height: ${GROUP_HEADER_HEIGHT}px;
-  display: flex;
-  width: inherit;
-  align-items: center;
-  padding: 0 ${theme.spacing(6)};
-  background-color: ${theme.palette.grey[100]};
-  box-sizing: border-box;
-  box-shadow:
-    ${theme.shadows[7]},
-    0px -1px 0px 0px ${theme.palette.divider};
-
-  ${({ $virtualized, $isFirst }) =>
-    !$virtualized
-      ? css`
-          z-index: ${theme.zIndex.dialog + 2};
-          position: sticky;
-          top: 0;
-          margin: ${$isFirst ? 0 : theme.spacing(2)} 0 ${theme.spacing(2)};
-        `
-      : css`
-          margin: ${$isFirst ? 0 : theme.spacing(1)} 0 ${theme.spacing(2)};
-        `};
-`

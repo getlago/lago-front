@@ -1,19 +1,15 @@
 import { Popper, PopperProps } from '@mui/material'
-import { cx } from 'class-variance-authority'
 import { ReactNode } from 'react'
 
 import { theme } from '~/styles'
 
 import { ComboBoxProps } from './types'
 
-type ComboBoxPopperFactoryArgs = Required<Pick<ComboBoxProps, 'PopperProps'>>['PopperProps'] & {
-  grouped?: boolean
-  virtualized?: boolean
-}
+type ComboBoxPopperFactoryArgs = Required<Pick<ComboBoxProps, 'PopperProps'>>['PopperProps']
 
 // return a configured <Popper> component with custom styles
 export const ComboBoxPopperFactory =
-  ({ placement, displayInDialog, grouped, virtualized }: ComboBoxPopperFactoryArgs = {}) =>
+  ({ placement, displayInDialog }: ComboBoxPopperFactoryArgs = {}) =>
   // eslint-disable-next-line react/display-name
   (props: PopperProps) => (
     <Popper
@@ -35,13 +31,6 @@ export const ComboBoxPopperFactory =
       ]}
       {...props}
     >
-      <div
-        className={cx({
-          'combobox-popper--virtualized': virtualized,
-          'combobox-popper--grouped': grouped,
-        })}
-      >
-        {props?.children as ReactNode}
-      </div>
+      <>{props?.children as ReactNode}</>
     </Popper>
   )

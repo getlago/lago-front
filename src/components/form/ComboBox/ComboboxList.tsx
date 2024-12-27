@@ -22,7 +22,7 @@ interface ComboBoxVirtualizedListProps
   children: ReactNode
 }
 
-const ComboboxListItem = ({
+export const ComboboxListItem = ({
   children,
   virtualized,
   className,
