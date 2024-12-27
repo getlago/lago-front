@@ -184,9 +184,9 @@ export const CreateWebhookDialog = forwardRef<CreateWebhookDialogRef>((_, ref) =
         />
 
         <div>
-          <WebhookSignatureLabel variant="captionHl" color="grey700">
+          <Typography className="mb-1" variant="captionHl" color="grey700">
             {translate('text_64d23a81a7d807f8aa570513')}
-          </WebhookSignatureLabel>
+          </Typography>
           <RadioField
             name="signatureAlgo"
             formikProps={formikProps}
@@ -213,10 +213,6 @@ const Content = styled.div`
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(6)};
   }
-`
-
-const WebhookSignatureLabel = styled(Typography)`
-  margin-bottom: ${theme.spacing(1)};
 `
 
 CreateWebhookDialog.displayName = 'forwardRef'

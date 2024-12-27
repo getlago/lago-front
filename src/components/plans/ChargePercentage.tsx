@@ -201,7 +201,9 @@ export const ChargePercentage = memo(
           <LineAmount>
             {valuePointer?.freeUnitsPerEvents !== undefined &&
               valuePointer?.freeUnitsPerTotalAggregation !== undefined && (
-                <OrText variant="body">{translate('text_62ff5d01a306e274d4ffcc59')}</OrText>
+                <Typography className="mt-10 flex-initial" variant="body">
+                  {translate('text_62ff5d01a306e274d4ffcc59')}
+                </Typography>
               )}
             <AmountInput
               className="flex-1"
@@ -588,11 +590,6 @@ const LineAmount = styled.div`
   > *:last-child {
     margin-top: 34px;
   }
-`
-
-const OrText = styled(Typography)`
-  flex: initial;
-  margin-top: 34px;
 `
 
 const LineButton = styled.div`

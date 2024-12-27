@@ -82,12 +82,12 @@ const AddOnsList = () => {
             </Typography>
           </NameSection>
           <CouponInfosSection>
-            <SmallCell color="disabled" variant="bodyHl">
+            <Typography className="w-24 text-right" color="disabled" variant="bodyHl">
               {translate('text_629728388c4d2300e2d380cd')}
-            </SmallCell>
-            <MediumCell color="disabled" variant="bodyHl">
+            </Typography>
+            <Typography className="w-28" color="disabled" variant="bodyHl">
               {translate('text_629728388c4d2300e2d380e3')}
-            </MediumCell>
+            </Typography>
           </CouponInfosSection>
         </ListHead>
         {!!isLoading && variables?.searchTerm ? (
@@ -202,15 +202,6 @@ const CouponInfosSection = styled.div`
       display: none;
     }
   }
-`
-
-const MediumCell = styled(Typography)`
-  width: 112px;
-`
-
-const SmallCell = styled(Typography)`
-  text-align: right;
-  width: 96px;
 `
 
 const Header = styled(PageHeader)`

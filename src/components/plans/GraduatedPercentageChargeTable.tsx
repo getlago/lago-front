@@ -75,38 +75,38 @@ export const GraduatedPercentageChargeTable = memo(
               {
                 size: 124,
                 content: (_, i) => (
-                  <TypographyCell variant="captionHl">
+                  <Typography className="px-4" variant="captionHl">
                     {translate(
                       i === 0 ? 'text_62793bbb599f1c01522e91c0' : 'text_62793bbb599f1c01522e91fc',
                     )}
-                  </TypographyCell>
+                  </Typography>
                 ),
               },
               {
                 title: (
-                  <TypographyCell variant="captionHl">
+                  <Typography className="px-4" variant="captionHl">
                     {translate('text_62793bbb599f1c01522e91ab')}
-                  </TypographyCell>
+                  </Typography>
                 ),
                 size: 124,
                 content: (row) => (
-                  <TypographyCell color="disabled" noWrap>
+                  <Typography className="px-4" color="disabled" noWrap>
                     {row?.fromValue}
-                  </TypographyCell>
+                  </Typography>
                 ),
               },
               {
                 title: (
-                  <TypographyCell variant="captionHl" noWrap>
+                  <Typography className="px-4" variant="captionHl" noWrap>
                     {translate('text_62793bbb599f1c01522e91b1')}
-                  </TypographyCell>
+                  </Typography>
                 ),
                 size: 124,
                 content: (row, i) =>
                   disabled || i === tableDatas?.length - 1 ? (
-                    <TypographyCell variant="body" color="disabled" noWrap>
+                    <Typography className="px-4" variant="body" color="disabled" noWrap>
                       {row.toValue || '∞'}
-                    </TypographyCell>
+                    </Typography>
                   ) : (
                     <Tooltip
                       placement="top"
@@ -138,9 +138,9 @@ export const GraduatedPercentageChargeTable = memo(
               },
               {
                 title: (
-                  <TypographyCell variant="captionHl">
+                  <Typography className="px-4" variant="captionHl">
                     {translate('text_64de472463e2da6b31737de0')}
-                  </TypographyCell>
+                  </Typography>
                 ),
                 size: 124,
                 content: (row, i) =>
@@ -172,9 +172,9 @@ export const GraduatedPercentageChargeTable = memo(
               {
                 title: (
                   <div className="flex items-center">
-                    <TypographyCell variant="captionHl">
+                    <Typography className="px-4" variant="captionHl">
                       {translate('text_64de472463e2da6b31737df2')}
-                    </TypographyCell>
+                    </Typography>
                     <Tooltip
                       className="flex h-5 items-end"
                       placement="top-end"
@@ -289,10 +289,6 @@ const TableContainer = styled.div`
   margin-right: -${theme.spacing(4)};
   padding-left: ${theme.spacing(4)};
   padding-bottom: ${theme.spacing(6)};
-`
-
-const TypographyCell = styled(Typography)`
-  padding: 0px ${theme.spacing(4)};
 `
 
 const DisabledAmountCell = styled.div`

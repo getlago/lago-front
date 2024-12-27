@@ -681,7 +681,9 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
               <Typography variant="caption" noWrap>
                 {meta.key}
               </Typography>
-              <MetadataValue color="textSecondary">{meta.value}</MetadataValue>
+              <Typography className="line-break-anywhere" color="textSecondary">
+                {meta.value}
+              </Typography>
             </div>
           ))}
       </InfosBlock>
@@ -733,10 +735,6 @@ const InfosBlock = styled.div<{ $showMore: boolean }>`
   > *:nth-child(n + ${SHOW_MORE_THRESHOLD}) {
     ${({ $showMore }) => ($showMore ? 'display: block;' : 'display: none;')}
   }
-`
-
-const MetadataValue = styled(Typography)`
-  line-break: anywhere;
 `
 
 const InlineLink = styled(Link)`

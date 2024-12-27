@@ -82,8 +82,8 @@ export const SubscriptionLine = ({
         $hasBottomSection={hasBottomSection}
         data-test={subscriptionName || plan.name}
       >
-        <CellBig>
-          <Avatar size="big" variant="connector">
+        <Typography className="flex items-center">
+          <Avatar className="mr-3 hidden md:flex" size="big" variant="connector">
             <Icon name="clock" color="dark" />
           </Avatar>
           <NameBlock>
@@ -94,7 +94,7 @@ export const SubscriptionLine = ({
               {plan.code}
             </Typography>
           </NameBlock>
-        </CellBig>
+        </Typography>
         <Status
           {...(status === StatusTypeEnum.Pending
             ? {
@@ -225,19 +225,6 @@ const Item = styled(ListItemLink)<{ $hasBottomSection?: boolean; $hasAboveSectio
     box-shadow: none;
     border-radius: ${({ $hasBottomSection, $hasAboveSection }) =>
       $hasAboveSection ? '0px' : $hasBottomSection ? '12px 12px 0 0' : '12px'};
-  }
-`
-
-const CellBig = styled(Typography)`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-
-    ${theme.breakpoints.down('md')} {
-      display: none;
-    }
   }
 `
 

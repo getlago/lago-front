@@ -208,9 +208,9 @@ export const CommitmentsSection = ({
             />
 
             <div>
-              <TaxLabel variant="captionHl" color="grey700">
+              <Typography className="mb-2" variant="captionHl" color="grey700">
                 {translate('text_64be910fba8ef9208686a8e3')}
-              </TaxLabel>
+              </Typography>
               <Group>
                 {!!formikProps?.values?.minimumCommitment?.taxes?.length && (
                   <InlineTaxesWrapper>
@@ -375,10 +375,6 @@ const InlineTaxesWrapper = styled.div`
   align-items: center;
   gap: ${theme.spacing(3)};
   flex-wrap: wrap;
-`
-
-const TaxLabel = styled(Typography)`
-  margin-bottom: ${theme.spacing(2)};
 `
 
 const InlineTaxInputWrapper = styled.div`

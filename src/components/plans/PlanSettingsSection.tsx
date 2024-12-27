@@ -229,9 +229,9 @@ export const PlanSettingsSection = memo(
 
         {!!plan?.taxes?.length && (
           <div>
-            <TaxLabel variant="captionHl" color="grey700">
+            <Typography className="mb-1" variant="captionHl" color="grey700">
               {translate('text_6661fc17337de3591e29e3e1')}
-            </TaxLabel>
+            </Typography>
             <InlineTaxesWrapper>
               {plan.taxes.map(({ id, name, rate }) => (
                 <Chip
@@ -259,9 +259,9 @@ export const PlanSettingsSection = memo(
         {shouldDisplayTaxesInput ? (
           <div>
             {!plan.taxes?.length && (
-              <TaxLabel variant="captionHl" color="grey700">
+              <Typography className="mb-1" variant="captionHl" color="grey700">
                 {translate('text_6661fc17337de3591e29e3e1')}
-              </TaxLabel>
+              </Typography>
             )}
             <InlineTaxInputWrapper>
               <ComboBox
@@ -340,10 +340,6 @@ const InlineTaxInputWrapper = styled.div`
   > *:first-child {
     flex: 1;
   }
-`
-
-const TaxLabel = styled(Typography)`
-  margin-bottom: ${theme.spacing(1)};
 `
 
 const InlineTaxesWrapper = styled.div`

@@ -924,7 +924,11 @@ const CustomerInvoiceDetails = () => {
                   />
                 </MainInfoLine>
                 <MainInfoLine>
-                  <InlineTripleTypography variant="body" color="grey600">
+                  <Typography
+                    className="flex flex-wrap items-center gap-1"
+                    variant="body"
+                    color="grey600"
+                  >
                     <span>
                       {translate('text_634687079be251fdb43833ad', {
                         totalAmount: intlFormatNumber(
@@ -938,7 +942,7 @@ const CustomerInvoiceDetails = () => {
                     </span>
                     <span>•</span>
                     <span>{invoiceId}</span>
-                  </InlineTripleTypography>
+                  </Typography>
                 </MainInfoLine>
               </div>
             </MainInfos>
@@ -996,12 +1000,6 @@ const MainInfoLine = styled.div`
 
   > *:first-child {
     margin-right: ${theme.spacing(2)};
-  }
-`
-
-const InlineTripleTypography = styled(Typography)`
-  > span:nth-child(2) {
-    margin: 0 ${theme.spacing(2)};
   }
 `
 

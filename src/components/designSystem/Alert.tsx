@@ -1,6 +1,5 @@
 import { cva } from 'class-variance-authority'
 import { ReactNode } from 'react'
-import styled from 'styled-components'
 
 import { tw } from '~/styles/utils'
 
@@ -68,7 +67,9 @@ export const Alert = ({
       <div className="flex flex-row items-center justify-between gap-4 py-4">
         <div className="flex flex-row items-center gap-4">
           <Icon name={iconConfig.name} color={iconConfig.color} />
-          <Content color="textSecondary">{children}</Content>
+          <Typography className="word-break-word" color="textSecondary">
+            {children}
+          </Typography>
         </div>
         {!!ButtonProps.onClick && !!label && (
           <Button variant="quaternary-dark" size="medium" {...ButtonProps}>
@@ -79,9 +80,3 @@ export const Alert = ({
     </div>
   )
 }
-
-const Content = styled(Typography)`
-  && {
-    word-break: break-word;
-  }
-`

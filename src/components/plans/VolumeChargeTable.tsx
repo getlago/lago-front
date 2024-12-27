@@ -75,36 +75,36 @@ export const VolumeChargeTable = memo(
               {
                 size: 124,
                 content: () => (
-                  <DisabledCell variant="captionHl">
+                  <Typography className="px-4" variant="captionHl">
                     {translate('text_6304e74aab6dbc18d615f3a2')}
-                  </DisabledCell>
+                  </Typography>
                 ),
               },
               {
                 title: (
-                  <DisabledCell variant="captionHl">
+                  <Typography className="px-4" variant="captionHl">
                     {translate('text_6304e74aab6dbc18d615f392')}
-                  </DisabledCell>
+                  </Typography>
                 ),
                 size: 124,
                 content: (row) => (
-                  <DisabledCell color="disabled" noWrap>
+                  <Typography className="px-4" color="disabled" noWrap>
                     {row?.fromValue}
-                  </DisabledCell>
+                  </Typography>
                 ),
               },
               {
                 title: (
-                  <DisabledCell variant="captionHl" noWrap>
+                  <Typography className="px-4" variant="captionHl" noWrap>
                     {translate('text_6304e74aab6dbc18d615f396')}
-                  </DisabledCell>
+                  </Typography>
                 ),
                 size: 124,
                 content: (row, i) =>
                   disabled || i === tableDatas?.length - 1 ? (
-                    <DisabledCell variant="body" color="disabled" noWrap>
+                    <Typography className="px-4" variant="body" color="disabled" noWrap>
                       {row.toValue || '∞'}
-                    </DisabledCell>
+                    </Typography>
                   ) : (
                     <Tooltip
                       placement="top"
@@ -136,9 +136,9 @@ export const VolumeChargeTable = memo(
               },
               {
                 title: (
-                  <DisabledCell variant="captionHl">
+                  <Typography className="px-4" variant="captionHl">
                     {translate('text_6304e74aab6dbc18d615f39a')}
-                  </DisabledCell>
+                  </Typography>
                 ),
                 size: 124,
                 content: (row, i) =>
@@ -169,9 +169,9 @@ export const VolumeChargeTable = memo(
               },
               {
                 title: (
-                  <DisabledCell variant="captionHl">
+                  <Typography className="px-4" variant="captionHl">
                     {translate('text_6304e74aab6dbc18d615f39e')}
-                  </DisabledCell>
+                  </Typography>
                 ),
                 size: 124,
                 content: (row, i) =>
@@ -254,10 +254,6 @@ const TableContainer = styled.div`
   margin-right: -${theme.spacing(4)};
   padding-left: ${theme.spacing(4)};
   padding-bottom: ${theme.spacing(6)};
-`
-
-const DisabledCell = styled(Typography)`
-  padding: 0px ${theme.spacing(4)};
 `
 
 const DisabledAmountCell = styled.div`

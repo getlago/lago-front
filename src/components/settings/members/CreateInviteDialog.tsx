@@ -188,28 +188,28 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
         ) : (
           <>
             <Line>
-              <Label variant="caption" color="grey600">
+              <Typography className="w-35 shrink-0" variant="caption" color="grey600">
                 {translate('text_63208c701ce25db781407458')}
-              </Label>
+              </Typography>
               <Typography variant="body" color="grey700" noWrap>
                 {formikProps.values.email}
               </Typography>
             </Line>
             <Line>
-              <Label variant="caption" color="grey600">
+              <Typography className="w-35 shrink-0" variant="caption" color="grey600">
                 {translate('text_664f035a68227f00e261b7ec')}
-              </Label>
+              </Typography>
               <Typography variant="body" color="grey700" noWrap>
                 {translate(getRoleTranslationKey[formikProps.values.role])}
               </Typography>
             </Line>
             <Line>
-              <Label variant="caption" color="grey600">
+              <Typography className="w-35 shrink-0" variant="caption" color="grey600">
                 {translate('text_63208c701ce25db781407475')}
-              </Label>
-              <InvitationURL variant="body" color="grey700">
+              </Typography>
+              <Typography className="line-break-anywhere" variant="body" color="grey700">
                 {invitationUrl}
-              </InvitationURL>
+              </Typography>
             </Line>
           </>
         )}
@@ -231,15 +231,6 @@ const Content = styled.div`
 const Line = styled.div`
   display: flex;
   align-items: baseline;
-`
-
-const Label = styled(Typography)`
-  width: 140px;
-  flex-shrink: 0;
-`
-
-const InvitationURL = styled(Typography)`
-  line-break: anywhere;
 `
 
 CreateInviteDialog.displayName = 'CreateInviteDialog'
