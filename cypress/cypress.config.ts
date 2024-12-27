@@ -1,7 +1,8 @@
 import { defineConfig } from 'cypress'
+import dotenv from 'dotenv'
 import fs from 'node:fs'
 
-require('dotenv').config({ path: '../.env' })
+dotenv.config({ path: '../.env' })
 
 export default defineConfig({
   projectId: 'u863yi',
