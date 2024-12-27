@@ -161,7 +161,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
     <>
       {(!overdueBalancesError || !grossRevenuesError) && (
         <section>
-          <SectionHeader variant="subhead" $hideBottomShadow>
+          <SectionHeader variant="subhead" hideBottomShadow>
             {translate('text_6670a7222702d70114cc7954')}
 
             <Button

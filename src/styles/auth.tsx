@@ -1,8 +1,11 @@
+import { FC, PropsWithChildren } from 'react'
 import styled from 'styled-components'
 
 import { Typography } from '~/components/designSystem'
 import Logo from '~/public/images/logo/lago-logo.svg'
 import { theme } from '~/styles'
+
+import { tw } from './utils'
 
 export const Page = styled.div`
   box-sizing: border-box;
@@ -29,9 +32,13 @@ export const Card = styled.div`
   box-sizing: border-box;
 `
 
-export const Title = styled(Typography)`
-  margin-bottom: ${theme.spacing(3)};
-`
-export const Subtitle = styled(Typography)<{ $noMargins?: boolean }>`
-  margin-bottom: ${({ $noMargins }) => ($noMargins ? 0 : theme.spacing(8))};
-`
+export const Title: FC<PropsWithChildren> = ({ children }) => (
+  <Typography className="mb-3" variant="headline">
+    {children}
+  </Typography>
+)
+
+export const Subtitle: FC<PropsWithChildren<{ noMargins?: boolean }>> = ({
+  children,
+  noMargins,
+}) => <Typography className={tw('mb-8', { '!mb-0': !!noMargins })}>{children}</Typography>

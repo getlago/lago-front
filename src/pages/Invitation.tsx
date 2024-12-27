@@ -294,8 +294,8 @@ const Invitation = () => {
         <StyledLogo height={24} />
         {(!!error || !data?.invite) && !loading ? (
           <>
-            <Title variant="headline">{translate('text_63246f875e2228ab7b63dcf4')}</Title>
-            <Subtitle $noMargins>{translate('text_63246f875e2228ab7b63dcfe')}</Subtitle>
+            <Title>{translate('text_63246f875e2228ab7b63dcf4')}</Title>
+            <Subtitle noMargins>{translate('text_63246f875e2228ab7b63dcfe')}</Subtitle>
           </>
         ) : !!loading ? (
           <>

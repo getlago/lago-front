@@ -1,8 +1,8 @@
-import { ReactNode } from 'react'
+import { FC, PropsWithChildren, ReactNode } from 'react'
 import styled from 'styled-components'
 
-import { Typography } from '~/components/designSystem'
-import { NAV_HEIGHT, theme } from '~/styles'
+import { Typography, TypographyProps } from '~/components/designSystem'
+import { theme } from '~/styles'
 
 interface DetailsInfoItemProps {
   label: string
@@ -19,11 +19,14 @@ export const DetailsInfoItem = ({ label, value }: DetailsInfoItemProps) => {
   )
 }
 
-export const DetailsSectionTitle = styled(Typography)`
-  display: flex;
-  align-items: center;
-  height: ${NAV_HEIGHT}px;
-`
+export const DetailsSectionTitle: FC<PropsWithChildren<TypographyProps>> = ({
+  children,
+  ...props
+}) => (
+  <Typography className="flex h-18 items-center" {...props}>
+    {children}
+  </Typography>
+)
 
 export const DetailsInfoGrid = ({ grid }: { grid: Array<DetailsInfoItemProps | false> }) => {
   return (

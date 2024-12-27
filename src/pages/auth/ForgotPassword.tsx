@@ -71,7 +71,7 @@ const ForgotPassword = () => {
         <StyledLogo height={24} />
         {hasSubmitted ? (
           <>
-            <Title variant="headline">{translate('text_642707b0da1753a9bb66728e')}</Title>
+            <Title>{translate('text_642707b0da1753a9bb66728e')}</Title>
             <Subtitle>{translate('text_642707b0da1753a9bb667298')}</Subtitle>
             <ButtonLink
               type="button"
@@ -83,7 +83,7 @@ const ForgotPassword = () => {
           </>
         ) : (
           <>
-            <Title variant="headline">{translate('text_642707b0da1753a9bb66728c')}</Title>
+            <Title>{translate('text_642707b0da1753a9bb66728c')}</Title>
             <Subtitle>{translate('text_642707b0da1753a9bb667296')}</Subtitle>
             <form onSubmit={(e) => e.preventDefault()}>
               <TextInputField

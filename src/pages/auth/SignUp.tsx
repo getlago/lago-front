@@ -195,7 +195,7 @@ const SignUp = () => {
 
         <Stack spacing={8}>
           <Stack spacing={3}>
-            <Title variant="headline">
+            <Title>
               {translate(
                 isGoogleRegister
                   ? 'text_660bf95c75dd928ced0ecb04'
