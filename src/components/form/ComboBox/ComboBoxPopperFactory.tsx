@@ -1,7 +1,6 @@
 import { Popper, PopperProps } from '@mui/material'
 import { cx } from 'class-variance-authority'
 import { ReactNode } from 'react'
-import styled from 'styled-components'
 
 import { theme } from '~/styles'
 
@@ -14,20 +13,16 @@ type ComboBoxPopperFactoryArgs = Required<Pick<ComboBoxProps, 'PopperProps'>>['P
 
 // return a configured <Popper> component with custom styles
 export const ComboBoxPopperFactory =
-  ({
-    maxWidth,
-    minWidth,
-    placement,
-    displayInDialog,
-    grouped,
-    virtualized,
-  }: ComboBoxPopperFactoryArgs = {}) =>
+  ({ placement, displayInDialog, grouped, virtualized }: ComboBoxPopperFactoryArgs = {}) =>
   // eslint-disable-next-line react/display-name
   (props: PopperProps) => (
-    <StyledPopper
-      $minWidth={minWidth || 0}
-      $maxWidth={maxWidth}
-      $displayInDialog={displayInDialog}
+    <Popper
+      className="min-w-0"
+      sx={{
+        zIndex: displayInDialog
+          ? `${theme.zIndex.dialog + 1} !important`
+          : `${theme.zIndex.popper} !important`,
+      }}
       placement={placement || 'bottom-start'}
       modifiers={[
         {
@@ -48,25 +43,5 @@ export const ComboBoxPopperFactory =
       >
         {props?.children as ReactNode}
       </div>
-    </StyledPopper>
+    </Popper>
   )
-
-const StyledPopper = styled(Popper)<{
-  $minWidth?: number
-  $maxWidth?: number
-  $displayInDialog?: boolean
-}>`
-  min-width: ${({ $minWidth }) => $minWidth}px;
-  max-width: ${({ $maxWidth }) => ($maxWidth ? `${$maxWidth}px` : 'initial')};
-  z-index: ${({ $displayInDialog }) =>
-    $displayInDialog ? theme.zIndex.dialog + 1 : theme.zIndex.popper};
-
-  ${theme.breakpoints.down('md')} {
-    max-width: ${({ $minWidth }) => ($minWidth ? `${$minWidth}px` : 'initial')};
-  }
-
-  .MuiAutocomplete-paper {
-    border: 1px solid ${theme.palette.grey[200]};
-    box-sizing: content-box;
-  }
-`

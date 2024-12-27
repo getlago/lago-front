@@ -3,7 +3,7 @@ import { forwardRef, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
-import { ComboBox } from '~/components/form'
+import { ComboBox, ComboboxItem } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CREATE_TAX_ROUTE } from '~/core/router'
@@ -15,8 +15,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import { theme } from '~/styles'
-
-import { Item } from '../../form/ComboBox/ComboBoxItem'
 
 gql`
   query getTaxRatesForEditOrga($limit: Int, $page: Int, $searchTerm: String) {
@@ -79,7 +77,7 @@ export const AddOrganizationVatRateDialog = forwardRef<
           style: 'percent',
         })})`,
         labelNode: (
-          <Item>
+          <ComboboxItem>
             {name}&nbsp;
             <Typography color="textPrimary">
               (
@@ -88,7 +86,7 @@ export const AddOrganizationVatRateDialog = forwardRef<
               })}
               )
             </Typography>
-          </Item>
+          </ComboboxItem>
         ),
         value: id,
         disabled: appliedTaxRatesTaxesIds?.includes(id),

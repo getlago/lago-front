@@ -4,8 +4,13 @@ import { memo, useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
 import { Button, Card, Chip, Tooltip, Typography } from '~/components/designSystem'
-import { ButtonSelectorField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
-import { Item } from '~/components/form/ComboBox/ComboBoxItem'
+import {
+  ButtonSelectorField,
+  ComboBox,
+  ComboBoxField,
+  ComboboxItem,
+  TextInputField,
+} from '~/components/form'
 import {
   FORM_ERRORS_ENUM,
   FORM_TYPE_ENUM,
@@ -94,7 +99,7 @@ export const PlanSettingsSection = memo(
             style: 'percent',
           })})`,
           labelNode: (
-            <Item>
+            <ComboboxItem>
               {name}&nbsp;
               <Typography color="textPrimary">
                 (
@@ -103,7 +108,7 @@ export const PlanSettingsSection = memo(
                 })}
                 )
               </Typography>
-            </Item>
+            </ComboboxItem>
           ),
           value: id,
           disabled: planTaxesIds.includes(id),

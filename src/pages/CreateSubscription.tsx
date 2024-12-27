@@ -30,10 +30,10 @@ import {
   BasicComboBoxData,
   ButtonSelectorField,
   ComboBoxField,
+  ComboboxItem,
   DatePickerField,
   TextInputField,
 } from '~/components/form'
-import { Item } from '~/components/form/ComboBox/ComboBoxItem'
 import {
   EditInvoiceDisplayName,
   EditInvoiceDisplayNameRef,
@@ -369,7 +369,7 @@ const CreateSubscription = () => {
         {
           label: `${name} - (${code})`,
           labelNode: (
-            <Item>
+            <ComboboxItem>
               <Typography color="grey700" noWrap>
                 {name}
               </Typography>
@@ -377,7 +377,7 @@ const CreateSubscription = () => {
               <Typography color="textPrimary" noWrap>
                 ({code})
               </Typography>
-            </Item>
+            </ComboboxItem>
           ),
           value: id,
           disabled:

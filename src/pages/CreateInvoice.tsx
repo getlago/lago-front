@@ -18,8 +18,7 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
-import { AmountInput, ComboBox, ComboBoxField, TextInput } from '~/components/form'
-import { Item } from '~/components/form/ComboBox/ComboBoxItem'
+import { AmountInput, ComboBox, ComboBoxField, ComboboxItem, TextInput } from '~/components/form'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import {
   EditInvoiceDisplayName,
@@ -298,7 +297,7 @@ const CreateInvoice = () => {
       return {
         label: name,
         labelNode: (
-          <Item>
+          <ComboboxItem>
             <Typography color="grey700" noWrap>
               {name}
             </Typography>
@@ -311,7 +310,7 @@ const CreateInvoice = () => {
               })}
               )
             </Typography>
-          </Item>
+          </ComboboxItem>
         ),
         value: id,
       }

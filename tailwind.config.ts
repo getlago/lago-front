@@ -286,6 +286,16 @@ const config = {
         '.height-minus-footer': {
           height: `calc(100vh - ${theme('spacing.footer')})`,
         },
+        '.remove-child-link-style': {
+          a: {
+            width: '100%',
+
+            '&:focus, &:active, &:hover': {
+              outline: 'none',
+              textDecoration: 'none',
+            },
+          },
+        },
       })
     }),
   ],

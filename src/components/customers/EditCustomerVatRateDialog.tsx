@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { forwardRef, useMemo, useState } from 'react'
 
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
-import { ComboBox } from '~/components/form'
+import { ComboBox, ComboboxItem } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -15,8 +15,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
-
-import { Item } from '../form/ComboBox/ComboBoxItem'
 
 gql`
   fragment EditCustomerVatRate on Customer {
@@ -97,7 +95,7 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
             style: 'percent',
           })})`,
           labelNode: (
-            <Item>
+            <ComboboxItem>
               {name}&nbsp;
               <Typography color="textPrimary">
                 (
@@ -106,7 +104,7 @@ export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRa
                 })}
                 )
               </Typography>
-            </Item>
+            </ComboboxItem>
           ),
           value: code,
           disabled: appliedTaxRatesTaxesIds?.includes(id),

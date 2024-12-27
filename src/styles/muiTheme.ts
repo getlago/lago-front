@@ -3,6 +3,7 @@ import type {} from '@mui/x-date-pickers/themeAugmentation'
 
 import { palette } from './colorsPalette'
 
+export const ITEM_HEIGHT = 56
 export const NAV_HEIGHT = 72
 export const HEADER_TABLE_HEIGHT = 48
 export const INNER_CONTENT_WIDTH = 672
@@ -477,6 +478,10 @@ export const theme = createTheme({
               },
             },
           },
+          '.MuiAutocomplete-paper': {
+            border: `1px solid ${palette.grey[200]}`,
+            boxSizing: 'content-box',
+          },
         },
         popupIndicator: {
           backgroundColor: 'transparent',
@@ -487,12 +492,11 @@ export const theme = createTheme({
           cursor: 'pointer',
         },
         option: {
-          paddingLeft: 0,
-          paddingRight: 0,
-          paddingTop: 0,
-          paddingBottom: 0,
           borderRadius: '12px',
           height: 'auto',
+          minHeight: `${ITEM_HEIGHT}px !important`,
+          width: '100% !important',
+          margin: '0 8px',
           '&.Mui-focused': {
             backgroundColor: `${palette.grey[100]} !important`,
           },

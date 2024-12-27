@@ -7,7 +7,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 
 import { ComboBoxInput } from './ComboBoxInput'
-import { ComboBoxItem } from './ComboBoxItem'
+import { ComboBoxItemWrapper } from './ComboBoxItemWrapper'
 import { ComboboxList } from './ComboboxList'
 import { ComboBoxPopperFactory } from './ComboBoxPopperFactory'
 import { ComboBoxData, ComboBoxProps } from './types'
@@ -153,7 +153,7 @@ export const ComboBox = ({
       }}
       renderOption={(props, option, state) => {
         return (
-          <ComboBoxItem
+          <ComboBoxItemWrapper
             comboboxProps={props}
             id={`option-${option.value}`}
             key={`option-${option.value}`}
