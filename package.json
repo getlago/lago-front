@@ -27,7 +27,7 @@
     "changelog:update": "auto-changelog --template=.changelog/regular.hbs",
     "codemod": "node scripts/codemod.js",
     "postinstall": "npx yarn-deduplicate",
-    "bundle-analyzer": "vite-bundle-visualizer"
+    "bundle-analyzer": "vite-bundle-visualizer --sourcemap"
   },
   "packageManager": "yarn@1.22.19",
   "devDependencies": {
