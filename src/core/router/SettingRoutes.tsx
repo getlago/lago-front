@@ -279,7 +279,6 @@ export const settingRoutes: CustomRouteObject[] = [
     path: [CREATE_INVOICE_CUSTOM_SECTION, EDIT_INVOICE_CUSTOM_SECTION],
     private: true,
     element: <CreateInvoiceCustomSection />,
-    // TODO: Add permissions
-    permissions: ['organizationInvoicesUpdate'],
+    permissions: ['invoiceCustomSectionsCreate', 'invoiceCustomSectionsUpdate'],
   },
 ]
