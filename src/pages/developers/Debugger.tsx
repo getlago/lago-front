@@ -105,7 +105,11 @@ const Debugger = () => {
       ) : (
         <Container>
           <Events>
-            <Header variant="bodyHl" color="textSecondary">
+            <Typography
+              className="flex h-18 min-h-18 items-center justify-between px-12 shadow-b"
+              variant="bodyHl"
+              color="textSecondary"
+            >
               {translate('text_6298bd525e359200d5ea0020')}
               {!!data?.events?.collection && (
                 <Tooltip title={translate('text_6298bd525e359200d5ea0010')} placement="top-end">
@@ -121,7 +125,7 @@ const Debugger = () => {
                   />
                 </Tooltip>
               )}
-            </Header>
+            </Typography>
             {!loading && (!data?.events?.collection || !data?.events?.collection.length) ? (
               <GenericPlaceholder
                 className="m-12"
@@ -195,9 +199,9 @@ const Debugger = () => {
           <Side>
             {loading && (
               <>
-                <HeaderBillableMetric>
+                <Typography className="ml-px flex h-18 items-center justify-between bg-white px-8 shadow-b">
                   <Skeleton variant="text" className="w-45" />
-                </HeaderBillableMetric>
+                </Typography>
                 <EventInfosSkeleton>
                   {[0, 1, 2, 3, 4, 5, 6].map((i) => (
                     <div key={`skeleton-event-${i}`}>
@@ -278,29 +282,6 @@ const DateHeader = styled.div`
 const EventList = styled.div`
   overflow: auto;
   height: calc(100vh - ${NAV_HEIGHT * 3}px);
-`
-
-const Header = styled(Typography)`
-  height: ${NAV_HEIGHT}px;
-  min-height: ${NAV_HEIGHT}px;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 ${theme.spacing(12)};
-  box-sizing: border-box;
-`
-
-const HeaderBillableMetric = styled(Typography)`
-  height: ${NAV_HEIGHT}px;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 ${theme.spacing(8)};
-  box-sizing: border-box;
-  background-color: ${theme.palette.common.white};
-  margin-left: 1px;
 `
 
 const EventInfosSkeleton = styled.div`

@@ -104,9 +104,9 @@ const Analytics = () => {
                 </SearchCurrencyTextInputWrapper>
                 <CurrencyListWrapper>
                   {!currenciesToDisplay.length ? (
-                    <EmptyCurrencyTypography variant="body" color="disabled">
+                    <Typography className="p-[6px]" variant="body" color="disabled">
                       {translate('text_65562fd544bc8a0057706172')}
-                    </EmptyCurrencyTypography>
+                    </Typography>
                   ) : (
                     <>
                       {currenciesToDisplay.map((localCurrency) => (
@@ -286,8 +286,4 @@ const CurrencyListWrapper = styled.div`
   button {
     scroll-margin: ${theme.spacing(1)};
   }
-`
-
-const EmptyCurrencyTypography = styled(Typography)`
-  padding: 6px;
 `

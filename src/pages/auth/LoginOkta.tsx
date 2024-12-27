@@ -3,7 +3,6 @@ import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Alert, Button, Typography } from '~/components/designSystem'
@@ -154,7 +153,8 @@ const LoginOkta = () => {
             {translate('text_620bc4d4269a55014d493f6d')}
           </Button>
 
-          <UsefulLink
+          <Typography
+            className="mx-auto text-center"
             variant="caption"
             html={translate('text_664c90c9b2b6c2012aa50bda', {
               linkLogin: LOGIN_ROUTE,
@@ -167,9 +167,3 @@ const LoginOkta = () => {
 }
 
 export default LoginOkta
-
-const UsefulLink = styled(Typography)`
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-`

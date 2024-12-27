@@ -16,7 +16,7 @@ import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useEmailConfig } from '~/hooks/useEmailConfig'
 import { usePermissions } from '~/hooks/usePermissions'
-import { NAV_HEIGHT, PageHeader, theme } from '~/styles'
+import { PageHeader, theme } from '~/styles'
 
 enum DisplayEnum {
   desktop = 'desktop',
@@ -126,13 +126,15 @@ const EmailScenarioConfig = () => {
               <Icon name="mail" size="large" />
             </Avatar>
             <div>
-              <TitleText variant="headline">{translate(translationsKey.title)}</TitleText>
+              <Typography className="mb-1" variant="headline">
+                {translate(translationsKey.title)}
+              </Typography>
               <Typography>{translate(translationsKey.substitle)}</Typography>
             </div>
           </>
         )}
       </Title>
-      <PreviewHeader>
+      <Typography className="flex h-18 min-h-18 items-center justify-between px-4 first:not-last:mr-3 md:px-12">
         <Typography variant="subhead" color="grey700" noWrap>
           {translate('text_6407684eaf41130074c4b2f8')}
         </Typography>
@@ -160,7 +162,7 @@ const EmailScenarioConfig = () => {
             </Tooltip>
           </Controls>
         )}
-      </PreviewHeader>
+      </Typography>
       <PreviewContainer>
         <PreviewContent $display={display}>
           <PreviewEmailLayout
@@ -241,10 +243,12 @@ const EmailScenarioConfig = () => {
                     </Typography>
                   </DownloadBlock>
                   <Divider />
-                  <ContactBlock variant="caption">
-                    <span>{translateWithContextualLocal('text_64188b3d9735d5007d712276')}</span>
-                    <span>billing@user_email.com</span>
-                  </ContactBlock>
+                  <Typography className="text-center" variant="caption">
+                    <span className="mr-1">
+                      {translateWithContextualLocal('text_64188b3d9735d5007d712276')}
+                    </span>
+                    <span className="text-blue-600">billing@user_email.com</span>
+                  </Typography>
                 </>
               )}
             </div>
@@ -295,23 +299,6 @@ const Title = styled.div`
   }
 `
 
-const PreviewHeader = styled(Typography)`
-  height: ${NAV_HEIGHT}px;
-  min-height: ${NAV_HEIGHT}px;
-  display: flex;
-  align-items: center;
-  padding: 0 ${theme.spacing(12)};
-  justify-content: space-between;
-
-  > *:first-child:not(:last-child) {
-    margin-right: ${theme.spacing(3)};
-  }
-
-  ${theme.breakpoints.down('md')} {
-    padding: 0 ${theme.spacing(4)};
-  }
-`
-
 const PreviewContainer = styled.div`
   flex: 1;
   width: 100%;
@@ -344,16 +331,6 @@ const ControlDivider = styled.div`
   width: 1px;
   height: 40px;
   background-color: ${theme.palette.grey[300]};
-`
-
-const ContactBlock = styled(Typography)`
-  text-align: center;
-  > :first-child {
-    margin-right: ${theme.spacing(1)};
-  }
-  > :last-child {
-    color: ${theme.palette.primary[600]};
-  }
 `
 
 const InfoBlock = styled.div`
@@ -394,8 +371,4 @@ const HeaderRight = styled.div`
   > *:not(:last-child) {
     margin-right: ${theme.spacing(3)};
   }
-`
-
-const TitleText = styled(Typography)`
-  margin-bottom: ${theme.spacing(1)};
 `

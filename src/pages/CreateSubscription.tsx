@@ -789,9 +789,14 @@ const CreateSubscription = () => {
                     </Button>
                   </Card>
                 ) : formType !== FORM_TYPE_ENUM.edition || !subscription?.plan.parent?.id ? (
-                  <OverridePlanSeparatorTypography noWrap variant="captionHl" color="grey500">
+                  <Typography
+                    className="flex items-center gap-4 uppercase before:inline-block before:h-[2px] before:w-full before:bg-grey-300 before:content-[''] after:inline-block after:h-[2px] after:w-full after:bg-grey-300 after:content-['']"
+                    noWrap
+                    variant="captionHl"
+                    color="grey500"
+                  >
                     {translate('text_65118a52df984447c18694d0')}
-                  </OverridePlanSeparatorTypography>
+                  </Typography>
                 ) : null}
 
                 <PlanFormConditionalWrapper $isPremium={isPremium}>
@@ -1052,22 +1057,6 @@ const AccordionSkeleton = styled.div`
   height: ${SELECTOR_HEIGHT}px;
   border-radius: 12px;
   border: 1px solid ${theme.palette.grey[400]};
-`
-
-const OverridePlanSeparatorTypography = styled(Typography)`
-  display: flex;
-  align-items: center;
-  text-transform: uppercase;
-  gap: ${theme.spacing(4)};
-
-  &::before,
-  &::after {
-    content: '';
-    display: inline-block;
-    height: 2px;
-    width: 100%;
-    background-color: ${theme.palette.grey[300]};
-  }
 `
 
 export default CreateSubscription

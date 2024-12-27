@@ -200,7 +200,9 @@ const StripeIntegrationDetails = () => {
       <ContentWrapper>
         <section>
           <InlineTitle>
-            <Title variant="subhead">{translate('text_657078c28394d6b1ae1b9725')}</Title>
+            <Typography className="flex h-18 w-full items-center" variant="subhead">
+              {translate('text_657078c28394d6b1ae1b9725')}
+            </Typography>
 
             {canEditIntegration && (
               <Button
@@ -279,9 +281,9 @@ const StripeIntegrationDetails = () => {
               </>
             )}
           </LineItem>
-          <LineItemCaption variant="caption" color="grey600">
+          <Typography className="mt-3" variant="caption" color="grey600">
             {translate('text_637f813d31381b1ed90ab30e')}
-          </LineItemCaption>
+          </Typography>
         </section>
 
         <section>
@@ -437,13 +439,6 @@ const ContentWrapper = styled.div`
   }
 `
 
-const Title = styled(Typography)`
-  height: ${NAV_HEIGHT}px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-`
-
 const LineItem = styled.div`
   height: ${NAV_HEIGHT}px;
   max-width: ${theme.spacing(168)};
@@ -454,10 +449,6 @@ const LineItem = styled.div`
   > *:first-child {
     margin-right: ${theme.spacing(3)};
   }
-`
-
-const LineItemCaption = styled(Typography)`
-  margin-top: ${theme.spacing(3)};
 `
 
 const Line = styled.div`

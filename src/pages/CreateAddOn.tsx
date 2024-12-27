@@ -294,9 +294,9 @@ const CreateAddOn = () => {
 
                   {!!formikProps?.values?.taxes?.length && (
                     <div>
-                      <TaxLabel variant="captionHl" color="grey700">
+                      <Typography className="mb-1" variant="captionHl" color="grey700">
                         {translate('text_64be910fba8ef9208686a8e3')}
-                      </TaxLabel>
+                      </Typography>
                       <InlineTaxesWrapper data-test="tax-chip-wrapper">
                         {formikProps?.values?.taxes?.map(({ id, name, rate }) => (
                           <Chip
@@ -322,9 +322,9 @@ const CreateAddOn = () => {
                   {shouldDisplayTaxesInput ? (
                     <div>
                       {!formikProps?.values?.taxes?.length && (
-                        <TaxLabel variant="captionHl" color="grey700">
+                        <Typography className="mb-1" variant="captionHl" color="grey700">
                           {translate('text_64be910fba8ef9208686a8e3')}
-                        </TaxLabel>
+                        </Typography>
                       )}
                       <InlineTaxInputWrapper>
                         <ComboBox
@@ -416,10 +416,6 @@ const CreateAddOn = () => {
     </div>
   )
 }
-
-const TaxLabel = styled(Typography)`
-  margin-bottom: ${theme.spacing(1)};
-`
 
 const InlineTaxInputWrapper = styled.div`
   display: flex;

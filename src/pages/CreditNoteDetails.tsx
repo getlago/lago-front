@@ -483,7 +483,11 @@ const CreditNoteDetails = () => {
                   <CreditNoteBadge creditNote={creditNote as CreditNote} />
                 </MainInfoLine>
                 <MainInfoLine>
-                  <InlineTripleTypography variant="body" color="grey600">
+                  <Typography
+                    className="flex flex-wrap items-center gap-1"
+                    variant="body"
+                    color="grey600"
+                  >
                     <span>
                       {translate('text_637655cb50f04bf1c8379cf2', {
                         amount: intlFormatNumber(
@@ -500,7 +504,7 @@ const CreditNoteDetails = () => {
                     </span>
                     <span>•</span>
                     <span>{creditNote?.id}</span>
-                  </InlineTripleTypography>
+                  </Typography>
                 </MainInfoLine>
               </div>
             </MainInfos>
@@ -1098,12 +1102,6 @@ const MainInfoLine = styled.div`
 
   > *:first-child {
     margin-right: ${theme.spacing(2)};
-  }
-`
-
-const InlineTripleTypography = styled(Typography)`
-  > span:nth-child(2) {
-    margin: 0 ${theme.spacing(2)};
   }
 `
 

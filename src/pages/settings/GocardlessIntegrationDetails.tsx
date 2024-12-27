@@ -234,7 +234,9 @@ const GocardlessIntegrationDetails = () => {
       <ContentWrapper>
         <section>
           <InlineTitle>
-            <Title variant="subhead">{translate('text_637f813d31381b1ed90ab315')}</Title>
+            <Typography className="flex h-18 w-full items-center" variant="subhead">
+              {translate('text_637f813d31381b1ed90ab315')}
+            </Typography>
 
             {canEditIntegration && (
               <Button
@@ -328,7 +330,11 @@ const GocardlessIntegrationDetails = () => {
               )}
             </>
           )}
-          {!loading && <Info variant="caption">{translate('text_635bd8acb686f18909a57c93')}</Info>}
+          {!loading && (
+            <Typography className="mt-3" variant="caption">
+              {translate('text_635bd8acb686f18909a57c93')}
+            </Typography>
+          )}
         </section>
 
         <section>
@@ -482,21 +488,10 @@ const ContentWrapper = styled.div`
   }
 `
 
-const Title = styled(Typography)`
-  height: ${NAV_HEIGHT}px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-`
-
 const Item = styled(Stack)`
   height: ${NAV_HEIGHT}px;
   max-width: ${theme.spacing(168)};
   box-shadow: ${theme.shadows[7]};
-`
-
-const Info = styled(Typography)`
-  margin-top: ${theme.spacing(3)};
 `
 
 const Line = styled.div`

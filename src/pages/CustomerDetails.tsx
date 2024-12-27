@@ -340,9 +340,9 @@ const CustomerDetails = () => {
                   initials={customerInitials}
                 />
                 <div>
-                  <Name color="textSecondary" variant="headline" forceBreak>
+                  <Typography className="mb-1" color="textSecondary" variant="headline" forceBreak>
                     {customerName || translate('text_62f272a7a60b4d7fadad911a')}
-                  </Name>
+                  </Typography>
                   <Typography>{externalId}</Typography>
                 </div>
               </MainInfos>
@@ -541,10 +541,6 @@ const CustomerMainInfosContainer = styled.div`
     box-shadow: ${theme.shadows[8]};
     padding: ${theme.spacing(6)};
   }
-`
-
-const Name = styled(Typography)`
-  margin-bottom: ${theme.spacing(1)};
 `
 
 const SideBlock = styled.div`
