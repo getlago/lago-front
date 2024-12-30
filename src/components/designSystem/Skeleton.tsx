@@ -79,7 +79,7 @@ export const Skeleton = ({
     <ConditionalWrapper
       condition={!!textVariant && variant === 'text'}
       validWrapper={(children) => (
-        <div className={tw(textWrapperStyles({ textVariant }))}>{children}</div>
+        <div className={tw(textWrapperStyles({ textVariant }), className)}>{children}</div>
       )}
       invalidWrapper={(children) => <>{children}</>}
     >
