@@ -1,8 +1,6 @@
 import { FC, PropsWithChildren, ReactNode } from 'react'
-import styled from 'styled-components'
 
 import { Typography, TypographyProps } from '~/components/designSystem'
-import { theme } from '~/styles'
 
 interface DetailsInfoItemProps {
   label: string
@@ -30,7 +28,7 @@ export const DetailsSectionTitle: FC<PropsWithChildren<TypographyProps>> = ({
 
 export const DetailsInfoGrid = ({ grid }: { grid: Array<DetailsInfoItemProps | false> }) => {
   return (
-    <StyledDetailsInfoGrid>
+    <div className="grid grid-cols-[repeat(2,minmax(auto,1fr))] gap-[16px_32px]">
       {grid.map((item, index) => {
         if (item) {
           return (
@@ -42,18 +40,6 @@ export const DetailsInfoGrid = ({ grid }: { grid: Array<DetailsInfoItemProps | f
           )
         }
       })}
-    </StyledDetailsInfoGrid>
+    </div>
   )
 }
-
-const StyledDetailsInfoGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, minmax(auto, 1fr));
-  gap: ${theme.spacing(4)} ${theme.spacing(8)};
-`
-
-export const DetailsAccordionWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(6)};
-`
