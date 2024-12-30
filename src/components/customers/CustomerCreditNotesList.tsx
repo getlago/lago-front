@@ -14,7 +14,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { SectionHeader, SideSection } from '~/styles/customer'
+import { SectionHeader } from '~/styles/customer'
 
 import { SearchInput } from '../SearchInput'
 
@@ -52,7 +52,7 @@ export const CustomerCreditNotesList = ({
   const creditNotes = data?.creditNotes?.collection
 
   return (
-    <SideSection>
+    <div>
       <SectionHeader variant="subhead" color="grey700" hideBottomShadow>
         {translate('text_63725b30957fd5b26b308dd7')}
       </SectionHeader>
@@ -115,6 +115,6 @@ export const CustomerCreditNotesList = ({
           variables={variables}
         />
       )}
-    </SideSection>
+    </div>
   )
 }

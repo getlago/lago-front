@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 
 import { Button, Typography } from '~/components/designSystem'
 import { CREATE_SUBSCRIPTION } from '~/core/router'
@@ -13,7 +13,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import { HEADER_TABLE_HEIGHT, theme } from '~/styles'
-import { SectionHeader, SideSection } from '~/styles/customer'
+import { SectionHeader } from '~/styles/customer'
 
 import { SubscriptionItem, SubscriptionItemSkeleton } from '../subscriptions/SubscriptionItem'
 import {
@@ -57,8 +57,8 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
   const terminateSubscriptionDialogRef = useRef<TerminateCustomerSubscriptionDialogRef>(null)
 
   return (
-    <SideSection>
-      <Header variant="subhead" hideBottomShadow>
+    <div>
+      <SectionHeader variant="subhead" hideBottomShadow>
         {translate('text_6250304370f0f700a8fdc28d')}
 
         {hasPermissions(['subscriptionsCreate']) && (
@@ -76,7 +76,7 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
             {translate('text_6250304370f0f700a8fdc28b')}
           </Button>
         )}
-      </Header>
+      </SectionHeader>
       {loading ? (
         <LoadingContent>
           {[0, 1, 2].map((_, i) => (
@@ -113,19 +113,11 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
         </>
       )}
       <TerminateCustomerSubscriptionDialog ref={terminateSubscriptionDialogRef} />
-    </SideSection>
+    </div>
   )
 }
 
 CustomerSubscriptionsList.displayName = 'CustomerSubscriptionsList'
-
-const Header = styled(SectionHeader)<{ $loading?: boolean }>`
-  ${({ $loading }) =>
-    $loading &&
-    css`
-      box-shadow: none;
-    `}
-`
 
 const ListHeader = styled.div`
   height: ${HEADER_TABLE_HEIGHT}px;
