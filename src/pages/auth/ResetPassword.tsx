@@ -149,12 +149,12 @@ const ResetPassword = () => {
           </>
         ) : !!error && !loading ? (
           <>
-            <Title variant="headline">{translate('text_642707b0da1753a9bb667292')}</Title>
-            <Subtitle $noMargins>{translate('text_642707b0da1753a9bb66729c')}</Subtitle>
+            <Title>{translate('text_642707b0da1753a9bb667292')}</Title>
+            <Subtitle noMargins>{translate('text_642707b0da1753a9bb66729c')}</Subtitle>
           </>
         ) : (
           <>
-            <Title variant="headline">{translate('text_642707b0da1753a9bb667290')}</Title>
+            <Title>{translate('text_642707b0da1753a9bb667290')}</Title>
             <Subtitle>{translate('text_642707b0da1753a9bb66729a')}</Subtitle>
 
             <form>

@@ -17,7 +17,6 @@ import {
   Content,
   LineSplit,
   Main,
-  SectionTitle,
   Side,
   SkeletonHeader,
   Subtitle,
@@ -118,9 +117,9 @@ const CreateTaxRate = () => {
                 </div>
 
                 <Card>
-                  <SectionTitle variant="subhead">
+                  <Typography variant="subhead">
                     {translate('text_645bb193927b375079d28a91')}
-                  </SectionTitle>
+                  </Typography>
 
                   <LineSplit>
                     <TextInputField

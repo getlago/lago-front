@@ -85,7 +85,7 @@ export const CustomerCoupons = memo(() => {
     <>
       {!!(coupons || [])?.length && (
         <Container data-test="customer-coupon-container">
-          <SectionHeader variant="subhead" $hideBottomShadow>
+          <SectionHeader variant="subhead" hideBottomShadow>
             {translate('text_628b8c693e464200e00e469d')}
             <Button
               variant="quaternary"

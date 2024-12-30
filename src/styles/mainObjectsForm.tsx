@@ -1,9 +1,10 @@
 // This file contains styled components for the main objects form
 // Ultimately, only general rules such as responsive or block size should be kept here
 // Parts about spacing between elements should be moved to the components themselves
+import { FC, PropsWithChildren } from 'react'
 import styled from 'styled-components'
 
-import { Skeleton, Typography } from '~/components/designSystem'
+import { Skeleton, Typography, TypographyProps } from '~/components/designSystem'
 
 import { NAV_HEIGHT, theme } from './muiTheme'
 
@@ -32,16 +33,17 @@ export const Content = styled.div`
   display: flex;
   min-height: calc(100vh - ${NAV_HEIGHT}px);
 `
+export const Title: FC<PropsWithChildren<TypographyProps>> = ({ children, ...props }) => (
+  <Typography className="mb-1 px-8" {...props}>
+    {children}
+  </Typography>
+)
 
-export const Title = styled(Typography)`
-  margin-bottom: ${theme.spacing(1)};
-  padding: 0 ${theme.spacing(8)};
-`
-
-export const Subtitle = styled(Typography)`
-  margin-bottom: ${theme.spacing(8)};
-  padding: 0 ${theme.spacing(8)};
-`
+export const Subtitle: FC<PropsWithChildren<TypographyProps>> = ({ children, ...props }) => (
+  <Typography className="mb-8 px-8" {...props}>
+    {children}
+  </Typography>
+)
 
 export const Side = styled.div`
   width: 40%;
@@ -111,12 +113,6 @@ export const StickySubmitBar = styled.div`
 `
 
 // ------------------------------------------------------------
-
-export const SectionTitle = styled(Typography)`
-  > div:first-child {
-    margin-bottom: ${theme.spacing(3)};
-  }
-`
 
 export const FormLoadingSkeleton = ({ id, length = 2 }: { id: string; length?: number }) => {
   const array = Array.from({ length }, (_, index) => index)
