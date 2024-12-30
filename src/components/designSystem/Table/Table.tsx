@@ -473,7 +473,7 @@ export const Table = <T extends DataItem>({
           '& .lago-table-cell:last-of-type .lago-table-inner-cell': {
             ...setResponsiveProperty('paddingRight', containerSize),
           },
-          '& .lago-table-inner-cell': {
+          '& tbody .lago-table-inner-cell': {
             minHeight: rowSize,
           },
         }}
