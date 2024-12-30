@@ -6,28 +6,16 @@ import { lazyLoad } from './utils'
 const { disableSignUp } = envGlobalVar()
 
 // ----------- Pages -----------
-const Login = lazyLoad(() => import(/* webpackChunkName: 'login' */ '~/pages/auth/Login'))
-const SignUp = lazyLoad(() => import(/* webpackChunkName: 'sign-up' */ '~/pages/auth/SignUp'))
-const ForgotPassword = lazyLoad(
-  () => import(/* webpackChunkName: 'forgot-password' */ '~/pages/auth/ForgotPassword'),
-)
-const ResetPassword = lazyLoad(
-  () => import(/* webpackChunkName: 'reset-password' */ '~/pages/auth/ResetPassword'),
-)
+const Login = lazyLoad(() => import('~/pages/auth/Login'))
+const SignUp = lazyLoad(() => import('~/pages/auth/SignUp'))
+const ForgotPassword = lazyLoad(() => import('~/pages/auth/ForgotPassword'))
+const ResetPassword = lazyLoad(() => import('~/pages/auth/ResetPassword'))
 
-const Invitation = lazyLoad(() => import(/* webpackChunkName: 'invitation' */ '~/pages/Invitation'))
-const InvitationInit = lazyLoad(
-  () => import(/* webpackChunkName: 'invitation-init' */ '~/pages/InvitationInit'),
-)
-const GoogleAuthCallback = lazyLoad(
-  () => import(/* webpackChunkName: 'google-auth-callback' */ '~/pages/auth/GoogleAuthCallback'),
-)
-const LoginOkta = lazyLoad(
-  () => import(/* webpackChunkName: 'login-okta' */ '~/pages/auth/LoginOkta'),
-)
-const OktaAuthCallback = lazyLoad(
-  () => import(/* webpackChunkName: 'okta-auth-callback' */ '~/pages/auth/OktaAuthCallback'),
-)
+const Invitation = lazyLoad(() => import('~/pages/Invitation'))
+const InvitationInit = lazyLoad(() => import('~/pages/InvitationInit'))
+const GoogleAuthCallback = lazyLoad(() => import('~/pages/auth/GoogleAuthCallback'))
+const LoginOkta = lazyLoad(() => import('~/pages/auth/LoginOkta'))
+const OktaAuthCallback = lazyLoad(() => import('~/pages/auth/OktaAuthCallback'))
 
 // ----------- Routes -----------
 export const LOGIN_ROUTE = '/login'
