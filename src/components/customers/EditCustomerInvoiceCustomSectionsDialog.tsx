@@ -127,7 +127,7 @@ export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
           formattedValues = {
             ...formattedValues,
             skipInvoiceCustomSections: true,
-            applicableInvoiceCustomSectionIds: [],
+            applicableInvoiceCustomSectionIds: null,
           }
           break
       }
