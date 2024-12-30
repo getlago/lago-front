@@ -85,9 +85,9 @@ const BillableMetricsList = () => {
           <Typography color="disabled" variant="bodyHl">
             {translate('text_623b497ad05b960101be343e')}
           </Typography>
-          <CellSmall align="right" color="disabled" variant="bodyHl">
+          <Typography className="w-28" align="right" color="disabled" variant="bodyHl">
             {translate('text_623b497ad05b960101be3440')}
-          </CellSmall>
+          </Typography>
         </ListHead>
         {!!isLoading && variables?.searchTerm ? (
           <>
@@ -201,10 +201,6 @@ const ListHead = styled(ListHeader)`
   > *:not(:last-child) {
     margin-right: ${theme.spacing(6)};
   }
-`
-
-const CellSmall = styled(Typography)`
-  width: 112px;
 `
 
 export default BillableMetricsList

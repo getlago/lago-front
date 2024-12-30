@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useEffect, useMemo, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 
 import { Button, InfiniteScroll, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { WebhookLogDetails } from '~/components/developers/WebhookLogDetails'
@@ -145,11 +145,11 @@ const WebhookLogs = () => {
             <Skeleton variant="text" className="w-60" />
           ) : (
             <>
-              <Title color="textSecondary" variant="bodyHl" noWrap>
+              <Typography className="mr-1" color="textSecondary" variant="bodyHl" noWrap>
                 {translate('text_63e3a496be166d8f3279b594', {
                   url: webhookUrlData?.webhookEndpoint?.webhookUrl,
                 })}
-              </Title>
+              </Typography>
             </>
           )}
         </Header>
@@ -170,7 +170,11 @@ const WebhookLogs = () => {
       ) : (
         <Container>
           <LeftSide>
-            <HeaderBlock variant="bodyHl" color="grey700">
+            <Typography
+              className="ml-px flex h-18 items-center justify-between bg-white px-12 shadow-b"
+              variant="bodyHl"
+              color="grey700"
+            >
               {translate('text_63e27c56dfe64b846474ef4b')}
               {!!data?.webhooks?.collection && (
                 <Tooltip title={translate('text_63e27c56dfe64b846474ef4a')} placement="top-end">
@@ -183,7 +187,7 @@ const WebhookLogs = () => {
                   />
                 </Tooltip>
               )}
-            </HeaderBlock>
+            </Typography>
             <FilterButtonsWrapper>
               <Button
                 variant={!statusFilter ? 'secondary' : 'quaternary'}
@@ -307,9 +311,9 @@ const WebhookLogs = () => {
           <RightSide>
             {isLoading && (
               <>
-                <HeaderBlock $loading>
+                <Typography className="ml-px flex h-18 items-center justify-between bg-white px-12 pl-8 shadow-b">
                   <Skeleton variant="text" className="w-45" />
-                </HeaderBlock>
+                </Typography>
                 <LogPropertiesSkeleton>
                   {[0, 1, 2, 3, 4, 5, 6].map((i) => (
                     <div key={`skeleton-event-${i}`}>
@@ -342,10 +346,6 @@ const Header = styled.div`
   }
 `
 
-const Title = styled(Typography)`
-  margin-right: 4px;
-`
-
 const Container = styled.div`
   position: relative;
   display: flex;
@@ -371,23 +371,6 @@ const RightSide = styled.div`
   ${theme.breakpoints.down('md')} {
     display: none;
   }
-`
-
-const HeaderBlock = styled(Typography)<{ $loading?: boolean }>`
-  height: ${NAV_HEIGHT}px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 ${theme.spacing(12)};
-  box-shadow: ${theme.shadows[7]};
-  background-color: ${theme.palette.common.white};
-  margin-left: 1px;
-
-  ${({ $loading }) =>
-    $loading &&
-    css`
-      padding-left: ${theme.spacing(8)};
-    `}
 `
 
 const LogsList = styled.div`

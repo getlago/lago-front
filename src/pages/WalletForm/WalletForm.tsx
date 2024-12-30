@@ -311,13 +311,13 @@ const WalletForm = () => {
           ) : (
             <>
               <div>
-                <Title variant="headline" color="grey700">
+                <Typography className="mb-1" variant="headline" color="grey700">
                   {translate(
                     formType === FORM_TYPE_ENUM.edition
                       ? 'text_62d9430e8b9fe36851cddd09'
                       : 'text_6560809c38fb9de88d8a505e',
                   )}
-                </Title>
+                </Typography>
                 <Typography variant="body" color="grey600">
                   {translate(
                     formType === FORM_TYPE_ENUM.edition
@@ -411,8 +411,4 @@ const Main = styled.div`
     width: 100%;
     padding: ${theme.spacing(12)} ${theme.spacing(4)} 0;
   }
-`
-
-const Title = styled(Typography)`
-  margin-bottom: ${theme.spacing(1)};
 `

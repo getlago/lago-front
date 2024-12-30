@@ -32,7 +32,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import LagoTaxManagement from '~/public/images/lago-tax-management.svg'
-import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, PageHeader, theme } from '~/styles'
+import { NAV_HEIGHT, PageHeader, theme } from '~/styles'
 
 gql`
   query lagoTaxManagementIntegrationsSetting {
@@ -147,7 +147,9 @@ const LagoTaxManagementIntegration = () => {
       </MainInfos>
       <ContentWrapper>
         <section>
-          <Title variant="subhead">{translate('text_657078c28394d6b1ae1b9725')}</Title>
+          <Typography className="flex h-18 w-full items-center" variant="subhead">
+            {translate('text_657078c28394d6b1ae1b9725')}
+          </Typography>
           <ConnectionDetailsItem>
             {loading ? (
               <>
@@ -171,7 +173,8 @@ const LagoTaxManagementIntegration = () => {
             )}
           </ConnectionDetailsItem>
           {!loading && hasPermissions(['organizationView']) && (
-            <Info
+            <Typography
+              className="flex h-12 items-center justify-start"
               variant="caption"
               html={translate('text_657078c28394d6b1ae1b9737', {
                 href: ORGANIZATION_INFORMATIONS_ROUTE,
@@ -281,13 +284,6 @@ const ContentWrapper = styled.div`
   }
 `
 
-const Title = styled(Typography)`
-  height: ${NAV_HEIGHT}px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-`
-
 const ConnectionDetailsItem = styled.div`
   height: ${NAV_HEIGHT}px;
   max-width: ${theme.spacing(168)};
@@ -298,13 +294,6 @@ const ConnectionDetailsItem = styled.div`
   > *:first-child {
     margin-right: ${theme.spacing(3)};
   }
-`
-
-const Info = styled(Typography)`
-  height: ${HEADER_TABLE_HEIGHT}px;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
 `
 
 const Line = styled.div`

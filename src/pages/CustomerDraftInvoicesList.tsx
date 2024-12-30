@@ -112,11 +112,11 @@ const CustomerDraftInvoicesList = () => {
               <Icon name="document" />
             </Avatar>
             <div>
-              <Name color="textSecondary" variant="headline">
+              <Typography className="mb-1" color="textSecondary" variant="headline">
                 {translate('text_638f74bb4d41e3f1d0201649', {
                   customerName,
                 })}
-              </Name>
+              </Typography>
               <Typography>
                 {translate('text_638f74bb4d41e3f1d020164b', {
                   count: customerData?.customerInvoices?.metadata?.totalCount,
@@ -177,10 +177,6 @@ const MainInfos = styled.div`
   > *:first-child {
     margin-right: ${theme.spacing(4)};
   }
-`
-
-const Name = styled(Typography)`
-  margin-bottom: ${theme.spacing(1)};
 `
 
 export default CustomerDraftInvoicesList

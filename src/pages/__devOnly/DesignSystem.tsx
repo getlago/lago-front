@@ -155,7 +155,9 @@ const DesignSystem = () => {
             match: [DISPLAY_TAB_URL, ONLY_DEV_DESIGN_SYSTEM_ROUTE],
             component: (
               <Container>
-                <GroupTitle variant="headline">Accordion</GroupTitle>
+                <Typography className="mb-4" variant="headline">
+                  Accordion
+                </Typography>
                 <Stack gap={6} marginBottom={6}>
                   <Accordion size="medium" summary="medium accordion">
                     <Typography variant="body">Content of the accordion</Typography>
@@ -178,7 +180,9 @@ const DesignSystem = () => {
                   </Accordion>
                 </Stack>
 
-                <GroupTitle variant="headline">Alert</GroupTitle>
+                <Typography className="mb-4" variant="headline">
+                  Alert
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Alert
                     fullWidth
@@ -205,7 +209,9 @@ const DesignSystem = () => {
                   <Alert type="danger">I&apos;m a danger alert</Alert>
                 </Block>
 
-                <GroupTitle variant="headline">Chips</GroupTitle>
+                <Typography className="mb-4" variant="headline">
+                  Chips
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Chip label="Small" size="small" />
                   <Chip label="Default" />
@@ -271,7 +277,9 @@ const DesignSystem = () => {
                   />
                 </Block>
 
-                <GroupTitle variant="headline">Poppers</GroupTitle>
+                <Typography className="mb-4" variant="headline">
+                  Poppers
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Drawer title="Imma supa drawa" opener={<Button>Drawer</Button>}>
                     <iframe
@@ -297,7 +305,7 @@ const DesignSystem = () => {
                       </>
                     )}
                   >
-                    <GroupTitle>
+                    <Typography className="mb-4">
                       <iframe
                         title="Happy to see you"
                         src="https://giphy.com/embed/l2Jhok92mZ2PZHjDG"
@@ -306,7 +314,7 @@ const DesignSystem = () => {
                         frameBorder="0"
                         allowFullScreen
                       ></iframe>
-                    </GroupTitle>
+                    </Typography>
                   </Dialog>
                   <Tooltip placement="top-end" title="Hola muchacho 🥸!">
                     <Button variant="secondary">Tooltip</Button>
@@ -349,7 +357,9 @@ const DesignSystem = () => {
                   </Tooltip>
                 </Block>
 
-                <GroupTitle variant="headline">Selector</GroupTitle>
+                <Typography className="mb-4" variant="headline">
+                  Selector
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Selector
                     title="A simple selector"
@@ -393,12 +403,14 @@ const DesignSystem = () => {
                   />
                 </Block>
 
-                <GroupTitle variant="headline">Status</GroupTitle>
+                <Typography className="mb-4" variant="headline">
+                  Status
+                </Typography>
                 <VerticalBlock>
                   <Block>
-                    <GroupTitle variant="bodyHl" color="textSecondary">
+                    <Typography className="mb-4" variant="bodyHl" color="textSecondary">
                       Success
-                    </GroupTitle>
+                    </Typography>
                     <Status
                       type={StatusType.success}
                       label="succeeded"
@@ -415,29 +427,29 @@ const DesignSystem = () => {
                     />
                   </Block>
                   <Block>
-                    <GroupTitle variant="bodyHl" color="textSecondary">
+                    <Typography className="mb-4" variant="bodyHl" color="textSecondary">
                       Warning
-                    </GroupTitle>
+                    </Typography>
                     <Status type={StatusType.warning} label="failed" endIcon="warning-unfilled" />
                   </Block>
                   <Block>
-                    <GroupTitle variant="bodyHl" color="textSecondary">
+                    <Typography className="mb-4" variant="bodyHl" color="textSecondary">
                       Outline
-                    </GroupTitle>
+                    </Typography>
                     <Status type={StatusType.outline} label="draft" endIcon="warning-unfilled" />
                   </Block>
                   <Block>
-                    <GroupTitle variant="bodyHl" color="textSecondary">
+                    <Typography className="mb-4" variant="bodyHl" color="textSecondary">
                       Default
-                    </GroupTitle>
+                    </Typography>
                     <Status type={StatusType.default} label="pending" endIcon="warning-unfilled" />
                     <Status type={StatusType.default} label="toPay" />
                     <Status type={StatusType.default} label="n/a" />
                   </Block>
                   <Block>
-                    <GroupTitle variant="bodyHl" color="textSecondary">
+                    <Typography className="mb-4" variant="bodyHl" color="textSecondary">
                       Danger
-                    </GroupTitle>
+                    </Typography>
                     <Status type={StatusType.danger} label="disputed" endIcon="warning-unfilled" />
                     <Status type={StatusType.danger} label="disputeLost" />
                     <Status
@@ -450,14 +462,16 @@ const DesignSystem = () => {
                     <Status type={StatusType.danger} label="voided" />
                   </Block>
                   <Block>
-                    <GroupTitle variant="bodyHl" color="textSecondary">
+                    <Typography className="mb-4" variant="bodyHl" color="textSecondary">
                       Disabled
-                    </GroupTitle>
+                    </Typography>
                     <Status type={StatusType.disabled} label="voided" endIcon="warning-unfilled" />
                   </Block>
                 </VerticalBlock>
 
-                <GroupTitle variant="headline">ShowMoreText</GroupTitle>
+                <Typography className="mb-4" variant="headline">
+                  ShowMoreText
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <ShowMoreText
                     text="Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium praesentium minus necessitatibus. Placeat, ratione ipsam dolor, quas iste obcaecati tenetur esse tempora quidem eveniet iure quasi repellat debitis doloribus? Distinctio iure quisquam ipsam minus dolorum corporis, eligendi iusto. Animi assumenda reprehenderit atque corrupti, a iste illo porro facilis maxime. Quod eaque ratione, ullam tempore blanditiis placeat odit, assumenda labore accusamus libero nostrum qui et architecto inventore atque, veritatis vitae nisi quas veniam sit! Quasi natus, neque sed soluta perspiciatis officiis?"
@@ -501,7 +515,9 @@ const DesignSystem = () => {
             link: SKELETON_TAB_URL,
             component: (
               <Container>
-                <GroupTitle variant="headline">Skeleton</GroupTitle>
+                <Typography className="mb-4" variant="headline">
+                  Skeleton
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Skeleton variant="connectorAvatar" size="small" />
                   <Skeleton variant="connectorAvatar" size="medium" />
@@ -524,7 +540,9 @@ const DesignSystem = () => {
             link: TABLE_TAB_URL,
             component: (
               <Container>
-                <GroupTitle variant="headline">Table</GroupTitle>
+                <Typography className="mb-4" variant="headline">
+                  Table
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <ChargeTable
                     name="graduated-charge-table"
@@ -533,9 +551,9 @@ const DesignSystem = () => {
                     columns={[
                       {
                         title: (
-                          <TableTitle variant="bodyHl" color="grey700">
+                          <Typography className="px-4" variant="bodyHl" color="grey700">
                             Name
-                          </TableTitle>
+                          </Typography>
                         ),
                         size: 300,
                         content: (row) => (
@@ -547,18 +565,18 @@ const DesignSystem = () => {
                       },
                       {
                         title: (
-                          <TableTitle variant="bodyHl" color="grey700">
+                          <Typography className="px-4" variant="bodyHl" color="grey700">
                             Job
-                          </TableTitle>
+                          </Typography>
                         ),
                         size: 124,
                         mapKey: 'job',
                       },
                       {
                         title: (
-                          <TableTitle variant="bodyHl" color="grey700">
+                          <Typography className="px-4" variant="bodyHl" color="grey700">
                             Icon
-                          </TableTitle>
+                          </Typography>
                         ),
                         size: 124,
                         content: (row) => (
@@ -570,7 +588,9 @@ const DesignSystem = () => {
                     ]}
                   />
                 </Block>
-                <GroupTitle variant="headline">Display Table</GroupTitle>
+                <Typography className="mb-4" variant="headline">
+                  Display Table
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Table
                     name="display-table"
@@ -697,8 +717,12 @@ const DesignSystem = () => {
             link: AVATAR_TAB_URL,
             component: (
               <Container>
-                <GroupTitle variant="headline">Avatar</GroupTitle>
-                <GroupTitle variant="subhead">Variants</GroupTitle>
+                <Typography className="mb-4" variant="headline">
+                  Avatar
+                </Typography>
+                <Typography className="mb-4" variant="subhead">
+                  Variants
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Tooltip title="Connector with icon">
                     <Avatar variant="connector">
@@ -722,7 +746,9 @@ const DesignSystem = () => {
                   </Tooltip>
                 </Block>
 
-                <GroupTitle variant="subhead">Size</GroupTitle>
+                <Typography className="mb-4" variant="subhead">
+                  Size
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Avatar variant="user" size="small" identifier="Morguy" initials="ML" />
                   <Avatar variant="user" size="intermediate" identifier="Morguy" initials="ML" />
@@ -746,10 +772,12 @@ const DesignSystem = () => {
                   </Avatar>
                 </Block>
 
-                <GroupTitle variant="subhead">Colors</GroupTitle>
-                <GroupTitle>
+                <Typography className="mb-4" variant="subhead">
+                  Colors
+                </Typography>
+                <Typography className="mb-4">
                   Color is defined automatically based on initials or identifier
-                </GroupTitle>
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Avatar variant="company" identifier="AA" />
                   <Avatar variant="company" identifier="AB" />
@@ -768,13 +796,17 @@ const DesignSystem = () => {
             link: ICONS_TAB_URL,
             component: (
               <Container>
-                <GroupTitle variant="headline">Icons</GroupTitle>
+                <Typography className="mb-4" variant="headline">
+                  Icons
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   {Object.keys(ALL_ICONS).map((iconName, i) => (
                     <Icon key={`icon-${i}`} name={iconName as IconName} />
                   ))}
                 </Block>
-                <GroupTitle variant="headline">Colors</GroupTitle>
+                <Typography className="mb-4" variant="headline">
+                  Colors
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Icon name="plug" color="success" />
                   <Icon name="plug" color="error" />
@@ -787,13 +819,17 @@ const DesignSystem = () => {
                   <Icon name="plug" color="input" />
                   <Icon name="plug" color="primary" />
                 </Block>
-                <GroupTitle variant="headline">Animation</GroupTitle>
+                <Typography className="mb-4" variant="headline">
+                  Animation
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Icon name="processing" animation="spin" />
                   <Icon name="star-filled" animation="pulse" />
                 </Block>
 
-                <GroupTitle variant="headline">Size</GroupTitle>
+                <Typography className="mb-4" variant="headline">
+                  Size
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Icon name="puzzle" size="small" />
                   <Icon name="puzzle" size="medium" />
@@ -807,10 +843,14 @@ const DesignSystem = () => {
             link: TYPOGRAPHY_TAB_URL,
             component: (
               <Container>
-                <GroupTitle variant="headline">Typography</GroupTitle>
+                <Typography className="mb-4" variant="headline">
+                  Typography
+                </Typography>
                 <Block>
                   <VerticalBlock $marginRight={theme.spacing(12)}>
-                    <GroupTitle variant="subhead">Variant</GroupTitle>
+                    <Typography className="mb-4" variant="subhead">
+                      Variant
+                    </Typography>
                     <Typography variant="headline">Headline</Typography>
                     <Typography variant="subhead">Subhead</Typography>
                     <Typography variant="bodyHl">BodyHl</Typography>
@@ -828,7 +868,9 @@ const DesignSystem = () => {
                     />
                   </VerticalBlock>
                   <VerticalBlock>
-                    <GroupTitle variant="subhead">Color</GroupTitle>
+                    <Typography className="mb-4" variant="subhead">
+                      Color
+                    </Typography>
                     <Typography color="textSecondary">color textSecondary</Typography>
                     <Typography color="textPrimary">color textPrimary</Typography>
                     <Typography color="primary600">color primary600</Typography>
@@ -848,9 +890,13 @@ const DesignSystem = () => {
             link: BUTTON_TAB_URL,
             component: (
               <Container>
-                <GroupTitle variant="headline">Button</GroupTitle>
+                <Typography className="mb-4" variant="headline">
+                  Button
+                </Typography>
 
-                <GroupTitle variant="subhead">General use</GroupTitle>
+                <Typography className="mb-4" variant="subhead">
+                  General use
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Button variant="primary" size="large">
                     Large
@@ -881,7 +927,9 @@ const DesignSystem = () => {
                   </Button>
                 </Block>
 
-                <GroupTitle variant="subhead">Primary</GroupTitle>
+                <Typography className="mb-4" variant="subhead">
+                  Primary
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Button variant="primary">Default</Button>
                   <Button variant="primary" disabled>
@@ -892,7 +940,9 @@ const DesignSystem = () => {
                   </Button>
                 </Block>
 
-                <GroupTitle variant="subhead">Secondary</GroupTitle>
+                <Typography className="mb-4" variant="subhead">
+                  Secondary
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Button variant="secondary">Default</Button>
                   <Button variant="secondary" size="large">
@@ -912,7 +962,9 @@ const DesignSystem = () => {
                   </Button>
                 </Block>
 
-                <GroupTitle variant="subhead">Tertiary</GroupTitle>
+                <Typography className="mb-4" variant="subhead">
+                  Tertiary
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Button variant="tertiary">Default</Button>
                   <Button variant="tertiary" size="large">
@@ -932,7 +984,9 @@ const DesignSystem = () => {
                   </Button>
                 </Block>
 
-                <GroupTitle variant="subhead">Quaternary</GroupTitle>
+                <Typography className="mb-4" variant="subhead">
+                  Quaternary
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Button variant="quaternary">Default</Button>
                   <Button variant="quaternary" size="large">
@@ -955,7 +1009,9 @@ const DesignSystem = () => {
                   </Button>
                 </Block>
 
-                <GroupTitle variant="subhead">Google connect</GroupTitle>
+                <Typography className="mb-4" variant="subhead">
+                  Google connect
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <Button fullWidth startIcon="google" size="large" variant="tertiary">
                     Log In with Google
@@ -970,9 +1026,13 @@ const DesignSystem = () => {
             component: (
               <Container>
                 <Form onSubmit={(e) => e.preventDefault()}>
-                  <GroupTitle variant="headline">Form</GroupTitle>
+                  <Typography className="mb-4" variant="headline">
+                    Form
+                  </Typography>
 
-                  <GroupTitle variant="subhead">Checkbox</GroupTitle>
+                  <Typography className="mb-4" variant="subhead">
+                    Checkbox
+                  </Typography>
 
                   <Block $marginBottom={theme.spacing(6)}>
                     <Checkbox
@@ -1049,7 +1109,9 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <GroupTitle variant="subhead">ButtonSelector</GroupTitle>
+                  <Typography className="mb-4" variant="subhead">
+                    ButtonSelector
+                  </Typography>
                   <Block $marginBottom={theme.spacing(6)}>
                     <ButtonSelectorField
                       name="buttonSelector"
@@ -1086,7 +1148,9 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <GroupTitle variant="subhead">Switch</GroupTitle>
+                  <Typography className="mb-4" variant="subhead">
+                    Switch
+                  </Typography>
                   <Block $marginBottom={theme.spacing(6)}>
                     <SwitchField
                       name="switch"
@@ -1109,7 +1173,9 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <GroupTitle variant="subhead">Combobox</GroupTitle>
+                  <Typography className="mb-4" variant="subhead">
+                    Combobox
+                  </Typography>
                   <Block $marginBottom={theme.spacing(6)}>
                     <ComboBoxField
                       name="combobox"
@@ -1358,7 +1424,9 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <GroupTitle variant="subhead">Radio</GroupTitle>
+                  <Typography className="mb-4" variant="subhead">
+                    Radio
+                  </Typography>
                   <Block $marginBottom={theme.spacing(6)}>
                     <RadioField
                       name="radio"
@@ -1390,7 +1458,9 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <GroupTitle variant="subhead">DatePicker</GroupTitle>
+                  <Typography className="mb-4" variant="subhead">
+                    DatePicker
+                  </Typography>
                   <Block $childMinWidth="325px" $marginBottom={theme.spacing(6)}>
                     <DatePickerField
                       name="date"
@@ -1411,7 +1481,9 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <GroupTitle variant="subhead">AmountInput</GroupTitle>
+                  <Typography className="mb-4" variant="subhead">
+                    AmountInput
+                  </Typography>
                   <Block $marginBottom={theme.spacing(6)}>
                     <AmountInputField
                       beforeChangeFormatter={['positiveNumber']}
@@ -1435,7 +1507,9 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <GroupTitle variant="subhead">TextInput</GroupTitle>
+                  <Typography className="mb-4" variant="subhead">
+                    TextInput
+                  </Typography>
                   <Block $marginBottom={theme.spacing(6)}>
                     <TextInputField
                       label="Label"
@@ -1514,7 +1588,9 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <GroupTitle variant="subhead">JSON Editor</GroupTitle>
+                  <Typography className="mb-4" variant="subhead">
+                    JSON Editor
+                  </Typography>
                   <Block $marginBottom={theme.spacing(6)}>
                     <JsonEditorField
                       name="json"
@@ -1546,10 +1622,12 @@ const DesignSystem = () => {
             link: LINK_TAB_URL,
             component: (
               <Container>
-                <GroupTitle variant="headline">Links</GroupTitle>
-                <GroupTitle variant="subhead">
+                <Typography className="mb-4" variant="headline">
+                  Links
+                </Typography>
+                <Typography className="mb-4" variant="subhead">
                   Link in navigation tabs with &#60;ButtonLink/&#62;
-                </GroupTitle>
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <ButtonLink type="tab" icon="rocket" to={ONLY_DEV_DESIGN_SYSTEM_ROUTE}>
                     Non active Link
@@ -1569,7 +1647,9 @@ const DesignSystem = () => {
                     Disabled
                   </ButtonLink>
                 </Block>
-                <GroupTitle variant="subhead">Button Links with &#60;ButtonLink/&#62;</GroupTitle>
+                <Typography className="mb-4" variant="subhead">
+                  Button Links with &#60;ButtonLink/&#62;
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <ButtonLink type="button" to={ONLY_DEV_DESIGN_SYSTEM_ROUTE}>
                     Internal
@@ -1590,7 +1670,9 @@ const DesignSystem = () => {
                     With Button Props
                   </ButtonLink>
                 </Block>
-                <GroupTitle variant="subhead">Simple links with &#60;a/&#62;</GroupTitle>
+                <Typography className="mb-4" variant="subhead">
+                  Simple links with &#60;a/&#62;
+                </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
                   <a href="https://main-app.staging.getlago.com/coupons"> Normal Link </a>
                 </Block>
@@ -1642,10 +1724,6 @@ const Block = styled.div<{ $childMinWidth?: string; $marginBottom?: string }>`
     `}
 `
 
-const GroupTitle = styled(Typography)`
-  margin-bottom: ${theme.spacing(4)};
-`
-
 const VerticalBlock = styled.div<{ $marginRight?: string }>`
   ${({ $marginRight }) =>
     !!$marginRight &&
@@ -1658,10 +1736,6 @@ const VerticalBlock = styled.div<{ $marginRight?: string }>`
   > * {
     margin-bottom: ${theme.spacing(4)};
   }
-`
-
-const TableTitle = styled(Typography)`
-  padding: 0 ${theme.spacing(4)};
 `
 
 const TableContent = styled.div`

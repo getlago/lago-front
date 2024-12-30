@@ -127,9 +127,9 @@ const InvoiceCreditNoteList = () => {
             image={<ErrorImage width="136" height="104" />}
           />
         ) : !loading && !creditNotes?.length ? (
-          <EmptyStateTypography variant="body" color="grey500">
+          <Typography className="mt-6" variant="body" color="grey500">
             {translate('text_636bdef6565341dcb9cfb12b')}
-          </EmptyStateTypography>
+          </Typography>
         ) : (
           <CreditNotesTable
             creditNotes={creditNotes}
@@ -158,8 +158,4 @@ const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-`
-
-const EmptyStateTypography = styled(Typography)`
-  margin-top: ${theme.spacing(6)};
 `

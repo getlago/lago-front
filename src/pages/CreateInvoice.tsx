@@ -757,7 +757,11 @@ const CreateInvoice = () => {
                                 !!hasTaxProvider && setTaxProviderTaxesResult(null)
                               }}
                             />
-                            <TaxCell variant="body" color="grey700">
+                            <Typography
+                              className="flex flex-col items-end py-1"
+                              variant="body"
+                              color="grey700"
+                            >
                               {hasTaxProvider
                                 ? !!taxProviderTaxesResult?.collection.length
                                   ? taxProviderTaxesResult?.collection
@@ -787,7 +791,7 @@ const CreateInvoice = () => {
                                       </Typography>
                                     ))
                                   : '0%'}
-                            </TaxCell>
+                            </Typography>
                             <Typography variant="body" color="grey700">
                               {!fee.units
                                 ? '-'
@@ -1394,11 +1398,4 @@ const SubmitButtonWrapper = styled.div`
   padding: 0 ${theme.spacing(4)};
   margin: 0 auto;
   gap: ${theme.spacing(3)};
-`
-
-const TaxCell = styled(Typography)`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  padding: ${theme.spacing(1)} 0;
 `

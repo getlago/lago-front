@@ -89,15 +89,15 @@ const PlansList = () => {
             </Typography>
           </PlanNameSection>
           <PlanInfosSection>
-            <MediumCell color="disabled" variant="bodyHl">
+            <Typography className="w-30 text-right" color="disabled" variant="bodyHl">
               {translate('text_62d95e42c1e1dfe7376fdf35')}
-            </MediumCell>
-            <SmallCell color="disabled" variant="bodyHl">
+            </Typography>
+            <Typography className="w-20 text-right" color="disabled" variant="bodyHl">
               {translate('text_62442e40cea25600b0b6d856')}
-            </SmallCell>
-            <MediumCell color="disabled" variant="bodyHl">
+            </Typography>
+            <Typography className="w-30 text-right" color="disabled" variant="bodyHl">
               {translate('text_62442e40cea25600b0b6d858')}
-            </MediumCell>
+            </Typography>
           </PlanInfosSection>
         </ListHead>
         {!!isLoading && variables?.searchTerm ? (
@@ -215,16 +215,6 @@ const HeaderRigthBlock = styled.div`
   > :first-child {
     margin-right: ${theme.spacing(3)};
   }
-`
-
-const MediumCell = styled(Typography)`
-  text-align: right;
-  width: 118px;
-`
-
-const SmallCell = styled(Typography)`
-  text-align: right;
-  width: 80px;
 `
 
 const PlanNameSection = styled.div`

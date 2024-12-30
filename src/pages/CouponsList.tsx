@@ -92,17 +92,15 @@ const CouponsList = () => {
             </Typography>
           </CouponSection>
           <CouponInfosSection>
-            <SmallCell color="disabled" variant="bodyHl">
+            <Typography className="w-24 text-right" color="disabled" variant="bodyHl">
               {translate('text_62865498824cc10126ab2964')}
-            </SmallCell>
-            <MediumCell color="disabled" variant="bodyHl">
+            </Typography>
+            <Typography className="w-28" color="disabled" variant="bodyHl">
               {translate('text_62865498824cc10126ab296a')}
-            </MediumCell>
-            <StatusCell>
-              <Typography color="disabled" variant="bodyHl">
-                {translate('text_62865498824cc10126ab296f')}
-              </Typography>
-            </StatusCell>
+            </Typography>
+            <Typography className="w-26" color="disabled" variant="bodyHl">
+              {translate('text_62865498824cc10126ab296f')}
+            </Typography>
           </CouponInfosSection>
         </ListHead>
         {!!isLoading && variables?.searchTerm ? (
@@ -219,19 +217,6 @@ const CouponInfosSection = styled.div`
       display: none;
     }
   }
-`
-
-const MediumCell = styled(Typography)`
-  width: 112px;
-`
-
-const SmallCell = styled(Typography)`
-  text-align: right;
-  width: 96px;
-`
-
-const StatusCell = styled.div`
-  width: 104px;
 `
 
 const Header = styled(PageHeader)`

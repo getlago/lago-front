@@ -143,11 +143,11 @@ const Login = () => {
                 label={translate('text_620bc4d4269a55014d493f32')}
                 placeholder={translate('text_620bc4d4269a55014d493f5b')}
               />
-              <PasswordForgottenLinkTypo variant="caption">
+              <Typography className="absolute right-0 top-0" variant="caption">
                 <Link to={generatePath(FORGOT_PASSWORD_ROUTE)}>
                   {translate('text_642707b0da1753a9bb6672b5')}
                 </Link>
-              </PasswordForgottenLinkTypo>
+              </Typography>
             </PasswordInputWrapper>
           </InputWrapper>
 
@@ -156,7 +156,8 @@ const Login = () => {
           </Button>
 
           {!disableSignUp && !isRunningInSalesForceIframe && (
-            <UsefullLink
+            <Typography
+              className="mx-auto text-center"
               variant="caption"
               html={translate('text_62c84d0029355c83db4dd186', {
                 linkSignUp: SIGN_UP_ROUTE,
@@ -193,15 +194,4 @@ const InputWrapper = styled.div`
 
 const PasswordInputWrapper = styled.div`
   position: relative;
-`
-const PasswordForgottenLinkTypo = styled(Typography)`
-  position: absolute;
-  top: 0;
-  right: 0;
-`
-
-const UsefullLink = styled(Typography)`
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
 `
