@@ -18,7 +18,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper } from '~/styles'
-import { SectionHeader, SideSection } from '~/styles/customer'
+import { SectionHeader } from '~/styles/customer'
+import { tw } from '~/styles/utils'
 
 import {
   TerminateCustomerWalletDialog,
@@ -97,8 +98,14 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerW
 
   return (
     <>
-      <SideSection $empty={!!hasNoWallet}>
-        <SectionHeader variant="subhead" hideBottomShadow={!!loading || !hasNoWallet}>
+      <div>
+        <SectionHeader
+          className={tw({
+            'mb-6': !!hasNoWallet,
+          })}
+          variant="subhead"
+          hideBottomShadow={!!loading || !hasNoWallet}
+        >
           {translate('text_62d175066d2dbf1d50bc9384')}
 
           {hasAnyPermissionsToShowActions && (
@@ -236,7 +243,7 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerW
             <VoidWalletDialog ref={voidWalletDialogRef} wallet={activeWallet} />
           </>
         )}
-      </SideSection>
+      </div>
 
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
