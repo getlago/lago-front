@@ -80,7 +80,7 @@ export const ChargeBillingRadioGroup: FC<ChargeBillingRadioGroupProps> = ({
           <div>
             <Typography variant="bodyHl" color="textSecondary">
               {translate('text_6682c52081acea90520744d0')}
-              <StyledIcon name="sparkles" />
+              <Icon className="ml-2" name="sparkles" />
             </Typography>
 
             <Typography variant="caption">{translate('text_6682c52081acea90520744d2')}</Typography>
@@ -138,8 +138,4 @@ const PremiumOption = styled.div`
   background-color: ${theme.palette.grey[100]};
   border-radius: 8px;
   padding: ${theme.spacing(4)} ${theme.spacing(6)};
-`
-
-const StyledIcon = styled(Icon)`
-  margin-left: ${theme.spacing(2)};
 `

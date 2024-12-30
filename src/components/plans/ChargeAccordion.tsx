@@ -398,8 +398,9 @@ export const ChargeAccordion = memo(
                     : translate('text_635b975ecea4296eb76924b1')
                 }
               >
-                <ValidationIcon
+                <Icon
                   name="validate-filled"
+                  className="flex items-center"
                   color={hasErrorInCharges ? 'disabled' : 'success'}
                 />
               </Tooltip>
@@ -511,8 +512,9 @@ export const ChargeAccordion = memo(
                                       : translate('text_635b975ecea4296eb76924b1')
                                   }
                                 >
-                                  <ValidationIcon
+                                  <Icon
                                     name="validate-filled"
+                                    className="flex items-center"
                                     color={hasDefaultPropertiesErrors ? 'disabled' : 'success'}
                                   />
                                 </Tooltip>
@@ -625,8 +627,9 @@ export const ChargeAccordion = memo(
                                     : translate('text_635b975ecea4296eb76924b1')
                                 }
                               >
-                                <ValidationIcon
+                                <Icon
                                   name="validate-filled"
+                                  className="flex items-center"
                                   color={hasFilterErrors ? 'disabled' : 'success'}
                                 />
                               </Tooltip>
@@ -981,11 +984,6 @@ ChargeAccordion.displayName = 'ChargeAccordion'
 
 const ChargeModelWrapper = styled.div`
   padding: ${theme.spacing(4)} ${theme.spacing(4)} 0 ${theme.spacing(4)};
-`
-
-const ValidationIcon = styled(Icon)`
-  display: flex;
-  align-items: center;
 `
 
 const SummaryLeft = styled.div`

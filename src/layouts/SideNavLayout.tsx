@@ -226,7 +226,7 @@ const SideNav = () => {
                           rel="noreferrer noopener"
                         >
                           {data?.currentVersion?.number}
-                          <ExternalLinkIcon name="outside" size="small" />
+                          <Icon className="ml-2 hover:cursor-pointer" name="outside" size="small" />
                         </ExternalLink>
                       </Version>
                     ) : undefined}
@@ -520,14 +520,6 @@ const Version = styled.div`
   align-items: center;
   padding: ${theme.spacing(3)} ${theme.spacing(2)} ${theme.spacing(3)} ${theme.spacing(5)};
   height: ${theme.spacing(5)};
-`
-
-const ExternalLinkIcon = styled(Icon)`
-  margin-left: ${theme.spacing(2)};
-
-  &:hover {
-    cursor: pointer;
-  }
 `
 
 const ExternalLink = styled.a`

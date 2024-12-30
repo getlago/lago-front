@@ -167,8 +167,9 @@ export const CommitmentsSection = ({
                       : translate('text_635b975ecea4296eb76924b1')
                   }
                 >
-                  <ValidationIcon
+                  <Icon
                     name="validate-filled"
+                    className="flex items-center"
                     color={hasErrorInGroup ? 'disabled' : 'success'}
                   />
                 </Tooltip>
@@ -363,11 +364,6 @@ const BoxHeaderGroupRight = styled.div`
   display: flex;
   align-items: center;
   gap: ${theme.spacing(3)};
-`
-
-const ValidationIcon = styled(Icon)`
-  display: flex;
-  align-items: center;
 `
 
 const InlineTaxesWrapper = styled.div`

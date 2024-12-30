@@ -340,7 +340,11 @@ const AccordionSummary: FC<{ onDelete: VoidFunction; hasErrorInGroup: boolean }>
               : translate('text_635b975ecea4296eb76924b1')
           }
         >
-          <ValidationIcon name="validate-filled" color={hasErrorInGroup ? 'disabled' : 'success'} />
+          <Icon
+            className="flex items-center"
+            name="validate-filled"
+            color={hasErrorInGroup ? 'disabled' : 'success'}
+          />
         </Tooltip>
 
         <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
@@ -383,11 +387,6 @@ const BoxHeaderGroupRight = styled.div`
   display: flex;
   align-items: center;
   gap: ${theme.spacing(3)};
-`
-
-const ValidationIcon = styled(Icon)`
-  display: flex;
-  align-items: center;
 `
 
 const StyledAccordion = styled(Accordion)`
