@@ -4332,6 +4332,8 @@ export type Permissions = {
   organizationView: Scalars['Boolean']['output'];
   paymentRequestsCreate: Scalars['Boolean']['output'];
   paymentRequestsView: Scalars['Boolean']['output'];
+  paymentsCreate: Scalars['Boolean']['output'];
+  paymentsView: Scalars['Boolean']['output'];
   plansCreate: Scalars['Boolean']['output'];
   plansDelete: Scalars['Boolean']['output'];
   plansUpdate: Scalars['Boolean']['output'];
