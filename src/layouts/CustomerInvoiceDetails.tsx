@@ -65,6 +65,7 @@ import {
   InvoiceMetadatasForMetadataDrawerFragmentDoc,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
+  InvoiceTaxStatusTypeEnum,
   InvoiceTypeEnum,
   LagoApiError,
   NetsuiteIntegration,
@@ -98,6 +99,7 @@ gql`
     number
     paymentStatus
     status
+    taxStatus
     totalAmountCents
     currency
     refundableAmountCents
@@ -467,6 +469,7 @@ const CustomerInvoiceDetails = () => {
     totalAmountCents,
     currency,
     status,
+    taxStatus,
     creditableAmountCents,
     refundableAmountCents,
     voidable,
@@ -552,7 +555,14 @@ const CustomerInvoiceDetails = () => {
       },
     ]
 
-    if (![InvoiceStatusTypeEnum.Draft, InvoiceStatusTypeEnum.Failed].includes(status)) {
+    if (
+      ![
+        InvoiceStatusTypeEnum.Draft,
+        InvoiceStatusTypeEnum.Failed,
+        InvoiceStatusTypeEnum.Pending,
+      ].includes(status) &&
+      taxStatus !== InvoiceTaxStatusTypeEnum.Pending
+    ) {
       tabs.push({
         title: translate('text_636bdef6565341dcb9cfb125'),
         link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
@@ -593,10 +603,11 @@ const CustomerInvoiceDetails = () => {
     connectedSalesforceIntegration,
     goToPreviousRoute,
     syncHubspotIntegrationInvoice,
-    loadingSyncHubspotIntegrationInvoice,
     syncSalesforceIntegrationInvoice,
+    loadingSyncHubspotIntegrationInvoice,
     loadingSyncSalesforceIntegrationInvoice,
     status,
+    taxStatus,
   ])
 
   return (
@@ -636,6 +647,7 @@ const CustomerInvoiceDetails = () => {
                       {translate('text_1724164767403kyknbaw13mg')}
                     </Button>
                   ) : status === InvoiceStatusTypeEnum.Draft &&
+                    taxStatus !== InvoiceTaxStatusTypeEnum.Pending &&
                     hasPermissions(['draftInvoicesUpdate']) ? (
                     <>
                       <Button
@@ -662,7 +674,8 @@ const CustomerInvoiceDetails = () => {
                         {translate('text_63a41a8eabb9ae67047c1c06')}
                       </Button>
                     </>
-                  ) : (
+                  ) : status !== InvoiceStatusTypeEnum.Pending ||
+                    taxStatus !== InvoiceTaxStatusTypeEnum.Pending ? (
                     <>
                       <Button
                         variant="quaternary"
@@ -729,7 +742,7 @@ const CustomerInvoiceDetails = () => {
                           </>
                         )}
                     </>
-                  )}
+                  ) : null}
                   <Button
                     variant="quaternary"
                     align="left"
@@ -745,9 +758,13 @@ const CustomerInvoiceDetails = () => {
                   >
                     {translate('text_634687079be251fdb438339b')}
                   </Button>
-                  {status !== InvoiceStatusTypeEnum.Draft &&
-                    status !== InvoiceStatusTypeEnum.Voided &&
-                    status !== InvoiceStatusTypeEnum.Failed &&
+                  {![
+                    InvoiceStatusTypeEnum.Draft,
+                    InvoiceStatusTypeEnum.Voided,
+                    InvoiceStatusTypeEnum.Failed,
+                    InvoiceStatusTypeEnum.Pending,
+                  ].includes(status) &&
+                    taxStatus !== InvoiceTaxStatusTypeEnum.Pending &&
                     hasPermissions(['invoicesUpdate']) && (
                       <>
                         <Button
@@ -869,7 +886,7 @@ const CustomerInvoiceDetails = () => {
           </Popper>
         )}
       </PageHeader>
-      {!!errorMessage && (
+      {!!errorMessage ? (
         <Alert fullWidth className="md:px-12" type="warning">
           <Stack>
             <Typography variant="body" color="grey700">
@@ -879,7 +896,19 @@ const CustomerInvoiceDetails = () => {
             <Typography variant="caption">{translate(errorMessage)}</Typography>
           </Stack>
         </Alert>
-      )}
+      ) : taxStatus === InvoiceTaxStatusTypeEnum.Pending ? (
+        <Alert fullWidth className="md:px-12" type="info">
+          <div className="flex flex-col">
+            <Typography variant="body" color="grey700">
+              {translate('text_1735045451930tezr0et3e6l')}
+            </Typography>
+
+            <Typography variant="caption" color="grey600">
+              {translate('text_1735045451931zfgc6yvvcfm')}
+            </Typography>
+          </div>
+        </Alert>
+      ) : null}
       {hasError ? (
         <GenericPlaceholder
           title={translate('text_634812d6f16b31ce5cbf4111')}

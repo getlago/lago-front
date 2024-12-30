@@ -146,10 +146,13 @@ const InvoicesList = ({
               const { status, paymentStatus, voidable } = invoice
 
               const canDownload =
-                ![InvoiceStatusTypeEnum.Draft, InvoiceStatusTypeEnum.Failed].includes(status) &&
-                hasPermissions(['invoicesView'])
+                ![
+                  InvoiceStatusTypeEnum.Draft,
+                  InvoiceStatusTypeEnum.Failed,
+                  InvoiceStatusTypeEnum.Pending,
+                ].includes(status) && hasPermissions(['invoicesView'])
               const canFinalize =
-                ![InvoiceStatusTypeEnum.Failed].includes(status) &&
+                ![InvoiceStatusTypeEnum.Failed, InvoiceStatusTypeEnum.Pending].includes(status) &&
                 hasPermissions(['invoicesUpdate'])
               const canRetryCollect =
                 status === InvoiceStatusTypeEnum.Finalized &&
@@ -163,6 +166,7 @@ const InvoicesList = ({
                   InvoiceStatusTypeEnum.Draft,
                   InvoiceStatusTypeEnum.Voided,
                   InvoiceStatusTypeEnum.Failed,
+                  InvoiceStatusTypeEnum.Pending,
                 ].includes(status) && hasPermissions(['invoicesUpdate'])
               const canVoid =
                 status === InvoiceStatusTypeEnum.Finalized &&
@@ -278,7 +282,7 @@ const InvoicesList = ({
                 minWidth: 160,
                 content: ({ number }) => (
                   <Typography variant="body" noWrap>
-                    {number}
+                    {number || '-'}
                   </Typography>
                 ),
               },
@@ -290,7 +294,9 @@ const InvoicesList = ({
                 content: ({ totalAmountCents, currency, status }) => {
                   return (
                     <Typography variant="bodyHl" color="textSecondary" noWrap>
-                      {status === InvoiceStatusTypeEnum.Failed
+                      {[InvoiceStatusTypeEnum.Failed, InvoiceStatusTypeEnum.Pending].includes(
+                        status,
+                      )
                         ? '-'
                         : intlFormatNumber(
                             deserializeAmount(totalAmountCents, currency || CurrencyEnum.Usd),
