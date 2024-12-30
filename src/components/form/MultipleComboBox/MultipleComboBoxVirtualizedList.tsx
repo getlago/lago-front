@@ -2,10 +2,11 @@ import { ReactElement, useEffect, useRef } from 'react'
 import { VariableSizeList } from 'react-window'
 
 import { ITEM_HEIGHT } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import { MultipleComboBoxProps } from './types'
 
-export const GROUP_ITEM_KEY = 'multiple-comboBox-group-by'
+export const MULTIPLE_GROUP_ITEM_KEY = 'multiple-comboBox-group-by'
 export const GROUP_HEADER_HEIGHT = 44
 
 function useResetCache(itemCount: number) {
@@ -26,17 +27,19 @@ type MultipleComboBoxVirtualizedListProps = {
 export const MultipleComboBoxVirtualizedList = (props: MultipleComboBoxVirtualizedListProps) => {
   const { elements, value } = props
   const itemCount = elements?.length
-  const hasDescription = elements.some(
-    (el) => (el.props?.children?.props?.option?.description as string)?.length > 0,
-  )
-  const elementHeight = hasDescription ? ITEM_HEIGHT + 4 : ITEM_HEIGHT
 
   const getHeight = () => {
+    const hasAnyGroupHeader = elements.some((el) =>
+      (el.key as string).includes(MULTIPLE_GROUP_ITEM_KEY),
+    )
+
     // recommended perf best practice
     if (itemCount > 5) {
-      return 5 * (elementHeight + 4) - 4 // Last item does not have 4px margin-bottom
+      return 5 * (ITEM_HEIGHT + 4) + 4 // Add 4px for margins
+    } else if (itemCount <= 2 && hasAnyGroupHeader) {
+      return itemCount * (ITEM_HEIGHT + 2) // Add 2px for margins
     }
-    return itemCount * (elementHeight + 4) - 4 // Last item does not have 4px margin-bottom
+    return itemCount * (ITEM_HEIGHT + 8) + 4 // Add 4px for margins
   }
 
   // reset the `VariableSizeList` cache if data gets updated
@@ -62,6 +65,9 @@ export const MultipleComboBoxVirtualizedList = (props: MultipleComboBoxVirtualiz
 
   return (
     <VariableSizeList
+      className={tw({
+        'mb-1': itemCount > 1,
+      })}
       itemData={elements}
       height={getHeight()}
       width="100%"
@@ -69,10 +75,10 @@ export const MultipleComboBoxVirtualizedList = (props: MultipleComboBoxVirtualiz
       innerElementType="div"
       itemSize={(index) => {
         return index === itemCount - 1
-          ? elementHeight
-          : ((elements[index].key as string) || '').includes(GROUP_ITEM_KEY)
-            ? GROUP_HEADER_HEIGHT + (index === 0 ? 8 : 12)
-            : elementHeight + 4
+          ? ITEM_HEIGHT
+          : ((elements[index].key as string) || '').includes(MULTIPLE_GROUP_ITEM_KEY)
+            ? GROUP_HEADER_HEIGHT + (index === 0 ? 2 : 6)
+            : ITEM_HEIGHT + 8
       }}
       overscanCount={5}
       itemCount={itemCount}

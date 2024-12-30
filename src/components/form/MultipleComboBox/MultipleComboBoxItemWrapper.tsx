@@ -1,10 +1,8 @@
 import { cx } from 'class-variance-authority'
 import { Link } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Icon, Typography } from '~/components/designSystem'
-import { ITEM_HEIGHT, theme } from '~/styles'
 
 import { MultipleComboBoxData } from './types'
 
@@ -20,7 +18,7 @@ interface MultipleComboBoxItemProps {
   addValueRedirectionUrl?: string
 }
 
-export const MultipleComboBoxItem = ({
+export const MultipleComboBoxItemWrapper = ({
   id,
   option: { customValue, value, label, description, disabled, labelNode },
   selected,
@@ -31,13 +29,15 @@ export const MultipleComboBoxItem = ({
   const { className, ...allProps } = multipleComboBoxProps
 
   return (
-    <ItemWrapper data-test={`multipleComboBox-item-${label}`}>
+    <div
+      className="remove-child-link-style flex min-h-14 items-center"
+      data-test={`multipleComboBox-item-${label}`}
+    >
       <ConditionalWrapper
         condition={!!addValueRedirectionUrl}
         invalidWrapper={(children) => <>{children}</>}
         validWrapper={(children) => <Link to={addValueRedirectionUrl as string}>{children}</Link>}
       >
-        {/* @ts-ignore */}
         <ComboboxItem
           id={id}
           virtualized={virtualized}
@@ -53,7 +53,7 @@ export const MultipleComboBoxItem = ({
         >
           {customValue ? (
             <>
-              <AddCustomValueIcon color="dark" name="plus" />
+              <Icon className="mr-4" color="dark" name="plus" />
               <Typography variant="body" noWrap>
                 {labelNode ?? label}
               </Typography>
@@ -69,25 +69,6 @@ export const MultipleComboBoxItem = ({
           )}
         </ComboboxItem>
       </ConditionalWrapper>
-    </ItemWrapper>
+    </div>
   )
 }
-
-const ItemWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  min-height: ${ITEM_HEIGHT}px;
-
-  a {
-    &:focus,
-    &:active,
-    &:hover {
-      outline: none;
-      text-decoration: none;
-    }
-  }
-`
-
-const AddCustomValueIcon = styled(Icon)`
-  margin-right: ${theme.spacing(4)};
-`

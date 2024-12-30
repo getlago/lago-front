@@ -37,8 +37,6 @@ interface BasicMultipleComboBoxProps
   limitTags?: number
   disableClearable?: boolean
   PopperProps?: Pick<MuiPopperProps, 'placement'> & {
-    minWidth?: number
-    maxWidth?: number
     displayInDialog?: boolean
     offset?: string
   }

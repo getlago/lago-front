@@ -1,7 +1,5 @@
 import { Popper, PopperProps } from '@mui/material'
-import { cx } from 'class-variance-authority'
 import { ReactNode } from 'react'
-import styled from 'styled-components'
 
 import { theme } from '~/styles'
 
@@ -9,27 +7,20 @@ import { MultipleComboBoxProps } from './types'
 
 type MultipleComboBoxPopperFactoryArgs = Required<
   Pick<MultipleComboBoxProps, 'PopperProps'>
->['PopperProps'] & {
-  grouped?: boolean
-  virtualized?: boolean
-}
+>['PopperProps']
 
 // return a configured <Popper> component with custom styles
 export const MultipleComboBoxPopperFactory =
-  ({
-    maxWidth,
-    minWidth,
-    placement,
-    displayInDialog,
-    grouped,
-    virtualized,
-  }: MultipleComboBoxPopperFactoryArgs = {}) =>
+  ({ placement, displayInDialog }: MultipleComboBoxPopperFactoryArgs = {}) =>
   // eslint-disable-next-line react/display-name
   (props: PopperProps) => (
-    <StyledPopper
-      $minWidth={minWidth || 0}
-      $maxWidth={maxWidth}
-      $displayInDialog={displayInDialog}
+    <Popper
+      className="min-w-0"
+      sx={{
+        zIndex: displayInDialog
+          ? `${theme.zIndex.dialog + 1} !important`
+          : `${theme.zIndex.popper} !important`,
+      }}
       placement={placement || 'bottom-start'}
       modifiers={[
         {
@@ -42,37 +33,6 @@ export const MultipleComboBoxPopperFactory =
       ]}
       {...props}
     >
-      <div
-        className={cx({
-          'multipleComboBox-popper--virtualized': virtualized,
-          'multipleComboBox-popper--grouped': grouped,
-        })}
-      >
-        {props?.children as ReactNode}
-      </div>
-    </StyledPopper>
+      <>{props?.children as ReactNode}</>
+    </Popper>
   )
-
-const StyledPopper = styled(Popper)<{
-  $minWidth?: number
-  $maxWidth?: number
-  $displayInDialog?: boolean
-}>`
-  min-width: ${({ $minWidth }) => $minWidth}px;
-  max-width: ${({ $maxWidth }) => ($maxWidth ? `${$maxWidth}px` : 'initial')};
-  z-index: ${({ $displayInDialog }) =>
-    $displayInDialog ? theme.zIndex.dialog + 1 : theme.zIndex.popper};
-
-  ${theme.breakpoints.down('md')} {
-    max-width: ${({ $minWidth }) => ($minWidth ? `${$minWidth}px` : 'initial')};
-  }
-
-  /* During TW migration, the padding should be removed, following Combobox implementation */
-  .MuiAutocomplete-paper {
-    padding: ${theme.spacing(2)} 0;
-  }
-
-  > *.multipleComboBox-popper--grouped .MuiAutocomplete-paper {
-    padding: ${theme.spacing(2)} 0;
-  }
-`

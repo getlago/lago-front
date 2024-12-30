@@ -195,11 +195,7 @@ export const ComboBox = ({
         // @ts-ignore
         { value, renderGroupHeader, virtualized }
       }
-      PopperComponent={ComboBoxPopperFactory({
-        ...PopperProps,
-        grouped: !!(data || [])[0]?.group,
-        virtualized,
-      })}
+      PopperComponent={ComboBoxPopperFactory(PopperProps)}
       getOptionDisabled={(option) => !!option?.disabled}
       getOptionLabel={(option) => {
         const optionForString =
