@@ -3,7 +3,7 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, EditPlanFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { DetailsAccordionWrapper, DetailsInfoGrid } from '~/styles/detailsPage'
+import { DetailsInfoGrid } from '~/styles/detailsPage'
 
 import DetailsTableDisplay from '../../details/DetailsTableDisplay'
 
@@ -18,7 +18,7 @@ const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment | null
         </Typography>
       }
     >
-      <DetailsAccordionWrapper>
+      <div className="flex flex-col gap-6">
         <DetailsTableDisplay
           header={[translate('text_624453d52e945301380e49b6')]}
           body={[
@@ -60,7 +60,7 @@ const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment | null
             },
           ]}
         />
-      </DetailsAccordionWrapper>
+      </div>
     </Accordion>
   )
 }
