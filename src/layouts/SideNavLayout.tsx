@@ -163,9 +163,9 @@ const SideNav = () => {
             >
               {({ closePopper }) => (
                 <StyledMenuPopper>
-                  <UserEmail variant="captionHl" noWrap>
+                  <Typography className="min-h-11 px-5 py-4" variant="captionHl" noWrap>
                     {currentUser?.email}
-                  </UserEmail>
+                  </Typography>
                   {!!organizationList?.length && (
                     <OrganizationList>
                       {organizationList
@@ -488,12 +488,6 @@ const StyledMenuPopper = styled(MenuPopper)`
   & > *:not(:last-child) {
     margin-bottom: 0px;
   }
-`
-
-const UserEmail = styled(Typography)`
-  padding: ${theme.spacing(4)} ${theme.spacing(5)} ${theme.spacing(0)};
-  min-height: 44px;
-  box-sizing: border-box;
 `
 
 const OrganizationList = styled.div`

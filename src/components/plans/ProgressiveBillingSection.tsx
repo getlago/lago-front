@@ -143,21 +143,21 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
                     {
                       size: 224,
                       content: (_, i) => (
-                        <TypographyCell variant="captionHl" noWrap>
+                        <Typography className="px-4" variant="captionHl" noWrap>
                           {translate(
                             i === 0
                               ? 'text_1724234174944p8zi54j192m'
                               : 'text_1724179887723917j8ezkd9v',
                           )}
-                        </TypographyCell>
+                        </Typography>
                       ),
                     },
                     {
                       size: 197,
                       title: (
-                        <TypographyCell variant="captionHl">
+                        <Typography className="px-4" variant="captionHl">
                           {translate('text_1724179887723eh12a0kqbdw')}
-                        </TypographyCell>
+                        </Typography>
                       ),
                       content: (row, i) => (
                         <Tooltip
@@ -195,9 +195,9 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
                     {
                       size: 197,
                       title: (
-                        <TypographyCell variant="captionHl">
+                        <Typography className="px-4" variant="captionHl">
                           {translate('text_17241798877234jhvoho4ci9')}
-                        </TypographyCell>
+                        </Typography>
                       ),
                       content: (row, i) => (
                         <TextInput
@@ -241,9 +241,9 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
                     {
                       size: 224,
                       content: () => (
-                        <TypographyCell variant="captionHl" noWrap>
+                        <Typography className="px-4" variant="captionHl" noWrap>
                           {translate('text_17241798877230y851fdxzqu')}
-                        </TypographyCell>
+                        </Typography>
                       ),
                     },
                     {
@@ -404,10 +404,6 @@ const TableContainer = styled.div`
   /* Make sure focus ring is not crop at the bottom */
   padding-bottom: ${theme.spacing(1)};
   margin-bottom: -${theme.spacing(1)};
-`
-
-const TypographyCell = styled(Typography)`
-  padding: 0px ${theme.spacing(4)};
 `
 
 const PremiumWarning = styled.div`

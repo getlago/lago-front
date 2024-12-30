@@ -296,6 +296,12 @@ const config = {
             },
           },
         },
+        '.word-break-word': {
+          wordBreak: 'break-word',
+        },
+        '.overflow-wrap-anywhere': {
+          overflowWrap: 'anywhere',
+        },
       })
     }),
   ],

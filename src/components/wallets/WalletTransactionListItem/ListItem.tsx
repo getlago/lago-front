@@ -45,7 +45,7 @@ export const ListItem: FC<ListItemProps> = ({
             {label}
           </Typography>
           {date && (
-            <DateBlock variant="caption" color="grey600">
+            <Typography className="flex items-baseline *:mr-1" variant="caption" color="grey600">
               <TimezoneDate
                 mainTypographyProps={{ variant: 'caption', color: 'grey600' }}
                 date={date}
@@ -56,7 +56,7 @@ export const ListItem: FC<ListItemProps> = ({
                   'text_62da6db136909f52c2704c30',
                 )}`}</span>
               )}
-            </DateBlock>
+            </Typography>
           )}
         </ColumnWrapper>
       </ListLeftWrapper>
@@ -104,13 +104,4 @@ const ColumnWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-`
-
-const DateBlock = styled(Typography)`
-  display: flex;
-  align-items: baseline;
-
-  > * {
-    margin-right: ${theme.spacing(1)};
-  }
 `

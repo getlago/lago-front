@@ -123,9 +123,9 @@ export const EditInvoiceItemTaxDialog = forwardRef<EditInvoiceItemTaxDialogRef>(
       data-test="edit-invoice-item-tax-dialog"
     >
       {!formikProps.values?.taxes?.length ? (
-        <EmptyText variant="caption" color="grey600">
+        <Typography className="mb-4" variant="caption" color="grey600">
           {translate('text_64d40b7e80e64e40710a4935')}
-        </EmptyText>
+        </Typography>
       ) : (
         <>
           <TaxesWrapperTitle>
@@ -219,10 +219,6 @@ export const EditInvoiceItemTaxDialog = forwardRef<EditInvoiceItemTaxDialogRef>(
 })
 
 EditInvoiceItemTaxDialog.displayName = 'forwardRef'
-
-const EmptyText = styled(Typography)`
-  margin-bottom: ${theme.spacing(4)};
-`
 
 const TaxesWrapper = styled.div`
   margin-bottom: ${theme.spacing(4)};

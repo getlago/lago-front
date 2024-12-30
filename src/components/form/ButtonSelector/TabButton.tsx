@@ -72,9 +72,9 @@ export const TabButton = forwardRef<HTMLButtonElement, TabButtonProps>(
           !!icon && icon
         )}
         {title && (
-          <Label noWrap color="inherit">
+          <Typography className="flex-1" noWrap color="inherit">
             {title}
-          </Label>
+          </Typography>
         )}
       </Container>
     )
@@ -122,8 +122,4 @@ const Container = styled.button<{ $active: boolean }>`
   > *:not(:last-child) {
     margin-right: ${theme.spacing(2)};
   }
-`
-
-const Label = styled(Typography)`
-  flex: 1;
 `

@@ -173,9 +173,9 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
             <DetailSummary>
               <DetailSummaryBlock>
                 <DetailSummaryLine>
-                  <TextWithSideSpace variant="captionHl" color="grey600">
+                  <Typography className="mr-1" variant="captionHl" color="grey600">
                     {translate('text_65ae73ebe3a66bec2b91d747')}
-                  </TextWithSideSpace>
+                  </Typography>
                   <Tooltip
                     className="flex h-5 items-end"
                     placement="bottom-start"
@@ -194,12 +194,13 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                   >
                     {creditAmountUnit}
                   </Typography>
-                  <TextWithSideSpace
+                  <Typography
+                    className="mr-1"
                     color={isWalletActive ? 'grey700' : 'grey600'}
                     variant="captionHl"
                   >
                     .{creditAmountCents}
-                  </TextWithSideSpace>
+                  </Typography>
                   <Typography color={isWalletActive ? 'grey700' : 'grey600'} variant="captionHl">
                     {translate(
                       'text_62da6ec24a8e24e44f81287a',
@@ -221,9 +222,9 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
               {isWalletActive && (
                 <DetailSummaryBlock>
                   <DetailSummaryLine>
-                    <TextWithSideSpace variant="captionHl" color="grey600">
+                    <Typography className="mr-1" variant="captionHl" color="grey600">
                       {translate('text_65ae73ebe3a66bec2b91d75f')}
-                    </TextWithSideSpace>
+                    </Typography>
                     <Tooltip
                       className="flex h-5 items-end"
                       placement="bottom-start"
@@ -241,13 +242,14 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                     >
                       {isPremium ? consumedCreditUnit : '0'}
                     </Typography>
-                    <TextWithSideSpace
+                    <Typography
+                      className="mr-1"
                       blur={!isPremium}
                       color={isWalletActive ? 'grey700' : 'grey600'}
                       variant="captionHl"
                     >
                       .{isPremium ? consumedCreditCents : '00'}
-                    </TextWithSideSpace>
+                    </Typography>
                     <Typography
                       color={isWalletActive ? 'grey700' : 'grey600'}
                       variant="captionHl"
@@ -331,7 +333,11 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
               wallet={wallet}
             />
 
-            <WalletConsumptionSummary color="grey600" variant="caption">
+            <Typography
+              className="flex h-10 items-center justify-end px-4"
+              color="grey600"
+              variant="caption"
+            >
               {translate('text_65ae73ece3a66bec2b91d7d7')}&nbsp;
               {consumedCredits}&nbsp;
               {translate('text_62da6ec24a8e24e44f81287a', undefined, Number(consumedCredits) || 0)}
@@ -350,7 +356,7 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
               >
                 <Icon name="info-circle" />
               </Tooltip>
-            </WalletConsumptionSummary>
+            </Typography>
           </>
         )}
       </Accordion>
@@ -437,18 +443,6 @@ const DetailSummaryLine = styled.div<{ $alignBaseLine?: boolean }>`
   > * {
     display: flex;
   }
-`
-
-const TextWithSideSpace = styled(Typography)`
-  margin-right: ${theme.spacing(1)};
-`
-
-const WalletConsumptionSummary = styled(Typography)`
-  height: 40px;
-  padding: 0 ${theme.spacing(4)};
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
 `
 
 const FreemiumWarningBlock = styled.div`

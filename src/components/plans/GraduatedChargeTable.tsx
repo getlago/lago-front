@@ -76,38 +76,38 @@ export const GraduatedChargeTable = memo(
               {
                 size: 124,
                 content: (_, i) => (
-                  <DisabledCell variant="captionHl">
+                  <Typography className="px-4" variant="captionHl">
                     {translate(
                       i === 0 ? 'text_62793bbb599f1c01522e91c0' : 'text_62793bbb599f1c01522e91fc',
                     )}
-                  </DisabledCell>
+                  </Typography>
                 ),
               },
               {
                 title: (
-                  <DisabledCell variant="captionHl">
+                  <Typography className="px-4" variant="captionHl">
                     {translate('text_62793bbb599f1c01522e91ab')}
-                  </DisabledCell>
+                  </Typography>
                 ),
                 size: 124,
                 content: (row) => (
-                  <DisabledCell color="disabled" noWrap>
+                  <Typography className="px-4" color="disabled" noWrap>
                     {row?.fromValue}
-                  </DisabledCell>
+                  </Typography>
                 ),
               },
               {
                 title: (
-                  <DisabledCell variant="captionHl" noWrap>
+                  <Typography className="px-4" variant="captionHl" noWrap>
                     {translate('text_62793bbb599f1c01522e91b1')}
-                  </DisabledCell>
+                  </Typography>
                 ),
                 size: 124,
                 content: (row, i) =>
                   disabled || i === tableDatas?.length - 1 ? (
-                    <DisabledCell variant="body" color="disabled" noWrap>
+                    <Typography className="px-4" variant="body" color="disabled" noWrap>
                       {row.toValue || '∞'}
-                    </DisabledCell>
+                    </Typography>
                   ) : (
                     <Tooltip
                       placement="top"
@@ -139,9 +139,9 @@ export const GraduatedChargeTable = memo(
               },
               {
                 title: (
-                  <DisabledCell variant="captionHl">
+                  <Typography className="px-4" variant="captionHl">
                     {translate('text_62793bbb599f1c01522e91b6')}
-                  </DisabledCell>
+                  </Typography>
                 ),
                 size: 124,
                 content: (row, i) =>
@@ -172,9 +172,9 @@ export const GraduatedChargeTable = memo(
               },
               {
                 title: (
-                  <DisabledCell variant="captionHl">
+                  <Typography className="px-4" variant="captionHl">
                     {translate('text_62793bbb599f1c01522e91bc')}
-                  </DisabledCell>
+                  </Typography>
                 ),
                 size: 124,
                 content: (row, i) =>
@@ -313,10 +313,6 @@ const TableContainer = styled.div`
   margin-right: -${theme.spacing(4)};
   padding-left: ${theme.spacing(4)};
   padding-bottom: ${theme.spacing(6)};
-`
-
-const DisabledCell = styled(Typography)`
-  padding: 0px ${theme.spacing(4)};
 `
 
 const DisabledAmountCell = styled.div`

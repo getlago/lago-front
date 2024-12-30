@@ -84,9 +84,9 @@ export const PlanItem = memo(
             </NameBlock>
           </PlanNameSection>
           <PlanInfosSection $shouldShowItemActions={shouldShowItemActions}>
-            <MediumCell>{activeSubscriptionsCount}</MediumCell>
-            <SmallCell>{chargesCount}</SmallCell>
-            <MediumCell>{formatTimeOrgaTZ(createdAt)}</MediumCell>
+            <Typography className="w-28 text-right">{activeSubscriptionsCount}</Typography>
+            <Typography className="w-20 text-right">{chargesCount}</Typography>
+            <Typography className="w-28 text-right">{formatTimeOrgaTZ(createdAt)}</Typography>
           </PlanInfosSection>
           {shouldShowItemActions && <ButtonMock />}
         </ListItemLink>
@@ -192,16 +192,6 @@ const PlanInfosSection = styled.div<{ $shouldShowItemActions?: boolean }>`
       display: none;
     }
   }
-`
-
-const MediumCell = styled(Typography)`
-  text-align: right;
-  width: 112px;
-`
-
-const SmallCell = styled(Typography)`
-  text-align: right;
-  width: 80px;
 `
 
 const ButtonMock = styled.div`

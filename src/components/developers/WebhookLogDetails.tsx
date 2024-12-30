@@ -11,7 +11,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { NAV_HEIGHT, theme } from '~/styles'
+import { theme } from '~/styles'
 
 gql`
   fragment WebhookLogDetails on Webhook {
@@ -56,7 +56,11 @@ export const WebhookLogDetails = ({ log }: WebhookLogDetailsProps) => {
 
   return (
     <>
-      <LogHeader variant="bodyHl" color="textSecondary">
+      <Typography
+        className="hidden h-18 min-h-18 items-center justify-between px-8 shadow-b md:flex"
+        variant="bodyHl"
+        color="textSecondary"
+      >
         {webhookType}
         {hasError && (
           <Button
@@ -72,7 +76,7 @@ export const WebhookLogDetails = ({ log }: WebhookLogDetailsProps) => {
             {translate('text_63e27c56dfe64b846474efa3')}
           </Button>
         )}
-      </LogHeader>
+      </Typography>
       <PropertiesContainer>
         <WideLine>
           <Typography variant="captionHl" color="grey700">
@@ -90,41 +94,49 @@ export const WebhookLogDetails = ({ log }: WebhookLogDetailsProps) => {
           </WideLine>
         )}
 
-        <PropertyLabel variant="caption">
+        <Typography className="pt-1" variant="caption">
           {translate('text_63e27c56dfe64b846474ef6c')}
-        </PropertyLabel>
-        <PropertyValue color="grey700">
+        </Typography>
+        <Typography className="overflow-wrap-anywhere flex min-w-0 max-w-full" color="grey700">
           {formatTimeOrgaTZ(updatedAt, 'LLL. dd, yyyy HH:mm:ss')}
-        </PropertyValue>
+        </Typography>
 
-        <PropertyLabel variant="caption">
+        <Typography className="pt-1" variant="caption">
           {translate('text_63e27c56dfe64b846474ef6e')}
-        </PropertyLabel>
-        <PropertyValue color="grey700">{endpoint}</PropertyValue>
+        </Typography>
+        <Typography className="overflow-wrap-anywhere flex min-w-0 max-w-full" color="grey700">
+          {endpoint}
+        </Typography>
 
-        <PropertyLabel variant="caption">
+        <Typography className="pt-1" variant="caption">
           {translate('text_63e27c56dfe64b846474ef70')}
-        </PropertyLabel>
-        <PropertyValue color="grey700">{id}</PropertyValue>
+        </Typography>
+        <Typography className="overflow-wrap-anywhere flex min-w-0 max-w-full" color="grey700">
+          {id}
+        </Typography>
 
-        <PropertyLabel variant="caption">
+        <Typography className="pt-1" variant="caption">
           {translate('text_63e27c56dfe64b846474ef72')}
-        </PropertyLabel>
-        <PropertyValue color="grey700">{webhookType}</PropertyValue>
+        </Typography>
+        <Typography className="max-w-ful overflow-wrap-anywherel flex min-w-0" color="grey700">
+          {webhookType}
+        </Typography>
 
-        <PropertyLabel variant="caption">
+        <Typography className="pt-1" variant="caption">
           {translate('text_63e27c56dfe64b846474ef74')}
-        </PropertyLabel>
-        <PropertyValue color="grey700">
+        </Typography>
+        <Typography className="max-w-ful overflow-wrap-anywherel flex min-w-0" color="grey700">
           {!hasError ? translate('text_63e27c56dfe64b846474ef73') : httpStatus}
-        </PropertyValue>
+        </Typography>
 
         {retries > 0 && (
           <>
-            <PropertyLabel variant="caption">
+            <Typography className="pt-1" variant="caption">
               {translate('text_63e27c56dfe64b846474efb2')}
-            </PropertyLabel>
-            <PropertyValue color="grey700">{retries}</PropertyValue>
+            </Typography>
+            <Typography className="max-w-ful overflow-wrap-anywherel flex min-w-0" color="grey700">
+              {retries}
+            </Typography>
           </>
         )}
       </PropertiesContainer>
@@ -151,34 +163,8 @@ export const WebhookLogDetails = ({ log }: WebhookLogDetailsProps) => {
   )
 }
 
-const LogHeader = styled(Typography)`
-  height: ${NAV_HEIGHT}px;
-  min-height: ${NAV_HEIGHT}px;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 ${theme.spacing(8)};
-  box-sizing: border-box;
-
-  ${theme.breakpoints.down('md')} {
-    display: none;
-  }
-`
-
 const WideLine = styled.div`
   grid-column: span 2;
-`
-
-const PropertyLabel = styled(Typography)`
-  padding-top: 4px;
-`
-
-const PropertyValue = styled(Typography)`
-  max-width: 100%;
-  min-width: 0;
-  display: flex;
-  overflow-wrap: anywhere;
 `
 
 const PropertiesContainer = styled.div`
