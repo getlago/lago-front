@@ -488,7 +488,6 @@
   "text_6328e70de459381ed4ba50d6": "The subscription upgrade will take effect immediately for your customer\nHowever, the downgrade will be effective after {{subscriptionEndDate}}",
   "text_632a2d437e341dcc76817556": "Code already existing, please type a new one",
   "text_63fcc3218d35b9377840f59b": "Metadata",
-  "text_63fcc3218d35b9377840f59f": "Add metadata to the customer account and choose whether or not it should appear on the invoice.",
   "text_63fcc3218d35b9377840f5a3": "Key",
   "text_63fcc3218d35b9377840f5a7": "Enter a key",
   "text_63fcc3218d35b9377840f5ab": "Value",
@@ -2760,5 +2759,6 @@
   "text_1735654189136h4rgi3zdwaa": "Type a zip code",
   "text_1735654189136vn4mbzp4jhs": "Type a city",
   "text_173565418913690jb89ypb63": "Type a state",
-  "text_1735654189136s548dkluunb": "Search and select a country"
+  "text_1735654189136s548dkluunb": "Search and select a country",
+  "text_1735655045719sl0z0pooptb": "Add metadata to the customer and decide if it appears on the invoice."
 }

@@ -33,15 +33,15 @@ export const MetadataAccordion: FC<MetadataAccordionProps> = ({ formikProps }) =
 
   return (
     <Accordion
-      size="large"
+      variant="borderless"
       summary={
-        <Typography variant="subhead">{translate('text_63fcc3218d35b9377840f59b')}</Typography>
+        <div className="flex flex-col gap-2">
+          <Typography variant="subhead">{translate('text_63fcc3218d35b9377840f59b')}</Typography>
+          <Typography variant="caption">{translate('text_1735655045719sl0z0pooptb')}</Typography>
+        </div>
       }
     >
       <div className="not-last-child:mb-4">
-        <Typography variant="body" color="grey600">
-          {translate('text_63fcc3218d35b9377840f59f')}
-        </Typography>
         {!!formikProps?.values?.metadata?.length && (
           <div>
             <div className={tw(gridClassName, 'mb-1 [&>*:nth-child(3)]:col-span-2')}>
