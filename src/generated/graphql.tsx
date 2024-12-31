@@ -4326,6 +4326,8 @@ export type Permissions = {
   organizationView: Scalars['Boolean']['output'];
   paymentRequestsCreate: Scalars['Boolean']['output'];
   paymentRequestsView: Scalars['Boolean']['output'];
+  paymentsCreate: Scalars['Boolean']['output'];
+  paymentsView: Scalars['Boolean']['output'];
   plansCreate: Scalars['Boolean']['output'];
   plansDelete: Scalars['Boolean']['output'];
   plansUpdate: Scalars['Boolean']['output'];
@@ -6401,8 +6403,6 @@ export type GetGoogleAuthUrlQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetGoogleAuthUrlQuery = { __typename?: 'Query', googleAuthUrl: { __typename?: 'AuthUrl', url: string } };
 
-export type BillableMetricItemFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any };
-
 export type DeleteBillableMetricDialogFragment = { __typename?: 'BillableMetric', id: string, name: string, draftInvoicesCount: number, activeSubscriptionsCount: number };
 
 export type GetBillableMetricToDeleteQueryVariables = Exact<{
@@ -8378,6 +8378,8 @@ export type AddOnsQueryVariables = Exact<{
 
 export type AddOnsQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: any, customersCount: number, createdAt: any }> } };
 
+export type BillableMetricItemFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any };
+
 export type BillableMetricsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -9174,14 +9176,6 @@ export const DeleteAddOnFragmentDoc = gql`
     fragment DeleteAddOn on AddOn {
   id
   name
-}
-    `;
-export const BillableMetricItemFragmentDoc = gql`
-    fragment BillableMetricItem on BillableMetric {
-  id
-  name
-  code
-  createdAt
 }
     `;
 export const DeleteBillableMetricDialogFragmentDoc = gql`
@@ -11232,6 +11226,14 @@ ${InvoiceForFinalizeInvoiceFragmentDoc}
 ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
 ${InvoiceMetadatasForInvoiceOverviewFragmentDoc}
 ${InvoiceMetadatasForMetadataDrawerFragmentDoc}`;
+export const BillableMetricItemFragmentDoc = gql`
+    fragment BillableMetricItem on BillableMetric {
+  id
+  name
+  code
+  createdAt
+}
+    `;
 export const EditBillableMetricFragmentDoc = gql`
     fragment EditBillableMetric on BillableMetric {
   id
