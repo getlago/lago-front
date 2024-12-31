@@ -14,7 +14,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 const billingFields: Array<
-  { name: keyof CustomerAddress; label?: string; placeholder?: string } & (
+  { name: keyof CustomerAddress; label?: string; placeholder?: string; className?: string } & (
     | {
         type: 'text'
       }
@@ -27,34 +27,43 @@ const billingFields: Array<
   {
     name: 'addressLine1',
     type: 'text',
-    label: 'text_626c0c09812bbc00e4c59e1b',
-    placeholder: 'text_626c0c09812bbc00e4c59e1d',
+    label: 'text_626c0c09812bbc00e4c59e1d',
+    placeholder: 'text_1735653854525cemtriccmuh',
+    className: 'col-span-2',
   },
   {
     name: 'addressLine2',
     type: 'text',
-    placeholder: 'text_626c0c09812bbc00e4c59e1f',
+    label: 'text_626c0c09812bbc00e4c59e1f',
+    placeholder: 'text_1735653854525dq6plq7exd3',
+    className: 'col-span-2',
   },
   {
     name: 'zipcode',
     type: 'text',
-    placeholder: 'text_626c0c09812bbc00e4c59e21',
+    label: 'text_626c0c09812bbc00e4c59e21',
+    placeholder: 'text_1735654189136h4rgi3zdwaa',
   },
   {
     name: 'city',
     type: 'text',
-    placeholder: 'text_626c0c09812bbc00e4c59e23',
+    label: 'text_626c0c09812bbc00e4c59e23',
+    placeholder: 'text_1735654189136vn4mbzp4jhs',
   },
   {
     name: 'state',
     type: 'text',
-    placeholder: 'text_626c0c09812bbc00e4c59e25',
+    label: 'text_626c0c09812bbc00e4c59e25',
+    placeholder: 'text_173565418913690jb89ypb63',
+    className: 'col-span-2',
   },
   {
     name: 'country',
     type: 'combobox',
-    placeholder: 'text_626c0c09812bbc00e4c59e27',
+    label: 'text_626c0c09812bbc00e4c59e27',
     data: countryDataForCombobox,
+    placeholder: 'text_1735654189136s548dkluunb',
+    className: 'col-span-2',
   },
 ]
 
@@ -97,16 +106,16 @@ export const BillingAccordion: FC<BillingAccordionProps> = ({
 
   return (
     <Accordion
-      size="large"
+      variant="borderless"
       summary={
-        <Typography variant="subhead">{translate('text_632b49e2620ea4c6d96c9662')}</Typography>
+        <div className="flex flex-col gap-2">
+          <Typography variant="subhead">{translate('text_632b49e2620ea4c6d96c9662')}</Typography>
+          <Typography variant="caption">{translate('text_1735653854525b68ew2qbpdp')}</Typography>
+        </div>
       }
     >
       <div className="not-last-child:mb-8">
         <div className="not-last-child:mb-6">
-          <Typography variant="bodyHl" color="textSecondary">
-            {translate('text_626c0c09812bbc00e4c59dff')}
-          </Typography>
           <ComboBoxField
             disabled={!!customer && !customer?.canEditAttributes}
             label={translate('text_632c6e59b73f9a54d4c72247')}
@@ -164,33 +173,38 @@ export const BillingAccordion: FC<BillingAccordionProps> = ({
         </div>
         <div className="not-last-child:mb-4">
           <Typography variant="bodyHl" color="textSecondary">
-            {translate('text_626c0c09812bbc00e4c59e19')}
+            {translate('text_626c0c301a16a600ea06148d')}
           </Typography>
 
-          {billingFields.map((field) => {
-            if (field.type === 'text') {
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {billingFields.map((field) => {
+              if (field.type === 'text') {
+                return (
+                  <TextInputField
+                    key={field.name}
+                    name={field.name}
+                    label={field.label && translate(field.label)}
+                    className={field.className}
+                    placeholder={field.placeholder && translate(field.placeholder)}
+                    formikProps={formikProps}
+                  />
+                )
+              }
+
               return (
-                <TextInputField
+                <ComboBoxField
                   key={field.name}
+                  data={field.data}
                   name={field.name}
                   label={field.label && translate(field.label)}
+                  containerClassName={field.className}
                   placeholder={field.placeholder && translate(field.placeholder)}
                   formikProps={formikProps}
+                  PopperProps={{ displayInDialog: true }}
                 />
               )
-            }
-
-            return (
-              <ComboBoxField
-                key={field.name}
-                data={field.data}
-                name={field.name}
-                placeholder={field.placeholder && translate(field.placeholder)}
-                formikProps={formikProps}
-                PopperProps={{ displayInDialog: true }}
-              />
-            )
-          })}
+            })}
+          </div>
         </div>
         <div className="not-last-child:mb-4">
           <Typography variant="bodyHl" color="textSecondary">
@@ -201,32 +215,38 @@ export const BillingAccordion: FC<BillingAccordionProps> = ({
             value={isShippingEqualBillingAddress}
             onChange={() => setIsShippingEqualBillingAddress((prev) => !prev)}
           />
-          {billingFields.map((field) => {
-            if (field.type === 'text') {
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {billingFields.map((field) => {
+              if (field.type === 'text') {
+                return (
+                  <TextInputField
+                    key={`shippingAddress.${field.name}`}
+                    name={`shippingAddress.${field.name}`}
+                    label={field.label && translate(field.label)}
+                    className={field.className}
+                    placeholder={field.placeholder && translate(field.placeholder)}
+                    formikProps={formikProps}
+                    disabled={isShippingEqualBillingAddress}
+                  />
+                )
+              }
+
               return (
-                <TextInputField
+                <ComboBoxField
                   key={`shippingAddress.${field.name}`}
                   name={`shippingAddress.${field.name}`}
                   label={field.label && translate(field.label)}
+                  containerClassName={field.className}
                   placeholder={field.placeholder && translate(field.placeholder)}
                   formikProps={formikProps}
                   disabled={isShippingEqualBillingAddress}
+                  PopperProps={{ displayInDialog: true }}
+                  data={field.data}
                 />
               )
-            }
-
-            return (
-              <ComboBoxField
-                key={`shippingAddress.${field.name}`}
-                name={`shippingAddress.${field.name}`}
-                placeholder={field.placeholder && translate(field.placeholder)}
-                formikProps={formikProps}
-                disabled={isShippingEqualBillingAddress}
-                PopperProps={{ displayInDialog: true }}
-                data={field.data}
-              />
-            )
-          })}
+            })}
+          </div>
         </div>
       </div>
     </Accordion>
