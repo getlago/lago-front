@@ -7,7 +7,7 @@ describe('Create plan', () => {
 
   it('should be able to access plans', () => {
     cy.get('[data-test="create-plan"]').should('exist')
-    cy.get('[data-test="empty"]').should('exist')
+    cy.get('[data-test="empty-state"]').should('exist')
   })
 
   it('should be able to create a simple plan', () => {

@@ -7163,8 +7163,6 @@ export type GraduatedPercentageChargeFragment = { __typename?: 'Properties', gra
 
 export type PackageChargeFragment = { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null };
 
-export type PlanItemFragment = { __typename?: 'Plan', id: string, name: string, code: string, chargesCount: number, activeSubscriptionsCount: number, createdAt: any, draftInvoicesCount: number };
-
 export type TaxForPlanSettingsSectionFragment = { __typename?: 'Tax', id: string, code: string, name: string, rate: number };
 
 export type PlanForSettingsSectionFragment = { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, code: string, description?: string | null, interval: PlanInterval, name: string, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null };
@@ -8692,6 +8690,8 @@ export type GetPlanForDetailsQueryVariables = Exact<{
 
 export type GetPlanForDetailsQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id: string, name: string, code: string, draftInvoicesCount: number, activeSubscriptionsCount: number, parent?: { __typename?: 'Plan', id: string } | null } | null };
 
+export type PlanItemFragment = { __typename?: 'Plan', id: string, name: string, code: string, chargesCount: number, activeSubscriptionsCount: number, createdAt: any, draftInvoicesCount: number };
+
 export type PlansQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -9712,25 +9712,6 @@ export const BillableMetricForChargeSectionFragmentDoc = gql`
   }
 }
     `;
-export const DeletePlanDialogFragmentDoc = gql`
-    fragment DeletePlanDialog on Plan {
-  id
-  name
-  draftInvoicesCount
-  activeSubscriptionsCount
-}
-    `;
-export const PlanItemFragmentDoc = gql`
-    fragment PlanItem on Plan {
-  id
-  name
-  code
-  chargesCount
-  activeSubscriptionsCount
-  createdAt
-  ...DeletePlanDialog
-}
-    ${DeletePlanDialogFragmentDoc}`;
 export const PlanSubscriptionListItemForSubscriptionListFragmentDoc = gql`
     fragment PlanSubscriptionListItemForSubscriptionList on Subscription {
   id
@@ -11781,6 +11762,25 @@ export const SalesforceIntegrationInfosForInvoiceOverviewFragmentDoc = gql`
   instanceId
 }
     `;
+export const DeletePlanDialogFragmentDoc = gql`
+    fragment DeletePlanDialog on Plan {
+  id
+  name
+  draftInvoicesCount
+  activeSubscriptionsCount
+}
+    `;
+export const PlanItemFragmentDoc = gql`
+    fragment PlanItem on Plan {
+  id
+  name
+  code
+  chargesCount
+  activeSubscriptionsCount
+  createdAt
+  ...DeletePlanDialog
+}
+    ${DeletePlanDialogFragmentDoc}`;
 export const ApiKeyRevealedForApiKeysListFragmentDoc = gql`
     fragment ApiKeyRevealedForApiKeysList on ApiKey {
   id
