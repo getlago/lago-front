@@ -483,7 +483,7 @@ export const Table = <T extends DataItem>({
             <>
               {filteredColumns.map((column, i) => (
                 <TableCell
-                  className="sticky top-0 z-10 border-b-0 bg-white shadow-b"
+                  className="sticky top-0 z-sectionHead border-b-0 bg-white shadow-b"
                   key={`${TABLE_ID}-head-${i}`}
                   align={column.textAlign || 'left'}
                   maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
@@ -502,7 +502,7 @@ export const Table = <T extends DataItem>({
                   </TableInnerCell>
                 </TableCell>
               ))}
-              {shouldDisplayActionColumn && <TableActionCell />}
+              {shouldDisplayActionColumn && <TableActionCell className="top-0 z-sectionHead" />}
             </>
           </tr>
         </MUITableHead>
