@@ -2756,5 +2756,6 @@
   "text_173255335844629sa49oljif": "Preview invoice",
   "text_1735045451930tezr0et3e6l": "Invoice is pending finalization.",
   "text_1735045451931zfgc6yvvcfm": "This invoice is in the queue, waiting to be finalized. It may take a bit of time. Please refresh or check back later.",
-  "text_1735651472114fzhjvrrcumw": "Edit a customer"
+  "text_1735651472114fzhjvrrcumw": "Edit a customer",
+  "text_1735652987833k0i3l9ill5g": "Define the customer information to easily identify it."
 }
