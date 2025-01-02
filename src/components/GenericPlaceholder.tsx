@@ -39,6 +39,7 @@ export const GenericPlaceholder = ({
         },
         className,
       )}
+      data-test="empty-state"
       {...props}
     >
       {image}

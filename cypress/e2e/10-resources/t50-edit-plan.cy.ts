@@ -11,8 +11,8 @@ describe('Edit plan', () => {
 
   it('should be able to close the form without warning dialog when no data has changed', () => {
     cy.visit('/plans')
-    cy.get(`[data-test="${planWithChargesName}-wrapper"]`).within(() => {
-      cy.get('[data-test="plan-item-options"]').click({ force: true })
+    cy.get(`[data-test="${planWithChargesName}"] [data-test="open-action-button"]`).click({
+      force: true,
     })
     cy.get('[data-test="tab-internal-button-link-update-plan"]').click({ force: true })
     cy.get('input[name="name"]').should('exist')
@@ -23,8 +23,8 @@ describe('Edit plan', () => {
 
   it('should be able to update all information of unused plan', () => {
     cy.visit('/plans')
-    cy.get(`[data-test="${planWithChargesName}-wrapper"]`).within(() => {
-      cy.get('[data-test="plan-item-options"]').click({ force: true })
+    cy.get(`[data-test="${planWithChargesName}"] [data-test="open-action-button"]`).click({
+      force: true,
     })
     cy.get('[data-test="tab-internal-button-link-update-plan"]').click({ force: true })
     cy.get('input[name="name"]').should('not.be.disabled')
@@ -64,8 +64,8 @@ describe('Edit plan', () => {
 
   it('should not be able to update all information of an used plan', () => {
     cy.visit('/plans')
-    cy.get(`[data-test="${planWithChargesName}-wrapper"]`).within(() => {
-      cy.get('[data-test="plan-item-options"]').click({ force: true })
+    cy.get(`[data-test="${planWithChargesName}"] [data-test="open-action-button"]`).click({
+      force: true,
     })
     cy.get('[data-test="tab-internal-button-link-update-plan"]').click({ force: true })
     cy.get('input[name="name"]').should('not.be.disabled')

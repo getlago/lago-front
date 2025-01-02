@@ -78,6 +78,7 @@ interface TableProps<T> {
   onRowAction?: (item: T) => void
   actionColumn?: (item: T) => Array<ActionItem<T> | null> | ReactNode
   actionColumnTooltip?: (item: T) => string
+  rowDataTestId?: (item: T) => string
   containerSize?: ResponsiveStyleValue<TableContainerSize>
   rowSize?: RowSize
 }
@@ -333,6 +334,7 @@ export const Table = <T extends DataItem>({
   onRowAction,
   actionColumn,
   actionColumnTooltip,
+  rowDataTestId,
 }: TableProps<T>) => {
   const TABLE_ID = `table-${name}`
   const filteredColumns = columns.filter((column) => !!column)
@@ -519,6 +521,7 @@ export const Table = <T extends DataItem>({
                   tabIndex={isClickable ? 0 : undefined}
                   onKeyDown={isClickable ? onKeyDown : undefined}
                   onClick={isClickable ? (e) => handleRowClick(e, item) : undefined}
+                  data-test={rowDataTestId?.(item)}
                 >
                   {filteredColumns.map((column, j) => (
                     <TableCell
@@ -551,7 +554,11 @@ export const Table = <T extends DataItem>({
                                   disableHoverListener={isOpen}
                                   title={actionColumnTooltip?.(item) || null}
                                 >
-                                  <Button icon="dots-horizontal" variant="quaternary" />
+                                  <Button
+                                    icon="dots-horizontal"
+                                    variant="quaternary"
+                                    data-test="open-action-button"
+                                  />
                                 </Tooltip>
                               </PopperOpener>
                             )}

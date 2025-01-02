@@ -106,11 +106,11 @@ describe('Table', () => {
 
     expect(bodyRows).toHaveLength(4)
     expect(within(bodyRows[0]).queryAllByRole('cell')).toHaveLength(3)
-    expect(within(bodyRows[0]).queryByTestId('button')).toBeInTheDocument()
+    expect(within(bodyRows[0]).queryByTestId('open-action-button')).toBeInTheDocument()
 
     // Click on action menu
     await waitFor(() =>
-      userEvent.click(within(bodyRows[0]).queryByTestId('button') as HTMLButtonElement),
+      userEvent.click(within(bodyRows[0]).queryByTestId('open-action-button') as HTMLButtonElement),
     )
 
     // Check if action menu is visible
