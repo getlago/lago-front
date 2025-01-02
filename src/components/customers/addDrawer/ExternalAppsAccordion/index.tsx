@@ -75,58 +75,35 @@ type TExternalAppsAccordionProps = {
 export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsAccordionProps) => {
   const { translate } = useInternationalization()
 
-  const isSyncWithProviderDisabled = !!formikProps.values.providerCustomer?.syncWithProvider
-  const hadInitialNetsuiteIntegrationCustomer =
-    !!formikProps.initialValues.integrationCustomers?.find(
-      (i) => i.integrationType === IntegrationTypeEnum.Netsuite,
+  const hadInitialAccountingProvider = !!formikProps.values.integrationCustomers?.find((i) =>
+    [IntegrationTypeEnum.Netsuite, IntegrationTypeEnum.Xero].includes(
+      i.integrationType as IntegrationTypeEnum,
+    ),
     )
-  const hadInitialAnrokIntegrationCustomer = !!formikProps.initialValues.integrationCustomers?.find(
-    (i) => i.integrationType === IntegrationTypeEnum.Anrok,
+  const hadInitialTaxProvider = !!formikProps.values.integrationCustomers?.find((i) =>
+    [IntegrationTypeEnum.Anrok].includes(i.integrationType as IntegrationTypeEnum),
   )
-  const hadInitialXeroIntegrationCustomer = !!formikProps.initialValues.integrationCustomers?.find(
-    (i) => i.integrationType === IntegrationTypeEnum.Xero,
-  )
-  const hadInitialHubspotIntegrationCustomer =
-    !!formikProps.initialValues.integrationCustomers?.find(
-      (i) => i.integrationType === IntegrationTypeEnum.Hubspot,
-    )
-  const hadInitialSalesforceIntegrationCustomer =
-    !!formikProps.initialValues.integrationCustomers?.find(
-      (i) => i.integrationType === IntegrationTypeEnum.Salesforce,
+  const hadInitialCRMProvider = !!formikProps.values.integrationCustomers?.find((i) =>
+    [IntegrationTypeEnum.Hubspot, IntegrationTypeEnum.Salesforce].includes(
+      i.integrationType as IntegrationTypeEnum,
+    ),
     )
 
-  const [showPaymentProviderSection, setShowPaymentProviderSection] = useState<boolean>(
-    !!formikProps.values.paymentProvider,
-  )
-  const [showAccountingProviderSection, setShowAccountingProviderSection] = useState<boolean>(
-    hadInitialNetsuiteIntegrationCustomer || hadInitialXeroIntegrationCustomer,
-  )
-  const [showTaxIntegrationSection, setShowTaxIntegrationSection] = useState<boolean>(
-    hadInitialAnrokIntegrationCustomer,
-  )
-  const [showCRMIntegrationSection, setShowCRMIntegrationSection] = useState<boolean>(
-    hadInitialHubspotIntegrationCustomer || hadInitialSalesforceIntegrationCustomer,
-  )
+  const [showPaymentSection, setShowPaymentSection] = useState(!!formikProps.values.paymentProvider)
+  const [showAccountingSection, setShowAccountingSection] = useState(hadInitialAccountingProvider)
+  const [showTaxSection, setShowTaxSection] = useState(hadInitialTaxProvider)
+  const [showCRMSection, setShowCRMSection] = useState(hadInitialCRMProvider)
 
   useEffect(() => {
-    setShowPaymentProviderSection(!!formikProps.values.paymentProvider)
+    setShowPaymentSection(!!formikProps.values.paymentProvider)
   }, [formikProps.values.paymentProvider])
 
-  useEffect(() => {
-    setShowAccountingProviderSection(
-      hadInitialNetsuiteIntegrationCustomer || hadInitialXeroIntegrationCustomer,
+  useEffect(
+    () => setShowAccountingSection(hadInitialAccountingProvider),
+    [hadInitialAccountingProvider],
     )
-  }, [hadInitialNetsuiteIntegrationCustomer, hadInitialXeroIntegrationCustomer])
-
-  useEffect(() => {
-    setShowTaxIntegrationSection(hadInitialAnrokIntegrationCustomer)
-  }, [hadInitialAnrokIntegrationCustomer])
-
-  useEffect(() => {
-    setShowCRMIntegrationSection(
-      hadInitialHubspotIntegrationCustomer || hadInitialSalesforceIntegrationCustomer,
-    )
-  }, [hadInitialHubspotIntegrationCustomer, hadInitialSalesforceIntegrationCustomer])
+  useEffect(() => setShowTaxSection(hadInitialTaxProvider), [hadInitialTaxProvider])
+  useEffect(() => setShowCRMSection(hadInitialCRMProvider), [hadInitialCRMProvider])
 
   return (
     <Accordion
@@ -151,30 +128,30 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
             })}
           />
         </div>
-        {showPaymentProviderSection && (
+        {showPaymentSection && (
           <PaymentProvidersAccordion
             formikProps={formikProps}
-            setShowPaymentProviderSection={setShowPaymentProviderSection}
+            setShowPaymentSection={setShowPaymentSection}
           />
         )}
-        {showAccountingProviderSection && (
+        {showAccountingSection && (
           <AccountingProvidersAccordion
             formikProps={formikProps}
-            setShowAccountingProviderSection={setShowAccountingProviderSection}
+            setShowAccountingSection={setShowAccountingSection}
             isEdition={isEdition}
           />
         )}
-        {showTaxIntegrationSection && (
+        {showTaxSection && (
           <TaxProvidersAccordion
             formikProps={formikProps}
-            setShowTaxIntegrationSection={setShowTaxIntegrationSection}
+            setShowTaxSection={setShowTaxSection}
             isEdition={isEdition}
           />
         )}
-        {showCRMIntegrationSection && (
+        {showCRMSection && (
           <CRMProvidersAccordion
             formikProps={formikProps}
-            setShowCRMIntegrationSection={setShowCRMIntegrationSection}
+            setShowCRMSection={setShowCRMSection}
             isEdition={isEdition}
           />
         )}
@@ -186,10 +163,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
               startIcon="plus"
               variant="quaternary"
               disabled={
-                showAccountingProviderSection &&
-                showPaymentProviderSection &&
-                showTaxIntegrationSection &&
-                showCRMIntegrationSection
+                showAccountingSection && showPaymentSection && showTaxSection && showCRMSection
               }
             >
               {translate('text_65846763e6140b469140e235')}
@@ -201,9 +175,9 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
               <Button
                 variant="quaternary"
                 align="left"
-                disabled={showPaymentProviderSection}
+                disabled={showPaymentSection}
                 onClick={() => {
-                  setShowPaymentProviderSection(true)
+                  setShowPaymentSection(true)
 
                   setTimeout(() => {
                     const element = document.querySelector(
@@ -224,9 +198,9 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
               <Button
                 variant="quaternary"
                 align="left"
-                disabled={showAccountingProviderSection}
+                disabled={showAccountingSection}
                 onClick={() => {
-                  setShowAccountingProviderSection(true)
+                  setShowAccountingSection(true)
 
                   setTimeout(() => {
                     const element = document.querySelector(
@@ -248,9 +222,9 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
               <Button
                 variant="quaternary"
                 align="left"
-                disabled={showTaxIntegrationSection}
+                disabled={showTaxSection}
                 onClick={() => {
-                  setShowTaxIntegrationSection(true)
+                  setShowTaxSection(true)
 
                   setTimeout(() => {
                     const element = document.querySelector(
@@ -272,9 +246,9 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
               <Button
                 variant="quaternary"
                 align="left"
-                disabled={showCRMIntegrationSection}
+                disabled={showCRMSection}
                 onClick={() => {
-                  setShowCRMIntegrationSection(true)
+                  setShowCRMSection(true)
 
                   setTimeout(() => {
                     const element = document.querySelector(
@@ -295,7 +269,8 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
             </MenuPopper>
           )}
         </Popper>
-        {isSyncWithProviderDisabled &&
+
+        {!!formikProps.values.providerCustomer?.syncWithProvider &&
           (formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless ||
             formikProps.values.paymentProvider === ProviderTypeEnum.Adyen) && (
             <Alert type="info">

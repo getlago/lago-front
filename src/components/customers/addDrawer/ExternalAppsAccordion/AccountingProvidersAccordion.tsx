@@ -17,8 +17,8 @@ import {
   IntegrationTypeEnum,
   NetsuiteIntegration,
   UpdateCustomerInput,
-  useAccountingIntegrationsListForCustomerEditExternalAppsAccordionLazyQuery,
-  useSubsidiariesListForCustomerCreateEditExternalAppsAccordionQuery,
+  useGetAccountingIntegrationsForExternalAppsAccordionLazyQuery,
+  useSubsidiariesListForExternalAppsAccordionQuery,
   XeroIntegration,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -29,7 +29,7 @@ import { ExternalAppsAccordionLayout } from './ExternalAppsAccordionLayout'
 import { getIntegration } from './utils'
 
 gql`
-  query accountingIntegrationsListForCustomerEditExternalAppsAccordion($limit: Int, $page: Int) {
+  query getAccountingIntegrationsForExternalAppsAccordion($limit: Int, $page: Int) {
     integrations(limit: $limit, page: $page) {
       collection {
         ... on NetsuiteIntegration {
@@ -48,7 +48,7 @@ gql`
     }
   }
 
-  query subsidiariesListForCustomerCreateEditExternalAppsAccordion($integrationId: ID) {
+  query subsidiariesListForExternalAppsAccordion($integrationId: ID) {
     integrationSubsidiaries(integrationId: $integrationId) {
       collection {
         externalId
@@ -60,19 +60,19 @@ gql`
 
 interface AccountingProvidersAccordionProps {
   formikProps: FormikProps<CreateCustomerInput | UpdateCustomerInput>
-  setShowAccountingProviderSection: Dispatch<SetStateAction<boolean>>
+  setShowAccountingSection: Dispatch<SetStateAction<boolean>>
   isEdition: boolean
 }
 
 export const AccountingProvidersAccordion: FC<AccountingProvidersAccordionProps> = ({
   formikProps,
-  setShowAccountingProviderSection,
+  setShowAccountingSection,
   isEdition,
 }) => {
   const { translate } = useInternationalization()
 
   const [getAccountingIntegrationsData, { data: allIntegrationsData }] =
-    useAccountingIntegrationsListForCustomerEditExternalAppsAccordionLazyQuery({
+    useGetAccountingIntegrationsForExternalAppsAccordionLazyQuery({
       variables: { limit: 1000 },
     })
 
@@ -88,11 +88,11 @@ export const AccountingProvidersAccordion: FC<AccountingProvidersAccordionProps>
     formikProps,
   })
 
-  const { data: subsidiariesData } =
-    useSubsidiariesListForCustomerCreateEditExternalAppsAccordionQuery({
-      variables: { integrationId: selectedNetsuiteIntegrationSettings?.id },
-      skip: !selectedNetsuiteIntegrationSettings?.id,
-    })
+  // Only fetch subsidiaries if there is a selected Netsuite integration
+  const { data: subsidiariesData } = useSubsidiariesListForExternalAppsAccordionQuery({
+    variables: { integrationId: selectedNetsuiteIntegrationSettings?.id },
+    skip: !selectedNetsuiteIntegrationSettings?.id,
+  })
 
   const {
     hadInitialIntegrationCustomer: hadInitialXeroIntegrationCustomer,
@@ -176,7 +176,7 @@ export const AccountingProvidersAccordion: FC<AccountingProvidersAccordionProps>
                     i.integrationType !== IntegrationTypeEnum.Xero,
                 ),
               )
-              setShowAccountingProviderSection(false)
+              setShowAccountingSection(false)
             }}
           />
         }

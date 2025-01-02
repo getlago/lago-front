@@ -22,7 +22,7 @@ import {
   IntegrationTypeEnum,
   SalesforceIntegration,
   UpdateCustomerInput,
-  useGetCrmIntegrationsListForCustomerEditExternalAppsAccordionLazyQuery,
+  useGetCrmIntegrationsForExternalAppsAccordionLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Hubspot from '~/public/images/hubspot.svg'
@@ -32,7 +32,7 @@ import { ExternalAppsAccordionLayout } from './ExternalAppsAccordionLayout'
 import { getIntegration } from './utils'
 
 gql`
-  query getCRMIntegrationsListForCustomerEditExternalAppsAccordion($limit: Int, $page: Int) {
+  query getCrmIntegrationsForExternalAppsAccordion($limit: Int, $page: Int) {
     integrations(limit: $limit, page: $page) {
       collection {
         ... on HubspotIntegration {
@@ -69,19 +69,19 @@ const hubspotExternalIdTypeCopyMap: Record<
 
 interface CRMProvidersAccordionProps {
   formikProps: FormikProps<CreateCustomerInput | UpdateCustomerInput>
-  setShowCRMIntegrationSection: Dispatch<SetStateAction<boolean>>
+  setShowCRMSection: Dispatch<SetStateAction<boolean>>
   isEdition: boolean
 }
 
 export const CRMProvidersAccordion: FC<CRMProvidersAccordionProps> = ({
   formikProps,
-  setShowCRMIntegrationSection,
+  setShowCRMSection,
   isEdition,
 }) => {
   const { translate } = useInternationalization()
 
   const [getIntegrationsData, { data: allIntegrationsData }] =
-    useGetCrmIntegrationsListForCustomerEditExternalAppsAccordionLazyQuery({
+    useGetCrmIntegrationsForExternalAppsAccordionLazyQuery({
       variables: { limit: 1000 },
     })
 
@@ -166,7 +166,7 @@ export const CRMProvidersAccordion: FC<CRMProvidersAccordionProps> = ({
                     i.integrationType !== IntegrationTypeEnum.Salesforce,
                 ),
               )
-              setShowCRMIntegrationSection(false)
+              setShowCRMSection(false)
             }}
           />
         }

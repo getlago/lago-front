@@ -51,7 +51,7 @@ gql`
 
 interface PaymentProvidersAccordionProps {
   formikProps: FormikProps<CreateCustomerInput | UpdateCustomerInput>
-  setShowPaymentProviderSection: Dispatch<SetStateAction<boolean>>
+  setShowPaymentSection: Dispatch<SetStateAction<boolean>>
 }
 
 const avatarMapping: Record<ProviderTypeEnum, ReactNode> = {
@@ -62,7 +62,7 @@ const avatarMapping: Record<ProviderTypeEnum, ReactNode> = {
 
 export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
   formikProps,
-  setShowPaymentProviderSection,
+  setShowPaymentSection,
 }) => {
   const { translate } = useInternationalization()
   const [getPaymentProvidersData, { data: paymentProvidersData }] =
@@ -118,7 +118,7 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
                   ? [ProviderPaymentMethodsEnum.Card]
                   : [ProviderPaymentMethodsEnum.Card, ProviderPaymentMethodsEnum.SepaDebit],
               )
-              setShowPaymentProviderSection(false)
+              setShowPaymentSection(false)
             }}
           />
         }

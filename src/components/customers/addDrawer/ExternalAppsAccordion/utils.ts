@@ -1,11 +1,11 @@
 import { FormikProps } from 'formik'
 
 import {
-  AccountingIntegrationsListForCustomerEditExternalAppsAccordionQuery,
   AnrokIntegration,
   CreateCustomerInput,
-  GetCrmIntegrationsListForCustomerEditExternalAppsAccordionQuery,
-  GetTaxIntegrationsListForCustomerEditExternalAppsAccordionQuery,
+  GetAccountingIntegrationsForExternalAppsAccordionQuery,
+  GetCrmIntegrationsForExternalAppsAccordionQuery,
+  GetTaxIntegrationsForExternalAppsAccordionQuery,
   HubspotIntegration,
   IntegrationTypeEnum,
   NetsuiteIntegration,
@@ -40,9 +40,9 @@ export const getIntegration = <T extends SupportedIntegration>({
   integrationType: IntegrationTypeEnum
   formikProps: FormikProps<CreateCustomerInput | UpdateCustomerInput>
   allIntegrationsData?:
-    | AccountingIntegrationsListForCustomerEditExternalAppsAccordionQuery
-    | GetTaxIntegrationsListForCustomerEditExternalAppsAccordionQuery
-    | GetCrmIntegrationsListForCustomerEditExternalAppsAccordionQuery
+    | GetAccountingIntegrationsForExternalAppsAccordionQuery
+    | GetTaxIntegrationsForExternalAppsAccordionQuery
+    | GetCrmIntegrationsForExternalAppsAccordionQuery
 }) => {
   // Check if the customer already has an integration of the same type
   const hadInitialIntegrationCustomer = !!formikProps.initialValues.integrationCustomers?.find(

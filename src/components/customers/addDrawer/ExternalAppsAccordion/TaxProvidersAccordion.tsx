@@ -10,7 +10,7 @@ import {
   CreateCustomerInput,
   IntegrationTypeEnum,
   UpdateCustomerInput,
-  useGetTaxIntegrationsListForCustomerEditExternalAppsAccordionLazyQuery,
+  useGetTaxIntegrationsForExternalAppsAccordionLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Anrok from '~/public/images/anrok.svg'
@@ -19,7 +19,7 @@ import { ExternalAppsAccordionLayout } from './ExternalAppsAccordionLayout'
 import { getIntegration } from './utils'
 
 gql`
-  query getTaxIntegrationsListForCustomerEditExternalAppsAccordion($limit: Int, $page: Int) {
+  query getTaxIntegrationsForExternalAppsAccordion($limit: Int, $page: Int) {
     integrations(limit: $limit, page: $page) {
       collection {
         ... on AnrokIntegration {
@@ -35,19 +35,19 @@ gql`
 
 interface TaxProvidersAccordionProps {
   formikProps: FormikProps<CreateCustomerInput | UpdateCustomerInput>
-  setShowTaxIntegrationSection: Dispatch<SetStateAction<boolean>>
+  setShowTaxSection: Dispatch<SetStateAction<boolean>>
   isEdition: boolean
 }
 
 export const TaxProvidersAccordion: FC<TaxProvidersAccordionProps> = ({
   formikProps,
-  setShowTaxIntegrationSection,
+  setShowTaxSection,
   isEdition,
 }) => {
   const { translate } = useInternationalization()
 
   const [getIntegrationsData, { data: allIntegrationsData }] =
-    useGetTaxIntegrationsListForCustomerEditExternalAppsAccordionLazyQuery({
+    useGetTaxIntegrationsForExternalAppsAccordionLazyQuery({
       variables: { limit: 1000 },
     })
 
@@ -104,7 +104,7 @@ export const TaxProvidersAccordion: FC<TaxProvidersAccordionProps> = ({
                   (i) => i.integrationType !== IntegrationTypeEnum.Anrok,
                 ),
               )
-              setShowTaxIntegrationSection(false)
+              setShowTaxSection(false)
             }}
           />
         }
