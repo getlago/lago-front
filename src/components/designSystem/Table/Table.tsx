@@ -521,7 +521,7 @@ export const Table = <T extends DataItem>({
                   tabIndex={isClickable ? 0 : undefined}
                   onKeyDown={isClickable ? onKeyDown : undefined}
                   onClick={isClickable ? (e) => handleRowClick(e, item) : undefined}
-                  data-test={rowDataTestId?.(item)}
+                  data-test={rowDataTestId?.(item) || `table-row-${i}`}
                 >
                   {filteredColumns.map((column, j) => (
                     <TableCell
