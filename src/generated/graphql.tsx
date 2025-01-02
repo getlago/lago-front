@@ -6780,7 +6780,7 @@ export type AccountingIntegrationsListForCustomerEditExternalAppsAccordionQueryV
 }>;
 
 
-export type AccountingIntegrationsListForCustomerEditExternalAppsAccordionQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename: 'AnrokIntegration', id: string, code: string, name: string } | { __typename: 'HubspotIntegration', id: string, code: string, name: string, defaultTargetedObject: HubspotTargetedObjectsEnum } | { __typename: 'NetsuiteIntegration', id: string, code: string, name: string } | { __typename?: 'OktaIntegration' } | { __typename: 'SalesforceIntegration', id: string, code: string, name: string } | { __typename: 'XeroIntegration', id: string, code: string, name: string }> } | null };
+export type AccountingIntegrationsListForCustomerEditExternalAppsAccordionQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename: 'NetsuiteIntegration', id: string, code: string, name: string } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename: 'XeroIntegration', id: string, code: string, name: string }> } | null };
 
 export type SubsidiariesListForCustomerCreateEditExternalAppsAccordionQueryVariables = Exact<{
   integrationId?: InputMaybe<Scalars['ID']['input']>;
@@ -6797,6 +6797,14 @@ export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryV
 export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename: 'AdyenProvider', id: string, name: string, code: string } | { __typename: 'GocardlessProvider', id: string, name: string, code: string } | { __typename: 'StripeProvider', id: string, name: string, code: string }> } | null };
 
 export type CustomerForExternalAppsAccordionFragment = { __typename?: 'Customer', id: string, customerType?: CustomerTypeEnum | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, hubspotCustomer?: { __typename?: 'HubspotCustomer', externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, salesforceCustomer?: { __typename?: 'SalesforceCustomer', externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null };
+
+export type GetIntegrationsListForCustomerEditExternalAppsAccordionQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetIntegrationsListForCustomerEditExternalAppsAccordionQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename: 'AnrokIntegration', id: string, code: string, name: string } | { __typename: 'HubspotIntegration', id: string, code: string, name: string, defaultTargetedObject: HubspotTargetedObjectsEnum } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename: 'SalesforceIntegration', id: string, code: string, name: string } | { __typename?: 'XeroIntegration' }> } | null };
 
 export type CreditNoteForVoidCreditNoteDialogFragment = { __typename?: 'CreditNote', id: string, totalAmountCents: any, currency: CurrencyEnum };
 
@@ -14192,26 +14200,7 @@ export const AccountingIntegrationsListForCustomerEditExternalAppsAccordionDocum
         code
         name
       }
-      ... on AnrokIntegration {
-        __typename
-        id
-        code
-        name
-      }
       ... on XeroIntegration {
-        __typename
-        id
-        code
-        name
-      }
-      ... on HubspotIntegration {
-        __typename
-        id
-        code
-        name
-        defaultTargetedObject
-      }
-      ... on SalesforceIntegration {
         __typename
         id
         code
@@ -14357,6 +14346,67 @@ export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryH
 export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQuery>;
 export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQuery>;
 export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryResult = Apollo.QueryResult<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>;
+export const GetIntegrationsListForCustomerEditExternalAppsAccordionDocument = gql`
+    query getIntegrationsListForCustomerEditExternalAppsAccordion($limit: Int, $page: Int) {
+  integrations(limit: $limit, page: $page) {
+    collection {
+      ... on AnrokIntegration {
+        __typename
+        id
+        code
+        name
+      }
+      ... on HubspotIntegration {
+        __typename
+        id
+        code
+        name
+        defaultTargetedObject
+      }
+      ... on SalesforceIntegration {
+        __typename
+        id
+        code
+        name
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetIntegrationsListForCustomerEditExternalAppsAccordionQuery__
+ *
+ * To run a query within a React component, call `useGetIntegrationsListForCustomerEditExternalAppsAccordionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetIntegrationsListForCustomerEditExternalAppsAccordionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetIntegrationsListForCustomerEditExternalAppsAccordionQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      page: // value for 'page'
+ *   },
+ * });
+ */
+export function useGetIntegrationsListForCustomerEditExternalAppsAccordionQuery(baseOptions?: Apollo.QueryHookOptions<GetIntegrationsListForCustomerEditExternalAppsAccordionQuery, GetIntegrationsListForCustomerEditExternalAppsAccordionQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetIntegrationsListForCustomerEditExternalAppsAccordionQuery, GetIntegrationsListForCustomerEditExternalAppsAccordionQueryVariables>(GetIntegrationsListForCustomerEditExternalAppsAccordionDocument, options);
+      }
+export function useGetIntegrationsListForCustomerEditExternalAppsAccordionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetIntegrationsListForCustomerEditExternalAppsAccordionQuery, GetIntegrationsListForCustomerEditExternalAppsAccordionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetIntegrationsListForCustomerEditExternalAppsAccordionQuery, GetIntegrationsListForCustomerEditExternalAppsAccordionQueryVariables>(GetIntegrationsListForCustomerEditExternalAppsAccordionDocument, options);
+        }
+export function useGetIntegrationsListForCustomerEditExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetIntegrationsListForCustomerEditExternalAppsAccordionQuery, GetIntegrationsListForCustomerEditExternalAppsAccordionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetIntegrationsListForCustomerEditExternalAppsAccordionQuery, GetIntegrationsListForCustomerEditExternalAppsAccordionQueryVariables>(GetIntegrationsListForCustomerEditExternalAppsAccordionDocument, options);
+        }
+export type GetIntegrationsListForCustomerEditExternalAppsAccordionQueryHookResult = ReturnType<typeof useGetIntegrationsListForCustomerEditExternalAppsAccordionQuery>;
+export type GetIntegrationsListForCustomerEditExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof useGetIntegrationsListForCustomerEditExternalAppsAccordionLazyQuery>;
+export type GetIntegrationsListForCustomerEditExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof useGetIntegrationsListForCustomerEditExternalAppsAccordionSuspenseQuery>;
+export type GetIntegrationsListForCustomerEditExternalAppsAccordionQueryResult = Apollo.QueryResult<GetIntegrationsListForCustomerEditExternalAppsAccordionQuery, GetIntegrationsListForCustomerEditExternalAppsAccordionQueryVariables>;
 export const VoidCreditNoteDocument = gql`
     mutation voidCreditNote($input: VoidCreditNoteInput!) {
   voidCreditNote(input: $input) {
