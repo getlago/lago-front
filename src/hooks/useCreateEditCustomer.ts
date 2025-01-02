@@ -7,7 +7,6 @@ import {
   AddCustomerDrawerFragment,
   CreateCustomerInput,
   CreateCustomerMutation,
-  CustomerForExternalAppsAccordionFragmentDoc,
   CustomerItemFragmentDoc,
   LagoApiError,
   ProviderPaymentMethodsEnum,
@@ -19,6 +18,67 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
+  fragment CustomerForExternalAppsAccordion on Customer {
+    id
+    customerType
+    currency
+    paymentProvider
+    paymentProviderCode
+    # Name in the customer is netsuiteCustomer, but it's used as integrationCustomer in the create update inputs
+    netsuiteCustomer {
+      __typename
+      id
+      integrationId
+      externalCustomerId
+      integrationCode
+      integrationType
+      subsidiaryId
+      syncWithProvider
+    }
+    anrokCustomer {
+      __typename
+      id
+      integrationId
+      externalCustomerId
+      integrationCode
+      integrationType
+      syncWithProvider
+    }
+    xeroCustomer {
+      __typename
+      id
+      integrationId
+      externalCustomerId
+      integrationCode
+      integrationType
+      syncWithProvider
+    }
+    hubspotCustomer {
+      __typename
+      id
+      integrationId
+      externalCustomerId
+      integrationCode
+      integrationType
+      syncWithProvider
+    }
+    salesforceCustomer {
+      __typename
+      id
+      integrationId
+      externalCustomerId
+      integrationCode
+      integrationType
+      syncWithProvider
+    }
+    providerCustomer {
+      id
+      providerCustomerId
+      syncWithProvider
+      providerPaymentMethods
+    }
+  }
+
   fragment AddCustomerDrawer on Customer {
     id
     addressLine1
@@ -38,7 +98,6 @@ gql`
     name
     firstname
     lastname
-    paymentProvider
     phone
     state
     timezone
@@ -52,38 +111,6 @@ gql`
       zipcode
     }
     url
-    paymentProviderCode
-    providerCustomer {
-      id
-      providerCustomerId
-      syncWithProvider
-      providerPaymentMethods
-    }
-    netsuiteCustomer {
-      __typename
-      id
-      integrationId
-    }
-    anrokCustomer {
-      __typename
-      id
-      integrationId
-    }
-    xeroCustomer {
-      __typename
-      id
-      integrationId
-    }
-    hubspotCustomer {
-      __typename
-      id
-      integrationId
-    }
-    salesforceCustomer {
-      __typename
-      id
-      integrationId
-    }
     metadata {
       id
       key
@@ -109,7 +136,6 @@ gql`
   }
 
   ${CustomerItemFragmentDoc}
-  ${CustomerForExternalAppsAccordionFragmentDoc}
 `
 
 type UseCreateEditCustomer = (props: { customer?: AddCustomerDrawerFragment | null }) => {

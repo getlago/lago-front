@@ -1,4 +1,3 @@
-import { gql } from '@apollo/client'
 import { FormikProps } from 'formik'
 import { useEffect, useState } from 'react'
 
@@ -26,45 +25,6 @@ import { CRMProvidersAccordion } from './CRMProvidersAccordion'
 import { PaymentProvidersAccordion } from './PaymentProvidersAccordion'
 import { TaxProvidersAccordion } from './TaxProvidersAccordion'
 import { scrollToIntegration } from './utils'
-
-gql`
-  fragment CustomerForExternalAppsAccordion on Customer {
-    id
-    customerType
-    # Name in the customer is netsuiteCustomer, but it's used as integrationCustomer in the create update inputs
-    netsuiteCustomer {
-      externalCustomerId
-      integrationCode
-      integrationType
-      subsidiaryId
-      syncWithProvider
-    }
-    anrokCustomer {
-      externalCustomerId
-      integrationCode
-      integrationType
-      syncWithProvider
-    }
-    xeroCustomer {
-      externalCustomerId
-      integrationCode
-      integrationType
-      syncWithProvider
-    }
-    hubspotCustomer {
-      externalCustomerId
-      integrationCode
-      integrationType
-      syncWithProvider
-    }
-    salesforceCustomer {
-      externalCustomerId
-      integrationCode
-      integrationType
-      syncWithProvider
-    }
-  }
-`
 
 type TExternalAppsAccordionProps = {
   formikProps: FormikProps<CreateCustomerInput | UpdateCustomerInput>
