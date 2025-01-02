@@ -27,6 +27,7 @@ import { AccountingProvidersAccordion } from './AccountingProvidersAccordion'
 import { CRMProvidersAccordion } from './CRMProvidersAccordion'
 import { PaymentProvidersAccordion } from './PaymentProvidersAccordion'
 import { TaxProvidersAccordion } from './TaxProvidersAccordion'
+import { scrollToIntegration } from './utils'
 
 gql`
   fragment CustomerForExternalAppsAccordion on Customer {
@@ -178,18 +179,9 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                 disabled={showPaymentSection}
                 onClick={() => {
                   setShowPaymentSection(true)
-
-                  setTimeout(() => {
-                    const element = document.querySelector(
+                  scrollToIntegration(
                       `.${ADD_CUSTOMER_PAYMENT_PROVIDER_ACCORDION} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
-                    ) as HTMLElement
-
-                    if (!element) return
-
-                    element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                    element.click()
-                  }, 1)
-
+                  )
                   closePopper()
                 }}
               >
@@ -201,18 +193,9 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                 disabled={showAccountingSection}
                 onClick={() => {
                   setShowAccountingSection(true)
-
-                  setTimeout(() => {
-                    const element = document.querySelector(
+                  scrollToIntegration(
                       `.${ADD_CUSTOMER_ACCOUNTING_PROVIDER_ACCORDION} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
-                    ) as HTMLElement
-
-                    if (!element) return
-
-                    element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                    element.click()
-                  }, 1)
-
+                  )
                   closePopper()
                 }}
               >
@@ -225,18 +208,9 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                 disabled={showTaxSection}
                 onClick={() => {
                   setShowTaxSection(true)
-
-                  setTimeout(() => {
-                    const element = document.querySelector(
+                  scrollToIntegration(
                       `.${ADD_CUSTOMER_TAX_PROVIDER_ACCORDION} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
-                    ) as HTMLElement
-
-                    if (!element) return
-
-                    element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                    element.click()
-                  }, 1)
-
+                  )
                   closePopper()
                 }}
               >
@@ -249,18 +223,9 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                 disabled={showCRMSection}
                 onClick={() => {
                   setShowCRMSection(true)
-
-                  setTimeout(() => {
-                    const element = document.querySelector(
+                  scrollToIntegration(
                       `.${ADD_CUSTOMER_CRM_PROVIDER_ACCORDION} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
-                    ) as HTMLElement
-
-                    if (!element) return
-
-                    element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                    element.click()
-                  }, 1)
-
+                  )
                   closePopper()
                 }}
               >
