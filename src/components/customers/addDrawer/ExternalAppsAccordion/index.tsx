@@ -4,14 +4,7 @@ import { FormikProps } from 'formik'
 import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
-import {
-  Accordion,
-  Alert,
-  Avatar,
-  Button,
-  Popper,
-  Typography
-} from '~/components/designSystem'
+import { Accordion, Alert, Avatar, Button, Popper, Typography } from '~/components/designSystem'
 import {
   BasicComboBoxData,
   Checkbox,
@@ -32,34 +25,29 @@ import { INTEGRATIONS_ROUTE } from '~/core/router'
 import {
   AnrokIntegration,
   CreateCustomerInput,
-  CurrencyEnum,
   CustomerTypeEnum,
   HubspotIntegration,
   HubspotTargetedObjectsEnum,
   IntegrationTypeEnum,
   NetsuiteIntegration,
-  ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
   SalesforceIntegration,
   UpdateCustomerInput,
   useAccountingIntegrationsListForCustomerEditExternalAppsAccordionLazyQuery,
-  usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQuery,
   useSubsidiariesListForCustomerCreateEditExternalAppsAccordionQuery,
   XeroIntegration,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import Adyen from '~/public/images/adyen.svg'
 import Anrok from '~/public/images/anrok.svg'
-import GoCardless from '~/public/images/gocardless.svg'
 import Hubspot from '~/public/images/hubspot.svg'
 import Netsuite from '~/public/images/netsuite.svg'
 import PSPIcons from '~/public/images/psp-icons.svg'
 import Salesforce from '~/public/images/salesforce.svg'
-import Stripe from '~/public/images/stripe.svg'
 import Xero from '~/public/images/xero.svg'
 import { MenuPopper, theme } from '~/styles'
 
 import { ExternalAppsAccordionLayout } from './ExternalAppsAccordionLayout'
+import { PaymentProvidersAccordion } from './PaymentProvidersAccordion'
 
 const hubspotExternalIdTypeCopyMap: Record<
   HubspotTargetedObjectsEnum,
@@ -110,33 +98,6 @@ gql`
       integrationCode
       integrationType
       syncWithProvider
-    }
-  }
-
-  query paymentProvidersListForCustomerCreateEditExternalAppsAccordion($limit: Int) {
-    paymentProviders(limit: $limit) {
-      collection {
-        ... on StripeProvider {
-          __typename
-          id
-          name
-          code
-        }
-
-        ... on GocardlessProvider {
-          __typename
-          id
-          name
-          code
-        }
-
-        ... on AdyenProvider {
-          __typename
-          id
-          name
-          code
-        }
-      }
     }
   }
 
@@ -196,19 +157,10 @@ type TExternalAppsAccordionProps = {
 export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsAccordionProps) => {
   const { translate } = useInternationalization()
 
-  const [getPaymentProvidersData, { data: paymentProvidersData }] =
-    usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQuery({
-      variables: { limit: 1000 },
-    })
-
   const [getAccountingIntegrationsData, { data: allIntegrationsData }] =
     useAccountingIntegrationsListForCustomerEditExternalAppsAccordionLazyQuery({
       variables: { limit: 1000 },
     })
-
-  const selectedPaymentProvider = paymentProvidersData?.paymentProviders?.collection.find(
-    (p) => p.code === formikProps.values.paymentProviderCode,
-  )
 
   const allNetsuiteIntegrations = allIntegrationsData?.integrations?.collection.filter(
     (i) => i.__typename === 'NetsuiteIntegration',
@@ -335,19 +287,6 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     hadInitialHubspotIntegrationCustomer || hadInitialSalesforceIntegrationCustomer,
   )
 
-  const connectedPaymentProvidersData: ComboboxDataGrouped[] | [] = useMemo(() => {
-    if (!paymentProvidersData?.paymentProviders?.collection.length) return []
-
-    return paymentProvidersData?.paymentProviders?.collection.map((provider) => ({
-      value: provider.code,
-      label: provider.name,
-      group: provider.__typename.toLocaleLowerCase().replace('provider', ''),
-      labelNode: (
-        <ExternalAppsAccordionLayout.ComboboxItem label={provider.name} subLabel={provider.code} />
-      ),
-    }))
-  }, [paymentProvidersData?.paymentProviders?.collection])
-
   const connectedAccountingIntegrationsData: ComboboxDataGrouped[] | [] = useMemo(() => {
     if (!allAccountingIntegrationsData?.length) return []
 
@@ -434,7 +373,6 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     <Accordion
       size="large"
       onOpen={() => {
-        getPaymentProvidersData()
         getAccountingIntegrationsData()
       }}
       summary={
@@ -458,339 +396,10 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
           />
         </div>
         {showPaymentProviderSection && (
-          <Stack gap={1}>
-            <Typography variant="captionHl" color="grey700">
-              {translate('text_634ea0ecc6147de10ddb6631')}
-            </Typography>
-            <Accordion
-              noContentMargin
-              className={ADD_CUSTOMER_PAYMENT_PROVIDER_ACCORDION}
-              summary={
-                <ExternalAppsAccordionLayout.Summary
-                  avatar={
-                    !!formikProps.values.paymentProvider && (
-                      <Avatar size="big" variant="connector-full">
-                        {formikProps.values.paymentProvider === ProviderTypeEnum?.Stripe ? (
-                          <Stripe />
-                        ) : formikProps.values.paymentProvider === ProviderTypeEnum?.Gocardless ? (
-                          <GoCardless />
-                        ) : formikProps.values.paymentProvider === ProviderTypeEnum?.Adyen ? (
-                          <Adyen />
-                        ) : null}
-                      </Avatar>
-                    )
-                  }
-                  label={selectedPaymentProvider?.name}
-                  subLabel={selectedPaymentProvider?.code}
-                  onDelete={() => {
-                    formikProps.setFieldValue('paymentProvider', null)
-                    formikProps.setFieldValue('providerCustomer.providerCustomerId', '')
-                    formikProps.setFieldValue('providerCustomer.syncWithProvider', false)
-                    formikProps.setFieldValue(
-                      'providerCustomer.providerPaymentMethods',
-                      formikProps.values.currency !== CurrencyEnum.Eur
-                        ? [ProviderPaymentMethodsEnum.Card]
-                        : [ProviderPaymentMethodsEnum.Card, ProviderPaymentMethodsEnum.SepaDebit],
-                    )
-                    setShowPaymentProviderSection(false)
-                  }}
-                />
-              }
-            >
-              <div>
-                <Stack gap={6} padding={4}>
-                  <Typography variant="bodyHl" color="grey700">
-                    {translate('text_65e1f90471bc198c0c934d6c')}
-                  </Typography>
-
-                  {/* Select connected account */}
-                  <ComboBox
-                    onOpen={getPaymentProvidersData}
-                    data={connectedPaymentProvidersData}
-                    label={translate('text_65940198687ce7b05cd62b61')}
-                    placeholder={translate('text_65940198687ce7b05cd62b62')}
-                    emptyText={translate('text_6645daa0468420011304aded')}
-                    PopperProps={{ displayInDialog: true }}
-                    value={formikProps.values.paymentProviderCode as string}
-                    onChange={(value) => {
-                      formikProps.setFieldValue('paymentProviderCode', value)
-                      const selectedProvider = connectedPaymentProvidersData.find(
-                        (provider) => provider.value === value,
-                      )?.group
-
-                      // Set paymentProvider depending on selected value
-                      formikProps.setFieldValue(
-                        'paymentProvider',
-                        selectedProvider as ProviderTypeEnum,
-                      )
-                    }}
-                  />
-
-                  {!!formikProps.values.paymentProviderCode && (
-                    <>
-                      <TextInputField
-                        name="providerCustomer.providerCustomerId"
-                        disabled={isSyncWithProviderDisabled}
-                        label={translate('text_62b328ead9a4caef81cd9ca0')}
-                        placeholder={translate('text_62b328ead9a4caef81cd9ca2')}
-                        formikProps={formikProps}
-                      />
-
-                      <Checkbox
-                        name="providerCustomer.syncWithProvider"
-                        value={!!formikProps.values.providerCustomer?.syncWithProvider}
-                        label={`${
-                          formikProps.values.paymentProvider === ProviderTypeEnum.Gocardless
-                            ? translate('text_635bdbda84c98758f9bba8aa')
-                            : formikProps.values.paymentProvider === ProviderTypeEnum.Adyen
-                              ? translate('text_645d0728ea0a5a7bbf76d5c7')
-                              : translate('text_635bdbda84c98758f9bba89e')
-                        }${
-                          formikProps.values.paymentProviderCode
-                            ? ` • ${
-                                connectedPaymentProvidersData.find(
-                                  (provider) =>
-                                    provider.value === formikProps.values.paymentProviderCode,
-                                )?.label
-                              }`
-                            : ''
-                        }`}
-                        onChange={(e, checked) => {
-                          const newproviderCustomer = { ...formikProps.values.providerCustomer }
-
-                          newproviderCustomer.syncWithProvider = checked
-                          if (checked) {
-                            newproviderCustomer.providerCustomerId = ''
-                          }
-                          formikProps.setFieldValue('providerCustomer', newproviderCustomer)
-                        }}
-                      />
-                    </>
-                  )}
-                </Stack>
-
-                {formikProps.values.paymentProvider === ProviderTypeEnum.Stripe && (
-                  <Stack gap={6} padding={4} borderTop={`1px solid ${theme.palette.grey[400]}`}>
-                    <Stack>
-                      <Typography variant="bodyHl" color="grey700">
-                        {translate('text_64aeb7b998c4322918c84204')}
-                      </Typography>
-                      <Typography variant="caption">
-                        {translate('text_64aeb7b998c4322918c84210')}
-                      </Typography>
-                    </Stack>
-
-                    <Stack gap={1}>
-                      <Typography variant="captionHl" color="grey700">
-                        {translate('text_65e1f90471bc198c0c934d82')}
-                      </Typography>
-                      <StripeOptionsGridWrapper>
-                        <Checkbox
-                          name="providerCustomer.providerPaymentMethods.card"
-                          value={
-                            !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
-                              ProviderPaymentMethodsEnum.Card,
-                            )
-                          }
-                          label={translate('text_64aeb7b998c4322918c84208')}
-                          sublabel={translate('text_65e1f90471bc198c0c934d86')}
-                          disabled={
-                            (formikProps.values.providerCustomer?.providerPaymentMethods?.length ===
-                              1 &&
-                              formikProps.values.providerCustomer?.providerPaymentMethods.includes(
-                                ProviderPaymentMethodsEnum.Card,
-                              )) ||
-                            (formikProps.values.providerCustomer?.providerPaymentMethods?.length ===
-                              2 &&
-                              formikProps.values.providerCustomer?.providerPaymentMethods.includes(
-                                ProviderPaymentMethodsEnum.Card,
-                              ) &&
-                              formikProps.values.providerCustomer?.providerPaymentMethods.includes(
-                                ProviderPaymentMethodsEnum.Link,
-                              ))
-                          }
-                          onChange={(e, checked) => {
-                            const newValue = [
-                              ...(formikProps.values.providerCustomer?.providerPaymentMethods ||
-                                []),
-                            ]
-
-                            if (checked) {
-                              newValue.push(ProviderPaymentMethodsEnum.Card)
-                            } else {
-                              newValue.splice(newValue.indexOf(ProviderPaymentMethodsEnum.Card), 1)
-                              // Link cannot be selected without card
-                              newValue.splice(newValue.indexOf(ProviderPaymentMethodsEnum.Link), 1)
-                            }
-
-                            formikProps.setFieldValue(
-                              'providerCustomer.providerPaymentMethods',
-                              newValue,
-                            )
-                          }}
-                        />
-
-                        <Checkbox
-                          name="providerCustomer.providerPaymentMethods.link"
-                          value={
-                            !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
-                              ProviderPaymentMethodsEnum.Link,
-                            )
-                          }
-                          label={translate('text_6686b316b672a6e75a29eea0')}
-                          sublabel={translate('text_6686b316b672a6e75a29eea2')}
-                          disabled={
-                            !(
-                              formikProps.values.providerCustomer?.providerPaymentMethods || []
-                            ).includes(ProviderPaymentMethodsEnum.Card)
-                          }
-                          onChange={(e, checked) => {
-                            const newValue = [
-                              ...(formikProps.values.providerCustomer?.providerPaymentMethods ||
-                                []),
-                            ]
-
-                            if (checked) {
-                              newValue.push(ProviderPaymentMethodsEnum.Link)
-                            } else {
-                              newValue.splice(newValue.indexOf(ProviderPaymentMethodsEnum.Link), 1)
-                            }
-
-                            formikProps.setFieldValue(
-                              'providerCustomer.providerPaymentMethods',
-                              newValue,
-                            )
-                          }}
-                        />
-                      </StripeOptionsGridWrapper>
-                    </Stack>
-                    <Stack spacing={1}>
-                      <Typography variant="captionHl" color="grey700">
-                        {translate('text_65e1f90471bc198c0c934d88')}
-                      </Typography>
-
-                      <StripeOptionsGridWrapper>
-                        <Checkbox
-                          name="providerCustomer.providerPaymentMethods.sepa_debit"
-                          value={
-                            !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
-                              ProviderPaymentMethodsEnum.SepaDebit,
-                            )
-                          }
-                          label={translate('text_64aeb7b998c4322918c8420c')}
-                          sublabel={translate('text_65e1f90471bc198c0c934d8c')}
-                          disabled={
-                            formikProps.values.providerCustomer?.providerPaymentMethods?.length ===
-                              1 &&
-                            formikProps.values.providerCustomer?.providerPaymentMethods.includes(
-                              ProviderPaymentMethodsEnum.SepaDebit,
-                            )
-                          }
-                          onChange={(e, checked) => {
-                            const newValue = [
-                              ...(formikProps.values.providerCustomer?.providerPaymentMethods ||
-                                []),
-                            ]
-
-                            if (checked) {
-                              newValue.push(ProviderPaymentMethodsEnum.SepaDebit)
-                            } else {
-                              newValue.splice(
-                                newValue.indexOf(ProviderPaymentMethodsEnum.SepaDebit),
-                                1,
-                              )
-                            }
-
-                            formikProps.setFieldValue(
-                              'providerCustomer.providerPaymentMethods',
-                              newValue,
-                            )
-                          }}
-                        />
-
-                        <Checkbox
-                          name="providerCustomer.providerPaymentMethods.us_bank_account"
-                          value={
-                            !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
-                              ProviderPaymentMethodsEnum.UsBankAccount,
-                            )
-                          }
-                          label={translate('text_65e1f90471bc198c0c934d8e')}
-                          sublabel={translate('text_65e1f90471bc198c0c934d90')}
-                          disabled={
-                            formikProps.values.providerCustomer?.providerPaymentMethods?.length ===
-                              1 &&
-                            formikProps.values.providerCustomer?.providerPaymentMethods.includes(
-                              ProviderPaymentMethodsEnum.UsBankAccount,
-                            )
-                          }
-                          onChange={(e, checked) => {
-                            const newValue = [
-                              ...(formikProps.values.providerCustomer?.providerPaymentMethods ||
-                                []),
-                            ]
-
-                            if (checked) {
-                              newValue.push(ProviderPaymentMethodsEnum.UsBankAccount)
-                            } else {
-                              newValue.splice(
-                                newValue.indexOf(ProviderPaymentMethodsEnum.UsBankAccount),
-                                1,
-                              )
-                            }
-
-                            formikProps.setFieldValue(
-                              'providerCustomer.providerPaymentMethods',
-                              newValue,
-                            )
-                          }}
-                        />
-                        <Checkbox
-                          name="providerCustomer.providerPaymentMethods.bacs_debit"
-                          value={
-                            !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
-                              ProviderPaymentMethodsEnum.BacsDebit,
-                            )
-                          }
-                          label={translate('text_65e1f90471bc198c0c934d92')}
-                          sublabel={translate('text_65e1f90471bc198c0c934d94')}
-                          disabled={
-                            formikProps.values.providerCustomer?.providerPaymentMethods?.length ===
-                              1 &&
-                            formikProps.values.providerCustomer?.providerPaymentMethods.includes(
-                              ProviderPaymentMethodsEnum.BacsDebit,
-                            )
-                          }
-                          onChange={(e, checked) => {
-                            const newValue = [
-                              ...(formikProps.values.providerCustomer?.providerPaymentMethods ||
-                                []),
-                            ]
-
-                            if (checked) {
-                              newValue.push(ProviderPaymentMethodsEnum.BacsDebit)
-                            } else {
-                              newValue.splice(
-                                newValue.indexOf(ProviderPaymentMethodsEnum.BacsDebit),
-                                1,
-                              )
-                            }
-
-                            formikProps.setFieldValue(
-                              'providerCustomer.providerPaymentMethods',
-                              newValue,
-                            )
-                          }}
-                        />
-                      </StripeOptionsGridWrapper>
-                    </Stack>
-
-                    <Alert type="info">{translate('text_64aeb7b998c4322918c84214')}</Alert>
-                  </Stack>
-                )}
-              </div>
-            </Accordion>
-          </Stack>
+          <PaymentProvidersAccordion
+            formikProps={formikProps}
+            setShowPaymentProviderSection={setShowPaymentProviderSection}
+          />
         )}
         {showAccountingProviderSection && (
           <Stack gap={1}>
@@ -1493,12 +1102,6 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
 }
 
 ExternalAppsAccordion.displayName = 'ExternalAppsAccordion'
-
-const StripeOptionsGridWrapper = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: ${theme.spacing(4)};
-`
 
 const InlineSummaryForExternalApps = styled.div`
   display: flex;
