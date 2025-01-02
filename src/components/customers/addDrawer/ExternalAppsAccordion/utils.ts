@@ -4,14 +4,22 @@ import {
   AccountingIntegrationsListForCustomerEditExternalAppsAccordionQuery,
   AnrokIntegration,
   CreateCustomerInput,
+  GetCrmIntegrationsListForCustomerEditExternalAppsAccordionQuery,
   GetTaxIntegrationsListForCustomerEditExternalAppsAccordionQuery,
+  HubspotIntegration,
   IntegrationTypeEnum,
   NetsuiteIntegration,
+  SalesforceIntegration,
   UpdateCustomerInput,
   XeroIntegration,
 } from '~/generated/graphql'
 
-type SupportedIntegration = NetsuiteIntegration | XeroIntegration | AnrokIntegration
+type SupportedIntegration =
+  | NetsuiteIntegration
+  | XeroIntegration
+  | AnrokIntegration
+  | HubspotIntegration
+  | SalesforceIntegration
 
 const integrationTypeToTypename: Partial<Record<IntegrationTypeEnum, string>> = {
   // Account integrations
@@ -19,6 +27,9 @@ const integrationTypeToTypename: Partial<Record<IntegrationTypeEnum, string>> = 
   [IntegrationTypeEnum.Xero]: 'XeroIntegration',
   // Tax integrations
   [IntegrationTypeEnum.Anrok]: 'AnrokIntegration',
+  // CRM integrations
+  [IntegrationTypeEnum.Hubspot]: 'HubspotIntegration',
+  [IntegrationTypeEnum.Salesforce]: 'SalesforceIntegration',
 }
 
 export const getIntegration = <T extends SupportedIntegration>({
@@ -31,6 +42,7 @@ export const getIntegration = <T extends SupportedIntegration>({
   allIntegrationsData?:
     | AccountingIntegrationsListForCustomerEditExternalAppsAccordionQuery
     | GetTaxIntegrationsListForCustomerEditExternalAppsAccordionQuery
+    | GetCrmIntegrationsListForCustomerEditExternalAppsAccordionQuery
 }) => {
   // Check if the customer already has an integration of the same type
   const hadInitialIntegrationCustomer = !!formikProps.initialValues.integrationCustomers?.find(
