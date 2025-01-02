@@ -282,7 +282,7 @@ export const CRMProvidersAccordion: FC<CRMProvidersAccordionProps> = ({
                 formikProps={formikProps}
               />
 
-              {!!!!selectedHubspotIntegration.targetedObject && (
+              {!!selectedHubspotIntegration.targetedObject && (
                 <>
                   <TextInputField
                     label={translate(
