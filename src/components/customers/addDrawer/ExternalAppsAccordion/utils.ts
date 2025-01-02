@@ -2,19 +2,23 @@ import { FormikProps } from 'formik'
 
 import {
   AccountingIntegrationsListForCustomerEditExternalAppsAccordionQuery,
+  AnrokIntegration,
   CreateCustomerInput,
+  GetTaxIntegrationsListForCustomerEditExternalAppsAccordionQuery,
   IntegrationTypeEnum,
   NetsuiteIntegration,
   UpdateCustomerInput,
   XeroIntegration,
 } from '~/generated/graphql'
 
-type SupportedIntegration = NetsuiteIntegration | XeroIntegration
+type SupportedIntegration = NetsuiteIntegration | XeroIntegration | AnrokIntegration
 
 const integrationTypeToTypename: Partial<Record<IntegrationTypeEnum, string>> = {
   // Account integrations
   [IntegrationTypeEnum.Netsuite]: 'NetsuiteIntegration',
   [IntegrationTypeEnum.Xero]: 'XeroIntegration',
+  // Tax integrations
+  [IntegrationTypeEnum.Anrok]: 'AnrokIntegration',
 }
 
 export const getIntegration = <T extends SupportedIntegration>({
@@ -24,7 +28,9 @@ export const getIntegration = <T extends SupportedIntegration>({
 }: {
   integrationType: IntegrationTypeEnum
   formikProps: FormikProps<CreateCustomerInput | UpdateCustomerInput>
-  allIntegrationsData?: AccountingIntegrationsListForCustomerEditExternalAppsAccordionQuery
+  allIntegrationsData?:
+    | AccountingIntegrationsListForCustomerEditExternalAppsAccordionQuery
+    | GetTaxIntegrationsListForCustomerEditExternalAppsAccordionQuery
 }) => {
   // Check if the customer already has an integration of the same type
   const hadInitialIntegrationCustomer = !!formikProps.initialValues.integrationCustomers?.find(

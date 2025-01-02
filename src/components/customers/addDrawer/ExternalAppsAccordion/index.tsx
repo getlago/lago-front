@@ -6,7 +6,6 @@ import styled from 'styled-components'
 
 import { Accordion, Alert, Avatar, Button, Popper, Typography } from '~/components/designSystem'
 import {
-  BasicComboBoxData,
   Checkbox,
   ComboBox,
   ComboboxDataGrouped,
@@ -23,7 +22,6 @@ import {
 } from '~/core/constants/form'
 import { INTEGRATIONS_ROUTE } from '~/core/router'
 import {
-  AnrokIntegration,
   CreateCustomerInput,
   CustomerTypeEnum,
   HubspotIntegration,
@@ -35,7 +33,6 @@ import {
   useGetIntegrationsListForCustomerEditExternalAppsAccordionLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import Anrok from '~/public/images/anrok.svg'
 import Hubspot from '~/public/images/hubspot.svg'
 import PSPIcons from '~/public/images/psp-icons.svg'
 import Salesforce from '~/public/images/salesforce.svg'
@@ -44,6 +41,7 @@ import { MenuPopper, theme } from '~/styles'
 import { AccountingProvidersAccordion } from './AccountingProvidersAccordion'
 import { ExternalAppsAccordionLayout } from './ExternalAppsAccordionLayout'
 import { PaymentProvidersAccordion } from './PaymentProvidersAccordion'
+import { TaxProvidersAccordion } from './TaxProvidersAccordion'
 
 const hubspotExternalIdTypeCopyMap: Record<
   HubspotTargetedObjectsEnum,
@@ -100,12 +98,6 @@ gql`
   query getIntegrationsListForCustomerEditExternalAppsAccordion($limit: Int, $page: Int) {
     integrations(limit: $limit, page: $page) {
       collection {
-        ... on AnrokIntegration {
-          __typename
-          id
-          code
-          name
-        }
         ... on HubspotIntegration {
           __typename
           id
@@ -137,10 +129,6 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
       variables: { limit: 1000 },
     })
 
-  const allAnrokIntegrations = allIntegrationsData?.integrations?.collection.filter(
-    (i) => i.__typename === 'AnrokIntegration',
-  ) as AnrokIntegration[] | undefined
-
   const allHubspotIntegrations = allIntegrationsData?.integrations?.collection.filter(
     (i) => i.__typename === 'HubspotIntegration',
   ) as HubspotIntegration[] | undefined
@@ -149,10 +137,6 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     (i) => i.__typename === 'SalesforceIntegration',
   ) as SalesforceIntegration[] | undefined
 
-  const selectedAnrokIntegrationIndex =
-    formikProps.values.integrationCustomers?.findIndex(
-      (i) => i.integrationType === IntegrationTypeEnum.Anrok,
-    ) || 0
   const selectedHubspotIntegrationIndex =
     formikProps.values.integrationCustomers?.findIndex(
       (i) => i.integrationType === IntegrationTypeEnum.Hubspot,
@@ -162,20 +146,13 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
       (i) => i.integrationType === IntegrationTypeEnum.Salesforce,
     ) || 0
 
-  const anrokIntegrationpointerInIntegration = `integrationCustomers.${selectedAnrokIntegrationIndex}`
   const hubspotIntegrationpointerInIntegrationCustomer = `integrationCustomers.${selectedHubspotIntegrationIndex}`
   const salesforceIntegrationpointerInIntegrationCustomer = `integrationCustomers.${selectedSalesforceIntegrationIndex}`
 
-  const selectedAnrokIntegration =
-    formikProps.values.integrationCustomers?.[selectedAnrokIntegrationIndex]
   const selectedHubspotIntegration =
     formikProps.values.integrationCustomers?.[selectedHubspotIntegrationIndex]
   const selectedSalesforceIntegration =
     formikProps.values.integrationCustomers?.[selectedSalesforceIntegrationIndex]
-
-  const selectedAnrokIntegrationSettings = allAnrokIntegrations?.find(
-    (i) => i.code === selectedAnrokIntegration?.integrationCode,
-  ) as AnrokIntegration
 
   const selectedHubspotIntegrationSettings = allHubspotIntegrations?.find(
     (i) => i.code === selectedHubspotIntegration?.integrationCode,
@@ -221,21 +198,6 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
   const [showCRMIntegrationSection, setShowCRMIntegrationSection] = useState<boolean>(
     hadInitialHubspotIntegrationCustomer || hadInitialSalesforceIntegrationCustomer,
   )
-
-  const connectedAnrokIntegrationsData: BasicComboBoxData[] | [] = useMemo(() => {
-    if (!allAnrokIntegrations?.length) return []
-
-    return allAnrokIntegrations?.map((integration) => ({
-      value: integration.code,
-      label: integration.name,
-      labelNode: (
-        <ExternalAppsAccordionLayout.ComboboxItem
-          label={integration.name}
-          subLabel={integration.code}
-        />
-      ),
-    }))
-  }, [allAnrokIntegrations])
 
   const connectedCRMIntegrationsData: ComboboxDataGrouped[] | [] = useMemo(() => {
     if (!allCRMIntegrationsData?.length) return []
@@ -309,118 +271,15 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
           <AccountingProvidersAccordion
             formikProps={formikProps}
             setShowAccountingProviderSection={setShowAccountingProviderSection}
+            isEdition={isEdition}
           />
         )}
         {showTaxIntegrationSection && (
-          <Stack gap={1}>
-            <Typography variant="captionHl" color="grey700">
-              {translate('text_6668821d94e4da4dfd8b3840')}
-            </Typography>
-            <Accordion
-              noContentMargin
-              className={ADD_CUSTOMER_TAX_PROVIDER_ACCORDION}
-              summary={
-                <ExternalAppsAccordionLayout.Summary
-                  avatar={
-                    selectedAnrokIntegrationSettings && (
-                      <Avatar size="big" variant="connector-full">
-                        <Anrok />
-                      </Avatar>
-                    )
-                  }
-                  label={selectedAnrokIntegrationSettings?.name}
-                  subLabel={selectedAnrokIntegrationSettings?.code}
-                  onDelete={() => {
-                    formikProps.setFieldValue(
-                      'integrationCustomers',
-                      formikProps.values.integrationCustomers?.filter(
-                        (i) => i.integrationType !== IntegrationTypeEnum.Anrok,
-                      ),
-                    )
-                    setShowTaxIntegrationSection(false)
-                  }}
-                />
-              }
-            >
-              <Stack gap={6} padding={4}>
-                <Typography variant="bodyHl" color="grey700">
-                  {translate('text_65e1f90471bc198c0c934d6c')}
-                </Typography>
-
-                {/* Select Integration account */}
-                <ComboBox
-                  onOpen={getIntegrationsData}
-                  disabled={hadInitialAnrokIntegrationCustomer}
-                  data={connectedAnrokIntegrationsData}
-                  label={translate('text_66423cad72bbad009f2f5695')}
-                  placeholder={translate('text_66423cad72bbad009f2f5697')}
-                  emptyText={translate('text_6645daa0468420011304aded')}
-                  PopperProps={{ displayInDialog: true }}
-                  value={selectedAnrokIntegration?.integrationCode as string}
-                  onChange={(value) => {
-                    const newAnrokIntegrationObject = {
-                      integrationCode: value,
-                      integrationType: IntegrationTypeEnum.Anrok,
-                      syncWithProvider: false,
-                    }
-
-                    // If no existing anrok integration, add it
-                    if (!selectedAnrokIntegration) {
-                      formikProps.setFieldValue('integrationCustomers', [
-                        ...(formikProps.values.integrationCustomers || []),
-                        newAnrokIntegrationObject,
-                      ])
-                    } else {
-                      // If existing anrok integration, update it
-                      formikProps.setFieldValue(
-                        `${anrokIntegrationpointerInIntegration}`,
-                        newAnrokIntegrationObject,
-                      )
-                    }
-                  }}
-                />
-
-                {!!selectedAnrokIntegration && (
-                  <>
-                    <TextInputField
-                      label={translate('text_66b4e77677f8c600c8d50ea3')}
-                      placeholder={translate('text_66b4e77677f8c600c8d50ea5')}
-                      name={`${anrokIntegrationpointerInIntegration}.externalCustomerId`}
-                      disabled={
-                        !!selectedAnrokIntegration?.syncWithProvider ||
-                        hadInitialAnrokIntegrationCustomer
-                      }
-                      formikProps={formikProps}
-                    />
-
-                    <Checkbox
-                      name={`${anrokIntegrationpointerInIntegration}.syncWithProvider`}
-                      disabled={hadInitialAnrokIntegrationCustomer}
-                      value={!!selectedAnrokIntegration?.syncWithProvider}
-                      label={translate('text_66b4e77677f8c600c8d50ea7', {
-                        connectionName: selectedAnrokIntegrationSettings?.name,
-                      })}
-                      onChange={(_, checked) => {
-                        const newAnrokIntegrationObject = {
-                          ...selectedAnrokIntegration,
-                          syncWithProvider: checked,
-                        }
-
-                        if (!isEdition && checked) {
-                          newAnrokIntegrationObject.externalCustomerId = ''
-                        }
-
-                        formikProps.setFieldValue(
-                          `${anrokIntegrationpointerInIntegration}`,
-                          newAnrokIntegrationObject,
-                        )
-                      }}
-                    />
-                  </>
-                )}
-              </Stack>
-            </Accordion>
-          </Stack>
+          <TaxProvidersAccordion
+            formikProps={formikProps}
+            setShowTaxIntegrationSection={setShowTaxIntegrationSection}
+            isEdition={isEdition}
+          />
         )}
         {showCRMIntegrationSection && (
           <Stack gap={1}>
