@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 
-import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, theme } from '~/styles'
+import { NAV_HEIGHT, theme } from '~/styles'
 
 const ListItemCss = css`
   width: 100%;
@@ -55,29 +55,6 @@ export const ListItemLink = styled(Link)`
 export const ListItem = styled.div`
   ${ListItemCss}
   ${ListClickableItemCss}
-`
-
-export const ListHeader = styled.div<{ $withActions?: boolean }>`
-  position: sticky;
-  background-color: ${theme.palette.grey[100]};
-  height: ${HEADER_TABLE_HEIGHT}px;
-  display: flex;
-  align-items: center;
-  box-shadow: ${theme.shadows[7]};
-  z-index: ${theme.zIndex.sectionHead};
-  top: ${NAV_HEIGHT}px;
-
-  padding: ${({ $withActions }) =>
-    $withActions ? `0 ${theme.spacing(28)} 0 ${theme.spacing(12)} ` : `0 ${theme.spacing(12)}`};
-
-  ${theme.breakpoints.down('md')} {
-    padding: ${({ $withActions }) =>
-      $withActions ? `0 ${theme.spacing(20)} 0 ${theme.spacing(4)} ` : `0 ${theme.spacing(4)}`};
-  }
-`
-
-export const ListContainer = styled.div`
-  margin-bottom: ${theme.spacing(20)};
 `
 
 export const ItemContainer = styled.div`

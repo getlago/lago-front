@@ -6443,8 +6443,6 @@ export type CouponCaptionFragment = { __typename?: 'Coupon', id: string, amountC
 
 export type AppliedCouponCaptionFragment = { __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null };
 
-export type CouponItemFragment = { __typename?: 'Coupon', id: string, name: string, customersCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, appliedCouponsCount: number, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null };
-
 export type DeleteCouponFragment = { __typename?: 'Coupon', id: string, name: string };
 
 export type DeleteCouponMutationVariables = Exact<{
@@ -8410,6 +8408,8 @@ export type GetCouponForDetailsQueryVariables = Exact<{
 
 export type GetCouponForDetailsQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, percentageRate?: number | null, code?: string | null, expirationAt?: any | null, name: string, frequency: CouponFrequency, reusable: boolean, couponType: CouponTypeEnum, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null } | null };
 
+export type CouponItemFragment = { __typename?: 'Coupon', id: string, name: string, customersCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, appliedCouponsCount: number, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null };
+
 export type CouponsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -9197,23 +9197,6 @@ export const CouponCaptionFragmentDoc = gql`
   id
   amountCurrency
   amountCents
-  couponType
-  percentageRate
-  frequency
-  frequencyDuration
-}
-    `;
-export const CouponItemFragmentDoc = gql`
-    fragment CouponItem on Coupon {
-  id
-  name
-  customersCount
-  status
-  amountCurrency
-  amountCents
-  appliedCouponsCount
-  expiration
-  expirationAt
   couponType
   percentageRate
   frequency
@@ -11229,6 +11212,23 @@ export const BillableMetricItemFragmentDoc = gql`
   name
   code
   createdAt
+}
+    `;
+export const CouponItemFragmentDoc = gql`
+    fragment CouponItem on Coupon {
+  id
+  name
+  customersCount
+  status
+  amountCurrency
+  amountCents
+  appliedCouponsCount
+  expiration
+  expirationAt
+  couponType
+  percentageRate
+  frequency
+  frequencyDuration
 }
     `;
 export const EditBillableMetricFragmentDoc = gql`
