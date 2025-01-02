@@ -22,7 +22,7 @@ import {
   IntegrationTypeEnum,
   SalesforceIntegration,
   UpdateCustomerInput,
-  useGetCrmIntegrationsForExternalAppsAccordionLazyQuery,
+  useGetCrmIntegrationsForExternalAppsAccordionQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Hubspot from '~/public/images/hubspot.svg'
@@ -80,10 +80,9 @@ export const CRMProvidersAccordion: FC<CRMProvidersAccordionProps> = ({
 }) => {
   const { translate } = useInternationalization()
 
-  const [getIntegrationsData, { data: allIntegrationsData }] =
-    useGetCrmIntegrationsForExternalAppsAccordionLazyQuery({
-      variables: { limit: 1000 },
-    })
+  const { data: allIntegrationsData, loading } = useGetCrmIntegrationsForExternalAppsAccordionQuery(
+    { variables: { limit: 1000 } },
+  )
 
   const {
     hadInitialIntegrationCustomer: hadInitialHubspotIntegrationCustomer,
@@ -143,6 +142,7 @@ export const CRMProvidersAccordion: FC<CRMProvidersAccordionProps> = ({
         className={ADD_CUSTOMER_CRM_PROVIDER_ACCORDION}
         summary={
           <ExternalAppsAccordionLayout.Summary
+            loading={loading}
             avatar={
               selectedIntegration && (
                 <Avatar size="big" variant="connector-full">
@@ -178,7 +178,6 @@ export const CRMProvidersAccordion: FC<CRMProvidersAccordionProps> = ({
 
           {/* Select connected account */}
           <ComboBox
-            onOpen={getIntegrationsData}
             disabled={
               hadInitialHubspotIntegrationCustomer || hadInitialSalesforceIntegrationCustomer
             }

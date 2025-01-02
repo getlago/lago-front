@@ -1,6 +1,6 @@
 import { FC, ReactNode } from 'react'
 
-import { Avatar, Button, Icon, Typography } from '~/components/designSystem'
+import { Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
 import { ComboboxItem } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -26,26 +26,34 @@ const ExternalAppsAccordionSummary: FC<{
   onDelete?: () => void
   label?: string
   subLabel?: string
-}> = ({ avatar, label, subLabel, onDelete }) => {
+  loading?: boolean
+}> = ({ avatar, label, subLabel, loading, onDelete }) => {
   const { translate } = useInternationalization()
 
   return (
     <div className="flex flex-1 flex-row items-center gap-3">
-      <div className="flex flex-1 flex-row items-center gap-3">
-        {avatar || (
-          <Avatar size="big" variant="connector">
-            <Icon name="plug" color="dark" />
-          </Avatar>
-        )}
-        <div className="flex flex-col">
-          <Typography variant="bodyHl" color="grey700">
-            {label || translate('text_66423cad72bbad009f2f5691')}
-          </Typography>
-          {subLabel && <Typography variant="caption">{subLabel}</Typography>}
+      {loading ? (
+        <div className="flex flex-1 flex-row items-center gap-3">
+          <Skeleton variant="connectorAvatar" size="big" />
+          <Skeleton className="w-40" variant="text" />
         </div>
-      </div>
+      ) : (
+        <div className="flex flex-1 flex-row items-center gap-3">
+          {avatar || (
+            <Avatar size="big" variant="connector">
+              <Icon name="plug" color="dark" />
+            </Avatar>
+          )}
+          <div className="flex flex-col">
+            <Typography variant="bodyHl" color="grey700">
+              {label ?? translate('text_66423cad72bbad009f2f5691')}
+            </Typography>
+            {subLabel && <Typography variant="caption">{subLabel}</Typography>}
+          </div>
+        </div>
+      )}
 
-      {onDelete && <Button variant="quaternary" icon="trash" onClick={onDelete} />}
+      {!loading && onDelete && <Button variant="quaternary" icon="trash" onClick={onDelete} />}
     </div>
   )
 }

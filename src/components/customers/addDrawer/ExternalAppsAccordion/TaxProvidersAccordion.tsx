@@ -10,7 +10,7 @@ import {
   CreateCustomerInput,
   IntegrationTypeEnum,
   UpdateCustomerInput,
-  useGetTaxIntegrationsForExternalAppsAccordionLazyQuery,
+  useGetTaxIntegrationsForExternalAppsAccordionQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Anrok from '~/public/images/anrok.svg'
@@ -46,10 +46,9 @@ export const TaxProvidersAccordion: FC<TaxProvidersAccordionProps> = ({
 }) => {
   const { translate } = useInternationalization()
 
-  const [getIntegrationsData, { data: allIntegrationsData }] =
-    useGetTaxIntegrationsForExternalAppsAccordionLazyQuery({
-      variables: { limit: 1000 },
-    })
+  const { data: allIntegrationsData, loading } = useGetTaxIntegrationsForExternalAppsAccordionQuery(
+    { variables: { limit: 1000 } },
+  )
 
   const {
     hadInitialIntegrationCustomer: hadInitialAnrokIntegrationCustomer,
@@ -88,6 +87,7 @@ export const TaxProvidersAccordion: FC<TaxProvidersAccordionProps> = ({
         className={ADD_CUSTOMER_TAX_PROVIDER_ACCORDION}
         summary={
           <ExternalAppsAccordionLayout.Summary
+            loading={loading}
             avatar={
               selectedAnrokIntegrationSettings && (
                 <Avatar size="big" variant="connector-full">
@@ -116,7 +116,6 @@ export const TaxProvidersAccordion: FC<TaxProvidersAccordionProps> = ({
 
           {/* Select connected account */}
           <ComboBox
-            onOpen={getIntegrationsData}
             disabled={hadInitialAnrokIntegrationCustomer}
             data={connectedAnrokIntegrationsData}
             label={translate('text_66423cad72bbad009f2f5695')}

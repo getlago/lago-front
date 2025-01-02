@@ -11,7 +11,7 @@ import {
   ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
   UpdateCustomerInput,
-  usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQuery,
+  usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Adyen from '~/public/images/adyen.svg'
@@ -65,21 +65,21 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
   setShowPaymentSection,
 }) => {
   const { translate } = useInternationalization()
-  const [getPaymentProvidersData, { data: paymentProvidersData }] =
-    usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQuery({
+  const { data: { paymentProviders } = {}, loading } =
+    usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery({
       variables: { limit: 1000 },
     })
 
-  const selectedPaymentProvider = paymentProvidersData?.paymentProviders?.collection.find(
+  const selectedPaymentProvider = paymentProviders?.collection.find(
     (p) => p.code === formikProps.values.paymentProviderCode,
   )
 
   const isSyncWithProviderDisabled = !!formikProps.values.providerCustomer?.syncWithProvider
 
   const connectedPaymentProvidersData: ComboboxDataGrouped[] | [] = useMemo(() => {
-    if (!paymentProvidersData?.paymentProviders?.collection.length) return []
+    if (!paymentProviders?.collection.length) return []
 
-    return paymentProvidersData?.paymentProviders?.collection.map((provider) => ({
+    return paymentProviders?.collection.map((provider) => ({
       value: provider.code,
       label: provider.name,
       group: provider.__typename.toLocaleLowerCase().replace('provider', ''),
@@ -87,7 +87,7 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
         <ExternalAppsAccordionLayout.ComboboxItem label={provider.name} subLabel={provider.code} />
       ),
     }))
-  }, [paymentProvidersData?.paymentProviders?.collection])
+  }, [paymentProviders?.collection])
 
   return (
     <div>
@@ -99,6 +99,7 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
         className={ADD_CUSTOMER_PAYMENT_PROVIDER_ACCORDION}
         summary={
           <ExternalAppsAccordionLayout.Summary
+            loading={loading}
             avatar={
               formikProps.values.paymentProvider && (
                 <Avatar size="big" variant="connector-full">
@@ -131,7 +132,6 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
 
             {/* Select connected account */}
             <ComboBox
-              onOpen={getPaymentProvidersData}
               data={connectedPaymentProvidersData}
               label={translate('text_65940198687ce7b05cd62b61')}
               placeholder={translate('text_65940198687ce7b05cd62b62')}

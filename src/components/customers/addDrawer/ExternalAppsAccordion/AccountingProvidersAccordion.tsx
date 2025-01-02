@@ -17,7 +17,7 @@ import {
   IntegrationTypeEnum,
   NetsuiteIntegration,
   UpdateCustomerInput,
-  useGetAccountingIntegrationsForExternalAppsAccordionLazyQuery,
+  useGetAccountingIntegrationsForExternalAppsAccordionQuery,
   useSubsidiariesListForExternalAppsAccordionQuery,
   XeroIntegration,
 } from '~/generated/graphql'
@@ -71,8 +71,8 @@ export const AccountingProvidersAccordion: FC<AccountingProvidersAccordionProps>
 }) => {
   const { translate } = useInternationalization()
 
-  const [getAccountingIntegrationsData, { data: allIntegrationsData }] =
-    useGetAccountingIntegrationsForExternalAppsAccordionLazyQuery({
+  const { data: allIntegrationsData, loading } =
+    useGetAccountingIntegrationsForExternalAppsAccordionQuery({
       variables: { limit: 1000 },
     })
 
@@ -155,6 +155,7 @@ export const AccountingProvidersAccordion: FC<AccountingProvidersAccordionProps>
         className={ADD_CUSTOMER_ACCOUNTING_PROVIDER_ACCORDION}
         summary={
           <ExternalAppsAccordionLayout.Summary
+            loading={loading}
             avatar={
               selectedIntegration && (
                 <Avatar size="big" variant="connector-full">
@@ -188,7 +189,6 @@ export const AccountingProvidersAccordion: FC<AccountingProvidersAccordionProps>
 
           {/* Select Integration account */}
           <ComboBox
-            onOpen={getAccountingIntegrationsData}
             disabled={hadInitialNetsuiteIntegrationCustomer || hadInitialXeroIntegrationCustomer}
             data={connectedAccountingIntegrationsData}
             label={translate('text_66423cad72bbad009f2f5695')}
