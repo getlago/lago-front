@@ -9,9 +9,8 @@ import {
   Alert,
   Avatar,
   Button,
-  Icon,
   Popper,
-  Typography,
+  Typography
 } from '~/components/designSystem'
 import {
   BasicComboBoxData,
@@ -19,7 +18,6 @@ import {
   ComboBox,
   ComboboxDataGrouped,
   ComboBoxField,
-  ComboboxItem,
   TextInputField,
 } from '~/components/form'
 import {
@@ -60,6 +58,8 @@ import Salesforce from '~/public/images/salesforce.svg'
 import Stripe from '~/public/images/stripe.svg'
 import Xero from '~/public/images/xero.svg'
 import { MenuPopper, theme } from '~/styles'
+
+import { ExternalAppsAccordionLayout } from './ExternalAppsAccordionLayout'
 
 const hubspotExternalIdTypeCopyMap: Record<
   HubspotTargetedObjectsEnum,
@@ -343,15 +343,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
       label: provider.name,
       group: provider.__typename.toLocaleLowerCase().replace('provider', ''),
       labelNode: (
-        <ComboboxItem>
-          <Typography color="grey700" noWrap>
-            {provider.name}
-          </Typography>
-          &nbsp;
-          <Typography color="textPrimary" noWrap>
-            ({provider.code})
-          </Typography>
-        </ComboboxItem>
+        <ExternalAppsAccordionLayout.ComboboxItem label={provider.name} subLabel={provider.code} />
       ),
     }))
   }, [paymentProvidersData?.paymentProviders?.collection])
@@ -364,15 +356,10 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
       label: integration.name,
       group: integration?.__typename?.replace('Integration', '') || '',
       labelNode: (
-        <ComboboxItem>
-          <Typography variant="body" color="grey700" noWrap>
-            {integration.name}
-          </Typography>
-          &nbsp;
-          <Typography variant="body" color="grey600" noWrap>
-            ({integration.code})
-          </Typography>
-        </ComboboxItem>
+        <ExternalAppsAccordionLayout.ComboboxItem
+          label={integration.name}
+          subLabel={integration.code}
+        />
       ),
     }))
   }, [allAccountingIntegrationsData])
@@ -384,15 +371,10 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
       value: integrationSubsidiary.externalId,
       label: `${integrationSubsidiary.externalName} (${integrationSubsidiary.externalId})`,
       labelNode: (
-        <ComboboxItem>
-          <Typography variant="body" color="grey700" noWrap>
-            {integrationSubsidiary.externalName}
-          </Typography>
-          &nbsp;
-          <Typography variant="body" color="grey600" noWrap>
-            ({integrationSubsidiary.externalId})
-          </Typography>
-        </ComboboxItem>
+        <ExternalAppsAccordionLayout.ComboboxItem
+          label={integrationSubsidiary.externalName ?? ''}
+          subLabel={integrationSubsidiary.externalId}
+        />
       ),
     }))
   }, [subsidiariesData?.integrationSubsidiaries?.collection])
@@ -404,15 +386,10 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
       value: integration.code,
       label: integration.name,
       labelNode: (
-        <ComboboxItem>
-          <Typography variant="body" color="grey700" noWrap>
-            {integration.name}
-          </Typography>
-          &nbsp;
-          <Typography variant="body" color="grey600" noWrap>
-            ({integration.code})
-          </Typography>
-        </ComboboxItem>
+        <ExternalAppsAccordionLayout.ComboboxItem
+          label={integration.name}
+          subLabel={integration.code}
+        />
       ),
     }))
   }, [allAnrokIntegrations])
@@ -425,15 +402,10 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
       label: integration.name,
       group: integration?.__typename?.replace('Integration', '') || '',
       labelNode: (
-        <ComboboxItem>
-          <Typography variant="body" color="grey700" noWrap>
-            {integration.name}
-          </Typography>
-          &nbsp;
-          <Typography variant="body" color="grey600" noWrap>
-            ({integration.code})
-          </Typography>
-        </ComboboxItem>
+        <ExternalAppsAccordionLayout.ComboboxItem
+          label={integration.name}
+          subLabel={integration.code}
+        />
       ),
     }))
   }, [allCRMIntegrationsData])
@@ -494,9 +466,9 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
               noContentMargin
               className={ADD_CUSTOMER_PAYMENT_PROVIDER_ACCORDION}
               summary={
-                <Stack gap={3} flex={1} direction="row" alignItems="center">
-                  <Stack gap={3} flex={1} direction="row" alignItems="center">
-                    {!!formikProps.values.paymentProvider ? (
+                <ExternalAppsAccordionLayout.Summary
+                  avatar={
+                    !!formikProps.values.paymentProvider && (
                       <Avatar size="big" variant="connector-full">
                         {formikProps.values.paymentProvider === ProviderTypeEnum?.Stripe ? (
                           <Stripe />
@@ -506,40 +478,23 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                           <Adyen />
                         ) : null}
                       </Avatar>
-                    ) : (
-                      <Avatar size="big" variant="connector">
-                        <Icon name="plug" color="dark" />
-                      </Avatar>
-                    )}
-                    <Stack>
-                      <Typography variant="bodyHl" color="grey700">
-                        {!selectedPaymentProvider
-                          ? translate('text_66423cad72bbad009f2f5691')
-                          : selectedPaymentProvider.name}
-                      </Typography>
-                      {!!selectedPaymentProvider?.code && (
-                        <Typography variant="caption">{selectedPaymentProvider.code}</Typography>
-                      )}
-                    </Stack>
-                  </Stack>
-
-                  <Button
-                    variant="quaternary"
-                    icon="trash"
-                    onClick={() => {
-                      formikProps.setFieldValue('paymentProvider', null)
-                      formikProps.setFieldValue('providerCustomer.providerCustomerId', '')
-                      formikProps.setFieldValue('providerCustomer.syncWithProvider', false)
-                      formikProps.setFieldValue(
-                        'providerCustomer.providerPaymentMethods',
-                        formikProps.values.currency !== CurrencyEnum.Eur
-                          ? [ProviderPaymentMethodsEnum.Card]
-                          : [ProviderPaymentMethodsEnum.Card, ProviderPaymentMethodsEnum.SepaDebit],
-                      )
-                      setShowPaymentProviderSection(false)
-                    }}
-                  />
-                </Stack>
+                    )
+                  }
+                  label={selectedPaymentProvider?.name}
+                  subLabel={selectedPaymentProvider?.code}
+                  onDelete={() => {
+                    formikProps.setFieldValue('paymentProvider', null)
+                    formikProps.setFieldValue('providerCustomer.providerCustomerId', '')
+                    formikProps.setFieldValue('providerCustomer.syncWithProvider', false)
+                    formikProps.setFieldValue(
+                      'providerCustomer.providerPaymentMethods',
+                      formikProps.values.currency !== CurrencyEnum.Eur
+                        ? [ProviderPaymentMethodsEnum.Card]
+                        : [ProviderPaymentMethodsEnum.Card, ProviderPaymentMethodsEnum.SepaDebit],
+                    )
+                    setShowPaymentProviderSection(false)
+                  }}
+                />
               }
             >
               <div>
@@ -846,51 +801,39 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
               noContentMargin
               className={ADD_CUSTOMER_ACCOUNTING_PROVIDER_ACCORDION}
               summary={
-                <Stack gap={3} flex={1} direction="row" alignItems="center">
-                  <Stack gap={3} flex={1} direction="row" alignItems="center">
-                    {!!selectedNetsuiteIntegrationSettings ? (
+                <ExternalAppsAccordionLayout.Summary
+                  avatar={
+                    (selectedNetsuiteIntegrationSettings && (
                       <Avatar size="big" variant="connector-full">
                         <Netsuite />
                       </Avatar>
-                    ) : !!selectedXeroIntegrationSettings ? (
+                    )) ||
+                    (selectedXeroIntegrationSettings && (
                       <Avatar size="big" variant="connector-full">
                         <Xero />
                       </Avatar>
-                    ) : (
-                      <Avatar size="big" variant="connector">
-                        <Icon name="plug" color="dark" />
-                      </Avatar>
-                    )}
-                    <Stack>
-                      <Typography variant="bodyHl" color="grey700">
-                        {!selectedNetsuiteIntegrationSettings
-                          ? translate('text_66423cad72bbad009f2f5691')
-                          : selectedNetsuiteIntegrationSettings.name}
-                      </Typography>
-                      {!!selectedNetsuiteIntegrationSettings?.code && (
-                        <Typography variant="caption">
-                          {selectedNetsuiteIntegrationSettings.code}
-                        </Typography>
-                      )}
-                    </Stack>
-                  </Stack>
-
-                  <Button
-                    variant="quaternary"
-                    icon="trash"
-                    onClick={() => {
-                      formikProps.setFieldValue(
-                        'integrationCustomers',
-                        formikProps.values.integrationCustomers?.filter(
-                          (i) =>
-                            i.integrationType !== IntegrationTypeEnum.Netsuite &&
-                            i.integrationType !== IntegrationTypeEnum.Xero,
-                        ),
-                      )
-                      setShowAccountingProviderSection(false)
-                    }}
-                  />
-                </Stack>
+                    ))
+                  }
+                  label={
+                    selectedNetsuiteIntegrationSettings?.name ||
+                    selectedXeroIntegrationSettings?.name
+                  }
+                  subLabel={
+                    selectedNetsuiteIntegrationSettings?.code ||
+                    selectedXeroIntegrationSettings?.code
+                  }
+                  onDelete={() => {
+                    formikProps.setFieldValue(
+                      'integrationCustomers',
+                      formikProps.values.integrationCustomers?.filter(
+                        (i) =>
+                          i.integrationType !== IntegrationTypeEnum.Netsuite &&
+                          i.integrationType !== IntegrationTypeEnum.Xero,
+                      ),
+                    )
+                    setShowAccountingProviderSection(false)
+                  }}
+                />
               }
             >
               <Stack gap={6} padding={4}>
@@ -1061,45 +1004,26 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
               noContentMargin
               className={ADD_CUSTOMER_TAX_PROVIDER_ACCORDION}
               summary={
-                <Stack gap={3} flex={1} direction="row" alignItems="center">
-                  <Stack gap={3} flex={1} direction="row" alignItems="center">
-                    {showTaxIntegrationSection && !!selectedAnrokIntegrationSettings ? (
+                <ExternalAppsAccordionLayout.Summary
+                  avatar={
+                    selectedAnrokIntegrationSettings && (
                       <Avatar size="big" variant="connector-full">
                         <Anrok />
                       </Avatar>
-                    ) : (
-                      <Avatar size="big" variant="connector">
-                        <Icon name="plug" color="dark" />
-                      </Avatar>
-                    )}
-                    <Stack>
-                      <Typography variant="bodyHl" color="grey700">
-                        {!selectedAnrokIntegrationSettings
-                          ? translate('text_66423cad72bbad009f2f5691')
-                          : selectedAnrokIntegrationSettings.name}
-                      </Typography>
-                      {!!selectedAnrokIntegrationSettings?.code && (
-                        <Typography variant="caption">
-                          {selectedAnrokIntegrationSettings.code}
-                        </Typography>
-                      )}
-                    </Stack>
-                  </Stack>
-
-                  <Button
-                    variant="quaternary"
-                    icon="trash"
-                    onClick={() => {
-                      formikProps.setFieldValue(
-                        'integrationCustomers',
-                        formikProps.values.integrationCustomers?.filter(
-                          (i) => i.integrationType !== IntegrationTypeEnum.Anrok,
-                        ),
-                      )
-                      setShowTaxIntegrationSection(false)
-                    }}
-                  />
-                </Stack>
+                    )
+                  }
+                  label={selectedAnrokIntegrationSettings?.name}
+                  subLabel={selectedAnrokIntegrationSettings?.code}
+                  onDelete={() => {
+                    formikProps.setFieldValue(
+                      'integrationCustomers',
+                      formikProps.values.integrationCustomers?.filter(
+                        (i) => i.integrationType !== IntegrationTypeEnum.Anrok,
+                      ),
+                    )
+                    setShowTaxIntegrationSection(false)
+                  }}
+                />
               }
             >
               <Stack gap={6} padding={4}>
@@ -1191,49 +1115,39 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
               noContentMargin
               className={ADD_CUSTOMER_CRM_PROVIDER_ACCORDION}
               summary={
-                <Stack gap={3} flex={1} direction="row" alignItems="center">
-                  <Stack gap={3} flex={1} direction="row" alignItems="center">
-                    <Avatar size="big" variant="connector">
-                      {!!selectedHubspotIntegrationSettings ? (
+                <ExternalAppsAccordionLayout.Summary
+                  avatar={
+                    (selectedHubspotIntegrationSettings && (
+                      <Avatar size="big" variant="connector">
                         <Hubspot />
-                      ) : !!selectedSalesforceIntegrationSettings ? (
+                      </Avatar>
+                    )) ||
+                    (selectedSalesforceIntegrationSettings && (
+                      <Avatar size="big" variant="connector">
                         <Salesforce />
-                      ) : (
-                        <Icon name="plug" color="dark" />
-                      )}
-                    </Avatar>
-                    <Stack>
-                      <Typography variant="bodyHl" color="grey700">
-                        {selectedHubspotIntegrationSettings?.name ??
-                          selectedSalesforceIntegrationSettings?.name ??
-                          translate('text_66423cad72bbad009f2f5691')}
-                      </Typography>
-                      {(selectedHubspotIntegrationSettings ||
-                        selectedSalesforceIntegrationSettings) && (
-                        <Typography variant="caption">
-                          {selectedHubspotIntegrationSettings?.code ??
-                            selectedSalesforceIntegrationSettings?.code}
-                        </Typography>
-                      )}
-                    </Stack>
-                  </Stack>
-
-                  <Button
-                    variant="quaternary"
-                    icon="trash"
-                    onClick={() => {
-                      formikProps.setFieldValue(
-                        'integrationCustomers',
-                        formikProps.values.integrationCustomers?.filter(
-                          (i) =>
-                            i.integrationType !== IntegrationTypeEnum.Hubspot &&
-                            i.integrationType !== IntegrationTypeEnum.Salesforce,
-                        ),
-                      )
-                      setShowCRMIntegrationSection(false)
-                    }}
-                  />
-                </Stack>
+                      </Avatar>
+                    ))
+                  }
+                  label={
+                    selectedHubspotIntegrationSettings?.name ||
+                    selectedSalesforceIntegrationSettings?.name
+                  }
+                  subLabel={
+                    selectedHubspotIntegrationSettings?.code ||
+                    selectedSalesforceIntegrationSettings?.code
+                  }
+                  onDelete={() => {
+                    formikProps.setFieldValue(
+                      'integrationCustomers',
+                      formikProps.values.integrationCustomers?.filter(
+                        (i) =>
+                          i.integrationType !== IntegrationTypeEnum.Hubspot &&
+                          i.integrationType !== IntegrationTypeEnum.Salesforce,
+                      ),
+                    )
+                    setShowCRMIntegrationSection(false)
+                  }}
+                />
               }
             >
               <Stack gap={6} padding={4}>
