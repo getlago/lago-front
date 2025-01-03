@@ -1,5 +1,5 @@
 {
-  "include": ["**/*.tsx", "**/*.ts", "cypress/cypress.config.js", "**/*.d.ts"],
+  "include": ["**/*.tsx", "**/*.ts", "**/*.d.ts"],
   "compilerOptions": {
     "lib": ["es6", "dom", "esnext"],
     "outDir": "./dist",
@@ -18,8 +18,11 @@
       "~/*": ["*"],
       "@mui/styled-engine": ["./node_modules/@mui/styled-engine-sc"]
     },
-    "moduleResolution": "node"
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "noEmit": true
   },
-  "exclude": ["node_modules", "cypress", "cypress.config.ts"],
+  "exclude": ["node_modules", "cypress"],
   "allowUmdGlobalAccess": true
 }

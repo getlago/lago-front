@@ -3,60 +3,28 @@ import { lazyLoad } from './utils'
 
 // ----------- Pages -----------
 // Lists
-const BillableMetricsList = lazyLoad(
-  () => import(/* webpackChunkName: 'billable-metrics' */ '~/pages/BillableMetricsList'),
-)
-const PlansList = lazyLoad(() => import(/* webpackChunkName: 'plans-list' */ '~/pages/PlansList'))
-const CouponsList = lazyLoad(
-  () => import(/* webpackChunkName: 'coupons-list' */ '~/pages/CouponsList'),
-)
-const AddOnsList = lazyLoad(
-  () => import(/* webpackChunkName: 'add-ons-list' */ '~/pages/AddOnsList'),
-)
-const InvoicesPage = lazyLoad(
-  () => import(/* webpackChunkName: 'invoices-page' */ '~/pages/InvoicesPage'),
-)
+const BillableMetricsList = lazyLoad(() => import('~/pages/BillableMetricsList'))
+const PlansList = lazyLoad(() => import('~/pages/PlansList'))
+const CouponsList = lazyLoad(() => import('~/pages/CouponsList'))
+const AddOnsList = lazyLoad(() => import('~/pages/AddOnsList'))
+const InvoicesPage = lazyLoad(() => import('~/pages/InvoicesPage'))
 
 // Creation
-const ApiKeysForm = lazyLoad(
-  () => import(/* webpackChunkName: 'api-keys-form' */ '~/pages/developers/ApiKeysForm'),
-)
-const CreateBillableMetric = lazyLoad(
-  () => import(/* webpackChunkName: 'create-billable-metrics' */ '~/pages/CreateBillableMetric'),
-)
-const CreatePlan = lazyLoad(
-  () => import(/* webpackChunkName: 'create-plan' */ '~/pages/CreatePlan'),
-)
-const CreateTax = lazyLoad(() => import(/* webpackChunkName: 'create-tax' */ '~/pages/CreateTax'))
-const CreateInvoice = lazyLoad(
-  () => import(/* webpackChunkName: 'create-plan' */ '~/pages/CreateInvoice'),
-)
-const CreateCoupon = lazyLoad(
-  () => import(/* webpackChunkName: 'create-coupon' */ '~/pages/CreateCoupon'),
-)
-const CreateAddOn = lazyLoad(
-  () => import(/* webpackChunkName: 'create-add-on' */ '~/pages/CreateAddOn'),
-)
-const CreateSubscription = lazyLoad(
-  () => import(/* webpackChunkName: 'create-subscription' */ '~/pages/CreateSubscription'),
-)
-const WalletForm = lazyLoad(
-  () => import(/* webpackChunkName: 'wallet-form' */ '~/pages/WalletForm/WalletForm'),
-)
+const ApiKeysForm = lazyLoad(() => import('~/pages/developers/ApiKeysForm'))
+const CreateBillableMetric = lazyLoad(() => import('~/pages/CreateBillableMetric'))
+const CreatePlan = lazyLoad(() => import('~/pages/CreatePlan'))
+const CreateTax = lazyLoad(() => import('~/pages/CreateTax'))
+const CreateInvoice = lazyLoad(() => import('~/pages/CreateInvoice'))
+const CreateCoupon = lazyLoad(() => import('~/pages/CreateCoupon'))
+const CreateAddOn = lazyLoad(() => import('~/pages/CreateAddOn'))
+const CreateSubscription = lazyLoad(() => import('~/pages/CreateSubscription'))
+const WalletForm = lazyLoad(() => import('~/pages/WalletForm/WalletForm'))
 
 // Details
-const SubscriptionDetails = lazyLoad(
-  () => import(/* webpackChunkName: 'subscription-details' */ '~/pages/SubscriptionDetails'),
-)
-const PlanDetails = lazyLoad(
-  () => import(/* webpackChunkName: 'plan-details' */ '~/pages/PlanDetails'),
-)
-const AddOnDetails = lazyLoad(
-  () => import(/* webpackChunkName: 'add-on-details' */ '~/pages/AddOnDetails'),
-)
-const CouponDetails = lazyLoad(
-  () => import(/* webpackChunkName: 'coupon-details' */ '~/pages/CouponDetails'),
-)
+const SubscriptionDetails = lazyLoad(() => import('~/pages/SubscriptionDetails'))
+const PlanDetails = lazyLoad(() => import('~/pages/PlanDetails'))
+const AddOnDetails = lazyLoad(() => import('~/pages/AddOnDetails'))
+const CouponDetails = lazyLoad(() => import('~/pages/CouponDetails'))
 
 // ----------- Routes -----------
 // Lists

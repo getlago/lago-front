@@ -1,14 +1,15 @@
-import CustomerPortalSections from '~/components/customerPortal/common/CustomerPortalSections'
-import CustomerInformationPage from '~/components/customerPortal/customerInformation/CustomerInformationPage'
-import UsagePage from '~/components/customerPortal/usage/UsagePage'
-import WalletPage from '~/components/customerPortal/wallet/WalletPage'
-
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
 
 // ----------- Pages -----------
-const PortalInit = lazyLoad(
-  () => import(/* webpackChunkName: 'customer-portal-init' */ '~/pages/auth/PortalInit'),
+const PortalInit = lazyLoad(() => import('~/pages/auth/PortalInit'))
+const CustomerPortalSections = lazyLoad(
+  () => import('~/components/customerPortal/common/CustomerPortalSections'),
+)
+const UsagePage = lazyLoad(() => import('~/components/customerPortal/usage/UsagePage'))
+const WalletPage = lazyLoad(() => import('~/components/customerPortal/wallet/WalletPage'))
+const CustomerInformationPage = lazyLoad(
+  () => import('~/components/customerPortal/customerInformation/CustomerInformationPage'),
 )
 
 // ----------- Routes -----------

@@ -1,10 +1,9 @@
 /* eslint no-console: ["error", { allow: ["info"] }] */
-const fs = require('fs')
-const path = require('path')
-
-const _ = require('lodash')
-const { globSync } = require('glob')
-const { GettextExtractor, JsExtractors } = require('gettext-extractor')
+import { GettextExtractor, JsExtractors } from 'gettext-extractor'
+import { globSync } from 'glob'
+import _ from 'lodash'
+import fs from 'node:fs'
+import path from 'node:path'
 
 const SRC_DIR = './src/'
 const TRANSLATION_FILES_PATH = './translations/base.json' // './translations/**.json' for when we'll support several languages

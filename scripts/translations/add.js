@@ -1,5 +1,5 @@
 /* eslint no-console: ["error", { allow: ["info"] }] */
-const fs = require('fs')
+import fs from 'node:fs'
 
 const KEY_RANDOM_CHARS_LENGTH = 11
 const TRANSLATIONS_FOLDER = './translations'

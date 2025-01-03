@@ -16,10 +16,12 @@
     />
 
     <script src="env-config.js"></script>
-    <title><%= htmlWebpackPlugin.options.title %></title>
+    <title><%- title %></title>
+    <link rel="shortcut icon" href="<%- favicon %>" type="image/svg" />
   </head>
   <body>
     <!-- React app root element -->
     <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

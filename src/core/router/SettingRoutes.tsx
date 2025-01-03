@@ -5,142 +5,55 @@ import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
 
 // ----------- Layouts -----------
-const Settings = lazyLoad(() => import(/* webpackChunkName: 'settings' */ '~/layouts/Settings'))
+const Settings = lazyLoad(() => import('~/layouts/Settings'))
 
 // ----------- Pages -----------
-const OrganizationInformations = lazyLoad(
-  () =>
-    import(
-      /* webpackChunkName: 'organization-informations' */ '~/pages/settings/OrganizationInformations'
-    ),
-)
-const InvoiceSettings = lazyLoad(
-  () =>
-    import(/* webpackChunkName: 'invoice-settings' */ '~/pages/settings/Invoices/InvoiceSettings'),
-)
+const OrganizationInformations = lazyLoad(() => import('~/pages/settings/OrganizationInformations'))
+const InvoiceSettings = lazyLoad(() => import('~/pages/settings/Invoices/InvoiceSettings'))
 
 const CreateInvoiceCustomSection = lazyLoad(
-  () =>
-    import(
-      /* webpackChunkName: 'invoice-custom-section' */ '~/pages/settings/Invoices/CreateCustomSection'
-    ),
+  () => import('~/pages/settings/Invoices/CreateCustomSection'),
 )
 
-const TaxesSettings = lazyLoad(
-  () => import(/* webpackChunkName: 'tax-settings' */ '~/pages/settings/TaxesSettings'),
-)
-const Members = lazyLoad(() => import(/* webpackChunkName: 'members' */ '~/pages/settings/Members'))
-const Integrations = lazyLoad(
-  () => import(/* webpackChunkName: 'integrations' */ '~/pages/settings/Integrations'),
-)
-const Authentication = lazyLoad(
-  () =>
-    import(
-      /* webpackChunkName: 'authentication' */ '~/pages/settings/Authentication/Authentication'
-    ),
-)
+const TaxesSettings = lazyLoad(() => import('~/pages/settings/TaxesSettings'))
+const Members = lazyLoad(() => import('~/pages/settings/Members'))
+const Integrations = lazyLoad(() => import('~/pages/settings/Integrations'))
+const Authentication = lazyLoad(() => import('~/pages/settings/Authentication/Authentication'))
 const OktaAuthenticationDetails = lazyLoad(
-  () =>
-    import(
-      /* webpackChunkName: 'okta-authentication-details' */ '~/pages/settings/Authentication/OktaAuthenticationDetails'
-    ),
+  () => import('~/pages/settings/Authentication/OktaAuthenticationDetails'),
 )
-const AdyenIntegrations = lazyLoad(
-  () => import(/* webpackChunkName: 'adyen-integrations' */ '~/pages/settings/AdyenIntegrations'),
-)
-const NetsuiteIntegrations = lazyLoad(
-  () =>
-    import(/* webpackChunkName: 'netsuite-integrations' */ '~/pages/settings/NetsuiteIntegrations'),
-)
-const AdyenIntegrationDetails = lazyLoad(
-  () =>
-    import(
-      /* webpackChunkName: 'adyen-integration-details' */ '~/pages/settings/AdyenIntegrationDetails'
-    ),
-)
-const HubspotIntegrations = lazyLoad(
-  () =>
-    import(/* webpackChunkName: 'hubspot-integrations' */ '~/pages/settings/HubspotIntegrations'),
-)
+const AdyenIntegrations = lazyLoad(() => import('~/pages/settings/AdyenIntegrations'))
+const NetsuiteIntegrations = lazyLoad(() => import('~/pages/settings/NetsuiteIntegrations'))
+const AdyenIntegrationDetails = lazyLoad(() => import('~/pages/settings/AdyenIntegrationDetails'))
+const HubspotIntegrations = lazyLoad(() => import('~/pages/settings/HubspotIntegrations'))
 const HubspotIntegrationDetails = lazyLoad(
-  () =>
-    import(
-      /* webpackChunkName: 'hubspot-integration-details' */ '~/pages/settings/HubspotIntegrationDetails'
-    ),
+  () => import('~/pages/settings/HubspotIntegrationDetails'),
 )
 const NetsuiteIntegrationDetails = lazyLoad(
-  () =>
-    import(
-      /* webpackChunkName: 'netsuite-integration-details' */ '~/pages/settings/NetsuiteIntegrationDetails'
-    ),
+  () => import('~/pages/settings/NetsuiteIntegrationDetails'),
 )
-const SalesforceIntegrations = lazyLoad(
-  () =>
-    import(
-      /* webpackChunkName: 'salesforce-integrations' */ '~/pages/settings/SalesforceIntegrations'
-    ),
-)
+const SalesforceIntegrations = lazyLoad(() => import('~/pages/settings/SalesforceIntegrations'))
 const SalesforceIntegrationDetails = lazyLoad(
-  () =>
-    import(
-      /* webpackChunkName: 'salesforce-integration-details' */ '~/pages/settings/SalesforceIntegrationDetails'
-    ),
+  () => import('~/pages/settings/SalesforceIntegrationDetails'),
 )
-const StripeIntegrations = lazyLoad(
-  () => import(/* webpackChunkName: 'stripe-integrations' */ '~/pages/settings/StripeIntegrations'),
-)
-const StripeIntegrationDetails = lazyLoad(
-  () =>
-    import(
-      /* webpackChunkName: 'stripe-integration-details' */ '~/pages/settings/StripeIntegrationDetails'
-    ),
-)
+const StripeIntegrations = lazyLoad(() => import('~/pages/settings/StripeIntegrations'))
+const StripeIntegrationDetails = lazyLoad(() => import('~/pages/settings/StripeIntegrationDetails'))
 const GocardlessIntegrationOauthCallback = lazyLoad(
-  () =>
-    import(
-      /* webpackChunkName: 'gocardless-integration-oauth-callback' */ '~/pages/settings/GocardlessIntegrationOauthCallback'
-    ),
+  () => import('~/pages/settings/GocardlessIntegrationOauthCallback'),
 )
-const GocardlessIntegrations = lazyLoad(
-  () =>
-    import(
-      /* webpackChunkName: 'gocardless-integrations' */ '~/pages/settings/GocardlessIntegrations'
-    ),
-)
+const GocardlessIntegrations = lazyLoad(() => import('~/pages/settings/GocardlessIntegrations'))
 const GocardlessIntegrationDetails = lazyLoad(
-  () =>
-    import(
-      /* webpackChunkName: 'gocardless-integration-details' */ '~/pages/settings/GocardlessIntegrationDetails'
-    ),
+  () => import('~/pages/settings/GocardlessIntegrationDetails'),
 )
 const TaxManagementIntegration = lazyLoad(
-  () =>
-    import(
-      /* webpackChunkName: 'tax-management-integration' */ '~/pages/settings/LagoTaxManagementIntegration'
-    ),
+  () => import('~/pages/settings/LagoTaxManagementIntegration'),
 )
-const EmailSettings = lazyLoad(
-  () => import(/* webpackChunkName: 'email-settings' */ '~/pages/settings/EmailSettings'),
-)
-const EmailScenarioConfig = lazyLoad(
-  () =>
-    import(/* webpackChunkName: 'email-scenario-config' */ '~/pages/settings/EmailScenarioConfig'),
-)
-const XeroIntegrations = lazyLoad(
-  () => import(/* webpackChunkName: 'xero-integration' */ '~/pages/settings/XeroIntegrations'),
-)
-const XeroIntegrationDetails = lazyLoad(
-  () =>
-    import(
-      /* webpackChunkName: 'xero-integration-details' */ '~/pages/settings/XeroIntegrationDetails'
-    ),
-)
-const DunningsSettings = lazyLoad(
-  () => import(/* webpackChunkName: 'dunnings-settings' */ '~/pages/settings/Dunnings/Dunnings'),
-)
-const CreateDunning = lazyLoad(
-  () => import(/* webpackChunkName: 'create-dunning' */ '~/pages/settings/Dunnings/CreateDunning'),
-)
+const EmailSettings = lazyLoad(() => import('~/pages/settings/EmailSettings'))
+const EmailScenarioConfig = lazyLoad(() => import('~/pages/settings/EmailScenarioConfig'))
+const XeroIntegrations = lazyLoad(() => import('~/pages/settings/XeroIntegrations'))
+const XeroIntegrationDetails = lazyLoad(() => import('~/pages/settings/XeroIntegrationDetails'))
+const DunningsSettings = lazyLoad(() => import('~/pages/settings/Dunnings/Dunnings'))
+const CreateDunning = lazyLoad(() => import('~/pages/settings/Dunnings/CreateDunning'))
 
 // ----------- Routes -----------
 export const SETTINGS_ROUTE = '/settings'

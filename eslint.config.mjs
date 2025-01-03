@@ -95,7 +95,7 @@ export default [
     },
   },
   {
-    files: ['**/*.js'],
+    files: ['**/*.cjs'],
     rules: {
       '@typescript-eslint/no-require-imports': 'off',
     },

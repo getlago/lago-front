@@ -2,37 +2,18 @@ import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
 
 // ----------- Pages -----------
-const CustomersList = lazyLoad(
-  () => import(/* webpackChunkName: 'customers-list' */ '~/pages/CustomersList'),
-)
-const CustomerDetails = lazyLoad(
-  () => import(/* webpackChunkName: 'customer-details' */ '~/pages/CustomerDetails'),
-)
-const CustomerDraftInvoicesList = lazyLoad(
-  () =>
-    import(
-      /* webpackChunkName: 'customer-draft-invoice-list' */ '~/pages/CustomerDraftInvoicesList'
-    ),
-)
-const CustomerInvoiceDetails = lazyLoad(
-  () =>
-    import(/* webpackChunkName: 'customer-invoice-details' */ '~/layouts/CustomerInvoiceDetails'),
-)
+const CustomersList = lazyLoad(() => import('~/pages/CustomersList'))
+const CustomerDetails = lazyLoad(() => import('~/pages/CustomerDetails'))
+const CustomerDraftInvoicesList = lazyLoad(() => import('~/pages/CustomerDraftInvoicesList'))
+const CustomerInvoiceDetails = lazyLoad(() => import('~/layouts/CustomerInvoiceDetails'))
 
 const CustomerRequestOverduePayment = lazyLoad(
-  () =>
-    import(
-      /* webpackChunkName: 'customer-request-overdue-payment' */ '~/pages/CustomerRequestOverduePayment/index'
-    ),
+  () => import('~/pages/CustomerRequestOverduePayment/index'),
 )
 
 // Credit note related
-const CreateCreditNote = lazyLoad(
-  () => import(/* webpackChunkName: 'create-credit-note' */ '~/pages/CreateCreditNote'),
-)
-const CreditNoteDetails = lazyLoad(
-  () => import(/* webpackChunkName: 'credit-note-details' */ '~/pages/CreditNoteDetails'),
-)
+const CreateCreditNote = lazyLoad(() => import('~/pages/CreateCreditNote'))
+const CreditNoteDetails = lazyLoad(() => import('~/pages/CreditNoteDetails'))
 
 // ----------- Routes -----------
 export const CUSTOMERS_LIST_ROUTE = '/customers'
