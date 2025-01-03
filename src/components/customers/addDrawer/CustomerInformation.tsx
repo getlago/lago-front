@@ -46,9 +46,6 @@ export const CustomerInformation: FC<CustomerInformationProps> = ({
         disabled={isEdition && !customer?.canEditAttributes}
         label={translate('text_624efab67eb2570101d117ce')}
         placeholder={translate('text_624efab67eb2570101d117d6')}
-        helperText={
-          (!isEdition || customer?.canEditAttributes) && translate('text_624efab67eb2570101d117de')
-        }
         formikProps={formikProps}
       />
       <ComboBoxField
