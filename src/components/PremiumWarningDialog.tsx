@@ -1,5 +1,4 @@
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import styled from 'styled-components'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -41,22 +40,18 @@ export const PremiumWarningDialog = forwardRef<PremiumWarningDialogRef>((_, ref)
           <Button variant="quaternary" onClick={closeDialog}>
             {translate('text_62f50d26c989ab03196884ae')}
           </Button>
-          <LinkTo
+          <a
+            className="mb-0 mr-0"
             href={`mailto:hello@getlago.com?subject=${
               localData?.mailtoSubject || translate('text_63b3f676d44671bf24d81411')
             }&body=${localData?.mailtoBody || translate('text_63b3f676d44671bf24d81413')}`}
           >
             <Button className="w-full">{translate('text_63b3155768489ee342482f55')}</Button>
-          </LinkTo>
+          </a>
         </>
       )}
     />
   )
 })
-
-const LinkTo = styled.a`
-  margin-right: 0;
-  margin-bottom: 0;
-`
 
 PremiumWarningDialog.displayName = 'PremiumWarningDialog'

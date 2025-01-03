@@ -199,7 +199,7 @@ const CouponDetails = () => {
             {translate('text_62876e85e32e0300e1803137')}
           </DetailsSectionTitle>
           <DetailsCard>
-            <DetailsSectionWrapperWithBorder>
+            <div className="flex flex-col gap-4 p-4 shadow-b">
               <DetailsTableDisplay
                 header={[
                   coupon?.couponType === CouponTypeEnum.Percentage
@@ -210,9 +210,9 @@ const CouponDetails = () => {
                 ]}
                 body={[[couponValue]]}
               />
-            </DetailsSectionWrapperWithBorder>
+            </div>
 
-            <DetailsSectionWrapper>
+            <div className="flex flex-col gap-4 p-4">
               <DetailsInfoGrid
                 grid={[
                   {
@@ -229,7 +229,7 @@ const CouponDetails = () => {
                   },
                 ]}
               />
-            </DetailsSectionWrapper>
+            </div>
           </DetailsCard>
         </section>
 
@@ -242,7 +242,7 @@ const CouponDetails = () => {
               {translate('text_63c83d58e697e8e9236da806')}
             </DetailsSectionTitle>
             <DetailsCard>
-              <DetailsSectionWrapper>
+              <div className="flex flex-col gap-4 p-4">
                 {!!coupon?.reusable && (
                   <DetailsTableDisplay
                     header={[
@@ -323,7 +323,7 @@ const CouponDetails = () => {
                     ]}
                   />
                 )}
-              </DetailsSectionWrapper>
+              </div>
             </DetailsCard>
           </section>
         )}
@@ -360,16 +360,4 @@ const CouponTitleLoadingWrapper = styled.div`
 const DetailsCard = styled.div`
   border: 1px solid ${theme.palette.grey[400]};
   border-radius: 12px;
-`
-
-const DetailsSectionWrapper = styled.div`
-  padding: ${theme.spacing(4)};
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(4)};
-`
-
-const DetailsSectionWrapperWithBorder = styled(DetailsSectionWrapper)`
-  box-shadow: ${theme.shadows[7]};
 `

@@ -1,12 +1,10 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useState } from 'react'
-import styled from 'styled-components'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { OrganizationLogoPicker } from '~/components/OrganizationLogoPicker'
 import { useUpdateOrganizationLogoMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 gql`
   mutation updateOrganizationLogo($input: UpdateOrganizationInput!) {
@@ -53,14 +51,14 @@ export const UpdateOrganizationLogoDialog = forwardRef<UpdateOrganizationLogoDia
           </>
         )}
       >
-        <StyledOrganizationLogoPicker logoValue={logo} onChange={(value) => setLogo(value)} />
+        <OrganizationLogoPicker
+          className="mb-8"
+          logoValue={logo}
+          onChange={(value) => setLogo(value)}
+        />
       </Dialog>
     )
   },
 )
 
 UpdateOrganizationLogoDialog.displayName = 'UpdateOrganizationLogoDialog'
-
-const StyledOrganizationLogoPicker = styled(OrganizationLogoPicker)`
-  margin-bottom: ${theme.spacing(8)};
-`

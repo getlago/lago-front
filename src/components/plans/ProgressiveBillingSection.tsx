@@ -105,7 +105,8 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
           </ButtonLink>
         </PremiumWarning>
       ) : displayProgressiveBillingAccordion ? (
-        <StyledAccordion
+        <Accordion
+          className="w-full"
           initiallyOpen={!isInSubscriptionForm}
           summary={
             <AccordionSummary
@@ -297,7 +298,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
             )}
             <Alert type="info">{translate('text_1724252232460iqofvwnpgnx')}</Alert>
           </Stack>
-        </StyledAccordion>
+        </Accordion>
       ) : (
         <Button
           variant="quaternary"
@@ -387,10 +388,6 @@ const BoxHeaderGroupRight = styled.div`
   display: flex;
   align-items: center;
   gap: ${theme.spacing(3)};
-`
-
-const StyledAccordion = styled(Accordion)`
-  width: 100%;
 `
 
 const TableContainer = styled.div`

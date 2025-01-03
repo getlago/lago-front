@@ -63,9 +63,9 @@ const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
   return (
     <Container>
       <section>
-        <CustomDetailsSectionTitle variant="subhead" noWrap>
+        <DetailsSectionTitle className="shadow-b" variant="subhead" noWrap>
           {translate('text_65281f686a80b400c8e2f6be')}
-        </CustomDetailsSectionTitle>
+        </DetailsSectionTitle>
 
         {subscriptionsError ? (
           <GenericPlaceholder
@@ -158,10 +158,6 @@ const Container = styled.section`
   display: flex;
   flex-direction: column;
   gap: ${theme.spacing(12)};
-`
-
-const CustomDetailsSectionTitle = styled(DetailsSectionTitle)`
-  box-shadow: ${theme.shadows[7]};
 `
 
 const ScrollWrapper = styled.div`
