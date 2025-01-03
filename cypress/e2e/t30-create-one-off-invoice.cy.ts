@@ -119,21 +119,21 @@ describe('Create one-off', () => {
       cy.get('[data-test="edit-invoice-item-tax-dialog-submit-button"]').click({ force: true })
 
       // Update it's units
-      cy.get('input[name="fees.0.units"]').clear().type('3')
+      cy.get('input[name="fees.0.units"]').clear().type('3.333')
 
       // Check displayed amounts
-      cy.get('[data-test="one-off-invoice-subtotal-value"]').should('have.text', '$9,060.00')
+      cy.get('[data-test="one-off-invoice-subtotal-value"]').should('have.text', '$10,065.66')
       cy.get('[data-test="one-off-invoice-tax-item-0-label"]').should('have.text', 'twenty (20%)')
-      cy.get('[data-test="one-off-invoice-tax-item-0-value"]').should('have.text', '$1,812.00')
+      cy.get('[data-test="one-off-invoice-tax-item-0-value"]').should('have.text', '$2,013.13')
       cy.get('[data-test="one-off-invoice-tax-item-1-label"]').should('have.text', 'ten (10%)')
-      cy.get('[data-test="one-off-invoice-tax-item-1-value"]').should('have.text', '$906.00')
+      cy.get('[data-test="one-off-invoice-tax-item-1-value"]').should('have.text', '$1,006.57')
       cy.get('[data-test="one-off-invoice-subtotal-amount-due-value"]').should(
         'have.text',
-        '$11,778.00',
+        '$13,085.36',
       )
       cy.get('[data-test="one-off-invoice-total-amount-due-value"]').should(
         'have.text',
-        '$11,778.00',
+        '$13,085.36',
       )
     })
   })
