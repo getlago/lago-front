@@ -27,6 +27,7 @@ import {
 import { Checkbox, ComboBoxField, TextInputField } from '~/components/form'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { hasDefinedGQLError } from '~/core/apolloClient'
+import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/NavigationEnum'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -45,7 +46,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateCreditNote } from '~/hooks/useCreateCreditNote'
-import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
 import { HEADER_TABLE_HEIGHT, PageHeader, theme } from '~/styles'
 import { Content, Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 

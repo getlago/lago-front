@@ -15,8 +15,7 @@ const CustomerDraftInvoicesList = lazyLoad(
     ),
 )
 const CustomerInvoiceDetails = lazyLoad(
-  () =>
-    import(/* webpackChunkName: 'customer-invoice-details' */ '~/layouts/CustomerInvoiceDetails'),
+  () => import(/* webpackChunkName: 'customer-invoice-details' */ '~/pages/CustomerInvoiceDetails'),
 )
 
 const CustomerRequestOverduePayment = lazyLoad(

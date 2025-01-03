@@ -4,6 +4,7 @@ import { useCallback, useMemo, useRef } from 'react'
 import { generatePath, Outlet, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
+import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import {
   Alert,
   Avatar,
@@ -33,6 +34,7 @@ import {
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, LagoGQLError } from '~/core/apolloClient'
+import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/NavigationEnum'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
@@ -66,7 +68,6 @@ import {
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   InvoiceTaxStatusTypeEnum,
-  InvoiceTypeEnum,
   LagoApiError,
   NetsuiteIntegration,
   NetsuiteIntegrationInfosForInvoiceOverviewFragmentDoc,
@@ -237,11 +238,6 @@ gql`
   ${SalesforceIntegrationInfosForInvoiceOverviewFragmentDoc}
 `
 
-export enum CustomerInvoiceDetailsTabsOptionsEnum {
-  overview = 'overview',
-  creditNotes = 'credit-notes',
-}
-
 const getErrorMessageFromErrorDetails = (
   errors: AllInvoiceDetailsForCustomerInvoiceDetailsFragment['errorDetails'],
 ): string | undefined => {
@@ -268,41 +264,6 @@ const getErrorMessageFromErrorDetails = (
     }
 
     return 'text_17238318811307ghoc4v7mt9'
-  }
-}
-
-export const TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED = {
-  unpaid: 'text_17290829949642fgof01loxo',
-  terminatedWallet: 'text_172908299496461z9ejmm2j7',
-  fullyCovered: 'text_1729082994964zccpjmtotdy',
-}
-
-export const createCreditNoteForInvoiceButtonProps = ({
-  paymentStatus,
-  invoiceType,
-  associatedActiveWalletPresent,
-  creditableAmountCents,
-  refundableAmountCents,
-}: Partial<Invoice>) => {
-  const isUnpaid =
-    paymentStatus === InvoicePaymentStatusTypeEnum.Pending ||
-    paymentStatus === InvoicePaymentStatusTypeEnum.Failed
-
-  const isAssociatedWithTerminatedWallet =
-    invoiceType === InvoiceTypeEnum.Credit && !associatedActiveWalletPresent
-
-  const disabledIssueCreditNoteButton =
-    creditableAmountCents === '0' && refundableAmountCents === '0'
-
-  const disabledIssueCreditNoteButtonLabel =
-    disabledIssueCreditNoteButton &&
-    TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED[
-      isUnpaid ? 'unpaid' : isAssociatedWithTerminatedWallet ? 'terminatedWallet' : 'fullyCovered'
-    ]
-
-  return {
-    disabledIssueCreditNoteButton,
-    disabledIssueCreditNoteButtonLabel,
   }
 }
 

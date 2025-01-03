@@ -1,5 +1,12 @@
 import { serializeAmount } from '~/core/serializers/serializeAmount'
-import { CreditNoteItemInput, CreditNoteTableItemFragment, CurrencyEnum } from '~/generated/graphql'
+import {
+  CreditNoteItemInput,
+  CreditNoteTableItemFragment,
+  CurrencyEnum,
+  Invoice,
+  InvoicePaymentStatusTypeEnum,
+  InvoiceTypeEnum,
+} from '~/generated/graphql'
 
 import { FeesPerInvoice, FromFee, GroupedFee } from './types'
 
@@ -117,4 +124,39 @@ export const CREDIT_NOTE_TYPE_TRANSLATIONS_MAP = {
   [CreditNoteType.CREDIT_AND_REFUND]: 'text_1727079454388wxlpkmmkrmj',
   [CreditNoteType.CREDIT]: 'text_1727079454388x9q4uz6ah71',
   [CreditNoteType.REFUND]: 'text_17270794543889mcmuhfq70p',
+}
+
+const TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED = {
+  unpaid: 'text_17290829949642fgof01loxo',
+  terminatedWallet: 'text_172908299496461z9ejmm2j7',
+  fullyCovered: 'text_1729082994964zccpjmtotdy',
+}
+
+export const createCreditNoteForInvoiceButtonProps = ({
+  paymentStatus,
+  invoiceType,
+  associatedActiveWalletPresent,
+  creditableAmountCents,
+  refundableAmountCents,
+}: Partial<Invoice>) => {
+  const isUnpaid =
+    paymentStatus === InvoicePaymentStatusTypeEnum.Pending ||
+    paymentStatus === InvoicePaymentStatusTypeEnum.Failed
+
+  const isAssociatedWithTerminatedWallet =
+    invoiceType === InvoiceTypeEnum.Credit && !associatedActiveWalletPresent
+
+  const disabledIssueCreditNoteButton =
+    creditableAmountCents === '0' && refundableAmountCents === '0'
+
+  const disabledIssueCreditNoteButtonLabel =
+    disabledIssueCreditNoteButton &&
+    TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED[
+      isUnpaid ? 'unpaid' : isAssociatedWithTerminatedWallet ? 'terminatedWallet' : 'fullyCovered'
+    ]
+
+  return {
+    disabledIssueCreditNoteButton,
+    disabledIssueCreditNoteButtonLabel,
+  }
 }
