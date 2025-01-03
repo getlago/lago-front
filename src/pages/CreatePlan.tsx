@@ -339,11 +339,9 @@ const SectionTitle: FC<PropsWithChildren> = ({ children }) => (
   <div className="flex flex-col gap-1">{children}</div>
 )
 
-const Section = styled.section`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(4)};
-`
+const Section: FC<PropsWithChildren> = ({ children }) => (
+  <section className="flex flex-col gap-4">{children}</section>
+)
 
 const FOOTER_HEIGHT = 80
 const FOOTER_MARGIN = 80
