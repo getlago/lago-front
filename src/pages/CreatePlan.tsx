@@ -344,11 +344,9 @@ const Section: FC<PropsWithChildren> = ({ children }) => (
 const FOOTER_HEIGHT = 80
 const FOOTER_MARGIN = 80
 
-const MainMinimumContent = styled.div`
-  min-height: calc(
-    100vh - ${NAV_HEIGHT}px - ${FOOTER_HEIGHT}px - ${FOOTER_MARGIN}px - ${MAIN_PADDING}
-  );
-`
+const MainMinimumContent: FC<PropsWithChildren> = ({ children }) => (
+  <div className="min-height-minus-nav-footer-formMainPadding">{children}</div>
+)
 
 const SectionFooter = styled.div`
   height: ${FOOTER_HEIGHT}px;

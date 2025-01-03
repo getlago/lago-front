@@ -179,6 +179,7 @@ const config = {
         192: '48rem',
         footer: '5rem',
         nav: '4.5rem',
+        formMainPadding: '3rem',
       },
       zIndex: {
         tooltip: 2400,
@@ -284,6 +285,9 @@ const config = {
         },
         '.height-minus-nav-footer': {
           height: `calc(100vh - ${theme('spacing.nav')} - ${theme('spacing.footer')})`,
+        },
+        '.min-height-minus-nav-footer-formMainPadding': {
+          minHeight: `calc(100vh - ${theme('spacing.nav')} - ${theme('spacing.footer')} - ${theme('spacing.formMainPadding')})`,
         },
         '.height-minus-footer': {
           height: `calc(100vh - ${theme('spacing.footer')})`,
