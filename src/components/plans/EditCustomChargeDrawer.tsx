@@ -64,7 +64,7 @@ export const EditCustomChargeDrawer = forwardRef<
         drawerRef.current?.closeDrawer()
       }}
     >
-      <DrawerContent style={{ height: '100%', display: 'grid', gridTemplateRows: 'auto 1fr auto' }}>
+      <DrawerContent className="grid h-full grid-rows-[auto,1fr,auto]">
         <DrawerTitle>
           <Typography variant="headline">{translate('text_663dea5702b60301d8d0646e')}</Typography>
           <Typography>{translate('text_663dea5702b60301d8d064fe')}</Typography>
