@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { FC, PropsWithChildren, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { Button, Card, Skeleton, Typography } from '~/components/designSystem'
 import {
@@ -39,8 +38,8 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
-import { NAV_HEIGHT, PageHeader, theme } from '~/styles'
-import { Content, Main, MAIN_PADDING, Side, SkeletonHeader } from '~/styles/mainObjectsForm'
+import { PageHeader } from '~/styles'
+import { Content, Main, Side, SkeletonHeader } from '~/styles/mainObjectsForm'
 
 import { PlanDetailsTabsOptionsEnum } from './PlanDetails'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from './SubscriptionDetails'
