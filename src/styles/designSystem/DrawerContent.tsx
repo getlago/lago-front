@@ -1,23 +1,16 @@
-import styled from 'styled-components'
+import { FC, PropsWithChildren } from 'react'
 
-import { theme } from '~/styles'
+import { tw } from '../utils'
 
-export const DrawerContent = styled.div`
-  > * {
-    &:not(:last-child) {
-      margin-bottom: ${theme.spacing(8)};
-    }
+export const DrawerContent: FC<PropsWithChildren<{ className?: string }>> = ({
+  children,
+  className,
+}) => <div className={tw('flex flex-col gap-8', className)}>{children}</div>
 
-    &:first-child {
-      margin-bottom: ${theme.spacing(6)};
-    }
-  }
-`
+export const DrawerTitle: FC<PropsWithChildren> = ({ children }) => (
+  <div className="px-8">{children}</div>
+)
 
-export const DrawerTitle = styled.div`
-  padding: 0 ${theme.spacing(8)};
-`
-
-export const DrawerSubmitButton = styled.div`
-  margin: 0 ${theme.spacing(8)} 0;
-`
+export const DrawerSubmitButton: FC<PropsWithChildren> = ({ children }) => (
+  <div className="mx-8">{children}</div>
+)
