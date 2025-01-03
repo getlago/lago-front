@@ -329,11 +329,9 @@ const CreatePlan = () => {
 
 export default CreatePlan
 
-const SectionWrapper = styled.div`
-  > div:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
-  }
-`
+const SectionWrapper: FC<PropsWithChildren> = ({ children }) => (
+  <div className="not-last-child:mb-6">{children}</div>
+)
 
 const SectionTitle: FC<PropsWithChildren> = ({ children }) => (
   <div className="flex flex-col gap-1">{children}</div>
