@@ -28,6 +28,7 @@ import {
   buildNetsuiteCreditNoteUrl,
   buildXeroCreditNoteUrl,
 } from '~/core/constants/externalUrls'
+import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/NavigationEnum'
 import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
 import {
   composeChargeFilterDisplayName,
@@ -63,7 +64,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { usePermissions } from '~/hooks/usePermissions'
-import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader, theme } from '~/styles'
 import { SectionHeader } from '~/styles/customer'

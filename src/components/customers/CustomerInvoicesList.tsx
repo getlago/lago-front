@@ -4,6 +4,7 @@ import { generatePath, useNavigate } from 'react-router-dom'
 
 import { Chip, InfiniteScroll, Status, Table, Tooltip, Typography } from '~/components/designSystem'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/NavigationEnum'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
@@ -26,7 +27,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
-import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/layouts/CustomerInvoiceDetails'
 
 import {
   UpdateInvoicePaymentStatusDialog,
