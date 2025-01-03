@@ -108,7 +108,7 @@ const AdyenIntegrationDetails = () => {
 
   return (
     <>
-      <PageHeader $withSide>
+      <PageHeader withSide>
         <HeaderBlock>
           <ButtonLink
             to={ADYEN_INTEGRATION_ROUTE}

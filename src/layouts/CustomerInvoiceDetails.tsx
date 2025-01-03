@@ -612,7 +612,7 @@ const CustomerInvoiceDetails = () => {
 
   return (
     <>
-      <PageHeader $withSide>
+      <PageHeader withSide>
         <HeaderLeft>
           <Button icon="arrow-left" variant="quaternary" onClick={() => goToPreviousRoute()} />
           {loading ? (

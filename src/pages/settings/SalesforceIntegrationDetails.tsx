@@ -103,7 +103,7 @@ const SalesforceIntegrationDetails = () => {
 
   return (
     <>
-      <PageHeader $withSide>
+      <PageHeader withSide>
         <div className="flex items-center gap-3">
           <ButtonLink
             to={SALESFORCE_INTEGRATION_ROUTE}

@@ -132,7 +132,7 @@ const WebhookLogs = () => {
 
   return (
     <div role="grid" tabIndex={-1} onKeyDown={onKeyDown}>
-      <PageHeader $withSide>
+      <PageHeader withSide>
         <Header>
           <Button
             icon="arrow-left"

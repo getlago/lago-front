@@ -79,7 +79,7 @@ const GocardlessIntegrationOauthCallback = () => {
 
   return (
     <>
-      <PageHeader $withSide>
+      <PageHeader withSide>
         <HeaderBlock>
           <ButtonLink
             disabled={loading}

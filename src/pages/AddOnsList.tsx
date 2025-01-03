@@ -69,7 +69,7 @@ const AddOnsList = () => {
 
   return (
     <>
-      <Header $withSide>
+      <Header withSide>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_629728388c4d2300e2d3809b')}
         </Typography>

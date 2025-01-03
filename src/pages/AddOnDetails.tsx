@@ -64,7 +64,7 @@ const AddOnDetails = () => {
 
   return (
     <>
-      <PageHeader $withSide>
+      <PageHeader withSide>
         <HeaderInlineBreadcrumbBlock>
           <Button
             icon="arrow-left"

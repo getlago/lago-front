@@ -81,7 +81,7 @@ const XeroIntegrations = () => {
 
   return (
     <>
-      <PageHeader $withSide>
+      <PageHeader withSide>
         <HeaderBlock>
           <ButtonLink
             to={INTEGRATIONS_ROUTE}

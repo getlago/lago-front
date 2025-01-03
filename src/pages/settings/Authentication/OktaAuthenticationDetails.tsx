@@ -86,7 +86,7 @@ const OktaAuthenticationDetails = () => {
 
   return (
     <>
-      <PageHeader $withSide>
+      <PageHeader withSide>
         <HeaderBlock>
           <ButtonLink
             to={AUTHENTICATION_ROUTE}

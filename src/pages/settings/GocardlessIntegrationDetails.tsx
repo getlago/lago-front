@@ -109,7 +109,7 @@ const GocardlessIntegrationDetails = () => {
 
   return (
     <div>
-      <PageHeader $withSide>
+      <PageHeader withSide>
         <HeaderBlock>
           <ButtonLink
             to={GOCARDLESS_INTEGRATION_ROUTE}

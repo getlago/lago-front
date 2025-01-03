@@ -74,7 +74,7 @@ const CustomersList = () => {
 
   return (
     <div>
-      <PageHeader $withSide className="gap-4 whitespace-pre">
+      <PageHeader withSide className="gap-4 whitespace-pre">
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_624efab67eb2570101d117a5')}
         </Typography>

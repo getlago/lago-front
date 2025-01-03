@@ -112,7 +112,7 @@ const NetsuiteIntegrationDetails = () => {
 
   return (
     <>
-      <PageHeader $withSide>
+      <PageHeader withSide>
         <HeaderBlock>
           <ButtonLink
             to={NETSUITE_INTEGRATION_ROUTE}

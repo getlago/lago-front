@@ -78,7 +78,7 @@ const CustomerDraftInvoicesList = () => {
 
   return (
     <>
-      <PageHeader $withSide>
+      <PageHeader withSide>
         <HeaderLeft>
           <Button
             icon="arrow-left"

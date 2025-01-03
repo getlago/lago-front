@@ -315,7 +315,7 @@ const InvoicesPage = () => {
 
   return (
     <>
-      <PageHeader $withSide>
+      <PageHeader withSide>
         <Typography variant="bodyHl" color="grey700">
           {translate('text_63ac86d797f728a87b2f9f85')}
         </Typography>

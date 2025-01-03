@@ -98,7 +98,7 @@ const CouponsList = () => {
 
   return (
     <>
-      <Header $withSide>
+      <Header withSide>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_62865498824cc10126ab2956')}
         </Typography>

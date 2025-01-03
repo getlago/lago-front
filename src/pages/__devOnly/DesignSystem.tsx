@@ -139,7 +139,7 @@ const DesignSystem = () => {
 
   return (
     <>
-      <PageHeader $withSide>
+      <PageHeader withSide>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           Design System components
         </Typography>
