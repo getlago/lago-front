@@ -376,10 +376,6 @@ const SectionFooter = styled.div`
   }
 `
 
-const SectionFooterWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  height: 100%;
-  max-width: 720px;
-`
+const SectionFooterWrapper: FC<PropsWithChildren> = ({ children }) => (
+  <div className="flex h-full max-w-[720px] items-center justify-end">{children}</div>
+)
