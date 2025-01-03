@@ -56,7 +56,7 @@ const BillableMetricsList = () => {
 
   return (
     <>
-      <Header $withSide>
+      <Header withSide>
         <Typography variant="bodyHl" color="textSecondary">
           {translate('text_623b497ad05b960101be3438')}
         </Typography>

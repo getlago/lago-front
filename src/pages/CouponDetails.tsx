@@ -91,7 +91,7 @@ const CouponDetails = () => {
 
   return (
     <>
-      <PageHeader $withSide>
+      <PageHeader withSide>
         <HeaderInlineBreadcrumbBlock>
           <Button
             icon="arrow-left"

@@ -142,7 +142,7 @@ const CustomerDetails = () => {
 
   return (
     <div>
-      <PageHeader $withSide>
+      <PageHeader withSide>
         <HeaderInlineBreadcrumbBlock>
           <Button
             icon="arrow-left"

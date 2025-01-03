@@ -61,7 +61,7 @@ const PlansList = () => {
 
   return (
     <>
-      <Header $withSide>
+      <Header withSide>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_62442e40cea25600b0b6d84a')}
         </Typography>

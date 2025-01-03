@@ -112,7 +112,7 @@ const AnrokIntegrationDetails = () => {
 
   return (
     <>
-      <PageHeader $withSide>
+      <PageHeader withSide>
         <HeaderBlock>
           <ButtonLink
             to={ANROK_INTEGRATION_ROUTE}

@@ -48,7 +48,7 @@ const Analytics = () => {
 
   return (
     <>
-      <PageHeader $withSide>
+      <PageHeader withSide>
         <Typography variant="bodyHl" color="grey700" noWrap>
           {translate('text_6553885df387fd0097fd7384')}
         </Typography>

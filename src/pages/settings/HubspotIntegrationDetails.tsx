@@ -103,7 +103,7 @@ const HubspotIntegrationDetails = () => {
 
   return (
     <>
-      <PageHeader $withSide>
+      <PageHeader withSide>
         <div className="flex items-center gap-3">
           <ButtonLink
             to={HUBSPOT_INTEGRATION_ROUTE}

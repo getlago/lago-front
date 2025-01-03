@@ -107,7 +107,7 @@ const StripeIntegrationDetails = () => {
 
   return (
     <>
-      <PageHeader $withSide>
+      <PageHeader withSide>
         <HeaderBlock>
           <ButtonLink
             to={STRIPE_INTEGRATION_ROUTE}
