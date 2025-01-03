@@ -9,7 +9,6 @@ import {
   ADD_CUSTOMER_TAX_PROVIDER_ACCORDION,
   MUI_BUTTON_BASE_ROOT_CLASSNAME,
 } from '~/core/constants/form'
-import { INTEGRATIONS_ROUTE } from '~/core/router'
 import {
   CreateCustomerInput,
   IntegrationTypeEnum,
@@ -17,7 +16,6 @@ import {
   UpdateCustomerInput,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import PSPIcons from '~/public/images/psp-icons.svg'
 import { MenuPopper } from '~/styles'
 
 import { AccountingProvidersAccordion } from './AccountingProvidersAccordion'
@@ -66,29 +64,15 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
 
   return (
     <Accordion
-      size="large"
+      variant="borderless"
       summary={
-        <div className="flex items-center">
-          <div className="mr-3 h-6 [&>svg]:h-full">
-            <PSPIcons />
-          </div>
+        <div className="flex flex-col gap-2">
           <Typography variant="subhead">{translate('text_66423cad72bbad009f2f5689')}</Typography>
+          <Typography variant="caption">{translate('text_1735828930375zjo8m3yh5ra')}</Typography>
         </div>
       }
     >
       <div className="flex flex-col gap-6">
-        <div>
-          <Typography variant="bodyHl" color="grey700">
-            {translate('text_66423dbab233e60111c49461')}
-          </Typography>
-          <Typography
-            variant="caption"
-            color="grey600"
-            html={translate('text_66423dbab233e60111c49462', {
-              href: INTEGRATIONS_ROUTE,
-            })}
-          />
-        </div>
         {showPaymentSection && (
           <PaymentProvidersAccordion
             formikProps={formikProps}

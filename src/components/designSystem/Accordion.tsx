@@ -60,12 +60,12 @@ export const Accordion = ({
 
   return (
     <MuiAccordion
-      square
       id={id}
       expanded={isOpen}
       className={tw(
         {
           'border border-solid border-grey-400': variant === 'card',
+          '!rounded-none': variant === 'borderless',
         },
         className,
       )}
