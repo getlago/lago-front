@@ -7,10 +7,6 @@ import {
   AddCouponToCustomerDialog,
   AddCouponToCustomerDialogRef,
 } from '~/components/customers/AddCouponToCustomerDialog'
-import {
-  AddCustomerDrawer,
-  AddCustomerDrawerRef,
-} from '~/components/customers/addDrawer/AddCustomerDrawer'
 import { CustomerCreditNotesList } from '~/components/customers/CustomerCreditNotesList'
 import { CustomerInvoicesTab } from '~/components/customers/CustomerInvoicesTab'
 import { CustomerMainInfos } from '~/components/customers/CustomerMainInfos'
@@ -41,6 +37,7 @@ import {
   CUSTOMER_DETAILS_TAB_ROUTE,
   CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE,
   CUSTOMERS_LIST_ROUTE,
+  UPDATE_CUSTOMER_ROUTE,
 } from '~/core/router'
 import { handleDownloadFile } from '~/core/utils/downloadFiles'
 import {
@@ -101,7 +98,6 @@ export enum CustomerDetailsTabsOptions {
 
 const CustomerDetails = () => {
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
-  const editDialogRef = useRef<AddCustomerDrawerRef>(null)
   const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { translate } = useInternationalization()
@@ -273,8 +269,11 @@ const CustomerDetails = () => {
                       variant="quaternary"
                       align="left"
                       onClick={() => {
-                        editDialogRef.current?.openDrawer(data?.customer)
-                        closePopper()
+                        navigate(
+                          generatePath(UPDATE_CUSTOMER_ROUTE, {
+                            customerId: customerId as string,
+                          }),
+                        )
                       }}
                     >
                       {translate('text_626162c62f790600f850b718')}
@@ -319,7 +318,13 @@ const CustomerDetails = () => {
               <CustomerMainInfos
                 loading={loading}
                 customer={data?.customer}
-                onEdit={() => editDialogRef.current?.openDrawer(data?.customer)}
+                onEdit={() =>
+                  navigate(
+                    generatePath(UPDATE_CUSTOMER_ROUTE, {
+                      customerId: customerId as string,
+                    }),
+                  )
+                }
               />
             </CustomerMainInfosContainer>
 
@@ -458,7 +463,6 @@ const CustomerDetails = () => {
             </StyledTabs>
           </Content>
 
-          <AddCustomerDrawer ref={editDialogRef} />
           <DeleteCustomerDialog ref={deleteDialogRef} />
           <AddCouponToCustomerDialog ref={addCouponDialogRef} customer={data?.customer} />
         </>
