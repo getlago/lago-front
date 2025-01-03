@@ -42,6 +42,8 @@ gql`
       dunningCampaignsCreate
       dunningCampaignsUpdate
       dunningCampaignsView
+      invoiceCustomSectionsCreate
+      invoiceCustomSectionsUpdate
       invoicesCreate
       invoicesSend
       invoicesUpdate
