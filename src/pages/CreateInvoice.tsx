@@ -732,12 +732,12 @@ const CreateInvoice = () => {
                               <TextInput
                                 name={`fees.${i}.units`}
                                 type="number"
-                                beforeChangeFormatter={['int', 'positiveNumber']}
+                                beforeChangeFormatter={['triDecimal', 'positiveNumber']}
                                 error={false}
                                 placeholder={translate('text_62824f0e5d93bc008d268d00')}
                                 value={formikProps.values.fees[i].units || undefined}
                                 onChange={(value) => {
-                                  formikProps.setFieldValue(`fees.${i}.units`, value)
+                                  formikProps.setFieldValue(`fees.${i}.units`, Number(value))
                                   !!hasTaxProvider && setTaxProviderTaxesResult(null)
                                 }}
                               />
