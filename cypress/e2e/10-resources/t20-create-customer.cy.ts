@@ -7,11 +7,15 @@ describe('Create customer', () => {
 
   it('should create customer', () => {
     cy.get('[data-test="create-customer"]').click()
+    cy.url().should('include', '/customer/create')
+
+    cy.get('[data-test="submit-customer"]').should('be.disabled')
+
+    cy.get('input[name="externalId"]').type('id-george-de-la-jungle')
+
     cy.get('input[name="name"]').should('exist').type(customerName, { scrollBehavior: false })
 
-    cy.get('[data-test="submit"]').should('be.disabled')
-    cy.get('input[name="externalId"]').type('id-george-de-la-jungle')
-    cy.get('[data-test="submit"]').click()
+    cy.get('[data-test="submit-customer"]').click()
 
     cy.url().should('include', '/customer/')
 
@@ -26,9 +30,9 @@ describe('Create customer', () => {
 
       cy.get('[data-test="create-customer"]').click()
       cy.get('input[name="name"]').type(randomId, { scrollBehavior: false })
-      cy.get('[data-test="submit"]').should('be.disabled')
+      cy.get('[data-test="submit-customer"]').should('be.disabled')
       cy.get('input[name="externalId"]').type(randomId)
-      cy.get('[data-test="submit"]').click()
+      cy.get('[data-test="submit-customer"]').click()
       cy.url().should('include', '/customer/')
       cy.contains(randomId).should('exist')
 

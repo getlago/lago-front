@@ -273,6 +273,7 @@ const CreateCustomer = () => {
           variant="primary"
           disabled={!formikProps.isValid || !formikProps.dirty}
           onClick={() => formikProps.handleSubmit()}
+          data-test="submit-customer"
         >
           {isEdition
             ? translate('text_17295436903260tlyb1gp1i7')
