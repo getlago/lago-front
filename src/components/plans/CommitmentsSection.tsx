@@ -127,7 +127,8 @@ export const CommitmentsSection = ({
         </Typography>
       </SectionTitle>
       {displayMinimumCommitment ? (
-        <StyledAccordion
+        <Accordion
+          className="w-full"
           summary={
             <BoxHeader>
               <BoxHeaderGroupLeft>
@@ -302,7 +303,7 @@ export const CommitmentsSection = ({
               </Group>
             </div>
           </Stack>
-        </StyledAccordion>
+        </Accordion>
       ) : (
         <Button
           variant="quaternary"
@@ -387,8 +388,4 @@ const Group = styled.div`
   > div:not(:last-child) {
     margin-bottom: ${theme.spacing(4)};
   }
-`
-
-const StyledAccordion = styled(Accordion)`
-  width: 100%;
 `

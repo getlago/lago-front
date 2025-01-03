@@ -171,14 +171,14 @@ const AddOnDetails = () => {
             {translate('text_629728388c4d2300e2d38117')}
           </DetailsSectionTitle>
           <DetailsCard>
-            <DetailsSectionWrapperWithBorder>
+            <div className="p-4 shadow-b">
               <DetailsTableDisplay
                 header={[translate('text_624453d52e945301380e49b6')]}
                 body={[[amountWithCurrency]]}
               />
-            </DetailsSectionWrapperWithBorder>
+            </div>
 
-            <DetailsSectionWrapper>
+            <div className="p-4">
               <DetailsInfoGrid
                 grid={[
                   {
@@ -197,7 +197,7 @@ const AddOnDetails = () => {
                   },
                 ]}
               />
-            </DetailsSectionWrapper>
+            </div>
           </DetailsCard>
         </section>
       </Container>
@@ -233,12 +233,4 @@ const AddOnTitleLoadingWrapper = styled.div`
 const DetailsCard = styled.div`
   border: 1px solid ${theme.palette.grey[400]};
   border-radius: 12px;
-`
-
-const DetailsSectionWrapper = styled.div`
-  padding: ${theme.spacing(4)};
-`
-
-const DetailsSectionWrapperWithBorder = styled(DetailsSectionWrapper)`
-  box-shadow: ${theme.shadows[7]};
 `

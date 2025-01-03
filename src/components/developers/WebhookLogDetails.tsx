@@ -145,14 +145,21 @@ export const WebhookLogDetails = ({ log }: WebhookLogDetailsProps) => {
           <Typography color="grey700" variant="captionHl">
             {translate('text_63e27c56dfe64b846474efb3')}
           </Typography>
-          <StyledCodeSnippet language="json" code={response} canCopy={false} displayHead={false} />
+          <CodeSnippet
+            className="*:pb-0"
+            language="json"
+            code={response}
+            canCopy={false}
+            displayHead={false}
+          />
         </CodeBlock>
       )}
       <CodeBlock $maxHeight>
         <Typography color="grey700" variant="captionHl">
           {translate('text_63e27c56dfe64b846474efb6')}
         </Typography>
-        <StyledCodeSnippet
+        <CodeSnippet
+          className="*:pb-0"
           language="json"
           code={JSON.stringify(JSON.parse(payload || ''), null, 2)}
           canCopy={false}
@@ -173,12 +180,6 @@ const PropertiesContainer = styled.div`
   display: grid;
   grid-template-columns: 140px 1fr;
   gap: ${theme.spacing(3)};
-`
-
-const StyledCodeSnippet = styled(CodeSnippet)`
-  > * {
-    padding-bottom: 0px;
-  }
 `
 
 const CodeBlock = styled.div<{ $maxHeight?: boolean }>`

@@ -367,10 +367,11 @@ const AdyenIntegrationDetails = () => {
                     </div>
                   </SuccessPaumentRedirectUrlItemLeft>
                   {(canEditIntegration || canDeleteIntegration) && (
-                    <LocalPopper
+                    <Popper
+                      className="relative h-full"
                       PopperProps={{ placement: 'bottom-end' }}
                       opener={({ isOpen }) => (
-                        <PopperOpener>
+                        <PopperOpener className="right-0 top-4">
                           <Tooltip
                             placement="top-end"
                             disableHoverListener={isOpen}
@@ -422,7 +423,7 @@ const AdyenIntegrationDetails = () => {
                           )}
                         </MenuPopper>
                       )}
-                    </LocalPopper>
+                    </Popper>
                   )}
                 </SuccessPaumentRedirectUrlItem>
               )}
@@ -476,15 +477,6 @@ const InlineTitle = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-`
-
-const LocalPopper = styled(Popper)`
-  position: relative;
-  height: 100%;
-  > *:first-child {
-    right: 0;
-    top: 16px;
-  }
 `
 
 const SuccessPaumentRedirectUrlItem = styled.div`

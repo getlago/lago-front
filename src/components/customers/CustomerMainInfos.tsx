@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
-import { useCallback, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { FC, PropsWithChildren, useCallback, useRef, useState } from 'react'
+import { Link, LinkProps } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
@@ -189,6 +189,17 @@ interface CustomerMainInfosProps {
 }
 
 const SHOW_MORE_THRESHOLD = 6
+
+const InlineLink: FC<PropsWithChildren<LinkProps>> = ({ children, ...props }) => {
+  return (
+    <Link
+      className="w-fit !shadow-none line-break-anywhere hover:no-underline focus:ring-0"
+      {...props}
+    >
+      {children}
+    </Link>
+  )
+}
 
 export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInfosProps) => {
   const { translate } = useInternationalization()
@@ -734,16 +745,6 @@ const InfosBlock = styled.div<{ $showMore: boolean }>`
   // Hide all items after the threshold
   > *:nth-child(n + ${SHOW_MORE_THRESHOLD}) {
     ${({ $showMore }) => ($showMore ? 'display: block;' : 'display: none;')}
-  }
-`
-
-const InlineLink = styled(Link)`
-  width: fit-content;
-  line-break: anywhere;
-  box-shadow: none !important;
-
-  &:hover {
-    text-decoration: none;
   }
 `
 

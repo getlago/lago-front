@@ -106,6 +106,7 @@ const config = {
       inherit: 'inherit',
     },
     boxShadow: {
+      none: 'none',
       sm: '0px 2px 4px 0px rgba(25, 33, 46, 0.20)',
       md: '0px 6px 8px 0px rgba(25, 33, 46, 0.12)',
       lg: '0px 10px 16px 0px rgba(25, 33, 46, 0.10)',
