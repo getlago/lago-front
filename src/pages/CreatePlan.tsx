@@ -341,34 +341,15 @@ const Section: FC<PropsWithChildren> = ({ children }) => (
   <section className="flex flex-col gap-4">{children}</section>
 )
 
-const FOOTER_HEIGHT = 80
-const FOOTER_MARGIN = 80
-
 const MainMinimumContent: FC<PropsWithChildren> = ({ children }) => (
   <div className="min-height-minus-nav-footer-formMainPadding">{children}</div>
 )
 
-const SectionFooter = styled.div`
-  height: ${FOOTER_HEIGHT}px;
-  position: sticky;
-  bottom: 0;
-  background-color: ${theme.palette.background.paper};
-  margin-top: ${FOOTER_MARGIN}px;
-  border-top: 1px solid ${theme.palette.grey[200]};
-  max-width: initial !important;
-  // Negative margin to compensate for the padding of the parent
-  margin-left: -${MAIN_PADDING};
-  margin-right: -${MAIN_PADDING};
-  padding: 0 ${MAIN_PADDING};
-  z-index: ${theme.zIndex.navBar};
-
-  ${theme.breakpoints.down('md')} {
-    width: 100%;
-    padding: 0 ${theme.spacing(4)};
-    margin-left: -${theme.spacing(4)};
-    margin-right: -${theme.spacing(4)};
-  }
-`
+const SectionFooter: FC<PropsWithChildren> = ({ children }) => (
+  <div className="sticky bottom-0 z-navBar -mx-4 mt-20 h-20 w-full !max-w-none border-t border-solid border-grey-200 bg-white px-4 py-0 md:-mx-12 md:w-auto md:px-12">
+    {children}
+  </div>
+)
 
 const SectionFooterWrapper: FC<PropsWithChildren> = ({ children }) => (
   <div className="flex h-full max-w-[720px] items-center justify-end">{children}</div>
