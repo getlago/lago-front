@@ -4,6 +4,7 @@ import { generatePath, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
+import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import {
   VoidCreditNoteDialog,
   VoidCreditNoteDialogRef,
@@ -20,7 +21,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { createCreditNoteForInvoiceButtonProps } from '~/layouts/CustomerInvoiceDetails'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { NAV_HEIGHT, theme } from '~/styles'
 
