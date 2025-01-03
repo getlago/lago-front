@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
-import { useRef } from 'react'
+import { FC, PropsWithChildren, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -335,11 +335,9 @@ const SectionWrapper = styled.div`
   }
 `
 
-const SectionTitle = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(1)};
-`
+const SectionTitle: FC<PropsWithChildren> = ({ children }) => (
+  <div className="flex flex-col gap-1">{children}</div>
+)
 
 const Section = styled.section`
   display: flex;
