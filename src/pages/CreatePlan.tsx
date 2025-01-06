@@ -1,8 +1,7 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
-import { useRef } from 'react'
+import { FC, PropsWithChildren, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { Button, Card, Skeleton, Typography } from '~/components/designSystem'
 import {
@@ -39,8 +38,8 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
-import { NAV_HEIGHT, PageHeader, theme } from '~/styles'
-import { Content, Main, MAIN_PADDING, Side, SkeletonHeader } from '~/styles/mainObjectsForm'
+import { PageHeader } from '~/styles'
+import { Content, Main, Side, SkeletonHeader } from '~/styles/mainObjectsForm'
 
 import { PlanDetailsTabsOptionsEnum } from './PlanDetails'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from './SubscriptionDetails'
@@ -329,59 +328,28 @@ const CreatePlan = () => {
 
 export default CreatePlan
 
-const SectionWrapper = styled.div`
-  > div:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
-  }
-`
+const SectionWrapper: FC<PropsWithChildren> = ({ children }) => (
+  <div className="not-last-child:mb-6">{children}</div>
+)
 
-const SectionTitle = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(1)};
-`
+const SectionTitle: FC<PropsWithChildren> = ({ children }) => (
+  <div className="flex flex-col gap-1">{children}</div>
+)
 
-const Section = styled.section`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(4)};
-`
+const Section: FC<PropsWithChildren> = ({ children }) => (
+  <section className="flex flex-col gap-4">{children}</section>
+)
 
-const FOOTER_HEIGHT = 80
-const FOOTER_MARGIN = 80
+const MainMinimumContent: FC<PropsWithChildren> = ({ children }) => (
+  <div className="min-height-minus-nav-footer-formMainPadding">{children}</div>
+)
 
-const MainMinimumContent = styled.div`
-  min-height: calc(
-    100vh - ${NAV_HEIGHT}px - ${FOOTER_HEIGHT}px - ${FOOTER_MARGIN}px - ${MAIN_PADDING}
-  );
-`
+const SectionFooter: FC<PropsWithChildren> = ({ children }) => (
+  <div className="sticky bottom-0 z-navBar -mx-4 mt-20 h-20 w-full !max-w-none border-t border-solid border-grey-200 bg-white px-4 py-0 md:-mx-12 md:w-auto md:px-12">
+    {children}
+  </div>
+)
 
-const SectionFooter = styled.div`
-  height: ${FOOTER_HEIGHT}px;
-  position: sticky;
-  bottom: 0;
-  background-color: ${theme.palette.background.paper};
-  margin-top: ${FOOTER_MARGIN}px;
-  border-top: 1px solid ${theme.palette.grey[200]};
-  max-width: initial !important;
-  // Negative margin to compensate for the padding of the parent
-  margin-left: -${MAIN_PADDING};
-  margin-right: -${MAIN_PADDING};
-  padding: 0 ${MAIN_PADDING};
-  z-index: ${theme.zIndex.navBar};
-
-  ${theme.breakpoints.down('md')} {
-    width: 100%;
-    padding: 0 ${theme.spacing(4)};
-    margin-left: -${theme.spacing(4)};
-    margin-right: -${theme.spacing(4)};
-  }
-`
-
-const SectionFooterWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  height: 100%;
-  max-width: 720px;
-`
+const SectionFooterWrapper: FC<PropsWithChildren> = ({ children }) => (
+  <div className="flex h-full max-w-[720px] items-center justify-end">{children}</div>
+)
