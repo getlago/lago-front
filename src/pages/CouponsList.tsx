@@ -10,7 +10,9 @@ import {
   TerminateCouponDialogRef,
 } from '~/components/coupons/TerminateCouponDialog'
 import {
+  Avatar,
   ButtonLink,
+  Icon,
   InfiniteScroll,
   Status,
   StatusProps,
@@ -145,12 +147,17 @@ const CouponsList = () => {
               minWidth: 200,
               maxSpace: true,
               content: (coupon) => (
-                <>
-                  <Typography color="textSecondary" variant="bodyHl" noWrap>
-                    {coupon.name}
-                  </Typography>
-                  <CouponCaption coupon={coupon} variant="caption" />
-                </>
+                <div className="flex items-center gap-3">
+                  <Avatar size="big" variant="connector">
+                    <Icon name="coupon" color="dark" />
+                  </Avatar>
+                  <div>
+                    <Typography color="textSecondary" variant="bodyHl" noWrap>
+                      {coupon.name}
+                    </Typography>
+                    <CouponCaption coupon={coupon} variant="caption" />
+                  </div>
+                </div>
               ),
             },
             {

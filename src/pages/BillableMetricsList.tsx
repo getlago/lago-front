@@ -7,7 +7,14 @@ import {
   DeleteBillableMetricDialog,
   DeleteBillableMetricDialogRef,
 } from '~/components/billableMetrics/DeleteBillableMetricDialog'
-import { ButtonLink, InfiniteScroll, Table, Typography } from '~/components/designSystem'
+import {
+  Avatar,
+  ButtonLink,
+  Icon,
+  InfiniteScroll,
+  Table,
+  Typography,
+} from '~/components/designSystem'
 import { SearchInput } from '~/components/SearchInput'
 import { CREATE_BILLABLE_METRIC_ROUTE, UPDATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import { useBillableMetricsLazyQuery } from '~/generated/graphql'
@@ -104,14 +111,19 @@ const BillableMetricsList = () => {
               minWidth: 200,
               maxSpace: true,
               content: ({ name, code }) => (
-                <>
-                  <Typography color="textSecondary" variant="bodyHl" noWrap>
-                    {name}
-                  </Typography>
-                  <Typography variant="caption" noWrap>
-                    {code}
-                  </Typography>
-                </>
+                <div className="flex items-center gap-3">
+                  <Avatar size="big" variant="connector">
+                    <Icon name="pulse" color="dark" />
+                  </Avatar>
+                  <div>
+                    <Typography color="textSecondary" variant="bodyHl" noWrap>
+                      {name}
+                    </Typography>
+                    <Typography variant="caption" noWrap>
+                      {code}
+                    </Typography>
+                  </div>
+                </div>
               ),
             },
             {
