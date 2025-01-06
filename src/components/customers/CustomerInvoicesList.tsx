@@ -7,7 +7,10 @@ import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/NavigationEnum'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
+import {
+  CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
+  CUSTOMER_INVOICE_DETAILS_ROUTE,
+} from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ, getTimezoneConfig } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -26,14 +29,17 @@ import {
   useRetryInvoicePaymentMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 
+import { createCreditNoteForInvoiceButtonProps } from '../creditNote/utils'
 import {
   UpdateInvoicePaymentStatusDialog,
   UpdateInvoicePaymentStatusDialogRef,
 } from '../invoices/EditInvoicePaymentStatusDialog'
 import { FinalizeInvoiceDialog, FinalizeInvoiceDialogRef } from '../invoices/FinalizeInvoiceDialog'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '../invoices/VoidInvoiceDialog'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
 gql`
   fragment InvoiceListItem on Invoice {
@@ -49,6 +55,10 @@ gql`
     voidable
     paymentDisputeLostAt
     taxProviderVoidable
+    invoiceType
+    creditableAmountCents
+    refundableAmountCents
+    associatedActiveWalletPresent
     customer {
       id
       name
@@ -118,8 +128,10 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   fetchMore,
 }) => {
   const navigate = useNavigate()
+  const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
+  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
 
   const [retryCollect] = useRetryInvoicePaymentMutation({
     context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },
@@ -303,6 +315,15 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
           actionColumn={(invoice) => {
             const { status, paymentStatus, voidable, taxStatus } = invoice
 
+            const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
+              createCreditNoteForInvoiceButtonProps({
+                invoiceType: invoice?.invoiceType,
+                paymentStatus: invoice?.paymentStatus,
+                creditableAmountCents: invoice?.creditableAmountCents,
+                refundableAmountCents: invoice?.refundableAmountCents,
+                associatedActiveWalletPresent: invoice?.associatedActiveWalletPresent,
+              })
+
             const canDownload =
               ![
                 InvoiceStatusTypeEnum.Draft,
@@ -335,6 +356,9 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 paymentStatus,
               ) &&
               hasPermissions(['invoicesVoid'])
+            const canIssueCreditNote =
+              ![InvoiceStatusTypeEnum.Draft, InvoiceStatusTypeEnum.Voided].includes(status) &&
+              hasPermissions(['creditNotesCreate'])
 
             return [
               canDownload
@@ -354,6 +378,18 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                       onAction: (item) => finalizeInvoiceRef.current?.openDialog(item),
                     }
                   : null,
+              {
+                startIcon: 'duplicate',
+                title: translate('text_63ac86d897f728a87b2fa031'),
+                onAction: ({ id }) => {
+                  copyToClipboard(id)
+                  addToast({
+                    severity: 'info',
+                    translateKey: 'text_63ac86d897f728a87b2fa0b0',
+                  })
+                },
+              },
+
               canRetryCollect
                 ? {
                     startIcon: 'push',
@@ -378,17 +414,6 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                     },
                   }
                 : null,
-              {
-                startIcon: 'duplicate',
-                title: translate('text_63ac86d897f728a87b2fa031'),
-                onAction: ({ id }) => {
-                  copyToClipboard(id)
-                  addToast({
-                    severity: 'info',
-                    translateKey: 'text_63ac86d897f728a87b2fa0b0',
-                  })
-                },
-              },
               canUpdatePaymentStatus
                 ? {
                     startIcon: 'coin-dollar',
@@ -396,6 +421,32 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                     onAction: () => {
                       updateInvoicePaymentStatusDialog?.current?.openDialog(invoice)
                     },
+                  }
+                : null,
+              canIssueCreditNote && !isPremium
+                ? {
+                    startIcon: 'document',
+                    endIcon: 'sparkles',
+                    title: translate('text_636bdef6565341dcb9cfb127'),
+                    onAction: () => premiumWarningDialogRef.current?.openDialog(),
+                  }
+                : null,
+              canIssueCreditNote && isPremium
+                ? {
+                    startIcon: 'document',
+                    title: translate('text_636bdef6565341dcb9cfb127'),
+                    disabled: disabledIssueCreditNoteButton,
+                    onAction: () => {
+                      navigate(
+                        generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
+                          customerId: invoice?.customer?.id,
+                          invoiceId: invoice.id,
+                        }),
+                      )
+                    },
+                    tooltip: disabledIssueCreditNoteButtonLabel
+                      ? translate(disabledIssueCreditNoteButtonLabel)
+                      : undefined,
                   }
                 : null,
               canVoid
@@ -414,10 +465,10 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
           }}
         />
       </InfiniteScroll>
-
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
+      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
 }

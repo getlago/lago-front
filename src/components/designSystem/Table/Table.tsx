@@ -56,6 +56,7 @@ export type ActionItem<T> = {
   title: string | ReactNode
   onAction: (item: T) => void
   startIcon?: IconName
+  endIcon?: IconName
   disabled?: boolean
   tooltip?: string
   tooltipListener?: boolean
@@ -296,6 +297,7 @@ const ActionItemButton = <T,>({
     <Button
       fullWidth
       startIcon={action.startIcon}
+      endIcon={action.endIcon}
       variant="quaternary"
       align="left"
       disabled={action.disabled}
