@@ -24,7 +24,11 @@ import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/NavigationEnum'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CUSTOMER_INVOICE_DETAILS_ROUTE, INVOICE_SETTINGS_ROUTE } from '~/core/router'
+import {
+  CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
+  CUSTOMER_INVOICE_DETAILS_ROUTE,
+  INVOICE_SETTINGS_ROUTE,
+} from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -39,8 +43,10 @@ import {
   useRetryInvoicePaymentMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 
+import { createCreditNoteForInvoiceButtonProps } from '../creditNote/utils'
 import { Filters } from '../designSystem/Filters/Filters'
 import { AvailableFiltersEnum, AvailableQuickFilters } from '../designSystem/Filters/types'
 import {
@@ -51,6 +57,7 @@ import {
   isSucceededUrlParams,
   isVoidedUrlParams,
 } from '../designSystem/Filters/utils'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
 type TInvoiceListProps = {
   error: ApolloError | undefined
@@ -71,12 +78,14 @@ const InvoicesList = ({
 }: TInvoiceListProps) => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
+  const { isPremium } = useCurrentUser()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
+  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
 
   const [downloadInvoice] = useDownloadInvoiceItemMutation({
     onCompleted({ downloadInvoice: data }) {
@@ -145,6 +154,15 @@ const InvoicesList = ({
             actionColumn={(invoice) => {
               const { status, paymentStatus, voidable } = invoice
 
+              const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
+                createCreditNoteForInvoiceButtonProps({
+                  invoiceType: invoice?.invoiceType,
+                  paymentStatus: invoice?.paymentStatus,
+                  creditableAmountCents: invoice?.creditableAmountCents,
+                  refundableAmountCents: invoice?.refundableAmountCents,
+                  associatedActiveWalletPresent: invoice?.associatedActiveWalletPresent,
+                })
+
               const canDownload =
                 ![
                   InvoiceStatusTypeEnum.Draft,
@@ -175,6 +193,9 @@ const InvoicesList = ({
                   InvoicePaymentStatusTypeEnum.Failed,
                 ].includes(paymentStatus) &&
                 hasPermissions(['invoicesVoid'])
+              const canIssueCreditNote =
+                ![InvoiceStatusTypeEnum.Draft, InvoiceStatusTypeEnum.Voided].includes(status) &&
+                hasPermissions(['creditNotesCreate'])
 
               return [
                 canDownload
@@ -194,6 +215,18 @@ const InvoicesList = ({
                         onAction: (item) => finalizeInvoiceRef.current?.openDialog(item),
                       }
                     : null,
+                {
+                  startIcon: 'duplicate',
+                  title: translate('text_63ac86d897f728a87b2fa031'),
+                  onAction: ({ id }) => {
+                    copyToClipboard(id)
+                    addToast({
+                      severity: 'info',
+                      translateKey: 'text_63ac86d897f728a87b2fa0b0',
+                    })
+                  },
+                },
+
                 canRetryCollect
                   ? {
                       startIcon: 'push',
@@ -218,17 +251,6 @@ const InvoicesList = ({
                       },
                     }
                   : null,
-                {
-                  startIcon: 'duplicate',
-                  title: translate('text_63ac86d897f728a87b2fa031'),
-                  onAction: ({ id }) => {
-                    copyToClipboard(id)
-                    addToast({
-                      severity: 'info',
-                      translateKey: 'text_63ac86d897f728a87b2fa0b0',
-                    })
-                  },
-                },
                 canUpdatePaymentStatus
                   ? {
                       startIcon: 'coin-dollar',
@@ -236,6 +258,32 @@ const InvoicesList = ({
                       onAction: () => {
                         updateInvoicePaymentStatusDialog?.current?.openDialog(invoice)
                       },
+                    }
+                  : null,
+                canIssueCreditNote && !isPremium
+                  ? {
+                      startIcon: 'document',
+                      endIcon: 'sparkles',
+                      title: translate('text_636bdef6565341dcb9cfb127'),
+                      onAction: () => premiumWarningDialogRef.current?.openDialog(),
+                    }
+                  : null,
+                canIssueCreditNote && isPremium
+                  ? {
+                      startIcon: 'document',
+                      title: translate('text_636bdef6565341dcb9cfb127'),
+                      disabled: disabledIssueCreditNoteButton,
+                      onAction: () => {
+                        navigate(
+                          generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
+                            customerId: invoice?.customer?.id,
+                            invoiceId: invoice.id,
+                          }),
+                        )
+                      },
+                      tooltip: disabledIssueCreditNoteButtonLabel
+                        ? translate(disabledIssueCreditNoteButtonLabel)
+                        : undefined,
                     }
                   : null,
                 canVoid
@@ -453,6 +501,7 @@ const InvoicesList = ({
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
+      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
 }
