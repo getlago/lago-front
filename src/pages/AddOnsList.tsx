@@ -137,9 +137,10 @@ const AddOnsList = () => {
             {
               key: 'customersCount',
               title: translate('text_629728388c4d2300e2d380cd'),
+              textAlign: 'right',
               minWidth: 112,
               content: ({ customersCount }) => (
-                <Typography color="textSecondary" variant="bodyHl" noWrap>
+                <Typography color="grey600" variant="bodyHl" noWrap>
                   {customersCount}
                 </Typography>
               ),
