@@ -156,11 +156,10 @@ const CouponsList = () => {
             {
               key: 'customersCount',
               title: translate('text_62865498824cc10126ab2964'),
+              textAlign: 'right',
               minWidth: 112,
               content: ({ customersCount }) => (
-                <Typography color="grey600" className="text-right">
-                  {customersCount}
-                </Typography>
+                <Typography color="grey600">{customersCount}</Typography>
               ),
             },
             {
