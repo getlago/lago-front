@@ -6,7 +6,9 @@ import styled from 'styled-components'
 import { DeleteAddOnDialog, DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
 import {
   ActionItem,
+  Avatar,
   ButtonLink,
+  Icon,
   InfiniteScroll,
   Table,
   Typography,
@@ -116,22 +118,27 @@ const AddOnsList = () => {
               minWidth: 200,
               maxSpace: true,
               content: ({ name, amountCents, amountCurrency }) => (
-                <>
-                  <Typography color="textSecondary" variant="bodyHl" noWrap>
-                    {name}
-                  </Typography>
-                  <Typography variant="caption" noWrap>
-                    {translate('text_629728388c4d2300e2d3810b', {
-                      amountWithCurrency: intlFormatNumber(
-                        deserializeAmount(amountCents, amountCurrency) || 0,
-                        {
-                          currencyDisplay: 'symbol',
-                          currency: amountCurrency,
-                        },
-                      ),
-                    })}
-                  </Typography>
-                </>
+                <div className="flex items-center gap-3">
+                  <Avatar size="big" variant="connector">
+                    <Icon name="puzzle" color="dark" />
+                  </Avatar>
+                  <div>
+                    <Typography color="textSecondary" variant="bodyHl" noWrap>
+                      {name}
+                    </Typography>
+                    <Typography variant="caption" noWrap>
+                      {translate('text_629728388c4d2300e2d3810b', {
+                        amountWithCurrency: intlFormatNumber(
+                          deserializeAmount(amountCents, amountCurrency) || 0,
+                          {
+                            currencyDisplay: 'symbol',
+                            currency: amountCurrency,
+                          },
+                        ),
+                      })}
+                    </Typography>
+                  </div>
+                </div>
               ),
             },
             {

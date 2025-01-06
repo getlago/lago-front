@@ -10,7 +10,8 @@ import {
   DeleteCustomerDialog,
   DeleteCustomerDialogRef,
 } from '~/components/customers/DeleteCustomerDialog'
-import { Button, InfiniteScroll, Table, Typography } from '~/components/designSystem'
+import { computeCustomerInitials } from '~/components/customers/utils'
+import { Avatar, Button, InfiniteScroll, Table, Typography } from '~/components/designSystem'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { SearchInput } from '~/components/SearchInput'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
@@ -121,11 +122,22 @@ const CustomersList = () => {
             {
               key: 'displayName',
               title: translate('text_624efab67eb2570101d117cc'),
-              content: ({ displayName }) => {
+              minWidth: 200,
+              content: (customer) => {
+                const customerInitials = computeCustomerInitials(customer)
+
                 return (
-                  <Typography variant="bodyHl" color="textSecondary" noWrap>
-                    {displayName || '-'}
-                  </Typography>
+                  <div className="flex items-center gap-3">
+                    <Avatar
+                      variant="user"
+                      size="medium"
+                      identifier={customer.displayName as string}
+                      initials={customerInitials}
+                    />
+                    <Typography variant="bodyHl" color="textSecondary" noWrap>
+                      {customer.displayName || '-'}
+                    </Typography>
+                  </div>
                 )
               },
             },
@@ -134,6 +146,7 @@ const CustomersList = () => {
               title: translate('text_6419c64eace749372fc72b27'),
               content: ({ email }) => email || '-',
               maxSpace: true,
+              minWidth: 200,
             },
             {
               key: 'activeSubscriptionsCount',

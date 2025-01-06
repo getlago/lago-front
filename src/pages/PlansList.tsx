@@ -3,7 +3,14 @@ import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { ButtonLink, InfiniteScroll, Table, Typography } from '~/components/designSystem'
+import {
+  Avatar,
+  ButtonLink,
+  Icon,
+  InfiniteScroll,
+  Table,
+  Typography,
+} from '~/components/designSystem'
 import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { updateDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
@@ -115,13 +122,18 @@ const PlansList = () => {
               maxSpace: true,
               minWidth: 200,
               content: ({ name, code }) => (
-                <div>
-                  <Typography color="textSecondary" variant="bodyHl" noWrap>
-                    {name}
-                  </Typography>
-                  <Typography variant="caption" noWrap>
-                    {code}
-                  </Typography>
+                <div className="flex items-center gap-3">
+                  <Avatar size="big" variant="connector">
+                    <Icon name="board" color="dark" />
+                  </Avatar>
+                  <div>
+                    <Typography color="textSecondary" variant="bodyHl" noWrap>
+                      {name}
+                    </Typography>
+                    <Typography variant="caption" noWrap>
+                      {code}
+                    </Typography>
+                  </div>
                 </div>
               ),
             },
