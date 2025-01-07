@@ -88,13 +88,11 @@ const EmailSettings = () => {
                   containerSize={{ default: 0 }}
                   rowSize={72}
                   data={EMAIL_SCENARIOS}
-                  onRowAction={({ setting }) => {
-                    navigate(
-                      generatePath(EMAILS_SCENARIO_CONFIG_ROUTE, {
-                        type: setting,
-                      }),
-                    )
-                  }}
+                  onRowActionLink={({ setting }) =>
+                    generatePath(EMAILS_SCENARIO_CONFIG_ROUTE, {
+                      type: setting,
+                    })
+                  }
                   columns={[
                     {
                       key: 'id',

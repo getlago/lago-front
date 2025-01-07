@@ -107,13 +107,11 @@ const PlansList = () => {
           isLoading={isLoading}
           hasError={!!error}
           rowDataTestId={(plan) => `${plan.name}`}
-          onRowAction={({ id }) =>
-            navigate(
-              generatePath(PLAN_DETAILS_ROUTE, {
-                planId: id,
-                tab: PlanDetailsTabsOptionsEnum.overview,
-              }),
-            )
+          onRowActionLink={({ id }) =>
+            generatePath(PLAN_DETAILS_ROUTE, {
+              planId: id,
+              tab: PlanDetailsTabsOptionsEnum.overview,
+            })
           }
           columns={[
             {

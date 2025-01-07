@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import {
   AddCustomerDrawer,
@@ -56,7 +56,6 @@ gql`
 `
 
 const CustomersList = () => {
-  const navigate = useNavigate()
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
@@ -115,9 +114,7 @@ const CustomersList = () => {
             default: 16,
             md: 48,
           }}
-          onRowAction={({ id }) =>
-            navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: id }))
-          }
+          onRowActionLink={({ id }) => generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: id })}
           columns={[
             {
               key: 'displayName',

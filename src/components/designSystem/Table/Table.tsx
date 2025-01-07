@@ -8,6 +8,7 @@ import {
   TableRowProps,
 } from '@mui/material'
 import { MouseEvent, PropsWithChildren, ReactNode, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { Button, IconName, Popper, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { GenericPlaceholder, GenericPlaceholderProps } from '~/components/GenericPlaceholder'
@@ -76,7 +77,7 @@ interface TableProps<T> {
     emptyState?: Partial<GenericPlaceholderProps>
     errorState?: Partial<GenericPlaceholderProps>
   }
-  onRowAction?: (item: T) => void
+  onRowActionLink?: (item: T) => string
   actionColumn?: (item: T) => Array<ActionItem<T> | null> | ReactNode
   actionColumnTooltip?: (item: T) => string
   rowDataTestId?: (item: T) => string
@@ -333,7 +334,7 @@ export const Table = <T extends DataItem>({
   containerSize = 48,
   rowSize = 48,
   placeholder,
-  onRowAction,
+  onRowActionLink,
   actionColumn,
   actionColumnTooltip,
   rowDataTestId,
@@ -343,6 +344,7 @@ export const Table = <T extends DataItem>({
   const maxSpaceColumns = countMaxSpaceColumns(filteredColumns)
   const tableRef = useRef<HTMLTableElement>(null)
   const { translate } = useInternationalization()
+  const navigate = useNavigate()
 
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `${TABLE_ID}-row-${i}`,
@@ -350,12 +352,12 @@ export const Table = <T extends DataItem>({
       const item = data.find((dataItem) => dataItem.id === id)
 
       if (item) {
-        onRowAction?.(item)
+        onRowActionLink?.(item)
       }
     },
   })
 
-  const isClickable = !!onRowAction && !isLoading
+  const isClickable = !!onRowActionLink && !isLoading
   const shouldDisplayActionColumn =
     !!actionColumn &&
     (data.length > 0
@@ -382,6 +384,8 @@ export const Table = <T extends DataItem>({
   const colSpan = filteredColumns.length + (shouldDisplayActionColumn ? 1 : 0)
 
   const handleRowClick = (e: MouseEvent<HTMLTableRowElement>, item: T) => {
+    if (!onRowActionLink) return
+
     // Prevent row action when clicking on button or link in cell
     if (e.target instanceof HTMLAnchorElement || e.target instanceof HTMLButtonElement) {
       return
@@ -397,8 +401,17 @@ export const Table = <T extends DataItem>({
     if (e.target instanceof HTMLElement) {
       const actionColumnButton = e.target.closest('button')?.dataset.id
 
+      const hasSideKeyPressed = e.metaKey || e.ctrlKey
+
+      // Make sure anything other than the action column button is clicked
       if (actionColumnButton !== ACTION_COLUMN_ID) {
-        onRowAction?.(item)
+        const link = onRowActionLink(item)
+
+        if (hasSideKeyPressed) {
+          window.open(link, '_blank')
+        } else {
+          navigate(link)
+        }
       }
     }
   }
