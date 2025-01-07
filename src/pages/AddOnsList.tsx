@@ -109,7 +109,7 @@ const AddOnsList = () => {
           rowSize={72}
           isLoading={isLoading}
           hasError={!!error}
-          onRowAction={({ id }) => navigate(generatePath(ADD_ON_DETAILS_ROUTE, { addOnId: id }))}
+          onRowActionLink={({ id }) => generatePath(ADD_ON_DETAILS_ROUTE, { addOnId: id })}
           rowDataTestId={(addOn) => `${addOn.name}`}
           columns={[
             {

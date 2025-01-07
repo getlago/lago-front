@@ -101,8 +101,8 @@ const BillableMetricsList = () => {
           rowSize={72}
           isLoading={isLoading}
           hasError={!!error}
-          onRowAction={({ id }) =>
-            navigate(generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { billableMetricId: id }))
+          onRowActionLink={({ id }) =>
+            generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { billableMetricId: id })
           }
           columns={[
             {

@@ -416,15 +416,13 @@ const InvoicesList = ({
                 ),
               },
             ]}
-            onRowAction={(invoice) => {
-              navigate(
-                generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                  customerId: invoice?.customer?.id,
-                  invoiceId: invoice.id,
-                  tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-                }),
-              )
-            }}
+            onRowActionLink={(invoice) =>
+              generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+                customerId: invoice?.customer?.id,
+                invoiceId: invoice.id,
+                tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+              })
+            }
             placeholder={{
               errorState: variables?.searchTerm
                 ? {

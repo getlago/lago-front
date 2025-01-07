@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef, useState } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { Button, Table, Tooltip, Typography } from '~/components/designSystem'
 import {
@@ -55,7 +55,6 @@ gql`
 `
 
 const Webhooks = () => {
-  const navigate = useNavigate()
   const { translate } = useInternationalization()
   const [showOrganizationHmac, setShowOrganizationHmac] = useState<boolean>(false)
   const createDialogRef = useRef<CreateWebhookDialogRef>(null)
@@ -208,9 +207,7 @@ const Webhooks = () => {
                       ),
                     },
                   ]}
-                  onRowAction={({ id }) => {
-                    navigate(generatePath(WEBHOOK_LOGS_ROUTE, { webhookId: id }))
-                  }}
+                  onRowActionLink={({ id }) => generatePath(WEBHOOK_LOGS_ROUTE, { webhookId: id })}
                   actionColumnTooltip={() => translate('text_6256de3bba111e00b3bfa51b')}
                   actionColumn={(webhook) => {
                     return [

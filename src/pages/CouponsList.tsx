@@ -138,7 +138,7 @@ const CouponsList = () => {
           rowSize={72}
           isLoading={isLoading}
           hasError={!!error}
-          onRowAction={({ id }) => navigate(generatePath(COUPON_DETAILS_ROUTE, { couponId: id }))}
+          onRowActionLink={({ id }) => generatePath(COUPON_DETAILS_ROUTE, { couponId: id })}
           rowDataTestId={(addOn) => `${addOn.name}`}
           columns={[
             {

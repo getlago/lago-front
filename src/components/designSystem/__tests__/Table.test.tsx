@@ -82,7 +82,7 @@ describe('Table', () => {
 
     await prepare({
       props: {
-        onRowAction: (row: any) => onRow(row),
+        onRowActionLink: (row: any) => onRow(row),
         actionColumn: () => [
           {
             title: 'Edit',
@@ -136,7 +136,7 @@ describe('Table', () => {
     await prepare({
       props: {
         actionColumn: (row: any) => <Button onClick={onClick(row)}>Click me</Button>,
-        onRowAction: (row: any) => onRow(row),
+        onRowActionLink: (row: any) => onRow(row),
       },
     })
 

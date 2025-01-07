@@ -173,14 +173,12 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
           isLoading={isLoading}
           hasError={hasError}
           data={invoiceData?.collection ?? []}
-          onRowAction={({ id }) =>
-            navigate(
-              generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                customerId,
-                invoiceId: id,
-                tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-              }),
-            )
+          onRowActionLink={({ id }) =>
+            generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+              customerId,
+              invoiceId: id,
+              tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+            })
           }
           placeholder={{
             errorState: {

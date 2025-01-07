@@ -643,7 +643,7 @@ const DesignSystem = () => {
                         content: (row) => row.date,
                       },
                     ]}
-                    onRowAction={(item) => alert(`You clicked on ${item.id}`)}
+                    onRowActionLink={(item) => `you clicked on ${item.id}`}
                     actionColumn={(currentItem) => [
                       currentItem.amount > 1000
                         ? {
@@ -706,7 +706,7 @@ const DesignSystem = () => {
                         ),
                       },
                     ]}
-                    onRowAction={(item) => alert(`You clicked on ${item.id}`)}
+                    onRowActionLink={(item) => `you clicked on ${item.id}`}
                   />
                 </Block>
               </Container>
