@@ -100,5 +100,11 @@ export default [
       '@typescript-eslint/no-require-imports': 'off',
     },
   },
+  {
+    files: ['vite.config.ts', 'scripts/**/*.js'],
+    rules: {
+      'import/order': 'off',
+    },
+  },
   pluginPrettier,
 ]
