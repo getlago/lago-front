@@ -1,9 +1,7 @@
 /* eslint no-console: ["error", { allow: ["info"] }] */
-
-const path = require('path')
-
-const { globSync } = require('glob')
-const { run: jscodeshift } = require('jscodeshift/src/Runner')
+import { globSync } from 'glob'
+import { run as jscodeshift } from 'jscodeshift/src/Runner'
+import path from 'node:path'
 
 const SRC_DIR = './src/'
 
