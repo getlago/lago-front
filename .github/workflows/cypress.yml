@@ -65,6 +65,7 @@ jobs:
             cypress/e2e/t10-*
             cypress/e2e/t20-*
             cypress/e2e/t30-*
+          package-manager: pnpm
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
