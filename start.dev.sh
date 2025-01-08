@@ -1,4 +1,4 @@
 #!/bin/bash
 
-pnpm
+pnpm install
 pnpm run dev
