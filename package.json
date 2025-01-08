@@ -133,5 +133,11 @@
   },
   "alias": {
     "@mui/styled-engine": "@mui/styled-engine-sc"
-  }
+  },
+  "onlyBuiltDependencies": [
+    "cypress",
+    "@swc/core",
+    "@parcel/watcher",
+    "esbuild"
+  ]
 }
