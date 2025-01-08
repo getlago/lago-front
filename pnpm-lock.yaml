@@ -29,6 +29,9 @@ importers:
       '@sentry/react':
         specifier: 8.35.0
         version: 8.35.0(react@18.2.0)
+      ace-builds:
+        specifier: ^1.37.3
+        version: 1.37.3
       apollo-link-timeout:
         specifier: 4.0.0
         version: 4.0.0(@apollo/client@3.11.4(@types/react@18.2.38)(graphql-ws@5.16.0(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))
