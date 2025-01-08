@@ -47,7 +47,7 @@ export const DeleteCustomerFinalizeZeroAmountInvoiceDialog = forwardRef<
       onCompleted(data) {
         if (data && data.updateCustomer) {
           addToast({
-            message: translate('text_17255496712882bspi9zp0ii'),
+            message: translate('text_17255496712882bspi9zp0iy'),
             severity: 'success',
           })
         }
