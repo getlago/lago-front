@@ -1,4 +1,6 @@
-module.exports = {
+import type { Config } from 'jest'
+
+export default {
   // The root of your source code, typically /src
   // `<rootDir>` is a token Jest substitutes
   roots: ['<rootDir>/src'],
@@ -9,7 +11,7 @@ module.exports = {
   // using ts-jest
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
-    '\\.svg$': '<rootDir>/__mocks__/svgMock.js',
+    '\\.svg$': '<rootDir>/__mocks__/svgMock.cjs',
   },
 
   transformIgnorePatterns: [
@@ -29,6 +31,7 @@ module.exports = {
   coverageReporters: ['text', 'lcov'],
   collectCoverage: false, // set to true to collect coverage
   coverageThreshold: {
+    global: {},
     'src/hooks/ui/useShortcuts.tsx': {
       statements: 90,
     },
@@ -49,7 +52,7 @@ module.exports = {
   moduleNameMapper: {
     '^~/(.*)$': '<rootDir>/src/$1',
     'ace-builds': '<rootDir>/node_modules/ace-builds',
-    '\\.(css|less|sass|scss)$': '<rootDir>/__mocks__/styleMock.js',
+    '\\.(css|less|sass|scss)$': '<rootDir>/__mocks__/styleMock.cjs',
   },
 
   // Module file extensions for importing
@@ -65,4 +68,4 @@ module.exports = {
     NANGO_PUBLIC_KEY: '',
     SENTRY_DSN: 'https://sentry.io/',
   },
-}
+} satisfies Config

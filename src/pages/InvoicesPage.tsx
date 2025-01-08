@@ -417,11 +417,9 @@ const InvoicesPage = () => {
           },
         ]}
       />
-
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
-
       <ExportDialog
         ref={exportInvoicesDialogRef}
         totalCountLabel={translate(
@@ -444,7 +442,6 @@ const InvoicesPage = () => {
           },
         ]}
       />
-
       <ExportDialog
         ref={exportCreditNotesDialogRef}
         totalCountLabel={translate(

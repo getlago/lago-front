@@ -95,9 +95,15 @@ export default [
     },
   },
   {
-    files: ['**/*.js'],
+    files: ['**/*.cjs'],
     rules: {
       '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
+  {
+    files: ['vite.config.ts', 'scripts/**/*.js'],
+    rules: {
+      'import/order': 'off',
     },
   },
   pluginPrettier,
