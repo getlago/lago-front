@@ -49,6 +49,9 @@ jobs:
           node-version: 20
           cache: "pnpm"
 
+      - name: Install dependencies (excluding Cypress)
+        run: pnpm install --ignore-scripts
+
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
