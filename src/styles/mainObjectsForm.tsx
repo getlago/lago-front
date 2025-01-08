@@ -7,6 +7,7 @@ import styled from 'styled-components'
 import { Skeleton, Typography, TypographyProps } from '~/components/designSystem'
 
 import { NAV_HEIGHT, theme } from './muiTheme'
+import { tw } from './utils'
 
 export const MAIN_PADDING = theme.spacing(12)
 
@@ -33,14 +34,22 @@ export const Content = styled.div`
   display: flex;
   min-height: calc(100vh - ${NAV_HEIGHT}px);
 `
-export const Title: FC<PropsWithChildren<TypographyProps>> = ({ children, ...props }) => (
-  <Typography className="mb-1 px-8" {...props}>
+export const Title: FC<PropsWithChildren<TypographyProps>> = ({
+  children,
+  className,
+  ...props
+}) => (
+  <Typography className={tw('mb-1 px-8', className)} {...props}>
     {children}
   </Typography>
 )
 
-export const Subtitle: FC<PropsWithChildren<TypographyProps>> = ({ children, ...props }) => (
-  <Typography className="mb-8 px-8" {...props}>
+export const Subtitle: FC<PropsWithChildren<TypographyProps>> = ({
+  children,
+  className,
+  ...props
+}) => (
+  <Typography className={tw('mb-8 px-8', className)} {...props}>
     {children}
   </Typography>
 )
