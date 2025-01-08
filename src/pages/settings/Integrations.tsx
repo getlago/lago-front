@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { useNavigate } from 'react-router'
+import { useNavigate } from 'react-router-dom'
 
 import { Avatar, Chip, Selector, Typography } from '~/components/designSystem'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/Pages'
