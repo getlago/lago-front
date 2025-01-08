@@ -56,5 +56,6 @@ jobs:
           CODEGEN_API: http://localhost:3000/graphql
         run: |
           pnpm run codegen
+
       - name: Run Typescript
-        run: pnpm run tsc
+        run: pnpm run build:tsc
