@@ -31,14 +31,21 @@ export const ComboBoxVirtualizedList = (props: ComboBoxVirtualizedListProps) => 
 
   const getHeight = () => {
     const hasAnyGroupHeader = elements.some((el) => (el.key as string).includes(GROUP_ITEM_KEY))
+    const hasDescription = elements.some(
+      (el) => (el.props?.children?.props?.option?.description as string)?.length > 0,
+    )
+
+    const itemheightDelta = hasDescription ? 8 : 4
 
     // recommended perf best practice
     if (itemCount > 5) {
-      return 5 * (ITEM_HEIGHT + 4) + 4 // Add 4px for margins
+      return 5 * (ITEM_HEIGHT + itemheightDelta) + 4 // Add 4px for margins
     } else if (itemCount <= 2 && hasAnyGroupHeader) {
       return itemCount * (ITEM_HEIGHT + 2) // Add 2px for margins
+    } else if (itemCount <= 2 && hasDescription) {
+      return itemCount * (ITEM_HEIGHT + itemheightDelta) + 4 // Add 4px for margins
     }
-    return itemCount * (ITEM_HEIGHT + 4) + 4 // Add 4px for margins
+    return itemCount * (ITEM_HEIGHT + itemheightDelta) + 4 // Add 4px for margins
   }
 
   // reset the `VariableSizeList` cache if data gets updated
