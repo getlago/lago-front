@@ -14,6 +14,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:tsc": "tsc",
     "preview": "vite preview",
     "lint": "prettier --check src/**/*.{ts,tsx,svg} --check index.html --check cypress/**/*.ts && eslint",
     "eslint": "eslint",
@@ -26,10 +27,8 @@
     "translations:inspect": "node scripts/translations/inspect",
     "changelog:update": "auto-changelog --template=.changelog/regular.hbs",
     "codemod": "node scripts/codemod.js",
-    "postinstall": "npx yarn-deduplicate",
     "bundle-analyzer": "vite-bundle-visualizer --sourcemap"
   },
-  "packageManager": "yarn@1.22.19",
   "devDependencies": {
     "@emotion/react": "11.13.5",
     "@emotion/styled": "11.13.5",
@@ -107,6 +106,7 @@
     "@nangohq/frontend": "0.40.8",
     "@sentry/react": "9.11.0",
     "@tanstack/react-virtual": "3.11.2",
+    "ace-builds": "^1.37.3",
     "apollo-link-timeout": "4.0.0",
     "apollo-upload-client": "17.0.0",
     "apollo3-cache-persist": "0.15.0",
@@ -116,6 +116,7 @@
     "lago-expression": "0.1.2",
     "localforage": "1.10.0",
     "lodash": "4.17.21",
+    "lodash-es": "^4.17.21",
     "luxon": "3.4.4",
     "prismjs": "1.30.0",
     "react": "18.2.0",

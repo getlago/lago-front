@@ -1,4 +1,4 @@
 #!/bin/bash
 
-yarn
-yarn dev
+pnpm install
+pnpm run dev

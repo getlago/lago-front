@@ -3,7 +3,7 @@ import Nango from '@nangohq/frontend'
 import { useFormik } from 'formik'
 import { GraphQLFormattedError } from 'graphql'
 import { forwardRef, RefObject, useId, useImperativeHandle, useRef, useState } from 'react'
-import { generatePath, useNavigate } from 'react-router'
+import { generatePath, useNavigate } from 'react-router-dom'
 import { boolean, object, string } from 'yup'
 
 import { Alert, Button, Chip, Dialog, DialogRef, Typography } from '~/components/designSystem'

@@ -3,6 +3,6 @@ FROM node:20-alpine
 WORKDIR /app
 
 RUN apk add --no-cache bash
-RUN yarn
+RUN pnpm install
 
 CMD ["./start.dev.sh"]

@@ -38,18 +38,42 @@ jobs:
         run: |
           docker compose -f ./ci/docker-compose.ci.yml --env-file ./.env up -d db redis api front
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: "pnpm"
+          cache-dependency-path: ./pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Cache Cypress binary
+        uses: actions/cache@v3
+        id: cypress-cache
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-binary-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: cypress-binary-
+
+      - name: Cypress install
+        if: steps.cypress-cache.outputs.cache-hit != 'true'
+        run: pnpm cypress install
 
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
           browser: chrome
+          install: false
           record: false
           config-file: ./cypress/cypress.config.js
           config: baseUrl=http://localhost,viewportHeight=800,viewportWidth=1280,video=true
+          working-directory: ./
           spec: |
             cypress/e2e/00-auth/*
             cypress/e2e/10-resources/*
