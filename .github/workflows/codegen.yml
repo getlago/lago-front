@@ -43,12 +43,12 @@ jobs:
           node-version: 20
 
       - name: Install Node.js dependencies
-        run: yarn
+        run: pnpm
 
       - name: Run codegen
         env:
           CODEGEN_API: http://localhost:3000/graphql
         run: |
-          yarn codegen
+          pnpm run codegen
       - name: Run Typescript
-        run: yarn tsc
+        run: pnpm run tsc
