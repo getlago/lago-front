@@ -5,7 +5,7 @@ WORKDIR /app
 COPY . .
 
 RUN apk add python3 build-base
-RUN yarn && yarn build && npm prune --production
+RUN pnpm && pnpm run build
 
 FROM nginx:1.27-alpine
 
