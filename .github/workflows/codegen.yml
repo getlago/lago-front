@@ -37,13 +37,19 @@ jobs:
       - name: Launch API
         run: docker compose -f ./ci/docker-compose.ci.yml --env-file ./.env up -d api
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: "pnpm"
 
       - name: Install Node.js dependencies
-        run: pnpm
+        run: pnpm install
 
       - name: Run codegen
         env:
