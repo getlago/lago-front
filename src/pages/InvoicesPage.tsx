@@ -216,7 +216,7 @@ const InvoicesPage = () => {
     nextFetchPolicy: 'network-only',
     variables: {
       limit: 20,
-      ...filtersForInvoiceQuery,
+      ...formatAmountCurrency(filtersForInvoiceQuery, amountCurrency),
     },
   })
 
@@ -258,7 +258,7 @@ const InvoicesPage = () => {
 
   const onInvoicesExport = async (values: ExportValues<InvoiceExportTypeEnum>) => {
     const filters = {
-      ...formatFiltersForInvoiceQuery(searchParams),
+      ...formatAmountCurrency(formatFiltersForInvoiceQuery(searchParams), amountCurrency),
       searchTerm: variableInvoices?.searchTerm,
     }
 
