@@ -64,21 +64,23 @@ export const FILTER_VALUE_MAP: Partial<Record<AvailableFiltersEnum, Function>> =
   [AvailableFiltersEnum.creditNoteCreditStatus]: (value: string) => (value as string).split(','),
 }
 
-export const formatFiltersForCreditNotesQuery = (searchParams: URLSearchParams) => {
+const formatFiltersForQuery = ({
+  searchParams,
+  keyMap,
+  availableFilters,
+}: {
+  searchParams: URLSearchParams
+  keyMap?: Record<string, string>
+  availableFilters: AvailableFiltersEnum[]
+}) => {
   const filtersSetInUrl = Object.fromEntries(searchParams.entries())
-
-  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
-    [AvailableFiltersEnum.creditNoteReason]: 'reason',
-    [AvailableFiltersEnum.creditNoteCreditStatus]: 'creditStatus',
-    [AvailableFiltersEnum.creditNoteRefundStatus]: 'refundStatus',
-  }
 
   return Object.entries(filtersSetInUrl).reduce(
     (acc, cur) => {
       const current = cur as [AvailableFiltersEnum, string | string[] | boolean]
       const key = current[0]
 
-      if (!CreditNoteAvailableFilters.includes(key)) {
+      if (!availableFilters.includes(key)) {
         return acc
       }
 
@@ -95,36 +97,32 @@ export const formatFiltersForCreditNotesQuery = (searchParams: URLSearchParams) 
 
       return {
         ...acc,
-        [keyMap[key] || key]: value,
+        [keyMap?.[key] || key]: value,
       }
     },
     {} as Record<string, string | string[] | boolean>,
   )
 }
 
+export const formatFiltersForCreditNotesQuery = (searchParams: URLSearchParams) => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
+    [AvailableFiltersEnum.creditNoteReason]: 'reason',
+    [AvailableFiltersEnum.creditNoteCreditStatus]: 'creditStatus',
+    [AvailableFiltersEnum.creditNoteRefundStatus]: 'refundStatus',
+  }
+
+  return formatFiltersForQuery({
+    searchParams,
+    keyMap,
+    availableFilters: CreditNoteAvailableFilters,
+  })
+}
+
 export const formatFiltersForInvoiceQuery = (searchParams: URLSearchParams) => {
-  const filtersSetInUrl = Object.fromEntries(searchParams.entries())
-
-  return Object.entries(filtersSetInUrl).reduce(
-    (acc, cur) => {
-      const current = cur as [AvailableFiltersEnum, string | string[] | boolean]
-      const key = current[0]
-
-      if (!InvoiceAvailableFilters.includes(key)) {
-        return acc
-      }
-
-      const filterFunction = FILTER_VALUE_MAP[key]
-
-      const value = filterFunction ? filterFunction(current[1]) : current[1]
-
-      return {
-        ...acc,
-        [key]: value,
-      }
-    },
-    {} as Record<string, string | string[] | boolean>,
-  )
+  return formatFiltersForQuery({
+    searchParams,
+    availableFilters: InvoiceAvailableFilters,
+  })
 }
 
 export const AMOUNT_INTERVALS_TRANSLATION_MAP = {
