@@ -63,6 +63,7 @@ gql`
       integrationCode
       integrationType
       syncWithProvider
+      targetedObject
     }
     salesforceCustomer {
       __typename
