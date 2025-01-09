@@ -2,13 +2,13 @@ import { useFormik } from 'formik'
 import { RefObject, useRef } from 'react'
 import { array, object, ref, string } from 'yup'
 
-import { BillingAccordion } from '~/components/customers/addDrawer/BillingAccordion'
-import { CustomerInformation } from '~/components/customers/addDrawer/CustomerInformation'
-import { ExternalAppsAccordion } from '~/components/customers/addDrawer/ExternalAppsAccordion'
+import { BillingAccordion } from '~/components/customers/createCustomer/BillingAccordion'
+import { CustomerInformation } from '~/components/customers/createCustomer/CustomerInformation'
+import { ExternalAppsAccordion } from '~/components/customers/createCustomer/ExternalAppsAccordion'
 import {
   LocalCustomerMetadata,
   MetadataAccordion,
-} from '~/components/customers/addDrawer/MetadataAccordion'
+} from '~/components/customers/createCustomer/MetadataAccordion'
 import { Button, DrawerRef, Typography } from '~/components/designSystem'
 import { CenteredPage } from '~/components/layouts/Pages'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
