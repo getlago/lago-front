@@ -206,6 +206,33 @@ describe('useVolumeChargeForm()', () => {
           value: 101.2,
         })
       })
+
+      it('rounds correclty the returned value', async () => {
+        const volumeRanges = [
+          {
+            fromValue: '0',
+            toValue: '10000',
+            flatAmount: '',
+            perUnitAmount: '1',
+          },
+          {
+            fromValue: '10001',
+            toValue: null,
+            flatAmount: '',
+            perUnitAmount: '0.3',
+          },
+        ]
+        const { result } = await prepare({
+          volumeRanges,
+        })
+
+        expect(result.current.infosCalculation).toStrictEqual({
+          lastRowFirstUnit: 10001,
+          lastRowFlatFee: 0,
+          lastRowPerUnit: 0.3,
+          value: 3000.3,
+        })
+      })
     })
 
     describe('addRange()', () => {
