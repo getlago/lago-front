@@ -182,16 +182,15 @@ export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
         {formikProps.values.behavior === BehaviorType.CUSTOM_SECTIONS && (
           <MultipleComboBox
             hideTags={false}
+            forcePopupIcon
             name="applicableInvoiceCustomSectionIds"
             data={
-              data?.invoiceCustomSections?.collection
-                .filter(({ selected }) => !selected)
-                .map((section) => ({
-                  labelNode: section.name,
-                  label: section.name,
-                  description: section.code,
-                  value: section.id,
-                })) ?? []
+              data?.invoiceCustomSections?.collection.map((section) => ({
+                labelNode: section.name,
+                label: section.name,
+                description: section.code,
+                value: section.id,
+              })) ?? []
             }
             onChange={(section) =>
               formikProps.setFieldValue(
@@ -213,7 +212,7 @@ export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
             }
             placeholder={translate('text_1735223938916qvvv12r7je0')}
             PopperProps={{ displayInDialog: true }}
-            emptyText={translate('text_1735223938916tlygbi5v0nd')}
+            emptyText={translate('text_173642092241713ws50zg9v4')}
           />
         )}
         <RadioField

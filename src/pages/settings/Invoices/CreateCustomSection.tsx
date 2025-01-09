@@ -131,6 +131,8 @@ const CreateInvoiceCustomSection = () => {
                   </div>
                   <div className="flex items-start gap-6 *:flex-1">
                     <TextInputField
+                      // eslint-disable-next-line jsx-a11y/no-autofocus
+                      autoFocus
                       name="name"
                       formikProps={formikProps}
                       label={translate('text_6419c64eace749372fc72b0f')}
