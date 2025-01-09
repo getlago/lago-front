@@ -1,5 +1,5 @@
+import Decimal from 'decimal.js'
 import { FormikProps } from 'formik'
-import { chain, format } from 'mathjs'
 import { useEffect, useMemo } from 'react'
 
 import {
@@ -89,11 +89,7 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
         volumeRanges.length === 1 ? ONE_TIER_EXAMPLE_UNITS : Number(lastRow?.fromValue || 0)
       const lastRowPerUnit = Number(lastRow?.perUnitAmount || 0)
       const lastRowFlatFee = Number(lastRow?.flatAmount || 0)
-      const value = Number(
-        format(chain(lastRowFirstUnit).multiply(lastRowPerUnit).add(lastRowFlatFee).done(), {
-          precision: 14,
-        }),
-      )
+      const value = new Decimal(lastRowFirstUnit).mul(lastRowPerUnit).add(lastRowFlatFee).toNumber()
 
       return { lastRowFirstUnit, lastRowPerUnit, lastRowFlatFee, value }
     }, [volumeRanges]),
