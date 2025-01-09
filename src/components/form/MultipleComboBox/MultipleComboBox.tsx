@@ -74,6 +74,12 @@ export const MultipleComboBox = ({
         /* Fix the placement of the adornment elements */
         '& .MuiAutocomplete-endAdornment': {
           top: 'calc(50% - 12px)',
+
+          '& .MuiButtonBase-root': {
+            height: '24px',
+            width: '24px',
+            borderRadius: '8px',
+          },
         },
       }}
       open={showOptionsOnlyWhenTyping ? open : undefined}
