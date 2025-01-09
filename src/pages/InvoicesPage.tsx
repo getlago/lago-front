@@ -59,6 +59,8 @@ gql`
     $paymentStatus: [InvoicePaymentStatusTypeEnum!]
     $searchTerm: String
     $status: [InvoiceStatusTypeEnum!]
+    $amountFrom: Int
+    $amountTo: Int
   ) {
     invoices(
       currency: $currency
@@ -73,6 +75,8 @@ gql`
       paymentStatus: $paymentStatus
       searchTerm: $searchTerm
       status: $status
+      amountFrom: $amountFrom
+      amountTo: $amountTo
     ) {
       metadata {
         currentPage
