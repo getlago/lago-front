@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { GraphQLFormattedError } from 'graphql'
 import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
-import { generatePath, useNavigate } from 'react-router'
+import { generatePath, useNavigate } from 'react-router-dom'
 import { object, string } from 'yup'
 
 import { Alert, Button, Dialog, DialogRef } from '~/components/designSystem'

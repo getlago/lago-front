@@ -13,14 +13,20 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: "pnpm"
 
       - name: Install Node.js dependencies
-        run: yarn
+        run: pnpm install
 
       - name: Run tests
         run: |
-          yarn test
+          pnpm run test

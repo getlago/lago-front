@@ -1,5 +1,6 @@
 import { ChipOwnProps, Chip as MuiChip } from '@mui/material'
-import { clsx } from 'clsx'
+
+import { tw } from '~/styles/utils'
 
 import { Button } from './Button'
 import { Icon, IconName } from './Icon'
@@ -47,7 +48,7 @@ export const Chip = ({
   return (
     <MuiChip
       {...chipProps}
-      className={clsx(
+      className={tw(
         {
           'chip--error': !!error,
           'chip-size--small': size === 'small',
