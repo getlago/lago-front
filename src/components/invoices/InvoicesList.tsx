@@ -118,6 +118,7 @@ const InvoicesList = ({
         <QuickFilters type={AvailableQuickFilters.InvoiceStatus} />
         <Filters
           filters={[
+            AvailableFiltersEnum.amount,
             AvailableFiltersEnum.status,
             AvailableFiltersEnum.invoiceType,
             AvailableFiltersEnum.paymentStatus,
