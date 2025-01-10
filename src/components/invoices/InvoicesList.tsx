@@ -51,6 +51,7 @@ import {
   AvailableFiltersEnum,
   AvailableQuickFilters,
   Filters,
+  FiltersProvider,
   isDraftUrlParams,
   isOutstandingUrlParams,
   isPaymentDisputeLostUrlParams,
@@ -116,9 +117,8 @@ const InvoicesList = ({
   return (
     <>
       <div className="box-border flex w-full flex-col gap-3 p-4 shadow-b md:px-12 md:py-3">
-        <QuickFilters type={AvailableQuickFilters.InvoiceStatus} />
-        <Filters
-          filters={[
+        <FiltersProvider
+          availableFilters={[
             AvailableFiltersEnum.amount,
             AvailableFiltersEnum.status,
             AvailableFiltersEnum.invoiceType,
@@ -129,7 +129,10 @@ const InvoicesList = ({
             AvailableFiltersEnum.paymentDisputeLost,
             AvailableFiltersEnum.paymentOverdue,
           ]}
-        />
+        >
+          <QuickFilters type={AvailableQuickFilters.InvoiceStatus} />
+          <Filters />
+        </FiltersProvider>
       </div>
 
       <div ref={listContainerElementRef}>

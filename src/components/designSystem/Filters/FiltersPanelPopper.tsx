@@ -10,11 +10,8 @@ import { ComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { FiltersPanelItemTypeSwitch } from './FiltersPanelItemTypeSwitch'
+import { useFilters } from './hook'
 import { AvailableFiltersEnum, mapFilterToTranslationKey } from './types'
-
-type FiltersPanelPopperProps = {
-  filters: AvailableFiltersEnum[]
-}
 
 export type FiltersFormValues = {
   filters: Array<{
@@ -23,12 +20,13 @@ export type FiltersFormValues = {
   }>
 }
 
-export const FiltersPanelPopper = ({ filters }: FiltersPanelPopperProps) => {
+export const FiltersPanelPopper = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const listContainerElementRef = useRef<HTMLDivElement>(null)
   const filtersAlreadySet = Object.fromEntries(searchParams.entries())
+  const { availableFilters: filters } = useFilters()
 
   const initialFilters = useMemo(() => {
     return Object.entries(filtersAlreadySet).reduce(

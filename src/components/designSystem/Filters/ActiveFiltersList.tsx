@@ -4,18 +4,14 @@ import { useSearchParams } from 'react-router-dom'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+import { useFilters } from './hook'
 import { AvailableFiltersEnum, mapFilterToTranslationKey } from './types'
 import { formatActiveFilterValueDisplay } from './utils'
 
-interface ActiveFiltersListProps {
-  filters: AvailableFiltersEnum[]
-  hideBorderBottom?: boolean
-  noPadding?: boolean
-}
-
-export const ActiveFiltersList = ({ filters }: ActiveFiltersListProps) => {
+export const ActiveFiltersList = () => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
+  const { availableFilters: filters } = useFilters()
 
   const activeFilters = useMemo(() => {
     const setFilters = Object.fromEntries(searchParams.entries())

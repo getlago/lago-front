@@ -6,22 +6,20 @@ import { tw } from '~/styles/utils'
 
 import { ActiveFiltersList } from './ActiveFiltersList'
 import { FiltersPanelPopper } from './FiltersPanelPopper'
-import { AvailableFiltersEnum } from './types'
 
 interface FiltersProps {
-  filters: AvailableFiltersEnum[]
   className?: string
 }
 
-export const Filters = ({ className, filters }: FiltersProps) => {
+export const Filters = ({ className }: FiltersProps) => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
 
   return (
     <div className={tw('flex w-full flex-wrap items-center gap-3 overflow-y-scroll', className)}>
-      <FiltersPanelPopper filters={filters} />
-      <ActiveFiltersList filters={filters} />
+      <FiltersPanelPopper />
+      <ActiveFiltersList />
 
       {searchParams.size > 0 && (
         <Button variant="quaternary" size="small" onClick={() => navigate({ search: '' })}>

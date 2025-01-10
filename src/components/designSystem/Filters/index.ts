@@ -1,4 +1,6 @@
+export { FiltersProvider } from './context'
 export { Filters } from './Filters'
+export { useFilters } from './hook'
 export { QuickFilters } from './QuickFilters'
 export { AvailableFiltersEnum, AvailableQuickFilters } from './types'
 export * from './utils'
