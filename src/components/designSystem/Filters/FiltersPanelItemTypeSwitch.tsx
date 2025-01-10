@@ -14,7 +14,7 @@ import { FiltersItemPaymentDisputeLost } from './filtersElements/FiltersItemPaym
 import { FiltersItemPaymentOverdue } from './filtersElements/FiltersItemPaymentOverdue'
 import { FiltersItemPaymentStatus } from './filtersElements/FiltersItemPaymentStatus'
 import { FiltersItemStatus } from './filtersElements/FiltersItemStatus'
-import { FiltersFormValues } from './FiltersPanelPoper'
+import { FiltersFormValues } from './FiltersPanelPopper'
 import { AvailableFiltersEnum } from './types'
 
 type FiltersPanelItemTypeSwitchProps = {

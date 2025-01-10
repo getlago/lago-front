@@ -12,7 +12,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { FiltersPanelItemTypeSwitch } from './FiltersPanelItemTypeSwitch'
 import { AvailableFiltersEnum, mapFilterToTranslationKey } from './types'
 
-type FiltersPanelPoperProps = {
+type FiltersPanelPopperProps = {
   filters: AvailableFiltersEnum[]
 }
 
@@ -23,7 +23,7 @@ export type FiltersFormValues = {
   }>
 }
 
-export const FiltersPanelPoper = ({ filters }: FiltersPanelPoperProps) => {
+export const FiltersPanelPopper = ({ filters }: FiltersPanelPopperProps) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()

@@ -5,7 +5,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'
 
 import { ActiveFiltersList } from './ActiveFiltersList'
-import { FiltersPanelPoper } from './FiltersPanelPoper'
+import { FiltersPanelPopper } from './FiltersPanelPopper'
 import { AvailableFiltersEnum } from './types'
 
 interface FiltersProps {
@@ -20,7 +20,7 @@ export const Filters = ({ className, filters }: FiltersProps) => {
 
   return (
     <div className={tw('flex w-full flex-wrap items-center gap-3 overflow-y-scroll', className)}>
-      <FiltersPanelPoper filters={filters} />
+      <FiltersPanelPopper filters={filters} />
       <ActiveFiltersList filters={filters} />
 
       {searchParams.size > 0 && (

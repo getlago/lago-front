@@ -2,7 +2,7 @@ import { MultipleComboBox } from '~/components/form'
 import { CreditNoteRefundStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { FiltersFormValues } from '../FiltersPanelPoper'
+import { FiltersFormValues } from '../FiltersPanelPopper'
 
 type FiltersItemCreditNoteRefundStatusProps = {
   value: FiltersFormValues['filters'][0]['value']
