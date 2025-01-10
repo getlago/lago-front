@@ -15,16 +15,16 @@ import {
   Icon,
   InfiniteScroll,
   Status,
-  StatusProps,
-  StatusType,
   Table,
   Typography,
 } from '~/components/designSystem'
 import { SearchInput } from '~/components/SearchInput'
+import { couponStatusMapping } from '~/core/constants/statusCouponMapping'
 import { COUPON_DETAILS_ROUTE, CREATE_COUPON_ROUTE, UPDATE_COUPON_ROUTE } from '~/core/router'
 import {
   CouponCaptionFragmentDoc,
   CouponStatusEnum,
+  DeleteCouponFragmentDoc,
   useCouponsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -41,7 +41,6 @@ gql`
     status
     amountCurrency
     amountCents
-    appliedCouponsCount
     expiration
     expirationAt
     couponType
@@ -59,27 +58,14 @@ gql`
       collection {
         ...CouponItem
         ...CouponCaption
+        ...DeleteCoupon
       }
     }
   }
 
   ${CouponCaptionFragmentDoc}
+  ${DeleteCouponFragmentDoc}
 `
-
-const mapStatus = (type?: CouponStatusEnum | undefined): StatusProps => {
-  switch (type) {
-    case CouponStatusEnum.Active:
-      return {
-        type: StatusType.success,
-        label: 'active',
-      }
-    default:
-      return {
-        type: StatusType.danger,
-        label: 'terminated',
-      }
-  }
-}
 
 const CouponsList = () => {
   const { translate } = useInternationalization()
@@ -185,7 +171,7 @@ const CouponsList = () => {
               key: 'status',
               title: translate('text_62865498824cc10126ab296f'),
               minWidth: 80,
-              content: ({ status }) => <Status {...mapStatus(status)} />,
+              content: ({ status }) => <Status {...couponStatusMapping(status)} />,
             },
           ]}
           actionColumnTooltip={() => translate('text_62876a50ea3bba00b56d2c76')}
@@ -197,7 +183,7 @@ const CouponsList = () => {
             return [
               {
                 startIcon: 'pen',
-                title: translate('text_62876a50ea3bba00b56d2cb6'),
+                title: translate('text_625fd39a15394c0117e7d792'),
                 onAction: () => navigate(generatePath(UPDATE_COUPON_ROUTE, { couponId: id })),
                 disabled: status === CouponStatusEnum.Terminated,
                 tooltip: translate('text_62878d88ea3bba00b56d3412'),
@@ -213,11 +199,8 @@ const CouponsList = () => {
               },
               {
                 startIcon: 'trash',
-                title: translate('text_62876a50ea3bba00b56d2cc2'),
-                onAction: () => deleteDialogRef.current?.openDialog({ coupon }),
-                disabled: !!coupon.appliedCouponsCount,
-                tooltip: translate('text_62876a50ea3bba00b56d2cee'),
-                tooltipListener: !coupon.appliedCouponsCount,
+                title: translate('text_629728388c4d2300e2d38182'),
+                onAction: () => deleteDialogRef.current?.openDialog({ couponId: id }),
               },
             ]
           }}
