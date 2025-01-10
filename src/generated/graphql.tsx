@@ -2155,6 +2155,8 @@ export enum DataExportFormatTypeEnum {
 
 /** Export Invoices search query and filters input argument */
 export type DataExportInvoiceFiltersInput = {
+  amountFrom?: InputMaybe<Scalars['Int']['input']>;
+  amountTo?: InputMaybe<Scalars['Int']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   customerExternalId?: InputMaybe<Scalars['String']['input']>;
   invoiceType?: InputMaybe<Array<InvoiceTypeEnum>>;
@@ -4899,6 +4901,8 @@ export type QueryInvoicedUsagesArgs = {
 
 
 export type QueryInvoicesArgs = {
+  amountFrom?: InputMaybe<Scalars['Int']['input']>;
+  amountTo?: InputMaybe<Scalars['Int']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   customerExternalId?: InputMaybe<Scalars['String']['input']>;
   customerId?: InputMaybe<Scalars['ID']['input']>;
@@ -8695,6 +8699,8 @@ export type GetInvoicesListQueryVariables = Exact<{
   paymentStatus?: InputMaybe<Array<InvoicePaymentStatusTypeEnum> | InvoicePaymentStatusTypeEnum>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Array<InvoiceStatusTypeEnum> | InvoiceStatusTypeEnum>;
+  amountFrom?: InputMaybe<Scalars['Int']['input']>;
+  amountTo?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
@@ -22961,7 +22967,7 @@ export type GetInvoiceCreditNotesLazyQueryHookResult = ReturnType<typeof useGetI
 export type GetInvoiceCreditNotesSuspenseQueryHookResult = ReturnType<typeof useGetInvoiceCreditNotesSuspenseQuery>;
 export type GetInvoiceCreditNotesQueryResult = Apollo.QueryResult<GetInvoiceCreditNotesQuery, GetInvoiceCreditNotesQueryVariables>;
 export const GetInvoicesListDocument = gql`
-    query getInvoicesList($currency: CurrencyEnum, $customerExternalId: String, $invoiceType: [InvoiceTypeEnum!], $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $limit: Int, $page: Int, $paymentDisputeLost: Boolean, $paymentOverdue: Boolean, $paymentStatus: [InvoicePaymentStatusTypeEnum!], $searchTerm: String, $status: [InvoiceStatusTypeEnum!]) {
+    query getInvoicesList($currency: CurrencyEnum, $customerExternalId: String, $invoiceType: [InvoiceTypeEnum!], $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $limit: Int, $page: Int, $paymentDisputeLost: Boolean, $paymentOverdue: Boolean, $paymentStatus: [InvoicePaymentStatusTypeEnum!], $searchTerm: String, $status: [InvoiceStatusTypeEnum!], $amountFrom: Int, $amountTo: Int) {
   invoices(
     currency: $currency
     customerExternalId: $customerExternalId
@@ -22975,6 +22981,8 @@ export const GetInvoicesListDocument = gql`
     paymentStatus: $paymentStatus
     searchTerm: $searchTerm
     status: $status
+    amountFrom: $amountFrom
+    amountTo: $amountTo
   ) {
     metadata {
       currentPage
@@ -23013,6 +23021,8 @@ export const GetInvoicesListDocument = gql`
  *      paymentStatus: // value for 'paymentStatus'
  *      searchTerm: // value for 'searchTerm'
  *      status: // value for 'status'
+ *      amountFrom: // value for 'amountFrom'
+ *      amountTo: // value for 'amountTo'
  *   },
  * });
  */
