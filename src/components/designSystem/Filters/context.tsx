@@ -1,9 +1,10 @@
 import { createContext, FC, PropsWithChildren, useContext } from 'react'
 
-import { AvailableFiltersEnum } from './types'
+import { AvailableFiltersEnum, AvailableQuickFilters } from './types'
 
 interface FilterContextType {
   availableFilters: AvailableFiltersEnum[]
+  quickFiltersType?: AvailableQuickFilters
 }
 
 const FilterContext = createContext<FilterContextType | undefined>(undefined)

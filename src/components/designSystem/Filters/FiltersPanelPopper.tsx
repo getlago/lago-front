@@ -2,7 +2,6 @@
 import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
 import { useMemo, useRef } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
 import { array, lazy, object, string } from 'yup'
 
 import { Button, Popper, Tooltip, Typography } from '~/components/designSystem'
@@ -10,44 +9,14 @@ import { ComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { FiltersPanelItemTypeSwitch } from './FiltersPanelItemTypeSwitch'
-import { useFilters } from './hook'
+import { FiltersFormValues, useFilters } from './hook'
 import { AvailableFiltersEnum, mapFilterToTranslationKey } from './types'
-
-export type FiltersFormValues = {
-  filters: Array<{
-    filterType?: AvailableFiltersEnum
-    value?: string
-  }>
-}
 
 export const FiltersPanelPopper = () => {
   const { translate } = useInternationalization()
-  const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
+  const { availableFilters, initialFilters, applyFilters } = useFilters()
+
   const listContainerElementRef = useRef<HTMLDivElement>(null)
-  const filtersAlreadySet = Object.fromEntries(searchParams.entries())
-  const { availableFilters: filters } = useFilters()
-
-  const initialFilters = useMemo(() => {
-    return Object.entries(filtersAlreadySet).reduce(
-      (acc, cur) => {
-        const [key, value] = cur as [AvailableFiltersEnum, FiltersFormValues['filters'][0]['value']]
-
-        if (!filters.includes(key)) {
-          return acc
-        }
-
-        return [
-          ...acc,
-          {
-            filterType: key,
-            value,
-          },
-        ]
-      },
-      [] as FiltersFormValues['filters'],
-    )
-  }, [filtersAlreadySet, filters])
 
   const formikProps = useFormik<FiltersFormValues>({
     initialValues: {
@@ -56,19 +25,7 @@ export const FiltersPanelPopper = () => {
     },
     validateOnMount: true,
     enableReinitialize: true,
-    onSubmit: (values) => {
-      const newUrlSearchParams = values.filters.reduce((acc, cur) => {
-        if (!cur.filterType || cur.value === undefined || !filters.includes(cur.filterType)) {
-          return acc
-        }
-
-        acc.set(cur.filterType, cur.value as string)
-
-        return acc
-      }, new URLSearchParams())
-
-      navigate({ search: newUrlSearchParams.toString() })
-    },
+    onSubmit: applyFilters,
     validationSchema: object().shape({
       filters: lazy((value: FiltersFormValues['filters']) => {
         // Make sure schema is valid on "Clear all" button press
@@ -96,14 +53,14 @@ export const FiltersPanelPopper = () => {
       (filter) => filter.filterType,
     )
 
-    return filters.map((filter) => {
+    return availableFilters.map((filter) => {
       return {
         label: translate(mapFilterToTranslationKey(filter)),
         value: filter,
         disabled: alreadySelectedFiltersTypes.includes(filter),
       }
     })
-  }, [formikProps.values.filters, filters, translate])
+  }, [formikProps.values.filters, availableFilters, translate])
 
   return (
     <Popper
@@ -232,7 +189,7 @@ export const FiltersPanelPopper = () => {
           <div className="flex h-18 items-center justify-between px-4 py-0 shadow-t lg:px-6">
             <Button
               startIcon="plus"
-              disabled={formikProps.values.filters.length === filters.length}
+              disabled={formikProps.values.filters.length === availableFilters.length}
               onClick={() => {
                 formikProps.setFieldValue('filters', [...formikProps.values.filters, {}])
 

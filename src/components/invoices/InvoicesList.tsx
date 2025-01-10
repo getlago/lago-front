@@ -118,6 +118,7 @@ const InvoicesList = ({
     <>
       <div className="box-border flex w-full flex-col gap-3 p-4 shadow-b md:px-12 md:py-3">
         <FiltersProvider
+          quickFiltersType={AvailableQuickFilters.InvoiceStatus}
           availableFilters={[
             AvailableFiltersEnum.amount,
             AvailableFiltersEnum.status,
@@ -130,7 +131,7 @@ const InvoicesList = ({
             AvailableFiltersEnum.paymentOverdue,
           ]}
         >
-          <QuickFilters type={AvailableQuickFilters.InvoiceStatus} />
+          <QuickFilters />
           <Filters />
         </FiltersProvider>
       </div>
