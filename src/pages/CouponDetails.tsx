@@ -5,20 +5,37 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { DeleteCouponDialog, DeleteCouponDialogRef } from '~/components/coupons/DeleteCouponDialog'
-import { Button, Icon, Popper, Skeleton, Typography } from '~/components/designSystem'
+import {
+  TerminateCouponDialog,
+  TerminateCouponDialogRef,
+} from '~/components/coupons/TerminateCouponDialog'
+import {
+  Button,
+  Icon,
+  Popper,
+  Skeleton,
+  Status,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
 import { DetailsHeader, DetailsHeaderSkeleton } from '~/components/details/DetailsHeader'
 import DetailsTableDisplay from '~/components/details/DetailsTableDisplay'
+import SkeletonDetailsPage from '~/components/SkeletonDetailsPage'
 import {
   getCouponFrequencyTranslationKey,
   getCouponTypeTranslationKey,
 } from '~/core/constants/form'
+import { couponStatusMapping } from '~/core/constants/statusCouponMapping'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { COUPONS_ROUTE, UPDATE_COUPON_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CouponFrequency,
+  CouponStatusEnum,
   CouponTypeEnum,
   CurrencyEnum,
+  DeleteCouponFragmentDoc,
+  TerminateCouponFragmentDoc,
   useGetCouponForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -28,28 +45,38 @@ import { MenuPopper, PageHeader, theme } from '~/styles'
 import { DetailsInfoGrid, DetailsInfoItem, DetailsSectionTitle } from '~/styles/detailsPage'
 
 gql`
+  fragment CouponDetails on Coupon {
+    amountCents
+    amountCurrency
+    percentageRate
+    code
+    expirationAt
+    name
+    frequency
+    reusable
+    couponType
+    status
+    billableMetrics {
+      id
+      name
+    }
+    plans {
+      id
+      name
+    }
+  }
+
   query getCouponForDetails($id: ID!) {
     coupon(id: $id) {
       id
-      amountCents
-      amountCurrency
-      percentageRate
-      code
-      expirationAt
-      name
-      frequency
-      reusable
-      couponType
-      billableMetrics {
-        id
-        name
-      }
-      plans {
-        id
-        name
-      }
+      ...CouponDetails
+      ...DeleteCoupon
+      ...TerminateCoupon
     }
   }
+
+  ${DeleteCouponFragmentDoc}
+  ${TerminateCouponFragmentDoc}
 `
 
 const CouponDetails = () => {
@@ -60,6 +87,7 @@ const CouponDetails = () => {
   const { couponId } = useParams()
 
   const deleteDialogRef = useRef<DeleteCouponDialogRef>(null)
+  const terminateDialogRef = useRef<TerminateCouponDialogRef>(null)
 
   const { data: couponResult, loading: isCouponLoading } = useGetCouponForDetailsQuery({
     variables: {
@@ -128,34 +156,58 @@ const CouponDetails = () => {
           >
             {({ closePopper }) => (
               <MenuPopper>
-                <Button
-                  data-test="coupon-details-edit"
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    navigate(generatePath(UPDATE_COUPON_ROUTE, { couponId: couponId as string }))
-                    closePopper()
-                  }}
+                <Tooltip
+                  title={translate('text_62878d88ea3bba00b56d3412')}
+                  disableHoverListener={coupon?.status !== CouponStatusEnum.Terminated}
                 >
-                  {translate('text_625fd39a15394c0117e7d792')}
-                </Button>
-                {coupon && (
                   <Button
-                    data-test="coupon-details-delete"
+                    data-test="coupon-details-edit"
                     variant="quaternary"
                     align="left"
+                    disabled={coupon?.status === CouponStatusEnum.Terminated}
                     onClick={() => {
-                      deleteDialogRef.current?.openDialog({
-                        coupon,
-                        callback: () => {
-                          navigate(COUPONS_ROUTE)
-                        },
-                      })
+                      navigate(generatePath(UPDATE_COUPON_ROUTE, { couponId: couponId as string }))
                       closePopper()
                     }}
                   >
-                    {translate('text_629728388c4d2300e2d38182')}
+                    {translate('text_625fd39a15394c0117e7d792')}
                   </Button>
+                </Tooltip>
+                {coupon && (
+                  <>
+                    <Tooltip
+                      title={translate('text_62878d88ea3bba00b56d33cf')}
+                      disableHoverListener={coupon?.status !== CouponStatusEnum.Terminated}
+                    >
+                      <Button
+                        variant="quaternary"
+                        align="left"
+                        disabled={coupon?.status === CouponStatusEnum.Terminated}
+                        onClick={() => {
+                          terminateDialogRef.current?.openDialog(coupon)
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_62876a50ea3bba00b56d2cbc')}
+                      </Button>
+                    </Tooltip>
+                    <Button
+                      data-test="coupon-details-delete"
+                      variant="quaternary"
+                      align="left"
+                      onClick={() => {
+                        deleteDialogRef.current?.openDialog({
+                          couponId: coupon.id,
+                          callback: () => {
+                            navigate(COUPONS_ROUTE)
+                          },
+                        })
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_629728388c4d2300e2d38182')}
+                    </Button>
+                  </>
                 )}
               </MenuPopper>
             )}
@@ -329,6 +381,7 @@ const CouponDetails = () => {
         )}
       </Container>
       <DeleteCouponDialog ref={deleteDialogRef} />
+      <TerminateCouponDialog ref={terminateDialogRef} />
     </>
   )
 }

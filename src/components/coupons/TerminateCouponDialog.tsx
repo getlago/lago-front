@@ -4,7 +4,12 @@ import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { DialogRef, Typography } from '~/components/designSystem'
 import { WarningDialog } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
-import { TerminateCouponFragment, useTerminateCouponMutation } from '~/generated/graphql'
+import {
+  CouponDetailsFragmentDoc,
+  CouponItemFragmentDoc,
+  TerminateCouponFragment,
+  useTerminateCouponMutation,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
@@ -16,8 +21,13 @@ gql`
   mutation terminateCoupon($input: TerminateCouponInput!) {
     terminateCoupon(input: $input) {
       id
+      ...CouponDetails
+      ...CouponItem
     }
   }
+
+  ${CouponDetailsFragmentDoc}
+  ${CouponItemFragmentDoc}
 `
 
 export interface TerminateCouponDialogRef {
