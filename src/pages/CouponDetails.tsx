@@ -223,161 +223,175 @@ const CouponDetails = () => {
           description={`${couponValue} ${coupon?.frequency}`}
         />
       )}
+
       <Container>
-        <section>
-          <DetailsSectionTitle variant="subhead" noWrap>
-            {translate('text_664cb90097bfa800e6efa3e4')}
-          </DetailsSectionTitle>
-          <DetailsInfoGrid
-            grid={[
-              {
-                label: translate('text_62865498824cc10126ab2960'),
-                value: coupon?.name,
-              },
-              {
-                label: translate('text_664cb90097bfa800e6efa3e7'),
-                value: coupon?.code,
-              },
-              coupon?.couponType === CouponTypeEnum.FixedAmount && {
-                label: translate('text_632b4acf0c41206cbcb8c324'),
-                value: coupon?.amountCurrency,
-              },
-            ]}
-          />
-        </section>
-
-        <section>
-          <DetailsSectionTitle variant="subhead" noWrap>
-            {translate('text_62876e85e32e0300e1803137')}
-          </DetailsSectionTitle>
-          <DetailsCard>
-            <div className="flex flex-col gap-4 p-4 shadow-b">
-              <DetailsTableDisplay
-                header={[
-                  coupon?.couponType === CouponTypeEnum.Percentage
-                    ? translate('text_64de472463e2da6b31737de0')
-                    : coupon?.couponType === CouponTypeEnum.FixedAmount
-                      ? translate('text_624453d52e945301380e49b6')
-                      : '',
-                ]}
-                body={[[couponValue]]}
-              />
-            </div>
-
-            <div className="flex flex-col gap-4 p-4">
+        {!coupon && isCouponLoading ? (
+          <SkeletonDetailsPage />
+        ) : (
+          <>
+            <section>
+              <DetailsSectionTitle variant="subhead" noWrap>
+                {translate('text_664cb90097bfa800e6efa3e4')}
+              </DetailsSectionTitle>
               <DetailsInfoGrid
                 grid={[
                   {
-                    label: translate('text_6560809c38fb9de88d8a52fb'),
-                    value: translate(
-                      getCouponTypeTranslationKey[coupon?.couponType as CouponTypeEnum],
-                    ),
+                    label: translate('text_62865498824cc10126ab2960'),
+                    value: coupon?.name,
                   },
                   {
-                    label: translate('text_632d68358f1fedc68eed3e9d'),
-                    value: translate(
-                      getCouponFrequencyTranslationKey[coupon?.frequency as CouponFrequency],
-                    ),
+                    label: translate('text_664cb90097bfa800e6efa3e7'),
+                    value: coupon?.code,
+                  },
+                  coupon?.couponType === CouponTypeEnum.FixedAmount && {
+                    label: translate('text_632b4acf0c41206cbcb8c324'),
+                    value: coupon?.amountCurrency,
+                  },
+                  {
+                    label: translate('text_62865498824cc10126ab296f'),
+                    value: <Status {...couponStatusMapping(coupon?.status)} />,
                   },
                 ]}
               />
-            </div>
-          </DetailsCard>
-        </section>
+            </section>
 
-        {(!!coupon?.reusable ||
-          !!coupon?.expirationAt ||
-          !!coupon?.billableMetrics?.length ||
-          !!coupon?.plans?.length) && (
-          <section>
-            <DetailsSectionTitle variant="subhead" noWrap>
-              {translate('text_63c83d58e697e8e9236da806')}
-            </DetailsSectionTitle>
-            <DetailsCard>
-              <div className="flex flex-col gap-4 p-4">
-                {!!coupon?.reusable && (
+            <section>
+              <DetailsSectionTitle variant="subhead" noWrap>
+                {translate('text_62876e85e32e0300e1803137')}
+              </DetailsSectionTitle>
+              <DetailsCard>
+                <div className="flex flex-col gap-4 p-4 shadow-b">
                   <DetailsTableDisplay
                     header={[
-                      <Stack key="" direction="row" gap={2} alignItems="center">
-                        <Icon name="validate-filled" size="small" />
-                        <Typography variant="captionHl">
-                          {translate('text_638f48274d41e3f1d01fc16a')}
-                        </Typography>
-                      </Stack>,
+                      coupon?.couponType === CouponTypeEnum.Percentage
+                        ? translate('text_64de472463e2da6b31737de0')
+                        : coupon?.couponType === CouponTypeEnum.FixedAmount
+                          ? translate('text_624453d52e945301380e49b6')
+                          : '',
+                    ]}
+                    body={[[couponValue]]}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-4 p-4">
+                  <DetailsInfoGrid
+                    grid={[
+                      {
+                        label: translate('text_6560809c38fb9de88d8a52fb'),
+                        value: translate(
+                          getCouponTypeTranslationKey[coupon?.couponType as CouponTypeEnum],
+                        ),
+                      },
+                      {
+                        label: translate('text_632d68358f1fedc68eed3e9d'),
+                        value: translate(
+                          getCouponFrequencyTranslationKey[coupon?.frequency as CouponFrequency],
+                        ),
+                      },
                     ]}
                   />
-                )}
-                {!!coupon?.expirationAt && (
-                  <DetailsTableDisplay
-                    header={[
-                      <Stack
-                        key="limitation-date-header-1"
-                        direction="row"
-                        gap={2}
-                        alignItems="center"
-                      >
-                        <Icon name="validate-filled" size="small" />
-                        <Typography variant="captionHl">
-                          {translate('text_632d68358f1fedc68eed3eb7')}
-                        </Typography>
-                      </Stack>,
-                    ]}
-                    body={[
-                      [
-                        <Stack key="limitation-date-body-1" padding="16px 0">
-                          <DetailsInfoItem
-                            label={translate('text_664cb90097bfa800e6efa3f5')}
-                            value={formatTimeOrgaTZ(coupon.expirationAt)}
-                          />
-                        </Stack>,
-                      ],
-                    ]}
-                  />
-                )}
-                {(!!coupon?.billableMetrics?.length || !!coupon?.plans?.length) && (
-                  <DetailsTableDisplay
-                    header={[
-                      <Stack
-                        key="limitation-plan-or-bm-header-1"
-                        direction="row"
-                        gap={2}
-                        alignItems="center"
-                      >
-                        <Icon name="validate-filled" size="small" />
-                        <Typography variant="captionHl">
-                          {translate('text_64352657267c3d916f9627a4')}
-                        </Typography>
-                      </Stack>,
-                    ]}
-                    body={[
-                      [
-                        <Stack key="limitation-plan-or-bm-body-1" padding="16px 0">
-                          {(!!coupon.billableMetrics?.length
-                            ? coupon.billableMetrics
-                            : !!coupon?.plans?.length
-                              ? coupon?.plans
-                              : []
-                          )?.map((element, elementIndex) => (
-                            <Stack
-                              key={`limitation-plan-or-bm-item-${elementIndex}`}
-                              direction="row"
-                              alignItems="center"
-                              gap={2}
-                            >
-                              <Icon name={coupon?.plans?.length ? 'board' : 'pulse'} color="dark" />
-                              <Typography variant="body" color="grey700">
-                                {element.name}
-                              </Typography>
-                            </Stack>
-                          ))}
-                        </Stack>,
-                      ],
-                    ]}
-                  />
-                )}
-              </div>
-            </DetailsCard>
-          </section>
+                </div>
+              </DetailsCard>
+            </section>
+
+            {(!!coupon?.reusable ||
+              !!coupon?.expirationAt ||
+              !!coupon?.billableMetrics?.length ||
+              !!coupon?.plans?.length) && (
+              <section>
+                <DetailsSectionTitle variant="subhead" noWrap>
+                  {translate('text_63c83d58e697e8e9236da806')}
+                </DetailsSectionTitle>
+                <DetailsCard>
+                  <div className="flex flex-col gap-4 p-4">
+                    {!!coupon?.reusable && (
+                      <DetailsTableDisplay
+                        header={[
+                          <Stack key="" direction="row" gap={2} alignItems="center">
+                            <Icon name="validate-filled" size="small" />
+                            <Typography variant="captionHl">
+                              {translate('text_638f48274d41e3f1d01fc16a')}
+                            </Typography>
+                          </Stack>,
+                        ]}
+                      />
+                    )}
+                    {!!coupon?.expirationAt && (
+                      <DetailsTableDisplay
+                        header={[
+                          <Stack
+                            key="limitation-date-header-1"
+                            direction="row"
+                            gap={2}
+                            alignItems="center"
+                          >
+                            <Icon name="validate-filled" size="small" />
+                            <Typography variant="captionHl">
+                              {translate('text_632d68358f1fedc68eed3eb7')}
+                            </Typography>
+                          </Stack>,
+                        ]}
+                        body={[
+                          [
+                            <Stack key="limitation-date-body-1" padding="16px 0">
+                              <DetailsInfoItem
+                                label={translate('text_664cb90097bfa800e6efa3f5')}
+                                value={formatTimeOrgaTZ(coupon.expirationAt)}
+                              />
+                            </Stack>,
+                          ],
+                        ]}
+                      />
+                    )}
+                    {(!!coupon?.billableMetrics?.length || !!coupon?.plans?.length) && (
+                      <DetailsTableDisplay
+                        header={[
+                          <Stack
+                            key="limitation-plan-or-bm-header-1"
+                            direction="row"
+                            gap={2}
+                            alignItems="center"
+                          >
+                            <Icon name="validate-filled" size="small" />
+                            <Typography variant="captionHl">
+                              {translate('text_64352657267c3d916f9627a4')}
+                            </Typography>
+                          </Stack>,
+                        ]}
+                        body={[
+                          [
+                            <Stack key="limitation-plan-or-bm-body-1" padding="16px 0">
+                              {(!!coupon.billableMetrics?.length
+                                ? coupon.billableMetrics
+                                : !!coupon?.plans?.length
+                                  ? coupon?.plans
+                                  : []
+                              )?.map((element, elementIndex) => (
+                                <Stack
+                                  key={`limitation-plan-or-bm-item-${elementIndex}`}
+                                  direction="row"
+                                  alignItems="center"
+                                  gap={2}
+                                >
+                                  <Icon
+                                    name={coupon?.plans?.length ? 'board' : 'pulse'}
+                                    color="dark"
+                                  />
+                                  <Typography variant="body" color="grey700">
+                                    {element.name}
+                                  </Typography>
+                                </Stack>
+                              ))}
+                            </Stack>,
+                          ],
+                        ]}
+                      />
+                    )}
+                  </div>
+                </DetailsCard>
+              </section>
+            )}
+          </>
         )}
       </Container>
       <DeleteCouponDialog ref={deleteDialogRef} />
