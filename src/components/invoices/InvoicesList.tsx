@@ -2,15 +2,7 @@ import { ApolloError, LazyQueryHookOptions } from '@apollo/client'
 import { useEffect, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
-import {
-  Chip,
-  InfiniteScroll,
-  QuickFilters,
-  Status,
-  Table,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Chip, InfiniteScroll, Status, Table, Tooltip, Typography } from '~/components/designSystem'
 import {
   UpdateInvoicePaymentStatusDialog,
   UpdateInvoicePaymentStatusDialogRef,
@@ -51,7 +43,6 @@ import {
   AvailableFiltersEnum,
   AvailableQuickFilters,
   Filters,
-  FiltersProvider,
   isDraftUrlParams,
   isOutstandingUrlParams,
   isPaymentDisputeLostUrlParams,
@@ -117,7 +108,7 @@ const InvoicesList = ({
   return (
     <>
       <div className="box-border flex w-full flex-col gap-3 p-4 shadow-b md:px-12 md:py-3">
-        <FiltersProvider
+        <Filters.Provider
           quickFiltersType={AvailableQuickFilters.InvoiceStatus}
           availableFilters={[
             AvailableFiltersEnum.amount,
@@ -131,9 +122,9 @@ const InvoicesList = ({
             AvailableFiltersEnum.paymentOverdue,
           ]}
         >
-          <QuickFilters />
-          <Filters />
-        </FiltersProvider>
+          <Filters.QuickFilters />
+          <Filters.Component />
+        </Filters.Provider>
       </div>
 
       <div ref={listContainerElementRef}>

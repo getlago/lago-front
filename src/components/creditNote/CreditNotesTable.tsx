@@ -4,7 +4,7 @@ import { generatePath, useNavigate } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 
 import CreditNoteBadge from '~/components/creditNote/CreditNoteBadge'
-import { AvailableFiltersEnum, Filters, FiltersProvider } from '~/components/designSystem/Filters'
+import { AvailableFiltersEnum, Filters } from '~/components/designSystem/Filters'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
@@ -175,7 +175,7 @@ const CreditNotesTable = ({
   return (
     <>
       <div className="box-border flex w-full flex-col gap-3 p-4 shadow-b md:px-12 md:py-3">
-        <FiltersProvider
+        <Filters.Provider
           availableFilters={[
             AvailableFiltersEnum.amount,
             AvailableFiltersEnum.creditNoteCreditStatus,
@@ -187,8 +187,8 @@ const CreditNotesTable = ({
             AvailableFiltersEnum.creditNoteRefundStatus,
           ]}
         >
-          <Filters />
-        </FiltersProvider>
+          <Filters.Component />
+        </Filters.Provider>
       </div>
 
       <ScrollContainer
