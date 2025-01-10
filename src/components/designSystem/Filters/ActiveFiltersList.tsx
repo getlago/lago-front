@@ -11,7 +11,7 @@ import { formatActiveFilterValueDisplay } from './utils'
 export const ActiveFiltersList = () => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
-  const { availableFilters: filters } = useFilters()
+  const { availableFilters, staticFilters } = useFilters()
 
   const activeFilters = useMemo(() => {
     const setFilters = Object.fromEntries(searchParams.entries())
@@ -20,7 +20,7 @@ export const ActiveFiltersList = () => {
       (acc, cur) => {
         const [key, value] = cur as [AvailableFiltersEnum, string]
 
-        if (!filters.includes(key)) {
+        if (!availableFilters.includes(key) && !staticFilters?.[key]) {
           return acc
         }
 
@@ -38,7 +38,7 @@ export const ActiveFiltersList = () => {
     return filtersToDisplay
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters, searchParams])
+  }, [availableFilters, searchParams])
 
   if (!activeFilters.length) {
     return null

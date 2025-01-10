@@ -7,6 +7,7 @@ export type FiltersFormValues = {
   filters: Array<{
     filterType?: AvailableFiltersEnum
     value?: string
+    disabled?: boolean
   }>
 }
 
@@ -18,7 +19,7 @@ export const useFilters = () => {
   const searchParamsObject = Object.fromEntries(searchParams.entries())
 
   const resetFilters = () => {
-    // Only remove the filters from the URL that are currently applied
+    // Only remove the filters from the URL that are currently applied and are removable (availableFilters)
     for (const search in searchParamsObject) {
       // @ts-expect-error - searchParams is typed as a string and not as AvailableFiltersEnum
       if (context.availableFilters.includes(search)) {
@@ -31,15 +32,18 @@ export const useFilters = () => {
 
   const applyFilters = (values: FiltersFormValues) => {
     const newUrlSearchParams = values.filters.reduce((acc, cur) => {
-      if (
-        !cur.filterType ||
-        cur.value === undefined ||
-        !context.availableFilters.includes(cur.filterType)
-      ) {
+      // If the filterType is not set or the value is not set, then do nothing
+      if (!cur.filterType || cur.value === undefined) {
         return acc
       }
 
-      acc.set(cur.filterType, cur.value as string)
+      if (
+        context.staticFilters?.[cur.filterType] ||
+        context.availableFilters.includes(cur.filterType)
+      ) {
+        acc.delete(cur.filterType)
+        acc.append(cur.filterType, cur.value)
+      }
 
       return acc
     }, new URLSearchParams())
@@ -47,11 +51,17 @@ export const useFilters = () => {
     navigate({ search: newUrlSearchParams.toString() })
   }
 
-  const getInitialFilters = () => {
-    return Object.entries(searchParamsObject).reduce<FiltersFormValues['filters']>((acc, cur) => {
+  const getInitialFiltersFormValues = (from: 'default' | 'url') => {
+    // We sometimes want to get the initial filters from the URL and sometimes from the default filters at instantiation
+    const source =
+      from === 'default'
+        ? Object.entries(context.staticFilters ?? {})
+        : Object.entries(searchParamsObject)
+
+    return source.reduce<FiltersFormValues['filters']>((acc, cur) => {
       const [key, value] = cur as [AvailableFiltersEnum, FiltersFormValues['filters'][0]['value']]
 
-      if (!context.availableFilters.includes(key)) {
+      if (!context.availableFilters.includes(key) && !context.staticFilters?.[key]) {
         return acc
       }
 
@@ -60,15 +70,27 @@ export const useFilters = () => {
         {
           filterType: key,
           value,
+          disabled: !!context.staticFilters?.[key],
         },
       ]
     }, [])
   }
 
+  const hasAppliedFilters = () => {
+    if (searchParamsObject) {
+      return Object.keys(searchParamsObject).some((key) =>
+        context.availableFilters.includes(key as AvailableFiltersEnum),
+      )
+    }
+
+    return false
+  }
+
   return {
     ...context,
-    hasAppliedFilters: searchParams.size > 0,
-    initialFilters: getInitialFilters(),
+    hasAppliedFilters: hasAppliedFilters(),
+    initialFiltersFormValues: getInitialFiltersFormValues('url'),
+    staticFiltersFormValues: getInitialFiltersFormValues('default'),
     applyFilters,
     resetFilters,
   }

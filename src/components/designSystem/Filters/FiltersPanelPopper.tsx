@@ -14,14 +14,15 @@ import { AvailableFiltersEnum, mapFilterToTranslationKey } from './types'
 
 export const FiltersPanelPopper = () => {
   const { translate } = useInternationalization()
-  const { availableFilters, initialFilters, applyFilters } = useFilters()
+  const { availableFilters, initialFiltersFormValues, staticFiltersFormValues, applyFilters } =
+    useFilters()
 
   const listContainerElementRef = useRef<HTMLDivElement>(null)
 
   const formikProps = useFormik<FiltersFormValues>({
     initialValues: {
       // Default has to contain an empty object to display the first filter placeholder
-      filters: !!initialFilters.length ? initialFilters : [{}],
+      filters: !!initialFiltersFormValues.length ? [...initialFiltersFormValues] : [{}],
     },
     validateOnMount: true,
     enableReinitialize: true,
@@ -29,7 +30,11 @@ export const FiltersPanelPopper = () => {
     validationSchema: object().shape({
       filters: lazy((value: FiltersFormValues['filters']) => {
         // Make sure schema is valid on "Clear all" button press
-        if (initialFilters.length > 0 && value.length === 1 && Object.keys(value[0]).length === 0) {
+        if (
+          initialFiltersFormValues.length > 0 &&
+          value.length === 1 &&
+          Object.keys(value[0]).length === 0
+        ) {
           return array().of(object())
         }
 
@@ -79,10 +84,9 @@ export const FiltersPanelPopper = () => {
             <Typography variant="bodyHl" color="grey700">
               {translate('text_66ab42d4ece7e6b7078993ad')}
             </Typography>
-
             <Button
               onClick={() => {
-                formikProps.setFieldValue('filters', [{}])
+                formikProps.setFieldValue('filters', [...(staticFiltersFormValues ?? {})])
               }}
               variant="quaternary"
             >
@@ -122,6 +126,7 @@ export const FiltersPanelPopper = () => {
                     data={comboboxFiltersData}
                     placeholder={translate('text_66ab42d4ece7e6b7078993b1')}
                     value={filter.filterType}
+                    disabled={filter.disabled}
                     onChange={(value) => {
                       const newFilterObject = {
                         ...formikProps.values.filters[filterIndex],
@@ -144,45 +149,49 @@ export const FiltersPanelPopper = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="block lg:hidden">
-                  <Button
-                    fitContent
-                    align="left"
-                    size="small"
-                    startIcon="trash"
-                    variant="quaternary"
-                    disabled={formikProps.values.filters.length === 1}
-                    onClick={() => {
-                      const newFilters = formikProps.values.filters.filter(
-                        (_, index) => index !== filterIndex,
-                      )
+                {!filter.disabled && (
+                  <>
+                    <div className="block lg:hidden">
+                      <Button
+                        fitContent
+                        align="left"
+                        size="small"
+                        startIcon="trash"
+                        variant="quaternary"
+                        disabled={formikProps.values.filters.length === 1}
+                        onClick={() => {
+                          const newFilters = formikProps.values.filters.filter(
+                            (_, index) => index !== filterIndex,
+                          )
 
-                      formikProps.setFieldValue('filters', newFilters)
-                    }}
-                  >
-                    {translate('text_66ab4ad87fc8510054f237c2')}
-                  </Button>
-                </div>
-                <div className="hidden lg:block">
-                  <Tooltip
-                    title={translate('text_63ea0f84f400488553caa786')}
-                    placement="top-end"
-                    disableHoverListener={formikProps.values.filters.length === 1}
-                  >
-                    <Button
-                      icon="trash"
-                      variant="quaternary"
-                      disabled={formikProps.values.filters.length === 1}
-                      onClick={() => {
-                        const newFilters = formikProps.values.filters.filter(
-                          (_, index) => index !== filterIndex,
-                        )
+                          formikProps.setFieldValue('filters', newFilters)
+                        }}
+                      >
+                        {translate('text_66ab4ad87fc8510054f237c2')}
+                      </Button>
+                    </div>
+                    <div className="hidden lg:block">
+                      <Tooltip
+                        title={translate('text_63ea0f84f400488553caa786')}
+                        placement="top-end"
+                        disableHoverListener={formikProps.values.filters.length === 1}
+                      >
+                        <Button
+                          icon="trash"
+                          variant="quaternary"
+                          disabled={formikProps.values.filters.length === 1}
+                          onClick={() => {
+                            const newFilters = formikProps.values.filters.filter(
+                              (_, index) => index !== filterIndex,
+                            )
 
-                        formikProps.setFieldValue('filters', newFilters)
-                      }}
-                    />
-                  </Tooltip>
-                </div>
+                            formikProps.setFieldValue('filters', newFilters)
+                          }}
+                        />
+                      </Tooltip>
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>
