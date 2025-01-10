@@ -47,16 +47,17 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import { createCreditNoteForInvoiceButtonProps } from '../creditNote/utils'
-import { Filters } from '../designSystem/Filters/Filters'
-import { AvailableFiltersEnum, AvailableQuickFilters } from '../designSystem/Filters/types'
 import {
+  AvailableFiltersEnum,
+  AvailableQuickFilters,
+  Filters,
   isDraftUrlParams,
   isOutstandingUrlParams,
   isPaymentDisputeLostUrlParams,
   isPaymentOverdueUrlParams,
   isSucceededUrlParams,
   isVoidedUrlParams,
-} from '../designSystem/Filters/utils'
+} from '../designSystem/Filters'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
 type TInvoiceListProps = {

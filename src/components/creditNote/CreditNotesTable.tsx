@@ -4,8 +4,7 @@ import { generatePath, useNavigate } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 
 import CreditNoteBadge from '~/components/creditNote/CreditNoteBadge'
-import { Filters } from '~/components/designSystem/Filters/Filters'
-import { AvailableFiltersEnum } from '~/components/designSystem/Filters/types'
+import { AvailableFiltersEnum, Filters } from '~/components/designSystem/Filters'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {

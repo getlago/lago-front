@@ -9,7 +9,7 @@ import {
   formatFiltersForCreditNotesQuery,
   formatFiltersForInvoiceQuery,
   isOutstandingUrlParams,
-} from '~/components/designSystem/Filters/utils'
+} from '~/components/designSystem/Filters'
 import { ExportDialog, ExportDialogRef, ExportValues } from '~/components/exports/ExportDialog'
 import {
   UpdateInvoicePaymentStatusDialog,
