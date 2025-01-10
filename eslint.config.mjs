@@ -67,6 +67,8 @@ export default [
       'no-unused-vars': 'off',
       'newline-after-var': ['warn'], // TOFIX: Deprecated rule
       'no-extra-boolean-cast': 'off',
+      'no-nested-ternary': 'warn',
+      'no-unneeded-ternary': 'warn',
 
       // Plugins
       'import/order': [
