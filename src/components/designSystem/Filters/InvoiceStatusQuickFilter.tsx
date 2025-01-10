@@ -4,6 +4,7 @@ import { Button, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'
 
+import { useFilters } from './hook'
 import {
   buildDraftUrlParams,
   buildOutstandingUrlParams,
@@ -44,10 +45,11 @@ export const InvoiceStatusQuickFilter = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
+  const { resetFilters, hasAppliedFilters } = useFilters()
 
   return (
     <>
-      <QuickFilter isSelected={searchParams.size === 0} onClick={() => navigate({ search: '' })}>
+      <QuickFilter isSelected={!hasAppliedFilters} onClick={resetFilters}>
         <Typography variant="captionHl" color="grey600">
           {translate('text_63ac86d797f728a87b2f9f8b')}
         </Typography>
