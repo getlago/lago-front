@@ -2,15 +2,13 @@ import { Typography } from '@mui/material'
 import { useFormik } from 'formik'
 import { useEffect } from 'react'
 
-import { AmountFilterInterval } from '~/components/designSystem/Filters/types'
+import { AmountFilterInterval, FiltersFormValues } from '~/components/designSystem/Filters/types'
 import {
   AMOUNT_INTERVALS_TRANSLATION_MAP,
   parseAmountValue,
 } from '~/components/designSystem/Filters/utils'
 import { ComboBoxField, TextInputField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { FiltersFormValues } from '../FiltersPanelPopper'
 
 type FiltersItemAmountProps = {
   value: FiltersFormValues['filters'][0]['value']

@@ -2,7 +2,7 @@ import { MultipleComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CREDIT_NOTE_REASONS } from '~/pages/CreateCreditNote'
 
-import { FiltersFormValues } from '../FiltersPanelPopper'
+import { FiltersFormValues } from '../types'
 
 type FiltersItemCreditNoteReasonProps = {
   value: FiltersFormValues['filters'][0]['value']

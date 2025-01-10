@@ -5,7 +5,7 @@ import { ComboBox } from '~/components/form'
 import { useGetInvoiceNumbersForFilterItemInvoiceNumbersLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { FiltersFormValues } from '../FiltersPanelPopper'
+import { FiltersFormValues } from '../types'
 
 gql`
   query getInvoiceNumbersForFilterItemInvoiceNumbers($page: Int, $limit: Int, $searchTerm: String) {

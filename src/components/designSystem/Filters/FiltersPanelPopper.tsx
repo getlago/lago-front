@@ -9,8 +9,8 @@ import { ComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { FiltersPanelItemTypeSwitch } from './FiltersPanelItemTypeSwitch'
-import { FiltersFormValues, useFilters } from './hook'
-import { AvailableFiltersEnum, mapFilterToTranslationKey } from './types'
+import { useFilters } from './hook'
+import { AvailableFiltersEnum, FiltersFormValues, mapFilterToTranslationKey } from './types'
 
 export const FiltersPanelPopper = () => {
   const { translate } = useInternationalization()

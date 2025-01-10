@@ -5,8 +5,7 @@ import { ComboBox } from '~/components/form'
 import { useGetCustomersForFilterItemCustomerLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { FiltersFormValues } from '../FiltersPanelPopper'
-import { filterDataInlineSeparator } from '../types'
+import { filterDataInlineSeparator, FiltersFormValues } from '../types'
 
 gql`
   query getCustomersForFilterItemCustomer($page: Int, $limit: Int, $searchTerm: String) {

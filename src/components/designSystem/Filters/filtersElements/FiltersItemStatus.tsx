@@ -2,7 +2,7 @@ import { MultipleComboBox } from '~/components/form'
 import { InvoiceStatusTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { FiltersFormValues } from '../FiltersPanelPopper'
+import { FiltersFormValues } from '../types'
 
 type FiltersItemStatusProps = {
   value: FiltersFormValues['filters'][0]['value']

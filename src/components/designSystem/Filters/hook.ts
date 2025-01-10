@@ -1,15 +1,7 @@
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { useFilterContext } from './context'
-import { AvailableFiltersEnum } from './types'
-
-export type FiltersFormValues = {
-  filters: Array<{
-    filterType?: AvailableFiltersEnum
-    value?: string
-    disabled?: boolean
-  }>
-}
+import { AvailableFiltersEnum, FiltersFormValues } from './types'
 
 export const useFilters = () => {
   const context = useFilterContext()

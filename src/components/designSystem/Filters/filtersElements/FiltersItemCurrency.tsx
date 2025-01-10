@@ -2,7 +2,7 @@ import { ComboBox } from '~/components/form'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { FiltersFormValues } from '../FiltersPanelPopper'
+import { FiltersFormValues } from '../types'
 
 type FiltersItemCurrencyProps = {
   value: FiltersFormValues['filters'][0]['value']

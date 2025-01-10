@@ -1,7 +1,7 @@
 import { ComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { FiltersFormValues } from '../FiltersPanelPopper'
+import { FiltersFormValues } from '../types'
 
 type FiltersItemPaymentOverdueProps = {
   value: FiltersFormValues['filters'][0]['value']
