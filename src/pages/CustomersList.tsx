@@ -1,11 +1,7 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath, useNavigate } from 'react-router-dom'
 
-import {
-  AddCustomerDrawer,
-  AddCustomerDrawerRef,
-} from '~/components/customers/addDrawer/AddCustomerDrawer'
 import {
   DeleteCustomerDialog,
   DeleteCustomerDialogRef,
@@ -14,7 +10,7 @@ import { computeCustomerInitials } from '~/components/customers/utils'
 import { Avatar, Button, InfiniteScroll, Table, Typography } from '~/components/designSystem'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { SearchInput } from '~/components/SearchInput'
-import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
+import { CREATE_CUSTOMER_ROUTE, CUSTOMER_DETAILS_ROUTE, UPDATE_CUSTOMER_ROUTE } from '~/core/router'
 import {
   AddCustomerDrawerFragmentDoc,
   CustomerItemFragmentDoc,
@@ -59,6 +55,7 @@ const CustomersList = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const navigate = useNavigate()
 
   const [getCustomers, { data, error, loading, fetchMore, variables }] = useCustomersLazyQuery({
     variables: { limit: 20 },
@@ -67,7 +64,6 @@ const CustomersList = () => {
     nextFetchPolicy: 'network-only',
   })
 
-  const addCustomerDrawerRef = useRef<AddCustomerDrawerRef>(null)
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
 
   const { debouncedSearch, isLoading } = useDebouncedSearch(getCustomers, loading)
@@ -84,10 +80,7 @@ const CustomersList = () => {
             placeholder={translate('text_63befc65efcd9374da45b801')}
           />
           {hasPermissions(['customersCreate']) && (
-            <Button
-              data-test="create-customer"
-              onClick={() => addCustomerDrawerRef.current?.openDrawer()}
-            >
+            <Button data-test="create-customer" onClick={() => navigate(CREATE_CUSTOMER_ROUTE)}>
               {translate('text_1734452833961s338w0x3b4s')}
             </Button>
           )}
@@ -174,7 +167,12 @@ const CustomersList = () => {
                 ? {
                     startIcon: 'pen',
                     title: translate('text_6261640f28a49700f1290df3'),
-                    onAction: () => addCustomerDrawerRef?.current?.openDrawer(customer),
+                    onAction: () =>
+                      navigate(
+                        generatePath(UPDATE_CUSTOMER_ROUTE, {
+                          customerId: customer.id,
+                        }),
+                      ),
                   }
                 : null,
               hasPermissions(['customersDelete'])
@@ -209,7 +207,7 @@ const CustomersList = () => {
                     title: translate('text_17344528339611v83lf47q5m'),
                     subtitle: translate('text_1734452833961ix7z38723pg'),
                     buttonTitle: translate('text_1734452833961s338w0x3b4s'),
-                    buttonAction: () => addCustomerDrawerRef.current?.openDrawer(),
+                    buttonAction: () => navigate(CREATE_CUSTOMER_ROUTE),
                     buttonVariant: 'primary',
                   }
                 : {
@@ -220,7 +218,6 @@ const CustomersList = () => {
         />
       </InfiniteScroll>
 
-      <AddCustomerDrawer ref={addCustomerDrawerRef} />
       <DeleteCustomerDialog ref={deleteDialogRef} />
     </div>
   )

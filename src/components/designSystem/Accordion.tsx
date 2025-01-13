@@ -60,12 +60,12 @@ export const Accordion = ({
 
   return (
     <MuiAccordion
-      square
       id={id}
       expanded={isOpen}
       className={tw(
         {
           'border border-solid border-grey-400': variant === 'card',
+          '!rounded-none': variant === 'borderless',
         },
         className,
       )}
@@ -120,17 +120,7 @@ export const Accordion = ({
             data-test="open-charge"
             variant="quaternary"
             size="small"
-            icon={
-              variant === 'card'
-                ? isOpen
-                  ? 'chevron-down'
-                  : 'chevron-right'
-                : variant === 'borderless'
-                  ? isOpen
-                    ? 'chevron-down-filled'
-                    : 'chevron-right-filled'
-                  : undefined
-            }
+            icon={isOpen ? 'chevron-down-filled' : 'chevron-right-filled'}
           />
         </Tooltip>
         {summary}

@@ -12,6 +12,7 @@ const InvoicesPage = lazyLoad(() => import('~/pages/InvoicesPage'))
 // Creation
 const ApiKeysForm = lazyLoad(() => import('~/pages/developers/ApiKeysForm'))
 const CreateBillableMetric = lazyLoad(() => import('~/pages/CreateBillableMetric'))
+const CreateCustomer = lazyLoad(() => import('~/pages/CreateCustomer'))
 const CreatePlan = lazyLoad(() => import('~/pages/CreatePlan'))
 const CreateTax = lazyLoad(() => import('~/pages/CreateTax'))
 const CreateInvoice = lazyLoad(() => import('~/pages/CreateInvoice'))
@@ -36,6 +37,9 @@ export const INVOICES_ROUTE = '/invoices'
 export const INVOICES_TAB_ROUTE = '/invoices/:tab'
 
 // Creation
+export const CREATE_CUSTOMER_ROUTE = `/customer/create`
+export const UPDATE_CUSTOMER_ROUTE = `/customer/:customerId/edit`
+
 export const CREATE_API_KEYS_ROUTE = `/api-keys/create`
 export const UPDATE_API_KEYS_ROUTE = `/api-keys/:apiKeyId/edit`
 
@@ -108,6 +112,12 @@ export const objectListRoutes: CustomRouteObject[] = [
 ]
 
 export const objectCreationRoutes: CustomRouteObject[] = [
+  {
+    path: [CREATE_CUSTOMER_ROUTE, UPDATE_CUSTOMER_ROUTE],
+    private: true,
+    element: <CreateCustomer />,
+    permissions: ['customersCreate', 'customersUpdate'],
+  },
   {
     path: [CREATE_API_KEYS_ROUTE, UPDATE_API_KEYS_ROUTE],
     private: true,

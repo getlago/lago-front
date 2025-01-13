@@ -1,12 +1,20 @@
 import { useFormik } from 'formik'
-import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
-import { array, object, string } from 'yup'
+import { RefObject, useRef } from 'react'
+import { array, object, ref, string } from 'yup'
 
-import { Button, Drawer, DrawerRef, Typography } from '~/components/designSystem'
+import { BillingAccordion } from '~/components/customers/createCustomer/BillingAccordion'
+import { CustomerInformation } from '~/components/customers/createCustomer/CustomerInformation'
+import { ExternalAppsAccordion } from '~/components/customers/createCustomer/ExternalAppsAccordion'
+import {
+  LocalCustomerMetadata,
+  MetadataAccordion,
+} from '~/components/customers/createCustomer/MetadataAccordion'
+import { Button, DrawerRef, Typography } from '~/components/designSystem'
+import { CenteredPage } from '~/components/layouts/Pages'
+import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { metadataSchema } from '~/formValidation/metadataSchema'
 import {
-  AddCustomerDrawerFragment,
   AnrokCustomer,
   CreateCustomerInput,
   CurrencyEnum,
@@ -22,26 +30,13 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditCustomer } from '~/hooks/useCreateEditCustomer'
-import { DrawerContent, DrawerSubmitButton, DrawerTitle } from '~/styles'
+import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
-import { BillingAccordion } from './BillingAccordion'
-import { CustomerInformation } from './CustomerInformation'
-import { ExternalAppsAccordion } from './ExternalAppsAccordion'
-import { LocalCustomerMetadata, MetadataAccordion } from './MetadataAccordion'
-
-export interface AddCustomerDrawerRef {
-  openDrawer: (customer?: AddCustomerDrawerFragment | null) => unknown
-  closeDrawer: () => unknown
-}
-
-export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
+const CreateCustomer = () => {
   const { translate } = useInternationalization()
-  const drawerRef = useRef<DrawerRef>(null)
-  const [customer, setCustomer] = useState<AddCustomerDrawerFragment | null | undefined>(null)
+  const warningDialogRef = useRef<WarningDialogRef>(null)
 
-  const { isEdition, onSave } = useCreateEditCustomer({
-    customer,
-  })
+  const { isEdition, onSave, customer, loading, onClose } = useCreateEditCustomer()
 
   const formikProps = useFormik<CreateCustomerInput | UpdateCustomerInput>({
     initialValues: {
@@ -224,72 +219,77 @@ export const AddCustomerDrawer = forwardRef<AddCustomerDrawerRef>((_, ref) => {
     },
   })
 
-  useImperativeHandle(ref, () => ({
-    openDrawer: (data) => {
-      setCustomer(data)
-      drawerRef.current?.openDrawer()
-    },
-    closeDrawer: () => drawerRef.current?.closeDrawer(),
-  }))
+  const onAbort = () => {
+    formikProps.dirty ? warningDialogRef.current?.openDialog() : onClose()
+  }
 
   return (
-    <Drawer
-      ref={drawerRef}
-      title={translate(
-        isEdition
-          ? 'text_632b4acf0c41206cbcb8c2f6'
-          : customer?.name
-            ? 'text_632b49e2620ea4c6d96c9650'
-            : 'text_632b49e2620ea4c6d96c9652',
-        {
-          customerName: customer?.name || '',
-        },
+    <CenteredPage.Wrapper>
+      <CenteredPage.Header>
+        <Typography variant="bodyHl" color="textSecondary" noWrap>
+          {isEdition
+            ? translate('text_1735651472114fzhjvrrcumw')
+            : translate('text_1734452833961s338w0x3b4s')}
+        </Typography>
+        <Button variant="quaternary" icon="close" onClick={onAbort} />
+      </CenteredPage.Header>
+
+      {loading && (
+        <CenteredPage.Container>
+          <FormLoadingSkeleton id="create-customer" />
+        </CenteredPage.Container>
       )}
-      onClose={() => {
-        formikProps.resetForm()
-        formikProps.validateForm()
-      }}
-      showCloseWarningDialog={formikProps.dirty}
-    >
-      <DrawerContent>
-        <DrawerTitle>
-          <Typography variant="headline">
-            {translate(
-              isEdition ? 'text_632b4acf0c41206cbcb8c2f8' : 'text_632b49e2620ea4c6d96c9652',
-            )}
-          </Typography>
-          <Typography>
-            {translate(
-              isEdition ? 'text_632b4acf0c41206cbcb8c2fa' : 'text_632b49e2620ea4c6d96c9654',
-            )}
-          </Typography>
-        </DrawerTitle>
 
-        <CustomerInformation formikProps={formikProps} isEdition={isEdition} customer={customer} />
+      {!loading && (
+        <CenteredPage.Container>
+          <div className="not-last-child:mb-1">
+            <Typography variant="headline" color="textSecondary">
+              {isEdition
+                ? translate('text_1735651472114fzhjvrrcumw')
+                : translate('text_1734452833961s338w0x3b4s')}
+            </Typography>
+            <Typography variant="body">{translate('text_1734452833961ix7z38723pg')}</Typography>
+          </div>
 
-        <BillingAccordion formikProps={formikProps} isEdition={isEdition} customer={customer} />
+          <div className="mb-8 flex flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b">
+            <CustomerInformation
+              formikProps={formikProps}
+              isEdition={isEdition}
+              customer={customer}
+            />
+            <BillingAccordion formikProps={formikProps} isEdition={isEdition} customer={customer} />
+            <MetadataAccordion formikProps={formikProps} />
+            <ExternalAppsAccordion formikProps={formikProps} isEdition={isEdition} />
+          </div>
+        </CenteredPage.Container>
+      )}
 
-        <ExternalAppsAccordion formikProps={formikProps} isEdition={isEdition} />
+      <CenteredPage.StickyFooter>
+        <Button size="large" variant="quaternary" onClick={onAbort}>
+          {translate('text_62e79671d23ae6ff149de968')}
+        </Button>
+        <Button
+          size="large"
+          variant="primary"
+          disabled={!formikProps.isValid || !formikProps.dirty}
+          onClick={() => formikProps.handleSubmit()}
+          data-test="submit-customer"
+        >
+          {isEdition
+            ? translate('text_17295436903260tlyb1gp1i7')
+            : translate('text_632b49e2620ea4c6d96c9666')}
+        </Button>
+      </CenteredPage.StickyFooter>
 
-        <MetadataAccordion formikProps={formikProps} />
-
-        <DrawerSubmitButton>
-          <Button
-            size="large"
-            disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
-            loading={formikProps.isSubmitting}
-            fullWidth
-            data-test="submit"
-            onClick={formikProps.submitForm}
-          >
-            {translate(
-              isEdition ? 'text_632b4acf0c41206cbcb8c30c' : 'text_632b49e2620ea4c6d96c9666',
-            )}
-          </Button>
-        </DrawerSubmitButton>
-      </DrawerContent>
-    </Drawer>
+      <WarningDialog
+        ref={warningDialogRef}
+        title={translate('text_665deda4babaf700d603ea13')}
+        description={translate('text_665dedd557dc3c00c62eb83d')}
+        continueText={translate('text_645388d5bdbd7b00abffa033')}
+        onContinue={onClose}
+      />
+    </CenteredPage.Wrapper>
   )
-})
+}
 
-AddCustomerDrawer.displayName = 'AddCustomerDrawer'
+export default CreateCustomer

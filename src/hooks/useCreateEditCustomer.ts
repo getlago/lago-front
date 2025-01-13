@@ -1,8 +1,9 @@
 import { FetchResult, gql } from '@apollo/client'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import { addToast } from '~/core/apolloClient'
-import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { CUSTOMER_DETAILS_ROUTE, CUSTOMERS_LIST_ROUTE, ERROR_404_ROUTE } from '~/core/router'
 import {
   AddCustomerDrawerFragment,
   CreateCustomerInput,
@@ -13,6 +14,7 @@ import {
   UpdateCustomerInput,
   UpdateCustomerMutation,
   useCreateCustomerMutation,
+  useGetSingleCustomerQuery,
   useUpdateCustomerMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -61,6 +63,7 @@ gql`
       integrationCode
       integrationType
       syncWithProvider
+      targetedObject
     }
     salesforceCustomer {
       __typename
@@ -135,11 +138,21 @@ gql`
     }
   }
 
+  query GetSingleCustomer($id: ID!) {
+    customer(id: $id) {
+      id
+      ...AddCustomerDrawer
+    }
+  }
+
   ${CustomerItemFragmentDoc}
 `
 
-type UseCreateEditCustomer = (props: { customer?: AddCustomerDrawerFragment | null }) => {
+type UseCreateEditCustomer = () => {
   isEdition: boolean
+  loading: boolean
+  customer: AddCustomerDrawerFragment | undefined
+  onClose: () => void
   onSave: (
     values: CreateCustomerInput | UpdateCustomerInput,
   ) => Promise<
@@ -148,9 +161,21 @@ type UseCreateEditCustomer = (props: { customer?: AddCustomerDrawerFragment | nu
   >
 }
 
-export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
+export const useCreateEditCustomer: UseCreateEditCustomer = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
+  const { customerId } = useParams<{ customerId: string }>()
+
+  const {
+    data: { customer } = {},
+    loading,
+    error,
+  } = useGetSingleCustomerQuery({
+    variables: {
+      id: customerId as string,
+    },
+    skip: !customerId,
+  })
 
   const [create] = useCreateCustomerMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
@@ -164,6 +189,7 @@ export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
       }
     },
   })
+
   const [update] = useUpdateCustomerMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted({ updateCustomer }) {
@@ -172,49 +198,59 @@ export const useCreateEditCustomer: UseCreateEditCustomer = ({ customer }) => {
           message: translate('text_626162c62f790600f850b7da'),
           severity: 'success',
         })
+        navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: updateCustomer.id }))
       }
     },
   })
 
+  useEffect(() => {
+    if (hasDefinedGQLError('NotFound', error, 'customer')) {
+      navigate(ERROR_404_ROUTE)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error])
+
+  const onSave = async (values: CreateCustomerInput | UpdateCustomerInput) => {
+    const { paymentProvider, providerCustomer } = values
+
+    const input = {
+      ...values,
+      paymentProvider,
+      providerCustomer: {
+        providerCustomerId: !paymentProvider ? null : providerCustomer?.providerCustomerId,
+        syncWithProvider: !paymentProvider ? null : providerCustomer?.syncWithProvider,
+        providerPaymentMethods: !providerCustomer?.providerPaymentMethods?.length
+          ? [ProviderPaymentMethodsEnum.Card]
+          : providerCustomer?.providerPaymentMethods,
+      },
+    }
+
+    if (customer && customerId) {
+      return await update({
+        variables: {
+          input: {
+            id: customer?.id as string,
+            ...input,
+          },
+        },
+      })
+    }
+
+    return await create({
+      variables: {
+        input,
+      },
+    })
+  }
+
   return {
-    isEdition: !!customer,
-    onSave: !!customer
-      ? async ({ providerCustomer, paymentProvider, ...values }) =>
-          await update({
-            variables: {
-              input: {
-                id: customer?.id as string,
-                paymentProvider,
-                providerCustomer: {
-                  providerCustomerId: !paymentProvider
-                    ? null
-                    : providerCustomer?.providerCustomerId,
-                  syncWithProvider: !paymentProvider ? null : providerCustomer?.syncWithProvider,
-                  providerPaymentMethods: !providerCustomer?.providerPaymentMethods?.length
-                    ? [ProviderPaymentMethodsEnum.Card]
-                    : providerCustomer?.providerPaymentMethods,
-                },
-                ...values,
-              },
-            },
-          })
-      : async ({ providerCustomer, paymentProvider, ...values }) =>
-          await create({
-            variables: {
-              input: {
-                ...values,
-                paymentProvider,
-                providerCustomer: {
-                  providerCustomerId: !paymentProvider
-                    ? null
-                    : providerCustomer?.providerCustomerId,
-                  syncWithProvider: !paymentProvider ? null : providerCustomer?.syncWithProvider,
-                  providerPaymentMethods: !providerCustomer?.providerPaymentMethods?.length
-                    ? [ProviderPaymentMethodsEnum.Card]
-                    : providerCustomer?.providerPaymentMethods,
-                },
-              },
-            },
-          }),
+    loading,
+    isEdition: !!customerId,
+    customer: customer || undefined,
+    onClose: () =>
+      customerId
+        ? navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId }))
+        : navigate(CUSTOMERS_LIST_ROUTE),
+    onSave,
   }
 }

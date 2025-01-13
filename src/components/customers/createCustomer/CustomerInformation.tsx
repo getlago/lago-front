@@ -1,9 +1,8 @@
-import { Grid } from '@mui/material'
 import { FormikProps } from 'formik'
 import { FC } from 'react'
 
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
-import { Card, Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem'
 import { ComboBoxField, TextInputField } from '~/components/form'
 import { ORGANIZATION_INFORMATIONS_ROUTE } from '~/core/router'
 import { getTimezoneConfig } from '~/core/timezone'
@@ -34,8 +33,21 @@ export const CustomerInformation: FC<CustomerInformationProps> = ({
   const { timezoneConfig } = useOrganizationInfos()
 
   return (
-    <Card className="items-stretch">
-      <Typography variant="subhead">{translate('text_626c0c09812bbc00e4c59df1')}</Typography>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-2">
+        <Typography variant="subhead">{translate('text_6419c64eace749372fc72b07')}</Typography>
+        <Typography variant="caption">{translate('text_1735652987833k0i3l9ill5g')}</Typography>
+      </div>
+
+      <TextInputField
+        // eslint-disable-next-line jsx-a11y/no-autofocus
+        autoFocus={!isEdition}
+        name="externalId"
+        disabled={isEdition && !customer?.canEditAttributes}
+        label={translate('text_624efab67eb2570101d117ce')}
+        placeholder={translate('text_624efab67eb2570101d117d6')}
+        formikProps={formikProps}
+      />
       <ComboBoxField
         name="customerType"
         label={translate('text_1726128938631ioz4orixel3')}
@@ -48,41 +60,28 @@ export const CustomerInformation: FC<CustomerInformationProps> = ({
         }))}
       />
       <TextInputField
-        // eslint-disable-next-line jsx-a11y/no-autofocus
-        autoFocus={!isEdition}
         name="name"
         label={translate('text_624efab67eb2570101d117be')}
         placeholder={translate('text_624efab67eb2570101d117c6')}
         formikProps={formikProps}
       />
-      <Grid container spacing={4}>
-        <Grid item xs={12} md={6}>
-          <TextInputField
-            name="firstname"
-            label={translate('text_1726128938631ggtf2ggqs4b')}
-            placeholder={translate('text_1726128938631ntcpbzv7x7s')}
-            formikProps={formikProps}
-          />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <TextInputField
-            name="lastname"
-            label={translate('text_1726128938631ymctg83bygm')}
-            placeholder={translate('text_1726128938631xmpsba9ssuo')}
-            formikProps={formikProps}
-          />
-        </Grid>
-      </Grid>
-      <TextInputField
-        name="externalId"
-        disabled={isEdition && !customer?.canEditAttributes}
-        label={translate('text_624efab67eb2570101d117ce')}
-        placeholder={translate('text_624efab67eb2570101d117d6')}
-        helperText={
-          (!isEdition || customer?.canEditAttributes) && translate('text_624efab67eb2570101d117de')
-        }
-        formikProps={formikProps}
-      />
+      <div className="flex gap-6">
+        <TextInputField
+          className="flex-1"
+          name="firstname"
+          label={translate('text_1726128938631ggtf2ggqs4b')}
+          placeholder={translate('text_1726128938631ntcpbzv7x7s')}
+          formikProps={formikProps}
+        />
+
+        <TextInputField
+          className="flex-1"
+          name="lastname"
+          label={translate('text_1726128938631ymctg83bygm')}
+          placeholder={translate('text_1726128938631xmpsba9ssuo')}
+          formikProps={formikProps}
+        />
+      </div>
       <ComboBoxField
         name="timezone"
         label={translate('text_6390a4ffef9227ba45daca90')}
@@ -117,6 +116,6 @@ export const CustomerInformation: FC<CustomerInformationProps> = ({
         helperText={translate('text_651fd41846f44c0064408b07')}
         formikProps={formikProps}
       />
-    </Card>
+    </div>
   )
 }
