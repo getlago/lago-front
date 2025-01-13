@@ -2754,5 +2754,21 @@
   "text_173255335844629sa49oljif": "Preview invoice",
   "text_1735045451930tezr0et3e6l": "Invoice is pending finalization.",
   "text_1735045451931zfgc6yvvcfm": "This invoice is in the queue, waiting to be finalized. It may take a bit of time. Please refresh or check back later.",
-  "text_17364422965884zgujkr1l7j": "Deleting this coupon will make it permanently unavailable and remove the applied instance. This action is irreversible. Are you sure you want to proceed?|Deleting this coupon will make it permanently unavailable and remove all {{appliedCouponsCount}} applied instances. This action is irreversible. Are you sure you want to proceed?"
+  "text_17364422965884zgujkr1l7j": "Deleting this coupon will make it permanently unavailable and remove the applied instance. This action is irreversible. Are you sure you want to proceed?|Deleting this coupon will make it permanently unavailable and remove all {{appliedCouponsCount}} applied instances. This action is irreversible. Are you sure you want to proceed?",
+  "text_1733427981129n3wxjui0bex": "Moneyhash",
+  "text_1733489819311q0nzqi3u7wz": "Connect to Moneyhash",
+  "text_1733491430992msh3b2v8nlx": "To connect to Moneyhash, please enter the API key, Success,Failed,Pending or Webhook URLs generated from your moneyhash account.",
+  "text_1733729620554tspzhwa5d3t": "Success Redirect URL",
+  "text_1733729622776cyub16g4it0": "Type a success url",
+  "text_1733729624253c5lsxyvwal7": "Failed Redirect URL",
+  "text_17337296256405ibboaa38oq": "Type a failed url",
+  "text_17337296266252mlh212u2wb": "Pending External Redirect Url",
+  "text_173372962787260vsygacc1i": "Type a pending url",
+  "text_173372976803867ab7rn8nav": "Webhook Redirect URL",
+  "text_1733729769074rmlw2o104ap": "Type a webhook url",
+  "text_1733729938415dtehv31k9in": "Edit Moneyhash Connection",
+  "text_17337299668343fncntgiyhf": "Edit information linked to this Moneyhash connection.",
+  "text_17337300102103wt4s6yz2gh": "Moneyhash connection successfully edited",
+  "text_1733730115018i122xlyi662": "Moneyhash connection successfully added",
+  "text_1733992108437qlovqhjhqj4": "Create automatically this customer in Moneyhash"
 }

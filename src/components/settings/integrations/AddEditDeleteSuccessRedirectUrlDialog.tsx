@@ -11,12 +11,15 @@ import { ADYEN_SUCCESS_LINK_SPEC_URL } from '~/core/constants/externalUrls'
 import {
   AdyenForCreateAndEditSuccessRedirectUrlFragment,
   GocardlessForCreateAndEditSuccessRedirectUrlFragment,
+  MoneyhashForCreateAndEditSuccessRedirectUrlFragment,
   StripeForCreateAndEditSuccessRedirectUrlFragment,
   UpdateAdyenPaymentProviderInput,
   UpdateGocardlessPaymentProviderInput,
+  UpdateMoneyhashPaymentProviderInput,
   UpdateStripePaymentProviderInput,
   useUpdateAdyenPaymentProviderMutation,
   useUpdateGocardlessPaymentProviderMutation,
+  useUpdateMoneyhashPaymentProviderMutation,
   useUpdateStripePaymentProviderMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -58,6 +61,13 @@ gql`
       successRedirectUrl
     }
   }
+
+  mutation updateMoneyhashPaymentProvider($input: UpdateMoneyhashPaymentProviderInput!) {
+    updateMoneyhashPaymentProvider(input: $input) {
+      id
+      successRedirectUrl
+    }
+  }
 `
 
 const AddEditDeleteSuccessRedirectUrlDialogMode = {
@@ -70,6 +80,7 @@ const AddEditDeleteSuccessRedirectUrlDialogProviderType = {
   Adyen: 'Adyen',
   Stripe: 'Stripe',
   GoCardless: 'GoCardless',
+  Moneyhash: 'Moneyhash',
 } as const
 
 type LocalProviderType = {
@@ -79,6 +90,7 @@ type LocalProviderType = {
     | AdyenForCreateAndEditSuccessRedirectUrlFragment
     | GocardlessForCreateAndEditSuccessRedirectUrlFragment
     | StripeForCreateAndEditSuccessRedirectUrlFragment
+    | MoneyhashForCreateAndEditSuccessRedirectUrlFragment
     | null
 }
 
@@ -132,10 +144,22 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
       },
     })
 
+    const [updateMoneyhashProvider] = useUpdateMoneyhashPaymentProviderMutation({
+      onCompleted(data) {
+        if (data && data.updateMoneyhashPaymentProvider) {
+          addToast({
+            message: successToastMessage,
+            severity: 'success',
+          })
+        }
+      },
+    })
+
     const formikProps = useFormik<
       | UpdateAdyenPaymentProviderInput
       | UpdateGocardlessPaymentProviderInput
       | UpdateStripePaymentProviderInput
+      | UpdateMoneyhashPaymentProviderInput
     >({
       initialValues: {
         id: localData?.provider?.id || '',
@@ -151,6 +175,7 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
           [AddEditDeleteSuccessRedirectUrlDialogProviderType.Adyen]: updateAdyenProvider,
           [AddEditDeleteSuccessRedirectUrlDialogProviderType.Stripe]: updateStripeProvider,
           [AddEditDeleteSuccessRedirectUrlDialogProviderType.GoCardless]: updateGocardlessProvider,
+          [AddEditDeleteSuccessRedirectUrlDialogProviderType.Moneyhash]: updateMoneyhashProvider,
         }
 
         const method = methodLoojup[localData?.type as LocalProviderType['type']]

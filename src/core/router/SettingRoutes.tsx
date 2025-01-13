@@ -23,6 +23,10 @@ const OktaAuthenticationDetails = lazyLoad(
   () => import('~/pages/settings/Authentication/OktaAuthenticationDetails'),
 )
 const AdyenIntegrations = lazyLoad(() => import('~/pages/settings/AdyenIntegrations'))
+const MoneyhashIntegrations = lazyLoad(() => import('~/pages/settings/MoneyhashIntegrations'))
+const MoneyhashIntegrationDetails = lazyLoad(
+  () => import('~/pages/settings/MoneyhashIntegrationDetails'),
+)
 const NetsuiteIntegrations = lazyLoad(() => import('~/pages/settings/NetsuiteIntegrations'))
 const AdyenIntegrationDetails = lazyLoad(() => import('~/pages/settings/AdyenIntegrationDetails'))
 const HubspotIntegrations = lazyLoad(() => import('~/pages/settings/HubspotIntegrations'))
@@ -67,6 +71,8 @@ export const ANROK_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/anrok`
 export const ANROK_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/anrok/:integrationId/:tab`
 export const ADYEN_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/adyen`
 export const ADYEN_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/adyen/:integrationId`
+export const MONEYHASH_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/moneyhash`
+export const MONEYHASH_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/moneyhash/:integrationId`
 export const HUBSPOT_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/hubspot`
 export const HUBSPOT_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/hubspot/:integrationId`
 export const NETSUITE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/netsuite`
@@ -169,6 +175,18 @@ export const settingRoutes: CustomRouteObject[] = [
         path: ADYEN_INTEGRATION_ROUTE,
         private: true,
         element: <AdyenIntegrations />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: MONEYHASH_INTEGRATION_DETAILS_ROUTE,
+        private: true,
+        element: <MoneyhashIntegrationDetails />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: MONEYHASH_INTEGRATION_ROUTE,
+        private: true,
+        element: <MoneyhashIntegrations />,
         permissions: ['organizationIntegrationsView'],
       },
       {
