@@ -555,7 +555,7 @@ const Integrations = () => {
               }),
               component: (
                 <SettingsListWrapper>
-                  <Alert type="warning">{translate('text_1733303404277q80b216p5zr')}</Alert>
+                  <Alert type="warning">{translate('text_1736764955395763x9k5gqkj')}</Alert>
                   {!!loading ? (
                     <SettingsListItemLoadingSkeleton count={2} />
                   ) : (
