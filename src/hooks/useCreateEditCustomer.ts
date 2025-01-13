@@ -210,6 +210,39 @@ export const useCreateEditCustomer: UseCreateEditCustomer = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error])
 
+  const onSave = async (values: CreateCustomerInput | UpdateCustomerInput) => {
+    const { paymentProvider, providerCustomer } = values
+
+    const input = {
+      ...values,
+      paymentProvider,
+      providerCustomer: {
+        providerCustomerId: !paymentProvider ? null : providerCustomer?.providerCustomerId,
+        syncWithProvider: !paymentProvider ? null : providerCustomer?.syncWithProvider,
+        providerPaymentMethods: !providerCustomer?.providerPaymentMethods?.length
+          ? [ProviderPaymentMethodsEnum.Card]
+          : providerCustomer?.providerPaymentMethods,
+      },
+    }
+
+    if (customer && customerId) {
+      return await update({
+        variables: {
+          input: {
+            id: customer?.id as string,
+            ...input,
+          },
+        },
+      })
+    }
+
+    return await create({
+      variables: {
+        input,
+      },
+    })
+  }
+
   return {
     loading,
     isEdition: !!customerId,
@@ -218,44 +251,6 @@ export const useCreateEditCustomer: UseCreateEditCustomer = () => {
       customerId
         ? navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId }))
         : navigate(CUSTOMERS_LIST_ROUTE),
-    onSave:
-      !!customer && !!customerId
-        ? async ({ providerCustomer, paymentProvider, ...values }) =>
-            await update({
-              variables: {
-                input: {
-                  id: customer?.id as string,
-                  paymentProvider,
-                  providerCustomer: {
-                    providerCustomerId: !paymentProvider
-                      ? null
-                      : providerCustomer?.providerCustomerId,
-                    syncWithProvider: !paymentProvider ? null : providerCustomer?.syncWithProvider,
-                    providerPaymentMethods: !providerCustomer?.providerPaymentMethods?.length
-                      ? [ProviderPaymentMethodsEnum.Card]
-                      : providerCustomer?.providerPaymentMethods,
-                  },
-                  ...values,
-                },
-              },
-            })
-        : async ({ providerCustomer, paymentProvider, ...values }) =>
-            await create({
-              variables: {
-                input: {
-                  ...values,
-                  paymentProvider,
-                  providerCustomer: {
-                    providerCustomerId: !paymentProvider
-                      ? null
-                      : providerCustomer?.providerCustomerId,
-                    syncWithProvider: !paymentProvider ? null : providerCustomer?.syncWithProvider,
-                    providerPaymentMethods: !providerCustomer?.providerPaymentMethods?.length
-                      ? [ProviderPaymentMethodsEnum.Card]
-                      : providerCustomer?.providerPaymentMethods,
-                  },
-                },
-              },
-            }),
+    onSave,
   }
 }
