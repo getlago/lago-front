@@ -80,7 +80,7 @@ const CashfreeIntegrations = () => {
       ? () =>
           navigate(
             generatePath(INTEGRATIONS_ROUTE, {
-              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+              integrationGroup: IntegrationsTabsOptionsEnum.Community,
             }),
           )
       : undefined
@@ -95,7 +95,7 @@ const CashfreeIntegrations = () => {
         <div className="flex items-center">
           <ButtonLink
             to={generatePath(INTEGRATIONS_ROUTE, {
-              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+              integrationGroup: IntegrationsTabsOptionsEnum.Community,
             })}
             className="mr-3"
             type="button"
@@ -172,7 +172,7 @@ const CashfreeIntegrations = () => {
                         tabIndex={0}
                         to={generatePath(CASHFREE_INTEGRATION_DETAILS_ROUTE, {
                           integrationId: connection.id,
-                          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                          integrationGroup: IntegrationsTabsOptionsEnum.Community,
                         })}
                       >
                         <div className="flex items-center gap-3">
