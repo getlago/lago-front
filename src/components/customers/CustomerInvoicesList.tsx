@@ -405,7 +405,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                         hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)
                       ) {
                         addToast({
-                          severity: 'danger',
+                          severity: 'info',
                           translateKey: 'text_63b6d06df1a53b7e2ad973ad',
                         })
                       }
