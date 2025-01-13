@@ -9,7 +9,7 @@ interface FilterContextType {
   staticFilters?: Partial<Record<AvailableFiltersEnum, unknown>>
 }
 
-const FilterContext = createContext<FilterContextType | undefined>(undefined)
+export const FilterContext = createContext<FilterContextType | undefined>(undefined)
 
 export const FiltersProvider: FC<PropsWithChildren<FilterContextType>> = ({
   children,

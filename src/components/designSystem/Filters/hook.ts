@@ -78,6 +78,41 @@ export const useFilters = () => {
     return false
   }
 
+  const buildQuickFilterUrlParams = (filters: { [key: string]: unknown }) => {
+    const staticFilters = Object.entries(context.staticFilters ?? {})
+      .map(([key, value]) => `${key}=${value}`)
+      .join('&')
+
+    const newFilters = Object.entries(filters)
+      .map(([key, value]) => {
+        if (Array.isArray(value)) {
+          return `${key}=${value.join(',')}`
+        }
+
+        return `${key}=${value}`
+      })
+      .join('&')
+
+    // If there are no static filters, return only the new filters
+    return staticFilters ? `${staticFilters}&${newFilters}` : newFilters
+  }
+
+  const isQuickFilterActive = (filters: { [key: string]: unknown }) => {
+    for (const [key, value] of Object.entries(filters)) {
+      if (Array.isArray(value)) {
+        if (searchParamsObject[key] !== value.join(',')) {
+          return false
+        }
+      } else {
+        if (searchParamsObject[key] !== String(value)) {
+          return false
+        }
+      }
+    }
+
+    return true
+  }
+
   return {
     ...context,
     hasAppliedFilters: hasAppliedFilters(),
@@ -85,5 +120,7 @@ export const useFilters = () => {
     staticFiltersFormValues: getInitialFiltersFormValues('default'),
     applyFilters,
     resetFilters,
+    isQuickFilterActive,
+    buildQuickFilterUrlParams,
   }
 }

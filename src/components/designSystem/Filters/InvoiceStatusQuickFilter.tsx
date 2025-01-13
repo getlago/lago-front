@@ -1,24 +1,11 @@
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { Button, Typography } from '~/components/designSystem'
+import { InvoicePaymentStatusTypeEnum, InvoiceStatusTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'
 
 import { useFilters } from './hook'
-import {
-  buildDraftUrlParams,
-  buildOutstandingUrlParams,
-  buildPaymentDisputeLostUrlParams,
-  buildPaymentOverdueUrlParams,
-  buildSucceededUrlParams,
-  buildVoidedUrlParams,
-  isDraftUrlParams,
-  isOutstandingUrlParams,
-  isPaymentDisputeLostUrlParams,
-  isPaymentOverdueUrlParams,
-  isSucceededUrlParams,
-  isVoidedUrlParams,
-} from './utils'
 
 const QuickFilter = ({
   children,
@@ -41,11 +28,57 @@ const QuickFilter = ({
   </Button>
 )
 
+enum InvoiceQuickFilterEnum {
+  Outstanding = 'outstanding',
+  Succeeded = 'succeeded',
+  Draft = 'draft',
+  PaymentOverdue = 'paymentOverdue',
+  Voided = 'voided',
+  PaymentDisputeLost = 'paymentDisputeLost',
+}
+
+const invoiceQuickFilterTranslations = {
+  [InvoiceQuickFilterEnum.Outstanding]: 'text_666c5b12fea4aa1e1b26bf52',
+  [InvoiceQuickFilterEnum.Succeeded]: 'text_63ac86d797f728a87b2f9fa1',
+  [InvoiceQuickFilterEnum.Draft]: 'text_63ac86d797f728a87b2f9f91',
+  [InvoiceQuickFilterEnum.PaymentOverdue]: 'text_666c5b12fea4aa1e1b26bf55',
+  [InvoiceQuickFilterEnum.Voided]: 'text_6376641a2a9c70fff5bddcd5',
+  [InvoiceQuickFilterEnum.PaymentDisputeLost]: 'text_66141e30699a0631f0b2ed32',
+}
+
+const quickFilterMapping: Record<
+  InvoiceQuickFilterEnum,
+  {
+    [key: string]: unknown
+  }
+> = {
+  [InvoiceQuickFilterEnum.Draft]: {
+    status: InvoiceStatusTypeEnum.Draft,
+  },
+  [InvoiceQuickFilterEnum.Outstanding]: {
+    paymentStatus: [InvoicePaymentStatusTypeEnum.Failed, InvoicePaymentStatusTypeEnum.Pending],
+    status: InvoiceStatusTypeEnum.Finalized,
+  },
+  [InvoiceQuickFilterEnum.PaymentOverdue]: {
+    paymentOverdue: true,
+  },
+  [InvoiceQuickFilterEnum.Succeeded]: {
+    paymentStatus: InvoicePaymentStatusTypeEnum.Succeeded,
+    status: InvoiceStatusTypeEnum.Finalized,
+  },
+  [InvoiceQuickFilterEnum.Voided]: {
+    status: InvoiceStatusTypeEnum.Voided,
+  },
+  [InvoiceQuickFilterEnum.PaymentDisputeLost]: {
+    paymentDisputeLost: true,
+  },
+}
+
 export const InvoiceStatusQuickFilter = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const { resetFilters, hasAppliedFilters } = useFilters()
+  const { resetFilters, isQuickFilterActive, buildQuickFilterUrlParams, hasAppliedFilters } =
+    useFilters()
 
   return (
     <>
@@ -54,54 +87,17 @@ export const InvoiceStatusQuickFilter = () => {
           {translate('text_63ac86d797f728a87b2f9f8b')}
         </Typography>
       </QuickFilter>
-      <QuickFilter
-        isSelected={isDraftUrlParams(searchParams)}
-        onClick={() => navigate({ search: buildDraftUrlParams() })}
-      >
-        <Typography variant="captionHl" color="grey600">
-          {translate('text_63ac86d797f728a87b2f9f91')}
-        </Typography>
-      </QuickFilter>
-      <QuickFilter
-        isSelected={isOutstandingUrlParams(searchParams)}
-        onClick={() => navigate({ search: buildOutstandingUrlParams() })}
-      >
-        <Typography variant="captionHl" color="grey600">
-          {translate('text_666c5b12fea4aa1e1b26bf52')}
-        </Typography>
-      </QuickFilter>
-      <QuickFilter
-        isSelected={isPaymentOverdueUrlParams(searchParams)}
-        onClick={() => navigate({ search: buildPaymentOverdueUrlParams() })}
-      >
-        <Typography variant="captionHl" color="grey600">
-          {translate('text_666c5b12fea4aa1e1b26bf55')}
-        </Typography>
-      </QuickFilter>
-      <QuickFilter
-        isSelected={isSucceededUrlParams(searchParams)}
-        onClick={() => navigate({ search: buildSucceededUrlParams() })}
-      >
-        <Typography variant="captionHl" color="grey600">
-          {translate('text_63ac86d797f728a87b2f9fa1')}
-        </Typography>
-      </QuickFilter>
-      <QuickFilter
-        isSelected={isVoidedUrlParams(searchParams)}
-        onClick={() => navigate({ search: buildVoidedUrlParams() })}
-      >
-        <Typography variant="captionHl" color="grey600">
-          {translate('text_6376641a2a9c70fff5bddcd5')}
-        </Typography>
-      </QuickFilter>
-      <QuickFilter
-        isSelected={isPaymentDisputeLostUrlParams(searchParams)}
-        onClick={() => navigate({ search: buildPaymentDisputeLostUrlParams() })}
-      >
-        <Typography variant="captionHl" color="grey600">
-          {translate('text_66141e30699a0631f0b2ed32')}
-        </Typography>
-      </QuickFilter>
+      {Object.entries(quickFilterMapping).map(([key, value]) => (
+        <QuickFilter
+          key={key}
+          isSelected={isQuickFilterActive(value)}
+          onClick={() => navigate({ search: buildQuickFilterUrlParams(value) })}
+        >
+          <Typography variant="captionHl" color="grey600">
+            {translate(invoiceQuickFilterTranslations[key as InvoiceQuickFilterEnum])}
+          </Typography>
+        </QuickFilter>
+      ))}
     </>
   )
 }
