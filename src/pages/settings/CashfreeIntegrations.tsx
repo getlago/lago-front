@@ -132,16 +132,20 @@ const CashfreeIntegrations = () => {
           </>
         ) : (
           <>
-            <Avatar className="mr-4" variant="connector-full" size="large">
-              <Cashfree />
-            </Avatar>
-            <div className="flex items-center">
-              <Typography className="mr-2" variant="headline">
-                {translate('text_1727619878796wmgcntkfycn')}
-              </Typography>
-              <Chip label={translate('text_62b1edddbf5f461ab971270d')} />
+            <div className="flex items-center gap-4">
+              <Avatar variant="connector-full" size="large">
+                <Cashfree />
+              </Avatar>
+              <div>
+                <div className="flex items-center">
+                  <Typography className="mr-2" variant="headline">
+                    {translate('text_1727619878796wmgcntkfycn')}
+                  </Typography>
+                  <Chip label={translate('text_62b1edddbf5f461ab971270d')} />
+                </div>
+                <Typography>{translate('text_62b1edddbf5f461ab971271f')}</Typography>
+              </div>
             </div>
-            <Typography>{translate('text_62b1edddbf5f461ab971271f')}</Typography>
           </>
         )}
       </div>
