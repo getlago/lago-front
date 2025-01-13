@@ -143,7 +143,7 @@ export const AddCashfreeDialog = forwardRef<AddCashfreeDialogRef>((_, ref) => {
       clientSecret: string().required(''),
       successRedirectUrl: string(),
     }),
-    onSubmit: async ({ clientId, clientSecret, ...values }, formikBag) => {
+    onSubmit: async ({ clientId, clientSecret, successRedirectUrl, ...values }, formikBag) => {
       const res = await getCashfreeProviderByCode({
         context: { silentErrorCodes: [LagoApiError.NotFound] },
         variables: {
@@ -166,6 +166,7 @@ export const AddCashfreeDialog = forwardRef<AddCashfreeDialogRef>((_, ref) => {
           variables: {
             input: {
               id: cashfreeProvider?.id || '',
+              successRedirectUrl: successRedirectUrl || undefined,
               ...values,
             },
           },
@@ -173,7 +174,12 @@ export const AddCashfreeDialog = forwardRef<AddCashfreeDialogRef>((_, ref) => {
       } else {
         await addApiKey({
           variables: {
-            input: { clientId, clientSecret, ...values },
+            input: {
+              clientId,
+              clientSecret,
+              successRedirectUrl: successRedirectUrl || undefined,
+              ...values,
+            },
           },
         })
       }

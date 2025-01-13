@@ -14584,6 +14584,12 @@ export const PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocum
     query paymentProvidersListForCustomerCreateEditExternalAppsAccordion($limit: Int) {
   paymentProviders(limit: $limit) {
     collection {
+      ... on CashfreeProvider {
+        __typename
+        id
+        name
+        code
+      }
       ... on StripeProvider {
         __typename
         id
@@ -14591,12 +14597,6 @@ export const PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocum
         code
       }
       ... on GocardlessProvider {
-        __typename
-        id
-        name
-        code
-      }
-      ... on CashfreeProvider {
         __typename
         id
         name
