@@ -123,7 +123,7 @@ const CashfreeIntegrationDetails = () => {
         <div className="flex items-center">
           <ButtonLink
             to={generatePath(CASHFREE_INTEGRATION_ROUTE, {
-              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+              integrationGroup: IntegrationsTabsOptionsEnum.Community,
             })}
             className="mr-3"
             type="button"
