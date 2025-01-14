@@ -63,7 +63,9 @@ export const PreviewCustomSectionDrawer = forwardRef<PreviewCustomSectionDrawerR
         withPadding={false}
         stickyBottomBar={({ closeDrawer }) => (
           <div className="flex justify-end">
-            <Button onClick={closeDrawer}>{translate('text_62f50d26c989ab03196884ae')}</Button>
+            <Button size="large" onClick={closeDrawer}>
+              {translate('text_62f50d26c989ab03196884ae')}
+            </Button>
           </div>
         )}
         title={
@@ -75,7 +77,7 @@ export const PreviewCustomSectionDrawer = forwardRef<PreviewCustomSectionDrawerR
         }
       >
         <div className="h-full bg-grey-100 pb-12 pl-12">
-          <div className="flex size-full flex-col justify-end bg-white px-12 py-8">
+          <div className="flex size-full flex-col justify-end bg-white p-12">
             {hasLocalData && (
               <div className="flex flex-col gap-1 pb-6 shadow-b">
                 {localData?.displayName && (

@@ -1,5 +1,5 @@
 import { useFormik } from 'formik'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { boolean, object, string } from 'yup'
 
@@ -15,6 +15,7 @@ import {
   PreviewCustomSectionDrawerRef,
 } from '~/components/settings/invoices/PreviewCustomSectionDrawer'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { INVOICE_SETTINGS_ROUTE } from '~/core/router'
 import { CreateInvoiceCustomSectionInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -29,7 +30,8 @@ const CreateInvoiceCustomSection = () => {
   const defaultCustomSectionDialogRef = useRef<DefaultCustomSectionDialogRef>(null)
   const previewCustomSectionDrawerRef = useRef<PreviewCustomSectionDrawerRef>(null)
 
-  const { loading, isEdition, invoiceCustomSection, onSave } = useCreateEditInvoiceCustomSection()
+  const { loading, isEdition, invoiceCustomSection, onSave, errorCode } =
+    useCreateEditInvoiceCustomSection()
 
   const formikProps = useFormik<CreateInvoiceCustomSectionInput>({
     initialValues: {
@@ -73,6 +75,17 @@ const CreateInvoiceCustomSection = () => {
       formikProps.submitForm()
     }
   }
+
+  useEffect(() => {
+    if (errorCode === FORM_ERRORS_ENUM.existingCode) {
+      formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
+      const rootElement = document.getElementById('root')
+
+      if (!rootElement) return
+      rootElement.scrollTo({ top: 0 })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [errorCode])
 
   return (
     <>
@@ -118,6 +131,8 @@ const CreateInvoiceCustomSection = () => {
                   </div>
                   <div className="flex items-start gap-6 *:flex-1">
                     <TextInputField
+                      // eslint-disable-next-line jsx-a11y/no-autofocus
+                      autoFocus
                       name="name"
                       formikProps={formikProps}
                       label={translate('text_6419c64eace749372fc72b0f')}
