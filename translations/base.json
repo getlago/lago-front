@@ -290,7 +290,7 @@
   "text_664c732c264d7eed1c74fda0": "e.g. acme.com",
   "text_664c732c264d7eed1c74fda6": "Okta client ID (public identifier)",
   "text_664c732c264d7eed1c74fdac": "Type your Okta public key",
-  "text_664c732c264d7eed1c74fdb2": "Okta private key (authentication)",
+  "text_664c732c264d7eed1c74fdb2": "Okta client secret",
   "text_664c732c264d7eed1c74fdb7": "Type your Okta private key",
   "text_664c732c264d7eed1c74fdbb": "Okta organization name",
   "text_664c732c264d7eed1c74fdbf": "Type your organization name",
