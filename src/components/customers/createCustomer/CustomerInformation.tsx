@@ -1,5 +1,5 @@
 import { FormikProps } from 'formik'
-import { FC } from 'react'
+import { FC, useMemo } from 'react'
 
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { Typography } from '~/components/designSystem'
@@ -31,6 +31,17 @@ export const CustomerInformation: FC<CustomerInformationProps> = ({
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
   const { timezoneConfig } = useOrganizationInfos()
+  const timezoneComboboxData = useMemo(
+    () =>
+      Object.values(TimezoneEnum).map((timezoneValue) => ({
+        value: timezoneValue,
+        label: translate('text_638f743fa9a2a9545ee6409a', {
+          zone: translate(timezoneValue),
+          offset: getTimezoneConfig(timezoneValue).offset,
+        }),
+      })),
+    [translate],
+  )
 
   return (
     <div className="flex flex-col gap-6">
@@ -54,10 +65,16 @@ export const CustomerInformation: FC<CustomerInformationProps> = ({
         placeholder={translate('text_17261289386318j0nhr1ms3t')}
         formikProps={formikProps}
         PopperProps={{ displayInDialog: true }}
-        data={Object.values(CustomerTypeEnum).map((customerValue) => ({
-          value: customerValue,
-          label: translate(TRANSLATIONS_MAP_CUSTOMER_TYPE[customerValue]),
-        }))}
+        data={[
+          {
+            value: CustomerTypeEnum.Company,
+            label: translate(TRANSLATIONS_MAP_CUSTOMER_TYPE[CustomerTypeEnum.Company]),
+          },
+          {
+            value: CustomerTypeEnum.Individual,
+            label: translate(TRANSLATIONS_MAP_CUSTOMER_TYPE[CustomerTypeEnum.Individual]),
+          },
+        ]}
       />
       <TextInputField
         name="name"
@@ -101,13 +118,7 @@ export const CustomerInformation: FC<CustomerInformationProps> = ({
         }
         formikProps={formikProps}
         PopperProps={{ displayInDialog: true }}
-        data={Object.values(TimezoneEnum).map((timezoneValue) => ({
-          value: timezoneValue,
-          label: translate('text_638f743fa9a2a9545ee6409a', {
-            zone: translate(timezoneValue),
-            offset: getTimezoneConfig(timezoneValue).offset,
-          }),
-        }))}
+        data={timezoneComboboxData}
       />
       <TextInputField
         name="externalSalesforceId"

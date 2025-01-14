@@ -1,5 +1,5 @@
 import { useFormik } from 'formik'
-import { RefObject, useRef } from 'react'
+import { RefObject, useCallback, useRef } from 'react'
 import { array, object, ref, string } from 'yup'
 
 import { BillingAccordion } from '~/components/customers/createCustomer/BillingAccordion'
@@ -219,9 +219,9 @@ const CreateCustomer = () => {
     },
   })
 
-  const onAbort = () => {
+  const onAbort = useCallback(() => {
     formikProps.dirty ? warningDialogRef.current?.openDialog() : onClose()
-  }
+  }, [formikProps.dirty, onClose])
 
   return (
     <CenteredPage.Wrapper>
