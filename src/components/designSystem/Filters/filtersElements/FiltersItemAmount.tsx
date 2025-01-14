@@ -2,11 +2,12 @@ import { Typography } from '@mui/material'
 import { useFormik } from 'formik'
 import { useEffect } from 'react'
 
-import { AmountFilterInterval, FiltersFormValues } from '~/components/designSystem/Filters/types'
 import {
   AMOUNT_INTERVALS_TRANSLATION_MAP,
+  AmountFilterInterval,
+  FiltersFormValues,
   parseAmountValue,
-} from '~/components/designSystem/Filters/utils'
+} from '~/components/designSystem/Filters'
 import { ComboBoxField, TextInputField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
