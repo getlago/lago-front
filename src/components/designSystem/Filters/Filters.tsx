@@ -4,7 +4,7 @@ import { tw } from '~/styles/utils'
 
 import { ActiveFiltersList } from './ActiveFiltersList'
 import { FiltersPanelPopper } from './FiltersPanelPopper'
-import { useFilters } from './hook'
+import { useFilters } from './useFilters'
 
 interface FiltersProps {
   className?: string

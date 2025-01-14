@@ -1,6 +1,6 @@
-import { useFilters } from './hook'
 import { InvoiceStatusQuickFilter } from './InvoiceStatusQuickFilter'
 import { AvailableQuickFilters } from './types'
+import { useFilters } from './useFilters'
 
 export const QuickFilters = () => {
   const { quickFiltersType } = useFilters()

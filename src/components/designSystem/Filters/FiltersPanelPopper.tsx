@@ -9,8 +9,8 @@ import { ComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { FiltersPanelItemTypeSwitch } from './FiltersPanelItemTypeSwitch'
-import { useFilters } from './hook'
 import { AvailableFiltersEnum, FiltersFormValues, mapFilterToTranslationKey } from './types'
+import { useFilters } from './useFilters'
 
 export const FiltersPanelPopper = () => {
   const { translate } = useInternationalization()
@@ -66,6 +66,12 @@ export const FiltersPanelPopper = () => {
       }
     })
   }, [formikProps.values.filters, availableFilters, translate])
+
+  const onRemoveFilter = (filterIndex: number) => {
+    const newFilters = formikProps.values.filters.filter((_, index) => index !== filterIndex)
+
+    formikProps.setFieldValue('filters', newFilters)
+  }
 
   return (
     <Popper
@@ -159,13 +165,7 @@ export const FiltersPanelPopper = () => {
                         startIcon="trash"
                         variant="quaternary"
                         disabled={formikProps.values.filters.length === 1}
-                        onClick={() => {
-                          const newFilters = formikProps.values.filters.filter(
-                            (_, index) => index !== filterIndex,
-                          )
-
-                          formikProps.setFieldValue('filters', newFilters)
-                        }}
+                        onClick={() => onRemoveFilter(filterIndex)}
                       >
                         {translate('text_66ab4ad87fc8510054f237c2')}
                       </Button>
@@ -180,13 +180,7 @@ export const FiltersPanelPopper = () => {
                           icon="trash"
                           variant="quaternary"
                           disabled={formikProps.values.filters.length === 1}
-                          onClick={() => {
-                            const newFilters = formikProps.values.filters.filter(
-                              (_, index) => index !== filterIndex,
-                            )
-
-                            formikProps.setFieldValue('filters', newFilters)
-                          }}
+                          onClick={() => onRemoveFilter(filterIndex)}
                         />
                       </Tooltip>
                     </div>

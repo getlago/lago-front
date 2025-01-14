@@ -5,7 +5,7 @@ import { InvoicePaymentStatusTypeEnum, InvoiceStatusTypeEnum } from '~/generated
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'
 
-import { useFilters } from './hook'
+import { useFilters } from './useFilters'
 
 const QuickFilter = ({
   children,

@@ -5,8 +5,8 @@ import { BrowserRouter } from 'react-router-dom'
 import { InvoicePaymentStatusTypeEnum, InvoiceStatusTypeEnum } from '~/generated/graphql'
 
 import { FilterContext } from '../context'
-import { useFilters } from '../hook'
 import { AvailableFiltersEnum } from '../types'
+import { useFilters } from '../useFilters'
 import {
   isDraftUrlParams,
   isOutstandingUrlParams,

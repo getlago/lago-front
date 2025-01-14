@@ -4,8 +4,8 @@ import { useSearchParams } from 'react-router-dom'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { useFilters } from './hook'
 import { AvailableFiltersEnum, mapFilterToTranslationKey } from './types'
+import { useFilters } from './useFilters'
 import { formatActiveFilterValueDisplay } from './utils'
 
 export const ActiveFiltersList = () => {
