@@ -59,6 +59,8 @@ gql`
     $paymentStatus: [InvoicePaymentStatusTypeEnum!]
     $searchTerm: String
     $status: [InvoiceStatusTypeEnum!]
+    $amountFrom: Int
+    $amountTo: Int
   ) {
     invoices(
       currency: $currency
@@ -73,6 +75,8 @@ gql`
       paymentStatus: $paymentStatus
       searchTerm: $searchTerm
       status: $status
+      amountFrom: $amountFrom
+      amountTo: $amountTo
     ) {
       metadata {
         currentPage
@@ -212,7 +216,7 @@ const InvoicesPage = () => {
     nextFetchPolicy: 'network-only',
     variables: {
       limit: 20,
-      ...filtersForInvoiceQuery,
+      ...formatAmountCurrency(filtersForInvoiceQuery, amountCurrency),
     },
   })
 
@@ -254,7 +258,7 @@ const InvoicesPage = () => {
 
   const onInvoicesExport = async (values: ExportValues<InvoiceExportTypeEnum>) => {
     const filters = {
-      ...formatFiltersForInvoiceQuery(searchParams),
+      ...formatAmountCurrency(formatFiltersForInvoiceQuery(searchParams), amountCurrency),
       searchTerm: variableInvoices?.searchTerm,
     }
 

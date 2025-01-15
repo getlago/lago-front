@@ -49,6 +49,7 @@ export const InvoiceAvailableFilters = [
   AvailableFiltersEnum.paymentOverdue,
   AvailableFiltersEnum.paymentStatus,
   AvailableFiltersEnum.status,
+  AvailableFiltersEnum.amount,
 ]
 
 const translationMap: Record<AvailableFiltersEnum, string> = {

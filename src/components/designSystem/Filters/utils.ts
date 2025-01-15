@@ -12,8 +12,8 @@ import {
 export const parseAmountValue = (value: string) => {
   const [interval, from, to] = value.split(',')
 
-  const fromAmount = from ? parseInt(from) : null
-  const toAmount = to ? parseInt(to) : null
+  const fromAmount = from ? Number(from) : null
+  const toAmount = to ? Number(to) : null
 
   switch (interval) {
     case AmountFilterInterval.isEqualTo:

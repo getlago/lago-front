@@ -71,6 +71,7 @@ export const FiltersItemAmount = ({ value = '', setFilterValue }: FiltersItemAmo
         }))}
         placeholder={translate('text_66ab42d4ece7e6b7078993b1')}
         formikProps={formikProps}
+        disableClearable={true}
       />
 
       {showFrom && (
