@@ -71,6 +71,7 @@ import Minus from '~/public/icons/minus.svg'
 import Okta from '~/public/icons/okta.svg'
 import Outside from '~/public/icons/outside.svg'
 import Paperclip from '~/public/icons/paperclip.svg'
+import PartiallyFilled from '~/public/icons/partially-filled.svg'
 import PauseCircleFilled from '~/public/icons/pause-circle-filled.svg'
 import PauseCircleUnfilled from '~/public/icons/pause-circle-unfilled.svg'
 import Pen from '~/public/icons/pen.svg'
@@ -191,6 +192,7 @@ export const ALL_ICONS = {
   okta: Okta,
   outside: Outside,
   paperclip: Paperclip,
+  'partially-filled': PartiallyFilled,
   'pause-circle-filled': PauseCircleFilled,
   'pause-circle-unfilled': PauseCircleUnfilled,
   pen: Pen,
