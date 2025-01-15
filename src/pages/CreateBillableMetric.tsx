@@ -252,7 +252,7 @@ const CreateBillableMetric = () => {
 
   return (
     <div>
-      <PageHeader>
+      <PageHeader.Wrapper>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate(isEdition ? 'text_62582fb4675ece01137a7e44' : 'text_623b42ff8ee4e000ba87d0ae')}
         </Typography>
@@ -265,7 +265,7 @@ const CreateBillableMetric = () => {
               : navigate(BILLABLE_METRICS_ROUTE)
           }
         />
-      </PageHeader>
+      </PageHeader.Wrapper>
       <Content>
         <Main>
           <div>

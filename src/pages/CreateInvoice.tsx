@@ -459,7 +459,7 @@ const CreateInvoice = () => {
 
   return (
     <>
-      <PageHeader>
+      <PageHeader.Wrapper>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_6453819268763979024acfe9')}
         </Typography>
@@ -473,7 +473,7 @@ const CreateInvoice = () => {
             }
           />
         )}
-      </PageHeader>
+      </PageHeader.Wrapper>
       <PageWrapper>
         <CenteredWrapper>
           <Card className="gap-8">

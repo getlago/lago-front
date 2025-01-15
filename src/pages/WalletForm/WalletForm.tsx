@@ -284,7 +284,7 @@ const WalletForm = () => {
 
   return (
     <>
-      <PageHeader>
+      <PageHeader.Wrapper>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate(
             formType === FORM_TYPE_ENUM.edition
@@ -302,7 +302,7 @@ const WalletForm = () => {
           }
           data-test="close-create-plan-button"
         />
-      </PageHeader>
+      </PageHeader.Wrapper>
 
       <Content>
         <Main>

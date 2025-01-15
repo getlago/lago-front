@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useMemo, useRef } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
 import { Button, NavigationTab, Typography } from '~/components/designSystem'
@@ -43,7 +42,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-import { PageHeader, theme } from '~/styles'
+import { PageHeader } from '~/styles'
 
 gql`
   query getInvoicesList(
@@ -319,12 +318,12 @@ const InvoicesPage = () => {
 
   return (
     <>
-      <PageHeader withSide>
+      <PageHeader.Wrapper withSide>
         <Typography variant="bodyHl" color="grey700">
           {translate('text_63ac86d797f728a87b2f9f85')}
         </Typography>
 
-        <HeaderRigthBlock>
+        <PageHeader.Group>
           {tab === InvoiceListTabEnum.invoices ? (
             <>
               <SearchInput
@@ -372,8 +371,8 @@ const InvoicesPage = () => {
               {translate('text_63ac86d797f728a87b2f9fc4')}
             </Button>
           )}
-        </HeaderRigthBlock>
-      </PageHeader>
+        </PageHeader.Group>
+      </PageHeader.Wrapper>
       <NavigationTab
         className="px-4 md:px-12"
         tabs={[
@@ -473,9 +472,3 @@ const InvoicesPage = () => {
 }
 
 export default InvoicesPage
-
-const HeaderRigthBlock = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-`

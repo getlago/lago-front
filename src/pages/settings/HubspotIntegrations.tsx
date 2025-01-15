@@ -72,8 +72,8 @@ const HubspotIntegrations = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <div className="flex items-center gap-3">
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <ButtonLink
             to={INTEGRATIONS_ROUTE}
             type="button"
@@ -86,11 +86,11 @@ const HubspotIntegrations = () => {
               {translate('text_1727189568053s79ks5q07tr')}
             </Typography>
           )}
-        </div>
+        </PageHeader.Group>
         <Button variant="primary" onClick={() => addHubspotDialogRef.current?.openDialog()}>
           {translate('text_65846763e6140b469140e235')}
         </Button>
-      </PageHeader>
+      </PageHeader.Wrapper>
       <div className="container">
         <section className="flex items-center py-8">
           {loading ? (

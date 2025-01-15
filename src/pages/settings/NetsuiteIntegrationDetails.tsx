@@ -112,8 +112,8 @@ const NetsuiteIntegrationDetails = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <HeaderBlock>
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <ButtonLink
             to={NETSUITE_INTEGRATION_ROUTE}
             type="button"
@@ -126,7 +126,7 @@ const NetsuiteIntegrationDetails = () => {
               {netsuiteIntegration?.name}
             </Typography>
           )}
-        </HeaderBlock>
+        </PageHeader.Group>
         <Popper
           PopperProps={{ placement: 'bottom-end' }}
           opener={
@@ -167,7 +167,7 @@ const NetsuiteIntegrationDetails = () => {
             </MenuPopper>
           )}
         </Popper>
-      </PageHeader>
+      </PageHeader.Wrapper>
       <MainInfos>
         {loading ? (
           <>
@@ -223,15 +223,6 @@ const NetsuiteIntegrationDetails = () => {
     </>
   )
 }
-
-const HeaderBlock = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
 
 const MainInfos = styled.div`
   display: flex;

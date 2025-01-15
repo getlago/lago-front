@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { DeleteAddOnDialog, DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
 import {
@@ -27,7 +26,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-import { PageHeader, theme } from '~/styles'
+import { PageHeader } from '~/styles'
 
 gql`
   fragment AddOnItem on AddOn {
@@ -71,11 +70,11 @@ const AddOnsList = () => {
 
   return (
     <>
-      <Header withSide>
+      <PageHeader.Wrapper className="gap-4 *:whitespace-pre" withSide>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_629728388c4d2300e2d3809b')}
         </Typography>
-        <HeaderRigthBlock>
+        <PageHeader.Group>
           <SearchInput
             onChange={debouncedSearch}
             placeholder={translate('text_63bee4e10e2d53912bfe4db8')}
@@ -85,8 +84,8 @@ const AddOnsList = () => {
               {translate('text_629728388c4d2300e2d38085')}
             </ButtonLink>
           )}
-        </HeaderRigthBlock>
-      </Header>
+        </PageHeader.Group>
+      </PageHeader.Wrapper>
 
       <InfiniteScroll
         onBottom={() => {
@@ -234,24 +233,5 @@ const AddOnsList = () => {
     </>
   )
 }
-
-const Header = styled(PageHeader)`
-  > * {
-    white-space: pre;
-
-    &:first-child {
-      margin-right: ${theme.spacing(4)};
-    }
-  }
-`
-
-const HeaderRigthBlock = styled.div`
-  display: flex;
-  align-items: center;
-
-  > :first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
 
 export default AddOnsList

@@ -74,8 +74,8 @@ const EmailScenarioConfig = () => {
 
   return (
     <Container>
-      <PageHeader withSide>
-        <HeaderLeft>
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <Button
             icon="arrow-left"
             variant="quaternary"
@@ -88,7 +88,7 @@ const EmailScenarioConfig = () => {
           <Typography color="grey700" noWrap>
             {translate(translationsKey.header)}
           </Typography>
-        </HeaderLeft>
+        </PageHeader.Group>
 
         {hasPermissions(['organizationEmailsUpdate']) && (
           <HeaderRight>
@@ -110,7 +110,7 @@ const EmailScenarioConfig = () => {
             {!isPremium && <Icon name="sparkles" />}
           </HeaderRight>
         )}
-      </PageHeader>
+      </PageHeader.Wrapper>
       <Title>
         {loading ? (
           <>
@@ -267,16 +267,6 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   overflow: auto;
-`
-
-const HeaderLeft = styled.div`
-  display: flex;
-  align-items: center;
-  min-width: 0;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
 `
 
 const Title = styled.div`

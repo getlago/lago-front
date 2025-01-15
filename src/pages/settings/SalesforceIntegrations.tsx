@@ -75,8 +75,8 @@ const SalesforceIntegrations = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <div className="flex items-center gap-3">
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <ButtonLink
             to={INTEGRATIONS_ROUTE}
             type="button"
@@ -89,11 +89,11 @@ const SalesforceIntegrations = () => {
               {translate('text_1731507195246vu9kt6xnhv6')}
             </Typography>
           )}
-        </div>
+        </PageHeader.Group>
         <Button variant="primary" onClick={() => addSalesforceDialogRef.current?.openDialog()}>
           {translate('text_65846763e6140b469140e235')}
         </Button>
-      </PageHeader>
+      </PageHeader.Wrapper>
       <div className="container">
         <section className="flex items-center py-8">
           {loading ? (

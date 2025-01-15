@@ -84,8 +84,8 @@ const NetsuiteIntegrations = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <HeaderBlock>
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <ButtonLink
             to={INTEGRATIONS_ROUTE}
             type="button"
@@ -98,7 +98,7 @@ const NetsuiteIntegrations = () => {
               {translate('text_661ff6e56ef7e1b7c542b239')}
             </Typography>
           )}
-        </HeaderBlock>
+        </PageHeader.Group>
         <Button
           variant="primary"
           onClick={() => {
@@ -107,7 +107,7 @@ const NetsuiteIntegrations = () => {
         >
           {translate('text_65846763e6140b469140e235')}
         </Button>
-      </PageHeader>
+      </PageHeader.Wrapper>
       <MainInfos>
         {loading ? (
           <>
@@ -242,15 +242,6 @@ const NetsuiteIntegrations = () => {
     </>
   )
 }
-
-const HeaderBlock = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
 
 const MainInfos = styled.div`
   display: flex;

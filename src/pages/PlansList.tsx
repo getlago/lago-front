@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 
 import {
   Avatar,
@@ -20,7 +19,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-import { PageHeader, theme } from '~/styles'
+import { PageHeader } from '~/styles'
 
 import { PlanDetailsTabsOptionsEnum } from './PlanDetails'
 
@@ -68,11 +67,11 @@ const PlansList = () => {
 
   return (
     <>
-      <Header withSide>
+      <PageHeader.Wrapper className="gap-4 *:whitespace-pre" withSide>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_62442e40cea25600b0b6d84a')}
         </Typography>
-        <HeaderRigthBlock>
+        <PageHeader.Group>
           <SearchInput
             onChange={debouncedSearch}
             placeholder={translate('text_63bee1cc88d85f04deb0d63c')}
@@ -82,8 +81,8 @@ const PlansList = () => {
               {translate('text_62442e40cea25600b0b6d84c')}
             </ButtonLink>
           )}
-        </HeaderRigthBlock>
-      </Header>
+        </PageHeader.Group>
+      </PageHeader.Wrapper>
 
       <InfiniteScroll
         onBottom={() => {
@@ -238,24 +237,5 @@ const PlansList = () => {
     </>
   )
 }
-
-const Header = styled(PageHeader)`
-  > * {
-    white-space: pre;
-
-    &:first-child {
-      margin-right: ${theme.spacing(4)};
-    }
-  }
-`
-
-const HeaderRigthBlock = styled.div`
-  display: flex;
-  align-items: center;
-
-  > :first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
 
 export default PlansList

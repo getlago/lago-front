@@ -103,8 +103,8 @@ const SalesforceIntegrationDetails = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <div className="flex items-center gap-3">
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <ButtonLink
             to={SALESFORCE_INTEGRATION_ROUTE}
             type="button"
@@ -117,7 +117,7 @@ const SalesforceIntegrationDetails = () => {
               {salesforceIntegration?.name}
             </Typography>
           )}
-        </div>
+        </PageHeader.Group>
         <Popper
           PopperProps={{ placement: 'bottom-end' }}
           opener={
@@ -160,7 +160,7 @@ const SalesforceIntegrationDetails = () => {
             </MenuPopper>
           )}
         </Popper>
-      </PageHeader>
+      </PageHeader.Wrapper>
       <div className="container">
         <section className="flex items-center py-8">
           {loading ? (

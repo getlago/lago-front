@@ -81,8 +81,8 @@ const XeroIntegrations = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <HeaderBlock>
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <ButtonLink
             to={INTEGRATIONS_ROUTE}
             type="button"
@@ -95,7 +95,7 @@ const XeroIntegrations = () => {
               {translate('text_6672ebb8b1b50be550eccaf8')}
             </Typography>
           )}
-        </HeaderBlock>
+        </PageHeader.Group>
         <Button
           variant="primary"
           onClick={() => {
@@ -104,7 +104,7 @@ const XeroIntegrations = () => {
         >
           {translate('text_65846763e6140b469140e235')}
         </Button>
-      </PageHeader>
+      </PageHeader.Wrapper>
       <MainInfos>
         {loading ? (
           <>
@@ -239,15 +239,6 @@ const XeroIntegrations = () => {
     </>
   )
 }
-
-const HeaderBlock = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
 
 const MainInfos = styled.div`
   display: flex;

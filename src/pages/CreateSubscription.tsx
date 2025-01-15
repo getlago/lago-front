@@ -498,7 +498,7 @@ const CreateSubscription = () => {
 
   return (
     <PageContainer>
-      <PageHeader>
+      <PageHeader.Wrapper>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {pageHeaderTitle}
         </Typography>
@@ -548,7 +548,7 @@ const CreateSubscription = () => {
             data-test="close-create-subscription-button"
           />
         )}
-      </PageHeader>
+      </PageHeader.Wrapper>
       <Container>
         <SubscriptionAside
           $isResponsive={isResponsive}
