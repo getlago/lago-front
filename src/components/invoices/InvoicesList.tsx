@@ -2,15 +2,7 @@ import { ApolloError, LazyQueryHookOptions } from '@apollo/client'
 import { useEffect, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
-import {
-  Chip,
-  InfiniteScroll,
-  QuickFilters,
-  Status,
-  Table,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Chip, InfiniteScroll, Status, Table, Tooltip, Typography } from '~/components/designSystem'
 import {
   UpdateInvoicePaymentStatusDialog,
   UpdateInvoicePaymentStatusDialogRef,
@@ -47,16 +39,17 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import { createCreditNoteForInvoiceButtonProps } from '../creditNote/utils'
-import { Filters } from '../designSystem/Filters/Filters'
-import { AvailableFiltersEnum, AvailableQuickFilters } from '../designSystem/Filters/types'
 import {
+  AvailableFiltersEnum,
+  AvailableQuickFilters,
+  Filters,
   isDraftUrlParams,
   isOutstandingUrlParams,
   isPaymentDisputeLostUrlParams,
   isPaymentOverdueUrlParams,
   isSucceededUrlParams,
   isVoidedUrlParams,
-} from '../designSystem/Filters/utils'
+} from '../designSystem/Filters'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
 type TInvoiceListProps = {
@@ -115,9 +108,9 @@ const InvoicesList = ({
   return (
     <>
       <div className="box-border flex w-full flex-col gap-3 p-4 shadow-b md:px-12 md:py-3">
-        <QuickFilters type={AvailableQuickFilters.InvoiceStatus} />
-        <Filters
-          filters={[
+        <Filters.Provider
+          quickFiltersType={AvailableQuickFilters.InvoiceStatus}
+          availableFilters={[
             AvailableFiltersEnum.amount,
             AvailableFiltersEnum.status,
             AvailableFiltersEnum.invoiceType,
@@ -128,7 +121,10 @@ const InvoicesList = ({
             AvailableFiltersEnum.paymentDisputeLost,
             AvailableFiltersEnum.paymentOverdue,
           ]}
-        />
+        >
+          <Filters.QuickFilters />
+          <Filters.Component />
+        </Filters.Provider>
       </div>
 
       <div ref={listContainerElementRef}>

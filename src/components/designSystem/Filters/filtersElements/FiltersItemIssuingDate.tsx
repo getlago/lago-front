@@ -4,7 +4,7 @@ import { DatePicker } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { Typography } from '../../Typography'
-import { FiltersFormValues } from '../FiltersPanelPoper'
+import { FiltersFormValues } from '../types'
 
 type FiltersItemIssuingDateProps = {
   value: FiltersFormValues['filters'][0]['value']

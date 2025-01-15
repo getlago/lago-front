@@ -68,6 +68,14 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.creditNoteRefundStatus]: 'text_1734703891144vv5iclhl4vz',
 }
 
+export type FiltersFormValues = {
+  filters: Array<{
+    filterType?: AvailableFiltersEnum
+    value?: string
+    disabled?: boolean
+  }>
+}
+
 export const mapFilterToTranslationKey = (filter: AvailableFiltersEnum) => {
   return translationMap[filter] || filter
 }

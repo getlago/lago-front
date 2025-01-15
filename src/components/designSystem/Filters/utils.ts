@@ -172,7 +172,7 @@ export const formatActiveFilterValueDisplay = (
 
 export const isOutstandingUrlParams = (searchParams: URLSearchParams): boolean => {
   return (
-    searchParams.size === 2 &&
+    searchParams.size >= 2 &&
     searchParams.get('paymentStatus') ===
       `${InvoicePaymentStatusTypeEnum.Failed},${InvoicePaymentStatusTypeEnum.Pending}` &&
     searchParams.get('status') === InvoiceStatusTypeEnum.Finalized
@@ -181,48 +181,24 @@ export const isOutstandingUrlParams = (searchParams: URLSearchParams): boolean =
 
 export const isSucceededUrlParams = (searchParams: URLSearchParams): boolean => {
   return (
-    searchParams.size === 2 &&
+    searchParams.size >= 2 &&
     searchParams.get('paymentStatus') === InvoicePaymentStatusTypeEnum.Succeeded &&
     searchParams.get('status') === InvoiceStatusTypeEnum.Finalized
   )
 }
 
 export const isDraftUrlParams = (searchParams: URLSearchParams): boolean => {
-  return searchParams.size === 1 && searchParams.get('status') === InvoiceStatusTypeEnum.Draft
+  return searchParams.size >= 1 && searchParams.get('status') === InvoiceStatusTypeEnum.Draft
 }
 
 export const isPaymentOverdueUrlParams = (searchParams: URLSearchParams): boolean => {
-  return searchParams.size === 1 && searchParams.get('paymentOverdue') === 'true'
+  return searchParams.size >= 1 && searchParams.get('paymentOverdue') === 'true'
 }
 
 export const isVoidedUrlParams = (searchParams: URLSearchParams): boolean => {
-  return searchParams.size === 1 && searchParams.get('status') === InvoiceStatusTypeEnum.Voided
+  return searchParams.size >= 1 && searchParams.get('status') === InvoiceStatusTypeEnum.Voided
 }
 
 export const isPaymentDisputeLostUrlParams = (searchParams: URLSearchParams): boolean => {
-  return searchParams.size === 1 && searchParams.get('paymentDisputeLost') === 'true'
-}
-
-export const buildOutstandingUrlParams = (): string => {
-  return `?paymentStatus=${InvoicePaymentStatusTypeEnum.Failed},${InvoicePaymentStatusTypeEnum.Pending}&status=${InvoiceStatusTypeEnum.Finalized}`
-}
-
-export const buildSucceededUrlParams = (): string => {
-  return `?paymentStatus=${InvoicePaymentStatusTypeEnum.Succeeded}&status=${InvoiceStatusTypeEnum.Finalized}`
-}
-
-export const buildDraftUrlParams = (): string => {
-  return `?status=${InvoiceStatusTypeEnum.Draft}`
-}
-
-export const buildPaymentOverdueUrlParams = (): string => {
-  return `?paymentOverdue=true`
-}
-
-export const buildVoidedUrlParams = (): string => {
-  return `?status=${InvoiceStatusTypeEnum.Voided}`
-}
-
-export const buildPaymentDisputeLostUrlParams = (): string => {
-  return `?paymentDisputeLost=true`
+  return searchParams.size >= 1 && searchParams.get('paymentDisputeLost') === 'true'
 }

@@ -2,7 +2,6 @@
 import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
 import { useMemo, useRef } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
 import { array, lazy, object, string } from 'yup'
 
 import { Button, Popper, Tooltip, Typography } from '~/components/designSystem'
@@ -10,71 +9,32 @@ import { ComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { FiltersPanelItemTypeSwitch } from './FiltersPanelItemTypeSwitch'
-import { AvailableFiltersEnum, mapFilterToTranslationKey } from './types'
+import { AvailableFiltersEnum, FiltersFormValues, mapFilterToTranslationKey } from './types'
+import { useFilters } from './useFilters'
 
-type FiltersPanelPoperProps = {
-  filters: AvailableFiltersEnum[]
-}
-
-export type FiltersFormValues = {
-  filters: Array<{
-    filterType?: AvailableFiltersEnum
-    value?: string
-  }>
-}
-
-export const FiltersPanelPoper = ({ filters }: FiltersPanelPoperProps) => {
+export const FiltersPanelPopper = () => {
   const { translate } = useInternationalization()
-  const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
+  const { availableFilters, initialFiltersFormValues, staticFiltersFormValues, applyFilters } =
+    useFilters()
+
   const listContainerElementRef = useRef<HTMLDivElement>(null)
-  const filtersAlreadySet = Object.fromEntries(searchParams.entries())
-
-  const initialFilters = useMemo(() => {
-    return Object.entries(filtersAlreadySet).reduce(
-      (acc, cur) => {
-        const [key, value] = cur as [AvailableFiltersEnum, FiltersFormValues['filters'][0]['value']]
-
-        if (!filters.includes(key)) {
-          return acc
-        }
-
-        return [
-          ...acc,
-          {
-            filterType: key,
-            value,
-          },
-        ]
-      },
-      [] as FiltersFormValues['filters'],
-    )
-  }, [filtersAlreadySet, filters])
 
   const formikProps = useFormik<FiltersFormValues>({
     initialValues: {
       // Default has to contain an empty object to display the first filter placeholder
-      filters: !!initialFilters.length ? initialFilters : [{}],
+      filters: !!initialFiltersFormValues.length ? [...initialFiltersFormValues] : [{}],
     },
     validateOnMount: true,
     enableReinitialize: true,
-    onSubmit: (values) => {
-      const newUrlSearchParams = values.filters.reduce((acc, cur) => {
-        if (!cur.filterType || cur.value === undefined || !filters.includes(cur.filterType)) {
-          return acc
-        }
-
-        acc.set(cur.filterType, cur.value as string)
-
-        return acc
-      }, new URLSearchParams())
-
-      navigate({ search: newUrlSearchParams.toString() })
-    },
+    onSubmit: applyFilters,
     validationSchema: object().shape({
       filters: lazy((value: FiltersFormValues['filters']) => {
         // Make sure schema is valid on "Clear all" button press
-        if (initialFilters.length > 0 && value.length === 1 && Object.keys(value[0]).length === 0) {
+        if (
+          initialFiltersFormValues.length > 0 &&
+          value.length === 1 &&
+          Object.keys(value[0]).length === 0
+        ) {
           return array().of(object())
         }
 
@@ -98,14 +58,20 @@ export const FiltersPanelPoper = ({ filters }: FiltersPanelPoperProps) => {
       (filter) => filter.filterType,
     )
 
-    return filters.map((filter) => {
+    return availableFilters.map((filter) => {
       return {
         label: translate(mapFilterToTranslationKey(filter)),
         value: filter,
         disabled: alreadySelectedFiltersTypes.includes(filter),
       }
     })
-  }, [formikProps.values.filters, filters, translate])
+  }, [formikProps.values.filters, availableFilters, translate])
+
+  const onRemoveFilter = (filterIndex: number) => {
+    const newFilters = formikProps.values.filters.filter((_, index) => index !== filterIndex)
+
+    formikProps.setFieldValue('filters', newFilters)
+  }
 
   return (
     <Popper
@@ -124,10 +90,9 @@ export const FiltersPanelPoper = ({ filters }: FiltersPanelPoperProps) => {
             <Typography variant="bodyHl" color="grey700">
               {translate('text_66ab42d4ece7e6b7078993ad')}
             </Typography>
-
             <Button
               onClick={() => {
-                formikProps.setFieldValue('filters', [{}])
+                formikProps.setFieldValue('filters', [...(staticFiltersFormValues ?? {})])
               }}
               variant="quaternary"
             >
@@ -167,6 +132,7 @@ export const FiltersPanelPoper = ({ filters }: FiltersPanelPoperProps) => {
                     data={comboboxFiltersData}
                     placeholder={translate('text_66ab42d4ece7e6b7078993b1')}
                     value={filter.filterType}
+                    disabled={filter.disabled}
                     onChange={(value) => {
                       const newFilterObject = {
                         ...formikProps.values.filters[filterIndex],
@@ -189,52 +155,44 @@ export const FiltersPanelPoper = ({ filters }: FiltersPanelPoperProps) => {
                 </div>
 
                 {/* Actions */}
-                <div className="block lg:hidden">
-                  <Button
-                    fitContent
-                    align="left"
-                    size="small"
-                    startIcon="trash"
-                    variant="quaternary"
-                    disabled={formikProps.values.filters.length === 1}
-                    onClick={() => {
-                      const newFilters = formikProps.values.filters.filter(
-                        (_, index) => index !== filterIndex,
-                      )
-
-                      formikProps.setFieldValue('filters', newFilters)
-                    }}
-                  >
-                    {translate('text_66ab4ad87fc8510054f237c2')}
-                  </Button>
-                </div>
-                <div className="hidden lg:block">
-                  <Tooltip
-                    title={translate('text_63ea0f84f400488553caa786')}
-                    placement="top-end"
-                    disableHoverListener={formikProps.values.filters.length === 1}
-                  >
-                    <Button
-                      icon="trash"
-                      variant="quaternary"
-                      disabled={formikProps.values.filters.length === 1}
-                      onClick={() => {
-                        const newFilters = formikProps.values.filters.filter(
-                          (_, index) => index !== filterIndex,
-                        )
-
-                        formikProps.setFieldValue('filters', newFilters)
-                      }}
-                    />
-                  </Tooltip>
-                </div>
+                {!filter.disabled && (
+                  <>
+                    <div className="block lg:hidden">
+                      <Button
+                        fitContent
+                        align="left"
+                        size="small"
+                        startIcon="trash"
+                        variant="quaternary"
+                        disabled={formikProps.values.filters.length === 1}
+                        onClick={() => onRemoveFilter(filterIndex)}
+                      >
+                        {translate('text_66ab4ad87fc8510054f237c2')}
+                      </Button>
+                    </div>
+                    <div className="hidden lg:block">
+                      <Tooltip
+                        title={translate('text_63ea0f84f400488553caa786')}
+                        placement="top-end"
+                        disableHoverListener={formikProps.values.filters.length === 1}
+                      >
+                        <Button
+                          icon="trash"
+                          variant="quaternary"
+                          disabled={formikProps.values.filters.length === 1}
+                          onClick={() => onRemoveFilter(filterIndex)}
+                        />
+                      </Tooltip>
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>
           <div className="flex h-18 items-center justify-between px-4 py-0 shadow-t lg:px-6">
             <Button
               startIcon="plus"
-              disabled={formikProps.values.filters.length === filters.length}
+              disabled={formikProps.values.filters.length === availableFilters.length}
               onClick={() => {
                 formikProps.setFieldValue('filters', [...formikProps.values.filters, {}])
 
