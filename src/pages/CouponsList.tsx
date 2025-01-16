@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { CouponCaption } from '~/components/coupons/CouponCaption'
 import { DeleteCouponDialog, DeleteCouponDialogRef } from '~/components/coupons/DeleteCouponDialog'
@@ -31,7 +30,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-import { PageHeader, theme } from '~/styles'
+import { PageHeader } from '~/styles'
 
 gql`
   fragment CouponItem on Coupon {
@@ -86,11 +85,11 @@ const CouponsList = () => {
 
   return (
     <>
-      <Header withSide>
+      <PageHeader.Wrapper className="gap-4 *:whitespace-pre" withSide>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_62865498824cc10126ab2956')}
         </Typography>
-        <HeaderRigthBlock>
+        <PageHeader.Group>
           <SearchInput
             onChange={debouncedSearch}
             placeholder={translate('text_63beebbf4f60e2f553232782')}
@@ -100,8 +99,8 @@ const CouponsList = () => {
               {translate('text_62865498824cc10126ab2954')}
             </ButtonLink>
           )}
-        </HeaderRigthBlock>
-      </Header>
+        </PageHeader.Group>
+      </PageHeader.Wrapper>
 
       <InfiniteScroll
         onBottom={() => {
@@ -244,24 +243,5 @@ const CouponsList = () => {
     </>
   )
 }
-
-const Header = styled(PageHeader)`
-  > * {
-    white-space: pre;
-
-    &:first-child {
-      margin-right: ${theme.spacing(4)};
-    }
-  }
-`
-
-const HeaderRigthBlock = styled.div`
-  display: flex;
-  align-items: center;
-
-  > :first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
 
 export default CouponsList

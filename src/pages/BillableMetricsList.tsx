@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 
 import {
   DeleteBillableMetricDialog,
@@ -22,7 +21,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-import { PageHeader, theme } from '~/styles'
+import { PageHeader } from '~/styles'
 
 gql`
   fragment BillableMetricItem on BillableMetric {
@@ -63,11 +62,11 @@ const BillableMetricsList = () => {
 
   return (
     <>
-      <Header withSide>
+      <PageHeader.Wrapper className="gap-4 *:whitespace-pre" withSide>
         <Typography variant="bodyHl" color="textSecondary">
           {translate('text_623b497ad05b960101be3438')}
         </Typography>
-        <HeaderRigthBlock>
+        <PageHeader.Group>
           <SearchInput
             onChange={debouncedSearch}
             placeholder={translate('text_63ba9ee977a67c9693f50aea')}
@@ -77,8 +76,8 @@ const BillableMetricsList = () => {
               {translate('text_623b497ad05b960101be343a')}
             </ButtonLink>
           )}
-        </HeaderRigthBlock>
-      </Header>
+        </PageHeader.Group>
+      </PageHeader.Wrapper>
 
       <InfiniteScroll
         onBottom={() => {
@@ -192,24 +191,5 @@ const BillableMetricsList = () => {
     </>
   )
 }
-
-const Header = styled(PageHeader)`
-  > * {
-    white-space: pre;
-
-    &:first-child {
-      margin-right: ${theme.spacing(4)};
-    }
-  }
-`
-
-const HeaderRigthBlock = styled.div`
-  display: flex;
-  align-items: center;
-
-  > :first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
 
 export default BillableMetricsList

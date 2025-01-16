@@ -102,8 +102,8 @@ const StripeIntegrations = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <HeaderBlock>
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <ButtonLink
             to={generatePath(INTEGRATIONS_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
@@ -118,7 +118,7 @@ const StripeIntegrations = () => {
               {translate('text_62b1edddbf5f461ab971277d')}
             </Typography>
           )}
-        </HeaderBlock>
+        </PageHeader.Group>
 
         {canCreateIntegration && (
           <Button
@@ -130,7 +130,7 @@ const StripeIntegrations = () => {
             {translate('text_65846763e6140b469140e235')}
           </Button>
         )}
-      </PageHeader>
+      </PageHeader.Wrapper>
       <MainInfos>
         {loading ? (
           <>
@@ -274,15 +274,6 @@ const StripeIntegrations = () => {
     </>
   )
 }
-
-const HeaderBlock = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
 
 const MainInfos = styled.div`
   display: flex;

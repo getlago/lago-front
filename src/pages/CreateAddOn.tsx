@@ -152,7 +152,7 @@ const CreateAddOn = () => {
 
   return (
     <div>
-      <PageHeader>
+      <PageHeader.Wrapper>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate(isEdition ? 'text_629728388c4d2300e2d37fc2' : 'text_629728388c4d2300e2d37fbc')}
         </Typography>
@@ -167,7 +167,7 @@ const CreateAddOn = () => {
                 : navigate(ADD_ONS_ROUTE)
           }
         />
-      </PageHeader>
+      </PageHeader.Wrapper>
       <Content>
         <Main>
           <div>

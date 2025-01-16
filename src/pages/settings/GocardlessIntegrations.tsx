@@ -102,8 +102,8 @@ const GocardlessIntegrations = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <HeaderBlock>
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <ButtonLink
             to={generatePath(INTEGRATIONS_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
@@ -118,7 +118,7 @@ const GocardlessIntegrations = () => {
               {translate('text_634ea0ecc6147de10ddb6625')}
             </Typography>
           )}
-        </HeaderBlock>
+        </PageHeader.Group>
 
         {canCreateIntegration && (
           <Button
@@ -130,7 +130,7 @@ const GocardlessIntegrations = () => {
             {translate('text_65846763e6140b469140e235')}
           </Button>
         )}
-      </PageHeader>
+      </PageHeader.Wrapper>
       <MainInfos>
         {loading ? (
           <>
@@ -273,15 +273,6 @@ const GocardlessIntegrations = () => {
     </>
   )
 }
-
-const HeaderBlock = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
 
 const MainInfos = styled.div`
   display: flex;

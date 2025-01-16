@@ -119,8 +119,8 @@ const CouponDetails = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <HeaderInlineBreadcrumbBlock>
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group className="overflow-hidden">
           <Button
             icon="arrow-left"
             variant="quaternary"
@@ -143,7 +143,7 @@ const CouponDetails = () => {
             </Typography>
           )}
           <Typography variant="bodyHl" color="textSecondary" noWrap></Typography>
-        </HeaderInlineBreadcrumbBlock>
+        </PageHeader.Group>
 
         {shouldShowActions && (
           <Popper
@@ -213,7 +213,7 @@ const CouponDetails = () => {
             )}
           </Popper>
         )}
-      </PageHeader>
+      </PageHeader.Wrapper>
       {isCouponLoading ? (
         <DetailsHeaderSkeleton />
       ) : (
@@ -401,15 +401,6 @@ const CouponDetails = () => {
 }
 
 export default CouponDetails
-
-const HeaderInlineBreadcrumbBlock = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-
-  /* Prevent long name to not overflow in header */
-  overflow: hidden;
-`
 
 const Container = styled.section`
   display: flex;

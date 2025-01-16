@@ -221,7 +221,7 @@ const CreateCoupon = () => {
 
   return (
     <div>
-      <PageHeader>
+      <PageHeader.Wrapper>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate(isEdition ? 'text_6287a9bdac160c00b2e0fbe7' : 'text_62876e85e32e0300e18030e7')}
         </Typography>
@@ -232,7 +232,7 @@ const CreateCoupon = () => {
             formikProps.dirty ? warningDialogRef.current?.openDialog() : couponCloseRedirection()
           }
         />
-      </PageHeader>
+      </PageHeader.Wrapper>
       <Content>
         <Main>
           <div>

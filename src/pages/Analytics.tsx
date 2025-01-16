@@ -48,11 +48,12 @@ const Analytics = () => {
 
   return (
     <>
-      <PageHeader withSide>
+      <PageHeader.Wrapper withSide>
         <Typography variant="bodyHl" color="grey700" noWrap>
           {translate('text_6553885df387fd0097fd7384')}
         </Typography>
-        <PageHeaderRight>
+
+        <PageHeader.Group>
           <Popper
             maxHeight={452}
             PopperProps={{ placement: 'bottom-end' }}
@@ -137,8 +138,8 @@ const Analytics = () => {
             setPeriodScope={setPeriodScope}
             premiumWarningDialogRef={premiumWarningDialogRef}
           />
-        </PageHeaderRight>
-      </PageHeader>
+        </PageHeader.Group>
+      </PageHeader.Wrapper>
 
       {!isPremium && !!currentUser && (
         <UpgradeBlock>
@@ -201,12 +202,6 @@ const Analytics = () => {
 }
 
 export default Analytics
-
-const PageHeaderRight = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-`
 
 const ContentWrapper = styled.div`
   display: grid;

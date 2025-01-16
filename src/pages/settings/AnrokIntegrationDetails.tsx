@@ -119,8 +119,8 @@ const AnrokIntegrationDetails = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <HeaderBlock>
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <ButtonLink
             to={generatePath(ANROK_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
@@ -135,7 +135,7 @@ const AnrokIntegrationDetails = () => {
               {anrokIntegration?.name}
             </Typography>
           )}
-        </HeaderBlock>
+        </PageHeader.Group>
         <Popper
           PopperProps={{ placement: 'bottom-end' }}
           opener={
@@ -176,7 +176,7 @@ const AnrokIntegrationDetails = () => {
             </MenuPopper>
           )}
         </Popper>
-      </PageHeader>
+      </PageHeader.Wrapper>
       <MainInfos>
         {loading ? (
           <>
@@ -234,15 +234,6 @@ const AnrokIntegrationDetails = () => {
     </>
   )
 }
-
-const HeaderBlock = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
 
 const MainInfos = styled.div`
   display: flex;

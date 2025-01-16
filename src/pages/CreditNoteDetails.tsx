@@ -328,8 +328,8 @@ const CreditNoteDetails = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <HeaderLeft>
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <Button
             icon="arrow-left"
             variant="quaternary"
@@ -356,7 +356,7 @@ const CreditNoteDetails = () => {
               {creditNote?.number}
             </Typography>
           )}
-        </HeaderLeft>
+        </PageHeader.Group>
 
         {!hasError && !loading && (
           <Popper
@@ -449,7 +449,7 @@ const CreditNoteDetails = () => {
             )}
           </Popper>
         )}
-      </PageHeader>
+      </PageHeader.Wrapper>
       {hasError ? (
         <GenericPlaceholder
           title={translate('text_634812d6f16b31ce5cbf4111')}
@@ -1064,15 +1064,6 @@ const CreditNoteDetails = () => {
 }
 
 export default CreditNoteDetails
-
-const HeaderLeft = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
 
 const Content = styled.div`
   padding: ${theme.spacing(8)} ${theme.spacing(12)} ${theme.spacing(20)};

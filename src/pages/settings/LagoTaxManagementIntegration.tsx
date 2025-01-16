@@ -93,8 +93,8 @@ const LagoTaxManagementIntegration = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <HeaderBlock>
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <ButtonLink
             to={generatePath(INTEGRATIONS_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
@@ -109,7 +109,7 @@ const LagoTaxManagementIntegration = () => {
               {translate('text_657078c28394d6b1ae1b9713')}
             </Typography>
           )}
-        </HeaderBlock>
+        </PageHeader.Group>
         {hasPermissions(['organizationIntegrationsDelete']) && (
           <Button
             variant="secondary"
@@ -119,7 +119,7 @@ const LagoTaxManagementIntegration = () => {
             {translate('text_657078c28394d6b1ae1b971b')}
           </Button>
         )}
-      </PageHeader>
+      </PageHeader.Wrapper>
       <MainInfos>
         {loading ? (
           <>
@@ -204,10 +204,10 @@ const LagoTaxManagementIntegration = () => {
           </InlineTitle>
 
           {loading ? (
-            <HeaderBlock>
+            <div className="flex items-center gap-3">
               <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
               <Skeleton variant="text" className="w-60" />
-            </HeaderBlock>
+            </div>
           ) : (
             <>
               {taxesData?.taxes?.collection.map((tax) => (
@@ -259,15 +259,6 @@ const LagoTaxManagementIntegration = () => {
     </>
   )
 }
-
-const HeaderBlock = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
 
 const MainInfos = styled.div`
   display: flex;

@@ -77,8 +77,8 @@ const SubscriptionDetails = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <HeaderInlineBreadcrumbBlock>
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group className="overflow-hidden">
           <Button
             icon="arrow-left"
             variant="quaternary"
@@ -106,7 +106,7 @@ const SubscriptionDetails = () => {
               })}
             </Typography>
           )}
-        </HeaderInlineBreadcrumbBlock>
+        </PageHeader.Group>
         {!isSubscriptionLoading && (
           <Popper
             PopperProps={{ placement: 'bottom-end' }}
@@ -195,7 +195,7 @@ const SubscriptionDetails = () => {
             )}
           </Popper>
         )}
-      </PageHeader>
+      </PageHeader.Wrapper>
       <PlanBlockWrapper>
         <Avatar variant="connector" size="large">
           <Icon name="clock" color="dark" size="large" />
@@ -314,15 +314,6 @@ const ContentContainer = styled.div`
 
 const TabContentWrapper = styled.div`
   max-width: 672px;
-`
-
-const HeaderInlineBreadcrumbBlock = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-
-  /* Prevent long name to not overflow in header */
-  overflow: hidden;
 `
 
 const PlanBlockWrapper = styled.div`

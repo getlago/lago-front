@@ -114,8 +114,8 @@ const StripeIntegrationDetails = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <HeaderBlock>
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <ButtonLink
             to={generatePath(STRIPE_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
@@ -130,7 +130,7 @@ const StripeIntegrationDetails = () => {
               {stripePaymentProvider?.name}
             </Typography>
           )}
-        </HeaderBlock>
+        </PageHeader.Group>
         {(canEditIntegration || canDeleteIntegration) && (
           <Popper
             PopperProps={{ placement: 'bottom-end' }}
@@ -178,7 +178,7 @@ const StripeIntegrationDetails = () => {
             )}
           </Popper>
         )}
-      </PageHeader>
+      </PageHeader.Wrapper>
       <MainInfos>
         {loading ? (
           <>
@@ -416,15 +416,6 @@ const StripeIntegrationDetails = () => {
     </>
   )
 }
-
-const HeaderBlock = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
 
 const MainInfos = styled.div`
   display: flex;

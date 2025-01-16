@@ -83,8 +83,8 @@ const GocardlessIntegrationOauthCallback = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <HeaderBlock>
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <ButtonLink
             disabled={loading}
             to={generatePath(INTEGRATIONS_ROUTE, {
@@ -100,8 +100,8 @@ const GocardlessIntegrationOauthCallback = () => {
               {translate('text_634ea0ecc6147de10ddb6625')}
             </Typography>
           )}
-        </HeaderBlock>
-      </PageHeader>
+        </PageHeader.Group>
+      </PageHeader.Wrapper>
       <MainInfos>
         {loading ? (
           <>
@@ -150,15 +150,6 @@ const GocardlessIntegrationOauthCallback = () => {
     </>
   )
 }
-
-const HeaderBlock = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
 
 const MainInfos = styled.div`
   display: flex;

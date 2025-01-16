@@ -102,8 +102,8 @@ const AdyenIntegrations = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <HeaderBlock>
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <ButtonLink
             to={generatePath(INTEGRATIONS_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
@@ -118,7 +118,7 @@ const AdyenIntegrations = () => {
               {translate('text_645d071272418a14c1c76a6d')}
             </Typography>
           )}
-        </HeaderBlock>
+        </PageHeader.Group>
 
         {canCreateIntegration && (
           <Button
@@ -130,7 +130,8 @@ const AdyenIntegrations = () => {
             {translate('text_65846763e6140b469140e235')}
           </Button>
         )}
-      </PageHeader>
+      </PageHeader.Wrapper>
+
       <MainInfos>
         {loading ? (
           <>
@@ -273,15 +274,6 @@ const AdyenIntegrations = () => {
     </>
   )
 }
-
-const HeaderBlock = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
 
 const MainInfos = styled.div`
   display: flex;

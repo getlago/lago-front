@@ -110,8 +110,8 @@ const HubspotIntegrationDetails = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <div className="flex items-center gap-3">
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <ButtonLink
             to={generatePath(HUBSPOT_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
@@ -126,7 +126,7 @@ const HubspotIntegrationDetails = () => {
               {hubspotIntegration?.name}
             </Typography>
           )}
-        </div>
+        </PageHeader.Group>
         <Popper
           PopperProps={{ placement: 'bottom-end' }}
           opener={
@@ -169,7 +169,7 @@ const HubspotIntegrationDetails = () => {
             </MenuPopper>
           )}
         </Popper>
-      </PageHeader>
+      </PageHeader.Wrapper>
       <div className="container">
         <section className="flex items-center py-8">
           {loading ? (

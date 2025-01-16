@@ -573,8 +573,8 @@ const CustomerInvoiceDetails = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <HeaderLeft>
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <Button icon="arrow-left" variant="quaternary" onClick={() => goToPreviousRoute()} />
           {loading ? (
             <Skeleton variant="text" className="w-30" />
@@ -583,7 +583,7 @@ const CustomerInvoiceDetails = () => {
               {number}
             </Typography>
           )}
-        </HeaderLeft>
+        </PageHeader.Group>
         {!hasError && !loading && (
           <Popper
             PopperProps={{ placement: 'bottom-end' }}
@@ -846,7 +846,7 @@ const CustomerInvoiceDetails = () => {
             }}
           </Popper>
         )}
-      </PageHeader>
+      </PageHeader.Wrapper>
       {!!errorMessage ? (
         <Alert fullWidth className="md:px-12" type="warning">
           <Stack>
@@ -952,15 +952,6 @@ const CustomerInvoiceDetails = () => {
     </>
   )
 }
-
-const HeaderLeft = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
 
 const Content = styled.div`
   padding: ${theme.spacing(8)} ${theme.spacing(12)} ${theme.spacing(20)};

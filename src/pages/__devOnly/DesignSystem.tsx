@@ -139,12 +139,12 @@ const DesignSystem = () => {
 
   return (
     <>
-      <PageHeader withSide>
+      <PageHeader.Wrapper withSide>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           Design System components
         </Typography>
         <Typography variant="caption">Only visible in dev mode</Typography>
-      </PageHeader>
+      </PageHeader.Wrapper>
       <NavigationTab
         className="px-12"
         name="Design system tab switcher"

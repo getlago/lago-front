@@ -138,8 +138,8 @@ const CustomerDetails = () => {
 
   return (
     <div>
-      <PageHeader withSide>
-        <HeaderInlineBreadcrumbBlock>
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group className="-m-1 overflow-hidden p-1">
           <Button
             icon="arrow-left"
             variant="quaternary"
@@ -157,8 +157,8 @@ const CustomerDetails = () => {
               {customerName}
             </Typography>
           )}
-        </HeaderInlineBreadcrumbBlock>
-        <HeaderInlineActionsBlock>
+        </PageHeader.Group>
+        <PageHeader.Group className="shrink-0">
           <Button
             className="shrink-0"
             startIcon="outside"
@@ -300,8 +300,8 @@ const CustomerDetails = () => {
               )}
             </Popper>
           )}
-        </HeaderInlineActionsBlock>
-      </PageHeader>
+        </PageHeader.Group>
+      </PageHeader.Wrapper>
       {(error || !data?.customer) && !loading ? (
         <GenericPlaceholder
           title={translate('text_6250304370f0f700a8fdc270')}
@@ -471,25 +471,6 @@ const CustomerDetails = () => {
     </div>
   )
 }
-
-const HeaderInlineBreadcrumbBlock = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-
-  /* Prevent long name to not overflow in header */
-  overflow: hidden;
-  /* As overflow is hidden, prevent focus ring to be cropped */
-  padding: 4px;
-  margin: -4px;
-`
-
-const HeaderInlineActionsBlock = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-  flex-shrink: 0;
-`
 
 const Content = styled.div`
   display: grid;

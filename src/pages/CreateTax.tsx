@@ -68,7 +68,7 @@ const CreateTaxRate = () => {
 
   return (
     <div>
-      <PageHeader>
+      <PageHeader.Wrapper>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate(isEdition ? 'text_645bb193927b375079d289b5' : 'text_645bb193927b375079d289af')}
         </Typography>
@@ -81,7 +81,7 @@ const CreateTaxRate = () => {
               : onClose()
           }
         />
-      </PageHeader>
+      </PageHeader.Wrapper>
       <Content>
         <Main>
           <div>

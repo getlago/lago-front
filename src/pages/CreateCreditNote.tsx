@@ -270,7 +270,7 @@ const CreateCreditNote = () => {
 
   return (
     <div>
-      <PageHeader>
+      <PageHeader.Wrapper>
         {loading ? (
           <div>
             <Skeleton variant="text" className="w-30" />
@@ -297,7 +297,7 @@ const CreateCreditNote = () => {
                 )
           }
         />
-      </PageHeader>
+      </PageHeader.Wrapper>
       <Content>
         <Main>
           <div>

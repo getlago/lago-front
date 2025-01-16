@@ -183,7 +183,7 @@ const CustomerRequestOverduePayment: FC = () => {
 
   return (
     <>
-      <PageHeader>
+      <PageHeader.Wrapper>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate(
             'text_66b258f62100490d0eb5ca73',
@@ -205,7 +205,7 @@ const CustomerRequestOverduePayment: FC = () => {
             navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId ?? '' }))
           }
         />
-      </PageHeader>
+      </PageHeader.Wrapper>
 
       <main className="height-minus-nav-footer overflow-auto md:height-minus-nav md:flex md:overflow-auto">
         <section className="bg-white md:height-minus-nav-footer md:shrink md:grow md:basis-1/2 md:overflow-auto">

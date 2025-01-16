@@ -175,7 +175,7 @@ const CreatePlan = () => {
 
   return (
     <div>
-      <PageHeader>
+      <PageHeader.Wrapper>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate(isEdition ? 'text_625fd165963a7b00c8f59767' : 'text_624453d52e945301380e4988')}
         </Typography>
@@ -187,7 +187,7 @@ const CreatePlan = () => {
           }
           data-test="close-create-plan-button"
         />
-      </PageHeader>
+      </PageHeader.Wrapper>
       <Content>
         <Main>
           <MainMinimumContent>

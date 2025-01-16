@@ -78,8 +78,8 @@ const CustomerDraftInvoicesList = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <HeaderLeft>
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <Button
             icon="arrow-left"
             variant="quaternary"
@@ -95,8 +95,8 @@ const CustomerDraftInvoicesList = () => {
           <Typography variant="bodyHl" color="textSecondary">
             {translate('text_638f74bb4d41e3f1d0201647')}
           </Typography>
-        </HeaderLeft>
-      </PageHeader>
+        </PageHeader.Group>
+      </PageHeader.Wrapper>
       <Wrapper>
         {customerLoading ? (
           <MainInfos>
@@ -148,15 +148,6 @@ const CustomerDraftInvoicesList = () => {
     </>
   )
 }
-
-const HeaderLeft = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
 
 const ListHeader = styled.div`
   height: ${NAV_HEIGHT}px;

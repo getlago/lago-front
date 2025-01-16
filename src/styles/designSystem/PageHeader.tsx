@@ -2,7 +2,11 @@ import { FC, PropsWithChildren } from 'react'
 
 import { tw } from '../utils'
 
-export const PageHeader: FC<PropsWithChildren<{ withSide?: boolean; className?: string }>> = ({
+/**
+ * Page Header - Main Wrapper
+ * @param withSide - If true, adds padding to the left and right for burger menu
+ */
+const PageHeaderWrapper: FC<PropsWithChildren<{ withSide?: boolean; className?: string }>> = ({
   children,
   className,
   withSide,
@@ -20,3 +24,16 @@ export const PageHeader: FC<PropsWithChildren<{ withSide?: boolean; className?: 
     {children}
   </div>
 )
+
+/**
+ * Page Header - Section group inside main wrapper
+ */
+const PageHeaderGroup: FC<PropsWithChildren<{ className?: string }>> = ({
+  children,
+  className,
+}) => <div className={tw('flex items-center gap-3', className)}>{children}</div>
+
+export const PageHeader = {
+  Wrapper: PageHeaderWrapper,
+  Group: PageHeaderGroup,
+}

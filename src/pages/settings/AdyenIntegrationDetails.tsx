@@ -115,8 +115,8 @@ const AdyenIntegrationDetails = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <HeaderBlock>
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <ButtonLink
             to={generatePath(ADYEN_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
@@ -131,7 +131,7 @@ const AdyenIntegrationDetails = () => {
               {adyenPaymentProvider?.name}
             </Typography>
           )}
-        </HeaderBlock>
+        </PageHeader.Group>
         {(canEditIntegration || canDeleteIntegration) && (
           <Popper
             PopperProps={{ placement: 'bottom-end' }}
@@ -178,7 +178,7 @@ const AdyenIntegrationDetails = () => {
             )}
           </Popper>
         )}
-      </PageHeader>
+      </PageHeader.Wrapper>
       <MainInfos>
         {loading ? (
           <>
@@ -348,10 +348,10 @@ const AdyenIntegrationDetails = () => {
           </InlineTitle>
 
           {loading ? (
-            <HeaderBlock>
+            <div className="flex flex-col gap-3">
               <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
               <Skeleton variant="text" className="w-60" />
-            </HeaderBlock>
+            </div>
           ) : (
             <>
               {!adyenPaymentProvider?.successRedirectUrl ? (
@@ -446,15 +446,6 @@ const AdyenIntegrationDetails = () => {
     </>
   )
 }
-
-const HeaderBlock = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
 
 const MainInfos = styled.div`
   display: flex;

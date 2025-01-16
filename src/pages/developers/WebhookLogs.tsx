@@ -132,7 +132,7 @@ const WebhookLogs = () => {
 
   return (
     <div role="grid" tabIndex={-1} onKeyDown={onKeyDown}>
-      <PageHeader withSide>
+      <PageHeader.Wrapper withSide>
         <Header>
           <Button
             icon="arrow-left"
@@ -157,7 +157,7 @@ const WebhookLogs = () => {
           onChange={debouncedSearch}
           placeholder={translate('text_63e27c56dfe64b846474ef49')}
         />
-      </PageHeader>
+      </PageHeader.Wrapper>
       {!!error && !loading && !isLoading ? (
         <GenericPlaceholder
           title={translate('text_63e27c56dfe64b846474ef3a')}

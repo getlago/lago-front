@@ -86,8 +86,8 @@ const OktaAuthenticationDetails = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <HeaderBlock>
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <ButtonLink
             to={AUTHENTICATION_ROUTE}
             type="button"
@@ -100,7 +100,7 @@ const OktaAuthenticationDetails = () => {
               {translate('text_664c732c264d7eed1c74fda2')}
             </Typography>
           )}
-        </HeaderBlock>
+        </PageHeader.Group>
         <Popper
           PopperProps={{ placement: 'bottom-end' }}
           opener={
@@ -142,7 +142,7 @@ const OktaAuthenticationDetails = () => {
             </MenuPopper>
           )}
         </Popper>
-      </PageHeader>
+      </PageHeader.Wrapper>
       <MainInfos>
         {loading ? (
           <>
@@ -224,15 +224,6 @@ const OktaAuthenticationDetails = () => {
     </>
   )
 }
-
-const HeaderBlock = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
 
 const MainInfos = styled.div`
   display: flex;

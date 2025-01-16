@@ -116,8 +116,8 @@ const GocardlessIntegrationDetails = () => {
 
   return (
     <div>
-      <PageHeader withSide>
-        <HeaderBlock>
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <ButtonLink
             to={generatePath(GOCARDLESS_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
@@ -132,7 +132,7 @@ const GocardlessIntegrationDetails = () => {
               {gocardlessPaymentProvider?.name}
             </Typography>
           )}
-        </HeaderBlock>
+        </PageHeader.Group>
         {(canEditIntegration || canDeleteIntegration) && (
           <Popper
             PopperProps={{ placement: 'bottom-end' }}
@@ -210,7 +210,7 @@ const GocardlessIntegrationDetails = () => {
             )}
           </Popper>
         )}
-      </PageHeader>
+      </PageHeader.Wrapper>
       <MainInfos>
         {loading ? (
           <>
@@ -368,10 +368,10 @@ const GocardlessIntegrationDetails = () => {
           </InlineTitle>
 
           {loading ? (
-            <HeaderBlock>
+            <div className="flex items-center gap-3">
               <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
               <Skeleton variant="text" className="w-60" />
-            </HeaderBlock>
+            </div>
           ) : (
             <>
               {!gocardlessPaymentProvider?.successRedirectUrl ? (
@@ -466,15 +466,6 @@ const GocardlessIntegrationDetails = () => {
     </div>
   )
 }
-
-const HeaderBlock = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
 
 const MainInfos = styled.div`
   display: flex;
