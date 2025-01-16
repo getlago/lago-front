@@ -119,13 +119,12 @@ const CashfreeIntegrationDetails = () => {
 
   return (
     <div>
-      <PageHeader withSide>
-        <div className="flex items-center">
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <ButtonLink
             to={generatePath(CASHFREE_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Community,
             })}
-            className="mr-3"
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
@@ -136,7 +135,7 @@ const CashfreeIntegrationDetails = () => {
               {cashfreePaymentProvider?.name}
             </Typography>
           )}
-        </div>
+        </PageHeader.Group>
         {(canEditIntegration || canDeleteIntegration) && (
           <Popper
             PopperProps={{ placement: 'bottom-end' }}
@@ -186,7 +185,7 @@ const CashfreeIntegrationDetails = () => {
             )}
           </Popper>
         )}
-      </PageHeader>
+      </PageHeader.Wrapper>
       <div className="flex items-center px-4 py-8 md:px-12">
         {loading ? (
           <>
