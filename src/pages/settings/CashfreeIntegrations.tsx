@@ -91,13 +91,12 @@ const CashfreeIntegrations = () => {
 
   return (
     <>
-      <PageHeader withSide>
-        <div className="flex items-center">
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
           <ButtonLink
             to={generatePath(INTEGRATIONS_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Community,
             })}
-            className="mr-3"
             type="button"
             buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
           />
@@ -108,7 +107,7 @@ const CashfreeIntegrations = () => {
               {translate('text_1727619878796wmgcntkfycn')}
             </Typography>
           )}
-        </div>
+        </PageHeader.Group>
 
         {canCreateIntegration && (
           <Button
@@ -120,7 +119,7 @@ const CashfreeIntegrations = () => {
             {translate('text_65846763e6140b469140e235')}
           </Button>
         )}
-      </PageHeader>
+      </PageHeader.Wrapper>
       <div className="flex items-center px-4 py-8 md:px-12">
         {loading ? (
           <>
