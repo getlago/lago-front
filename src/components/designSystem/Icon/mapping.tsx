@@ -85,6 +85,7 @@ import Pulse from '~/public/icons/pulse.svg'
 import Push from '~/public/icons/push.svg'
 import Puzzle from '~/public/icons/puzzle.svg'
 import QuestionCircle from '~/public/icons/question-circle.svg'
+import Receipt from '~/public/icons/receipt.svg'
 import Reload from '~/public/icons/reload.svg'
 import Requested from '~/public/icons/requested.svg'
 import ResizeExpand from '~/public/icons/resize-expand.svg'
@@ -206,6 +207,7 @@ export const ALL_ICONS = {
   push: Push,
   puzzle: Puzzle,
   'question-circle': QuestionCircle,
+  receipt: Receipt,
   reload: Reload,
   requested: Requested,
   'resize-expand': ResizeExpand,
