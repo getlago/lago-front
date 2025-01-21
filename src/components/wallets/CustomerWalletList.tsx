@@ -19,7 +19,6 @@ import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
-import { tw } from '~/styles/utils'
 
 import {
   TerminateCustomerWalletDialog,
@@ -100,9 +99,7 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerW
     <>
       <div>
         <SectionHeader
-          className={tw({
-            'mb-6': !!hasNoWallet,
-          })}
+          className="mb-4 h-auto"
           variant="subhead"
           hideBottomShadow={!!loading || !hasNoWallet}
         >

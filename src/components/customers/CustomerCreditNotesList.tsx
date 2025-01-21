@@ -53,7 +53,7 @@ export const CustomerCreditNotesList = ({
 
   return (
     <div>
-      <SectionHeader variant="subhead" color="grey700" hideBottomShadow>
+      <SectionHeader className="h-auto pb-4" variant="subhead" color="grey700" hideBottomShadow>
         {translate('text_63725b30957fd5b26b308dd7')}
       </SectionHeader>
       <div className="mb-8 flex h-18 items-center justify-between rounded-xl border border-grey-400 px-4 py-3">

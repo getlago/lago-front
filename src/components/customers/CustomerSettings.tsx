@@ -249,7 +249,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
 
   return (
     <>
-      <SettingsPaddedContainer className="max-w-full px-0 md:px-0">
+      <SettingsPaddedContainer className="max-w-full px-0 pt-0 md:px-0">
         <SettingsListWrapper>
           {!!loading ? (
             <SettingsListItemLoadingSkeleton count={2} />

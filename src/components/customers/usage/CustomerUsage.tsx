@@ -41,7 +41,7 @@ export const CustomerUsage = ({ premiumWarningDialogRef }: CustomerUsageProps) =
 
   return (
     <div>
-      <SectionHeader variant="subhead">
+      <SectionHeader className="h-auto pb-4" variant="subhead">
         {translate('text_65564e8e4af2340050d431be')}
 
         <MonthSelectorDropdown

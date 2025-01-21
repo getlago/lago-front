@@ -107,7 +107,7 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
         <>
           {!!invoicesDraft?.length && (
             <div className="mb-12">
-              <div className="flex h-18 items-center justify-between">
+              <div className="flex h-auto items-center justify-between pb-4">
                 <Typography variant="subhead" color="grey700">
                   {translate('text_638f4d756d899445f18a49ee')}
                 </Typography>
