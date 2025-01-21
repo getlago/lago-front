@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client'
 import { memo, useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { CouponCaption, CouponMixedType } from '~/components/coupons/CouponCaption'
-import { Avatar, Button, Icon, Tooltip, Typography } from '~/components/designSystem'
+import { Button, Icon, Table, Tooltip, Typography } from '~/components/designSystem'
+import { PageSectionTitle } from '~/components/layouts/Section'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import {
@@ -14,8 +14,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
-import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, theme } from '~/styles'
-import { SectionHeader } from '~/styles/customer'
 
 import {
   AddCouponToCustomerDialog,
@@ -64,7 +62,7 @@ export const CustomerCoupons = memo(() => {
   const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
   const deleteCouponId = useRef<string | null>(null)
   const { translate } = useInternationalization()
-  const { data } = useGetCustomerCouponsQuery({
+  const { data, loading } = useGetCustomerCouponsQuery({
     variables: { id: customerId as string },
     skip: !customerId,
   })
@@ -84,39 +82,51 @@ export const CustomerCoupons = memo(() => {
   return (
     <>
       {!!(coupons || [])?.length && (
-        <Container data-test="customer-coupon-container">
-          <SectionHeader variant="subhead" hideBottomShadow>
-            {translate('text_628b8c693e464200e00e469d')}
-            <Button
-              variant="quaternary"
-              align="left"
-              onClick={() => {
+        <div className="flex flex-col" data-test="customer-coupon-container">
+          <PageSectionTitle
+            title={translate('text_62865498824cc10126ab2956')}
+            subtitle={translate('text_1736950586920yq3xq4gols8')}
+            action={{
+              title: translate('text_628b8dc14c71840130f8d8a1'),
+              onClick: () => {
                 addCouponDialogRef.current?.openDialog()
-              }}
-            >
-              {translate('text_628b8dc14c71840130f8d8a1')}
-            </Button>
-          </SectionHeader>
-          <ListHeader>
-            <Typography variant="bodyHl" color="disabled" noWrap>
-              {translate('text_628b8c693e464200e00e46ab')}
-            </Typography>
-          </ListHeader>
-          {(coupons || []).map((appliedCoupon) => (
-            <CouponNameSection key={appliedCoupon.id} data-test={appliedCoupon.coupon?.name}>
-              <Avatar className="mr-3" variant="connector">
-                <Icon name="coupon" color="dark" />
-              </Avatar>
-              <NameBlock>
-                <Typography color="textSecondary" variant="bodyHl" noWrap>
-                  {appliedCoupon.coupon?.name}
-                </Typography>
-                <CouponCaption
-                  coupon={appliedCoupon as unknown as CouponMixedType}
-                  variant="caption"
-                />
-              </NameBlock>
-              {hasPermissions(['couponsDetach']) && (
+              },
+            }}
+          />
+
+          <Table
+            name="customer-coupons"
+            data={coupons || []}
+            containerSize={0}
+            isLoading={loading}
+            columns={[
+              {
+                key: 'coupon.name',
+                title: translate('text_62865498824cc10126ab2960'),
+                content: ({ coupon: { name } }) => (
+                  <div className="flex items-center gap-3">
+                    <Icon name="coupon" color="dark" />
+
+                    <Typography className="text-nowrap text-base font-medium text-grey-700">
+                      {name}
+                    </Typography>
+                  </div>
+                ),
+              },
+              {
+                key: 'amountCurrency',
+                maxSpace: true,
+                title: translate('text_632d68358f1fedc68eed3e9d'),
+                content: (coupon) => (
+                  <CouponCaption
+                    className="text-nowrap text-base font-normal text-grey-600"
+                    coupon={coupon as unknown as CouponMixedType}
+                  />
+                ),
+              },
+            ]}
+            actionColumn={(coupon) =>
+              hasPermissions(['couponsDetach']) && (
                 <Tooltip
                   className="ml-auto"
                   placement="top-end"
@@ -126,16 +136,17 @@ export const CustomerCoupons = memo(() => {
                     variant="quaternary"
                     icon="trash"
                     onClick={() => {
-                      deleteCouponId.current = appliedCoupon.id
+                      deleteCouponId.current = coupon.id
                       removeDialogRef?.current?.openDialog()
                     }}
                   />
                 </Tooltip>
-              )}
-            </CouponNameSection>
-          ))}
-        </Container>
+              )
+            }
+          />
+        </div>
       )}
+
       <WarningDialog
         ref={removeDialogRef}
         title={translate('text_628b8c693e464200e00e465f')}
@@ -154,34 +165,5 @@ export const CustomerCoupons = memo(() => {
     </>
   )
 })
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-`
-
-const ListHeader = styled.div`
-  height: ${HEADER_TABLE_HEIGHT}px;
-  display: flex;
-  align-items: center;
-  box-shadow: ${theme.shadows[7]};
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(6)};
-  }
-`
-
-const CouponNameSection = styled.div`
-  margin-right: auto;
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  height: ${NAV_HEIGHT}px;
-  box-shadow: ${theme.shadows[7]};
-  width: 100%;
-`
-
-const NameBlock = styled.div`
-  min-width: 0;
-`
 
 CustomerCoupons.displayName = 'CustomerCoupons'
