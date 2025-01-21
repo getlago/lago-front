@@ -15,7 +15,7 @@ interface TimezoneDateProps {
   mainDateFormat?: string
   mainTimezone?: keyof typeof MainTimezoneEnum
   customerTimezone?: TimezoneEnum
-  mainTypographyProps?: Pick<TypographyProps, 'variant' | 'color'>
+  mainTypographyProps?: Pick<TypographyProps, 'variant' | 'color' | 'className'>
   className?: string
 }
 
