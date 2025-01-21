@@ -1,11 +1,12 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
-import { FC, PropsWithChildren, useCallback, useRef, useState } from 'react'
+import { FC, PropsWithChildren } from 'react'
 import { Link, LinkProps } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
-import { Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
+import { Avatar, Icon, Skeleton, Typography } from '~/components/designSystem'
+import { PageSectionTitle } from '~/components/layouts/Section'
 import { CountryCodes } from '~/core/constants/countryCodes'
 import {
   buildAnrokCustomerUrl,
@@ -195,8 +196,6 @@ interface CustomerMainInfosProps {
   onEdit?: () => unknown
 }
 
-const SHOW_MORE_THRESHOLD = 6
-
 const InlineLink: FC<PropsWithChildren<LinkProps>> = ({ children, ...props }) => {
   return (
     <Link
@@ -210,9 +209,6 @@ const InlineLink: FC<PropsWithChildren<LinkProps>> = ({ children, ...props }) =>
 
 export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInfosProps) => {
   const { translate } = useInternationalization()
-  const [showMore, setShowMore] = useState(false)
-  const [shouldSeeMoreButton, setShouldSeeMoreButton] = useState(false)
-  const infosRef = useRef<HTMLDivElement | null>(null)
 
   const { data: paymentProvidersData } = usePaymentProvidersListForCustomerMainInfosQuery({
     variables: { limit: 1000 },
@@ -272,15 +268,6 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     (integration) => integration?.id === customer?.salesforceCustomer?.integrationId,
   ) as SalesforceIntegration
 
-  const updateRef = useCallback(
-    (node: HTMLDivElement) => {
-      if (customer && node) {
-        setShouldSeeMoreButton(node.childNodes.length >= SHOW_MORE_THRESHOLD)
-      }
-    },
-    [customer],
-  )
-
   if (loading || !customer)
     return (
       <LoadingDetails>
@@ -327,24 +314,16 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
 
   return (
     <DetailsBlock>
-      <SectionHeader>
-        <Typography variant="subhead">{translate('text_6250304370f0f700a8fdc27d')}</Typography>
-
-        <Button variant="quaternary" onClick={onEdit}>
-          {translate('text_626162c62f790600f850b75a')}
-        </Button>
-      </SectionHeader>
-      <InfosBlock
-        ref={(node) => {
-          infosRef.current = node
-
-          if (node) {
-            updateRef(node)
-          }
+      <PageSectionTitle
+        title={translate('text_6250304370f0f700a8fdc27d')}
+        subtitle={translate('text_1737059551511f5acxkfz7p4')}
+        action={{
+          title: translate('text_626162c62f790600f850b75a'),
+          onClick: () => onEdit?.(),
         }}
-        data-id="customer-info-list"
-        $showMore={showMore}
-      >
+      />
+
+      <InfosBlock data-id="customer-info-list">
         {customerType && (
           <div>
             <Typography variant="caption">{translate('text_1726128938631ioz4orixel3')}</Typography>
@@ -707,25 +686,6 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
             </div>
           ))}
       </InfosBlock>
-      {shouldSeeMoreButton && !showMore && (
-        <ShowMoreButton
-          onClick={() => {
-            const hiddenItems = Array.from(
-              infosRef.current?.querySelectorAll(
-                `*:nth-of-type(n + ${SHOW_MORE_THRESHOLD})`,
-              ) as NodeListOf<HTMLElement>,
-            )
-
-            hiddenItems?.forEach((item) => {
-              item.style.display = 'block'
-            })
-
-            setShowMore(true)
-          }}
-        >
-          {translate('text_6670a2a7ae3562006c4ee3ce')}
-        </ShowMoreButton>
-      )}
     </DetailsBlock>
   )
 }
@@ -746,14 +706,9 @@ const DetailsBlock = styled.div`
   }
 `
 
-const InfosBlock = styled.div<{ $showMore: boolean }>`
+const InfosBlock = styled.div`
   > *:not(:last-child) {
     margin-bottom: ${theme.spacing(3)};
-  }
-
-  // Hide all items after the threshold
-  > *:nth-child(n + ${SHOW_MORE_THRESHOLD}) {
-    ${({ $showMore }) => ($showMore ? 'display: block;' : 'display: none;')}
   }
 `
 
@@ -762,9 +717,4 @@ const SectionHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   margin-bottom: ${theme.spacing(4)};
-`
-
-const ShowMoreButton = styled.span`
-  color: ${theme.palette.primary[600]};
-  cursor: pointer;
 `
