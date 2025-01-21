@@ -1871,7 +1871,7 @@
   "text_624efab67eb2570101d117c6": "Type a name",
   "text_624efab67eb2570101d117ce": "Customer external ID",
   "text_624efab67eb2570101d117d6": "Type an external ID",
-  "text_6250304370f0f700a8fdc27d": "Details",
+  "text_6250304370f0f700a8fdc27d": "Customer details",
   "text_6250304370f0f700a8fdc283": "External ID",
   "text_6250304370f0f700a8fdc28b": "Assign a plan",
   "text_6250304370f0f700a8fdc28d": "Subscriptions",
@@ -2792,5 +2792,11 @@
   "text_1733303404277q80b216p5zr": "This integration is not officially developed by Lago. Please note that the Lago team will not be able to provide support if any issues arise.",
   "text_1733303818769298k0fvsgcz": "Type a redirect URL",
   "text_17367626793434wkg1rk0114": "Cashfree",
-  "text_1736764955395763x9k5gqkj": "These integrations are not officially developed by Lago, so please be aware that our team cannot provide support for any issues that may arise."
+  "text_1736764955395763x9k5gqkj": "These integrations are not officially developed by Lago, so please be aware that our team cannot provide support for any issues that may arise.",
+  "text_1736950586920yq3xq4gols8": "A coupon is a discount that reduces the amount on future invoices.",
+  "text_1736968199827r2u2gd7pypg": "A subscription is created when a plan is assigned to a partner. You can assign a plan to a customer at any time",
+  "text_1736968618645gg26amx8djq": "Frequency",
+  "text_1736972452609qdjngeuqsz0": "Downgrade",
+  "text_1736972452609g2v8mzgvi2t": "Scheduled",
+  "text_1737059551511f5acxkfz7p4": "Retrieve all customer details, including connected external apps."
 }
