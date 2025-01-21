@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import {
   AddCouponToCustomerDialog,
@@ -49,7 +48,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { MenuPopper, PageHeader, theme } from '~/styles'
+import { MenuPopper, PageHeader } from '~/styles'
 
 gql`
   fragment CustomerDetails on Customer {
