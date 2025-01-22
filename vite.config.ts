@@ -81,6 +81,7 @@ export default defineConfig(({ mode }) => {
       port,
       host: true,
       strictPort: true,
+      allowedHosts: ['app.lago.dev'],
     },
     preview: {
       port,
