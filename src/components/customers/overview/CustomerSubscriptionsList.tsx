@@ -44,13 +44,29 @@ gql`
       id
       subscriptions(status: [active, pending]) {
         id
+        status
+        startedAt
+        nextPendingStartDate
+        name
+        nextName
+        externalId
+        subscriptionAt
+        endingAt
         plan {
           id
           amountCurrency
           name
           interval
         }
-        ...SubscriptionItem
+        nextPlan {
+          id
+          name
+          code
+          interval
+        }
+        nextSubscription {
+          id
+        }
       }
     }
   }
