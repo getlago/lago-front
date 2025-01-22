@@ -5,9 +5,9 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 import styled from 'styled-components'
 import { number, object, string } from 'yup'
 
-import { Alert, Button, Card, Drawer, DrawerRef, Typography } from '~/components/designSystem'
+import { Alert, Button, Drawer, DrawerRef, Typography } from '~/components/designSystem'
 import { AmountInputField, ComboBoxField, TextInputField } from '~/components/form'
-import { chargeModelLookupTranslation } from '~/core/constants/form'
+import { DrawerLayout } from '~/components/layouts/Drawer'
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
@@ -18,7 +18,7 @@ import {
   useCreateAdjustedFeeMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { DrawerContent, DrawerSubmitButton, DrawerTitle, theme } from '~/styles'
+import { theme } from '~/styles'
 
 import { InvoiceWrapper } from './InvoiceDetailsTable'
 import { InvoiceDetailsTableBodyLine } from './InvoiceDetailsTableBodyLine'
@@ -37,7 +37,7 @@ gql`
 `
 
 type EditFeeDrawerProps = {
-  fee: TExtendedRemainingFee | undefined
+  fee?: TExtendedRemainingFee | undefined
 }
 
 export interface EditFeeDrawerRef extends DrawerRef {
@@ -136,7 +136,9 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
 
   return (
     <Drawer
+      fullContentHeight
       ref={drawerRef}
+      withPadding={false}
       title={translate('text_65a6b4e2cb38d9b70ec53c25', {
         name: fee?.metadata?.displayName,
       })}
@@ -145,170 +147,183 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
         formikProps.validateForm()
       }}
     >
-      <DrawerContent>
-        <DrawerTitle>
-          <Typography variant="headline">
-            {translate('text_65a6b4e2cb38d9b70ec53c25', {
-              name: fee?.metadata?.displayName,
-            })}
-          </Typography>
-          <Typography>{translate('text_65a6b4e2cb38d9b70ec53c2d')}</Typography>
-        </DrawerTitle>
-
-        <Card>
-          <Typography variant="subhead">{translate('text_65a6b4e2cb38d9b70ec53c35')}</Typography>
-
-          {!!fee && (
-            <LocalInvoiceWrapper>
-              <table>
-                <thead>
-                  <tr>
-                    <th>
-                      <Typography variant="captionHl" color="grey600">
-                        {translate('text_6388b923e514213fed58331c')}
-                      </Typography>
-                    </th>
-                    <th>
-                      <Typography variant="captionHl" color="grey600">
-                        {translate('text_65771fa3f4ab9a00720726ce')}
-                      </Typography>
-                    </th>
-                    <th>
-                      <Typography variant="captionHl" color="grey600">
-                        {translate('text_6453819268763979024ad089')}
-                      </Typography>
-                    </th>
-                    <th>
-                      <Typography variant="captionHl" color="grey600">
-                        {translate('text_634d631acf4dce7b0127a3a6')}
-                      </Typography>
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  <InvoiceDetailsTableBodyLine
-                    canHaveUnitPrice
-                    hideVat
-                    currency={fee.currency}
-                    displayName={fee.metadata.displayName}
-                    fee={fee}
-                    isDraftInvoice={false}
+      {({ closeDrawer }) => (
+        <DrawerLayout.Wrapper>
+          <DrawerLayout.Content>
+            <DrawerLayout.Header
+              title={translate('text_65a6b4e2cb38d9b70ec53c25', {
+                name: fee?.metadata?.displayName,
+              })}
+              description={translate('text_65a6b4e2cb38d9b70ec53c2d')}
+            />
+            {!!fee && (
+              <>
+                <DrawerLayout.Section>
+                  <DrawerLayout.SectionTitle
+                    title={translate('text_65a6b4e2cb38d9b70ec53c35')}
+                    description={translate('text_1737556835239q7202lhbdhk')}
                   />
-                </tbody>
-              </table>
-            </LocalInvoiceWrapper>
-          )}
-        </Card>
+                  <LocalInvoiceWrapper>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>
+                            <Typography variant="captionHl" color="grey600">
+                              {translate('text_6388b923e514213fed58331c')}
+                            </Typography>
+                          </th>
+                          <th>
+                            <Typography variant="captionHl" color="grey600">
+                              {translate('text_65771fa3f4ab9a00720726ce')}
+                            </Typography>
+                          </th>
+                          <th>
+                            <Typography variant="captionHl" color="grey600">
+                              {translate('text_6453819268763979024ad089')}
+                            </Typography>
+                          </th>
+                          <th>
+                            <Typography variant="captionHl" color="grey600">
+                              {translate('text_634d631acf4dce7b0127a3a6')}
+                            </Typography>
+                          </th>
+                        </tr>
+                      </thead>
 
-        <Card>
-          <Typography variant="subhead">{translate('text_65a6b4e2cb38d9b70ec53d31')}</Typography>
+                      <tbody>
+                        <InvoiceDetailsTableBodyLine
+                          canHaveUnitPrice
+                          hideVat
+                          currency={fee.currency}
+                          displayName={fee.metadata.displayName}
+                          fee={fee}
+                          isDraftInvoice={false}
+                        />
+                      </tbody>
+                    </table>
+                  </LocalInvoiceWrapper>
+                </DrawerLayout.Section>
+              </>
+            )}
 
-          <TextInputField
-            label={translate('text_65a6b4e2cb38d9b70ec53d39')}
-            name="invoiceDisplayName"
-            placeholder={translate('text_65a6b4e2cb38d9b70ec53d41')}
-            formikProps={formikProps}
-          />
+            <DrawerLayout.Section>
+              <DrawerLayout.SectionTitle
+                title={translate('text_65a6b4e2cb38d9b70ec53d31')}
+                description={translate('text_17375568352390mlfarq4p6t')}
+              />
 
-          <ComboBoxField
-            label={translate('text_65a6b4e2cb38d9b70ec53d49')}
-            name="adjustmentType"
-            placeholder={translate('text_65a94d976d7a9700716590d9')}
-            data={[
-              {
-                label: translate('text_65a6b4e2cb38d9b70ec53d83'),
-                value: AdjustedFeeTypeEnum.AdjustedAmount,
-              },
-              {
-                label: translate('text_6304e74aab6dbc18d615f3a2'),
-                value: AdjustedFeeTypeEnum.AdjustedUnits,
-                disabled:
-                  fee?.charge?.chargeModel === ChargeModelEnum.Percentage ||
-                  (fee?.charge?.chargeModel === ChargeModelEnum.Graduated && fee.charge.prorated),
-              },
-            ]}
-            formikProps={formikProps}
-          />
-          {!!formikProps.values.adjustmentType && (
-            <>
-              <InlineElements>
+              <div className="flex flex-col gap-6">
                 <TextInputField
-                  label={translate('text_65771fa3f4ab9a00720726ce')}
-                  name="units"
-                  error={undefined}
-                  beforeChangeFormatter={['positiveNumber', 'decimal']}
-                  placeholder={translate('text_62a0b7107afa2700a65ef700')}
+                  label={translate('text_65a6b4e2cb38d9b70ec53d39')}
+                  name="invoiceDisplayName"
+                  placeholder={translate('text_65a6b4e2cb38d9b70ec53d41')}
                   formikProps={formikProps}
                 />
 
-                {formikProps.values.adjustmentType === AdjustedFeeTypeEnum.AdjustedAmount && (
+                <ComboBoxField
+                  label={translate('text_65a6b4e2cb38d9b70ec53d49')}
+                  name="adjustmentType"
+                  placeholder={translate('text_65a94d976d7a9700716590d9')}
+                  data={[
+                    {
+                      label: translate('text_65a6b4e2cb38d9b70ec53d83'),
+                      value: AdjustedFeeTypeEnum.AdjustedAmount,
+                    },
+                    {
+                      label: translate('text_6304e74aab6dbc18d615f3a2'),
+                      value: AdjustedFeeTypeEnum.AdjustedUnits,
+                      disabled:
+                        fee?.charge?.chargeModel === ChargeModelEnum.Percentage ||
+                        (fee?.charge?.chargeModel === ChargeModelEnum.Graduated &&
+                          fee.charge.prorated),
+                    },
+                  ]}
+                  formikProps={formikProps}
+                />
+                {!!formikProps.values.adjustmentType && (
                   <>
-                    <AmountInputField
-                      label={translate('text_6453819268763979024ad089')}
-                      name="unitPreciseAmount"
-                      currency={currency}
-                      beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
-                      placeholder={translate('text_62a0b7107afa2700a65ef700')}
-                      formikProps={formikProps}
-                      error={undefined}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            {getCurrencySymbol(currency)}
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
+                    <InlineElements>
+                      <TextInputField
+                        label={translate('text_65771fa3f4ab9a00720726ce')}
+                        name="units"
+                        error={undefined}
+                        beforeChangeFormatter={['positiveNumber', 'decimal']}
+                        placeholder={translate('text_62a0b7107afa2700a65ef700')}
+                        formikProps={formikProps}
+                      />
 
-                    <InlineTotalAmountDisplay>
-                      <Typography variant="captionHl" color="grey700">
-                        {translate('text_65a6b4e2cb38d9b70ec53d83')}
-                      </Typography>
-                      <Typography variant="body" color="grey700">
-                        {intlFormatNumber(
-                          Number(
-                            Number(formikProps.values.units || 0) *
-                              Number(formikProps.values.unitPreciseAmount || 0) || 0,
-                          ),
-                          {
-                            currencyDisplay: 'symbol',
-                            currency: currency,
-                            maximumFractionDigits: 15,
-                          },
+                      {formikProps.values.adjustmentType === AdjustedFeeTypeEnum.AdjustedAmount && (
+                        <>
+                          <AmountInputField
+                            label={translate('text_6453819268763979024ad089')}
+                            name="unitPreciseAmount"
+                            currency={currency}
+                            beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
+                            placeholder={translate('text_62a0b7107afa2700a65ef700')}
+                            formikProps={formikProps}
+                            error={undefined}
+                            InputProps={{
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  {getCurrencySymbol(currency)}
+                                </InputAdornment>
+                              ),
+                            }}
+                          />
+
+                          <InlineTotalAmountDisplay>
+                            <Typography variant="captionHl" color="grey700">
+                              {translate('text_65a6b4e2cb38d9b70ec53d83')}
+                            </Typography>
+                            <Typography variant="body" color="grey700">
+                              {intlFormatNumber(
+                                Number(
+                                  Number(formikProps.values.units || 0) *
+                                    Number(formikProps.values.unitPreciseAmount || 0) || 0,
+                                ),
+                                {
+                                  currencyDisplay: 'symbol',
+                                  currency: currency,
+                                  maximumFractionDigits: 15,
+                                },
+                              )}
+                            </Typography>
+                          </InlineTotalAmountDisplay>
+                        </>
+                      )}
+                    </InlineElements>
+
+                    {!!fee?.charge && (
+                      <Alert type="info">
+                        {translate(
+                          formikProps.values.adjustmentType === AdjustedFeeTypeEnum.AdjustedAmount
+                            ? 'text_65a6b4e2cb38d9b70ec53d93'
+                            : 'text_6613b48da4efd500cacc44d3',
                         )}
-                      </Typography>
-                    </InlineTotalAmountDisplay>
+                      </Alert>
+                    )}
                   </>
                 )}
-              </InlineElements>
+              </div>
+            </DrawerLayout.Section>
+          </DrawerLayout.Content>
 
-              {!!fee?.charge && (
-                <Alert type="info">
-                  {translate(
-                    formikProps.values.adjustmentType === AdjustedFeeTypeEnum.AdjustedAmount
-                      ? 'text_65a6b4e2cb38d9b70ec53d93'
-                      : 'text_6613b48da4efd500cacc44d3',
-                    { model: translate(chargeModelLookupTranslation[fee?.charge?.chargeModel]) },
-                  )}
-                </Alert>
-              )}
-            </>
-          )}
-        </Card>
+          <DrawerLayout.StickyFooter>
+            <Button variant="quaternary" size="large" onClick={closeDrawer}>
+              {translate('text_6411e6b530cb47007488b027')}
+            </Button>
 
-        <DrawerSubmitButton>
-          <Button
-            fullWidth
-            size="large"
-            disabled={!formikProps.isValid || !formikProps.dirty}
-            loading={formikProps.isSubmitting}
-            onClick={formikProps.submitForm}
-          >
-            {translate('text_65a6b4e2cb38d9b70ec53d9b')}
-          </Button>
-        </DrawerSubmitButton>
-      </DrawerContent>
+            <Button
+              size="large"
+              disabled={!formikProps.isValid || !formikProps.dirty}
+              loading={formikProps.isSubmitting}
+              onClick={formikProps.submitForm}
+            >
+              {translate('text_65a6b4e2cb38d9b70ec53d9b')}
+            </Button>
+          </DrawerLayout.StickyFooter>
+        </DrawerLayout.Wrapper>
+      )}
     </Drawer>
   )
 })
