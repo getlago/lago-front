@@ -66,6 +66,8 @@ gql`
         }
         nextSubscription {
           id
+          name
+          externalId
         }
       }
     }
@@ -109,6 +111,7 @@ const annotateSubscriptions = (
       subscriptionAt,
       endingAt,
       customer,
+      nextSubscription,
     } = subscription || {}
 
     const isDowngrading = !!nextPlan
@@ -138,8 +141,9 @@ const annotateSubscriptions = (
 
     const _subDowngrade = isDowngrading &&
       nextPlan && {
-        id: nextPlan.id,
-        name: nextName || nextPlan.name,
+        id: nextSubscription?.id || nextPlan.id,
+        externalId: nextSubscription?.externalId,
+        name: nextSubscription?.name || nextName || nextPlan.name,
         frequency: nextPlan.interval,
         startedAt: nextPendingStartDate,
         statusType: {
