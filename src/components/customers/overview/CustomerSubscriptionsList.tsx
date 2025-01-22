@@ -15,6 +15,7 @@ import { PageSectionTitle } from '~/components/layouts/Section'
 import { TimezoneDate } from '~/components/TimezoneDate'
 import { addToast } from '~/core/apolloClient'
 import { getIntervalTranslationKey } from '~/core/constants/form'
+import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   CREATE_SUBSCRIPTION,
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
@@ -26,13 +27,11 @@ import {
   Plan,
   StatusTypeEnum,
   Subscription,
-  SubscriptionItemFragmentDoc,
   TimezoneEnum,
   useGetCustomerSubscriptionForListQuery,
 } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
-import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/pages/SubscriptionDetails'
 
 import {
   TerminateCustomerSubscriptionDialog,
@@ -55,8 +54,6 @@ gql`
       }
     }
   }
-
-  ${SubscriptionItemFragmentDoc}
 `
 
 interface CustomerSubscriptionsListProps {
