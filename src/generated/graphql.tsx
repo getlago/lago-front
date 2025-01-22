@@ -6951,11 +6951,7 @@ export type GetCustomerSubscriptionForListQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerSubscriptionForListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null, nextSubscription?: { __typename?: 'Subscription', id: string } | null }> } | null };
-
-export type SubscriptionItemFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string } | null, nextSubscription?: { __typename?: 'Subscription', id: string } | null };
-
-export type SubscriptionLinePlanFragment = { __typename?: 'Plan', id: string, name: string, code: string };
+export type GetCustomerSubscriptionForListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string } | null }> } | null };
 
 export type TerminateCustomerSubscriptionMutationVariables = Exact<{
   input: TerminateSubscriptionInput;
@@ -9758,35 +9754,6 @@ export const CustomerAppliedCouponsFragmentDoc = gql`
   }
 }
     ${CustomerCouponFragmentDoc}`;
-export const SubscriptionLinePlanFragmentDoc = gql`
-    fragment SubscriptionLinePlan on Plan {
-  id
-  name
-  code
-}
-    `;
-export const SubscriptionItemFragmentDoc = gql`
-    fragment SubscriptionItem on Subscription {
-  id
-  status
-  startedAt
-  nextPendingStartDate
-  name
-  nextName
-  externalId
-  subscriptionAt
-  endingAt
-  plan {
-    ...SubscriptionLinePlan
-  }
-  nextPlan {
-    ...SubscriptionLinePlan
-  }
-  nextSubscription {
-    id
-  }
-}
-    ${SubscriptionLinePlanFragmentDoc}`;
 export const CustomerUsageForUsageDetailsFragmentDoc = gql`
     fragment CustomerUsageForUsageDetails on CustomerUsage {
   fromDatetime
@@ -15079,17 +15046,33 @@ export const GetCustomerSubscriptionForListDocument = gql`
     id
     subscriptions(status: [active, pending]) {
       id
+      status
+      startedAt
+      nextPendingStartDate
+      name
+      nextName
+      externalId
+      subscriptionAt
+      endingAt
       plan {
         id
         amountCurrency
         name
         interval
       }
-      ...SubscriptionItem
+      nextPlan {
+        id
+        name
+        code
+        interval
+      }
+      nextSubscription {
+        id
+      }
     }
   }
 }
-    ${SubscriptionItemFragmentDoc}`;
+    `;
 
 /**
  * __useGetCustomerSubscriptionForListQuery__
