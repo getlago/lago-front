@@ -29,7 +29,7 @@
       "matchUpdateTypes": ["patch", "digest", "bump"],
       "commitMessagePrefix": "chore(deps)",
       "reviewers": ["renovate-approve"],
-      "automerge": true
+      "automerge": false
     }
   ]
 }
