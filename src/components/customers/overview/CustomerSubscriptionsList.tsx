@@ -279,7 +279,7 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
                 title: translate('text_6253f11816f710014600b9ed'),
                 content: ({ name, isDowngrade }) => (
                   <>
-                    <div className="relative flex items-center gap-3">
+                    <div className="relative flex items-center gap-3 pl-1">
                       {isDowngrade && <Icon name="arrow-indent" />}
 
                       <Typography className="text-base font-medium text-grey-700">
