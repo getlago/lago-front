@@ -14,8 +14,6 @@ export enum StatusType {
   default = 'default',
   danger = 'danger',
   disabled = 'disabled',
-  downgrade = 'downgrade',
-  scheduled = 'scheduled',
 }
 
 type StatusLabelSuccess = 'succeeded' | 'finalized' | 'active' | 'pay' | 'available' | 'refunded'
