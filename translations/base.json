@@ -1251,7 +1251,7 @@
   "text_65a6b4e2cb38d9b70ec53d41": "Type an invoice display name",
   "text_65a6b4e2cb38d9b70ec53d49": "Adjustment",
   "text_65a6b4e2cb38d9b70ec53d83": "Total amount",
-  "text_65a6b4e2cb38d9b70ec53d93": "Adjusting the total amount of the fee will replace the current fee, you'll lose the detailed breakdown linked to the {{model}} charge model.",
+  "text_65a6b4e2cb38d9b70ec53d93": "Lago will calculate a new price based on specific inputs. The detailed breakdown associated with the charge model will no longer be available.",
   "text_65a6b4e2cb38d9b70ec53d9b": "Adjust fee",
   "text_65a6b4e2cb38d9b70ec53dec": "(edited fee)",
   "text_65a6b4e2cb38d9b70ec54035": "Reset to initial fee",
@@ -1260,7 +1260,7 @@
   "text_65a94d976d7a9700716590d9": "Search or select an adjustment",
   "text_65b116a266d90732cac8b39b": "Display {{count}} fee at 0 units|Display {{count}} fees at 0 units",
   "text_65b116a266d90732cac8b3bc": "Hide {{count}} fee at 0 units|Hide {{count}} fees at 0 units",
-  "text_6613b48da4efd500cacc44d3": "Modifying the unit quantity of the fee will replace the existing fee, Lago will automatically adjust the corresponding unit price for the fee",
+  "text_6613b48da4efd500cacc44d3": "Lago will automatically adjust the corresponding unit price for the fee based on the charge model.",
   "text_659e67cd63512ef53284305a": "Minimum spend of {{amount}} prorated on days of usage",
   "text_659e67cd63512ef532843070": "Fee per unit for the first {{toValue}}",
   "text_659e67cd63512ef5328430af": "Fee per unit for the next {{fromValue}} to {{toValue}}",
@@ -2803,5 +2803,7 @@
   "text_1737892224510vc53d10q4h5": "Metadata",
   "text_1737892224510jnd7cbdp2yg": "External connections",
   "text_1737895765672pwk47419syk": "Total remaining credits from credited notes. This amount will affect future invoices.",
-  "text_1737895837105yr0kl7kkyuz": "List of credited notes. These amounts may impact future invoices; consider voiding the credits if needed."
+  "text_1737895837105yr0kl7kkyuz": "List of credited notes. These amounts may impact future invoices; consider voiding the credits if needed.",
+  "text_1737556835239q7202lhbdhk": "To see the difference with the new fee, here’s the current one,",
+  "text_17375568352390mlfarq4p6t": "This fee will be added as an adjustment until the invoice is finalized."
 }
