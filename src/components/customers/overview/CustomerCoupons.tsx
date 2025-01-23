@@ -97,7 +97,7 @@ export const CustomerCoupons = memo(() => {
           <Table
             name="customer-coupons"
             data={coupons || []}
-            containerSize={0}
+            containerSize={4}
             isLoading={loading}
             columns={[
               {

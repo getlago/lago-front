@@ -288,7 +288,7 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
           <Table
             name="customer-subscriptions"
             data={annotatedSubscriptions || []}
-            containerSize={0}
+            containerSize={4}
             isLoading={loading}
             onRowActionLink={({ id }) =>
               generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
