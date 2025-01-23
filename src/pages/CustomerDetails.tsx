@@ -430,7 +430,7 @@ const CustomerDetails = () => {
                       ),
                     },
                     {
-                      title: translate('text_6250304370f0f700a8fdc27d'),
+                      title: translate('text_17376404438209bh9jk7xa2s'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                         customerId: customerId as string,
                         tab: CustomerDetailsTabsOptions.details,
