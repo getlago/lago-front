@@ -6951,7 +6951,7 @@ export type GetCustomerSubscriptionForListQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerSubscriptionForListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string } | null }> } | null };
+export type GetCustomerSubscriptionForListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextPendingStartDate?: any | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null }> } | null };
 
 export type TerminateCustomerSubscriptionMutationVariables = Exact<{
   input: TerminateSubscriptionInput;
@@ -15070,6 +15070,7 @@ export const GetCustomerSubscriptionForListDocument = gql`
         id
         name
         externalId
+        status
       }
     }
   }
