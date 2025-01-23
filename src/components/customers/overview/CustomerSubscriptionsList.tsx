@@ -69,6 +69,7 @@ gql`
           id
           name
           externalId
+          status
         }
       }
     }
@@ -147,6 +148,7 @@ const annotateSubscriptions = (
         id: nextSubscription?.id || nextPlan.id,
         externalId: nextSubscription?.externalId,
         name: nextSubscription?.name || nextName || nextPlan.name,
+        status: nextSubscription?.status,
         frequency: nextPlan.interval,
         startedAt: nextPendingStartDate,
         statusType: {
@@ -288,14 +290,12 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
             data={annotatedSubscriptions || []}
             containerSize={0}
             isLoading={loading}
-            onRowActionLink={({ id, isDowngrade }) =>
-              isDowngrade
-                ? ''
-                : generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                    customerId: customerId as string,
-                    subscriptionId: id,
-                    tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-                  })
+            onRowActionLink={({ id }) =>
+              generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                customerId: customerId as string,
+                subscriptionId: id,
+                tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+              })
             }
             columns={[
               {
