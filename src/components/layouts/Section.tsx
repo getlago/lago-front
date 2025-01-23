@@ -8,12 +8,14 @@ export const PageSectionTitle = ({
   title,
   subtitle,
   action,
+  customAction,
   loading,
 }: {
   className?: string
   title: string
   subtitle?: string
   action?: { title: string; onClick: () => void; dataTest?: string }
+  customAction?: React.ReactNode
   loading?: boolean
 }) => {
   return (
@@ -41,6 +43,8 @@ export const PageSectionTitle = ({
               {action.title}
             </Button>
           )}
+
+          {customAction ? customAction : null}
         </>
       )}
     </div>
