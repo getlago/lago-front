@@ -32,6 +32,7 @@ import {
 } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
+import { tw } from '~/styles/utils'
 
 import {
   TerminateCustomerSubscriptionDialog,
@@ -91,6 +92,7 @@ type AnnotatedSubscription = {
     label: string
   }
   isDowngrade?: boolean
+  isScheduled?: boolean
   customerId: string
 }
 
@@ -137,6 +139,7 @@ const annotateSubscriptions = (
             }),
       },
       customerId: customer?.id,
+      isScheduled: status === StatusTypeEnum.Pending,
     }
 
     const _subDowngrade = isDowngrading &&
@@ -273,7 +276,9 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
       />
 
       {!loading && hasNoSubscription && (
-        <Typography>{translate('text_6250304370f0f700a8fdc28f')}</Typography>
+        <Typography className="text-grey-500">
+          {translate('text_6250304370f0f700a8fdc28f')}
+        </Typography>
       )}
 
       {!hasNoSubscription && (
@@ -294,12 +299,21 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
             }
             columns={[
               {
+                key: 'statusType.type',
+                title: translate('text_62d7f6178ec94cd09370e5fb'),
+                content: ({ statusType }) => <Status {...(statusType as StatusProps)} />,
+              },
+              {
                 key: 'name',
                 maxSpace: true,
                 title: translate('text_6253f11816f710014600b9ed'),
-                content: ({ name, isDowngrade }) => (
+                content: ({ name, isDowngrade, isScheduled }) => (
                   <>
-                    <div className="relative flex items-center gap-3 pl-1">
+                    <div
+                      className={tw('relative flex items-center gap-3', {
+                        'pl-4': isDowngrade,
+                      })}
+                    >
                       {isDowngrade && <Icon name="arrow-indent" />}
 
                       <Typography className="text-base font-medium text-grey-700">
@@ -307,6 +321,8 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
                       </Typography>
 
                       {isDowngrade && <Status type={StatusType.default} label="downgrade" />}
+
+                      {isScheduled && <Status type={StatusType.default} label="scheduled" />}
                     </div>
                   </>
                 ),
@@ -323,9 +339,7 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
                 title: translate('text_65201c5a175a4b0238abf29e'),
                 content: ({ startedAt }) => (
                   <TimezoneDate
-                    mainTypographyProps={{
-                      className: 'text-nowrap text-base font-normal text-grey-600',
-                    }}
+                    typographyClassName="text-nowrap text-base font-normal text-grey-600"
                     date={startedAt}
                     customerTimezone={customerTimezone}
                   />
@@ -337,20 +351,13 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
                 content: ({ endingAt }) =>
                   endingAt ? (
                     <TimezoneDate
-                      mainTypographyProps={{
-                        className: 'text-nowrap text-base font-normal text-grey-600',
-                      }}
+                      typographyClassName="text-nowrap text-base font-normal text-grey-600"
                       date={endingAt}
                       customerTimezone={customerTimezone}
                     />
                   ) : (
                     <Typography>-</Typography>
                   ),
-              },
-              {
-                key: 'statusType.type',
-                title: translate('text_62d7f6178ec94cd09370e5fb'),
-                content: ({ statusType }) => <Status {...(statusType as StatusProps)} />,
               },
             ]}
             actionColumn={(subscription) =>
