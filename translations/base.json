@@ -585,7 +585,7 @@
   "text_62d175066d2dbf1d50bc937c": "Wallets",
   "text_62d175066d2dbf1d50bc9382": "Add a wallet & credits",
   "text_62d175066d2dbf1d50bc9384": "Wallet",
-  "text_62d175066d2dbf1d50bc9386": "No wallet linked to this customer. Add a subscription to this customer and assign a wallet with prepaid credits.",
+  "text_62d175066d2dbf1d50bc9386": "No wallets are available. Please create one to add prepaid credits.",
   "text_62d175066d2dbf1d50bc93a5": "Add wallet & credits",
   "text_62d18855b22699e5cf55f873": "Applying credit to this customer generates an invoice. The plan’s usage will be subtracted from the credit bought.",
   "text_62d18855b22699e5cf55f875": "Wallet name (optional)",
@@ -1345,7 +1345,7 @@
   "text_6670a6577ecbf200898af647": "Overdue invoices",
   "text_6670a6577ecbf200898af64a": "across {{count}} invoices",
   "text_6670a7222702d70114cc7953": "Refresh",
-  "text_6670a7222702d70114cc7954": "Billing overview",
+  "text_6670a7222702d70114cc7954": "Invoice overview",
   "text_6670a7222702d70114cc7955": "{{count}} invoice totaling {{amount}} is overdue.|{{count}} invoices totaling {{amount}} are overdue.",
   "text_6670a7222702d70114cc7957": "Total invoiced",
   "text_6670a7222702d70114cc795a": "Total overdue",
@@ -2793,6 +2793,11 @@
   "text_1736972452609qdjngeuqsz0": "Downgrade",
   "text_1736972452609g2v8mzgvi2t": "Scheduled",
   "text_1737059551511f5acxkfz7p4": "Retrieve all customer details, including connected external apps.",
-  "text_17376404438209bh9jk7xa2s": "Details"
+  "text_17376404438209bh9jk7xa2s": "Details",
+  "text_1737647019083bbxjrexen5s": "A wallet allows customers to prepay credits, generating an invoice instantly. Once paid, these credits are deducted from future invoices.",
+  "text_173764736415670g9n7v9tth": "Find insights linked to this customer.",
+  "text_1737649151689ldyvwtq9ov1": "Retrieve invoice data associated with this customer.",
+  "text_1737654864705k68zqvg5u9d": "List of finalized invoices. Please note these are no longer editable.",
+  "text_1737655039923xyw73dt51ee": "Draft invoices are still editable. Send events on the appropriate invoice date or manually adjust fees to modify them."
 }
 
