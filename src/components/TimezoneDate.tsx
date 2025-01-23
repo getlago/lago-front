@@ -3,6 +3,7 @@ import { formatDateToTZ, getTimezoneConfig } from '~/core/timezone'
 import { TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { tw } from '~/styles/utils'
 
 enum MainTimezoneEnum {
   utc0 = 'utc0',
@@ -17,6 +18,7 @@ interface TimezoneDateProps {
   customerTimezone?: TimezoneEnum
   mainTypographyProps?: Pick<TypographyProps, 'variant' | 'color' | 'className'>
   className?: string
+  typographyClassName?: string
 }
 
 export const TimezoneDate = ({
@@ -25,6 +27,7 @@ export const TimezoneDate = ({
   mainTimezone = MainTimezoneEnum.organization,
   customerTimezone,
   mainTypographyProps,
+  typographyClassName,
   className,
 }: TimezoneDateProps) => {
   const { translate } = useInternationalization()
@@ -69,7 +72,7 @@ export const TimezoneDate = ({
       placement="top-end"
     >
       <Typography
-        className="w-max border-b-2 border-dotted border-grey-400"
+        className={tw('w-max border-b-2 border-dotted border-grey-400', typographyClassName)}
         color="grey700"
         {...mainTypographyProps}
         noWrap
