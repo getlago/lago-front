@@ -156,6 +156,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
         <section>
           <PageSectionTitle
             title={translate('text_6670a7222702d70114cc7954')}
+            subtitle={translate('text_1737649151689ldyvwtq9ov1')}
             action={{
               title: translate('text_6670a7222702d70114cc7953'),
               dataTest: 'refresh-overview',
