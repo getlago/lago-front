@@ -233,7 +233,7 @@ const generateActionColumn = ({
         terminateSubscriptionDialogRef?.current?.openDialog({
           id: subscription.id,
           name: subscription.name,
-          status: status as StatusTypeEnum,
+          status: subscription.status as StatusTypeEnum,
         }),
     })
   }
