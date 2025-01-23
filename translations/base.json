@@ -1875,7 +1875,7 @@
   "text_6250304370f0f700a8fdc28d": "Subscriptions",
   "text_6250304370f0f700a8fdc28f": "No subscriptions are available. Please assign a plan to start one.",
   "text_6250304370f0f700a8fdc291": "Invoices",
-  "text_6250304370f0f700a8fdc293": "No invoice linked to this customer. An invoice is generated at the end of a billing period for a plan, and immediately for an add-on.",
+  "text_6250304370f0f700a8fdc293": "No invoices available. Create a one-off invoice or assign a plan to generate one.",
   "text_6250304370f0f700a8fdc295": "Customer successfully created",
   "text_6250304370f0f700a8fdc270": "Something went wrong",
   "text_6250304370f0f700a8fdc274": "Please refresh the page or contact us if the error persists.",
@@ -2800,4 +2800,3 @@
   "text_1737654864705k68zqvg5u9d": "List of finalized invoices. Please note these are no longer editable.",
   "text_1737655039923xyw73dt51ee": "Draft invoices are still editable. Send events on the appropriate invoice date or manually adjust fees to modify them."
 }
-
