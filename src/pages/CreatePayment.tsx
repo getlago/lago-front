@@ -2,8 +2,8 @@ import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
 import { DateTime } from 'luxon'
-import { useCallback, useMemo, useRef, useState } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { date, object, string } from 'yup'
 
 import { Alert, Button, Status, Table, Typography } from '~/components/designSystem'
@@ -59,6 +59,7 @@ gql`
 const CreatePayment = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
+  const params = useParams<{ invoiceId?: string }>()
   const [invoiceId, setInvoiceId] = useState('')
   const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
 
@@ -67,6 +68,12 @@ const CreatePayment = () => {
     variables: { id: invoiceId },
     skip: !invoiceId,
   })
+
+  useEffect(() => {
+    if (params.invoiceId) {
+      setInvoiceId(params.invoiceId)
+    }
+  }, [params])
 
   const currency = invoice?.currency ?? CurrencyEnum.Usd
 
@@ -78,7 +85,7 @@ const CreatePayment = () => {
           severity: 'success',
           translateKey: 'text_173755495088700ivx6izvjv',
         })
-        // TODO: Update path
+        // TODO: Update path after LAGO-669
         navigate(generatePath('/', { paymentId: createdPayment?.id }))
       }
     },
@@ -134,8 +141,7 @@ const CreatePayment = () => {
   }, [formikProps.values.amountCents, invoice, currency])
 
   const onLeave = () => {
-    // TODO: Update path
-    navigate('/')
+    navigate(-1)
   }
 
   return (

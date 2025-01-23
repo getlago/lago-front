@@ -70,6 +70,7 @@ export const CREATE_WALLET_ROUTE = '/customer/:customerId/wallet/create'
 export const EDIT_WALLET_ROUTE = '/customer/:customerId/wallet/:walletId'
 
 export const CREATE_PAYMENT_ROUTE = '/create/payment'
+export const CREATE_INVOICE_PAYMENT_ROUTE = '/invoice/:invoiceId/create/payment'
 
 // Details
 export const CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE =
@@ -176,7 +177,7 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     permissions: ['walletsCreate', 'walletsUpdate'],
   },
   {
-    path: [CREATE_PAYMENT_ROUTE],
+    path: [CREATE_PAYMENT_ROUTE, CREATE_INVOICE_PAYMENT_ROUTE],
     private: true,
     element: <CreatePayment />,
     permissions: ['paymentsCreate'],
