@@ -107,7 +107,9 @@ export const CustomerInvoicesTab = ({
 
   return (
     <div className="flex flex-col gap-12">
-      <CustomerOverview externalCustomerId={externalId} userCurrency={userCurrency} />
+      {showInvoices && hasInvoices && (
+        <CustomerOverview externalCustomerId={externalId} userCurrency={userCurrency} />
+      )}
 
       {initialLoad && (
         <div className="mt-7">
@@ -122,7 +124,16 @@ export const CustomerInvoicesTab = ({
       )}
 
       {showInvoices && !hasInvoices && !isSearching && (
-        <Typography className="mt-6">{translate('text_6250304370f0f700a8fdc293')}</Typography>
+        <div>
+          <PageSectionTitle
+            title={translate('text_6250304370f0f700a8fdc291')}
+            subtitle={translate('text_1737654864705k68zqvg5u9d')}
+          />
+
+          <Typography className="text-grey-500">
+            {translate('text_6250304370f0f700a8fdc293')}
+          </Typography>
+        </div>
       )}
 
       {showInvoices && hasDraftInvoices && (
