@@ -4,8 +4,6 @@ import { DateTime } from 'luxon'
 import { FC, useEffect, useMemo } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import { CustomerCoupons } from '~/components/customers/overview/CustomerCoupons'
-import { CustomerSubscriptionsList } from '~/components/customers/overview/CustomerSubscriptionsList'
 import { Alert, Typography } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { OverviewCard } from '~/components/OverviewCard'
@@ -16,7 +14,6 @@ import { isSameDay } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
 import {
   CurrencyEnum,
-  TimezoneEnum,
   useGetCustomerGrossRevenuesLazyQuery,
   useGetCustomerOverdueBalancesLazyQuery,
 } from '~/generated/graphql'
@@ -71,16 +68,12 @@ gql`
 
 interface CustomerOverviewProps {
   externalCustomerId?: string
-  customerTimezone?: TimezoneEnum
   userCurrency?: CurrencyEnum
-  isLoading?: boolean
 }
 
 export const CustomerOverview: FC<CustomerOverviewProps> = ({
   externalCustomerId,
-  customerTimezone,
   userCurrency,
-  isLoading,
 }) => {
   const { translate } = useInternationalization()
   const { organization, formatTimeOrgaTZ } = useOrganizationInfos()
@@ -271,8 +264,6 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
           </Stack>
         </section>
       )}
-      {!isLoading && <CustomerCoupons />}
-      <CustomerSubscriptionsList customerTimezone={customerTimezone} />
     </div>
   )
 }

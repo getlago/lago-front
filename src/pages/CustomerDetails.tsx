@@ -14,7 +14,8 @@ import {
   DeleteCustomerDialog,
   DeleteCustomerDialogRef,
 } from '~/components/customers/DeleteCustomerDialog'
-import { CustomerOverview } from '~/components/customers/overview/CustomerOverview'
+import { CustomerCoupons } from '~/components/customers/overview/CustomerCoupons'
+import { CustomerSubscriptionsList } from '~/components/customers/overview/CustomerSubscriptionsList'
 import { CustomerUsage } from '~/components/customers/usage/CustomerUsage'
 import { computeCustomerInitials } from '~/components/customers/utils'
 import {
@@ -367,12 +368,10 @@ const CustomerDetails = () => {
                         }),
                       ],
                       component: (
-                        <CustomerOverview
-                          externalCustomerId={externalId}
-                          customerTimezone={safeTimezone}
-                          userCurrency={data?.customer?.currency || undefined}
-                          isLoading={loading}
-                        />
+                        <div className="flex flex-col gap-12">
+                          <CustomerCoupons />
+                          <CustomerSubscriptionsList customerTimezone={safeTimezone} />
+                        </div>
                       ),
                     },
                     {
@@ -407,6 +406,8 @@ const CustomerDetails = () => {
                       }),
                       component: (
                         <CustomerInvoicesTab
+                          externalId={externalId}
+                          userCurrency={data?.customer?.currency || undefined}
                           customerId={customerId as string}
                           customerTimezone={safeTimezone}
                         />

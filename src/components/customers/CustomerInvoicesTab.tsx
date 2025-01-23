@@ -1,9 +1,11 @@
 import { gql } from '@apollo/client'
 import { generatePath } from 'react-router-dom'
 
+import { CustomerOverview } from '~/components/customers/overview/CustomerOverview'
 import { ButtonLink, Skeleton, Typography } from '~/components/designSystem'
 import { CUSTOMER_DRAFT_INVOICES_LIST_ROUTE } from '~/core/router'
 import {
+  CurrencyEnum,
   InvoiceForInvoiceListFragmentDoc,
   InvoiceStatusTypeEnum,
   TimezoneEnum,
@@ -44,9 +46,16 @@ gql`
 interface CustomerInvoicesTabProps {
   customerId: string
   customerTimezone?: TimezoneEnum
+  externalId?: string
+  userCurrency?: CurrencyEnum
 }
 
-export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerInvoicesTabProps) => {
+export const CustomerInvoicesTab = ({
+  customerId,
+  customerTimezone,
+  externalId,
+  userCurrency,
+}: CustomerInvoicesTabProps) => {
   const { translate } = useInternationalization()
   const {
     data: dataDraft,
@@ -89,6 +98,8 @@ export const CustomerInvoicesTab = ({ customerId, customerTimezone }: CustomerIn
 
   return (
     <div>
+      <CustomerOverview externalCustomerId={externalId} userCurrency={userCurrency} />
+
       {initialLoad ? (
         <div className="mt-7">
           <Skeleton variant="text" className="mb-7 w-56" />
