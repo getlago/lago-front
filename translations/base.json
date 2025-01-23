@@ -1873,7 +1873,7 @@
   "text_6250304370f0f700a8fdc283": "External ID",
   "text_6250304370f0f700a8fdc28b": "Assign a plan",
   "text_6250304370f0f700a8fdc28d": "Subscriptions",
-  "text_6250304370f0f700a8fdc28f": "No plan linked to this customer, add a Plan to this customer to start a Subscription.",
+  "text_6250304370f0f700a8fdc28f": "No subscriptions are available. Please assign a plan to start one.",
   "text_6250304370f0f700a8fdc291": "Invoices",
   "text_6250304370f0f700a8fdc293": "No invoice linked to this customer. An invoice is generated at the end of a billing period for a plan, and immediately for an add-on.",
   "text_6250304370f0f700a8fdc295": "Customer successfully created",
@@ -2792,5 +2792,7 @@
   "text_1736968618645gg26amx8djq": "Frequency",
   "text_1736972452609qdjngeuqsz0": "Downgrade",
   "text_1736972452609g2v8mzgvi2t": "Scheduled",
-  "text_1737059551511f5acxkfz7p4": "Retrieve all customer details, including connected external apps."
+  "text_1737059551511f5acxkfz7p4": "Retrieve all customer details, including connected external apps.",
+  "text_17376404438209bh9jk7xa2s": "Details"
 }
+
