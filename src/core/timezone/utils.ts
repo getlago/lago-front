@@ -53,3 +53,33 @@ export const intlFormatDateToDateMed = (
     locale: locale,
   }).toLocaleString(DateTime.DATE_MED)
 }
+
+export const intlFormatDateTime = (
+  date: string,
+  {
+    timezone = TimezoneEnum.TzUtc,
+    locale = LocaleEnum.en,
+  }: {
+    timezone?: TimezoneEnum | null | undefined
+    locale?: LocaleEnum
+  },
+) => {
+  const localeDateTime = DateTime.fromISO(date, {
+    zone: getTimezoneConfig(timezone).name,
+    locale: locale,
+  })
+
+  const localeDate = localeDateTime.toLocaleString(DateTime.DATE_MED)
+
+  const localeTime = localeDateTime
+    .toLocaleParts({
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: LocaleEnum.en === locale,
+      timeZoneName: 'short',
+    })
+    .map((part) => part.value)
+    .join('')
+
+  return { date: localeDate, time: localeTime }
+}

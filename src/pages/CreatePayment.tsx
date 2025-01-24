@@ -14,6 +14,7 @@ import { addToast } from '~/core/apolloClient'
 import { paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
+import { intlFormatDateTime } from '~/core/timezone'
 import {
   CreatePaymentInput,
   CurrencyEnum,
@@ -23,6 +24,7 @@ import {
   useGetPayableInvoicesQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 import { tw } from '~/styles/utils'
 
@@ -56,12 +58,15 @@ gql`
   }
 `
 
+const today = DateTime.now()
+
 const CreatePayment = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const params = useParams<{ invoiceId?: string }>()
   const [invoiceId, setInvoiceId] = useState('')
   const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
+  const { timezone } = useOrganizationInfos()
 
   const { data: payableInvoices, loading: payableInvoicesLoading } = useGetPayableInvoicesQuery()
   const { data: { invoice } = {}, loading: invoiceLoading } = useGetPayableInvoiceQuery({
@@ -90,8 +95,6 @@ const CreatePayment = () => {
       }
     },
   })
-
-  const today = useMemo(() => DateTime.now(), [])
 
   const maxAmount = useCallback(
     (value: string) => {
@@ -143,6 +146,10 @@ const CreatePayment = () => {
   const onLeave = () => {
     navigate(-1)
   }
+
+  const dateTime = intlFormatDateTime(formikProps.values.createdAt, {
+    timezone,
+  })
 
   return (
     <>
@@ -231,9 +238,7 @@ const CreatePayment = () => {
                             key: 'issuingDate',
                             title: translate('text_6419c64eace749372fc72b39'),
                             content: ({ issuingDate }) =>
-                              DateTime.fromISO(issuingDate).toLocaleString(DateTime.DATE_MED, {
-                                locale: 'en',
-                              }),
+                              intlFormatDateTime(issuingDate, { timezone }).date,
                           },
                         ]}
                       />
@@ -259,13 +264,8 @@ const CreatePayment = () => {
                       />
                       <Typography variant="caption">
                         {translate('text_1737473550277yfvnl60zpiz', {
-                          date: DateTime.fromISO(formikProps.values.createdAt).toLocaleString(
-                            DateTime.DATE_MED,
-                            {
-                              locale: 'en',
-                            },
-                          ),
-                          hour: DateTime.fromISO(formikProps.values.createdAt).toFormat('t ZZZZ'),
+                          date: dateTime.date,
+                          hour: dateTime.time,
                         })}
                       </Typography>
                     </div>
