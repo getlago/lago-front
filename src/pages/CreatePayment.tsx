@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
 import { DateTime } from 'luxon'
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { date, object, string } from 'yup'
 
@@ -106,7 +106,7 @@ const CreatePayment = () => {
 
   const currency = invoice?.currency ?? CurrencyEnum.Usd
 
-  const [createPayment] = useCreatePaymentMutation({
+  const [createPayment, { error: createError }] = useCreatePaymentMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted({ createPayment: createdPayment }) {
       if (!!createdPayment) {
@@ -119,6 +119,17 @@ const CreatePayment = () => {
       }
     },
   })
+
+  useEffect(() => {
+    if (createError) {
+      const errorCode = createError.graphQLErrors[0].extensions?.details
+
+      formikProps.setErrors({
+        ...formikProps.errors,
+        ...(errorCode ?? {}),
+      })
+    }
+  }, [createError])
 
   const maxAmount = useCallback(
     (value: string) => {
