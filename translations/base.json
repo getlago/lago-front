@@ -2801,7 +2801,7 @@
   "text_1737472944878h2ejm3kxd8h": "Payment information",
   "text_173747294487841dlz5wqd9p": "Define the payment information.",
   "text_1737472944878qfpm9xbrrdn": "Payment date",
-  "text_1737472944878njss1jk5yik": "Payment reference (optional)",
+  "text_1737472944878njss1jk5yik": "Payment reference",
   "text_1737472944878ksy1jz0b4m9": "Reference must be a string of 40 characters maximum",
   "text_1737472944878ee19ufaaklg": "Payment amount",
   "text_1737473550277cncnhv0x6cm": "Invoice total amount due after payment: {{amount}}",

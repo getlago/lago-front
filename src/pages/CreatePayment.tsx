@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
 import { DateTime } from 'luxon'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { date, object, string } from 'yup'
 
@@ -64,21 +64,45 @@ const CreatePayment = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const params = useParams<{ invoiceId?: string }>()
-  const [invoiceId, setInvoiceId] = useState('')
   const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
   const { timezone } = useOrganizationInfos()
 
-  const { data: payableInvoices, loading: payableInvoicesLoading } = useGetPayableInvoicesQuery()
-  const { data: { invoice } = {}, loading: invoiceLoading } = useGetPayableInvoiceQuery({
-    variables: { id: invoiceId },
-    skip: !invoiceId,
+  const formikProps = useFormik<CreatePaymentInput>({
+    initialValues: {
+      invoiceId: params.invoiceId ?? '',
+      amountCents: '',
+      reference: '',
+      createdAt: today,
+    },
+    validationSchema: object().shape({
+      invoiceId: string().required(''),
+      amountCents: string()
+        .required('')
+        .test((value) => maxAmount(value)),
+      reference: string().max(40).required(''),
+      createdAt: date().required(''),
+    }),
+    enableReinitialize: true,
+    validateOnMount: true,
+    onSubmit: async (values) => {
+      await createPayment({
+        variables: {
+          input: {
+            ...values,
+            amountCents: serializeAmount(values.amountCents, currency),
+            createdAt: values.createdAt.toISO(),
+          },
+        },
+      })
+    },
   })
 
-  useEffect(() => {
-    if (params.invoiceId) {
-      setInvoiceId(params.invoiceId)
-    }
-  }, [params])
+  const { data: payableInvoices, loading: payableInvoicesLoading } = useGetPayableInvoicesQuery()
+
+  const { data: { invoice } = {}, loading: invoiceLoading } = useGetPayableInvoiceQuery({
+    variables: { id: formikProps.values.invoiceId },
+    skip: !formikProps.values.invoiceId,
+  })
 
   const currency = invoice?.currency ?? CurrencyEnum.Usd
 
@@ -105,36 +129,6 @@ const CreatePayment = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [invoice],
   )
-
-  const formikProps = useFormik<CreatePaymentInput>({
-    initialValues: {
-      invoiceId: invoice?.id || '',
-      amountCents: '',
-      reference: '',
-      createdAt: today,
-    },
-    validationSchema: object().shape({
-      invoiceId: string().required(''),
-      amountCents: string()
-        .required('')
-        .test((value) => maxAmount(value)),
-      reference: string().max(40),
-      createdAt: date().required(''),
-    }),
-    enableReinitialize: true,
-    validateOnMount: true,
-    onSubmit: async (values) => {
-      await createPayment({
-        variables: {
-          input: {
-            ...values,
-            amountCents: serializeAmount(values.amountCents, currency),
-            createdAt: values.createdAt.toISO(),
-          },
-        },
-      })
-    },
-  })
 
   const remainingAmount = useMemo(() => {
     const totalAmount = deserializeAmount(invoice?.totalAmountCents ?? 0, currency)
@@ -196,11 +190,13 @@ const CreatePayment = () => {
                         value: id,
                         label: number,
                       }))}
-                      onChange={(value) => setInvoiceId(value)}
+                      onChange={(value) => formikProps.setFieldValue('invoiceId', value)}
                       placeholder={translate('text_17374729448787bzb5yjrbgt')}
                       emptyText={translate('text_6682c52081acea9052074686')}
                       value={formikProps.values.invoiceId}
                       loading={payableInvoicesLoading}
+                      disabled={!!params.invoiceId}
+                      disableClearable={!!params.invoiceId}
                     />
 
                     {invoice && (
@@ -282,7 +278,7 @@ const CreatePayment = () => {
                     <AmountInputField
                       name="amountCents"
                       formikProps={formikProps}
-                      error={!!formikProps.errors.amountCents}
+                      error={!!formikProps.errors.amountCents && !!formikProps.values.invoiceId}
                       label={translate('text_1737472944878ee19ufaaklg')}
                       currency={currency}
                       beforeChangeFormatter={['positiveNumber']}
