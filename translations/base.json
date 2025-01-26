@@ -2802,6 +2802,8 @@
   "text_1737892224509yezgypqk5vp": "Partner information",
   "text_17378922245103cc9xrd1tjj": "Billing information",
   "text_1737892224510vc53d10q4h5": "Metadata",
-  "text_1737892224510jnd7cbdp2yg": "External connections"
+  "text_1737892224510jnd7cbdp2yg": "External connections",
+  "text_1737895765672pwk47419syk": "Total remaining credits from credited notes. This amount will affect future invoices.",
+  "text_1737895837105yr0kl7kkyuz": "List of credited notes. These amounts may impact future invoices; consider voiding the credits if needed."
 }
 
