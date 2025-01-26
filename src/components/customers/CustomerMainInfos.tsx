@@ -322,6 +322,16 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     metadata,
   } = customer
 
+  const hasExternalIntegration =
+    connectedSalesforceIntegration ||
+    connectedHubspotIntegration ||
+    connectedAnrokIntegration ||
+    !!customer?.xeroCustomer ||
+    !!connectedXeroIntegration?.id ||
+    !!customer?.netsuiteCustomer ||
+    !!connectedNetsuiteIntegration?.id ||
+    (paymentProvider && !!linkedProvider?.name)
+
   return (
     <div>
       <PageSectionTitle
@@ -492,9 +502,9 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
             )}
         </InfoSection>
 
-        <InfoSection title={translate('text_1737892224510vc53d10q4h5')}>
-          {!!metadata?.length &&
-            metadata.map((meta) => (
+        {!!metadata?.length && (
+          <InfoSection title={translate('text_1737892224510vc53d10q4h5')}>
+            {metadata.map((meta) => (
               <InfoBlock key={`customer-metadata-${meta.id}`}>
                 <Typography variant="caption" noWrap>
                   {meta.key}
@@ -504,269 +514,281 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                 </Typography>
               </InfoBlock>
             ))}
-        </InfoSection>
+          </InfoSection>
+        )}
 
-        <InfoSection title={translate('text_1737892224510jnd7cbdp2yg')}>
-          {!!paymentProvider && !!linkedProvider?.name && (
-            <InfoBlock>
-              <Typography variant="caption">
-                {translate('text_62b1edddbf5f461ab9712795')}
-              </Typography>
-              <div>
-                <Stack direction="row" spacing={2} alignItems="center">
-                  <Avatar variant="connector-full" size="small">
-                    {paymentProvider === ProviderTypeEnum?.Stripe ? (
-                      <Stripe />
-                    ) : paymentProvider === ProviderTypeEnum?.Gocardless ? (
-                      <Gocardless />
-                    ) : paymentProvider === ProviderTypeEnum?.Adyen ? (
-                      <Adyen />
-                    ) : paymentProvider === ProviderTypeEnum?.Cashfree ? (
-                      <Cashfree />
-                    ) : null}
-                  </Avatar>
-                  <Typography color="grey700">{linkedProvider?.name}</Typography>
-                </Stack>
-                {!!providerCustomer && !!providerCustomer?.providerCustomerId && (
-                  <>
-                    {paymentProvider === ProviderTypeEnum?.Stripe ? (
+        {hasExternalIntegration && (
+          <InfoSection title={translate('text_1737892224510jnd7cbdp2yg')}>
+            {!!paymentProvider && !!linkedProvider?.name && (
+              <InfoBlock>
+                <Typography variant="caption">
+                  {translate('text_62b1edddbf5f461ab9712795')}
+                </Typography>
+                <div>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Avatar variant="connector-full" size="small">
+                      {paymentProvider === ProviderTypeEnum?.Stripe ? (
+                        <Stripe />
+                      ) : paymentProvider === ProviderTypeEnum?.Gocardless ? (
+                        <Gocardless />
+                      ) : paymentProvider === ProviderTypeEnum?.Adyen ? (
+                        <Adyen />
+                      ) : paymentProvider === ProviderTypeEnum?.Cashfree ? (
+                        <Cashfree />
+                      ) : null}
+                    </Avatar>
+                    <Typography color="grey700">{linkedProvider?.name}</Typography>
+                  </Stack>
+                  {!!providerCustomer && !!providerCustomer?.providerCustomerId && (
+                    <>
+                      {paymentProvider === ProviderTypeEnum?.Stripe ? (
+                        <InlineLink
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          to={buildStripeCustomerUrl(providerCustomer?.providerCustomerId)}
+                        >
+                          <Typography className="flex items-center gap-1" color="info600">
+                            {providerCustomer?.providerCustomerId} <Icon name="outside" />
+                          </Typography>
+                        </InlineLink>
+                      ) : (
+                        <Typography color="textSecondary">
+                          {providerCustomer?.providerCustomerId}
+                        </Typography>
+                      )}
+                    </>
+                  )}
+                  {paymentProvider === ProviderTypeEnum?.Stripe &&
+                    !!providerCustomer?.providerPaymentMethods?.length && (
+                      <>
+                        {providerCustomer?.providerPaymentMethods?.map((method) => (
+                          <Typography
+                            key={`customer-payment-method-${method}`}
+                            color="textSecondary"
+                          >
+                            {translate(PaymentProviderMethodTranslationsLookup[method])}
+                          </Typography>
+                        ))}
+                      </>
+                    )}
+                </div>
+              </InfoBlock>
+            )}
+
+            {(!!customer?.netsuiteCustomer || !!connectedNetsuiteIntegration?.id) && (
+              <InfoBlock>
+                <Typography variant="caption">
+                  {translate('text_66423cad72bbad009f2f568f')}
+                </Typography>
+
+                <div>
+                  {integrationsLoading ? (
+                    <Stack flex={1} gap={3} marginTop={1}>
+                      <Skeleton variant="text" className="w-50" />
+                      <Skeleton variant="text" className="w-50" />
+                    </Stack>
+                  ) : !!connectedNetsuiteIntegration &&
+                    customer?.netsuiteCustomer?.externalCustomerId ? (
+                    <Stack>
+                      <Stack direction="row" spacing={2} alignItems="center">
+                        <Avatar variant="connector-full" size="small">
+                          <Netsuite />
+                        </Avatar>
+                        <Typography color="grey700">
+                          {connectedNetsuiteIntegration?.name}
+                        </Typography>
+                      </Stack>
                       <InlineLink
                         target="_blank"
                         rel="noopener noreferrer"
-                        to={buildStripeCustomerUrl(providerCustomer?.providerCustomerId)}
+                        to={buildNetsuiteCustomerUrl(
+                          connectedNetsuiteIntegration?.accountId,
+                          customer?.netsuiteCustomer?.externalCustomerId,
+                        )}
                       >
                         <Typography className="flex items-center gap-1" color="info600">
-                          {providerCustomer?.providerCustomerId} <Icon name="outside" />
+                          {customer?.netsuiteCustomer?.externalCustomerId} <Icon name="outside" />
                         </Typography>
                       </InlineLink>
-                    ) : (
-                      <Typography color="textSecondary">
-                        {providerCustomer?.providerCustomerId}
-                      </Typography>
-                    )}
-                  </>
-                )}
-                {paymentProvider === ProviderTypeEnum?.Stripe &&
-                  !!providerCustomer?.providerPaymentMethods?.length && (
-                    <>
-                      {providerCustomer?.providerPaymentMethods?.map((method) => (
-                        <Typography key={`customer-payment-method-${method}`} color="textSecondary">
-                          {translate(PaymentProviderMethodTranslationsLookup[method])}
+                    </Stack>
+                  ) : null}
+                </div>
+              </InfoBlock>
+            )}
+
+            {(!!customer?.xeroCustomer || !!connectedXeroIntegration?.id) && (
+              <InfoBlock>
+                <Typography variant="caption">
+                  {translate('text_66423cad72bbad009f2f568f')}
+                </Typography>
+                <div>
+                  {integrationsLoading ? (
+                    <Stack flex={1} gap={3} marginTop={1}>
+                      <Skeleton variant="text" className="w-50" />
+                      <Skeleton variant="text" className="w-50" />
+                    </Stack>
+                  ) : !!connectedXeroIntegration && customer?.xeroCustomer?.externalCustomerId ? (
+                    <Stack>
+                      <Stack direction="row" spacing={2} alignItems="center">
+                        <Avatar variant="connector-full" size="small">
+                          <Xero />
+                        </Avatar>
+                        <Typography color="grey700">{connectedXeroIntegration?.name}</Typography>
+                      </Stack>
+                      <InlineLink
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        to={buildXeroCustomerUrl(customer?.xeroCustomer?.externalCustomerId)}
+                      >
+                        <Typography className="flex items-center gap-1" color="info600">
+                          {customer?.xeroCustomer?.externalCustomerId} <Icon name="outside" />
                         </Typography>
-                      ))}
-                    </>
-                  )}
-              </div>
-            </InfoBlock>
-          )}
-
-          {(!!customer?.netsuiteCustomer || !!connectedNetsuiteIntegration?.id) && (
-            <InfoBlock>
-              <Typography variant="caption">
-                {translate('text_66423cad72bbad009f2f568f')}
-              </Typography>
-
-              <div>
-                {integrationsLoading ? (
-                  <Stack flex={1} gap={3} marginTop={1}>
-                    <Skeleton variant="text" className="w-50" />
-                    <Skeleton variant="text" className="w-50" />
-                  </Stack>
-                ) : !!connectedNetsuiteIntegration &&
-                  customer?.netsuiteCustomer?.externalCustomerId ? (
-                  <Stack>
-                    <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar variant="connector-full" size="small">
-                        <Netsuite />
-                      </Avatar>
-                      <Typography color="grey700">{connectedNetsuiteIntegration?.name}</Typography>
+                      </InlineLink>
                     </Stack>
-                    <InlineLink
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      to={buildNetsuiteCustomerUrl(
-                        connectedNetsuiteIntegration?.accountId,
-                        customer?.netsuiteCustomer?.externalCustomerId,
-                      )}
-                    >
-                      <Typography className="flex items-center gap-1" color="info600">
-                        {customer?.netsuiteCustomer?.externalCustomerId} <Icon name="outside" />
+                  ) : null}
+                </div>
+              </InfoBlock>
+            )}
+
+            {!!connectedAnrokIntegration && (
+              <InfoBlock>
+                <Typography variant="caption">
+                  {translate('text_6668821d94e4da4dfd8b3840')}
+                </Typography>
+                <div>
+                  {integrationsLoading ? (
+                    <Stack flex={1} gap={3} marginTop={1}>
+                      <Skeleton variant="text" className="w-50" />
+                      <Skeleton variant="text" className="w-50" />
+                    </Stack>
+                  ) : !!connectedAnrokIntegration && customer?.anrokCustomer?.integrationId ? (
+                    <Stack>
+                      <Stack direction="row" spacing={2} alignItems="center">
+                        <Avatar variant="connector-full" size="small">
+                          <Anrok />
+                        </Avatar>
+                        <Typography color="grey700">{connectedAnrokIntegration?.name}</Typography>
+                      </Stack>
+                      {!!connectedAnrokIntegration.externalAccountId &&
+                        customer?.anrokCustomer?.externalCustomerId && (
+                          <InlineLink
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            to={buildAnrokCustomerUrl(
+                              connectedAnrokIntegration.externalAccountId,
+                              customer?.anrokCustomer?.externalCustomerId,
+                            )}
+                          >
+                            <Typography className="flex items-center gap-1" color="info600">
+                              {customer?.anrokCustomer?.externalCustomerId} <Icon name="outside" />
+                            </Typography>
+                          </InlineLink>
+                        )}
+                    </Stack>
+                  ) : null}
+                </div>
+              </InfoBlock>
+            )}
+
+            {!!connectedHubspotIntegration && (
+              <InfoBlock>
+                <Typography variant="caption">
+                  {translate('text_1728658962985xpfdvl5ru8a')}
+                </Typography>
+
+                <div>
+                  {integrationsLoading ? (
+                    <Stack flex={1} gap={3} marginTop={1}>
+                      <Skeleton variant="text" className="w-50" />
+                      <Skeleton variant="text" className="w-50" />
+                    </Stack>
+                  ) : !!connectedHubspotIntegration &&
+                    customer?.hubspotCustomer?.integrationId &&
+                    customer?.hubspotCustomer.targetedObject ? (
+                    <Stack>
+                      <Stack direction="row" spacing={2} alignItems="center">
+                        <Avatar variant="connector" size="small">
+                          <Hubspot />
+                        </Avatar>
+                        <Typography color="grey700">{connectedHubspotIntegration?.name}</Typography>
+                      </Stack>
+                      <Typography variant="body" color="grey700">
+                        {translate(
+                          getTargetedObjectTranslationKey[customer?.hubspotCustomer.targetedObject],
+                        )}
                       </Typography>
-                    </InlineLink>
-                  </Stack>
-                ) : null}
-              </div>
-            </InfoBlock>
-          )}
-
-          {(!!customer?.xeroCustomer || !!connectedXeroIntegration?.id) && (
-            <InfoBlock>
-              <Typography variant="caption">
-                {translate('text_66423cad72bbad009f2f568f')}
-              </Typography>
-              <div>
-                {integrationsLoading ? (
-                  <Stack flex={1} gap={3} marginTop={1}>
-                    <Skeleton variant="text" className="w-50" />
-                    <Skeleton variant="text" className="w-50" />
-                  </Stack>
-                ) : !!connectedXeroIntegration && customer?.xeroCustomer?.externalCustomerId ? (
-                  <Stack>
-                    <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar variant="connector-full" size="small">
-                        <Xero />
-                      </Avatar>
-                      <Typography color="grey700">{connectedXeroIntegration?.name}</Typography>
+                      {!!connectedHubspotIntegration.portalId &&
+                        customer?.hubspotCustomer?.externalCustomerId &&
+                        !!customer?.hubspotCustomer.targetedObject && (
+                          <InlineLink
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            to={buildHubspotObjectUrl({
+                              portalId: connectedHubspotIntegration.portalId,
+                              objectId: customer?.hubspotCustomer?.externalCustomerId,
+                              targetedObject: customer?.hubspotCustomer.targetedObject,
+                            })}
+                          >
+                            <Typography
+                              className="flex flex-row items-center gap-1"
+                              color="info600"
+                            >
+                              {customer?.hubspotCustomer?.externalCustomerId}{' '}
+                              <Icon name="outside" />
+                            </Typography>
+                          </InlineLink>
+                        )}
                     </Stack>
-                    <InlineLink
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      to={buildXeroCustomerUrl(customer?.xeroCustomer?.externalCustomerId)}
-                    >
-                      <Typography className="flex items-center gap-1" color="info600">
-                        {customer?.xeroCustomer?.externalCustomerId} <Icon name="outside" />
-                      </Typography>
-                    </InlineLink>
-                  </Stack>
-                ) : null}
-              </div>
-            </InfoBlock>
-          )}
+                  ) : null}
+                </div>
+              </InfoBlock>
+            )}
 
-          {!!connectedAnrokIntegration && (
-            <InfoBlock>
-              <Typography variant="caption">
-                {translate('text_6668821d94e4da4dfd8b3840')}
-              </Typography>
-              <div>
-                {integrationsLoading ? (
-                  <Stack flex={1} gap={3} marginTop={1}>
-                    <Skeleton variant="text" className="w-50" />
-                    <Skeleton variant="text" className="w-50" />
-                  </Stack>
-                ) : !!connectedAnrokIntegration && customer?.anrokCustomer?.integrationId ? (
-                  <Stack>
-                    <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar variant="connector-full" size="small">
-                        <Anrok />
-                      </Avatar>
-                      <Typography color="grey700">{connectedAnrokIntegration?.name}</Typography>
+            {!!connectedSalesforceIntegration && (
+              <InfoBlock>
+                <Typography variant="caption">
+                  {translate('text_1728658962985xpfdvl5ru8a')}
+                </Typography>
+                <div>
+                  {integrationsLoading ? (
+                    <Stack flex={1} gap={3} marginTop={1}>
+                      <Skeleton variant="text" className="w-50" />
+                      <Skeleton variant="text" className="w-50" />
                     </Stack>
-                    {!!connectedAnrokIntegration.externalAccountId &&
-                      customer?.anrokCustomer?.externalCustomerId && (
-                        <InlineLink
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          to={buildAnrokCustomerUrl(
-                            connectedAnrokIntegration.externalAccountId,
-                            customer?.anrokCustomer?.externalCustomerId,
-                          )}
-                        >
-                          <Typography className="flex items-center gap-1" color="info600">
-                            {customer?.anrokCustomer?.externalCustomerId} <Icon name="outside" />
-                          </Typography>
-                        </InlineLink>
-                      )}
-                  </Stack>
-                ) : null}
-              </div>
-            </InfoBlock>
-          )}
-
-          {!!connectedHubspotIntegration && (
-            <InfoBlock>
-              <Typography variant="caption">
-                {translate('text_1728658962985xpfdvl5ru8a')}
-              </Typography>
-
-              <div>
-                {integrationsLoading ? (
-                  <Stack flex={1} gap={3} marginTop={1}>
-                    <Skeleton variant="text" className="w-50" />
-                    <Skeleton variant="text" className="w-50" />
-                  </Stack>
-                ) : !!connectedHubspotIntegration &&
-                  customer?.hubspotCustomer?.integrationId &&
-                  customer?.hubspotCustomer.targetedObject ? (
-                  <Stack>
-                    <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar variant="connector" size="small">
-                        <Hubspot />
-                      </Avatar>
-                      <Typography color="grey700">{connectedHubspotIntegration?.name}</Typography>
+                  ) : !!connectedSalesforceIntegration &&
+                    customer?.salesforceCustomer?.integrationId ? (
+                    <Stack>
+                      <Stack direction="row" spacing={2} alignItems="center">
+                        <Avatar variant="connector-full" size="small">
+                          <Salesforce />
+                        </Avatar>
+                        <Typography color="grey700">
+                          {connectedSalesforceIntegration?.name}
+                        </Typography>
+                      </Stack>
+                      {!!connectedSalesforceIntegration.instanceId &&
+                        customer?.salesforceCustomer?.externalCustomerId && (
+                          <InlineLink
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            to={buildSalesforceUrl({
+                              instanceId: connectedSalesforceIntegration.instanceId,
+                              externalCustomerId: customer.salesforceCustomer.externalCustomerId,
+                            })}
+                          >
+                            <Typography className="flex items-center gap-1" color="info600">
+                              {customer?.salesforceCustomer?.externalCustomerId}{' '}
+                              <Icon name="outside" />
+                            </Typography>
+                          </InlineLink>
+                        )}
                     </Stack>
-                    <Typography variant="body" color="grey700">
-                      {translate(
-                        getTargetedObjectTranslationKey[customer?.hubspotCustomer.targetedObject],
-                      )}
-                    </Typography>
-                    {!!connectedHubspotIntegration.portalId &&
-                      customer?.hubspotCustomer?.externalCustomerId &&
-                      !!customer?.hubspotCustomer.targetedObject && (
-                        <InlineLink
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          to={buildHubspotObjectUrl({
-                            portalId: connectedHubspotIntegration.portalId,
-                            objectId: customer?.hubspotCustomer?.externalCustomerId,
-                            targetedObject: customer?.hubspotCustomer.targetedObject,
-                          })}
-                        >
-                          <Typography className="flex flex-row items-center gap-1" color="info600">
-                            {customer?.hubspotCustomer?.externalCustomerId} <Icon name="outside" />
-                          </Typography>
-                        </InlineLink>
-                      )}
-                  </Stack>
-                ) : null}
-              </div>
-            </InfoBlock>
-          )}
-
-          {!!connectedSalesforceIntegration && (
-            <InfoBlock>
-              <Typography variant="caption">
-                {translate('text_1728658962985xpfdvl5ru8a')}
-              </Typography>
-              <div>
-                {integrationsLoading ? (
-                  <Stack flex={1} gap={3} marginTop={1}>
-                    <Skeleton variant="text" className="w-50" />
-                    <Skeleton variant="text" className="w-50" />
-                  </Stack>
-                ) : !!connectedSalesforceIntegration &&
-                  customer?.salesforceCustomer?.integrationId ? (
-                  <Stack>
-                    <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar variant="connector-full" size="small">
-                        <Salesforce />
-                      </Avatar>
-                      <Typography color="grey700">
-                        {connectedSalesforceIntegration?.name}
-                      </Typography>
-                    </Stack>
-                    {!!connectedSalesforceIntegration.instanceId &&
-                      customer?.salesforceCustomer?.externalCustomerId && (
-                        <InlineLink
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          to={buildSalesforceUrl({
-                            instanceId: connectedSalesforceIntegration.instanceId,
-                            externalCustomerId: customer.salesforceCustomer.externalCustomerId,
-                          })}
-                        >
-                          <Typography className="flex items-center gap-1" color="info600">
-                            {customer?.salesforceCustomer?.externalCustomerId}{' '}
-                            <Icon name="outside" />
-                          </Typography>
-                        </InlineLink>
-                      )}
-                  </Stack>
-                ) : null}
-              </div>
-            </InfoBlock>
-          )}
-        </InfoSection>
+                  ) : null}
+                </div>
+              </InfoBlock>
+            )}
+          </InfoSection>
+        )}
       </div>
     </div>
   )
