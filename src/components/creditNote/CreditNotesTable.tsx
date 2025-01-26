@@ -1,16 +1,13 @@
 import { ApolloError, gql, LazyQueryHookOptions } from '@apollo/client'
 import { useRef } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 
 import CreditNoteBadge from '~/components/creditNote/CreditNoteBadge'
 import { AvailableFiltersEnum, Filters } from '~/components/designSystem/Filters'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import {
-  CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE,
-  CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
-} from '~/core/router'
+import { CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -24,11 +21,10 @@ import {
   useDownloadCreditNoteMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import EmptyImage from '~/public/images/maneki/empty.svg'
-import { BaseListItem, NAV_HEIGHT, theme } from '~/styles'
+import { BaseListItem, theme } from '~/styles'
 import { tw } from '~/styles/utils'
 
 import {
@@ -97,10 +93,6 @@ gql`
   ${CreditNoteForVoidCreditNoteDialogFragmentDoc}
 `
 
-// Needed to be able to pass both ids to the keyboard navigation function
-const ID_SPLIT_KEY = '&-%-&'
-const NAVIGATION_KEY_BASE = 'creditNote-item-'
-
 type TCreditNoteTableProps = {
   creditNotes: GetCreditNotesListQuery['creditNotes']['collection'] | undefined
   error: ApolloError | undefined
@@ -140,13 +132,9 @@ const CreditNotesTable = ({
   filtersContainerClassName,
 }: TCreditNoteTableProps) => {
   const { translate } = useInternationalization()
-  const navigate = useNavigate()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
-  const listContainerElementRef = useRef<HTMLDivElement>(null)
   const { formatTimeOrgaTZ } = useOrganizationInfos()
   const { hasPermissions } = usePermissions()
-
-  const isCustomer = !!customerTimezone
 
   const [downloadCreditNote, { loading: loadingCreditNoteDownload }] =
     useDownloadCreditNoteMutation({
@@ -154,26 +142,6 @@ const CreditNotesTable = ({
         handleDownloadFile(data?.fileUrl)
       },
     })
-
-  const { onKeyDown } = useListKeysNavigation({
-    getElmId: (i) => `${NAVIGATION_KEY_BASE}${i}`,
-    navigate: (id) => {
-      const [customerId, invoiceId, creditNoteId] = String(id).split(ID_SPLIT_KEY)
-
-      navigate(
-        generatePath(
-          isCustomer
-            ? CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE
-            : CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
-          {
-            customerId,
-            invoiceId,
-            creditNoteId,
-          },
-        ),
-      )
-    },
-  })
 
   const showCustomerName = !customerTimezone
 
