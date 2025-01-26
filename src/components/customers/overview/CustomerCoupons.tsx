@@ -99,6 +99,7 @@ export const CustomerCoupons = memo(() => {
             data={coupons || []}
             containerSize={4}
             isLoading={loading}
+            rowDataTestId={(coupon) => coupon.coupon?.name}
             columns={[
               {
                 key: 'coupon.name',

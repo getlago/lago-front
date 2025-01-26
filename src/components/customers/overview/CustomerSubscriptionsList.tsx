@@ -265,6 +265,7 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
           hasPermissions(['subscriptionsCreate'])
             ? {
                 title: translate('text_6250304370f0f700a8fdc28b'),
+                dataTest: 'add-subscription',
                 onClick: () => {
                   navigate(
                     generatePath(CREATE_SUBSCRIPTION, {
@@ -290,6 +291,7 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
             data={annotatedSubscriptions || []}
             containerSize={4}
             isLoading={loading}
+            rowDataTestId={(subscription) => subscription.name || `subscription-${subscription.id}`}
             onRowActionLink={({ id }) =>
               generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
                 customerId: customerId as string,
