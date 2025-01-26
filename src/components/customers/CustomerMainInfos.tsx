@@ -195,7 +195,7 @@ interface CustomerMainInfosProps {
 }
 
 const InfoSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <div className="pb-12 shadow-b">
+  <div className="pt-12 shadow-t first:pt-0 first:shadow-none">
     <Typography className="mb-4 text-base font-medium text-grey-700">{title}</Typography>
 
     {children}
