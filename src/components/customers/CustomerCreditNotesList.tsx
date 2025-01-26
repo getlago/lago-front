@@ -15,7 +15,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { SectionHeader } from '~/styles/customer'
 
 import { SearchInput } from '../SearchInput'
 
