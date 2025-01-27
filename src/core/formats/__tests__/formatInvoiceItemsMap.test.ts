@@ -5,6 +5,10 @@ import {
   chargeZeroAmount,
   chargeZeroAmountDraftInvoice,
   chargeZeroAmountDraftInvoiceResult,
+  chargeZeroAmountResult,
+  newChargeZeroAmountDraftInvoiceResult,
+  newNoFeesResult,
+  newOrderedSubscriptionWithFees,
   noFees,
   noFeesResult,
   oneSubscription,
@@ -61,52 +65,144 @@ describe('formatInvoiceItemsMap', () => {
   })
 
   describe('groupAndFormatFees', () => {
-    it('should return default values if there are no data', () => {
-      const result = groupAndFormatFees([])
+    describe('if hasOldZeroFeeManagement: true', () => {
+      it('should return default values if there are no data', () => {
+        const result = groupAndFormatFees({
+          invoiceSubscriptions: [],
+          hasOldZeroFeeManagement: true,
+        })
 
-      expect(result).toEqual({
-        subscriptions: {},
-        metadata: { hasAnyFeeParsed: false, hasAnyPositiveFeeParsed: false },
+        expect(result).toEqual({
+          subscriptions: {},
+          metadata: { hasAnyFeeParsed: false, hasAnyPositiveFeeParsed: false },
+        })
+      })
+      it('should return default values if there are no fees', () => {
+        const result = groupAndFormatFees({
+          invoiceSubscriptions: noFees as unknown as InvoiceSubscription[],
+          hasOldZeroFeeManagement: true,
+        })
+
+        expect(result).toEqual(noFeesResult)
+      })
+      it('should return default values if there are only sub fee with 0 amountCents', () => {
+        const result = groupAndFormatFees({
+          invoiceSubscriptions: subZeroAmount as unknown as InvoiceSubscription[],
+          hasOldZeroFeeManagement: true,
+        })
+
+        expect(result).toEqual(subZeroAmountResult)
+      })
+      it('should return default values if there are only sub fee with 0 amountCents and 0 units', () => {
+        const result = groupAndFormatFees({
+          invoiceSubscriptions: chargeZeroAmount as unknown as InvoiceSubscription[],
+          hasOldZeroFeeManagement: true,
+        })
+
+        expect(result).toEqual(noFeesResult)
+      })
+      it('should return all values if invoice has draft status', () => {
+        const result = groupAndFormatFees({
+          invoiceSubscriptions: chargeZeroAmountDraftInvoice as unknown as InvoiceSubscription[],
+          hasOldZeroFeeManagement: true,
+        })
+
+        expect(result).toEqual(chargeZeroAmountDraftInvoiceResult)
+      })
+      it('should return the correct values if there are 1 subscription', () => {
+        const result = groupAndFormatFees({
+          invoiceSubscriptions: oneSubscription as unknown as InvoiceSubscription[],
+          hasOldZeroFeeManagement: true,
+        })
+
+        expect(result).toEqual(oneSubscriptionResult)
+      })
+      it('should return the correct values if there are 2 subscription', () => {
+        const result = groupAndFormatFees({
+          invoiceSubscriptions: twoSubscriptions as unknown as InvoiceSubscription[],
+          hasOldZeroFeeManagement: true,
+        })
+
+        expect(result).toEqual(twoSubscriptionsResult)
+      })
+      it('should return the correct order for a given subscription', () => {
+        const result = groupAndFormatFees({
+          invoiceSubscriptions: unorderedSubscriptionWithFees as unknown as InvoiceSubscription[],
+          hasOldZeroFeeManagement: true,
+        })
+
+        expect(result).toEqual(orderedSubscriptionWithFees)
       })
     })
-    it('should return default values if there are no fees', () => {
-      const result = groupAndFormatFees(noFees as unknown as InvoiceSubscription[])
 
-      expect(result).toEqual(noFeesResult)
-    })
-    it('should return default values if there are only sub fee with 0 amountCents', () => {
-      const result = groupAndFormatFees(subZeroAmount as unknown as InvoiceSubscription[])
+    describe('if hasOldZeroFeeManagement: false', () => {
+      it('should return default values if there are no data', () => {
+        const result = groupAndFormatFees({
+          invoiceSubscriptions: [],
+          hasOldZeroFeeManagement: false,
+        })
 
-      expect(result).toEqual(subZeroAmountResult)
-    })
-    it('should return default values if there are only sub fee with 0 amountCents and 0 units', () => {
-      const result = groupAndFormatFees(chargeZeroAmount as unknown as InvoiceSubscription[])
+        expect(result).toEqual({
+          subscriptions: {},
+          metadata: { hasAnyFeeParsed: false, hasAnyPositiveFeeParsed: false },
+        })
+      })
+      it('should return default values if there are no fees', () => {
+        const result = groupAndFormatFees({
+          invoiceSubscriptions: noFees as unknown as InvoiceSubscription[],
+          hasOldZeroFeeManagement: false,
+        })
 
-      expect(result).toEqual(noFeesResult)
-    })
-    it('should return all values if invoice has draft status', () => {
-      const result = groupAndFormatFees(
-        chargeZeroAmountDraftInvoice as unknown as InvoiceSubscription[],
-      )
+        expect(result).toEqual(newNoFeesResult)
+      })
+      it('should return default values if there are only sub fee with 0 amountCents', () => {
+        const result = groupAndFormatFees({
+          invoiceSubscriptions: subZeroAmount as unknown as InvoiceSubscription[],
+          hasOldZeroFeeManagement: false,
+        })
 
-      expect(result).toEqual(chargeZeroAmountDraftInvoiceResult)
-    })
-    it('should return the correct values if there are 1 subscription', () => {
-      const result = groupAndFormatFees(oneSubscription as unknown as InvoiceSubscription[])
+        expect(result).toEqual(subZeroAmountResult)
+      })
+      it('should return default values if there are only sub fee with 0 amountCents and 0 units', () => {
+        const result = groupAndFormatFees({
+          invoiceSubscriptions: chargeZeroAmount as unknown as InvoiceSubscription[],
+          hasOldZeroFeeManagement: false,
+        })
 
-      expect(result).toEqual(oneSubscriptionResult)
-    })
-    it('should return the correct values if there are 2 subscription', () => {
-      const result = groupAndFormatFees(twoSubscriptions as unknown as InvoiceSubscription[])
+        expect(result).toEqual(chargeZeroAmountResult)
+      })
+      it('should return all values if invoice has draft status', () => {
+        const result = groupAndFormatFees({
+          invoiceSubscriptions: chargeZeroAmountDraftInvoice as unknown as InvoiceSubscription[],
+          hasOldZeroFeeManagement: false,
+        })
 
-      expect(result).toEqual(twoSubscriptionsResult)
-    })
-    it('should return the correct order for a given subscription', () => {
-      const result = groupAndFormatFees(
-        unorderedSubscriptionWithFees as unknown as InvoiceSubscription[],
-      )
+        expect(result).toEqual(newChargeZeroAmountDraftInvoiceResult)
+      })
+      it('should return the correct values if there are 1 subscription', () => {
+        const result = groupAndFormatFees({
+          invoiceSubscriptions: oneSubscription as unknown as InvoiceSubscription[],
+          hasOldZeroFeeManagement: false,
+        })
 
-      expect(result).toEqual(orderedSubscriptionWithFees)
+        expect(result).toEqual(oneSubscriptionResult)
+      })
+      it('should return the correct values if there are 2 subscription', () => {
+        const result = groupAndFormatFees({
+          invoiceSubscriptions: twoSubscriptions as unknown as InvoiceSubscription[],
+          hasOldZeroFeeManagement: false,
+        })
+
+        expect(result).toEqual(twoSubscriptionsResult)
+      })
+      it('should return the correct order for a given subscription', () => {
+        const result = groupAndFormatFees({
+          invoiceSubscriptions: unorderedSubscriptionWithFees as unknown as InvoiceSubscription[],
+          hasOldZeroFeeManagement: false,
+        })
+
+        expect(result).toEqual(newOrderedSubscriptionWithFees)
+      })
     })
   })
 

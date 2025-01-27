@@ -29,7 +29,7 @@ interface BasicComboboxProps extends Omit<ComboBoxInputProps, 'params' | 'search
   loading?: boolean
   disabled?: boolean
   value?: string
-  data: BasicComboBoxData[]
+  data?: BasicComboBoxData[]
   sortValues?: boolean
   allowAddValue?: boolean
   emptyText?: string
@@ -60,7 +60,7 @@ interface BasicComboboxProps extends Omit<ComboBoxInputProps, 'params' | 'search
 }
 
 interface GroupedComboboxProps extends Omit<BasicComboboxProps, 'data' | 'renderGroupHeader'> {
-  data: ComboboxDataGrouped[]
+  data?: ComboboxDataGrouped[]
   renderGroupHeader?: Record<string, ReactNode>
 }
 

@@ -2,20 +2,28 @@ import { memo } from 'react'
 
 import { Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { tw } from '~/styles/utils'
 
 type InvoiceDetailsTableHeaderProps = {
   canHaveUnitPrice: boolean
   displayName: string
   isDraftInvoice: boolean
+  className?: string
   hideVat?: boolean
 }
 
 export const InvoiceDetailsTableHeader = memo(
-  ({ canHaveUnitPrice, displayName, isDraftInvoice, hideVat }: InvoiceDetailsTableHeaderProps) => {
+  ({
+    canHaveUnitPrice,
+    className,
+    displayName,
+    isDraftInvoice,
+    hideVat,
+  }: InvoiceDetailsTableHeaderProps) => {
     const { translate } = useInternationalization()
 
     return (
-      <thead>
+      <thead className={tw(className)}>
         <tr>
           <th>
             <Typography variant="captionHl" color="grey600">

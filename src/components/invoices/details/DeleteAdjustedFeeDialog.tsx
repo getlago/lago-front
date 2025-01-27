@@ -3,6 +3,7 @@ import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { Typography } from '~/components/designSystem'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
+import { addToast } from '~/core/apolloClient'
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
 import { useDestroyAdjustedFeeMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -37,6 +38,11 @@ export const DeleteAdjustedFeeDialog = forwardRef<DeleteAdjustedFeeDialogRef>((_
     onCompleted({ destroyAdjustedFee }) {
       if (destroyAdjustedFee?.id) {
         dialogRef.current?.closeDialog()
+
+        addToast({
+          message: translate('text_1738084927595tzdnuy6oxyu'),
+          severity: 'success',
+        })
       }
     },
     refetchQueries: ['getInvoiceDetails'],
@@ -64,7 +70,7 @@ export const DeleteAdjustedFeeDialog = forwardRef<DeleteAdjustedFeeDialogRef>((_
           },
         })
       }}
-      continueText={translate('text_65a6b4e2cb38d9b70ec53c67')}
+      continueText={translate('text_65a6b4e2cb38d9b70ec54035')}
     />
   )
 })

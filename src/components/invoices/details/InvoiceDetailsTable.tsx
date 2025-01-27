@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 import { memo, RefObject } from 'react'
 import styled, { css } from 'styled-components'
 
+import { Button } from '~/components/designSystem'
 import { groupAndFormatFees, TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
 import { formatDateToTZ } from '~/core/timezone'
 import {
@@ -18,8 +19,10 @@ import {
   InvoiceSubscription,
   InvoiceSubscriptionFormatingFragmentDoc,
   InvoiceTypeEnum,
+  PremiumIntegrationTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { theme } from '~/styles'
 
 import { DeleteAdjustedFeeDialogRef } from './DeleteAdjustedFeeDialog'
@@ -79,6 +82,7 @@ gql`
     totalAmountCents
     currency
     issuingDate
+    allChargesHaveFees
     versionNumber
     errorDetails {
       errorCode
@@ -154,9 +158,13 @@ export const InvoiceDetailsTable = memo(
     invoice,
   }: InvoiceDetailsTableProps) => {
     const { translate } = useInternationalization()
+    const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
     const currency = invoice?.currency || CurrencyEnum.Usd
     const isDraftInvoice = invoice?.status === InvoiceStatusTypeEnum.Draft
     const canHaveUnitPrice = invoice.versionNumber >= 4 || isDraftInvoice
+    const hasOldZeroFeeManagement = !!premiumIntegrations?.includes(
+      PremiumIntegrationTypeEnum.ZeroAmountFees,
+    )
 
     const hasTaxProviderError = !!invoice.errorDetails?.find(
       ({ errorCode }) => errorCode === ErrorCodesEnum.TaxError,
@@ -218,9 +226,10 @@ export const InvoiceDetailsTable = memo(
       )
     }
 
-    const newFormattedInvoiceItemsMap = groupAndFormatFees(
-      invoice?.invoiceSubscriptions as InvoiceSubscription[],
-    )
+    const newFormattedInvoiceItemsMap = groupAndFormatFees({
+      invoiceSubscriptions: invoice?.invoiceSubscriptions as InvoiceSubscription[],
+      hasOldZeroFeeManagement,
+    })
 
     /*********************
      * No fee placeholder
@@ -305,6 +314,7 @@ export const InvoiceDetailsTable = memo(
                   canHaveUnitPrice={canHaveUnitPrice}
                   currency={currency}
                   customer={customer}
+                  hasOldZeroFeeManagement={hasOldZeroFeeManagement}
                   editFeeDrawerRef={editFeeDrawerRef}
                   deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                   isDraftInvoice={isDraftInvoice}
@@ -315,6 +325,7 @@ export const InvoiceDetailsTable = memo(
                   canHaveUnitPrice={canHaveUnitPrice}
                   currency={currency}
                   customer={customer}
+                  hasOldZeroFeeManagement={hasOldZeroFeeManagement}
                   editFeeDrawerRef={editFeeDrawerRef}
                   deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                   isDraftInvoice={isDraftInvoice}
@@ -337,6 +348,28 @@ export const InvoiceDetailsTable = memo(
                     {feesComponentsToRender.map((component) => {
                       return component
                     })}
+
+                    {!hasOldZeroFeeManagement && !invoice.allChargesHaveFees && (
+                      <tr>
+                        <td colSpan={6}>
+                          <div>
+                            <Button
+                              variant="quaternary"
+                              size="small"
+                              startIcon={'plus'}
+                              onClick={() =>
+                                editFeeDrawerRef.current?.openDrawer({
+                                  invoiceId: subscription.metadata.invoiceId,
+                                  invoiceSubscriptionId: subscriptionId,
+                                })
+                              }
+                            >
+                              {translate('text_1737709105343hobdiidr8r9')}
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               )
@@ -536,13 +569,6 @@ export const InvoiceWrapper = styled.section<{
     tr.line-collapse {
       > td {
         padding: 0 !important;
-      }
-
-      .inner-table {
-        thead {
-          /* hide header */
-          visibility: collapse;
-        }
       }
 
       .collapse-header {

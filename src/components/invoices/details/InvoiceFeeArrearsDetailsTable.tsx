@@ -41,6 +41,7 @@ interface InvoiceFeeArrearsDetailsTableProps {
   subscription: TSubscriptionDataForDisplay['subscription']
   customer: Customer
   canHaveUnitPrice: boolean
+  hasOldZeroFeeManagement: boolean
   isDraftInvoice: boolean
   currency: CurrencyEnum
   editFeeDrawerRef: RefObject<EditFeeDrawerRef>
@@ -52,6 +53,7 @@ export const InvoiceFeeArrearsDetailsTable = memo(
     subscription,
     customer,
     canHaveUnitPrice,
+    hasOldZeroFeeManagement,
     isDraftInvoice,
     currency,
     editFeeDrawerRef,
@@ -100,59 +102,58 @@ export const InvoiceFeeArrearsDetailsTable = memo(
               )
             })}
             {/* Should be only displayed for draft invoices */}
-            {subscription.feesInArrearsZero.length > 0 && (
-              <>
-                <tr className="line-collapse">
-                  <td colSpan={6}>
-                    <div className="collapse-header">
-                      <Button
-                        variant="quaternary"
-                        size="small"
-                        startIcon={areZeroFeesVisible ? 'eye-hidden' : 'eye'}
-                        onClick={() => setAreZeroFeesVisible(!areZeroFeesVisible)}
-                      >
-                        {translate(
-                          areZeroFeesVisible
-                            ? 'text_65b116a266d90732cac8b3bc'
-                            : 'text_65b116a266d90732cac8b39b',
-                          {
-                            count: subscription.feesInArrearsZero.length,
+            {hasOldZeroFeeManagement && subscription.feesInArrearsZero.length > 0 && (
+              <tr className="line-collapse">
+                <td colSpan={6}>
+                  <div className="collapse-header">
+                    <Button
+                      variant="quaternary"
+                      size="small"
+                      startIcon={areZeroFeesVisible ? 'eye-hidden' : 'eye'}
+                      onClick={() => setAreZeroFeesVisible(!areZeroFeesVisible)}
+                    >
+                      {translate(
+                        areZeroFeesVisible
+                          ? 'text_65b116a266d90732cac8b3bc'
+                          : 'text_65b116a266d90732cac8b39b',
+                        {
+                          count: subscription.feesInArrearsZero.length,
+                        },
+                        subscription.feesInArrearsZero.length,
+                      )}
+                    </Button>
+                  </div>
+                  <Collapse in={areZeroFeesVisible} easing="cubic-bezier(0.4, 0, 0.2, 1)">
+                    <table>
+                      {/* This header is hidden in css. Only present to give the body the correct shape */}
+                      <InvoiceDetailsTableHeader
+                        className="collapse"
+                        canHaveUnitPrice={canHaveUnitPrice}
+                        displayName={subscription?.metadata?.subscriptionDisplayName}
+                        isDraftInvoice={isDraftInvoice}
+                      />
+                      <tbody>
+                        {(subscription.feesInArrearsZero as TExtendedRemainingFee[]).map(
+                          (feeInArrearZero) => {
+                            return (
+                              <InvoiceDetailsTableBodyLine
+                                key={`fee-in-arrears-zero-${feeInArrearZero.id}`}
+                                canHaveUnitPrice={canHaveUnitPrice}
+                                currency={currency}
+                                displayName={feeInArrearZero?.metadata?.displayName}
+                                editFeeDrawerRef={editFeeDrawerRef}
+                                deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
+                                fee={feeInArrearZero}
+                                isDraftInvoice={isDraftInvoice}
+                              />
+                            )
                           },
-                          subscription.feesInArrearsZero.length,
                         )}
-                      </Button>
-                    </div>
-                    <Collapse in={areZeroFeesVisible} easing="cubic-bezier(0.4, 0, 0.2, 1)">
-                      <table className="inner-table">
-                        {/* This header is hidden in css. Only present to give the body the correct shape */}
-                        <InvoiceDetailsTableHeader
-                          canHaveUnitPrice={canHaveUnitPrice}
-                          displayName={subscription?.metadata?.subscriptionDisplayName}
-                          isDraftInvoice={isDraftInvoice}
-                        />
-                        <tbody>
-                          {(subscription.feesInArrearsZero as TExtendedRemainingFee[]).map(
-                            (feeInArrearZero) => {
-                              return (
-                                <InvoiceDetailsTableBodyLine
-                                  key={`fee-in-arrears-zero-${feeInArrearZero.id}`}
-                                  canHaveUnitPrice={canHaveUnitPrice}
-                                  currency={currency}
-                                  displayName={feeInArrearZero?.metadata?.displayName}
-                                  editFeeDrawerRef={editFeeDrawerRef}
-                                  deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
-                                  fee={feeInArrearZero}
-                                  isDraftInvoice={isDraftInvoice}
-                                />
-                              )
-                            },
-                          )}
-                        </tbody>
-                      </table>
-                    </Collapse>
-                  </td>
-                </tr>
-              </>
+                      </tbody>
+                    </table>
+                  </Collapse>
+                </td>
+              </tr>
             )}
           </>
         )}
