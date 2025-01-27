@@ -1158,6 +1158,7 @@ export type CreateCreditNoteInput = {
 
 /** Create Customer input arguments */
 export type CreateCustomerInput = {
+  accountType?: InputMaybe<CustomerAccountTypeEnum>;
   addressLine1?: InputMaybe<Scalars['String']['input']>;
   addressLine2?: InputMaybe<Scalars['String']['input']>;
   billingConfiguration?: InputMaybe<CustomerBillingConfigurationInput>;
@@ -1906,6 +1907,7 @@ export type CurrentVersion = {
 
 export type Customer = {
   __typename?: 'Customer';
+  accountType: CustomerAccountTypeEnum;
   /** Number of active subscriptions per customer */
   activeSubscriptionsCount: Scalars['Int']['output'];
   addressLine1?: Maybe<Scalars['String']['output']>;
@@ -1988,6 +1990,11 @@ export type CustomerSubscriptionsArgs = {
   status?: InputMaybe<Array<StatusTypeEnum>>;
 };
 
+export enum CustomerAccountTypeEnum {
+  Customer = 'customer',
+  Partner = 'partner'
+}
+
 export type CustomerAddress = {
   __typename?: 'CustomerAddress';
   addressLine1?: Maybe<Scalars['String']['output']>;
@@ -2045,6 +2052,7 @@ export type CustomerMetadataInput = {
 
 export type CustomerPortalCustomer = {
   __typename?: 'CustomerPortalCustomer';
+  accountType: CustomerAccountTypeEnum;
   addressLine1?: Maybe<Scalars['String']['output']>;
   addressLine2?: Maybe<Scalars['String']['output']>;
   applicableTimezone: TimezoneEnum;
@@ -2888,8 +2896,10 @@ export enum IntegrationTypeEnum {
   Okta = 'okta',
   ProgressiveBilling = 'progressive_billing',
   RevenueAnalytics = 'revenue_analytics',
+  RevenueShare = 'revenue_share',
   Salesforce = 'salesforce',
-  Xero = 'xero'
+  Xero = 'xero',
+  ZeroAmountFees = 'zero_amount_fees'
 }
 
 export type Invite = {
@@ -2958,6 +2968,7 @@ export type Invoice = {
   prepaidCreditAmountCents: Scalars['BigInt']['output'];
   progressiveBillingCreditAmountCents: Scalars['BigInt']['output'];
   refundableAmountCents: Scalars['BigInt']['output'];
+  selfBilled: Scalars['Boolean']['output'];
   sequentialId: Scalars['ID']['output'];
   status: InvoiceStatusTypeEnum;
   subTotalExcludingTaxesAmountCents: Scalars['BigInt']['output'];
@@ -4453,8 +4464,10 @@ export enum PremiumIntegrationTypeEnum {
   Okta = 'okta',
   ProgressiveBilling = 'progressive_billing',
   RevenueAnalytics = 'revenue_analytics',
+  RevenueShare = 'revenue_share',
   Salesforce = 'salesforce',
-  Xero = 'xero'
+  Xero = 'xero',
+  ZeroAmountFees = 'zero_amount_fees'
 }
 
 export type Properties = {
@@ -4738,6 +4751,7 @@ export type QueryCreditNotesArgs = {
   reason?: InputMaybe<Array<CreditNoteReasonEnum>>;
   refundStatus?: InputMaybe<Array<CreditNoteRefundStatusEnum>>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+  selfBilled?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -4806,6 +4820,7 @@ export type QueryCustomerUsageArgs = {
 
 
 export type QueryCustomersArgs = {
+  accountType?: InputMaybe<Array<CustomerAccountTypeEnum>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
@@ -4952,6 +4967,7 @@ export type QueryInvoicesArgs = {
   paymentOverdue?: InputMaybe<Scalars['Boolean']['input']>;
   paymentStatus?: InputMaybe<Array<InvoicePaymentStatusTypeEnum>>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+  selfBilled?: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<Array<InvoiceStatusTypeEnum>>;
 };
 
@@ -5868,6 +5884,7 @@ export type UpdateCreditNoteInput = {
 
 /** Update Customer input arguments */
 export type UpdateCustomerInput = {
+  accountType?: InputMaybe<CustomerAccountTypeEnum>;
   addressLine1?: InputMaybe<Scalars['String']['input']>;
   addressLine2?: InputMaybe<Scalars['String']['input']>;
   applicableInvoiceCustomSectionIds?: InputMaybe<Array<Scalars['ID']['input']>>;
