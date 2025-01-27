@@ -139,6 +139,7 @@ const InvoiceCreditNoteList = () => {
             customerTimezone={data?.invoice?.customer.applicableTimezone || TimezoneEnum.TzUtc}
             error={error}
             variables={variables}
+            showFilters={false}
           />
         )}
       </>
