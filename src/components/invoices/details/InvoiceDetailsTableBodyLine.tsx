@@ -2,6 +2,7 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { memo, RefObject } from 'react'
+import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { Button, Popper, Tooltip, Typography } from '~/components/designSystem'
@@ -170,6 +171,7 @@ export const InvoiceDetailsTableBodyLine = memo(
     succeededDate,
     hasTaxProviderError,
   }: InvoiceDetailsTableBodyLineProps) => {
+    const { invoiceId = '' } = useParams()
     const { translate } = useInternationalization()
     const chargeModel = fee?.charge?.chargeModel
     const isTrueUpFee = !!fee?.metadata?.isTrueUpFee && !!fee?.charge?.minAmountCents
@@ -318,7 +320,7 @@ export const InvoiceDetailsTableBodyLine = memo(
                           if (isAdjustedFee) {
                             deleteAdjustedFeeDialogRef?.current?.openDialog({ fee })
                           } else {
-                            editFeeDrawerRef?.current?.openDrawer({ fee })
+                            editFeeDrawerRef?.current?.openDrawer({ fee, invoiceId })
                           }
                           closePopper()
                         }}

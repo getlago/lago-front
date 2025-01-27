@@ -87,6 +87,7 @@ export type TSubscriptionDataForDisplay = {
       chargesToDatetime: string
       inAdvanceChargesFromDatetime: string
       inAdvanceChargesToDatetime: string
+      invoiceId: string
     }
   }
 }
@@ -149,16 +150,20 @@ export const getSubscriptionFeeDisplayName = (fee: TExtendedRemainingFee) => {
   return `${capitalizedPlanInterval} subscription fee - ${plan?.name}`
 }
 
-export const groupAndFormatFees = (
-  invoiceSubscription: InvoiceSubscription[] | null | undefined,
-): TFormatedInvoiceSubscriptionDataForDisplay => {
+export const groupAndFormatFees = ({
+  invoiceSubscriptions,
+  hasOldZeroFeeManagement,
+}: {
+  invoiceSubscriptions: InvoiceSubscription[] | null | undefined
+  hasOldZeroFeeManagement: boolean
+}): TFormatedInvoiceSubscriptionDataForDisplay => {
   let hasAnyFeeParsed = false
   let hasAnyPositiveFeeParsed = false
 
-  if (!invoiceSubscription?.length)
+  if (!invoiceSubscriptions?.length)
     return { subscriptions: {}, metadata: { hasAnyFeeParsed, hasAnyPositiveFeeParsed } }
 
-  const feesGroupedBySubscription = invoiceSubscription?.reduce<TSubscriptionDataForDisplay>(
+  const feesGroupedBySubscription = invoiceSubscriptions?.reduce<TSubscriptionDataForDisplay>(
     (acc, invoiceSub) => {
       const subscriptionId = invoiceSub?.subscription?.id
 
@@ -184,6 +189,7 @@ export const groupAndFormatFees = (
             chargesToDatetime: invoiceSub?.chargesToDatetime,
             inAdvanceChargesFromDatetime: invoiceSub?.inAdvanceChargesFromDatetime,
             inAdvanceChargesToDatetime: invoiceSub?.inAdvanceChargesToDatetime,
+            invoiceId: invoiceSub?.invoice?.id,
           },
         }
       }
@@ -194,7 +200,7 @@ export const groupAndFormatFees = (
       for (let i = 0; i < invoiceSub?.fees?.length; i++) {
         const currentFee = invoiceSub?.fees[i] as TExtendedRemainingFee
 
-        const isZeroFee = currentFee.units === 0
+        const isZeroFee = hasOldZeroFeeManagement && currentFee.units === 0
 
         const isFeeInAdvance =
           currentFee.charge?.payInAdvance ||
