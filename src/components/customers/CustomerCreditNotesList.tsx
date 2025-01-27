@@ -113,6 +113,7 @@ export const CustomerCreditNotesList = ({
           customerTimezone={customerTimezone}
           error={error}
           variables={variables}
+          showFilters={false}
         />
       )}
     </div>
