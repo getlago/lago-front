@@ -45,7 +45,7 @@ gql`
       number
       paymentStatus
       status
-      totalAmountCents
+      totalDueAmountCents
       issuingDate
       currency
     }
@@ -135,14 +135,14 @@ const CreatePayment = () => {
     (value: string) => {
       const amount = Number(value)
 
-      return amount > 0 && amount <= deserializeAmount(invoice?.totalAmountCents ?? 0, currency)
+      return amount > 0 && amount <= deserializeAmount(invoice?.totalDueAmountCents ?? 0, currency)
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [invoice],
   )
 
   const remainingAmount = useMemo(() => {
-    const totalAmount = deserializeAmount(invoice?.totalAmountCents ?? 0, currency)
+    const totalAmount = deserializeAmount(invoice?.totalDueAmountCents ?? 0, currency)
     const amount = Number(formikProps.values.amountCents)
 
     return totalAmount - amount
@@ -230,14 +230,17 @@ const CreatePayment = () => {
                             content: ({ number }) => number,
                           },
                           {
-                            key: 'totalAmountCents',
+                            key: 'totalDueAmountCents',
                             title: translate('text_17374735502775afvcm9pqxk'),
                             textAlign: 'right',
-                            content: ({ totalAmountCents }) => (
+                            content: ({ totalDueAmountCents }) => (
                               <Typography variant="bodyHl" color="textSecondary">
-                                {intlFormatNumber(deserializeAmount(totalAmountCents, currency), {
-                                  currency,
-                                })}
+                                {intlFormatNumber(
+                                  deserializeAmount(totalDueAmountCents, currency),
+                                  {
+                                    currency,
+                                  },
+                                )}
                               </Typography>
                             ),
                           },

@@ -2909,8 +2909,7 @@ export enum IntegrationTypeEnum {
   RevenueAnalytics = 'revenue_analytics',
   RevenueShare = 'revenue_share',
   Salesforce = 'salesforce',
-  Xero = 'xero',
-  ZeroAmountFees = 'zero_amount_fees'
+  Xero = 'xero'
 }
 
 export type Invite = {
@@ -2990,6 +2989,7 @@ export type Invoice = {
   taxesAmountCents: Scalars['BigInt']['output'];
   taxesRate: Scalars['Float']['output'];
   totalAmountCents: Scalars['BigInt']['output'];
+  totalDueAmountCents: Scalars['BigInt']['output'];
   updatedAt: Scalars['ISO8601DateTime']['output'];
   versionNumber: Scalars['Int']['output'];
   voidable: Scalars['Boolean']['output'];
@@ -4523,8 +4523,7 @@ export enum PremiumIntegrationTypeEnum {
   RevenueAnalytics = 'revenue_analytics',
   RevenueShare = 'revenue_share',
   Salesforce = 'salesforce',
-  Xero = 'xero',
-  ZeroAmountFees = 'zero_amount_fees'
+  Xero = 'xero'
 }
 
 export type Properties = {
@@ -4699,6 +4698,8 @@ export type Query = {
   overdueBalances: OverdueBalanceCollection;
   /** Query a password reset by token */
   passwordReset: ResetPassword;
+  /** Query a single Payment */
+  payment?: Maybe<Payment>;
   /** Query a single payment provider */
   paymentProvider?: Maybe<PaymentProvider>;
   /** Query organization's payment providers */
@@ -5057,6 +5058,11 @@ export type QueryPasswordResetArgs = {
 };
 
 
+export type QueryPaymentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryPaymentProviderArgs = {
   code?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['ID']['input']>;
@@ -5078,6 +5084,7 @@ export type QueryPaymentRequestsArgs = {
 
 
 export type QueryPaymentsArgs = {
+  externalCustomerId?: InputMaybe<Scalars['ID']['input']>;
   invoiceId?: InputMaybe<Scalars['ID']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -8627,7 +8634,7 @@ export type GetPayableInvoiceQueryVariables = Exact<{
 }>;
 
 
-export type GetPayableInvoiceQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, totalAmountCents: any, issuingDate: any, currency?: CurrencyEnum | null } | null };
+export type GetPayableInvoiceQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, totalDueAmountCents: any, issuingDate: any, currency?: CurrencyEnum | null } | null };
 
 export type CreatePaymentMutationVariables = Exact<{
   input: CreatePaymentInput;
@@ -22199,7 +22206,7 @@ export const GetPayableInvoiceDocument = gql`
     number
     paymentStatus
     status
-    totalAmountCents
+    totalDueAmountCents
     issuingDate
     currency
   }
