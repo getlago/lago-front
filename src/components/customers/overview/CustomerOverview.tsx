@@ -102,6 +102,15 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
     },
   })
 
+  const refreshOverdueBalances = () =>
+    getCustomerOverdueBalances({
+      variables: {
+        expireCache: true,
+        externalCustomerId: externalCustomerId || '',
+        currency,
+      },
+    })
+
   useEffect(() => {
     if (!externalCustomerId) return
 
@@ -157,19 +166,6 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
           <PageSectionTitle
             title={translate('text_6670a7222702d70114cc7954')}
             subtitle={translate('text_1737649151689ldyvwtq9ov1')}
-            action={{
-              title: translate('text_6670a7222702d70114cc7953'),
-              dataTest: 'refresh-overview',
-              onClick: () => {
-                getCustomerOverdueBalances({
-                  variables: {
-                    expireCache: true,
-                    externalCustomerId: externalCustomerId || '',
-                    currency,
-                  },
-                })
-              },
-            }}
           />
 
           <Stack gap={4}>
@@ -259,6 +255,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
                     overdueFormattedData.invoiceCount,
                   )}
                   isAccentContent={hasOverdueInvoices}
+                  refresh={refreshOverdueBalances}
                 />
               )}
             </Stack>
