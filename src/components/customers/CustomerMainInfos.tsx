@@ -332,6 +332,28 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     !!connectedNetsuiteIntegration?.id ||
     (paymentProvider && !!linkedProvider?.name)
 
+  const hasBillingInformation =
+    !!currency ||
+    !!legalName ||
+    !!legalNumber ||
+    !!taxIdentificationNumber ||
+    !!email ||
+    !!url ||
+    !!phone ||
+    !!addressLine1 ||
+    !!addressLine2 ||
+    !!state ||
+    !!country ||
+    !!city ||
+    !!zipcode ||
+    (shippingAddress &&
+      (shippingAddress.addressLine1 ||
+        shippingAddress.addressLine2 ||
+        shippingAddress.state ||
+        shippingAddress.country ||
+        shippingAddress.city ||
+        shippingAddress.zipcode))
+
   return (
     <div>
       <PageSectionTitle
@@ -402,105 +424,109 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
           )}
         </InfoSection>
 
-        <InfoSection title={translate('text_17378922245103cc9xrd1tjj')}>
-          {currency && (
-            <InfoBlock>
-              <Typography variant="caption">
-                {translate('text_632b4acf0c41206cbcb8c324')}
-              </Typography>
-              <Typography color="textSecondary">{currency}</Typography>
-            </InfoBlock>
-          )}
-          {legalName && (
-            <InfoBlock>
-              <Typography variant="caption">
-                {translate('text_626c0c301a16a600ea061471')}
-              </Typography>
-              <Typography color="textSecondary">{legalName}</Typography>
-            </InfoBlock>
-          )}
-          {legalNumber && (
-            <InfoBlock>
-              <Typography variant="caption">
-                {translate('text_626c0c301a16a600ea061475')}
-              </Typography>
-              <Typography color="textSecondary">{legalNumber}</Typography>
-            </InfoBlock>
-          )}
-          {taxIdentificationNumber && (
-            <InfoBlock>
-              <Typography variant="caption">
-                {translate('text_648053ee819b60364c675d05')}
-              </Typography>
-              <Typography color="textSecondary">{taxIdentificationNumber}</Typography>
-            </InfoBlock>
-          )}
-          {email && (
-            <InfoBlock>
-              <Typography variant="caption">
-                {translate('text_626c0c301a16a600ea061479')}
-              </Typography>
-              <Typography color="textSecondary">{email.split(',').join(', ')}</Typography>
-            </InfoBlock>
-          )}
-          {url && (
-            <InfoBlock>
-              <Typography variant="caption">
-                {translate('text_641b164cff8497006bcbd2b3')}
-              </Typography>
-              <Typography color="textSecondary">{url}</Typography>
-            </InfoBlock>
-          )}
-          {phone && (
-            <InfoBlock>
-              <Typography variant="caption">
-                {translate('text_626c0c301a16a600ea06147d')}
-              </Typography>
-              <Typography color="textSecondary">{phone}</Typography>
-            </InfoBlock>
-          )}
-          {(addressLine1 || addressLine2 || state || country || city || zipcode) && (
-            <InfoBlock>
-              <Typography variant="caption">
-                {translate('text_626c0c301a16a600ea06148d')}
-              </Typography>
-              <div className="flex flex-col">
-                <Typography color="textSecondary">{addressLine1}</Typography>
-                <Typography color="textSecondary">{addressLine2}</Typography>
-                <Typography color="textSecondary">
-                  {zipcode} {city} {state}
-                </Typography>
-                {country && <Typography color="textSecondary">{CountryCodes[country]}</Typography>}
-              </div>
-            </InfoBlock>
-          )}
-          {shippingAddress &&
-            (shippingAddress.addressLine1 ||
-              shippingAddress.addressLine2 ||
-              shippingAddress.state ||
-              shippingAddress.country ||
-              shippingAddress.city ||
-              shippingAddress.zipcode) && (
+        {hasBillingInformation && (
+          <InfoSection title={translate('text_17378922245103cc9xrd1tjj')}>
+            {currency && (
               <InfoBlock>
                 <Typography variant="caption">
-                  {translate('text_667d708c1359b49f5a5a822a')}
+                  {translate('text_632b4acf0c41206cbcb8c324')}
                 </Typography>
-
+                <Typography color="textSecondary">{currency}</Typography>
+              </InfoBlock>
+            )}
+            {legalName && (
+              <InfoBlock>
+                <Typography variant="caption">
+                  {translate('text_626c0c301a16a600ea061471')}
+                </Typography>
+                <Typography color="textSecondary">{legalName}</Typography>
+              </InfoBlock>
+            )}
+            {legalNumber && (
+              <InfoBlock>
+                <Typography variant="caption">
+                  {translate('text_626c0c301a16a600ea061475')}
+                </Typography>
+                <Typography color="textSecondary">{legalNumber}</Typography>
+              </InfoBlock>
+            )}
+            {taxIdentificationNumber && (
+              <InfoBlock>
+                <Typography variant="caption">
+                  {translate('text_648053ee819b60364c675d05')}
+                </Typography>
+                <Typography color="textSecondary">{taxIdentificationNumber}</Typography>
+              </InfoBlock>
+            )}
+            {email && (
+              <InfoBlock>
+                <Typography variant="caption">
+                  {translate('text_626c0c301a16a600ea061479')}
+                </Typography>
+                <Typography color="textSecondary">{email.split(',').join(', ')}</Typography>
+              </InfoBlock>
+            )}
+            {url && (
+              <InfoBlock>
+                <Typography variant="caption">
+                  {translate('text_641b164cff8497006bcbd2b3')}
+                </Typography>
+                <Typography color="textSecondary">{url}</Typography>
+              </InfoBlock>
+            )}
+            {phone && (
+              <InfoBlock>
+                <Typography variant="caption">
+                  {translate('text_626c0c301a16a600ea06147d')}
+                </Typography>
+                <Typography color="textSecondary">{phone}</Typography>
+              </InfoBlock>
+            )}
+            {(addressLine1 || addressLine2 || state || country || city || zipcode) && (
+              <InfoBlock>
+                <Typography variant="caption">
+                  {translate('text_626c0c301a16a600ea06148d')}
+                </Typography>
                 <div className="flex flex-col">
-                  <Typography color="textSecondary">{shippingAddress.addressLine1}</Typography>
-                  <Typography color="textSecondary">{shippingAddress.addressLine2}</Typography>
+                  <Typography color="textSecondary">{addressLine1}</Typography>
+                  <Typography color="textSecondary">{addressLine2}</Typography>
                   <Typography color="textSecondary">
-                    {shippingAddress.zipcode} {shippingAddress.city} {shippingAddress.state}
+                    {zipcode} {city} {state}
                   </Typography>
-                  {shippingAddress.country && (
-                    <Typography color="textSecondary">
-                      {CountryCodes[shippingAddress.country]}
-                    </Typography>
+                  {country && (
+                    <Typography color="textSecondary">{CountryCodes[country]}</Typography>
                   )}
                 </div>
               </InfoBlock>
             )}
-        </InfoSection>
+            {shippingAddress &&
+              (shippingAddress.addressLine1 ||
+                shippingAddress.addressLine2 ||
+                shippingAddress.state ||
+                shippingAddress.country ||
+                shippingAddress.city ||
+                shippingAddress.zipcode) && (
+                <InfoBlock>
+                  <Typography variant="caption">
+                    {translate('text_667d708c1359b49f5a5a822a')}
+                  </Typography>
+
+                  <div className="flex flex-col">
+                    <Typography color="textSecondary">{shippingAddress.addressLine1}</Typography>
+                    <Typography color="textSecondary">{shippingAddress.addressLine2}</Typography>
+                    <Typography color="textSecondary">
+                      {shippingAddress.zipcode} {shippingAddress.city} {shippingAddress.state}
+                    </Typography>
+                    {shippingAddress.country && (
+                      <Typography color="textSecondary">
+                        {CountryCodes[shippingAddress.country]}
+                      </Typography>
+                    )}
+                  </div>
+                </InfoBlock>
+              )}
+          </InfoSection>
+        )}
 
         {!!metadata?.length && (
           <InfoSection title={translate('text_1737892224510vc53d10q4h5')}>
