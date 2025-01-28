@@ -112,7 +112,7 @@ export const CustomerInvoicesTab = ({
       )}
 
       {initialLoad && (
-        <div className="mt-7">
+        <div>
           <Skeleton variant="text" className="mb-7 w-56" />
           <CustomerInvoicesList
             isLoading
@@ -123,7 +123,7 @@ export const CustomerInvoicesTab = ({
         </div>
       )}
 
-      {showInvoices && !hasInvoices && !isSearching && (
+      {showInvoices && !hasInvoices && !hasDraftInvoices && !isSearching && (
         <div>
           <PageSectionTitle
             title={translate('text_6250304370f0f700a8fdc291')}
