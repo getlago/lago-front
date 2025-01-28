@@ -3,7 +3,12 @@ import { useEffect } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { CUSTOMER_DETAILS_TAB_ROUTE, CUSTOMERS_LIST_ROUTE, ERROR_404_ROUTE } from '~/core/router'
+import {
+  CUSTOMER_DETAILS_ROUTE,
+  CUSTOMER_DETAILS_TAB_ROUTE,
+  CUSTOMERS_LIST_ROUTE,
+  ERROR_404_ROUTE,
+} from '~/core/router'
 import {
   AddCustomerDrawerFragment,
   CreateCustomerInput,
@@ -194,7 +199,11 @@ export const useCreateEditCustomer: UseCreateEditCustomer = () => {
           message: translate('text_6250304370f0f700a8fdc295'),
           severity: 'success',
         })
-        goToCustomerInformationPage(createCustomer.id)
+        navigate(
+          generatePath(CUSTOMER_DETAILS_ROUTE, {
+            customerId: createCustomer.id,
+          }),
+        )
       }
     },
   })
