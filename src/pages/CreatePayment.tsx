@@ -18,6 +18,7 @@ import { intlFormatDateTime } from '~/core/timezone'
 import {
   CreatePaymentInput,
   CurrencyEnum,
+  InvoiceTypeEnum,
   LagoApiError,
   useCreatePaymentMutation,
   useGetPayableInvoiceQuery,
@@ -48,6 +49,7 @@ gql`
       totalDueAmountCents
       issuingDate
       currency
+      invoiceType
     }
   }
 
@@ -103,6 +105,15 @@ const CreatePayment = () => {
     variables: { id: formikProps.values.invoiceId },
     skip: !formikProps.values.invoiceId,
   })
+
+  useEffect(() => {
+    if (invoice && invoice.invoiceType === InvoiceTypeEnum.Credit) {
+      formikProps.setFieldValue(
+        'amountCents',
+        deserializeAmount(invoice.totalDueAmountCents, invoice.currency ?? CurrencyEnum.Usd),
+      )
+    }
+  }, [invoice])
 
   const currency = invoice?.currency ?? CurrencyEnum.Usd
 
@@ -297,6 +308,7 @@ const CreatePayment = () => {
                       currency={currency}
                       beforeChangeFormatter={['positiveNumber']}
                       placeholder="0.00"
+                      disabled={invoice?.invoiceType === InvoiceTypeEnum.Credit}
                       InputProps={{
                         startAdornment: currency && (
                           <InputAdornment position="start">

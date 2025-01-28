@@ -8634,7 +8634,7 @@ export type GetPayableInvoiceQueryVariables = Exact<{
 }>;
 
 
-export type GetPayableInvoiceQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, totalDueAmountCents: any, issuingDate: any, currency?: CurrencyEnum | null } | null };
+export type GetPayableInvoiceQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, totalDueAmountCents: any, issuingDate: any, currency?: CurrencyEnum | null, invoiceType: InvoiceTypeEnum } | null };
 
 export type CreatePaymentMutationVariables = Exact<{
   input: CreatePaymentInput;
@@ -22209,6 +22209,7 @@ export const GetPayableInvoiceDocument = gql`
     totalDueAmountCents
     issuingDate
     currency
+    invoiceType
   }
 }
     `;
