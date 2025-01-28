@@ -94,7 +94,7 @@ export enum CustomerDetailsTabsOptions {
   invoices = 'invoices',
   settings = 'settings',
   usage = 'usage',
-  details = 'details',
+  information = 'information',
 }
 
 const CustomerDetails = () => {
@@ -434,7 +434,7 @@ const CustomerDetails = () => {
                       title: translate('text_17376404438209bh9jk7xa2s'),
                       link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                         customerId: customerId as string,
-                        tab: CustomerDetailsTabsOptions.details,
+                        tab: CustomerDetailsTabsOptions.information,
                       }),
                       component: (
                         <CustomerMainInfos
