@@ -110,7 +110,7 @@ export const NavigationTab = ({
                   <Skeleton
                     key={`loding-tab-${tabIndex}`}
                     className={tw('mr-0 h-3 w-20', {
-                      'mr-4': tabIndex !== nonHiddenTabs.length - 1,
+                      'mr-2': tabIndex !== nonHiddenTabs.length - 1,
                     })}
                     variant="text"
                   />

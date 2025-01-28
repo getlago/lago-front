@@ -319,10 +319,10 @@ const CustomerDetails = () => {
           <>
             <div className="flex flex-col gap-12">
               {loading ? (
-                <div>
+                <div className="flex gap-4">
                   <Skeleton variant="userAvatar" size="large" />
-                  <div>
-                    <Skeleton variant="text" className="mb-5 w-50" />
+                  <div className="flex flex-col gap-2">
+                    <Skeleton variant="text" className="w-50" />
                     <Skeleton variant="text" className="w-32" />
                   </div>
                 </div>
