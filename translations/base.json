@@ -2843,5 +2843,20 @@
   "text_1737473550277wkq2gsbaiab": "Record payment",
   "text_1737473550277onyc98womp2": "Type a reference",
   "text_17374735502775afvcm9pqxk": "Amount due",
-  "text_173755495088700ivx6izvjv": "Payment successfully recorded"
+  "text_173755495088700ivx6izvjv": "Payment successfully recorded",
+  "text_17370296250897aidak5kjcg": "Search payment",
+  "text_1737029625089rtcf3ah5khq": "Copy payment id",
+  "text_17370296250897n2pakp5v33": "Payment ID copied to clipboard",
+  "text_17370296250898eqj4qe4qg9": "Multiple invoices ({{count}})",
+  "text_1737043149535dhigi301msf": "Last update",
+  "text_1737043182491927uocp2ydo": "Method",
+  "text_17370432002911cyzkxf966v": "Reference",
+  "text_1737110192586abtitcui0xt": "Manual",
+  "text_1737112054603c6phsbkyvmx": "Provider payment ID",
+  "text_173799550683709p2rqkoqd5": "Manual payment",
+  "text_1738056040178doq581h3d2o": "This payment cannot be found",
+  "text_173805604017831h2cebcami": "No payments available",
+  "text_1738056040178gw94jzmzckx": "No payments have been recorded for invoices. Please record a payment or connect your customer to a payment provider to view all payments here.",
+  "text_17380560401785kuvb6m2yfm": "No payments have been recorded for this invoice. Please record a payment or connect your customer to a payment provider to view all payments here.",
+  "text_17380560401786gmefzvw1rl": "No payments have been recorded for invoices. Please record a payment or connect your customer to a payment provider to view all payments here."
 }

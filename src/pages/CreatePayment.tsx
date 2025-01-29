@@ -3,16 +3,18 @@ import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
 import { DateTime } from 'luxon'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { date, object, string } from 'yup'
 
 import { Alert, Button, Status, Table, Typography } from '~/components/designSystem'
 import { AmountInputField, ComboBox, DatePickerField, TextInputField } from '~/components/form'
-import { CenteredPage } from '~/components/layouts/Pages'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
+import { InvoiceListTabEnum } from '~/core/constants/tabsOptions'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { INVOICES_TAB_ROUTE, PAYMENT_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
@@ -25,13 +27,14 @@ import {
   useGetPayableInvoicesQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 import { tw } from '~/styles/utils'
 
 gql`
-  query GetPayableInvoices {
-    invoices(positiveDueAmount: true) {
+  query GetPayableInvoices($customerExternalId: String) {
+    invoices(positiveDueAmount: true, customerExternalId: $customerExternalId) {
       collection {
         id
         number
@@ -65,7 +68,10 @@ const today = DateTime.now()
 const CreatePayment = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
+  const { goBack } = useLocationHistory()
   const params = useParams<{ invoiceId?: string }>()
+  const [searchParams] = useSearchParams()
+
   const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
   const { timezone } = useOrganizationInfos()
 
@@ -99,7 +105,11 @@ const CreatePayment = () => {
     },
   })
 
-  const { data: payableInvoices, loading: payableInvoicesLoading } = useGetPayableInvoicesQuery()
+  const { data: payableInvoices, loading: payableInvoicesLoading } = useGetPayableInvoicesQuery({
+    variables: {
+      customerExternalId: searchParams.get('externalId'),
+    },
+  })
 
   const { data: { invoice } = {}, loading: invoiceLoading } = useGetPayableInvoiceQuery({
     variables: { id: formikProps.values.invoiceId },
@@ -125,8 +135,7 @@ const CreatePayment = () => {
           severity: 'success',
           translateKey: 'text_173755495088700ivx6izvjv',
         })
-        // TODO: Update path after LAGO-669
-        navigate(generatePath('/', { paymentId: createdPayment?.id }))
+        navigate(generatePath(PAYMENT_DETAILS_ROUTE, { paymentId: createdPayment?.id }))
       }
     },
   })
@@ -146,7 +155,13 @@ const CreatePayment = () => {
     (value: string) => {
       const amount = Number(value)
 
-      return amount > 0 && amount <= deserializeAmount(invoice?.totalDueAmountCents ?? 0, currency)
+      const isExceeding =
+        amount > 0 && amount <= deserializeAmount(invoice?.totalDueAmountCents ?? 0, currency)
+
+      if (!isExceeding) {
+        return false
+      }
+      return true
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [invoice],
@@ -160,7 +175,11 @@ const CreatePayment = () => {
   }, [formikProps.values.amountCents, invoice, currency])
 
   const onLeave = () => {
-    navigate(-1)
+    goBack(
+      generatePath(INVOICES_TAB_ROUTE, {
+        tab: InvoiceListTabEnum.payments,
+      }),
+    )
   }
 
   const dateTime = intlFormatDateTime(formikProps.values.createdAt, {
@@ -303,7 +322,21 @@ const CreatePayment = () => {
                     <AmountInputField
                       name="amountCents"
                       formikProps={formikProps}
-                      error={!!formikProps.errors.amountCents && !!formikProps.values.invoiceId}
+                      error={
+                        !!formikProps.errors.amountCents && !!formikProps.values.invoiceId
+                          ? translate('text_6374e868262bab8719eac11f', {
+                              max: intlFormatNumber(
+                                deserializeAmount(
+                                  invoice?.totalDueAmountCents,
+                                  invoice?.currency ?? CurrencyEnum.Usd,
+                                ),
+                                {
+                                  currency,
+                                },
+                              ),
+                            })
+                          : ''
+                      }
                       label={translate('text_1737472944878ee19ufaaklg')}
                       currency={currency}
                       beforeChangeFormatter={['positiveNumber']}

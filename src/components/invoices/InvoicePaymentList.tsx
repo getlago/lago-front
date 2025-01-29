@@ -1,0 +1,126 @@
+import { generatePath, useParams } from 'react-router-dom'
+
+import { InfiniteScroll, Status, Table } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem/Typography'
+import { PaymentProviderChip } from '~/components/PaymentProviderChip'
+import { payablePaymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { PAYMENT_DETAILS_ROUTE } from '~/core/router'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { formatDateToTZ } from '~/core/timezone'
+import { CurrencyEnum, PaymentTypeEnum, useGetPaymentListQuery } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+export const InvoicePaymentList = () => {
+  const { translate } = useInternationalization()
+  const { invoiceId } = useParams()
+
+  const { data, loading, error, fetchMore } = useGetPaymentListQuery({
+    variables: { invoiceId: invoiceId as string, limit: 20 },
+    skip: !invoiceId,
+  })
+
+  const payments = data?.payments.collection || []
+
+  return (
+    <>
+      <div className="flex h-18 items-center justify-between shadow-b">
+        <Typography variant="subhead">{translate('text_6672ebb8b1b50be550eccbed')}</Typography>
+      </div>
+      {!loading && !payments.length && (
+        <Typography className="mt-6" variant="body" color="grey500">
+          {translate('text_17380560401785kuvb6m2yfm')}
+        </Typography>
+      )}
+      {!loading && payments.length > 0 && (
+        <InfiniteScroll
+          onBottom={() => {
+            const { currentPage = 0, totalPages = 0 } = data?.payments.metadata || {}
+
+            currentPage < totalPages &&
+              !loading &&
+              fetchMore?.({ variables: { page: currentPage + 1 } })
+          }}
+        >
+          <Table
+            name="payments-list"
+            data={payments || []}
+            containerSize={{
+              default: 0,
+            }}
+            isLoading={loading}
+            hasError={!!error}
+            onRowActionLink={(request) =>
+              generatePath(PAYMENT_DETAILS_ROUTE, {
+                paymentId: request.id,
+              })
+            }
+            columns={[
+              {
+                key: 'payablePaymentStatus',
+                title: translate('text_63ac86d797f728a87b2f9fa7'),
+                minWidth: 80,
+                content: ({ payablePaymentStatus }) => (
+                  <Status
+                    {...payablePaymentStatusMapping({
+                      payablePaymentStatus: payablePaymentStatus ?? undefined,
+                    })}
+                  />
+                ),
+              },
+              {
+                key: 'payable.__typename',
+                title: translate('text_63ac86d797f728a87b2f9fad'),
+                minWidth: 160,
+                maxSpace: true,
+                content: ({ payable }) => {
+                  if (payable.__typename === 'Invoice') {
+                    return payable.number
+                  }
+                  if (payable.__typename === 'PaymentRequest') {
+                    return translate('text_17370296250898eqj4qe4qg9', {
+                      count: payable.invoices.length,
+                    })
+                  }
+                },
+              },
+              {
+                key: 'amountCents',
+                title: translate('text_6419c64eace749372fc72b3e'),
+                textAlign: 'right',
+                content: ({ amountCents, amountCurrency }) => (
+                  <Typography variant="bodyHl" color="textSecondary" noWrap>
+                    {intlFormatNumber(
+                      deserializeAmount(amountCents, amountCurrency || CurrencyEnum.Usd),
+                      {
+                        currency: amountCurrency || CurrencyEnum.Usd,
+                      },
+                    )}
+                  </Typography>
+                ),
+              },
+              {
+                key: 'paymentType',
+                title: translate('text_1737043182491927uocp2ydo'),
+                content: ({ paymentType, paymentProviderType }) => (
+                  <PaymentProviderChip
+                    paymentProvider={
+                      paymentProviderType ??
+                      (paymentType === PaymentTypeEnum.Manual ? 'manual' : undefined)
+                    }
+                  />
+                ),
+              },
+              {
+                key: 'createdAt',
+                title: translate('text_664cb90097bfa800e6efa3f5'),
+                content: ({ createdAt, customer }) =>
+                  formatDateToTZ(createdAt, customer.applicableTimezone),
+              },
+            ]}
+          />
+        </InfiniteScroll>
+      )}
+    </>
+  )
+}

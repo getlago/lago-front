@@ -1,5 +1,9 @@
 import { StatusProps, StatusType } from '~/components/designSystem'
-import { InvoicePaymentStatusTypeEnum, InvoiceStatusTypeEnum } from '~/generated/graphql'
+import {
+  InvoicePaymentStatusTypeEnum,
+  InvoiceStatusTypeEnum,
+  PayablePaymentStatusEnum,
+} from '~/generated/graphql'
 
 export const invoiceStatusMapping = ({
   status,
@@ -44,4 +48,21 @@ export const paymentStatusMapping = ({
   }
 
   return { label: 'n/a', type: StatusType.default }
+}
+
+export const payablePaymentStatusMapping = ({
+  payablePaymentStatus,
+}: {
+  payablePaymentStatus?: PayablePaymentStatusEnum
+}): StatusProps => {
+  switch (payablePaymentStatus) {
+    case PayablePaymentStatusEnum.Pending:
+      return { label: 'pending', type: StatusType.default }
+    case PayablePaymentStatusEnum.Failed:
+      return { label: 'failed', type: StatusType.warning }
+    case PayablePaymentStatusEnum.Succeeded:
+      return { label: 'succeeded', type: StatusType.success }
+    default:
+      return { label: 'n/a', type: StatusType.default }
+  }
 }

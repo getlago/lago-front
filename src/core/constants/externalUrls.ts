@@ -109,3 +109,11 @@ export const buildSalesforceUrl = ({
 export const buildStripeCustomerUrl = (stripeCustomerId: string) => {
   return `https://dashboard.stripe.com/customers/${stripeCustomerId}`
 }
+
+export const buildStripePaymentUrl = (stripePaymentId: string) => {
+  return `https://dashboard.stripe.com/payments/${stripePaymentId}`
+}
+
+export const buildGoCardlessPaymentUrl = (goCardlessPaymentId: string) => {
+  return `https://manage.gocardless.com/payments/${goCardlessPaymentId}`
+}

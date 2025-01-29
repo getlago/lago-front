@@ -28,7 +28,10 @@ import {
   buildNetsuiteCreditNoteUrl,
   buildXeroCreditNoteUrl,
 } from '~/core/constants/externalUrls'
-import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import {
+  CustomerDetailsTabsOptions,
+  CustomerInvoiceDetailsTabsOptionsEnum,
+} from '~/core/constants/tabsOptions'
 import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
 import {
   composeChargeFilterDisplayName,
@@ -67,8 +70,6 @@ import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader, theme } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
-
-import { CustomerDetailsTabsOptions } from './CustomerDetails'
 
 gql`
   query getCreditNote($id: ID!) {

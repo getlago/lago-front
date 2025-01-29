@@ -66,6 +66,7 @@ gql`
       organizationUpdate
       organizationView
       paymentsCreate
+      paymentsView
       plansCreate
       plansDelete
       plansUpdate

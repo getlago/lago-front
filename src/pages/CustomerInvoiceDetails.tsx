@@ -31,11 +31,16 @@ import {
   FinalizeInvoiceDialog,
   FinalizeInvoiceDialogRef,
 } from '~/components/invoices/FinalizeInvoiceDialog'
+import { InvoiceCreditNoteList } from '~/components/invoices/InvoiceCreditNoteList'
+import { InvoicePaymentList } from '~/components/invoices/InvoicePaymentList'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, LagoGQLError } from '~/core/apolloClient'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
-import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import {
+  CustomerDetailsTabsOptions,
+  CustomerInvoiceDetailsTabsOptionsEnum,
+} from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE,
@@ -87,8 +92,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
-import { CustomerDetailsTabsOptions } from '~/pages/CustomerDetails'
-import InvoiceCreditNoteList from '~/pages/InvoiceCreditNoteList'
 import InvoiceOverview from '~/pages/InvoiceOverview'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader, theme } from '~/styles'
@@ -513,6 +516,22 @@ const CustomerInvoiceDetails = () => {
             loadingSyncSalesforceIntegrationInvoice={loadingSyncSalesforceIntegrationInvoice}
           />
         ),
+      },
+      {
+        title: translate('text_6672ebb8b1b50be550eccbed'),
+        link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+          customerId: customerId as string,
+          invoiceId: invoiceId as string,
+          tab: CustomerInvoiceDetailsTabsOptionsEnum.payments,
+        }),
+        match: [
+          generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+            customerId: customerId as string,
+            invoiceId: invoiceId as string,
+            tab: CustomerInvoiceDetailsTabsOptionsEnum.payments,
+          }),
+        ],
+        component: <InvoicePaymentList />,
       },
     ]
 

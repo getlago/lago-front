@@ -9,6 +9,7 @@ import {
 import { CustomerCreditNotesList } from '~/components/customers/CustomerCreditNotesList'
 import { CustomerInvoicesTab } from '~/components/customers/CustomerInvoicesTab'
 import { CustomerMainInfos } from '~/components/customers/CustomerMainInfos'
+import { CustomerPaymentsTab } from '~/components/customers/CustomerPaymentsTab'
 import { CustomerSettings } from '~/components/customers/CustomerSettings'
 import {
   DeleteCustomerDialog,
@@ -30,6 +31,7 @@ import {
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { CustomerWalletsList } from '~/components/wallets/CustomerWalletList'
+import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import {
   CREATE_INVOICE_ROUTE,
   CREATE_SUBSCRIPTION,
@@ -89,16 +91,6 @@ gql`
   ${AddCustomerDrawerFragmentDoc}
   ${CustomerMainInfosFragmentDoc}
 `
-
-export enum CustomerDetailsTabsOptions {
-  creditNotes = 'creditNotes',
-  overview = 'overview',
-  wallet = 'wallet',
-  invoices = 'invoices',
-  settings = 'settings',
-  usage = 'usage',
-  information = 'information',
-}
 
 const CustomerDetails = () => {
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
@@ -425,6 +417,14 @@ const CustomerDetails = () => {
                           isPartner={isPartner}
                         />
                       ),
+                    },
+                    {
+                      title: translate('text_6672ebb8b1b50be550eccbed'),
+                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                        customerId: customerId as string,
+                        tab: CustomerDetailsTabsOptions.payments,
+                      }),
+                      component: <CustomerPaymentsTab externalCustomerId={externalId as string} />,
                     },
                     {
                       title: translate('text_63725b30957fd5b26b308dd3'),

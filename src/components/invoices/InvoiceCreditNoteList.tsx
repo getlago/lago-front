@@ -49,7 +49,7 @@ gql`
   ${CreditNotesForTableFragmentDoc}
 `
 
-const InvoiceCreditNoteList = () => {
+export const InvoiceCreditNoteList = () => {
   const { invoiceId, customerId } = useParams()
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
@@ -148,8 +148,6 @@ const InvoiceCreditNoteList = () => {
     </div>
   )
 }
-
-export default InvoiceCreditNoteList
 
 InvoiceCreditNoteList.displayName = 'InvoiceCreditNoteList'
 

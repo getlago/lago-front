@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { CustomerInvoicesList } from '~/components/customers/CustomerInvoicesList'
 import { Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
 import { SearchInput } from '~/components/SearchInput'
+import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
 import {
   InvoiceForInvoiceListFragmentDoc,
@@ -17,8 +18,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { NAV_HEIGHT, PageHeader, theme } from '~/styles'
-
-import { CustomerDetailsTabsOptions } from './CustomerDetails'
 
 gql`
   query getCustomerDraftInvoices(
