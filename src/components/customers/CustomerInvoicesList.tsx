@@ -3,7 +3,15 @@ import { FC, useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
-import { Chip, InfiniteScroll, Status, Table, Tooltip, Typography } from '~/components/designSystem'
+import {
+  IconName,
+  InfiniteScroll,
+  Status,
+  StatusType,
+  Table,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
 import {
   UpdateInvoicePaymentStatusDialog,
   UpdateInvoicePaymentStatusDialogRef,
@@ -15,7 +23,7 @@ import {
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
+import { paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
@@ -202,29 +210,66 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
             },
           }}
           columns={[
-            {
-              key: 'status',
-              minWidth: 80,
-              title: translate('text_63ac86d797f728a87b2f9fa7'),
-              content: ({ status, errorDetails, taxProviderVoidable }) => {
-                const showWarningIcon =
-                  (!!errorDetails?.length && status !== InvoiceStatusTypeEnum.Failed) ||
-                  taxProviderVoidable
+            context === 'finalized'
+              ? {
+                  key: 'paymentStatus',
+                  minWidth: 120,
+                  title: translate('text_63b5d225b075850e0fe489f4'),
+                  content: ({
+                    status,
+                    paymentOverdue,
+                    paymentStatus,
+                    paymentDisputeLostAt,
+                    totalAmountCents,
+                    totalPaidAmountCents,
+                  }) => {
+                    if (status !== InvoiceStatusTypeEnum.Finalized) {
+                      return null
+                    }
 
-                return (
-                  <Tooltip
-                    placement="top-start"
-                    disableHoverListener={!showWarningIcon}
-                    title={translate('text_1724674592260h33v56rycaw')}
-                  >
-                    <Status
-                      {...invoiceStatusMapping({ status })}
-                      endIcon={showWarningIcon ? 'warning-unfilled' : undefined}
-                    />
-                  </Tooltip>
-                )
-              },
-            },
+                    let content: { tooltipTitle?: string; statusEndIcon?: IconName } = {
+                      tooltipTitle: undefined,
+                      statusEndIcon: undefined,
+                    }
+
+                    const isOverdue =
+                      paymentOverdue && paymentStatus === InvoicePaymentStatusTypeEnum.Pending
+                    const isPartiallyPaid =
+                      totalPaidAmountCents > 0 && totalAmountCents - totalPaidAmountCents > 0
+
+                    if (isPartiallyPaid) {
+                      content = {
+                        tooltipTitle: translate('text_1738071221799vib0l2z1bxe'),
+                        statusEndIcon: 'partially-filled',
+                      }
+                    } else if (!!paymentDisputeLostAt) {
+                      content = {
+                        tooltipTitle: translate('text_172416478461328edo4vwz05'),
+                        statusEndIcon: 'warning-unfilled',
+                      }
+                    }
+
+                    return (
+                      <Tooltip placement="top" title={content.tooltipTitle}>
+                        <Status
+                          {...(isOverdue
+                            ? {
+                                type: StatusType.danger,
+                                label: 'overdue',
+                              }
+                            : paymentStatusMapping({
+                                status,
+                                paymentStatus,
+                                totalPaidAmountCents,
+                                totalAmountCents,
+                              }))}
+                          endIcon={content.statusEndIcon}
+                        />
+                      </Tooltip>
+                    )
+                  },
+                }
+              : null,
             {
               key: 'number',
               minWidth: 160,
@@ -254,47 +299,6 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 )
               },
             },
-            context === 'finalized'
-              ? {
-                  key: 'paymentStatus',
-                  minWidth: 120,
-                  title: translate('text_63b5d225b075850e0fe489f4'),
-                  content: ({ status, paymentStatus, paymentDisputeLostAt }) => {
-                    if (status !== InvoiceStatusTypeEnum.Finalized) {
-                      return null
-                    }
-
-                    return (
-                      <Tooltip
-                        placement="top"
-                        title={
-                          !!paymentDisputeLostAt
-                            ? translate('text_172416478461328edo4vwz05')
-                            : undefined
-                        }
-                      >
-                        <Status
-                          {...paymentStatusMapping({
-                            status,
-                            paymentStatus,
-                          })}
-                          endIcon={!!paymentDisputeLostAt ? 'warning-unfilled' : undefined}
-                        />
-                      </Tooltip>
-                    )
-                  },
-                }
-              : null,
-            context === 'finalized'
-              ? {
-                  key: 'paymentOverdue',
-                  title: translate('text_666c5b12fea4aa1e1b26bf55'),
-                  content: ({ paymentOverdue }) =>
-                    paymentOverdue && (
-                      <Chip error={true} label={translate('text_666c5b12fea4aa1e1b26bf55')} />
-                    ),
-                }
-              : null,
             {
               key: 'issuingDate',
               minWidth: 104,

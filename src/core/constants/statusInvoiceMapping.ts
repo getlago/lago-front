@@ -1,4 +1,4 @@
-import { StatusProps, StatusType } from '~/components/designSystem'
+import { IconName, StatusProps, StatusType } from '~/components/designSystem'
 import {
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
@@ -29,25 +29,37 @@ export const invoiceStatusMapping = ({
 export const paymentStatusMapping = ({
   status,
   paymentStatus,
+  totalPaidAmountCents,
+  totalAmountCents,
 }: {
-  status: InvoiceStatusTypeEnum
-  paymentStatus: InvoicePaymentStatusTypeEnum
+  status?: InvoiceStatusTypeEnum
+  paymentStatus?: InvoicePaymentStatusTypeEnum
+  totalPaidAmountCents?: number
+  totalAmountCents?: number
 }): StatusProps => {
+  const isPartiallyPaid =
+    totalAmountCents &&
+    totalPaidAmountCents &&
+    totalPaidAmountCents > 0 &&
+    totalAmountCents - totalPaidAmountCents > 0
+
+  const endIcon: IconName | undefined = isPartiallyPaid ? 'partially-filled' : undefined
+
   if (status === InvoiceStatusTypeEnum.Finalized) {
     switch (paymentStatus) {
       case InvoicePaymentStatusTypeEnum.Pending:
-        return { label: 'pending', type: StatusType.default }
+        return { label: 'pending', type: StatusType.default, endIcon }
       case InvoicePaymentStatusTypeEnum.Failed:
-        return { label: 'failed', type: StatusType.warning }
+        return { label: 'failed', type: StatusType.warning, endIcon }
       case InvoicePaymentStatusTypeEnum.Succeeded:
-        return { label: 'succeeded', type: StatusType.success }
+        return { label: 'succeeded', type: StatusType.success, endIcon }
 
       default:
-        return { label: 'n/a', type: StatusType.default }
+        return { label: 'n/a', type: StatusType.default, endIcon }
     }
   }
 
-  return { label: 'n/a', type: StatusType.default }
+  return { label: 'n/a', type: StatusType.default, endIcon }
 }
 
 export const payablePaymentStatusMapping = ({

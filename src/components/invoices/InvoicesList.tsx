@@ -4,10 +4,10 @@ import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import {
-  Chip,
   IconName,
   InfiniteScroll,
   Status,
+  StatusType,
   Table,
   Tooltip,
   Typography,
@@ -415,6 +415,7 @@ const InvoicesList = ({
                   status,
                   paymentStatus,
                   paymentDisputeLostAt,
+                  paymentOverdue,
                   totalAmountCents,
                   totalPaidAmountCents,
                 }) => {
@@ -427,6 +428,8 @@ const InvoicesList = ({
                     statusEndIcon: undefined,
                   }
 
+                  const isOverdue =
+                    paymentOverdue && paymentStatus === InvoicePaymentStatusTypeEnum.Pending
                   const isPartiallyPaid =
                     totalPaidAmountCents > 0 && totalAmountCents - totalPaidAmountCents > 0
 
@@ -435,9 +438,7 @@ const InvoicesList = ({
                       tooltipTitle: translate('text_1738071221799vib0l2z1bxe'),
                       statusEndIcon: 'partially-filled',
                     }
-                  }
-
-                  if (!!paymentDisputeLostAt) {
+                  } else if (!!paymentDisputeLostAt) {
                     content = {
                       tooltipTitle: translate('text_172416478461328edo4vwz05'),
                       statusEndIcon: 'warning-unfilled',
@@ -447,23 +448,22 @@ const InvoicesList = ({
                   return (
                     <Tooltip placement="top" title={content.tooltipTitle}>
                       <Status
-                        {...paymentStatusMapping({
-                          status,
-                          paymentStatus,
-                        })}
+                        {...(isOverdue
+                          ? {
+                              type: StatusType.danger,
+                              label: 'overdue',
+                            }
+                          : paymentStatusMapping({
+                              status,
+                              paymentStatus,
+                              totalPaidAmountCents,
+                              totalAmountCents,
+                            }))}
                         endIcon={content.statusEndIcon}
                       />
                     </Tooltip>
                   )
                 },
-              },
-              {
-                key: 'paymentOverdue',
-                title: translate('text_666c5b12fea4aa1e1b26bf55'),
-                content: ({ paymentOverdue }) =>
-                  paymentOverdue && (
-                    <Chip error={true} label={translate('text_666c5b12fea4aa1e1b26bf55')} />
-                  ),
               },
               {
                 key: 'customer.name',

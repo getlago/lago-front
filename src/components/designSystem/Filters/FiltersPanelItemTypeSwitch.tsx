@@ -11,6 +11,7 @@ import { FiltersItemCurrency } from './filtersElements/FiltersItemCurrency'
 import { FiltersItemCustomer } from './filtersElements/FiltersItemCustomer'
 import { FiltersItemInvoiceType } from './filtersElements/FiltersItemInvoiceType'
 import { FiltersItemIssuingDate } from './filtersElements/FiltersItemIssuingDate'
+import { FiltersItemPartiallyPaid } from './filtersElements/FiltersItemPartiallyPaid'
 import { FiltersItemPaymentDisputeLost } from './filtersElements/FiltersItemPaymentDisputeLost'
 import { FiltersItemPaymentOverdue } from './filtersElements/FiltersItemPaymentOverdue'
 import { FiltersItemPaymentStatus } from './filtersElements/FiltersItemPaymentStatus'
@@ -46,6 +47,9 @@ export const FiltersPanelItemTypeSwitch = ({
     ),
     [AvailableFiltersEnum.issuingDate]: (
       <FiltersItemIssuingDate value={value} setFilterValue={setFilterValue} />
+    ),
+    [AvailableFiltersEnum.partiallyPaid]: (
+      <FiltersItemPartiallyPaid value={value} setFilterValue={setFilterValue} />
     ),
     [AvailableFiltersEnum.paymentDisputeLost]: (
       <FiltersItemPaymentDisputeLost value={value} setFilterValue={setFilterValue} />

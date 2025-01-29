@@ -45,8 +45,11 @@ export const parseAmountValue = (value: string) => {
   }
 }
 
-export const FILTER_VALUE_MAP: Partial<Record<AvailableFiltersEnum, Function>> = {
+export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.amount]: parseAmountValue,
+  [AvailableFiltersEnum.currency]: (value: string) => value,
+  [AvailableFiltersEnum.invoiceNumber]: (value: string) => value,
+  [AvailableFiltersEnum.customerAccountType]: (value: string) => value,
   [AvailableFiltersEnum.issuingDate]: (value: string) => {
     return {
       issuingDateFrom: (value as string).split(',')[0],
@@ -55,6 +58,7 @@ export const FILTER_VALUE_MAP: Partial<Record<AvailableFiltersEnum, Function>> =
   },
   [AvailableFiltersEnum.customerExternalId]: (value: string) =>
     (value as string).split(filterDataInlineSeparator)[0],
+  [AvailableFiltersEnum.partiallyPaid]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentDisputeLost]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentOverdue]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentStatus]: (value: string) => (value as string).split(','),

@@ -29,7 +29,7 @@ export const CustomerPaymentsTab: FC<CustomerPaymentsTabProps> = ({ externalCust
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="mt-6 flex items-center justify-between">
+      <div className="flex items-center justify-between">
         {loading ? (
           <Skeleton variant="text" className="w-56" />
         ) : (

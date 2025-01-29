@@ -7,10 +7,13 @@ import {
   Avatar,
   Button,
   Icon,
+  IconName,
   Popper,
   Skeleton,
   Status,
+  StatusType,
   Table,
+  Tooltip,
   Typography,
 } from '~/components/designSystem'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
@@ -35,6 +38,8 @@ import { formatDateToTZ, intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   CurrencyEnum,
+  InvoicePaymentStatusTypeEnum,
+  InvoiceStatusTypeEnum,
   PaymentTypeEnum,
   ProviderTypeEnum,
   useGetPaymentDetailsQuery,
@@ -54,6 +59,9 @@ gql`
     totalAmountCents
     issuingDate
     currency
+    paymentOverdue
+    totalPaidAmountCents
+    paymentDisputeLostAt
   }
 
   query GetPaymentDetails($id: ID!) {
@@ -435,9 +443,59 @@ const PaymentDetails = () => {
               {
                 key: 'paymentStatus',
                 title: translate('text_6419c64eace749372fc72b40'),
-                content: ({ paymentStatus, status }) => (
-                  <Status {...paymentStatusMapping({ status, paymentStatus })} />
-                ),
+                content: ({
+                  paymentStatus,
+                  paymentOverdue,
+                  totalAmountCents,
+                  totalPaidAmountCents,
+                  paymentDisputeLostAt,
+                  status,
+                }) => {
+                  if (status !== InvoiceStatusTypeEnum.Finalized) {
+                    return null
+                  }
+
+                  let content: { tooltipTitle?: string; statusEndIcon?: IconName } = {
+                    tooltipTitle: undefined,
+                    statusEndIcon: undefined,
+                  }
+
+                  const isOverdue =
+                    paymentOverdue && paymentStatus === InvoicePaymentStatusTypeEnum.Pending
+                  const isPartiallyPaid =
+                    totalPaidAmountCents > 0 && totalAmountCents - totalPaidAmountCents > 0
+
+                  if (isPartiallyPaid) {
+                    content = {
+                      tooltipTitle: translate('text_1738071221799vib0l2z1bxe'),
+                      statusEndIcon: 'partially-filled',
+                    }
+                  } else if (!!paymentDisputeLostAt) {
+                    content = {
+                      tooltipTitle: translate('text_172416478461328edo4vwz05'),
+                      statusEndIcon: 'warning-unfilled',
+                    }
+                  }
+
+                  return (
+                    <Tooltip placement="top" title={content.tooltipTitle}>
+                      <Status
+                        {...(isOverdue
+                          ? {
+                              type: StatusType.danger,
+                              label: 'overdue',
+                            }
+                          : paymentStatusMapping({
+                              status,
+                              paymentStatus,
+                              totalPaidAmountCents,
+                              totalAmountCents,
+                            }))}
+                        endIcon={content.statusEndIcon}
+                      />
+                    </Tooltip>
+                  )
+                },
               },
               {
                 key: 'number',

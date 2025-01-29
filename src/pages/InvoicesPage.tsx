@@ -59,6 +59,7 @@ gql`
     $issuingDateTo: ISO8601Date
     $limit: Int
     $page: Int
+    $partiallyPaid: Boolean
     $paymentDisputeLost: Boolean
     $paymentOverdue: Boolean
     $paymentStatus: [InvoicePaymentStatusTypeEnum!]
@@ -76,6 +77,7 @@ gql`
       issuingDateTo: $issuingDateTo
       limit: $limit
       page: $page
+      partiallyPaid: $partiallyPaid
       paymentDisputeLost: $paymentDisputeLost
       paymentOverdue: $paymentOverdue
       paymentStatus: $paymentStatus
