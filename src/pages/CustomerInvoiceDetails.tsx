@@ -43,6 +43,7 @@ import {
 } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
+  CREATE_INVOICE_PAYMENT_ROUTE,
   CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
   CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
@@ -76,6 +77,7 @@ import {
   LagoApiError,
   NetsuiteIntegration,
   NetsuiteIntegrationInfosForInvoiceOverviewFragmentDoc,
+  PremiumIntegrationTypeEnum,
   SalesforceIntegration,
   SalesforceIntegrationInfosForInvoiceOverviewFragmentDoc,
   useDownloadInvoiceMutation,
@@ -105,6 +107,7 @@ gql`
     status
     taxStatus
     totalAmountCents
+    totalDueAmountCents
     currency
     refundableAmountCents
     creditableAmountCents
@@ -283,6 +286,7 @@ const CustomerInvoiceDetails = () => {
   const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
   const disputeInvoiceDialogRef = useRef<DisputeInvoiceDialogRef>(null)
+
   const [refreshInvoice, { loading: loadingRefreshInvoice }] = useRefreshInvoiceMutation({
     variables: { input: { id: invoiceId || '' } },
     context: {
@@ -431,6 +435,8 @@ const CustomerInvoiceDetails = () => {
     number,
     paymentStatus,
     totalAmountCents,
+    totalPaidAmountCents,
+    totalDueAmountCents,
     currency,
     status,
     taxStatus,
@@ -441,6 +447,11 @@ const CustomerInvoiceDetails = () => {
     taxProviderVoidable,
     associatedActiveWalletPresent,
   } = (data?.invoice as AllInvoiceDetailsForCustomerInvoiceDetailsFragment) || {}
+
+  const canRecordPayment =
+    Number(totalDueAmountCents) > 0 &&
+    hasPermissions(['paymentsCreate']) &&
+    Number(totalPaidAmountCents) < Number(totalAmountCents)
 
   const hasError = (!!error || !data?.invoice) && !loading
   const hasTaxProviderError = errorDetails?.find(
@@ -531,7 +542,9 @@ const CustomerInvoiceDetails = () => {
             tab: CustomerInvoiceDetailsTabsOptionsEnum.payments,
           }),
         ],
-        component: <InvoicePaymentList />,
+        component: (
+          <InvoicePaymentList invoiceTotalDueAmount={data?.invoice?.totalDueAmountCents} />
+        ),
       },
     ]
 
@@ -723,6 +736,38 @@ const CustomerInvoiceDetails = () => {
                         )}
                     </>
                   ) : null}
+                  {canRecordPayment && (
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      endIcon={
+                        premiumIntegrations?.includes(PremiumIntegrationTypeEnum.ManualPayments)
+                          ? undefined
+                          : 'sparkles'
+                      }
+                      onClick={() => {
+                        if (
+                          premiumIntegrations?.includes(PremiumIntegrationTypeEnum.ManualPayments)
+                        ) {
+                          navigate(
+                            generatePath(CREATE_INVOICE_PAYMENT_ROUTE, {
+                              invoiceId: invoiceId as string,
+                            }),
+                          )
+                        } else {
+                          premiumWarningDialogRef.current?.openDialog({
+                            title: translate('text_1738059367337v2tfzq3mr5u'),
+                            description: translate('text_1738059367337mm2dwg2af6g'),
+                            mailtoSubject: translate('text_1738059367337hy6e2c7pa3t'),
+                            mailtoBody: translate('text_1738059367337km2lr0xueue'),
+                          })
+                        }
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_1737471851634wpeojigr27w')}
+                    </Button>
+                  )}
                   <Button
                     variant="quaternary"
                     align="left"

@@ -1,18 +1,31 @@
+import { FC } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
-import { InfiniteScroll, Status, Table } from '~/components/designSystem'
+import { ButtonLink, InfiniteScroll, Status, Table } from '~/components/designSystem'
 import { Typography } from '~/components/designSystem/Typography'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { payablePaymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { PAYMENT_DETAILS_ROUTE } from '~/core/router'
+import { CREATE_INVOICE_PAYMENT_ROUTE, PAYMENT_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
-import { CurrencyEnum, PaymentTypeEnum, useGetPaymentListQuery } from '~/generated/graphql'
+import {
+  AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
+  CurrencyEnum,
+  PaymentTypeEnum,
+  PremiumIntegrationTypeEnum,
+  useGetPaymentListQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 
-export const InvoicePaymentList = () => {
+export const InvoicePaymentList: FC<{
+  invoiceTotalDueAmount: AllInvoiceDetailsForCustomerInvoiceDetailsFragment['totalDueAmountCents']
+}> = ({ invoiceTotalDueAmount }) => {
   const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
+  const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const { invoiceId } = useParams()
 
   const { data, loading, error, fetchMore } = useGetPaymentListQuery({
@@ -22,10 +35,26 @@ export const InvoicePaymentList = () => {
 
   const payments = data?.payments.collection || []
 
+  const canRecordPayment =
+    invoiceTotalDueAmount > 0 &&
+    hasPermissions(['paymentsCreate']) &&
+    premiumIntegrations?.includes(PremiumIntegrationTypeEnum.ManualPayments)
+
   return (
     <>
       <div className="flex h-18 items-center justify-between shadow-b">
         <Typography variant="subhead">{translate('text_6672ebb8b1b50be550eccbed')}</Typography>
+        {canRecordPayment && (
+          <ButtonLink
+            type="button"
+            to={generatePath(CREATE_INVOICE_PAYMENT_ROUTE, { invoiceId: invoiceId as string })}
+            buttonProps={{
+              variant: 'quaternary',
+            }}
+          >
+            {translate('text_1737471851634wpeojigr27w')}
+          </ButtonLink>
+        )}
       </div>
       {!loading && !payments.length && (
         <Typography className="mt-6" variant="body" color="grey500">

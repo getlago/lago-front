@@ -19,6 +19,7 @@ import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/sta
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
+  CREATE_INVOICE_PAYMENT_ROUTE,
   CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
 } from '~/core/router'
@@ -35,12 +36,14 @@ import {
   InvoiceStatusTypeEnum,
   InvoiceTaxStatusTypeEnum,
   LagoApiError,
+  PremiumIntegrationTypeEnum,
   TimezoneEnum,
   useDownloadInvoiceItemMutation,
   useRetryInvoicePaymentMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
@@ -53,6 +56,8 @@ gql`
     number
     issuingDate
     totalAmountCents
+    totalDueAmountCents
+    totalPaidAmountCents
     currency
     voidable
     paymentDisputeLostAt
@@ -133,6 +138,8 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
+  const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
+
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
 
   const [retryCollect] = useRetryInvoicePaymentMutation({
@@ -313,7 +320,15 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
             },
           ]}
           actionColumn={(invoice) => {
-            const { status, paymentStatus, voidable, taxStatus } = invoice
+            const {
+              status,
+              paymentStatus,
+              voidable,
+              taxStatus,
+              totalPaidAmountCents,
+              totalDueAmountCents,
+              totalAmountCents,
+            } = invoice
 
             const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
               createCreditNoteForInvoiceButtonProps({
@@ -359,6 +374,10 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
             const canIssueCreditNote =
               ![InvoiceStatusTypeEnum.Draft, InvoiceStatusTypeEnum.Voided].includes(status) &&
               hasPermissions(['creditNotesCreate'])
+            const canRecordPayment =
+              Number(totalDueAmountCents) > 0 &&
+              hasPermissions(['paymentsCreate']) &&
+              Number(totalPaidAmountCents) < Number(totalAmountCents)
 
             return [
               canDownload
@@ -389,6 +408,33 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                   })
                 },
               },
+
+              canRecordPayment
+                ? {
+                    startIcon: 'receipt',
+                    title: translate('text_1737471851634wpeojigr27w'),
+
+                    endIcon: premiumIntegrations?.includes(
+                      PremiumIntegrationTypeEnum.ManualPayments,
+                    )
+                      ? undefined
+                      : 'sparkles',
+                    onAction: ({ id }) => {
+                      if (
+                        premiumIntegrations?.includes(PremiumIntegrationTypeEnum.ManualPayments)
+                      ) {
+                        navigate(generatePath(CREATE_INVOICE_PAYMENT_ROUTE, { invoiceId: id }))
+                      } else {
+                        premiumWarningDialogRef.current?.openDialog({
+                          title: translate('text_1738059367337v2tfzq3mr5u'),
+                          description: translate('text_1738059367337mm2dwg2af6g'),
+                          mailtoSubject: translate('text_1738059367337hy6e2c7pa3t'),
+                          mailtoBody: translate('text_1738059367337km2lr0xueue'),
+                        })
+                      }
+                    },
+                  }
+                : null,
 
               canRetryCollect
                 ? {

@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useMemo, useRef } from 'react'
-import { generatePath, useParams, useSearchParams } from 'react-router-dom'
+import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
 import { Button, NavigationTab, Typography } from '~/components/designSystem'
@@ -21,10 +21,11 @@ import {
 import InvoicesList from '~/components/invoices/InvoicesList'
 import { PaymentsList } from '~/components/invoices/PaymentsList'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { InvoiceListTabEnum } from '~/core/constants/tabsOptions'
-import { INVOICES_ROUTE, INVOICES_TAB_ROUTE } from '~/core/router'
+import { CREATE_PAYMENT_ROUTE, INVOICES_ROUTE, INVOICES_TAB_ROUTE } from '~/core/router'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CreditNoteExportTypeEnum,
@@ -35,6 +36,7 @@ import {
   InvoiceListItemFragmentDoc,
   LagoApiError,
   PaymentForPaymentsListFragmentDoc,
+  PremiumIntegrationTypeEnum,
   useCreateCreditNotesDataExportMutation,
   useCreateInvoicesDataExportMutation,
   useGetCreditNotesListLazyQuery,
@@ -205,9 +207,13 @@ const InvoicesPage = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { organization } = useOrganizationInfos()
+  const navigate = useNavigate()
+
   const amountCurrency = organization?.defaultCurrency
   const { tab = InvoiceListTabEnum.invoices } = useParams<{ tab?: InvoiceListTabEnum }>()
   const [searchParams] = useSearchParams()
+
+  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
@@ -382,10 +388,40 @@ const InvoicesPage = () => {
             </>
           )}
           {tab === InvoiceListTabEnum.payments && (
-            <SearchInput
-              onChange={paymentsDebounceSearch}
-              placeholder={translate('text_17370296250897aidak5kjcg')}
-            />
+            <>
+              <SearchInput
+                onChange={paymentsDebounceSearch}
+                placeholder={translate('text_17370296250897aidak5kjcg')}
+              />
+              <Button
+                variant="primary"
+                onClick={() => {
+                  if (
+                    organization?.premiumIntegrations.includes(
+                      PremiumIntegrationTypeEnum.ManualPayments,
+                    )
+                  ) {
+                    navigate(CREATE_PAYMENT_ROUTE)
+                  } else {
+                    premiumWarningDialogRef.current?.openDialog({
+                      title: translate('text_1738059367337v2tfzq3mr5u'),
+                      description: translate('text_1738059367337mm2dwg2af6g'),
+                      mailtoSubject: translate('text_1738059367337hy6e2c7pa3t'),
+                      mailtoBody: translate('text_1738059367337km2lr0xueue'),
+                    })
+                  }
+                }}
+                endIcon={
+                  organization?.premiumIntegrations.includes(
+                    PremiumIntegrationTypeEnum.ManualPayments,
+                  )
+                    ? undefined
+                    : 'sparkles'
+                }
+              >
+                {translate('text_1737471851634wpeojigr27w')}
+              </Button>
+            </>
           )}
           {tab === InvoiceListTabEnum.creditNotes && (
             <>
@@ -486,6 +522,7 @@ const InvoicesPage = () => {
           },
         ]}
       />
+      <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />

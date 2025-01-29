@@ -3,7 +3,15 @@ import { useEffect, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
-import { Chip, InfiniteScroll, Status, Table, Tooltip, Typography } from '~/components/designSystem'
+import {
+  Chip,
+  IconName,
+  InfiniteScroll,
+  Status,
+  Table,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
 import {
   AvailableFiltersEnum,
   AvailableQuickFilters,
@@ -30,6 +38,7 @@ import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/sta
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
+  CREATE_INVOICE_PAYMENT_ROUTE,
   CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
   INVOICE_SETTINGS_ROUTE,
@@ -156,7 +165,14 @@ const InvoicesList = ({
             isLoading={isLoading}
             hasError={!!error}
             actionColumn={(invoice) => {
-              const { status, paymentStatus, voidable } = invoice
+              const {
+                status,
+                paymentStatus,
+                voidable,
+                totalDueAmountCents,
+                totalPaidAmountCents,
+                totalAmountCents,
+              } = invoice
 
               const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
                 createCreditNoteForInvoiceButtonProps({
@@ -200,6 +216,10 @@ const InvoicesList = ({
               const canIssueCreditNote =
                 ![InvoiceStatusTypeEnum.Draft, InvoiceStatusTypeEnum.Voided].includes(status) &&
                 hasPermissions(['creditNotesCreate'])
+              const canRecordPayment =
+                Number(totalDueAmountCents) > 0 &&
+                hasPermissions(['paymentsCreate']) &&
+                Number(totalPaidAmountCents) < Number(totalAmountCents)
 
               return [
                 canDownload
@@ -230,6 +250,33 @@ const InvoicesList = ({
                     })
                   },
                 },
+
+                canRecordPayment
+                  ? {
+                      startIcon: 'receipt',
+                      title: translate('text_1737471851634wpeojigr27w'),
+
+                      endIcon: premiumIntegrations?.includes(
+                        PremiumIntegrationTypeEnum.ManualPayments,
+                      )
+                        ? undefined
+                        : 'sparkles',
+                      onAction: ({ id }) => {
+                        if (
+                          premiumIntegrations?.includes(PremiumIntegrationTypeEnum.ManualPayments)
+                        ) {
+                          navigate(generatePath(CREATE_INVOICE_PAYMENT_ROUTE, { invoiceId: id }))
+                        } else {
+                          premiumWarningDialogRef.current?.openDialog({
+                            title: translate('text_1738059367337v2tfzq3mr5u'),
+                            description: translate('text_1738059367337mm2dwg2af6g'),
+                            mailtoSubject: translate('text_1738059367337hy6e2c7pa3t'),
+                            mailtoBody: translate('text_1738059367337km2lr0xueue'),
+                          })
+                        }
+                      },
+                    }
+                  : null,
 
                 canRetryCollect
                   ? {
@@ -364,26 +411,47 @@ const InvoicesList = ({
                 key: 'paymentStatus',
                 title: translate('text_6419c64eace749372fc72b40'),
                 minWidth: 80,
-                content: ({ status, paymentStatus, paymentDisputeLostAt }) => {
+                content: ({
+                  status,
+                  paymentStatus,
+                  paymentDisputeLostAt,
+                  totalAmountCents,
+                  totalPaidAmountCents,
+                }) => {
                   if (status !== InvoiceStatusTypeEnum.Finalized) {
                     return null
                   }
 
+                  let content: { tooltipTitle?: string; statusEndIcon?: IconName } = {
+                    tooltipTitle: undefined,
+                    statusEndIcon: undefined,
+                  }
+
+                  const isPartiallyPaid =
+                    totalPaidAmountCents > 0 && totalAmountCents - totalPaidAmountCents > 0
+
+                  if (isPartiallyPaid) {
+                    content = {
+                      tooltipTitle: translate('text_1738071221799vib0l2z1bxe'),
+                      statusEndIcon: 'partially-filled',
+                    }
+                  }
+
+                  if (!!paymentDisputeLostAt) {
+                    content = {
+                      tooltipTitle: translate('text_172416478461328edo4vwz05'),
+                      statusEndIcon: 'warning-unfilled',
+                    }
+                  }
+
                   return (
-                    <Tooltip
-                      placement="top"
-                      title={
-                        !!paymentDisputeLostAt
-                          ? translate('text_172416478461328edo4vwz05')
-                          : undefined
-                      }
-                    >
+                    <Tooltip placement="top" title={content.tooltipTitle}>
                       <Status
                         {...paymentStatusMapping({
                           status,
                           paymentStatus,
                         })}
-                        endIcon={!!paymentDisputeLostAt ? 'warning-unfilled' : undefined}
+                        endIcon={content.statusEndIcon}
                       />
                     </Tooltip>
                   )
