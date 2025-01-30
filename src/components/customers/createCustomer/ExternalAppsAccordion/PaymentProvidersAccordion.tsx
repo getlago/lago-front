@@ -389,6 +389,36 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
                       formikProps.setFieldValue('providerCustomer.providerPaymentMethods', newValue)
                     }}
                   />
+
+                  <Checkbox
+                    name="providerCustomer.providerPaymentMethods.boleto"
+                    value={
+                      !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
+                        ProviderPaymentMethodsEnum.Boleto,
+                      )
+                    }
+                    label={translate('text_1738234109827diqh4eswleu')}
+                    sublabel={translate('text_1738234109827hev75h17loy')}
+                    disabled={
+                      formikProps.values.providerCustomer?.providerPaymentMethods?.length === 1 &&
+                      formikProps.values.providerCustomer?.providerPaymentMethods.includes(
+                        ProviderPaymentMethodsEnum.Boleto,
+                      )
+                    }
+                    onChange={(e, checked) => {
+                      const newValue = [
+                        ...(formikProps.values.providerCustomer?.providerPaymentMethods || []),
+                      ]
+
+                      if (checked) {
+                        newValue.push(ProviderPaymentMethodsEnum.Boleto)
+                      } else {
+                        newValue.splice(newValue.indexOf(ProviderPaymentMethodsEnum.Boleto), 1)
+                      }
+
+                      formikProps.setFieldValue('providerCustomer.providerPaymentMethods', newValue)
+                    }}
+                  />
                 </div>
               </div>
 

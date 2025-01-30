@@ -4526,6 +4526,7 @@ export type ProviderCustomerInput = {
 
 export enum ProviderPaymentMethodsEnum {
   BacsDebit = 'bacs_debit',
+  Boleto = 'boleto',
   Card = 'card',
   Link = 'link',
   SepaDebit = 'sepa_debit',
