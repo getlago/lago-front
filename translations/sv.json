@@ -53,7 +53,6 @@
   "text_6419c64eace749372fc72b62": "Ladda ner PDF",
   "text_641c6acee4bc20004e62c534": "Något gick fel, länken är ogiltig eller har gått ut",
   "text_666c5b12fea4aa1e1b26bf55": "Försenad",
-  "text_6670a7222702d70114cc7953": "Uppdatera",
   "text_6670a7222702d70114cc7954": "Fakturaöversikt",
   "text_6670a7222702d70114cc7955": "{{count}} faktura med totalt {{amount}} är förfallen.|X fakturor med totalt {{amount}} är förfallna.",
   "text_6670a7222702d70114cc7956": "Betala totalbeloppet för att reglera det förfallna saldot.",
@@ -164,5 +163,7 @@
   "text_634687079be251fdb43833cb": "Kundnamn",
   "text_1729256593854oiy13slixjr": "Din förfallna saldo från {{companyName}}",
   "text_17326262367759e7w9yfbeno": "{{amount}} (exkl. moms)",
-  "text_17326286491076m81w5uy3el": "Total aktuell användning (exkl. moms)"
+  "text_17326286491076m81w5uy3el": "Total aktuell användning (exkl. moms)",
+  "text_1736972452609qdjngeuqsz0": "Nedgradering",
+  "text_1736972452609g2v8mzgvi2t": "Schemalagd"
 }

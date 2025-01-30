@@ -1,6 +1,7 @@
 import Alphabet from '~/public/icons/alphabet.svg'
 import Apps from '~/public/icons/apps.svg'
 import ArrowBottom from '~/public/icons/arrow-bottom.svg'
+import ArrowIndent from '~/public/icons/arrow-indent.svg'
 import ArrowLeftRight from '~/public/icons/arrow-left-right.svg'
 import ArrowLeft from '~/public/icons/arrow-left.svg'
 import ArrowRight from '~/public/icons/arrow-right.svg'
@@ -128,6 +129,7 @@ export const ALL_ICONS = {
   'arrow-left-right': ArrowLeftRight,
   'arrow-right': ArrowRight,
   'arrow-top': ArrowTop,
+  'arrow-indent': ArrowIndent,
   ascending: Ascending,
   'attachment-na': AttachmentNa,
   bank: Bank,

@@ -275,6 +275,7 @@ const config = {
       addVariant('not-last-child', '&>*:not(:last-child)')
       // Not last element
       addVariant('not-last', '&:not(:last-child)')
+      addVariant('first-child', '&>*:first-child')
 
       /**
        * Components

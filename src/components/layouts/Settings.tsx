@@ -16,7 +16,7 @@ export const SettingsPageHeaderContainer = ({ children }: PropsWithChildren) => 
 )
 
 export const SettingsListWrapper = ({ children }: PropsWithChildren) => (
-  <div className="flex flex-col gap-8">{children}</div>
+  <div className="flex flex-col gap-12">{children}</div>
 )
 
 export const SettingsListItem = ({
@@ -24,7 +24,7 @@ export const SettingsListItem = ({
   className,
 }: PropsWithChildren & { className?: string }) => (
   <div
-    className={tw('flex flex-col gap-4 pb-8 shadow-b last:pb-0 last:[box-shadow:none]', className)}
+    className={tw('flex flex-col gap-4 pb-12 shadow-b last:pb-0 last:[box-shadow:none]', className)}
   >
     {children}
   </div>
@@ -34,7 +34,7 @@ export const SettingsListItemLoadingSkeleton = ({ count = 1 }: { count?: number 
   Array.from({ length: count }).map((_, index) => (
     <div
       key={`settings-list-item-skeleton-${index}`}
-      className="flex w-full flex-col justify-between pb-8 shadow-b last:pb-0 last:[box-shadow:none]"
+      className="flex w-full flex-col justify-between pb-12 shadow-b last:pb-0 last:[box-shadow:none]"
     >
       <Skeleton variant="text" className="mb-6 w-40" />
       <Skeleton variant="text" className="mb-7 w-80" />

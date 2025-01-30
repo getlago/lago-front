@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import {
   AddCouponToCustomerDialog,
@@ -15,7 +14,8 @@ import {
   DeleteCustomerDialog,
   DeleteCustomerDialogRef,
 } from '~/components/customers/DeleteCustomerDialog'
-import { CustomerOverview } from '~/components/customers/overview/CustomerOverview'
+import { CustomerCoupons } from '~/components/customers/overview/CustomerCoupons'
+import { CustomerSubscriptionsList } from '~/components/customers/overview/CustomerSubscriptionsList'
 import { CustomerUsage } from '~/components/customers/usage/CustomerUsage'
 import { computeCustomerInitials } from '~/components/customers/utils'
 import {
@@ -49,7 +49,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { MenuPopper, NAV_HEIGHT, PageHeader, theme } from '~/styles'
+import { MenuPopper, PageHeader } from '~/styles'
 
 gql`
   fragment CustomerDetails on Customer {
@@ -94,6 +94,7 @@ export enum CustomerDetailsTabsOptions {
   invoices = 'invoices',
   settings = 'settings',
   usage = 'usage',
+  information = 'information',
 }
 
 const CustomerDetails = () => {
@@ -158,6 +159,7 @@ const CustomerDetails = () => {
             </Typography>
           )}
         </PageHeader.Group>
+
         <PageHeader.Group className="shrink-0">
           <Button
             className="shrink-0"
@@ -302,138 +304,123 @@ const CustomerDetails = () => {
           )}
         </PageHeader.Group>
       </PageHeader.Wrapper>
-      {(error || !data?.customer) && !loading ? (
-        <GenericPlaceholder
-          title={translate('text_6250304370f0f700a8fdc270')}
-          subtitle={translate('text_6250304370f0f700a8fdc274')}
-          buttonTitle={translate('text_6250304370f0f700a8fdc278')}
-          buttonVariant="primary"
-          buttonAction={() => location.reload()}
-          image={<ErrorImage width="136" height="104" />}
-        />
-      ) : (
-        <>
-          <Content>
-            <CustomerMainInfosContainer>
-              <CustomerMainInfos
-                loading={loading}
-                customer={data?.customer}
-                onEdit={() =>
-                  navigate(
-                    generatePath(UPDATE_CUSTOMER_ROUTE, {
-                      customerId: customerId as string,
-                    }),
-                  )
-                }
-              />
-            </CustomerMainInfosContainer>
 
-            {loading ? (
-              <MainInfos>
-                <Skeleton variant="userAvatar" size="large" />
-                <div>
-                  <Skeleton variant="text" className="mb-5 w-50" />
-                  <Skeleton variant="text" className="w-32" />
+      <div className="px-12 pb-20 pt-12">
+        {(error || !data?.customer) && !loading ? (
+          <GenericPlaceholder
+            title={translate('text_6250304370f0f700a8fdc270')}
+            subtitle={translate('text_6250304370f0f700a8fdc274')}
+            buttonTitle={translate('text_6250304370f0f700a8fdc278')}
+            buttonVariant="primary"
+            buttonAction={() => location.reload()}
+            image={<ErrorImage width="136" height="104" />}
+          />
+        ) : (
+          <>
+            <div className="flex flex-col gap-12">
+              {loading ? (
+                <div className="flex gap-4">
+                  <Skeleton variant="userAvatar" size="large" />
+                  <div className="flex flex-col gap-2">
+                    <Skeleton variant="text" className="w-50" />
+                    <Skeleton variant="text" className="w-32" />
+                  </div>
                 </div>
-              </MainInfos>
-            ) : (
-              <MainInfos>
-                <Avatar
-                  size="large"
-                  variant="user"
-                  identifier={customerName || ''}
-                  initials={customerInitials}
-                />
-                <div>
-                  <Typography className="mb-1" color="textSecondary" variant="headline" forceBreak>
-                    {customerName || translate('text_62f272a7a60b4d7fadad911a')}
-                  </Typography>
-                  <Typography>{externalId}</Typography>
+              ) : (
+                <div className="flex gap-4">
+                  <Avatar
+                    size="large"
+                    variant="user"
+                    identifier={customerName || ''}
+                    initials={customerInitials}
+                  />
+                  <div>
+                    <Typography
+                      className="mb-1"
+                      color="textSecondary"
+                      variant="headline"
+                      forceBreak
+                    >
+                      {customerName || translate('text_62f272a7a60b4d7fadad911a')}
+                    </Typography>
+                    <Typography>{externalId}</Typography>
+                  </div>
                 </div>
-              </MainInfos>
-            )}
+              )}
 
-            <StyledTabs data-test="customer-navigation-wrapper">
-              <NavigationTab
-                tabs={[
-                  {
-                    title: translate('text_628cf761cbe6820138b8f2e4'),
-                    link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                      customerId: customerId as string,
-                      tab: CustomerDetailsTabsOptions.overview,
-                    }),
-                    match: [
-                      generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+              <div data-test="customer-navigation-wrapper">
+                <NavigationTab
+                  className="mb-12"
+                  tabs={[
+                    {
+                      title: translate('text_628cf761cbe6820138b8f2e4'),
+                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                         customerId: customerId as string,
                         tab: CustomerDetailsTabsOptions.overview,
                       }),
-                      generatePath(CUSTOMER_DETAILS_ROUTE, {
+                      match: [
+                        generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                          customerId: customerId as string,
+                          tab: CustomerDetailsTabsOptions.overview,
+                        }),
+                        generatePath(CUSTOMER_DETAILS_ROUTE, {
+                          customerId: customerId as string,
+                        }),
+                      ],
+                      component: (
+                        <div className="flex flex-col gap-12">
+                          <CustomerCoupons />
+                          <CustomerSubscriptionsList customerTimezone={safeTimezone} />
+                        </div>
+                      ),
+                    },
+                    {
+                      title: translate('text_62d175066d2dbf1d50bc937c'),
+                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
                         customerId: customerId as string,
+                        tab: CustomerDetailsTabsOptions.wallet,
                       }),
-                    ],
-                    component: (
-                      <SideBlock>
-                        <CustomerOverview
-                          externalCustomerId={externalId}
-                          customerTimezone={safeTimezone}
-                          userCurrency={data?.customer?.currency || undefined}
-                          isLoading={loading}
-                        />
-                      </SideBlock>
-                    ),
-                  },
-                  {
-                    title: translate('text_62d175066d2dbf1d50bc937c'),
-                    link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                      customerId: customerId as string,
-                      tab: CustomerDetailsTabsOptions.wallet,
-                    }),
-                    component: (
-                      <SideBlock>
+                      component: (
                         <CustomerWalletsList
                           customerId={customerId as string}
                           customerTimezone={safeTimezone}
                         />
-                      </SideBlock>
-                    ),
-                  },
-                  {
-                    title: translate('text_6553885df387fd0097fd7384'),
-                    link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                      customerId: customerId as string,
-                      tab: CustomerDetailsTabsOptions.usage,
-                    }),
-                    hidden: !hasPermissions(['analyticsView']),
-                    component: (
-                      <SideBlock>
+                      ),
+                    },
+                    {
+                      title: translate('text_6553885df387fd0097fd7384'),
+                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                        customerId: customerId as string,
+                        tab: CustomerDetailsTabsOptions.usage,
+                      }),
+                      hidden: !hasPermissions(['analyticsView']),
+                      component: (
                         <CustomerUsage premiumWarningDialogRef={premiumWarningDialogRef} />
-                      </SideBlock>
-                    ),
-                  },
-                  {
-                    title: translate('text_628cf761cbe6820138b8f2e6'),
-                    link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                      customerId: customerId as string,
-                      tab: CustomerDetailsTabsOptions.invoices,
-                    }),
-                    component: (
-                      <SideBlock>
+                      ),
+                    },
+                    {
+                      title: translate('text_628cf761cbe6820138b8f2e6'),
+                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                        customerId: customerId as string,
+                        tab: CustomerDetailsTabsOptions.invoices,
+                      }),
+                      component: (
                         <CustomerInvoicesTab
+                          externalId={externalId}
+                          userCurrency={data?.customer?.currency || undefined}
                           customerId={customerId as string}
                           customerTimezone={safeTimezone}
                         />
-                      </SideBlock>
-                    ),
-                  },
-                  {
-                    title: translate('text_63725b30957fd5b26b308dd3'),
-                    link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                      customerId: customerId as string,
-                      tab: CustomerDetailsTabsOptions.creditNotes,
-                    }),
-                    hidden: !hasCreditNotes,
-                    component: (
-                      <SideBlock>
+                      ),
+                    },
+                    {
+                      title: translate('text_63725b30957fd5b26b308dd3'),
+                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                        customerId: customerId as string,
+                        tab: CustomerDetailsTabsOptions.creditNotes,
+                      }),
+                      hidden: !hasCreditNotes,
+                      component: (
                         <CustomerCreditNotesList
                           customerId={customerId as string}
                           creditNotesCreditsAvailableCount={creditNotesCreditsAvailableCount}
@@ -441,99 +428,56 @@ const CustomerDetails = () => {
                           userCurrency={data?.customer?.currency || undefined}
                           customerTimezone={safeTimezone}
                         />
-                      </SideBlock>
-                    ),
-                  },
-                  {
-                    title: translate('text_638dff9779fb99299bee9126'),
-                    link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                      customerId: customerId as string,
-                      tab: CustomerDetailsTabsOptions.settings,
-                    }),
-                    component: <CustomerSettings customerId={customerId as string} />,
-                    hidden: !hasPermissions(['customerSettingsView']),
-                  },
-                ]}
-                loading={
-                  ![CustomerDetailsTabsOptions.overview, CustomerDetailsTabsOptions.usage].includes(
-                    tab as CustomerDetailsTabsOptions,
-                  ) && loading
-                }
-              />
-            </StyledTabs>
-          </Content>
+                      ),
+                    },
+                    {
+                      title: translate('text_17376404438209bh9jk7xa2s'),
+                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                        customerId: customerId as string,
+                        tab: CustomerDetailsTabsOptions.information,
+                      }),
+                      component: (
+                        <CustomerMainInfos
+                          loading={loading}
+                          customer={data?.customer}
+                          onEdit={() =>
+                            navigate(
+                              generatePath(UPDATE_CUSTOMER_ROUTE, {
+                                customerId: customerId as string,
+                              }),
+                            )
+                          }
+                        />
+                      ),
+                    },
+                    {
+                      title: translate('text_638dff9779fb99299bee9126'),
+                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                        customerId: customerId as string,
+                        tab: CustomerDetailsTabsOptions.settings,
+                      }),
+                      component: <CustomerSettings customerId={customerId as string} />,
+                      hidden: !hasPermissions(['customerSettingsView']),
+                    },
+                  ]}
+                  loading={
+                    ![
+                      CustomerDetailsTabsOptions.overview,
+                      CustomerDetailsTabsOptions.usage,
+                    ].includes(tab as CustomerDetailsTabsOptions) && loading
+                  }
+                />
+              </div>
+            </div>
 
-          <DeleteCustomerDialog ref={deleteDialogRef} />
-          <AddCouponToCustomerDialog ref={addCouponDialogRef} customer={data?.customer} />
-        </>
-      )}
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
+            <DeleteCustomerDialog ref={deleteDialogRef} />
+            <AddCouponToCustomerDialog ref={addCouponDialogRef} customer={data?.customer} />
+          </>
+        )}
+        <PremiumWarningDialog ref={premiumWarningDialogRef} />
+      </div>
     </div>
   )
 }
-
-const Content = styled.div`
-  display: grid;
-  grid-template-areas:
-    'infos'
-    'content'
-    'details';
-  grid-auto-rows: auto;
-  grid-gap: ${theme.spacing(8)};
-  padding: ${theme.spacing(8)} ${theme.spacing(4)} ${theme.spacing(20)};
-  min-height: calc(100vh - ${NAV_HEIGHT}px);
-  grid-auto-rows: min-content;
-
-  ${theme.breakpoints.up('md')} {
-    padding: ${theme.spacing(8)} ${theme.spacing(12)} ${theme.spacing(20)};
-  }
-
-  ${theme.breakpoints.up('lg')} {
-    padding: 0 0 0 ${theme.spacing(12)};
-    grid-template-columns: minmax(420px, 1fr) minmax(300px, 368px);
-    grid-template-rows: auto 1fr;
-    grid-template-areas:
-      'infos details'
-      'content details';
-  }
-`
-
-const MainInfos = styled.div`
-  grid-area: infos;
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(4)};
-  }
-
-  ${theme.breakpoints.up('lg')} {
-    padding-top: ${theme.spacing(8)};
-  }
-`
-
-const StyledTabs = styled.div`
-  grid-area: content;
-
-  ${theme.breakpoints.up('lg')} {
-  }
-`
-
-const CustomerMainInfosContainer = styled.div`
-  grid-area: details;
-
-  ${theme.breakpoints.up('lg')} {
-    box-shadow: ${theme.shadows[8]};
-    padding: ${theme.spacing(6)};
-  }
-`
-
-const SideBlock = styled.div`
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(8)};
-  }
-
-  margin-bottom: ${theme.spacing(20)};
-`
 
 export default CustomerDetails

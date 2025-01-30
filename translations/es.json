@@ -53,7 +53,6 @@
   "text_6419c64eace749372fc72b62": "Descargar PDF",
   "text_641c6acee4bc20004e62c534": "Algo salió mal, el token no es válido o ha expirado",
   "text_666c5b12fea4aa1e1b26bf55": "Atrasado",
-  "text_6670a7222702d70114cc7953": "Actualizar",
   "text_6670a7222702d70114cc7954": "Resumen de facturación",
   "text_6670a7222702d70114cc7955": "{{count}} factura por un total de {{amount}} está vencida.|{{count}} facturas por un total de {{amount}} están vencidas.",
   "text_6670a7222702d70114cc7956": "Pague el monto total para liquidar el saldo vencido.",
@@ -164,5 +163,7 @@
   "text_634687079be251fdb43833cb": "Nombre del cliente",
   "text_1729256593854oiy13slixjr": "Su saldo vencido de {{companyName}}",
   "text_17326262367759e7w9yfbeno": "{{amount}} (sin impuestos)",
-  "text_17326286491076m81w5uy3el": "Uso total actual (sin impuestos)"
+  "text_17326286491076m81w5uy3el": "Uso total actual (sin impuestos)",
+  "text_1736972452609qdjngeuqsz0": "Degradar",
+  "text_1736972452609g2v8mzgvi2t": "Programado"
 }

@@ -52,7 +52,6 @@
   "text_6419c64eace749372fc72b62": "Last ned PDF",
   "text_641c6acee4bc20004e62c534": "Noe gikk galt, token er ugyldig eller utløpt.",
   "text_666c5b12fea4aa1e1b26bf55": "Forfalt",
-  "text_6670a7222702d70114cc7953": "Oppdater",
   "text_6670a7222702d70114cc7954": "Fakturaoversikt",
   "text_6670a7222702d70114cc7955": "{{count}} faktura med totalt {{amount}} er forfalt.|X fakturaer med totalt {{amount}} er forfalt.",
   "text_6670a7222702d70114cc7956": "Betal totalbeløpet for å gjøre opp det forfalte beløpet.",
@@ -163,5 +162,7 @@
   "text_634687079be251fdb43833cb": "Kundenavn",
   "text_1729256593854oiy13slixjr": "Din forfalte saldo fra {{companyName}}",
   "text_17326262367759e7w9yfbeno": "{{amount}} (eks. mva)",
-  "text_17326286491076m81w5uy3el": "Total nåværende bruk (eks. mva)"
+  "text_17326286491076m81w5uy3el": "Total nåværende bruk (eks. mva)",
+  "text_1736972452609qdjngeuqsz0": "Nedgradering",
+  "text_1736972452609g2v8mzgvi2t": "Planlagt"
 }

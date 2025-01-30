@@ -3,7 +3,12 @@ import { useEffect } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { CUSTOMER_DETAILS_ROUTE, CUSTOMERS_LIST_ROUTE, ERROR_404_ROUTE } from '~/core/router'
+import {
+  CUSTOMER_DETAILS_ROUTE,
+  CUSTOMER_DETAILS_TAB_ROUTE,
+  CUSTOMERS_LIST_ROUTE,
+  ERROR_404_ROUTE,
+} from '~/core/router'
 import {
   AddCustomerDrawerFragment,
   CreateCustomerInput,
@@ -18,6 +23,7 @@ import {
   useUpdateCustomerMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { CustomerDetailsTabsOptions } from '~/pages/CustomerDetails'
 
 gql`
   fragment CustomerForExternalAppsAccordion on Customer {
@@ -177,6 +183,14 @@ export const useCreateEditCustomer: UseCreateEditCustomer = () => {
     skip: !customerId,
   })
 
+  const goToCustomerInformationPage = (_customerId: string) =>
+    navigate(
+      generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+        customerId: _customerId,
+        tab: CustomerDetailsTabsOptions.information,
+      }),
+    )
+
   const [create] = useCreateCustomerMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted({ createCustomer }) {
@@ -185,7 +199,11 @@ export const useCreateEditCustomer: UseCreateEditCustomer = () => {
           message: translate('text_6250304370f0f700a8fdc295'),
           severity: 'success',
         })
-        navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: createCustomer.id }))
+        navigate(
+          generatePath(CUSTOMER_DETAILS_ROUTE, {
+            customerId: createCustomer.id,
+          }),
+        )
       }
     },
   })
@@ -198,7 +216,7 @@ export const useCreateEditCustomer: UseCreateEditCustomer = () => {
           message: translate('text_626162c62f790600f850b7da'),
           severity: 'success',
         })
-        navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: updateCustomer.id }))
+        goToCustomerInformationPage(updateCustomer.id)
       }
     },
   })
@@ -248,9 +266,7 @@ export const useCreateEditCustomer: UseCreateEditCustomer = () => {
     isEdition: !!customerId,
     customer: customer || undefined,
     onClose: () =>
-      customerId
-        ? navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId }))
-        : navigate(CUSTOMERS_LIST_ROUTE),
+      customerId ? goToCustomerInformationPage(customerId) : navigate(CUSTOMERS_LIST_ROUTE),
     onSave,
   }
 }

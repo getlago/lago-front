@@ -4,6 +4,7 @@ import { generatePath, useNavigate } from 'react-router-dom'
 
 import { Button, InfiniteScroll, Popper, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { PageSectionTitle } from '~/components/layouts/Section'
 import { CREATE_WALLET_ROUTE, EDIT_WALLET_ROUTE } from '~/core/router'
 import {
   TimezoneEnum,
@@ -18,8 +19,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper } from '~/styles'
-import { SectionHeader } from '~/styles/customer'
-import { tw } from '~/styles/utils'
 
 import {
   TerminateCustomerWalletDialog,
@@ -99,105 +98,103 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerW
   return (
     <>
       <div>
-        <SectionHeader
-          className={tw({
-            'mb-6': !!hasNoWallet,
-          })}
-          variant="subhead"
-          hideBottomShadow={!!loading || !hasNoWallet}
-        >
-          {translate('text_62d175066d2dbf1d50bc9384')}
-
-          {hasAnyPermissionsToShowActions && (
+        <PageSectionTitle
+          title={translate('text_62d175066d2dbf1d50bc9384')}
+          subtitle={translate('text_1737647019083bbxjrexen5s')}
+          customAction={
             <>
-              {!activeWallet && hasPermissions(['walletsCreate']) ? (
-                <Button
-                  variant="quaternary"
-                  onClick={() =>
-                    navigate(
-                      generatePath(CREATE_WALLET_ROUTE, {
-                        customerId: customerId as string,
-                      }),
-                    )
-                  }
-                >
-                  {translate('text_62d175066d2dbf1d50bc9382')}
-                </Button>
-              ) : (
-                <Popper
-                  PopperProps={{ placement: 'bottom-end' }}
-                  opener={
-                    <Button variant="quaternary" endIcon="chevron-down">
-                      {translate('text_62e161ceb87c201025388aa2')}
+              {hasAnyPermissionsToShowActions && (
+                <>
+                  {!activeWallet && hasPermissions(['walletsCreate']) ? (
+                    <Button
+                      variant="quaternary"
+                      onClick={() =>
+                        navigate(
+                          generatePath(CREATE_WALLET_ROUTE, {
+                            customerId: customerId as string,
+                          }),
+                        )
+                      }
+                    >
+                      {translate('text_62d175066d2dbf1d50bc9382')}
                     </Button>
-                  }
-                >
-                  {({ closePopper }) => (
-                    <MenuPopper>
-                      {hasPermissions(['walletsTopUp']) && (
-                        <Button
-                          variant="quaternary"
-                          align="left"
-                          onClick={() => {
-                            topupWalletDialogRef?.current?.openDialog()
-                            closePopper()
-                          }}
-                        >
-                          {translate('text_62e161ceb87c201025388ada')}
-                        </Button>
-                      )}
-
-                      {hasPermissions(['walletsUpdate']) && (
-                        <Button
-                          variant="quaternary"
-                          align="left"
-                          onClick={() => {
-                            navigate(
-                              generatePath(EDIT_WALLET_ROUTE, {
-                                customerId: customerId as string,
-                                walletId: activeWallet?.id as string,
-                              }),
-                            )
-                            closePopper()
-                          }}
-                        >
+                  ) : (
+                    <Popper
+                      PopperProps={{ placement: 'bottom-end' }}
+                      opener={
+                        <Button variant="quaternary" endIcon="chevron-down">
                           {translate('text_62e161ceb87c201025388aa2')}
                         </Button>
-                      )}
+                      }
+                    >
+                      {({ closePopper }) => (
+                        <MenuPopper>
+                          {hasPermissions(['walletsTopUp']) && (
+                            <Button
+                              variant="quaternary"
+                              align="left"
+                              onClick={() => {
+                                topupWalletDialogRef?.current?.openDialog()
+                                closePopper()
+                              }}
+                            >
+                              {translate('text_62e161ceb87c201025388ada')}
+                            </Button>
+                          )}
 
-                      {hasPermissions(['walletsTerminate']) && (
-                        <>
-                          <Button
-                            variant="quaternary"
-                            align="left"
-                            disabled={(activeWallet?.creditsBalance || 0) <= 0}
-                            onClick={() => {
-                              voidWalletDialogRef.current?.openDialog()
-                              closePopper()
-                            }}
-                          >
-                            {translate('text_63720bd734e1344aea75b7e9')}
-                          </Button>
+                          {hasPermissions(['walletsUpdate']) && (
+                            <Button
+                              variant="quaternary"
+                              align="left"
+                              onClick={() => {
+                                navigate(
+                                  generatePath(EDIT_WALLET_ROUTE, {
+                                    customerId: customerId as string,
+                                    walletId: activeWallet?.id as string,
+                                  }),
+                                )
+                                closePopper()
+                              }}
+                            >
+                              {translate('text_62e161ceb87c201025388aa2')}
+                            </Button>
+                          )}
 
-                          <Button
-                            variant="quaternary"
-                            align="left"
-                            onClick={() => {
-                              terminateCustomerWalletDialogRef?.current?.openDialog()
-                              closePopper()
-                            }}
-                          >
-                            {translate('text_62e161ceb87c201025388ade')}
-                          </Button>
-                        </>
+                          {hasPermissions(['walletsTerminate']) && (
+                            <>
+                              <Button
+                                variant="quaternary"
+                                align="left"
+                                disabled={(activeWallet?.creditsBalance || 0) <= 0}
+                                onClick={() => {
+                                  voidWalletDialogRef.current?.openDialog()
+                                  closePopper()
+                                }}
+                              >
+                                {translate('text_63720bd734e1344aea75b7e9')}
+                              </Button>
+
+                              <Button
+                                variant="quaternary"
+                                align="left"
+                                onClick={() => {
+                                  terminateCustomerWalletDialogRef?.current?.openDialog()
+                                  closePopper()
+                                }}
+                              >
+                                {translate('text_62e161ceb87c201025388ade')}
+                              </Button>
+                            </>
+                          )}
+                        </MenuPopper>
                       )}
-                    </MenuPopper>
+                    </Popper>
                   )}
-                </Popper>
+                </>
               )}
             </>
-          )}
-        </SectionHeader>
+          }
+        />
 
         {!!loading ? (
           <div className="flex flex-col gap-4">
@@ -206,7 +203,9 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerW
             ))}
           </div>
         ) : !loading && !!hasNoWallet ? (
-          <Typography>{translate('text_62d175066d2dbf1d50bc9386')}</Typography>
+          <Typography className="text-grey-500">
+            {translate('text_62d175066d2dbf1d50bc9386')}
+          </Typography>
         ) : (
           <InfiniteScroll
             onBottom={() => {

@@ -4,9 +4,8 @@ import { DateTime } from 'luxon'
 import { FC, useEffect, useMemo } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import { CustomerCoupons } from '~/components/customers/overview/CustomerCoupons'
-import { CustomerSubscriptionsList } from '~/components/customers/overview/CustomerSubscriptionsList'
-import { Alert, Button, Typography } from '~/components/designSystem'
+import { Alert, Typography } from '~/components/designSystem'
+import { PageSectionTitle } from '~/components/layouts/Section'
 import { OverviewCard } from '~/components/OverviewCard'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE } from '~/core/router'
@@ -15,14 +14,12 @@ import { isSameDay } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
 import {
   CurrencyEnum,
-  TimezoneEnum,
   useGetCustomerGrossRevenuesLazyQuery,
   useGetCustomerOverdueBalancesLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-import { SectionHeader } from '~/styles/customer'
 
 gql`
   query getCustomerOverdueBalances(
@@ -71,16 +68,12 @@ gql`
 
 interface CustomerOverviewProps {
   externalCustomerId?: string
-  customerTimezone?: TimezoneEnum
   userCurrency?: CurrencyEnum
-  isLoading?: boolean
 }
 
 export const CustomerOverview: FC<CustomerOverviewProps> = ({
   externalCustomerId,
-  customerTimezone,
   userCurrency,
-  isLoading,
 }) => {
   const { translate } = useInternationalization()
   const { organization, formatTimeOrgaTZ } = useOrganizationInfos()
@@ -108,6 +101,15 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
       currency,
     },
   })
+
+  const refreshOverdueBalances = () =>
+    getCustomerOverdueBalances({
+      variables: {
+        expireCache: true,
+        externalCustomerId: externalCustomerId || '',
+        currency,
+      },
+    })
 
   useEffect(() => {
     if (!externalCustomerId) return
@@ -158,28 +160,14 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
   const hasMadePaymentRequestToday = isSameDay(lastPaymentRequestDate, today)
 
   return (
-    <>
+    <div className="flex flex-col gap-12">
       {(!overdueBalancesError || !grossRevenuesError) && (
         <section>
-          <SectionHeader variant="subhead" hideBottomShadow>
-            {translate('text_6670a7222702d70114cc7954')}
+          <PageSectionTitle
+            title={translate('text_6670a7222702d70114cc7954')}
+            subtitle={translate('text_1737649151689ldyvwtq9ov1')}
+          />
 
-            <Button
-              data-test="refresh-overview"
-              variant="quaternary"
-              onClick={() => {
-                getCustomerOverdueBalances({
-                  variables: {
-                    expireCache: true,
-                    externalCustomerId: externalCustomerId || '',
-                    currency,
-                  },
-                })
-              }}
-            >
-              {translate('text_6670a7222702d70114cc7953')}
-            </Button>
-          </SectionHeader>
           <Stack gap={4}>
             {hasOverdueInvoices && !overdueBalancesError && (
               <Alert
@@ -267,14 +255,13 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
                     overdueFormattedData.invoiceCount,
                   )}
                   isAccentContent={hasOverdueInvoices}
+                  refresh={refreshOverdueBalances}
                 />
               )}
             </Stack>
           </Stack>
         </section>
       )}
-      {!isLoading && <CustomerCoupons />}
-      <CustomerSubscriptionsList customerTimezone={customerTimezone} />
-    </>
+    </div>
   )
 }
