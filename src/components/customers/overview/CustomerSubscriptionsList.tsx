@@ -1,7 +1,11 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
+import { RefObject, useRef } from 'react'
 import { generatePath, NavigateFunction, useNavigate, useParams } from 'react-router-dom'
 
+import {
+  TerminateCustomerSubscriptionDialog,
+  TerminateCustomerSubscriptionDialogRef,
+} from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
 import {
   ActionItem,
   Icon,
@@ -33,11 +37,6 @@ import {
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import { tw } from '~/styles/utils'
-
-import {
-  TerminateCustomerSubscriptionDialog,
-  TerminateCustomerSubscriptionDialogRef,
-} from '../subscriptions/TerminateCustomerSubscriptionDialog'
 
 gql`
   query getCustomerSubscriptionForList($id: ID!) {
@@ -174,7 +173,7 @@ const generateActionColumn = ({
   subscription: AnnotatedSubscription
   hasSubscriptionsUpdatePermission: boolean
   customerId?: string
-  terminateSubscriptionDialogRef: React.RefObject<TerminateCustomerSubscriptionDialogRef>
+  terminateSubscriptionDialogRef: RefObject<TerminateCustomerSubscriptionDialogRef>
   translate: TranslateFunc
   navigate: NavigateFunction
 }) => {

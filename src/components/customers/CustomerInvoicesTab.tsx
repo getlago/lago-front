@@ -4,6 +4,7 @@ import { generatePath } from 'react-router-dom'
 import { CustomerOverview } from '~/components/customers/overview/CustomerOverview'
 import { ButtonLink, Skeleton, Typography } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
+import { SearchInput } from '~/components/SearchInput'
 import { CUSTOMER_DRAFT_INVOICES_LIST_ROUTE } from '~/core/router'
 import {
   CurrencyEnum,
@@ -17,8 +18,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 
 import { CustomerInvoicesList } from './CustomerInvoicesList'
-
-import { SearchInput } from '../SearchInput'
 
 const DRAFT_INVOICES_ITEMS_COUNT = 4
 

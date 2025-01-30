@@ -10,8 +10,7 @@ import {
   PlanInterval,
   VolumeRangeInput,
 } from '~/generated/graphql'
-
-import { DEFAULT_VOLUME_CHARGES, useVolumeChargeForm } from '../useVolumeChargeForm'
+import { DEFAULT_VOLUME_CHARGES, useVolumeChargeForm } from '~/hooks/plans/useVolumeChargeForm'
 
 type PrepareType = {
   chargeIndex?: number

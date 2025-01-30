@@ -1,6 +1,5 @@
+import { getLifetimeGraphPercentages } from '~/components/subscriptions/utils'
 import { SubscriptionLifetimeUsage } from '~/generated/graphql'
-
-import { getLifetimeGraphPercentages } from '../utils'
 
 describe('subscriptions utils tests', () => {
   it('should return the appropriate calculated percentages', () => {

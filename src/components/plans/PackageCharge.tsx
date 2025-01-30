@@ -6,15 +6,13 @@ import { memo, useCallback } from 'react'
 import styled from 'styled-components'
 
 import { Alert, Typography } from '~/components/designSystem'
-import { TextInput } from '~/components/form'
+import { AmountInput, TextInput } from '~/components/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
 import { LocalChargeFilterInput, LocalPropertiesInput, PlanFormInput } from './types'
-
-import { AmountInput } from '../form/AmountInput/AmountInput'
 
 gql`
   fragment PackageCharge on Properties {

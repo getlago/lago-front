@@ -1,11 +1,10 @@
 import { Accordion, Typography } from '~/components/designSystem'
+import DetailsTableDisplay from '~/components/details/DetailsTableDisplay'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, EditPlanFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { DetailsInfoGrid } from '~/styles/detailsPage'
-
-import DetailsTableDisplay from '../../details/DetailsTableDisplay'
 
 const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment | null }) => {
   const { translate } = useInternationalization()

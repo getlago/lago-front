@@ -1,6 +1,5 @@
+import { simpleFeeSchema } from '~/formValidation/feesSchema'
 import { CurrencyEnum } from '~/generated/graphql'
-
-import { simpleFeeSchema } from '../feesSchema'
 
 describe('feesSchema', () => {
   describe('simpleFeeSchema()', () => {

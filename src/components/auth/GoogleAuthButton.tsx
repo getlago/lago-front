@@ -3,13 +3,12 @@ import { Stack } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import { Alert, Button, Typography } from '~/components/designSystem'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { DOCUMENTATION_ENV_VARS } from '~/core/constants/externalUrls'
 import { addValuesToUrlState } from '~/core/utils/urlUtils'
 import { LagoApiError, useGetGoogleAuthUrlLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { Alert, Button, Typography } from '../designSystem'
 
 export type GoogleAuthModeEnum = 'login' | 'signup' | 'invite'
 

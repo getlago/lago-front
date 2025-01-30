@@ -5,14 +5,13 @@
 import { act, cleanup, renderHook, screen } from '@testing-library/react'
 import { DateTime } from 'luxon'
 
-import { GetOrganizationInfosDocument, TimezoneEnum } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { render } from '~/test-utils'
-
 import {
   SubscriptionDatesOffsetHelperComponent,
   SubscriptionDatesOffsetHelperComponentProps,
-} from '../SubscriptionDatesOffsetHelperComponent'
+} from '~/components/customers/subscriptions/SubscriptionDatesOffsetHelperComponent'
+import { GetOrganizationInfosDocument, TimezoneEnum } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { render } from '~/test-utils'
 
 const DATA_TEST_ID = 'subscription-dates-offset-helper-component'
 // const DEFAULT_SUBSCRIPTION_AT_NOW = DateTime.now().toISO() as string

@@ -1,13 +1,12 @@
 import { transformFilterObjectToString } from '~/components/plans/utils'
 import { ALL_FILTER_VALUES } from '~/core/constants/form'
+import { serializePlanInput } from '~/core/serializers/serializePlanInput'
 import {
   AggregationTypeEnum,
   ChargeModelEnum,
   CurrencyEnum,
   PlanInterval,
 } from '~/generated/graphql'
-
-import { serializePlanInput } from '../serializePlanInput'
 
 const fullProperty = {
   amount: '1',

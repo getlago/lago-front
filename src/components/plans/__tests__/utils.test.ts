@@ -1,6 +1,5 @@
+import { transformFilterObjectToString } from '~/components/plans/utils'
 import { ALL_FILTER_VALUES } from '~/core/constants/form'
-
-import { transformFilterObjectToString } from '../utils'
 
 describe('utils', () => {
   describe('transformFilterObjectToString', () => {

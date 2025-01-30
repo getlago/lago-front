@@ -1,4 +1,12 @@
 import { ALL_FILTER_VALUES } from '~/core/constants/form'
+import {
+  composeChargeFilterDisplayName,
+  composeGroupedByDisplayName,
+  composeMultipleValuesWithSepator,
+  getSubscriptionFeeDisplayName,
+  groupAndFormatFees,
+  TExtendedRemainingFee,
+} from '~/core/formats/formatInvoiceItemsMap'
 import { InvoiceSubscription } from '~/generated/graphql'
 
 import {
@@ -20,15 +28,6 @@ import {
   twoSubscriptionsResult,
   unorderedSubscriptionWithFees,
 } from './fixture'
-
-import {
-  composeChargeFilterDisplayName,
-  composeGroupedByDisplayName,
-  composeMultipleValuesWithSepator,
-  getSubscriptionFeeDisplayName,
-  groupAndFormatFees,
-  TExtendedRemainingFee,
-} from '../formatInvoiceItemsMap'
 
 describe('formatInvoiceItemsMap', () => {
   describe('getSubscriptionFeeDisplayName', () => {

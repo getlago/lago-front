@@ -6,6 +6,8 @@ import styled from 'styled-components'
 
 import { Button, Card, Popper, Tooltip, Typography } from '~/components/designSystem'
 import { ComboBox, ComboboxItem, SwitchField } from '~/components/form'
+import { EditInvoiceDisplayNameRef } from '~/components/invoices/EditInvoiceDisplayName'
+import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   FORM_TYPE_ENUM,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
@@ -29,9 +31,6 @@ import {
   RemoveChargeWarningDialogRef,
 } from './RemoveChargeWarningDialog'
 import { LocalChargeInput, PlanFormInput } from './types'
-
-import { EditInvoiceDisplayNameRef } from '../invoices/EditInvoiceDisplayName'
-import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
 const RESULT_LIMIT = 50
 

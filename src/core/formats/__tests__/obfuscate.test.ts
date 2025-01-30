@@ -1,4 +1,4 @@
-import { obfuscateValue } from '../obfuscate'
+import { obfuscateValue } from '~/core/formats/obfuscate'
 
 describe('obfuscate', () => {
   it('should obfuscate a given string', () => {

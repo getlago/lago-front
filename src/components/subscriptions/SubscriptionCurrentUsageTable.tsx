@@ -4,6 +4,10 @@ import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
+import {
+  SubscriptionUsageDetailDrawer,
+  SubscriptionUsageDetailDrawerRef,
+} from '~/components/customers/usage/SubscriptionUsageDetailDrawer'
 import { Alert, Button, Skeleton, Table, Tooltip, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { LagoGQLError } from '~/core/apolloClient'
@@ -31,11 +35,6 @@ import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternat
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { NAV_HEIGHT, theme } from '~/styles'
-
-import {
-  SubscriptionUsageDetailDrawer,
-  SubscriptionUsageDetailDrawerRef,
-} from '../customers/usage/SubscriptionUsageDetailDrawer'
 
 gql`
   query customerForSubscriptionUsage($customerId: ID!) {

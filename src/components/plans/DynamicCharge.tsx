@@ -2,12 +2,14 @@ import { gql } from '@apollo/client'
 import { FormikProps } from 'formik'
 import { memo, useCallback, useEffect, useState } from 'react'
 
+import { Alert, Button, Tooltip, Typography } from '~/components/designSystem'
+import { TextInput } from '~/components/form'
+import {
+  LocalChargeFilterInput,
+  LocalPropertiesInput,
+  PlanFormInput,
+} from '~/components/plans/types'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { LocalChargeFilterInput, LocalPropertiesInput, PlanFormInput } from './types'
-
-import { Alert, Button, Tooltip, Typography } from '../designSystem'
-import { TextInput } from '../form'
 
 gql`
   fragment DynamicCharge on Properties {

@@ -10,11 +10,10 @@ import {
   GraduatedRangeInput,
   PlanInterval,
 } from '~/generated/graphql'
-
 import {
   DEFAULT_GRADUATED_PERCENTAGE_CHARGES,
   useGraduatedPercentageChargeForm,
-} from '../useGraduatedPercentageChargeForm'
+} from '~/hooks/plans/useGraduatedPercentageChargeForm'
 
 type PrepareType = {
   chargeIndex?: number

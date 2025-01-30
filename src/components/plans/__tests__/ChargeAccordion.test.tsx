@@ -4,15 +4,14 @@ import { FormikProps, useFormik } from 'formik'
 import { object } from 'yup'
 
 import { EditInvoiceDisplayNameRef } from '~/components/invoices/EditInvoiceDisplayName'
+import { ChargeAccordion } from '~/components/plans/ChargeAccordion'
+import { LocalChargeInput, PlanFormInput } from '~/components/plans/types'
+import { transformFilterObjectToString } from '~/components/plans/utils'
 import { MUI_BUTTON_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { chargeSchema } from '~/formValidation/chargeSchema'
 import { AggregationTypeEnum, ChargeModelEnum, CurrencyEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
-
-import { ChargeAccordion } from '../ChargeAccordion'
-import { LocalChargeInput, PlanFormInput } from '../types'
-import { transformFilterObjectToString } from '../utils'
 
 type PrepareProps = {
   properties?: LocalChargeInput['properties']

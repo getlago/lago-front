@@ -4,13 +4,12 @@ import {
   ComboboxTestMatrice,
   PayinAdvanceOptionDisabledTestMatrice,
   ProratedOptionDisabledTestMatrice,
-} from './fixture'
-
+} from '~/hooks/plans/__tests__/fixture'
 import {
   TGetChargeModelComboboxDataProps,
   TGetIsPayInAdvanceOptionDisabledProps,
   useChargeForm,
-} from '../useChargeForm'
+} from '~/hooks/plans/useChargeForm'
 
 const prepareComboboxTest = async ({
   aggregationType,

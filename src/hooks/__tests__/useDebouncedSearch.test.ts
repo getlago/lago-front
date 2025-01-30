@@ -1,8 +1,7 @@
 import { act, renderHook } from '@testing-library/react'
 
+import { DEBOUNCE_SEARCH_MS, useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { AllTheProviders } from '~/test-utils'
-
-import { DEBOUNCE_SEARCH_MS, useDebouncedSearch } from '../useDebouncedSearch'
 
 beforeEach(() => {
   jest.useFakeTimers()

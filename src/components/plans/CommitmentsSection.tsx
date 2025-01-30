@@ -5,6 +5,9 @@ import { RefObject, useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
 import { Accordion, Button, Chip, Icon, Tooltip, Typography } from '~/components/designSystem'
+import { AmountInputField, ComboBox, ComboboxItem } from '~/components/form'
+import { EditInvoiceDisplayNameRef } from '~/components/invoices/EditInvoiceDisplayName'
+import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME,
@@ -21,10 +24,6 @@ import { NAV_HEIGHT, theme } from '~/styles'
 
 import { mapChargeIntervalCopy } from './ChargeAccordion'
 import { PlanFormInput } from './types'
-
-import { AmountInputField, ComboBox, ComboboxItem } from '../form'
-import { EditInvoiceDisplayNameRef } from '../invoices/EditInvoiceDisplayName'
-import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
 gql`
   query getTaxesForCommitments($limit: Int, $page: Int) {

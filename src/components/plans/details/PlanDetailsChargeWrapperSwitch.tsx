@@ -2,14 +2,13 @@ import { useId } from 'react'
 import styled from 'styled-components'
 
 import { Alert, Chip } from '~/components/designSystem'
+import DetailsJSONDisplay from '~/components/details/DetailsJSONDisplay'
+import DetailsTableDisplay from '~/components/details/DetailsTableDisplay'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { ChargeModelEnum, CurrencyEnum, Maybe, Properties } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { DetailsInfoGrid, DetailsInfoItem } from '~/styles/detailsPage'
-
-import DetailsJSONDisplay from '../../details/DetailsJSONDisplay'
-import DetailsTableDisplay from '../../details/DetailsTableDisplay'
 
 const PlanDetailsChargeWrapperSwitch = ({
   currency,

@@ -1,11 +1,10 @@
 import { DateTime } from 'luxon'
 
 import { AreaGrossRevenuesChartFakeData } from '~/components/designSystem/graphs/fixtures'
+import { getAllDataForGrossDisplay } from '~/components/graphs/Gross'
+import { AnalyticsPeriodScopeEnum } from '~/components/graphs/MonthSelectorDropdown'
+import { GRAPH_YEAR_MONTH_DATE_FORMAT } from '~/components/graphs/utils'
 import { CurrencyEnum } from '~/generated/graphql'
-
-import { getAllDataForGrossDisplay } from '../Gross'
-import { AnalyticsPeriodScopeEnum } from '../MonthSelectorDropdown'
-import { GRAPH_YEAR_MONTH_DATE_FORMAT } from '../utils'
 
 describe('components/graphs/Gross', () => {
   describe('getAllDataForGrossDisplay', () => {

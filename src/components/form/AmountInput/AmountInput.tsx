@@ -1,10 +1,14 @@
 import { forwardRef } from 'react'
 
+import {
+  TextInput,
+  TextInputProps,
+  ValueFormatter,
+  ValueFormatterType,
+} from '~/components/form/TextInput'
 import { getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { TextInput, TextInputProps, ValueFormatter, ValueFormatterType } from '../TextInput'
 
 type AmountValueFormatter = Exclude<
   keyof typeof ValueFormatter,

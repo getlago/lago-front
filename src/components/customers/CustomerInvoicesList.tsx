@@ -2,7 +2,18 @@ import { FetchMoreQueryOptions, gql } from '@apollo/client'
 import { FC, useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
+import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import { Chip, InfiniteScroll, Status, Table, Tooltip, Typography } from '~/components/designSystem'
+import {
+  UpdateInvoicePaymentStatusDialog,
+  UpdateInvoicePaymentStatusDialogRef,
+} from '~/components/invoices/EditInvoicePaymentStatusDialog'
+import {
+  FinalizeInvoiceDialog,
+  FinalizeInvoiceDialogRef,
+} from '~/components/invoices/FinalizeInvoiceDialog'
+import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/NavigationEnum'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
@@ -31,15 +42,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
-
-import { createCreditNoteForInvoiceButtonProps } from '../creditNote/utils'
-import {
-  UpdateInvoicePaymentStatusDialog,
-  UpdateInvoicePaymentStatusDialogRef,
-} from '../invoices/EditInvoicePaymentStatusDialog'
-import { FinalizeInvoiceDialog, FinalizeInvoiceDialogRef } from '../invoices/FinalizeInvoiceDialog'
-import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '../invoices/VoidInvoiceDialog'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
 gql`
   fragment InvoiceListItem on Invoice {

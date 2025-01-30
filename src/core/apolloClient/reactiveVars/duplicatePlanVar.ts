@@ -1,9 +1,8 @@
 import { makeVar, useReactiveVar } from '@apollo/client'
 
+import { getItemFromLS, setItemFromLS } from '~/core/apolloClient/cacheUtils'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { StatusTypeEnum } from '~/generated/graphql'
-
-import { getItemFromLS, setItemFromLS } from '../cacheUtils'
 
 export type PLAN_FORM_TYPE = keyof typeof FORM_TYPE_ENUM
 

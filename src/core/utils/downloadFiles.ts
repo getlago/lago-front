@@ -1,4 +1,4 @@
-import { addToast } from '../apolloClient'
+import { addToast } from '~/core/apolloClient'
 
 export const handleDownloadFile = (fileUrl?: string | null) => {
   const showError = () => {

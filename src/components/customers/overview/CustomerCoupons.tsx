@@ -3,6 +3,10 @@ import { memo, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { CouponCaption, CouponMixedType } from '~/components/coupons/CouponCaption'
+import {
+  AddCouponToCustomerDialog,
+  AddCouponToCustomerDialogRef,
+} from '~/components/customers/AddCouponToCustomerDialog'
 import { Button, Icon, Table, Tooltip, Typography } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
@@ -14,11 +18,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
-
-import {
-  AddCouponToCustomerDialog,
-  AddCouponToCustomerDialogRef,
-} from '../AddCouponToCustomerDialog'
 
 gql`
   fragment CustomerCoupon on AppliedCoupon {

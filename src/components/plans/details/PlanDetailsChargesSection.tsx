@@ -2,6 +2,8 @@ import { Stack } from '@mui/material'
 import styled from 'styled-components'
 
 import { Accordion, Typography } from '~/components/designSystem'
+import { mapChargeIntervalCopy } from '~/components/plans/ChargeAccordion'
+import PlanDetailsChargesSectionAccordion from '~/components/plans/details/PlanDetailsChargesSectionAccordion'
 import { chargeModelLookupTranslation } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -15,10 +17,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { DetailsInfoGrid } from '~/styles/detailsPage'
-
-import PlanDetailsChargesSectionAccordion from './PlanDetailsChargesSectionAccordion'
-
-import { mapChargeIntervalCopy } from '../ChargeAccordion'
 
 const PlanDetailsChargesSection = ({
   currency,

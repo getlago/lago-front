@@ -1,9 +1,8 @@
 import { act, cleanup, screen } from '@testing-library/react'
 
+import { CouponCaption, CouponMixedType } from '~/components/coupons/CouponCaption'
 import { CouponFrequency, CurrencyEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
-
-import { CouponCaption, CouponMixedType } from '../CouponCaption'
 
 const amountCurrency = CurrencyEnum.Usd
 

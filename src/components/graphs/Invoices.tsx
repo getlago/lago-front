@@ -3,6 +3,12 @@ import { DateTime } from 'luxon'
 import { useMemo, useState } from 'react'
 import styled, { css } from 'styled-components'
 
+import { Skeleton, Typography } from '~/components/designSystem'
+import ChartHeader from '~/components/designSystem/graphs/ChartHeader'
+import { InvoiceCollectionsFakeData } from '~/components/designSystem/graphs/fixtures'
+import InlineBarsChart from '~/components/designSystem/graphs/InlineBarsChart'
+import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { ChartWrapper } from '~/components/layouts/Charts'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
@@ -21,13 +27,6 @@ import {
 } from './MonthSelectorDropdown'
 import { TGraphProps } from './types'
 import { getLastTwelveMonthsNumbersUntilNow, GRAPH_YEAR_MONTH_DATE_FORMAT } from './utils'
-
-import { Skeleton, Typography } from '../designSystem'
-import ChartHeader from '../designSystem/graphs/ChartHeader'
-import { InvoiceCollectionsFakeData } from '../designSystem/graphs/fixtures'
-import InlineBarsChart from '../designSystem/graphs/InlineBarsChart'
-import { GenericPlaceholder } from '../GenericPlaceholder'
-import { ChartWrapper } from '../layouts/Charts'
 
 const DOT_SIZE = 8
 

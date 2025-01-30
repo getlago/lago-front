@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Dialog, Typography } from '~/components/designSystem'
+import { RadioGroupField } from '~/components/form'
 import {
   CreditNoteExportTypeEnum,
   DataExportFormatTypeEnum,
@@ -12,8 +13,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { theme } from '~/styles'
-
-import { RadioGroupField } from '../form'
 
 type ExportTypeEnum = CreditNoteExportTypeEnum | InvoiceExportTypeEnum
 

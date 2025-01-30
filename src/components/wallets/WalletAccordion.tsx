@@ -16,7 +16,11 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
+import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { TimezoneDate } from '~/components/TimezoneDate'
+import { TopupWalletDialogRef } from '~/components/wallets/TopupWalletDialog'
+import { WalletTransactionList } from '~/components/wallets/WalletTransactionList'
+import { WalletTransactionListItem } from '~/components/wallets/WalletTransactionListItem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
@@ -31,12 +35,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { theme } from '~/styles'
-
-import { TopupWalletDialogRef } from './TopupWalletDialog'
-import { WalletTransactionList } from './WalletTransactionList'
-import { WalletTransactionListItem } from './WalletTransactionListItem'
-
-import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
 gql`
   fragment WalletAccordion on Wallet {

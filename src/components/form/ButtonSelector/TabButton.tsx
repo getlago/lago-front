@@ -2,10 +2,8 @@
 import { forwardRef, MouseEvent, ReactNode, useEffect, useRef, useState } from 'react'
 import styled, { css } from 'styled-components'
 
+import { Icon, IconName, Typography } from '~/components/designSystem'
 import { theme } from '~/styles'
-
-import { Icon, IconName } from '../../designSystem/Icon'
-import { Typography } from '../../designSystem/Typography'
 
 export interface TabButtonProps {
   active?: boolean

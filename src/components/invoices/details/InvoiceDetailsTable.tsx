@@ -4,6 +4,14 @@ import { memo, RefObject } from 'react'
 import styled, { css } from 'styled-components'
 
 import { Button } from '~/components/designSystem'
+import { DeleteAdjustedFeeDialogRef } from '~/components/invoices/details/DeleteAdjustedFeeDialog'
+import { EditFeeDrawerRef } from '~/components/invoices/details/EditFeeDrawer'
+import { InvoiceDetailsTableBodyLine } from '~/components/invoices/details/InvoiceDetailsTableBodyLine'
+import { InvoiceDetailsTableFooter } from '~/components/invoices/details/InvoiceDetailsTableFooter'
+import { InvoiceDetailsTableHeader } from '~/components/invoices/details/InvoiceDetailsTableHeader'
+import { InvoiceDetailsTablePeriodLine } from '~/components/invoices/details/InvoiceDetailsTablePeriodLine'
+import { InvoiceFeeAdvanceDetailsTable } from '~/components/invoices/details/InvoiceFeeAdvanceDetailsTable'
+import { InvoiceFeeArrearsDetailsTable } from '~/components/invoices/details/InvoiceFeeArrearsDetailsTable'
 import { groupAndFormatFees, TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
 import { formatDateToTZ } from '~/core/timezone'
 import {
@@ -24,15 +32,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { theme } from '~/styles'
-
-import { DeleteAdjustedFeeDialogRef } from './DeleteAdjustedFeeDialog'
-import { EditFeeDrawerRef } from './EditFeeDrawer'
-import { InvoiceDetailsTableBodyLine } from './InvoiceDetailsTableBodyLine'
-import { InvoiceDetailsTableFooter } from './InvoiceDetailsTableFooter'
-import { InvoiceDetailsTableHeader } from './InvoiceDetailsTableHeader'
-import { InvoiceDetailsTablePeriodLine } from './InvoiceDetailsTablePeriodLine'
-import { InvoiceFeeAdvanceDetailsTable } from './InvoiceFeeAdvanceDetailsTable'
-import { InvoiceFeeArrearsDetailsTable } from './InvoiceFeeArrearsDetailsTable'
 
 gql`
   fragment FeeForInvoiceDetailsTable on Fee {

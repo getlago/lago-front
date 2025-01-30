@@ -3,6 +3,8 @@ import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { Button, Drawer, DrawerRef, Typography } from '~/components/designSystem'
 import { DunningEmail, DunningEmailSkeleton } from '~/components/emails/DunningEmail'
+import { LanguageSettingsButton } from '~/components/settings/LanguageSettingsButton'
+import { PreviewEmailLayout } from '~/components/settings/PreviewEmailLayout'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { LocaleEnum } from '~/core/translations'
 import {
@@ -11,9 +13,6 @@ import {
 } from '~/generated/graphql'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { LanguageSettingsButton } from '../LanguageSettingsButton'
-import { PreviewEmailLayout } from '../PreviewEmailLayout'
 
 gql`
   fragment OrganizationInfoForPreviewDunningCampaign on CurrentOrganization {

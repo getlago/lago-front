@@ -1,4 +1,4 @@
-import { setResponsiveProperty } from '../responsiveProps'
+import { setResponsiveProperty } from '~/core/utils/responsiveProps'
 
 describe('setResponsiveProperty', () => {
   it('should return a responsive style object', () => {

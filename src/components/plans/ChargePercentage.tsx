@@ -7,6 +7,7 @@ import styled from 'styled-components'
 
 import { Alert, Button, Popper, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
+import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
@@ -20,8 +21,6 @@ import {
   LocalPropertiesInput,
   PlanFormInput,
 } from './types'
-
-import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
 gql`
   fragment PercentageCharge on Properties {

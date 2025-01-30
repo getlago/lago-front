@@ -2,6 +2,8 @@ import { Stack } from '@mui/material'
 import { memo, useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
+import { Button, Chip, Tooltip, Typography } from '~/components/designSystem'
+import { BasicComboBoxData, MultipleComboBox } from '~/components/form'
 import {
   ALL_FILTER_VALUES,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
@@ -13,9 +15,6 @@ import { theme } from '~/styles'
 
 import { LocalChargeFilterInput } from './types'
 import { transformFilterObjectToString } from './utils'
-
-import { Button, Chip, Tooltip, Typography } from '../designSystem'
-import { BasicComboBoxData, MultipleComboBox } from '../form'
 
 export const buildChargeFilterAddFilterButtonId = (chargeIndex: number, filterIndex: number) =>
   `charge-${chargeIndex}-add-filter-${filterIndex}`

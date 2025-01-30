@@ -29,16 +29,14 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { CustomerDetailsTabsOptions } from '~/pages/CustomerDetails'
+import { LoadingView } from '~/pages/WalletForm/components/LoadingView'
+import { SettingsCard } from '~/pages/WalletForm/components/SettingsCard'
+import { TopUpCard } from '~/pages/WalletForm/components/TopUpCard'
+import { walletFormSchema } from '~/pages/WalletForm/form'
+import { TWalletDataForm } from '~/pages/WalletForm/types'
 import { NAV_HEIGHT, PageHeader, theme } from '~/styles'
 import { ButtonContainer, Side } from '~/styles/mainObjectsForm'
-
-import { LoadingView } from './components/LoadingView'
-import { SettingsCard } from './components/SettingsCard'
-import { TopUpCard } from './components/TopUpCard'
-import { walletFormSchema } from './form'
-import { TWalletDataForm } from './types'
-
-import { CustomerDetailsTabsOptions } from '../CustomerDetails'
 
 gql`
   fragment WalletForUpdate on Wallet {

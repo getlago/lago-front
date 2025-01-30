@@ -5,9 +5,9 @@ import { configure, render, RenderOptions } from '@testing-library/react'
 import React, { ReactElement, useEffect } from 'react'
 import Router, { BrowserRouter } from 'react-router-dom'
 
-import { initializeTranslations } from './core/apolloClient'
-import { initializeYup } from './formValidation/initializeYup'
-import { theme } from './styles'
+import { initializeTranslations } from '~/core/apolloClient'
+import { initializeYup } from '~/formValidation/initializeYup'
+import { theme } from '~/styles'
 
 configure({ testIdAttribute: 'data-test' })
 
@@ -63,5 +63,4 @@ const customRender = (
     ...options,
   })
 
-export { customRender as render }
-export { mockNavigate as testMockNavigateFn }
+export { customRender as render, mockNavigate as testMockNavigateFn }

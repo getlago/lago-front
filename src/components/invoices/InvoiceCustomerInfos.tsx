@@ -5,6 +5,7 @@ import { memo } from 'react'
 import { generatePath, Link } from 'react-router-dom'
 import styled from 'styled-components'
 
+import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Icon, Status, StatusType, Typography } from '~/components/designSystem'
 import { CountryCodes } from '~/core/constants/countryCodes'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
@@ -13,8 +14,6 @@ import { formatDateToTZ } from '~/core/timezone'
 import { InvoiceForInvoiceInfosFragment, InvoiceStatusTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
-
-import { ConditionalWrapper } from '../ConditionalWrapper'
 
 gql`
   fragment InvoiceForInvoiceInfos on Invoice {

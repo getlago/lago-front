@@ -1,7 +1,6 @@
 import { CreditTypeEnum } from '~/components/creditNote/types'
+import { serializeCreditNoteInput } from '~/core/serializers/serializeCreditNoteInput'
 import { CreditNoteReasonEnum, CurrencyEnum } from '~/generated/graphql'
-
-import { serializeCreditNoteInput } from '../serializeCreditNoteInput'
 
 describe('serializeCreditNoteInput()', () => {
   describe('a simple credit note one', () => {

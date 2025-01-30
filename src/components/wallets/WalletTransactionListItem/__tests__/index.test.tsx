@@ -1,6 +1,10 @@
 import { act, cleanup, screen } from '@testing-library/react'
 
 import {
+  WalletTransactionListItem,
+  WalletTransactionListItemProps,
+} from '~/components/wallets/WalletTransactionListItem'
+import {
   GetOrganizationInfosDocument,
   TimezoneEnum,
   WalletTransactionStatusEnum,
@@ -8,8 +12,6 @@ import {
   WalletTransactionTransactionTypeEnum,
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
-
-import { WalletTransactionListItem, WalletTransactionListItemProps } from '../index'
 
 const CREDITS = '10'
 

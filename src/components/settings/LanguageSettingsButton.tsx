@@ -1,10 +1,9 @@
 import { FC } from 'react'
 
+import { Button, Popper } from '~/components/designSystem'
 import { LocaleEnum } from '~/core/translations'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { MenuPopper } from '~/styles'
-
-import { Button, Popper } from '../designSystem'
 
 const mapLanguageKey = (language: LocaleEnum) => {
   switch (language) {

@@ -4,7 +4,21 @@ import { generatePath } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 
 import CreditNoteBadge from '~/components/creditNote/CreditNoteBadge'
+import {
+  VoidCreditNoteDialog,
+  VoidCreditNoteDialogRef,
+} from '~/components/customers/creditNotes/VoidCreditNoteDialog'
+import {
+  ActionItem,
+  InfiniteScroll,
+  Skeleton,
+  Table,
+  TableColumn,
+  TableContainerSize,
+  Typography,
+} from '~/components/designSystem'
 import { AvailableFiltersEnum, Filters } from '~/components/designSystem/Filters'
+import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE } from '~/core/router'
@@ -26,21 +40,6 @@ import { usePermissions } from '~/hooks/usePermissions'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import { BaseListItem, theme } from '~/styles'
 import { tw } from '~/styles/utils'
-
-import {
-  VoidCreditNoteDialog,
-  VoidCreditNoteDialogRef,
-} from '../customers/creditNotes/VoidCreditNoteDialog'
-import {
-  ActionItem,
-  InfiniteScroll,
-  Skeleton,
-  Table,
-  TableColumn,
-  TableContainerSize,
-  Typography,
-} from '../designSystem'
-import { GenericPlaceholder } from '../GenericPlaceholder'
 
 gql`
   fragment CreditNoteTableItem on CreditNote {

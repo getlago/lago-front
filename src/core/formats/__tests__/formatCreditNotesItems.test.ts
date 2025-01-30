@@ -1,6 +1,5 @@
+import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
 import { CurrencyEnum, FeeTypesEnum } from '~/generated/graphql'
-
-import formatCreditNotesItems from '../formatCreditNotesItems'
 
 describe('Core > format', () => {
   describe('formatCreditNotesItems()', () => {

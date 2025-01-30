@@ -1,6 +1,9 @@
+import {
+  deserializeAmount,
+  getCurrencyPrecision,
+  serializeAmount,
+} from '~/core/serializers/serializeAmount'
 import { CurrencyEnum } from '~/generated/graphql'
-
-import { deserializeAmount, getCurrencyPrecision, serializeAmount } from '../serializeAmount'
 
 describe('getCurrencyPrecision()', () => {
   describe('with currency JPY', () => {

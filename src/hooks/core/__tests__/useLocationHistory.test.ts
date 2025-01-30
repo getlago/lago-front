@@ -1,8 +1,7 @@
 import { act, renderHook } from '@testing-library/react'
 
 import { locationHistoryVar } from '~/core/apolloClient'
-
-import { useLocationHistory } from '../useLocationHistory'
+import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 
 const mockNavigate = jest.fn()
 

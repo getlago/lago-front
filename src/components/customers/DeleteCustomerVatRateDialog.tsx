@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { DialogRef } from '~/components/designSystem'
+import { WarningDialog } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import {
   CustomerAppliedTaxRatesForSettingsFragmentDoc,
@@ -10,8 +11,6 @@ import {
   useRemoveAppliedTaxRateOnCustomerMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { WarningDialog } from '../WarningDialog'
 
 gql`
   fragment CustomerForDeleteVatRateDialog on Customer {

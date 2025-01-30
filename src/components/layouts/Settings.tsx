@@ -1,8 +1,7 @@
 import { PropsWithChildren } from 'react'
 
+import { Skeleton, Typography } from '~/components/designSystem'
 import { tw } from '~/styles/utils'
-
-import { Skeleton, Typography } from '../designSystem'
 
 export const SettingsPaddedContainer = ({
   children,

@@ -2,11 +2,10 @@ import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { DialogRef, Typography } from '~/components/designSystem'
+import { WarningDialog } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { DeleteCustomSectionFragment, useDeleteCustomSectionMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { WarningDialog } from '../../WarningDialog'
 
 gql`
   fragment DeleteCustomSection on InvoiceCustomSection {

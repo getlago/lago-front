@@ -1,7 +1,6 @@
+import { calculateIfDetailsShouldBeDisplayed } from '~/components/invoices/details/InvoiceDetailsTableBodyLine'
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
 import { AdjustedFeeTypeEnum, ChargeModelEnum, FeeTypesEnum } from '~/generated/graphql'
-
-import { calculateIfDetailsShouldBeDisplayed } from '../InvoiceDetailsTableBodyLine'
 
 type TPrepare = {
   fee?: TExtendedRemainingFee

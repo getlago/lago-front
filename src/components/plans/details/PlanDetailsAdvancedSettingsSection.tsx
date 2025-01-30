@@ -3,6 +3,7 @@ import { Stack } from '@mui/material'
 import styled from 'styled-components'
 
 import { Accordion, Typography } from '~/components/designSystem'
+import DetailsTableDisplay from '~/components/details/DetailsTableDisplay'
 import { mapChargeIntervalCopy } from '~/components/plans/ChargeAccordion'
 import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'
 import { getIntervalTranslationKey } from '~/core/constants/form'
@@ -11,8 +12,6 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, EditPlanFragment, PlanInterval } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { DetailsInfoGrid, DetailsSectionTitle } from '~/styles/detailsPage'
-
-import DetailsTableDisplay from '../../details/DetailsTableDisplay'
 
 const PlanDetailsAdvancedSettingsSection = ({
   currency,

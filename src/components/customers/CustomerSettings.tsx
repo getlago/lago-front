@@ -2,9 +2,41 @@ import { gql } from '@apollo/client'
 import { useRef } from 'react'
 
 import {
+  DeleteCustomerDocumentLocaleDialog,
+  DeleteCustomerDocumentLocaleDialogRef,
+} from '~/components/customers/DeleteCustomerDocumentLocaleDialog'
+import {
   DeleteCustomerFinalizeZeroAmountInvoiceDialog,
   DeleteCustomerFinalizeZeroAmountInvoiceDialogRef,
 } from '~/components/customers/DeleteCustomerFinalizeZeroAmountInvoiceDialog'
+import {
+  DeleteCustomerGracePeriodeDialog,
+  DeleteCustomerGracePeriodeDialogRef,
+} from '~/components/customers/DeleteCustomerGracePeriodeDialog'
+import {
+  DeleteOrganizationNetPaymentTermDialog,
+  DeleteOrganizationNetPaymentTermDialogRef,
+} from '~/components/customers/DeleteCustomerNetPaymentTermDialog'
+import {
+  DeleteCustomerVatRateDialog,
+  DeleteCustomerVatRateDialogRef,
+} from '~/components/customers/DeleteCustomerVatRateDialog'
+import {
+  EditCustomerDocumentLocaleDialog,
+  EditCustomerDocumentLocaleDialogRef,
+} from '~/components/customers/EditCustomerDocumentLocaleDialog'
+import {
+  EditCustomerDunningCampaignDialog,
+  EditCustomerDunningCampaignDialogRef,
+} from '~/components/customers/EditCustomerDunningCampaignDialog'
+import {
+  EditCustomerInvoiceCustomSectionsDialog,
+  EditCustomerInvoiceCustomSectionsDialogRef,
+} from '~/components/customers/EditCustomerInvoiceCustomSectionsDialog'
+import {
+  EditCustomerInvoiceGracePeriodDialog,
+  EditCustomerInvoiceGracePeriodDialogRef,
+} from '~/components/customers/EditCustomerInvoiceGracePeriodDialog'
 import {
   EditCustomerVatRateDialog,
   EditCustomerVatRateDialogRef,
@@ -21,6 +53,13 @@ import {
   Typography,
 } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import {
+  SettingsListItem,
+  SettingsListItemHeader,
+  SettingsListItemLoadingSkeleton,
+  SettingsListWrapper,
+  SettingsPaddedContainer,
+} from '~/components/layouts/Settings'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   EditFinalizeZeroAmountInvoiceDialog,
@@ -53,47 +92,6 @@ import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper } from '~/styles'
 import { tw } from '~/styles/utils'
-
-import {
-  DeleteCustomerDocumentLocaleDialog,
-  DeleteCustomerDocumentLocaleDialogRef,
-} from './DeleteCustomerDocumentLocaleDialog'
-import {
-  DeleteCustomerGracePeriodeDialog,
-  DeleteCustomerGracePeriodeDialogRef,
-} from './DeleteCustomerGracePeriodeDialog'
-import {
-  DeleteOrganizationNetPaymentTermDialog,
-  DeleteOrganizationNetPaymentTermDialogRef,
-} from './DeleteCustomerNetPaymentTermDialog'
-import {
-  DeleteCustomerVatRateDialog,
-  DeleteCustomerVatRateDialogRef,
-} from './DeleteCustomerVatRateDialog'
-import {
-  EditCustomerDocumentLocaleDialog,
-  EditCustomerDocumentLocaleDialogRef,
-} from './EditCustomerDocumentLocaleDialog'
-import {
-  EditCustomerDunningCampaignDialog,
-  EditCustomerDunningCampaignDialogRef,
-} from './EditCustomerDunningCampaignDialog'
-import {
-  EditCustomerInvoiceCustomSectionsDialog,
-  EditCustomerInvoiceCustomSectionsDialogRef,
-} from './EditCustomerInvoiceCustomSectionsDialog'
-import {
-  EditCustomerInvoiceGracePeriodDialog,
-  EditCustomerInvoiceGracePeriodDialogRef,
-} from './EditCustomerInvoiceGracePeriodDialog'
-
-import {
-  SettingsListItem,
-  SettingsListItemHeader,
-  SettingsListItemLoadingSkeleton,
-  SettingsListWrapper,
-  SettingsPaddedContainer,
-} from '../layouts/Settings'
 
 gql`
   fragment CustomerAppliedTaxRatesForSettings on Customer {

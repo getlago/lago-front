@@ -1,4 +1,4 @@
-import { copyToClipboard } from '../copyToClipboard'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 
 Object.assign(window.navigator, {
   clipboard: {
