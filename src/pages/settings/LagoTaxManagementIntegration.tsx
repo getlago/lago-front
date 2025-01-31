@@ -14,6 +14,7 @@ import {
   Skeleton,
   Typography,
 } from '~/components/designSystem'
+import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { WarningDialog } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { CountryCodes } from '~/core/constants/countryCodes'
@@ -120,34 +121,17 @@ const LagoTaxManagementIntegration = () => {
           </Button>
         )}
       </PageHeader.Wrapper>
-      <MainInfos>
-        {loading ? (
-          <>
-            <Skeleton variant="connectorAvatar" size="large" className="mr-4" />
-            <div>
-              <Skeleton variant="text" className="mb-5 w-50" />
-              <Skeleton variant="text" className="w-32" />
-            </div>
-          </>
-        ) : (
-          <>
-            <Avatar className="mr-4" variant="connector-full" size="large">
-              <LagoTaxManagement />
-            </Avatar>
-            <Stack spacing={1}>
-              <Line>
-                <Typography variant="headline">
-                  {translate('text_657078c28394d6b1ae1b9713')}
-                </Typography>
-                {isConnectionEstablished && (
-                  <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
-                )}
-              </Line>
-              <Typography>{translate('text_657078c28394d6b1ae1b971f')}</Typography>
-            </Stack>
-          </>
-        )}
-      </MainInfos>
+
+      <IntegrationsPage.Header
+        isLoading={loading}
+        integrationLogo={<LagoTaxManagement />}
+        integrationName={translate('text_657078c28394d6b1ae1b9713')}
+        integrationChip={
+          isConnectionEstablished ? translate('text_62b1edddbf5f461ab97127ad') : undefined
+        }
+        integrationDescription={translate('text_657078c28394d6b1ae1b971f')}
+      />
+
       <ContentWrapper>
         <section>
           <Typography className="flex h-18 w-full items-center" variant="subhead">
@@ -260,16 +244,6 @@ const LagoTaxManagementIntegration = () => {
   )
 }
 
-const MainInfos = styled.div`
-  display: flex;
-  align-items: center;
-  padding: ${theme.spacing(8)} ${theme.spacing(12)};
-
-  ${theme.breakpoints.down('md')} {
-    padding: ${theme.spacing(8)} ${theme.spacing(4)};
-  }
-`
-
 const ContentWrapper = styled.div`
   max-width: ${theme.spacing(168)};
   padding: 0 ${theme.spacing(12)} ${theme.spacing(12)};
@@ -291,15 +265,6 @@ const ConnectionDetailsItem = styled.div`
 
   > *:first-child {
     margin-right: ${theme.spacing(3)};
-  }
-`
-
-const Line = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(2)};
   }
 `
 

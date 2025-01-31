@@ -8,13 +8,13 @@ import {
   Avatar,
   Button,
   ButtonLink,
-  Chip,
   Icon,
   Popper,
   Skeleton,
   Tooltip,
   Typography,
 } from '~/components/designSystem'
+import { IntegrationsPage } from '~/components/layouts/Integrations'
 import {
   AddNetsuiteDialog,
   AddNetsuiteDialogRef,
@@ -118,32 +118,15 @@ const NetsuiteIntegrations = () => {
           {translate('text_65846763e6140b469140e235')}
         </Button>
       </PageHeader.Wrapper>
-      <MainInfos>
-        {loading ? (
-          <>
-            <Skeleton variant="connectorAvatar" size="large" className="mr-4" />
-            <div>
-              <Skeleton variant="text" className="mb-5 w-50" />
-              <Skeleton variant="text" className="w-32" />
-            </div>
-          </>
-        ) : (
-          <>
-            <Avatar className="mr-4" variant="connector-full" size="large">
-              <Netsuite />
-            </Avatar>
-            <div>
-              <Line>
-                <Typography variant="headline">
-                  {translate('text_661ff6e56ef7e1b7c542b239')}
-                </Typography>
-                <Chip label={translate('text_62b1edddbf5f461ab971270d')} />
-              </Line>
-              <Typography>{translate('text_661ff6e56ef7e1b7c542b1e6')}</Typography>
-            </div>
-          </>
-        )}
-      </MainInfos>
+
+      <IntegrationsPage.Header
+        isLoading={loading}
+        integrationLogo={<Netsuite />}
+        integrationName={translate('text_661ff6e56ef7e1b7c542b239')}
+        integrationChip={translate('text_62b1edddbf5f461ab971270d')}
+        integrationDescription={translate('text_661ff6e56ef7e1b7c542b1e6')}
+      />
+
       <ListWrapper>
         <section>
           <InlineTitle>

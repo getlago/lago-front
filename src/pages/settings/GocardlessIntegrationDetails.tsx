@@ -8,13 +8,13 @@ import {
   Avatar,
   Button,
   ButtonLink,
-  Chip,
   Icon,
   Popper,
   Skeleton,
   Tooltip,
   Typography,
 } from '~/components/designSystem'
+import { IntegrationsPage } from '~/components/layouts/Integrations'
 import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
@@ -211,35 +211,17 @@ const GocardlessIntegrationDetails = () => {
           </Popper>
         )}
       </PageHeader.Wrapper>
-      <MainInfos>
-        {loading ? (
-          <>
-            <Skeleton variant="connectorAvatar" size="large" className="mr-4" />
-            <div>
-              <Skeleton variant="text" className="mb-5 w-50" />
-              <Skeleton variant="text" className="w-32" />
-            </div>
-          </>
-        ) : (
-          <>
-            <Avatar className="mr-4" variant="connector-full" size="large">
-              <GoCardless />
-            </Avatar>
-            <div>
-              <Line>
-                <Typography variant="headline">{gocardlessPaymentProvider?.name}</Typography>
-                {isConnectionEstablished && (
-                  <Chip label={translate('text_634ea0ecc6147de10ddb662d')} />
-                )}
-              </Line>
-              <Typography>
-                {translate('text_634ea0ecc6147de10ddb6648')}&nbsp;•&nbsp;
-                {translate('text_62b1edddbf5f461ab971271f')}
-              </Typography>
-            </div>
-          </>
-        )}
-      </MainInfos>
+
+      <IntegrationsPage.Header
+        isLoading={loading}
+        integrationLogo={<GoCardless />}
+        integrationName={gocardlessPaymentProvider?.name}
+        integrationChip={
+          isConnectionEstablished ? translate('text_634ea0ecc6147de10ddb662d') : undefined
+        }
+        integrationDescription={`${translate('text_634ea0ecc6147de10ddb6648')} • ${translate('text_62b1edddbf5f461ab971271f')}`}
+      />
+
       <ContentWrapper>
         <section>
           <InlineTitle>
@@ -467,16 +449,6 @@ const GocardlessIntegrationDetails = () => {
   )
 }
 
-const MainInfos = styled.div`
-  display: flex;
-  align-items: center;
-  padding: ${theme.spacing(8)} ${theme.spacing(12)};
-
-  ${theme.breakpoints.down('md')} {
-    padding: ${theme.spacing(8)} ${theme.spacing(4)};
-  }
-`
-
 const ContentWrapper = styled.div`
   max-width: ${theme.spacing(168)};
   padding: 0 ${theme.spacing(12)};
@@ -493,15 +465,6 @@ const Item = styled(Stack)`
   height: ${NAV_HEIGHT}px;
   max-width: ${theme.spacing(168)};
   box-shadow: ${theme.shadows[7]};
-`
-
-const Line = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(2)};
-  }
 `
 
 const InlineTitle = styled.div`

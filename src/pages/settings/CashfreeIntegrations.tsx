@@ -6,13 +6,13 @@ import {
   Avatar,
   Button,
   ButtonLink,
-  Chip,
   Icon,
   Popper,
   Skeleton,
   Tooltip,
-  Typography,
+  Typography
 } from '~/components/designSystem'
+import { IntegrationsPage } from '~/components/layouts/Integrations'
 import {
   AddCashfreeDialog,
   AddCashfreeDialogRef,
@@ -120,34 +120,14 @@ const CashfreeIntegrations = () => {
           </Button>
         )}
       </PageHeader.Wrapper>
-      <div className="flex items-center px-4 py-8 md:px-12">
-        {loading ? (
-          <>
-            <Skeleton className="mr-4" variant="connectorAvatar" size="large" />
-            <div>
-              <Skeleton className="mb-5 w-50" variant="text" />
-              <Skeleton className="w-32" variant="text" />
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="flex items-center gap-4">
-              <Avatar variant="connector-full" size="large">
-                <Cashfree />
-              </Avatar>
-              <div>
-                <div className="flex items-center">
-                  <Typography className="mr-2" variant="headline">
-                    {translate('text_1727619878796wmgcntkfycn')}
-                  </Typography>
-                  <Chip label={translate('text_62b1edddbf5f461ab971270d')} />
-                </div>
-                <Typography>{translate('text_62b1edddbf5f461ab971271f')}</Typography>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
+
+      <IntegrationsPage.Header
+        isLoading={loading}
+        integrationLogo={<Cashfree />}
+        integrationName={translate('text_1727619878796wmgcntkfycn')}
+        integrationChip={translate('text_62b1edddbf5f461ab971270d')}
+        integrationDescription={translate('text_62b1edddbf5f461ab971271f')}
+      />
 
       <div className="flex max-w-[672px] flex-col gap-8 px-4 py-0 md:px-12">
         <section>

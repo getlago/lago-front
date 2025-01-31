@@ -3,8 +3,9 @@ import { useEffect } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Avatar, ButtonLink, Chip, Icon, Skeleton, Typography } from '~/components/designSystem'
+import { ButtonLink, Icon, Skeleton, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { addToast } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { GOCARDLESS_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
@@ -15,7 +16,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Gocardless from '~/public/images/gocardless.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { PageHeader, theme } from '~/styles'
+import { PageHeader } from '~/styles'
 
 gql`
   fragment GocardlessIntegrationOauthCallback on GocardlessProvider {
@@ -102,32 +103,15 @@ const GocardlessIntegrationOauthCallback = () => {
           )}
         </PageHeader.Group>
       </PageHeader.Wrapper>
-      <MainInfos>
-        {loading ? (
-          <>
-            <Skeleton variant="connectorAvatar" size="large" className="mr-4" />
-            <div>
-              <Skeleton variant="text" className="mb-5 w-50" />
-              <Skeleton variant="text" className="w-32" />
-            </div>
-          </>
-        ) : (
-          <>
-            <Avatar className="mr-4" variant="connector-full" size="large">
-              <Gocardless />
-            </Avatar>
-            <div>
-              <Line>
-                <Typography variant="headline">
-                  {translate('text_634ea0ecc6147de10ddb6625')}
-                </Typography>
-                <Chip label={translate('text_62b1edddbf5f461ab971270d')} />
-              </Line>
-              <Typography>{translate('text_62b1edddbf5f461ab971271f')}</Typography>
-            </div>
-          </>
-        )}
-      </MainInfos>
+
+      <IntegrationsPage.Header
+        isLoading={loading}
+        integrationLogo={<Gocardless />}
+        integrationName={translate('text_634ea0ecc6147de10ddb6625')}
+        integrationChip={translate('text_62b1edddbf5f461ab971270d')}
+        integrationDescription={translate('text_62b1edddbf5f461ab971271f')}
+      />
+
       {loading || !error ? (
         <Loader>
           <Icon name="processing" color="info" size="large" animation="spin" />
@@ -150,25 +134,6 @@ const GocardlessIntegrationOauthCallback = () => {
     </>
   )
 }
-
-const MainInfos = styled.div`
-  display: flex;
-  align-items: center;
-  padding: ${theme.spacing(8)} ${theme.spacing(12)};
-
-  ${theme.breakpoints.down('md')} {
-    padding: ${theme.spacing(8)} ${theme.spacing(4)};
-  }
-`
-
-const Line = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(2)};
-  }
-`
 
 const Loader = styled.div`
   height: 100%;

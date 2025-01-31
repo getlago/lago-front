@@ -6,13 +6,13 @@ import {
   Avatar,
   Button,
   ButtonLink,
-  Chip,
   Icon,
   IconName,
   Popper,
   Skeleton,
   Typography,
 } from '~/components/designSystem'
+import { IntegrationsPage } from '~/components/layouts/Integrations'
 import {
   AddSalesforceDialog,
   AddSalesforceDialogRef,
@@ -170,33 +170,16 @@ const SalesforceIntegrationDetails = () => {
           )}
         </Popper>
       </PageHeader.Wrapper>
+
+      <IntegrationsPage.Header
+        isLoading={loading}
+        integrationLogo={<Salesforce />}
+        integrationName={salesforceIntegration?.name || ''}
+        integrationChip={translate('text_62b1edddbf5f461ab971270d')}
+        integrationDescription={translate('text_1731510123491gx2nw155ce0')}
+      />
+
       <div className="container">
-        <section className="flex items-center py-8">
-          {loading ? (
-            <>
-              <Skeleton variant="connectorAvatar" size="large" className="mr-4" />
-              <div className="flex-1">
-                <Skeleton variant="text" className="mb-5 w-50" />
-                <Skeleton variant="text" className="w-32" />
-              </div>
-            </>
-          ) : (
-            <>
-              <Avatar className="mr-4" variant="connector-full" size="large">
-                <Salesforce />
-              </Avatar>
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <Typography variant="headline">{salesforceIntegration?.name}</Typography>
-                  <Chip label={translate('text_62b1edddbf5f461ab971270d')} />
-                </div>
-
-                <Typography>{translate('text_1731510123491gx2nw155ce0')}</Typography>
-              </div>
-            </>
-          )}
-        </section>
-
         <div className="flex flex-col gap-8">
           <section>
             <div className="flex h-18 w-full items-center justify-between">

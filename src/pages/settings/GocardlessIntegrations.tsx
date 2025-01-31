@@ -8,13 +8,13 @@ import {
   Avatar,
   Button,
   ButtonLink,
-  Chip,
   Icon,
   Popper,
   Skeleton,
   Tooltip,
   Typography,
 } from '~/components/designSystem'
+import { IntegrationsPage } from '~/components/layouts/Integrations'
 import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
@@ -131,32 +131,15 @@ const GocardlessIntegrations = () => {
           </Button>
         )}
       </PageHeader.Wrapper>
-      <MainInfos>
-        {loading ? (
-          <>
-            <Skeleton variant="connectorAvatar" size="large" className="mr-4" />
-            <div>
-              <Skeleton variant="text" className="mb-5 w-50" />
-              <Skeleton variant="text" className="w-32" />
-            </div>
-          </>
-        ) : (
-          <>
-            <Avatar className="mr-4" variant="connector-full" size="large">
-              <Gocardless />
-            </Avatar>
-            <div>
-              <Line>
-                <Typography variant="headline">
-                  {translate('text_634ea0ecc6147de10ddb6625')}
-                </Typography>
-                <Chip label={translate('text_62b1edddbf5f461ab971270d')} />
-              </Line>
-              <Typography>{translate('text_62b1edddbf5f461ab971271f')}</Typography>
-            </div>
-          </>
-        )}
-      </MainInfos>
+
+      <IntegrationsPage.Header
+        isLoading={loading}
+        integrationLogo={<Gocardless />}
+        integrationName={translate('text_634ea0ecc6147de10ddb6625')}
+        integrationChip={translate('text_62b1edddbf5f461ab971270d')}
+        integrationDescription={translate('text_62b1edddbf5f461ab971271f')}
+      />
+
       <ListWrapper>
         <section>
           <InlineTitle>
@@ -274,16 +257,6 @@ const GocardlessIntegrations = () => {
   )
 }
 
-const MainInfos = styled.div`
-  display: flex;
-  align-items: center;
-  padding: ${theme.spacing(8)} ${theme.spacing(12)};
-
-  ${theme.breakpoints.down('md')} {
-    padding: ${theme.spacing(8)} ${theme.spacing(4)};
-  }
-`
-
 const ListWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -318,15 +291,6 @@ const ListItem = styled.div`
 
   > *:first-child {
     margin-right: ${theme.spacing(3)};
-  }
-`
-
-const Line = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(2)};
   }
 `
 

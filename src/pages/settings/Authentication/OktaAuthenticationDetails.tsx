@@ -12,6 +12,7 @@ import {
   Skeleton,
   Typography,
 } from '~/components/designSystem'
+import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { AddOktaDialog, AddOktaDialogRef } from '~/components/settings/authentication/AddOktaDialog'
 import {
   DeleteOktaIntegrationDialog,
@@ -143,33 +144,15 @@ const OktaAuthenticationDetails = () => {
           )}
         </Popper>
       </PageHeader.Wrapper>
-      <MainInfos>
-        {loading ? (
-          <>
-            <Skeleton variant="connectorAvatar" size="large" className="mr-4" />
-            <SkeletonText>
-              <Skeleton variant="text" className="mb-5 w-50" />
-              <Skeleton variant="text" className="w-32" />
-            </SkeletonText>
-          </>
-        ) : (
-          <>
-            <Avatar className="mr-4" variant="connector-full" size="large">
-              <Okta />
-            </Avatar>
-            <div>
-              <Line>
-                <Typography variant="headline">
-                  {translate('text_664c732c264d7eed1c74fda2')}
-                </Typography>
-                <Chip label={translate('text_62b1edddbf5f461ab971270d')} />
-              </Line>
-              <Typography>{translate('text_664c732c264d7eed1c74fdbd')}</Typography>
-            </div>
-          </>
-        )}
-      </MainInfos>
       <Settings>
+      <IntegrationsPage.Header
+        isLoading={loading}
+        integrationLogo={<Okta />}
+        integrationName={translate('text_664c732c264d7eed1c74fda2')}
+        integrationChip={translate('text_62b1edddbf5f461ab971270d')}
+        integrationDescription={translate('text_664c732c264d7eed1c74fdbd')}
+      />
+
         <section>
           <InlineTitle>
             <Typography variant="subhead">{translate('text_664c732c264d7eed1c74fdc5')}</Typography>
@@ -225,16 +208,6 @@ const OktaAuthenticationDetails = () => {
   )
 }
 
-const MainInfos = styled.div`
-  display: flex;
-  align-items: center;
-  padding: ${theme.spacing(8)} ${theme.spacing(12)};
-
-  ${theme.breakpoints.down('md')} {
-    padding: ${theme.spacing(8)} ${theme.spacing(4)};
-  }
-`
-
 const Settings = styled.div`
   display: flex;
   flex-direction: column;
@@ -255,19 +228,6 @@ const InlineTitle = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-`
-
-const SkeletonText = styled.div`
-  width: 100%;
-`
-
-const Line = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(2)};
-  }
 `
 
 export default OktaAuthenticationDetails
