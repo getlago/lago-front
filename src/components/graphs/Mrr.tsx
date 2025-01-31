@@ -2,6 +2,10 @@ import { gql } from '@apollo/client'
 import { useMemo } from 'react'
 import styled from 'styled-components'
 
+import AreaChart from '~/components/designSystem/graphs/AreaChart'
+import ChartHeader from '~/components/designSystem/graphs/ChartHeader'
+import { AreaMrrChartFakeData } from '~/components/designSystem/graphs/fixtures'
+import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, GetMrrQuery, useGetMrrQuery } from '~/generated/graphql'
@@ -15,11 +19,6 @@ import {
 } from './MonthSelectorDropdown'
 import { TGraphProps } from './types'
 import { formatDataForAreaChart, TAreaChartDataResult } from './utils'
-
-import AreaChart from '../designSystem/graphs/AreaChart'
-import ChartHeader from '../designSystem/graphs/ChartHeader'
-import { AreaMrrChartFakeData } from '../designSystem/graphs/fixtures'
-import { GenericPlaceholder } from '../GenericPlaceholder'
 
 gql`
   query getMrr($currency: CurrencyEnum!) {

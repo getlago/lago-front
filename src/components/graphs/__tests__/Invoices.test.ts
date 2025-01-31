@@ -1,16 +1,15 @@
 import { DateTime } from 'luxon'
 
 import { InvoiceCollectionsFakeData } from '~/components/designSystem/graphs/fixtures'
-import { CurrencyEnum, InvoicePaymentStatusTypeEnum } from '~/generated/graphql'
-
 import {
   extractDataForDisplay,
   fillInvoicesDataPerMonthForPaymentStatus,
   formatInvoiceCollectionsData,
   getAllDataForInvoicesDisplay,
-} from '../Invoices'
-import { AnalyticsPeriodScopeEnum } from '../MonthSelectorDropdown'
-import { GRAPH_YEAR_MONTH_DATE_FORMAT } from '../utils'
+} from '~/components/graphs/Invoices'
+import { AnalyticsPeriodScopeEnum } from '~/components/graphs/MonthSelectorDropdown'
+import { GRAPH_YEAR_MONTH_DATE_FORMAT } from '~/components/graphs/utils'
+import { CurrencyEnum, InvoicePaymentStatusTypeEnum } from '~/generated/graphql'
 
 describe('components/graphs/Invoices', () => {
   describe('fillInvoicesDataPerMonthForPaymentStatus', () => {

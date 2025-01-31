@@ -2,7 +2,7 @@ import { render } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
-import { useKeyNavigationOptions, useListKeysNavigation } from '../useListKeyNavigation'
+import { useKeyNavigationOptions, useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 
 interface PageWrapperProps {
   conponentProps: useKeyNavigationOptions

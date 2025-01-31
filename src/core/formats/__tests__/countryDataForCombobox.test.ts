@@ -1,4 +1,4 @@
-import { countryDataForCombobox } from '../countryDataForCombobox'
+import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 
 describe('Core > format', () => {
   describe('countryDataForCombobox()', () => {

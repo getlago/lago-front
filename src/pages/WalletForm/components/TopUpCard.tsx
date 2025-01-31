@@ -30,9 +30,8 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { walletFormErrorCodes } from '~/pages/WalletForm/form'
+import { TWalletDataForm } from '~/pages/WalletForm/types'
 import { theme } from '~/styles'
-
-import { TWalletDataForm } from '../types'
 
 const AccordionSummary: FC<{ label: string; isValid: boolean; onDelete: VoidFunction }> = ({
   label,

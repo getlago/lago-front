@@ -5,6 +5,14 @@ import { generatePath, useNavigate } from 'react-router-dom'
 import { Button, InfiniteScroll, Popper, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PageSectionTitle } from '~/components/layouts/Section'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import {
+  TerminateCustomerWalletDialog,
+  TerminateCustomerWalletDialogRef,
+} from '~/components/wallets/TerminateCustomerWalletDialog'
+import { TopupWalletDialog, TopupWalletDialogRef } from '~/components/wallets/TopupWalletDialog'
+import { VoidWalletDialog, VoidWalletDialogRef } from '~/components/wallets/VoidWalletDialog'
+import { WalletAccordion, WalletAccordionSkeleton } from '~/components/wallets/WalletAccordion'
 import { CREATE_WALLET_ROUTE, EDIT_WALLET_ROUTE } from '~/core/router'
 import {
   TimezoneEnum,
@@ -19,16 +27,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper } from '~/styles'
-
-import {
-  TerminateCustomerWalletDialog,
-  TerminateCustomerWalletDialogRef,
-} from './TerminateCustomerWalletDialog'
-import { TopupWalletDialog, TopupWalletDialogRef } from './TopupWalletDialog'
-import { VoidWalletDialog, VoidWalletDialogRef } from './VoidWalletDialog'
-import { WalletAccordion, WalletAccordionSkeleton } from './WalletAccordion'
-
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
 gql`
   fragment CustomerWallet on Wallet {

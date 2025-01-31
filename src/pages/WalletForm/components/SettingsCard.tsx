@@ -15,9 +15,8 @@ import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, GetCustomerInfosForWalletFormQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TWalletDataForm } from '~/pages/WalletForm/types'
 import { tw } from '~/styles/utils'
-
-import { TWalletDataForm } from '../types'
 
 interface SettingsCardProps {
   formikProps: FormikProps<TWalletDataForm>

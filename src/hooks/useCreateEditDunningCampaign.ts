@@ -8,14 +8,13 @@ import { DUNNINGS_SETTINGS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CreateDunningCampaignInput,
+  DunningCampaignFormFragment,
   LagoApiError,
   useCreateDunningCampaignMutation,
   useCreateDunningCampaignPaymentProviderQuery,
   useGetSingleCampaignQuery,
   useUpdateDunningCampaignMutation,
 } from '~/generated/graphql'
-
-import { DunningCampaignFormFragment } from './../generated/graphql'
 
 export type DunningCampaignFormInput = Omit<
   CreateDunningCampaignInput,

@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import { FC } from 'react'
 
+import { Button, Skeleton, Table, Typography } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { LocaleEnum } from '~/core/translations'
@@ -13,8 +14,6 @@ import {
 } from '~/generated/graphql'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { tw } from '~/styles/utils'
-
-import { Button, Skeleton, Table, Typography } from '../designSystem'
 
 gql`
   fragment CustomerForDunningEmail on Customer {

@@ -1,4 +1,4 @@
-import { TimeZonesConfig } from '../config'
+import { TimeZonesConfig } from '~/core/timezone/config'
 
 describe('Timezone fongis', () => {
   describe('TimeZonesConfig', () => {

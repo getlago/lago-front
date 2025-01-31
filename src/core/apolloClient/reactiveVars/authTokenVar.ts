@@ -1,6 +1,6 @@
 import { makeVar } from '@apollo/client'
 
-import { getItemFromLS, setItemFromLS } from '../cacheUtils'
+import { getItemFromLS, setItemFromLS } from '~/core/apolloClient/cacheUtils'
 
 export const AUTH_TOKEN_LS_KEY = 'authToken'
 

@@ -2,8 +2,7 @@ import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { onAccessCustomerPortal } from '~/core/apolloClient'
-
-import CustomerPortal from '../customerPortal/CustomerPortal'
+import CustomerPortal from '~/pages/customerPortal/CustomerPortal'
 
 const PortalInit = () => {
   const { token } = useParams()

@@ -1,6 +1,7 @@
 import { act, cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { EditCustomerVatRateDialog } from '~/components/customers/EditCustomerVatRateDialog'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME,
@@ -8,8 +9,6 @@ import {
 import { CREATE_TAX_ROUTE } from '~/core/router'
 import { GetTaxRatesForEditCustomerDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
-
-import { EditCustomerVatRateDialog } from '../EditCustomerVatRateDialog'
 
 const membershipWithPermissions = {
   id: '2',

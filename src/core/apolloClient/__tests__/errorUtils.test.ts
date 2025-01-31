@@ -1,7 +1,7 @@
 import { ApolloError } from '@apollo/client'
 import { GraphQLFormattedError } from 'graphql'
 
-import { hasDefinedGQLError, LagoGQLError } from '../errorUtils'
+import { hasDefinedGQLError, LagoGQLError } from '~/core/apolloClient/errorUtils'
 
 const createApolloError: (details: Record<string, string | string[]>) => ApolloError = (details) =>
   ({

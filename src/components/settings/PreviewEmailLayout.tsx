@@ -1,5 +1,6 @@
 import { FC, PropsWithChildren, useRef } from 'react'
 
+import { Avatar, Button, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { LocaleEnum } from '~/core/translations'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -10,8 +11,6 @@ import {
   UpdateOrganizationLogoDialog,
   UpdateOrganizationLogoDialogRef,
 } from './emails/UpdateOrganizationLogoDialog'
-
-import { Avatar, Button, Skeleton, Tooltip, Typography } from '../designSystem'
 
 interface PreviewEmailLayoutProps extends PropsWithChildren {
   language: LocaleEnum

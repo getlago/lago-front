@@ -1,6 +1,5 @@
 import { BasicComboBoxData } from '~/components/form'
-
-import { CountryCodes } from '../constants/countryCodes'
+import { CountryCodes } from '~/core/constants/countryCodes'
 
 export const countryDataForCombobox: BasicComboBoxData[] = (
   Object.keys(CountryCodes) as Array<keyof typeof CountryCodes>

@@ -1,11 +1,10 @@
 import { DateTime } from 'luxon'
 
 import { AreaMrrChartFakeData } from '~/components/designSystem/graphs/fixtures'
+import { AnalyticsPeriodScopeEnum } from '~/components/graphs/MonthSelectorDropdown'
+import { getAllDataForMrrDisplay } from '~/components/graphs/Mrr'
+import { GRAPH_YEAR_MONTH_DATE_FORMAT } from '~/components/graphs/utils'
 import { CurrencyEnum } from '~/generated/graphql'
-
-import { AnalyticsPeriodScopeEnum } from '../MonthSelectorDropdown'
-import { getAllDataForMrrDisplay } from '../Mrr'
-import { GRAPH_YEAR_MONTH_DATE_FORMAT } from '../utils'
 
 describe('components/graphs/Mrr', () => {
   describe('getAllDataForMrrDisplay', () => {

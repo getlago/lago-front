@@ -1,10 +1,9 @@
 import { DateTime } from 'luxon'
 
+import { AreaChartDataType } from '~/components/designSystem/graphs/types'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum } from '~/generated/graphql'
-
-import { AreaChartDataType } from '../designSystem/graphs/types'
 
 export const GRAPH_YEAR_MONTH_DATE_FORMAT = 'LLL. yyyy'
 

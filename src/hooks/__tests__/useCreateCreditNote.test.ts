@@ -3,15 +3,14 @@ import { act, renderHook } from '@testing-library/react'
 
 import { ERROR_404_ROUTE } from '~/core/router'
 import { GetInvoiceCreateCreditNoteDocument } from '~/generated/graphql'
-import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
-
 import {
   fourOFourInvoiceMock,
   fullOneOffInvoiceMockAndExpect,
   fullSubscriptionInvoiceGroupTrueUpMockAndExpect,
   fullSubscriptionInvoiceMockAndExpect,
   INVOICE_FIXTURE_ID,
-} from './fixtures'
+} from '~/hooks/__tests__/fixtures'
+import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
 import { useCreateCreditNote } from '../useCreateCreditNote'
 

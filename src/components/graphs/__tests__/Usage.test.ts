@@ -1,11 +1,10 @@
 import { DateTime } from 'luxon'
 
 import { InvoicedUsageFakeData } from '~/components/designSystem/graphs/fixtures'
+import { AnalyticsPeriodScopeEnum } from '~/components/graphs/MonthSelectorDropdown'
+import { getDataForUsageDisplay, LAST_USAGE_GRAPH_LINE_KEY_NAME } from '~/components/graphs/Usage'
+import { GRAPH_YEAR_MONTH_DATE_FORMAT } from '~/components/graphs/utils'
 import { CurrencyEnum } from '~/generated/graphql'
-
-import { AnalyticsPeriodScopeEnum } from '../MonthSelectorDropdown'
-import { getDataForUsageDisplay, LAST_USAGE_GRAPH_LINE_KEY_NAME } from '../Usage'
-import { GRAPH_YEAR_MONTH_DATE_FORMAT } from '../utils'
 
 describe('components/graphs/Usage', () => {
   describe('getDataForUsageDisplay', () => {

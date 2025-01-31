@@ -3,9 +3,8 @@ import styled from 'styled-components'
 import { Icon, Typography } from '~/components/designSystem'
 import { BasicComboBoxData } from '~/components/form'
 import { AggregationTypeEnum, ChargeModelEnum } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
-
-import { useInternationalization } from '../core/useInternationalization'
 
 export type TGetChargeModelComboboxDataProps = {
   isPremium: boolean

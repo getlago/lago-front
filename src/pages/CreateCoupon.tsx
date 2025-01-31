@@ -15,6 +15,7 @@ import {
   AddPlanToCouponDialog,
   AddPlanToCouponDialogRef,
 } from '~/components/coupons/AddPlanToCouponDialog'
+import { CouponCodeSnippet } from '~/components/coupons/CouponCodeSnippet'
 import {
   Alert,
   Avatar,
@@ -59,8 +60,6 @@ import {
   Subtitle,
   Title,
 } from '~/styles/mainObjectsForm'
-
-import { CouponCodeSnippet } from '../components/coupons/CouponCodeSnippet'
 
 const CreateCoupon = () => {
   const { translate } = useInternationalization()

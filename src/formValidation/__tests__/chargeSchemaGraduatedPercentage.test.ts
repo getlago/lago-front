@@ -1,7 +1,6 @@
 import { transformFilterObjectToString } from '~/components/plans/utils'
+import { chargeSchema } from '~/formValidation/chargeSchema'
 import { ChargeModelEnum } from '~/generated/graphql'
-
-import { chargeSchema } from '../chargeSchema'
 
 describe('chargeSchema GraduatedPercentage', () => {
   describe('properties', () => {

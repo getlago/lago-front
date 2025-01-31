@@ -1,15 +1,14 @@
 import { DateTime } from 'luxon'
 
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum } from '~/generated/graphql'
-
 import {
   formatDataForAreaChart,
   getLastTwelveMonthsNumbersUntilNow,
   GRAPH_YEAR_MONTH_DATE_FORMAT,
   padAndTransformDataOverLastTwelveMonth,
   TAreaChartDataResult,
-} from '../utils'
+} from '~/components/graphs/utils'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { CurrencyEnum } from '~/generated/graphql'
 
 describe('components/graphs/utils', () => {
   describe('getLastTwelveMonthsNumbersUntilNow', () => {

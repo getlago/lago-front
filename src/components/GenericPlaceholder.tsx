@@ -1,9 +1,7 @@
 import { ReactNode } from 'react'
 
+import { Button, ButtonVariant, Typography } from '~/components/designSystem'
 import { tw } from '~/styles/utils'
-
-import { Button, ButtonVariant } from './designSystem/Button'
-import { Typography } from './designSystem/Typography'
 
 export interface GenericPlaceholderProps {
   className?: string

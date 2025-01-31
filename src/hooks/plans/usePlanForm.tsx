@@ -40,9 +40,8 @@ import {
   useGetSinglePlanQuery,
   useUpdatePlanMutation,
 } from '~/generated/graphql'
-
-import { useInternationalization } from '../core/useInternationalization'
-import { useOrganizationInfos } from '../useOrganizationInfos'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   query getSinglePlan($id: ID!) {

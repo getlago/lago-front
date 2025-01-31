@@ -4,16 +4,14 @@ import { FormikProps } from 'formik'
 import { memo, useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
 
-import { TextInput } from '~/components/form'
+import { Button, Tooltip, Typography } from '~/components/designSystem'
+import { AmountInput, TextInput } from '~/components/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
 import { LocalChargeFilterInput, LocalPropertiesInput, PlanFormInput } from './types'
-
-import { Button, Tooltip, Typography } from '../designSystem'
-import { AmountInput } from '../form/AmountInput/AmountInput'
 
 gql`
   fragment StandardCharge on Properties {

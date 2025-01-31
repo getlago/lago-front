@@ -1,4 +1,4 @@
-import { getPluralTranslation, replaceDynamicVarInString } from '../utils'
+import { getPluralTranslation, replaceDynamicVarInString } from '~/core/translations/utils'
 
 describe('utils', () => {
   describe('getPluralTranslation', () => {

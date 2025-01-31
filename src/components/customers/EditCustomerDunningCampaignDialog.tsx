@@ -4,6 +4,7 @@ import { forwardRef } from 'react'
 import { mixed, object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
+import { ComboBoxField, RadioField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import {
   EditCustomerDunningCampaignFragment,
@@ -12,8 +13,6 @@ import {
   useGetApplicableDunningCampaignsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { ComboBoxField, RadioField } from '../form'
 
 gql`
   fragment EditCustomerDunningCampaign on Customer {

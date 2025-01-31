@@ -2,6 +2,8 @@ import { gql } from '@apollo/client'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
+import PlanDetailsOverview from '~/components/plans/details/PlanDetailsOverview'
+import SkeletonDetailsPage, { LoadingSkeletonWrapper } from '~/components/SkeletonDetailsPage'
 import {
   SubscriptionForSubscriptionInformationsFragmentDoc,
   useGetSubscriptionForDetailsOverviewQuery,
@@ -9,9 +11,6 @@ import {
 import { theme } from '~/styles'
 
 import SubscriptionInformations from './SubscriptionInformations'
-
-import PlanDetailsOverview from '../plans/details/PlanDetailsOverview'
-import SkeletonDetailsPage, { LoadingSkeletonWrapper } from '../SkeletonDetailsPage'
 
 gql`
   query getSubscriptionForDetailsOverview($subscriptionId: ID!) {

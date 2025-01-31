@@ -26,8 +26,7 @@ import {
   useUpdateSubscriptionMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { useSalesForceConfig } from '../useSalesForceConfig'
+import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
 
 gql`
   mutation createSubscription($input: CreateSubscriptionInput!) {

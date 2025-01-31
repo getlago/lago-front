@@ -2,7 +2,19 @@ import { ApolloError, LazyQueryHookOptions } from '@apollo/client'
 import { useEffect, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
+import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import { Chip, InfiniteScroll, Status, Table, Tooltip, Typography } from '~/components/designSystem'
+import {
+  AvailableFiltersEnum,
+  AvailableQuickFilters,
+  Filters,
+  isDraftUrlParams,
+  isOutstandingUrlParams,
+  isPaymentDisputeLostUrlParams,
+  isPaymentOverdueUrlParams,
+  isSucceededUrlParams,
+  isVoidedUrlParams,
+} from '~/components/designSystem/Filters'
 import {
   UpdateInvoicePaymentStatusDialog,
   UpdateInvoicePaymentStatusDialogRef,
@@ -12,6 +24,7 @@ import {
   FinalizeInvoiceDialogRef,
 } from '~/components/invoices/FinalizeInvoiceDialog'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/NavigationEnum'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
@@ -37,20 +50,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
-
-import { createCreditNoteForInvoiceButtonProps } from '../creditNote/utils'
-import {
-  AvailableFiltersEnum,
-  AvailableQuickFilters,
-  Filters,
-  isDraftUrlParams,
-  isOutstandingUrlParams,
-  isPaymentDisputeLostUrlParams,
-  isPaymentOverdueUrlParams,
-  isSucceededUrlParams,
-  isVoidedUrlParams,
-} from '../designSystem/Filters'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
 type TInvoiceListProps = {
   error: ApolloError | undefined

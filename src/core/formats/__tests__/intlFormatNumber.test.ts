@@ -1,12 +1,11 @@
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { CurrencyEnum } from '~/generated/graphql'
-
 import {
   bigNumberShortenNotationFormater,
   getCurrencySymbol,
   intlFormatNumber,
   intlFormatOrdinalNumber,
-} from '../intlFormatNumber'
+} from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { CurrencyEnum } from '~/generated/graphql'
 
 const DAYS_ORDINALS_VALUES = [
   '0th',

@@ -5,6 +5,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { number, object, string } from 'yup'
 
+import { AddOnCodeSnippet } from '~/components/addOns/AddOnCodeSnippet'
 import { AddOnFormInput } from '~/components/addOns/types'
 import { Button, Card, Chip, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import {
@@ -41,8 +42,6 @@ import {
   Subtitle,
   Title,
 } from '~/styles/mainObjectsForm'
-
-import { AddOnCodeSnippet } from '../components/addOns/AddOnCodeSnippet'
 
 gql`
   query getTaxesForAddOnForm($limit: Int, $page: Int, $searchTerm: String) {

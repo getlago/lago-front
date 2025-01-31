@@ -3,6 +3,8 @@ import { DateTime } from 'luxon'
 import { generatePath, Link } from 'react-router-dom'
 import styled from 'styled-components'
 
+import { ConditionalWrapper } from '~/components/ConditionalWrapper'
+import { Alert, Status, StatusType } from '~/components/designSystem'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS } from '~/core/router'
 import {
@@ -13,9 +15,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { theme } from '~/styles'
 import { DetailsInfoGrid, DetailsInfoItem, DetailsSectionTitle } from '~/styles/detailsPage'
-
-import { ConditionalWrapper } from '../ConditionalWrapper'
-import { Alert, Status, StatusType } from '../designSystem'
 
 gql`
   fragment SubscriptionForSubscriptionInformations on Subscription {

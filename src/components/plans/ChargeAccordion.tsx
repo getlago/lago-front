@@ -4,6 +4,7 @@ import { FormikErrors, FormikProps } from 'formik'
 import { memo, MouseEvent, RefObject, useCallback, useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
+import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import {
   Accordion,
   Alert,
@@ -14,7 +15,9 @@ import {
   Typography,
 } from '~/components/designSystem'
 import { AmountInput, ComboBox, ComboboxItem, RadioGroupField, Switch } from '~/components/form'
+import { EditInvoiceDisplayNameRef } from '~/components/invoices/EditInvoiceDisplayName'
 import { ChargeBillingRadioGroup } from '~/components/plans/ChargeBillingRadioGroup'
+import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useDuplicatePlanVar } from '~/core/apolloClient'
 import {
   ALL_FILTER_VALUES,
@@ -54,10 +57,6 @@ import { ChargeOptionsAccordion } from './ChargeOptionsAccordion'
 import { ChargeWrapperSwitch } from './ChargeWrapperSwitch'
 import { RemoveChargeWarningDialogRef } from './RemoveChargeWarningDialog'
 import { LocalChargeInput, PlanFormInput } from './types'
-
-import { ConditionalWrapper } from '../ConditionalWrapper'
-import { EditInvoiceDisplayNameRef } from '../invoices/EditInvoiceDisplayName'
-import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
 const buildChargeDefaultPropertyId = (chargeIndex: number) =>
   `charge-${chargeIndex}-default-property-accordion`
@@ -356,7 +355,7 @@ export const ChargeAccordion = memo(
       <Accordion
         noContentMargin
         id={id}
-        initiallyOpen={isInitiallyOpen || !formikProps.values.charges?.[index]?.id ? true : false}
+        initiallyOpen={!!(isInitiallyOpen || !formikProps.values.charges?.[index]?.id)}
         summary={
           <Summary>
             <ChargeSummaryLeftWrapper>

@@ -1,4 +1,4 @@
-import { addValuesToUrlState } from '../urlUtils'
+import { addValuesToUrlState } from '~/core/utils/urlUtils'
 
 describe('urlUtils', () => {
   describe('addValuesToUrlState', () => {

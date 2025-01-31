@@ -1,12 +1,10 @@
 import { captureMessage } from '@sentry/react'
 import { DateTime } from 'luxon'
 
+import { envGlobalVar } from '~/core/apolloClient'
+import { TimeZonesConfig } from '~/core/timezone/config'
 import { LocaleEnum } from '~/core/translations'
 import { TimezoneEnum } from '~/generated/graphql'
-
-import { TimeZonesConfig } from './config'
-
-import { envGlobalVar } from '../apolloClient'
 
 const { sentryDsn } = envGlobalVar()
 

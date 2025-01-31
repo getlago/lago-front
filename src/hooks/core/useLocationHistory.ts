@@ -9,9 +9,8 @@ import {
   setItemFromLS,
 } from '~/core/apolloClient'
 import { CustomRouteObject, FORBIDDEN_ROUTE, HOME_ROUTE, LOGIN_ROUTE } from '~/core/router'
-
-import { useCurrentUser } from '../useCurrentUser'
-import { usePermissions } from '../usePermissions'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { usePermissions } from '~/hooks/usePermissions'
 
 export const LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY = 'lastPrivateVisitedRoute'
 

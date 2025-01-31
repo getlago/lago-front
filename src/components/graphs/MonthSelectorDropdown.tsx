@@ -1,11 +1,10 @@
 import { RefObject } from 'react'
 
+import { Button, Popper } from '~/components/designSystem'
+import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { MenuPopper } from '~/styles'
-
-import { Button, Popper } from '../designSystem'
-import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
 export const AnalyticsPeriodScopeEnum = {
   Year: 'year',

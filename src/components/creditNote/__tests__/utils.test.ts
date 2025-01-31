@@ -1,16 +1,14 @@
-import { CurrencyEnum } from '~/generated/graphql'
-
 import {
   addOnFeeMock,
   addonMockFormatedForEstimate,
   feeMockFormatedForEstimate,
   feesMock,
-} from './fixtures'
-
+} from '~/components/creditNote/__tests__/fixtures'
 import {
   creditNoteFormCalculationCalculation,
   CreditNoteFormCalculationCalculationProps,
-} from '../utils'
+} from '~/components/creditNote/utils'
+import { CurrencyEnum } from '~/generated/graphql'
 
 const prepare = ({
   addonFees = undefined,

@@ -2,7 +2,7 @@ import {
   METADATA_KEY_MAX_LENGTH,
   METADATA_VALUE_MAX_LENGTH_DEFAULT,
   metadataSchema,
-} from '../metadataSchema'
+} from '~/formValidation/metadataSchema'
 
 describe('metadataSchema', () => {
   describe('metadataSchema()', () => {

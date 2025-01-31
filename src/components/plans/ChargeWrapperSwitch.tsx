@@ -3,17 +3,19 @@ import { memo, RefObject } from 'react'
 
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
 import { CustomCharge } from '~/components/plans/CustomCharge'
+import { DynamicCharge } from '~/components/plans/DynamicCharge'
 import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
+import { GraduatedPercentageChargeTable } from '~/components/plans/GraduatedPercentageChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
+import { StandardCharge } from '~/components/plans/StandardCharge'
+import {
+  LocalChargeFilterInput,
+  LocalPropertiesInput,
+  PlanFormInput,
+} from '~/components/plans/types'
+import { VolumeChargeTable } from '~/components/plans/VolumeChargeTable'
+import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { ChargeModelEnum, CurrencyEnum } from '~/generated/graphql'
-
-import { DynamicCharge } from './DynamicCharge'
-import { GraduatedPercentageChargeTable } from './GraduatedPercentageChargeTable'
-import { StandardCharge } from './StandardCharge'
-import { LocalChargeFilterInput, LocalPropertiesInput, PlanFormInput } from './types'
-import { VolumeChargeTable } from './VolumeChargeTable'
-
-import { PremiumWarningDialogRef } from '../PremiumWarningDialog'
 
 interface ChargeWrapperSwitchProps {
   currency: CurrencyEnum

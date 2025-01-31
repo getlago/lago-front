@@ -1,9 +1,8 @@
 import { renderHook } from '@testing-library/react'
 
 import { GetCurrentUserInfosDocument } from '~/generated/graphql'
+import { usePermissions } from '~/hooks/usePermissions'
 import { AllTheProviders } from '~/test-utils'
-
-import { usePermissions } from '../usePermissions'
 
 const membershipWithPermissions = {
   id: '2',

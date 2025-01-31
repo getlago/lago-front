@@ -9,10 +9,9 @@ import { ErrorBoundary } from '~/components/ErrorBoundary'
 import { RouteWrapper } from '~/components/RouteWrapper'
 import { UserIdentifier } from '~/components/UserIdentifier'
 import { envGlobalVar, initializeApolloClient, initializeTranslations } from '~/core/apolloClient'
+import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { initializeYup } from '~/formValidation/initializeYup'
 import { theme } from '~/styles'
-
-import { AppEnvEnum } from './core/constants/globalTypes'
 
 const App = () => {
   const [client, setClient] = useState<ApolloClient<NormalizedCacheObject> | null>(null)

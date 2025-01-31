@@ -4,6 +4,7 @@ import { forwardRef } from 'react'
 import { array, mixed, object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
+import { MultipleComboBox, RadioField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import {
   CustomerAppliedInvoiceCustomSectionsFragmentDoc,
@@ -13,8 +14,6 @@ import {
   useGetInvoiceCustomSectionsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { MultipleComboBox, RadioField } from '../form'
 
 gql`
   fragment EditCustomerInvoiceCustomSection on Customer {
