@@ -223,6 +223,9 @@ const config = {
         '.shadow-l': {
           boxShadow: `1px 0px 0px 0px ${theme('colors.grey.300')} inset`,
         },
+        '.shadow-y': {
+          boxShadow: `0px 1px 0px 0px ${theme('colors.grey.300')} inset, 0px -1px 0px 0px ${theme('colors.grey.300')} inset`,
+        },
       })
 
       // Animation
@@ -257,6 +260,17 @@ const config = {
         },
         '.line-break-auto': {
           lineBreak: 'auto',
+        },
+      })
+
+      // Remove scrollbar indicator
+      addUtilities({
+        '.no-scrollbar::-webkit-scrollbar': {
+          display: 'none', // Chrome, Safari and Opera
+        },
+        '.no-scrollbar': {
+          '-ms-overflow-style': 'none', // IE and Edge
+          'scrollbar-width': 'none', // Firefox
         },
       })
 
