@@ -77,6 +77,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.selfBilled]: (
       <FiltersItemSelfBilled value={value} setFilterValue={setFilterValue} />
     ),
+    [AvailableFiltersEnum.customerAccountType]: null,
   }
 
   return (

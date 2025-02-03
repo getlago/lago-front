@@ -14,7 +14,6 @@ import {
   Filters,
   formatFiltersForCustomerQuery,
 } from '~/components/designSystem/Filters'
-import { QuickFilters } from '~/components/designSystem/Filters/QuickFilters'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { SearchInput } from '~/components/SearchInput'
 import { CREATE_CUSTOMER_ROUTE, CUSTOMER_DETAILS_ROUTE, UPDATE_CUSTOMER_ROUTE } from '~/core/router'

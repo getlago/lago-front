@@ -620,10 +620,6 @@ const NavigationRightActions = styled.div`
   gap: ${theme.spacing(3)};
 `
 
-const DraftAlertWrapper = styled.div`
-  padding-top: ${theme.spacing(3)};
-`
-
 const LoadingTR = styled.tr`
   > td {
     box-sizing: border-box;

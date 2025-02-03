@@ -74,6 +74,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.creditNoteCreditStatus]: 'text_173470389114473bzrbyh6va',
   [AvailableFiltersEnum.creditNoteRefundStatus]: 'text_1734703891144vv5iclhl4vz',
   [AvailableFiltersEnum.selfBilled]: 'text_1738595318403vcyh77pwiew',
+  [AvailableFiltersEnum.customerAccountType]: '',
 }
 
 export type FiltersFormValues = {
