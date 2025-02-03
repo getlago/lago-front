@@ -13,6 +13,7 @@ import {
   AddCustomerDrawerFragment,
   CreateCustomerInput,
   CreateCustomerMutation,
+  CustomerAccountTypeEnum,
   CustomerItemFragmentDoc,
   LagoApiError,
   ProviderPaymentMethodsEnum,
@@ -111,6 +112,7 @@ gql`
     state
     timezone
     zipcode
+    accountType
     shippingAddress {
       addressLine1
       addressLine2
@@ -233,6 +235,7 @@ export const useCreateEditCustomer: UseCreateEditCustomer = () => {
 
     const input = {
       ...values,
+      accountType: values.accountType || CustomerAccountTypeEnum.Customer,
       paymentProvider,
       providerCustomer: {
         providerCustomerId: !paymentProvider ? null : providerCustomer?.providerCustomerId,

@@ -9,8 +9,10 @@ import {
   LocalCustomerMetadata,
   MetadataAccordion,
 } from '~/components/customers/createCustomer/MetadataAccordion'
-import { Button, DrawerRef, Typography } from '~/components/designSystem'
+import { Button, DrawerRef, Icon, Typography } from '~/components/designSystem'
+import { SwitchField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/Pages'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { metadataSchema } from '~/formValidation/metadataSchema'
@@ -22,6 +24,7 @@ import {
   HubspotCustomer,
   IntegrationTypeEnum,
   NetsuiteCustomer,
+  PremiumIntegrationTypeEnum,
   ProviderCustomer,
   ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
@@ -31,17 +34,25 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditCustomer } from '~/hooks/useCreateEditCustomer'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 const CreateCustomer = () => {
   const { translate } = useInternationalization()
   const warningDialogRef = useRef<WarningDialogRef>(null)
+  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
+
+  const hasAccessToRevenueShare = !!premiumIntegrations?.includes(
+    PremiumIntegrationTypeEnum.RevenueShare,
+  )
 
   const { isEdition, onSave, customer, loading, onClose } = useCreateEditCustomer()
 
   const formikProps = useFormik<CreateCustomerInput | UpdateCustomerInput>({
     initialValues: {
       customerType: customer?.customerType ?? null,
+      accountType: customer?.accountType ?? null,
       name: customer?.name ?? '',
       firstname: customer?.firstname ?? '',
       lastname: customer?.lastname ?? '',
@@ -255,6 +266,27 @@ const CreateCustomer = () => {
           </div>
 
           <div className="mb-8 flex flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b">
+            {/* eslint-disable-next-line */}
+            <div
+              className="flex items-center justify-between"
+              onClick={() => {
+                if (!hasAccessToRevenueShare) {
+                  premiumWarningDialogRef.current?.openDialog()
+                }
+              }}
+            >
+              <SwitchField
+                name="accountType"
+                formikProps={formikProps}
+                label={translate('text_173832066416253fgbilrnae')}
+                subLabel={translate('text_173832066416219scp0nqeo8')}
+                labelPosition="right"
+                disabled={!hasAccessToRevenueShare}
+              />
+
+              {!hasAccessToRevenueShare && <Icon name="sparkles" />}
+            </div>
+
             <CustomerInformation
               formikProps={formikProps}
               isEdition={isEdition}
@@ -291,6 +323,8 @@ const CreateCustomer = () => {
         continueText={translate('text_645388d5bdbd7b00abffa033')}
         onContinue={onClose}
       />
+
+      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </CenteredPage.Wrapper>
   )
 }
