@@ -20,6 +20,7 @@ import {
   AnrokCustomer,
   CreateCustomerInput,
   CurrencyEnum,
+  CustomerAccountTypeEnum,
   CustomerTypeEnum,
   HubspotCustomer,
   IntegrationTypeEnum,
@@ -49,10 +50,16 @@ const CreateCustomer = () => {
 
   const { isEdition, onSave, customer, loading, onClose } = useCreateEditCustomer()
 
+  const canEditAccountType =
+    hasAccessToRevenueShare && (isEdition ? customer?.canEditAttributes : true)
+
   const formikProps = useFormik<CreateCustomerInput | UpdateCustomerInput>({
     initialValues: {
       customerType: customer?.customerType ?? null,
-      accountType: customer?.accountType ?? null,
+      accountType:
+        customer?.accountType === CustomerAccountTypeEnum.Partner
+          ? CustomerAccountTypeEnum.Partner
+          : null,
       name: customer?.name ?? '',
       firstname: customer?.firstname ?? '',
       lastname: customer?.lastname ?? '',
@@ -281,7 +288,7 @@ const CreateCustomer = () => {
                 label={translate('text_173832066416253fgbilrnae')}
                 subLabel={translate('text_173832066416219scp0nqeo8')}
                 labelPosition="right"
-                disabled={!hasAccessToRevenueShare}
+                disabled={!canEditAccountType}
               />
 
               {!hasAccessToRevenueShare && <Icon name="sparkles" />}
