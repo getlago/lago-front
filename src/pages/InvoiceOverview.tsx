@@ -361,7 +361,9 @@ const InvoiceOverview = memo(
                 <div className={tw(isDraft ? 'pt-3' : 'pt-6')}>
                   <Alert type="info">
                     <Typography variant="body" color="grey700">
-                      {translate('text_1738593143437uebmu9jwtc4')}
+                      {translate(
+                        isDraft ? 'text_1738593143437uebmu9jwtc4' : 'text_1738605383523lme9aweoipp',
+                      )}
                     </Typography>
 
                     <Typography variant="caption" color="grey600">
