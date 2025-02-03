@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { useMemo, useRef } from 'react'
+import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import {
   DeleteCustomerDialog,
@@ -8,6 +8,13 @@ import {
 } from '~/components/customers/DeleteCustomerDialog'
 import { computeCustomerInitials } from '~/components/customers/utils'
 import { Avatar, Button, InfiniteScroll, Table, Typography } from '~/components/designSystem'
+import {
+  AvailableFiltersEnum,
+  AvailableQuickFilters,
+  Filters,
+  formatFiltersForCustomerQuery,
+} from '~/components/designSystem/Filters'
+import { QuickFilters } from '~/components/designSystem/Filters/QuickFilters'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { SearchInput } from '~/components/SearchInput'
 import { CREATE_CUSTOMER_ROUTE, CUSTOMER_DETAILS_ROUTE, UPDATE_CUSTOMER_ROUTE } from '~/core/router'
@@ -35,8 +42,13 @@ gql`
     ...AddCustomerDrawer
   }
 
-  query customers($page: Int, $limit: Int, $searchTerm: String) {
-    customers(page: $page, limit: $limit, searchTerm: $searchTerm) {
+  query customers(
+    $page: Int
+    $limit: Int
+    $searchTerm: String
+    $accountType: [CustomerAccountTypeEnum!]
+  ) {
+    customers(page: $page, limit: $limit, searchTerm: $searchTerm, accountType: $accountType) {
       metadata {
         currentPage
         totalPages
@@ -56,9 +68,14 @@ const CustomersList = () => {
   const { hasPermissions } = usePermissions()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+
+  const filtersForCustomerQuery = useMemo(() => {
+    return formatFiltersForCustomerQuery(searchParams)
+  }, [searchParams])
 
   const [getCustomers, { data, error, loading, fetchMore, variables }] = useCustomersLazyQuery({
-    variables: { limit: 20 },
+    variables: { limit: 20, ...filtersForCustomerQuery },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
@@ -86,6 +103,15 @@ const CustomersList = () => {
           )}
         </div>
       </PageHeader.Wrapper>
+
+      <div className="px-12 py-3 shadow-b">
+        <Filters.Provider
+          quickFiltersType={AvailableQuickFilters.CustomerAccountType}
+          availableFilters={[AvailableFiltersEnum.customerAccountType]}
+        >
+          <Filters.QuickFilters />
+        </Filters.Provider>
+      </div>
 
       <InfiniteScroll
         onBottom={() => {

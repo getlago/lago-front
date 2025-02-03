@@ -5,6 +5,7 @@ import {
   AmountFilterInterval,
   AvailableFiltersEnum,
   CreditNoteAvailableFilters,
+  CustomerAvailableFilters,
   filterDataInlineSeparator,
   InvoiceAvailableFilters,
 } from './types'
@@ -122,6 +123,13 @@ export const formatFiltersForInvoiceQuery = (searchParams: URLSearchParams) => {
   return formatFiltersForQuery({
     searchParams,
     availableFilters: InvoiceAvailableFilters,
+  })
+}
+
+export const formatFiltersForCustomerQuery = (searchParams: URLSearchParams) => {
+  return formatFiltersForQuery({
+    searchParams,
+    availableFilters: CustomerAvailableFilters,
   })
 }
 

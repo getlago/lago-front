@@ -3,6 +3,7 @@ export const filterDataInlineSeparator = '|-_-|'
 
 export enum AvailableQuickFilters {
   InvoiceStatus = 'invoiceStatus',
+  CustomerAccountType = 'customerAccountType',
 }
 
 export enum AmountFilterInterval {
@@ -27,6 +28,7 @@ export enum AvailableFiltersEnum {
   creditNoteReason = 'creditNoteReason',
   creditNoteCreditStatus = 'creditNoteCreditStatus',
   creditNoteRefundStatus = 'creditNoteRefundStatus',
+  customerAccountType = 'accountType',
 }
 
 export const CreditNoteAvailableFilters = [
@@ -51,6 +53,8 @@ export const InvoiceAvailableFilters = [
   AvailableFiltersEnum.status,
   AvailableFiltersEnum.amount,
 ]
+
+export const CustomerAvailableFilters = [AvailableFiltersEnum.customerAccountType]
 
 const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.status]: 'text_63ac86d797f728a87b2f9fa7',
