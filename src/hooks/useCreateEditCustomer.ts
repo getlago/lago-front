@@ -235,7 +235,9 @@ export const useCreateEditCustomer: UseCreateEditCustomer = () => {
 
     const input = {
       ...values,
-      accountType: values.accountType || CustomerAccountTypeEnum.Customer,
+      accountType: values.accountType
+        ? CustomerAccountTypeEnum.Partner
+        : CustomerAccountTypeEnum.Customer,
       paymentProvider,
       providerCustomer: {
         providerCustomerId: !paymentProvider ? null : providerCustomer?.providerCustomerId,
