@@ -19,6 +19,7 @@ import { SearchInput } from '~/components/SearchInput'
 import { CREATE_CUSTOMER_ROUTE, CUSTOMER_DETAILS_ROUTE, UPDATE_CUSTOMER_ROUTE } from '~/core/router'
 import {
   AddCustomerDrawerFragmentDoc,
+  CustomerAccountTypeEnum,
   CustomerItemFragmentDoc,
   useCustomersLazyQuery,
 } from '~/generated/graphql'
@@ -74,7 +75,14 @@ const CustomersList = () => {
   }, [searchParams])
 
   const [getCustomers, { data, error, loading, fetchMore, variables }] = useCustomersLazyQuery({
-    variables: { limit: 20, ...filtersForCustomerQuery },
+    variables: {
+      limit: 20,
+      ...filtersForCustomerQuery,
+      accountType: [
+        (filtersForCustomerQuery.accountType as CustomerAccountTypeEnum) ??
+          CustomerAccountTypeEnum.Customer,
+      ],
+    },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
