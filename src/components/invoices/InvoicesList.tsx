@@ -44,11 +44,13 @@ import {
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   LagoApiError,
+  PremiumIntegrationTypeEnum,
   useDownloadInvoiceItemMutation,
   useRetryInvoicePaymentMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 
 type TInvoiceListProps = {
@@ -73,6 +75,11 @@ const InvoicesList = ({
   const { isPremium } = useCurrentUser()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
+  const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
+
+  const hasAccessToRevenueShare = !!premiumIntegrations?.includes(
+    PremiumIntegrationTypeEnum.RevenueShare,
+  )
 
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
@@ -119,6 +126,7 @@ const InvoicesList = ({
             AvailableFiltersEnum.customerExternalId,
             AvailableFiltersEnum.paymentDisputeLost,
             AvailableFiltersEnum.paymentOverdue,
+            ...(hasAccessToRevenueShare ? [AvailableFiltersEnum.selfBilled] : []),
           ]}
         >
           <Filters.QuickFilters />

@@ -31,6 +31,7 @@ import {
   CreditNoteForVoidCreditNoteDialogFragmentDoc,
   CreditNoteTableItemFragment,
   GetCreditNotesListQuery,
+  PremiumIntegrationTypeEnum,
   TimezoneEnum,
   useDownloadCreditNoteMutation,
 } from '~/generated/graphql'
@@ -132,9 +133,12 @@ const CreditNotesTable = ({
 }: TCreditNoteTableProps) => {
   const { translate } = useInternationalization()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { formatTimeOrgaTZ, organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const { hasPermissions } = usePermissions()
 
+  const hasAccessToRevenueShare = !!premiumIntegrations?.includes(
+    PremiumIntegrationTypeEnum.RevenueShare,
+  )
   const [downloadCreditNote, { loading: loadingCreditNoteDownload }] =
     useDownloadCreditNoteMutation({
       onCompleted({ downloadCreditNote: data }) {
@@ -163,6 +167,7 @@ const CreditNotesTable = ({
               AvailableFiltersEnum.issuingDate,
               AvailableFiltersEnum.creditNoteReason,
               AvailableFiltersEnum.creditNoteRefundStatus,
+              ...(hasAccessToRevenueShare ? [AvailableFiltersEnum.selfBilled] : []),
             ]}
           >
             <Filters.Component />
