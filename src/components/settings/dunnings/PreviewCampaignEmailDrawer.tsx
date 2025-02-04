@@ -9,6 +9,7 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { LocaleEnum } from '~/core/translations'
 import {
   CurrencyEnum,
+  InvoicesForDunningEmailFragment,
   useGetOrganizationInfoForPreviewDunningCampaignLazyQuery,
 } from '~/generated/graphql'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
@@ -45,10 +46,12 @@ export const PreviewCampaignEmailDrawer = forwardRef<PreviewCampaignEmailDrawerR
     const [getOrganizationInfo, { loading, data }] =
       useGetOrganizationInfoForPreviewDunningCampaignLazyQuery()
 
-    const invoices = Array.from({ length: DUMMY_INVOICES_COUNT }).map((_, index) => ({
+    const invoices: InvoicesForDunningEmailFragment[] = Array.from({
+      length: DUMMY_INVOICES_COUNT,
+    }).map((_, index) => ({
       id: `${index}`,
       number: `${data?.organization?.name.slice(0, 3).toUpperCase()}-1234-567-89${index + 1}`,
-      totalAmountCents:
+      totalDueAmountCents:
         index === 0 ? DUMMY_OVERDUE_AMOUNT_CENTS - 10000 * (DUMMY_INVOICES_COUNT - 1) : 10000,
       currency: CurrencyEnum.Usd,
     }))

@@ -28,7 +28,7 @@ gql`
   fragment InvoicesForRequestOverduePaymentForm on Invoice {
     id
     number
-    totalAmountCents
+    totalDueAmountCents
     currency
     issuingDate
   }
@@ -134,13 +134,13 @@ export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
             ),
           },
           {
-            key: 'totalAmountCents',
-            title: translate('text_634d631acf4dce7b0127a3a6'),
+            key: 'totalDueAmountCents',
+            title: translate('text_17374735502775afvcm9pqxk'),
             textAlign: 'right',
             content: (row) => (
               <Typography variant="bodyHl" color="textSecondary" noWrap>
                 {intlFormatNumber(
-                  deserializeAmount(row.totalAmountCents, row.currency || currency),
+                  deserializeAmount(row.totalDueAmountCents, row.currency || currency),
                   {
                     currency: row.currency || currency,
                     currencyDisplay: 'narrowSymbol',

@@ -155,8 +155,8 @@ const CustomerRequestOverduePayment: FC = () => {
   const defaultCurrency = customer?.currency || organization?.defaultCurrency || CurrencyEnum.Usd
   const invoicesCollection = invoices?.collection ?? []
   const totalAmount = invoicesCollection.reduce(
-    (acc, { totalAmountCents, currency }) =>
-      acc + deserializeAmount(totalAmountCents, currency || defaultCurrency),
+    (acc, { totalDueAmountCents, currency }) =>
+      acc + deserializeAmount(totalDueAmountCents, currency || defaultCurrency),
     0,
   )
   const totalInvoices = invoicesCollection.length

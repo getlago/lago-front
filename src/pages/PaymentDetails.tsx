@@ -166,7 +166,7 @@ const PaymentDetails = () => {
   const payable = payment?.payable
   const payableInvoice = payable?.__typename === 'Invoice' && [payable]
   const requestPaymentInvoices = payable?.__typename === 'PaymentRequest' && payable?.invoices
-  const invoices = payableInvoice || requestPaymentInvoices
+  const invoices = payableInvoice || requestPaymentInvoices || []
 
   const goToPreviousRoute = useCallback(
     () =>
