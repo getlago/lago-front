@@ -324,7 +324,10 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                   {!!customer?.billingConfiguration?.documentLocale
                     ? DocumentLocales[customer?.billingConfiguration?.documentLocale]
                     : translate('text_1728374331992d2alok9y3kr', {
-                        value: DocumentLocales['en'],
+                        value:
+                          DocumentLocales[
+                            organization?.billingConfiguration?.documentLocale || 'en'
+                          ],
                       })}
                 </Typography>
               </SettingsListItem>
