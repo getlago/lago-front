@@ -48,11 +48,13 @@ interface CustomerInvoicesTabProps {
   customerTimezone?: TimezoneEnum
   externalId?: string
   userCurrency?: CurrencyEnum
+  isPartner?: boolean
 }
 
 export const CustomerInvoicesTab = ({
   customerId,
   customerTimezone,
+  isPartner,
   externalId,
   userCurrency,
 }: CustomerInvoicesTabProps) => {
@@ -106,7 +108,7 @@ export const CustomerInvoicesTab = ({
 
   return (
     <div className="flex flex-col gap-12">
-      {showInvoices && hasInvoices && (
+      {showInvoices && hasInvoices && !isPartner && (
         <CustomerOverview externalCustomerId={externalId} userCurrency={userCurrency} />
       )}
 

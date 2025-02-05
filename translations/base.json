@@ -2813,5 +2813,15 @@
   "text_1737733582553dm4huzkoee6": "Search or select a specific filters",
   "text_1738084927595tzdnuy6oxyu": "Fee successfully reset",
   "text_1738234109827diqh4eswleu": "Boleto Payments",
-  "text_1738234109827hev75h17loy": "For customers invoiced in BRL"
+  "text_1738234109827hev75h17loy": "For customers invoiced in BRL",
+  "text_173832066416253fgbilrnae": "Mark this customer as a partner",
+  "text_173832066416219scp0nqeo8": "Entity that sells your products or services, used for revenue sharing.",
+  "text_1738322099641hkzihmx9qyw": "Partner",
+  "text_1738593143437uebmu9jwtc4": "This invoice will be generated on behalf of this partner.",
+  "text_1738593143438173lt8105a5": "This invoice can be used to pay this partner.",
+  "text_17385950520558ttf6sv58s0": "Partner name",
+  "text_1738595318403vcyh77pwiew": "Partner billing",
+  "text_1738605383523lme9aweoipp": "This invoice has been generated on behalf of this partner.",
+  "text_1738748043939zqoqzz350yj": "Refresh"
 }
+

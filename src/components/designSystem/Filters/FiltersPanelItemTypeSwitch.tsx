@@ -4,6 +4,7 @@ import { FiltersItemCreditNoteCreditStatus } from '~/components/designSystem/Fil
 import { FiltersItemCreditNoteReason } from '~/components/designSystem/Filters/filtersElements/FiltersItemCreditNoteReason'
 import { FiltersItemCreditNoteRefundStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemCreditNoteRefundStatus'
 import { FiltersItemInvoiceNumber } from '~/components/designSystem/Filters/filtersElements/FiltersItemInvoiceNumber'
+import { FiltersItemSelfBilled } from '~/components/designSystem/Filters/filtersElements/FiltersItemSelfBilled'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { FiltersItemCurrency } from './filtersElements/FiltersItemCurrency'
@@ -73,6 +74,10 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.creditNoteRefundStatus]: (
       <FiltersItemCreditNoteRefundStatus value={value} setFilterValue={setFilterValue} />
     ),
+    [AvailableFiltersEnum.selfBilled]: (
+      <FiltersItemSelfBilled value={value} setFilterValue={setFilterValue} />
+    ),
+    [AvailableFiltersEnum.customerAccountType]: null,
   }
 
   return (

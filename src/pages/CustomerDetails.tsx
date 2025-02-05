@@ -21,6 +21,7 @@ import { computeCustomerInitials } from '~/components/customers/utils'
 import {
   Avatar,
   Button,
+  Chip,
   NavigationTab,
   Popper,
   Skeleton,
@@ -42,6 +43,7 @@ import {
 import { handleDownloadFile } from '~/core/utils/downloadFiles'
 import {
   AddCustomerDrawerFragmentDoc,
+  CustomerAccountTypeEnum,
   CustomerMainInfosFragmentDoc,
   useGenerateCustomerPortalUrlMutation,
   useGetCustomerQuery,
@@ -67,6 +69,7 @@ gql`
     creditNotesBalanceAmountCents
     applicableTimezone
     hasOverdueInvoices
+    accountType
     ...AddCustomerDrawer
     ...CustomerMainInfos
   }
@@ -127,6 +130,7 @@ const CustomerDetails = () => {
 
   const customerName = data?.customer?.displayName
   const customerInitials = computeCustomerInitials(data?.customer)
+  const isPartner = data?.customer?.accountType === CustomerAccountTypeEnum.Partner
 
   const safeTimezone = applicableTimezone
   const hasAnyActionsPermission =
@@ -327,24 +331,32 @@ const CustomerDetails = () => {
                   </div>
                 </div>
               ) : (
-                <div className="flex gap-4">
-                  <Avatar
-                    size="large"
-                    variant="user"
-                    identifier={customerName || ''}
-                    initials={customerInitials}
-                  />
-                  <div>
-                    <Typography
-                      className="mb-1"
-                      color="textSecondary"
-                      variant="headline"
-                      forceBreak
-                    >
-                      {customerName || translate('text_62f272a7a60b4d7fadad911a')}
-                    </Typography>
-                    <Typography>{externalId}</Typography>
+                <div className="flex gap-2">
+                  <div className="flex gap-4">
+                    <Avatar
+                      size="large"
+                      variant="user"
+                      identifier={customerName || ''}
+                      initials={customerInitials}
+                    />
+                    <div>
+                      <Typography
+                        className="mb-1"
+                        color="textSecondary"
+                        variant="headline"
+                        forceBreak
+                      >
+                        {customerName || translate('text_62f272a7a60b4d7fadad911a')}
+                      </Typography>
+                      <Typography>{externalId}</Typography>
+                    </div>
                   </div>
+
+                  {isPartner && (
+                    <div>
+                      <Chip label={translate('text_1738322099641hkzihmx9qyw')} />
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -410,6 +422,7 @@ const CustomerDetails = () => {
                           userCurrency={data?.customer?.currency || undefined}
                           customerId={customerId as string}
                           customerTimezone={safeTimezone}
+                          isPartner={isPartner}
                         />
                       ),
                     },

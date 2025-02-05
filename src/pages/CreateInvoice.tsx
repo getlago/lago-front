@@ -48,6 +48,7 @@ import { deserializeAmount, serializeAmount } from '~/core/serializers/serialize
 import {
   AddOnForInvoiceEditTaxDialogFragmentDoc,
   CurrencyEnum,
+  CustomerAccountTypeEnum,
   FetchDraftInvoiceTaxesMutation,
   LagoApiError,
   TaxInfosForCreateInvoiceFragment,
@@ -61,6 +62,7 @@ import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { HEADER_TABLE_HEIGHT, MenuPopper, PageHeader, theme } from '~/styles'
 import { StickySubmitBar } from '~/styles/mainObjectsForm'
+import { tw } from '~/styles/utils'
 
 const CELL_HEIGHT = 68
 
@@ -94,6 +96,7 @@ gql`
       taxIdentificationNumber
       state
       zipcode
+      accountType
       taxes {
         id
         ...TaxInfosForCreateInvoice
@@ -210,6 +213,8 @@ const CreateInvoice = () => {
   const hasTaxProvider = !!customer?.anrokCustomer?.id
 
   const customerName = customer?.displayName
+
+  const customerIsPartner = customer?.accountType === CustomerAccountTypeEnum.Partner
 
   const customerApplicableTax = useMemo(() => {
     if (hasTaxProvider) return []
@@ -526,6 +531,18 @@ const CreateInvoice = () => {
                   )}
                 </InvoiceHeader>
 
+                {customerIsPartner && (
+                  <Alert type="info">
+                    <Typography variant="body" color="grey700">
+                      {translate('text_1738593143437uebmu9jwtc4')}
+                    </Typography>
+
+                    <Typography variant="caption" color="grey600">
+                      {translate('text_1738593143438173lt8105a5')}
+                    </Typography>
+                  </Alert>
+                )}
+
                 <InlineTopInfo>
                   <Typography variant="caption" color="grey600">
                     {translate('text_6453819268763979024ad01b')}
@@ -533,10 +550,14 @@ const CreateInvoice = () => {
                   <Typography>{DateTime.now().toFormat('LLL. dd, yyyy')}</Typography>
                 </InlineTopInfo>
 
-                <FromToInfoWrapper>
+                <FromToInfoWrapper className={tw(customerIsPartner && 'flex-row-reverse')}>
                   <div>
                     <Typography variant="caption" color="grey600">
-                      {translate('text_6453819268763979024ad027')}
+                      {translate(
+                        customerIsPartner
+                          ? 'text_6453819268763979024ad03f'
+                          : 'text_6453819268763979024ad027',
+                      )}
                     </Typography>
                     <Typography variant="body" color="grey700" forceBreak>
                       {organization?.legalName || organization?.name}
@@ -592,7 +613,11 @@ const CreateInvoice = () => {
                   </div>
                   <div>
                     <Typography variant="caption" color="grey600">
-                      {translate('text_6453819268763979024ad03f')}
+                      {translate(
+                        customerIsPartner
+                          ? 'text_6453819268763979024ad027'
+                          : 'text_6453819268763979024ad03f',
+                      )}
                     </Typography>
                     <Typography variant="body" color="grey700" forceBreak>
                       {customer?.legalName || customerName}

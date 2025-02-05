@@ -5,6 +5,7 @@ import {
   AmountFilterInterval,
   AvailableFiltersEnum,
   CreditNoteAvailableFilters,
+  CustomerAvailableFilters,
   filterDataInlineSeparator,
   InvoiceAvailableFilters,
 } from './types'
@@ -62,6 +63,7 @@ export const FILTER_VALUE_MAP: Partial<Record<AvailableFiltersEnum, Function>> =
   [AvailableFiltersEnum.creditNoteReason]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.creditNoteRefundStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.creditNoteCreditStatus]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.selfBilled]: (value: string) => value === 'true',
 }
 
 const formatFiltersForQuery = ({
@@ -122,6 +124,13 @@ export const formatFiltersForInvoiceQuery = (searchParams: URLSearchParams) => {
   return formatFiltersForQuery({
     searchParams,
     availableFilters: InvoiceAvailableFilters,
+  })
+}
+
+export const formatFiltersForCustomerQuery = (searchParams: URLSearchParams) => {
+  return formatFiltersForQuery({
+    searchParams,
+    availableFilters: CustomerAvailableFilters,
   })
 }
 

@@ -11,7 +11,11 @@ import { CountryCodes } from '~/core/constants/countryCodes'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import { formatDateToTZ } from '~/core/timezone'
-import { InvoiceForInvoiceInfosFragment, InvoiceStatusTypeEnum } from '~/generated/graphql'
+import {
+  CustomerAccountTypeEnum,
+  InvoiceForInvoiceInfosFragment,
+  InvoiceStatusTypeEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
@@ -45,6 +49,7 @@ gql`
       zipcode
       applicableTimezone
       deletedAt
+      accountType
     }
   }
 `
@@ -58,6 +63,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
   const { translate } = useInternationalization()
 
   const customerName = customer?.displayName
+  const customerIsPartner = customer?.accountType === CustomerAccountTypeEnum.Partner
 
   return (
     <Wrapper>
@@ -65,7 +71,11 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
         {customer && customerName && (
           <InfoLine>
             <Typography variant="caption" color="grey600" noWrap>
-              {translate('text_634687079be251fdb43833cb')}
+              {translate(
+                customerIsPartner
+                  ? 'text_17385950520558ttf6sv58s0'
+                  : 'text_634687079be251fdb43833cb',
+              )}
             </Typography>
             <ConditionalWrapper
               condition={!!customer.deletedAt}

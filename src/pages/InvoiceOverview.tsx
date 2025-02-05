@@ -35,6 +35,7 @@ import {
   CreditNote,
   CreditNoteItem,
   Customer,
+  CustomerAccountTypeEnum,
   DownloadInvoiceItemMutationFn,
   HubspotIntegrationInfosForInvoiceOverviewFragment,
   Invoice,
@@ -52,6 +53,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { theme } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
+import { tw } from '~/styles/utils'
 
 gql`
   fragment InvoiceDetailsForInvoiceOverview on Invoice {
@@ -69,6 +71,7 @@ gql`
     customer {
       id
       applicableTimezone
+      accountType
       anrokCustomer {
         id
         externalAccountId
@@ -223,6 +226,9 @@ const InvoiceOverview = memo(
 
     const isTaxStatusPending = invoice?.taxStatus === InvoiceTaxStatusTypeEnum.Pending
 
+    const isDraft = invoice?.status === InvoiceStatusTypeEnum.Draft
+    const customerIsPartner = customer?.accountType === CustomerAccountTypeEnum.Partner
+
     return (
       <>
         <SectionHeader variant="subhead">
@@ -332,8 +338,8 @@ const InvoiceOverview = memo(
             </>
           ) : (
             <>
-              {invoice?.status === InvoiceStatusTypeEnum.Draft && (
-                <DraftAlertWrapper>
+              {isDraft && (
+                <div className="pt-6">
                   <Alert type="info">
                     {translate(
                       hasTaxProviderError
@@ -348,8 +354,25 @@ const InvoiceOverview = memo(
                       },
                     )}
                   </Alert>
-                </DraftAlertWrapper>
+                </div>
               )}
+
+              {customerIsPartner && (
+                <div className={tw(isDraft ? 'pt-3' : 'pt-6')}>
+                  <Alert type="info">
+                    <Typography variant="body" color="grey700">
+                      {translate(
+                        isDraft ? 'text_1738593143437uebmu9jwtc4' : 'text_1738605383523lme9aweoipp',
+                      )}
+                    </Typography>
+
+                    <Typography variant="caption" color="grey600">
+                      {translate('text_1738593143438173lt8105a5')}
+                    </Typography>
+                  </Alert>
+                </div>
+              )}
+
               <InvoiceCustomerInfos invoice={invoice} />
               <InvoiceDetailsTable
                 customer={customer as Customer}
@@ -597,10 +620,6 @@ const SkeletonLine = styled.div`
 const NavigationRightActions = styled.div`
   display: flex;
   gap: ${theme.spacing(3)};
-`
-
-const DraftAlertWrapper = styled.div`
-  padding-top: ${theme.spacing(3)};
 `
 
 const LoadingTR = styled.tr`
