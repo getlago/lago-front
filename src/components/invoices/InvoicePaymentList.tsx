@@ -13,11 +13,10 @@ import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
   CurrencyEnum,
   PaymentTypeEnum,
-  PremiumIntegrationTypeEnum,
   useGetPaymentListQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 
 export const InvoicePaymentList: FC<{
@@ -25,7 +24,7 @@ export const InvoicePaymentList: FC<{
 }> = ({ invoiceTotalDueAmount }) => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
+  const { isPremium } = useCurrentUser()
   const { invoiceId } = useParams()
 
   const { data, loading, error, fetchMore } = useGetPaymentListQuery({
@@ -36,9 +35,7 @@ export const InvoicePaymentList: FC<{
   const payments = data?.payments.collection || []
 
   const canRecordPayment =
-    invoiceTotalDueAmount > 0 &&
-    hasPermissions(['paymentsCreate']) &&
-    premiumIntegrations?.includes(PremiumIntegrationTypeEnum.ManualPayments)
+    invoiceTotalDueAmount > 0 && hasPermissions(['paymentsCreate']) && isPremium
 
   return (
     <>

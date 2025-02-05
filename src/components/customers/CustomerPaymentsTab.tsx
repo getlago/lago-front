@@ -6,6 +6,7 @@ import { ButtonLink, Skeleton, Typography } from '~/components/designSystem'
 import { CREATE_PAYMENT_ROUTE } from '~/core/router'
 import { useGetPaymentListQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 
 interface CustomerPaymentsTabProps {
@@ -15,6 +16,7 @@ interface CustomerPaymentsTabProps {
 export const CustomerPaymentsTab: FC<CustomerPaymentsTabProps> = ({ externalCustomerId }) => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
+  const { isPremium } = useCurrentUser()
 
   const { data, loading, fetchMore } = useGetPaymentListQuery({
     variables: { externalCustomerId: externalCustomerId as string, limit: 20 },
@@ -25,7 +27,7 @@ export const CustomerPaymentsTab: FC<CustomerPaymentsTabProps> = ({ externalCust
 
   const urlSearchParams = new URLSearchParams({ externalId: externalCustomerId })
 
-  const canRecordPayment = hasPermissions(['paymentsCreate'])
+  const canRecordPayment = hasPermissions(['paymentsCreate']) && isPremium
 
   return (
     <div className="flex flex-col gap-4">

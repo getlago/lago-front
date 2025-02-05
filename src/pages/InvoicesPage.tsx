@@ -36,7 +36,6 @@ import {
   InvoiceListItemFragmentDoc,
   LagoApiError,
   PaymentForPaymentsListFragmentDoc,
-  PremiumIntegrationTypeEnum,
   useCreateCreditNotesDataExportMutation,
   useCreateInvoicesDataExportMutation,
   useGetCreditNotesListLazyQuery,
@@ -45,6 +44,7 @@ import {
   useRetryAllInvoicePaymentsMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -210,10 +210,10 @@ const InvoicesPage = () => {
   const { hasPermissions } = usePermissions()
   const { organization } = useOrganizationInfos()
   const navigate = useNavigate()
-
+  const { isPremium } = useCurrentUser()
+  const [searchParams] = useSearchParams()
   const amountCurrency = organization?.defaultCurrency
   const { tab = InvoiceListTabEnum.invoices } = useParams<{ tab?: InvoiceListTabEnum }>()
-  const [searchParams] = useSearchParams()
 
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
@@ -398,28 +398,13 @@ const InvoicesPage = () => {
               <Button
                 variant="primary"
                 onClick={() => {
-                  if (
-                    organization?.premiumIntegrations.includes(
-                      PremiumIntegrationTypeEnum.ManualPayments,
-                    )
-                  ) {
+                  if (isPremium) {
                     navigate(CREATE_PAYMENT_ROUTE)
                   } else {
-                    premiumWarningDialogRef.current?.openDialog({
-                      title: translate('text_1738059367337v2tfzq3mr5u'),
-                      description: translate('text_1738059367337mm2dwg2af6g'),
-                      mailtoSubject: translate('text_1738059367337hy6e2c7pa3t'),
-                      mailtoBody: translate('text_1738059367337km2lr0xueue'),
-                    })
+                    premiumWarningDialogRef.current?.openDialog()
                   }
                 }}
-                endIcon={
-                  organization?.premiumIntegrations.includes(
-                    PremiumIntegrationTypeEnum.ManualPayments,
-                  )
-                    ? undefined
-                    : 'sparkles'
-                }
+                endIcon={isPremium ? undefined : 'sparkles'}
               >
                 {translate('text_1737471851634wpeojigr27w')}
               </Button>

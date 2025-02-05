@@ -256,23 +256,12 @@ const InvoicesList = ({
                       startIcon: 'receipt',
                       title: translate('text_1737471851634wpeojigr27w'),
 
-                      endIcon: premiumIntegrations?.includes(
-                        PremiumIntegrationTypeEnum.ManualPayments,
-                      )
-                        ? undefined
-                        : 'sparkles',
+                      endIcon: isPremium ? undefined : 'sparkles',
                       onAction: ({ id }) => {
-                        if (
-                          premiumIntegrations?.includes(PremiumIntegrationTypeEnum.ManualPayments)
-                        ) {
+                        if (isPremium) {
                           navigate(generatePath(CREATE_INVOICE_PAYMENT_ROUTE, { invoiceId: id }))
                         } else {
-                          premiumWarningDialogRef.current?.openDialog({
-                            title: translate('text_1738059367337v2tfzq3mr5u'),
-                            description: translate('text_1738059367337mm2dwg2af6g'),
-                            mailtoSubject: translate('text_1738059367337hy6e2c7pa3t'),
-                            mailtoBody: translate('text_1738059367337km2lr0xueue'),
-                          })
+                          premiumWarningDialogRef.current?.openDialog()
                         }
                       },
                     }

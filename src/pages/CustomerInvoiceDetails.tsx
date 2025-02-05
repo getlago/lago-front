@@ -77,7 +77,6 @@ import {
   LagoApiError,
   NetsuiteIntegration,
   NetsuiteIntegrationInfosForInvoiceOverviewFragmentDoc,
-  PremiumIntegrationTypeEnum,
   SalesforceIntegration,
   SalesforceIntegrationInfosForInvoiceOverviewFragmentDoc,
   useDownloadInvoiceMutation,
@@ -740,27 +739,16 @@ const CustomerInvoiceDetails = () => {
                     <Button
                       variant="quaternary"
                       align="left"
-                      endIcon={
-                        premiumIntegrations?.includes(PremiumIntegrationTypeEnum.ManualPayments)
-                          ? undefined
-                          : 'sparkles'
-                      }
+                      endIcon={isPremium ? undefined : 'sparkles'}
                       onClick={() => {
-                        if (
-                          premiumIntegrations?.includes(PremiumIntegrationTypeEnum.ManualPayments)
-                        ) {
+                        if (isPremium) {
                           navigate(
                             generatePath(CREATE_INVOICE_PAYMENT_ROUTE, {
                               invoiceId: invoiceId as string,
                             }),
                           )
                         } else {
-                          premiumWarningDialogRef.current?.openDialog({
-                            title: translate('text_1738059367337v2tfzq3mr5u'),
-                            description: translate('text_1738059367337mm2dwg2af6g'),
-                            mailtoSubject: translate('text_1738059367337hy6e2c7pa3t'),
-                            mailtoBody: translate('text_1738059367337km2lr0xueue'),
-                          })
+                          premiumWarningDialogRef.current?.openDialog()
                         }
                         closePopper()
                       }}
