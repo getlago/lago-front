@@ -348,27 +348,29 @@ export const InvoiceDetailsTable = memo(
                       return component
                     })}
 
-                    {!hasOldZeroFeeManagement && !invoice.allChargesHaveFees && (
-                      <tr>
-                        <td colSpan={6}>
-                          <div>
-                            <Button
-                              variant="quaternary"
-                              size="small"
-                              startIcon={'plus'}
-                              onClick={() =>
-                                editFeeDrawerRef.current?.openDrawer({
-                                  invoiceId: subscription.metadata.invoiceId,
-                                  invoiceSubscriptionId: subscriptionId,
-                                })
-                              }
-                            >
-                              {translate('text_1737709105343hobdiidr8r9')}
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
+                    {!hasOldZeroFeeManagement &&
+                      !invoice.allChargesHaveFees &&
+                      invoice.status === InvoiceStatusTypeEnum.Draft && (
+                        <tr>
+                          <td colSpan={6}>
+                            <div>
+                              <Button
+                                variant="quaternary"
+                                size="small"
+                                startIcon={'plus'}
+                                onClick={() =>
+                                  editFeeDrawerRef.current?.openDrawer({
+                                    invoiceId: subscription.metadata.invoiceId,
+                                    invoiceSubscriptionId: subscriptionId,
+                                  })
+                                }
+                              >
+                                {translate('text_1737709105343hobdiidr8r9')}
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
                   </tbody>
                 </table>
               )
