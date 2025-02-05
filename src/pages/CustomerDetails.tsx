@@ -422,6 +422,7 @@ const CustomerDetails = () => {
                           userCurrency={data?.customer?.currency || undefined}
                           customerId={customerId as string}
                           customerTimezone={safeTimezone}
+                          isPartner={isPartner}
                         />
                       ),
                     },
