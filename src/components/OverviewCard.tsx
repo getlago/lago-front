@@ -1,6 +1,7 @@
 import { FC } from 'react'
 
-import { Card, Icon, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { Button, Card, Icon, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 interface OverviewCardProps {
   title: string
@@ -21,6 +22,8 @@ export const OverviewCard: FC<OverviewCardProps> = ({
   isLoading,
   refresh,
 }) => {
+  const { translate } = useInternationalization()
+
   return (
     <Card className="flex-1 gap-4 p-6">
       {isLoading ? (
@@ -48,7 +51,11 @@ export const OverviewCard: FC<OverviewCardProps> = ({
               )}
             </div>
 
-            {refresh && <Icon name="reload" onClick={refresh} />}
+            {refresh && (
+              <Tooltip placement="top-end" title={translate('text_1738748043939zqoqzz350yj')}>
+                <Button variant="quaternary" size="small" icon="reload" onClick={refresh} />
+              </Tooltip>
+            )}
           </div>
 
           <div className="flex flex-col gap-1">
