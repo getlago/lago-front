@@ -13,7 +13,7 @@ describe('Create customer', () => {
 
     cy.get('input[name="externalId"]').type('id-george-de-la-jungle')
 
-    cy.get('input[name="name"]').should('exist').type(customerName, { scrollBehavior: false })
+    cy.get('input[name="name"]').should('exist').type(customerName)
 
     cy.get('[data-test="submit-customer"]').click()
 
@@ -29,7 +29,7 @@ describe('Create customer', () => {
       const randomId = `Customer ${randomNumber}`
 
       cy.get('[data-test="create-customer"]').click()
-      cy.get('input[name="name"]').type(randomId, { scrollBehavior: false })
+      cy.get('input[name="name"]').type(randomId)
       cy.get('[data-test="submit-customer"]').should('be.disabled')
       cy.get('input[name="externalId"]').type(randomId)
       cy.get('[data-test="submit-customer"]').click()
