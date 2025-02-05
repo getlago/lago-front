@@ -32,6 +32,7 @@ const wrapper = ({
       <div>
         <FilterContext.Provider
           value={{
+            filtersNamePrefix: 'f',
             staticFilters: withStaticFilters ? staticFilters : undefined,
             availableFilters: [AvailableFiltersEnum.status, AvailableFiltersEnum.invoiceType],
           }}
@@ -49,7 +50,7 @@ describe('draft', () => {
       wrapper: ({ children }) => wrapper({ children, withStaticFilters: false }),
     })
 
-    const expectedSearchParams = 'status=draft'
+    const expectedSearchParams = 'f_status=draft'
 
     expect(
       result.current.buildQuickFilterUrlParams({
@@ -68,7 +69,7 @@ describe('draft', () => {
       wrapper: ({ children }) => wrapper({ children, withStaticFilters: true }),
     })
 
-    const expectedSearchParams = 'currency=eur&status=draft'
+    const expectedSearchParams = 'f_currency=eur&f_status=draft'
 
     const draftSearchParams = new Map(
       new URLSearchParams(`?${expectedSearchParams}`).entries(),
@@ -89,7 +90,7 @@ describe('outstanding', () => {
       wrapper: ({ children }) => wrapper({ children, withStaticFilters: false }),
     })
 
-    const expectedSearchParams = 'paymentStatus=failed,pending&status=finalized'
+    const expectedSearchParams = 'f_paymentStatus=failed,pending&f_status=finalized'
 
     expect(
       result.current.buildQuickFilterUrlParams({
@@ -109,7 +110,7 @@ describe('outstanding', () => {
       wrapper: ({ children }) => wrapper({ children, withStaticFilters: true }),
     })
 
-    const expectedSearchParams = 'currency=eur&paymentStatus=failed,pending&status=finalized'
+    const expectedSearchParams = 'f_currency=eur&f_paymentStatus=failed,pending&f_status=finalized'
 
     expect(
       result.current.buildQuickFilterUrlParams({
@@ -132,7 +133,7 @@ describe('payment overdue', () => {
       wrapper: ({ children }) => wrapper({ children, withStaticFilters: false }),
     })
 
-    const expectedSearchParams = 'paymentOverdue=true'
+    const expectedSearchParams = 'f_paymentOverdue=true'
 
     expect(
       result.current.buildQuickFilterUrlParams({
@@ -151,7 +152,7 @@ describe('payment overdue', () => {
       wrapper: ({ children }) => wrapper({ children, withStaticFilters: true }),
     })
 
-    const expectedSearchParams = 'currency=eur&paymentOverdue=true'
+    const expectedSearchParams = 'f_currency=eur&f_paymentOverdue=true'
 
     expect(
       result.current.buildQuickFilterUrlParams({
@@ -173,7 +174,7 @@ describe('succeeded', () => {
       wrapper: ({ children }) => wrapper({ children, withStaticFilters: false }),
     })
 
-    const expectedSearchParams = 'paymentStatus=succeeded&status=finalized'
+    const expectedSearchParams = 'f_paymentStatus=succeeded&f_status=finalized'
 
     expect(
       result.current.buildQuickFilterUrlParams({
@@ -193,7 +194,7 @@ describe('succeeded', () => {
       wrapper: ({ children }) => wrapper({ children, withStaticFilters: true }),
     })
 
-    const expectedSearchParams = 'currency=eur&paymentStatus=succeeded&status=finalized'
+    const expectedSearchParams = 'f_currency=eur&f_paymentStatus=succeeded&f_status=finalized'
 
     expect(
       result.current.buildQuickFilterUrlParams({
@@ -216,7 +217,7 @@ describe('voided', () => {
       wrapper: ({ children }) => wrapper({ children, withStaticFilters: false }),
     })
 
-    const expectedSearchParams = 'status=voided'
+    const expectedSearchParams = 'f_status=voided'
 
     expect(
       result.current.buildQuickFilterUrlParams({
@@ -235,7 +236,7 @@ describe('voided', () => {
       wrapper: ({ children }) => wrapper({ children, withStaticFilters: true }),
     })
 
-    const expectedSearchParams = 'currency=eur&status=voided'
+    const expectedSearchParams = 'f_currency=eur&f_status=voided'
 
     expect(
       result.current.buildQuickFilterUrlParams({
@@ -257,7 +258,7 @@ describe('payment dispute lost', () => {
       wrapper: ({ children }) => wrapper({ children, withStaticFilters: false }),
     })
 
-    const expectedSearchParams = 'paymentDisputeLost=true'
+    const expectedSearchParams = 'f_paymentDisputeLost=true'
 
     expect(
       result.current.buildQuickFilterUrlParams({
@@ -276,7 +277,7 @@ describe('payment dispute lost', () => {
       wrapper: ({ children }) => wrapper({ children, withStaticFilters: true }),
     })
 
-    const expectedSearchParams = 'currency=eur&paymentDisputeLost=true'
+    const expectedSearchParams = 'f_currency=eur&f_paymentDisputeLost=true'
 
     expect(
       result.current.buildQuickFilterUrlParams({
