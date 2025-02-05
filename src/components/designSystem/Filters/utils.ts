@@ -77,17 +77,23 @@ const formatFiltersForQuery = ({
   searchParams,
   keyMap,
   availableFilters,
+  filtersNamePrefix,
 }: {
   searchParams: URLSearchParams
   keyMap?: Record<string, string>
   availableFilters: AvailableFiltersEnum[]
+  filtersNamePrefix?: string
 }) => {
   const filtersSetInUrl = Object.fromEntries(searchParams.entries())
 
   return Object.entries(filtersSetInUrl).reduce(
     (acc, cur) => {
       const current = cur as [AvailableFiltersEnum, string | string[] | boolean]
-      const key = current[0]
+      const _key = current[0]
+
+      const key = (
+        filtersNamePrefix ? _key.replace(`${filtersNamePrefix}_`, '') : _key
+      ) as AvailableFiltersEnum
 
       if (!availableFilters.includes(key)) {
         return acc
