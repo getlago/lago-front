@@ -113,6 +113,7 @@ const CustomersList = () => {
 
       <div className="px-12 py-3 shadow-b">
         <Filters.Provider
+          filtersNamePrefix="cu"
           quickFiltersType={AvailableQuickFilters.CustomerAccountType}
           availableFilters={[AvailableFiltersEnum.customerAccountType]}
         >

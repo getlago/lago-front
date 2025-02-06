@@ -146,6 +146,7 @@ export const formatFiltersForCustomerQuery = (searchParams: URLSearchParams) => 
   return formatFiltersForQuery({
     searchParams,
     availableFilters: CustomerAvailableFilters,
+    filtersNamePrefix: 'cu',
   })
 }
 
