@@ -31,7 +31,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'
 
-const WEBHOOK_COUNT_LIMIT = 5
+const WEBHOOK_COUNT_LIMIT = 10
 
 gql`
   query getOrganizationHmacData {
