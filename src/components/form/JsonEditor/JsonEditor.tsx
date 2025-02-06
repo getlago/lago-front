@@ -198,7 +198,7 @@ export const JsonEditor = ({
             showLineNumbers: true,
             tabSize: 2,
             showPrintMargin: false,
-            readOnly: readOnly || readOnlyWithoutStyles,
+            readOnly: readOnly || readOnlyWithoutStyles || disabled,
           }}
         />
       </div>
