@@ -7,7 +7,7 @@ interface FilterContextType {
   availableFilters: AvailableFiltersEnum[]
   quickFiltersType?: AvailableQuickFilters
   staticFilters?: Partial<Record<AvailableFiltersEnum, unknown>>
-  filtersNamePrefix?: string
+  filtersNamePrefix: string
 }
 
 export const FilterContext = createContext<FilterContextType | undefined>(undefined)

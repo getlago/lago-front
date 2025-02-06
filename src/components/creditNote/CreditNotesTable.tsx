@@ -158,6 +158,7 @@ const CreditNotesTable = ({
           )}
         >
           <Filters.Provider
+            filtersNamePrefix="cn"
             availableFilters={[
               AvailableFiltersEnum.amount,
               AvailableFiltersEnum.creditNoteCreditStatus,

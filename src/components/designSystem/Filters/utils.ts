@@ -82,7 +82,7 @@ const formatFiltersForQuery = ({
   searchParams: URLSearchParams
   keyMap?: Record<string, string>
   availableFilters: AvailableFiltersEnum[]
-  filtersNamePrefix?: string
+  filtersNamePrefix: string
 }) => {
   const filtersSetInUrl = Object.fromEntries(searchParams.entries())
 
@@ -130,6 +130,7 @@ export const formatFiltersForCreditNotesQuery = (searchParams: URLSearchParams) 
     searchParams,
     keyMap,
     availableFilters: CreditNoteAvailableFilters,
+    filtersNamePrefix: 'cn',
   })
 }
 
@@ -137,6 +138,7 @@ export const formatFiltersForInvoiceQuery = (searchParams: URLSearchParams) => {
   return formatFiltersForQuery({
     searchParams,
     availableFilters: InvoiceAvailableFilters,
+    filtersNamePrefix: 'in',
   })
 }
 
