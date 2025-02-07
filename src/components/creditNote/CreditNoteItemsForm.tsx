@@ -2,7 +2,6 @@ import { FormikProps } from 'formik'
 import _get from 'lodash/get'
 import { DateTime } from 'luxon'
 import { FC, useMemo } from 'react'
-import styled from 'styled-components'
 
 import { CreditNoteFormItem } from '~/components/creditNote/CreditNoteFormItem'
 import { CreditNoteForm, FeesPerInvoice, FromFee, GroupedFee } from '~/components/creditNote/types'
@@ -10,7 +9,6 @@ import { Typography } from '~/components/designSystem'
 import { Checkbox } from '~/components/form/Checkbox'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { HEADER_TABLE_HEIGHT, theme } from '~/styles'
 
 const determineCheckboxValue = (
   initialValue: boolean | undefined | null,
@@ -97,7 +95,7 @@ export const CreditNoteItemsForm: FC<CreditNoteItemsFormProps> = ({
   return (
     <div>
       {isPrepaidCreditsInvoice && (
-        <HeaderLine className="!mb-0">
+        <div className="flex h-12 flex-row items-center justify-between shadow-b">
           <Checkbox
             label={
               <Typography variant="bodyHl" color="grey500">
@@ -113,7 +111,7 @@ export const CreditNoteItemsForm: FC<CreditNoteItemsFormProps> = ({
           <Typography variant="bodyHl" color="grey500">
             {translate('text_636bedf292786b19d3398ee0')}
           </Typography>
-        </HeaderLine>
+        </div>
       )}
 
       {feeForCredit &&
@@ -146,7 +144,7 @@ export const CreditNoteItemsForm: FC<CreditNoteItemsFormProps> = ({
 
           return (
             <div key={subKey}>
-              <HeaderLine>
+              <div className="flex h-12 flex-row items-center justify-between shadow-b">
                 <Checkbox
                   value={_get(checkboxGroupValue, `${subKey}.value`)}
                   canBeIndeterminate
@@ -194,7 +192,7 @@ export const CreditNoteItemsForm: FC<CreditNoteItemsFormProps> = ({
                 <Typography variant="bodyHl" color="grey500">
                   {translate('text_636bedf292786b19d3398ee0')}
                 </Typography>
-              </HeaderLine>
+              </div>
               {Object.keys(subscription?.fees)?.map((groupFeeKey) => {
                 const child = subscription?.fees[groupFeeKey] as FromFee
 
@@ -249,11 +247,3 @@ export const CreditNoteItemsForm: FC<CreditNoteItemsFormProps> = ({
     </div>
   )
 }
-
-const HeaderLine = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: ${theme.shadows[7]};
-  height: ${HEADER_TABLE_HEIGHT}px;
-`

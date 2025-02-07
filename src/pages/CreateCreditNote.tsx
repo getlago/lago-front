@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 import { array, object, string } from 'yup'
 
 import { CreditNoteCodeSnippet } from '~/components/creditNote/CreditNoteCodeSnippet'
@@ -45,7 +44,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateCreditNote } from '~/hooks/useCreateCreditNote'
-import { PageHeader, theme } from '~/styles'
+import { PageHeader } from '~/styles'
 import { Content, Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
 gql`
@@ -241,20 +240,20 @@ const CreateCreditNote = () => {
               <>
                 <Skeleton variant="text" className="mb-5 w-70" />
                 <Skeleton variant="text" className="mb-10 w-120" />
-                <StyledCard $loading>
-                  <Skeleton variant="connectorAvatar" size="medium" className="mr-3" />
+                <Card className="flex flex-row items-center gap-3 p-4">
+                  <Skeleton variant="connectorAvatar" size="medium" />
                   <Skeleton variant="text" className="w-40" />
-                </StyledCard>
+                </Card>
                 <Card>
                   <Skeleton variant="text" className="w-104" />
                   <Skeleton variant="text" className="w-164" />
                   <Skeleton variant="text" className="w-64" />
                 </Card>
-                <ButtonContainer>
+                <div className="mb-20 px-8">
                   <Button size="large" disabled fullWidth>
                     {translate('text_636bedf292786b19d3398ec4')}
                   </Button>
-                </ButtonContainer>
+                </div>
               </>
             ) : (
               <>
@@ -262,36 +261,39 @@ const CreateCreditNote = () => {
                   <Title variant="headline">{translate('text_636bedf292786b19d3398ec4')}</Title>
                   <Subtitle>{translate('text_636bedf292786b19d3398ec6')}</Subtitle>
                 </div>
-                <StyledCard>
-                  <Avatar size="big" variant="connector">
-                    <Icon name="document" />
-                  </Avatar>
 
-                  <div>
-                    <Typography variant="caption">
-                      {translate('text_636bedf292786b19d3398ec8')}
-                    </Typography>
-                    <Typography variant="bodyHl" color="grey700">
-                      {translate('text_636bedf292786b19d3398eca', {
-                        invoiceNumber: invoice?.number,
-                        subtotal: intlFormatNumber(
-                          deserializeAmount(
-                            invoice?.subTotalIncludingTaxesAmountCents || 0,
-                            currency,
+                <Card className="flex flex-row items-center justify-between p-4">
+                  <div className="flex flex-row items-center gap-3">
+                    <Avatar size="big" variant="connector">
+                      <Icon name="document" />
+                    </Avatar>
+
+                    <div>
+                      <Typography variant="caption">
+                        {translate('text_636bedf292786b19d3398ec8')}
+                      </Typography>
+                      <Typography variant="bodyHl" color="grey700">
+                        {translate('text_636bedf292786b19d3398eca', {
+                          invoiceNumber: invoice?.number,
+                          subtotal: intlFormatNumber(
+                            deserializeAmount(
+                              invoice?.subTotalIncludingTaxesAmountCents || 0,
+                              currency,
+                            ),
+                            {
+                              currency,
+                            },
                           ),
-                          {
-                            currency,
-                          },
-                        ),
-                      })}
-                    </Typography>
+                        })}
+                      </Typography>
+                    </div>
                   </div>
                   {!!invoice?.paymentDisputeLostAt ? (
                     <Status type={StatusType.danger} label="disputeLost" />
                   ) : (
                     <Status {...statusMap} />
                   )}
-                </StyledCard>
+                </Card>
 
                 <Card>
                   <Typography variant="subhead">
@@ -385,7 +387,7 @@ const CreateCreditNote = () => {
                     />
                   )}
                 </Card>
-                <ButtonContainer>
+                <div className="mb-20 px-8">
                   <Button
                     disabled={!formikProps.isValid}
                     fullWidth
@@ -394,7 +396,7 @@ const CreateCreditNote = () => {
                   >
                     {translate('text_636bedf292786b19d3398f12')}
                   </Button>
-                </ButtonContainer>
+                </div>
               </>
             )}
           </div>
@@ -428,26 +430,3 @@ const CreateCreditNote = () => {
 }
 
 export default CreateCreditNote
-
-const StyledCard = styled.div<{ $loading?: boolean }>`
-  border: 1px solid ${theme.palette.grey[300]};
-  border-radius: 12px;
-  box-sizing: border-box;
-  padding: ${theme.spacing(4)};
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    display: flex;
-    margin-right: ${theme.spacing(3)};
-  }
-
-  > *:last-child {
-    margin-left: auto;
-  }
-`
-
-const ButtonContainer = styled.div`
-  padding: 0 ${theme.spacing(8)};
-  margin-bottom: ${theme.spacing(20)};
-`
