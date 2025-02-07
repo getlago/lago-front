@@ -2,9 +2,11 @@ import { FC, PropsWithChildren, useRef } from 'react'
 
 import { Avatar, Button, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { LocaleEnum } from '~/core/translations'
+import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useEmailConfig } from '~/hooks/useEmailConfig'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
 
 import {
@@ -34,6 +36,11 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
   const { translateWithContextualLocal } = useContextualLocale(language)
 
   const { logoUrl, name } = useEmailConfig()
+
+  const { hasOrganizationPremiumAddon } = useOrganizationInfos()
+
+  const showPoweredBy =
+    !hasOrganizationPremiumAddon[PremiumIntegrationTypeEnum.RemoveBrandingWatermark]
 
   return (
     <>
@@ -109,18 +116,20 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
             {children}
           </section>
 
-          <div className="mb-20 flex items-center justify-center [&>svg]:mx-1">
-            {isLoading ? (
-              <Skeleton color="dark" variant="text" className="w-55" />
-            ) : (
-              <>
-                <Typography variant="note" color="grey500">
-                  {translateWithContextualLocal('text_64188b3d9735d5007d712278')}
-                </Typography>
-                <Logo height="12px" />
-              </>
-            )}
-          </div>
+          {showPoweredBy && (
+            <div className="mb-20 flex items-center justify-center [&>svg]:mx-1">
+              {isLoading ? (
+                <Skeleton color="dark" variant="text" className="w-55" />
+              ) : (
+                <>
+                  <Typography variant="note" color="grey500">
+                    {translateWithContextualLocal('text_64188b3d9735d5007d712278')}
+                  </Typography>
+                  <Logo height="12px" />
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
       <UpdateOrganizationLogoDialog ref={updateLogoDialogRef} />

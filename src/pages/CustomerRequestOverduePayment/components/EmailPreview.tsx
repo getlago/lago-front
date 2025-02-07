@@ -6,7 +6,9 @@ import {
   DunningEmailProps,
   DunningEmailSkeleton,
 } from '~/components/emails/DunningEmail'
+import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
 
 interface EmailPreviewProps extends DunningEmailProps {
@@ -23,6 +25,11 @@ export const EmailPreview: FC<EmailPreviewProps> = ({
   invoices,
 }) => {
   const { translateWithContextualLocal: translate } = useContextualLocale(locale)
+
+  const { hasOrganizationPremiumAddon } = useOrganizationInfos()
+
+  const showPoweredBy =
+    !hasOrganizationPremiumAddon[PremiumIntegrationTypeEnum.RemoveBrandingWatermark]
 
   if (isLoading) {
     return (
@@ -70,12 +77,15 @@ export const EmailPreview: FC<EmailPreviewProps> = ({
           organization={organization}
         />
       </Card>
-      <div className="mx-auto flex flex-row items-center gap-1">
-        <Typography className="font-email text-xs font-normal" color="grey500">
-          {translate('text_6419c64eace749372fc72b03')}
-        </Typography>
-        <Logo height="12px" />
-      </div>
+
+      {showPoweredBy && (
+        <div className="mx-auto flex flex-row items-center gap-1">
+          <Typography className="font-email text-xs font-normal" color="grey500">
+            {translate('text_6419c64eace749372fc72b03')}
+          </Typography>
+          <Logo height="12px" />
+        </div>
+      )}
     </div>
   )
 }
