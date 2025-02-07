@@ -2181,6 +2181,7 @@ export type DataExportCreditNoteFiltersInput = {
   reason?: InputMaybe<Array<CreditNoteReasonEnum>>;
   refundStatus?: InputMaybe<Array<CreditNoteRefundStatusEnum>>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+  selfBilled?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export enum DataExportFormatTypeEnum {
@@ -2200,6 +2201,7 @@ export type DataExportInvoiceFiltersInput = {
   paymentOverdue?: InputMaybe<Scalars['Boolean']['input']>;
   paymentStatus?: InputMaybe<Array<InvoicePaymentStatusTypeEnum>>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+  selfBilled?: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<Array<InvoiceStatusTypeEnum>>;
 };
 
