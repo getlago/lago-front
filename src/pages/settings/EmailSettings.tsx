@@ -11,7 +11,7 @@ import {
   Typography,
 } from '~/components/designSystem'
 import { Switch } from '~/components/form'
-import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/Pages'
+import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
   SettingsListItem,
   SettingsListItemHeader,

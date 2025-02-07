@@ -11,7 +11,7 @@ import {
 } from '~/components/customers/createCustomer/MetadataAccordion'
 import { Button, DrawerRef, Icon, Typography } from '~/components/designSystem'
 import { SwitchField } from '~/components/form'
-import { CenteredPage } from '~/components/layouts/Pages'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { hasDefinedGQLError } from '~/core/apolloClient'

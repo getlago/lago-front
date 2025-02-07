@@ -5,7 +5,7 @@ import { boolean, object, string } from 'yup'
 
 import { Button, Tooltip, Typography } from '~/components/designSystem'
 import { SwitchField, TextInputField } from '~/components/form'
-import { CenteredPage } from '~/components/layouts/Pages'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
   DefaultCustomSectionDialog,
   DefaultCustomSectionDialogRef,

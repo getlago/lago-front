@@ -3,7 +3,7 @@ import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router'
 
 import { Alert, Avatar, Chip, NavigationTab, Selector, Typography } from '~/components/designSystem'
-import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/Pages'
+import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
   SettingsListItem,
   SettingsListItemLoadingSkeleton,
