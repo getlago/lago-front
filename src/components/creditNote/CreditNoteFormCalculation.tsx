@@ -126,8 +126,8 @@ export const CreditNoteFormCalculation = ({
 
   const {
     hasCreditOrCoupon,
-    maxCreditableAmountCents,
-    maxRefundableAmountCents,
+    maxCreditableAmount,
+    maxRefundableAmount,
     proRatedCouponAmount,
     taxes,
     totalExcludedTax,
@@ -138,43 +138,46 @@ export const CreditNoteFormCalculation = ({
       estimationData?.creditNoteEstimate === null ||
       estimationData?.creditNoteEstimate === undefined
 
+    if (isError) {
+      return {
+        maxCreditableAmount: 0,
+        maxRefundableAmount: 0,
+        totalTaxIncluded: 0,
+        proRatedCouponAmount: 0,
+        totalExcludedTax: 0,
+        taxes: new Map(),
+        hasCreditOrCoupon: false,
+      }
+    }
+
+    const {
+      maxCreditableAmountCents,
+      maxRefundableAmountCents,
+      subTotalExcludingTaxesAmountCents,
+      taxesAmountCents,
+      couponsAdjustmentAmountCents,
+      appliedTaxes,
+    } = estimationData?.creditNoteEstimate || {}
+
     return {
-      maxCreditableAmountCents: estimationData?.creditNoteEstimate.maxCreditableAmountCents || 0,
-      maxRefundableAmountCents: estimationData?.creditNoteEstimate.maxRefundableAmountCents || 0,
-      totalTaxIncluded: isError
-        ? 0
-        : deserializeAmount(
-            estimationData?.creditNoteEstimate?.subTotalExcludingTaxesAmountCents || 0,
-            currency,
-          ) + deserializeAmount(estimationData?.creditNoteEstimate.taxesAmountCents || 0, currency),
-      proRatedCouponAmount: isError
-        ? 0
-        : deserializeAmount(
-            estimationData?.creditNoteEstimate?.couponsAdjustmentAmountCents || 0,
-            currency,
-          ),
-      totalExcludedTax: isError
-        ? 0
-        : deserializeAmount(
-            estimationData?.creditNoteEstimate?.subTotalExcludingTaxesAmountCents || 0,
-            currency,
-          ),
-      taxes: isError
-        ? new Map()
-        : new Map(
-            estimationData?.creditNoteEstimate?.appliedTaxes?.map((tax) => [
-              tax.taxCode,
-              {
-                label: tax.taxName,
-                taxRate: tax.taxRate,
-                amount: deserializeAmount(tax.amountCents || 0, currency),
-              },
-            ]),
-          ),
-      hasCreditOrCoupon: isError
-        ? false
-        : (estimationData?.creditNoteEstimate?.maxCreditableAmountCents || 0) >
-          (estimationData?.creditNoteEstimate?.maxRefundableAmountCents || 0),
+      maxCreditableAmount: deserializeAmount(maxCreditableAmountCents || 0, currency),
+      maxRefundableAmount: deserializeAmount(maxRefundableAmountCents || 0, currency),
+      totalTaxIncluded:
+        deserializeAmount(subTotalExcludingTaxesAmountCents || 0, currency) +
+        deserializeAmount(taxesAmountCents || 0, currency),
+      proRatedCouponAmount: deserializeAmount(couponsAdjustmentAmountCents || 0, currency),
+      totalExcludedTax: deserializeAmount(subTotalExcludingTaxesAmountCents || 0, currency),
+      taxes: new Map(
+        appliedTaxes.map((tax) => [
+          tax.taxCode,
+          {
+            label: tax.taxName,
+            taxRate: tax.taxRate,
+            amount: deserializeAmount(tax.amountCents || 0, currency),
+          },
+        ]),
+      ),
+      hasCreditOrCoupon: (maxCreditableAmountCents || 0) > (maxRefundableAmountCents || 0),
     }
   }, [currency, estimationData?.creditNoteEstimate, estimationError])
 
@@ -203,14 +206,8 @@ export const CreditNoteFormCalculation = ({
             .required('')
             .when('type', ([type]) => {
               return type === CreditTypeEnum.refund
-                ? number().max(
-                    deserializeAmount(maxRefundableAmountCents, currency) || 0,
-                    PayBackErrorEnum.maxRefund,
-                  )
-                : number().max(
-                    deserializeAmount(maxCreditableAmountCents, currency) || 0,
-                    PayBackErrorEnum.maxRefund,
-                  )
+                ? number().max(maxRefundableAmount, PayBackErrorEnum.maxRefund)
+                : number().max(maxCreditableAmount, PayBackErrorEnum.maxRefund)
             }),
         }),
       ),
@@ -333,7 +330,7 @@ export const CreditNoteFormCalculation = ({
           invoice={invoice}
           formikProps={formikProps}
           hasCreditOrCoupon={hasCreditOrCoupon}
-          maxRefundableAmountCents={maxRefundableAmountCents}
+          maxRefundableAmount={maxRefundableAmount}
           totalTaxIncluded={totalTaxIncluded}
           currency={currency}
           estimationLoading={estimationLoading}

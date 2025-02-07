@@ -17,7 +17,7 @@ interface CreditNoteActionsProps {
   invoice?: InvoiceForCreditNoteFormCalculationFragment
   formikProps: FormikProps<Partial<CreditNoteForm>>
   hasCreditOrCoupon: boolean
-  maxRefundableAmountCents: number
+  maxRefundableAmount: number
   totalTaxIncluded: number
   currency: CurrencyEnum
   estimationLoading: boolean
@@ -28,7 +28,7 @@ export const CreditNoteActions: FC<CreditNoteActionsProps> = ({
   invoice,
   formikProps,
   hasCreditOrCoupon,
-  maxRefundableAmountCents,
+  maxRefundableAmount,
   totalTaxIncluded,
   currency,
   estimationLoading,
@@ -93,7 +93,7 @@ export const CreditNoteActions: FC<CreditNoteActionsProps> = ({
           <>
             <Tooltip
               title={translate('text_637e23e47a15bf0bd71e0d03', {
-                max: intlFormatNumber(deserializeAmount(maxRefundableAmountCents, currency), {
+                max: intlFormatNumber(maxRefundableAmount, {
                   currency,
                 }),
               })}
