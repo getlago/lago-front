@@ -6,9 +6,7 @@ import styled from 'styled-components'
 import { array, object, string } from 'yup'
 
 import { CreditNoteCodeSnippet } from '~/components/creditNote/CreditNoteCodeSnippet'
-import {
-  CreditNoteEstimationLine
-} from '~/components/creditNote/CreditNoteEstimationLine'
+import { CreditNoteEstimationLine } from '~/components/creditNote/CreditNoteEstimationLine'
 import { CreditNoteFormCalculation } from '~/components/creditNote/CreditNoteFormCalculation'
 import { CreditNoteItemsForm } from '~/components/creditNote/CreditNoteItemsForm'
 import { CreditNoteForm, CreditTypeEnum } from '~/components/creditNote/types'
