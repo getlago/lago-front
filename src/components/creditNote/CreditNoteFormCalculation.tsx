@@ -95,8 +95,10 @@ export const CreditNoteFormCalculation = ({
   const currencyPrecision = getCurrencyPrecision(currency)
   const isLegacyInvoice = (invoice?.versionNumber || 0) < 3
 
-  const [getEstimate, { data: estimationData, error: estimationError, loading: estiationLoading }] =
-    useCreditNoteEstimateLazyQuery()
+  const [
+    getEstimate,
+    { data: estimationData, error: estimationError, loading: estimationLoading },
+  ] = useCreditNoteEstimateLazyQuery()
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedQuery = useCallback(
@@ -238,7 +240,7 @@ export const CreditNoteFormCalculation = ({
                     currency,
                   })}`
             }
-            loading={estiationLoading}
+            loading={estimationLoading}
             labelColor="grey600"
             tooltipContent={translate('text_644b9f17623605a945cafdb9')}
           />
@@ -247,7 +249,7 @@ export const CreditNoteFormCalculation = ({
         <CreditNoteEstimationLine
           label={translate('text_636bedf292786b19d3398f02')}
           labelColor="grey600"
-          loading={estiationLoading}
+          loading={estimationLoading}
           value={
             !totalExcludedTax || hasError
               ? '-'
@@ -262,7 +264,7 @@ export const CreditNoteFormCalculation = ({
             label={translate('text_636bedf292786b19d3398f06')}
             labelColor="grey600"
             value={'-'}
-            loading={estiationLoading}
+            loading={estimationLoading}
           />
         )}
 
@@ -281,7 +283,7 @@ export const CreditNoteFormCalculation = ({
                         currency,
                       })
                 }
-                loading={estiationLoading}
+                loading={estimationLoading}
                 data-test={`tax-${tax.taxRate}-amount`}
               />
             ))
@@ -296,13 +298,13 @@ export const CreditNoteFormCalculation = ({
                     currency,
                   })
             }
-            loading={estiationLoading}
+            loading={estimationLoading}
           />
         )}
 
         <CreditNoteEstimationLine
           label={translate('text_636bedf292786b19d3398f0a')}
-          loading={estiationLoading}
+          loading={estimationLoading}
           value={
             !totalTaxIncluded || hasError
               ? '-'
@@ -315,7 +317,7 @@ export const CreditNoteFormCalculation = ({
         {canOnlyCredit && (
           <CreditNoteEstimationLine
             label={translate('text_636bedf292786b19d3398f0e')}
-            loading={estiationLoading}
+            loading={estimationLoading}
             value={
               totalTaxIncluded === undefined || hasError
                 ? '-'
@@ -422,7 +424,7 @@ export const CreditNoteFormCalculation = ({
               </>
             ) : (
               <Typography color="grey700">
-                {estiationLoading ? (
+                {estimationLoading ? (
                   <Skeleton variant="text" className="w-22" />
                 ) : !payBack[0]?.value || hasError ? (
                   '-'
