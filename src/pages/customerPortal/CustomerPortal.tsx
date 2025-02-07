@@ -15,7 +15,7 @@ import {
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import { hasDefinedGQLError } from '~/core/apolloClient'
-import { useGetPortalOrgaInfosQuery } from '~/generated/graphql'
+import { PremiumIntegrationTypeEnum, useGetPortalOrgaInfosQuery } from '~/generated/graphql'
 import { tw } from '~/styles/utils'
 
 gql`
@@ -66,6 +66,11 @@ const CustomerPortal = () => {
 
   const pageContainerClassName = tw(showSidebar && 'max-w-2xl')
 
+  const showPoweredBy =
+    !portalOrgaInfosData?.customerPortalOrganization?.premiumIntegrations?.includes(
+      PremiumIntegrationTypeEnum.RemoveBrandingWatermark,
+    )
+
   useEffect(() => {
     customerPortalContentRef.current?.scrollTo?.(0, 0)
   }, [pathname])
@@ -77,6 +82,7 @@ const CustomerPortal = () => {
           <CustomerPortalSidebar
             organizationName={portalOrgaInfosData?.customerPortalOrganization?.name}
             organizationLogoUrl={portalOrgaInfosData?.customerPortalOrganization?.logoUrl}
+            showPoweredBy={showPoweredBy}
             isLoading={portalOrgasInfoLoading}
             isError={portalOrgasInfoError}
           />

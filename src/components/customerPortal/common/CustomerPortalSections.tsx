@@ -4,12 +4,20 @@ import PortalCustomerInfos from '~/components/customerPortal/PortalCustomerInfos
 import PortalInvoicesList from '~/components/customerPortal/PortalInvoicesList'
 import UsageSection from '~/components/customerPortal/usage/UsageSection'
 import WalletSection from '~/components/customerPortal/wallet/WalletSection'
+import { PremiumIntegrationTypeEnum, useGetPortalOrgaInfosQuery } from '~/generated/graphql'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
 
 const CustomerPortalSections = () => {
   const { translate } = useCustomerPortalTranslate()
 
+  const { data: portalOrgaInfosData } = useGetPortalOrgaInfosQuery()
+
   const { viewWallet, viewSubscription, viewEditInformation } = useCustomerPortalNavigation()
+
+  const showPoweredBy =
+    !portalOrgaInfosData?.customerPortalOrganization?.premiumIntegrations?.includes(
+      PremiumIntegrationTypeEnum.RemoveBrandingWatermark,
+    )
 
   return (
     <div className="flex flex-col gap-12">
@@ -18,11 +26,13 @@ const CustomerPortalSections = () => {
       <PortalCustomerInfos viewEditInformation={viewEditInformation} />
       <PortalInvoicesList />
 
-      <div className="my-8 flex justify-center gap-2 md:hidden">
-        <div className="text-sm text-grey-600">{translate('text_6419c64eace749372fc72b03')}</div>
+      {showPoweredBy && (
+        <div className="my-8 flex justify-center gap-2 md:hidden">
+          <div className="text-sm text-grey-600">{translate('text_6419c64eace749372fc72b03')}</div>
 
-        <Logo width="40px" />
-      </div>
+          <Logo width="40px" />
+        </div>
+      )}
     </div>
   )
 }
