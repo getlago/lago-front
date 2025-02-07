@@ -4,6 +4,7 @@ import { formatDateToTZ, TimezoneConfigObject, TimeZonesConfig } from '~/core/ti
 import {
   MainOrganizationInfosFragment,
   OrganizationForDatePickerFragmentDoc,
+  PremiumIntegrationTypeEnum,
   TimezoneEnum,
   useGetOrganizationInfosQuery,
 } from '~/generated/graphql'
@@ -35,6 +36,7 @@ type UseOrganizationInfos = () => {
   timezone: TimezoneEnum
   timezoneConfig: TimezoneConfigObject
   formatTimeOrgaTZ: (date: string, format?: string) => string
+  hasOrganizationPremiumAddon: Record<PremiumIntegrationTypeEnum, boolean>
 }
 
 export const useOrganizationInfos: UseOrganizationInfos = () => {
@@ -47,6 +49,12 @@ export const useOrganizationInfos: UseOrganizationInfos = () => {
   const orgaTimezone = data?.organization?.timezone || TimezoneEnum.TzUtc
   const timezoneConfig = TimeZonesConfig[orgaTimezone]
 
+  const premiumIntegrations = data?.organization?.premiumIntegrations
+
+  const hasOrganizationPremiumAddon = Object.fromEntries(
+    (premiumIntegrations || []).map((integration) => [[integration, true]]),
+  )
+
   return {
     loading,
     organization: data?.organization || undefined,
@@ -54,5 +62,6 @@ export const useOrganizationInfos: UseOrganizationInfos = () => {
     timezoneConfig,
     formatTimeOrgaTZ: (date, format) =>
       formatDateToTZ(date, orgaTimezone, format || 'LLL. dd, yyyy'),
+    hasOrganizationPremiumAddon,
   }
 }
