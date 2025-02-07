@@ -34,8 +34,8 @@ import {
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, LagoGQLError } from '~/core/apolloClient'
-import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/NavigationEnum'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
+import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE,

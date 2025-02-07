@@ -28,7 +28,7 @@ import {
   buildNetsuiteCreditNoteUrl,
   buildXeroCreditNoteUrl,
 } from '~/core/constants/externalUrls'
-import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/NavigationEnum'
+import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
 import {
   composeChargeFilterDisplayName,
