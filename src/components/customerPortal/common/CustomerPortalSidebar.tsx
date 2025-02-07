@@ -10,12 +10,14 @@ type CustomerPortalSidebarProps = {
   organizationLogoUrl?: string | null
   isLoading?: boolean
   isError?: ApolloError
+  showPoweredBy?: boolean
 }
 
 const CustomerPortalSidebar = ({
   organizationName,
   organizationLogoUrl,
   isLoading,
+  showPoweredBy,
 }: CustomerPortalSidebarProps) => {
   const { translate } = useCustomerPortalTranslate()
 
@@ -50,13 +52,15 @@ const CustomerPortalSidebar = ({
           </Typography>
         )}
 
-        <div className="flex items-center gap-1">
-          <Typography className="text-xs font-normal text-grey-600">
-            {translate('text_6419c64eace749372fc72b03')}
-          </Typography>
+        {showPoweredBy && (
+          <div className="flex items-center gap-1">
+            <Typography className="text-xs font-normal text-grey-600">
+              {translate('text_6419c64eace749372fc72b03')}
+            </Typography>
 
-          <Logo width="40px" />
-        </div>
+            <Logo width="40px" />
+          </div>
+        )}
       </div>
 
       <div className="mb-4 flex w-full items-center justify-center bg-grey-100 px-5 py-8 md:hidden">
