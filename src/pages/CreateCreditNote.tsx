@@ -25,7 +25,7 @@ import {
 import { ComboBoxField, TextInputField } from '~/components/form'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { hasDefinedGQLError } from '~/core/apolloClient'
-import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/NavigationEnum'
+import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
