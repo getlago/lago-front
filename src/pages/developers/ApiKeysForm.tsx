@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 import { Alert, Button, Icon, Skeleton, Table, Typography } from '~/components/designSystem'
 import { Checkbox, TextInputField } from '~/components/form'
-import { CenteredPage } from '~/components/layouts/Pages'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { API_KEYS_ROUTE } from '~/core/router'

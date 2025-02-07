@@ -12,7 +12,7 @@ import {
   Table,
   Typography,
 } from '~/components/designSystem'
-import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/Pages'
+import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
   SettingsListItem,
   SettingsListItemHeader,

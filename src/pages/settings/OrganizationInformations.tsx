@@ -3,7 +3,7 @@ import { useRef } from 'react'
 
 import { Avatar, Button, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/Pages'
+import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
   SettingsListItem,
   SettingsListItemHeader,

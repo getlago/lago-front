@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom'
 
 import { NavigationTab, Typography } from '~/components/designSystem'
-import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/Pages'
+import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import { API_KEYS_ROUTE, DEBUGGER_ROUTE, DEVELOPERS_ROUTE, WEBHOOK_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
