@@ -6,6 +6,9 @@ import styled from 'styled-components'
 import { array, object, string } from 'yup'
 
 import { CreditNoteCodeSnippet } from '~/components/creditNote/CreditNoteCodeSnippet'
+import {
+  CreditNoteEstimationLine
+} from '~/components/creditNote/CreditNoteEstimationLine'
 import { CreditNoteFormCalculation } from '~/components/creditNote/CreditNoteFormCalculation'
 import { CreditNoteItemsForm } from '~/components/creditNote/CreditNoteItemsForm'
 import { CreditNoteForm, CreditTypeEnum } from '~/components/creditNote/types'
@@ -358,21 +361,16 @@ const CreateCreditNote = () => {
 
                   {isPrepaidCreditsInvoice ? (
                     <>
-                      <div className="ml-auto max-w-[400px]">
-                        <div className="flex justify-between">
-                          <Typography className="text-base font-medium text-grey-700">
-                            {translate('text_1729262339446mk289ygp31g')}
-                          </Typography>
-
-                          <Typography className="text-base font-normal text-grey-700">
-                            {intlFormatNumber(
-                              Number(formikProps.values.creditFee?.[0]?.value || 0),
-                              {
-                                currency,
-                              },
-                            )}
-                          </Typography>
-                        </div>
+                      <div className="ml-auto w-full max-w-100">
+                        <CreditNoteEstimationLine
+                          label={translate('text_1729262339446mk289ygp31g')}
+                          value={intlFormatNumber(
+                            Number(formikProps.values.creditFee?.[0]?.value || 0),
+                            {
+                              currency,
+                            },
+                          )}
+                        />
                       </div>
 
                       <Alert className="mt-6" type="info">

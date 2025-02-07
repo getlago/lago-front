@@ -7,7 +7,8 @@ import { useCallback, useEffect, useMemo } from 'react'
 import styled, { css } from 'styled-components'
 import { array, number, object, string } from 'yup'
 
-import { Alert, Button, Icon, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { CreditNoteEstimationLine } from '~/components/creditNote/CreditNoteEstimationLine'
+import { Alert, Button, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInputField, ComboBox, ComboBoxField } from '~/components/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
@@ -222,127 +223,107 @@ export const CreditNoteFormCalculation = ({
 
   if (!invoice) return null
 
+  const hasCouponLine = Number(invoice?.couponsAmountCents || 0) > 0 && !isLegacyInvoice
+
   return (
     <div>
       <CalculationContainer>
-        {Number(invoice?.couponsAmountCents || 0) > 0 && !isLegacyInvoice && (
-          <Line>
-            <InlineLabel>
-              <Typography variant="bodyHl">{translate('text_644b9f17623605a945cafdbb')}</Typography>
-              <Tooltip
-                className="flex h-5 items-end"
-                placement="top-start"
-                title={translate('text_644b9f17623605a945cafdb9')}
-              >
-                <Icon name="info-circle" />
-              </Tooltip>
-            </InlineLabel>
-            <Typography color="grey700" data-test="prorated-coupon-amount">
-              {estiationLoading ? (
-                <Skeleton variant="text" className="w-22" />
-              ) : !proRatedCouponAmount || hasError ? (
-                '-'
-              ) : (
-                `-${intlFormatNumber(proRatedCouponAmount || 0, {
-                  currency,
-                })}`
-              )}
-            </Typography>
-          </Line>
+        {hasCouponLine && (
+          <CreditNoteEstimationLine
+            label={translate('text_644b9f17623605a945cafdbb')}
+            value={
+              !proRatedCouponAmount || hasError
+                ? '-'
+                : `-${intlFormatNumber(proRatedCouponAmount || 0, {
+                    currency,
+                  })}`
+            }
+            loading={estiationLoading}
+            labelColor="grey600"
+            tooltipContent={translate('text_644b9f17623605a945cafdb9')}
+          />
         )}
-        <Line>
-          <Typography variant="bodyHl">{translate('text_636bedf292786b19d3398f02')}</Typography>
-          <Typography color="grey700" data-test="total-excluded-tax">
-            {estiationLoading ? (
-              <Skeleton variant="text" className="w-22" />
-            ) : !totalExcludedTax || hasError ? (
-              '-'
-            ) : (
-              intlFormatNumber(totalExcludedTax, {
-                currency,
-              })
-            )}
-          </Typography>
-        </Line>
-        {!totalExcludedTax ? (
-          <Line>
-            <Typography variant="bodyHl">{translate('text_636bedf292786b19d3398f06')}</Typography>
-            <Typography color="grey700">
-              {estiationLoading ? <Skeleton variant="text" className="w-22" /> : '-'}
-            </Typography>
-          </Line>
-        ) : !!taxes?.size ? (
+
+        <CreditNoteEstimationLine
+          label={translate('text_636bedf292786b19d3398f02')}
+          labelColor="grey600"
+          loading={estiationLoading}
+          value={
+            !totalExcludedTax || hasError
+              ? '-'
+              : intlFormatNumber(totalExcludedTax, {
+                  currency,
+                })
+          }
+        />
+
+        {!totalExcludedTax && (
+          <CreditNoteEstimationLine
+            label={translate('text_636bedf292786b19d3398f06')}
+            labelColor="grey600"
+            value={'-'}
+            loading={estiationLoading}
+          />
+        )}
+
+        {totalExcludedTax && !!taxes?.size ? (
           Array.from(taxes.values())
             .sort((a, b) => b.taxRate - a.taxRate)
             .map((tax) => (
-              <Line key={tax.label}>
-                <Typography variant="bodyHl">
-                  {tax.label} ({tax.taxRate}%)
-                </Typography>
-                <Typography color="grey700" data-test={`tax-${tax.taxRate}-amount`}>
-                  {estiationLoading ? (
-                    <Skeleton variant="text" className="w-22" />
-                  ) : !tax.amount || hasError ? (
-                    '-'
-                  ) : (
-                    intlFormatNumber(tax.amount, {
-                      currency,
-                    })
-                  )}
-                </Typography>
-              </Line>
+              <CreditNoteEstimationLine
+                key={tax.label}
+                label={`${tax.label} (${tax.taxRate}%)`}
+                labelColor="grey600"
+                value={
+                  !tax.amount || hasError
+                    ? '-'
+                    : intlFormatNumber(tax.amount, {
+                        currency,
+                      })
+                }
+                loading={estiationLoading}
+                data-test={`tax-${tax.taxRate}-amount`}
+              />
             ))
         ) : (
-          <Line>
-            <Typography variant="bodyHl">{`${translate(
-              'text_636bedf292786b19d3398f06',
-            )} (0%)`}</Typography>
-            <Typography color="grey700">
-              {estiationLoading ? (
-                <Skeleton variant="text" className="w-22" />
-              ) : hasError ? (
-                '-'
-              ) : (
-                intlFormatNumber(0, {
-                  currency,
-                })
-              )}
-            </Typography>
-          </Line>
+          <CreditNoteEstimationLine
+            label={`${translate('text_636bedf292786b19d3398f06')} (0%)`}
+            labelColor="grey600"
+            value={
+              hasError
+                ? '-'
+                : intlFormatNumber(0, {
+                    currency,
+                  })
+            }
+            loading={estiationLoading}
+          />
         )}
-        <Line>
-          <Typography variant="bodyHl" color="grey700">
-            {translate('text_636bedf292786b19d3398f0a')}
-          </Typography>
-          <Typography color="grey700" data-test="total-tax-included">
-            {estiationLoading ? (
-              <Skeleton variant="text" className="w-22" />
-            ) : !totalTaxIncluded || hasError ? (
-              '-'
-            ) : (
-              intlFormatNumber(totalTaxIncluded, {
-                currency,
-              })
-            )}
-          </Typography>
-        </Line>
-        {canOnlyCredit && (
-          <Line>
-            <Typography variant="bodyHl" color="grey700">
-              {translate('text_636bedf292786b19d3398f0e')}
-            </Typography>
-            <Typography color="grey700">
-              {estiationLoading ? (
-                <Skeleton variant="text" className="w-22" />
-              ) : totalTaxIncluded === undefined || hasError ? (
-                '-'
-              ) : (
-                intlFormatNumber(totalTaxIncluded, {
+
+        <CreditNoteEstimationLine
+          label={translate('text_636bedf292786b19d3398f0a')}
+          loading={estiationLoading}
+          value={
+            !totalTaxIncluded || hasError
+              ? '-'
+              : intlFormatNumber(totalTaxIncluded, {
                   currency,
                 })
-              )}
-            </Typography>
-          </Line>
+          }
+        />
+
+        {canOnlyCredit && (
+          <CreditNoteEstimationLine
+            label={translate('text_636bedf292786b19d3398f0e')}
+            loading={estiationLoading}
+            value={
+              totalTaxIncluded === undefined || hasError
+                ? '-'
+                : intlFormatNumber(totalTaxIncluded, {
+                    currency,
+                  })
+            }
+          />
         )}
       </CalculationContainer>
       {!canOnlyCredit && (
@@ -565,12 +546,6 @@ export const CreditNoteFormCalculation = ({
   )
 }
 
-const Line = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`
-
 const CalculationContainer = styled.div`
   max-width: 400px;
   margin-left: auto;
@@ -607,14 +582,5 @@ const PayBackBlock = styled.div`
 
   > *:first-child {
     margin-bottom: ${theme.spacing(6)};
-  }
-`
-
-const InlineLabel = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:last-child {
-    margin-left: ${theme.spacing(2)};
   }
 `
