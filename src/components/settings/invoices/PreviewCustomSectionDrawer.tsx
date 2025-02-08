@@ -61,8 +61,9 @@ export const PreviewCustomSectionDrawer = forwardRef<PreviewCustomSectionDrawerR
 
     const { hasOrganizationPremiumAddon } = useOrganizationInfos()
 
-    const showPoweredBy =
-      !hasOrganizationPremiumAddon[PremiumIntegrationTypeEnum.RemoveBrandingWatermark]
+    const showPoweredBy = !hasOrganizationPremiumAddon(
+      PremiumIntegrationTypeEnum.RemoveBrandingWatermark,
+    )
 
     return (
       <Drawer
