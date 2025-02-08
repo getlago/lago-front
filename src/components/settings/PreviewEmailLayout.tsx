@@ -39,8 +39,9 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
 
   const { hasOrganizationPremiumAddon } = useOrganizationInfos()
 
-  const showPoweredBy =
-    !hasOrganizationPremiumAddon[PremiumIntegrationTypeEnum.RemoveBrandingWatermark]
+  const showPoweredBy = !hasOrganizationPremiumAddon(
+    PremiumIntegrationTypeEnum.RemoveBrandingWatermark,
+  )
 
   return (
     <>

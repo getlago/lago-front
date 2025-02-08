@@ -28,8 +28,9 @@ export const EmailPreview: FC<EmailPreviewProps> = ({
 
   const { hasOrganizationPremiumAddon } = useOrganizationInfos()
 
-  const showPoweredBy =
-    !hasOrganizationPremiumAddon[PremiumIntegrationTypeEnum.RemoveBrandingWatermark]
+  const showPoweredBy = !hasOrganizationPremiumAddon(
+    PremiumIntegrationTypeEnum.RemoveBrandingWatermark,
+  )
 
   if (isLoading) {
     return (

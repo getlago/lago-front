@@ -36,7 +36,7 @@ type UseOrganizationInfos = () => {
   timezone: TimezoneEnum
   timezoneConfig: TimezoneConfigObject
   formatTimeOrgaTZ: (date: string, format?: string) => string
-  hasOrganizationPremiumAddon: Record<PremiumIntegrationTypeEnum, boolean>
+  hasOrganizationPremiumAddon: (integration: PremiumIntegrationTypeEnum) => boolean
 }
 
 export const useOrganizationInfos: UseOrganizationInfos = () => {
@@ -51,10 +51,6 @@ export const useOrganizationInfos: UseOrganizationInfos = () => {
 
   const premiumIntegrations = data?.organization?.premiumIntegrations
 
-  const hasOrganizationPremiumAddon = Object.fromEntries(
-    (premiumIntegrations || []).map((integration) => [[integration, true]]),
-  )
-
   return {
     loading,
     organization: data?.organization || undefined,
@@ -62,6 +58,7 @@ export const useOrganizationInfos: UseOrganizationInfos = () => {
     timezoneConfig,
     formatTimeOrgaTZ: (date, format) =>
       formatDateToTZ(date, orgaTimezone, format || 'LLL. dd, yyyy'),
-    hasOrganizationPremiumAddon,
+    hasOrganizationPremiumAddon: (integration: PremiumIntegrationTypeEnum) =>
+      !!premiumIntegrations?.includes(integration),
   }
 }
