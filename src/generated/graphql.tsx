@@ -2181,6 +2181,7 @@ export type DataExportCreditNoteFiltersInput = {
   reason?: InputMaybe<Array<CreditNoteReasonEnum>>;
   refundStatus?: InputMaybe<Array<CreditNoteRefundStatusEnum>>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+  selfBilled?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export enum DataExportFormatTypeEnum {
@@ -2200,6 +2201,7 @@ export type DataExportInvoiceFiltersInput = {
   paymentOverdue?: InputMaybe<Scalars['Boolean']['input']>;
   paymentStatus?: InputMaybe<Array<InvoicePaymentStatusTypeEnum>>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+  selfBilled?: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<Array<InvoiceStatusTypeEnum>>;
 };
 
@@ -2899,6 +2901,7 @@ export enum IntegrationTypeEnum {
   Netsuite = 'netsuite',
   Okta = 'okta',
   ProgressiveBilling = 'progressive_billing',
+  RemoveBrandingWatermark = 'remove_branding_watermark',
   RevenueAnalytics = 'revenue_analytics',
   RevenueShare = 'revenue_share',
   Salesforce = 'salesforce',
@@ -3099,6 +3102,7 @@ export enum InvoiceStatusTypeEnum {
 
 export type InvoiceSubscription = {
   __typename?: 'InvoiceSubscription';
+  acceptNewChargeFees: Scalars['Boolean']['output'];
   chargeAmountCents: Scalars['BigInt']['output'];
   chargesFromDatetime?: Maybe<Scalars['ISO8601DateTime']['output']>;
   chargesToDatetime?: Maybe<Scalars['ISO8601DateTime']['output']>;
@@ -4468,6 +4472,7 @@ export enum PremiumIntegrationTypeEnum {
   Netsuite = 'netsuite',
   Okta = 'okta',
   ProgressiveBilling = 'progressive_billing',
+  RemoveBrandingWatermark = 'remove_branding_watermark',
   RevenueAnalytics = 'revenue_analytics',
   RevenueShare = 'revenue_share',
   Salesforce = 'salesforce',
