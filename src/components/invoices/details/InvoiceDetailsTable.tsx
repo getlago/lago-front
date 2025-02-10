@@ -103,6 +103,7 @@ gql`
       chargesToDatetime
       inAdvanceChargesFromDatetime
       inAdvanceChargesToDatetime
+      acceptNewChargeFees
       subscription {
         id
         name
@@ -350,6 +351,7 @@ export const InvoiceDetailsTable = memo(
 
                     {!hasOldZeroFeeManagement &&
                       !invoice.allChargesHaveFees &&
+                      subscription.metadata.acceptNewChargeFees &&
                       invoice.status === InvoiceStatusTypeEnum.Draft && (
                         <tr>
                           <td colSpan={6}>

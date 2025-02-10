@@ -78,15 +78,16 @@ export type TSubscriptionDataForDisplay = {
     feesInAdvance: TExtendedRemainingFee[]
     feesInAdvanceZero: TExtendedRemainingFee[]
     metadata: {
-      differentBoundariesForSubscriptionAndCharges: boolean
-      subscriptionDisplayName: string
-      fromDatetime: string
-      toDatetime: string
+      acceptNewChargeFees: boolean
       chargesFromDatetime: string
       chargesToDatetime: string
+      differentBoundariesForSubscriptionAndCharges: boolean
+      fromDatetime: string
       inAdvanceChargesFromDatetime: string
       inAdvanceChargesToDatetime: string
       invoiceId: string
+      subscriptionDisplayName: string
+      toDatetime: string
     }
   }
 }
@@ -179,16 +180,17 @@ export const groupAndFormatFees = ({
           feesInAdvance: [],
           feesInAdvanceZero: [],
           metadata: {
-            differentBoundariesForSubscriptionAndCharges,
-            subscriptionDisplayName:
-              invoiceSub.subscription.name || invoiceSub.subscription.plan.name,
-            fromDatetime: invoiceSub?.fromDatetime,
-            toDatetime: invoiceSub?.toDatetime,
+            acceptNewChargeFees: invoiceSub.acceptNewChargeFees,
             chargesFromDatetime: invoiceSub?.chargesFromDatetime,
             chargesToDatetime: invoiceSub?.chargesToDatetime,
+            differentBoundariesForSubscriptionAndCharges,
+            fromDatetime: invoiceSub?.fromDatetime,
             inAdvanceChargesFromDatetime: invoiceSub?.inAdvanceChargesFromDatetime,
             inAdvanceChargesToDatetime: invoiceSub?.inAdvanceChargesToDatetime,
             invoiceId: invoiceSub?.invoice?.id,
+            subscriptionDisplayName:
+              invoiceSub.subscription.name || invoiceSub.subscription.plan.name,
+            toDatetime: invoiceSub?.toDatetime,
           },
         }
       }
