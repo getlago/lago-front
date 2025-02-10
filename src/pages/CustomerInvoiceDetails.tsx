@@ -447,6 +447,8 @@ const CustomerInvoiceDetails = () => {
     associatedActiveWalletPresent,
   } = (data?.invoice as AllInvoiceDetailsForCustomerInvoiceDetailsFragment) || {}
 
+  const isPartiallyPaid =
+    Number(totalPaidAmountCents) > 0 && Number(totalAmountCents) - Number(totalPaidAmountCents) > 0
   const canRecordPayment =
     Number(totalDueAmountCents) > 0 &&
     hasPermissions(['paymentsCreate']) &&
@@ -858,11 +860,10 @@ const CustomerInvoiceDetails = () => {
                     ].includes(paymentStatus) &&
                     hasPermissions(['invoicesVoid']) && (
                       <Tooltip
-                        title={translate(
-                          !!data?.invoice?.paymentDisputeLostAt
-                            ? 'text_66178d027e220e00dff9f67d'
-                            : 'text_65269c2e471133226211fdd0',
-                        )}
+                        title={!isPartiallyPaid && translate('text_65269c2e471133226211fdd0')}
+                        {...(!!data?.invoice?.paymentDisputeLostAt && {
+                          title: translate('text_66178d027e220e00dff9f67d'),
+                        })}
                         placement="bottom-end"
                         disableHoverListener={voidable}
                       >

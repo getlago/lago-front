@@ -40,8 +40,8 @@ export const paymentStatusMapping = ({
   const isPartiallyPaid =
     totalAmountCents &&
     totalPaidAmountCents &&
-    totalPaidAmountCents > 0 &&
-    totalAmountCents - totalPaidAmountCents > 0
+    Number(totalPaidAmountCents) > 0 &&
+    Number(totalAmountCents) - Number(totalPaidAmountCents) > 0
 
   const endIcon: IconName | undefined = isPartiallyPaid ? 'partially-filled' : undefined
 

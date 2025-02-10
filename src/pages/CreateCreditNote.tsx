@@ -179,8 +179,8 @@ const CreateCreditNote = () => {
 
   const isPrepaidCreditsInvoice = invoice?.invoiceType === InvoiceTypeEnum.Credit
   const isPartiallyPaid =
-    invoice?.totalPaidAmountCents > 0 &&
-    invoice?.totalAmountCents - invoice?.totalPaidAmountCents > 0
+    Number(invoice?.totalPaidAmountCents) > 0 &&
+    Number(invoice?.totalAmountCents) - Number(invoice?.totalPaidAmountCents) > 0
 
   const creditFeeValue = formikProps.values.creditFee?.[0]?.value
 

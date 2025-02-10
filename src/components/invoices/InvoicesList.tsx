@@ -220,6 +220,9 @@ const InvoicesList = ({
                 Number(totalDueAmountCents) > 0 &&
                 hasPermissions(['paymentsCreate']) &&
                 Number(totalPaidAmountCents) < Number(totalAmountCents)
+              const isPartiallyPaid =
+                Number(totalPaidAmountCents) > 0 &&
+                Number(totalAmountCents) - Number(totalPaidAmountCents) > 0
 
               return [
                 canDownload
@@ -333,9 +336,10 @@ const InvoicesList = ({
                       disabled: !voidable,
                       onAction: (item) =>
                         voidInvoiceDialogRef?.current?.openDialog({ invoice: item }),
-                      ...(!voidable && {
-                        tooltip: translate('text_65269c2e471133226211fdd0'),
-                      }),
+                      ...(!voidable &&
+                        !isPartiallyPaid && {
+                          tooltip: translate('text_65269c2e471133226211fdd0'),
+                        }),
                     }
                   : null,
               ]
@@ -420,7 +424,8 @@ const InvoicesList = ({
                   const isOverdue =
                     paymentOverdue && paymentStatus === InvoicePaymentStatusTypeEnum.Pending
                   const isPartiallyPaid =
-                    totalPaidAmountCents > 0 && totalAmountCents - totalPaidAmountCents > 0
+                    Number(totalPaidAmountCents) > 0 &&
+                    Number(totalAmountCents) - Number(totalPaidAmountCents) > 0
 
                   if (isPartiallyPaid) {
                     content = {

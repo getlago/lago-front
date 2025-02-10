@@ -463,7 +463,8 @@ const PaymentDetails = () => {
                   const isOverdue =
                     paymentOverdue && paymentStatus === InvoicePaymentStatusTypeEnum.Pending
                   const isPartiallyPaid =
-                    totalPaidAmountCents > 0 && totalAmountCents - totalPaidAmountCents > 0
+                    Number(totalPaidAmountCents) > 0 &&
+                    Number(totalAmountCents) - Number(totalPaidAmountCents) > 0
 
                   if (isPartiallyPaid) {
                     content = {
