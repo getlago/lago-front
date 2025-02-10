@@ -17,3 +17,11 @@ export enum PlanDetailsTabsOptionsEnum {
   overview = 'overview',
   subscriptions = 'subscriptions',
 }
+
+export enum NewAnalyticsTabsOptionsEnum {
+  revenueStreams = 'revenue-streams',
+  mrr = 'mrr',
+  usage = 'usage',
+  prepaidCredits = 'prepaid-credits',
+  invoices = 'invoices',
+}

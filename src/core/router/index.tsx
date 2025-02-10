@@ -27,6 +27,7 @@ const Home = lazyLoad(() => import('~/pages/Home'))
 const Error404 = lazyLoad(() => import('~/pages/Error404'))
 const Forbidden = lazyLoad(() => import('~/pages/Forbidden'))
 const Analytic = lazyLoad(() => import('~/pages/Analytics'))
+const NewAnalytic = lazyLoad(() => import('~/pages/analytics/NewAnalytics'))
 
 // Route Available only on dev mode
 const DesignSystem = lazyLoad(() => import('~/pages/__devOnly/DesignSystem'))
@@ -34,6 +35,8 @@ const DesignSystem = lazyLoad(() => import('~/pages/__devOnly/DesignSystem'))
 export const HOME_ROUTE = '/'
 export const FORBIDDEN_ROUTE = '/forbidden'
 export const ANALYTIC_ROUTE = '/analytics'
+export const NEW_ANALYTIC_ROUTE = '/new-analytics'
+export const NEW_ANALYTIC_TABS_ROUTE = '/new-analytics/:tab'
 export const ERROR_404_ROUTE = '/404'
 
 // Route Available only on dev mode
@@ -67,6 +70,12 @@ export const routes: CustomRouteObject[] = [
         path: [ANALYTIC_ROUTE],
         private: true,
         element: <Analytic />,
+        permissions: ['analyticsView'],
+      },
+      {
+        path: [NEW_ANALYTIC_ROUTE, NEW_ANALYTIC_TABS_ROUTE],
+        private: true,
+        element: <NewAnalytic />,
         permissions: ['analyticsView'],
       },
       ...customerRoutes,
