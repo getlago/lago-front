@@ -721,7 +721,7 @@ const DesignSystem = () => {
                   <HorizontalDataTable
                     leftColumnWidth={130}
                     data={fakeDataHorizontalTable}
-                    columns={[
+                    rows={[
                       {
                         label: 'Breakout',
                         key: 'end_of_period_dt',

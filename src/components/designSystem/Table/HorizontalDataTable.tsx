@@ -9,7 +9,7 @@ const DEFAULT_COLUMN_WIDTH = 160
 const DEFAULT_LEFT_COLUMN_WIDTH = 120
 
 type DataItem = {
-  id: string
+  [key: string]: unknown
 }
 
 type RowType = 'header' | 'data'
@@ -25,7 +25,7 @@ type DotNestedKeys<T> = (
   ? Extract<D, string>
   : never
 
-type TColumns<T> = {
+type TRows<T> = {
   content: (item: T) => ReactNode
   key: DotNestedKeys<T>
   label: string | ReactNode
@@ -33,7 +33,7 @@ type TColumns<T> = {
 }[]
 
 type HorizontalDataTableProps<T> = {
-  columns: TColumns<T>
+  rows: TRows<T>
   data: T[]
   columnWidth?: number
   leftColumnWidth?: number
@@ -48,7 +48,7 @@ const getRowHeight = (rowType: RowType) => {
 
 export const HorizontalDataTable = <T extends DataItem>({
   data = [],
-  columns = [],
+  rows = [],
   leftColumnWidth = DEFAULT_LEFT_COLUMN_WIDTH,
   columnWidth = DEFAULT_COLUMN_WIDTH,
   columnIdPrefix = 'column-',
@@ -71,20 +71,20 @@ export const HorizontalDataTable = <T extends DataItem>({
   }, [])
 
   const tableHeight = useMemo(
-    () => columns.reduce((acc, item) => acc + getRowHeight(item.type), 0),
-    [columns],
+    () => rows.reduce((acc, item) => acc + getRowHeight(item.type), 0),
+    [rows],
   )
 
   return (
     <div className="relative w-full">
-      {!!columns.length && (
+      {!!rows.length && (
         <div
           className={tw('pointer-events-none absolute left-0 top-0 z-10 bg-white', {
             'shadow-r': !!columnVirtualizer?.scrollOffset,
           })}
           style={{ width: leftColumnWidth }}
         >
-          {columns.map((item, index) => (
+          {rows.map((item, index) => (
             <div
               key={`left-column-item-${index}`}
               className={tw('flex items-center shadow-b', {
@@ -130,15 +130,15 @@ export const HorizontalDataTable = <T extends DataItem>({
                 transform: `translateX(${virtualColumn.start}px)`,
               }}
             >
-              {columns.map((column, index) => (
+              {rows.map((row, index) => (
                 <div
-                  key={`column-${virtualColumn.index}-item-${index}-data-${column.key}`}
+                  key={`column-${virtualColumn.index}-item-${index}-row-${row.key}`}
                   className={tw('flex items-center justify-end px-1 shadow-b', {
                     'shadow-y': index === 0,
                   })}
-                  style={{ height: getRowHeight(column.type) }}
+                  style={{ height: getRowHeight(row.type) }}
                 >
-                  {column.content(data[virtualColumn.index])}
+                  {row.content(data[virtualColumn.index])}
                 </div>
               ))}
             </div>
