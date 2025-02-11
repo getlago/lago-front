@@ -23,9 +23,10 @@ const NewAnalytics = () => {
       </PageHeader.Wrapper>
 
       <NavigationTab
+        className="px-4 md:px-12"
         tabs={[
           {
-            title: translate('text_62d175066d2dbf1d50bc937c'),
+            title: translate('text_1739203651003n5f5qzxnhin'),
             link: generatePath(NEW_ANALYTIC_TABS_ROUTE, {
               tab: NewAnalyticsTabsOptionsEnum.revenueStreams,
             }),
@@ -67,8 +68,6 @@ const NewAnalytics = () => {
           },
         ]}
       />
-
-      <Outlet />
     </>
   )
 }
