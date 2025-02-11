@@ -596,9 +596,7 @@ const InvoiceOverview = memo(
                 </Stack>
               )}
 
-              {invoice?.status !== InvoiceStatusTypeEnum.Draft && (
-                <Metadatas customer={customer} invoice={invoice} />
-              )}
+              {invoice?.status !== InvoiceStatusTypeEnum.Draft && <Metadatas />}
             </>
           )}
         </>

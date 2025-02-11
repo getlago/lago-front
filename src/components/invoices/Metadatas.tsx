@@ -1,11 +1,12 @@
 import { gql } from '@apollo/client'
 import { memo, useRef } from 'react'
+import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { Button, Typography } from '~/components/designSystem'
 import {
-  CustomerMetadatasForInvoiceOverviewFragment,
-  InvoiceMetadatasForInvoiceOverviewFragment,
+  InvoiceMetadatasForMetadataDrawerFragmentDoc,
+  useGetInvoiceMetadatasQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
@@ -32,17 +33,39 @@ gql`
       value
     }
   }
+
+  query getInvoiceMetadatas($id: ID!) {
+    invoice(id: $id) {
+      ...InvoiceMetadatasForInvoiceOverview
+      ...InvoiceMetadatasForMetadataDrawer
+      customer {
+        ...CustomerMetadatasForInvoiceOverview
+      }
+    }
+  }
+
+  ${InvoiceMetadatasForMetadataDrawerFragmentDoc}
 `
 
-interface MetadatasProps {
-  customer: CustomerMetadatasForInvoiceOverviewFragment
-  invoice: InvoiceMetadatasForInvoiceOverviewFragment
-}
-
-export const Metadatas = memo(({ customer, invoice }: MetadatasProps) => {
+export const Metadatas = memo(() => {
   const { translate } = useInternationalization()
+  const { invoiceId } = useParams()
   const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
+
+  const { data, loading } = useGetInvoiceMetadatasQuery({
+    variables: {
+      id: invoiceId || '',
+    },
+  })
+
+  const invoice = data?.invoice
+  const customer = invoice?.customer
+
   const customerMetadatas = (customer?.metadata || []).filter((m) => m.displayInInvoice)
+
+  if (loading) {
+    return null
+  }
 
   return (
     <>
@@ -57,7 +80,7 @@ export const Metadatas = memo(({ customer, invoice }: MetadatasProps) => {
             }}
           >
             {translate(
-              !!invoice.metadata?.length
+              !!invoice?.metadata?.length
                 ? 'text_6405cac5c833dcf18cad0198'
                 : 'text_6405cac5c833dcf18cad0196',
             )}
@@ -102,7 +125,7 @@ export const Metadatas = memo(({ customer, invoice }: MetadatasProps) => {
         )}
       </Wrapper>
 
-      <AddMetadataDrawer ref={addMetadataDrawerDialogRef} invoice={invoice} />
+      {invoice && <AddMetadataDrawer ref={addMetadataDrawerDialogRef} invoiceId={invoice?.id} />}
     </>
   )
 })

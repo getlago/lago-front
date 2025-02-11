@@ -57,7 +57,6 @@ import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
   AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc,
   CurrencyEnum,
-  CustomerMetadatasForInvoiceOverviewFragmentDoc,
   ErrorCodesEnum,
   HubspotIntegration,
   HubspotIntegrationInfosForInvoiceOverviewFragmentDoc,
@@ -69,8 +68,6 @@ import {
   InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForInvoiceInfosFragmentDoc,
   InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
-  InvoiceMetadatasForInvoiceOverviewFragmentDoc,
-  InvoiceMetadatasForMetadataDrawerFragmentDoc,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   InvoiceTaxStatusTypeEnum,
@@ -106,7 +103,6 @@ gql`
     status
     taxStatus
     totalAmountCents
-    totalDueAmountCents
     currency
     refundableAmountCents
     creditableAmountCents
@@ -124,7 +120,6 @@ gql`
     customer {
       name
       displayName
-      ...CustomerMetadatasForInvoiceOverview
       netsuiteCustomer {
         id
         integrationId
@@ -149,8 +144,6 @@ gql`
     ...InvoiceForInvoiceInfos
     ...InvoiceForFinalizeInvoice
     ...InvoiceForUpdateInvoicePaymentStatus
-    ...InvoiceMetadatasForInvoiceOverview
-    ...InvoiceMetadatasForMetadataDrawer
   }
 
   query getInvoiceDetails($id: ID!) {
@@ -235,9 +228,6 @@ gql`
   ${AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc}
   ${InvoiceForFinalizeInvoiceFragmentDoc}
   ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
-  ${CustomerMetadatasForInvoiceOverviewFragmentDoc}
-  ${InvoiceMetadatasForInvoiceOverviewFragmentDoc}
-  ${InvoiceMetadatasForMetadataDrawerFragmentDoc}
   ${NetsuiteIntegrationInfosForInvoiceOverviewFragmentDoc}
   ${HubspotIntegrationInfosForInvoiceOverviewFragmentDoc}
   ${SalesforceIntegrationInfosForInvoiceOverviewFragmentDoc}
@@ -801,9 +791,7 @@ const CustomerInvoiceDetails = () => {
                             closePopper()
                           }}
                         >
-                          {!!data?.invoice?.metadata?.length
-                            ? translate('text_6405cac5c833dcf18cacff36')
-                            : translate('text_6405cac5c833dcf18cacff40')}
+                          {translate('text_1739289860782ljvy21lcake')}
                         </Button>
                       </>
                     )}
@@ -1000,7 +988,7 @@ const CustomerInvoiceDetails = () => {
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
       <DisputeInvoiceDialog ref={disputeInvoiceDialogRef} />
       {!!data?.invoice && (
-        <AddMetadataDrawer ref={addMetadataDrawerDialogRef} invoice={data.invoice} />
+        <AddMetadataDrawer ref={addMetadataDrawerDialogRef} invoiceId={data.invoice.id} />
       )}
     </>
   )
