@@ -6601,6 +6601,21 @@ export type DeleteAddOnMutationVariables = Exact<{
 
 export type DeleteAddOnMutation = { __typename?: 'Mutation', destroyAddOn?: { __typename?: 'DestroyAddOnPayload', id?: string | null } | null };
 
+export type GetRevenueStreamsQueryVariables = Exact<{
+  customerCountry?: InputMaybe<CountryCode>;
+  customerCurrency?: InputMaybe<CurrencyEnum>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  planCode?: InputMaybe<Scalars['String']['input']>;
+  timeGranularity?: InputMaybe<TimeGranularityEnum>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+}>;
+
+
+export type GetRevenueStreamsQuery = { __typename?: 'Query', revenueStreams: { __typename?: 'RevenueStreamsCollection', collection: Array<{ __typename?: 'RevenueStreams', commitmentFeeAmountCents: any, couponsAmountCents: any, amountCurrency: CurrencyEnum, startOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, subscriptionFeeAmountCents: any, endOfPeriodDt: any, usageBasedFeeAmountCents: any }> } };
+
 export type GetGoogleAuthUrlQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -12859,6 +12874,75 @@ export function useDeleteAddOnMutation(baseOptions?: Apollo.MutationHookOptions<
 export type DeleteAddOnMutationHookResult = ReturnType<typeof useDeleteAddOnMutation>;
 export type DeleteAddOnMutationResult = Apollo.MutationResult<DeleteAddOnMutation>;
 export type DeleteAddOnMutationOptions = Apollo.BaseMutationOptions<DeleteAddOnMutation, DeleteAddOnMutationVariables>;
+export const GetRevenueStreamsDocument = gql`
+    query getRevenueStreams($customerCountry: CountryCode, $customerCurrency: CurrencyEnum, $customerType: CustomerTypeEnum, $externalCustomerId: String, $externalSubscriptionId: String, $fromDate: ISO8601Date, $planCode: String, $timeGranularity: TimeGranularityEnum, $toDate: ISO8601Date) {
+  revenueStreams(
+    customerCountry: $customerCountry
+    customerCurrency: $customerCurrency
+    customerType: $customerType
+    externalCustomerId: $externalCustomerId
+    externalSubscriptionId: $externalSubscriptionId
+    fromDate: $fromDate
+    planCode: $planCode
+    timeGranularity: $timeGranularity
+    toDate: $toDate
+  ) {
+    collection {
+      commitmentFeeAmountCents
+      couponsAmountCents
+      amountCurrency
+      startOfPeriodDt
+      grossRevenueAmountCents
+      netRevenueAmountCents
+      oneOffFeeAmountCents
+      subscriptionFeeAmountCents
+      endOfPeriodDt
+      usageBasedFeeAmountCents
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetRevenueStreamsQuery__
+ *
+ * To run a query within a React component, call `useGetRevenueStreamsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRevenueStreamsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRevenueStreamsQuery({
+ *   variables: {
+ *      customerCountry: // value for 'customerCountry'
+ *      customerCurrency: // value for 'customerCurrency'
+ *      customerType: // value for 'customerType'
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *      externalSubscriptionId: // value for 'externalSubscriptionId'
+ *      fromDate: // value for 'fromDate'
+ *      planCode: // value for 'planCode'
+ *      timeGranularity: // value for 'timeGranularity'
+ *      toDate: // value for 'toDate'
+ *   },
+ * });
+ */
+export function useGetRevenueStreamsQuery(baseOptions?: Apollo.QueryHookOptions<GetRevenueStreamsQuery, GetRevenueStreamsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetRevenueStreamsQuery, GetRevenueStreamsQueryVariables>(GetRevenueStreamsDocument, options);
+      }
+export function useGetRevenueStreamsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRevenueStreamsQuery, GetRevenueStreamsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetRevenueStreamsQuery, GetRevenueStreamsQueryVariables>(GetRevenueStreamsDocument, options);
+        }
+export function useGetRevenueStreamsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRevenueStreamsQuery, GetRevenueStreamsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetRevenueStreamsQuery, GetRevenueStreamsQueryVariables>(GetRevenueStreamsDocument, options);
+        }
+export type GetRevenueStreamsQueryHookResult = ReturnType<typeof useGetRevenueStreamsQuery>;
+export type GetRevenueStreamsLazyQueryHookResult = ReturnType<typeof useGetRevenueStreamsLazyQuery>;
+export type GetRevenueStreamsSuspenseQueryHookResult = ReturnType<typeof useGetRevenueStreamsSuspenseQuery>;
+export type GetRevenueStreamsQueryResult = Apollo.QueryResult<GetRevenueStreamsQuery, GetRevenueStreamsQueryVariables>;
 export const GetGoogleAuthUrlDocument = gql`
     query getGoogleAuthUrl {
   googleAuthUrl {
