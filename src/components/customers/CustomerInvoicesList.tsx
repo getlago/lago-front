@@ -484,9 +484,10 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                         }),
                       )
                     },
-                    tooltip: disabledIssueCreditNoteButtonLabel
-                      ? translate(disabledIssueCreditNoteButtonLabel)
-                      : undefined,
+                    tooltip:
+                      !isPartiallyPaid && disabledIssueCreditNoteButtonLabel
+                        ? translate(disabledIssueCreditNoteButtonLabel)
+                        : undefined,
                   }
                 : null,
               canVoid

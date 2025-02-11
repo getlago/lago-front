@@ -37,6 +37,8 @@ gql`
       paymentStatus
       refundableAmountCents
       creditableAmountCents
+      totalPaidAmountCents
+      totalDueAmountCents
       status
       customer {
         id
@@ -62,6 +64,8 @@ export const InvoiceCreditNoteList = () => {
   const creditNotes = data?.invoiceCreditNotes?.collection
 
   const invoice = data?.invoice
+  const isPartiallyPaid =
+    Number(invoice?.totalPaidAmountCents || 0) > 0 && Number(invoice?.totalDueAmountCents || 0) > 0
 
   const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
     createCreditNoteForInvoiceButtonProps({
@@ -84,6 +88,7 @@ export const InvoiceCreditNoteList = () => {
                   {isPremium ? (
                     <Tooltip
                       title={
+                        !isPartiallyPaid &&
                         disabledIssueCreditNoteButtonLabel &&
                         translate(disabledIssueCreditNoteButtonLabel)
                       }

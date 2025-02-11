@@ -324,9 +324,10 @@ const InvoicesList = ({
                           }),
                         )
                       },
-                      tooltip: disabledIssueCreditNoteButtonLabel
-                        ? translate(disabledIssueCreditNoteButtonLabel)
-                        : undefined,
+                      tooltip:
+                        !isPartiallyPaid && disabledIssueCreditNoteButtonLabel
+                          ? translate(disabledIssueCreditNoteButtonLabel)
+                          : undefined,
                     }
                   : null,
                 canVoid

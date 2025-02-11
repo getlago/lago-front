@@ -692,6 +692,7 @@ const CustomerInvoiceDetails = () => {
                                   },
                                 }}
                                 title={
+                                  !isPartiallyPaid &&
                                   disabledIssueCreditNoteButtonLabel &&
                                   translate(disabledIssueCreditNoteButtonLabel)
                                 }
