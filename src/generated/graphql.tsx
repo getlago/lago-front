@@ -16275,6 +16275,7 @@ export type GetInvoiceCreditNotesQueryResult = Apollo.QueryResult<GetInvoiceCred
 export const GetInvoiceMetadatasDocument = gql`
     query getInvoiceMetadatas($id: ID!) {
   invoice(id: $id) {
+    id
     ...InvoiceMetadatasForInvoiceOverview
     ...InvoiceMetadatasForMetadataDrawer
     customer {

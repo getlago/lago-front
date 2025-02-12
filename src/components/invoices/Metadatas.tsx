@@ -36,6 +36,7 @@ gql`
 
   query getInvoiceMetadatas($id: ID!) {
     invoice(id: $id) {
+      id
       ...InvoiceMetadatasForInvoiceOverview
       ...InvoiceMetadatasForMetadataDrawer
       customer {
