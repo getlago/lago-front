@@ -11,14 +11,17 @@ import {
   AdyenForCreateAndEditSuccessRedirectUrlFragment,
   CashfreeForCreateAndEditSuccessRedirectUrlFragment,
   GocardlessForCreateAndEditSuccessRedirectUrlFragment,
+  MoneyhashForCreateAndEditSuccessRedirectUrlFragment,
   StripeForCreateAndEditSuccessRedirectUrlFragment,
   UpdateAdyenPaymentProviderInput,
   UpdateCashfreePaymentProviderInput,
   UpdateGocardlessPaymentProviderInput,
+  UpdateMoneyhashPaymentProviderInput,
   UpdateStripePaymentProviderInput,
   useUpdateAdyenPaymentProviderMutation,
   useUpdateCashfreePaymentProviderMutation,
   useUpdateGocardlessPaymentProviderMutation,
+  useUpdateMoneyhashPaymentProviderMutation,
   useUpdateStripePaymentProviderMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -41,6 +44,12 @@ gql`
 
   fragment StripeForCreateAndEditSuccessRedirectUrl on StripeProvider {
     id
+    successRedirectUrl
+  }
+
+  fragment MoneyhashForCreateAndEditSuccessRedirectUrl on MoneyhashProvider {
+    id
+    flowId
     successRedirectUrl
   }
 
@@ -71,6 +80,13 @@ gql`
       successRedirectUrl
     }
   }
+
+  mutation updateMoneyhashPaymentProvider($input: UpdateMoneyhashPaymentProviderInput!) {
+    updateMoneyhashPaymentProvider(input: $input) {
+      id
+      flowId
+    }
+  }
 `
 
 const AddEditDeleteSuccessRedirectUrlDialogMode = {
@@ -84,6 +100,7 @@ const AddEditDeleteSuccessRedirectUrlDialogProviderType = {
   Stripe: 'Stripe',
   GoCardless: 'GoCardless',
   Cashfree: 'Cashfree',
+  Moneyhash: 'Moneyhash',
 } as const
 
 type LocalProviderType = {
@@ -94,6 +111,7 @@ type LocalProviderType = {
     | CashfreeForCreateAndEditSuccessRedirectUrlFragment
     | GocardlessForCreateAndEditSuccessRedirectUrlFragment
     | StripeForCreateAndEditSuccessRedirectUrlFragment
+    | MoneyhashForCreateAndEditSuccessRedirectUrlFragment
     | null
 }
 
@@ -158,11 +176,23 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
       },
     })
 
+    const [updateMoneyhashProvider] = useUpdateMoneyhashPaymentProviderMutation({
+      onCompleted(data) {
+        if (data && data.updateMoneyhashPaymentProvider) {
+          addToast({
+            message: successToastMessage,
+            severity: 'success',
+          })
+        }
+      },
+    })
+
     const formikProps = useFormik<
       | UpdateAdyenPaymentProviderInput
       | UpdateCashfreePaymentProviderInput
       | UpdateGocardlessPaymentProviderInput
       | UpdateStripePaymentProviderInput
+      | UpdateMoneyhashPaymentProviderInput
     >({
       initialValues: {
         id: localData?.provider?.id || '',
@@ -179,6 +209,7 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
           [AddEditDeleteSuccessRedirectUrlDialogProviderType.Stripe]: updateStripeProvider,
           [AddEditDeleteSuccessRedirectUrlDialogProviderType.GoCardless]: updateGocardlessProvider,
           [AddEditDeleteSuccessRedirectUrlDialogProviderType.Cashfree]: updateCashfreeProvider,
+          [AddEditDeleteSuccessRedirectUrlDialogProviderType.Moneyhash]: updateMoneyhashProvider,
         }
 
         const method = methodLoojup[localData?.type as LocalProviderType['type']]

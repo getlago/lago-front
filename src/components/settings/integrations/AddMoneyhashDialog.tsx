@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
 import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
@@ -10,40 +9,37 @@ import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { ADYEN_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
+import { MONEYHASH_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
-  AddAdyenPaymentProviderInput,
-  AddAdyenProviderDialogFragment,
-  AdyenIntegrationDetailsFragmentDoc,
+  AddMoneyhashPaymentProviderInput,
+  AddMoneyhashProviderDialogFragment,
   LagoApiError,
-  useAddAdyenApiKeyMutation,
-  useGetProviderByCodeForAdyenLazyQuery,
-  useUpdateAdyenApiKeyMutation,
+  MoneyhashIntegrationDetailsFragmentDoc,
+  useAddMoneyhashApiKeyMutation,
+  useGetProviderByCodeForMoneyhashLazyQuery,
+  useUpdateMoneyhashApiKeyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { DeleteAdyenIntegrationDialogRef } from './DeleteAdyenIntegrationDialog'
+import { DeleteMoneyhashIntegrationDialogRef } from './DeleteMoneyhashIntegrationDialog'
 
 gql`
-  fragment AddAdyenProviderDialog on AdyenProvider {
+  fragment AddMoneyhashProviderDialog on MoneyhashProvider {
     id
     name
     code
     apiKey
-    hmacKey
-    livePrefix
-    merchantAccount
+    flowId
   }
-
-  query getProviderByCodeForAdyen($code: String) {
+  query getProviderByCodeForMoneyhash($code: String) {
     paymentProvider(code: $code) {
       ... on AdyenProvider {
         id
       }
-      ... on GocardlessProvider {
+      ... on CashfreeProvider {
         id
       }
-      ... on CashfreeProvider {
+      ... on GocardlessProvider {
         id
       }
       ... on StripeProvider {
@@ -54,107 +50,98 @@ gql`
       }
     }
   }
-
-  mutation addAdyenApiKey($input: AddAdyenPaymentProviderInput!) {
-    addAdyenPaymentProvider(input: $input) {
+  mutation addMoneyhashApiKey($input: AddMoneyhashPaymentProviderInput!) {
+    addMoneyhashPaymentProvider(input: $input) {
       id
-
-      ...AddAdyenProviderDialog
-      ...AdyenIntegrationDetails
+      ...AddMoneyhashProviderDialog
+      ...MoneyhashIntegrationDetails
     }
   }
-
-  mutation updateAdyenApiKey($input: UpdateAdyenPaymentProviderInput!) {
-    updateAdyenPaymentProvider(input: $input) {
+  mutation updateMoneyhashApiKey($input: UpdateMoneyhashPaymentProviderInput!) {
+    updateMoneyhashPaymentProvider(input: $input) {
       id
-
-      ...AddAdyenProviderDialog
-      ...AdyenIntegrationDetails
+      ...AddMoneyhashProviderDialog
+      ...MoneyhashIntegrationDetails
     }
   }
-
-  ${AdyenIntegrationDetailsFragmentDoc}
+  ${MoneyhashIntegrationDetailsFragmentDoc}
 `
 
-type TAddAdyenDialogProps = Partial<{
-  deleteModalRef: RefObject<DeleteAdyenIntegrationDialogRef>
-  provider: AddAdyenProviderDialogFragment
+type TAddMoneyhashDialogProps = Partial<{
+  deleteModalRef: RefObject<DeleteMoneyhashIntegrationDialogRef>
+  provider: AddMoneyhashProviderDialogFragment
   deleteDialogCallback: Function
 }>
 
-export interface AddAdyenDialogRef {
-  openDialog: (props?: TAddAdyenDialogProps) => unknown
+export interface AddMoneyhashDialogRef {
+  openDialog: (props?: TAddMoneyhashDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
+export const AddMoneyhashDialog = forwardRef<AddMoneyhashDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const dialogRef = useRef<DialogRef>(null)
-  const [localData, setLocalData] = useState<TAddAdyenDialogProps | undefined>(undefined)
-  const adyenProvider = localData?.provider
-  const isEdition = !!adyenProvider
+  const [localData, setLocalData] = useState<TAddMoneyhashDialogProps | undefined>(undefined)
+  const moneyhashProvider = localData?.provider
+  const isEdition = !!moneyhashProvider
 
-  const [addApiKey] = useAddAdyenApiKeyMutation({
-    onCompleted({ addAdyenPaymentProvider }) {
-      if (addAdyenPaymentProvider?.id) {
+  const [addApiKey] = useAddMoneyhashApiKeyMutation({
+    onCompleted({ addMoneyhashPaymentProvider }) {
+      if (addMoneyhashPaymentProvider?.id) {
         navigate(
-          generatePath(ADYEN_INTEGRATION_DETAILS_ROUTE, {
-            integrationId: addAdyenPaymentProvider.id,
-            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+          generatePath(MONEYHASH_INTEGRATION_DETAILS_ROUTE, {
+            integrationId: addMoneyhashPaymentProvider.id,
+            integrationGroup: IntegrationsTabsOptionsEnum.Community,
           }),
         )
-
         addToast({
-          message: translate('text_645d071272418a14c1c76a93'),
+          message: translate('text_1733730115018i122xlyi662'),
           severity: 'success',
         })
       }
     },
   })
 
-  const [updateApiKey] = useUpdateAdyenApiKeyMutation({
-    onCompleted({ updateAdyenPaymentProvider }) {
-      if (updateAdyenPaymentProvider?.id) {
+  const [updateApiKey] = useUpdateMoneyhashApiKeyMutation({
+    onCompleted({ updateMoneyhashPaymentProvider }) {
+      if (updateMoneyhashPaymentProvider?.id) {
         addToast({
-          message: translate('text_645d071272418a14c1c76a3e'),
+          message: translate('text_17337300102103wt4s6yz2gh'),
           severity: 'success',
         })
       }
     },
   })
 
-  const [getAdyenProviderByCode] = useGetProviderByCodeForAdyenLazyQuery()
+  const [getMoneyhashProviderByCode] = useGetProviderByCodeForMoneyhashLazyQuery()
 
-  const formikProps = useFormik<AddAdyenPaymentProviderInput>({
+  const formikProps = useFormik<AddMoneyhashPaymentProviderInput>({
     initialValues: {
-      name: adyenProvider?.name || '',
-      code: adyenProvider?.code || '',
-      apiKey: adyenProvider?.apiKey || '',
-      hmacKey: adyenProvider?.hmacKey || undefined,
-      livePrefix: adyenProvider?.livePrefix || undefined,
-      merchantAccount: adyenProvider?.merchantAccount || '',
+      name: moneyhashProvider?.name || '',
+      code: moneyhashProvider?.code || '',
+      apiKey: moneyhashProvider?.apiKey || '',
+      flowId: moneyhashProvider?.flowId || '',
     },
     validationSchema: object().shape({
-      name: string(),
+      name: string().required(''),
       code: string().required(''),
       apiKey: string().required(''),
-      hmacKey: string(),
-      livePrefix: string(),
-      merchantAccount: string().required(''),
+      flowId: string().required(''),
     }),
-    onSubmit: async ({ apiKey, merchantAccount, hmacKey, livePrefix, ...values }, formikBag) => {
-      const res = await getAdyenProviderByCode({
+    onSubmit: async ({ apiKey, flowId, ...values }, formikBag) => {
+      const res = await getMoneyhashProviderByCode({
         context: { silentErrorCodes: [LagoApiError.NotFound] },
         variables: {
           code: values.code,
         },
       })
+
       const isNotAllowedToMutate =
         (!!res.data?.paymentProvider?.id && !isEdition) ||
         (isEdition &&
           !!res.data?.paymentProvider?.id &&
-          res.data?.paymentProvider?.id !== adyenProvider?.id)
+          res.data?.paymentProvider?.id !== moneyhashProvider?.id)
 
       if (isNotAllowedToMutate) {
         formikBag.setFieldError('code', translate('text_632a2d437e341dcc76817556'))
@@ -166,14 +153,19 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
           variables: {
             input: {
               ...values,
-              id: adyenProvider?.id || '',
+              id: moneyhashProvider?.id,
+              flowId,
             },
           },
         })
       } else {
         await addApiKey({
           variables: {
-            input: { ...values, apiKey, merchantAccount, hmacKey, livePrefix },
+            input: {
+              ...values,
+              apiKey,
+              flowId,
+            },
           },
         })
       }
@@ -196,23 +188,17 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
     <Dialog
       ref={dialogRef}
       title={translate(
-        isEdition ? 'text_658461066530343fe1808cd9' : 'text_658466afe6140b469140e1fa',
+        isEdition ? 'text_658461066530343fe1808cd9' : 'text_1733489819311q0nzqi3u7wz',
         {
-          name: adyenProvider?.name,
+          name: moneyhashProvider?.name,
         },
       )}
       description={translate(
-        isEdition ? 'text_65846a0ed9fdbd46c4afc42d' : 'text_658466afe6140b469140e1fc',
+        isEdition ? 'text_17337299668343fncntgiyhf' : 'text_1733491430992msh3b2v8nlx',
       )}
       onClose={formikProps.resetForm}
       actions={({ closeDialog }) => (
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          width={isEdition ? '100%' : 'inherit'}
-          spacing={3}
-        >
+        <div className="flex w-full items-center gap-3">
           {isEdition && (
             <Button
               danger
@@ -220,7 +206,7 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
               onClick={() => {
                 closeDialog()
                 localData?.deleteModalRef?.current?.openDialog({
-                  provider: adyenProvider,
+                  provider: moneyhashProvider,
                   callback: localData.deleteDialogCallback,
                 })
               }}
@@ -228,7 +214,7 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
               {translate('text_65845f35d7d69c3ab4793dad')}
             </Button>
           )}
-          <Stack direction="row" spacing={3} alignItems="center">
+          <div className="ml-auto flex items-center gap-3">
             <Button variant="quaternary" onClick={closeDialog}>
               {translate('text_63eba8c65a6c8043feee2a14')}
             </Button>
@@ -238,15 +224,15 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
               onClick={formikProps.submitForm}
             >
               {translate(
-                isEdition ? 'text_645d071272418a14c1c76a67' : 'text_645d071272418a14c1c76ad8',
+                isEdition ? 'text_1733729938415dtehv31k9in' : 'text_1733489819311q0nzqi3u7wz',
               )}
             </Button>
-          </Stack>
-        </Stack>
+          </div>
+        </div>
       )}
     >
       <div className="mb-8 flex flex-col gap-6">
-        <div className="flex flex-row items-start gap-6">
+        <div className="flex items-start gap-6">
           <TextInputField
             className="flex-1"
             // eslint-disable-next-line jsx-a11y/no-autofocus
@@ -264,7 +250,6 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
             placeholder={translate('text_6584550dc4cec7adf8615053')}
           />
         </div>
-
         <TextInputField
           name="apiKey"
           disabled={isEdition}
@@ -273,33 +258,14 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
           formikProps={formikProps}
         />
         <TextInputField
-          name="merchantAccount"
-          disabled={isEdition}
-          label={translate('text_645d071272418a14c1c76a8f')}
-          placeholder={translate('text_645d071272418a14c1c76a9c')}
+          name="flowId"
+          label={translate('text_1737453888927uw38sepj7xy')}
+          placeholder={translate('text_1737453902655bnm8uycr7o7')}
           formikProps={formikProps}
         />
-        {(!isEdition || !!adyenProvider.livePrefix) && (
-          <TextInputField
-            name="livePrefix"
-            disabled={isEdition}
-            label={translate('text_645d071272418a14c1c76aa6')}
-            placeholder={translate('text_645d071272418a14c1c76ab0')}
-            formikProps={formikProps}
-          />
-        )}
-        {(!isEdition || !!adyenProvider.hmacKey) && (
-          <TextInputField
-            name="hmacKey"
-            disabled={isEdition}
-            label={translate('text_645d071272418a14c1c76aba')}
-            placeholder={translate('text_645d071272418a14c1c76ac4')}
-            formikProps={formikProps}
-          />
-        )}
       </div>
     </Dialog>
   )
 })
 
-AddAdyenDialog.displayName = 'AddAdyenDialog'
+AddMoneyhashDialog.displayName = 'AddMoneyhashDialog'
