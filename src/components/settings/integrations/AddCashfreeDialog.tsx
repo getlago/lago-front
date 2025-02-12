@@ -48,6 +48,9 @@ gql`
       ... on StripeProvider {
         id
       }
+      ... on MoneyhashProvider {
+        id
+      }
     }
   }
 
