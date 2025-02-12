@@ -85,10 +85,13 @@ gql`
       }
       payable {
         ... on Invoice {
+          id
+          payableType
           ...InvoiceForPaymentDetails
         }
         ... on PaymentRequest {
           id
+          payableType
           invoices {
             ...InvoiceForPaymentDetails
           }
@@ -427,7 +430,7 @@ const PaymentDetails = () => {
 
           <Table
             name={'payment-invoices'}
-            data={invoices || []}
+            data={invoices}
             isLoading={loading}
             containerSize={{
               default: 4,

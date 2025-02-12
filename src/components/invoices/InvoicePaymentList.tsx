@@ -12,6 +12,8 @@ import { formatDateToTZ } from '~/core/timezone'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
   CurrencyEnum,
+  Invoice,
+  PaymentRequest,
   PaymentTypeEnum,
   useGetPaymentListQuery,
 } from '~/generated/graphql'
@@ -95,17 +97,21 @@ export const InvoicePaymentList: FC<{
                 ),
               },
               {
-                key: 'payable.__typename',
+                key: 'payable.payableType',
                 title: translate('text_63ac86d797f728a87b2f9fad'),
                 minWidth: 160,
                 maxSpace: true,
                 content: ({ payable }) => {
-                  if (payable.__typename === 'Invoice') {
-                    return payable.number
+                  if (payable.payableType === 'Invoice') {
+                    const payableInvoice = payable as Invoice
+
+                    return payableInvoice.number
                   }
-                  if (payable.__typename === 'PaymentRequest') {
+                  if (payable.payableType === 'PaymentRequest') {
+                    const payablePaymentRequest = payable as PaymentRequest
+
                     return translate('text_17370296250898eqj4qe4qg9', {
-                      count: payable.invoices.length,
+                      count: payablePaymentRequest.invoices.length,
                     })
                   }
                 },
