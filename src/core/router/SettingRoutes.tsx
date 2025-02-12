@@ -42,6 +42,10 @@ const CashfreeIntegrations = lazyLoad(() => import('~/pages/settings/CashfreeInt
 const CashfreeIntegrationDetails = lazyLoad(
   () => import('~/pages/settings/CashfreeIntegrationDetails'),
 )
+const MoneyhashIntegrations = lazyLoad(() => import('~/pages/settings/MoneyhashIntegrations'))
+const MoneyhashIntegrationDetails = lazyLoad(
+  () => import('~/pages/settings/MoneyhashIntegrationDetails'),
+)
 const GocardlessIntegrationOauthCallback = lazyLoad(
   () => import('~/pages/settings/GocardlessIntegrationOauthCallback'),
 )
@@ -82,6 +86,8 @@ export const STRIPE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/stripe`
 export const STRIPE_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/stripe/:integrationId`
 export const CASHFREE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/cashfree`
 export const CASHFREE_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/cashfree/:integrationId`
+export const MONEYHASH_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/moneyhash`
+export const MONEYHASH_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/moneyhash/:integrationId`
 export const GOCARDLESS_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/gocardless`
 export const GOCARDLESS_INTEGRATION_OAUTH_CALLBACK_ROUTE = `${ROOT_INTEGRATIONS_ROUTE}/gocardless/callback`
 export const GOCARDLESS_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/gocardless/:integrationId`
@@ -242,6 +248,18 @@ export const settingRoutes: CustomRouteObject[] = [
         path: CASHFREE_INTEGRATION_DETAILS_ROUTE,
         private: true,
         element: <CashfreeIntegrationDetails />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: MONEYHASH_INTEGRATION_DETAILS_ROUTE,
+        private: true,
+        element: <MoneyhashIntegrationDetails />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: MONEYHASH_INTEGRATION_ROUTE,
+        private: true,
+        element: <MoneyhashIntegrations />,
         permissions: ['organizationIntegrationsView'],
       },
       {

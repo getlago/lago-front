@@ -2875,5 +2875,16 @@
   "text_174048163137011wdtjb1xfg": "in selected period",
   "text_1740502406621jc9koixtcyz": "1D",
   "text_1740502406621xxkaea2lnuk": "1W",
-  "text_1740502406621t3s23o3x5xj": "1M"
+  "text_1740502406621t3s23o3x5xj": "1M",
+  "text_1733427981129n3wxjui0bex": "MoneyHash",
+  "text_1733489819311q0nzqi3u7wz": "Connect to MoneyHash",
+  "text_1733491430992msh3b2v8nlx": "To connect to MoneyHash, please enter the API key associated with your account at MoneyHash.",
+  "text_1737453888927uw38sepj7xy": "Flow Id",
+  "text_1737453902655bnm8uycr7o7": "Type a flow id",
+  "text_1733729938415dtehv31k9in": "Edit MoneyHash Connection",
+  "text_17337299668343fncntgiyhf": "Edit information linked to this MoneyHash connection.",
+  "text_17337300102103wt4s6yz2gh": "MoneyHash connection successfully edited",
+  "text_1733730115018i122xlyi662": "MoneyHash connection successfully added",
+  "text_1737463302046fgixue5wtvu": "MoneyHash connection successfully deleted",
+  "text_1733992108437qlovqhjhqj4": "Create automatically this customer in MoneyHash"
 }
