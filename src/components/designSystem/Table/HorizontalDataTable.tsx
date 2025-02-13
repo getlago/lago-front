@@ -1,5 +1,5 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { ReactNode, useEffect, useMemo, useRef } from 'react'
+import { Dispatch, ReactNode, SetStateAction, useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { tw } from '~/styles/utils'
 
@@ -35,9 +35,11 @@ type TRows<T> = {
 type HorizontalDataTableProps<T> = {
   rows: TRows<T>
   data: T[]
+  clickedDataIndex?: number | undefined
   columnWidth?: number
   leftColumnWidth?: number
   columnIdPrefix?: string
+  setClickedDataIndex?: Dispatch<SetStateAction<number | undefined>>
 }
 
 const getRowHeight = (rowType: RowType) => {
@@ -47,11 +49,13 @@ const getRowHeight = (rowType: RowType) => {
 }
 
 export const HorizontalDataTable = <T extends DataItem>({
-  data = [],
-  rows = [],
+  clickedDataIndex,
+  setClickedDataIndex,
+  columnIdPrefix = 'column-',
   leftColumnWidth = DEFAULT_LEFT_COLUMN_WIDTH,
   columnWidth = DEFAULT_COLUMN_WIDTH,
-  columnIdPrefix = 'column-',
+  data = [],
+  rows = [],
 }: HorizontalDataTableProps<T>) => {
   const parentRef = useRef(null)
 
@@ -63,12 +67,23 @@ export const HorizontalDataTable = <T extends DataItem>({
     getScrollElement: () => parentRef.current,
   })
 
+  const buildColumnId = useCallback(
+    (index: number): string => `${columnIdPrefix}${index}`,
+    [columnIdPrefix],
+  )
+
   useEffect(() => {
     // On init, scroll to the last element
     columnVirtualizer.scrollToIndex(data.length - 1)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    if (typeof clickedDataIndex === 'number') {
+      columnVirtualizer.scrollToIndex(clickedDataIndex, { behavior: 'smooth', align: 'center' })
+    }
+  }, [clickedDataIndex, columnVirtualizer])
 
   const tableHeight = useMemo(
     () => rows.reduce((acc, item) => acc + getRowHeight(item.type), 0),
@@ -113,6 +128,11 @@ export const HorizontalDataTable = <T extends DataItem>({
         style={{
           height: tableHeight,
         }}
+        onMouseEnter={() => {
+          if (typeof clickedDataIndex === 'number' && !!setClickedDataIndex) {
+            setClickedDataIndex(undefined)
+          }
+        }}
       >
         <div
           className="relative h-full"
@@ -122,17 +142,19 @@ export const HorizontalDataTable = <T extends DataItem>({
         >
           {columnVirtualizer.getVirtualItems().map((virtualColumn) => (
             <div
-              id={`${columnIdPrefix}${virtualColumn.index}`}
-              key={`column-${virtualColumn.index}`}
-              className="absolute left-0 top-0 bg-white hover:bg-grey-100"
+              id={buildColumnId(virtualColumn.index)}
+              key={`key-column-${virtualColumn.index}`}
+              className={tw('absolute hover:bg-grey-100 focus:bg-grey-100', {
+                'bg-grey-100': virtualColumn.index === clickedDataIndex,
+              })}
               style={{
                 width: `${virtualColumn.size}px`,
-                transform: `translateX(${virtualColumn.start}px)`,
+                left: `${virtualColumn.start}px`,
               }}
             >
               {rows.map((row, index) => (
                 <div
-                  key={`column-${virtualColumn.index}-item-${index}-row-${row.key}`}
+                  key={`key-column-${virtualColumn.index}-item-${index}-row-${row.key}`}
                   className={tw('flex items-center justify-end px-1 shadow-b', {
                     'shadow-y': index === 0,
                   })}
@@ -142,7 +164,6 @@ export const HorizontalDataTable = <T extends DataItem>({
                 </div>
               ))}
             </div>
-            // {virtualColumn.index}
           ))}
         </div>
       </div>
