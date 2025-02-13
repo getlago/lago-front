@@ -382,6 +382,26 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
                       onSetPaymentMethod(ProviderPaymentMethodsEnum.Boleto, checked)
                     }}
                   />
+
+                  <Checkbox
+                    name="providerCustomer.providerPaymentMethods.crypto"
+                    value={
+                      !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
+                        ProviderPaymentMethodsEnum.Crypto,
+                      )
+                    }
+                    label={translate('text_17394287699017cunbdlhnhf')}
+                    sublabel={translate('text_65e1f90471bc198c0c934d90')}
+                    disabled={
+                      formikProps.values.providerCustomer?.providerPaymentMethods?.length === 1 &&
+                      formikProps.values.providerCustomer?.providerPaymentMethods.includes(
+                        ProviderPaymentMethodsEnum.Crypto,
+                      )
+                    }
+                    onChange={(_e, checked) => {
+                      onSetPaymentMethod(ProviderPaymentMethodsEnum.Crypto, checked)
+                    }}
+                  />
                 </div>
               </div>
 
