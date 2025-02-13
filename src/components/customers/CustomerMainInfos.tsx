@@ -44,6 +44,7 @@ const PaymentProviderMethodTranslationsLookup: Record<ProviderPaymentMethodsEnum
   [ProviderPaymentMethodsEnum.SepaDebit]: 'text_64aeb7b998c4322918c8420c',
   [ProviderPaymentMethodsEnum.UsBankAccount]: 'text_65e1f90471bc198c0c934d8e',
   [ProviderPaymentMethodsEnum.Boleto]: 'text_1738234109827diqh4eswleu',
+  [ProviderPaymentMethodsEnum.Crypto]: 'text_17394287699017cunbdlhnhf',
 }
 
 gql`
