@@ -119,7 +119,7 @@ const AnrokIntegrationSettings = () => {
 
   return (
     <>
-      <Settings>
+      <IntegrationsPage.Container className="my-4 md:my-8">
         {!!anrokIntegration && !anrokIntegration?.hasMappingsConfigured && (
           <Alert
             type="warning"
@@ -232,7 +232,8 @@ const AnrokIntegrationSettings = () => {
             {translate('text_66ba5a76e614f000a738c97e')}
           </Button>
         </Stack>
-      </Settings>
+      </IntegrationsPage.Container>
+
       <AddAnrokDialog ref={addAnrokDialogRef} />
       <DeleteAnrokIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
@@ -241,19 +242,6 @@ const AnrokIntegrationSettings = () => {
 }
 
 export default AnrokIntegrationSettings
-
-const Settings = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(8)};
-  margin: ${theme.spacing(8)} ${theme.spacing(12)};
-  box-sizing: border-box;
-  max-width: ${theme.spacing(168)};
-
-  ${theme.breakpoints.down('md')} {
-    margin: ${theme.spacing(4)};
-  }
-`
 
 const InlineTitle = styled.div`
   position: relative;

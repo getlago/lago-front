@@ -20,7 +20,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { XeroIntegrationDetailsTabs } from '~/pages/settings/XeroIntegrationDetails'
-import { NAV_HEIGHT, theme } from '~/styles'
+import { NAV_HEIGHT } from '~/styles'
 
 import {
   AddEditDeleteSuccessRedirectUrlDialog,
@@ -127,7 +127,7 @@ const XeroIntegrationSettings = () => {
 
   return (
     <>
-      <Settings>
+      <IntegrationsPage.Container className="my-4 md:my-8">
         {!loading && !!xeroIntegration && !xeroIntegration?.hasMappingsConfigured && (
           <Alert
             type="warning"
@@ -195,7 +195,7 @@ const XeroIntegrationSettings = () => {
             )}
           </>
         </section>
-      </Settings>
+      </IntegrationsPage.Container>
       <AddXeroDialog ref={addXeroDialogRef} />
       <DeleteXeroIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
@@ -204,19 +204,6 @@ const XeroIntegrationSettings = () => {
 }
 
 export default XeroIntegrationSettings
-
-const Settings = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(8)};
-  margin: ${theme.spacing(8)} ${theme.spacing(12)};
-  box-sizing: border-box;
-  max-width: ${theme.spacing(168)};
-
-  ${theme.breakpoints.down('md')} {
-    margin: ${theme.spacing(4)};
-  }
-`
 
 const InlineTitle = styled.div`
   position: relative;

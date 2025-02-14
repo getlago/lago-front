@@ -140,7 +140,6 @@ const OktaAuthenticationDetails = () => {
           )}
         </Popper>
       </PageHeader.Wrapper>
-      <Settings>
       <IntegrationsPage.Header
         isLoading={loading}
         integrationLogo={<Okta />}
@@ -149,6 +148,7 @@ const OktaAuthenticationDetails = () => {
         integrationDescription={translate('text_664c732c264d7eed1c74fdbd')}
       />
 
+      <IntegrationsPage.Container>
         <section>
           <InlineTitle>
             <Typography variant="subhead">{translate('text_664c732c264d7eed1c74fdc5')}</Typography>
@@ -199,25 +199,12 @@ const OktaAuthenticationDetails = () => {
             )}
           </>
         </section>
-      </Settings>
+      </IntegrationsPage.Container>
       <AddOktaDialog ref={addOktaDialogRef} />
       <DeleteOktaIntegrationDialog ref={deleteOktaDialogRef} />
     </>
   )
 }
-
-const Settings = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(8)};
-  padding: 0 ${theme.spacing(12)};
-  box-sizing: border-box;
-  max-width: ${theme.spacing(168)};
-
-  ${theme.breakpoints.down('md')} {
-    padding: 0 ${theme.spacing(4)};
-  }
-`
 
 const InlineTitle = styled.div`
   position: relative;

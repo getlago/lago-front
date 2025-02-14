@@ -110,116 +110,107 @@ const HubspotIntegrations = () => {
         integrationDescription={translate('text_1727281892403opxm269y6mv')}
       />
 
-      <div className="container">
-        <div className="flex flex-col gap-8">
-          <section>
-            <div className="flex h-18 w-full items-center">
-              <Typography variant="subhead">
-                {translate('text_65846763e6140b469140e239')}
-              </Typography>
-            </div>
+      <IntegrationsPage.Container>
+        <section>
+          <div className="flex h-18 w-full items-center">
+            <Typography variant="subhead">{translate('text_65846763e6140b469140e239')}</Typography>
+          </div>
 
+          {loading ? (
             <>
-              {loading ? (
-                <>
-                  {[1, 2].map((i) => (
-                    <div
-                      className="flex h-18 items-center shadow-b"
-                      key={`item-skeleton-item-${i}`}
-                    >
-                      <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
-                      <Skeleton variant="text" className="w-60" />
-                    </div>
-                  ))}
-                </>
-              ) : (
-                <>
-                  {connections?.map((connection) => {
-                    return (
-                      <div className="relative" key={`hubspot-connection-${connection.id}`}>
-                        <ListItemLink
-                          tabIndex={0}
-                          className="p-0"
-                          to={generatePath(HUBSPOT_INTEGRATION_DETAILS_ROUTE, {
-                            integrationId: connection.id,
-                            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-                          })}
-                        >
-                          <div className="flex flex-row items-center gap-3">
-                            <Avatar variant="connector" size="big">
-                              <Icon name="plug" color="dark" />
-                            </Avatar>
-                            <div>
-                              <Typography variant="body" color="grey700">
-                                {connection.name}
-                              </Typography>
-                              <Typography variant="caption" color="grey600">
-                                {connection.code}
-                              </Typography>
-                            </div>
-                          </div>
-                        </ListItemLink>
-                        <Popper
-                          PopperProps={{ placement: 'bottom-end' }}
-                          opener={({ isOpen }) => (
-                            <PopperOpener className="right-0">
-                              <Tooltip
-                                placement="top-end"
-                                disableHoverListener={isOpen}
-                                title={translate('text_626162c62f790600f850b7b6')}
-                              >
-                                <Button
-                                  icon="dots-horizontal"
-                                  variant="quaternary"
-                                  data-test="plan-item-options"
-                                />
-                              </Tooltip>
-                            </PopperOpener>
-                          )}
-                        >
-                          {({ closePopper }) => (
-                            <MenuPopper>
-                              <Button
-                                startIcon="pen"
-                                variant="quaternary"
-                                align="left"
-                                onClick={() => {
-                                  addHubspotDialogRef.current?.openDialog({
-                                    provider: connection,
-                                    deleteModalRef: deleteDialogRef,
-                                    deleteDialogCallback,
-                                  })
-                                  closePopper()
-                                }}
-                              >
-                                {translate('text_65845f35d7d69c3ab4793dac')}
-                              </Button>
-                              <Button
-                                startIcon="trash"
-                                variant="quaternary"
-                                align="left"
-                                onClick={() => {
-                                  deleteDialogRef.current?.openDialog({
-                                    provider: connection,
-                                    callback: deleteDialogCallback,
-                                  })
-                                  closePopper()
-                                }}
-                              >
-                                {translate('text_645d071272418a14c1c76a81')}
-                              </Button>
-                            </MenuPopper>
-                          )}
-                        </Popper>
-                      </div>
-                    )
-                  })}
-                </>
-              )}
+              {[1, 2].map((i) => (
+                <div className="flex h-18 items-center shadow-b" key={`item-skeleton-item-${i}`}>
+                  <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
+                  <Skeleton variant="text" className="w-60" />
+                </div>
+              ))}
             </>
-          </section>
-        </div>
-      </div>
+          ) : (
+            <>
+              {connections?.map((connection) => {
+                return (
+                  <div className="relative" key={`hubspot-connection-${connection.id}`}>
+                    <ListItemLink
+                      tabIndex={0}
+                      className="p-0"
+                      to={generatePath(HUBSPOT_INTEGRATION_DETAILS_ROUTE, {
+                        integrationId: connection.id,
+                        integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                      })}
+                    >
+                      <div className="flex flex-row items-center gap-3">
+                        <Avatar variant="connector" size="big">
+                          <Icon name="plug" color="dark" />
+                        </Avatar>
+                        <div>
+                          <Typography variant="body" color="grey700">
+                            {connection.name}
+                          </Typography>
+                          <Typography variant="caption" color="grey600">
+                            {connection.code}
+                          </Typography>
+                        </div>
+                      </div>
+                    </ListItemLink>
+                    <Popper
+                      PopperProps={{ placement: 'bottom-end' }}
+                      opener={({ isOpen }) => (
+                        <PopperOpener className="right-0">
+                          <Tooltip
+                            placement="top-end"
+                            disableHoverListener={isOpen}
+                            title={translate('text_626162c62f790600f850b7b6')}
+                          >
+                            <Button
+                              icon="dots-horizontal"
+                              variant="quaternary"
+                              data-test="plan-item-options"
+                            />
+                          </Tooltip>
+                        </PopperOpener>
+                      )}
+                    >
+                      {({ closePopper }) => (
+                        <MenuPopper>
+                          <Button
+                            startIcon="pen"
+                            variant="quaternary"
+                            align="left"
+                            onClick={() => {
+                              addHubspotDialogRef.current?.openDialog({
+                                provider: connection,
+                                deleteModalRef: deleteDialogRef,
+                                deleteDialogCallback,
+                              })
+                              closePopper()
+                            }}
+                          >
+                            {translate('text_65845f35d7d69c3ab4793dac')}
+                          </Button>
+                          <Button
+                            startIcon="trash"
+                            variant="quaternary"
+                            align="left"
+                            onClick={() => {
+                              deleteDialogRef.current?.openDialog({
+                                provider: connection,
+                                callback: deleteDialogCallback,
+                              })
+                              closePopper()
+                            }}
+                          >
+                            {translate('text_645d071272418a14c1c76a81')}
+                          </Button>
+                        </MenuPopper>
+                      )}
+                    </Popper>
+                  </div>
+                )
+              })}
+            </>
+          )}
+        </section>
+      </IntegrationsPage.Container>
       <AddHubspotDialog ref={addHubspotDialogRef} />
       <DeleteHubspotIntegrationDialog ref={deleteDialogRef} />
     </>

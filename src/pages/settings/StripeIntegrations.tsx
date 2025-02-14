@@ -140,7 +140,7 @@ const StripeIntegrations = () => {
         integrationDescription={translate('text_62b1edddbf5f461ab971271f')}
       />
 
-      <ListWrapper>
+      <IntegrationsPage.Container>
         <section>
           <InlineTitle>
             <Typography variant="subhead">{translate('text_65846763e6140b469140e239')}</Typography>
@@ -250,26 +250,14 @@ const StripeIntegrations = () => {
             )}
           </>
         </section>
-      </ListWrapper>
+      </IntegrationsPage.Container>
+
       <AddStripeDialog ref={addStripeDialogRef} />
       <DeleteStripeIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
 }
-
-const ListWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(8)};
-  padding: 0 ${theme.spacing(12)};
-  box-sizing: border-box;
-  max-width: ${theme.spacing(168)};
-
-  ${theme.breakpoints.down('md')} {
-    padding: 0 ${theme.spacing(4)};
-  }
-`
 
 const InlineTitle = styled.div`
   position: relative;

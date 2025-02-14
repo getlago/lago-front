@@ -37,7 +37,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import Stripe from '~/public/images/stripe.svg'
-import { MenuPopper, NAV_HEIGHT, PageHeader, PopperOpener, theme } from '~/styles'
+import { MenuPopper, NAV_HEIGHT, PageHeader, PopperOpener } from '~/styles'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -185,7 +185,7 @@ const StripeIntegrationDetails = () => {
         integrationDescription={`${translate('text_62b1edddbf5f461ab9712707')} • ${translate('text_62b1edddbf5f461ab971271f')}`}
       />
 
-      <ContentWrapper>
+      <IntegrationsPage.Container>
         <section>
           <InlineTitle>
             <Typography className="flex h-18 w-full items-center" variant="subhead">
@@ -338,26 +338,14 @@ const StripeIntegrationDetails = () => {
             </>
           )}
         </section>
-      </ContentWrapper>
+      </IntegrationsPage.Container>
+
       <AddStripeDialog ref={addDialogRef} />
       <DeleteStripeIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
 }
-
-const ContentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(8)};
-  padding: 0 ${theme.spacing(12)};
-  box-sizing: border-box;
-  max-width: ${theme.spacing(168)};
-
-  ${theme.breakpoints.down('md')} {
-    padding: 0 ${theme.spacing(4)};
-  }
-`
 
 const InlineTitle = styled.div`
   position: relative;

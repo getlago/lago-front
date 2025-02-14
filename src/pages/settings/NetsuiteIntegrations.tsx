@@ -127,7 +127,7 @@ const NetsuiteIntegrations = () => {
         integrationDescription={translate('text_661ff6e56ef7e1b7c542b1e6')}
       />
 
-      <ListWrapper>
+      <IntegrationsPage.Container>
         <section>
           <InlineTitle>
             <Typography variant="subhead">{translate('text_65846763e6140b469140e239')}</Typography>
@@ -230,34 +230,12 @@ const NetsuiteIntegrations = () => {
             )}
           </>
         </section>
-      </ListWrapper>
+      </IntegrationsPage.Container>
       <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
       <DeleteNetsuiteIntegrationDialog ref={deleteDialogRef} />
     </>
   )
 }
-
-const MainInfos = styled.div`
-  display: flex;
-  align-items: center;
-  padding: ${theme.spacing(8)} ${theme.spacing(12)};
-
-  ${theme.breakpoints.down('md')} {
-    padding: ${theme.spacing(8)} ${theme.spacing(4)};
-  }
-`
-
-const ListWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(8)};
-  padding: 0 ${theme.spacing(12)};
-  max-width: ${theme.spacing(168)};
-
-  ${theme.breakpoints.down('md')} {
-    padding: 0 ${theme.spacing(4)};
-  }
-`
 
 const InlineTitle = styled.div`
   position: relative;
@@ -280,15 +258,6 @@ const ListItem = styled.div`
 
   > *:first-child {
     margin-right: ${theme.spacing(3)};
-  }
-`
-
-const Line = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(2)};
   }
 `
 

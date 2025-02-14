@@ -170,31 +170,25 @@ const SalesforceIntegrationDetails = () => {
         integrationDescription={translate('text_1731510123491gx2nw155ce0')}
       />
 
-      <div className="container">
-        <div className="flex flex-col gap-8">
-          <section>
-            <div className="flex h-18 w-full items-center justify-between">
-              <Typography variant="subhead">
-                {translate('text_664c732c264d7eed1c74fdc5')}
-              </Typography>
-              <Button
-                variant="quaternary"
-                disabled={loading}
-                onClick={() => {
-                  addSalesforceDialogRef.current?.openDialog({
-                    provider: salesforceIntegration,
-                    deleteModalRef: deleteSalesforceDialogRef,
-                    deleteDialogCallback,
-                  })
-                }}
-              >
-                {translate('text_62b1edddbf5f461ab9712787')}
-              </Button>
-            </div>
-          </section>
-        </div>
+      <IntegrationsPage.Container>
+        <section>
+          <div className="flex h-18 w-full items-center justify-between">
+            <Typography variant="subhead">{translate('text_664c732c264d7eed1c74fdc5')}</Typography>
+            <Button
+              variant="quaternary"
+              disabled={loading}
+              onClick={() => {
+                addSalesforceDialogRef.current?.openDialog({
+                  provider: salesforceIntegration,
+                  deleteModalRef: deleteSalesforceDialogRef,
+                  deleteDialogCallback,
+                })
+              }}
+            >
+              {translate('text_62b1edddbf5f461ab9712787')}
+            </Button>
+          </div>
 
-        <>
           {loading &&
             [0, 1, 2].map((i) => (
               <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />
@@ -218,8 +212,9 @@ const SalesforceIntegrationDetails = () => {
               />
             </>
           )}
-        </>
-      </div>
+        </section>
+      </IntegrationsPage.Container>
+
       <AddSalesforceDialog ref={addSalesforceDialogRef} />
       <DeleteSalesforceIntegrationDialog ref={deleteSalesforceDialogRef} />
     </>

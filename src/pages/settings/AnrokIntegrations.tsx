@@ -127,7 +127,7 @@ const AnrokIntegrations = () => {
         integrationDescription={translate('text_6668821d94e4da4dfd8b3840')}
       />
 
-      <ListWrapper>
+      <IntegrationsPage.Container>
         <section>
           <InlineTitle>
             <Typography variant="subhead">{translate('text_65846763e6140b469140e239')}</Typography>
@@ -230,24 +230,12 @@ const AnrokIntegrations = () => {
             )}
           </>
         </section>
-      </ListWrapper>
+      </IntegrationsPage.Container>
       <AddAnrokDialog ref={addAnrokDialogRef} />
       <DeleteAnrokIntegrationDialog ref={deleteDialogRef} />
     </>
   )
 }
-
-const ListWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(8)};
-  padding: 0 ${theme.spacing(12)};
-  max-width: ${theme.spacing(168)};
-
-  ${theme.breakpoints.down('md')} {
-    padding: 0 ${theme.spacing(4)};
-  }
-`
 
 const InlineTitle = styled.div`
   position: relative;

@@ -40,7 +40,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import GoCardless from '~/public/images/gocardless-large.svg'
-import { MenuPopper, NAV_HEIGHT, PageHeader, PopperOpener, theme } from '~/styles'
+import { MenuPopper, NAV_HEIGHT, PageHeader, PopperOpener } from '~/styles'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -222,7 +222,7 @@ const GocardlessIntegrationDetails = () => {
         integrationDescription={`${translate('text_634ea0ecc6147de10ddb6648')} • ${translate('text_62b1edddbf5f461ab971271f')}`}
       />
 
-      <ContentWrapper>
+      <IntegrationsPage.Container>
         <section>
           <InlineTitle>
             <Typography className="flex h-18 w-full items-center" variant="subhead">
@@ -396,25 +396,13 @@ const GocardlessIntegrationDetails = () => {
             </>
           )}
         </section>
-      </ContentWrapper>
+      </IntegrationsPage.Container>
       <AddGocardlessDialog ref={addDialogRef} />
       <DeleteGocardlessIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </div>
   )
 }
-
-const ContentWrapper = styled.div`
-  max-width: ${theme.spacing(168)};
-  padding: 0 ${theme.spacing(12)};
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(8)};
-
-  ${theme.breakpoints.down('md')} {
-    padding: 0 ${theme.spacing(4)};
-  }
-`
 
 const InlineTitle = styled.div`
   position: relative;

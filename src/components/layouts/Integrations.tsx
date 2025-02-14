@@ -1,6 +1,14 @@
 import { FC, PropsWithChildren } from 'react'
 
 import { Avatar, Chip, Icon, IconName, Skeleton, Typography } from '~/components/designSystem'
+import { tw } from '~/styles/utils'
+
+const IntegrationsContainer: FC<PropsWithChildren<{ className?: string }>> = ({
+  className,
+  children,
+}) => {
+  return <div className={tw('container flex max-w-168 flex-col gap-8', className)}>{children}</div>
+}
 
 const IntegrationsHeader: FC<{
   isLoading?: boolean
@@ -74,6 +82,7 @@ const IntegrationItemSkeleton: FC = () => {
 
 export const IntegrationsPage = {
   Header: IntegrationsHeader,
+  Container: IntegrationsContainer,
   ItemSkeleton: IntegrationItemSkeleton,
   DetailsItem: IntegrationDetailsItem,
 }

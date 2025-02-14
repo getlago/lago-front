@@ -10,7 +10,7 @@ import {
   Popper,
   Skeleton,
   Tooltip,
-  Typography
+  Typography,
 } from '~/components/designSystem'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import {
@@ -129,7 +129,7 @@ const CashfreeIntegrations = () => {
         integrationDescription={translate('text_62b1edddbf5f461ab971271f')}
       />
 
-      <div className="flex max-w-[672px] flex-col gap-8 px-4 py-0 md:px-12">
+      <IntegrationsPage.Container>
         <section>
           <Typography className="h-18 w-full" variant="subhead">
             {translate('text_65846763e6140b469140e239')}
@@ -244,7 +244,7 @@ const CashfreeIntegrations = () => {
             )}
           </>
         </section>
-      </div>
+      </IntegrationsPage.Container>
 
       <AddCashfreeDialog ref={addCashfreeDialogRef} />
       <DeleteCashfreeIntegrationDialog ref={deleteDialogRef} />

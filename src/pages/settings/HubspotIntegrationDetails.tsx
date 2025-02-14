@@ -170,31 +170,25 @@ const HubspotIntegrationDetails = () => {
         integrationDescription={translate('text_1727281892403opxm269y6mv')}
       />
 
-      <div className="container">
-        <div className="flex flex-col gap-8">
-          <section>
-            <div className="flex h-18 w-full items-center justify-between">
-              <Typography variant="subhead">
-                {translate('text_664c732c264d7eed1c74fdc5')}
-              </Typography>
-              <Button
-                variant="quaternary"
-                disabled={loading}
-                onClick={() => {
-                  addHubspotDialogRef.current?.openDialog({
-                    provider: hubspotIntegration,
-                    deleteModalRef: deleteHubspotDialogRef,
-                    deleteDialogCallback,
-                  })
-                }}
-              >
-                {translate('text_62b1edddbf5f461ab9712787')}
-              </Button>
-            </div>
-          </section>
-        </div>
+      <IntegrationsPage.Container>
+        <section>
+          <div className="flex h-18 w-full items-center justify-between">
+            <Typography variant="subhead">{translate('text_664c732c264d7eed1c74fdc5')}</Typography>
+            <Button
+              variant="quaternary"
+              disabled={loading}
+              onClick={() => {
+                addHubspotDialogRef.current?.openDialog({
+                  provider: hubspotIntegration,
+                  deleteModalRef: deleteHubspotDialogRef,
+                  deleteDialogCallback,
+                })
+              }}
+            >
+              {translate('text_62b1edddbf5f461ab9712787')}
+            </Button>
+          </div>
 
-        <>
           {loading &&
             [0, 1, 2].map((i) => (
               <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />
@@ -232,8 +226,9 @@ const HubspotIntegrationDetails = () => {
               />
             </>
           )}
-        </>
-      </div>
+        </section>
+      </IntegrationsPage.Container>
+
       <AddHubspotDialog ref={addHubspotDialogRef} />
       <DeleteHubspotIntegrationDialog ref={deleteHubspotDialogRef} />
     </>

@@ -33,7 +33,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import LagoTaxManagement from '~/public/images/lago-tax-management.svg'
-import { NAV_HEIGHT, PageHeader, theme } from '~/styles'
+import { NAV_HEIGHT, PageHeader } from '~/styles'
 
 gql`
   query lagoTaxManagementIntegrationsSetting {
@@ -159,7 +159,7 @@ const LagoTaxManagementIntegration = () => {
         integrationDescription={translate('text_657078c28394d6b1ae1b971f')}
       />
 
-      <ContentWrapper>
+      <IntegrationsPage.Container>
         <section>
           <Typography className="flex h-18 w-full items-center" variant="subhead">
             {translate('text_657078c28394d6b1ae1b9725')}
@@ -211,7 +211,7 @@ const LagoTaxManagementIntegration = () => {
               <TaxItem key={tax.id} name={tax.name} code={tax.code} rate={tax.rate} />
             ))}
         </section>
-      </ContentWrapper>
+      </IntegrationsPage.Container>
 
       <WarningDialog
         ref={deleteConnectionRef}
@@ -237,18 +237,6 @@ const LagoTaxManagementIntegration = () => {
     </>
   )
 }
-
-const ContentWrapper = styled.div`
-  max-width: ${theme.spacing(168)};
-  padding: 0 ${theme.spacing(12)} ${theme.spacing(12)};
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(8)};
-
-  ${theme.breakpoints.down('md')} {
-    padding: 0 ${theme.spacing(4)};
-  }
-`
 
 const InlineTitle = styled.div`
   position: relative;
