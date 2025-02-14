@@ -26,10 +26,6 @@ import {
   useGetOktaIntegrationQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import {
-  PropertyListItem,
-  SkeletonPropertyListItem,
-} from '~/pages/settings/Authentication/components/PropertyListItem'
 import Okta from '~/public/images/okta.svg'
 import { MenuPopper, NAV_HEIGHT, PageHeader, theme } from '~/styles'
 
@@ -174,25 +170,27 @@ const OktaAuthenticationDetails = () => {
 
           <>
             {loading ? (
-              [0, 1, 2, 3].map((i) => <SkeletonPropertyListItem key={`item-skeleton-item-${i}`} />)
+              [0, 1, 2, 3].map((i) => (
+                <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />
+              ))
             ) : (
               <>
-                <PropertyListItem
+                <IntegrationsPage.DetailsItem
                   icon="globe"
                   label={translate('text_664c732c264d7eed1c74fd94')}
                   value={integration.domain}
                 />
-                <PropertyListItem
+                <IntegrationsPage.DetailsItem
                   icon="key"
                   label={translate('text_664c732c264d7eed1c74fda6')}
                   value={integration.clientId || 'N/A'}
                 />
-                <PropertyListItem
+                <IntegrationsPage.DetailsItem
                   icon="key"
                   label={translate('text_664c732c264d7eed1c74fdb2')}
                   value={integration.clientSecret || 'N/A'}
                 />
-                <PropertyListItem
+                <IntegrationsPage.DetailsItem
                   icon="text"
                   label={translate('text_664c732c264d7eed1c74fdbb')}
                   value={integration.organizationName}

@@ -210,103 +210,49 @@ const AdyenIntegrationDetails = () => {
             )}
           </InlineTitle>
 
-          <>
-            {loading ? (
-              <>
-                {[0, 1, 2].map((i) => (
-                  <ApiKeyItem key={`item-skeleton-item-${i}`}>
-                    <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
-                    <Skeleton variant="text" className="w-60" />
-                  </ApiKeyItem>
-                ))}
-              </>
-            ) : (
-              <>
-                <ApiKeyItem>
-                  <Avatar variant="connector" size="big">
-                    <Icon name="text" color="dark" />
-                  </Avatar>
-                  <div>
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_626162c62f790600f850b76a')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {adyenPaymentProvider?.name}
-                    </Typography>
-                  </div>
-                </ApiKeyItem>
-                <ApiKeyItem>
-                  <Avatar variant="connector" size="big">
-                    <Icon name="id" color="dark" />
-                  </Avatar>
-                  <div>
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_62876e85e32e0300e1803127')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {adyenPaymentProvider?.code}
-                    </Typography>
-                  </div>
-                </ApiKeyItem>
-                <ApiKeyItem>
-                  <Avatar variant="connector" size="big">
-                    <Icon name="key" color="dark" />
-                  </Avatar>
-                  <div>
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_645d071272418a14c1c76aa4')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {adyenPaymentProvider?.apiKey}
-                    </Typography>
-                  </div>
-                </ApiKeyItem>
-                <ApiKeyItem>
-                  <Avatar variant="connector" size="big">
-                    <Icon name="bank" color="dark" />
-                  </Avatar>
-                  <div>
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_645d071272418a14c1c76ab8')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {adyenPaymentProvider?.merchantAccount}
-                    </Typography>
-                  </div>
-                </ApiKeyItem>
-                {!!adyenPaymentProvider?.livePrefix && (
-                  <ApiKeyItem>
-                    <Avatar variant="connector" size="big">
-                      <Icon name="info-circle" color="dark" />
-                    </Avatar>
-                    <div>
-                      <Typography variant="caption" color="grey600">
-                        {translate('text_645d071272418a14c1c76acc')}
-                      </Typography>
-                      <Typography variant="body" color="grey700">
-                        {adyenPaymentProvider?.livePrefix}
-                      </Typography>
-                    </div>
-                  </ApiKeyItem>
-                )}
-                {!!adyenPaymentProvider?.hmacKey && (
-                  <ApiKeyItem>
-                    <Avatar variant="connector" size="big">
-                      <Icon name="info-circle" color="dark" />
-                    </Avatar>
-                    <div>
-                      <Typography variant="caption" color="grey600">
-                        {translate('text_645d071272418a14c1c76ae0')}
-                      </Typography>
-                      <Typography variant="body" color="grey700">
-                        {adyenPaymentProvider?.hmacKey}
-                      </Typography>
-                    </div>
-                  </ApiKeyItem>
-                )}
-              </>
-            )}
-          </>
+          {loading &&
+            [0, 1, 2].map((i) => (
+              <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />
+            ))}
+
+          {!loading && (
+            <>
+              <IntegrationsPage.DetailsItem
+                icon="text"
+                label={translate('text_626162c62f790600f850b76a')}
+                value={adyenPaymentProvider?.name}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="id"
+                label={translate('text_62876e85e32e0300e1803127')}
+                value={adyenPaymentProvider?.code}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="key"
+                label={translate('text_645d071272418a14c1c76aa4')}
+                value={adyenPaymentProvider?.apiKey ?? undefined}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="bank"
+                label={translate('text_645d071272418a14c1c76ab8')}
+                value={adyenPaymentProvider?.merchantAccount ?? undefined}
+              />
+              {!!adyenPaymentProvider?.livePrefix && (
+                <IntegrationsPage.DetailsItem
+                  icon="info-circle"
+                  label={translate('text_645d071272418a14c1c76acc')}
+                  value={adyenPaymentProvider?.livePrefix ?? undefined}
+                />
+              )}
+              {!!adyenPaymentProvider?.hmacKey && (
+                <IntegrationsPage.DetailsItem
+                  icon="info-circle"
+                  label={translate('text_645d071272418a14c1c76ae0')}
+                  value={adyenPaymentProvider?.hmacKey ?? undefined}
+                />
+              )}
+            </>
+          )}
         </section>
 
         <section>
@@ -329,40 +275,26 @@ const AdyenIntegrationDetails = () => {
             )}
           </InlineTitle>
 
-          {loading ? (
-            <div className="flex flex-col gap-3">
-              <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
-              <Skeleton variant="text" className="w-60" />
-            </div>
-          ) : (
-            <>
-              {!adyenPaymentProvider?.successRedirectUrl ? (
+          {loading && <IntegrationsPage.ItemSkeleton />}
+          {!loading && !adyenPaymentProvider?.successRedirectUrl && (
                 <Typography variant="caption" color="grey600">
                   {translate('text_65367cb78324b77fcb6af226', {
                     connectionName: translate('text_645d071272418a14c1c76a6d'),
                   })}
                 </Typography>
-              ) : (
-                <SuccessPaumentRedirectUrlItem>
-                  <SuccessPaumentRedirectUrlItemLeft>
-                    <Avatar variant="connector" size="big">
-                      <Icon name="globe" color="dark" />
-                    </Avatar>
-                    <div>
-                      <Typography variant="caption" color="grey600">
-                        {translate('text_65367cb78324b77fcb6af1c6')}
-                      </Typography>
-                      <Typography variant="body" color="grey700">
-                        {adyenPaymentProvider?.successRedirectUrl}
-                      </Typography>
-                    </div>
-                  </SuccessPaumentRedirectUrlItemLeft>
+          )}
+          {!loading && adyenPaymentProvider.successRedirectUrl && (
+            <IntegrationsPage.DetailsItem
+              icon="globe"
+              label={translate('text_65367cb78324b77fcb6af1c6')}
+              value={adyenPaymentProvider?.successRedirectUrl}
+            >
                   {(canEditIntegration || canDeleteIntegration) && (
                     <Popper
                       className="relative h-full"
                       PopperProps={{ placement: 'bottom-end' }}
                       opener={({ isOpen }) => (
-                        <PopperOpener className="right-0 top-4">
+                    <PopperOpener className="-top-4 right-0">
                           <Tooltip
                             placement="top-end"
                             disableHoverListener={isOpen}
@@ -416,9 +348,7 @@ const AdyenIntegrationDetails = () => {
                       )}
                     </Popper>
                   )}
-                </SuccessPaumentRedirectUrlItem>
-              )}
-            </>
+            </IntegrationsPage.DetailsItem>
           )}
         </section>
       </Settings>
@@ -449,31 +379,6 @@ const InlineTitle = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-`
-
-const SuccessPaumentRedirectUrlItem = styled.div`
-  height: ${NAV_HEIGHT}px;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
-
-const SuccessPaumentRedirectUrlItemLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-`
-
-const ApiKeyItem = styled.div`
-  height: ${NAV_HEIGHT}px;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
 `
 
 export default AdyenIntegrationDetails

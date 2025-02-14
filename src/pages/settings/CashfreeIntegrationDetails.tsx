@@ -1,18 +1,16 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
 import { useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import {
   Alert,
-  Avatar,
   Button,
   ButtonLink,
   Icon,
   Popper,
   Skeleton,
   Tooltip,
-  Typography,
+  Typography
 } from '~/components/designSystem'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import {
@@ -220,112 +218,47 @@ const CashfreeIntegrationDetails = () => {
               </Button>
             )}
           </div>
-          {loading ? (
+          {loading && (
             <>
               {[0, 1, 2].map((i) => (
-                <div
-                  key={`item-skeleton-${i}`}
-                  className="flex min-h-18 w-full flex-row items-center gap-3 py-2 shadow-b"
-                >
-                  <Skeleton className="mr-4" variant="connectorAvatar" size="big" />
-                  <Skeleton className="w-60" variant="text" />
-                </div>
+                <IntegrationsPage.ItemSkeleton key={`item-skeleton-${i}`} />
               ))}
-              <div style={{ height: 20 }} />
+              <div style={{ height: 24 }} />
               <Skeleton className="mb-4 w-60" variant="text" />
             </>
-          ) : (
+          )}
+          {!loading && (
             <>
-              <div className="flex min-h-18 w-full flex-row items-center gap-3 py-2 shadow-b">
-                <Avatar variant="connector" size="big">
-                  <Icon color="dark" name="text" />
-                </Avatar>
-                <Stack direction="column">
-                  <Typography variant="caption" color="grey600">
-                    {translate('text_626162c62f790600f850b76a')}
-                  </Typography>
-                  <Typography variant="body" color="grey700">
-                    {cashfreePaymentProvider.name}
-                  </Typography>
-                </Stack>
-              </div>
-
-              <div className="flex min-h-18 w-full flex-row items-center gap-3 py-2 shadow-b">
-                <Avatar variant="connector" size="big">
-                  <Icon color="dark" name="id" />
-                </Avatar>
-                <Stack direction="column">
-                  <Typography variant="caption" color="grey600">
-                    {translate('text_62876e85e32e0300e1803127')}{' '}
-                  </Typography>
-                  <Typography variant="body" color="grey700">
-                    {cashfreePaymentProvider.code}
-                  </Typography>
-                </Stack>
-              </div>
-
-              <div className="flex min-h-18 w-full flex-row items-center justify-between gap-3 py-2 shadow-b">
-                <Stack direction="row" alignItems="center" spacing={3}>
-                  <Avatar variant="connector" size="big">
-                    <Icon color="dark" name="id" />
-                  </Avatar>
-                  <Stack direction="column">
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_1727620558031ftsky1vpr55')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {cashfreePaymentProvider.clientId}
-                    </Typography>
-                  </Stack>
-                </Stack>
-              </div>
-
-              <div className="flex min-h-18 w-full flex-row items-center justify-between gap-3 py-2 shadow-b">
-                <Stack direction="row" alignItems="center" spacing={3}>
-                  <Avatar variant="connector" size="big">
-                    <Icon color="dark" name="key" />
-                  </Avatar>
-                  <Stack direction="column">
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_1727620574228qfyoqtsdih7')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {cashfreePaymentProvider.clientSecret}
-                    </Typography>
-                  </Stack>
-                </Stack>
-              </div>
-
-              <div className="flex min-h-18 w-full flex-row items-center justify-between gap-3 py-2 shadow-b">
-                <Stack direction="row" alignItems="center" spacing={3}>
-                  <Avatar variant="connector" size="big">
-                    <Icon color="dark" name="link" />
-                  </Avatar>
-                  <Stack direction="column">
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_65367cb78324b77fcb6af21c')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {cashfreePaymentProvider.successRedirectUrl || '-'}
-                    </Typography>
-                  </Stack>
-                </Stack>
-              </div>
-
-              <div className="flex min-h-18 w-full flex-row items-center justify-between gap-3 py-2 shadow-b">
-                <Stack direction="row" alignItems="center" spacing={3}>
-                  <Avatar variant="connector" size="big">
-                    <Icon color="dark" name="link" />
-                  </Avatar>
-                  <Stack direction="column">
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_6271200984178801ba8bdf22')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {webhookUrl}
-                    </Typography>
-                  </Stack>
-                </Stack>
+              <IntegrationsPage.DetailsItem
+                icon="text"
+                label={translate('text_626162c62f790600f850b76a')}
+                value={cashfreePaymentProvider.name}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="id"
+                label={translate('text_62876e85e32e0300e1803127')}
+                value={cashfreePaymentProvider.code}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="id"
+                label={translate('text_1727620558031ftsky1vpr55')}
+                value={cashfreePaymentProvider.clientId ?? undefined}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="key"
+                label={translate('text_1727620574228qfyoqtsdih7')}
+                value={cashfreePaymentProvider.clientSecret ?? undefined}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="link"
+                label={translate('text_65367cb78324b77fcb6af21c')}
+                value={cashfreePaymentProvider.successRedirectUrl || '-'}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="link"
+                label={translate('text_6271200984178801ba8bdf22')}
+                value={webhookUrl}
+              >
                 <Tooltip title={translate('text_1727623127072q52kj0u3xql')} placement="top-end">
                   <Button
                     variant="quaternary"
@@ -340,15 +273,14 @@ const CashfreeIntegrationDetails = () => {
                     <Icon name="duplicate" />
                   </Button>
                 </Tooltip>
-              </div>
+              </IntegrationsPage.DetailsItem>
+
+              <Typography
+                className="mt-3"
+                variant="caption"
+                html={translate('text_1727623232636ys8hnp8a3su')}
+              />
             </>
-          )}
-          {!loading && (
-            <Typography
-              className="mt-3"
-              variant="caption"
-              html={translate('text_1727623232636ys8hnp8a3su')}
-            />
           )}
         </section>
       </div>

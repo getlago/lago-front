@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import {
   Button,
@@ -42,7 +41,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Netsuite from '~/public/images/netsuite.svg'
-import { MenuPopper, PageHeader, theme } from '~/styles'
+import { MenuPopper, PageHeader } from '~/styles'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -215,24 +214,5 @@ const NetsuiteIntegrationDetails = () => {
     </>
   )
 }
-
-const MainInfos = styled.div`
-  display: flex;
-  align-items: center;
-  padding: ${theme.spacing(8)} ${theme.spacing(12)};
-
-  ${theme.breakpoints.down('md')} {
-    padding: ${theme.spacing(8)} ${theme.spacing(4)};
-  }
-`
-
-const Line = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(2)};
-  }
-`
 
 export default NetsuiteIntegrationDetails

@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
-import { useRef } from 'react'
+import { FC, useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -65,6 +64,34 @@ gql`
 
   ${GocardlessForCreateAndEditSuccessRedirectUrlFragmentDoc}
 `
+
+const TaxItem: FC<{ name: string; code: string; rate: number }> = ({ name, code, rate }) => {
+  const { translate } = useInternationalization()
+
+  return (
+    <div className="flex min-h-18 flex-row items-center justify-between gap-3 py-2 shadow-b">
+      <div className="flex flex-1 items-center gap-3">
+        <Avatar size="big" variant="connector">
+          <Icon size="medium" name="percentage" color="dark" />
+        </Avatar>
+        <div>
+          <Typography color="textSecondary" variant="bodyHl" noWrap>
+            {name}
+          </Typography>
+          <Typography variant="caption" noWrap>
+            {code}
+          </Typography>
+        </div>
+      </div>
+      <Chip className="ml-auto" label={translate('text_657078c28394d6b1ae1b9755')} />
+      <Typography variant="body" className="basis-16" color="grey700" align="right">
+        {intlFormatNumber(rate / 100, {
+          style: 'percent',
+        })}
+      </Typography>
+    </div>
+  )
+}
 
 const LagoTaxManagementIntegration = () => {
   const navigate = useNavigate()
@@ -137,36 +164,27 @@ const LagoTaxManagementIntegration = () => {
           <Typography className="flex h-18 w-full items-center" variant="subhead">
             {translate('text_657078c28394d6b1ae1b9725')}
           </Typography>
-          <ConnectionDetailsItem>
-            {loading ? (
-              <>
-                <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
-                <Skeleton variant="text" className="w-60" />
-              </>
-            ) : (
-              <>
-                <Avatar variant="connector" size="big">
-                  <Icon color="dark" name="globe" />
-                </Avatar>
-                <Stack>
-                  <Typography variant="caption" noWrap>
-                    {translate('text_657078c28394d6b1ae1b9765')}
-                  </Typography>
-                  <Typography variant="body" color="grey700" noWrap>
-                    {!!organization?.country && CountryCodes[organization?.country]}
-                  </Typography>
-                </Stack>
-              </>
-            )}
-          </ConnectionDetailsItem>
-          {!loading && hasPermissions(['organizationView']) && (
-            <Typography
-              className="flex h-12 items-center justify-start"
-              variant="caption"
-              html={translate('text_657078c28394d6b1ae1b9737', {
-                href: ORGANIZATION_INFORMATIONS_ROUTE,
-              })}
-            />
+
+          {loading && <IntegrationsPage.ItemSkeleton />}
+          {!loading && (
+            <>
+              <IntegrationsPage.DetailsItem
+                icon="globe"
+                label={translate('text_657078c28394d6b1ae1b9765')}
+                value={
+                  (!!organization?.country && CountryCodes[organization?.country]) || undefined
+                }
+              />
+              {hasPermissions(['organizationView']) && (
+                <Typography
+                  className="flex h-12 items-center justify-start"
+                  variant="caption"
+                  html={translate('text_657078c28394d6b1ae1b9737', {
+                    href: ORGANIZATION_INFORMATIONS_ROUTE,
+                  })}
+                />
+              )}
+            </>
           )}
         </section>
 
@@ -187,38 +205,14 @@ const LagoTaxManagementIntegration = () => {
             )}
           </InlineTitle>
 
-          {loading ? (
-            <div className="flex items-center gap-3">
-              <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
-              <Skeleton variant="text" className="w-60" />
-            </div>
-          ) : (
-            <>
-              {taxesData?.taxes?.collection.map((tax) => (
-                <TaxItemWrapper key={tax.id}>
-                  <Avatar size="big" variant="connector">
-                    <Icon size="medium" name="percentage" color="dark" />
-                  </Avatar>
-                  <Stack>
-                    <Typography color="textSecondary" variant="bodyHl" noWrap>
-                      {tax.name}
-                    </Typography>
-                    <Typography variant="caption" noWrap>
-                      {tax.code}
-                    </Typography>
-                  </Stack>
-                  <Chip label={translate('text_657078c28394d6b1ae1b9755')} />
-                  <Typography variant="body" color="grey700" align="right">
-                    {intlFormatNumber(tax.rate / 100, {
-                      style: 'percent',
-                    })}
-                  </Typography>
-                </TaxItemWrapper>
-              ))}
-            </>
-          )}
+          {loading && <IntegrationsPage.ItemSkeleton />}
+          {!loading &&
+            taxesData?.taxes?.collection.map((tax) => (
+              <TaxItem key={tax.id} name={tax.name} code={tax.code} rate={tax.rate} />
+            ))}
         </section>
       </ContentWrapper>
+
       <WarningDialog
         ref={deleteConnectionRef}
         title={translate('text_657078c28394d6b1ae1b9707')}
@@ -256,18 +250,6 @@ const ContentWrapper = styled.div`
   }
 `
 
-const ConnectionDetailsItem = styled.div`
-  height: ${NAV_HEIGHT}px;
-  max-width: ${theme.spacing(168)};
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
-
 const InlineTitle = styled.div`
   position: relative;
   height: ${NAV_HEIGHT}px;
@@ -275,15 +257,6 @@ const InlineTitle = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-`
-
-const TaxItemWrapper = styled.div`
-  height: ${NAV_HEIGHT}px;
-  display: grid;
-  align-items: center;
-  grid-template-columns: 40px 1fr 91px 80px;
-  column-gap: ${theme.spacing(3)};
-  box-shadow: ${theme.shadows[7]};
 `
 
 export default LagoTaxManagementIntegration

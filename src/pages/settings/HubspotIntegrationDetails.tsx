@@ -1,17 +1,8 @@
 import { gql } from '@apollo/client'
-import { FC, useRef } from 'react'
+import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import {
-  Avatar,
-  Button,
-  ButtonLink,
-  Icon,
-  IconName,
-  Popper,
-  Skeleton,
-  Typography,
-} from '~/components/designSystem'
+import { Button, ButtonLink, Popper, Skeleton, Typography } from '~/components/designSystem'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import {
   AddHubspotDialog,
@@ -204,28 +195,24 @@ const HubspotIntegrationDetails = () => {
         </div>
 
         <>
-          {loading ? (
+          {loading &&
+            [0, 1, 2].map((i) => (
+              <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />
+            ))}
+
+          {!loading && (
             <>
-              {[1, 2].map((i) => (
-                <div className="flex h-18 items-center shadow-b" key={`item-skeleton-item-${i}`}>
-                  <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
-                  <Skeleton variant="text" className="w-60" />
-                </div>
-              ))}
-            </>
-          ) : (
-            <>
-              <IntegrationDetailsItem
+              <IntegrationsPage.DetailsItem
                 icon="text"
                 label={translate('text_6419c64eace749372fc72b0f')}
                 value={hubspotIntegration?.name}
               />
-              <IntegrationDetailsItem
+              <IntegrationsPage.DetailsItem
                 icon="id"
                 label={translate('text_62876e85e32e0300e1803127')}
                 value={hubspotIntegration?.code}
               />
-              <IntegrationDetailsItem
+              <IntegrationsPage.DetailsItem
                 icon="schema"
                 label={translate('text_661ff6e56ef7e1b7c542b2b4')}
                 value={[
@@ -238,7 +225,7 @@ const HubspotIntegrationDetails = () => {
                   .filter(Boolean)
                   .join(', ')}
               />
-              <IntegrationDetailsItem
+              <IntegrationsPage.DetailsItem
                 icon="user-add"
                 label={translate('text_1727281892403pbay53j8is3')}
                 value={hubspotIntegration?.defaultTargetedObject}
@@ -250,28 +237,6 @@ const HubspotIntegrationDetails = () => {
       <AddHubspotDialog ref={addHubspotDialogRef} />
       <DeleteHubspotIntegrationDialog ref={deleteHubspotDialogRef} />
     </>
-  )
-}
-
-const IntegrationDetailsItem: FC<{ icon: IconName; label: string; value?: string }> = ({
-  icon,
-  label,
-  value,
-}) => {
-  return (
-    <div className="flex h-18 items-center gap-3 shadow-b">
-      <Avatar variant="connector" size="big">
-        <Icon name={icon} color="dark" />
-      </Avatar>
-      <div>
-        <Typography variant="caption" color="grey600">
-          {label}
-        </Typography>
-        <Typography variant="body" color="grey700">
-          {value}
-        </Typography>
-      </div>
-    </div>
   )
 }
 

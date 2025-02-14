@@ -3,7 +3,8 @@ import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Alert, Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
+import { Alert, Button, Typography } from '~/components/designSystem'
+import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   INTEGRATIONS_ROUTE,
@@ -166,59 +167,30 @@ const XeroIntegrationSettings = () => {
           </InlineTitle>
 
           <>
-            {loading ? (
+            {loading &&
+              [0, 1, 2].map((i) => (
+                <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />
+              ))}
+            {!loading && (
               <>
-                {[0, 1, 2].map((i) => (
-                  <Item key={`item-skeleton-item-${i}`}>
-                    <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
-                    <Skeleton variant="text" className="w-60" />
-                  </Item>
-                ))}
-              </>
-            ) : (
-              <>
-                <Item>
-                  <Avatar variant="connector" size="big">
-                    <Icon name="text" color="dark" />
-                  </Avatar>
-                  <div>
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_626162c62f790600f850b76a')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {xeroIntegration?.name}
-                    </Typography>
-                  </div>
-                </Item>
-                <Item>
-                  <Avatar variant="connector" size="big">
-                    <Icon name="id" color="dark" />
-                  </Avatar>
-                  <div>
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_62876e85e32e0300e1803127')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {xeroIntegration?.code}
-                    </Typography>
-                  </div>
-                </Item>
-                <Item>
-                  <Avatar variant="connector" size="big">
-                    <Icon name="schema" color="dark" />
-                  </Avatar>
-                  <div>
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_661ff6e56ef7e1b7c542b2b4')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {buildEnabledSynchronizedLabelKeys(xeroIntegration)
-                        .map((t) => translate(t))
-                        .sort((a, b) => a.localeCompare(b))
-                        .join(', ')}
-                    </Typography>
-                  </div>
-                </Item>
+                <IntegrationsPage.DetailsItem
+                  icon="text"
+                  label={translate('text_626162c62f790600f850b76a')}
+                  value={xeroIntegration?.name}
+                />
+                <IntegrationsPage.DetailsItem
+                  icon="id"
+                  label={translate('text_62876e85e32e0300e1803127')}
+                  value={xeroIntegration?.code}
+                />
+                <IntegrationsPage.DetailsItem
+                  icon="schema"
+                  label={translate('text_661ff6e56ef7e1b7c542b2b4')}
+                  value={buildEnabledSynchronizedLabelKeys(xeroIntegration)
+                    .map((t) => translate(t))
+                    .sort((a, b) => a.localeCompare(b))
+                    .join(', ')}
+                />
               </>
             )}
           </>
@@ -253,17 +225,4 @@ const InlineTitle = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-`
-
-const Item = styled.div`
-  min-height: ${NAV_HEIGHT}px;
-  padding: ${theme.spacing(3)} 0;
-  box-sizing: border-box;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
 `

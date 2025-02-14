@@ -1,6 +1,6 @@
-import { FC } from 'react'
+import { FC, PropsWithChildren } from 'react'
 
-import { Avatar, Chip, Skeleton, Typography } from '~/components/designSystem'
+import { Avatar, Chip, Icon, IconName, Skeleton, Typography } from '~/components/designSystem'
 
 const IntegrationsHeader: FC<{
   isLoading?: boolean
@@ -37,6 +37,43 @@ const IntegrationsHeader: FC<{
   )
 }
 
+const IntegrationDetailsItem: FC<
+  PropsWithChildren<{
+    icon: IconName
+    label: string
+    value?: string
+  }>
+> = ({ icon, label, value, children }) => {
+  return (
+    <div className={'flex min-h-18 flex-row items-center justify-between py-2 shadow-b'}>
+      <div className="flex flex-1 items-center gap-3">
+        <Avatar variant="connector" size="big">
+          <Icon name={icon} color="dark" />
+        </Avatar>
+        <div>
+          <Typography variant="caption" color="grey600">
+            {label}
+          </Typography>
+          <Typography variant="body" color="grey700">
+            {value}
+          </Typography>
+        </div>
+      </div>
+      {children}
+    </div>
+  )
+}
+const IntegrationItemSkeleton: FC = () => {
+  return (
+    <div className="flex h-18 items-center shadow-b">
+      <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
+      <Skeleton variant="text" className="w-60" />
+    </div>
+  )
+}
+
 export const IntegrationsPage = {
   Header: IntegrationsHeader,
+  ItemSkeleton: IntegrationItemSkeleton,
+  DetailsItem: IntegrationDetailsItem,
 }
