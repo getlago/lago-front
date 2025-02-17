@@ -190,9 +190,7 @@ const SalesforceIntegrationDetails = () => {
           </div>
 
           {loading &&
-            [0, 1, 2].map((i) => (
-              <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />
-            ))}
+            [0, 1, 2].map((i) => <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />)}
           {!loading && (
             <>
               <IntegrationsPage.DetailsItem

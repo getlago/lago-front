@@ -8,7 +8,7 @@ import {
   Popper,
   Skeleton,
   Tooltip,
-  Typography
+  Typography,
 } from '~/components/designSystem'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import {
@@ -30,11 +30,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Anrok from '~/public/images/anrok.svg'
-import {
-  MenuPopper,
-  PageHeader,
-  PopperOpener
-} from '~/styles'
+import { MenuPopper, PageHeader, PopperOpener } from '~/styles'
 
 import { AnrokIntegrationDetailsTabs } from './AnrokIntegrationDetails'
 

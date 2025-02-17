@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useEffect } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { ButtonLink, Icon, Skeleton, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
@@ -113,9 +112,9 @@ const GocardlessIntegrationOauthCallback = () => {
       />
 
       {loading || !error ? (
-        <Loader>
+        <div className="m-auto flex size-full items-center justify-center">
           <Icon name="processing" color="info" size="large" animation="spin" />
-        </Loader>
+        </div>
       ) : (
         <GenericPlaceholder
           image={<ErrorImage width="136" height="104" />}
@@ -134,14 +133,5 @@ const GocardlessIntegrationOauthCallback = () => {
     </>
   )
 }
-
-const Loader = styled.div`
-  height: 100%;
-  width: 100%;
-  margin: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`
 
 export default GocardlessIntegrationOauthCallback

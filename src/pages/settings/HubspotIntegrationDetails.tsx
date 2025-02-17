@@ -189,9 +189,7 @@ const HubspotIntegrationDetails = () => {
           </IntegrationsPage.Headline>
 
           {loading &&
-            [0, 1, 2].map((i) => (
-              <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />
-            ))}
+            [0, 1, 2].map((i) => <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />)}
 
           {!loading && (
             <>

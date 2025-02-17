@@ -8,7 +8,7 @@ import {
   Popper,
   Skeleton,
   Tooltip,
-  Typography
+  Typography,
 } from '~/components/designSystem'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import {
