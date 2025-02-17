@@ -226,6 +226,35 @@ const Integrations = () => {
                   ) : (
                     <SettingsListItem>
                       <Selector
+                        title={translate('text_645d071272418a14c1c76a6d')}
+                        subtitle={translate('text_634ea0ecc6147de10ddb6631')}
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            <Adyen />
+                          </Avatar>
+                        }
+                        endIcon={
+                          hasAdyenIntegration ? (
+                            <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+                          ) : undefined
+                        }
+                        onClick={() => {
+                          if (hasAdyenIntegration) {
+                            navigate(
+                              generatePath(ADYEN_INTEGRATION_ROUTE, {
+                                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                              }),
+                            )
+                          } else {
+                            const element = document.activeElement as HTMLElement
+
+                            element.blur && element.blur()
+                            addAdyenDialogRef.current?.openDialog()
+                          }
+                        }}
+                        fullWidth
+                      />
+                      <Selector
                         fullWidth
                         title={translate('text_6668821d94e4da4dfd8b3834')}
                         subtitle={translate('text_6668821d94e4da4dfd8b3840')}
@@ -259,35 +288,6 @@ const Integrations = () => {
                             addAnrokDialogRef.current?.openDialog()
                           }
                         }}
-                      />
-                      <Selector
-                        title={translate('text_645d071272418a14c1c76a6d')}
-                        subtitle={translate('text_634ea0ecc6147de10ddb6631')}
-                        icon={
-                          <Avatar size="big" variant="connector-full">
-                            <Adyen />
-                          </Avatar>
-                        }
-                        endIcon={
-                          hasAdyenIntegration ? (
-                            <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
-                          ) : undefined
-                        }
-                        onClick={() => {
-                          if (hasAdyenIntegration) {
-                            navigate(
-                              generatePath(ADYEN_INTEGRATION_ROUTE, {
-                                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-                              }),
-                            )
-                          } else {
-                            const element = document.activeElement as HTMLElement
-
-                            element.blur && element.blur()
-                            addAdyenDialogRef.current?.openDialog()
-                          }
-                        }}
-                        fullWidth
                       />
                       <Selector
                         title={translate('text_63e26d8308d03687188221a5')}

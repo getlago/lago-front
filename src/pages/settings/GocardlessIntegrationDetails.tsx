@@ -1,20 +1,17 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import {
-  Avatar,
   Button,
   ButtonLink,
-  Chip,
   Icon,
   Popper,
   Skeleton,
   Tooltip,
   Typography,
 } from '~/components/designSystem'
+import { IntegrationsPage } from '~/components/layouts/Integrations'
 import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
@@ -42,7 +39,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import GoCardless from '~/public/images/gocardless-large.svg'
-import { MenuPopper, NAV_HEIGHT, PageHeader, PopperOpener, theme } from '~/styles'
+import { MenuPopper, PageHeader, PopperOpener } from '~/styles'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -96,7 +93,9 @@ const GocardlessIntegrationDetails = () => {
     skip: !integrationId,
   })
   const gocardlessPaymentProvider = data?.paymentProvider as GocardlessIntegrationDetailsFragment
-  const isConnectionEstablished = !!gocardlessPaymentProvider?.webhookSecret
+
+  const isConnectionEstablished = true
+  // const isConnectionEstablished = !!gocardlessPaymentProvider?.webhookSecret
   const deleteDialogCallback = () => {
     if ((data?.paymentProviders?.collection.length || 0) >= PROVIDER_CONNECTION_LIMIT) {
       navigate(
@@ -211,42 +210,20 @@ const GocardlessIntegrationDetails = () => {
           </Popper>
         )}
       </PageHeader.Wrapper>
-      <MainInfos>
-        {loading ? (
-          <>
-            <Skeleton variant="connectorAvatar" size="large" className="mr-4" />
-            <div>
-              <Skeleton variant="text" className="mb-5 w-50" />
-              <Skeleton variant="text" className="w-32" />
-            </div>
-          </>
-        ) : (
-          <>
-            <Avatar className="mr-4" variant="connector-full" size="large">
-              <GoCardless />
-            </Avatar>
-            <div>
-              <Line>
-                <Typography variant="headline">{gocardlessPaymentProvider?.name}</Typography>
-                {isConnectionEstablished && (
-                  <Chip label={translate('text_634ea0ecc6147de10ddb662d')} />
-                )}
-              </Line>
-              <Typography>
-                {translate('text_634ea0ecc6147de10ddb6648')}&nbsp;•&nbsp;
-                {translate('text_62b1edddbf5f461ab971271f')}
-              </Typography>
-            </div>
-          </>
-        )}
-      </MainInfos>
-      <ContentWrapper>
-        <section>
-          <InlineTitle>
-            <Typography className="flex h-18 w-full items-center" variant="subhead">
-              {translate('text_637f813d31381b1ed90ab315')}
-            </Typography>
 
+      <IntegrationsPage.Header
+        isLoading={loading}
+        integrationLogo={<GoCardless />}
+        integrationName={gocardlessPaymentProvider?.name}
+        integrationChip={
+          isConnectionEstablished ? translate('text_634ea0ecc6147de10ddb662d') : undefined
+        }
+        integrationDescription={`${translate('text_634ea0ecc6147de10ddb6648')} • ${translate('text_62b1edddbf5f461ab971271f')}`}
+      />
+
+      <IntegrationsPage.Container>
+        <section>
+          <IntegrationsPage.Headline label={translate('text_637f813d31381b1ed90ab315')}>
             {canEditIntegration && (
               <Button
                 variant="quaternary"
@@ -262,94 +239,59 @@ const GocardlessIntegrationDetails = () => {
                 {translate('text_62b1edddbf5f461ab9712787')}
               </Button>
             )}
-          </InlineTitle>
-          {loading ? (
+          </IntegrationsPage.Headline>
+
+          {loading && (
             <>
               {[0, 1, 2].map((i) => (
-                <Item key={`item-skeleton-${i}`} direction="row" alignItems="center">
-                  <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
-                  <Skeleton variant="text" className="w-60" />
-                </Item>
+                <IntegrationsPage.ItemSkeleton key={`item-skeleton-${i}`} />
               ))}
               <div style={{ height: 20 }} />
               <Skeleton variant="text" className="mb-4 w-60" />
             </>
-          ) : (
-            <>
-              {isConnectionEstablished && (
-                <>
-                  <Item direction="row" alignItems="center" spacing={3}>
-                    <Avatar variant="connector" size="big">
-                      <Icon color="dark" name="text" />
-                    </Avatar>
-                    <Stack direction="column">
-                      <Typography variant="caption" color="grey600">
-                        {translate('text_626162c62f790600f850b76a')}
-                      </Typography>
-                      <Typography variant="body" color="grey700">
-                        {gocardlessPaymentProvider.name}
-                      </Typography>
-                    </Stack>
-                  </Item>
-
-                  <Item direction="row" alignItems="center" spacing={3}>
-                    <Avatar variant="connector" size="big">
-                      <Icon color="dark" name="id" />
-                    </Avatar>
-                    <Stack direction="column">
-                      <Typography variant="caption" color="grey600">
-                        {translate('text_62876e85e32e0300e1803127')}{' '}
-                      </Typography>
-                      <Typography variant="body" color="grey700">
-                        {gocardlessPaymentProvider.code}
-                      </Typography>
-                    </Stack>
-                  </Item>
-
-                  <Item direction="row" alignItems="center" justifyContent="space-between">
-                    <Stack direction="row" alignItems="center" spacing={3}>
-                      <Avatar variant="connector" size="big">
-                        <Icon color="dark" name="key" />
-                      </Avatar>
-                      <Stack direction="column">
-                        <Typography variant="caption" color="grey600">
-                          {translate('text_658567dffff71e31ea5f0d3e')}
-                        </Typography>
-                        <Typography variant="body" color="grey700">
-                          {gocardlessPaymentProvider.webhookSecret}
-                        </Typography>
-                      </Stack>
-                    </Stack>
-                    <Tooltip title={translate('text_6360ddae753a8b3e11c80c66')} placement="top-end">
-                      <Button
-                        variant="quaternary"
-                        onClick={() => {
-                          copyToClipboard(gocardlessPaymentProvider?.webhookSecret as string)
-                          addToast({
-                            severity: 'info',
-                            translateKey: 'text_6360ddae753a8b3e11c80c6c',
-                          })
-                        }}
-                      >
-                        <Icon name="duplicate" />
-                      </Button>
-                    </Tooltip>
-                  </Item>
-                </>
-              )}
-            </>
           )}
-          {!loading && (
-            <Typography className="mt-3" variant="caption">
-              {translate('text_635bd8acb686f18909a57c93')}
-            </Typography>
+          {!loading && isConnectionEstablished && (
+            <>
+              <IntegrationsPage.DetailsItem
+                icon="text"
+                label={translate('text_626162c62f790600f850b76a')}
+                value={gocardlessPaymentProvider?.name}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="id"
+                label={translate('text_62876e85e32e0300e1803127')}
+                value={gocardlessPaymentProvider?.code}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="key"
+                label={translate('text_658567dffff71e31ea5f0d3e')}
+                value={gocardlessPaymentProvider?.webhookSecret ?? undefined}
+              >
+                <Tooltip title={translate('text_6360ddae753a8b3e11c80c66')} placement="top-end">
+                  <Button
+                    variant="quaternary"
+                    onClick={() => {
+                      copyToClipboard(gocardlessPaymentProvider?.webhookSecret as string)
+                      addToast({
+                        severity: 'info',
+                        translateKey: 'text_6360ddae753a8b3e11c80c6c',
+                      })
+                    }}
+                  >
+                    <Icon name="duplicate" />
+                  </Button>
+                </Tooltip>
+              </IntegrationsPage.DetailsItem>
+
+              <Typography className="mt-3" variant="caption">
+                {translate('text_635bd8acb686f18909a57c93')}
+              </Typography>
+            </>
           )}
         </section>
 
         <section>
-          <InlineTitle>
-            <Typography variant="subhead">{translate('text_65367cb78324b77fcb6af21c')}</Typography>
-
+          <IntegrationsPage.Headline label={translate('text_65367cb78324b77fcb6af21c')}>
             {canEditIntegration && (
               <Button
                 variant="quaternary"
@@ -365,14 +307,10 @@ const GocardlessIntegrationDetails = () => {
                 {translate('text_65367cb78324b77fcb6af20e')}
               </Button>
             )}
-          </InlineTitle>
+          </IntegrationsPage.Headline>
 
-          {loading ? (
-            <div className="flex items-center gap-3">
-              <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
-              <Skeleton variant="text" className="w-60" />
-            </div>
-          ) : (
+          {loading && <IntegrationsPage.ItemSkeleton />}
+          {!loading && (
             <>
               {!gocardlessPaymentProvider?.successRedirectUrl ? (
                 <Typography variant="caption" color="grey600">
@@ -381,150 +319,83 @@ const GocardlessIntegrationDetails = () => {
                   })}
                 </Typography>
               ) : (
-                <SuccessPaumentRedirectUrlItem>
-                  <SuccessPaumentRedirectUrlItemLeft>
-                    <Avatar variant="connector" size="big">
-                      <Icon name="globe" color="dark" />
-                    </Avatar>
-                    <div>
-                      <Typography variant="caption" color="grey600">
-                        {translate('text_65367cb78324b77fcb6af1c6')}
-                      </Typography>
-                      <Typography variant="body" color="grey700">
-                        {gocardlessPaymentProvider?.successRedirectUrl}
-                      </Typography>
-                    </div>
-                  </SuccessPaumentRedirectUrlItemLeft>
-                  {(canEditIntegration || canDeleteIntegration) && (
-                    <Popper
-                      className="relative h-full"
-                      PopperProps={{ placement: 'bottom-end' }}
-                      opener={({ isOpen }) => (
-                        <PopperOpener className="right-0 top-4">
-                          <Tooltip
-                            placement="top-end"
-                            disableHoverListener={isOpen}
-                            title={translate('text_629728388c4d2300e2d3810d')}
-                          >
-                            <Button icon="dots-horizontal" variant="quaternary" />
-                          </Tooltip>
-                        </PopperOpener>
-                      )}
-                    >
-                      {({ closePopper }) => (
-                        <MenuPopper>
-                          {canEditIntegration && (
-                            <Button
-                              startIcon="pen"
-                              variant="quaternary"
-                              fullWidth
-                              align="left"
-                              onClick={() => {
-                                successRedirectUrlDialogRef.current?.openDialog({
-                                  mode: 'Edit',
-                                  type: 'GoCardless',
-                                  provider: gocardlessPaymentProvider,
-                                })
-                                closePopper()
-                              }}
+                <>
+                  <IntegrationsPage.DetailsItem
+                    icon="globe"
+                    label={translate('text_65367cb78324b77fcb6af1c6')}
+                    value={gocardlessPaymentProvider?.successRedirectUrl}
+                  >
+                    {(canEditIntegration || canDeleteIntegration) && (
+                      <Popper
+                        className="relative h-full"
+                        PopperProps={{ placement: 'bottom-end' }}
+                        opener={({ isOpen }) => (
+                          <PopperOpener className="-top-4 right-0">
+                            <Tooltip
+                              placement="top-end"
+                              disableHoverListener={isOpen}
+                              title={translate('text_629728388c4d2300e2d3810d')}
                             >
-                              {translate('text_65367cb78324b77fcb6af24d')}
-                            </Button>
-                          )}
+                              <Button icon="dots-horizontal" variant="quaternary" />
+                            </Tooltip>
+                          </PopperOpener>
+                        )}
+                      >
+                        {({ closePopper }) => (
+                          <MenuPopper>
+                            {canEditIntegration && (
+                              <Button
+                                startIcon="pen"
+                                variant="quaternary"
+                                fullWidth
+                                align="left"
+                                onClick={() => {
+                                  successRedirectUrlDialogRef.current?.openDialog({
+                                    mode: 'Edit',
+                                    type: 'GoCardless',
+                                    provider: gocardlessPaymentProvider,
+                                  })
+                                  closePopper()
+                                }}
+                              >
+                                {translate('text_65367cb78324b77fcb6af24d')}
+                              </Button>
+                            )}
 
-                          {canDeleteIntegration && (
-                            <Button
-                              startIcon="trash"
-                              variant="quaternary"
-                              align="left"
-                              fullWidth
-                              onClick={() => {
-                                successRedirectUrlDialogRef.current?.openDialog({
-                                  mode: 'Delete',
-                                  type: 'GoCardless',
-                                  provider: gocardlessPaymentProvider,
-                                })
-                                closePopper()
-                              }}
-                            >
-                              {translate('text_65367cb78324b77fcb6af243')}
-                            </Button>
-                          )}
-                        </MenuPopper>
-                      )}
-                    </Popper>
-                  )}
-                </SuccessPaumentRedirectUrlItem>
+                            {canDeleteIntegration && (
+                              <Button
+                                startIcon="trash"
+                                variant="quaternary"
+                                align="left"
+                                fullWidth
+                                onClick={() => {
+                                  successRedirectUrlDialogRef.current?.openDialog({
+                                    mode: 'Delete',
+                                    type: 'GoCardless',
+                                    provider: gocardlessPaymentProvider,
+                                  })
+                                  closePopper()
+                                }}
+                              >
+                                {translate('text_65367cb78324b77fcb6af243')}
+                              </Button>
+                            )}
+                          </MenuPopper>
+                        )}
+                      </Popper>
+                    )}
+                  </IntegrationsPage.DetailsItem>
+                </>
               )}
             </>
           )}
         </section>
-      </ContentWrapper>
+      </IntegrationsPage.Container>
       <AddGocardlessDialog ref={addDialogRef} />
       <DeleteGocardlessIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </div>
   )
 }
-
-const MainInfos = styled.div`
-  display: flex;
-  align-items: center;
-  padding: ${theme.spacing(8)} ${theme.spacing(12)};
-
-  ${theme.breakpoints.down('md')} {
-    padding: ${theme.spacing(8)} ${theme.spacing(4)};
-  }
-`
-
-const ContentWrapper = styled.div`
-  max-width: ${theme.spacing(168)};
-  padding: 0 ${theme.spacing(12)};
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(8)};
-
-  ${theme.breakpoints.down('md')} {
-    padding: 0 ${theme.spacing(4)};
-  }
-`
-
-const Item = styled(Stack)`
-  height: ${NAV_HEIGHT}px;
-  max-width: ${theme.spacing(168)};
-  box-shadow: ${theme.shadows[7]};
-`
-
-const Line = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(2)};
-  }
-`
-
-const InlineTitle = styled.div`
-  position: relative;
-  height: ${NAV_HEIGHT}px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
-
-const SuccessPaumentRedirectUrlItem = styled.div`
-  height: ${NAV_HEIGHT}px;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
-
-const SuccessPaumentRedirectUrlItemLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-`
 
 export default GocardlessIntegrationDetails

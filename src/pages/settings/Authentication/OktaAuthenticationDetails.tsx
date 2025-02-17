@@ -1,17 +1,9 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
-import {
-  Avatar,
-  Button,
-  ButtonLink,
-  Chip,
-  Popper,
-  Skeleton,
-  Typography,
-} from '~/components/designSystem'
+import { Button, ButtonLink, Popper, Skeleton, Typography } from '~/components/designSystem'
+import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { AddOktaDialog, AddOktaDialogRef } from '~/components/settings/authentication/AddOktaDialog'
 import {
   DeleteOktaIntegrationDialog,
@@ -25,12 +17,8 @@ import {
   useGetOktaIntegrationQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import {
-  PropertyListItem,
-  SkeletonPropertyListItem,
-} from '~/pages/settings/Authentication/components/PropertyListItem'
 import Okta from '~/public/images/okta.svg'
-import { MenuPopper, NAV_HEIGHT, PageHeader, theme } from '~/styles'
+import { MenuPopper, PageHeader } from '~/styles'
 
 gql`
   fragment OktaIntegrationDetails on OktaIntegration {
@@ -143,36 +131,17 @@ const OktaAuthenticationDetails = () => {
           )}
         </Popper>
       </PageHeader.Wrapper>
-      <MainInfos>
-        {loading ? (
-          <>
-            <Skeleton variant="connectorAvatar" size="large" className="mr-4" />
-            <SkeletonText>
-              <Skeleton variant="text" className="mb-5 w-50" />
-              <Skeleton variant="text" className="w-32" />
-            </SkeletonText>
-          </>
-        ) : (
-          <>
-            <Avatar className="mr-4" variant="connector-full" size="large">
-              <Okta />
-            </Avatar>
-            <div>
-              <Line>
-                <Typography variant="headline">
-                  {translate('text_664c732c264d7eed1c74fda2')}
-                </Typography>
-                <Chip label={translate('text_62b1edddbf5f461ab971270d')} />
-              </Line>
-              <Typography>{translate('text_664c732c264d7eed1c74fdbd')}</Typography>
-            </div>
-          </>
-        )}
-      </MainInfos>
-      <Settings>
+      <IntegrationsPage.Header
+        isLoading={loading}
+        integrationLogo={<Okta />}
+        integrationName={translate('text_664c732c264d7eed1c74fda2')}
+        integrationChip={translate('text_62b1edddbf5f461ab971270d')}
+        integrationDescription={translate('text_664c732c264d7eed1c74fdbd')}
+      />
+
+      <IntegrationsPage.Container>
         <section>
-          <InlineTitle>
-            <Typography variant="subhead">{translate('text_664c732c264d7eed1c74fdc5')}</Typography>
+          <IntegrationsPage.Headline label={translate('text_664c732c264d7eed1c74fdc5')}>
             <Button
               variant="quaternary"
               disabled={loading}
@@ -187,29 +156,31 @@ const OktaAuthenticationDetails = () => {
             >
               {translate('text_62b1edddbf5f461ab9712787')}
             </Button>
-          </InlineTitle>
+          </IntegrationsPage.Headline>
 
           <>
             {loading ? (
-              [0, 1, 2, 3].map((i) => <SkeletonPropertyListItem key={`item-skeleton-item-${i}`} />)
+              [0, 1, 2, 3].map((i) => (
+                <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />
+              ))
             ) : (
               <>
-                <PropertyListItem
+                <IntegrationsPage.DetailsItem
                   icon="globe"
                   label={translate('text_664c732c264d7eed1c74fd94')}
                   value={integration.domain}
                 />
-                <PropertyListItem
+                <IntegrationsPage.DetailsItem
                   icon="key"
                   label={translate('text_664c732c264d7eed1c74fda6')}
                   value={integration.clientId || 'N/A'}
                 />
-                <PropertyListItem
+                <IntegrationsPage.DetailsItem
                   icon="key"
                   label={translate('text_664c732c264d7eed1c74fdb2')}
                   value={integration.clientSecret || 'N/A'}
                 />
-                <PropertyListItem
+                <IntegrationsPage.DetailsItem
                   icon="text"
                   label={translate('text_664c732c264d7eed1c74fdbb')}
                   value={integration.organizationName}
@@ -218,56 +189,11 @@ const OktaAuthenticationDetails = () => {
             )}
           </>
         </section>
-      </Settings>
+      </IntegrationsPage.Container>
       <AddOktaDialog ref={addOktaDialogRef} />
       <DeleteOktaIntegrationDialog ref={deleteOktaDialogRef} />
     </>
   )
 }
-
-const MainInfos = styled.div`
-  display: flex;
-  align-items: center;
-  padding: ${theme.spacing(8)} ${theme.spacing(12)};
-
-  ${theme.breakpoints.down('md')} {
-    padding: ${theme.spacing(8)} ${theme.spacing(4)};
-  }
-`
-
-const Settings = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(8)};
-  padding: 0 ${theme.spacing(12)};
-  box-sizing: border-box;
-  max-width: ${theme.spacing(168)};
-
-  ${theme.breakpoints.down('md')} {
-    padding: 0 ${theme.spacing(4)};
-  }
-`
-
-const InlineTitle = styled.div`
-  position: relative;
-  height: ${NAV_HEIGHT}px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
-
-const SkeletonText = styled.div`
-  width: 100%;
-`
-
-const Line = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(2)};
-  }
-`
 
 export default OktaAuthenticationDetails

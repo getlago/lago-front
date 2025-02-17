@@ -2,9 +2,9 @@ import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
-import { Alert, Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
+import { Alert, Button, Skeleton, Typography } from '~/components/designSystem'
+import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { addToast } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
@@ -21,7 +21,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { AnrokIntegrationDetailsTabs } from '~/pages/settings/AnrokIntegrationDetails'
-import { NAV_HEIGHT, theme } from '~/styles'
+import { theme } from '~/styles'
 
 import { AddAnrokDialog, AddAnrokDialogRef } from './AddAnrokDialog'
 import {
@@ -118,7 +118,7 @@ const AnrokIntegrationSettings = () => {
 
   return (
     <>
-      <Settings>
+      <IntegrationsPage.Container className="my-4 md:my-8">
         {!!anrokIntegration && !anrokIntegration?.hasMappingsConfigured && (
           <Alert
             type="warning"
@@ -140,8 +140,7 @@ const AnrokIntegrationSettings = () => {
         )}
 
         <section>
-          <InlineTitle>
-            <Typography variant="subhead">{translate('text_661ff6e56ef7e1b7c542b232')}</Typography>
+          <IntegrationsPage.Headline label={translate('text_661ff6e56ef7e1b7c542b232')}>
             <Button
               variant="quaternary"
               disabled={loading}
@@ -155,65 +154,30 @@ const AnrokIntegrationSettings = () => {
             >
               {translate('text_62b1edddbf5f461ab9712787')}
             </Button>
-          </InlineTitle>
+          </IntegrationsPage.Headline>
 
           <>
-            {loading ? (
+            {loading &&
+              [0, 1, 2].map((i) => (
+                <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />
+              ))}
+            {!loading && (
               <>
-                {[0, 1, 2].map((i) => (
-                  <Item key={`item-skeleton-item-${i}`}>
-                    <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
-                    <Skeleton variant="text" className="w-60" />
-                  </Item>
-                ))}
-              </>
-            ) : (
-              <>
-                <Item>
-                  <Avatar variant="connector" size="big">
-                    <Icon name="text" color="dark" />
-                  </Avatar>
-                  <div>
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_626162c62f790600f850b76a')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {anrokIntegration?.name}
-                    </Typography>
-                  </div>
-                </Item>
-                <Item>
-                  <Avatar variant="connector" size="big">
-                    <Icon name="id" color="dark" />
-                  </Avatar>
-                  <div>
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_62876e85e32e0300e1803127')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {anrokIntegration?.code}
-                    </Typography>
-                  </div>
-                </Item>
-                <Item>
-                  <Avatar variant="connector" size="big">
-                    <Icon name="info-circle" color="dark" />
-                  </Avatar>
-                  <div>
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_6668821d94e4da4dfd8b38d5')}
-                    </Typography>
-                    <Typography
-                      variant="body"
-                      color="grey700"
-                      sx={{
-                        lineBreak: 'anywhere',
-                      }}
-                    >
-                      {anrokIntegration?.apiKey}
-                    </Typography>
-                  </div>
-                </Item>
+                <IntegrationsPage.DetailsItem
+                  icon="text"
+                  label={translate('text_626162c62f790600f850b76a')}
+                  value={anrokIntegration?.name}
+                />
+                <IntegrationsPage.DetailsItem
+                  icon="id"
+                  label={translate('text_62876e85e32e0300e1803127')}
+                  value={anrokIntegration?.code}
+                />
+                <IntegrationsPage.DetailsItem
+                  icon="info-circle"
+                  label={translate('text_6668821d94e4da4dfd8b38d5')}
+                  value={anrokIntegration?.apiKey}
+                />
               </>
             )}
           </>
@@ -266,7 +230,8 @@ const AnrokIntegrationSettings = () => {
             {translate('text_66ba5a76e614f000a738c97e')}
           </Button>
         </Stack>
-      </Settings>
+      </IntegrationsPage.Container>
+
       <AddAnrokDialog ref={addAnrokDialogRef} />
       <DeleteAnrokIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
@@ -275,38 +240,3 @@ const AnrokIntegrationSettings = () => {
 }
 
 export default AnrokIntegrationSettings
-
-const Settings = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(8)};
-  margin: ${theme.spacing(8)} ${theme.spacing(12)};
-  box-sizing: border-box;
-  max-width: ${theme.spacing(168)};
-
-  ${theme.breakpoints.down('md')} {
-    margin: ${theme.spacing(4)};
-  }
-`
-
-const InlineTitle = styled.div`
-  position: relative;
-  height: ${NAV_HEIGHT}px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
-
-const Item = styled.div`
-  min-height: ${NAV_HEIGHT}px;
-  padding: ${theme.spacing(3)} 0;
-  box-sizing: border-box;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`

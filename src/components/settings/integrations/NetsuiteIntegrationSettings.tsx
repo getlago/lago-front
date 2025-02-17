@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
-import { Alert, Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
+import { Alert, Button } from '~/components/designSystem'
+import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   INTEGRATIONS_ROUTE,
@@ -19,7 +19,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NetsuiteIntegrationDetailsTabs } from '~/pages/settings/NetsuiteIntegrationDetails'
-import { NAV_HEIGHT, theme } from '~/styles'
 
 import {
   AddEditDeleteSuccessRedirectUrlDialog,
@@ -125,7 +124,7 @@ const NetsuiteIntegrationSettings = () => {
 
   return (
     <>
-      <Settings>
+      <IntegrationsPage.Container className="my-4 md:my-8">
         {!loading && !!netsuiteIntegration && !netsuiteIntegration?.hasMappingsConfigured && (
           <Alert
             type="warning"
@@ -147,8 +146,7 @@ const NetsuiteIntegrationSettings = () => {
         )}
 
         <section>
-          <InlineTitle>
-            <Typography variant="subhead">{translate('text_661ff6e56ef7e1b7c542b232')}</Typography>
+          <IntegrationsPage.Headline label={translate('text_661ff6e56ef7e1b7c542b232')}>
             <Button
               variant="quaternary"
               disabled={loading}
@@ -162,133 +160,61 @@ const NetsuiteIntegrationSettings = () => {
             >
               {translate('text_62b1edddbf5f461ab9712787')}
             </Button>
-          </InlineTitle>
+          </IntegrationsPage.Headline>
 
           <>
-            {loading ? (
+            {loading &&
+              [0, 1, 2].map((i) => (
+                <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />
+              ))}
+            {!loading && (
               <>
-                {[0, 1, 2].map((i) => (
-                  <Item key={`item-skeleton-item-${i}`}>
-                    <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
-                    <Skeleton variant="text" className="w-60" />
-                  </Item>
-                ))}
-              </>
-            ) : (
-              <>
-                <Item>
-                  <Avatar variant="connector" size="big">
-                    <Icon name="text" color="dark" />
-                  </Avatar>
-                  <div>
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_626162c62f790600f850b76a')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {netsuiteIntegration?.name}
-                    </Typography>
-                  </div>
-                </Item>
-                <Item>
-                  <Avatar variant="connector" size="big">
-                    <Icon name="id" color="dark" />
-                  </Avatar>
-                  <div>
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_62876e85e32e0300e1803127')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {netsuiteIntegration?.code}
-                    </Typography>
-                  </div>
-                </Item>
-                <Item>
-                  <Avatar variant="connector" size="big">
-                    <Icon name="info-circle" color="dark" />
-                  </Avatar>
-                  <div>
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_661ff6e56ef7e1b7c542b216')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {netsuiteIntegration?.accountId}
-                    </Typography>
-                  </div>
-                </Item>
-                <Item>
-                  <Avatar variant="connector" size="big">
-                    <Icon name="info-circle" color="dark" />
-                  </Avatar>
-                  <div>
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_661ff6e56ef7e1b7c542b230')}
-                    </Typography>
-                    <Typography
-                      variant="body"
-                      color="grey700"
-                      sx={{
-                        lineBreak: 'anywhere',
-                      }}
-                    >
-                      {netsuiteIntegration?.clientId}
-                    </Typography>
-                  </div>
-                </Item>
-                <Item>
-                  <Avatar variant="connector" size="big">
-                    <Icon name="key" color="dark" />
-                  </Avatar>
-                  <div>
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_661ff6e56ef7e1b7c542b247')}
-                    </Typography>
-                    <Typography
-                      variant="body"
-                      color="grey700"
-                      sx={{
-                        lineBreak: 'anywhere',
-                      }}
-                    >
-                      {netsuiteIntegration?.clientSecret}
-                    </Typography>
-                  </div>
-                </Item>
+                <IntegrationsPage.DetailsItem
+                  icon="text"
+                  label={translate('text_626162c62f790600f850b76a')}
+                  value={netsuiteIntegration?.name}
+                />
+                <IntegrationsPage.DetailsItem
+                  icon="id"
+                  label={translate('text_62876e85e32e0300e1803127')}
+                  value={netsuiteIntegration?.code}
+                />
+                <IntegrationsPage.DetailsItem
+                  icon="info-circle"
+                  label={translate('text_661ff6e56ef7e1b7c542b216')}
+                  value={netsuiteIntegration?.accountId ?? undefined}
+                />
+                <IntegrationsPage.DetailsItem
+                  icon="info-circle"
+                  label={translate('text_661ff6e56ef7e1b7c542b230')}
+                  value={netsuiteIntegration?.clientId ?? undefined}
+                />
+                <IntegrationsPage.DetailsItem
+                  icon="key"
+                  label={translate('text_661ff6e56ef7e1b7c542b247')}
+                  value={netsuiteIntegration?.clientSecret ?? undefined}
+                />
                 {!!netsuiteIntegration?.scriptEndpointUrl && (
-                  <Item>
-                    <Avatar variant="connector" size="big">
-                      <Icon name="link" color="dark" />
-                    </Avatar>
-                    <div>
-                      <Typography variant="caption" color="grey600">
-                        {translate('text_661ff6e56ef7e1b7c542b2a0')}
-                      </Typography>
-                      <Typography variant="body" color="grey700">
-                        {netsuiteIntegration?.scriptEndpointUrl}
-                      </Typography>
-                    </div>
-                  </Item>
+                  <IntegrationsPage.DetailsItem
+                    icon="link"
+                    label={translate('text_661ff6e56ef7e1b7c542b2a0')}
+                    value={netsuiteIntegration?.scriptEndpointUrl}
+                  />
                 )}
-                <Item>
-                  <Avatar variant="connector" size="big">
-                    <Icon name="schema" color="dark" />
-                  </Avatar>
-                  <div>
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_661ff6e56ef7e1b7c542b2b4')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {buildEnabledSynchronizedLabelKeys(netsuiteIntegration)
-                        .map((t) => translate(t))
-                        .sort((a, b) => a.localeCompare(b))
-                        .join(', ')}
-                    </Typography>
-                  </div>
-                </Item>
+                <IntegrationsPage.DetailsItem
+                  icon="schema"
+                  label={translate('text_661ff6e56ef7e1b7c542b2b4')}
+                  value={buildEnabledSynchronizedLabelKeys(netsuiteIntegration)
+                    .map((t) => translate(t))
+                    .sort((a, b) => a.localeCompare(b))
+                    .join(', ')}
+                />
               </>
             )}
           </>
         </section>
-      </Settings>
+      </IntegrationsPage.Container>
+
       <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
       <DeleteNetsuiteIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
@@ -297,38 +223,3 @@ const NetsuiteIntegrationSettings = () => {
 }
 
 export default NetsuiteIntegrationSettings
-
-const Settings = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(8)};
-  margin: ${theme.spacing(8)} ${theme.spacing(12)};
-  box-sizing: border-box;
-  max-width: ${theme.spacing(168)};
-
-  ${theme.breakpoints.down('md')} {
-    margin: ${theme.spacing(4)};
-  }
-`
-
-const InlineTitle = styled.div`
-  position: relative;
-  height: ${NAV_HEIGHT}px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
-
-const Item = styled.div`
-  min-height: ${NAV_HEIGHT}px;
-  padding: ${theme.spacing(3)} 0;
-  box-sizing: border-box;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`

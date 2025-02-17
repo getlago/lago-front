@@ -1,18 +1,9 @@
 import { gql } from '@apollo/client'
-import { FC, useRef } from 'react'
+import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import {
-  Avatar,
-  Button,
-  ButtonLink,
-  Chip,
-  Icon,
-  IconName,
-  Popper,
-  Skeleton,
-  Typography,
-} from '~/components/designSystem'
+import { Button, ButtonLink, Popper, Skeleton, Typography } from '~/components/designSystem'
+import { IntegrationsPage } from '~/components/layouts/Integrations'
 import {
   AddSalesforceDialog,
   AddSalesforceDialogRef,
@@ -170,112 +161,61 @@ const SalesforceIntegrationDetails = () => {
           )}
         </Popper>
       </PageHeader.Wrapper>
-      <div className="container">
-        <section className="flex items-center py-8">
-          {loading ? (
-            <>
-              <Skeleton variant="connectorAvatar" size="large" className="mr-4" />
-              <div className="flex-1">
-                <Skeleton variant="text" className="mb-5 w-50" />
-                <Skeleton variant="text" className="w-32" />
-              </div>
-            </>
-          ) : (
-            <>
-              <Avatar className="mr-4" variant="connector-full" size="large">
-                <Salesforce />
-              </Avatar>
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <Typography variant="headline">{salesforceIntegration?.name}</Typography>
-                  <Chip label={translate('text_62b1edddbf5f461ab971270d')} />
-                </div>
 
-                <Typography>{translate('text_1731510123491gx2nw155ce0')}</Typography>
-              </div>
-            </>
-          )}
-        </section>
+      <IntegrationsPage.Header
+        isLoading={loading}
+        integrationLogo={<Salesforce />}
+        integrationName={salesforceIntegration?.name || ''}
+        integrationChip={translate('text_62b1edddbf5f461ab971270d')}
+        integrationDescription={translate('text_1731510123491gx2nw155ce0')}
+      />
 
-        <div className="flex flex-col gap-8">
-          <section>
-            <div className="flex h-18 w-full items-center justify-between">
-              <Typography variant="subhead">
-                {translate('text_664c732c264d7eed1c74fdc5')}
-              </Typography>
-              <Button
-                variant="quaternary"
-                disabled={loading}
-                onClick={() => {
-                  addSalesforceDialogRef.current?.openDialog({
-                    provider: salesforceIntegration,
-                    deleteModalRef: deleteSalesforceDialogRef,
-                    deleteDialogCallback,
-                  })
-                }}
-              >
-                {translate('text_62b1edddbf5f461ab9712787')}
-              </Button>
-            </div>
-          </section>
-        </div>
+      <IntegrationsPage.Container>
+        <section>
+          <div className="flex h-18 w-full items-center justify-between">
+            <Typography variant="subhead">{translate('text_664c732c264d7eed1c74fdc5')}</Typography>
+            <Button
+              variant="quaternary"
+              disabled={loading}
+              onClick={() => {
+                addSalesforceDialogRef.current?.openDialog({
+                  provider: salesforceIntegration,
+                  deleteModalRef: deleteSalesforceDialogRef,
+                  deleteDialogCallback,
+                })
+              }}
+            >
+              {translate('text_62b1edddbf5f461ab9712787')}
+            </Button>
+          </div>
 
-        <>
-          {loading ? (
+          {loading &&
+            [0, 1, 2].map((i) => <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />)}
+          {!loading && (
             <>
-              {[1, 2].map((i) => (
-                <div className="flex h-18 items-center shadow-b" key={`item-skeleton-item-${i}`}>
-                  <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
-                  <Skeleton variant="text" className="w-60" />
-                </div>
-              ))}
-            </>
-          ) : (
-            <>
-              <IntegrationDetailsItem
+              <IntegrationsPage.DetailsItem
                 icon="text"
                 label={translate('text_6419c64eace749372fc72b0f')}
                 value={salesforceIntegration?.name}
               />
-              <IntegrationDetailsItem
+              <IntegrationsPage.DetailsItem
                 icon="id"
                 label={translate('text_62876e85e32e0300e1803127')}
                 value={salesforceIntegration?.code}
               />
-              <IntegrationDetailsItem
+              <IntegrationsPage.DetailsItem
                 icon="link"
                 label={translate('text_1731510123491s8iyc3roglx')}
                 value={salesforceIntegration?.instanceId}
               />
             </>
           )}
-        </>
-      </div>
+        </section>
+      </IntegrationsPage.Container>
+
       <AddSalesforceDialog ref={addSalesforceDialogRef} />
       <DeleteSalesforceIntegrationDialog ref={deleteSalesforceDialogRef} />
     </>
-  )
-}
-
-const IntegrationDetailsItem: FC<{ icon: IconName; label: string; value?: string }> = ({
-  icon,
-  label,
-  value,
-}) => {
-  return (
-    <div className="flex h-18 items-center gap-3 shadow-b">
-      <Avatar variant="connector" size="big">
-        <Icon name={icon} color="dark" />
-      </Avatar>
-      <div>
-        <Typography variant="caption" color="grey600">
-          {label}
-        </Typography>
-        <Typography variant="body" color="grey700">
-          {value}
-        </Typography>
-      </div>
-    </div>
   )
 }
 
