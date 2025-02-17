@@ -7,6 +7,7 @@ import ChartHeader from '~/components/designSystem/graphs/ChartHeader'
 import { subscriptionLifetimeUsageFakeData } from '~/components/designSystem/graphs/fixtures'
 import InlineBarsChart from '~/components/designSystem/graphs/InlineBarsChart'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { hasDefinedGQLError } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { UPDATE_PLAN_ROUTE, UPDATE_SUBSCRIPTION } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -22,6 +23,7 @@ import {
 } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { theme } from '~/styles'
 import { tw } from '~/styles/utils'
@@ -113,6 +115,7 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
   }, [lifetimeUsage])
 
   const hasError = !!subscriptionError
+  const isResourceNotFound = hasDefinedGQLError('NotFound', subscriptionError)
   const isSubscriptionActive = subscription?.status !== StatusTypeEnum.Pending
   const isLifetimeUsageEmpty = !lifetimeUsage && !isLoading
 
@@ -159,12 +162,20 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
         {hasError && (
           <GenericPlaceholder
             className="m-0 p-0"
-            title={translate('text_636d023ce11a9d038819b579')}
-            subtitle={translate('text_636d023ce11a9d038819b57b')}
-            buttonTitle={translate('text_1725983967306qz0npfuhlo1')}
-            buttonVariant="primary"
-            buttonAction={() => refetchLifetimeData()}
-            image={<ErrorImage width="136" height="104" />}
+            {...(isResourceNotFound
+              ? {
+                  title: translate('text_1739804207625v7faokht1cq'),
+                  subtitle: translate('text_1739804207625nkct7jhmmwh'),
+                  image: <EmptyImage width="136" height="104" />,
+                }
+              : {
+                  title: translate('text_636d023ce11a9d038819b579'),
+                  subtitle: translate('text_636d023ce11a9d038819b57b'),
+                  buttonTitle: translate('text_1725983967306qz0npfuhlo1'),
+                  buttonVariant: 'primary',
+                  buttonAction: () => refetchLifetimeData(),
+                  image: <ErrorImage width="136" height="104" />,
+                })}
           />
         )}
 
