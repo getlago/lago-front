@@ -1,17 +1,8 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
-import {
-  Avatar,
-  Button,
-  ButtonLink,
-  Chip,
-  Popper,
-  Skeleton,
-  Typography,
-} from '~/components/designSystem'
+import { Button, ButtonLink, Popper, Skeleton, Typography } from '~/components/designSystem'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { AddOktaDialog, AddOktaDialogRef } from '~/components/settings/authentication/AddOktaDialog'
 import {
@@ -27,7 +18,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Okta from '~/public/images/okta.svg'
-import { MenuPopper, NAV_HEIGHT, PageHeader, theme } from '~/styles'
+import { MenuPopper, PageHeader } from '~/styles'
 
 gql`
   fragment OktaIntegrationDetails on OktaIntegration {
@@ -150,8 +141,7 @@ const OktaAuthenticationDetails = () => {
 
       <IntegrationsPage.Container>
         <section>
-          <InlineTitle>
-            <Typography variant="subhead">{translate('text_664c732c264d7eed1c74fdc5')}</Typography>
+          <IntegrationsPage.Headline label={translate('text_664c732c264d7eed1c74fdc5')}>
             <Button
               variant="quaternary"
               disabled={loading}
@@ -166,7 +156,7 @@ const OktaAuthenticationDetails = () => {
             >
               {translate('text_62b1edddbf5f461ab9712787')}
             </Button>
-          </InlineTitle>
+          </IntegrationsPage.Headline>
 
           <>
             {loading ? (
@@ -205,14 +195,5 @@ const OktaAuthenticationDetails = () => {
     </>
   )
 }
-
-const InlineTitle = styled.div`
-  position: relative;
-  height: ${NAV_HEIGHT}px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
 
 export default OktaAuthenticationDetails

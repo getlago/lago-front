@@ -142,9 +142,7 @@ const StripeIntegrations = () => {
 
       <IntegrationsPage.Container>
         <section>
-          <InlineTitle>
-            <Typography variant="subhead">{translate('text_65846763e6140b469140e239')}</Typography>
-          </InlineTitle>
+          <IntegrationsPage.Headline label={translate('text_65846763e6140b469140e239')} />
 
           <>
             {loading ? (
@@ -258,15 +256,6 @@ const StripeIntegrations = () => {
     </>
   )
 }
-
-const InlineTitle = styled.div`
-  position: relative;
-  height: ${NAV_HEIGHT}px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
 
 const LocalListItemLink = styled(ListItemLink)`
   padding: 0;

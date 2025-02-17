@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { FC, useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 
 import {
   Avatar,
@@ -33,7 +32,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import LagoTaxManagement from '~/public/images/lago-tax-management.svg'
-import { NAV_HEIGHT, PageHeader } from '~/styles'
+import { PageHeader } from '~/styles'
 
 gql`
   query lagoTaxManagementIntegrationsSetting {
@@ -161,9 +160,7 @@ const LagoTaxManagementIntegration = () => {
 
       <IntegrationsPage.Container>
         <section>
-          <Typography className="flex h-18 w-full items-center" variant="subhead">
-            {translate('text_657078c28394d6b1ae1b9725')}
-          </Typography>
+          <IntegrationsPage.Headline label={translate('text_657078c28394d6b1ae1b9725')} />
 
           {loading && <IntegrationsPage.ItemSkeleton />}
           {!loading && (
@@ -189,9 +186,7 @@ const LagoTaxManagementIntegration = () => {
         </section>
 
         <section>
-          <InlineTitle>
-            <Typography variant="subhead">{translate('text_657078c28394d6b1ae1b9743')}</Typography>
-
+          <IntegrationsPage.Headline label={translate('text_657078c28394d6b1ae1b9743')}>
             {hasPermissions(['organizationTaxesView']) && (
               <Button
                 variant="quaternary"
@@ -203,7 +198,7 @@ const LagoTaxManagementIntegration = () => {
                 {translate('text_657078c28394d6b1ae1b973d')}
               </Button>
             )}
-          </InlineTitle>
+          </IntegrationsPage.Headline>
 
           {loading && <IntegrationsPage.ItemSkeleton />}
           {!loading &&
@@ -237,14 +232,5 @@ const LagoTaxManagementIntegration = () => {
     </>
   )
 }
-
-const InlineTitle = styled.div`
-  position: relative;
-  height: ${NAV_HEIGHT}px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
 
 export default LagoTaxManagementIntegration

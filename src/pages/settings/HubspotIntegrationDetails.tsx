@@ -172,8 +172,7 @@ const HubspotIntegrationDetails = () => {
 
       <IntegrationsPage.Container>
         <section>
-          <div className="flex h-18 w-full items-center justify-between">
-            <Typography variant="subhead">{translate('text_664c732c264d7eed1c74fdc5')}</Typography>
+          <IntegrationsPage.Headline label={translate('text_664c732c264d7eed1c74fdc5')}>
             <Button
               variant="quaternary"
               disabled={loading}
@@ -187,7 +186,7 @@ const HubspotIntegrationDetails = () => {
             >
               {translate('text_62b1edddbf5f461ab9712787')}
             </Button>
-          </div>
+          </IntegrationsPage.Headline>
 
           {loading &&
             [0, 1, 2].map((i) => (

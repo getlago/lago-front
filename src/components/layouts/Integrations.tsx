@@ -10,6 +10,15 @@ const IntegrationsContainer: FC<PropsWithChildren<{ className?: string }>> = ({
   return <div className={tw('container flex max-w-168 flex-col gap-8', className)}>{children}</div>
 }
 
+const IntegrationsHeadline: FC<PropsWithChildren<{ label: string }>> = ({ label, children }) => {
+  return (
+    <div className={tw('flex h-18 w-full flex-row items-center justify-between')}>
+      <Typography variant="subhead">{label}</Typography>
+      {children}
+    </div>
+  )
+}
+
 const IntegrationsHeader: FC<{
   isLoading?: boolean
   integrationLogo: React.ReactNode
@@ -83,6 +92,7 @@ const IntegrationItemSkeleton: FC = () => {
 export const IntegrationsPage = {
   Header: IntegrationsHeader,
   Container: IntegrationsContainer,
+  Headline: IntegrationsHeadline,
   ItemSkeleton: IntegrationItemSkeleton,
   DetailsItem: IntegrationDetailsItem,
 }

@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import {
   Button,
@@ -37,7 +36,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import Adyen from '~/public/images/adyen.svg'
-import { MenuPopper, NAV_HEIGHT, PageHeader, PopperOpener } from '~/styles'
+import { MenuPopper, PageHeader, PopperOpener } from '~/styles'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -188,9 +187,7 @@ const AdyenIntegrationDetails = () => {
 
       <IntegrationsPage.Container>
         <section>
-          <InlineTitle>
-            <Typography variant="subhead">{translate('text_645d071272418a14c1c76a9a')}</Typography>
-
+          <IntegrationsPage.Headline label={translate('text_645d071272418a14c1c76a9a')}>
             {canEditIntegration && (
               <Button
                 variant="quaternary"
@@ -206,7 +203,7 @@ const AdyenIntegrationDetails = () => {
                 {translate('text_62b1edddbf5f461ab9712787')}
               </Button>
             )}
-          </InlineTitle>
+          </IntegrationsPage.Headline>
 
           {loading &&
             [0, 1, 2].map((i) => (
@@ -254,8 +251,7 @@ const AdyenIntegrationDetails = () => {
         </section>
 
         <section>
-          <InlineTitle>
-            <Typography variant="subhead">{translate('text_65367cb78324b77fcb6af21c')}</Typography>
+          <IntegrationsPage.Headline label={translate('text_65367cb78324b77fcb6af21c')}>
             {canEditIntegration && (
               <Button
                 variant="quaternary"
@@ -271,7 +267,7 @@ const AdyenIntegrationDetails = () => {
                 {translate('text_65367cb78324b77fcb6af20e')}
               </Button>
             )}
-          </InlineTitle>
+          </IntegrationsPage.Headline>
 
           {loading && <IntegrationsPage.ItemSkeleton />}
           {!loading && !adyenPaymentProvider?.successRedirectUrl && (
@@ -357,14 +353,5 @@ const AdyenIntegrationDetails = () => {
     </>
   )
 }
-
-const InlineTitle = styled.div`
-  position: relative;
-  height: ${NAV_HEIGHT}px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
 
 export default AdyenIntegrationDetails

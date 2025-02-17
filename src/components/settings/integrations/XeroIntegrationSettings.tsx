@@ -1,9 +1,8 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
-import { Alert, Button, Typography } from '~/components/designSystem'
+import { Alert, Button } from '~/components/designSystem'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
@@ -20,7 +19,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { XeroIntegrationDetailsTabs } from '~/pages/settings/XeroIntegrationDetails'
-import { NAV_HEIGHT } from '~/styles'
 
 import {
   AddEditDeleteSuccessRedirectUrlDialog,
@@ -149,8 +147,7 @@ const XeroIntegrationSettings = () => {
         )}
 
         <section>
-          <InlineTitle>
-            <Typography variant="subhead">{translate('text_661ff6e56ef7e1b7c542b232')}</Typography>
+          <IntegrationsPage.Headline label={translate('text_661ff6e56ef7e1b7c542b232')}>
             <Button
               variant="quaternary"
               disabled={loading}
@@ -164,7 +161,7 @@ const XeroIntegrationSettings = () => {
             >
               {translate('text_62b1edddbf5f461ab9712787')}
             </Button>
-          </InlineTitle>
+          </IntegrationsPage.Headline>
 
           <>
             {loading &&
@@ -204,12 +201,3 @@ const XeroIntegrationSettings = () => {
 }
 
 export default XeroIntegrationSettings
-
-const InlineTitle = styled.div`
-  position: relative;
-  height: ${NAV_HEIGHT}px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`

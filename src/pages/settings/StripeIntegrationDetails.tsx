@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import {
   Button,
@@ -37,7 +36,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import Stripe from '~/public/images/stripe.svg'
-import { MenuPopper, NAV_HEIGHT, PageHeader, PopperOpener } from '~/styles'
+import { MenuPopper, PageHeader, PopperOpener } from '~/styles'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -187,11 +186,7 @@ const StripeIntegrationDetails = () => {
 
       <IntegrationsPage.Container>
         <section>
-          <InlineTitle>
-            <Typography className="flex h-18 w-full items-center" variant="subhead">
-              {translate('text_657078c28394d6b1ae1b9725')}
-            </Typography>
-
+          <IntegrationsPage.Headline label={translate('text_657078c28394d6b1ae1b9725')}>
             {canEditIntegration && (
               <Button
                 variant="quaternary"
@@ -207,7 +202,7 @@ const StripeIntegrationDetails = () => {
                 {translate('text_62b1edddbf5f461ab9712787')}
               </Button>
             )}
-          </InlineTitle>
+          </IntegrationsPage.Headline>
 
           {loading &&
             [0, 1, 2].map((i) => (
@@ -239,9 +234,7 @@ const StripeIntegrationDetails = () => {
         </section>
 
         <section>
-          <InlineTitle>
-            <Typography variant="subhead">{translate('text_65367cb78324b77fcb6af21c')}</Typography>
-
+          <IntegrationsPage.Headline label={translate('text_65367cb78324b77fcb6af21c')}>
             {canEditIntegration && (
               <Button
                 variant="quaternary"
@@ -257,7 +250,7 @@ const StripeIntegrationDetails = () => {
                 {translate('text_65367cb78324b77fcb6af20e')}
               </Button>
             )}
-          </InlineTitle>
+          </IntegrationsPage.Headline>
 
           {loading && <IntegrationsPage.ItemSkeleton />}
           {!loading && (
@@ -346,14 +339,5 @@ const StripeIntegrationDetails = () => {
     </>
   )
 }
-
-const InlineTitle = styled.div`
-  position: relative;
-  height: ${NAV_HEIGHT}px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
 
 export default StripeIntegrationDetails

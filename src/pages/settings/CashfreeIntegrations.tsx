@@ -131,9 +131,7 @@ const CashfreeIntegrations = () => {
 
       <IntegrationsPage.Container>
         <section>
-          <Typography className="h-18 w-full" variant="subhead">
-            {translate('text_65846763e6140b469140e239')}
-          </Typography>
+          <IntegrationsPage.Headline label={translate('text_65846763e6140b469140e239')} />
 
           <>
             {loading ? (

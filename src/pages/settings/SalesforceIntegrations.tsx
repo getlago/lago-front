@@ -115,9 +115,7 @@ const SalesforceIntegrations = () => {
 
       <IntegrationsPage.Container>
         <section>
-          <div className="flex h-18 w-full items-center">
-            <Typography variant="subhead">{translate('text_65846763e6140b469140e239')}</Typography>
-          </div>
+          <IntegrationsPage.Headline label={translate('text_65846763e6140b469140e239')} />
 
           <>
             {loading ? (

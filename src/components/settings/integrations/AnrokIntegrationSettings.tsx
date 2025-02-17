@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { Alert, Button, Skeleton, Typography } from '~/components/designSystem'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
@@ -22,7 +21,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { AnrokIntegrationDetailsTabs } from '~/pages/settings/AnrokIntegrationDetails'
-import { NAV_HEIGHT, theme } from '~/styles'
+import { theme } from '~/styles'
 
 import { AddAnrokDialog, AddAnrokDialogRef } from './AddAnrokDialog'
 import {
@@ -141,8 +140,7 @@ const AnrokIntegrationSettings = () => {
         )}
 
         <section>
-          <InlineTitle>
-            <Typography variant="subhead">{translate('text_661ff6e56ef7e1b7c542b232')}</Typography>
+          <IntegrationsPage.Headline label={translate('text_661ff6e56ef7e1b7c542b232')}>
             <Button
               variant="quaternary"
               disabled={loading}
@@ -156,7 +154,7 @@ const AnrokIntegrationSettings = () => {
             >
               {translate('text_62b1edddbf5f461ab9712787')}
             </Button>
-          </InlineTitle>
+          </IntegrationsPage.Headline>
 
           <>
             {loading &&
@@ -242,12 +240,3 @@ const AnrokIntegrationSettings = () => {
 }
 
 export default AnrokIntegrationSettings
-
-const InlineTitle = styled.div`
-  position: relative;
-  height: ${NAV_HEIGHT}px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
