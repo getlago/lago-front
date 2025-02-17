@@ -1,4 +1,5 @@
 import { FC, PropsWithChildren } from 'react'
+import { Link } from 'react-router-dom'
 
 import { Avatar, Chip, Icon, IconName, Skeleton, Typography } from '~/components/designSystem'
 import { tw } from '~/styles/utils'
@@ -54,6 +55,36 @@ const IntegrationsHeader: FC<{
   )
 }
 
+const IntegrationListItem: FC<
+  PropsWithChildren<{ to: string; label: string; subLabel: string }>
+> = ({ to, label, subLabel, children }) => {
+  return (
+    <div className="relative">
+      <Link
+        tabIndex={0}
+        to={to}
+        className="box-border flex min-h-18 w-full items-center shadow-b visited:text-inherit hover:bg-grey-100 hover:no-underline focus:bg-grey-100 focus:ring-0 active:bg-grey-200"
+      >
+        <div className="flex flex-row items-center gap-3">
+          <Avatar variant="connector" size="big">
+            <Icon name="plug" color="dark" />
+          </Avatar>
+          <div>
+            <Typography variant="body" color="grey700">
+              {label}
+            </Typography>
+            <Typography variant="caption" color="grey600">
+              {subLabel}
+            </Typography>
+          </div>
+          <div className="size-10" />
+        </div>
+      </Link>
+      {children}
+    </div>
+  )
+}
+
 const IntegrationDetailsItem: FC<
   PropsWithChildren<{
     icon: IconName
@@ -94,5 +125,6 @@ export const IntegrationsPage = {
   Container: IntegrationsContainer,
   Headline: IntegrationsHeadline,
   ItemSkeleton: IntegrationItemSkeleton,
+  ListItem: IntegrationListItem,
   DetailsItem: IntegrationDetailsItem,
 }

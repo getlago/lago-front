@@ -1,14 +1,10 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 
 import {
-  Avatar,
   Button,
   ButtonLink,
-  Icon,
   Popper,
   Skeleton,
   Tooltip,
@@ -40,15 +36,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import Gocardless from '~/public/images/gocardless.svg'
-import {
-  ItemContainer,
-  ListItemLink,
-  MenuPopper,
-  NAV_HEIGHT,
-  PageHeader,
-  PopperOpener,
-  theme,
-} from '~/styles'
+import { MenuPopper, PageHeader, PopperOpener } from '~/styles'
 
 gql`
   fragment GocardlessIntegrations on GocardlessProvider {
@@ -144,108 +132,83 @@ const GocardlessIntegrations = () => {
         <section>
           <IntegrationsPage.Headline label={translate('text_65846763e6140b469140e239')} />
 
-          <>
-            {loading ? (
-              <>
-                {[1, 2].map((i) => (
-                  <ListItem key={`item-skeleton-item-${i}`}>
-                    <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
-                    <Skeleton variant="text" className="w-60" />
-                  </ListItem>
-                ))}
-              </>
-            ) : (
-              <>
-                {connections?.map((connection, index) => {
-                  return (
-                    <ItemContainer key={`gocardless-connection-${index}`}>
-                      <LocalListItemLink
-                        tabIndex={0}
-                        to={generatePath(GOCARDLESS_INTEGRATION_DETAILS_ROUTE, {
-                          integrationId: connection.id,
-                          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-                        })}
-                      >
-                        <Stack direction="row" spacing={3} alignItems="center">
-                          <Avatar variant="connector" size="big">
-                            <Icon name="plug" color="dark" />
-                          </Avatar>
-                          <div>
-                            <Typography variant="body" color="grey700">
-                              {connection.name}
-                            </Typography>
-                            <Typography variant="caption" color="grey600">
-                              {connection.code}
-                            </Typography>
-                          </div>
-                          <ButtonMock />
-                        </Stack>
-                      </LocalListItemLink>
-                      {(canEditIntegration || canDeleteIntegration) && (
-                        <Popper
-                          PopperProps={{ placement: 'bottom-end' }}
-                          opener={({ isOpen }) => (
-                            <LocalPopperOpener>
-                              <Tooltip
-                                placement="top-end"
-                                disableHoverListener={isOpen}
-                                title={translate('text_626162c62f790600f850b7b6')}
-                              >
-                                <Button
-                                  icon="dots-horizontal"
-                                  variant="quaternary"
-                                  data-test="plan-item-options"
-                                />
-                              </Tooltip>
-                            </LocalPopperOpener>
-                          )}
-                        >
-                          {({ closePopper }) => (
-                            <MenuPopper>
-                              {canEditIntegration && (
-                                <Button
-                                  startIcon="pen"
-                                  variant="quaternary"
-                                  align="left"
-                                  onClick={() => {
-                                    addGocardlessDialogRef.current?.openDialog({
-                                      provider: connection,
-                                      deleteModalRef: deleteDialogRef,
-                                      deleteDialogCallback,
-                                    })
-                                    closePopper()
-                                  }}
-                                >
-                                  {translate('text_65845f35d7d69c3ab4793dac')}
-                                </Button>
-                              )}
+          {loading &&
+            [1, 2].map((i) => <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />)}
 
-                              {canDeleteIntegration && (
-                                <Button
-                                  startIcon="trash"
-                                  variant="quaternary"
-                                  align="left"
-                                  onClick={() => {
-                                    deleteDialogRef.current?.openDialog({
-                                      provider: connection,
-                                      callback: deleteDialogCallback,
-                                    })
-                                    closePopper()
-                                  }}
-                                >
-                                  {translate('text_645d071272418a14c1c76a81')}
-                                </Button>
-                              )}
-                            </MenuPopper>
-                          )}
-                        </Popper>
+          {!loading &&
+            connections?.map((connection, index) => {
+              return (
+                <IntegrationsPage.ListItem
+                  key={`gocardless-connection-${index}`}
+                  to={generatePath(GOCARDLESS_INTEGRATION_DETAILS_ROUTE, {
+                    integrationId: connection.id,
+                    integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                  })}
+                  label={connection.name}
+                  subLabel={connection.code}
+                >
+                  {(canEditIntegration || canDeleteIntegration) && (
+                    <Popper
+                      PopperProps={{ placement: 'bottom-end' }}
+                      opener={({ isOpen }) => (
+                        <PopperOpener className="right-0">
+                          <Tooltip
+                            placement="top-end"
+                            disableHoverListener={isOpen}
+                            title={translate('text_626162c62f790600f850b7b6')}
+                          >
+                            <Button
+                              icon="dots-horizontal"
+                              variant="quaternary"
+                              data-test="plan-item-options"
+                            />
+                          </Tooltip>
+                        </PopperOpener>
                       )}
-                    </ItemContainer>
-                  )
-                })}
-              </>
-            )}
-          </>
+                    >
+                      {({ closePopper }) => (
+                        <MenuPopper>
+                          {canEditIntegration && (
+                            <Button
+                              startIcon="pen"
+                              variant="quaternary"
+                              align="left"
+                              onClick={() => {
+                                addGocardlessDialogRef.current?.openDialog({
+                                  provider: connection,
+                                  deleteModalRef: deleteDialogRef,
+                                  deleteDialogCallback,
+                                })
+                                closePopper()
+                              }}
+                            >
+                              {translate('text_65845f35d7d69c3ab4793dac')}
+                            </Button>
+                          )}
+
+                          {canDeleteIntegration && (
+                            <Button
+                              startIcon="trash"
+                              variant="quaternary"
+                              align="left"
+                              onClick={() => {
+                                deleteDialogRef.current?.openDialog({
+                                  provider: connection,
+                                  callback: deleteDialogCallback,
+                                })
+                                closePopper()
+                              }}
+                            >
+                              {translate('text_645d071272418a14c1c76a81')}
+                            </Button>
+                          )}
+                        </MenuPopper>
+                      )}
+                    </Popper>
+                  )}
+                </IntegrationsPage.ListItem>
+              )
+            })}
         </section>
       </IntegrationsPage.Container>
 
@@ -255,29 +218,5 @@ const GocardlessIntegrations = () => {
     </>
   )
 }
-
-const LocalListItemLink = styled(ListItemLink)`
-  padding: 0;
-`
-
-const ListItem = styled.div`
-  height: ${NAV_HEIGHT}px;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
-
-const ButtonMock = styled.div`
-  width: 40px;
-  min-width: 40px;
-`
-
-const LocalPopperOpener = styled(PopperOpener)`
-  right: 0;
-`
 
 export default GocardlessIntegrations

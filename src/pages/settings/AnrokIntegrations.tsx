@@ -1,18 +1,14 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 
 import {
-  Avatar,
   Button,
   ButtonLink,
-  Icon,
   Popper,
   Skeleton,
   Tooltip,
-  Typography,
+  Typography
 } from '~/components/designSystem'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import {
@@ -35,13 +31,9 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Anrok from '~/public/images/anrok.svg'
 import {
-  ItemContainer,
-  ListItemLink,
   MenuPopper,
-  NAV_HEIGHT,
   PageHeader,
-  PopperOpener,
-  theme,
+  PopperOpener
 } from '~/styles'
 
 import { AnrokIntegrationDetailsTabs } from './AnrokIntegrationDetails'
@@ -131,102 +123,77 @@ const AnrokIntegrations = () => {
         <section>
           <IntegrationsPage.Headline label={translate('text_65846763e6140b469140e239')} />
 
-          <>
-            {loading ? (
-              <>
-                {[1, 2].map((i) => (
-                  <ListItem key={`item-skeleton-item-${i}`}>
-                    <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
-                    <Skeleton variant="text" className="w-60" />
-                  </ListItem>
-                ))}
-              </>
-            ) : (
-              <>
-                {connections?.map((connection) => {
-                  return (
-                    <ItemContainer key={`anrok-connection-${connection.id}`}>
-                      <LocalListItemLink
-                        tabIndex={0}
-                        to={generatePath(ANROK_INTEGRATION_DETAILS_ROUTE, {
-                          integrationId: connection.id,
-                          tab: AnrokIntegrationDetailsTabs.Settings,
-                          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-                        })}
-                      >
-                        <Stack direction="row" alignItems="center" spacing={3}>
-                          <Avatar variant="connector" size="big">
-                            <Icon name="plug" color="dark" />
-                          </Avatar>
-                          <div>
-                            <Typography variant="body" color="grey700">
-                              {connection.name}
-                            </Typography>
-                            <Typography variant="caption" color="grey600">
-                              {connection.code}
-                            </Typography>
-                          </div>
-                          <ButtonMock />
-                        </Stack>
-                      </LocalListItemLink>
-                      <Popper
-                        PopperProps={{ placement: 'bottom-end' }}
-                        opener={({ isOpen }) => (
-                          <LocalPopperOpener>
-                            <Tooltip
-                              placement="top-end"
-                              disableHoverListener={isOpen}
-                              title={translate('text_626162c62f790600f850b7b6')}
-                            >
-                              <Button
-                                icon="dots-horizontal"
-                                variant="quaternary"
-                                data-test="plan-item-options"
-                              />
-                            </Tooltip>
-                          </LocalPopperOpener>
-                        )}
-                      >
-                        {({ closePopper }) => (
-                          <MenuPopper>
-                            <Button
-                              startIcon="pen"
-                              variant="quaternary"
-                              align="left"
-                              onClick={() => {
-                                addAnrokDialogRef.current?.openDialog({
-                                  integration: connection,
-                                  deleteModalRef: deleteDialogRef,
-                                  deleteDialogCallback,
-                                })
-                                closePopper()
-                              }}
-                            >
-                              {translate('text_65845f35d7d69c3ab4793dac')}
-                            </Button>
-                            <Button
-                              startIcon="trash"
-                              variant="quaternary"
-                              align="left"
-                              onClick={() => {
-                                deleteDialogRef.current?.openDialog({
-                                  provider: connection,
-                                  callback: deleteDialogCallback,
-                                })
-                                closePopper()
-                              }}
-                            >
-                              {translate('text_645d071272418a14c1c76a81')}
-                            </Button>
-                          </MenuPopper>
-                        )}
-                      </Popper>
-                    </ItemContainer>
-                  )
-                })}
-              </>
-            )}
-          </>
+          {loading &&
+            [1, 2].map((i) => <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />)}
+
+          {!loading &&
+            connections?.map((connection) => {
+              return (
+                <IntegrationsPage.ListItem
+                  key={`anrok-connection-${connection.id}`}
+                  to={generatePath(ANROK_INTEGRATION_DETAILS_ROUTE, {
+                    integrationId: connection.id,
+                    tab: AnrokIntegrationDetailsTabs.Settings,
+                    integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                  })}
+                  label={connection.name}
+                  subLabel={connection.code}
+                >
+                  <Popper
+                    PopperProps={{ placement: 'bottom-end' }}
+                    opener={({ isOpen }) => (
+                      <PopperOpener className="right-0">
+                        <Tooltip
+                          placement="top-end"
+                          disableHoverListener={isOpen}
+                          title={translate('text_626162c62f790600f850b7b6')}
+                        >
+                          <Button
+                            icon="dots-horizontal"
+                            variant="quaternary"
+                            data-test="plan-item-options"
+                          />
+                        </Tooltip>
+                      </PopperOpener>
+                    )}
+                  >
+                    {({ closePopper }) => (
+                      <MenuPopper>
+                        <Button
+                          startIcon="pen"
+                          variant="quaternary"
+                          align="left"
+                          onClick={() => {
+                            addAnrokDialogRef.current?.openDialog({
+                              integration: connection,
+                              deleteModalRef: deleteDialogRef,
+                              deleteDialogCallback,
+                            })
+                            closePopper()
+                          }}
+                        >
+                          {translate('text_65845f35d7d69c3ab4793dac')}
+                        </Button>
+                        <Button
+                          startIcon="trash"
+                          variant="quaternary"
+                          align="left"
+                          onClick={() => {
+                            deleteDialogRef.current?.openDialog({
+                              provider: connection,
+                              callback: deleteDialogCallback,
+                            })
+                            closePopper()
+                          }}
+                        >
+                          {translate('text_645d071272418a14c1c76a81')}
+                        </Button>
+                      </MenuPopper>
+                    )}
+                  </Popper>
+                </IntegrationsPage.ListItem>
+              )
+            })}
         </section>
       </IntegrationsPage.Container>
       <AddAnrokDialog ref={addAnrokDialogRef} />
@@ -234,29 +201,5 @@ const AnrokIntegrations = () => {
     </>
   )
 }
-
-const LocalListItemLink = styled(ListItemLink)`
-  padding: 0;
-`
-
-const ListItem = styled.div`
-  height: ${NAV_HEIGHT}px;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
-
-const ButtonMock = styled.div`
-  width: 40px;
-  min-width: 40px;
-`
-
-const LocalPopperOpener = styled(PopperOpener)`
-  right: 0;
-`
 
 export default AnrokIntegrations
