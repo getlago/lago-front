@@ -5332,12 +5332,11 @@ export type RetryWebhookInput = {
 
 export type RevenueStreams = {
   __typename?: 'RevenueStreams';
-  amountCurrency?: Maybe<CurrencyEnum>;
+  amountCurrency: CurrencyEnum;
   commitmentFeeAmountCents: Scalars['BigInt']['output'];
   couponsAmountCents: Scalars['BigInt']['output'];
   endOfPeriodDt: Scalars['ISO8601Date']['output'];
   grossRevenueAmountCents: Scalars['BigInt']['output'];
-  inAdvanceFeeAmountCents: Scalars['BigInt']['output'];
   netRevenueAmountCents: Scalars['BigInt']['output'];
   oneOffFeeAmountCents: Scalars['BigInt']['output'];
   startOfPeriodDt: Scalars['ISO8601Date']['output'];
