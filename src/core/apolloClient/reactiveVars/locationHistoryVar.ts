@@ -12,8 +12,10 @@ export const locationHistoryVar = makeVar<Location[]>([])
 
 export const addLocationToHistory = (location: Location) => {
   const current = locationHistoryVar()
+  const currentPathname = (current || [])[0]?.pathname
+  const currentSearchParams = (current || [])[0]?.search
 
-  if (location.pathname !== (current || [])[0]?.pathname) {
+  if (location.pathname !== currentPathname || location.search !== currentSearchParams) {
     locationHistoryVar([location, ...current].slice(0, MAX_HISTORY_KEPT))
   }
 }
