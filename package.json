@@ -106,7 +106,7 @@
     "@mui/styled-engine-sc": "6.1.9",
     "@mui/x-date-pickers": "6.20.0",
     "@nangohq/frontend": "0.40.8",
-    "@sentry/react": "8.35.0",
+    "@sentry/react": "9.1.0",
     "@tanstack/react-virtual": "3.11.2",
     "apollo-link-timeout": "4.0.0",
     "apollo-upload-client": "17.0.0",
