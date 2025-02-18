@@ -230,23 +230,34 @@ const CustomersList = () => {
                   buttonAction: () => location.reload(),
                   buttonVariant: 'primary',
                 },
-            emptyState: variables?.searchTerm
-              ? {
-                  title: translate('text_63befc65efcd9374da45b813'),
-                  subtitle: translate('text_63befc65efcd9374da45b817'),
-                }
-              : hasPermissions(['customersCreate'])
-                ? {
-                    title: translate('text_17344528339611v83lf47q5m'),
-                    subtitle: translate('text_1734452833961ix7z38723pg'),
-                    buttonTitle: translate('text_1734452833961s338w0x3b4s'),
-                    buttonAction: () => navigate(CREATE_CUSTOMER_ROUTE),
-                    buttonVariant: 'primary',
-                  }
-                : {
-                    title: translate('text_664deb061ac6860101f40d1d'),
-                    subtitle: translate('text_1734452833961ix7z38723pg'),
-                  },
+            emptyState: {
+              ...(variables?.searchTerm && {
+                title: translate('text_63befc65efcd9374da45b813'),
+                subtitle: translate('text_63befc65efcd9374da45b817'),
+              }),
+              ...(!variables?.searchTerm &&
+                !hasPermissions(['customersCreate']) && {
+                  title: translate('text_664deb061ac6860101f40d1d'),
+                  subtitle: translate('text_1734452833961ix7z38723pg'),
+                }),
+              ...(!variables?.searchTerm &&
+                hasPermissions(['customersCreate']) && {
+                  title: translate('text_17344528339611v83lf47q5m'),
+                  subtitle: translate('text_1734452833961ix7z38723pg'),
+                  buttonTitle: translate('text_1734452833961s338w0x3b4s'),
+                  buttonAction: () => navigate(CREATE_CUSTOMER_ROUTE),
+                  buttonVariant: 'primary',
+                }),
+              ...(!variables?.searchTerm &&
+                hasPermissions(['customersCreate']) &&
+                filtersForCustomerQuery.accountType === CustomerAccountTypeEnum.Partner && {
+                  title: translate('text_1739870196554qh3i1j3twdo'),
+                  subtitle: translate('text_1739870196554eghdpihly57'),
+                  buttonTitle: translate('text_1734452833961s338w0x3b4s'),
+                  buttonAction: () => navigate(CREATE_CUSTOMER_ROUTE),
+                  buttonVariant: 'primary',
+                }),
+            },
           }}
         />
       </InfiniteScroll>
