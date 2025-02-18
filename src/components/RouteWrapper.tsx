@@ -1,7 +1,6 @@
 import { ReactNode, Suspense, useEffect } from 'react'
-import { useRoutes } from 'react-router-dom'
-import { useLocation } from 'react-router-dom'
 import type { RouteObject } from 'react-router-dom'
+import { useLocation, useRoutes } from 'react-router-dom'
 
 import { Icon } from '~/components/designSystem'
 import { CustomRouteObject, routes } from '~/core/router'
