@@ -65,6 +65,8 @@ gql`
       organizationTaxesView
       organizationUpdate
       organizationView
+      paymentsCreate
+      paymentsView
       plansCreate
       plansDelete
       plansUpdate

@@ -3,7 +3,15 @@ import { useEffect, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
-import { Chip, InfiniteScroll, Status, Table, Tooltip, Typography } from '~/components/designSystem'
+import {
+  IconName,
+  InfiniteScroll,
+  Status,
+  StatusType,
+  Table,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
 import {
   AvailableFiltersEnum,
   AvailableQuickFilters,
@@ -30,6 +38,7 @@ import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/sta
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
+  CREATE_INVOICE_PAYMENT_ROUTE,
   CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
   INVOICE_SETTINGS_ROUTE,
@@ -156,7 +165,14 @@ const InvoicesList = ({
             isLoading={isLoading}
             hasError={!!error}
             actionColumn={(invoice) => {
-              const { status, paymentStatus, voidable } = invoice
+              const {
+                status,
+                paymentStatus,
+                voidable,
+                totalDueAmountCents,
+                totalPaidAmountCents,
+                totalAmountCents,
+              } = invoice
 
               const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
                 createCreditNoteForInvoiceButtonProps({
@@ -200,6 +216,13 @@ const InvoicesList = ({
               const canIssueCreditNote =
                 ![InvoiceStatusTypeEnum.Draft, InvoiceStatusTypeEnum.Voided].includes(status) &&
                 hasPermissions(['creditNotesCreate'])
+              const canRecordPayment =
+                Number(totalDueAmountCents) > 0 &&
+                hasPermissions(['paymentsCreate']) &&
+                Number(totalPaidAmountCents) < Number(totalAmountCents)
+              const isPartiallyPaid =
+                Number(totalPaidAmountCents) > 0 &&
+                Number(totalAmountCents) - Number(totalPaidAmountCents) > 0
 
               return [
                 canDownload
@@ -230,6 +253,22 @@ const InvoicesList = ({
                     })
                   },
                 },
+
+                canRecordPayment
+                  ? {
+                      startIcon: 'receipt',
+                      title: translate('text_1737471851634wpeojigr27w'),
+
+                      endIcon: isPremium ? undefined : 'sparkles',
+                      onAction: ({ id }) => {
+                        if (isPremium) {
+                          navigate(generatePath(CREATE_INVOICE_PAYMENT_ROUTE, { invoiceId: id }))
+                        } else {
+                          premiumWarningDialogRef.current?.openDialog()
+                        }
+                      },
+                    }
+                  : null,
 
                 canRetryCollect
                   ? {
@@ -285,9 +324,10 @@ const InvoicesList = ({
                           }),
                         )
                       },
-                      tooltip: disabledIssueCreditNoteButtonLabel
-                        ? translate(disabledIssueCreditNoteButtonLabel)
-                        : undefined,
+                      tooltip:
+                        !isPartiallyPaid && disabledIssueCreditNoteButtonLabel
+                          ? translate(disabledIssueCreditNoteButtonLabel)
+                          : undefined,
                     }
                   : null,
                 canVoid
@@ -297,9 +337,10 @@ const InvoicesList = ({
                       disabled: !voidable,
                       onAction: (item) =>
                         voidInvoiceDialogRef?.current?.openDialog({ invoice: item }),
-                      ...(!voidable && {
-                        tooltip: translate('text_65269c2e471133226211fdd0'),
-                      }),
+                      ...(!voidable &&
+                        !isPartiallyPaid && {
+                          tooltip: translate('text_65269c2e471133226211fdd0'),
+                        }),
                     }
                   : null,
               ]
@@ -364,38 +405,60 @@ const InvoicesList = ({
                 key: 'paymentStatus',
                 title: translate('text_6419c64eace749372fc72b40'),
                 minWidth: 80,
-                content: ({ status, paymentStatus, paymentDisputeLostAt }) => {
+                content: ({
+                  status,
+                  paymentStatus,
+                  paymentDisputeLostAt,
+                  paymentOverdue,
+                  totalAmountCents,
+                  totalPaidAmountCents,
+                }) => {
                   if (status !== InvoiceStatusTypeEnum.Finalized) {
                     return null
                   }
 
+                  let content: { tooltipTitle?: string; statusEndIcon?: IconName } = {
+                    tooltipTitle: undefined,
+                    statusEndIcon: undefined,
+                  }
+
+                  const isOverdue =
+                    paymentOverdue && paymentStatus === InvoicePaymentStatusTypeEnum.Pending
+                  const isPartiallyPaid =
+                    Number(totalPaidAmountCents) > 0 &&
+                    Number(totalAmountCents) - Number(totalPaidAmountCents) > 0
+
+                  if (isPartiallyPaid) {
+                    content = {
+                      tooltipTitle: translate('text_1738071221799vib0l2z1bxe'),
+                      statusEndIcon: 'partially-filled',
+                    }
+                  } else if (!!paymentDisputeLostAt) {
+                    content = {
+                      tooltipTitle: translate('text_172416478461328edo4vwz05'),
+                      statusEndIcon: 'warning-unfilled',
+                    }
+                  }
+
                   return (
-                    <Tooltip
-                      placement="top"
-                      title={
-                        !!paymentDisputeLostAt
-                          ? translate('text_172416478461328edo4vwz05')
-                          : undefined
-                      }
-                    >
+                    <Tooltip placement="top" title={content.tooltipTitle}>
                       <Status
-                        {...paymentStatusMapping({
-                          status,
-                          paymentStatus,
-                        })}
-                        endIcon={!!paymentDisputeLostAt ? 'warning-unfilled' : undefined}
+                        {...(isOverdue
+                          ? {
+                              type: StatusType.danger,
+                              label: 'overdue',
+                            }
+                          : paymentStatusMapping({
+                              status,
+                              paymentStatus,
+                              totalPaidAmountCents,
+                              totalAmountCents,
+                            }))}
+                        endIcon={content.statusEndIcon}
                       />
                     </Tooltip>
                   )
                 },
-              },
-              {
-                key: 'paymentOverdue',
-                title: translate('text_666c5b12fea4aa1e1b26bf55'),
-                content: ({ paymentOverdue }) =>
-                  paymentOverdue && (
-                    <Chip error={true} label={translate('text_666c5b12fea4aa1e1b26bf55')} />
-                  ),
               },
               {
                 key: 'customer.name',

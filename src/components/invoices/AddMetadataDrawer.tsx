@@ -9,8 +9,8 @@ import { TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { MetadataErrorsEnum, metadataSchema } from '~/formValidation/metadataSchema'
 import {
-  InvoiceMetadatasForMetadataDrawerFragment,
   UpdateInvoiceInput,
+  useGetInvoiceMetadataForEditionQuery,
   useUpdateInvoiceMetadataMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -36,18 +36,34 @@ gql`
       ...InvoiceMetadatasForMetadataDrawer
     }
   }
+
+  query getInvoiceMetadataForEdition($id: ID!) {
+    invoice(id: $id) {
+      id
+      ...InvoiceMetadatasForMetadataDrawer
+    }
+  }
 `
 
 export type AddMetadataDrawerRef = DrawerRef
 
 interface AddMetadataDrawerProps {
-  invoice?: InvoiceMetadatasForMetadataDrawerFragment
+  invoiceId: string
 }
 
 export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
-  ({ invoice }: AddMetadataDrawerProps, ref) => {
+  ({ invoiceId }, ref) => {
     const { translate } = useInternationalization()
-    const isEdition = !!invoice?.metadata?.length
+
+    const { data } = useGetInvoiceMetadataForEditionQuery({
+      variables: {
+        id: invoiceId || '',
+      },
+      skip: !invoiceId,
+    })
+
+    const isEdition = !!data?.invoice?.metadata?.length
+
     const [updateInvoiceMetadata] = useUpdateInvoiceMetadataMutation({
       onCompleted({ updateInvoice }) {
         if (updateInvoice?.id) {
@@ -62,7 +78,7 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
     })
     const formikProps = useFormik<Omit<UpdateInvoiceInput, 'id'>>({
       initialValues: {
-        metadata: invoice?.metadata ?? undefined,
+        metadata: data?.invoice?.metadata ?? undefined,
       },
       validationSchema: object().shape({
         metadata: metadataSchema({ valueMaxLength: METADATA_VALUE_MAX_LENGTH }),
@@ -73,7 +89,7 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
         await updateInvoiceMetadata({
           variables: {
             input: {
-              id: invoice?.id as string,
+              id: data?.invoice?.id as string,
               ...values,
             },
           },

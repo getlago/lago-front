@@ -37,6 +37,8 @@ gql`
       paymentStatus
       refundableAmountCents
       creditableAmountCents
+      totalPaidAmountCents
+      totalDueAmountCents
       status
       customer {
         id
@@ -49,7 +51,7 @@ gql`
   ${CreditNotesForTableFragmentDoc}
 `
 
-const InvoiceCreditNoteList = () => {
+export const InvoiceCreditNoteList = () => {
   const { invoiceId, customerId } = useParams()
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
@@ -62,6 +64,8 @@ const InvoiceCreditNoteList = () => {
   const creditNotes = data?.invoiceCreditNotes?.collection
 
   const invoice = data?.invoice
+  const isPartiallyPaid =
+    Number(invoice?.totalPaidAmountCents || 0) > 0 && Number(invoice?.totalDueAmountCents || 0) > 0
 
   const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
     createCreditNoteForInvoiceButtonProps({
@@ -84,6 +88,7 @@ const InvoiceCreditNoteList = () => {
                   {isPremium ? (
                     <Tooltip
                       title={
+                        !isPartiallyPaid &&
                         disabledIssueCreditNoteButtonLabel &&
                         translate(disabledIssueCreditNoteButtonLabel)
                       }
@@ -148,8 +153,6 @@ const InvoiceCreditNoteList = () => {
     </div>
   )
 }
-
-export default InvoiceCreditNoteList
 
 InvoiceCreditNoteList.displayName = 'InvoiceCreditNoteList'
 

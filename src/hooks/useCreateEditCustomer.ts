@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import {
   CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
@@ -24,7 +25,6 @@ import {
   useUpdateCustomerMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { CustomerDetailsTabsOptions } from '~/pages/CustomerDetails'
 
 gql`
   fragment CustomerForExternalAppsAccordion on Customer {

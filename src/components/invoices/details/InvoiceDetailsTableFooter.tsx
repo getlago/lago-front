@@ -22,6 +22,8 @@ gql`
     subTotalExcludingTaxesAmountCents
     subTotalIncludingTaxesAmountCents
     totalAmountCents
+    totalDueAmountCents
+    totalPaidAmountCents
     currency
     invoiceType
     status
@@ -330,7 +332,7 @@ export const InvoiceDetailsTableFooter = memo(
             <Typography variant="bodyHl" color="grey700">
               {invoice.invoiceType === InvoiceTypeEnum.Credit
                 ? translate('text_63887b52e514213fed57fc1c')
-                : translate('text_637ccf8133d2c9a7d11ce70d')}
+                : translate('text_1738063764295zomiafl8b4s')}
             </Typography>
           </td>
           <td>
@@ -342,6 +344,53 @@ export const InvoiceDetailsTableFooter = memo(
               {hasTaxProviderError
                 ? '-'
                 : intlFormatNumber(deserializeAmount(invoice?.totalAmountCents || 0, currency), {
+                    currencyDisplay: 'symbol',
+                    currency,
+                  })}
+            </Typography>
+          </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td colSpan={colSpan}>
+            <Typography variant="bodyHl" color="grey700">
+              {translate('text_1738063681339ucxmt3asspd')}
+            </Typography>
+          </td>
+          <td>
+            <Typography
+              variant="body"
+              color="grey700"
+              data-test="invoice-details-table-footer-total-paid-value"
+            >
+              {hasTaxProviderError
+                ? '-'
+                : intlFormatNumber(
+                    deserializeAmount(-invoice?.totalPaidAmountCents || 0, currency),
+                    {
+                      currencyDisplay: 'symbol',
+                      currency,
+                    },
+                  )}
+            </Typography>
+          </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td colSpan={colSpan}>
+            <Typography variant="bodyHl" color="grey700">
+              {translate('text_17374735502775afvcm9pqxk')}
+            </Typography>
+          </td>
+          <td>
+            <Typography
+              variant="body"
+              color="grey700"
+              data-test="invoice-details-table-footer-total-due-value"
+            >
+              {hasTaxProviderError
+                ? '-'
+                : intlFormatNumber(deserializeAmount(invoice?.totalDueAmountCents || 0, currency), {
                     currencyDisplay: 'symbol',
                     currency,
                   })}

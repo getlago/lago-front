@@ -20,12 +20,14 @@ const CreateCoupon = lazyLoad(() => import('~/pages/CreateCoupon'))
 const CreateAddOn = lazyLoad(() => import('~/pages/CreateAddOn'))
 const CreateSubscription = lazyLoad(() => import('~/pages/CreateSubscription'))
 const WalletForm = lazyLoad(() => import('~/pages/WalletForm/WalletForm'))
+const CreatePayment = lazyLoad(() => import('~/pages/CreatePayment'))
 
 // Details
 const SubscriptionDetails = lazyLoad(() => import('~/pages/SubscriptionDetails'))
 const PlanDetails = lazyLoad(() => import('~/pages/PlanDetails'))
 const AddOnDetails = lazyLoad(() => import('~/pages/AddOnDetails'))
 const CouponDetails = lazyLoad(() => import('~/pages/CouponDetails'))
+const PaymentDetails = lazyLoad(() => import('~/pages/PaymentDetails'))
 
 // ----------- Routes -----------
 // Lists
@@ -68,6 +70,9 @@ export const UPGRADE_DOWNGRADE_SUBSCRIPTION =
 export const CREATE_WALLET_ROUTE = '/customer/:customerId/wallet/create'
 export const EDIT_WALLET_ROUTE = '/customer/:customerId/wallet/:walletId'
 
+export const CREATE_PAYMENT_ROUTE = '/create/payment'
+export const CREATE_INVOICE_PAYMENT_ROUTE = '/invoice/:invoiceId/create/payment'
+
 // Details
 export const CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE =
   '/customer/:customerId/subscription/:subscriptionId/:tab'
@@ -77,6 +82,8 @@ export const CUSTOMER_SUBSCRIPTION_PLAN_DETAILS =
   '/customer/:customerId/subscription/:subscriptionId/plan/:planId/:tab'
 export const ADD_ON_DETAILS_ROUTE = '/add-on/:addOnId'
 export const COUPON_DETAILS_ROUTE = '/coupon/:couponId'
+export const PAYMENT_DETAILS_ROUTE = '/payment/:paymentId'
+export const CUSTOMER_PAYMENT_DETAILS_ROUTE = '/customer/:customerId/payment/:paymentId'
 
 export const objectListRoutes: CustomRouteObject[] = [
   {
@@ -172,6 +179,12 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     element: <WalletForm />,
     permissions: ['walletsCreate', 'walletsUpdate'],
   },
+  {
+    path: [CREATE_PAYMENT_ROUTE, CREATE_INVOICE_PAYMENT_ROUTE],
+    private: true,
+    element: <CreatePayment />,
+    permissions: ['paymentsCreate'],
+  },
 ]
 
 export const objectDetailsRoutes: CustomRouteObject[] = [
@@ -198,5 +211,11 @@ export const objectDetailsRoutes: CustomRouteObject[] = [
     private: true,
     element: <CouponDetails />,
     permissions: ['couponsView'],
+  },
+  {
+    path: [PAYMENT_DETAILS_ROUTE, CUSTOMER_PAYMENT_DETAILS_ROUTE],
+    private: true,
+    element: <PaymentDetails />,
+    permissions: ['paymentsView'],
   },
 ]

@@ -1,5 +1,6 @@
 export enum CustomerInvoiceDetailsTabsOptionsEnum {
   overview = 'overview',
+  payments = 'payments',
   creditNotes = 'credit-notes',
 }
 
@@ -24,4 +25,21 @@ export enum NewAnalyticsTabsOptionsEnum {
   usage = 'usage',
   prepaidCredits = 'prepaid-credits',
   invoices = 'invoices',
+}
+
+export enum InvoiceListTabEnum {
+  invoices = 'invoices',
+  payments = 'payments',
+  creditNotes = 'creditNotes',
+}
+
+export enum CustomerDetailsTabsOptions {
+  creditNotes = 'creditNotes',
+  overview = 'overview',
+  wallet = 'wallet',
+  invoices = 'invoices',
+  payments = 'payments',
+  settings = 'settings',
+  usage = 'usage',
+  information = 'information',
 }

@@ -1,20 +1,18 @@
 import { gql } from '@apollo/client'
-import { FormikProps } from 'formik'
+import { FormikProps, getIn } from 'formik'
 import { debounce } from 'lodash'
-import _get from 'lodash/get'
 import { useCallback, useEffect, useMemo } from 'react'
-import { array, number, object, string } from 'yup'
+import { array, number, object, Schema, string, ValidationError } from 'yup'
 
-import { CreditNoteActions } from '~/components/creditNote/CreditNoteActions'
+import { CreditNoteActionsLine } from '~/components/creditNote/CreditNoteActionsLine'
 import { CreditNoteEstimationLine } from '~/components/creditNote/CreditNoteEstimationLine'
-import { Alert } from '~/components/designSystem'
+import { Alert, Typography } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import {
   CreditNoteItemInput,
   CurrencyEnum,
   InvoiceForCreditNoteFormCalculationFragment,
-  InvoicePaymentStatusTypeEnum,
   LagoApiError,
   useCreditNoteEstimateLazyQuery,
 } from '~/generated/graphql'
@@ -34,6 +32,7 @@ gql`
     currency
     versionNumber
     paymentDisputeLostAt
+    totalPaidAmountCents
     fees {
       id
       appliedTaxes {
@@ -74,7 +73,7 @@ interface CreditNoteFormCalculationProps {
   formikProps: FormikProps<Partial<CreditNoteForm>>
   feeForEstimate: CreditNoteItemInput[] | undefined
   hasError: boolean
-  setPayBackValidation: Function
+  setPayBackValidation: (value: Schema) => void
 }
 
 export const CreditNoteFormCalculation = ({
@@ -85,14 +84,15 @@ export const CreditNoteFormCalculation = ({
   setPayBackValidation,
 }: CreditNoteFormCalculationProps) => {
   const { translate } = useInternationalization()
-  const canOnlyCredit =
-    invoice?.paymentStatus !== InvoicePaymentStatusTypeEnum.Succeeded ||
-    !!invoice.paymentDisputeLostAt
+
+  const hasNoPayment = Number(invoice?.totalPaidAmountCents) === 0
+  const canOnlyCredit = hasNoPayment || !!invoice?.paymentDisputeLostAt
   const canRefund = !canOnlyCredit
 
   const currency = invoice?.currency || CurrencyEnum.Usd
   const currencyPrecision = getCurrencyPrecision(currency)
   const isLegacyInvoice = (invoice?.versionNumber || 0) < 3
+  const hasCouponLine = Number(invoice?.couponsAmountCents || 0) > 0 && !isLegacyInvoice
 
   const [
     getEstimate,
@@ -125,7 +125,6 @@ export const CreditNoteFormCalculation = ({
   }, [getEstimate, debouncedQuery, feeForEstimate, formikProps.values.fees, invoice?.id])
 
   const {
-    hasCreditOrCoupon,
     maxCreditableAmount,
     maxRefundableAmount,
     proRatedCouponAmount,
@@ -177,54 +176,90 @@ export const CreditNoteFormCalculation = ({
           },
         ]),
       ),
-      hasCreditOrCoupon: (maxCreditableAmountCents || 0) > (maxRefundableAmountCents || 0),
     }
   }, [currency, estimationData?.creditNoteEstimate, estimationError])
 
-  const payBack = formikProps.values.payBack || []
+  useEffect(() => {
+    // Set the default values for credit payback fields
+    formikProps.setFieldValue('payBack.0.type', CreditTypeEnum.credit)
+    formikProps.setFieldValue('payBack.0.value', undefined)
+
+    // Initialize the refund field if possible
+    if (canRefund) {
+      formikProps.setFieldValue('payBack.1.type', CreditTypeEnum.refund)
+      formikProps.setFieldValue('payBack.1.value', undefined)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
-    if (canOnlyCredit) {
-      formikProps.setFieldValue('payBack', [
-        {
-          value: Number(totalTaxIncluded || 0)?.toFixed(currencyPrecision),
-          type: CreditTypeEnum.credit,
-        },
-      ])
-    } else if (payBack.length < 2) {
-      formikProps.setFieldValue(
-        'payBack.0.value',
-        !totalTaxIncluded ? undefined : Number(totalTaxIncluded || 0)?.toFixed(currencyPrecision),
-      )
+    formikProps.setFieldValue(
+      'payBack.0.value',
+      !totalTaxIncluded ? undefined : Number(totalTaxIncluded || 0)?.toFixed(currencyPrecision),
+    )
+
+    if (canRefund) {
+      formikProps.setFieldValue('payBack.1.value', undefined)
     }
 
     setPayBackValidation(
-      array().of(
-        object().shape({
-          type: string().required(''),
-          value: number()
-            .required('')
-            .when('type', ([type]) => {
-              return type === CreditTypeEnum.refund
-                ? number().max(maxRefundableAmount, PayBackErrorEnum.maxRefund)
-                : number().max(maxCreditableAmount, PayBackErrorEnum.maxRefund)
-            }),
-        }),
-      ),
-    )
-    formikProps.setTouched({
-      payBack: true,
-    })
+      array()
+        .of(
+          object().shape({
+            type: string().required(''),
+            value: number(),
+          }),
+        )
+        .test({
+          test: (payback, { createError }) => {
+            if (canRefund) {
+              const credit = payback?.[0]?.value ?? 0
+              const refund = payback?.[1]?.value ?? 0
+              const errors: ValidationError[] = []
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [totalTaxIncluded, canOnlyCredit])
+              // Check if the sum of credit and refund is different than the total tax included
+              if (credit + refund !== totalTaxIncluded) {
+                errors.push(
+                  createError({
+                    message: PayBackErrorEnum.maxTotalInvoice,
+                    path: 'payBackErrors',
+                  }),
+                )
+              }
+              // Check if refund is greater than the max refundable amount
+              if (refund > maxRefundableAmount) {
+                errors.push(
+                  createError({
+                    message: PayBackErrorEnum.maxRefund,
+                    path: 'payBack.1.value',
+                  }),
+                )
+              }
+              // Check if credit is greater than the max creditable amount
+              if (credit > maxCreditableAmount) {
+                errors.push(
+                  createError({
+                    message: PayBackErrorEnum.maxCredit,
+                    path: 'payBack.0.value',
+                  }),
+                )
+              }
+
+              return errors.length ? new ValidationError(errors) : true
+            }
+
+            return true
+          },
+        }),
+    )
+
+    formikProps.setTouched({ payBack: true })
+  }, [totalTaxIncluded])
 
   if (!invoice) return null
 
-  const hasCouponLine = Number(invoice?.couponsAmountCents || 0) > 0 && !isLegacyInvoice
-
   return (
-    <div>
+    <div className="flex flex-col gap-6">
       <div className="ml-auto flex w-full max-w-100 flex-col gap-3">
         {hasCouponLine && (
           <CreditNoteEstimationLine
@@ -326,25 +361,58 @@ export const CreditNoteFormCalculation = ({
       </div>
 
       {canRefund && (
-        <CreditNoteActions
-          invoice={invoice}
-          formikProps={formikProps}
-          hasCreditOrCoupon={hasCreditOrCoupon}
-          maxRefundableAmount={maxRefundableAmount}
-          totalTaxIncluded={totalTaxIncluded}
-          currency={currency}
-          estimationLoading={estimationLoading}
-          hasError={hasError}
-        />
+        <div className="flex flex-col gap-4">
+          <CreditNoteActionsLine
+            formikProps={formikProps}
+            name="payBack.0.value"
+            currency={currency}
+            label={translate('text_637d0e720ace4ea09aaf0630')}
+            hasError={
+              !!getIn(formikProps.errors, 'payBack.0.value') ||
+              !!getIn(formikProps.errors, 'payBackErrors')
+            }
+            error={
+              getIn(formikProps.errors, 'payBack.0.value') === PayBackErrorEnum.maxCredit
+                ? translate('text_1738751394771xq525lyxj9k', {
+                    max: intlFormatNumber(maxCreditableAmount, { currency }),
+                  })
+                : undefined
+            }
+          />
+          <CreditNoteActionsLine
+            formikProps={formikProps}
+            name="payBack.1.value"
+            currency={currency}
+            label={translate('text_637d10c83077eff6e8c79cd0', {
+              max: intlFormatNumber(maxRefundableAmount, { currency }),
+            })}
+            hasError={
+              !!getIn(formikProps.errors, 'payBack.1.value') ||
+              !!getIn(formikProps.errors, 'payBackErrors')
+            }
+            error={
+              getIn(formikProps.errors, 'payBack.1.value') === PayBackErrorEnum.maxRefund
+                ? translate('text_637e23e47a15bf0bd71e0d03', {
+                    max: intlFormatNumber(maxRefundableAmount, { currency }),
+                  })
+                : undefined
+            }
+          />
+        </div>
       )}
 
-      {_get(formikProps.errors, 'payBack.0.value') === LagoApiError.DoesNotMatchItemAmounts && (
-        <Alert className="mt-6" type="danger">
-          {translate('text_637e334680481f653e8caa9d', {
-            total: intlFormatNumber(totalTaxIncluded || 0, {
-              currency,
-            }),
-          })}
+      {getIn(formikProps.errors, 'payBackErrors') && (
+        <Alert type="danger">
+          <Typography
+            color="textSecondary"
+            {...((getIn(formikProps.errors, 'payBackErrors') === PayBackErrorEnum.maxTotalInvoice ||
+              getIn(formikProps.errors, 'payBack.0.value') ===
+                LagoApiError.DoesNotMatchItemAmounts) && {
+              html: translate('text_637e334680481f653e8caa9d', {
+                total: intlFormatNumber(totalTaxIncluded || 0, { currency }),
+              }),
+            })}
+          />
         </Alert>
       )}
     </div>

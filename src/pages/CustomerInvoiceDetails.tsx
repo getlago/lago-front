@@ -31,13 +31,19 @@ import {
   FinalizeInvoiceDialog,
   FinalizeInvoiceDialogRef,
 } from '~/components/invoices/FinalizeInvoiceDialog'
+import { InvoiceCreditNoteList } from '~/components/invoices/InvoiceCreditNoteList'
+import { InvoicePaymentList } from '~/components/invoices/InvoicePaymentList'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, LagoGQLError } from '~/core/apolloClient'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
-import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import {
+  CustomerDetailsTabsOptions,
+  CustomerInvoiceDetailsTabsOptionsEnum,
+} from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
+  CREATE_INVOICE_PAYMENT_ROUTE,
   CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
   CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
@@ -51,7 +57,6 @@ import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
   AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc,
   CurrencyEnum,
-  CustomerMetadatasForInvoiceOverviewFragmentDoc,
   ErrorCodesEnum,
   HubspotIntegration,
   HubspotIntegrationInfosForInvoiceOverviewFragmentDoc,
@@ -63,8 +68,6 @@ import {
   InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForInvoiceInfosFragmentDoc,
   InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
-  InvoiceMetadatasForInvoiceOverviewFragmentDoc,
-  InvoiceMetadatasForMetadataDrawerFragmentDoc,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   InvoiceTaxStatusTypeEnum,
@@ -87,8 +90,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
-import { CustomerDetailsTabsOptions } from '~/pages/CustomerDetails'
-import InvoiceCreditNoteList from '~/pages/InvoiceCreditNoteList'
 import InvoiceOverview from '~/pages/InvoiceOverview'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader, theme } from '~/styles'
@@ -119,7 +120,6 @@ gql`
     customer {
       name
       displayName
-      ...CustomerMetadatasForInvoiceOverview
       netsuiteCustomer {
         id
         integrationId
@@ -144,8 +144,6 @@ gql`
     ...InvoiceForInvoiceInfos
     ...InvoiceForFinalizeInvoice
     ...InvoiceForUpdateInvoicePaymentStatus
-    ...InvoiceMetadatasForInvoiceOverview
-    ...InvoiceMetadatasForMetadataDrawer
   }
 
   query getInvoiceDetails($id: ID!) {
@@ -230,9 +228,6 @@ gql`
   ${AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc}
   ${InvoiceForFinalizeInvoiceFragmentDoc}
   ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
-  ${CustomerMetadatasForInvoiceOverviewFragmentDoc}
-  ${InvoiceMetadatasForInvoiceOverviewFragmentDoc}
-  ${InvoiceMetadatasForMetadataDrawerFragmentDoc}
   ${NetsuiteIntegrationInfosForInvoiceOverviewFragmentDoc}
   ${HubspotIntegrationInfosForInvoiceOverviewFragmentDoc}
   ${SalesforceIntegrationInfosForInvoiceOverviewFragmentDoc}
@@ -280,6 +275,7 @@ const CustomerInvoiceDetails = () => {
   const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
   const disputeInvoiceDialogRef = useRef<DisputeInvoiceDialogRef>(null)
+
   const [refreshInvoice, { loading: loadingRefreshInvoice }] = useRefreshInvoiceMutation({
     variables: { input: { id: invoiceId || '' } },
     context: {
@@ -428,6 +424,8 @@ const CustomerInvoiceDetails = () => {
     number,
     paymentStatus,
     totalAmountCents,
+    totalPaidAmountCents,
+    totalDueAmountCents,
     currency,
     status,
     taxStatus,
@@ -438,6 +436,13 @@ const CustomerInvoiceDetails = () => {
     taxProviderVoidable,
     associatedActiveWalletPresent,
   } = (data?.invoice as AllInvoiceDetailsForCustomerInvoiceDetailsFragment) || {}
+
+  const isPartiallyPaid =
+    Number(totalPaidAmountCents) > 0 && Number(totalAmountCents) - Number(totalPaidAmountCents) > 0
+  const canRecordPayment =
+    Number(totalDueAmountCents) > 0 &&
+    hasPermissions(['paymentsCreate']) &&
+    Number(totalPaidAmountCents) < Number(totalAmountCents)
 
   const hasError = (!!error || !data?.invoice) && !loading
   const hasTaxProviderError = errorDetails?.find(
@@ -512,6 +517,24 @@ const CustomerInvoiceDetails = () => {
             loadingSyncHubspotIntegrationInvoice={loadingSyncHubspotIntegrationInvoice}
             loadingSyncSalesforceIntegrationInvoice={loadingSyncSalesforceIntegrationInvoice}
           />
+        ),
+      },
+      {
+        title: translate('text_6672ebb8b1b50be550eccbed'),
+        link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+          customerId: customerId as string,
+          invoiceId: invoiceId as string,
+          tab: CustomerInvoiceDetailsTabsOptionsEnum.payments,
+        }),
+        match: [
+          generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+            customerId: customerId as string,
+            invoiceId: invoiceId as string,
+            tab: CustomerInvoiceDetailsTabsOptionsEnum.payments,
+          }),
+        ],
+        component: (
+          <InvoicePaymentList invoiceTotalDueAmount={data?.invoice?.totalDueAmountCents} />
         ),
       },
     ]
@@ -669,6 +692,7 @@ const CustomerInvoiceDetails = () => {
                                   },
                                 }}
                                 title={
+                                  !isPartiallyPaid &&
                                   disabledIssueCreditNoteButtonLabel &&
                                   translate(disabledIssueCreditNoteButtonLabel)
                                 }
@@ -704,6 +728,27 @@ const CustomerInvoiceDetails = () => {
                         )}
                     </>
                   ) : null}
+                  {canRecordPayment && (
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      endIcon={isPremium ? undefined : 'sparkles'}
+                      onClick={() => {
+                        if (isPremium) {
+                          navigate(
+                            generatePath(CREATE_INVOICE_PAYMENT_ROUTE, {
+                              invoiceId: invoiceId as string,
+                            }),
+                          )
+                        } else {
+                          premiumWarningDialogRef.current?.openDialog()
+                        }
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_1737471851634wpeojigr27w')}
+                    </Button>
+                  )}
                   <Button
                     variant="quaternary"
                     align="left"
@@ -747,9 +792,7 @@ const CustomerInvoiceDetails = () => {
                             closePopper()
                           }}
                         >
-                          {!!data?.invoice?.metadata?.length
-                            ? translate('text_6405cac5c833dcf18cacff36')
-                            : translate('text_6405cac5c833dcf18cacff40')}
+                          {translate('text_1739289860782ljvy21lcake')}
                         </Button>
                       </>
                     )}
@@ -806,11 +849,10 @@ const CustomerInvoiceDetails = () => {
                     ].includes(paymentStatus) &&
                     hasPermissions(['invoicesVoid']) && (
                       <Tooltip
-                        title={translate(
-                          !!data?.invoice?.paymentDisputeLostAt
-                            ? 'text_66178d027e220e00dff9f67d'
-                            : 'text_65269c2e471133226211fdd0',
-                        )}
+                        title={!isPartiallyPaid && translate('text_65269c2e471133226211fdd0')}
+                        {...(!!data?.invoice?.paymentDisputeLostAt && {
+                          title: translate('text_66178d027e220e00dff9f67d'),
+                        })}
                         placement="bottom-end"
                         disableHoverListener={voidable}
                       >
@@ -947,7 +989,7 @@ const CustomerInvoiceDetails = () => {
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
       <DisputeInvoiceDialog ref={disputeInvoiceDialogRef} />
       {!!data?.invoice && (
-        <AddMetadataDrawer ref={addMetadataDrawerDialogRef} invoice={data.invoice} />
+        <AddMetadataDrawer ref={addMetadataDrawerDialogRef} invoiceId={data.invoice.id} />
       )}
     </>
   )

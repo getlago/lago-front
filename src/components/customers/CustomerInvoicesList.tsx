@@ -3,7 +3,15 @@ import { FC, useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
-import { Chip, InfiniteScroll, Status, Table, Tooltip, Typography } from '~/components/designSystem'
+import {
+  IconName,
+  InfiniteScroll,
+  Status,
+  StatusType,
+  Table,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
 import {
   UpdateInvoicePaymentStatusDialog,
   UpdateInvoicePaymentStatusDialogRef,
@@ -15,10 +23,11 @@ import {
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
+import { paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
+  CREATE_INVOICE_PAYMENT_ROUTE,
   CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
 } from '~/core/router'
@@ -53,6 +62,8 @@ gql`
     number
     issuingDate
     totalAmountCents
+    totalDueAmountCents
+    totalPaidAmountCents
     currency
     voidable
     paymentDisputeLostAt
@@ -133,6 +144,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
+
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
 
   const [retryCollect] = useRetryInvoicePaymentMutation({
@@ -195,29 +207,67 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
             },
           }}
           columns={[
-            {
-              key: 'status',
-              minWidth: 80,
-              title: translate('text_63ac86d797f728a87b2f9fa7'),
-              content: ({ status, errorDetails, taxProviderVoidable }) => {
-                const showWarningIcon =
-                  (!!errorDetails?.length && status !== InvoiceStatusTypeEnum.Failed) ||
-                  taxProviderVoidable
+            context === 'finalized'
+              ? {
+                  key: 'paymentStatus',
+                  minWidth: 120,
+                  title: translate('text_63b5d225b075850e0fe489f4'),
+                  content: ({
+                    status,
+                    paymentOverdue,
+                    paymentStatus,
+                    paymentDisputeLostAt,
+                    totalAmountCents,
+                    totalPaidAmountCents,
+                  }) => {
+                    if (status !== InvoiceStatusTypeEnum.Finalized) {
+                      return null
+                    }
 
-                return (
-                  <Tooltip
-                    placement="top-start"
-                    disableHoverListener={!showWarningIcon}
-                    title={translate('text_1724674592260h33v56rycaw')}
-                  >
-                    <Status
-                      {...invoiceStatusMapping({ status })}
-                      endIcon={showWarningIcon ? 'warning-unfilled' : undefined}
-                    />
-                  </Tooltip>
-                )
-              },
-            },
+                    let content: { tooltipTitle?: string; statusEndIcon?: IconName } = {
+                      tooltipTitle: undefined,
+                      statusEndIcon: undefined,
+                    }
+
+                    const isOverdue =
+                      paymentOverdue && paymentStatus === InvoicePaymentStatusTypeEnum.Pending
+                    const isPartiallyPaid =
+                      Number(totalPaidAmountCents) > 0 &&
+                      Number(totalAmountCents) - Number(totalPaidAmountCents) > 0
+
+                    if (isPartiallyPaid) {
+                      content = {
+                        tooltipTitle: translate('text_1738071221799vib0l2z1bxe'),
+                        statusEndIcon: 'partially-filled',
+                      }
+                    } else if (!!paymentDisputeLostAt) {
+                      content = {
+                        tooltipTitle: translate('text_172416478461328edo4vwz05'),
+                        statusEndIcon: 'warning-unfilled',
+                      }
+                    }
+
+                    return (
+                      <Tooltip placement="top" title={content.tooltipTitle}>
+                        <Status
+                          {...(isOverdue
+                            ? {
+                                type: StatusType.danger,
+                                label: 'overdue',
+                              }
+                            : paymentStatusMapping({
+                                status,
+                                paymentStatus,
+                                totalPaidAmountCents,
+                                totalAmountCents,
+                              }))}
+                          endIcon={content.statusEndIcon}
+                        />
+                      </Tooltip>
+                    )
+                  },
+                }
+              : null,
             {
               key: 'number',
               minWidth: 160,
@@ -247,47 +297,6 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 )
               },
             },
-            context === 'finalized'
-              ? {
-                  key: 'paymentStatus',
-                  minWidth: 120,
-                  title: translate('text_63b5d225b075850e0fe489f4'),
-                  content: ({ status, paymentStatus, paymentDisputeLostAt }) => {
-                    if (status !== InvoiceStatusTypeEnum.Finalized) {
-                      return null
-                    }
-
-                    return (
-                      <Tooltip
-                        placement="top"
-                        title={
-                          !!paymentDisputeLostAt
-                            ? translate('text_172416478461328edo4vwz05')
-                            : undefined
-                        }
-                      >
-                        <Status
-                          {...paymentStatusMapping({
-                            status,
-                            paymentStatus,
-                          })}
-                          endIcon={!!paymentDisputeLostAt ? 'warning-unfilled' : undefined}
-                        />
-                      </Tooltip>
-                    )
-                  },
-                }
-              : null,
-            context === 'finalized'
-              ? {
-                  key: 'paymentOverdue',
-                  title: translate('text_666c5b12fea4aa1e1b26bf55'),
-                  content: ({ paymentOverdue }) =>
-                    paymentOverdue && (
-                      <Chip error={true} label={translate('text_666c5b12fea4aa1e1b26bf55')} />
-                    ),
-                }
-              : null,
             {
               key: 'issuingDate',
               minWidth: 104,
@@ -313,7 +322,15 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
             },
           ]}
           actionColumn={(invoice) => {
-            const { status, paymentStatus, voidable, taxStatus } = invoice
+            const {
+              status,
+              paymentStatus,
+              voidable,
+              taxStatus,
+              totalPaidAmountCents,
+              totalDueAmountCents,
+              totalAmountCents,
+            } = invoice
 
             const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
               createCreditNoteForInvoiceButtonProps({
@@ -359,6 +376,13 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
             const canIssueCreditNote =
               ![InvoiceStatusTypeEnum.Draft, InvoiceStatusTypeEnum.Voided].includes(status) &&
               hasPermissions(['creditNotesCreate'])
+            const canRecordPayment =
+              Number(totalDueAmountCents) > 0 &&
+              hasPermissions(['paymentsCreate']) &&
+              Number(totalPaidAmountCents) < Number(totalAmountCents)
+            const isPartiallyPaid =
+              Number(totalPaidAmountCents) > 0 &&
+              Number(totalAmountCents) - Number(totalPaidAmountCents) > 0
 
             return [
               canDownload
@@ -389,6 +413,22 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                   })
                 },
               },
+
+              canRecordPayment
+                ? {
+                    startIcon: 'receipt',
+                    title: translate('text_1737471851634wpeojigr27w'),
+
+                    endIcon: isPremium ? undefined : 'sparkles',
+                    onAction: ({ id }) => {
+                      if (isPremium) {
+                        navigate(generatePath(CREATE_INVOICE_PAYMENT_ROUTE, { invoiceId: id }))
+                      } else {
+                        premiumWarningDialogRef.current?.openDialog()
+                      }
+                    },
+                  }
+                : null,
 
               canRetryCollect
                 ? {
@@ -444,9 +484,10 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                         }),
                       )
                     },
-                    tooltip: disabledIssueCreditNoteButtonLabel
-                      ? translate(disabledIssueCreditNoteButtonLabel)
-                      : undefined,
+                    tooltip:
+                      !isPartiallyPaid && disabledIssueCreditNoteButtonLabel
+                        ? translate(disabledIssueCreditNoteButtonLabel)
+                        : undefined,
                   }
                 : null,
               canVoid
@@ -456,9 +497,10 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                     disabled: !voidable,
                     onAction: (item) =>
                       voidInvoiceDialogRef?.current?.openDialog({ invoice: item }),
-                    ...(!voidable && {
-                      tooltip: translate('text_65269c2e471133226211fdd0'),
-                    }),
+                    ...(!voidable &&
+                      !isPartiallyPaid && {
+                        tooltip: translate('text_65269c2e471133226211fdd0'),
+                      }),
                   }
                 : null,
             ]

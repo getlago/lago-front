@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import { array, object, string } from 'yup'
+import { array, object, Schema, string } from 'yup'
 
 import { CreditNoteCodeSnippet } from '~/components/creditNote/CreditNoteCodeSnippet'
 import { CreditNoteEstimationLine } from '~/components/creditNote/CreditNoteEstimationLine'
@@ -18,13 +18,13 @@ import {
   Icon,
   Skeleton,
   Status,
-  StatusProps,
   StatusType,
   Typography,
 } from '~/components/designSystem'
 import { ComboBoxField, TextInputField } from '~/components/form'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { hasDefinedGQLError } from '~/core/apolloClient'
+import { paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
@@ -38,7 +38,6 @@ import {
   CreditNoteReasonEnum,
   CurrencyEnum,
   InvoiceForCreditNoteFormCalculationFragmentDoc,
-  InvoicePaymentStatusTypeEnum,
   InvoiceTypeEnum,
   LagoApiError,
 } from '~/generated/graphql'
@@ -52,13 +51,17 @@ gql`
     id
     currency
     number
+    status
     paymentStatus
     creditableAmountCents
     refundableAmountCents
     subTotalIncludingTaxesAmountCents
     availableToCreditAmountCents
+    totalPaidAmountCents
+    totalAmountCents
     paymentDisputeLostAt
     invoiceType
+    ...InvoiceForCreditNoteFormCalculation
     ...InvoiceForCreditNoteFormCalculation
   }
 
@@ -92,26 +95,6 @@ export const CREDIT_NOTE_REASONS: { reason: CreditNoteReasonEnum; label: string 
   },
 ]
 
-const mapStatus = (type?: InvoicePaymentStatusTypeEnum | undefined): StatusProps => {
-  switch (type) {
-    case InvoicePaymentStatusTypeEnum.Succeeded:
-      return {
-        type: StatusType.success,
-        label: 'succeeded',
-      }
-    case InvoicePaymentStatusTypeEnum.Pending:
-      return {
-        type: StatusType.default,
-        label: 'pending',
-      }
-    default:
-      return {
-        type: StatusType.warning,
-        label: 'failed',
-      }
-  }
-}
-
 const CreateCreditNote = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
@@ -120,6 +103,9 @@ const CreateCreditNote = () => {
   const { loading, invoice, feesPerInvoice, feeForAddOn, feeForCredit, onCreate } =
     useCreateCreditNote()
   const currency = invoice?.currency || CurrencyEnum.Usd
+
+  const hasNoPayment = Number(invoice?.totalPaidAmountCents) === 0
+  const canOnlyCredit = hasNoPayment || !!invoice?.paymentDisputeLostAt
 
   const addOnFeesValidation = useMemo(
     () => generateAddOnFeesSchema(feeForAddOn || [], currency),
@@ -136,9 +122,8 @@ const CreateCreditNote = () => {
     [feeForCredit, currency],
   )
 
-  const [payBackValidation, setPayBackValidation] = useState(array())
+  const [payBackValidation, setPayBackValidation] = useState<Schema>(array())
 
-  const statusMap = mapStatus(invoice?.paymentStatus)
   const formikProps = useFormik<Partial<CreditNoteForm>>({
     initialValues: {
       description: undefined,
@@ -146,7 +131,12 @@ const CreateCreditNote = () => {
       fees: feesPerInvoice,
       addOnFee: feeForAddOn,
       creditFee: feeForCredit,
-      payBack: [{ type: undefined, value: undefined }],
+      payBack: canOnlyCredit
+        ? [{ type: CreditTypeEnum.credit, value: undefined }]
+        : [
+            { type: CreditTypeEnum.credit, value: undefined },
+            { type: CreditTypeEnum.refund, value: undefined },
+          ],
       creditAmount: undefined,
       refundAmount: undefined,
     },
@@ -188,6 +178,9 @@ const CreateCreditNote = () => {
   )
 
   const isPrepaidCreditsInvoice = invoice?.invoiceType === InvoiceTypeEnum.Credit
+  const isPartiallyPaid =
+    Number(invoice?.totalPaidAmountCents) > 0 &&
+    Number(invoice?.totalAmountCents) - Number(invoice?.totalPaidAmountCents) > 0
 
   const creditFeeValue = formikProps.values.creditFee?.[0]?.value
 
@@ -268,11 +261,11 @@ const CreateCreditNote = () => {
                       <Icon name="document" />
                     </Avatar>
 
-                    <div>
+                    <div className="flex-1">
                       <Typography variant="caption">
                         {translate('text_636bedf292786b19d3398ec8')}
                       </Typography>
-                      <Typography variant="bodyHl" color="grey700">
+                      <Typography variant="bodyHl" color="grey700" className="inline-block">
                         {translate('text_636bedf292786b19d3398eca', {
                           invoiceNumber: invoice?.number,
                           subtotal: intlFormatNumber(
@@ -286,13 +279,38 @@ const CreateCreditNote = () => {
                           ),
                         })}
                       </Typography>
+                      {isPartiallyPaid && (
+                        <Typography
+                          variant="bodyHl"
+                          color="grey700"
+                          component="span"
+                          className="ml-1"
+                        >
+                          {translate('text_1738147471201z79f2wsgfic', {
+                            paidAmount: intlFormatNumber(
+                              deserializeAmount(invoice?.totalPaidAmountCents || 0, currency),
+                              {
+                                currency,
+                              },
+                            ),
+                          })}
+                        </Typography>
+                      )}
                     </div>
                   </div>
-                  {!!invoice?.paymentDisputeLostAt ? (
-                    <Status type={StatusType.danger} label="disputeLost" />
-                  ) : (
-                    <Status {...statusMap} />
-                  )}
+                  <div className="ml-auto">
+                    {!!invoice?.paymentDisputeLostAt ? (
+                      <Status type={StatusType.danger} label="disputeLost" />
+                    ) : (
+                      <Status
+                        {...paymentStatusMapping({
+                          status: invoice?.status,
+                          paymentStatus: invoice?.paymentStatus,
+                        })}
+                        endIcon={isPartiallyPaid ? 'partially-filled' : undefined}
+                      />
+                    )}
+                  </div>
                 </Card>
 
                 <Card>

@@ -1,24 +1,32 @@
 import { InputAdornment } from '@mui/material'
+import { FormikProps } from 'formik'
 import { FC } from 'react'
 
+import { CreditNoteForm } from '~/components/creditNote/types'
 import { Typography } from '~/components/designSystem'
-import { AmountInput } from '~/components/form'
+import { AmountInputField } from '~/components/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
 
 interface CreditNoteActionsLineProps {
   label: string
+  formikProps: FormikProps<Partial<CreditNoteForm>>
   currency: CurrencyEnum
-  inputName: string
+  name: string
   error?: string
+  hasError?: boolean
 }
 
 export const CreditNoteActionsLine: FC<CreditNoteActionsLineProps> = ({
   label,
+  formikProps,
   currency,
-  inputName,
+  name,
+  hasError,
   error,
 }) => {
+  const currencySymbol = getCurrencySymbol(currency)
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -26,29 +34,22 @@ export const CreditNoteActionsLine: FC<CreditNoteActionsLineProps> = ({
           {label}
         </Typography>
 
-        <AmountInput
-          className="max-w-42"
-          error={!!error}
-          inputProps={{
-            style: {
-              textAlign: 'right',
-            },
-          }}
-          name={inputName}
+        <AmountInputField
+          name={name}
+          formikProps={formikProps}
           currency={currency}
+          className="max-w-42"
           beforeChangeFormatter={['positiveNumber']}
+          error={!!error || hasError}
+          inputProps={{ style: { textAlign: 'right' } }}
           InputProps={
-            currency
-              ? {
-                  startAdornment: (
-                    <InputAdornment position="start">{getCurrencySymbol(currency)}</InputAdornment>
-                  ),
-                }
-              : {}
+            currency && {
+              startAdornment: <InputAdornment position="start">{currencySymbol}</InputAdornment>,
+            }
           }
         />
       </div>
-      {error && (
+      {(!!error || hasError) && (
         <Typography variant="caption" color="danger600" className="mt-1 text-right">
           {error}
         </Typography>

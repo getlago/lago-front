@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useMemo, useRef } from 'react'
-import { generatePath, useParams, useSearchParams } from 'react-router-dom'
+import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
 import { Button, NavigationTab, Typography } from '~/components/designSystem'
@@ -19,10 +19,13 @@ import {
   FinalizeInvoiceDialogRef,
 } from '~/components/invoices/FinalizeInvoiceDialog'
 import InvoicesList from '~/components/invoices/InvoicesList'
+import { PaymentsList } from '~/components/invoices/PaymentsList'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { INVOICES_ROUTE, INVOICES_TAB_ROUTE } from '~/core/router'
+import { InvoiceListTabEnum } from '~/core/constants/tabsOptions'
+import { CREATE_PAYMENT_ROUTE, INVOICES_ROUTE, INVOICES_TAB_ROUTE } from '~/core/router'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CreditNoteExportTypeEnum,
@@ -32,13 +35,16 @@ import {
   InvoiceExportTypeEnum,
   InvoiceListItemFragmentDoc,
   LagoApiError,
+  PaymentForPaymentsListFragmentDoc,
   useCreateCreditNotesDataExportMutation,
   useCreateInvoicesDataExportMutation,
   useGetCreditNotesListLazyQuery,
   useGetInvoicesListLazyQuery,
+  useGetPaymentListLazyQuery,
   useRetryAllInvoicePaymentsMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -53,6 +59,7 @@ gql`
     $issuingDateTo: ISO8601Date
     $limit: Int
     $page: Int
+    $partiallyPaid: Boolean
     $paymentDisputeLost: Boolean
     $paymentOverdue: Boolean
     $paymentStatus: [InvoicePaymentStatusTypeEnum!]
@@ -70,6 +77,7 @@ gql`
       issuingDateTo: $issuingDateTo
       limit: $limit
       page: $page
+      partiallyPaid: $partiallyPaid
       paymentDisputeLost: $paymentDisputeLost
       paymentOverdue: $paymentOverdue
       paymentStatus: $paymentStatus
@@ -87,6 +95,24 @@ gql`
       collection {
         id
         ...InvoiceListItem
+      }
+    }
+  }
+
+  query getPaymentList($invoiceId: ID, $externalCustomerId: ID, $limit: Int, $page: Int) {
+    payments(
+      invoiceId: $invoiceId
+      externalCustomerId: $externalCustomerId
+      limit: $limit
+      page: $page
+    ) {
+      metadata {
+        currentPage
+        totalPages
+        totalCount
+      }
+      collection {
+        ...PaymentForPaymentsList
       }
     }
   }
@@ -150,12 +176,8 @@ gql`
   ${InvoiceListItemFragmentDoc}
   ${CreditNoteTableItemFragmentDoc}
   ${CreditNotesForTableFragmentDoc}
+  ${PaymentForPaymentsListFragmentDoc}
 `
-
-enum InvoiceListTabEnum {
-  'invoices' = 'invoices',
-  'creditNotes' = 'creditNotes',
-}
 
 // TODO: This is a temporary workaround
 const formatAmountCurrency = (
@@ -187,9 +209,13 @@ const InvoicesPage = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { organization } = useOrganizationInfos()
+  const navigate = useNavigate()
+  const { isPremium } = useCurrentUser()
+  const [searchParams] = useSearchParams()
   const amountCurrency = organization?.defaultCurrency
   const { tab = InvoiceListTabEnum.invoices } = useParams<{ tab?: InvoiceListTabEnum }>()
-  const [searchParams] = useSearchParams()
+
+  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
@@ -224,6 +250,24 @@ const InvoicesPage = () => {
   })
 
   const [
+    getPayments,
+    {
+      data: dataPayments,
+      loading: loadingPayments,
+      error: errorPayments,
+      fetchMore: fetchMorePayments,
+      variables: variablePayments,
+    },
+  ] = useGetPaymentListLazyQuery({
+    notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only',
+    variables: {
+      limit: 20,
+    },
+  })
+
+  const [
     getCreditNotes,
     {
       data: dataCreditNotes,
@@ -246,6 +290,8 @@ const InvoicesPage = () => {
     useDebouncedSearch(getInvoices, loadingInvoices)
   const { debouncedSearch: creditNoteDebounceSearch, isLoading: creditNoteIsLoading } =
     useDebouncedSearch(getCreditNotes, loadingCreditNotes)
+  const { debouncedSearch: paymentsDebounceSearch, isLoading: paymentsIsLoading } =
+    useDebouncedSearch(getPayments, loadingPayments)
 
   const [retryAll] = useRetryAllInvoicePaymentsMutation({
     context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },
@@ -328,7 +374,7 @@ const InvoicesPage = () => {
         </Typography>
 
         <PageHeader.Group>
-          {tab === InvoiceListTabEnum.invoices ? (
+          {tab === InvoiceListTabEnum.invoices && (
             <>
               <SearchInput
                 onChange={invoiceDebounceSearch}
@@ -342,7 +388,29 @@ const InvoicesPage = () => {
                 {translate('text_66b21236c939426d07ff98ca')}
               </Button>
             </>
-          ) : tab === InvoiceListTabEnum.creditNotes ? (
+          )}
+          {tab === InvoiceListTabEnum.payments && (
+            <>
+              <SearchInput
+                onChange={paymentsDebounceSearch}
+                placeholder={translate('text_17370296250897aidak5kjcg')}
+              />
+              <Button
+                variant="primary"
+                onClick={() => {
+                  if (isPremium) {
+                    navigate(CREATE_PAYMENT_ROUTE)
+                  } else {
+                    premiumWarningDialogRef.current?.openDialog()
+                  }
+                }}
+                endIcon={isPremium ? undefined : 'sparkles'}
+              >
+                {translate('text_1737471851634wpeojigr27w')}
+              </Button>
+            </>
+          )}
+          {tab === InvoiceListTabEnum.creditNotes && (
             <>
               <SearchInput
                 onChange={creditNoteDebounceSearch}
@@ -356,7 +424,7 @@ const InvoicesPage = () => {
                 {translate('text_66b21236c939426d07ff98ca')}
               </Button>
             </>
-          ) : null}
+          )}
 
           {isOutstandingUrlParams(searchParams) && hasPermissions(['invoicesSend']) && (
             <Button
@@ -402,6 +470,23 @@ const InvoicesPage = () => {
             hidden: !hasPermissions(['invoicesView']),
           },
           {
+            title: translate('text_6672ebb8b1b50be550eccbed'),
+            link: generatePath(INVOICES_TAB_ROUTE, {
+              tab: InvoiceListTabEnum.payments,
+            }),
+            match: [generatePath(INVOICES_TAB_ROUTE, { tab: InvoiceListTabEnum.payments })],
+            component: (
+              <PaymentsList
+                error={errorPayments}
+                fetchMore={fetchMorePayments}
+                payments={dataPayments?.payments?.collection}
+                isLoading={paymentsIsLoading}
+                metadata={dataPayments?.payments?.metadata}
+                variables={variablePayments}
+              />
+            ),
+          },
+          {
             title: translate('text_636bdef6565341dcb9cfb125'),
             link: generatePath(INVOICES_TAB_ROUTE, {
               tab: InvoiceListTabEnum.creditNotes,
@@ -424,6 +509,7 @@ const InvoicesPage = () => {
           },
         ]}
       />
+      <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />

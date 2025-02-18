@@ -54,4 +54,6 @@ export enum CreditNoteFeeErrorEnum {
 
 export enum PayBackErrorEnum {
   maxRefund = 'maxRefund',
+  maxCredit = 'maxCredit',
+  maxTotalInvoice = 'maxTotalInvoice',
 }

@@ -38,7 +38,7 @@ gql`
   fragment InvoicesForDunningEmail on Invoice {
     id
     number
-    totalAmountCents
+    totalDueAmountCents
     currency
   }
 `
@@ -159,17 +159,17 @@ export const DunningEmail: FC<DunningEmailProps> = ({
             ),
           },
           {
-            key: 'totalAmountCents',
+            key: 'totalDueAmountCents',
             textAlign: 'right',
             title: (
               <Typography className={captionStyle} noWrap>
-                {translate('text_6419c64eace749372fc72b3e')}
+                {translate('text_17374735502775afvcm9pqxk')}
               </Typography>
             ),
             content: (row) => (
               <Typography className={captionStyle} color="textSecondary" noWrap>
                 {intlFormatNumber(
-                  deserializeAmount(row.totalAmountCents, row.currency || currency),
+                  deserializeAmount(row.totalDueAmountCents, row.currency || currency),
                   {
                     currency: row.currency || currency,
                     locale: locale,

@@ -1,5 +1,6 @@
 import { FC } from 'react'
 
+import { Avatar, Icon, Typography } from '~/components/designSystem'
 import { ProviderTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Adyen from '~/public/images/adyen.svg'
@@ -8,10 +9,8 @@ import Gocardless from '~/public/images/gocardless.svg'
 import Stripe from '~/public/images/stripe.svg'
 import { tw } from '~/styles/utils'
 
-import { Avatar, Typography } from './designSystem'
-
 interface PaymentProviderChipProps {
-  paymentProvider: ProviderTypeEnum
+  paymentProvider?: ProviderTypeEnum | 'manual' | 'manual_long'
   className?: string
 }
 
@@ -40,13 +39,25 @@ export const PaymentProviderChip: FC<PaymentProviderChipProps> = ({
 }) => {
   const { translate } = useInternationalization()
 
+  if (paymentProvider === undefined) {
+    return null
+  }
+
+  const isManual = paymentProvider === 'manual' || paymentProvider === 'manual_long'
+  const manualLabel =
+    paymentProvider === 'manual' ? 'text_1737110192586abtitcui0xt' : 'text_173799550683709p2rqkoqd5'
+
   return (
     <div className={tw('flex flex-nowrap items-center gap-2', className)}>
       <Avatar variant="connector" size="small">
-        {providers[paymentProvider].icon}
+        {paymentProvider === 'manual' || paymentProvider === 'manual_long' ? (
+          <Icon name="receipt" color="dark" size="small" />
+        ) : (
+          providers[paymentProvider].icon
+        )}
       </Avatar>
-      <Typography variant="body" color="textSecondary">
-        {translate(providers[paymentProvider].label)}
+      <Typography variant="body" color="textSecondary" noWrap>
+        {isManual ? translate(manualLabel) : translate(providers[paymentProvider].label)}
       </Typography>
     </div>
   )
