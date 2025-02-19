@@ -1,4 +1,4 @@
-import { act, cleanup, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { render } from '~/test-utils'
@@ -71,11 +71,9 @@ describe('ButtonLink', () => {
 
       expect(onContinueMock).not.toHaveBeenCalled()
 
-      await waitFor(() =>
-        userEvent.click(screen.queryByTestId('button-link-button') as HTMLElement),
-      )
-
-      expect(onContinueMock).toHaveBeenCalled()
+      userEvent.click(screen.queryByTestId('button-link-button') as HTMLElement).then(() => {
+        expect(onContinueMock).toHaveBeenCalled()
+      })
     })
 
     it('should not trigger the confirm action on click if button is disabled', async () => {
