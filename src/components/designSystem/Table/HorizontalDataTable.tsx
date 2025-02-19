@@ -1,6 +1,7 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Dispatch, ReactNode, SetStateAction, useCallback, useEffect, useMemo, useRef } from 'react'
 
+import { Skeleton } from '~/components/designSystem/Skeleton'
 import { tw } from '~/styles/utils'
 
 import { Typography } from '../Typography'
@@ -34,11 +35,12 @@ type TRows<T> = {
 
 type HorizontalDataTableProps<T> = {
   rows: TRows<T>
-  data: T[]
   clickedDataIndex?: number | undefined
-  columnWidth?: number
-  leftColumnWidth?: number
   columnIdPrefix?: string
+  columnWidth?: number
+  data?: T[]
+  leftColumnWidth?: number
+  loading?: boolean
   setClickedDataIndex?: Dispatch<SetStateAction<number | undefined>>
 }
 
@@ -50,17 +52,18 @@ const getRowHeight = (rowType: RowType) => {
 
 export const HorizontalDataTable = <T extends DataItem>({
   clickedDataIndex,
-  setClickedDataIndex,
   columnIdPrefix = 'column-',
-  leftColumnWidth = DEFAULT_LEFT_COLUMN_WIDTH,
   columnWidth = DEFAULT_COLUMN_WIDTH,
-  data = [],
-  rows = [],
+  data,
+  leftColumnWidth = DEFAULT_LEFT_COLUMN_WIDTH,
+  loading,
+  rows,
+  setClickedDataIndex,
 }: HorizontalDataTableProps<T>) => {
   const parentRef = useRef(null)
 
   const columnVirtualizer = useVirtualizer({
-    count: data.length,
+    count: loading ? 12 : data?.length || 0,
     horizontal: true,
     paddingStart: leftColumnWidth,
     estimateSize: () => columnWidth,
@@ -73,11 +76,11 @@ export const HorizontalDataTable = <T extends DataItem>({
   )
 
   useEffect(() => {
-    // On init, scroll to the last element
-    columnVirtualizer.scrollToIndex(data.length - 1)
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    if (!loading && !!data?.length) {
+      // On init, scroll to the last element
+      columnVirtualizer.scrollToIndex((data?.length || 1) - 1)
+    }
+  }, [columnVirtualizer, data?.length, loading])
 
   useEffect(() => {
     if (typeof clickedDataIndex === 'number') {
@@ -107,15 +110,20 @@ export const HorizontalDataTable = <T extends DataItem>({
               })}
               style={{ height: getRowHeight(item.type) }}
             >
-              {typeof item.label === 'string' ? (
-                <Typography
-                  variant={item.type === 'header' ? 'captionHl' : 'bodyHl'}
-                  color={item.type === 'header' ? 'grey600' : 'grey700'}
-                >
-                  {item.label}
-                </Typography>
-              ) : (
-                <>{item.label}</>
+              {!!loading && <Skeleton className="w-5/6" variant="text" />}
+              {!loading && (
+                <>
+                  {typeof item.label === 'string' ? (
+                    <Typography
+                      variant={item.type === 'header' ? 'captionHl' : 'bodyHl'}
+                      color={item.type === 'header' ? 'grey600' : 'grey700'}
+                    >
+                      {item.label}
+                    </Typography>
+                  ) : (
+                    <>{item.label}</>
+                  )}
+                </>
               )}
             </div>
           ))}
@@ -128,11 +136,15 @@ export const HorizontalDataTable = <T extends DataItem>({
         style={{
           height: tableHeight,
         }}
-        onMouseEnter={() => {
-          if (typeof clickedDataIndex === 'number' && !!setClickedDataIndex) {
-            setClickedDataIndex(undefined)
-          }
-        }}
+        onMouseEnter={
+          !loading
+            ? () => {
+                if (typeof clickedDataIndex === 'number' && !!setClickedDataIndex) {
+                  setClickedDataIndex(undefined)
+                }
+              }
+            : undefined
+        }
       >
         <div
           className="relative h-full"
@@ -144,25 +156,29 @@ export const HorizontalDataTable = <T extends DataItem>({
             <div
               id={buildColumnId(virtualColumn.index)}
               key={`key-column-${virtualColumn.index}`}
-              className={tw('absolute hover:bg-grey-100 focus:bg-grey-100', {
+              className={tw('absolute', {
                 'bg-grey-100': virtualColumn.index === clickedDataIndex,
+                'hover:bg-grey-100 focus:bg-grey-100': !loading,
               })}
               style={{
                 width: `${virtualColumn.size}px`,
                 left: `${virtualColumn.start}px`,
               }}
             >
-              {rows.map((row, index) => (
-                <div
-                  key={`key-column-${virtualColumn.index}-item-${index}-row-${row.key}`}
-                  className={tw('flex items-center justify-end px-1 shadow-b', {
-                    'shadow-y': index === 0,
-                  })}
-                  style={{ height: getRowHeight(row.type) }}
-                >
-                  {row.content(data[virtualColumn.index])}
-                </div>
-              ))}
+              {rows.map((row, index) => {
+                return (
+                  <div
+                    key={`key-column-${virtualColumn.index}-item-${index}-row-${row.key}`}
+                    className={tw('flex items-center justify-end px-1 shadow-b', {
+                      'shadow-y': index === 0,
+                    })}
+                    style={{ height: getRowHeight(row.type) }}
+                  >
+                    {!!loading && <Skeleton className="w-5/6 justify-end" variant="text" />}
+                    {!!data?.length && !loading && row.content(data[virtualColumn.index])}
+                  </div>
+                )
+              })}
             </div>
           ))}
         </div>
