@@ -1,3 +1,6 @@
+import { DateTime } from 'luxon'
+
+import { intlFormatDateTime } from '~/core/timezone'
 import { InvoicePaymentStatusTypeEnum, InvoiceStatusTypeEnum } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
@@ -173,7 +176,9 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.issuingDate:
       return value
         .split(',')
-        .map((v) => new Date(v).toLocaleDateString('en'))
+        .map((v) => {
+          return intlFormatDateTime(v, { format: DateTime.DATE_SHORT }).date
+        })
         .join(' - ')
     default:
       return value
