@@ -1,5 +1,5 @@
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { ReactElement, useEffect, useRef } from 'react'
-import { VariableSizeList } from 'react-window'
 
 import { ITEM_HEIGHT } from '~/styles'
 import { tw } from '~/styles/utils'
@@ -9,24 +9,16 @@ import { MultipleComboBoxProps } from './types'
 export const MULTIPLE_GROUP_ITEM_KEY = 'multiple-comboBox-group-by'
 export const GROUP_HEADER_HEIGHT = 44
 
-function useResetCache(itemCount: number) {
-  const ref = useRef<VariableSizeList>(null)
-
-  useEffect(() => {
-    if (ref.current) {
-      ref.current.resetAfterIndex(0, true)
-    }
-  }, [itemCount])
-  return ref
-}
-
 type MultipleComboBoxVirtualizedListProps = {
   elements: ReactElement[]
 } & Pick<MultipleComboBoxProps, 'value'>
 
-export const MultipleComboBoxVirtualizedList = (props: MultipleComboBoxVirtualizedListProps) => {
-  const { elements, value } = props
+export const MultipleComboBoxVirtualizedList = ({
+  elements,
+  value,
+}: MultipleComboBoxVirtualizedListProps) => {
   const itemCount = elements?.length
+  const parentRef = useRef<HTMLDivElement>(null)
 
   const getHeight = () => {
     const hasAnyGroupHeader = elements.some((el) =>
@@ -42,48 +34,63 @@ export const MultipleComboBoxVirtualizedList = (props: MultipleComboBoxVirtualiz
     return itemCount * (ITEM_HEIGHT + 8) + 4 // Add 4px for margins
   }
 
-  // reset the `VariableSizeList` cache if data gets updated
-  const gridRef = useResetCache(itemCount)
+  const getItemHeight = (index: number) => {
+    const element = elements[index]
 
-  // when value gets updated, ensure we tell <VariableSizeList>
-  // to scroll to the selected option
-  useEffect(
-    () => {
-      if (gridRef && value && gridRef.current) {
-        const valueIndex = elements.findIndex(
-          (el) => el.props?.children?.props?.option?.value === value,
-        )
+    if ((element.key as string)?.includes(MULTIPLE_GROUP_ITEM_KEY)) {
+      return GROUP_HEADER_HEIGHT + (index === 0 ? 2 : 6)
+    }
 
-        if (valueIndex) {
-          gridRef.current?.scrollToItem(valueIndex, 'smart')
-        }
-      }
-    },
+    if (index === itemCount - 1) {
+      return ITEM_HEIGHT
+    }
+
+    return ITEM_HEIGHT + 8
+  }
+
+  const rowVirtualizer = useVirtualizer({
+    count: elements.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: getItemHeight,
+    overscan: 5,
+  })
+
+  useEffect(() => {
+    const index = elements.findIndex((el) => el.props?.children?.props?.option?.value === value)
+
+    if (index !== -1) {
+      rowVirtualizer.scrollToIndex(index, { align: 'start' })
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [value],
-  )
+  }, [value])
 
   return (
-    <VariableSizeList
-      className={tw({
-        'mb-1': itemCount > 1,
-      })}
-      itemData={elements}
-      height={getHeight()}
-      width="100%"
-      ref={gridRef}
-      innerElementType="div"
-      itemSize={(index) => {
-        return index === itemCount - 1
-          ? ITEM_HEIGHT
-          : ((elements[index].key as string) || '').includes(MULTIPLE_GROUP_ITEM_KEY)
-            ? GROUP_HEADER_HEIGHT + (index === 0 ? 2 : 6)
-            : ITEM_HEIGHT + 8
-      }}
-      overscanCount={5}
-      itemCount={itemCount}
+    <div
+      ref={parentRef}
+      className={tw({ 'mb-1': elements.length > 1 })}
+      style={{ height: getHeight(), width: '100%', overflow: 'auto' }}
     >
-      {({ style, index }) => <div style={style}>{elements[index]}</div>}
-    </VariableSizeList>
+      <div
+        className="relative w-full"
+        style={{
+          height: rowVirtualizer.getTotalSize(),
+        }}
+      >
+        {rowVirtualizer.getVirtualItems().map((virtualRow) => (
+          <div
+            key={virtualRow.key}
+            ref={rowVirtualizer.measureElement}
+            className="absolute left-0 top-0 w-full"
+            style={{
+              height: `${virtualRow.size}px`,
+              // Use the translate property for performance reasons
+              transform: `translateY(${virtualRow.start}px)`,
+            }}
+          >
+            {elements[virtualRow.index]}
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }
