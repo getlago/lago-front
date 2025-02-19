@@ -63,7 +63,7 @@ gql`
   }
 `
 
-const today = DateTime.now()
+const today = DateTime.now().toISO()
 
 const CreatePayment = () => {
   const { translate } = useInternationalization()
@@ -98,7 +98,6 @@ const CreatePayment = () => {
           input: {
             ...values,
             amountCents: serializeAmount(values.amountCents, currency),
-            createdAt: values.createdAt.toISO(),
           },
         },
       })
