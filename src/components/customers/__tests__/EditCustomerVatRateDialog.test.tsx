@@ -1,4 +1,4 @@
-import { act, cleanup, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { EditCustomerVatRateDialog } from '~/components/customers/EditCustomerVatRateDialog'
@@ -75,19 +75,19 @@ describe('EditCustomerVatRateDialog', () => {
   it('should propose to create a new tax if none exists and have permissions', async () => {
     await prepare()
 
-    await waitFor(() =>
-      userEvent.click(
+    userEvent
+      .click(
         screen
           .queryByTestId('edit-customer-vat-rate-dialog')
           ?.querySelector(
             `.${SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
           ) as HTMLElement,
-      ),
-    )
-
-    expect(screen.queryByTestId('combobox-item-Create a tax_rate')).toBeInTheDocument()
-    expect(
-      screen.queryByTestId('combobox-item-Create a tax_rate')?.querySelector(`a`),
-    ).toHaveAttribute('href', CREATE_TAX_ROUTE)
+      )
+      .then(() => {
+        expect(screen.queryByTestId('combobox-item-Create a tax_rate')).toBeInTheDocument()
+        expect(
+          screen.queryByTestId('combobox-item-Create a tax_rate')?.querySelector(`a`),
+        ).toHaveAttribute('href', CREATE_TAX_ROUTE)
+      })
   })
 })

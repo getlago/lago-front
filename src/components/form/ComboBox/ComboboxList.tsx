@@ -120,13 +120,7 @@ export const ComboboxList = forwardRef(
     }, [isGrouped, renderGroupHeader, children, propsToForward, virtualized])
 
     return (
-      <div
-        className={tw('relative max-h-[inherit] overflow-auto pb-0', {
-          'overflow-hidden': virtualized,
-        })}
-        ref={ref}
-        role="listbox"
-      >
+      <div className="relative max-h-[inherit] overflow-auto pb-0" ref={ref} role="listbox">
         {virtualized ? (
           <ComboBoxVirtualizedList value={value} elements={htmlItems as ReactElement[]} />
         ) : (
