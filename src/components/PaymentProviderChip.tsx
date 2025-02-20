@@ -11,6 +11,7 @@ import { tw } from '~/styles/utils'
 
 interface PaymentProviderChipProps {
   paymentProvider?: ProviderTypeEnum | 'manual' | 'manual_long'
+  label?: string
   className?: string
 }
 
@@ -35,6 +36,7 @@ const providers: Record<ProviderTypeEnum, { icon: JSX.Element; label: string }> 
 
 export const PaymentProviderChip: FC<PaymentProviderChipProps> = ({
   paymentProvider,
+  label,
   className,
 }) => {
   const { translate } = useInternationalization()
@@ -57,7 +59,7 @@ export const PaymentProviderChip: FC<PaymentProviderChipProps> = ({
         )}
       </Avatar>
       <Typography variant="body" color="textSecondary" noWrap>
-        {isManual ? translate(manualLabel) : translate(providers[paymentProvider].label)}
+        {isManual ? translate(manualLabel) : (label ?? translate(providers[paymentProvider].label))}
       </Typography>
     </div>
   )

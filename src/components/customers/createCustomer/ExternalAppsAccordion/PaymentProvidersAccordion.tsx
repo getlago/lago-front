@@ -105,6 +105,18 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
     return !unsupportedPaymentProviders.includes(formikProps.values.paymentProvider)
   }, [formikProps.values.paymentProvider])
 
+  const onSetPaymentMethod = (method: ProviderPaymentMethodsEnum, checked: boolean) => {
+    let newValue = [...(formikProps.values.providerCustomer?.providerPaymentMethods || [])]
+
+    if (checked) {
+      newValue.push(method)
+    } else {
+      newValue = newValue.filter((value) => value !== method)
+    }
+
+    formikProps.setFieldValue('providerCustomer.providerPaymentMethods', newValue)
+  }
+
   return (
     <div>
       <Typography variant="captionHl" color="grey700" className="mb-1">
@@ -279,20 +291,8 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
                         ProviderPaymentMethodsEnum.Card,
                       )
                     }
-                    onChange={(e, checked) => {
-                      let newValue = [
-                        ...(formikProps.values.providerCustomer?.providerPaymentMethods || []),
-                      ]
-
-                      if (checked) {
-                        newValue.push(ProviderPaymentMethodsEnum.Link)
-                      } else {
-                        newValue = newValue.filter(
-                          (method) => method !== ProviderPaymentMethodsEnum.Link,
-                        )
-                      }
-
-                      formikProps.setFieldValue('providerCustomer.providerPaymentMethods', newValue)
+                    onChange={(_e, checked) => {
+                      onSetPaymentMethod(ProviderPaymentMethodsEnum.Link, checked)
                     }}
                   />
                 </div>
@@ -318,20 +318,8 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
                         ProviderPaymentMethodsEnum.SepaDebit,
                       )
                     }
-                    onChange={(e, checked) => {
-                      let newValue = [
-                        ...(formikProps.values.providerCustomer?.providerPaymentMethods || []),
-                      ]
-
-                      if (checked) {
-                        newValue.push(ProviderPaymentMethodsEnum.SepaDebit)
-                      } else {
-                        newValue = newValue.filter(
-                          (method) => method !== ProviderPaymentMethodsEnum.SepaDebit,
-                        )
-                      }
-
-                      formikProps.setFieldValue('providerCustomer.providerPaymentMethods', newValue)
+                    onChange={(_e, checked) => {
+                      onSetPaymentMethod(ProviderPaymentMethodsEnum.SepaDebit, checked)
                     }}
                   />
 
@@ -350,22 +338,11 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
                         ProviderPaymentMethodsEnum.UsBankAccount,
                       )
                     }
-                    onChange={(e, checked) => {
-                      let newValue = [
-                        ...(formikProps.values.providerCustomer?.providerPaymentMethods || []),
-                      ]
-
-                      if (checked) {
-                        newValue.push(ProviderPaymentMethodsEnum.UsBankAccount)
-                      } else {
-                        newValue = newValue.filter(
-                          (method) => method !== ProviderPaymentMethodsEnum.UsBankAccount,
-                        )
-                      }
-
-                      formikProps.setFieldValue('providerCustomer.providerPaymentMethods', newValue)
+                    onChange={(_e, checked) => {
+                      onSetPaymentMethod(ProviderPaymentMethodsEnum.UsBankAccount, checked)
                     }}
                   />
+
                   <Checkbox
                     name="providerCustomer.providerPaymentMethods.bacs_debit"
                     value={
@@ -381,20 +358,8 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
                         ProviderPaymentMethodsEnum.BacsDebit,
                       )
                     }
-                    onChange={(e, checked) => {
-                      let newValue = [
-                        ...(formikProps.values.providerCustomer?.providerPaymentMethods || []),
-                      ]
-
-                      if (checked) {
-                        newValue.push(ProviderPaymentMethodsEnum.BacsDebit)
-                      } else {
-                        newValue = newValue.filter(
-                          (method) => method !== ProviderPaymentMethodsEnum.BacsDebit,
-                        )
-                      }
-
-                      formikProps.setFieldValue('providerCustomer.providerPaymentMethods', newValue)
+                    onChange={(_e, checked) => {
+                      onSetPaymentMethod(ProviderPaymentMethodsEnum.BacsDebit, checked)
                     }}
                   />
 
@@ -413,20 +378,28 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
                         ProviderPaymentMethodsEnum.Boleto,
                       )
                     }
-                    onChange={(e, checked) => {
-                      let newValue = [
-                        ...(formikProps.values.providerCustomer?.providerPaymentMethods || []),
-                      ]
+                    onChange={(_e, checked) => {
+                      onSetPaymentMethod(ProviderPaymentMethodsEnum.Boleto, checked)
+                    }}
+                  />
 
-                      if (checked) {
-                        newValue.push(ProviderPaymentMethodsEnum.Boleto)
-                      } else {
-                        newValue = newValue.filter(
-                          (method) => method !== ProviderPaymentMethodsEnum.Boleto,
-                        )
-                      }
-
-                      formikProps.setFieldValue('providerCustomer.providerPaymentMethods', newValue)
+                  <Checkbox
+                    name="providerCustomer.providerPaymentMethods.crypto"
+                    value={
+                      !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
+                        ProviderPaymentMethodsEnum.Crypto,
+                      )
+                    }
+                    label={translate('text_17394287699017cunbdlhnhf')}
+                    sublabel={translate('text_65e1f90471bc198c0c934d90')}
+                    disabled={
+                      formikProps.values.providerCustomer?.providerPaymentMethods?.length === 1 &&
+                      formikProps.values.providerCustomer?.providerPaymentMethods.includes(
+                        ProviderPaymentMethodsEnum.Crypto,
+                      )
+                    }
+                    onChange={(_e, checked) => {
+                      onSetPaymentMethod(ProviderPaymentMethodsEnum.Crypto, checked)
                     }}
                   />
                 </div>
