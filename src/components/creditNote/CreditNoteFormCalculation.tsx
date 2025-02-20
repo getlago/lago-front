@@ -218,7 +218,11 @@ export const CreditNoteFormCalculation = ({
               const errors: ValidationError[] = []
 
               // Check if the sum of credit and refund is different than the total tax included
-              if (credit + refund !== totalTaxIncluded) {
+              const sum = credit + refund
+              const sumPrecision = Number(sum.toFixed(currencyPrecision))
+              const totalPrecision = Number(totalTaxIncluded.toFixed(currencyPrecision))
+
+              if (sumPrecision !== totalPrecision) {
                 errors.push(
                   createError({
                     message: PayBackErrorEnum.maxTotalInvoice,
