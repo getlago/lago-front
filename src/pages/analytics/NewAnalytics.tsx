@@ -1,4 +1,4 @@
-import { generatePath, Outlet } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { NavigationTab, Typography } from '~/components/designSystem'
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
