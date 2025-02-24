@@ -62,12 +62,11 @@ type MultipleLineChartLine<T> =
   | MultipleLineChartLineHiddenFromGraph<T>
 
 type MultipleLineChartProps<T> = {
-  blur: boolean
+  blur?: boolean
   currency: CurrencyEnum
   data?: T[]
   lines: Array<MultipleLineChartLine<T>>
   xAxisDataKey: DotNestedKeys<T>
-  hasOnlyZeroValues?: boolean
   loading: boolean
   setClickedDataIndex?: Dispatch<SetStateAction<number | undefined>>
 }
@@ -145,7 +144,6 @@ const MultipleLineChart = <T extends DataItem>({
   blur,
   currency,
   data,
-  hasOnlyZeroValues,
   lines,
   loading,
   setClickedDataIndex,
@@ -157,7 +155,7 @@ const MultipleLineChart = <T extends DataItem>({
         localData: multipleLineChartLoadingFakeData,
         localLines: multipleLineChartLoadingFakeLines,
       }
-    } else if (blur) {
+    } else if (!!blur) {
       return {
         localData: multipleLineChartFakeData,
         localLines: multipleLineChartFakeLines,
@@ -170,12 +168,56 @@ const MultipleLineChart = <T extends DataItem>({
     }
   }, [blur, data, lines, loading])
 
-  const getYTooltipPosition = useMemo(() => {
+  const yTooltipPosition = useMemo(() => {
     const DEFAULT_TOOLTIP_Y_GAP = 60
     const TOOLTIP_INNER_LINE_HEIGHT = 31
 
     return -(DEFAULT_TOOLTIP_Y_GAP + (lines.length || 0) * TOOLTIP_INNER_LINE_HEIGHT)
   }, [lines.length])
+
+  const hasOnlyZeroValues = useMemo(() => {
+    if (!localData?.length) return false
+
+    return localData?.every((item) => {
+      return lines
+        .filter((line) => !line.hideOnGraph)
+        .every((line) => {
+          return item[line.dataKey] === 0
+        })
+    })
+  }, [localData, lines])
+
+  const yAxisDomain: [number, number] = useMemo(() => {
+    const domain: [number, number] = [0, 1]
+
+    if (hasOnlyZeroValues || !localData?.length) {
+      return domain
+    }
+
+    for (let i = 0; i <= localData?.length - 1 || 0; i++) {
+      const item = localData[i]
+
+      for (const line of lines) {
+        if (!!line.hideOnGraph) {
+          continue
+        }
+
+        const value = Number(item[line.dataKey])
+
+        if (isNaN(value)) {
+          continue
+        }
+
+        if (value < domain[0]) {
+          domain[0] = value
+        } else if (value > domain[1]) {
+          domain[1] = value
+        }
+      }
+    }
+
+    return domain
+  }, [hasOnlyZeroValues, lines, localData])
 
   return (
     <ChartWrapper className="rounded-xl bg-white" blur={blur}>
@@ -246,11 +288,12 @@ const MultipleLineChart = <T extends DataItem>({
             }}
           />
           <YAxis
+            allowDataOverflow
             axisLine={false}
             stroke={theme.palette.grey[600]}
             tickLine={false}
             interval={0}
-            domain={[0, 'dataMax + 10']}
+            domain={yAxisDomain}
             orientation="right"
             tick={(props: {
               x: number
@@ -300,17 +343,19 @@ const MultipleLineChart = <T extends DataItem>({
             }}
           />
 
-          {localLines?.map((line) => (
-            <Line
-              key={`multiple-line-chart-line-${line.dataKey}`}
-              type="linear"
-              hide={line.hideOnGraph}
-              dataKey={line.dataKey}
-              stroke={line.colorHex}
-              strokeWidth={2}
-              isAnimationActive={false}
-            />
-          ))}
+          {localLines?.map((line) => {
+            return (
+              <Line
+                key={`multiple-line-chart-line-${line.dataKey}`}
+                type="linear"
+                hide={line.hideOnGraph}
+                dataKey={line.dataKey}
+                stroke={line.colorHex}
+                strokeWidth={2}
+                isAnimationActive={false}
+              />
+            )
+          })}
           {!loading && (
             <RechartTooltip
               includeHidden={true}
@@ -319,7 +364,7 @@ const MultipleLineChart = <T extends DataItem>({
                 stroke: `${theme.palette.grey[500]}`,
                 strokeDasharray: '2 2',
               }}
-              position={{ y: getYTooltipPosition }}
+              position={{ y: yTooltipPosition }}
               content={({ active, payload, includeHidden }) => (
                 <div className="min-w-90 rounded-xl bg-grey-700 px-4 py-3">
                   {!!payload && (
