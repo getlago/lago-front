@@ -4601,6 +4601,7 @@ export enum ProviderPaymentMethodsEnum {
   Boleto = 'boleto',
   Card = 'card',
   Crypto = 'crypto',
+  CustomerBalance = 'customer_balance',
   Link = 'link',
   SepaDebit = 'sepa_debit',
   UsBankAccount = 'us_bank_account'

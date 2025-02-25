@@ -117,6 +117,10 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
     formikProps.setFieldValue('providerCustomer.providerPaymentMethods', newValue)
   }
 
+  const paymentMethods = formikProps.values.providerCustomer?.providerPaymentMethods || []
+  const isPaymentMethodUnique = paymentMethods.length === 1
+  const isBankTransferEnabled = paymentMethods.includes(ProviderPaymentMethodsEnum.CustomerBalance)
+
   return (
     <div>
       <Typography variant="captionHl" color="grey700" className="mb-1">
@@ -237,25 +241,16 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
                 <div className="grid grid-cols-2 gap-4">
                   <Checkbox
                     name="providerCustomer.providerPaymentMethods.card"
-                    value={
-                      !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
-                        ProviderPaymentMethodsEnum.Card,
-                      )
-                    }
+                    value={!!paymentMethods.includes(ProviderPaymentMethodsEnum.Card)}
                     label={translate('text_64aeb7b998c4322918c84208')}
                     sublabel={translate('text_65e1f90471bc198c0c934d86')}
                     disabled={
-                      (formikProps.values.providerCustomer?.providerPaymentMethods?.length === 1 &&
-                        formikProps.values.providerCustomer?.providerPaymentMethods.includes(
-                          ProviderPaymentMethodsEnum.Card,
-                        )) ||
-                      (formikProps.values.providerCustomer?.providerPaymentMethods?.length === 2 &&
-                        formikProps.values.providerCustomer?.providerPaymentMethods.includes(
-                          ProviderPaymentMethodsEnum.Card,
-                        ) &&
-                        formikProps.values.providerCustomer?.providerPaymentMethods.includes(
-                          ProviderPaymentMethodsEnum.Link,
-                        ))
+                      isBankTransferEnabled ||
+                      (paymentMethods.length === 1 &&
+                        paymentMethods.includes(ProviderPaymentMethodsEnum.Card)) ||
+                      (paymentMethods.length === 2 &&
+                        paymentMethods.includes(ProviderPaymentMethodsEnum.Card) &&
+                        paymentMethods.includes(ProviderPaymentMethodsEnum.Link))
                     }
                     onChange={(e, checked) => {
                       let newValue = [
@@ -276,23 +271,41 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
                       formikProps.setFieldValue('providerCustomer.providerPaymentMethods', newValue)
                     }}
                   />
-
+                  {/* Link can be enabled only if Card is enabled */}
                   <Checkbox
                     name="providerCustomer.providerPaymentMethods.link"
-                    value={
-                      !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
-                        ProviderPaymentMethodsEnum.Link,
-                      )
-                    }
+                    value={!!paymentMethods.includes(ProviderPaymentMethodsEnum.Link)}
                     label={translate('text_6686b316b672a6e75a29eea0')}
                     sublabel={translate('text_6686b316b672a6e75a29eea2')}
                     disabled={
-                      !(formikProps.values.providerCustomer?.providerPaymentMethods || []).includes(
-                        ProviderPaymentMethodsEnum.Card,
-                      )
+                      isBankTransferEnabled ||
+                      !paymentMethods.includes(ProviderPaymentMethodsEnum.Card)
                     }
                     onChange={(_e, checked) => {
                       onSetPaymentMethod(ProviderPaymentMethodsEnum.Link, checked)
+                    }}
+                  />
+
+                  <Checkbox
+                    name="providerCustomer.providerPaymentMethods.bank_transfers"
+                    value={!!paymentMethods.includes(ProviderPaymentMethodsEnum.CustomerBalance)}
+                    label={translate('text_1739432510045wh80q1wdt4z')}
+                    sublabel={translate('text_1739432510045brhda8fxidc')}
+                    // disabled={paymentMethods.includes(ProviderPaymentMethodsEnum.CustomerBalance)}
+                    onChange={(_e, checked) => {
+                      let newValue = [
+                        ...(formikProps.values.providerCustomer?.providerPaymentMethods || []),
+                      ]
+
+                      if (checked) {
+                        newValue = [ProviderPaymentMethodsEnum.CustomerBalance]
+                      } else {
+                        newValue = newValue.filter(
+                          (value) => value !== ProviderPaymentMethodsEnum.CustomerBalance,
+                        )
+                      }
+
+                      formikProps.setFieldValue('providerCustomer.providerPaymentMethods', newValue)
                     }}
                   />
                 </div>
@@ -305,18 +318,13 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
                 <div className="grid grid-cols-2 gap-4">
                   <Checkbox
                     name="providerCustomer.providerPaymentMethods.sepa_debit"
-                    value={
-                      !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
-                        ProviderPaymentMethodsEnum.SepaDebit,
-                      )
-                    }
+                    value={!!paymentMethods.includes(ProviderPaymentMethodsEnum.SepaDebit)}
                     label={translate('text_64aeb7b998c4322918c8420c')}
                     sublabel={translate('text_65e1f90471bc198c0c934d8c')}
                     disabled={
-                      formikProps.values.providerCustomer?.providerPaymentMethods?.length === 1 &&
-                      formikProps.values.providerCustomer?.providerPaymentMethods.includes(
-                        ProviderPaymentMethodsEnum.SepaDebit,
-                      )
+                      isBankTransferEnabled ||
+                      (isPaymentMethodUnique &&
+                        paymentMethods.includes(ProviderPaymentMethodsEnum.SepaDebit))
                     }
                     onChange={(_e, checked) => {
                       onSetPaymentMethod(ProviderPaymentMethodsEnum.SepaDebit, checked)
@@ -325,18 +333,13 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
 
                   <Checkbox
                     name="providerCustomer.providerPaymentMethods.us_bank_account"
-                    value={
-                      !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
-                        ProviderPaymentMethodsEnum.UsBankAccount,
-                      )
-                    }
+                    value={!!paymentMethods.includes(ProviderPaymentMethodsEnum.UsBankAccount)}
                     label={translate('text_65e1f90471bc198c0c934d8e')}
                     sublabel={translate('text_65e1f90471bc198c0c934d90')}
                     disabled={
-                      formikProps.values.providerCustomer?.providerPaymentMethods?.length === 1 &&
-                      formikProps.values.providerCustomer?.providerPaymentMethods.includes(
-                        ProviderPaymentMethodsEnum.UsBankAccount,
-                      )
+                      isBankTransferEnabled ||
+                      (isPaymentMethodUnique &&
+                        paymentMethods.includes(ProviderPaymentMethodsEnum.UsBankAccount))
                     }
                     onChange={(_e, checked) => {
                       onSetPaymentMethod(ProviderPaymentMethodsEnum.UsBankAccount, checked)
@@ -345,18 +348,13 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
 
                   <Checkbox
                     name="providerCustomer.providerPaymentMethods.bacs_debit"
-                    value={
-                      !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
-                        ProviderPaymentMethodsEnum.BacsDebit,
-                      )
-                    }
+                    value={!!paymentMethods.includes(ProviderPaymentMethodsEnum.BacsDebit)}
                     label={translate('text_65e1f90471bc198c0c934d92')}
                     sublabel={translate('text_65e1f90471bc198c0c934d94')}
                     disabled={
-                      formikProps.values.providerCustomer?.providerPaymentMethods?.length === 1 &&
-                      formikProps.values.providerCustomer?.providerPaymentMethods.includes(
-                        ProviderPaymentMethodsEnum.BacsDebit,
-                      )
+                      isBankTransferEnabled ||
+                      (isPaymentMethodUnique &&
+                        paymentMethods.includes(ProviderPaymentMethodsEnum.BacsDebit))
                     }
                     onChange={(_e, checked) => {
                       onSetPaymentMethod(ProviderPaymentMethodsEnum.BacsDebit, checked)
@@ -365,18 +363,13 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
 
                   <Checkbox
                     name="providerCustomer.providerPaymentMethods.boleto"
-                    value={
-                      !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
-                        ProviderPaymentMethodsEnum.Boleto,
-                      )
-                    }
+                    value={!!paymentMethods.includes(ProviderPaymentMethodsEnum.Boleto)}
                     label={translate('text_1738234109827diqh4eswleu')}
                     sublabel={translate('text_1738234109827hev75h17loy')}
                     disabled={
-                      formikProps.values.providerCustomer?.providerPaymentMethods?.length === 1 &&
-                      formikProps.values.providerCustomer?.providerPaymentMethods.includes(
-                        ProviderPaymentMethodsEnum.Boleto,
-                      )
+                      isBankTransferEnabled ||
+                      (isPaymentMethodUnique &&
+                        paymentMethods.includes(ProviderPaymentMethodsEnum.Boleto))
                     }
                     onChange={(_e, checked) => {
                       onSetPaymentMethod(ProviderPaymentMethodsEnum.Boleto, checked)
@@ -385,18 +378,13 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
 
                   <Checkbox
                     name="providerCustomer.providerPaymentMethods.crypto"
-                    value={
-                      !!formikProps.values.providerCustomer?.providerPaymentMethods?.includes(
-                        ProviderPaymentMethodsEnum.Crypto,
-                      )
-                    }
+                    value={!!paymentMethods.includes(ProviderPaymentMethodsEnum.Crypto)}
                     label={translate('text_17394287699017cunbdlhnhf')}
                     sublabel={translate('text_65e1f90471bc198c0c934d90')}
                     disabled={
-                      formikProps.values.providerCustomer?.providerPaymentMethods?.length === 1 &&
-                      formikProps.values.providerCustomer?.providerPaymentMethods.includes(
-                        ProviderPaymentMethodsEnum.Crypto,
-                      )
+                      isBankTransferEnabled ||
+                      (isPaymentMethodUnique &&
+                        paymentMethods.includes(ProviderPaymentMethodsEnum.Crypto))
                     }
                     onChange={(_e, checked) => {
                       onSetPaymentMethod(ProviderPaymentMethodsEnum.Crypto, checked)

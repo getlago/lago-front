@@ -74,6 +74,8 @@ export const payablePaymentStatusMapping = ({
       return { label: 'failed', type: StatusType.warning }
     case PayablePaymentStatusEnum.Succeeded:
       return { label: 'succeeded', type: StatusType.success }
+    case PayablePaymentStatusEnum.Processing:
+      return { label: 'processing', type: StatusType.default }
     default:
       return { label: 'n/a', type: StatusType.default }
   }
