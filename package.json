@@ -122,7 +122,7 @@
     "react-ace": "^11.0.1",
     "react-dom": "18.2.0",
     "react-router-dom": "6.15.0",
-    "recharts": "^2.9.0",
+    "recharts": "^2.15.1",
     "sanitize-html": "2.12.1",
     "styled-components": "^6.1.13",
     "yup": "1.2.0"
