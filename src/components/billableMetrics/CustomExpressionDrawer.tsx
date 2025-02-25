@@ -1,5 +1,6 @@
 import { Typography } from '@mui/material'
 import { useFormik } from 'formik'
+import { DateTime } from 'luxon'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { mixed, object, string } from 'yup'
 
@@ -55,7 +56,7 @@ const CUSTOM_EXPRESSION_EXAMPLES = [
   '(event.properties.ended_at - event.timestamp) / 3600',
 ]
 
-const TIMESTAMP = new Date().getTime()
+const TIMESTAMP = DateTime.now().toMillis()
 
 export const CustomExpressionDrawer = forwardRef<
   CustomExpressionDrawerRef,

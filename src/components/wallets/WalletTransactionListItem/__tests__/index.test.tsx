@@ -1,4 +1,5 @@
 import { act, cleanup, screen } from '@testing-library/react'
+import { DateTime } from 'luxon'
 
 import {
   WalletTransactionListItem,
@@ -56,8 +57,8 @@ async function prepare(
     transactionType: WalletTransactionTransactionTypeEnum.Inbound,
     amount: AMOUNT,
     creditAmount: CREDITS,
-    settledAt: new Date('2022-02-02'),
-    createdAt: new Date('2022-01-01'),
+    settledAt: DateTime.local(2022, 2, 2).toISO(),
+    createdAt: DateTime.local(2022, 1, 1).toISO(),
     ...overriddenTransaction,
   }
 

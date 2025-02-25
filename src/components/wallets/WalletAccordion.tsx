@@ -61,6 +61,8 @@ gql`
   ${WalletInfosForTransactionsFragmentDoc}
 `
 
+const TODAY = DateTime.now().toISODate()
+
 interface WalletAccordionProps {
   wallet: WalletAccordionFragment
   premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
@@ -313,8 +315,8 @@ export const WalletAccordion = forwardRef<TopupWalletDialogRef, WalletAccordionP
                     deserializeAmount(wallet.ongoingUsageBalanceCents, wallet.currency),
                   ),
                   creditAmount: String(wallet.creditsOngoingUsageBalance),
-                  createdAt: new Date(),
-                  settledAt: new Date(),
+                  createdAt: TODAY,
+                  settledAt: TODAY,
                   wallet,
                   status: WalletTransactionStatusEnum.Settled,
                   transactionType: WalletTransactionTransactionTypeEnum.Outbound,

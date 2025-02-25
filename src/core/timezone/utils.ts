@@ -1,5 +1,5 @@
 import { captureMessage } from '@sentry/react'
-import { DateTime } from 'luxon'
+import { DateTime, DateTimeFormatOptions } from 'luxon'
 
 import { envGlobalVar } from '~/core/apolloClient'
 import { TimeZonesConfig } from '~/core/timezone/config'
@@ -54,20 +54,24 @@ export const intlFormatDateToDateMed = (
 
 export const intlFormatDateTime = (
   date: string,
-  {
-    timezone = TimezoneEnum.TzUtc,
-    locale = LocaleEnum.en,
-  }: {
-    timezone?: TimezoneEnum | null | undefined
-    locale?: LocaleEnum
-  },
+  options:
+    | {
+        timezone?: TimezoneEnum | null | undefined
+        locale?: LocaleEnum
+        format?: DateTimeFormatOptions
+      }
+    | undefined = {},
 ) => {
+  const timezone = options?.timezone || TimezoneEnum.TzUtc
+  const locale = options?.locale || LocaleEnum.en
+  const format = options?.format || DateTime.DATE_MED
+
   const localeDateTime = DateTime.fromISO(date, {
     zone: getTimezoneConfig(timezone).name,
     locale: locale,
   })
 
-  const localeDate = localeDateTime.toLocaleString(DateTime.DATE_MED)
+  const localeDate = localeDateTime.toLocaleString(format)
 
   const localeTime = localeDateTime
     .toLocaleParts({
