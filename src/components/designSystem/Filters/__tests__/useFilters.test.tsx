@@ -16,6 +16,8 @@ import {
   isVoidedUrlParams,
 } from '../utils'
 
+const FILTER_PREFIX = 'f'
+
 const staticFilters = {
   currency: 'eur',
 }
@@ -32,7 +34,7 @@ const wrapper = ({
       <div>
         <FilterContext.Provider
           value={{
-            filtersNamePrefix: 'f',
+            filtersNamePrefix: FILTER_PREFIX,
             staticFilters: withStaticFilters ? staticFilters : undefined,
             availableFilters: [AvailableFiltersEnum.status, AvailableFiltersEnum.invoiceType],
           }}
@@ -62,7 +64,7 @@ describe('draft', () => {
       new URLSearchParams(`?${expectedSearchParams}`).entries(),
     ) as unknown as URLSearchParams
 
-    expect(isDraftUrlParams(draftSearchParams)).toBe(true)
+    expect(isDraftUrlParams({ prefix: FILTER_PREFIX, searchParams: draftSearchParams })).toBe(true)
   })
   it('should return search params with initial static filters', () => {
     const { result } = renderHook(() => useFilters(), {
@@ -80,7 +82,7 @@ describe('draft', () => {
         status: InvoiceStatusTypeEnum.Draft,
       }),
     ).toEqual(expectedSearchParams)
-    expect(isDraftUrlParams(draftSearchParams)).toBe(true)
+    expect(isDraftUrlParams({ prefix: FILTER_PREFIX, searchParams: draftSearchParams })).toBe(true)
   })
 })
 
@@ -103,7 +105,9 @@ describe('outstanding', () => {
       new URLSearchParams(`?${expectedSearchParams}`).entries(),
     ) as unknown as URLSearchParams
 
-    expect(isOutstandingUrlParams(outstandingSearchParams)).toBe(true)
+    expect(
+      isOutstandingUrlParams({ prefix: FILTER_PREFIX, searchParams: outstandingSearchParams }),
+    ).toBe(true)
   })
   it('should return search params with initial static filters', () => {
     const { result } = renderHook(() => useFilters(), {
@@ -123,7 +127,9 @@ describe('outstanding', () => {
       new URLSearchParams(`?${expectedSearchParams}`).entries(),
     ) as unknown as URLSearchParams
 
-    expect(isOutstandingUrlParams(outstandingSearchParams)).toBe(true)
+    expect(
+      isOutstandingUrlParams({ prefix: FILTER_PREFIX, searchParams: outstandingSearchParams }),
+    ).toBe(true)
   })
 })
 
@@ -145,7 +151,12 @@ describe('payment overdue', () => {
       new URLSearchParams(`?${expectedSearchParams}`).entries(),
     ) as unknown as URLSearchParams
 
-    expect(isPaymentOverdueUrlParams(paymentOverdueSearchParams)).toBe(true)
+    expect(
+      isPaymentOverdueUrlParams({
+        prefix: FILTER_PREFIX,
+        searchParams: paymentOverdueSearchParams,
+      }),
+    ).toBe(true)
   })
   it('should return search params with initial static filters', () => {
     const { result } = renderHook(() => useFilters(), {
@@ -164,7 +175,12 @@ describe('payment overdue', () => {
       new URLSearchParams(`?${expectedSearchParams}`).entries(),
     ) as unknown as URLSearchParams
 
-    expect(isPaymentOverdueUrlParams(paymentOverdueSearchParams)).toBe(true)
+    expect(
+      isPaymentOverdueUrlParams({
+        prefix: FILTER_PREFIX,
+        searchParams: paymentOverdueSearchParams,
+      }),
+    ).toBe(true)
   })
 })
 
@@ -187,7 +203,9 @@ describe('succeeded', () => {
       new URLSearchParams(`?${expectedSearchParams}`).entries(),
     ) as unknown as URLSearchParams
 
-    expect(isSucceededUrlParams(succeededSearchParams)).toBe(true)
+    expect(
+      isSucceededUrlParams({ prefix: FILTER_PREFIX, searchParams: succeededSearchParams }),
+    ).toBe(true)
   })
   it('should return search params with initial static filters', () => {
     const { result } = renderHook(() => useFilters(), {
@@ -207,7 +225,9 @@ describe('succeeded', () => {
       new URLSearchParams(`?${expectedSearchParams}`).entries(),
     ) as unknown as URLSearchParams
 
-    expect(isSucceededUrlParams(succeededSearchParams)).toBe(true)
+    expect(
+      isSucceededUrlParams({ prefix: FILTER_PREFIX, searchParams: succeededSearchParams }),
+    ).toBe(true)
   })
 })
 
@@ -229,7 +249,9 @@ describe('voided', () => {
       new URLSearchParams(`?${expectedSearchParams}`).entries(),
     ) as unknown as URLSearchParams
 
-    expect(isVoidedUrlParams(voidedSearchParams)).toBe(true)
+    expect(isVoidedUrlParams({ prefix: FILTER_PREFIX, searchParams: voidedSearchParams })).toBe(
+      true,
+    )
   })
   it('should return search params with initial static filters', () => {
     const { result } = renderHook(() => useFilters(), {
@@ -248,7 +270,9 @@ describe('voided', () => {
       new URLSearchParams(`?${expectedSearchParams}`).entries(),
     ) as unknown as URLSearchParams
 
-    expect(isVoidedUrlParams(voidedSearchParams)).toBe(true)
+    expect(isVoidedUrlParams({ prefix: FILTER_PREFIX, searchParams: voidedSearchParams })).toBe(
+      true,
+    )
   })
 })
 
@@ -270,7 +294,12 @@ describe('payment dispute lost', () => {
       new URLSearchParams(`?${expectedSearchParams}`).entries(),
     ) as unknown as URLSearchParams
 
-    expect(isPaymentDisputeLostUrlParams(paymentDisputeLostSearchParams)).toBe(true)
+    expect(
+      isPaymentDisputeLostUrlParams({
+        prefix: FILTER_PREFIX,
+        searchParams: paymentDisputeLostSearchParams,
+      }),
+    ).toBe(true)
   })
   it('should return search params with initial static filters', () => {
     const { result } = renderHook(() => useFilters(), {
@@ -289,6 +318,11 @@ describe('payment dispute lost', () => {
       new URLSearchParams(`?${expectedSearchParams}`).entries(),
     ) as unknown as URLSearchParams
 
-    expect(isPaymentDisputeLostUrlParams(paymentDisputeLostSearchParams)).toBe(true)
+    expect(
+      isPaymentDisputeLostUrlParams({
+        prefix: FILTER_PREFIX,
+        searchParams: paymentDisputeLostSearchParams,
+      }),
+    ).toBe(true)
   })
 })

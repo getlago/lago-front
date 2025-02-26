@@ -20,6 +20,7 @@ import {
 import { AvailableFiltersEnum, Filters } from '~/components/designSystem/Filters'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { addToast } from '~/core/apolloClient'
+import { CREDIT_NOTE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -158,7 +159,7 @@ const CreditNotesTable = ({
           )}
         >
           <Filters.Provider
-            filtersNamePrefix="cn"
+            filtersNamePrefix={CREDIT_NOTE_LIST_FILTER_PREFIX}
             availableFilters={[
               AvailableFiltersEnum.amount,
               AvailableFiltersEnum.creditNoteCreditStatus,
