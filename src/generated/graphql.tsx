@@ -2911,6 +2911,8 @@ export enum IntegrationTypeEnum {
   FromEmail = 'from_email',
   Hubspot = 'hubspot',
   ManualPayments = 'manual_payments',
+  MultiEntitiesEnterprise = 'multi_entities_enterprise',
+  MultiEntitiesPro = 'multi_entities_pro',
   Netsuite = 'netsuite',
   Okta = 'okta',
   Preview = 'preview',
@@ -4419,6 +4421,7 @@ export type Permissions = {
   customersDelete: Scalars['Boolean']['output'];
   customersUpdate: Scalars['Boolean']['output'];
   customersView: Scalars['Boolean']['output'];
+  dataApiRevenueStreamsView: Scalars['Boolean']['output'];
   developersKeysManage: Scalars['Boolean']['output'];
   developersManage: Scalars['Boolean']['output'];
   draftInvoicesUpdate: Scalars['Boolean']['output'];
@@ -4535,6 +4538,8 @@ export enum PremiumIntegrationTypeEnum {
   FromEmail = 'from_email',
   Hubspot = 'hubspot',
   ManualPayments = 'manual_payments',
+  MultiEntitiesEnterprise = 'multi_entities_enterprise',
+  MultiEntitiesPro = 'multi_entities_pro',
   Netsuite = 'netsuite',
   Okta = 'okta',
   Preview = 'preview',
@@ -5130,8 +5135,8 @@ export type QueryPlansArgs = {
 
 
 export type QueryRevenueStreamsArgs = {
+  currency?: InputMaybe<CurrencyEnum>;
   customerCountry?: InputMaybe<CountryCode>;
-  customerCurrency?: InputMaybe<CurrencyEnum>;
   customerType?: InputMaybe<CustomerTypeEnum>;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
   externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
@@ -6608,8 +6613,8 @@ export type DeleteAddOnMutationVariables = Exact<{
 export type DeleteAddOnMutation = { __typename?: 'Mutation', destroyAddOn?: { __typename?: 'DestroyAddOnPayload', id?: string | null } | null };
 
 export type GetRevenueStreamsQueryVariables = Exact<{
+  currency?: InputMaybe<CurrencyEnum>;
   customerCountry?: InputMaybe<CountryCode>;
-  customerCurrency?: InputMaybe<CurrencyEnum>;
   customerType?: InputMaybe<CustomerTypeEnum>;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
   externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
@@ -6620,7 +6625,7 @@ export type GetRevenueStreamsQueryVariables = Exact<{
 }>;
 
 
-export type GetRevenueStreamsQuery = { __typename?: 'Query', revenueStreams: { __typename?: 'RevenueStreamsCollection', collection: Array<{ __typename?: 'RevenueStreams', commitmentFeeAmountCents: any, couponsAmountCents: any, amountCurrency: CurrencyEnum, startOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, subscriptionFeeAmountCents: any, endOfPeriodDt: any, usageBasedFeeAmountCents: any }> } };
+export type GetRevenueStreamsQuery = { __typename?: 'Query', revenueStreams: { __typename?: 'RevenueStreamsCollection', collection: Array<{ __typename?: 'RevenueStreams', amountCurrency: CurrencyEnum, commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any }> } };
 
 export type GetGoogleAuthUrlQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -12881,10 +12886,10 @@ export type DeleteAddOnMutationHookResult = ReturnType<typeof useDeleteAddOnMuta
 export type DeleteAddOnMutationResult = Apollo.MutationResult<DeleteAddOnMutation>;
 export type DeleteAddOnMutationOptions = Apollo.BaseMutationOptions<DeleteAddOnMutation, DeleteAddOnMutationVariables>;
 export const GetRevenueStreamsDocument = gql`
-    query getRevenueStreams($customerCountry: CountryCode, $customerCurrency: CurrencyEnum, $customerType: CustomerTypeEnum, $externalCustomerId: String, $externalSubscriptionId: String, $fromDate: ISO8601Date, $planCode: String, $timeGranularity: TimeGranularityEnum, $toDate: ISO8601Date) {
+    query getRevenueStreams($currency: CurrencyEnum, $customerCountry: CountryCode, $customerType: CustomerTypeEnum, $externalCustomerId: String, $externalSubscriptionId: String, $fromDate: ISO8601Date, $planCode: String, $timeGranularity: TimeGranularityEnum, $toDate: ISO8601Date) {
   revenueStreams(
+    currency: $currency
     customerCountry: $customerCountry
-    customerCurrency: $customerCurrency
     customerType: $customerType
     externalCustomerId: $externalCustomerId
     externalSubscriptionId: $externalSubscriptionId
@@ -12894,15 +12899,15 @@ export const GetRevenueStreamsDocument = gql`
     toDate: $toDate
   ) {
     collection {
+      amountCurrency
       commitmentFeeAmountCents
       couponsAmountCents
-      amountCurrency
-      startOfPeriodDt
+      endOfPeriodDt
       grossRevenueAmountCents
       netRevenueAmountCents
       oneOffFeeAmountCents
+      startOfPeriodDt
       subscriptionFeeAmountCents
-      endOfPeriodDt
       usageBasedFeeAmountCents
     }
   }
@@ -12921,8 +12926,8 @@ export const GetRevenueStreamsDocument = gql`
  * @example
  * const { data, loading, error } = useGetRevenueStreamsQuery({
  *   variables: {
+ *      currency: // value for 'currency'
  *      customerCountry: // value for 'customerCountry'
- *      customerCurrency: // value for 'customerCurrency'
  *      customerType: // value for 'customerType'
  *      externalCustomerId: // value for 'externalCustomerId'
  *      externalSubscriptionId: // value for 'externalSubscriptionId'
