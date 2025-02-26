@@ -16,6 +16,7 @@ import {
 } from '~/components/designSystem/Filters'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { SearchInput } from '~/components/SearchInput'
+import { CUSTOMER_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { CREATE_CUSTOMER_ROUTE, CUSTOMER_DETAILS_ROUTE, UPDATE_CUSTOMER_ROUTE } from '~/core/router'
 import {
   AddCustomerDrawerFragmentDoc,
@@ -113,6 +114,7 @@ const CustomersList = () => {
 
       <div className="px-12 py-3 shadow-b">
         <Filters.Provider
+          filtersNamePrefix={CUSTOMER_LIST_FILTER_PREFIX}
           quickFiltersType={AvailableQuickFilters.CustomerAccountType}
           availableFilters={[AvailableFiltersEnum.customerAccountType]}
         >

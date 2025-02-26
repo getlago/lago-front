@@ -1,5 +1,10 @@
 import { DateTime } from 'luxon'
 
+import {
+  CREDIT_NOTE_LIST_FILTER_PREFIX,
+  CUSTOMER_LIST_FILTER_PREFIX,
+  INVOICE_LIST_FILTER_PREFIX,
+} from '~/core/constants/filters'
 import { intlFormatDateTime } from '~/core/timezone'
 import { InvoicePaymentStatusTypeEnum, InvoiceStatusTypeEnum } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
@@ -12,6 +17,8 @@ import {
   filterDataInlineSeparator,
   InvoiceAvailableFilters,
 } from './types'
+
+const keyWithPrefix = (key: string, prefix?: string) => (prefix ? `${prefix}_${key}` : key)
 
 export const parseAmountValue = (value: string) => {
   const [interval, from, to] = value.split(',')
@@ -77,17 +84,23 @@ const formatFiltersForQuery = ({
   searchParams,
   keyMap,
   availableFilters,
+  filtersNamePrefix,
 }: {
   searchParams: URLSearchParams
   keyMap?: Record<string, string>
   availableFilters: AvailableFiltersEnum[]
+  filtersNamePrefix: string
 }) => {
   const filtersSetInUrl = Object.fromEntries(searchParams.entries())
 
   return Object.entries(filtersSetInUrl).reduce(
     (acc, cur) => {
       const current = cur as [AvailableFiltersEnum, string | string[] | boolean]
-      const key = current[0]
+      const _key = current[0]
+
+      const key = (
+        filtersNamePrefix ? _key.replace(`${filtersNamePrefix}_`, '') : _key
+      ) as AvailableFiltersEnum
 
       if (!availableFilters.includes(key)) {
         return acc
@@ -124,6 +137,7 @@ export const formatFiltersForCreditNotesQuery = (searchParams: URLSearchParams) 
     searchParams,
     keyMap,
     availableFilters: CreditNoteAvailableFilters,
+    filtersNamePrefix: CREDIT_NOTE_LIST_FILTER_PREFIX,
   })
 }
 
@@ -131,6 +145,7 @@ export const formatFiltersForInvoiceQuery = (searchParams: URLSearchParams) => {
   return formatFiltersForQuery({
     searchParams,
     availableFilters: InvoiceAvailableFilters,
+    filtersNamePrefix: INVOICE_LIST_FILTER_PREFIX,
   })
 }
 
@@ -138,6 +153,7 @@ export const formatFiltersForCustomerQuery = (searchParams: URLSearchParams) => 
   return formatFiltersForQuery({
     searchParams,
     availableFilters: CustomerAvailableFilters,
+    filtersNamePrefix: CUSTOMER_LIST_FILTER_PREFIX,
   })
 }
 
@@ -188,35 +204,83 @@ export const formatActiveFilterValueDisplay = (
   }
 }
 
-export const isOutstandingUrlParams = (searchParams: URLSearchParams): boolean => {
+export const isOutstandingUrlParams = ({
+  prefix,
+  searchParams,
+}: {
+  searchParams: URLSearchParams
+  prefix?: string
+}): boolean => {
   return (
     searchParams.size >= 2 &&
-    searchParams.get('paymentStatus') ===
+    searchParams.get(keyWithPrefix('paymentStatus', prefix)) ===
       `${InvoicePaymentStatusTypeEnum.Failed},${InvoicePaymentStatusTypeEnum.Pending}` &&
-    searchParams.get('status') === InvoiceStatusTypeEnum.Finalized
+    searchParams.get(keyWithPrefix('status', prefix)) === InvoiceStatusTypeEnum.Finalized
   )
 }
 
-export const isSucceededUrlParams = (searchParams: URLSearchParams): boolean => {
+export const isSucceededUrlParams = ({
+  prefix,
+  searchParams,
+}: {
+  searchParams: URLSearchParams
+  prefix?: string
+}): boolean => {
   return (
     searchParams.size >= 2 &&
-    searchParams.get('paymentStatus') === InvoicePaymentStatusTypeEnum.Succeeded &&
-    searchParams.get('status') === InvoiceStatusTypeEnum.Finalized
+    searchParams.get(keyWithPrefix('paymentStatus', prefix)) ===
+      InvoicePaymentStatusTypeEnum.Succeeded &&
+    searchParams.get(keyWithPrefix('status', prefix)) === InvoiceStatusTypeEnum.Finalized
   )
 }
 
-export const isDraftUrlParams = (searchParams: URLSearchParams): boolean => {
-  return searchParams.size >= 1 && searchParams.get('status') === InvoiceStatusTypeEnum.Draft
+export const isDraftUrlParams = ({
+  prefix,
+  searchParams,
+}: {
+  searchParams: URLSearchParams
+  prefix?: string
+}): boolean => {
+  return (
+    searchParams.size >= 1 &&
+    searchParams.get(keyWithPrefix('status', prefix)) === InvoiceStatusTypeEnum.Draft
+  )
 }
 
-export const isPaymentOverdueUrlParams = (searchParams: URLSearchParams): boolean => {
-  return searchParams.size >= 1 && searchParams.get('paymentOverdue') === 'true'
+export const isPaymentOverdueUrlParams = ({
+  prefix,
+  searchParams,
+}: {
+  searchParams: URLSearchParams
+  prefix?: string
+}): boolean => {
+  return (
+    searchParams.size >= 1 && searchParams.get(keyWithPrefix('paymentOverdue', prefix)) === 'true'
+  )
 }
 
-export const isVoidedUrlParams = (searchParams: URLSearchParams): boolean => {
-  return searchParams.size >= 1 && searchParams.get('status') === InvoiceStatusTypeEnum.Voided
+export const isVoidedUrlParams = ({
+  prefix,
+  searchParams,
+}: {
+  searchParams: URLSearchParams
+  prefix?: string
+}): boolean => {
+  return (
+    searchParams.size >= 1 &&
+    searchParams.get(keyWithPrefix('status', prefix)) === InvoiceStatusTypeEnum.Voided
+  )
 }
 
-export const isPaymentDisputeLostUrlParams = (searchParams: URLSearchParams): boolean => {
-  return searchParams.size >= 1 && searchParams.get('paymentDisputeLost') === 'true'
+export const isPaymentDisputeLostUrlParams = ({
+  prefix,
+  searchParams,
+}: {
+  searchParams: URLSearchParams
+  prefix?: string
+}): boolean => {
+  return (
+    searchParams.size >= 1 &&
+    searchParams.get(keyWithPrefix('paymentDisputeLost', prefix)) === 'true'
+  )
 }

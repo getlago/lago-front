@@ -10,37 +10,50 @@ export const useFilters = () => {
   const [searchParams] = useSearchParams()
   const searchParamsObject = Object.fromEntries(searchParams.entries())
 
-  const resetFilters = () => {
+  const prefix = context.filtersNamePrefix
+
+  const keyWithoutPrefix = (key: string) => (prefix ? key.replace(`${prefix}_`, '') : key)
+  const keyWithPrefix = (key: string) => (prefix ? `${prefix}_${key}` : key)
+
+  const removeExistingFilters = () => {
     // Only remove the filters from the URL that are currently applied and are removable (availableFilters)
     for (const search in searchParamsObject) {
-      // @ts-expect-error - searchParams is typed as a string and not as AvailableFiltersEnum
-      if (context.availableFilters.includes(search)) {
+      const key = keyWithoutPrefix(search) as AvailableFiltersEnum
+
+      if (context.availableFilters.includes(key)) {
         searchParams.delete(search)
       }
     }
+  }
+
+  const resetFilters = () => {
+    removeExistingFilters()
 
     navigate({ search: searchParams.toString() })
   }
 
   const applyFilters = (values: FiltersFormValues) => {
-    const newUrlSearchParams = values.filters.reduce((acc, cur) => {
-      // If the filterType is not set or the value is not set, then do nothing
-      if (!cur.filterType || cur.value === undefined) {
-        return acc
+    removeExistingFilters()
+
+    values.filters.forEach((filter) => {
+      if (!filter.filterType || filter.value === undefined) {
+        return
       }
+
+      const withPrefix = keyWithPrefix(filter.filterType) as AvailableFiltersEnum
+      const withoutPrefix = keyWithoutPrefix(filter.filterType) as AvailableFiltersEnum
 
       if (
-        context.staticFilters?.[cur.filterType] ||
-        context.availableFilters.includes(cur.filterType)
+        context.staticFilters?.[withoutPrefix] ||
+        context.availableFilters.includes(withoutPrefix)
       ) {
-        acc.delete(cur.filterType)
-        acc.append(cur.filterType, cur.value)
+        searchParams.delete(withPrefix)
       }
 
-      return acc
-    }, new URLSearchParams())
+      searchParams.append(withPrefix, filter.value)
+    })
 
-    navigate({ search: newUrlSearchParams.toString() })
+    navigate({ search: searchParams.toString() })
   }
 
   const getInitialFiltersFormValues = (from: 'default' | 'url') => {
@@ -51,7 +64,9 @@ export const useFilters = () => {
         : Object.entries(searchParamsObject)
 
     return source.reduce<FiltersFormValues['filters']>((acc, cur) => {
-      const [key, value] = cur as [AvailableFiltersEnum, FiltersFormValues['filters'][0]['value']]
+      const [_key, value] = cur as [AvailableFiltersEnum, FiltersFormValues['filters'][0]['value']]
+
+      const key = keyWithoutPrefix(_key) as AvailableFiltersEnum
 
       if (!context.availableFilters.includes(key) && !context.staticFilters?.[key]) {
         return acc
@@ -71,7 +86,7 @@ export const useFilters = () => {
   const hasAppliedFilters = () => {
     if (searchParamsObject) {
       return Object.keys(searchParamsObject).some((key) =>
-        context.availableFilters.includes(key as AvailableFiltersEnum),
+        context.availableFilters.includes(keyWithoutPrefix(key) as AvailableFiltersEnum),
       )
     }
 
@@ -80,25 +95,35 @@ export const useFilters = () => {
 
   const buildQuickFilterUrlParams = (filters: { [key: string]: unknown }) => {
     const staticFilters = Object.entries(context.staticFilters ?? {})
-      .map(([key, value]) => `${key}=${value}`)
+      .map(([key, value]) => `${keyWithPrefix(key)}=${value}`)
       .join('&')
 
-    const newFilters = Object.entries(filters)
-      .map(([key, value]) => {
-        if (Array.isArray(value)) {
-          return `${key}=${value.join(',')}`
-        }
+    let newFilters = Object.entries(filters).map(([_key, value]) => {
+      const key = keyWithPrefix(_key)
 
-        return `${key}=${value}`
-      })
-      .join('&')
+      if (Array.isArray(value)) {
+        return `${key}=${value.join(',')}`
+      }
+
+      return `${key}=${value}`
+    })
+
+    Object.keys(searchParamsObject).forEach((key) => {
+      if (!context.availableFilters.includes(keyWithoutPrefix(key) as AvailableFiltersEnum)) {
+        newFilters = newFilters.concat(`${key}=${encodeURIComponent(searchParamsObject[key])}`)
+      }
+    })
+
+    const newFiltersJoined = newFilters.join('&')
 
     // If there are no static filters, return only the new filters
-    return staticFilters ? `${staticFilters}&${newFilters}` : newFilters
+    return staticFilters ? `${staticFilters}&${newFiltersJoined}` : newFiltersJoined
   }
 
   const isQuickFilterActive = (filters: { [key: string]: unknown }) => {
-    for (const [key, value] of Object.entries(filters)) {
+    for (const [_key, value] of Object.entries(filters)) {
+      const key = keyWithPrefix(_key)
+
       if (Array.isArray(value)) {
         if (searchParamsObject[key] !== value.join(',')) {
           return false

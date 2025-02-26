@@ -34,6 +34,7 @@ import {
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { INVOICE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -124,6 +125,7 @@ const InvoicesList = ({
     <>
       <div className="box-border flex w-full flex-col gap-3 p-4 shadow-b md:px-12 md:py-3">
         <Filters.Provider
+          filtersNamePrefix={INVOICE_LIST_FILTER_PREFIX}
           quickFiltersType={AvailableQuickFilters.InvoiceStatus}
           availableFilters={[
             AvailableFiltersEnum.amount,
@@ -506,13 +508,19 @@ const InvoicesList = ({
               emptyState: variables?.searchTerm
                 ? {
                     title: translate(
-                      isSucceededUrlParams(searchParams)
+                      isSucceededUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX })
                         ? 'text_63c67d2913c20b8d7d05c44c'
-                        : isDraftUrlParams(searchParams)
+                        : isDraftUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX })
                           ? 'text_63c67d2913c20b8d7d05c442'
-                          : isOutstandingUrlParams(searchParams)
+                          : isOutstandingUrlParams({
+                                searchParams,
+                                prefix: INVOICE_LIST_FILTER_PREFIX,
+                              })
                             ? 'text_63c67d8796db41749ada51ca'
-                            : isVoidedUrlParams(searchParams)
+                            : isVoidedUrlParams({
+                                  searchParams,
+                                  prefix: INVOICE_LIST_FILTER_PREFIX,
+                                })
                               ? 'text_65269cd46e7ec037a6823fd8'
                               : 'text_63c67d2913c20b8d7d05c43e',
                     ),
@@ -520,35 +528,59 @@ const InvoicesList = ({
                   }
                 : {
                     title: translate(
-                      isSucceededUrlParams(searchParams)
+                      isSucceededUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX })
                         ? 'text_63b578e959c1366df5d14559'
-                        : isDraftUrlParams(searchParams)
+                        : isDraftUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX })
                           ? 'text_63b578e959c1366df5d1455b'
-                          : isOutstandingUrlParams(searchParams)
+                          : isOutstandingUrlParams({
+                                searchParams,
+                                prefix: INVOICE_LIST_FILTER_PREFIX,
+                              })
                             ? 'text_63b578e959c1366df5d1456e'
-                            : isVoidedUrlParams(searchParams)
+                            : isVoidedUrlParams({
+                                  searchParams,
+                                  prefix: INVOICE_LIST_FILTER_PREFIX,
+                                })
                               ? 'text_65269cd46e7ec037a6823fd6'
-                              : isPaymentDisputeLostUrlParams(searchParams)
+                              : isPaymentDisputeLostUrlParams({
+                                    searchParams,
+                                    prefix: INVOICE_LIST_FILTER_PREFIX,
+                                  })
                                 ? 'text_66141e30699a0631f0b2ec7f'
-                                : isPaymentOverdueUrlParams(searchParams)
+                                : isPaymentOverdueUrlParams({
+                                      searchParams,
+                                      prefix: INVOICE_LIST_FILTER_PREFIX,
+                                    })
                                   ? 'text_666c5b12fea4aa1e1b26bf70'
                                   : 'text_63b578e959c1366df5d14569',
                     ),
-                    subtitle: isSucceededUrlParams(searchParams) ? (
+                    subtitle: isSucceededUrlParams({
+                      searchParams,
+                      prefix: INVOICE_LIST_FILTER_PREFIX,
+                    }) ? (
                       translate('text_63b578e959c1366df5d1455f')
-                    ) : isDraftUrlParams(searchParams) ? (
+                    ) : isDraftUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX }) ? (
                       <Typography
                         html={translate('text_63b578e959c1366df5d14566', {
                           link: INVOICE_SETTINGS_ROUTE,
                         })}
                       />
-                    ) : isOutstandingUrlParams(searchParams) ? (
+                    ) : isOutstandingUrlParams({
+                        searchParams,
+                        prefix: INVOICE_LIST_FILTER_PREFIX,
+                      }) ? (
                       translate('text_63b578e959c1366df5d14570')
-                    ) : isVoidedUrlParams(searchParams) ? (
+                    ) : isVoidedUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX }) ? (
                       translate('text_65269cd46e7ec037a6823fda')
-                    ) : isPaymentDisputeLostUrlParams(searchParams) ? (
+                    ) : isPaymentDisputeLostUrlParams({
+                        searchParams,
+                        prefix: INVOICE_LIST_FILTER_PREFIX,
+                      }) ? (
                       translate('text_66141e30699a0631f0b2ec87')
-                    ) : isPaymentOverdueUrlParams(searchParams) ? (
+                    ) : isPaymentOverdueUrlParams({
+                        searchParams,
+                        prefix: INVOICE_LIST_FILTER_PREFIX,
+                      }) ? (
                       <Typography
                         html={translate('text_666c5b12fea4aa1e1b26bf73', {
                           link: INVOICE_SETTINGS_ROUTE,

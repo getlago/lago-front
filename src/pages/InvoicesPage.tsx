@@ -24,6 +24,7 @@ import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/V
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { INVOICE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { InvoiceListTabEnum } from '~/core/constants/tabsOptions'
 import { CREATE_PAYMENT_ROUTE, INVOICES_ROUTE, INVOICES_TAB_ROUTE } from '~/core/router'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
@@ -426,23 +427,24 @@ const InvoicesPage = () => {
             </>
           )}
 
-          {isOutstandingUrlParams(searchParams) && hasPermissions(['invoicesSend']) && (
-            <Button
-              disabled={!dataInvoices?.invoices?.metadata?.totalCount}
-              onClick={async () => {
-                const { errors } = await retryAll({ variables: { input: {} } })
+          {isOutstandingUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX }) &&
+            hasPermissions(['invoicesSend']) && (
+              <Button
+                disabled={!dataInvoices?.invoices?.metadata?.totalCount}
+                onClick={async () => {
+                  const { errors } = await retryAll({ variables: { input: {} } })
 
-                if (hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)) {
-                  addToast({
-                    severity: 'info',
-                    translateKey: 'text_63b6d06df1a53b7e2ad973ad',
-                  })
-                }
-              }}
-            >
-              {translate('text_63ac86d797f728a87b2f9fc4')}
-            </Button>
-          )}
+                  if (hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)) {
+                    addToast({
+                      severity: 'info',
+                      translateKey: 'text_63b6d06df1a53b7e2ad973ad',
+                    })
+                  }
+                }}
+              >
+                {translate('text_63ac86d797f728a87b2f9fc4')}
+              </Button>
+            )}
         </PageHeader.Group>
       </PageHeader.Wrapper>
       <NavigationTab
