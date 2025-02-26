@@ -13,7 +13,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-const DynamicPrefixTranslationLoohup = {
+const DynamicPrefixTranslationLookup = {
   [DocumentNumberingEnum.PerCustomer]: 'text_6566f920a1d6c35693d6cce0',
   [DocumentNumberingEnum.PerOrganization]: 'YYYYMM',
 }
@@ -154,7 +154,7 @@ export const EditOrganizationInvoiceNumberingDialog = forwardRef<
               disabled
               label={translate('text_6566f920a1d6c35693d6ccd8')}
               value={translate(
-                DynamicPrefixTranslationLoohup[
+                DynamicPrefixTranslationLookup[
                   formikProps.values.documentNumbering as DocumentNumberingEnum
                 ],
               )}

@@ -158,13 +158,15 @@ const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) 
     },
   })
 
-  const { debouncedSearch: debouncedSearchAddons, isLoading: isLoaddingAddons } =
-    useDebouncedSearch(getAddonList, addonLoading)
+  const { debouncedSearch: debouncedSearchAddons, isLoading: isLoadingAddons } = useDebouncedSearch(
+    getAddonList,
+    addonLoading,
+  )
 
-  const { debouncedSearch: debouncedSearchBillableMetrics, isLoading: isLoaddingBillableMetrics } =
+  const { debouncedSearch: debouncedSearchBillableMetrics, isLoading: isLoadingBillableMetrics } =
     useDebouncedSearch(getBillableMetricsList, billableMetricsLoading)
 
-  // handeling data fetching
+  // handling data fetching
   useEffect(() => {
     if (selectedItemType === SelectedItemTypeEnum.Default) {
       getDefaultItems()
@@ -255,26 +257,26 @@ const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) 
       ) : (
         <>
           {selectedItemType === MappableTypeEnum.AddOn && (
-        <XeroIntegrationItemsListAddons
-          data={addonData}
-          fetchMoreAddons={fetchMoreAddons}
-          integrationId={integrationId}
-          isLoading={isLoaddingAddons}
-          hasError={!!addonError}
-          xeroIntegrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
-          searchTerm={addonVariables?.searchTerm}
-        />
+            <XeroIntegrationItemsListAddons
+              data={addonData}
+              fetchMoreAddons={fetchMoreAddons}
+              integrationId={integrationId}
+              isLoading={isLoadingAddons}
+              hasError={!!addonError}
+              xeroIntegrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
+              searchTerm={addonVariables?.searchTerm}
+            />
           )}
           {selectedItemType === MappableTypeEnum.BillableMetric && (
-        <XeroIntegrationItemsListBillableMetrics
-          data={billableMetricsData}
-          fetchMoreBillableMetrics={fetchMoreBillableMetrics}
-          integrationId={integrationId}
-          isLoading={isLoaddingBillableMetrics}
-          hasError={!!billableMetricsError}
-          xeroIntegrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
-          searchTerm={billableMetricsVariables?.searchTerm}
-        />
+            <XeroIntegrationItemsListBillableMetrics
+              data={billableMetricsData}
+              fetchMoreBillableMetrics={fetchMoreBillableMetrics}
+              integrationId={integrationId}
+              isLoading={isLoadingBillableMetrics}
+              hasError={!!billableMetricsError}
+              xeroIntegrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
+              searchTerm={billableMetricsVariables?.searchTerm}
+            />
           )}
         </>
       )}

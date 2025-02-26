@@ -158,10 +158,12 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
     },
   })
 
-  const { debouncedSearch: debouncedSearchAddons, isLoading: isLoaddingAddons } =
-    useDebouncedSearch(getAddonList, addonLoading)
+  const { debouncedSearch: debouncedSearchAddons, isLoading: isLoadingAddons } = useDebouncedSearch(
+    getAddonList,
+    addonLoading,
+  )
 
-  const { debouncedSearch: debouncedSearchBillableMetrics, isLoading: isLoaddingBillableMetrics } =
+  const { debouncedSearch: debouncedSearchBillableMetrics, isLoading: isLoadingBillableMetrics } =
     useDebouncedSearch(getBillableMetricsList, billableMetricsLoading)
 
   // handeling data fetching
@@ -258,7 +260,7 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
           data={addonData}
           fetchMoreAddons={fetchMoreAddons}
           integrationId={integrationId}
-          isLoading={isLoaddingAddons}
+          isLoading={isLoadingAddons}
           hasError={!!addonError}
           anrokIntegrationMapItemDialogRef={anrokIntegrationMapItemDialogRef}
           searchTerm={addonVariables?.searchTerm}
@@ -269,7 +271,7 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
           data={billableMetricsData}
           fetchMoreBillableMetrics={fetchMoreBillableMetrics}
           integrationId={integrationId}
-          isLoading={isLoaddingBillableMetrics}
+          isLoading={isLoadingBillableMetrics}
           hasError={!!billableMetricsError}
           anrokIntegrationMapItemDialogRef={anrokIntegrationMapItemDialogRef}
           searchTerm={billableMetricsVariables?.searchTerm}

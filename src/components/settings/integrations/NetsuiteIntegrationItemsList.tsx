@@ -159,13 +159,15 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
     },
   })
 
-  const { debouncedSearch: debouncedSearchAddons, isLoading: isLoaddingAddons } =
-    useDebouncedSearch(getAddonList, addonLoading)
+  const { debouncedSearch: debouncedSearchAddons, isLoading: isLoadingAddons } = useDebouncedSearch(
+    getAddonList,
+    addonLoading,
+  )
 
-  const { debouncedSearch: debouncedSearchBillableMetrics, isLoading: isLoaddingBillableMetrics } =
+  const { debouncedSearch: debouncedSearchBillableMetrics, isLoading: isLoadingBillableMetrics } =
     useDebouncedSearch(getBillableMetricsList, billableMetricsLoading)
 
-  // handeling data fetching
+  // handling data fetching
   useEffect(() => {
     if (selectedItemType === SelectedItemTypeEnum.Default) {
       getDefaultItems()
@@ -256,26 +258,26 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
       ) : (
         <>
           {selectedItemType === MappableTypeEnum.AddOn && (
-        <NetsuiteIntegrationItemsListAddons
-          data={addonData}
-          fetchMoreAddons={fetchMoreAddons}
-          integrationId={integrationId}
-          isLoading={isLoaddingAddons}
-          hasError={!!addonError}
-          netsuiteIntegrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
-          searchTerm={addonVariables?.searchTerm}
-        />
+            <NetsuiteIntegrationItemsListAddons
+              data={addonData}
+              fetchMoreAddons={fetchMoreAddons}
+              integrationId={integrationId}
+              isLoading={isLoadingAddons}
+              hasError={!!addonError}
+              netsuiteIntegrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
+              searchTerm={addonVariables?.searchTerm}
+            />
           )}
           {selectedItemType === MappableTypeEnum.BillableMetric && (
-        <NetsuiteIntegrationItemsListBillableMetrics
-          data={billableMetricsData}
-          fetchMoreBillableMetrics={fetchMoreBillableMetrics}
-          integrationId={integrationId}
-          isLoading={isLoaddingBillableMetrics}
-          hasError={!!billableMetricsError}
-          netsuiteIntegrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
-          searchTerm={billableMetricsVariables?.searchTerm}
-        />
+            <NetsuiteIntegrationItemsListBillableMetrics
+              data={billableMetricsData}
+              fetchMoreBillableMetrics={fetchMoreBillableMetrics}
+              integrationId={integrationId}
+              isLoading={isLoadingBillableMetrics}
+              hasError={!!billableMetricsError}
+              netsuiteIntegrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
+              searchTerm={billableMetricsVariables?.searchTerm}
+            />
           )}
         </>
       )}
