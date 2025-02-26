@@ -31,6 +31,10 @@ export const FiltersItemStatus = ({ value, setFilterValue }: FiltersItemStatusPr
           value: InvoiceStatusTypeEnum.Finalized,
         },
         {
+          label: translate('text_62da6db136909f52c2704c30'),
+          value: InvoiceStatusTypeEnum.Pending,
+        },
+        {
           label: translate('text_6376641a2a9c70fff5bddcd5'),
           value: InvoiceStatusTypeEnum.Voided,
         },

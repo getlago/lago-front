@@ -59,7 +59,9 @@ export const InvoiceDetailsTableFooter = memo(
     const hasCreditNotes = !!Number(invoice?.creditNotesAmountCents)
     const hasPrepaidCredit = !!Number(invoice?.prepaidCreditAmountCents)
     const hasCoupon = !!Number(invoice?.couponsAmountCents)
+    const isPending = invoice.status === InvoiceStatusTypeEnum.Pending
 
+    const shouldDisplayPlaceholder = isPending || hasTaxProviderError
     const shouldDisplayCouponRow = invoice.status !== InvoiceStatusTypeEnum.Draft && hasCoupon
     const shouldDisplayPrepaidCreditRow =
       invoice.status !== InvoiceStatusTypeEnum.Draft && hasPrepaidCredit
@@ -138,7 +140,7 @@ export const InvoiceDetailsTableFooter = memo(
                 </Typography>
               </td>
             </tr>
-            {hasTaxProviderError ? (
+            {shouldDisplayPlaceholder ? (
               <tr>
                 <td></td>
                 <td colSpan={colSpan}>
@@ -241,7 +243,7 @@ export const InvoiceDetailsTableFooter = memo(
                   color="grey700"
                   data-test="invoice-details-table-footer-subtotal-incl-tax-value"
                 >
-                  {hasTaxProviderError
+                  {shouldDisplayPlaceholder
                     ? '-'
                     : intlFormatNumber(
                         deserializeAmount(
@@ -341,7 +343,7 @@ export const InvoiceDetailsTableFooter = memo(
               color="grey700"
               data-test="invoice-details-table-footer-total-value"
             >
-              {hasTaxProviderError
+              {shouldDisplayPlaceholder
                 ? '-'
                 : intlFormatNumber(deserializeAmount(invoice?.totalAmountCents || 0, currency), {
                     currencyDisplay: 'symbol',
@@ -363,7 +365,7 @@ export const InvoiceDetailsTableFooter = memo(
               color="grey700"
               data-test="invoice-details-table-footer-total-paid-value"
             >
-              {hasTaxProviderError
+              {shouldDisplayPlaceholder
                 ? '-'
                 : intlFormatNumber(
                     deserializeAmount(-invoice?.totalPaidAmountCents || 0, currency),
@@ -388,7 +390,7 @@ export const InvoiceDetailsTableFooter = memo(
               color="grey700"
               data-test="invoice-details-table-footer-total-due-value"
             >
-              {hasTaxProviderError
+              {shouldDisplayPlaceholder
                 ? '-'
                 : intlFormatNumber(deserializeAmount(invoice?.totalDueAmountCents || 0, currency), {
                     currencyDisplay: 'symbol',
@@ -405,7 +407,7 @@ export const InvoiceDetailsTableFooter = memo(
               <Alert type="info">{translate('text_63b6f4e9b074e3b8beebb97f')}</Alert>
             </NoShadowTD>
           </tr>
-        ) : hasTaxProviderError || invoice.taxStatus === InvoiceTaxStatusTypeEnum.Pending ? (
+        ) : shouldDisplayPlaceholder || invoice.taxStatus === InvoiceTaxStatusTypeEnum.Pending ? (
           <tr>
             <td></td>
             <NoShadowTD colSpan={4}>
