@@ -15,8 +15,8 @@ import { tw } from '~/styles/utils'
 
 gql`
   query getRevenueStreams(
+    $currency: CurrencyEnum
     $customerCountry: CountryCode
-    $customerCurrency: CurrencyEnum
     $customerType: CustomerTypeEnum
     $externalCustomerId: String
     $externalSubscriptionId: String
@@ -26,8 +26,8 @@ gql`
     $toDate: ISO8601Date
   ) {
     revenueStreams(
+      currency: $currency
       customerCountry: $customerCountry
-      customerCurrency: $customerCurrency
       customerType: $customerType
       externalCustomerId: $externalCustomerId
       externalSubscriptionId: $externalSubscriptionId
@@ -37,15 +37,15 @@ gql`
       toDate: $toDate
     ) {
       collection {
+        amountCurrency
         commitmentFeeAmountCents
         couponsAmountCents
-        amountCurrency
-        startOfPeriodDt
+        endOfPeriodDt
         grossRevenueAmountCents
         netRevenueAmountCents
         oneOffFeeAmountCents
+        startOfPeriodDt
         subscriptionFeeAmountCents
-        endOfPeriodDt
         usageBasedFeeAmountCents
       }
     }
