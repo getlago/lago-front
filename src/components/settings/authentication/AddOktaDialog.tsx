@@ -1,6 +1,5 @@
 import { InputAdornment, Stack } from '@mui/material'
 import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
-import styled from 'styled-components'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
@@ -11,7 +10,6 @@ import {
 } from '~/components/settings/authentication/useOktaIntegration'
 import { AddOktaIntegrationDialogFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 type AddOktaDialogProps = Partial<{
   integration: AddOktaIntegrationDialogFragment
@@ -102,7 +100,7 @@ export const AddOktaDialog = forwardRef<AddOktaDialogRef>((_, ref) => {
           </Stack>
         )}
       >
-        <Content>
+        <div className="mb-8 flex flex-col gap-6">
           <TextInputField
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
@@ -137,18 +135,10 @@ export const AddOktaDialog = forwardRef<AddOktaDialogRef>((_, ref) => {
               ),
             }}
           />
-        </Content>
+        </div>
       </Dialog>
     </>
   )
 })
-
-const Content = styled.div`
-  margin-bottom: ${theme.spacing(8)};
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
-  }
-`
 
 AddOktaDialog.displayName = 'AddOktaDialog'

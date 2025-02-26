@@ -4,7 +4,6 @@ import { useFormik } from 'formik'
 import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { generatePath } from 'react-router-dom'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
@@ -22,7 +21,6 @@ import {
   useUpdateStripeApiKeyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 import { DeleteStripeIntegrationDialogRef } from './DeleteStripeIntegrationDialog'
 
@@ -235,9 +233,10 @@ export const AddStripeDialog = forwardRef<AddStripeDialogRef>((_, ref) => {
         </Stack>
       )}
     >
-      <Content>
-        <InlineInputs>
+      <div className="mb-8 flex flex-col gap-6">
+        <div className="flex flex-row items-start gap-6">
           <TextInputField
+            className="flex-1"
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
             formikProps={formikProps}
@@ -246,12 +245,13 @@ export const AddStripeDialog = forwardRef<AddStripeDialogRef>((_, ref) => {
             placeholder={translate('text_6584550dc4cec7adf861504f')}
           />
           <TextInputField
+            className="flex-1"
             formikProps={formikProps}
             name="code"
             label={translate('text_6584550dc4cec7adf8615051')}
             placeholder={translate('text_6584550dc4cec7adf8615053')}
           />
-        </InlineInputs>
+        </div>
 
         <TextInputField
           name="secretKey"
@@ -260,28 +260,9 @@ export const AddStripeDialog = forwardRef<AddStripeDialogRef>((_, ref) => {
           placeholder={translate('text_62b1edddbf5f461ab9712756')}
           formikProps={formikProps}
         />
-      </Content>
+      </div>
     </Dialog>
   )
 })
-
-const Content = styled.div`
-  margin-bottom: ${theme.spacing(8)};
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
-  }
-`
-
-const InlineInputs = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: ${theme.spacing(6)};
-
-  > * {
-    flex: 1;
-  }
-`
 
 AddStripeDialog.displayName = 'AddStripeDialog'

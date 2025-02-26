@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { Settings } from 'luxon'
 import { forwardRef } from 'react'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
@@ -11,7 +10,6 @@ import { addToast } from '~/core/apolloClient'
 import { getTimezoneConfig } from '~/core/timezone'
 import { TimezoneEnum, useUpdateOrganizationTimezoneMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 gql`
   mutation updateOrganizationTimezone($input: UpdateOrganizationInput!) {
@@ -90,7 +88,7 @@ export const EditOrganizationTimezoneDialog = forwardRef<
         </>
       )}
     >
-      <Content>
+      <div className="mb-8">
         <ComboBoxField
           name="timezone"
           label={translate('text_63890710eb171a76814a0c11')}
@@ -105,13 +103,9 @@ export const EditOrganizationTimezoneDialog = forwardRef<
             }),
           }))}
         />
-      </Content>
+      </div>
     </Dialog>
   )
 })
-
-const Content = styled.div`
-  margin-bottom: ${theme.spacing(8)};
-`
 
 EditOrganizationTimezoneDialog.displayName = 'EditOrganizationTimezoneDialog'

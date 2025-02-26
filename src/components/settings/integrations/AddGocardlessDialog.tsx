@@ -4,7 +4,6 @@ import { useFormik } from 'formik'
 import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { generatePath } from 'react-router-dom'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
@@ -22,7 +21,6 @@ import {
   useUpdateGocardlessApiKeyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 import { DeleteGocardlessIntegrationDialogRef } from './DeleteGocardlessIntegrationDialog'
 
@@ -228,45 +226,26 @@ export const AddGocardlessDialog = forwardRef<AddGocardlessDialogRef>((_, ref) =
         </Stack>
       )}
     >
-      <Content>
-        <InlineInputs>
-          <TextInputField
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
-            formikProps={formikProps}
-            name="name"
-            label={translate('text_6584550dc4cec7adf861504d')}
-            placeholder={translate('text_6584550dc4cec7adf861504f')}
-          />
-          <TextInputField
-            formikProps={formikProps}
-            name="code"
-            label={translate('text_6584550dc4cec7adf8615051')}
-            placeholder={translate('text_6584550dc4cec7adf8615053')}
-          />
-        </InlineInputs>
-      </Content>
+      <div className="mb-8 flex flex-row items-start gap-6">
+        <TextInputField
+          className="flex-1"
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          autoFocus
+          formikProps={formikProps}
+          name="name"
+          label={translate('text_6584550dc4cec7adf861504d')}
+          placeholder={translate('text_6584550dc4cec7adf861504f')}
+        />
+        <TextInputField
+          className="flex-1"
+          formikProps={formikProps}
+          name="code"
+          label={translate('text_6584550dc4cec7adf8615051')}
+          placeholder={translate('text_6584550dc4cec7adf8615053')}
+        />
+      </div>
     </Dialog>
   )
 })
-
-const Content = styled.div`
-  margin-bottom: ${theme.spacing(8)};
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
-  }
-`
-
-const InlineInputs = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: ${theme.spacing(6)};
-
-  > * {
-    flex: 1;
-  }
-`
 
 AddGocardlessDialog.displayName = 'AddGocardlessDialog'

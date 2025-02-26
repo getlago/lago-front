@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef } from 'react'
 import { generatePath, useNavigate } from 'react-router'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Alert, Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
@@ -19,7 +18,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useIntegrations } from '~/hooks/useIntegrations'
-import { theme } from '~/styles'
 
 gql`
   mutation updateOrgaForLagoTaxManagement($input: UpdateOrganizationInput!) {
@@ -110,7 +108,7 @@ export const AddLagoTaxManagementDialog = forwardRef<AddLagoTaxManagementDialogR
           </>
         )}
       >
-        <Content>
+        <div className="mb-8 flex flex-col gap-8">
           <ComboBoxField
             data={countryDataForCombobox}
             name="country"
@@ -127,18 +125,10 @@ export const AddLagoTaxManagementDialog = forwardRef<AddLagoTaxManagementDialogR
               </Typography>
             </Alert>
           )}
-        </Content>
+        </div>
       </Dialog>
     )
   },
 )
-
-const Content = styled.div`
-  margin-bottom: ${theme.spacing(8)};
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(8)};
-  }
-`
 
 AddLagoTaxManagementDialog.displayName = 'AddLagoTaxManagementDialog'

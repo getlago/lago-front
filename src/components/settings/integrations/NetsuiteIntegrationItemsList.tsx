@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { Button, Popper, Typography } from '~/components/designSystem'
 import { SearchInput } from '~/components/SearchInput'
@@ -17,7 +16,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { MenuPopper, NAV_HEIGHT, theme } from '~/styles'
+import { MenuPopper } from '~/styles'
 
 import NetsuiteIntegrationItemsListAddons from './NetsuiteIntegrationItemsListAddons'
 import NetsuiteIntegrationItemsListBillableMetrics from './NetsuiteIntegrationItemsListBillableMetrics'
@@ -179,7 +178,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
 
   return (
     <>
-      <ItemTypeSelectorLine>
+      <div className="flex h-nav items-center justify-between px-12 shadow-b">
         <Stack direction="row" gap={3} alignItems="center">
           <Typography variant="body" color="grey600">
             {translate('text_6630e3210c13c500cd398e95')}
@@ -244,6 +243,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
           />
         ) : null}
       </ItemTypeSelectorLine>
+      </div>
 
       {selectedItemType === SelectedItemTypeEnum.Default ? (
         <NetsuiteIntegrationItemsListDefault
@@ -281,13 +281,3 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
 }
 
 export default NetsuiteIntegrationItemsList
-
-const ItemTypeSelectorLine = styled.div`
-  height: ${NAV_HEIGHT}px;
-  padding: 0 ${theme.spacing(12)};
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: ${theme.shadows[7]};
-`

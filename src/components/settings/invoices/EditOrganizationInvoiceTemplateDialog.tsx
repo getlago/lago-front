@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef } from 'react'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
@@ -9,7 +8,6 @@ import { TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { useUpdateOrganizationInvoiceTemplateMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 const MAX_CHAR_LIMIT = 600
 
@@ -97,7 +95,7 @@ export const EditOrganizationInvoiceTemplateDialog = forwardRef<
         </>
       )}
     >
-      <Content>
+      <div className="mb-8">
         <TextInputField
           className="whitespace-pre-line"
           name="billingConfiguration.invoiceFooter"
@@ -110,38 +108,21 @@ export const EditOrganizationInvoiceTemplateDialog = forwardRef<
           formikProps={formikProps}
           error={formikProps.errors?.billingConfiguration?.invoiceFooter}
           helperText={
-            <TextInputHelper>
-              <div>
+            <div className="flex justify-between">
+              <div className="flex-1">
                 {!!formikProps.errors?.billingConfiguration?.invoiceFooter
                   ? translate('text_62bb10ad2a10bd182d00203b')
                   : translate('text_62bc52dd8536260acc9eb762')}
               </div>
-              <div>
+              <div className="shrink-0">
                 {formikProps.values.billingConfiguration?.invoiceFooter?.length}/{MAX_CHAR_LIMIT}
               </div>
-            </TextInputHelper>
+            </div>
           }
         />
-      </Content>
+      </div>
     </Dialog>
   )
 })
-
-const Content = styled.div`
-  margin-bottom: ${theme.spacing(8)};
-`
-
-const TextInputHelper = styled.div`
-  display: flex;
-  justify-content: space-between;
-
-  > div:first-child {
-    flex: 1;
-  }
-
-  > div:last-child {
-    flex-shrink: 0;
-  }
-`
 
 EditOrganizationInvoiceTemplateDialog.displayName = 'forwardRef'

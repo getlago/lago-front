@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import styled from 'styled-components'
 import { number, object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
@@ -16,7 +15,6 @@ import {
   useUpdateOrganizationNetPaymentTermMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 gql`
   fragment EditCustomerNetPaymentTermForDialog on Customer {
@@ -201,7 +199,7 @@ export const EditNetPaymentTermDialog = forwardRef<
         </>
       )}
     >
-      <ContentWrapper>
+      <div className="mb-8 flex flex-col gap-3">
         <ComboBoxField
           name="netPaymentTerm"
           label={translate('text_64c7a89b6c67eb6c98898109')}
@@ -267,23 +265,9 @@ export const EditNetPaymentTermDialog = forwardRef<
             }}
           />
         )}
-      </ContentWrapper>
+      </div>
     </Dialog>
   )
 })
-
-const ContentWrapper = styled.div`
-  display: flex;
-  gap: ${theme.spacing(3)};
-  margin-bottom: ${theme.spacing(8)};
-
-  > * {
-    flex: 1;
-  }
-
-  ${theme.breakpoints.down('md')} {
-    flex-direction: column;
-  }
-`
 
 EditNetPaymentTermDialog.displayName = 'forwardRef'

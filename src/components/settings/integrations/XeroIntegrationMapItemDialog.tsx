@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Dialog } from '~/components/designSystem'
@@ -23,7 +22,6 @@ import {
   useUpdateXeroIntegrationMappingMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 const OPTION_VALUE_SEPARATOR = ':::'
 
@@ -563,8 +561,8 @@ export const XeroIntegrationMapItemDialog = forwardRef<XeroIntegrationMapItemDia
           </>
         )}
       >
-        <Container>
-          <InlineElements>
+        <div className="mb-8 flex flex-row gap-3">
+          <div className="flex-1">
             <ComboBox
               value={formikProps.values.selectedElementValue}
               data={comboboxData}
@@ -586,46 +584,25 @@ export const XeroIntegrationMapItemDialog = forwardRef<XeroIntegrationMapItemDia
               }}
               PopperProps={{ displayInDialog: true }}
             />
-
-            <Button
-              icon="reload"
-              variant="quaternary"
-              disabled={isLoading}
-              loading={isLoading}
-              onClick={() => {
-                if (isAccountContext) {
-                  triggerAccountItemRefetch()
-                } else {
-                  triggerItemRefetch()
-                }
-              }}
-            />
-          </InlineElements>
-        </Container>
+          </div>
+          <Button
+            className="mt-8"
+            icon="reload"
+            variant="quaternary"
+            disabled={isLoading}
+            loading={isLoading}
+            onClick={() => {
+              if (isAccountContext) {
+                triggerAccountItemRefetch()
+              } else {
+                triggerItemRefetch()
+              }
+            }}
+          />
+        </div>
       </Dialog>
     )
   },
 )
 
 XeroIntegrationMapItemDialog.displayName = 'XeroIntegrationMapItemDialog'
-
-const Container = styled.div`
-  margin-bottom: ${theme.spacing(8)};
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
-  }
-`
-
-const InlineElements = styled.div`
-  display: flex;
-  gap: ${theme.spacing(3)};
-
-  > *:first-child {
-    flex: 1;
-  }
-
-  > *:last-child {
-    margin-top: ${theme.spacing(7)};
-  }
-`

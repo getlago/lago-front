@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Avatar, Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
@@ -14,7 +13,6 @@ import {
   useUpdateInviteRoleMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 import { RolePickerField } from './RolePickerField'
 
@@ -115,42 +113,26 @@ export const EditInviteRoleDialog = forwardRef<EditInviteRoleDialogRef>((_, ref)
         </>
       )}
     >
-      <ContentWrapper>
-        <Stack gap={8}>
-          <Stack gap={3} direction="row" alignItems="center">
-            <Avatar
-              variant="user"
-              identifier={(localData?.invite?.email || '').charAt(0)}
-              size="big"
-            />
-            <Typography variant="body" color="grey700">
-              {localData?.invite?.email}
-            </Typography>
-          </Stack>
-
-          <RolePickerField
-            title={translate('text_664f035a68227f00e261b7ec')}
-            onChange={(value) => formikProps.setFieldValue('role', value)}
-            selectedValue={formikProps.values.role}
+      <div className="mb-8 flex flex-col gap-8">
+        <Stack gap={3} direction="row" alignItems="center">
+          <Avatar
+            variant="user"
+            identifier={(localData?.invite?.email || '').charAt(0)}
+            size="big"
           />
+          <Typography variant="body" color="grey700">
+            {localData?.invite?.email}
+          </Typography>
         </Stack>
-      </ContentWrapper>
+
+        <RolePickerField
+          title={translate('text_664f035a68227f00e261b7ec')}
+          onChange={(value) => formikProps.setFieldValue('role', value)}
+          selectedValue={formikProps.values.role}
+        />
+      </div>
     </Dialog>
   )
 })
-
-const ContentWrapper = styled.div`
-  display: flex;
-  gap: ${theme.spacing(3)};
-  margin-bottom: ${theme.spacing(8)};
-
-  > * {
-    flex: 1;
-  }
-
-  ${theme.breakpoints.down('md')} {
-    flex-direction: column;
-  }
-`
 
 EditInviteRoleDialog.displayName = 'forwardRef'

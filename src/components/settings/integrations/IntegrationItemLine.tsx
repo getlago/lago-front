@@ -1,9 +1,8 @@
 import { Stack } from '@mui/material'
-import styled from 'styled-components'
 
 import { Avatar, Icon, IconName, Skeleton, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { NAV_HEIGHT, theme } from '~/styles'
+import { theme } from '~/styles'
 
 const STATUS_SIZE = 12
 
@@ -31,21 +30,24 @@ const IntegrationItemLine = ({
 
   if (loading) {
     return (
-      <SkeletonWrapper>
+      <div className="flex h-nav items-center justify-between px-12 py-3 shadow-b">
         <Stack direction="row" alignItems="center" gap={3} sx={{ flex: 1 }}>
           <Skeleton variant="connectorAvatar" size="big" />
           <Stack sx={{ flex: 1 }}>
-            <Skeleton variant="text" className="mb-2 w-45" />
+            <Skeleton variant="text" className="w-45" />
             <Skeleton variant="text" className="w-20" />
           </Stack>
         </Stack>
         <Skeleton variant="text" className="w-50" />
-      </SkeletonWrapper>
+      </div>
     )
   }
 
   return (
-    <ItemLine onClick={onMappingClick}>
+    <button
+      className="flex min-h-nav items-center justify-between rounded-none px-12 py-3 text-left shadow-b hover:bg-grey-100"
+      onClick={onMappingClick}
+    >
       <Stack direction="row" alignItems="center" gap={3}>
         <Avatar size="big" variant="connector">
           <Icon name={icon} color="dark" />
@@ -61,8 +63,8 @@ const IntegrationItemLine = ({
         </Stack>
       </Stack>
 
-      <StatusContainer>
-        <svg height={STATUS_SIZE} width={STATUS_SIZE}>
+      <div className="flex min-h-8 items-center gap-2 rounded-xl border border-grey-300 bg-grey-100 px-2 py-1">
+        <svg height={STATUS_SIZE} width={STATUS_SIZE} className="shrink-0">
           <circle
             cx="6"
             cy="6"
@@ -76,51 +78,9 @@ const IntegrationItemLine = ({
             ? `${mappingInfos.name}${!!mappingInfos.id ? ` (${mappingInfos.id})` : ''} `
             : translate('text_6630e3210c13c500cd398e9a')}
         </Typography>
-      </StatusContainer>
-    </ItemLine>
+      </div>
+    </button>
   )
 }
 
 export default IntegrationItemLine
-
-const ItemLine = styled.div`
-  min-height: ${NAV_HEIGHT}px;
-  padding: ${theme.spacing(3)} ${theme.spacing(12)};
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: ${theme.shadows[7]};
-  cursor: pointer;
-
-  &:hover {
-    background-color: ${theme.palette.grey[100]};
-  }
-`
-
-const SkeletonWrapper = styled.div`
-  height: ${NAV_HEIGHT}px;
-  padding: ${theme.spacing(3)} ${theme.spacing(12)};
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: ${theme.shadows[7]};
-`
-
-const StatusContainer = styled.div`
-  display: flex;
-  align-items: center;
-  background-color: ${theme.palette.grey[100]};
-  padding: ${theme.spacing(1)} ${theme.spacing(2)};
-  box-sizing: border-box;
-  border-radius: ${theme.shape.borderRadius}px;
-  min-height: ${theme.spacing(8)};
-  gap: ${theme.spacing(2)};
-  outline: 1px solid ${theme.palette.grey[300]};
-  outline-offset: -1px;
-
-  svg {
-    flex-shrink: 0;
-  }
-`

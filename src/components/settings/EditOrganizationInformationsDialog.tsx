@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef, useState } from 'react'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
@@ -16,7 +15,6 @@ import {
   useUpdateOrganizationInformationsMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 gql`
   fragment EditOrganizationInformationsDialog on CurrentOrganization {
@@ -122,55 +120,49 @@ export const EditOrganizationInformationsDialog = forwardRef<
         </>
       )}
     >
-      <Content>
-        <FormSection>
-          <OrganizationLogoPicker logoValue={logo} onChange={(value) => setLogo(value)} />
-        </FormSection>
-        <FormSection>
-          <TextInput
-            name="name"
-            label={translate('text_62b95bf4a482330b71b8acb2')}
-            placeholder={translate('text_62b95bf4a482330b71b8acb2')}
-            value={organization?.name}
-            disabled={true}
-          />
-        </FormSection>
-        <FormSection>
-          <TextInputField
-            name="legalName"
-            label={translate('text_62ab2d0396dd6b0361614d40')}
-            placeholder={translate('text_62ab2d0396dd6b0361614d48')}
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
-            formikProps={formikProps}
-          />
-        </FormSection>
-        <FormSection>
-          <TextInputField
-            name="legalNumber"
-            label={translate('text_62ab2d0396dd6b0361614d50')}
-            placeholder={translate('text_62ab2d0396dd6b0361614d58')}
-            formikProps={formikProps}
-          />
-        </FormSection>
-        <FormSection>
-          <TextInputField
-            name="taxIdentificationNumber"
-            label={translate('text_648053ee819b60364c675d05')}
-            placeholder={translate('text_648053ee819b60364c675d0b')}
-            formikProps={formikProps}
-          />
-        </FormSection>
-        <FormSection>
-          <TextInputField
-            name="email"
-            beforeChangeFormatter={['lowercase']}
-            label={translate('text_62ab2d0396dd6b0361614d60')}
-            placeholder={translate('text_62ab2d0396dd6b0361614d68')}
-            formikProps={formikProps}
-          />
-        </FormSection>
-        <AddressSection>
+      <div className="mb-8 flex flex-col gap-6">
+        <OrganizationLogoPicker logoValue={logo} onChange={(value) => setLogo(value)} />
+
+        <TextInput
+          name="name"
+          label={translate('text_62b95bf4a482330b71b8acb2')}
+          placeholder={translate('text_62b95bf4a482330b71b8acb2')}
+          value={organization?.name}
+          disabled={true}
+        />
+
+        <TextInputField
+          name="legalName"
+          label={translate('text_62ab2d0396dd6b0361614d40')}
+          placeholder={translate('text_62ab2d0396dd6b0361614d48')}
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          autoFocus
+          formikProps={formikProps}
+        />
+
+        <TextInputField
+          name="legalNumber"
+          label={translate('text_62ab2d0396dd6b0361614d50')}
+          placeholder={translate('text_62ab2d0396dd6b0361614d58')}
+          formikProps={formikProps}
+        />
+
+        <TextInputField
+          name="taxIdentificationNumber"
+          label={translate('text_648053ee819b60364c675d05')}
+          placeholder={translate('text_648053ee819b60364c675d0b')}
+          formikProps={formikProps}
+        />
+
+        <TextInputField
+          name="email"
+          beforeChangeFormatter={['lowercase']}
+          label={translate('text_62ab2d0396dd6b0361614d60')}
+          placeholder={translate('text_62ab2d0396dd6b0361614d68')}
+          formikProps={formikProps}
+        />
+
+        <div className="flex flex-col gap-4">
           <TextInputField
             name="addressLine1"
             label={translate('text_62ab2d0396dd6b0361614d70')}
@@ -204,26 +196,10 @@ export const EditOrganizationInformationsDialog = forwardRef<
             formikProps={formikProps}
             PopperProps={{ displayInDialog: true }}
           />
-        </AddressSection>
-      </Content>
+        </div>
+      </div>
     </Dialog>
   )
 })
-
-const Content = styled.div`
-  margin-bottom: ${theme.spacing(8)};
-`
-
-const FormSection = styled.div`
-  &:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
-  }
-`
-
-const AddressSection = styled.div`
-  > * {
-    margin-bottom: ${theme.spacing(4)};
-  }
-`
 
 EditOrganizationInformationsDialog.displayName = 'forwardRef'
