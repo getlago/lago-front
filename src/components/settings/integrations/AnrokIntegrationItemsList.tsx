@@ -230,21 +230,21 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
           </Popper>
         </Stack>
 
-        {selectedItemType === MappableTypeEnum.AddOn ? (
+        {selectedItemType === MappableTypeEnum.AddOn && (
           <SearchInput
             onChange={debouncedSearchAddons}
             placeholder={translate('text_63bee4e10e2d53912bfe4db8')}
           />
-        ) : selectedItemType === MappableTypeEnum.BillableMetric ? (
+        )}
+        {selectedItemType === MappableTypeEnum.BillableMetric && (
           <SearchInput
             onChange={debouncedSearchBillableMetrics}
             placeholder={translate('text_63ba9ee977a67c9693f50aea')}
           />
-        ) : null}
-      </ItemTypeSelectorLine>
+        )}
       </div>
 
-      {selectedItemType === SelectedItemTypeEnum.Default ? (
+      {selectedItemType === SelectedItemTypeEnum.Default && (
         <AnrokIntegrationItemsListDefault
           defaultItems={collectionMappingData?.integrationCollectionMappings?.collection}
           integrationId={integrationId}
@@ -252,7 +252,8 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
           hasError={!!collectionMappingError}
           anrokIntegrationMapItemDialogRef={anrokIntegrationMapItemDialogRef}
         />
-      ) : selectedItemType === MappableTypeEnum.AddOn ? (
+      )}
+      {selectedItemType === MappableTypeEnum.AddOn && (
         <AnrokIntegrationItemsListAddons
           data={addonData}
           fetchMoreAddons={fetchMoreAddons}
@@ -262,7 +263,8 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
           anrokIntegrationMapItemDialogRef={anrokIntegrationMapItemDialogRef}
           searchTerm={addonVariables?.searchTerm}
         />
-      ) : selectedItemType === MappableTypeEnum.BillableMetric ? (
+      )}
+      {selectedItemType === MappableTypeEnum.BillableMetric && (
         <AnrokIntegrationItemsListBillableMetrics
           data={billableMetricsData}
           fetchMoreBillableMetrics={fetchMoreBillableMetrics}
@@ -272,7 +274,7 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
           anrokIntegrationMapItemDialogRef={anrokIntegrationMapItemDialogRef}
           searchTerm={billableMetricsVariables?.searchTerm}
         />
-      ) : null}
+      )}
 
       <AnrokIntegrationMapItemDialog ref={anrokIntegrationMapItemDialogRef} />
     </>

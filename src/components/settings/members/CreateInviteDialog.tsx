@@ -160,9 +160,8 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
         </>
       )}
     >
-      <Content>
-        {!inviteToken ? (
       <div className="mb-8 flex flex-col gap-6">
+        {!inviteToken && (
           <Stack gap={8}>
             <TextInputField
               name="email"
@@ -178,13 +177,15 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
               selectedValue={formikProps.values.role}
             />
           </Stack>
-        ) : !!error ? (
+        )}
+        {inviteToken && !!error && (
           <GenericPlaceholder
             noMargins
             subtitle={translate('text_63208c701ce25db781407485')}
             image={<ErrorImage width="136" height="104" />}
           />
-        ) : (
+        )}
+        {inviteToken && !error && (
           <>
             <div className="flex items-baseline">
               <Typography className="w-35 shrink-0" variant="caption" color="grey600">

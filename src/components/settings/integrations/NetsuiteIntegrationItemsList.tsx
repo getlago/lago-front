@@ -231,18 +231,18 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
           </Popper>
         </Stack>
 
-        {selectedItemType === MappableTypeEnum.AddOn ? (
+        {selectedItemType === MappableTypeEnum.AddOn && (
           <SearchInput
             onChange={debouncedSearchAddons}
             placeholder={translate('text_63bee4e10e2d53912bfe4db8')}
           />
-        ) : selectedItemType === MappableTypeEnum.BillableMetric ? (
+        )}
+        {selectedItemType === MappableTypeEnum.BillableMetric && (
           <SearchInput
             onChange={debouncedSearchBillableMetrics}
             placeholder={translate('text_63ba9ee977a67c9693f50aea')}
           />
-        ) : null}
-      </ItemTypeSelectorLine>
+        )}
       </div>
 
       {selectedItemType === SelectedItemTypeEnum.Default ? (
@@ -253,7 +253,9 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
           hasError={!!collectionMappingError}
           netsuiteIntegrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
         />
-      ) : selectedItemType === MappableTypeEnum.AddOn ? (
+      ) : (
+        <>
+          {selectedItemType === MappableTypeEnum.AddOn && (
         <NetsuiteIntegrationItemsListAddons
           data={addonData}
           fetchMoreAddons={fetchMoreAddons}
@@ -263,7 +265,8 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
           netsuiteIntegrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
           searchTerm={addonVariables?.searchTerm}
         />
-      ) : selectedItemType === MappableTypeEnum.BillableMetric ? (
+          )}
+          {selectedItemType === MappableTypeEnum.BillableMetric && (
         <NetsuiteIntegrationItemsListBillableMetrics
           data={billableMetricsData}
           fetchMoreBillableMetrics={fetchMoreBillableMetrics}
@@ -273,7 +276,9 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
           netsuiteIntegrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
           searchTerm={billableMetricsVariables?.searchTerm}
         />
-      ) : null}
+          )}
+        </>
+      )}
 
       <NetsuiteIntegrationMapItemDialog ref={netsuiteIntegrationMapItemDialogRef} />
     </>

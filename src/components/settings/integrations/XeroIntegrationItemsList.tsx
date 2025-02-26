@@ -230,18 +230,18 @@ const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) 
           </Popper>
         </Stack>
 
-        {selectedItemType === MappableTypeEnum.AddOn ? (
+        {selectedItemType === MappableTypeEnum.AddOn && (
           <SearchInput
             onChange={debouncedSearchAddons}
             placeholder={translate('text_63bee4e10e2d53912bfe4db8')}
           />
-        ) : selectedItemType === MappableTypeEnum.BillableMetric ? (
+        )}
+        {selectedItemType === MappableTypeEnum.BillableMetric && (
           <SearchInput
             onChange={debouncedSearchBillableMetrics}
             placeholder={translate('text_63ba9ee977a67c9693f50aea')}
           />
-        ) : null}
-      </ItemTypeSelectorLine>
+        )}
       </div>
 
       {selectedItemType === SelectedItemTypeEnum.Default ? (
@@ -252,7 +252,9 @@ const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) 
           hasError={!!collectionMappingError}
           xeroIntegrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
         />
-      ) : selectedItemType === MappableTypeEnum.AddOn ? (
+      ) : (
+        <>
+          {selectedItemType === MappableTypeEnum.AddOn && (
         <XeroIntegrationItemsListAddons
           data={addonData}
           fetchMoreAddons={fetchMoreAddons}
@@ -262,7 +264,8 @@ const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) 
           xeroIntegrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
           searchTerm={addonVariables?.searchTerm}
         />
-      ) : selectedItemType === MappableTypeEnum.BillableMetric ? (
+          )}
+          {selectedItemType === MappableTypeEnum.BillableMetric && (
         <XeroIntegrationItemsListBillableMetrics
           data={billableMetricsData}
           fetchMoreBillableMetrics={fetchMoreBillableMetrics}
@@ -272,8 +275,9 @@ const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) 
           xeroIntegrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
           searchTerm={billableMetricsVariables?.searchTerm}
         />
-      ) : null}
-
+          )}
+        </>
+      )}
       <XeroIntegrationMapItemDialog ref={xeroIntegrationMapItemDialogRef} />
     </>
   )
