@@ -147,5 +147,7 @@ export const useFilters = () => {
     resetFilters,
     isQuickFilterActive,
     buildQuickFilterUrlParams,
+    keyWithoutPrefix,
+    keyWithPrefix,
   }
 }

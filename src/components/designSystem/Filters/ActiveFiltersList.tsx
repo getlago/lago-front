@@ -11,7 +11,7 @@ import { formatActiveFilterValueDisplay } from './utils'
 export const ActiveFiltersList = () => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
-  const { availableFilters, staticFilters } = useFilters()
+  const { availableFilters, staticFilters, keyWithoutPrefix } = useFilters()
 
   const activeFilters = useMemo(() => {
     const setFilters = Object.fromEntries(searchParams.entries())
@@ -19,16 +19,17 @@ export const ActiveFiltersList = () => {
     const filtersToDisplay = Object.entries(setFilters).reduce(
       (acc, cur) => {
         const [key, value] = cur as [AvailableFiltersEnum, string]
+        const _keyWithoutPrefix = keyWithoutPrefix(key) as AvailableFiltersEnum
 
-        if (!availableFilters.includes(key) && !staticFilters?.[key]) {
+        if (!availableFilters.includes(_keyWithoutPrefix) && !staticFilters?.[_keyWithoutPrefix]) {
           return acc
         }
 
         return [
           ...acc,
           {
-            label: translate(mapFilterToTranslationKey(key)),
-            value: formatActiveFilterValueDisplay(key, value, translate),
+            label: translate(mapFilterToTranslationKey(_keyWithoutPrefix)),
+            value: formatActiveFilterValueDisplay(_keyWithoutPrefix, value, translate),
           },
         ]
       },
