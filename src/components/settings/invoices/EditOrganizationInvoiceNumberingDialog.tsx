@@ -4,7 +4,7 @@ import { forwardRef } from 'react'
 import { object, string } from 'yup'
 
 import { Button, Chip, Dialog, DialogRef, Typography } from '~/components/designSystem'
-import { RadioField, TextInput, TextInputField } from '~/components/form'
+import { RadioGroupField, TextInput, TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { getInvoiceNumberPreview } from '~/core/utils/invoiceNumberPreview'
 import {
@@ -60,7 +60,7 @@ export const EditOrganizationInvoiceNumberingDialog = forwardRef<
       },
     })
 
-    // Type is manually written here as errors type are not correclty read from UpdateOrganizationInput
+    // Type is manually written here as errors type are not correctly read from UpdateOrganizationInput
     const formikProps = useFormik<EditOrganizationInvoiceNumberingDialogProps>({
       initialValues: {
         documentNumbering,
@@ -116,26 +116,24 @@ export const EditOrganizationInvoiceNumberingDialog = forwardRef<
                 formikProps.values.documentNumberPrefix || '',
               )}
             </Typography>
-          <RadioContainer>
-            <Typography variant="captionHl" color="textSecondary">
-              {translate('text_6566f920a1d6c35693d6ccae')}
-            </Typography>
-            <RadioWrapper>
-              <RadioField
-                name="documentNumbering"
           </div>
-                formikProps={formikProps}
-                value={DocumentNumberingEnum.PerCustomer}
-                label={translate('text_6566f920a1d6c35693d6ccb8')}
-              />
-              <RadioField
-                name="documentNumbering"
-                formikProps={formikProps}
-                value={DocumentNumberingEnum.PerOrganization}
-                label={translate('text_6566f920a1d6c35693d6ccc0')}
-              />
-            </RadioWrapper>
-          </RadioContainer>
+
+          <RadioGroupField
+            formikProps={formikProps}
+            name="documentNumbering"
+            label={translate('text_6566f920a1d6c35693d6ccae')}
+            options={[
+              {
+                label: translate('text_6566f920a1d6c35693d6ccb8'),
+                value: DocumentNumberingEnum.PerCustomer,
+              },
+              {
+                label: translate('text_6566f920a1d6c35693d6ccc0'),
+                value: DocumentNumberingEnum.PerOrganization,
+              },
+            ]}
+          />
+
           <div className="grid grid-cols-[1fr_8px_1fr_8px_80px] gap-3">
             <TextInputField
               name="documentNumberPrefix"
