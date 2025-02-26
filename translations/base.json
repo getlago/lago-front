@@ -2684,7 +2684,7 @@
   "text_1734452833961ix7z38723pg": "A customer represents your client and can be associated with subscriptions, invoices, and other objects.",
   "text_1734452833961s338w0x3b4s": "Create a customer",
   "text_1734452833961chacuky8218": "Active sub.",
-  "text_17346987416277yx1mf6nau2": "{{creditNotesTotalCount}} creidt note|{{creditNotesTotalCount}} credit notes",
+  "text_17346987416277yx1mf6nau2": "{{creditNotesTotalCount}} credit note|{{creditNotesTotalCount}} credit notes",
   "text_1734698741627bges5xz01la": "Simple - Credit notes information",
   "text_173469874162761dxr57rvw7": "Export simple credit notes excluding line item details.",
   "text_1734698741627449t5wdghef": "Advanced - Line items information of credit notes",
