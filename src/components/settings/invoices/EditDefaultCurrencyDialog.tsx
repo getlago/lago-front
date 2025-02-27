@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
@@ -14,7 +13,6 @@ import {
   useUpdateOrganizationDefaultCurrencyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 gql`
   fragment EditOrganizationDefaultCurrencyForDialog on CurrentOrganization {
@@ -116,7 +114,7 @@ export const EditDefaultCurrencyDialog = forwardRef<EditDefaultCurrencyDialogRef
         </>
       )}
     >
-      <ContentWrapper>
+      <div className="mb-8 flex flex-col gap-3">
         <ComboBoxField
           disableClearable
           name="defaultCurrency"
@@ -127,23 +125,9 @@ export const EditDefaultCurrencyDialog = forwardRef<EditDefaultCurrencyDialogRef
           PopperProps={{ displayInDialog: true }}
           formikProps={formikProps}
         />
-      </ContentWrapper>
+      </div>
     </Dialog>
   )
 })
-
-const ContentWrapper = styled.div`
-  display: flex;
-  gap: ${theme.spacing(3)};
-  margin-bottom: ${theme.spacing(8)};
-
-  > * {
-    flex: 1;
-  }
-
-  ${theme.breakpoints.down('md')} {
-    flex-direction: column;
-  }
-`
 
 EditDefaultCurrencyDialog.displayName = 'forwardRef'

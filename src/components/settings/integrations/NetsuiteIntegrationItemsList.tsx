@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { Button, Popper, Typography } from '~/components/designSystem'
 import { SearchInput } from '~/components/SearchInput'
@@ -17,7 +16,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { MenuPopper, NAV_HEIGHT, theme } from '~/styles'
+import { MenuPopper } from '~/styles'
 
 import NetsuiteIntegrationItemsListAddons from './NetsuiteIntegrationItemsListAddons'
 import NetsuiteIntegrationItemsListBillableMetrics from './NetsuiteIntegrationItemsListBillableMetrics'
@@ -160,13 +159,15 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
     },
   })
 
-  const { debouncedSearch: debouncedSearchAddons, isLoading: isLoaddingAddons } =
-    useDebouncedSearch(getAddonList, addonLoading)
+  const { debouncedSearch: debouncedSearchAddons, isLoading: isLoadingAddons } = useDebouncedSearch(
+    getAddonList,
+    addonLoading,
+  )
 
-  const { debouncedSearch: debouncedSearchBillableMetrics, isLoading: isLoaddingBillableMetrics } =
+  const { debouncedSearch: debouncedSearchBillableMetrics, isLoading: isLoadingBillableMetrics } =
     useDebouncedSearch(getBillableMetricsList, billableMetricsLoading)
 
-  // handeling data fetching
+  // handling data fetching
   useEffect(() => {
     if (selectedItemType === SelectedItemTypeEnum.Default) {
       getDefaultItems()
@@ -179,7 +180,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
 
   return (
     <>
-      <ItemTypeSelectorLine>
+      <div className="flex h-nav items-center justify-between px-12 shadow-b">
         <Stack direction="row" gap={3} alignItems="center">
           <Typography variant="body" color="grey600">
             {translate('text_6630e3210c13c500cd398e95')}
@@ -232,18 +233,19 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
           </Popper>
         </Stack>
 
-        {selectedItemType === MappableTypeEnum.AddOn ? (
+        {selectedItemType === MappableTypeEnum.AddOn && (
           <SearchInput
             onChange={debouncedSearchAddons}
             placeholder={translate('text_63bee4e10e2d53912bfe4db8')}
           />
-        ) : selectedItemType === MappableTypeEnum.BillableMetric ? (
+        )}
+        {selectedItemType === MappableTypeEnum.BillableMetric && (
           <SearchInput
             onChange={debouncedSearchBillableMetrics}
             placeholder={translate('text_63ba9ee977a67c9693f50aea')}
           />
-        ) : null}
-      </ItemTypeSelectorLine>
+        )}
+      </div>
 
       {selectedItemType === SelectedItemTypeEnum.Default ? (
         <NetsuiteIntegrationItemsListDefault
@@ -253,27 +255,32 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
           hasError={!!collectionMappingError}
           netsuiteIntegrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
         />
-      ) : selectedItemType === MappableTypeEnum.AddOn ? (
-        <NetsuiteIntegrationItemsListAddons
-          data={addonData}
-          fetchMoreAddons={fetchMoreAddons}
-          integrationId={integrationId}
-          isLoading={isLoaddingAddons}
-          hasError={!!addonError}
-          netsuiteIntegrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
-          searchTerm={addonVariables?.searchTerm}
-        />
-      ) : selectedItemType === MappableTypeEnum.BillableMetric ? (
-        <NetsuiteIntegrationItemsListBillableMetrics
-          data={billableMetricsData}
-          fetchMoreBillableMetrics={fetchMoreBillableMetrics}
-          integrationId={integrationId}
-          isLoading={isLoaddingBillableMetrics}
-          hasError={!!billableMetricsError}
-          netsuiteIntegrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
-          searchTerm={billableMetricsVariables?.searchTerm}
-        />
-      ) : null}
+      ) : (
+        <>
+          {selectedItemType === MappableTypeEnum.AddOn && (
+            <NetsuiteIntegrationItemsListAddons
+              data={addonData}
+              fetchMoreAddons={fetchMoreAddons}
+              integrationId={integrationId}
+              isLoading={isLoadingAddons}
+              hasError={!!addonError}
+              netsuiteIntegrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
+              searchTerm={addonVariables?.searchTerm}
+            />
+          )}
+          {selectedItemType === MappableTypeEnum.BillableMetric && (
+            <NetsuiteIntegrationItemsListBillableMetrics
+              data={billableMetricsData}
+              fetchMoreBillableMetrics={fetchMoreBillableMetrics}
+              integrationId={integrationId}
+              isLoading={isLoadingBillableMetrics}
+              hasError={!!billableMetricsError}
+              netsuiteIntegrationMapItemDialogRef={netsuiteIntegrationMapItemDialogRef}
+              searchTerm={billableMetricsVariables?.searchTerm}
+            />
+          )}
+        </>
+      )}
 
       <NetsuiteIntegrationMapItemDialog ref={netsuiteIntegrationMapItemDialogRef} />
     </>
@@ -281,13 +288,3 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
 }
 
 export default NetsuiteIntegrationItemsList
-
-const ItemTypeSelectorLine = styled.div`
-  height: ${NAV_HEIGHT}px;
-  padding: 0 ${theme.spacing(12)};
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: ${theme.shadows[7]};
-`

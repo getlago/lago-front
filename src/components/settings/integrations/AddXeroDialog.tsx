@@ -6,7 +6,6 @@ import { GraphQLFormattedError } from 'graphql'
 import { forwardRef, RefObject, useId, useImperativeHandle, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { generatePath } from 'react-router-dom'
-import styled from 'styled-components'
 import { boolean, object, string } from 'yup'
 
 import { Alert, Button, Chip, Dialog, DialogRef, Typography } from '~/components/designSystem'
@@ -22,7 +21,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { XeroIntegrationDetailsTabs } from '~/pages/settings/XeroIntegrationDetails'
-import { theme } from '~/styles'
 
 import { DeleteXeroIntegrationDialogRef } from './DeleteXeroIntegrationDialog'
 
@@ -248,8 +246,9 @@ export const AddXeroDialog = forwardRef<AddXeroDialogRef>((_, ref) => {
         )}
 
         <Stack spacing={6}>
-          <InlineInputs>
+          <div className="flex flex-row items-start gap-6">
             <TextInputField
+              className="flex-1"
               // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus={!isEdition}
               name="name"
@@ -258,13 +257,14 @@ export const AddXeroDialog = forwardRef<AddXeroDialogRef>((_, ref) => {
               formikProps={formikProps}
             />
             <TextInputField
+              className="flex-1"
               name="code"
               beforeChangeFormatter="code"
               label={translate('text_62876e85e32e0300e1803127')}
               placeholder={translate('text_6584550dc4cec7adf8615053')}
               formikProps={formikProps}
             />
-          </InlineInputs>
+          </div>
         </Stack>
 
         <Stack spacing={6}>
@@ -398,16 +398,5 @@ export const AddXeroDialog = forwardRef<AddXeroDialogRef>((_, ref) => {
     </Dialog>
   )
 })
-
-const InlineInputs = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: ${theme.spacing(6)};
-
-  > * {
-    flex: 1;
-  }
-`
 
 AddXeroDialog.displayName = 'AddXeroDialog'

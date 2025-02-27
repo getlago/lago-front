@@ -3,7 +3,6 @@ import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Alert, Avatar, Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
@@ -17,7 +16,6 @@ import {
   useUpdateMembershipRoleMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 import { RolePickerField } from './RolePickerField'
 
@@ -140,46 +138,30 @@ export const EditMemberRoleDialog = forwardRef<EditMemberRoleDialogRef>((_, ref)
         </>
       )}
     >
-      <ContentWrapper>
-        <Stack gap={8}>
-          <Stack gap={3} direction="row" alignItems="center">
-            <Avatar
-              variant="user"
-              identifier={(localData?.member?.user?.email || '').charAt(0)}
-              size="big"
-            />
-            <Typography variant="body" color="grey700">
-              {localData?.member?.user?.email}
-            </Typography>
-          </Stack>
-
-          <RolePickerField
-            title={translate('text_664f035a68227f00e261b7ec')}
-            onChange={(value) => formikProps.setFieldValue('role', value)}
-            selectedValue={formikProps.values.role}
+      <div className="mb-8 flex flex-col gap-8">
+        <Stack gap={3} direction="row" alignItems="center">
+          <Avatar
+            variant="user"
+            identifier={(localData?.member?.user?.email || '').charAt(0)}
+            size="big"
           />
-
-          {localData?.isEditingLastAdmin && (
-            <Alert type="danger">{translate('text_664f035a68227f00e261b7f4')}</Alert>
-          )}
+          <Typography variant="body" color="grey700">
+            {localData?.member?.user?.email}
+          </Typography>
         </Stack>
-      </ContentWrapper>
+
+        <RolePickerField
+          title={translate('text_664f035a68227f00e261b7ec')}
+          onChange={(value) => formikProps.setFieldValue('role', value)}
+          selectedValue={formikProps.values.role}
+        />
+
+        {localData?.isEditingLastAdmin && (
+          <Alert type="danger">{translate('text_664f035a68227f00e261b7f4')}</Alert>
+        )}
+      </div>
     </Dialog>
   )
 })
-
-const ContentWrapper = styled.div`
-  display: flex;
-  gap: ${theme.spacing(3)};
-  margin-bottom: ${theme.spacing(8)};
-
-  > * {
-    flex: 1;
-  }
-
-  ${theme.breakpoints.down('md')} {
-    flex-direction: column;
-  }
-`
 
 EditMemberRoleDialog.displayName = 'forwardRef'

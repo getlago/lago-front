@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useRef } from 'react'
-import styled from 'styled-components'
 
 import { Button, Icon, Typography } from '~/components/designSystem'
 import { Radio } from '~/components/form'
@@ -11,7 +10,6 @@ import { getRoleTranslationKey } from '~/core/constants/form'
 import { MembershipRole } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { theme } from '~/styles'
 
 gql`
   fragment InviteForRolePickerField on Invite {
@@ -55,7 +53,7 @@ export const RolePickerField = ({ title, onChange, selectedValue }: RolePickerFi
         />
 
         {!isPremium && (
-          <FreemiumBlockWrapper>
+          <div className="flex items-center justify-between gap-4 rounded-xl bg-grey-100 px-6 py-4">
             <Stack>
               <Stack direction="row" gap={2} alignItems="center">
                 <Typography variant="bodyHl" color="grey700">
@@ -74,7 +72,7 @@ export const RolePickerField = ({ title, onChange, selectedValue }: RolePickerFi
             >
               {translate('text_65ae73ebe3a66bec2b91d72d')}
             </Button>
-          </FreemiumBlockWrapper>
+          </div>
         )}
 
         <Radio
@@ -102,13 +100,3 @@ export const RolePickerField = ({ title, onChange, selectedValue }: RolePickerFi
     </>
   )
 }
-
-const FreemiumBlockWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(4)};
-  padding: ${theme.spacing(4)} ${theme.spacing(6)};
-  box-sizing: border-box;
-  border-radius: 12px;
-  background-color: ${theme.palette.grey[100]};
-`

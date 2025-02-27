@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { Button, Popper, Typography } from '~/components/designSystem'
 import { SearchInput } from '~/components/SearchInput'
@@ -17,7 +16,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { MenuPopper, NAV_HEIGHT, theme } from '~/styles'
+import { MenuPopper } from '~/styles'
 
 import XeroIntegrationItemsListAddons from './XeroIntegrationItemsListAddons'
 import XeroIntegrationItemsListBillableMetrics from './XeroIntegrationItemsListBillableMetrics'
@@ -159,13 +158,15 @@ const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) 
     },
   })
 
-  const { debouncedSearch: debouncedSearchAddons, isLoading: isLoaddingAddons } =
-    useDebouncedSearch(getAddonList, addonLoading)
+  const { debouncedSearch: debouncedSearchAddons, isLoading: isLoadingAddons } = useDebouncedSearch(
+    getAddonList,
+    addonLoading,
+  )
 
-  const { debouncedSearch: debouncedSearchBillableMetrics, isLoading: isLoaddingBillableMetrics } =
+  const { debouncedSearch: debouncedSearchBillableMetrics, isLoading: isLoadingBillableMetrics } =
     useDebouncedSearch(getBillableMetricsList, billableMetricsLoading)
 
-  // handeling data fetching
+  // handling data fetching
   useEffect(() => {
     if (selectedItemType === SelectedItemTypeEnum.Default) {
       getDefaultItems()
@@ -178,7 +179,7 @@ const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) 
 
   return (
     <>
-      <ItemTypeSelectorLine>
+      <div className="flex h-nav items-center justify-between px-12 shadow-b">
         <Stack direction="row" gap={3} alignItems="center">
           <Typography variant="body" color="grey600">
             {translate('text_6630e3210c13c500cd398e95')}
@@ -231,18 +232,19 @@ const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) 
           </Popper>
         </Stack>
 
-        {selectedItemType === MappableTypeEnum.AddOn ? (
+        {selectedItemType === MappableTypeEnum.AddOn && (
           <SearchInput
             onChange={debouncedSearchAddons}
             placeholder={translate('text_63bee4e10e2d53912bfe4db8')}
           />
-        ) : selectedItemType === MappableTypeEnum.BillableMetric ? (
+        )}
+        {selectedItemType === MappableTypeEnum.BillableMetric && (
           <SearchInput
             onChange={debouncedSearchBillableMetrics}
             placeholder={translate('text_63ba9ee977a67c9693f50aea')}
           />
-        ) : null}
-      </ItemTypeSelectorLine>
+        )}
+      </div>
 
       {selectedItemType === SelectedItemTypeEnum.Default ? (
         <XeroIntegrationItemsListDefault
@@ -252,41 +254,35 @@ const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) 
           hasError={!!collectionMappingError}
           xeroIntegrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
         />
-      ) : selectedItemType === MappableTypeEnum.AddOn ? (
-        <XeroIntegrationItemsListAddons
-          data={addonData}
-          fetchMoreAddons={fetchMoreAddons}
-          integrationId={integrationId}
-          isLoading={isLoaddingAddons}
-          hasError={!!addonError}
-          xeroIntegrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
-          searchTerm={addonVariables?.searchTerm}
-        />
-      ) : selectedItemType === MappableTypeEnum.BillableMetric ? (
-        <XeroIntegrationItemsListBillableMetrics
-          data={billableMetricsData}
-          fetchMoreBillableMetrics={fetchMoreBillableMetrics}
-          integrationId={integrationId}
-          isLoading={isLoaddingBillableMetrics}
-          hasError={!!billableMetricsError}
-          xeroIntegrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
-          searchTerm={billableMetricsVariables?.searchTerm}
-        />
-      ) : null}
-
+      ) : (
+        <>
+          {selectedItemType === MappableTypeEnum.AddOn && (
+            <XeroIntegrationItemsListAddons
+              data={addonData}
+              fetchMoreAddons={fetchMoreAddons}
+              integrationId={integrationId}
+              isLoading={isLoadingAddons}
+              hasError={!!addonError}
+              xeroIntegrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
+              searchTerm={addonVariables?.searchTerm}
+            />
+          )}
+          {selectedItemType === MappableTypeEnum.BillableMetric && (
+            <XeroIntegrationItemsListBillableMetrics
+              data={billableMetricsData}
+              fetchMoreBillableMetrics={fetchMoreBillableMetrics}
+              integrationId={integrationId}
+              isLoading={isLoadingBillableMetrics}
+              hasError={!!billableMetricsError}
+              xeroIntegrationMapItemDialogRef={xeroIntegrationMapItemDialogRef}
+              searchTerm={billableMetricsVariables?.searchTerm}
+            />
+          )}
+        </>
+      )}
       <XeroIntegrationMapItemDialog ref={xeroIntegrationMapItemDialogRef} />
     </>
   )
 }
 
 export default XeroIntegrationItemsList
-
-const ItemTypeSelectorLine = styled.div`
-  height: ${NAV_HEIGHT}px;
-  padding: 0 ${theme.spacing(12)};
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: ${theme.shadows[7]};
-`

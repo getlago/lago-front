@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef } from 'react'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
@@ -14,7 +13,6 @@ import {
   useUpdateDocumentLocaleOrganizationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 gql`
   mutation updateDocumentLocaleOrganization($input: UpdateOrganizationInput!) {
@@ -110,7 +108,7 @@ export const EditOrganizationDocumentLocaleDialog = forwardRef<
         </>
       )}
     >
-      <Content>
+      <div className="mb-8">
         <ComboBoxField
           disableClearable
           name="billingConfiguration.documentLocale"
@@ -122,13 +120,9 @@ export const EditOrganizationDocumentLocaleDialog = forwardRef<
           data={documentLocalesData}
           PopperProps={{ displayInDialog: true }}
         />
-      </Content>
+      </div>
     </Dialog>
   )
 })
-
-const Content = styled.div`
-  margin-bottom: ${theme.spacing(8)};
-`
 
 EditOrganizationDocumentLocaleDialog.displayName = 'forwardRef'

@@ -1,12 +1,10 @@
-/* eslint-disable tailwindcss/no-custom-classname */
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef } from 'react'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Chip, Dialog, DialogRef, Typography } from '~/components/designSystem'
-import { RadioField, TextInput, TextInputField } from '~/components/form'
+import { RadioGroupField, TextInput, TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { getInvoiceNumberPreview } from '~/core/utils/invoiceNumberPreview'
 import {
@@ -14,9 +12,8 @@ import {
   useUpdateOrganizationInvoiceNumberingMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
-const DynamicPrefixTranslationLoohup = {
+const DynamicPrefixTranslationLookup = {
   [DocumentNumberingEnum.PerCustomer]: 'text_6566f920a1d6c35693d6cce0',
   [DocumentNumberingEnum.PerOrganization]: 'YYYYMM',
 }
@@ -63,7 +60,7 @@ export const EditOrganizationInvoiceNumberingDialog = forwardRef<
       },
     })
 
-    // Type is manually written here as errors type are not correclty read from UpdateOrganizationInput
+    // Type is manually written here as errors type are not correctly read from UpdateOrganizationInput
     const formikProps = useFormik<EditOrganizationInvoiceNumberingDialogProps>({
       initialValues: {
         documentNumbering,
@@ -110,8 +107,8 @@ export const EditOrganizationInvoiceNumberingDialog = forwardRef<
           </>
         )}
       >
-        <Content>
-          <PreviewBlock>
+        <div className="mb-8 flex flex-col gap-8">
+          <div className="flex items-center gap-3 rounded-xl border border-grey-300 p-3">
             <Chip label={translate('text_6566f920a1d6c35693d6cc9e')} />
             <Typography variant="body" color="grey700">
               {getInvoiceNumberPreview(
@@ -119,27 +116,25 @@ export const EditOrganizationInvoiceNumberingDialog = forwardRef<
                 formikProps.values.documentNumberPrefix || '',
               )}
             </Typography>
-          </PreviewBlock>
-          <RadioContainer>
-            <Typography variant="captionHl" color="textSecondary">
-              {translate('text_6566f920a1d6c35693d6ccae')}
-            </Typography>
-            <RadioWrapper>
-              <RadioField
-                name="documentNumbering"
-                formikProps={formikProps}
-                value={DocumentNumberingEnum.PerCustomer}
-                label={translate('text_6566f920a1d6c35693d6ccb8')}
-              />
-              <RadioField
-                name="documentNumbering"
-                formikProps={formikProps}
-                value={DocumentNumberingEnum.PerOrganization}
-                label={translate('text_6566f920a1d6c35693d6ccc0')}
-              />
-            </RadioWrapper>
-          </RadioContainer>
-          <InlineInputsWrapper>
+          </div>
+
+          <RadioGroupField
+            formikProps={formikProps}
+            name="documentNumbering"
+            label={translate('text_6566f920a1d6c35693d6ccae')}
+            options={[
+              {
+                label: translate('text_6566f920a1d6c35693d6ccb8'),
+                value: DocumentNumberingEnum.PerCustomer,
+              },
+              {
+                label: translate('text_6566f920a1d6c35693d6ccc0'),
+                value: DocumentNumberingEnum.PerOrganization,
+              },
+            ]}
+          />
+
+          <div className="grid grid-cols-[1fr_8px_1fr_8px_80px] gap-3">
             <TextInputField
               name="documentNumberPrefix"
               formikProps={formikProps}
@@ -150,67 +145,27 @@ export const EditOrganizationInvoiceNumberingDialog = forwardRef<
                   : undefined
               }
             />
-            <Typography className="separator" variant="body">
+            <Typography className="mt-[38px] h-fit" variant="body">
               -
             </Typography>
             <TextInput
               disabled
               label={translate('text_6566f920a1d6c35693d6ccd8')}
               value={translate(
-                DynamicPrefixTranslationLoohup[
+                DynamicPrefixTranslationLookup[
                   formikProps.values.documentNumbering as DocumentNumberingEnum
                 ],
               )}
             />
-            <Typography className="separator" variant="body">
+            <Typography className="mt-[38px] h-fit" variant="body">
               -
             </Typography>
             <TextInput disabled label={translate('text_6566f920a1d6c35693d6cce8')} value={'001'} />
-          </InlineInputsWrapper>
-        </Content>
+          </div>
+        </div>
       </Dialog>
     )
   },
 )
-
-const Content = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(8)};
-  margin-bottom: ${theme.spacing(8)};
-`
-
-const PreviewBlock = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-  padding: ${theme.spacing(3)};
-  box-sizing: border-box;
-  border-radius: 11px;
-  border: 1px solid ${theme.palette.grey[300]};
-`
-
-const RadioContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(1)};
-`
-
-const RadioWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(3)};
-`
-
-const InlineInputsWrapper = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 8px 1fr 8px 80px;
-  gap: ${theme.spacing(3)};
-
-  .separator {
-    height: fit-content;
-    margin-top: 38px;
-  }
-`
 
 EditOrganizationInvoiceNumberingDialog.displayName = 'forwardRef'

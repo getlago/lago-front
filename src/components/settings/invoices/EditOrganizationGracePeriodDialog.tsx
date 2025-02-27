@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
 import { forwardRef } from 'react'
-import styled from 'styled-components'
 import { number, object } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
@@ -13,7 +12,6 @@ import {
   useUpdateOrganizationGracePeriodMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 gql`
   mutation updateOrganizationGracePeriod($input: UpdateOrganizationInput!) {
@@ -96,7 +94,7 @@ export const EditOrganizationGracePeriodDialog = forwardRef<
         </>
       )}
     >
-      <Content>
+      <div className="mb-8">
         <TextInputField
           name="billingConfiguration.invoiceGracePeriod"
           beforeChangeFormatter={['positiveNumber', 'int']}
@@ -111,13 +109,9 @@ export const EditOrganizationGracePeriodDialog = forwardRef<
             ),
           }}
         />
-      </Content>
+      </div>
     </Dialog>
   )
 })
-
-const Content = styled.div`
-  margin-bottom: ${theme.spacing(8)};
-`
 
 EditOrganizationGracePeriodDialog.displayName = 'forwardRef'

@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useMemo, useState } from 'react'
-import styled from 'styled-components'
 
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { ComboBox, ComboboxItem } from '~/components/form'
@@ -14,7 +13,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
-import { theme } from '~/styles'
 
 gql`
   query getTaxRatesForEditOrga($limit: Int, $page: Int, $searchTerm: String) {
@@ -131,7 +129,7 @@ export const AddOrganizationVatRateDialog = forwardRef<
       )}
       data-test="add-organization-tax-dialog"
     >
-      <Content>
+      <div className="mb-8">
         <ComboBox
           allowAddValue
           name="selectTax"
@@ -152,13 +150,9 @@ export const AddOrganizationVatRateDialog = forwardRef<
           searchQuery={getTaxRates}
           value={localVatRate}
         />
-      </Content>
+      </div>
     </Dialog>
   )
 })
-
-const Content = styled.div`
-  margin-bottom: ${theme.spacing(8)};
-`
 
 AddOrganizationVatRateDialog.displayName = 'forwardRef'

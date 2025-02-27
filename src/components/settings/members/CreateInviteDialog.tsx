@@ -3,7 +3,6 @@ import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
 import { forwardRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
@@ -25,7 +24,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { theme } from '~/styles'
 
 import { RolePickerField } from './RolePickerField'
 
@@ -162,8 +160,8 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
         </>
       )}
     >
-      <Content>
-        {!inviteToken ? (
+      <div className="mb-8 flex flex-col gap-6">
+        {!inviteToken && (
           <Stack gap={8}>
             <TextInputField
               name="email"
@@ -179,58 +177,45 @@ export const CreateInviteDialog = forwardRef<DialogRef>((_, ref) => {
               selectedValue={formikProps.values.role}
             />
           </Stack>
-        ) : !!error ? (
+        )}
+        {inviteToken && !!error && (
           <GenericPlaceholder
             noMargins
             subtitle={translate('text_63208c701ce25db781407485')}
             image={<ErrorImage width="136" height="104" />}
           />
-        ) : (
+        )}
+        {inviteToken && !error && (
           <>
-            <Line>
+            <div className="flex items-baseline">
               <Typography className="w-35 shrink-0" variant="caption" color="grey600">
                 {translate('text_63208c701ce25db781407458')}
               </Typography>
               <Typography variant="body" color="grey700" noWrap>
                 {formikProps.values.email}
               </Typography>
-            </Line>
-            <Line>
+            </div>
+            <div className="flex items-baseline">
               <Typography className="w-35 shrink-0" variant="caption" color="grey600">
                 {translate('text_664f035a68227f00e261b7ec')}
               </Typography>
               <Typography variant="body" color="grey700" noWrap>
                 {translate(getRoleTranslationKey[formikProps.values.role])}
               </Typography>
-            </Line>
-            <Line>
+            </div>
+            <div className="flex items-baseline">
               <Typography className="w-35 shrink-0" variant="caption" color="grey600">
                 {translate('text_63208c701ce25db781407475')}
               </Typography>
               <Typography className="line-break-anywhere" variant="body" color="grey700">
                 {invitationUrl}
               </Typography>
-            </Line>
+            </div>
           </>
         )}
-      </Content>
+      </div>
     </Dialog>
   )
 })
-
-const Content = styled.div`
-  > * {
-    margin-bottom: ${theme.spacing(6)};
-  }
-
-  &:last-child {
-    margin-bottom: ${theme.spacing(8)};
-  }
-`
-
-const Line = styled.div`
-  display: flex;
-  align-items: baseline;
-`
 
 CreateInviteDialog.displayName = 'CreateInviteDialog'

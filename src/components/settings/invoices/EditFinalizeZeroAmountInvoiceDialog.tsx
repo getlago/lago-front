@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef } from 'react'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
@@ -15,7 +14,6 @@ import {
   useUpdateOrganizationFinalizeZeroAmountInvoiceMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 gql`
   fragment EditCustomerFinalizeZeroAmountInvoiceForDialog on Customer {
@@ -170,7 +168,7 @@ export const EditFinalizeZeroAmountInvoiceDialog = forwardRef<
         </>
       )}
     >
-      <ContentWrapper>
+      <div className="mb-8 flex flex-col gap-3">
         <ComboBoxField
           disableClearable
           name="finalizeZeroAmountInvoice"
@@ -180,23 +178,9 @@ export const EditFinalizeZeroAmountInvoiceDialog = forwardRef<
           PopperProps={{ displayInDialog: true }}
           formikProps={formikProps}
         />
-      </ContentWrapper>
+      </div>
     </Dialog>
   )
 })
-
-const ContentWrapper = styled.div`
-  display: flex;
-  gap: ${theme.spacing(3)};
-  margin-bottom: ${theme.spacing(8)};
-
-  > * {
-    flex: 1;
-  }
-
-  ${theme.breakpoints.down('md')} {
-    flex-direction: column;
-  }
-`
 
 EditFinalizeZeroAmountInvoiceDialog.displayName = 'forwardRef'
