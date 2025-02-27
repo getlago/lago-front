@@ -1,4 +1,5 @@
 import { CustomerAccountTypeQuickFilter } from '~/components/designSystem/Filters/CustomerAccountTypeQuickFilter'
+import { TimeGranularitySelector } from '~/components/designSystem/Filters/TimeGranularitySelector'
 
 import { InvoiceStatusQuickFilter } from './InvoiceStatusQuickFilter'
 import { AvailableQuickFilters } from './types'
@@ -15,6 +16,10 @@ export const QuickFilters = () => {
 
       {quickFiltersType === AvailableQuickFilters.customerAccountType ? (
         <CustomerAccountTypeQuickFilter />
+      ) : null}
+
+      {quickFiltersType === AvailableQuickFilters.timeGranularity ? (
+        <TimeGranularitySelector />
       ) : null}
     </div>
   )
