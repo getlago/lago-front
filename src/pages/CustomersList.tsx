@@ -115,7 +115,7 @@ const CustomersList = () => {
       <div className="px-12 py-3 shadow-b">
         <Filters.Provider
           filtersNamePrefix={CUSTOMER_LIST_FILTER_PREFIX}
-          quickFiltersType={AvailableQuickFilters.CustomerAccountType}
+          quickFiltersType={AvailableQuickFilters.customerAccountType}
           availableFilters={[AvailableFiltersEnum.customerAccountType]}
         >
           <Filters.QuickFilters />

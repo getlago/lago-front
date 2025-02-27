@@ -2,8 +2,8 @@
 export const filterDataInlineSeparator = '|-_-|'
 
 export enum AvailableQuickFilters {
-  InvoiceStatus = 'invoiceStatus',
-  CustomerAccountType = 'customerAccountType',
+  invoiceStatus = 'invoiceStatus',
+  customerAccountType = 'customerAccountType',
 }
 
 export enum AmountFilterInterval {
