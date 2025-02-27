@@ -1,11 +1,13 @@
 import Alphabet from '~/public/icons/alphabet.svg'
 import Apps from '~/public/icons/apps.svg'
 import ArrowBottom from '~/public/icons/arrow-bottom.svg'
+import ArrowDownCircleFilled from '~/public/icons/arrow-down-circle-filled.svg'
 import ArrowIndent from '~/public/icons/arrow-indent.svg'
 import ArrowLeftRight from '~/public/icons/arrow-left-right.svg'
 import ArrowLeft from '~/public/icons/arrow-left.svg'
 import ArrowRight from '~/public/icons/arrow-right.svg'
 import ArrowTop from '~/public/icons/arrow-top.svg'
+import ArrowUpCircleFilled from '~/public/icons/arrow-up-circle-filled.svg'
 import Ascending from '~/public/icons/ascending.svg'
 import At from '~/public/icons/at.svg'
 import AttachmentNa from '~/public/icons/attachment-na.svg'
@@ -129,6 +131,8 @@ export const ALL_ICONS = {
   'arrow-left-right': ArrowLeftRight,
   'arrow-right': ArrowRight,
   'arrow-top': ArrowTop,
+  'arrow-up-circle-filled': ArrowUpCircleFilled,
+  'arrow-down-circle-filled': ArrowDownCircleFilled,
   'arrow-indent': ArrowIndent,
   ascending: Ascending,
   'attachment-na': AttachmentNa,
