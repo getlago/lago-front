@@ -20,7 +20,11 @@ export const useFilters = () => {
     for (const search in searchParamsObject) {
       const key = keyWithoutPrefix(search) as AvailableFiltersEnum
 
-      if (context.availableFilters.includes(key)) {
+      // if value is part of the static filters, reset to default static value
+      if (context.staticFilters?.[key]) {
+        searchParams.set(search, context.staticFilters[key])
+      } else if (context.availableFilters.includes(key)) {
+        // otherwise, remove the filter from the URL
         searchParams.delete(search)
       }
     }
