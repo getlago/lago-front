@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useEffect } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { GoogleAuthModeEnum } from '~/components/auth/GoogleAuthButton'
 import { Icon } from '~/components/designSystem'
@@ -83,19 +82,10 @@ const GoogleAuthCallback = () => {
   }, [])
 
   return (
-    <Loader>
+    <div className="m-auto flex h-40 w-full items-center justify-center">
       <Icon name="processing" color="info" size="large" animation="spin" />
-    </Loader>
+    </div>
   )
 }
 
 export default GoogleAuthCallback
-
-const Loader = styled.div`
-  height: 160px;
-  width: 100%;
-  margin: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`

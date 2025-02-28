@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
 import { generatePath, Link, useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import GoogleAuthButton from '~/components/auth/GoogleAuthButton'
@@ -14,7 +13,6 @@ import { CurrentUserFragmentDoc, LagoApiError, useLoginUserMutation } from '~/ge
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
 import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
-import { theme } from '~/styles'
 import { Card, Page, StyledLogo } from '~/styles/auth'
 
 const { disableSignUp } = envGlobalVar()
@@ -116,15 +114,15 @@ const Login = () => {
                 </Button>
               </Stack>
 
-              <OrSeparator>
+              <div className="flex items-center justify-center gap-4 before:flex-1 before:border before:border-grey-300 before:content-[''] after:flex-1 after:border after:border-grey-300 after:content-['']">
                 <Typography variant="captionHl" color="grey500">
                   {translate('text_6303351deffd2a0d70498675').toUpperCase()}
                 </Typography>
-              </OrSeparator>
+              </div>
             </>
           )}
 
-          <InputWrapper>
+          <div className="flex flex-col gap-4">
             <TextInputField
               // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus
@@ -135,7 +133,7 @@ const Login = () => {
               placeholder={translate('text_62a99ba2af7535cefacab4bf')}
             />
 
-            <PasswordInputWrapper>
+            <div className="relative">
               <TextInputField
                 name="password"
                 formikProps={formikProps}
@@ -148,8 +146,8 @@ const Login = () => {
                   {translate('text_642707b0da1753a9bb6672b5')}
                 </Link>
               </Typography>
-            </PasswordInputWrapper>
-          </InputWrapper>
+            </div>
+          </div>
 
           <Button data-test="submit" fullWidth size="large" onClick={formikProps.submitForm}>
             {translate('text_620bc4d4269a55014d493f6d')}
@@ -171,27 +169,3 @@ const Login = () => {
 }
 
 export default Login
-
-const OrSeparator = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: ${theme.spacing(4)};
-
-  &::before,
-  &::after {
-    content: '';
-    flex: 1;
-    border-bottom: 2px solid ${theme.palette.grey[300]};
-  }
-`
-
-const InputWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(4)};
-`
-
-const PasswordInputWrapper = styled.div`
-  position: relative;
-`
