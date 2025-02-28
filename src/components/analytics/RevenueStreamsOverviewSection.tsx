@@ -1,15 +1,30 @@
 import { gql } from '@apollo/client'
-import { useState } from 'react'
+import Decimal from 'decimal.js'
+import { useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
-import { HorizontalDataTable, Typography } from '~/components/designSystem'
+import { HorizontalDataTable, Icon, Typography } from '~/components/designSystem'
+import {
+  AvailableFiltersEnum,
+  AvailableQuickFilters,
+  Filters,
+  formatFiltersForRevenueStreamsQuery,
+} from '~/components/designSystem/Filters'
 import { REVENUE_STREAMS_GRAPH_COLORS } from '~/components/designSystem/graphs/const'
 import MultipleLineChart from '~/components/designSystem/graphs/MultipleLineChart'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
-import { CurrencyEnum, TimezoneEnum, useGetRevenueStreamsQuery } from '~/generated/graphql'
+import {
+  CurrencyEnum,
+  TimeGranularityEnum,
+  TimezoneEnum,
+  useGetRevenueStreamsQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { tw } from '~/styles/utils'
 
@@ -53,33 +68,122 @@ gql`
 `
 
 const RevenueStreamsOverviewSection = () => {
+  const [searchParams] = useSearchParams()
   const { translate } = useInternationalization()
+  const { organization } = useOrganizationInfos()
   const [clickedDataIndex, setClickedDataIndex] = useState<number | undefined>(undefined)
-  const currency = CurrencyEnum.Usd
-  const blur = false
+
+  const currency = organization?.defaultCurrency || CurrencyEnum.Usd
+
+  const filtersForRevenueStreamsQuery = useMemo(() => {
+    return formatFiltersForRevenueStreamsQuery(searchParams)
+  }, [searchParams])
 
   const {
     data: revenueStreamsData,
     loading: revenueStreamsLoading,
     error: revenueStreamsError,
   } = useGetRevenueStreamsQuery({
-    variables: {},
-    skip: blur,
+    variables: {
+      ...filtersForRevenueStreamsQuery,
+    },
   })
   const displayError = !!revenueStreamsError && !revenueStreamsLoading
+
+  const { lastNetRevenueAmountCents, netRevenueAmountCentsProgressionOnPeriod } = useMemo(() => {
+    if (!revenueStreamsData?.revenueStreams.collection.length) {
+      return {
+        lastNetRevenueAmountCents: 0,
+        netRevenueAmountCentsProgressionOnPeriod: 0,
+      }
+    }
+
+    const localFirstNetRevenueAmountCents = Number(
+      revenueStreamsData?.revenueStreams.collection[0]?.netRevenueAmountCents,
+    )
+    const localLastNetRevenueAmountCents = Number(
+      revenueStreamsData?.revenueStreams.collection[
+        revenueStreamsData?.revenueStreams.collection.length - 1
+      ]?.netRevenueAmountCents,
+    )
+
+    // Bellow calcul should *100 but values are already in cents so no need to do it
+    // Also explain why the toFixed is 4 and not 2
+    const localNetRevenueAmountCentsProgressionOnPeriod = new Decimal(
+      Number(localLastNetRevenueAmountCents || 0),
+    )
+      .sub(localFirstNetRevenueAmountCents)
+      .dividedBy(localFirstNetRevenueAmountCents || 1)
+      .toFixed(4)
+
+    return {
+      lastNetRevenueAmountCents: localLastNetRevenueAmountCents,
+      netRevenueAmountCentsProgressionOnPeriod: localNetRevenueAmountCentsProgressionOnPeriod,
+    }
+  }, [revenueStreamsData])
 
   return (
     <section className="flex flex-col gap-6">
       <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <Typography variant="subhead" color="grey700">
-            {translate('text_634687079be251fdb43833b7')}
-          </Typography>
+        <Filters.Provider
+          filtersNamePrefix={REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX}
+          staticFilters={{
+            currency,
+          }}
+          staticQuickFilters={{
+            timeGranularity: TimeGranularityEnum.Monthly,
+          }}
+          availableFilters={[AvailableFiltersEnum.currency]}
+          quickFiltersType={AvailableQuickFilters.timeGranularity}
+        >
+          <div className="flex items-center justify-between">
+            <Typography variant="subhead" color="grey700">
+              {translate('text_634687079be251fdb43833b7')}
+            </Typography>
 
-          {/* TODO: Period filters */}
+            <div className="flex items-center gap-1">
+              <Filters.QuickFilters />
+            </div>
+          </div>
+
+          <div className="flex w-full flex-col gap-3">
+            <Filters.Component />
+          </div>
+        </Filters.Provider>
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <Typography variant="headline" color="grey700">
+          {intlFormatNumber(deserializeAmount(lastNetRevenueAmountCents || 0, currency), {
+            currencyDisplay: 'symbol',
+            currency: currency,
+          })}
+        </Typography>
+        <div className="flex items-center gap-2">
+          <Icon
+            name={
+              Number(netRevenueAmountCentsProgressionOnPeriod) > 0
+                ? 'arrow-up-circle-filled'
+                : 'arrow-down-circle-filled'
+            }
+            color={Number(netRevenueAmountCentsProgressionOnPeriod) > 0 ? 'success' : 'error'}
+          />
+          <div className="flex items-center gap-1">
+            <Typography
+              variant="caption"
+              color={
+                Number(netRevenueAmountCentsProgressionOnPeriod) > 0 ? 'success600' : 'danger600'
+              }
+            >
+              {intlFormatNumber(Number(netRevenueAmountCentsProgressionOnPeriod), {
+                style: 'percent',
+              })}
+            </Typography>
+            <Typography variant="caption" color="grey700">
+              {translate('text_174048163137011wdtjb1xfg')}
+            </Typography>
+          </div>
         </div>
-
-        {/* TODO: Filters */}
       </div>
 
       {displayError && (
