@@ -162,7 +162,7 @@ const SideNav = () => {
               }
             >
               {({ closePopper }) => (
-                <StyledMenuPopper>
+                <MenuPopper className="max-w-80 overflow-hidden p-0">
                   <Typography className="min-h-11 px-5 py-4" variant="captionHl" noWrap>
                     {currentUser?.email}
                   </Typography>
@@ -231,7 +231,7 @@ const SideNav = () => {
                       </Version>
                     ) : undefined}
                   </Logout>
-                </StyledMenuPopper>
+                </MenuPopper>
               )}
             </Popper>
           </Header>
@@ -477,21 +477,6 @@ const BottomButtons = styled.div`
     &:not(:last-child) {
       margin-bottom: ${theme.spacing(1)};
     }
-  }
-`
-
-const StyledMenuPopper = styled(MenuPopper)`
-  padding: 0;
-  overflow: hidden;
-  height: inherit;
-  max-height: inherit;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  max-width: 320px;
-
-  & > *:not(:last-child) {
-    margin-bottom: 0px;
   }
 `
 
