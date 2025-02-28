@@ -3,7 +3,6 @@ import { Stack } from '@mui/material'
 import _findKey from 'lodash/findKey'
 import { useEffect, useMemo, useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import GoogleAuthButton from '~/components/auth/GoogleAuthButton'
@@ -27,6 +26,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
 import { theme } from '~/styles'
 import { Card, Page, StyledLogo, Subtitle, Title } from '~/styles/auth'
+import { tw } from '~/styles/utils'
 
 gql`
   query getinvite($token: String!) {
@@ -292,18 +292,20 @@ const Invitation = () => {
     <Page>
       <Card>
         <StyledLogo height={24} />
-        {(!!error || !data?.invite) && !loading ? (
+        {(!!error || !data?.invite) && !loading && (
           <>
             <Title>{translate('text_63246f875e2228ab7b63dcf4')}</Title>
             <Subtitle noMargins>{translate('text_63246f875e2228ab7b63dcfe')}</Subtitle>
           </>
-        ) : !!loading ? (
+        )}
+        {!error && !!loading && (
           <>
             <Skeleton variant="text" className="mb-8 w-52" />
             <Skeleton variant="text" className="mb-4 w-110" />
             <Skeleton variant="text" className="w-76" />
           </>
-        ) : (
+        )}
+        {!error && !loading && (
           <Stack spacing={8}>
             <Stack spacing={3}>
               <Typography variant="headline">
@@ -339,13 +341,13 @@ const Invitation = () => {
               </Button>
             </Stack>
 
-            <OrSeparator>
+            <div className="flex items-center justify-center gap-4 before:flex-1 before:border before:border-grey-300 before:content-[''] after:flex-1 after:border after:border-grey-300 after:content-['']">
               <Typography variant="captionHl" color="grey500">
                 {translate('text_6303351deffd2a0d70498675').toUpperCase()}
               </Typography>
-            </OrSeparator>
+            </div>
 
-            <InputWrapper>
+            <div className="flex flex-col gap-4">
               <TextInput
                 disabled
                 name="email"
@@ -364,19 +366,23 @@ const Invitation = () => {
                   placeholder={translate('text_63246f875e2228ab7b63dcf0')}
                 />
                 {errors.some((err) => PASSWORD_VALIDATION.includes(err)) ? (
-                  <PasswordValidation
+                  <div
+                    className={tw(
+                      'flex flex-wrap overflow-hidden transition-all duration-250',
+                      !!formFields.password ? 'mt-4 max-h-124' : 'mt-0 max-h-0',
+                    )}
                     data-test={
                       !!formFields.password
                         ? 'password-validation--visible'
                         : 'password-validation--hidden'
                     }
-                    $visible={!!formFields.password}
                   >
                     {PASSWORD_VALIDATION.map((err) => {
                       const isErrored = errors.includes(err)
 
                       return (
-                        <ValidationLine
+                        <div
+                          className="mb-3 flex h-5 w-1/2 flex-row items-center gap-3"
                           key={err}
                           data-test={
                             isErrored ? _findKey(FORM_ERRORS, (v) => v === err) : undefined
@@ -398,17 +404,17 @@ const Invitation = () => {
                           >
                             {translate(err)}
                           </Typography>
-                        </ValidationLine>
+                        </div>
                       )
                     })}
-                  </PasswordValidation>
+                  </div>
                 ) : (
                   <Alert type="success" data-test="success" className="mt-3">
                     {translate('text_63246f875e2228ab7b63dd02')}
                   </Alert>
                 )}
               </div>
-            </InputWrapper>
+            </div>
 
             <Button
               data-test="submit-button"
@@ -429,46 +435,5 @@ const Invitation = () => {
     </Page>
   )
 }
-
-const OrSeparator = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: ${theme.spacing(4)};
-
-  &::before,
-  &::after {
-    content: '';
-    flex: 1;
-    border-bottom: 2px solid ${theme.palette.grey[300]};
-  }
-`
-
-const PasswordValidation = styled.div<{ $visible: boolean }>`
-  margin-top: ${({ $visible }) => ($visible ? theme.spacing(4) : 0)};
-  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-  max-height: ${({ $visible }) => ($visible ? '500px' : '0px')};
-  overflow: hidden;
-  display: flex;
-  flex-wrap: wrap;
-`
-
-const ValidationLine = styled.div`
-  display: flex;
-  height: 20px;
-  align-items: center;
-  width: 50%;
-  margin-bottom: ${theme.spacing(3)};
-
-  svg {
-    margin-right: ${theme.spacing(3)};
-  }
-`
-
-const InputWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(4)};
-`
 
 export default Invitation

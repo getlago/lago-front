@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
-import styled from 'styled-components'
 
 import {
   ActionItem,
@@ -56,7 +55,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
-import { theme } from '~/styles'
 
 gql`
   fragment InviteItemForMembersSettings on Invite {
@@ -279,7 +277,7 @@ const Members = () => {
                   />
 
                   {inviteCurrentPage < inviteTotalPages && (
-                    <Loadmore>
+                    <div className="mx-auto mb-0 mt-4 text-center">
                       <Button
                         variant="quaternary"
                         onClick={() =>
@@ -292,7 +290,7 @@ const Members = () => {
                           {translate('text_63208bfc99e69a28211ec7fd')}
                         </Typography>
                       </Button>
-                    </Loadmore>
+                    </div>
                   )}
                 </SettingsListItem>
               )}
@@ -435,10 +433,5 @@ const Members = () => {
     </>
   )
 }
-
-const Loadmore = styled.div`
-  margin: ${theme.spacing(4)} auto 0 auto;
-  text-align: center;
-`
 
 export default Members
