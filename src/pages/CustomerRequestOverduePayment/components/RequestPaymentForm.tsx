@@ -3,7 +3,6 @@ import { Box, Stack } from '@mui/material'
 import { FormikProps } from 'formik'
 import { DateTime } from 'luxon'
 import { FC, useMemo } from 'react'
-import styled from 'styled-components'
 
 import { Alert, Skeleton, Table, Typography } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
@@ -18,7 +17,6 @@ import {
   LastPaymentRequestFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 gql`
   fragment CustomerForRequestOverduePaymentForm on Customer {
@@ -68,7 +66,7 @@ export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
   const today = useMemo(() => DateTime.now().toUTC(), [])
 
   return (
-    <Container>
+    <div className="flex flex-col gap-10 md:max-w-168">
       {isSameDay(date, today) && (
         <Alert type="info">
           <Typography variant="body" color="textSecondary">
@@ -91,12 +89,12 @@ export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
         </div>
       ) : (
         <>
-          <SectionHeader>
+          <header className="flex flex-col gap-3">
             <Typography variant="headline" color="textSecondary">
               {translate('text_66b258f62100490d0eb5ca86', { amount })}
             </Typography>
             <Typography>{translate('text_66b258f62100490d0eb5ca87')}</Typography>
-          </SectionHeader>
+          </header>
 
           <TextInputField
             formikProps={formikProps}
@@ -162,22 +160,6 @@ export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
           },
         ]}
       />
-    </Container>
+    </div>
   )
 }
-
-const SectionHeader = styled.header`
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(3)};
-  }
-`
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(10)};
-
-  ${theme.breakpoints.up('lg')} {
-    max-width: 584px;
-  }
-`

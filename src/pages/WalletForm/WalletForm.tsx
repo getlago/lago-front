@@ -3,7 +3,6 @@ import { useFormik } from 'formik'
 import { DateTime } from 'luxon'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { Button, Typography } from '~/components/designSystem'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
@@ -35,7 +34,7 @@ import { SettingsCard } from '~/pages/WalletForm/components/SettingsCard'
 import { TopUpCard } from '~/pages/WalletForm/components/TopUpCard'
 import { walletFormSchema } from '~/pages/WalletForm/form'
 import { TWalletDataForm } from '~/pages/WalletForm/types'
-import { NAV_HEIGHT, PageHeader, theme } from '~/styles'
+import { PageHeader } from '~/styles'
 import { ButtonContainer, Side } from '~/styles/mainObjectsForm'
 
 gql`
@@ -302,67 +301,69 @@ const WalletForm = () => {
         />
       </PageHeader.Wrapper>
 
-      <Content>
-        <Main>
-          {isLoading && !wallet ? (
-            <LoadingView cardCount={2} />
-          ) : (
-            <>
-              <div>
-                <Typography className="mb-1" variant="headline" color="grey700">
-                  {translate(
-                    formType === FORM_TYPE_ENUM.edition
-                      ? 'text_62d9430e8b9fe36851cddd09'
-                      : 'text_6560809c38fb9de88d8a505e',
-                  )}
-                </Typography>
-                <Typography variant="body" color="grey600">
-                  {translate(
-                    formType === FORM_TYPE_ENUM.edition
-                      ? 'text_6657c2b9cf6b9200aa3d1c89'
-                      : 'text_62d18855b22699e5cf55f873',
-                  )}
-                </Typography>
-              </div>
+      <div className="flex min-h-[calc(100vh-theme(space.nav))]">
+        <div className="w-full px-4 pb-0 pt-12 md:w-3/5 md:px-12">
+          <div className="flex flex-col gap-8 md:max-w-168">
+            {isLoading && !wallet ? (
+              <LoadingView cardCount={2} />
+            ) : (
+              <>
+                <div>
+                  <Typography className="mb-1" variant="headline" color="grey700">
+                    {translate(
+                      formType === FORM_TYPE_ENUM.edition
+                        ? 'text_62d9430e8b9fe36851cddd09'
+                        : 'text_6560809c38fb9de88d8a505e',
+                    )}
+                  </Typography>
+                  <Typography variant="body" color="grey600">
+                    {translate(
+                      formType === FORM_TYPE_ENUM.edition
+                        ? 'text_6657c2b9cf6b9200aa3d1c89'
+                        : 'text_62d18855b22699e5cf55f873',
+                    )}
+                  </Typography>
+                </div>
 
-              <SettingsCard
-                formikProps={formikProps}
-                formType={formType}
-                customerData={customerData}
-                showExpirationDate={showExpirationDate}
-                setShowExpirationDate={setShowExpirationDate}
-              />
+                <SettingsCard
+                  formikProps={formikProps}
+                  formType={formType}
+                  customerData={customerData}
+                  showExpirationDate={showExpirationDate}
+                  setShowExpirationDate={setShowExpirationDate}
+                />
 
-              <TopUpCard
-                formikProps={formikProps}
-                formType={formType}
-                customerData={customerData}
-                isRecurringTopUpEnabled={isRecurringTopUpEnabled}
-                setIsRecurringTopUpEnabled={setIsRecurringTopUpEnabled}
-                premiumWarningDialogRef={premiumWarningDialogRef}
-              />
+                <TopUpCard
+                  formikProps={formikProps}
+                  formType={formType}
+                  customerData={customerData}
+                  isRecurringTopUpEnabled={isRecurringTopUpEnabled}
+                  setIsRecurringTopUpEnabled={setIsRecurringTopUpEnabled}
+                  premiumWarningDialogRef={premiumWarningDialogRef}
+                />
 
-              <ButtonContainer className="!max-w-168">
-                <Button
-                  disabled={
-                    !formikProps.isValid ||
-                    (formType === FORM_TYPE_ENUM.edition && !formikProps.dirty)
-                  }
-                  fullWidth
-                  size="large"
-                  onClick={formikProps.submitForm}
-                  data-test="submit"
-                >
-                  {translate(
-                    formType === FORM_TYPE_ENUM.edition
-                      ? 'text_62e161ceb87c201025388aa2'
-                      : 'text_6560809c38fb9de88d8a505e',
-                  )}
-                </Button>
-              </ButtonContainer>
-            </>
-          )}
-        </Main>
+                <ButtonContainer className="!max-w-168">
+                  <Button
+                    disabled={
+                      !formikProps.isValid ||
+                      (formType === FORM_TYPE_ENUM.edition && !formikProps.dirty)
+                    }
+                    fullWidth
+                    size="large"
+                    onClick={formikProps.submitForm}
+                    data-test="submit"
+                  >
+                    {translate(
+                      formType === FORM_TYPE_ENUM.edition
+                        ? 'text_62e161ceb87c201025388aa2'
+                        : 'text_6560809c38fb9de88d8a505e',
+                    )}
+                  </Button>
+                </ButtonContainer>
+              </>
+            )}
+          </div>
+        </div>
         <Side>
           <WalletCodeSnippet
             loading={isLoading}
@@ -371,7 +372,7 @@ const WalletForm = () => {
             lagoId={wallet?.id}
           />
         </Side>
-      </Content>
+      </div>
 
       <WarningDialog
         ref={warningDialogRef}
@@ -387,26 +388,3 @@ const WalletForm = () => {
 }
 
 export default WalletForm
-
-const Content = styled.div`
-  display: flex;
-  min-height: calc(100vh - ${NAV_HEIGHT}px);
-`
-
-const Main = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(8)};
-  width: 60%;
-  box-sizing: border-box;
-  padding: ${theme.spacing(12)} ${theme.spacing(12)} 0 ${theme.spacing(12)};
-
-  > div {
-    max-width: 720px;
-  }
-
-  ${theme.breakpoints.down('md')} {
-    width: 100%;
-    padding: ${theme.spacing(12)} ${theme.spacing(4)} 0;
-  }
-`

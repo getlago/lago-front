@@ -5,7 +5,6 @@ import _get from 'lodash/get'
 import { DateTime } from 'luxon'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled, { css } from 'styled-components'
 import { array, number, object, string } from 'yup'
 
 import {
@@ -60,7 +59,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { HEADER_TABLE_HEIGHT, MenuPopper, PageHeader, theme } from '~/styles'
+import { MenuPopper, PageHeader } from '~/styles'
 import { StickySubmitBar } from '~/styles/mainObjectsForm'
 import { tw } from '~/styles/utils'
 
@@ -462,6 +461,11 @@ const CreateInvoice = () => {
     )
   }
 
+  const gridClassname =
+    'grid  grid-cols-[minmax(0,1fr)_minmax(0,80px)_minmax(0,168px)_minmax(0,64px)_minmax(0,160px)_minmax(0,24px)] gap-3 [&>*:nth-last-child(-n+3)]:flex [&>*:nth-last-child(-n+3)]:justify-end'
+  const invoiceFooterLineClassname =
+    'flex items-center [&>*:first-child]:mr-4 [&>*:first-child]:flex-1 [&>*:last-child]:w-42 [&>*:last-child]:text-end'
+
   return (
     <>
       <PageHeader.Wrapper>
@@ -479,57 +483,52 @@ const CreateInvoice = () => {
           />
         )}
       </PageHeader.Wrapper>
-      <PageWrapper>
-        <CenteredWrapper>
+      <div className="size-full">
+        <div className="mx-auto my-12 min-h-full max-w-5xl px-4">
           <Card className="gap-8">
             {loading ? (
               <>
-                <InvoiceHeader>
+                <div className="flex items-center justify-between">
                   <Skeleton variant="text" className="w-30" />
-                  <Skeleton
-                    // eslint-disable-next-line tailwindcss/no-custom-classname
-                    className="rounded-conector-skeleton"
-                    variant="connectorAvatar"
-                    size="big"
-                  />
-                </InvoiceHeader>
-                <div>
-                  <InlineSkeleton>
-                    <Skeleton variant="text" className="mr-13 w-26" />
-                    <Skeleton variant="text" className="w-24" />
-                  </InlineSkeleton>
-                  <InlineSkeleton>
-                    <Skeleton variant="text" className="mr-13 w-26" />
-                    <Skeleton variant="text" className="w-24" />
-                  </InlineSkeleton>
+                  <Skeleton className="rounded-lg" variant="connectorAvatar" size="big" />
                 </div>
-                <InlineSkeletonBlocks>
-                  <div>
+                <div>
+                  <div className="flex items-center py-2">
+                    <Skeleton variant="text" className="mr-13 w-26" />
+                    <Skeleton variant="text" className="w-24" />
+                  </div>
+                  <div className="flex items-center py-2">
+                    <Skeleton variant="text" className="mr-13 w-26" />
+                    <Skeleton variant="text" className="w-24" />
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <div className="flex-1">
                     <Skeleton className="mb-3 w-26" variant="text" />
                     <Skeleton className="mb-3 w-26" variant="text" />
                     <Skeleton className="mb-3 w-26" variant="text" />
                     <Skeleton className="mb-3 w-26" variant="text" />
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <Skeleton className="mb-3 w-26" variant="text" />
                     <Skeleton className="mb-3 w-26" variant="text" />
                     <Skeleton className="mb-3 w-26" variant="text" />
                     <Skeleton className="w-26" variant="text" />
                   </div>
-                </InlineSkeletonBlocks>
+                </div>
               </>
             ) : (
               <>
-                <InvoiceHeader>
+                <div className="flex items-center justify-between">
                   <Typography variant="headline" color="textSecondary">
                     {translate('text_6453819268763979024acff5')}
                   </Typography>
                   {!!organization?.logoUrl && (
                     <Avatar size="big" variant="connector">
-                      <img src={organization?.logoUrl} alt="company-logo" />
+                      <img src={organization?.logoUrl ?? undefined} alt="company-logo" />
                     </Avatar>
                   )}
-                </InvoiceHeader>
+                </div>
 
                 {customerIsPartner && (
                   <Alert type="info">
@@ -543,15 +542,15 @@ const CreateInvoice = () => {
                   </Alert>
                 )}
 
-                <InlineTopInfo>
+                <div className="grid grid-cols-[140px_auto] items-baseline gap-4">
                   <Typography variant="caption" color="grey600">
                     {translate('text_6453819268763979024ad01b')}
                   </Typography>
                   <Typography>{DateTime.now().toFormat('LLL. dd, yyyy')}</Typography>
-                </InlineTopInfo>
+                </div>
 
-                <FromToInfoWrapper className={tw(customerIsPartner && 'flex-row-reverse')}>
-                  <div>
+                <div className={tw('flex gap-4', customerIsPartner && 'flex-row-reverse')}>
+                  <div className="flex-1">
                     <Typography variant="caption" color="grey600">
                       {translate(
                         customerIsPartner
@@ -611,7 +610,7 @@ const CreateInvoice = () => {
                       </Typography>
                     )}
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <Typography variant="caption" color="grey600">
                       {translate(
                         customerIsPartner
@@ -671,352 +670,397 @@ const CreateInvoice = () => {
                       </Typography>
                     )}
                   </div>
-                </FromToInfoWrapper>
+                </div>
 
-                <InvoiceTableWrapper>
-                  <ComboBoxField
-                    className="w-fit max-w-40"
-                    disableClearable
-                    data={Object.values(CurrencyEnum).map((currencyType) => ({
-                      value: currencyType,
-                    }))}
-                    disabled={!!customer?.currency}
-                    formikProps={formikProps}
-                    label={translate('text_6453819268763979024ad057')}
-                    name="currency"
-                  />
+                <ComboBoxField
+                  className="w-fit max-w-40"
+                  disableClearable
+                  data={Object.values(CurrencyEnum).map((currencyType) => ({
+                    value: currencyType,
+                  }))}
+                  disabled={!!customer?.currency}
+                  formikProps={formikProps}
+                  label={translate('text_6453819268763979024ad057')}
+                  name="currency"
+                />
 
-                  <InvoiceTable>
-                    <InvoiceTableHeader>
-                      <Typography variant="bodyHl" color="grey500">
-                        {translate('text_6453819268763979024ad071')}
-                      </Typography>
-                      <Typography variant="bodyHl" color="grey500">
-                        {translate('text_6453819268763979024ad07d')}
-                      </Typography>
-                      <Typography variant="bodyHl" color="grey500">
-                        {translate('text_6453819268763979024ad089')}
-                      </Typography>
-                      <Typography variant="bodyHl" color="grey500">
-                        {translate('text_636bedf292786b19d3398f06')}
-                      </Typography>
-                      <Typography variant="bodyHl" color="grey500">
-                        {translate('text_6453819268763979024ad097')}
-                      </Typography>
-                      {/* Action column */}
-                      <div></div>
-                    </InvoiceTableHeader>
-                    {!!formikProps?.values?.fees?.length &&
-                      formikProps?.values?.fees?.map((fee, i) => {
-                        const unitValidationErrorKey = _get(formikProps.errors, `fees.${i}.units`)
+                <div className="w-full">
+                  <div className={tw(gridClassname, 'h-12 shadow-b [&>*]:flex [&>*]:items-center')}>
+                    <Typography variant="bodyHl" color="grey500">
+                      {translate('text_6453819268763979024ad071')}
+                    </Typography>
+                    <Typography variant="bodyHl" color="grey500">
+                      {translate('text_6453819268763979024ad07d')}
+                    </Typography>
+                    <Typography variant="bodyHl" color="grey500">
+                      {translate('text_6453819268763979024ad089')}
+                    </Typography>
+                    <Typography variant="bodyHl" color="grey500">
+                      {translate('text_636bedf292786b19d3398f06')}
+                    </Typography>
+                    <Typography variant="bodyHl" color="grey500">
+                      {translate('text_6453819268763979024ad097')}
+                    </Typography>
+                    {/* Action column */}
+                    <div></div>
+                  </div>
+                  {!!formikProps?.values?.fees?.length &&
+                    formikProps?.values?.fees?.map((fee, i) => {
+                      const unitValidationErrorKey = _get(formikProps.errors, `fees.${i}.units`)
 
-                        return (
-                          <InvoiceItem key={`item-${i}`} data-test="invoice-item">
-                            <div>
-                              <ItenName>
-                                <Typography variant="body" color="grey700" noWrap>
-                                  {fee.invoiceDisplayName || fee.name}
-                                </Typography>
-                                <Tooltip
-                                  title={translate('text_65018c8e5c6b626f030bcf8d')}
-                                  placement="top-end"
-                                >
-                                  <Button
-                                    icon="pen"
-                                    variant="quaternary"
-                                    size="small"
-                                    onClick={(e) => {
-                                      e.stopPropagation()
+                      return (
+                        <div
+                          className={tw(gridClassname, 'min-h-17 items-center shadow-b')}
+                          key={`item-${i}`}
+                          data-test="invoice-item"
+                        >
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <Typography variant="body" color="grey700" noWrap>
+                                {fee.invoiceDisplayName || fee.name}
+                              </Typography>
+                              <Tooltip
+                                title={translate('text_65018c8e5c6b626f030bcf8d')}
+                                placement="top-end"
+                              >
+                                <Button
+                                  icon="pen"
+                                  variant="quaternary"
+                                  size="small"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
 
-                                      editInvoiceDisplayNameRef.current?.openDialog({
-                                        invoiceDisplayName: fee.invoiceDisplayName,
-                                        callback: (invoiceDisplayName: string) => {
-                                          formikProps.setFieldValue(
-                                            `fees.${i}.invoiceDisplayName`,
-                                            invoiceDisplayName,
-                                          )
-                                        },
-                                      })
-                                    }}
-                                  />
-                                </Tooltip>
-                              </ItenName>
-                              {!!fee.description && (
-                                <Typography variant="body" color="grey600" noWrap>
-                                  {fee.description}
-                                </Typography>
-                              )}
+                                    editInvoiceDisplayNameRef.current?.openDialog({
+                                      invoiceDisplayName: fee.invoiceDisplayName,
+                                      callback: (invoiceDisplayName: string) => {
+                                        formikProps.setFieldValue(
+                                          `fees.${i}.invoiceDisplayName`,
+                                          invoiceDisplayName,
+                                        )
+                                      },
+                                    })
+                                  }}
+                                />
+                              </Tooltip>
                             </div>
-                            <Tooltip
-                              placement="top-end"
-                              title={
-                                !!unitValidationErrorKey && translate(`${unitValidationErrorKey}`)
-                              }
-                              disableHoverListener={!unitValidationErrorKey}
-                            >
-                              <TextInput
-                                name={`fees.${i}.units`}
-                                type="number"
-                                beforeChangeFormatter={['triDecimal', 'positiveNumber']}
-                                error={false}
-                                placeholder={translate('text_62824f0e5d93bc008d268d00')}
-                                value={formikProps.values.fees[i].units || undefined}
-                                onChange={(value) => {
-                                  formikProps.setFieldValue(`fees.${i}.units`, Number(value))
-                                  !!hasTaxProvider && setTaxProviderTaxesResult(null)
-                                }}
-                              />
-                            </Tooltip>
-                            <AmountInput
-                              value={formikProps.values.fees[i].unitAmountCents || 0}
-                              currency={currency}
-                              InputProps={{
-                                startAdornment: (
-                                  <InputAdornment position="start">
-                                    {getCurrencySymbol(currency)}
-                                  </InputAdornment>
-                                ),
-                              }}
+                            {!!fee.description && (
+                              <Typography variant="body" color="grey600" noWrap>
+                                {fee.description}
+                              </Typography>
+                            )}
+                          </div>
+                          <Tooltip
+                            placement="top-end"
+                            title={
+                              !!unitValidationErrorKey && translate(`${unitValidationErrorKey}`)
+                            }
+                            disableHoverListener={!unitValidationErrorKey}
+                          >
+                            <TextInput
+                              name={`fees.${i}.units`}
+                              type="number"
+                              beforeChangeFormatter={['triDecimal', 'positiveNumber']}
+                              error={false}
+                              placeholder={translate('text_62824f0e5d93bc008d268d00')}
+                              value={formikProps.values.fees[i].units || undefined}
                               onChange={(value) => {
-                                formikProps.setFieldValue(`fees.${i}.unitAmountCents`, value)
+                                formikProps.setFieldValue(`fees.${i}.units`, Number(value))
                                 !!hasTaxProvider && setTaxProviderTaxesResult(null)
                               }}
                             />
-                            <Typography
-                              className="flex flex-col items-end py-1"
-                              variant="body"
-                              color="grey700"
-                            >
-                              {hasTaxProvider
-                                ? !!taxProviderTaxesResult?.collection.length
-                                  ? taxProviderTaxesResult?.collection
-                                      ?.find((t) => t.itemId === fee.addOnId)
-                                      ?.taxBreakdown?.map((tax) => (
-                                        <Typography
-                                          key={`fee-${i}-applied-taxe-${tax.name}`}
-                                          variant="body"
-                                          color="grey700"
-                                        >
-                                          {intlFormatNumber(tax?.rate || 0, {
-                                            style: 'percent',
-                                          })}
-                                        </Typography>
-                                      ))
-                                  : '-'
-                                : fee.taxes?.length
-                                  ? fee.taxes.map((tax) => (
+                          </Tooltip>
+                          <AmountInput
+                            value={formikProps.values.fees[i].unitAmountCents || 0}
+                            currency={currency}
+                            InputProps={{
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  {getCurrencySymbol(currency)}
+                                </InputAdornment>
+                              ),
+                            }}
+                            onChange={(value) => {
+                              formikProps.setFieldValue(`fees.${i}.unitAmountCents`, value)
+                              !!hasTaxProvider && setTaxProviderTaxesResult(null)
+                            }}
+                          />
+                          <Typography
+                            className="flex flex-col items-end py-1"
+                            variant="body"
+                            color="grey700"
+                          >
+                            {hasTaxProvider
+                              ? !!taxProviderTaxesResult?.collection.length
+                                ? taxProviderTaxesResult?.collection
+                                    ?.find((t) => t.itemId === fee.addOnId)
+                                    ?.taxBreakdown?.map((tax) => (
                                       <Typography
-                                        key={`fee-${i}-applied-taxe-${tax.id}`}
+                                        key={`fee-${i}-applied-taxe-${tax.name}`}
                                         variant="body"
                                         color="grey700"
                                       >
-                                        {intlFormatNumber(tax.rate / 100 || 0, {
+                                        {intlFormatNumber(tax?.rate || 0, {
                                           style: 'percent',
                                         })}
                                       </Typography>
                                     ))
-                                  : '0%'}
-                            </Typography>
-                            <Typography variant="body" color="grey700">
-                              {!fee.units
-                                ? '-'
-                                : intlFormatNumber((fee.units || 0) * (fee.unitAmountCents || 0), {
-                                    style: 'currency',
-                                    currency,
-                                  })}
-                            </Typography>
-                            <Popper
-                              PopperProps={{ placement: 'bottom-end' }}
-                              opener={() => (
+                                : '-'
+                              : fee.taxes?.length
+                                ? fee.taxes.map((tax) => (
+                                    <Typography
+                                      key={`fee-${i}-applied-taxe-${tax.id}`}
+                                      variant="body"
+                                      color="grey700"
+                                    >
+                                      {intlFormatNumber(tax.rate / 100 || 0, {
+                                        style: 'percent',
+                                      })}
+                                    </Typography>
+                                  ))
+                                : '0%'}
+                          </Typography>
+                          <Typography variant="body" color="grey700">
+                            {!fee.units
+                              ? '-'
+                              : intlFormatNumber((fee.units || 0) * (fee.unitAmountCents || 0), {
+                                  style: 'currency',
+                                  currency,
+                                })}
+                          </Typography>
+                          <Popper
+                            PopperProps={{ placement: 'bottom-end' }}
+                            opener={() => (
+                              <Button
+                                icon="dots-horizontal"
+                                variant="quaternary"
+                                size="small"
+                                data-test="invoice-item-actions-button"
+                              />
+                            )}
+                          >
+                            {({ closePopper }) => (
+                              <MenuPopper>
                                 <Button
-                                  icon="dots-horizontal"
+                                  startIcon="text"
                                   variant="quaternary"
-                                  size="small"
-                                  data-test="invoice-item-actions-button"
-                                />
-                              )}
-                            >
-                              {({ closePopper }) => (
-                                <MenuPopper>
+                                  align="left"
+                                  onClick={() => {
+                                    editDescriptionDialogRef.current?.openDialog({
+                                      description: fee.description || '',
+                                      callback: (newDescription?: string) => {
+                                        formikProps.setFieldValue(
+                                          `fees.${i}.description`,
+                                          newDescription,
+                                        )
+                                      },
+                                    })
+                                    closePopper()
+                                  }}
+                                >
+                                  {translate('text_6453819268763979024ad124')}
+                                </Button>
+                                {!hasTaxProvider && (
                                   <Button
-                                    startIcon="text"
+                                    startIcon="percentage"
                                     variant="quaternary"
                                     align="left"
                                     onClick={() => {
-                                      editDescriptionDialogRef.current?.openDialog({
-                                        description: fee.description || '',
-                                        callback: (newDescription?: string) => {
+                                      editTaxDialogRef.current?.openDialog({
+                                        taxes: fee.taxes,
+                                        callback: (newTaxesArray?: LocalFeeInput['taxes']) => {
                                           formikProps.setFieldValue(
-                                            `fees.${i}.description`,
-                                            newDescription,
+                                            `fees.${i}.taxes`,
+                                            newTaxesArray,
                                           )
                                         },
                                       })
                                       closePopper()
                                     }}
+                                    data-test="invoice-item-edit-taxes"
                                   >
-                                    {translate('text_6453819268763979024ad124')}
+                                    {translate('text_64d40b7e80e64e40710a49ba')}
                                   </Button>
-                                  {!hasTaxProvider && (
-                                    <Button
-                                      startIcon="percentage"
-                                      variant="quaternary"
-                                      align="left"
-                                      onClick={() => {
-                                        editTaxDialogRef.current?.openDialog({
-                                          taxes: fee.taxes,
-                                          callback: (newTaxesArray?: LocalFeeInput['taxes']) => {
-                                            formikProps.setFieldValue(
-                                              `fees.${i}.taxes`,
-                                              newTaxesArray,
-                                            )
-                                          },
-                                        })
-                                        closePopper()
-                                      }}
-                                      data-test="invoice-item-edit-taxes"
-                                    >
-                                      {translate('text_64d40b7e80e64e40710a49ba')}
-                                    </Button>
-                                  )}
-                                  <Button
-                                    startIcon="trash"
-                                    variant="quaternary"
-                                    align="left"
-                                    onClick={() => {
-                                      const fees = [...formikProps.values.fees]
+                                )}
+                                <Button
+                                  startIcon="trash"
+                                  variant="quaternary"
+                                  align="left"
+                                  onClick={() => {
+                                    const fees = [...formikProps.values.fees]
 
-                                      fees.splice(i, 1)
-                                      formikProps.setFieldValue('fees', fees)
-                                      !!hasTaxProvider && setTaxProviderTaxesResult(null)
+                                    fees.splice(i, 1)
+                                    formikProps.setFieldValue('fees', fees)
+                                    !!hasTaxProvider && setTaxProviderTaxesResult(null)
 
-                                      closePopper()
-                                    }}
-                                  >
-                                    {translate('text_6453819268763979024ad12c')}
-                                  </Button>
-                                </MenuPopper>
-                              )}
-                            </Popper>
-                          </InvoiceItem>
-                        )
-                      })}
-                    <InvoiceAddItemSection>
-                      {showAddItem ? (
-                        <InlineAddonInput>
-                          <ComboBox
-                            className={ADD_ITEM_FOR_INVOICE_INPUT_NAME}
-                            data={addOns}
-                            loading={loading}
-                            searchQuery={getAddOns}
-                            placeholder={translate('text_6453819268763979024ad0ad')}
-                            onChange={(value) => {
-                              const addOn = addOnData?.addOns?.collection.find(
-                                (c) => c.id === value,
-                              )
-                              const addonApplicableTaxes = hasTaxProvider
-                                ? undefined
-                                : addOn?.taxes?.length
-                                  ? addOn?.taxes
-                                  : customerApplicableTax
+                                    closePopper()
+                                  }}
+                                >
+                                  {translate('text_6453819268763979024ad12c')}
+                                </Button>
+                              </MenuPopper>
+                            )}
+                          </Popper>
+                        </div>
+                      )
+                    })}
+                  <div className="mt-6">
+                    {showAddItem ? (
+                      <div className="flex items-center gap-3">
+                        <ComboBox
+                          containerClassName="flex-1"
+                          className={ADD_ITEM_FOR_INVOICE_INPUT_NAME}
+                          data={addOns}
+                          loading={loading}
+                          searchQuery={getAddOns}
+                          placeholder={translate('text_6453819268763979024ad0ad')}
+                          onChange={(value) => {
+                            const addOn = addOnData?.addOns?.collection.find((c) => c.id === value)
+                            const addonApplicableTaxes = hasTaxProvider
+                              ? undefined
+                              : addOn?.taxes?.length
+                                ? addOn?.taxes
+                                : customerApplicableTax
 
-                              if (!!addOn) {
-                                formikProps.setFieldValue('fees', [
-                                  ...formikProps.values.fees,
-                                  {
-                                    addOnId: addOn.id,
-                                    name: addOn.name,
-                                    description: addOn.description,
-                                    invoiceDisplayName: addOn.invoiceDisplayName || '',
-                                    units: 1,
-                                    unitAmountCents: deserializeAmount(addOn.amountCents, currency),
-                                    taxes: addonApplicableTaxes,
-                                  },
-                                ])
+                            if (!!addOn) {
+                              formikProps.setFieldValue('fees', [
+                                ...formikProps.values.fees,
+                                {
+                                  addOnId: addOn.id,
+                                  name: addOn.name,
+                                  description: addOn.description,
+                                  invoiceDisplayName: addOn.invoiceDisplayName || '',
+                                  units: 1,
+                                  unitAmountCents: deserializeAmount(addOn.amountCents, currency),
+                                  taxes: addonApplicableTaxes,
+                                },
+                              ])
 
-                                !!hasTaxProvider && setTaxProviderTaxesResult(null)
-                              }
+                              !!hasTaxProvider && setTaxProviderTaxesResult(null)
+                            }
 
-                              setShowAddItem(false)
-                            }}
-                          />
-                          <Tooltip
-                            title={translate('text_628b8c693e464200e00e4a10')}
-                            placement="top-end"
-                          >
-                            <Button
-                              icon="trash"
-                              variant="quaternary"
-                              size="small"
-                              onClick={() => setShowAddItem(false)}
-                            />
-                          </Tooltip>
-                        </InlineAddonInput>
-                      ) : (
-                        <Button
-                          variant="secondary"
-                          startIcon="plus"
-                          onClick={() => {
-                            setShowAddItem(true)
-                            setTimeout(() => {
-                              ;(
-                                document.querySelector(
-                                  `.${ADD_ITEM_FOR_INVOICE_INPUT_NAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                                ) as HTMLElement
-                              ).click()
-                            }, 0)
+                            setShowAddItem(false)
                           }}
-                          data-test="add-item-button"
+                        />
+                        <Tooltip
+                          title={translate('text_628b8c693e464200e00e4a10')}
+                          placement="top-end"
                         >
-                          {translate('text_6453819268763979024ad0d7')}
-                        </Button>
-                      )}
-                    </InvoiceAddItemSection>
-                  </InvoiceTable>
-                </InvoiceTableWrapper>
-
-                <InvoiceFooter>
-                  <div>
-                    <InvoiceFooterLine>
-                      <Typography variant="bodyHl" color="grey600">
-                        {translate('text_6453819268763979024ad0db')}
-                      </Typography>
-                      <Typography
-                        variant="body"
-                        color="grey700"
-                        data-test="one-off-invoice-subtotal-value"
+                          <Button
+                            icon="trash"
+                            variant="quaternary"
+                            size="small"
+                            onClick={() => setShowAddItem(false)}
+                          />
+                        </Tooltip>
+                      </div>
+                    ) : (
+                      <Button
+                        variant="secondary"
+                        startIcon="plus"
+                        onClick={() => {
+                          setShowAddItem(true)
+                          setTimeout(() => {
+                            ;(
+                              document.querySelector(
+                                `.${ADD_ITEM_FOR_INVOICE_INPUT_NAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+                              ) as HTMLElement
+                            ).click()
+                          }, 0)
+                        }}
+                        data-test="add-item-button"
                       >
-                        {hasTaxProvider
-                          ? !taxProviderSubtotalHT
-                            ? '-'
-                            : intlFormatNumber(taxProviderSubtotalHT, {
-                                currency,
-                              })
-                          : !hasAnyFee
-                            ? '-'
-                            : intlFormatNumber(subTotal, {
-                                currency,
-                              })}
-                      </Typography>
-                    </InvoiceFooterLine>
-                    <>
-                      {hasTaxProvider ? (
-                        !taxProviderTaxesToDisplay.size ? (
-                          <InvoiceFooterLine>
-                            <Typography variant="bodyHl" color="grey600">
-                              {translate('text_6453819268763979024ad0e9')}
-                            </Typography>
-                            <Typography variant="body" color="grey700">
-                              {'-'}
-                            </Typography>
-                          </InvoiceFooterLine>
-                        ) : (
+                        {translate('text_6453819268763979024ad0d7')}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex w-full flex-col gap-8">
+                  <div className="ml-auto w-[472px]">
+                    <div className="flex w-[472px] flex-col gap-3">
+                      <div className={invoiceFooterLineClassname}>
+                        <Typography variant="bodyHl" color="grey600">
+                          {translate('text_6453819268763979024ad0db')}
+                        </Typography>
+                        <Typography
+                          variant="body"
+                          color="grey700"
+                          data-test="one-off-invoice-subtotal-value"
+                        >
+                          {hasTaxProvider
+                            ? !taxProviderSubtotalHT
+                              ? '-'
+                              : intlFormatNumber(taxProviderSubtotalHT, {
+                                  currency,
+                                })
+                            : !hasAnyFee
+                              ? '-'
+                              : intlFormatNumber(subTotal, {
+                                  currency,
+                                })}
+                        </Typography>
+                      </div>
+                      <>
+                        {hasTaxProvider ? (
+                          !taxProviderTaxesToDisplay.size ? (
+                            <div className={invoiceFooterLineClassname}>
+                              <Typography variant="bodyHl" color="grey600">
+                                {translate('text_6453819268763979024ad0e9')}
+                              </Typography>
+                              <Typography variant="body" color="grey700">
+                                {'-'}
+                              </Typography>
+                            </div>
+                          ) : (
+                            <>
+                              {Array.from(taxProviderTaxesToDisplay.values())
+                                .sort((a, b) => b.taxRate - a.taxRate)
+                                .map((taxToDisplay, i) => {
+                                  return (
+                                    <div
+                                      className={invoiceFooterLineClassname}
+                                      key={`one-off-invoice-tax-item-${i}`}
+                                      data-test={`one-off-invoice-tax-item-${i}`}
+                                    >
+                                      <Typography
+                                        variant="bodyHl"
+                                        color="grey600"
+                                        data-test={`one-off-invoice-tax-item-${i}-label`}
+                                      >
+                                        {taxToDisplay.label}
+                                      </Typography>
+                                      <Typography
+                                        variant="body"
+                                        color="grey700"
+                                        data-test={`one-off-invoice-tax-item-${i}-value`}
+                                      >
+                                        {taxToDisplay.hasEnumedTaxCode
+                                          ? null
+                                          : !hasAnyFee
+                                            ? '-'
+                                            : intlFormatNumber(
+                                                deserializeAmount(
+                                                  taxToDisplay.amount || 0,
+                                                  currency,
+                                                ),
+                                                {
+                                                  currency,
+                                                },
+                                              )}
+                                      </Typography>
+                                    </div>
+                                  )
+                                })}
+                            </>
+                          )
+                        ) : !!taxesToDisplay?.size ? (
                           <>
-                            {Array.from(taxProviderTaxesToDisplay.values())
+                            {Array.from(taxesToDisplay.values())
                               .sort((a, b) => b.taxRate - a.taxRate)
                               .map((taxToDisplay, i) => {
                                 return (
-                                  <InvoiceFooterLine
+                                  <div
+                                    className={invoiceFooterLineClassname}
                                     key={`one-off-invoice-tax-item-${i}`}
                                     data-test={`one-off-invoice-tax-item-${i}`}
                                   >
@@ -1032,142 +1076,108 @@ const CreateInvoice = () => {
                                       color="grey700"
                                       data-test={`one-off-invoice-tax-item-${i}-value`}
                                     >
-                                      {taxToDisplay.hasEnumedTaxCode
-                                        ? null
-                                        : !hasAnyFee
-                                          ? '-'
-                                          : intlFormatNumber(
-                                              deserializeAmount(taxToDisplay.amount || 0, currency),
-                                              {
-                                                currency,
-                                              },
-                                            )}
+                                      {!hasAnyFee
+                                        ? '-'
+                                        : intlFormatNumber(taxToDisplay.amount, {
+                                            currency,
+                                          })}
                                     </Typography>
-                                  </InvoiceFooterLine>
+                                  </div>
                                 )
                               })}
                           </>
-                        )
-                      ) : !!taxesToDisplay?.size ? (
-                        <>
-                          {Array.from(taxesToDisplay.values())
-                            .sort((a, b) => b.taxRate - a.taxRate)
-                            .map((taxToDisplay, i) => {
-                              return (
-                                <InvoiceFooterLine
-                                  key={`one-off-invoice-tax-item-${i}`}
-                                  data-test={`one-off-invoice-tax-item-${i}`}
-                                >
-                                  <Typography
-                                    variant="bodyHl"
-                                    color="grey600"
-                                    data-test={`one-off-invoice-tax-item-${i}-label`}
-                                  >
-                                    {taxToDisplay.label}
-                                  </Typography>
-                                  <Typography
-                                    variant="body"
-                                    color="grey700"
-                                    data-test={`one-off-invoice-tax-item-${i}-value`}
-                                  >
-                                    {!hasAnyFee
-                                      ? '-'
-                                      : intlFormatNumber(taxToDisplay.amount, {
-                                          currency,
-                                        })}
-                                  </Typography>
-                                </InvoiceFooterLine>
-                              )
-                            })}
-                        </>
-                      ) : (
-                        <InvoiceFooterLine data-test="one-off-invoice-tax-item-no-tax">
-                          <Typography
-                            variant="bodyHl"
-                            color="grey600"
-                            data-test="one-off-invoice-tax-item-no-tax-label"
+                        ) : (
+                          <div
+                            className={invoiceFooterLineClassname}
+                            data-test="one-off-invoice-tax-item-no-tax"
                           >
-                            {`${translate('text_6453819268763979024ad0e9')} (0%)`}
-                          </Typography>
-                          <Typography
-                            variant="body"
-                            color="grey700"
-                            data-test="one-off-invoice-tax-item-no-tax-value"
-                          >
-                            {!hasAnyFee
+                            <Typography
+                              variant="bodyHl"
+                              color="grey600"
+                              data-test="one-off-invoice-tax-item-no-tax-label"
+                            >
+                              {`${translate('text_6453819268763979024ad0e9')} (0%)`}
+                            </Typography>
+                            <Typography
+                              variant="body"
+                              color="grey700"
+                              data-test="one-off-invoice-tax-item-no-tax-value"
+                            >
+                              {!hasAnyFee
+                                ? '-'
+                                : intlFormatNumber(0, {
+                                    currency,
+                                  })}
+                            </Typography>
+                          </div>
+                        )}
+                      </>
+                      <div className={invoiceFooterLineClassname}>
+                        <Typography variant="bodyHl" color="grey600">
+                          {translate('text_6453819268763979024ad0ff')}
+                        </Typography>
+                        <Typography
+                          variant="body"
+                          color="grey700"
+                          data-test="one-off-invoice-subtotal-amount-due-value"
+                        >
+                          {hasTaxProvider
+                            ? !taxProviderTaxesToDisplay.size
                               ? '-'
-                              : intlFormatNumber(0, {
+                              : intlFormatNumber(taxProviderTotalTTC, {
+                                  currency,
+                                })
+                            : !hasAnyFee
+                              ? '-'
+                              : intlFormatNumber(total, {
                                   currency,
                                 })}
-                          </Typography>
-                        </InvoiceFooterLine>
-                      )}
-                    </>
-                    <InvoiceFooterLine>
-                      <Typography variant="bodyHl" color="grey600">
-                        {translate('text_6453819268763979024ad0ff')}
-                      </Typography>
-                      <Typography
-                        variant="body"
-                        color="grey700"
-                        data-test="one-off-invoice-subtotal-amount-due-value"
-                      >
-                        {hasTaxProvider
-                          ? !taxProviderTaxesToDisplay.size
-                            ? '-'
-                            : intlFormatNumber(taxProviderTotalTTC, {
-                                currency,
-                              })
-                          : !hasAnyFee
-                            ? '-'
-                            : intlFormatNumber(total, {
-                                currency,
-                              })}
-                      </Typography>
-                    </InvoiceFooterLine>
-                    <InvoiceFooterLine>
-                      <Typography variant="bodyHl" color="grey700">
-                        {translate('text_6453819268763979024ad10f')}
-                      </Typography>
-                      <Typography
-                        variant="body"
-                        color="grey700"
-                        data-test="one-off-invoice-total-amount-due-value"
-                      >
-                        {hasTaxProvider
-                          ? !taxProviderTaxesToDisplay.size
-                            ? '-'
-                            : intlFormatNumber(taxProviderTotalTTC, {
-                                currency,
-                              })
-                          : !hasAnyFee
-                            ? '-'
-                            : intlFormatNumber(total, {
-                                currency,
-                              })}
-                      </Typography>
-                    </InvoiceFooterLine>
-                  </div>
+                        </Typography>
+                      </div>
+                      <div className={invoiceFooterLineClassname}>
+                        <Typography variant="bodyHl" color="grey700">
+                          {translate('text_6453819268763979024ad10f')}
+                        </Typography>
+                        <Typography
+                          variant="body"
+                          color="grey700"
+                          data-test="one-off-invoice-total-amount-due-value"
+                        >
+                          {hasTaxProvider
+                            ? !taxProviderTaxesToDisplay.size
+                              ? '-'
+                              : intlFormatNumber(taxProviderTotalTTC, {
+                                  currency,
+                                })
+                            : !hasAnyFee
+                              ? '-'
+                              : intlFormatNumber(total, {
+                                  currency,
+                                })}
+                        </Typography>
+                      </div>
+                    </div>
 
-                  {!!taxProviderTaxesErrorMessage && (
-                    <Alert type="warning">
-                      <Typography variant="bodyHl" color="grey700">
-                        {translate('text_1723831735547ttel1jl0yva')}
-                      </Typography>
-                      <Typography variant="caption" color="grey600">
-                        {translate(taxProviderTaxesErrorMessage)}
-                      </Typography>
-                    </Alert>
-                  )}
-                </InvoiceFooter>
+                    {!!taxProviderTaxesErrorMessage && (
+                      <Alert type="warning">
+                        <Typography variant="bodyHl" color="grey700">
+                          {translate('text_1723831735547ttel1jl0yva')}
+                        </Typography>
+                        <Typography variant="caption" color="grey600">
+                          {translate(taxProviderTaxesErrorMessage)}
+                        </Typography>
+                      </Alert>
+                    )}
+                  </div>
+                </div>
               </>
             )}
           </Card>
-        </CenteredWrapper>
+        </div>
 
         {!loading && (
-          <CustomStickySubmitBar>
-            <SubmitButtonWrapper>
+          <StickySubmitBar>
+            <div className="mx-auto flex h-20 max-w-5xl items-center justify-end gap-3 px-4">
               {!!hasTaxProvider && (
                 <Button
                   size="large"
@@ -1240,10 +1250,10 @@ const CreateInvoice = () => {
               >
                 {translate('text_6453819268763979024ad134')}
               </Button>
-            </SubmitButtonWrapper>
-          </CustomStickySubmitBar>
+            </div>
+          </StickySubmitBar>
         )}
-      </PageWrapper>
+      </div>
       <WarningDialog
         ref={warningDialogRef}
         title={translate('text_645388d5bdbd7b00abffa030')}
@@ -1259,168 +1269,3 @@ const CreateInvoice = () => {
 }
 
 export default CreateInvoice
-
-const PageWrapper = styled.div`
-  width: 100%;
-  height: 100%;
-`
-
-const CenteredWrapper = styled.div`
-  max-width: 1024px;
-  padding: 0 ${theme.spacing(4)};
-  margin: ${theme.spacing(12)} auto;
-  min-height: 100%;
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(8)};
-  }
-`
-
-const InvoiceHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  .rounded-conector-skeleton {
-    border-radius: 8px;
-  }
-`
-
-const InlineSkeleton = styled.div`
-  padding: ${theme.spacing(2)} 0;
-  display: flex;
-  align-items: center;
-`
-
-const InlineSkeletonBlocks = styled.div`
-  display: flex;
-  column-gap: ${theme.spacing(4)};
-
-  > * {
-    flex: 1;
-  }
-`
-
-const InlineTopInfo = styled.div`
-  display: grid;
-  grid-template-columns: 140px auto;
-  column-gap: ${theme.spacing(4)};
-  align-items: baseline;
-`
-
-const FromToInfoWrapper = styled.div`
-  display: flex;
-  gap: ${theme.spacing(4)};
-
-  > * {
-    flex: 1;
-  }
-`
-
-const InvoiceTableWrapper = styled.div`
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
-  }
-`
-
-const Grid = () => css`
-  display: grid;
-  grid-template-columns:
-    minmax(0, 1fr) minmax(0, 80px) minmax(0, 168px) minmax(0, 64px) minmax(0, 160px)
-    minmax(0, 24px);
-  gap: ${theme.spacing(3)};
-
-  > *:nth-child(4),
-  > *:nth-child(5) {
-    display: flex;
-    justify-content: flex-end;
-  }
-`
-
-const InvoiceTable = styled.div`
-  width: 100%;
-`
-
-const InvoiceTableHeader = styled.div`
-  ${Grid()}
-  height: ${HEADER_TABLE_HEIGHT}px;
-  box-shadow: ${theme.shadows[7]};
-
-  > * {
-    display: flex;
-    align-items: center;
-  }
-`
-
-const ItenName = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(2)};
-`
-
-const InvoiceItem = styled.div`
-  ${Grid()}
-  min-height: ${CELL_HEIGHT}px;
-  align-items: center;
-  box-shadow: ${theme.shadows[7]};
-`
-
-const InvoiceAddItemSection = styled.div`
-  margin-top: ${theme.spacing(6)};
-`
-
-const InlineAddonInput = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-
-  > :first-child {
-    flex: 1;
-  }
-`
-
-const InvoiceFooter = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  gap: ${theme.spacing(8)};
-
-  > div {
-    width: 472px;
-    margin-left: auto;
-
-    > *:not(:last-child) {
-      margin-bottom: ${theme.spacing(3)};
-    }
-  }
-`
-
-const InvoiceFooterLine = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    flex: 1;
-    margin-right: ${theme.spacing(4)};
-  }
-
-  > *:last-child {
-    width: 168px;
-    text-align: end;
-  }
-`
-
-const CustomStickySubmitBar = styled(StickySubmitBar)`
-  margin-top: ${theme.spacing(19)};
-`
-
-const SubmitButtonWrapper = styled.div`
-  height: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  max-width: 1024px;
-  padding: 0 ${theme.spacing(4)};
-  margin: 0 auto;
-  gap: ${theme.spacing(3)};
-`
