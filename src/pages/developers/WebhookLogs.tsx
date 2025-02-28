@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useEffect, useMemo, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { Button, InfiniteScroll, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { WebhookLogDetails } from '~/components/developers/WebhookLogDetails'
@@ -24,7 +23,7 @@ import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, PageHeader, theme } from '~/styles'
+import { PageHeader } from '~/styles'
 
 gql`
   query getWebhookInformations($id: ID!) {
@@ -83,7 +82,7 @@ const WebhookLogs = () => {
   })
   const { tab: statusFilter } = useParams<{ tab: WebhookStatusEnum }>()
   const [fetchMoreLoading, setFetchMoreLoading] = useState<boolean>(false)
-  const [getWebhookLogs, { data, loading, error, refetch, fetchMore, variables }] =
+  const [getWebhookLogs, { data, error, refetch, fetchMore, variables, loading }] =
     useGetWebhookLogLazyQuery({
       variables: {
         webhookEndpointId: webhookId,
@@ -94,6 +93,7 @@ const WebhookLogs = () => {
     })
   const hasLogs = !!data?.webhooks?.collection?.length
   const [selectedLogId, setSelectedLogId] = useState<string | undefined>(undefined)
+
   const { debouncedSearch, isLoading } = useDebouncedSearch(getWebhookLogs, loading)
   const { formatTimeOrgaTZ } = useOrganizationInfos()
   const groupedLogs = useMemo(
@@ -133,7 +133,7 @@ const WebhookLogs = () => {
   return (
     <div role="grid" tabIndex={-1} onKeyDown={onKeyDown}>
       <PageHeader.Wrapper withSide>
-        <Header>
+        <PageHeader.Group>
           <Button
             icon="arrow-left"
             variant="quaternary"
@@ -152,7 +152,7 @@ const WebhookLogs = () => {
               </Typography>
             </>
           )}
-        </Header>
+        </PageHeader.Group>
         <SearchInput
           onChange={debouncedSearch}
           placeholder={translate('text_63e27c56dfe64b846474ef49')}
@@ -168,8 +168,8 @@ const WebhookLogs = () => {
           image={<ErrorImage width="136" height="104" />}
         />
       ) : (
-        <Container>
-          <LeftSide>
+        <div className="relative flex h-[calc(100vh-theme(space.nav))]">
+          <div className="w-full md:w-1/2">
             <Typography
               className="ml-px flex h-18 items-center justify-between bg-white px-12 shadow-b"
               variant="bodyHl"
@@ -188,7 +188,7 @@ const WebhookLogs = () => {
                 </Tooltip>
               )}
             </Typography>
-            <FilterButtonsWrapper>
+            <div className="flex items-center gap-3 px-12 py-4 shadow-b">
               <Button
                 variant={!statusFilter ? 'secondary' : 'quaternary'}
                 onClick={() => {
@@ -227,7 +227,7 @@ const WebhookLogs = () => {
               >
                 {translate('text_63e27c56dfe64b846474ef4e')}
               </Button>
-            </FilterButtonsWrapper>
+            </div>
 
             {!loading && !isLoading && !hasLogs ? (
               <GenericPlaceholder
@@ -247,8 +247,10 @@ const WebhookLogs = () => {
                 image={<EmptyImage width="136" height="104" />}
               />
             ) : (
-              <LogsList>
-                {isLoading && !fetchMoreLoading && !hasLogs && <DateHeader />}
+              <div className="h-[calc(100vh-3*theme(space.nav))] overflow-scroll">
+                {isLoading && !fetchMoreLoading && !hasLogs && (
+                  <div className="sticky top-0 z-10 flex h-12 items-center bg-grey-100 px-12 py-0 shadow-b" />
+                )}
                 <InfiniteScroll
                   onBottom={async () => {
                     const { currentPage = 0, totalPages = 0 } = data?.webhooks?.metadata || {}
@@ -262,11 +264,13 @@ const WebhookLogs = () => {
                     }
                   }}
                 >
-                  <ListContent>
+                  <div className="mb-20">
                     {Object.keys(groupedLogs).map((logDate) => {
                       return (
                         <div key={logDate}>
-                          <DateHeader>{logDate}</DateHeader>
+                          <div className="sticky top-0 z-10 flex h-12 items-center bg-grey-100 px-12 py-0 shadow-b">
+                            {logDate}
+                          </div>
                           {groupedLogs[logDate].map((log) => {
                             const { id } = log
 
@@ -289,9 +293,9 @@ const WebhookLogs = () => {
                                   }}
                                 />
                                 {selectedLogId === id && (
-                                  <LogInfos>
+                                  <div className="right-0 top-0 z-10 flex size-full flex-col overflow-auto bg-white shadow-b md:absolute md:w-1/2 md:shadow-l">
                                     <WebhookLogDetails log={log} />
-                                  </LogInfos>
+                                  </div>
                                 )}
                               </div>
                             )
@@ -303,145 +307,33 @@ const WebhookLogs = () => {
                       [0, 1, 2].map((i) => (
                         <WebhookLogItemSkeleton key={`webhook-skeleton-item-${i}`} />
                       ))}
-                  </ListContent>
+                  </div>
                 </InfiniteScroll>
-              </LogsList>
+              </div>
             )}
-          </LeftSide>
-          <RightSide>
+          </div>
+          <div className="hidden h-full w-1/2 flex-col bg-grey-100 shadow-l md:flex">
             {isLoading && (
               <>
                 <Typography className="ml-px flex h-18 items-center justify-between bg-white px-12 pl-8 shadow-b">
                   <Skeleton variant="text" className="w-45" />
                 </Typography>
-                <LogPropertiesSkeleton>
+                <div className="ml-px bg-white px-8 py-10 shadow-l">
                   {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-                    <div key={`skeleton-event-${i}`}>
-                      <Skeleton variant="text" className="mr-18 w-20" />
-                      <Skeleton variant="text" className="mr-auto w-60" />
+                    <div className="flex items-center gap-10" key={`skeleton-event-${i}`}>
+                      <Skeleton variant="text" className="w-20" />
+                      <Skeleton variant="text" className="w-60" />
                     </div>
                   ))}
-                </LogPropertiesSkeleton>
-                <Payload />
+                </div>
+                <div className="flex-1 bg-grey-100 shadow-l md:shadow-b" />
               </>
             )}
-          </RightSide>
-        </Container>
+          </div>
+        </div>
       )}
     </div>
   )
 }
 
 export default WebhookLogs
-
-const Header = styled.div`
-  display: flex;
-  align-items: center;
-  flex: 1;
-  min-width: 0;
-  margin-right: ${theme.spacing(4)};
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
-
-const Container = styled.div`
-  position: relative;
-  display: flex;
-  height: calc(100vh - ${NAV_HEIGHT}px);
-`
-
-const LeftSide = styled.div`
-  width: 50%;
-
-  ${theme.breakpoints.down('md')} {
-    width: 100%;
-  }
-`
-
-const RightSide = styled.div`
-  width: 50%;
-  height: 100%;
-  box-shadow: ${theme.shadows[8]};
-  display: flex;
-  flex-direction: column;
-  background-color: ${theme.palette.grey[100]};
-
-  ${theme.breakpoints.down('md')} {
-    display: none;
-  }
-`
-
-const LogsList = styled.div`
-  height: calc(100vh - (3 * ${NAV_HEIGHT}px));
-  overflow: scroll;
-`
-
-const LogPropertiesSkeleton = styled.div`
-  padding: ${theme.spacing(10)} ${theme.spacing(8)};
-  box-shadow: ${theme.shadows[7]};
-  margin-left: 1px;
-  background-color: ${theme.palette.common.white};
-
-  > * {
-    display: flex;
-    &:not(:last-child) {
-      margin-bottom: ${theme.spacing(7)};
-    }
-  }
-`
-
-const Payload = styled.div`
-  flex: 1;
-  box-shadow: ${theme.shadows[8]};
-  background-color: ${theme.palette.grey[100]};
-
-  ${theme.breakpoints.down('md')} {
-    box-shadow: ${theme.shadows[7]};
-  }
-`
-
-const LogInfos = styled.div`
-  width: 50%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  top: 0;
-  right: 0;
-  overflow: auto;
-  box-shadow: ${theme.shadows[8]};
-  background-color: ${theme.palette.background.default};
-  z-index: 1;
-
-  ${theme.breakpoints.down('md')} {
-    position: initial;
-    box-shadow: ${theme.shadows[7]};
-    width: 100%;
-  }
-`
-
-const DateHeader = styled.div`
-  height: ${HEADER_TABLE_HEIGHT}px;
-  display: flex;
-  align-items: center;
-  padding: 0 ${theme.spacing(12)};
-  background-color: ${theme.palette.grey[100]};
-  box-shadow: ${theme.shadows[7]};
-  position: sticky;
-  top: 0;
-  z-index: 1;
-`
-
-const ListContent = styled.div`
-  margin-bottom: ${theme.spacing(20)};
-`
-
-const FilterButtonsWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-  padding: ${theme.spacing(4)} ${theme.spacing(12)};
-  box-shadow: ${theme.shadows[7]};
-`

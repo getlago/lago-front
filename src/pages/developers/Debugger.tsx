@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { useEffect, useMemo, useState } from 'react'
-import styled from 'styled-components'
 
 import { Button, InfiniteScroll, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { DebuggerEventDetails } from '~/components/developers/DebuggerEventDetails'
@@ -17,7 +16,6 @@ import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { HEADER_TABLE_HEIGHT, NAV_HEIGHT, theme } from '~/styles'
 
 gql`
   fragment EventList on Event {
@@ -103,8 +101,8 @@ const Debugger = () => {
           image={<ErrorImage width="136" height="104" />}
         />
       ) : (
-        <Container>
-          <Events>
+        <div className="relative flex h-[calc(100vh-theme(space.nav)-52px)]">
+          <div className="w-full md:w-1/2">
             <Typography
               className="flex h-18 min-h-18 items-center justify-between px-12 shadow-b"
               variant="bodyHl"
@@ -134,9 +132,11 @@ const Debugger = () => {
                 image={<EmptyImage width="136" height="104" />}
               />
             ) : (
-              <EventList>
+              <div className="h-[calc(100vh-2*theme(space.nav)-52px)] overflow-auto">
                 <>
-                  {((loading && !data?.events?.collection) || refetchLoading) && <DateHeader />}
+                  {((loading && !data?.events?.collection) || refetchLoading) && (
+                    <div className="sticky top-0 z-10 flex h-12 items-center bg-grey-100 px-12 shadow-b" />
+                  )}
                   <InfiniteScroll
                     onBottom={() => {
                       const { currentPage = 0, totalPages = 0 } = data?.events?.metadata || {}
@@ -148,12 +148,14 @@ const Debugger = () => {
                         })
                     }}
                   >
-                    <ListContent>
+                    <div className="mb-20">
                       {!refetchLoading &&
                         Object.keys(groupedEvent).map((eventReceivedAt) => {
                           return (
                             <div key={eventReceivedAt}>
-                              <DateHeader>{eventReceivedAt}</DateHeader>
+                              <div className="sticky top-0 z-10 flex h-12 items-center bg-grey-100 px-12 shadow-b">
+                                {eventReceivedAt}
+                              </div>
                               {groupedEvent[eventReceivedAt].map((event) => {
                                 const { id } = event
 
@@ -176,9 +178,9 @@ const Debugger = () => {
                                       }}
                                     />
                                     {selectedEventId === id && (
-                                      <EventInfos>
+                                      <div className="right-0 top-0 z-10 flex size-full flex-col overflow-auto bg-white md:absolute md:w-1/2 md:shadow-l">
                                         <DebuggerEventDetails event={event} />
-                                      </EventInfos>
+                                      </div>
                                     )}
                                   </div>
                                 )
@@ -190,126 +192,34 @@ const Debugger = () => {
                         [0, 1, 2].map((i) => (
                           <EventItemSkeleton key={`event-skeleton-item-${i}`} />
                         ))}
-                    </ListContent>
+                    </div>
                   </InfiniteScroll>
                 </>
-              </EventList>
+              </div>
             )}
-          </Events>
-          <Side>
+          </div>
+          <div className="hidden h-full w-1/2 flex-col bg-grey-100 shadow-l md:flex">
             {loading && (
               <>
                 <Typography className="ml-px flex h-18 items-center justify-between bg-white px-8 shadow-b">
                   <Skeleton variant="text" className="w-45" />
                 </Typography>
-                <EventInfosSkeleton>
+                <div className="ml-px bg-white px-8 py-10 shadow-l">
                   {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-                    <div key={`skeleton-event-${i}`}>
-                      <Skeleton variant="text" className="mr-18 w-20" />
-                      <Skeleton variant="text" className="mr-auto w-60" />
+                    <div className="flex items-center gap-10" key={`skeleton-event-${i}`}>
+                      <Skeleton variant="text" className="w-20" />
+                      <Skeleton variant="text" className="w-60" />
                     </div>
                   ))}
-                </EventInfosSkeleton>
-                <Payload></Payload>
+                </div>
+                <div className="flex-1 bg-grey-100 shadow-l md:shadow-b" />
               </>
             )}
-          </Side>
-        </Container>
+          </div>
+        </div>
       )}
     </div>
   )
 }
-
-const Container = styled.div`
-  position: relative;
-  display: flex;
-  height: calc(100vh - (2 * ${NAV_HEIGHT}px));
-`
-
-const EventInfos = styled.div`
-  width: 50%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  top: 0;
-  right: 0;
-  overflow: auto;
-  box-shadow: ${theme.shadows[8]};
-  background-color: ${theme.palette.background.default};
-  z-index: 1;
-
-  ${theme.breakpoints.down('md')} {
-    position: initial;
-    box-shadow: none;
-    width: 100%;
-  }
-`
-
-const Events = styled.div`
-  width: 50%;
-
-  ${theme.breakpoints.down('md')} {
-    width: 100%;
-  }
-`
-
-const Side = styled.div`
-  width: 50%;
-  height: 100%;
-  box-shadow: ${theme.shadows[8]};
-  display: flex;
-  flex-direction: column;
-  background-color: ${theme.palette.grey[100]};
-
-  ${theme.breakpoints.down('md')} {
-    display: none;
-  }
-`
-
-const DateHeader = styled.div`
-  height: ${HEADER_TABLE_HEIGHT}px;
-  display: flex;
-  align-items: center;
-  padding: 0 ${theme.spacing(12)};
-  background-color: ${theme.palette.grey[100]};
-  box-shadow: ${theme.shadows[7]};
-  position: sticky;
-  top: 0;
-  z-index: 1;
-`
-
-const EventList = styled.div`
-  overflow: auto;
-  height: calc(100vh - ${NAV_HEIGHT * 3}px);
-`
-
-const EventInfosSkeleton = styled.div`
-  padding: ${theme.spacing(10)} ${theme.spacing(8)};
-  box-shadow: ${theme.shadows[7]};
-  margin-left: 1px;
-  background-color: ${theme.palette.common.white};
-
-  > * {
-    display: flex;
-    &:not(:last-child) {
-      margin-bottom: ${theme.spacing(7)};
-    }
-  }
-`
-
-const Payload = styled.div`
-  flex: 1;
-  box-shadow: ${theme.shadows[8]};
-  background-color: ${theme.palette.grey[100]};
-
-  ${theme.breakpoints.down('md')} {
-    box-shadow: ${theme.shadows[7]};
-  }
-`
-
-const ListContent = styled.div`
-  margin-bottom: ${theme.spacing(20)};
-`
 
 export default Debugger
