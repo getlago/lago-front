@@ -187,6 +187,7 @@ const config = {
         dialog: 2000,
         popper: 1800,
         drawer: 1600,
+        sideNav: 1500,
         navBar: 1200,
         sectionHead: 1000,
       },

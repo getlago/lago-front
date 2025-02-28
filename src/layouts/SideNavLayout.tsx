@@ -1,9 +1,7 @@
-/* eslint-disable tailwindcss/no-custom-classname */
 import { gql, useApolloClient } from '@apollo/client'
 import { ClickAwayListener, Stack } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { Location, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 
 import {
   Avatar,
@@ -58,10 +56,9 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-import { theme } from '~/styles'
 import { MenuPopper } from '~/styles/designSystem'
+import { tw } from '~/styles/utils'
 
-const NAV_WIDTH = 240
 const { appEnv } = envGlobalVar()
 
 gql`
@@ -102,7 +99,7 @@ const SideNav = () => {
   }, [pathname, contentRef, state?.disableScrollTop])
 
   return (
-    <Container>
+    <div className="flex h-screen">
       <Button
         className="absolute left-4 top-4 z-drawer md:hidden"
         onClick={(e) => {
@@ -117,8 +114,13 @@ const SideNav = () => {
           if (open) setOpen(false)
         }}
       >
-        <Drawer className="drawer" $open={open}>
-          <Header className="header">
+        <div
+          className={tw(
+            'absolute z-sideNav flex h-full w-60 flex-col overflow-hidden bg-white transition-[left] duration-250 shadow-r md:static md:left-auto md:z-auto',
+            open ? 'left-0' : '-left-60',
+          )}
+        >
+          <div className="mt-14 px-4 pb-2 pt-4 md:mt-0">
             <Popper
               PopperProps={{ placement: 'bottom-start' }}
               minWidth={320}
@@ -162,12 +164,15 @@ const SideNav = () => {
               }
             >
               {({ closePopper }) => (
-                <StyledMenuPopper>
+                <MenuPopper className="max-w-80 overflow-hidden p-0">
                   <Typography className="min-h-11 px-5 py-4" variant="captionHl" noWrap>
                     {currentUser?.email}
                   </Typography>
                   {!!organizationList?.length && (
-                    <OrganizationList>
+                    <div
+                      className="flex flex-col gap-1 overflow-auto p-2 pt-0"
+                      style={{ maxHeight: 'calc(100vh - 80px)' }}
+                    >
                       {organizationList
                         .sort(
                           (a, b) =>
@@ -202,9 +207,9 @@ const SideNav = () => {
                             </Typography>
                           </Button>
                         ))}
-                    </OrganizationList>
+                    </div>
                   )}
-                  <Logout>
+                  <div className="flex items-center justify-between p-2 shadow-t first-child:text-left">
                     <Button
                       variant="quaternary"
                       align="left"
@@ -214,29 +219,30 @@ const SideNav = () => {
                       {translate('text_623b497ad05b960101be3444')}
                     </Button>
                     {!!loading && !error ? (
-                      <Version>
+                      <div className="flex h-5 items-center justify-between py-3 pl-5 pr-2">
                         <Skeleton variant="text" className="w-12" />
                         <Skeleton variant="text" className="w-30" />
-                      </Version>
+                      </div>
                     ) : !!data && !error ? (
-                      <Version>
-                        <ExternalLink
+                      <div className="flex h-5 items-center justify-between py-3 pl-5 pr-2">
+                        <a
+                          className="text-blue visited:text-blue"
                           href={data?.currentVersion?.githubUrl}
                           target="_blank"
                           rel="noreferrer noopener"
                         >
                           {data?.currentVersion?.number}
                           <Icon className="ml-2 hover:cursor-pointer" name="outside" size="small" />
-                        </ExternalLink>
-                      </Version>
+                        </a>
+                      </div>
                     ) : undefined}
-                  </Logout>
-                </StyledMenuPopper>
+                  </div>
+                </MenuPopper>
               )}
             </Popper>
-          </Header>
-          <Nav className="nav">
-            <TabsButtons>
+          </div>
+          <div className="flex flex-1 flex-col overflow-auto px-4 pb-4 pt-2">
+            <div className="flex w-full flex-col gap-1 *:text-left">
               <VerticalMenu
                 loading={currentUserLoading}
                 loadingComponent={
@@ -318,8 +324,8 @@ const SideNav = () => {
                   },
                 ]}
               />
-            </TabsButtons>
-            <BottomButtons>
+            </div>
+            <div className="mt-auto flex w-full flex-col gap-1 *:text-left">
               <VerticalMenu
                 loading={currentUserLoading}
                 loadingComponent={
@@ -394,145 +400,15 @@ const SideNav = () => {
                   },
                 ]}
               />
-            </BottomButtons>
-          </Nav>
-        </Drawer>
+            </div>
+          </div>
+        </div>
       </ClickAwayListener>
-      <Content ref={contentRef}>
+      <div className="flex-1 overflow-y-auto" ref={contentRef}>
         <Outlet />
-      </Content>
-    </Container>
+      </div>
+    </div>
   )
 }
-
-const Container = styled.div`
-  display: flex;
-  height: 100vh;
-`
-
-const Drawer = styled.div<{ $open: boolean }>`
-  height: 100vh;
-  box-shadow: ${theme.shadows[6]};
-  width: ${NAV_WIDTH}px;
-  overflow: hidden;
-  transition: left 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-  display: flex;
-  flex-direction: column;
-  background-color: ${theme.palette.common.white};
-
-  ${theme.breakpoints.down('md')} {
-    position: absolute;
-    z-index: ${theme.zIndex.drawer - 1};
-    left: ${({ $open }) => ($open ? 0 : -NAV_WIDTH)}px;
-  }
-`
-
-const Header = styled.div`
-  padding: ${theme.spacing(4)} ${theme.spacing(4)} ${theme.spacing(2)} ${theme.spacing(4)};
-
-  ${theme.breakpoints.down('md')} {
-    margin-top: calc(40px + ${theme.spacing(4)});
-  }
-`
-
-const Content = styled.div`
-  flex: 1;
-  overflow-y: auto;
-`
-
-const Nav = styled.div`
-  padding: ${theme.spacing(2)} ${theme.spacing(4)} ${theme.spacing(4)};
-  overflow: auto;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-`
-
-const TabsButtons = styled.div`
-  display: flex;
-  box-sizing: border-box;
-  flex-direction: column;
-  width: 100%;
-
-  > * {
-    text-align: left;
-
-    &:not(:last-child) {
-      margin-bottom: ${theme.spacing(1)};
-    }
-  }
-`
-
-const BottomButtons = styled.div`
-  margin-top: auto;
-  width: 100%;
-  box-sizing: border-box;
-  flex-direction: column;
-  display: flex;
-  gap: ${theme.spacing(1)};
-
-  > * {
-    text-align: left;
-
-    &:not(:last-child) {
-      margin-bottom: ${theme.spacing(1)};
-    }
-  }
-`
-
-const StyledMenuPopper = styled(MenuPopper)`
-  padding: 0;
-  overflow: hidden;
-  height: inherit;
-  max-height: inherit;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  max-width: 320px;
-
-  & > *:not(:last-child) {
-    margin-bottom: 0px;
-  }
-`
-
-const OrganizationList = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: ${theme.spacing(2)};
-  max-height: calc(100vh - 80px);
-  overflow: auto;
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(1)};
-  }
-`
-
-const Logout = styled.div`
-  box-shadow: ${theme.shadows[5]};
-  padding: ${theme.spacing(2)};
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  > *:first-child {
-    text-align: left;
-  }
-`
-
-const Version = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: ${theme.spacing(3)} ${theme.spacing(2)} ${theme.spacing(3)} ${theme.spacing(5)};
-  height: ${theme.spacing(5)};
-`
-
-const ExternalLink = styled.a`
-  color: ${theme.palette.primary[600]};
-
-  &:visited {
-    color: ${theme.palette.primary[600]};
-  }
-`
 
 export default SideNav
