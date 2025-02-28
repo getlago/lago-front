@@ -1,7 +1,9 @@
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
+import { TimeGranularityEnum } from '~/generated/graphql'
+
 import { useFilterContext } from './context'
-import { AvailableFiltersEnum, FiltersFormValues } from './types'
+import { AvailableFiltersEnum, AvailableQuickFilters, FiltersFormValues } from './types'
 
 export const useFilters = () => {
   const context = useFilterContext()
@@ -20,7 +22,11 @@ export const useFilters = () => {
     for (const search in searchParamsObject) {
       const key = keyWithoutPrefix(search) as AvailableFiltersEnum
 
-      if (context.availableFilters.includes(key)) {
+      // if value is part of the static filters, reset to default static value
+      if (context.staticFilters?.[key]) {
+        searchParams.set(search, context.staticFilters[key])
+      } else if (context.availableFilters.includes(key)) {
+        // otherwise, remove the filter from the URL
         searchParams.delete(search)
       }
     }
@@ -120,6 +126,14 @@ export const useFilters = () => {
     return staticFilters ? `${staticFilters}&${newFiltersJoined}` : newFiltersJoined
   }
 
+  const selectTimeGranularity = (timeGranularity: TimeGranularityEnum) => {
+    return Object.entries(searchParamsObject)
+      .filter(([key]) => key !== keyWithPrefix(AvailableQuickFilters.timeGranularity))
+      .map(([key, value]) => `${key}=${value}`)
+      .concat(`${keyWithPrefix(AvailableQuickFilters.timeGranularity)}=${timeGranularity}`)
+      .join('&')
+  }
+
   const isQuickFilterActive = (filters: { [key: string]: unknown }) => {
     for (const [_key, value] of Object.entries(filters)) {
       const key = keyWithPrefix(_key)
@@ -144,10 +158,11 @@ export const useFilters = () => {
     initialFiltersFormValues: getInitialFiltersFormValues('url'),
     staticFiltersFormValues: getInitialFiltersFormValues('default'),
     applyFilters,
-    resetFilters,
-    isQuickFilterActive,
     buildQuickFilterUrlParams,
+    isQuickFilterActive,
     keyWithoutPrefix,
     keyWithPrefix,
+    resetFilters,
+    selectTimeGranularity,
   }
 }

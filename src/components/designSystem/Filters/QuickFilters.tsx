@@ -1,4 +1,5 @@
 import { CustomerAccountTypeQuickFilter } from '~/components/designSystem/Filters/CustomerAccountTypeQuickFilter'
+import { TimeGranularitySelector } from '~/components/designSystem/Filters/TimeGranularitySelector'
 
 import { InvoiceStatusQuickFilter } from './InvoiceStatusQuickFilter'
 import { AvailableQuickFilters } from './types'
@@ -9,12 +10,16 @@ export const QuickFilters = () => {
 
   return (
     <div className="flex w-full flex-wrap items-center gap-3 overflow-y-auto">
-      {quickFiltersType === AvailableQuickFilters.InvoiceStatus ? (
+      {quickFiltersType === AvailableQuickFilters.invoiceStatus ? (
         <InvoiceStatusQuickFilter />
       ) : null}
 
-      {quickFiltersType === AvailableQuickFilters.CustomerAccountType ? (
+      {quickFiltersType === AvailableQuickFilters.customerAccountType ? (
         <CustomerAccountTypeQuickFilter />
+      ) : null}
+
+      {quickFiltersType === AvailableQuickFilters.timeGranularity ? (
+        <TimeGranularitySelector />
       ) : null}
     </div>
   )

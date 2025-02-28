@@ -126,7 +126,7 @@ const InvoicesList = ({
       <div className="box-border flex w-full flex-col gap-3 p-4 shadow-b md:px-12 md:py-3">
         <Filters.Provider
           filtersNamePrefix={INVOICE_LIST_FILTER_PREFIX}
-          quickFiltersType={AvailableQuickFilters.InvoiceStatus}
+          quickFiltersType={AvailableQuickFilters.invoiceStatus}
           availableFilters={[
             AvailableFiltersEnum.amount,
             AvailableFiltersEnum.status,

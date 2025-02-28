@@ -4,6 +4,7 @@ import {
   CREDIT_NOTE_LIST_FILTER_PREFIX,
   CUSTOMER_LIST_FILTER_PREFIX,
   INVOICE_LIST_FILTER_PREFIX,
+  REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX,
 } from '~/core/constants/filters'
 import { intlFormatDateTime } from '~/core/timezone'
 import { InvoicePaymentStatusTypeEnum, InvoiceStatusTypeEnum } from '~/generated/graphql'
@@ -78,6 +79,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.creditNoteRefundStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.creditNoteCreditStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.selfBilled]: (value: string) => value === 'true',
+  [AvailableFiltersEnum.timeGranularity]: (value: string) => value,
 }
 
 const formatFiltersForQuery = ({
@@ -154,6 +156,14 @@ export const formatFiltersForCustomerQuery = (searchParams: URLSearchParams) => 
     searchParams,
     availableFilters: CustomerAvailableFilters,
     filtersNamePrefix: CUSTOMER_LIST_FILTER_PREFIX,
+  })
+}
+
+export const formatFiltersForRevenueStreamsQuery = (searchParams: URLSearchParams) => {
+  return formatFiltersForQuery({
+    searchParams,
+    availableFilters: [AvailableFiltersEnum.currency, AvailableFiltersEnum.timeGranularity],
+    filtersNamePrefix: REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX,
   })
 }
 

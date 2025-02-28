@@ -2,7 +2,11 @@ import { renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
 import { BrowserRouter } from 'react-router-dom'
 
-import { InvoicePaymentStatusTypeEnum, InvoiceStatusTypeEnum } from '~/generated/graphql'
+import {
+  InvoicePaymentStatusTypeEnum,
+  InvoiceStatusTypeEnum,
+  TimeGranularityEnum,
+} from '~/generated/graphql'
 
 import { FilterContext } from '../context'
 import { AvailableFiltersEnum } from '../types'
@@ -21,13 +25,18 @@ const FILTER_PREFIX = 'f'
 const staticFilters = {
   currency: 'eur',
 }
+const staticQuickFilters = {
+  timeGranularity: 'daily',
+}
 
 const wrapper = ({
   children,
   withStaticFilters,
+  withStaticQuickFilters,
 }: {
   children: ReactNode
   withStaticFilters: boolean
+  withStaticQuickFilters: boolean
 }): JSX.Element => {
   return (
     <BrowserRouter basename="/">
@@ -35,8 +44,16 @@ const wrapper = ({
         <FilterContext.Provider
           value={{
             filtersNamePrefix: FILTER_PREFIX,
-            staticFilters: withStaticFilters ? staticFilters : undefined,
-            availableFilters: [AvailableFiltersEnum.status, AvailableFiltersEnum.invoiceType],
+            staticFilters: withStaticFilters ? staticFilters : {},
+            staticQuickFilters: withStaticQuickFilters ? staticQuickFilters : {},
+            availableFilters: [
+              AvailableFiltersEnum.status,
+              AvailableFiltersEnum.invoiceType,
+              AvailableFiltersEnum.currency,
+              AvailableFiltersEnum.paymentStatus,
+              AvailableFiltersEnum.paymentOverdue,
+              AvailableFiltersEnum.paymentDisputeLost,
+            ],
           }}
         >
           {children}
@@ -49,7 +66,8 @@ const wrapper = ({
 describe('draft', () => {
   it('should return search params without initial static filters', () => {
     const { result } = renderHook(() => useFilters(), {
-      wrapper: ({ children }) => wrapper({ children, withStaticFilters: false }),
+      wrapper: ({ children }) =>
+        wrapper({ children, withStaticFilters: false, withStaticQuickFilters: false }),
     })
 
     const expectedSearchParams = 'f_status=draft'
@@ -68,7 +86,8 @@ describe('draft', () => {
   })
   it('should return search params with initial static filters', () => {
     const { result } = renderHook(() => useFilters(), {
-      wrapper: ({ children }) => wrapper({ children, withStaticFilters: true }),
+      wrapper: ({ children }) =>
+        wrapper({ children, withStaticFilters: true, withStaticQuickFilters: false }),
     })
 
     const expectedSearchParams = 'f_currency=eur&f_status=draft'
@@ -89,7 +108,8 @@ describe('draft', () => {
 describe('outstanding', () => {
   it('should return search params without initial static filters', () => {
     const { result } = renderHook(() => useFilters(), {
-      wrapper: ({ children }) => wrapper({ children, withStaticFilters: false }),
+      wrapper: ({ children }) =>
+        wrapper({ children, withStaticFilters: false, withStaticQuickFilters: false }),
     })
 
     const expectedSearchParams = 'f_paymentStatus=failed,pending&f_status=finalized'
@@ -111,7 +131,8 @@ describe('outstanding', () => {
   })
   it('should return search params with initial static filters', () => {
     const { result } = renderHook(() => useFilters(), {
-      wrapper: ({ children }) => wrapper({ children, withStaticFilters: true }),
+      wrapper: ({ children }) =>
+        wrapper({ children, withStaticFilters: true, withStaticQuickFilters: false }),
     })
 
     const expectedSearchParams = 'f_currency=eur&f_paymentStatus=failed,pending&f_status=finalized'
@@ -136,7 +157,8 @@ describe('outstanding', () => {
 describe('payment overdue', () => {
   it('should return search params without initial static filters', () => {
     const { result } = renderHook(() => useFilters(), {
-      wrapper: ({ children }) => wrapper({ children, withStaticFilters: false }),
+      wrapper: ({ children }) =>
+        wrapper({ children, withStaticFilters: false, withStaticQuickFilters: false }),
     })
 
     const expectedSearchParams = 'f_paymentOverdue=true'
@@ -160,7 +182,8 @@ describe('payment overdue', () => {
   })
   it('should return search params with initial static filters', () => {
     const { result } = renderHook(() => useFilters(), {
-      wrapper: ({ children }) => wrapper({ children, withStaticFilters: true }),
+      wrapper: ({ children }) =>
+        wrapper({ children, withStaticFilters: true, withStaticQuickFilters: false }),
     })
 
     const expectedSearchParams = 'f_currency=eur&f_paymentOverdue=true'
@@ -187,7 +210,8 @@ describe('payment overdue', () => {
 describe('succeeded', () => {
   it('should return search params without initial static filters', () => {
     const { result } = renderHook(() => useFilters(), {
-      wrapper: ({ children }) => wrapper({ children, withStaticFilters: false }),
+      wrapper: ({ children }) =>
+        wrapper({ children, withStaticFilters: false, withStaticQuickFilters: false }),
     })
 
     const expectedSearchParams = 'f_paymentStatus=succeeded&f_status=finalized'
@@ -209,7 +233,8 @@ describe('succeeded', () => {
   })
   it('should return search params with initial static filters', () => {
     const { result } = renderHook(() => useFilters(), {
-      wrapper: ({ children }) => wrapper({ children, withStaticFilters: true }),
+      wrapper: ({ children }) =>
+        wrapper({ children, withStaticFilters: true, withStaticQuickFilters: false }),
     })
 
     const expectedSearchParams = 'f_currency=eur&f_paymentStatus=succeeded&f_status=finalized'
@@ -234,7 +259,8 @@ describe('succeeded', () => {
 describe('voided', () => {
   it('should return search params without initial static filters', () => {
     const { result } = renderHook(() => useFilters(), {
-      wrapper: ({ children }) => wrapper({ children, withStaticFilters: false }),
+      wrapper: ({ children }) =>
+        wrapper({ children, withStaticFilters: false, withStaticQuickFilters: false }),
     })
 
     const expectedSearchParams = 'f_status=voided'
@@ -255,7 +281,8 @@ describe('voided', () => {
   })
   it('should return search params with initial static filters', () => {
     const { result } = renderHook(() => useFilters(), {
-      wrapper: ({ children }) => wrapper({ children, withStaticFilters: true }),
+      wrapper: ({ children }) =>
+        wrapper({ children, withStaticFilters: true, withStaticQuickFilters: false }),
     })
 
     const expectedSearchParams = 'f_currency=eur&f_status=voided'
@@ -279,7 +306,8 @@ describe('voided', () => {
 describe('payment dispute lost', () => {
   it('should return search params without initial static filters', () => {
     const { result } = renderHook(() => useFilters(), {
-      wrapper: ({ children }) => wrapper({ children, withStaticFilters: false }),
+      wrapper: ({ children }) =>
+        wrapper({ children, withStaticFilters: false, withStaticQuickFilters: false }),
     })
 
     const expectedSearchParams = 'f_paymentDisputeLost=true'
@@ -303,7 +331,8 @@ describe('payment dispute lost', () => {
   })
   it('should return search params with initial static filters', () => {
     const { result } = renderHook(() => useFilters(), {
-      wrapper: ({ children }) => wrapper({ children, withStaticFilters: true }),
+      wrapper: ({ children }) =>
+        wrapper({ children, withStaticFilters: true, withStaticQuickFilters: false }),
     })
 
     const expectedSearchParams = 'f_currency=eur&f_paymentDisputeLost=true'
@@ -324,5 +353,37 @@ describe('payment dispute lost', () => {
         searchParams: paymentDisputeLostSearchParams,
       }),
     ).toBe(true)
+  })
+})
+
+describe('selectTimeGranularity', () => {
+  it('should update timeGranularity with no static filters', () => {
+    const { result } = renderHook(() => useFilters(), {
+      wrapper: ({ children }) =>
+        wrapper({ children, withStaticFilters: false, withStaticQuickFilters: false }),
+    })
+
+    expect(result.current.selectTimeGranularity(TimeGranularityEnum.Daily)).toEqual(
+      'f_timeGranularity=daily',
+    )
+
+    expect(result.current.selectTimeGranularity(TimeGranularityEnum.Weekly)).toEqual(
+      'f_timeGranularity=weekly',
+    )
+
+    expect(result.current.selectTimeGranularity(TimeGranularityEnum.Monthly)).toEqual(
+      'f_timeGranularity=monthly',
+    )
+  })
+
+  it('should update timeGranularity with static filters', () => {
+    const { result } = renderHook(() => useFilters(), {
+      wrapper: ({ children }) =>
+        wrapper({ children, withStaticFilters: true, withStaticQuickFilters: true }),
+    })
+
+    expect(result.current.selectTimeGranularity(TimeGranularityEnum.Monthly)).toEqual(
+      'f_timeGranularity=monthly',
+    )
   })
 })
