@@ -19,7 +19,7 @@ const CreateInvoice = lazyLoad(() => import('~/pages/CreateInvoice'))
 const CreateCoupon = lazyLoad(() => import('~/pages/CreateCoupon'))
 const CreateAddOn = lazyLoad(() => import('~/pages/CreateAddOn'))
 const CreateSubscription = lazyLoad(() => import('~/pages/CreateSubscription'))
-const WalletForm = lazyLoad(() => import('~/pages/WalletForm/WalletForm'))
+const CreateWallet = lazyLoad(() => import('~/pages/wallet/CreateWallet'))
 const CreatePayment = lazyLoad(() => import('~/pages/CreatePayment'))
 
 // Details
@@ -176,7 +176,7 @@ export const objectCreationRoutes: CustomRouteObject[] = [
   {
     path: [CREATE_WALLET_ROUTE, EDIT_WALLET_ROUTE],
     private: true,
-    element: <WalletForm />,
+    element: <CreateWallet />,
     permissions: ['walletsCreate', 'walletsUpdate'],
   },
   {

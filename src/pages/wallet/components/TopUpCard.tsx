@@ -27,8 +27,8 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { walletFormErrorCodes } from '~/pages/WalletForm/form'
-import { TWalletDataForm } from '~/pages/WalletForm/types'
+import { walletFormErrorCodes } from '~/pages/wallet/form'
+import { TWalletDataForm } from '~/pages/wallet/types'
 
 const AccordionSummary: FC<{ label: string; isValid: boolean; onDelete: VoidFunction }> = ({
   label,

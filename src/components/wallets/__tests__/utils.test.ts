@@ -13,7 +13,7 @@ import {
   RecurringTransactionTriggerEnum,
   TimezoneEnum,
 } from '~/generated/graphql'
-import { TWalletDataForm } from '~/pages/WalletForm/types'
+import { TWalletDataForm } from '~/pages/wallet/types'
 
 describe('Wallet Utils', () => {
   describe('toNumber', () => {

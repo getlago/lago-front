@@ -29,11 +29,11 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { LoadingView } from '~/pages/WalletForm/components/LoadingView'
-import { SettingsCard } from '~/pages/WalletForm/components/SettingsCard'
-import { TopUpCard } from '~/pages/WalletForm/components/TopUpCard'
-import { walletFormSchema } from '~/pages/WalletForm/form'
-import { TWalletDataForm } from '~/pages/WalletForm/types'
+import { LoadingView } from '~/pages/wallet/components/LoadingView'
+import { SettingsCard } from '~/pages/wallet/components/SettingsCard'
+import { TopUpCard } from '~/pages/wallet/components/TopUpCard'
+import { walletFormSchema } from '~/pages/wallet/form'
+import { TWalletDataForm } from '~/pages/wallet/types'
 import { PageHeader } from '~/styles'
 import { ButtonContainer, Side } from '~/styles/mainObjectsForm'
 
@@ -98,7 +98,7 @@ function hasWalletRecurringTopUpEnabled(
   return !!wallet?.recurringTransactionRules?.[0]?.trigger
 }
 
-const WalletForm = () => {
+const CreateWallet = () => {
   const navigate = useNavigate()
 
   const { customerId = '', walletId = '' } = useParams()
@@ -387,4 +387,4 @@ const WalletForm = () => {
   )
 }
 
-export default WalletForm
+export default CreateWallet

@@ -9226,36 +9226,6 @@ export type GetSubscriptionForDetailsQueryVariables = Exact<{
 
 export type GetSubscriptionForDetailsQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, externalId: string, plan: { __typename?: 'Plan', id: string, name: string, code: string, parent?: { __typename?: 'Plan', id: string, name: string, code: string } | null }, customer: { __typename?: 'Customer', id: string } } | null };
 
-export type WalletForUpdateFragment = { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean }> | null };
-
-export type GetCustomerInfosForWalletFormQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type GetCustomerInfosForWalletFormQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, timezone?: TimezoneEnum | null } | null };
-
-export type GetWalletInfosForWalletFormQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type GetWalletInfosForWalletFormQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean }> | null } | null };
-
-export type CreateCustomerWalletMutationVariables = Exact<{
-  input: CreateCustomerWalletInput;
-}>;
-
-
-export type CreateCustomerWalletMutation = { __typename?: 'Mutation', createCustomerWallet?: { __typename?: 'Wallet', id: string, customer?: { __typename?: 'Customer', id: string, hasActiveWallet: boolean } | null } | null };
-
-export type UpdateCustomerWalletMutationVariables = Exact<{
-  input: UpdateCustomerWalletInput;
-}>;
-
-
-export type UpdateCustomerWalletMutation = { __typename?: 'Mutation', updateCustomerWallet?: { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean }> | null } | null };
-
 export type CreatePasswordResetMutationVariables = Exact<{
   input: CreatePasswordResetInput;
 }>;
@@ -9707,6 +9677,36 @@ export type GetXeroIntegrationsListQueryVariables = Exact<{
 
 
 export type GetXeroIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration', id: string, name: string, code: string, connectionId: string, hasMappingsConfigured?: boolean | null, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null }> } | null };
+
+export type WalletForUpdateFragment = { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean }> | null };
+
+export type GetCustomerInfosForWalletFormQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetCustomerInfosForWalletFormQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, timezone?: TimezoneEnum | null } | null };
+
+export type GetWalletInfosForWalletFormQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetWalletInfosForWalletFormQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean }> | null } | null };
+
+export type CreateCustomerWalletMutationVariables = Exact<{
+  input: CreateCustomerWalletInput;
+}>;
+
+
+export type CreateCustomerWalletMutation = { __typename?: 'Mutation', createCustomerWallet?: { __typename?: 'Wallet', id: string, customer?: { __typename?: 'Customer', id: string, hasActiveWallet: boolean } | null } | null };
+
+export type UpdateCustomerWalletMutationVariables = Exact<{
+  input: UpdateCustomerWalletInput;
+}>;
+
+
+export type UpdateCustomerWalletMutation = { __typename?: 'Mutation', updateCustomerWallet?: { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean }> | null } | null };
 
 export const DeleteAddOnFragmentDoc = gql`
     fragment DeleteAddOn on AddOn {
@@ -24692,159 +24692,6 @@ export type GetSubscriptionForDetailsQueryHookResult = ReturnType<typeof useGetS
 export type GetSubscriptionForDetailsLazyQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsLazyQuery>;
 export type GetSubscriptionForDetailsSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsSuspenseQuery>;
 export type GetSubscriptionForDetailsQueryResult = Apollo.QueryResult<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables>;
-export const GetCustomerInfosForWalletFormDocument = gql`
-    query getCustomerInfosForWalletForm($id: ID!) {
-  customer(id: $id) {
-    id
-    currency
-    timezone
-  }
-}
-    `;
-
-/**
- * __useGetCustomerInfosForWalletFormQuery__
- *
- * To run a query within a React component, call `useGetCustomerInfosForWalletFormQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCustomerInfosForWalletFormQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCustomerInfosForWalletFormQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useGetCustomerInfosForWalletFormQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables> & ({ variables: GetCustomerInfosForWalletFormQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>(GetCustomerInfosForWalletFormDocument, options);
-      }
-export function useGetCustomerInfosForWalletFormLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>(GetCustomerInfosForWalletFormDocument, options);
-        }
-export function useGetCustomerInfosForWalletFormSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>(GetCustomerInfosForWalletFormDocument, options);
-        }
-export type GetCustomerInfosForWalletFormQueryHookResult = ReturnType<typeof useGetCustomerInfosForWalletFormQuery>;
-export type GetCustomerInfosForWalletFormLazyQueryHookResult = ReturnType<typeof useGetCustomerInfosForWalletFormLazyQuery>;
-export type GetCustomerInfosForWalletFormSuspenseQueryHookResult = ReturnType<typeof useGetCustomerInfosForWalletFormSuspenseQuery>;
-export type GetCustomerInfosForWalletFormQueryResult = Apollo.QueryResult<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>;
-export const GetWalletInfosForWalletFormDocument = gql`
-    query getWalletInfosForWalletForm($id: ID!) {
-  wallet(id: $id) {
-    id
-    ...WalletForUpdate
-  }
-}
-    ${WalletForUpdateFragmentDoc}`;
-
-/**
- * __useGetWalletInfosForWalletFormQuery__
- *
- * To run a query within a React component, call `useGetWalletInfosForWalletFormQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetWalletInfosForWalletFormQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetWalletInfosForWalletFormQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useGetWalletInfosForWalletFormQuery(baseOptions: Apollo.QueryHookOptions<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables> & ({ variables: GetWalletInfosForWalletFormQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>(GetWalletInfosForWalletFormDocument, options);
-      }
-export function useGetWalletInfosForWalletFormLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>(GetWalletInfosForWalletFormDocument, options);
-        }
-export function useGetWalletInfosForWalletFormSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>(GetWalletInfosForWalletFormDocument, options);
-        }
-export type GetWalletInfosForWalletFormQueryHookResult = ReturnType<typeof useGetWalletInfosForWalletFormQuery>;
-export type GetWalletInfosForWalletFormLazyQueryHookResult = ReturnType<typeof useGetWalletInfosForWalletFormLazyQuery>;
-export type GetWalletInfosForWalletFormSuspenseQueryHookResult = ReturnType<typeof useGetWalletInfosForWalletFormSuspenseQuery>;
-export type GetWalletInfosForWalletFormQueryResult = Apollo.QueryResult<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>;
-export const CreateCustomerWalletDocument = gql`
-    mutation createCustomerWallet($input: CreateCustomerWalletInput!) {
-  createCustomerWallet(input: $input) {
-    id
-    customer {
-      id
-      hasActiveWallet
-    }
-  }
-}
-    `;
-export type CreateCustomerWalletMutationFn = Apollo.MutationFunction<CreateCustomerWalletMutation, CreateCustomerWalletMutationVariables>;
-
-/**
- * __useCreateCustomerWalletMutation__
- *
- * To run a mutation, you first call `useCreateCustomerWalletMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateCustomerWalletMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createCustomerWalletMutation, { data, loading, error }] = useCreateCustomerWalletMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateCustomerWalletMutation(baseOptions?: Apollo.MutationHookOptions<CreateCustomerWalletMutation, CreateCustomerWalletMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateCustomerWalletMutation, CreateCustomerWalletMutationVariables>(CreateCustomerWalletDocument, options);
-      }
-export type CreateCustomerWalletMutationHookResult = ReturnType<typeof useCreateCustomerWalletMutation>;
-export type CreateCustomerWalletMutationResult = Apollo.MutationResult<CreateCustomerWalletMutation>;
-export type CreateCustomerWalletMutationOptions = Apollo.BaseMutationOptions<CreateCustomerWalletMutation, CreateCustomerWalletMutationVariables>;
-export const UpdateCustomerWalletDocument = gql`
-    mutation updateCustomerWallet($input: UpdateCustomerWalletInput!) {
-  updateCustomerWallet(input: $input) {
-    ...WalletForUpdate
-  }
-}
-    ${WalletForUpdateFragmentDoc}`;
-export type UpdateCustomerWalletMutationFn = Apollo.MutationFunction<UpdateCustomerWalletMutation, UpdateCustomerWalletMutationVariables>;
-
-/**
- * __useUpdateCustomerWalletMutation__
- *
- * To run a mutation, you first call `useUpdateCustomerWalletMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateCustomerWalletMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateCustomerWalletMutation, { data, loading, error }] = useUpdateCustomerWalletMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateCustomerWalletMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCustomerWalletMutation, UpdateCustomerWalletMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateCustomerWalletMutation, UpdateCustomerWalletMutationVariables>(UpdateCustomerWalletDocument, options);
-      }
-export type UpdateCustomerWalletMutationHookResult = ReturnType<typeof useUpdateCustomerWalletMutation>;
-export type UpdateCustomerWalletMutationResult = Apollo.MutationResult<UpdateCustomerWalletMutation>;
-export type UpdateCustomerWalletMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerWalletMutation, UpdateCustomerWalletMutationVariables>;
 export const CreatePasswordResetDocument = gql`
     mutation createPasswordReset($input: CreatePasswordResetInput!) {
   createPasswordReset(input: $input) {
@@ -27300,3 +27147,156 @@ export type GetXeroIntegrationsListQueryHookResult = ReturnType<typeof useGetXer
 export type GetXeroIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetXeroIntegrationsListLazyQuery>;
 export type GetXeroIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetXeroIntegrationsListSuspenseQuery>;
 export type GetXeroIntegrationsListQueryResult = Apollo.QueryResult<GetXeroIntegrationsListQuery, GetXeroIntegrationsListQueryVariables>;
+export const GetCustomerInfosForWalletFormDocument = gql`
+    query getCustomerInfosForWalletForm($id: ID!) {
+  customer(id: $id) {
+    id
+    currency
+    timezone
+  }
+}
+    `;
+
+/**
+ * __useGetCustomerInfosForWalletFormQuery__
+ *
+ * To run a query within a React component, call `useGetCustomerInfosForWalletFormQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerInfosForWalletFormQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomerInfosForWalletFormQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetCustomerInfosForWalletFormQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables> & ({ variables: GetCustomerInfosForWalletFormQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>(GetCustomerInfosForWalletFormDocument, options);
+      }
+export function useGetCustomerInfosForWalletFormLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>(GetCustomerInfosForWalletFormDocument, options);
+        }
+export function useGetCustomerInfosForWalletFormSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>(GetCustomerInfosForWalletFormDocument, options);
+        }
+export type GetCustomerInfosForWalletFormQueryHookResult = ReturnType<typeof useGetCustomerInfosForWalletFormQuery>;
+export type GetCustomerInfosForWalletFormLazyQueryHookResult = ReturnType<typeof useGetCustomerInfosForWalletFormLazyQuery>;
+export type GetCustomerInfosForWalletFormSuspenseQueryHookResult = ReturnType<typeof useGetCustomerInfosForWalletFormSuspenseQuery>;
+export type GetCustomerInfosForWalletFormQueryResult = Apollo.QueryResult<GetCustomerInfosForWalletFormQuery, GetCustomerInfosForWalletFormQueryVariables>;
+export const GetWalletInfosForWalletFormDocument = gql`
+    query getWalletInfosForWalletForm($id: ID!) {
+  wallet(id: $id) {
+    id
+    ...WalletForUpdate
+  }
+}
+    ${WalletForUpdateFragmentDoc}`;
+
+/**
+ * __useGetWalletInfosForWalletFormQuery__
+ *
+ * To run a query within a React component, call `useGetWalletInfosForWalletFormQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetWalletInfosForWalletFormQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetWalletInfosForWalletFormQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetWalletInfosForWalletFormQuery(baseOptions: Apollo.QueryHookOptions<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables> & ({ variables: GetWalletInfosForWalletFormQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>(GetWalletInfosForWalletFormDocument, options);
+      }
+export function useGetWalletInfosForWalletFormLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>(GetWalletInfosForWalletFormDocument, options);
+        }
+export function useGetWalletInfosForWalletFormSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>(GetWalletInfosForWalletFormDocument, options);
+        }
+export type GetWalletInfosForWalletFormQueryHookResult = ReturnType<typeof useGetWalletInfosForWalletFormQuery>;
+export type GetWalletInfosForWalletFormLazyQueryHookResult = ReturnType<typeof useGetWalletInfosForWalletFormLazyQuery>;
+export type GetWalletInfosForWalletFormSuspenseQueryHookResult = ReturnType<typeof useGetWalletInfosForWalletFormSuspenseQuery>;
+export type GetWalletInfosForWalletFormQueryResult = Apollo.QueryResult<GetWalletInfosForWalletFormQuery, GetWalletInfosForWalletFormQueryVariables>;
+export const CreateCustomerWalletDocument = gql`
+    mutation createCustomerWallet($input: CreateCustomerWalletInput!) {
+  createCustomerWallet(input: $input) {
+    id
+    customer {
+      id
+      hasActiveWallet
+    }
+  }
+}
+    `;
+export type CreateCustomerWalletMutationFn = Apollo.MutationFunction<CreateCustomerWalletMutation, CreateCustomerWalletMutationVariables>;
+
+/**
+ * __useCreateCustomerWalletMutation__
+ *
+ * To run a mutation, you first call `useCreateCustomerWalletMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCustomerWalletMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCustomerWalletMutation, { data, loading, error }] = useCreateCustomerWalletMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCustomerWalletMutation(baseOptions?: Apollo.MutationHookOptions<CreateCustomerWalletMutation, CreateCustomerWalletMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCustomerWalletMutation, CreateCustomerWalletMutationVariables>(CreateCustomerWalletDocument, options);
+      }
+export type CreateCustomerWalletMutationHookResult = ReturnType<typeof useCreateCustomerWalletMutation>;
+export type CreateCustomerWalletMutationResult = Apollo.MutationResult<CreateCustomerWalletMutation>;
+export type CreateCustomerWalletMutationOptions = Apollo.BaseMutationOptions<CreateCustomerWalletMutation, CreateCustomerWalletMutationVariables>;
+export const UpdateCustomerWalletDocument = gql`
+    mutation updateCustomerWallet($input: UpdateCustomerWalletInput!) {
+  updateCustomerWallet(input: $input) {
+    ...WalletForUpdate
+  }
+}
+    ${WalletForUpdateFragmentDoc}`;
+export type UpdateCustomerWalletMutationFn = Apollo.MutationFunction<UpdateCustomerWalletMutation, UpdateCustomerWalletMutationVariables>;
+
+/**
+ * __useUpdateCustomerWalletMutation__
+ *
+ * To run a mutation, you first call `useUpdateCustomerWalletMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCustomerWalletMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCustomerWalletMutation, { data, loading, error }] = useUpdateCustomerWalletMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCustomerWalletMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCustomerWalletMutation, UpdateCustomerWalletMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCustomerWalletMutation, UpdateCustomerWalletMutationVariables>(UpdateCustomerWalletDocument, options);
+      }
+export type UpdateCustomerWalletMutationHookResult = ReturnType<typeof useUpdateCustomerWalletMutation>;
+export type UpdateCustomerWalletMutationResult = Apollo.MutationResult<UpdateCustomerWalletMutation>;
+export type UpdateCustomerWalletMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerWalletMutation, UpdateCustomerWalletMutationVariables>;
