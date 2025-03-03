@@ -63,8 +63,6 @@ import { MenuPopper, PageHeader } from '~/styles'
 import { StickySubmitBar } from '~/styles/mainObjectsForm'
 import { tw } from '~/styles/utils'
 
-const CELL_HEIGHT = 68
-
 gql`
   fragment TaxInfosForCreateInvoice on Tax {
     id
