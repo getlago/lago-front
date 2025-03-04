@@ -1,10 +1,8 @@
-/* eslint-disable tailwindcss/no-custom-classname */
 import { Box, InputAdornment, Stack } from '@mui/material'
 import { FormikProps } from 'formik'
 import { get } from 'lodash'
 import { DateTime } from 'luxon'
 import { FC, RefObject, useMemo, useState } from 'react'
-import styled from 'styled-components'
 
 import { Accordion, Alert, Button, Card, Icon, Typography } from '~/components/designSystem'
 import {
@@ -31,7 +29,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { walletFormErrorCodes } from '~/pages/WalletForm/form'
 import { TWalletDataForm } from '~/pages/WalletForm/types'
-import { theme } from '~/styles'
 
 const AccordionSummary: FC<{ label: string; isValid: boolean; onDelete: VoidFunction }> = ({
   label,
@@ -374,8 +371,9 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                 </>
               )}
 
-              <InlineTopUpElements>
+              <div className="flex w-full flex-row gap-3">
                 <ComboBox
+                  containerClassName="flex-1"
                   disableClearable
                   sortValues
                   placeholder={translate('text_6657c29c84ad4500ad764ee2')}
@@ -414,6 +412,7 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                   RecurringTransactionTriggerEnum.Interval && (
                   <>
                     <ComboBoxField
+                      containerClassName="flex-1"
                       name="recurringTransactionRules.0.interval"
                       disableClearable
                       sortValues={false}
@@ -447,19 +446,21 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                         },
                       ]}
                     />
-                    <DatePickerField
-                      name="recurringTransactionRules.0.startedAt"
-                      placement="top-end"
-                      formikProps={formikProps}
-                      label={translate('text_66599bfb69fba1010535c5c2')}
-                      placeholder={translate('text_62d18855b22699e5cf55f899')}
-                    />
+                    <div className="flex-1">
+                      <DatePickerField
+                        name="recurringTransactionRules.0.startedAt"
+                        placement="top-end"
+                        formikProps={formikProps}
+                        label={translate('text_66599bfb69fba1010535c5c2')}
+                        placeholder={translate('text_62d18855b22699e5cf55f899')}
+                      />
+                    </div>
                   </>
                 )}
                 {recurringTransactionRules?.trigger ===
                   RecurringTransactionTriggerEnum.Threshold && (
                   <AmountInputField
-                    className="span-2"
+                    className="flex-[2_2_0%]"
                     name="recurringTransactionRules.0.thresholdCredits"
                     currency={formikProps.values.currency}
                     label={translate('text_6560809c38fb9de88d8a5315')}
@@ -473,7 +474,7 @@ export const TopUpCard: FC<TopUpCardProps> = ({
                     {...inputAdornment(translate('text_62d18855b22699e5cf55f889'))}
                   />
                 )}
-              </InlineTopUpElements>
+              </div>
 
               {canDisplayAccordionAlert && (
                 <Alert type="info">
@@ -493,18 +494,3 @@ export const TopUpCard: FC<TopUpCardProps> = ({
     </Card>
   )
 }
-
-const InlineTopUpElements = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  gap: ${theme.spacing(3)};
-
-  > div {
-    flex: 1;
-  }
-
-  > div.span-2 {
-    flex: 2;
-  }
-`

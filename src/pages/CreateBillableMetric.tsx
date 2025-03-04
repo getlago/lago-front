@@ -4,7 +4,6 @@ import { useFormik } from 'formik'
 import _omit from 'lodash/omit'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 import { array, bool, number, object, string } from 'yup'
 
 import { BillableMetricCodeSnippet } from '~/components/billableMetrics/BillableMetricCodeSnippet'
@@ -40,7 +39,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditBillableMetric } from '~/hooks/useCreateEditBillableMetric'
-import { PageHeader, theme } from '~/styles'
+import { PageHeader } from '~/styles'
 import {
   ButtonContainer,
   Content,
@@ -409,11 +408,11 @@ const CreateBillableMetric = () => {
                         formikProps.values.aggregationType === AggregationTypeEnum.CustomAgg
                       }
                       label={
-                        <InlineComboboxLabel>
+                        <div className="flex items-center gap-2">
                           <Typography variant="captionHl" color="textSecondary">
                             {translate('text_623b42ff8ee4e000ba87d0ce')}
                           </Typography>
-                        </InlineComboboxLabel>
+                        </div>
                       }
                       infoText={translate('text_624d9adba93343010cd14c56')}
                       placeholder={translate('text_623b42ff8ee4e000ba87d0d0')}
@@ -451,11 +450,11 @@ const CreateBillableMetric = () => {
                         },
                         {
                           labelNode: (
-                            <InlineComboboxLabel>
+                            <div className="flex items-center gap-2">
                               <Typography variant="body" color="grey700">
                                 {translate('text_650062226a33c46e82050486')}
                               </Typography>
-                            </InlineComboboxLabel>
+                            </div>
                           ),
 
                           label: translate('text_650062226a33c46e82050486'),
@@ -891,11 +890,5 @@ const CreateBillableMetric = () => {
     </div>
   )
 }
-
-const InlineComboboxLabel = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(2)};
-`
 
 export default CreateBillableMetric

@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { Avatar, Button, Icon, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { Switch } from '~/components/form'
@@ -16,7 +15,8 @@ import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useEmailConfig } from '~/hooks/useEmailConfig'
 import { usePermissions } from '~/hooks/usePermissions'
-import { PageHeader, theme } from '~/styles'
+import { PageHeader } from '~/styles'
+import { tw } from '~/styles/utils'
 
 enum DisplayEnum {
   desktop = 'desktop',
@@ -73,7 +73,7 @@ const EmailScenarioConfig = () => {
   const { translateWithContextualLocal } = useContextualLocale(invoiceLanguage)
 
   return (
-    <Container>
+    <div className="flex h-screen flex-col overflow-auto">
       <PageHeader.Wrapper withSide>
         <PageHeader.Group>
           <Button
@@ -91,7 +91,7 @@ const EmailScenarioConfig = () => {
         </PageHeader.Group>
 
         {hasPermissions(['organizationEmailsUpdate']) && (
-          <HeaderRight>
+          <div className="flex flex-row items-center gap-3">
             <Typography variant="caption">{translate('text_6408b5ae7f629d008bc8af7c')}</Typography>
             <Switch
               name={`switch-config-${type}`}
@@ -108,10 +108,10 @@ const EmailScenarioConfig = () => {
               }}
             />
             {!isPremium && <Icon name="sparkles" />}
-          </HeaderRight>
+          </div>
         )}
       </PageHeader.Wrapper>
-      <Title>
+      <div className="flex flex-row items-center gap-4 px-4 py-8 md:px-12">
         {loading ? (
           <>
             <Skeleton variant="connectorAvatar" size="large" />
@@ -133,18 +133,18 @@ const EmailScenarioConfig = () => {
             </div>
           </>
         )}
-      </Title>
+      </div>
       <Typography className="flex h-18 min-h-18 items-center justify-between px-4 first:not-last:mr-3 md:px-12">
         <Typography variant="subhead" color="grey700" noWrap>
           {translate('text_6407684eaf41130074c4b2f8')}
         </Typography>
         {!loading && (
-          <Controls>
+          <div className="flex items-center gap-3">
             <Typography variant="caption">{translate('text_6407684eaf41130074c4b2f9')}</Typography>
 
             <LanguageSettingsButton language={invoiceLanguage} onChange={setInvoiceLanguage} />
 
-            <ControlDivider />
+            <div className="h-10 w-px bg-grey-300" />
             <Typography variant="caption">{translate('text_6407684eaf41130074c4b2fa')}</Typography>
             <Tooltip title={translate('text_6407684eaf41130074c4b2f6')} placement="top-end">
               <Button
@@ -160,11 +160,16 @@ const EmailScenarioConfig = () => {
                 onClick={() => setDisplay(DisplayEnum.mobile)}
               />
             </Tooltip>
-          </Controls>
+          </div>
         )}
       </Typography>
-      <PreviewContainer>
-        <PreviewContent $display={display}>
+      <div className="flex w-full flex-1 justify-center bg-grey-100">
+        <div
+          className={tw(
+            'px-4 pb-0 pt-12',
+            display === DisplayEnum.desktop ? 'w-150 max-w-150' : 'w-90 max-w-90',
+          )}
+        >
           <PreviewEmailLayout
             isLoading={loading}
             language={invoiceLanguage}
@@ -179,14 +184,14 @@ const EmailScenarioConfig = () => {
                   <Skeleton color="dark" variant="text" className="mb-5 w-40" />
                   <Skeleton color="dark" variant="text" className="mb-7 w-30" />
                   <Skeleton color="dark" variant="text" className="mb-7" />
-                  <LoadingBlock>
+                  <div className="flex w-full justify-between">
                     <Skeleton color="dark" variant="text" className="mb-4 w-30" />
                     <Skeleton color="dark" variant="text" className="mb-4 w-40" />
-                  </LoadingBlock>
-                  <LoadingBlock>
+                  </div>
+                  <div className="flex w-full justify-between">
                     <Skeleton color="dark" variant="text" className="mb-4 w-30" />
                     <Skeleton color="dark" variant="text" className="mb-4 w-40" />
-                  </LoadingBlock>
+                  </div>
                 </>
               ) : (
                 <>
@@ -201,10 +206,10 @@ const EmailScenarioConfig = () => {
                   <Typography variant="caption">
                     {translateWithContextualLocal(translationsKey.total)}
                   </Typography>
-                  <Divider />
-                  <InfoBlock>
+                  <div className="my-6 h-px w-full bg-grey-300" />
+                  <div className="flex w-full flex-col gap-1">
                     {type === EmailSettingsEnum.CreditNoteCreated && (
-                      <InfoLine>
+                      <div className="flex w-full items-center justify-between">
                         <Typography variant="caption">
                           {translateWithContextualLocal(
                             translationsKey.credit_note_number as string,
@@ -215,34 +220,34 @@ const EmailScenarioConfig = () => {
                             translationsKey.credit_note_number_value as string,
                           )}
                         </Typography>
-                      </InfoLine>
+                      </div>
                     )}
-                    <InfoLine>
+                    <div className="flex w-full items-center justify-between">
                       <Typography variant="caption">
                         {translateWithContextualLocal(translationsKey.invoice_number)}
                       </Typography>
                       <Typography variant="caption" color="grey700">
                         {translateWithContextualLocal(translationsKey.invoice_number_value)}
                       </Typography>
-                    </InfoLine>
-                    <InfoLine>
+                    </div>
+                    <div className="flex w-full items-center justify-between">
                       <Typography variant="caption">
                         {translateWithContextualLocal(translationsKey.issue_date)}
                       </Typography>
                       <Typography variant="caption" color="grey700">
                         {translateWithContextualLocal(translationsKey.issue_date_value)}
                       </Typography>
-                    </InfoLine>
-                  </InfoBlock>
-                  <Divider />
-                  <DownloadBlock>
+                    </div>
+                  </div>
+                  <div className="my-6 h-px w-full bg-grey-300" />
+                  <div className="flex flex-row items-center gap-2">
                     <Icon name="arrow-bottom" color="primary" />
 
                     <Typography variant="caption" color="grey700">
                       {translateWithContextualLocal('text_64188b3d9735d5007d712274')}
                     </Typography>
-                  </DownloadBlock>
-                  <Divider />
+                  </div>
+                  <div className="my-6 h-px w-full bg-grey-300" />
                   <Typography className="text-center" variant="caption">
                     <span className="mr-1">
                       {translateWithContextualLocal('text_64188b3d9735d5007d712276')}
@@ -253,112 +258,11 @@ const EmailScenarioConfig = () => {
               )}
             </div>
           </PreviewEmailLayout>
-        </PreviewContent>
-      </PreviewContainer>
+        </div>
+      </div>
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
-    </Container>
+    </div>
   )
 }
 
 export default EmailScenarioConfig
-
-const Container = styled.div`
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow: auto;
-`
-
-const Title = styled.div`
-  display: flex;
-  padding: ${theme.spacing(8)} ${theme.spacing(12)};
-
-  > *:first-child {
-    margin-right: ${theme.spacing(4)};
-  }
-
-  > *:nth-child(2) {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    justify-content: center;
-  }
-
-  ${theme.breakpoints.down('md')} {
-    padding: ${theme.spacing(8)} ${theme.spacing(4)};
-  }
-`
-
-const PreviewContainer = styled.div`
-  flex: 1;
-  width: 100%;
-  background-color: ${theme.palette.grey[100]};
-  display: flex;
-  justify-content: center;
-`
-
-const PreviewContent = styled.div<{ $display: DisplayEnum }>`
-  max-width: ${({ $display }) => ($display === DisplayEnum.desktop ? '600px' : '360px')};
-  width: ${({ $display }) => ($display === DisplayEnum.desktop ? '600px' : '360px')};
-  padding: ${theme.spacing(12)} ${theme.spacing(4)} 0;
-`
-const LoadingBlock = styled.div`
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-`
-
-const Controls = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(3)};
-  }
-`
-
-const ControlDivider = styled.div`
-  width: 1px;
-  height: 40px;
-  background-color: ${theme.palette.grey[300]};
-`
-
-const InfoBlock = styled.div`
-  width: 100%;
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(1)};
-  }
-`
-
-const InfoLine = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-`
-
-const DownloadBlock = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(2)};
-  }
-`
-
-const Divider = styled.div`
-  height: 1px;
-  width: 100%;
-  margin: ${theme.spacing(6)} 0;
-  background-color: ${theme.palette.grey[300]};
-`
-
-const HeaderRight = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(3)};
-  }
-`

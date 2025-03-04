@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import _findKey from 'lodash/findKey'
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Alert, Button, Skeleton, Typography } from '~/components/designSystem'
@@ -64,7 +63,7 @@ const PASSWORD_VALIDATION = [
 const ResetPassword = () => {
   const { translate } = useInternationalization()
   const { token } = useParams()
-  const { data, error, loading } = useGetPasswordResetQuery({
+  const { data, loading, error } = useGetPasswordResetQuery({
     context: { silentErrorCodes: [LagoApiError.NotFound] },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
@@ -141,18 +140,20 @@ const ResetPassword = () => {
       <Card>
         <StyledLogo height={24} />
 
-        {!!loading && !error ? (
+        {!!loading && !error && (
           <>
             <Skeleton variant="text" className="mb-8 w-52" />
             <Skeleton variant="text" className="mb-4 w-110" />
             <Skeleton variant="text" className="w-76" />
           </>
-        ) : !!error && !loading ? (
+        )}
+        {!!error && !loading && (
           <>
             <Title>{translate('text_642707b0da1753a9bb667292')}</Title>
             <Subtitle noMargins>{translate('text_642707b0da1753a9bb66729c')}</Subtitle>
           </>
-        ) : (
+        )}
+        {!loading && !error && (
           <>
             <Title>{translate('text_642707b0da1753a9bb667290')}</Title>
             <Subtitle>{translate('text_642707b0da1753a9bb66729a')}</Subtitle>
@@ -167,7 +168,7 @@ const ResetPassword = () => {
                 value={email}
               />
 
-              <PasswordBlock>
+              <div className="mb-8">
                 <TextInput
                   name="password"
                   value={formFields.password}
@@ -176,13 +177,14 @@ const ResetPassword = () => {
                   label={translate('text_63246f875e2228ab7b63dce9')}
                   placeholder={translate('text_63246f875e2228ab7b63dcf0')}
                 />
-                <PasswordValidation $visible={!!formFields.password}>
+                <div className="mt-4 flex max-h-124 flex-wrap overflow-hidden transition-all duration-250">
                   {errors.some((err) => PASSWORD_VALIDATION.includes(err)) ? (
                     PASSWORD_VALIDATION.map((err) => {
                       const isErrored = errors.includes(err)
 
                       return (
-                        <ValidationLine
+                        <div
+                          className="mb-3 flex h-5 w-1/2 flex-row items-center gap-3"
                           key={err}
                           data-test={
                             isErrored ? _findKey(FORM_ERRORS, (v) => v === err) : undefined
@@ -204,7 +206,7 @@ const ResetPassword = () => {
                           >
                             {translate(err)}
                           </Typography>
-                        </ValidationLine>
+                        </div>
                       )
                     })
                   ) : (
@@ -212,8 +214,8 @@ const ResetPassword = () => {
                       {translate('text_63246f875e2228ab7b63dd02')}
                     </Alert>
                   )}
-                </PasswordValidation>
-              </PasswordBlock>
+                </div>
+              </div>
 
               <Button
                 className="mb-8"
@@ -232,30 +234,5 @@ const ResetPassword = () => {
     </Page>
   )
 }
-
-const PasswordBlock = styled.div`
-  margin-bottom: ${theme.spacing(8)};
-`
-
-const PasswordValidation = styled.div<{ $visible: boolean }>`
-  margin-top: ${theme.spacing(4)};
-  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-  max-height: '500px';
-  overflow: hidden;
-  display: flex;
-  flex-wrap: wrap;
-`
-
-const ValidationLine = styled.div`
-  display: flex;
-  height: 20px;
-  align-items: center;
-  width: 50%;
-  margin-bottom: ${theme.spacing(3)};
-
-  svg {
-    margin-right: ${theme.spacing(3)};
-  }
-`
 
 export default ResetPassword

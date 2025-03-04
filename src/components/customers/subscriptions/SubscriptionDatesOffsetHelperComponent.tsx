@@ -11,6 +11,7 @@ export interface SubscriptionDatesOffsetHelperComponentProps {
   customerTimezone?: TimezoneEnum | null
   subscriptionAt?: string
   endingAt?: string
+  className?: string
 }
 
 export const SubscriptionDatesOffsetHelperComponent = ({

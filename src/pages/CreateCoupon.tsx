@@ -4,7 +4,6 @@ import isEqual from 'lodash/isEqual'
 import { DateTime } from 'luxon'
 import { useEffect, useRef, useState } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 import { date, number, object, string } from 'yup'
 
 import {
@@ -49,7 +48,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { PageHeader, theme } from '~/styles'
+import { PageHeader } from '~/styles'
 import {
   ButtonContainer,
   Content,
@@ -289,7 +288,7 @@ const CreateCoupon = () => {
                   />
 
                   {shouldDisplayDescription ? (
-                    <InlineDescription>
+                    <div className="flex items-center">
                       <TextInputField
                         className="mr-3 flex-1"
                         multiline
@@ -313,7 +312,7 @@ const CreateCoupon = () => {
                           }}
                         />
                       </Tooltip>
-                    </InlineDescription>
+                    </div>
                   ) : (
                     <Button
                       className="self-start"
@@ -442,7 +441,7 @@ const CreateCoupon = () => {
                   <Typography variant="subhead">
                     {translate('text_63c83d58e697e8e9236da806')}
                   </Typography>
-                  <Settings>
+                  <div className="flex flex-col gap-3">
                     <Checkbox
                       name="isReusable"
                       value={!!formikProps.values.reusable}
@@ -466,20 +465,21 @@ const CreateCoupon = () => {
                     />
 
                     {formikProps.values.expiration === CouponExpiration.TimeLimit && (
-                      <ExpirationLine>
-                        <Typography variant="body" color="grey700">
+                      <div className="flex items-center gap-3">
+                        <Typography variant="body" color="grey700" className="shrink-0">
                           {translate('text_632d68358f1fedc68eed3eb1')}
                         </Typography>
                         <DatePickerField
+                          className="flex-1"
                           disablePast
                           name="expirationAt"
                           placement="top-end"
                           placeholder={translate('text_632d68358f1fedc68eed3ea5')}
                           formikProps={formikProps}
                         />
-                      </ExpirationLine>
+                      </div>
                     )}
-                  </Settings>
+                  </div>
 
                   <Checkbox
                     className="mb-3"
@@ -506,20 +506,24 @@ const CreateCoupon = () => {
                     <>
                       {!!limitPlansList.length &&
                         limitPlansList.map((plan, i) => (
-                          <PlanLine key={`limited-plan-${plan.id}`} data-test={`limited-plan-${i}`}>
-                            <PlanLeftBlock>
+                          <div
+                            className="flex items-center justify-between rounded-xl border border-grey-400 px-4 py-3"
+                            key={`limited-plan-${plan.id}`}
+                            data-test={`limited-plan-${i}`}
+                          >
+                            <div className="flex items-center gap-3">
                               <Avatar size="big" variant="connector">
                                 <Icon name="board" />
                               </Avatar>
-                              <PlanLeftBlockInfos>
+                              <div className="flex flex-col">
                                 <Typography variant="bodyHl" color="grey700">
                                   {plan.name}
                                 </Typography>
                                 <Typography variant="caption" color="grey600">
                                   {plan.code}
                                 </Typography>
-                              </PlanLeftBlockInfos>
-                            </PlanLeftBlock>
+                              </div>
+                            </div>
                             {(!isEdition || !coupon?.appliedCouponsCount) && (
                               <Tooltip
                                 placement="top-end"
@@ -538,28 +542,29 @@ const CreateCoupon = () => {
                                 />
                               </Tooltip>
                             )}
-                          </PlanLine>
+                          </div>
                         ))}
 
                       {!!limitBillableMetricsList.length &&
                         limitBillableMetricsList.map((billableMetric, i) => (
-                          <PlanLine
+                          <div
+                            className="flex items-center justify-between rounded-xl border border-grey-400 px-4 py-3"
                             key={`limited-billable-metric-${billableMetric.id}`}
                             data-test={`limited-billable-metric-${i}`}
                           >
-                            <PlanLeftBlock>
+                            <div className="flex items-center gap-3">
                               <Avatar size="big" variant="connector">
                                 <Icon name="board" />
                               </Avatar>
-                              <PlanLeftBlockInfos>
+                              <div className="flex flex-col">
                                 <Typography variant="bodyHl" color="grey700">
                                   {billableMetric.name}
                                 </Typography>
                                 <Typography variant="caption" color="grey600">
                                   {billableMetric.code}
                                 </Typography>
-                              </PlanLeftBlockInfos>
-                            </PlanLeftBlock>
+                              </div>
+                            </div>
                             {(!isEdition || !coupon?.appliedCouponsCount) && (
                               <Tooltip
                                 placement="top-end"
@@ -580,7 +585,7 @@ const CreateCoupon = () => {
                                 />
                               </Tooltip>
                             )}
-                          </PlanLine>
+                          </div>
                         ))}
 
                       {(!isEdition || !coupon?.appliedCouponsCount) && (
@@ -669,50 +674,5 @@ const CreateCoupon = () => {
     </div>
   )
 }
-
-const ExpirationLine = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-    flex-shrink: 0;
-  }
-
-  > *:last-child {
-    flex: 1;
-  }
-`
-
-const Settings = styled.div`
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(3)};
-  }
-`
-
-const InlineDescription = styled.div`
-  display: flex;
-  align-items: center;
-`
-
-const PlanLine = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border: 1px solid ${theme.palette.grey[400]};
-  padding: ${theme.spacing(3)} ${theme.spacing(4)};
-  border-radius: 12px;
-  margin-bottom: ${theme.spacing(3)};
-`
-const PlanLeftBlock = styled.div`
-  display: flex;
-  align-items: center;
-`
-
-const PlanLeftBlockInfos = styled.div`
-  margin-left: ${theme.spacing(3)};
-  display: flex;
-  flex-direction: column;
-`
 
 export default CreateCoupon

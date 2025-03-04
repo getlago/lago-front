@@ -10,7 +10,6 @@ import {
   useParams,
   useSearchParams,
 } from 'react-router-dom'
-import styled, { css } from 'styled-components'
 import { object, string } from 'yup'
 
 import { SubscriptionDatesOffsetHelperComponent } from '~/components/customers/subscriptions/SubscriptionDatesOffsetHelperComponent'
@@ -21,7 +20,6 @@ import {
   Card,
   Icon,
   Selector,
-  SELECTOR_HEIGHT,
   Skeleton,
   Tooltip,
   Typography,
@@ -73,7 +71,8 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
 import ThinkingManeki from '~/public/images/maneki/thinking.svg'
-import { BREAKPOINT_LG, NAV_HEIGHT, PageHeader, theme } from '~/styles'
+import { BREAKPOINT_LG, PageHeader } from '~/styles'
+import { tw } from '~/styles/utils'
 
 gql`
   fragment AddSubscriptionPlan on Plan {
@@ -129,8 +128,8 @@ const LoadingSkeleton = () => {
   const { translate } = useInternationalization()
 
   return (
-    <FormPlanWrapper>
-      <SectionWrapper>
+    <div className="flex h-full max-w-full flex-col gap-12 lg:max-w-[720px]">
+      <div className="not-last-child:mb-8">
         <Typography variant="headline">{translate('text_6335e8900c69f8ebdfef5312')}</Typography>
         <Card>
           <div>
@@ -138,25 +137,25 @@ const LoadingSkeleton = () => {
             <Skeleton variant="text" className="w-96" />
           </div>
         </Card>
-      </SectionWrapper>
-      <SectionWrapper>
-        <SectionTitle>
+      </div>
+      <div className="not-last-child:mb-8">
+        <div className="flex flex-col gap-1">
           <Typography variant="headline">{translate('text_642d5eb2783a2ad10d67031a')}</Typography>
           <Typography variant="body">{translate('text_66630368f4333b00795b0e1c')}</Typography>
-        </SectionTitle>
+        </div>
         <Card>
-          <AccordionSkeleton>
+          <div className="flex h-18 items-center gap-3 rounded-xl border border-grey-400 p-4">
             <Icon name="chevron-right" />
             <Skeleton variant="text" className="w-40" />
-          </AccordionSkeleton>
+          </div>
         </Card>
-      </SectionWrapper>
-      <SectionWrapper>
-        <SectionTitle>
+      </div>
+      <div className="not-last-child:mb-8">
+        <div className="flex flex-col gap-1">
           <Typography variant="headline">{translate('text_6661fc17337de3591e29e3e7')}</Typography>
           <Typography variant="body">{translate('text_66630368f4333b00795b0e2d')}</Typography>
-        </SectionTitle>
-        <Section>
+        </div>
+        <div className="flex flex-col gap-4">
           <Card>
             <div>
               <Skeleton variant="text" className="mb-3 w-40" />
@@ -165,10 +164,13 @@ const LoadingSkeleton = () => {
             {Array(3)
               .fill('')
               .map((_, skeletonIndex) => (
-                <AccordionSkeleton key={`loading-skeleton-${skeletonIndex}`}>
+                <div
+                  className="flex h-18 items-center gap-3 rounded-xl border border-grey-400 p-4"
+                  key={`loading-skeleton-${skeletonIndex}`}
+                >
                   <Icon name="chevron-right" />
                   <Skeleton variant="text" className="w-40" />
-                </AccordionSkeleton>
+                </div>
               ))}
           </Card>
           <Card>
@@ -179,15 +181,18 @@ const LoadingSkeleton = () => {
             {Array(2)
               .fill('')
               .map((_, skeletonIndex) => (
-                <AccordionSkeleton key={`loading-skeleton-${skeletonIndex}`}>
+                <div
+                  className="flex h-18 items-center gap-3 rounded-xl border border-grey-400 p-4"
+                  key={`loading-skeleton-${skeletonIndex}`}
+                >
                   <Icon name="chevron-right" />
                   <Skeleton variant="text" className="w-40" />
-                </AccordionSkeleton>
+                </div>
               ))}
           </Card>
-        </Section>
-      </SectionWrapper>
-    </FormPlanWrapper>
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -195,10 +200,10 @@ const EmptyState = () => {
   const { translate } = useInternationalization()
 
   return (
-    <CenteredEmptyState>
-      <ThinkingManeki />
+    <div className="mx-auto mb-auto flex flex-col gap-6 text-center">
+      <ThinkingManeki className="h-[104px]" />
       <Typography variant="body">{translate('text_65118a52df984447c1869469')}</Typography>
-    </CenteredEmptyState>
+    </div>
   )
 }
 
@@ -496,7 +501,7 @@ const CreateSubscription = () => {
   }, [customerName, formType, translate])
 
   return (
-    <PageContainer>
+    <div className="grid h-fit w-full grid-rows-[min-content,1fr]">
       <PageHeader.Wrapper>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {pageHeaderTitle}
@@ -548,10 +553,13 @@ const CreateSubscription = () => {
           />
         )}
       </PageHeader.Wrapper>
-      <Container>
-        <SubscriptionAside
-          $isResponsive={isResponsive}
-          $hasPlanId={!!subscriptionFormikProps?.values?.planId}
+      <div className="relative grid h-full min-h-[calc(100vh-theme(space.nav))] grid-cols-1 grid-rows-[min-content] lg:grid-cols-[544px,1fr] lg:grid-rows-none">
+        <aside
+          className={tw(
+            'box-border flex h-fit flex-col gap-6 px-4 py-12 md:px-12',
+            !isResponsive && 'sticky top-nav',
+            isResponsive && !!subscriptionFormikProps?.values?.planId && 'shadow-none',
+          )}
         >
           <Typography variant="subhead">{pageHeaderTitle}</Typography>
 
@@ -598,23 +606,26 @@ const CreateSubscription = () => {
           )}
 
           {!isResponsive && <SubmitButton />}
-        </SubscriptionAside>
+        </aside>
         {(!isResponsive || (!!isResponsive && !!subscriptionFormikProps?.values?.planId)) && (
-          <PlanFormContainer>
+          <div className="h-full bg-grey-100 px-4 py-12 md:px-12">
             {!!subscriptionLoading && formType === FORM_TYPE_ENUM.edition ? (
               <LoadingSkeleton />
             ) : !!subscriptionFormikProps?.values?.planId ? (
-              <FormPlanWrapper data-test="create-subscription-form-wrapper">
+              <div
+                className="flex h-full max-w-full flex-col gap-12 lg:max-w-[720px]"
+                data-test="create-subscription-form-wrapper"
+              >
                 {!subscription?.plan.parent && formType === FORM_TYPE_ENUM.edition && (
                   <Alert type="info">{translate('text_652525609f420d00b83dd602')}</Alert>
                 )}
-                <SectionWrapper>
+                <div className="not-last-child:mb-8">
                   <Typography variant="headline">
                     {translate('text_6335e8900c69f8ebdfef5312')}
                   </Typography>
                   <Card>
                     {!!shouldDisplaySubscriptionExternalId && (
-                      <InlineFieldWithDelete>
+                      <div className="flex flex-row gap-3 [&>*:first-child]:flex-1">
                         <TextInputField
                           disabled={formType !== FORM_TYPE_ENUM.creation}
                           name="externalId"
@@ -639,11 +650,11 @@ const CreateSubscription = () => {
                             }}
                           />
                         </Tooltip>
-                      </InlineFieldWithDelete>
+                      </div>
                     )}
 
                     {!!shouldDisplaySubscriptionName && (
-                      <InlineFieldWithDelete>
+                      <div className="flex flex-row gap-3 [&>*:first-child]:flex-1">
                         <TextInputField
                           name="name"
                           formikProps={subscriptionFormikProps}
@@ -666,11 +677,11 @@ const CreateSubscription = () => {
                             }}
                           />
                         </Tooltip>
-                      </InlineFieldWithDelete>
+                      </div>
                     )}
 
                     {(!shouldDisplaySubscriptionExternalId || !shouldDisplaySubscriptionName) && (
-                      <InlineAddButtonsActions>
+                      <div className="flex items-center gap-3">
                         {!shouldDisplaySubscriptionExternalId && (
                           <Button
                             startIcon="plus"
@@ -692,7 +703,7 @@ const CreateSubscription = () => {
                             {translate('text_65118a52df984447c186947c')}
                           </Button>
                         )}
-                      </InlineAddButtonsActions>
+                      </div>
                     )}
 
                     {formType !== FORM_TYPE_ENUM.upgradeDowngrade && (
@@ -723,7 +734,7 @@ const CreateSubscription = () => {
                         />
 
                         <div>
-                          <InlineFields>
+                          <div className="flex items-start gap-6 [&>*]:flex-1">
                             <DatePickerField
                               name="subscriptionAt"
                               disabled={
@@ -750,10 +761,11 @@ const CreateSubscription = () => {
                               }
                               inputProps={{ cleanable: true }}
                             />
-                          </InlineFields>
+                          </div>
                           {!subscriptionFormikProps.errors.endingAt &&
                             !subscriptionFormikProps.errors.subscriptionAt && (
-                              <LocalSubscriptionDatesOffsetHelperComponent
+                              <SubscriptionDatesOffsetHelperComponent
+                                className="mt-1"
                                 customerTimezone={customer?.applicableTimezone}
                                 subscriptionAt={subscriptionFormikProps.values.subscriptionAt}
                                 endingAt={subscriptionFormikProps.values.endingAt}
@@ -763,21 +775,21 @@ const CreateSubscription = () => {
                       </>
                     )}
                   </Card>
-                </SectionWrapper>
+                </div>
 
                 {!isPremium ? (
                   <Card className="flex-row items-center justify-between gap-3">
-                    <FreemiumCardLeft>
-                      <FreemiumCardLeftTitleContainer>
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
                         <Icon name="sparkles" />
                         <Typography variant="subhead">
                           {translate('text_65118a52df984447c18694d0')}
                         </Typography>
-                      </FreemiumCardLeftTitleContainer>
+                      </div>
                       <Typography variant="body">
                         {translate('text_65118a52df984447c18694da')}
                       </Typography>
-                    </FreemiumCardLeft>
+                    </div>
                     <Button
                       variant="secondary"
                       onClick={() => {
@@ -798,34 +810,39 @@ const CreateSubscription = () => {
                   </Typography>
                 ) : null}
 
-                <PlanFormConditionalWrapper $isPremium={isPremium}>
-                  <SectionWrapper>
-                    <SectionTitle>
+                <div
+                  className={tw(
+                    'flex flex-col gap-12',
+                    !isPremium && 'pointer-events-none opacity-40',
+                  )}
+                >
+                  <div className="not-last-child:mb-8">
+                    <div className="flex flex-col gap-1">
                       <Typography variant="headline">
                         {translate('text_642d5eb2783a2ad10d67031a')}
                       </Typography>
                       <Typography variant="body">
                         {translate('text_66630368f4333b00795b0e1c')}
                       </Typography>
-                    </SectionTitle>
+                    </div>
                     <PlanSettingsSection
                       isInSubscriptionForm={isInSubscriptionForm}
                       subscriptionFormType={formType}
                       errorCode={planErrorCode}
                       formikProps={planFormikProps}
                     />
-                  </SectionWrapper>
-                  <SectionWrapper>
-                    <SectionTitle>
+                  </div>
+                  <div className="not-last-child:mb-8">
+                    <div className="flex flex-col gap-1">
                       <Typography variant="headline">
                         {translate('text_6661fc17337de3591e29e3e7')}
                       </Typography>
                       <Typography variant="body">
                         {translate('text_66630368f4333b00795b0e2d')}
                       </Typography>
-                    </SectionTitle>
+                    </div>
 
-                    <Section>
+                    <div className="flex flex-col gap-4">
                       <FixedFeeSection
                         isInSubscriptionForm={isInSubscriptionForm}
                         subscriptionFormType={formType}
@@ -841,17 +858,17 @@ const CreateSubscription = () => {
                         alreadyExistingCharges={plan?.charges as LocalChargeInput[]}
                         editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
                       />
-                    </Section>
-                  </SectionWrapper>
-                  <SectionWrapper>
-                    <SectionTitle>
+                    </div>
+                  </div>
+                  <div className="not-last-child:mb-8">
+                    <div className="flex flex-col gap-1">
                       <Typography variant="headline">
                         {translate('text_6661fc17337de3591e29e44d')}
                       </Typography>
                       <Typography variant="body">
                         {translate('text_66676ed0d8c3d481637e99b7')}
                       </Typography>
-                    </SectionTitle>
+                    </div>
                     <Card className="gap-8">
                       <ProgressiveBillingSection
                         formikProps={planFormikProps}
@@ -863,20 +880,20 @@ const CreateSubscription = () => {
                         editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
                       />
                     </Card>
-                  </SectionWrapper>
-                </PlanFormConditionalWrapper>
-              </FormPlanWrapper>
+                  </div>
+                </div>
+              </div>
             ) : (
               <EmptyState />
             )}
-          </PlanFormContainer>
+          </div>
         )}
         {!!isResponsive && (
-          <ResponsiveButtonWrapper>
+          <div className="h-fit bg-white px-4 py-3 md:px-12">
             <SubmitButton />
-          </ResponsiveButtonWrapper>
+          </div>
         )}
-      </Container>
+      </div>
 
       <WarningDialog
         ref={warningDialogRef}
@@ -890,172 +907,8 @@ const CreateSubscription = () => {
 
       <EditInvoiceDisplayName ref={editInvoiceDisplayNameRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
-    </PageContainer>
+    </div>
   )
 }
-
-const PageContainer = styled.div`
-  width: 100%;
-  height: fit-content;
-  display: grid;
-  grid-template-rows: min-content 1fr;
-`
-
-const Container = styled.div`
-  height: 100%;
-  position: relative;
-  display: grid;
-  grid-template-columns: 544px 1fr;
-  min-height: calc(100vh - ${NAV_HEIGHT}px);
-
-  ${theme.breakpoints.down('lg')} {
-    grid-template-columns: 1fr;
-    grid-template-rows: min-content;
-  }
-`
-
-const SubscriptionAside = styled.aside<{ $isResponsive: boolean; $hasPlanId: boolean }>`
-  height: fit-content;
-  padding: ${theme.spacing(12)};
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(6)};
-  box-sizing: border-box;
-
-  ${({ $isResponsive }) =>
-    !$isResponsive &&
-    css`
-      position: sticky;
-      top: ${NAV_HEIGHT}px;
-    `};
-
-  ${({ $isResponsive, $hasPlanId }) =>
-    $isResponsive &&
-    !$hasPlanId &&
-    css`
-      padding-bottom: ${theme.spacing(3)};
-      box-shadow: none;
-    `};
-`
-
-const PlanFormContainer = styled.div`
-  height: 100%;
-  padding: ${theme.spacing(12)};
-  box-sizing: border-box;
-  background-color: ${theme.palette.grey[100]};
-`
-
-const FormPlanWrapper = styled.div`
-  height: 100%;
-  max-width: ${theme.spacing(180)};
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(12)};
-
-  ${theme.breakpoints.down('lg')} {
-    max-width: 100%;
-  }
-`
-
-const InlineFields = styled.div`
-  display: flex;
-  gap: ${theme.spacing(6)};
-  align-items: flex-start;
-
-  > * {
-    flex: 1;
-  }
-`
-
-const LocalSubscriptionDatesOffsetHelperComponent = styled(SubscriptionDatesOffsetHelperComponent)`
-  margin-top: ${theme.spacing(1)};
-`
-
-const InlineFieldWithDelete = styled.div`
-  display: flex;
-  gap: ${theme.spacing(3)};
-
-  > *:first-child {
-    flex: 1;
-  }
-`
-
-const InlineAddButtonsActions = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-`
-
-const CenteredEmptyState = styled.div`
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(6)};
-  margin: 0 auto auto;
-
-  svg {
-    height: 104px;
-  }
-`
-
-const ResponsiveButtonWrapper = styled.div`
-  height: fit-content;
-  background-color: ${theme.palette.common.white};
-  padding: ${theme.spacing(3)} ${theme.spacing(12)};
-`
-
-const FreemiumCardLeft = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(1)};
-`
-
-const FreemiumCardLeftTitleContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(2)};
-`
-
-const PlanFormConditionalWrapper = styled.div<{ $isPremium: boolean }>`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(12)};
-
-  ${({ $isPremium }) =>
-    !$isPremium &&
-    css`
-      pointer-events: none;
-      opacity: 0.4;
-    `}
-`
-
-const SectionWrapper = styled.div`
-  > div:not(:last-child) {
-    margin-bottom: ${theme.spacing(8)};
-  }
-`
-
-const SectionTitle = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(1)};
-`
-
-const Section = styled.section`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(4)};
-`
-
-const AccordionSkeleton = styled.div`
-  display: flex;
-  align-items: center;
-  box-sizing: border-box;
-  padding: ${theme.spacing(4)};
-  gap: ${theme.spacing(3)};
-  height: ${SELECTOR_HEIGHT}px;
-  border-radius: 12px;
-  border: 1px solid ${theme.palette.grey[400]};
-`
 
 export default CreateSubscription

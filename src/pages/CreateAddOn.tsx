@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 import { number, object, string } from 'yup'
 
 import { AddOnCodeSnippet } from '~/components/addOns/AddOnCodeSnippet'
@@ -32,7 +31,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditAddOn } from '~/hooks/useCreateEditAddOn'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { PageHeader, theme } from '~/styles'
+import { PageHeader } from '~/styles'
 import {
   ButtonContainer,
   Content,
@@ -296,7 +295,10 @@ const CreateAddOn = () => {
                       <Typography className="mb-1" variant="captionHl" color="grey700">
                         {translate('text_64be910fba8ef9208686a8e3')}
                       </Typography>
-                      <InlineTaxesWrapper data-test="tax-chip-wrapper">
+                      <div
+                        className="flex flex-wrap items-center gap-3"
+                        data-test="tax-chip-wrapper"
+                      >
                         {formikProps?.values?.taxes?.map(({ id, name, rate }) => (
                           <Chip
                             key={id}
@@ -314,7 +316,7 @@ const CreateAddOn = () => {
                             }}
                           />
                         ))}
-                      </InlineTaxesWrapper>
+                      </div>
                     </div>
                   )}
 
@@ -325,8 +327,9 @@ const CreateAddOn = () => {
                           {translate('text_64be910fba8ef9208686a8e3')}
                         </Typography>
                       )}
-                      <InlineTaxInputWrapper>
+                      <div className="flex items-center gap-3">
                         <ComboBox
+                          containerClassName="flex-1"
                           className={SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME}
                           data={taxesDataForCombobox}
                           searchQuery={getTaxes}
@@ -356,7 +359,7 @@ const CreateAddOn = () => {
                             }}
                           />
                         </Tooltip>
-                      </InlineTaxInputWrapper>
+                      </div>
                     </div>
                   ) : (
                     <Button
@@ -415,22 +418,5 @@ const CreateAddOn = () => {
     </div>
   )
 }
-
-const InlineTaxInputWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-
-  > *:first-child {
-    flex: 1;
-  }
-`
-
-const InlineTaxesWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-  flex-wrap: wrap;
-`
 
 export default CreateAddOn
