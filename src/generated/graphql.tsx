@@ -2509,7 +2509,9 @@ export enum EmailSettingsEnum {
   /** credit_note.created */
   CreditNoteCreated = 'credit_note_created',
   /** invoice.finalized */
-  InvoiceFinalized = 'invoice_finalized'
+  InvoiceFinalized = 'invoice_finalized',
+  /** payment_receipt.created */
+  PaymentReceiptCreated = 'payment_receipt_created'
 }
 
 export enum ErrorCodesEnum {
@@ -2910,6 +2912,7 @@ export enum IntegrationTypeEnum {
   AutoDunning = 'auto_dunning',
   FromEmail = 'from_email',
   Hubspot = 'hubspot',
+  IssueReceipts = 'issue_receipts',
   ManualPayments = 'manual_payments',
   MultiEntitiesEnterprise = 'multi_entities_enterprise',
   MultiEntitiesPro = 'multi_entities_pro',
@@ -4264,6 +4267,11 @@ export type OktaLoginInput = {
   state: Scalars['String']['input'];
 };
 
+export enum OrderByEnum {
+  GrossRevenueAmountCents = 'gross_revenue_amount_cents',
+  NetRevenueAmountCents = 'net_revenue_amount_cents'
+}
+
 /** Safe Organization Type */
 export type Organization = {
   __typename?: 'Organization';
@@ -4455,6 +4463,7 @@ export type Permissions = {
   organizationTaxesView: Scalars['Boolean']['output'];
   organizationUpdate: Scalars['Boolean']['output'];
   organizationView: Scalars['Boolean']['output'];
+  paymentReceiptsView: Scalars['Boolean']['output'];
   paymentRequestsCreate: Scalars['Boolean']['output'];
   paymentRequestsView: Scalars['Boolean']['output'];
   paymentsCreate: Scalars['Boolean']['output'];
@@ -4537,6 +4546,7 @@ export enum PremiumIntegrationTypeEnum {
   AutoDunning = 'auto_dunning',
   FromEmail = 'from_email',
   Hubspot = 'hubspot',
+  IssueReceipts = 'issue_receipts',
   ManualPayments = 'manual_payments',
   MultiEntitiesEnterprise = 'multi_entities_enterprise',
   MultiEntitiesPro = 'multi_entities_pro',
@@ -4742,7 +4752,11 @@ export type Query = {
   /** Query plans of an organization */
   plans: PlanCollection;
   /** Query revenue streams of an organization */
-  revenueStreams: RevenueStreamsCollection;
+  revenueStreams: RevenueStreamCollection;
+  /** Query revenue streams customers of an organization */
+  revenueStreamsCustomers: RevenueStreamCustomerCollection;
+  /** Query revenue streams plans of an organization */
+  revenueStreamsPlans: RevenueStreamPlanCollection;
   /** Query a single subscription of an organization */
   subscription?: Maybe<Subscription>;
   /** Query subscriptions of an organization */
@@ -5147,6 +5161,20 @@ export type QueryRevenueStreamsArgs = {
 };
 
 
+export type QueryRevenueStreamsCustomersArgs = {
+  currency?: InputMaybe<CurrencyEnum>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<OrderByEnum>;
+};
+
+
+export type QueryRevenueStreamsPlansArgs = {
+  currency?: InputMaybe<CurrencyEnum>;
+  orderBy?: InputMaybe<OrderByEnum>;
+};
+
+
 export type QuerySubscriptionArgs = {
   id: Scalars['ID']['input'];
 };
@@ -5342,8 +5370,8 @@ export type RetryWebhookInput = {
   id: Scalars['ID']['input'];
 };
 
-export type RevenueStreams = {
-  __typename?: 'RevenueStreams';
+export type RevenueStream = {
+  __typename?: 'RevenueStream';
   amountCurrency: CurrencyEnum;
   commitmentFeeAmountCents: Scalars['BigInt']['output'];
   couponsAmountCents: Scalars['BigInt']['output'];
@@ -5356,11 +5384,56 @@ export type RevenueStreams = {
   usageBasedFeeAmountCents: Scalars['BigInt']['output'];
 };
 
-/** RevenueStreamsCollection type */
-export type RevenueStreamsCollection = {
-  __typename?: 'RevenueStreamsCollection';
-  /** A collection of paginated RevenueStreamsCollection */
-  collection: Array<RevenueStreams>;
+/** RevenueStreamCollection type */
+export type RevenueStreamCollection = {
+  __typename?: 'RevenueStreamCollection';
+  /** A collection of paginated RevenueStreamCollection */
+  collection: Array<RevenueStream>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
+export type RevenueStreamCustomer = {
+  __typename?: 'RevenueStreamCustomer';
+  amountCurrency: CurrencyEnum;
+  customerId: Scalars['ID']['output'];
+  customerName: Scalars['String']['output'];
+  externalCustomerId: Scalars['String']['output'];
+  grossRevenueAmountCents: Scalars['BigInt']['output'];
+  grossRevenueShare: Scalars['Float']['output'];
+  netRevenueAmountCents: Scalars['BigInt']['output'];
+  netRevenueShare: Scalars['Float']['output'];
+};
+
+/** RevenueStreamCustomerCollection type */
+export type RevenueStreamCustomerCollection = {
+  __typename?: 'RevenueStreamCustomerCollection';
+  /** A collection of paginated RevenueStreamCustomerCollection */
+  collection: Array<RevenueStreamCustomer>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
+export type RevenueStreamPlan = {
+  __typename?: 'RevenueStreamPlan';
+  amountCurrency: CurrencyEnum;
+  customersCount: Scalars['Int']['output'];
+  customersShare: Scalars['Float']['output'];
+  grossRevenueAmountCents: Scalars['BigInt']['output'];
+  grossRevenueShare: Scalars['Float']['output'];
+  netRevenueAmountCents: Scalars['BigInt']['output'];
+  netRevenueShare: Scalars['Float']['output'];
+  planCode: Scalars['String']['output'];
+  planId: Scalars['ID']['output'];
+  planInterval: PlanInterval;
+  planName: Scalars['String']['output'];
+};
+
+/** RevenueStreamPlanCollection type */
+export type RevenueStreamPlanCollection = {
+  __typename?: 'RevenueStreamPlanCollection';
+  /** A collection of paginated RevenueStreamPlanCollection */
+  collection: Array<RevenueStreamPlan>;
   /** Pagination Metadata for navigating the Pagination */
   metadata: CollectionMetadata;
 };
@@ -6625,7 +6698,7 @@ export type GetRevenueStreamsQueryVariables = Exact<{
 }>;
 
 
-export type GetRevenueStreamsQuery = { __typename?: 'Query', revenueStreams: { __typename?: 'RevenueStreamsCollection', collection: Array<{ __typename?: 'RevenueStreams', amountCurrency: CurrencyEnum, commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any }> } };
+export type GetRevenueStreamsQuery = { __typename?: 'Query', revenueStreams: { __typename?: 'RevenueStreamCollection', collection: Array<{ __typename?: 'RevenueStream', amountCurrency: CurrencyEnum, commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any }> } };
 
 export type GetGoogleAuthUrlQueryVariables = Exact<{ [key: string]: never; }>;
 
