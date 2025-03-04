@@ -1,5 +1,9 @@
 import { AvailableFiltersEnum, filterDataInlineSeparator } from '../types'
-import { formatActiveFilterValueDisplay, formatFiltersForInvoiceQuery } from '../utils'
+import {
+  formatActiveFilterValueDisplay,
+  formatFiltersForInvoiceQuery,
+  formatFiltersForRevenueStreamsQuery,
+} from '../utils'
 
 describe('Filters utils', () => {
   describe('formatFiltersForInvoiceQuery', () => {
@@ -42,7 +46,47 @@ describe('Filters utils', () => {
     })
   })
 
+  describe('formatFiltersForRevenueStreamsQuery', () => {
+    it('should format filters for revenue streams query', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('timeGranularity', 'day')
+      searchParams.set('accountType', 'company')
+      searchParams.set('invoiceType', 'advance_charges,credit,one_off,subscription')
+      searchParams.set('status', 'finalized')
+      searchParams.set('currency', 'USD')
+      searchParams.set('paymentOverdue', 'true')
+      searchParams.set('date', '2022-01-01,2022-01-31')
+      searchParams.set('country', 'US')
+      searchParams.set(
+        'customerExternalId',
+        `externalCustomerIdValue${filterDataInlineSeparator}my name to be displayed`,
+      )
+      searchParams.set('planCode', 'planCodeValue')
+      searchParams.set('partiallyPaid', 'true')
+      searchParams.set('selfBilled', 'true')
+
+      const result = formatFiltersForRevenueStreamsQuery(searchParams)
+
+      expect(result).toEqual({
+        accountType: 'company',
+        fromDate: '2022-01-01',
+        planCode: 'planCodeValue',
+        timeGranularity: 'day',
+        toDate: '2022-01-31',
+        country: 'US',
+        currency: 'USD',
+        customerExternalId: 'externalCustomerIdValue',
+      })
+    })
+  })
+
   describe('formatActiveFilterValueDisplay', () => {
+    it('should format active filter country value display', () => {
+      const result = formatActiveFilterValueDisplay(AvailableFiltersEnum.country, 'US')
+
+      expect(result).toBe('US')
+    })
     it('should format active filter currency value display', () => {
       const result = formatActiveFilterValueDisplay(AvailableFiltersEnum.currency, 'USD')
 
@@ -64,6 +108,14 @@ describe('Filters utils', () => {
 
       expect(result).toBe('1/1/2022 - 1/31/2022')
     })
+    it('should format active filter date value display', () => {
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.date,
+        '2022-01-01,2022-01-31',
+      )
+
+      expect(result).toBe('1/1/2022 - 1/31/2022')
+    })
     it('should format active filter paymentStatus value display', () => {
       const result = formatActiveFilterValueDisplay(
         AvailableFiltersEnum.paymentStatus,
@@ -71,6 +123,11 @@ describe('Filters utils', () => {
       )
 
       expect(result).toBe('Failed, Pending')
+    })
+    it('should format active filter planCode value display', () => {
+      const result = formatActiveFilterValueDisplay(AvailableFiltersEnum.planCode, 'planCodeValue')
+
+      expect(result).toBe('PlanCodeValue')
     })
     it('should format active filter paymentDisputeLost value display', () => {
       const result = formatActiveFilterValueDisplay(AvailableFiltersEnum.paymentDisputeLost, 'true')
@@ -94,6 +151,19 @@ describe('Filters utils', () => {
       const result = formatActiveFilterValueDisplay(AvailableFiltersEnum.status, 'finalized')
 
       expect(result).toBe('Finalized')
+    })
+    it('should format active filter subscriptionExternalId value display', () => {
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.subscriptionExternalId,
+        '1234',
+      )
+
+      expect(result).toBe('1234')
+    })
+    it('should format active filter timeGranularity value display', () => {
+      const result = formatActiveFilterValueDisplay(AvailableFiltersEnum.timeGranularity, 'daily')
+
+      expect(result).toBe('Daily')
     })
   })
 })

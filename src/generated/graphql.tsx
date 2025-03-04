@@ -7223,6 +7223,15 @@ export type GetInvoiceNumbersForFilterItemInvoiceNumbersQueryVariables = Exact<{
 
 export type GetInvoiceNumbersForFilterItemInvoiceNumbersQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Invoice', id: string, number: string }> } };
 
+export type GetPlansForFiltersItemPlanCodeQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetPlansForFiltersItemPlanCodeQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Plan', id: string, code: string }> } };
+
 export type WebhookForCreateAndEditFragment = { __typename?: 'WebhookEndpoint', id: string, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null };
 
 export type CreateWebhookEndpointMutationVariables = Exact<{
@@ -15764,6 +15773,55 @@ export type GetInvoiceNumbersForFilterItemInvoiceNumbersQueryHookResult = Return
 export type GetInvoiceNumbersForFilterItemInvoiceNumbersLazyQueryHookResult = ReturnType<typeof useGetInvoiceNumbersForFilterItemInvoiceNumbersLazyQuery>;
 export type GetInvoiceNumbersForFilterItemInvoiceNumbersSuspenseQueryHookResult = ReturnType<typeof useGetInvoiceNumbersForFilterItemInvoiceNumbersSuspenseQuery>;
 export type GetInvoiceNumbersForFilterItemInvoiceNumbersQueryResult = Apollo.QueryResult<GetInvoiceNumbersForFilterItemInvoiceNumbersQuery, GetInvoiceNumbersForFilterItemInvoiceNumbersQueryVariables>;
+export const GetPlansForFiltersItemPlanCodeDocument = gql`
+    query getPlansForFiltersItemPlanCode($page: Int, $limit: Int, $searchTerm: String) {
+  plans(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    metadata {
+      currentPage
+      totalPages
+    }
+    collection {
+      id
+      code
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetPlansForFiltersItemPlanCodeQuery__
+ *
+ * To run a query within a React component, call `useGetPlansForFiltersItemPlanCodeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPlansForFiltersItemPlanCodeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPlansForFiltersItemPlanCodeQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetPlansForFiltersItemPlanCodeQuery(baseOptions?: Apollo.QueryHookOptions<GetPlansForFiltersItemPlanCodeQuery, GetPlansForFiltersItemPlanCodeQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPlansForFiltersItemPlanCodeQuery, GetPlansForFiltersItemPlanCodeQueryVariables>(GetPlansForFiltersItemPlanCodeDocument, options);
+      }
+export function useGetPlansForFiltersItemPlanCodeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPlansForFiltersItemPlanCodeQuery, GetPlansForFiltersItemPlanCodeQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPlansForFiltersItemPlanCodeQuery, GetPlansForFiltersItemPlanCodeQueryVariables>(GetPlansForFiltersItemPlanCodeDocument, options);
+        }
+export function useGetPlansForFiltersItemPlanCodeSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlansForFiltersItemPlanCodeQuery, GetPlansForFiltersItemPlanCodeQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetPlansForFiltersItemPlanCodeQuery, GetPlansForFiltersItemPlanCodeQueryVariables>(GetPlansForFiltersItemPlanCodeDocument, options);
+        }
+export type GetPlansForFiltersItemPlanCodeQueryHookResult = ReturnType<typeof useGetPlansForFiltersItemPlanCodeQuery>;
+export type GetPlansForFiltersItemPlanCodeLazyQueryHookResult = ReturnType<typeof useGetPlansForFiltersItemPlanCodeLazyQuery>;
+export type GetPlansForFiltersItemPlanCodeSuspenseQueryHookResult = ReturnType<typeof useGetPlansForFiltersItemPlanCodeSuspenseQuery>;
+export type GetPlansForFiltersItemPlanCodeQueryResult = Apollo.QueryResult<GetPlansForFiltersItemPlanCodeQuery, GetPlansForFiltersItemPlanCodeQueryVariables>;
 export const CreateWebhookEndpointDocument = gql`
     mutation createWebhookEndpoint($input: WebhookEndpointCreateInput!) {
   createWebhookEndpoint(input: $input) {

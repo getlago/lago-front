@@ -5,10 +5,10 @@ import { useSearchParams } from 'react-router-dom'
 
 import { HorizontalDataTable, Icon, Typography } from '~/components/designSystem'
 import {
-  AvailableFiltersEnum,
   AvailableQuickFilters,
   Filters,
   formatFiltersForRevenueStreamsQuery,
+  RevenueStreamsAvailablePopperFilters,
 } from '~/components/designSystem/Filters'
 import { REVENUE_STREAMS_GRAPH_COLORS } from '~/components/designSystem/graphs/const'
 import MultipleLineChart from '~/components/designSystem/graphs/MultipleLineChart'
@@ -133,7 +133,8 @@ const RevenueStreamsOverviewSection = () => {
           staticQuickFilters={{
             timeGranularity: TimeGranularityEnum.Monthly,
           }}
-          availableFilters={[AvailableFiltersEnum.currency]}
+          // TODO: add filters
+          availableFilters={RevenueStreamsAvailablePopperFilters}
           quickFiltersType={AvailableQuickFilters.timeGranularity}
         >
           <div className="flex items-center justify-between">

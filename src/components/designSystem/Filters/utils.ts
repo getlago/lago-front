@@ -17,6 +17,7 @@ import {
   CustomerAvailableFilters,
   filterDataInlineSeparator,
   InvoiceAvailableFilters,
+  RevenueStreamsAvailablePopperFilters,
 } from './types'
 
 const keyWithPrefix = (key: string, prefix?: string) => (prefix ? `${prefix}_${key}` : key)
@@ -58,27 +59,34 @@ export const parseAmountValue = (value: string) => {
 
 export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.amount]: parseAmountValue,
+  [AvailableFiltersEnum.country]: (value: string) => value,
+  [AvailableFiltersEnum.creditNoteCreditStatus]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.creditNoteReason]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.creditNoteRefundStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.currency]: (value: string) => value,
-  [AvailableFiltersEnum.invoiceNumber]: (value: string) => value,
   [AvailableFiltersEnum.customerAccountType]: (value: string) => value,
+  [AvailableFiltersEnum.customerExternalId]: (value: string) =>
+    (value as string).split(filterDataInlineSeparator)[0],
+  [AvailableFiltersEnum.date]: (value: string) => {
+    return { fromDate: (value as string).split(',')[0], toDate: (value as string).split(',')[1] }
+  },
+  [AvailableFiltersEnum.invoiceNumber]: (value: string) => value,
+  [AvailableFiltersEnum.invoiceType]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.issuingDate]: (value: string) => {
     return {
       issuingDateFrom: (value as string).split(',')[0],
       issuingDateTo: (value as string).split(',')[1],
     }
   },
-  [AvailableFiltersEnum.customerExternalId]: (value: string) =>
-    (value as string).split(filterDataInlineSeparator)[0],
   [AvailableFiltersEnum.partiallyPaid]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentDisputeLost]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentOverdue]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentStatus]: (value: string) => (value as string).split(','),
-  [AvailableFiltersEnum.invoiceType]: (value: string) => (value as string).split(','),
-  [AvailableFiltersEnum.status]: (value: string) => (value as string).split(','),
-  [AvailableFiltersEnum.creditNoteReason]: (value: string) => (value as string).split(','),
-  [AvailableFiltersEnum.creditNoteRefundStatus]: (value: string) => (value as string).split(','),
-  [AvailableFiltersEnum.creditNoteCreditStatus]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.planCode]: (value: string) => value,
   [AvailableFiltersEnum.selfBilled]: (value: string) => value === 'true',
+  [AvailableFiltersEnum.status]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.subscriptionExternalId]: (value: string) =>
+    (value as string).split(filterDataInlineSeparator)[0],
   [AvailableFiltersEnum.timeGranularity]: (value: string) => value,
 }
 
@@ -162,7 +170,10 @@ export const formatFiltersForCustomerQuery = (searchParams: URLSearchParams) => 
 export const formatFiltersForRevenueStreamsQuery = (searchParams: URLSearchParams) => {
   return formatFiltersForQuery({
     searchParams,
-    availableFilters: [AvailableFiltersEnum.currency, AvailableFiltersEnum.timeGranularity],
+    availableFilters: [
+      ...RevenueStreamsAvailablePopperFilters,
+      AvailableFiltersEnum.timeGranularity,
+    ],
     filtersNamePrefix: REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX,
   })
 }
@@ -199,6 +210,7 @@ export const formatActiveFilterValueDisplay = (
   switch (key) {
     case AvailableFiltersEnum.customerExternalId:
       return value.split(filterDataInlineSeparator)[1]
+    case AvailableFiltersEnum.date:
     case AvailableFiltersEnum.issuingDate:
       return value
         .split(',')
