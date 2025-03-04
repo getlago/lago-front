@@ -1,12 +1,12 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { DateTime } from 'luxon'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { Button, Typography } from '~/components/designSystem'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { WalletCodeSnippet } from '~/components/wallets/WalletCodeSnippet'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
@@ -29,13 +29,11 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { LoadingView } from '~/pages/wallet/components/LoadingView'
-import { SettingsCard } from '~/pages/wallet/components/SettingsCard'
-import { TopUpCard } from '~/pages/wallet/components/TopUpCard'
+import { SettingsSection } from '~/pages/wallet/components/SettingsSection'
+import { TopUpSection } from '~/pages/wallet/components/TopUpSection'
 import { walletFormSchema } from '~/pages/wallet/form'
 import { TWalletDataForm } from '~/pages/wallet/types'
-import { PageHeader } from '~/styles'
-import { ButtonContainer, Side } from '~/styles/mainObjectsForm'
+import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 gql`
   fragment WalletForUpdate on Wallet {
@@ -142,13 +140,17 @@ const CreateWallet = () => {
   const currency =
     customerData?.customer?.currency || organization?.defaultCurrency || CurrencyEnum.Usd
   const currencyPrecision = getCurrencyPrecision(currency)
-  const navigateToCustomerWalletTab = () =>
-    navigate(
-      generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-        customerId: customerId,
-        tab: CustomerDetailsTabsOptions.wallet,
-      }),
-    )
+
+  const navigateToCustomerWalletTab = useCallback(
+    () =>
+      navigate(
+        generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+          customerId: customerId,
+          tab: CustomerDetailsTabsOptions.wallet,
+        }),
+      ),
+    [customerId, navigate],
+  )
 
   const [createWallet] = useCreateCustomerWalletMutation({
     context: {
@@ -186,7 +188,19 @@ const CreateWallet = () => {
       paidCredits: '',
       rateAmount: wallet?.rateAmount
         ? String(wallet?.rateAmount)
-        : `1${currencyPrecision === 3 ? '.000' : currencyPrecision === 4 ? '.0000' : '.00'}`,
+        : (() => {
+            let precision
+
+            if (currencyPrecision === 3) {
+              precision = '.000'
+            } else if (currencyPrecision === 4) {
+              precision = '.0000'
+            } else {
+              precision = '.00'
+            }
+
+            return `1${precision}`
+          })(),
       recurringTransactionRules: wallet?.recurringTransactionRules || undefined,
       invoiceRequiresSuccessfulPayment: wallet?.invoiceRequiresSuccessfulPayment ?? false,
     },
@@ -217,6 +231,17 @@ const CreateWallet = () => {
                   grantedCredits: ruleGrantedCredit,
                 } = rule
 
+                let targetedBalance: string | null = null
+
+                if (
+                  method === RecurringTransactionMethodEnum.Target &&
+                  targetOngoingBalance === ''
+                ) {
+                  targetedBalance = '0'
+                } else if (method === RecurringTransactionMethodEnum.Target) {
+                  targetedBalance = String(targetOngoingBalance)
+                }
+
                 return {
                   lagoId:
                     'lagoId' in rule && formType === FORM_TYPE_ENUM.edition
@@ -233,12 +258,7 @@ const CreateWallet = () => {
                     trigger === RecurringTransactionTriggerEnum.Threshold ? thresholdCredits : null,
                   paidCredits: rulePaidCredit === '' ? '0' : String(rulePaidCredit),
                   grantedCredits: ruleGrantedCredit === '' ? '0' : String(ruleGrantedCredit),
-                  targetOngoingBalance:
-                    method === RecurringTransactionMethodEnum.Target
-                      ? targetOngoingBalance === ''
-                        ? '0'
-                        : String(targetOngoingBalance)
-                      : null,
+                  targetOngoingBalance: targetedBalance,
                   invoiceRequiresSuccessfulPayment,
                 }
               },
@@ -279,100 +299,88 @@ const CreateWallet = () => {
     },
   })
 
+  const onAbort = useCallback(() => {
+    formikProps.dirty ? warningDialogRef.current?.openDialog() : navigateToCustomerWalletTab()
+  }, [formikProps.dirty, navigateToCustomerWalletTab])
+
   return (
     <>
-      <PageHeader.Wrapper>
-        <Typography variant="bodyHl" color="textSecondary" noWrap>
+      <CenteredPage.Wrapper>
+        <CenteredPage.Header>
+          <Typography variant="bodyHl" color="textSecondary" noWrap>
+            {translate(
+              formType === FORM_TYPE_ENUM.edition
+                ? 'text_62d9430e8b9fe36851cddd09'
+                : 'text_6560809c38fb9de88d8a505e',
+            )}
+          </Typography>
+          <Button
+            variant="quaternary"
+            icon="close"
+            onClick={onAbort}
+            data-test="close-create-plan-button"
+          />
+        </CenteredPage.Header>
+
+        {isLoading && !wallet && (
+          <CenteredPage.Container>
+            <FormLoadingSkeleton id="create-wallet" />
+          </CenteredPage.Container>
+        )}
+
+        {!isLoading && (
+          <CenteredPage.Container>
+            <CenteredPage.PageTitle
+              title={translate(
+                formType === FORM_TYPE_ENUM.edition
+                  ? 'text_62d9430e8b9fe36851cddd09'
+                  : 'text_6560809c38fb9de88d8a505e',
+              )}
+              description={translate(
+                formType === FORM_TYPE_ENUM.edition
+                  ? 'text_6657c2b9cf6b9200aa3d1c89'
+                  : 'text_62d18855b22699e5cf55f873',
+              )}
+            />
+
+            <SettingsSection
+              formikProps={formikProps}
+              formType={formType}
+              customerData={customerData}
+              showExpirationDate={showExpirationDate}
+              setShowExpirationDate={setShowExpirationDate}
+            />
+
+            <TopUpSection
+              formikProps={formikProps}
+              formType={formType}
+              customerData={customerData}
+              isRecurringTopUpEnabled={isRecurringTopUpEnabled}
+              setIsRecurringTopUpEnabled={setIsRecurringTopUpEnabled}
+              premiumWarningDialogRef={premiumWarningDialogRef}
+            />
+          </CenteredPage.Container>
+        )}
+      </CenteredPage.Wrapper>
+
+      <CenteredPage.StickyFooter>
+        <Button size="large" variant="quaternary" onClick={onAbort}>
+          {translate('text_62e79671d23ae6ff149de968')}
+        </Button>
+        <Button
+          size="large"
+          variant="primary"
+          disabled={!formikProps.isValid || !formikProps.dirty}
+          onClick={() => formikProps.handleSubmit()}
+          data-test="submit-wallet"
+        >
           {translate(
             formType === FORM_TYPE_ENUM.edition
-              ? 'text_62d9430e8b9fe36851cddd09'
+              ? 'text_62e161ceb87c201025388aa2'
               : 'text_6560809c38fb9de88d8a505e',
           )}
-        </Typography>
-        <Button
-          variant="quaternary"
-          icon="close"
-          onClick={() =>
-            formikProps.dirty
-              ? warningDialogRef.current?.openDialog()
-              : navigateToCustomerWalletTab()
-          }
-          data-test="close-create-plan-button"
-        />
-      </PageHeader.Wrapper>
-
-      <div className="flex min-h-[calc(100vh-theme(space.nav))]">
-        <div className="w-full px-4 pb-0 pt-12 md:w-3/5 md:px-12">
-          <div className="flex flex-col gap-8 md:max-w-168">
-            {isLoading && !wallet ? (
-              <LoadingView cardCount={2} />
-            ) : (
-              <>
-                <div>
-                  <Typography className="mb-1" variant="headline" color="grey700">
-                    {translate(
-                      formType === FORM_TYPE_ENUM.edition
-                        ? 'text_62d9430e8b9fe36851cddd09'
-                        : 'text_6560809c38fb9de88d8a505e',
-                    )}
-                  </Typography>
-                  <Typography variant="body" color="grey600">
-                    {translate(
-                      formType === FORM_TYPE_ENUM.edition
-                        ? 'text_6657c2b9cf6b9200aa3d1c89'
-                        : 'text_62d18855b22699e5cf55f873',
-                    )}
-                  </Typography>
-                </div>
-
-                <SettingsCard
-                  formikProps={formikProps}
-                  formType={formType}
-                  customerData={customerData}
-                  showExpirationDate={showExpirationDate}
-                  setShowExpirationDate={setShowExpirationDate}
-                />
-
-                <TopUpCard
-                  formikProps={formikProps}
-                  formType={formType}
-                  customerData={customerData}
-                  isRecurringTopUpEnabled={isRecurringTopUpEnabled}
-                  setIsRecurringTopUpEnabled={setIsRecurringTopUpEnabled}
-                  premiumWarningDialogRef={premiumWarningDialogRef}
-                />
-
-                <ButtonContainer className="!max-w-168">
-                  <Button
-                    disabled={
-                      !formikProps.isValid ||
-                      (formType === FORM_TYPE_ENUM.edition && !formikProps.dirty)
-                    }
-                    fullWidth
-                    size="large"
-                    onClick={formikProps.submitForm}
-                    data-test="submit"
-                  >
-                    {translate(
-                      formType === FORM_TYPE_ENUM.edition
-                        ? 'text_62e161ceb87c201025388aa2'
-                        : 'text_6560809c38fb9de88d8a505e',
-                    )}
-                  </Button>
-                </ButtonContainer>
-              </>
-            )}
-          </div>
-        </div>
-        <Side>
-          <WalletCodeSnippet
-            loading={isLoading}
-            wallet={formikProps.values}
-            isEdition={formType === FORM_TYPE_ENUM.edition}
-            lagoId={wallet?.id}
-          />
-        </Side>
-      </div>
+        </Button>
+      </CenteredPage.StickyFooter>
 
       <WarningDialog
         ref={warningDialogRef}
