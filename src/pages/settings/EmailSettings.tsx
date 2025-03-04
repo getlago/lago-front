@@ -28,18 +28,20 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useEmailConfig } from '~/hooks/useEmailConfig'
 import { usePermissions } from '~/hooks/usePermissions'
 
-const EmailScernarioTitleLookup = {
+const EmailScenarioTitleLookup: Record<EmailSettingsEnum, string> = {
   [EmailSettingsEnum.InvoiceFinalized]: 'text_6408b5ae7f629d008bc8af7d',
   [EmailSettingsEnum.CreditNoteCreated]: 'text_6408b5ae7f629d008bc8af86',
+  [EmailSettingsEnum.PaymentReceiptCreated]: '',
 }
 
-const EmailScernarioSubtitleLookup = {
+const EmailScenarioSubtitleLookup: Record<EmailSettingsEnum, string> = {
   [EmailSettingsEnum.InvoiceFinalized]: 'text_6408b5ae7f629d008bc8af7e',
   [EmailSettingsEnum.CreditNoteCreated]: 'text_6408b5ae7f629d008bc8af87',
+  [EmailSettingsEnum.PaymentReceiptCreated]: '',
 }
 
 // NOTE: ids are present for display purpose, for table row keys
-const EMAIL_SCENARIOS = [
+const EMAIL_SCENARIOS: Array<{ id: string; setting: EmailSettingsEnum }> = [
   {
     id: 'scenario-1',
     setting: EmailSettingsEnum.InvoiceFinalized,
@@ -105,10 +107,10 @@ const EmailSettings = () => {
                           </Avatar>
                           <div>
                             <Typography color="grey700" variant="body" noWrap>
-                              {translate(EmailScernarioTitleLookup[setting])}
+                              {translate(EmailScenarioTitleLookup[setting])}
                             </Typography>
                             <Typography variant="caption" noWrap>
-                              {translate(EmailScernarioSubtitleLookup[setting])}
+                              {translate(EmailScenarioSubtitleLookup[setting])}
                             </Typography>
                           </div>
                         </div>
