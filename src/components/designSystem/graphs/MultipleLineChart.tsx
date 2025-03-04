@@ -176,7 +176,7 @@ const MultipleLineChart = <T extends DataItem>({
   }, [lines.length])
 
   const hasOnlyZeroValues = useMemo(() => {
-    if (!localData?.length) return false
+    if (!localData?.length) return true
 
     return localData?.every((item) => {
       return lines
