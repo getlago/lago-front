@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useMemo } from 'react'
+import { Dispatch, SetStateAction, useMemo, useState } from 'react'
 import {
   Line,
   LineChart,
@@ -67,10 +67,12 @@ type MultipleLineChartProps<T> = {
   blur?: boolean
   currency: CurrencyEnum
   data?: T[]
+  hoveredDataIndex?: number | undefined
   lines: Array<MultipleLineChartLine<T>>
-  xAxisDataKey: DotNestedKeys<T>
   loading: boolean
+  xAxisDataKey: DotNestedKeys<T>
   setClickedDataIndex?: Dispatch<SetStateAction<number | undefined>>
+  setHoverDataIndex?: Dispatch<SetStateAction<number | undefined>>
 }
 
 type CustomTooltipProps<T> = {
@@ -146,11 +148,17 @@ const MultipleLineChart = <T extends DataItem>({
   blur,
   currency,
   data,
+  hoveredDataIndex,
   lines,
   loading,
-  setClickedDataIndex,
   xAxisDataKey,
+  setClickedDataIndex,
+  setHoverDataIndex,
 }: MultipleLineChartProps<T>) => {
+  const [localHoverDataIndexFallback, setLocalHoverDataIndexFallback] = useState<
+    number | undefined
+  >(undefined)
+
   const { localData, localLines } = useMemo(() => {
     if (loading) {
       return {
@@ -169,6 +177,21 @@ const MultipleLineChart = <T extends DataItem>({
       localLines: lines,
     }
   }, [blur, data, lines, loading])
+
+  // This makes sure that tiiltip is shown on hover even if setHoverDataIndex is not defined: if chart is used as a standalone component
+  const { localHoverDataIndex, localSetHoverDataIndex } = useMemo(() => {
+    if (!setHoverDataIndex) {
+      return {
+        localHoverDataIndex: localHoverDataIndexFallback,
+        localSetHoverDataIndex: setLocalHoverDataIndexFallback,
+      }
+    }
+
+    return {
+      localHoverDataIndex: hoveredDataIndex,
+      localSetHoverDataIndex: setHoverDataIndex,
+    }
+  }, [setHoverDataIndex, hoveredDataIndex, localHoverDataIndexFallback])
 
   const yTooltipPosition = useMemo(() => {
     const DEFAULT_TOOLTIP_Y_GAP = 60
@@ -210,6 +233,18 @@ const MultipleLineChart = <T extends DataItem>({
                   setClickedDataIndex(event.activeTooltipIndex)
               : undefined
           }
+          onMouseMove={
+            !!localSetHoverDataIndex
+              ? (event) => {
+                  typeof event?.activeTooltipIndex === 'number' &&
+                    event.activeTooltipIndex !== localHoverDataIndex &&
+                    localSetHoverDataIndex(event.activeTooltipIndex)
+                }
+              : undefined
+          }
+          onMouseLeave={() => {
+            localSetHoverDataIndex(undefined)
+          }}
         >
           <XAxis
             axisLine={true}
@@ -329,6 +364,8 @@ const MultipleLineChart = <T extends DataItem>({
           })}
           {!loading && (
             <RechartTooltip
+              defaultIndex={localHoverDataIndex}
+              active={typeof localHoverDataIndex === 'number'}
               includeHidden={true}
               isAnimationActive={false}
               cursor={{
