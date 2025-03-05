@@ -58,7 +58,7 @@ const Webhooks = () => {
   const { translate } = useInternationalization()
   const [showOrganizationHmac, setShowOrganizationHmac] = useState<boolean>(false)
   const createDialogRef = useRef<CreateWebhookDialogRef>(null)
-  const deleleDialogRef = useRef<DeleteWebhookDialogRef>(null)
+  const deleteDialogRef = useRef<DeleteWebhookDialogRef>(null)
   const { data: organizationData, loading: organizationLoading } = useGetOrganizationHmacDataQuery()
   const { data: webhookData, loading: webhookLoading } = useGetWebhookListQuery({
     variables: { limit: WEBHOOK_COUNT_LIMIT },
@@ -93,6 +93,7 @@ const Webhooks = () => {
                     key: 'hmacKey',
                     title: translate('text_1731079786592ksaixhj9ir9'),
                     minWidth: 147,
+                    maxSpace: true,
                     content: ({ hmacKey }) => (
                       <div className="flex items-center gap-2 py-3">
                         <Tooltip
@@ -222,7 +223,7 @@ const Webhooks = () => {
                         startIcon: 'trash',
                         title: translate('text_63aa15caab5b16980b21b0ba'),
                         onAction: () => {
-                          deleleDialogRef.current?.openDialog(webhook.id)
+                          deleteDialogRef.current?.openDialog(webhook.id)
                         },
                       },
                     ]
@@ -235,7 +236,7 @@ const Webhooks = () => {
       </SettingsListWrapper>
 
       <CreateWebhookDialog ref={createDialogRef} />
-      <DeleteWebhookDialog ref={deleleDialogRef} />
+      <DeleteWebhookDialog ref={deleteDialogRef} />
     </SettingsPaddedContainer>
   )
 }
