@@ -2171,6 +2171,73 @@ export type CustomerUsage = {
   totalAmountCents: Scalars['BigInt']['output'];
 };
 
+export type DataApiMrr = {
+  __typename?: 'DataApiMrr';
+  amountCurrency: CurrencyEnum;
+  endOfPeriodDt: Scalars['ISO8601Date']['output'];
+  endingMrr: Scalars['BigInt']['output'];
+  mrrChange: Scalars['BigInt']['output'];
+  mrrChurn: Scalars['BigInt']['output'];
+  mrrContraction: Scalars['BigInt']['output'];
+  mrrExpansion: Scalars['BigInt']['output'];
+  mrrNew: Scalars['BigInt']['output'];
+  startOfPeriodDt: Scalars['ISO8601Date']['output'];
+  startingMrr: Scalars['BigInt']['output'];
+};
+
+/** DataApiMrrCollection type */
+export type DataApiMrrCollection = {
+  __typename?: 'DataApiMrrCollection';
+  /** A collection of paginated DataApiMrrCollection */
+  collection: Array<DataApiMrr>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
+export type DataApiRevenueStream = {
+  __typename?: 'DataApiRevenueStream';
+  amountCurrency: CurrencyEnum;
+  commitmentFeeAmountCents: Scalars['BigInt']['output'];
+  couponsAmountCents: Scalars['BigInt']['output'];
+  endOfPeriodDt: Scalars['ISO8601Date']['output'];
+  grossRevenueAmountCents: Scalars['BigInt']['output'];
+  netRevenueAmountCents: Scalars['BigInt']['output'];
+  oneOffFeeAmountCents: Scalars['BigInt']['output'];
+  startOfPeriodDt: Scalars['ISO8601Date']['output'];
+  subscriptionFeeAmountCents: Scalars['BigInt']['output'];
+  usageBasedFeeAmountCents: Scalars['BigInt']['output'];
+};
+
+/** DataApiRevenueStreamCollection type */
+export type DataApiRevenueStreamCollection = {
+  __typename?: 'DataApiRevenueStreamCollection';
+  /** A collection of paginated DataApiRevenueStreamCollection */
+  collection: Array<DataApiRevenueStream>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
+export type DataApiRevenueStreamCustomer = {
+  __typename?: 'DataApiRevenueStreamCustomer';
+  amountCurrency: CurrencyEnum;
+  customerId: Scalars['ID']['output'];
+  customerName: Scalars['String']['output'];
+  externalCustomerId: Scalars['String']['output'];
+  grossRevenueAmountCents: Scalars['BigInt']['output'];
+  grossRevenueShare: Scalars['Float']['output'];
+  netRevenueAmountCents: Scalars['BigInt']['output'];
+  netRevenueShare: Scalars['Float']['output'];
+};
+
+/** DataApiRevenueStreamCustomerCollection type */
+export type DataApiRevenueStreamCustomerCollection = {
+  __typename?: 'DataApiRevenueStreamCustomerCollection';
+  /** A collection of paginated DataApiRevenueStreamCustomerCollection */
+  collection: Array<DataApiRevenueStreamCustomer>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
 export type DataExport = {
   __typename?: 'DataExport';
   id: Scalars['ID']['output'];
@@ -4429,7 +4496,7 @@ export type Permissions = {
   customersDelete: Scalars['Boolean']['output'];
   customersUpdate: Scalars['Boolean']['output'];
   customersView: Scalars['Boolean']['output'];
-  dataApiRevenueStreamsView: Scalars['Boolean']['output'];
+  dataApiView: Scalars['Boolean']['output'];
   developersKeysManage: Scalars['Boolean']['output'];
   developersManage: Scalars['Boolean']['output'];
   draftInvoicesUpdate: Scalars['Boolean']['output'];
@@ -4683,6 +4750,14 @@ export type Query = {
   customerUsage: CustomerUsage;
   /** Query customers of an organization */
   customers: CustomerCollection;
+  /** Query monthly recurring revenues of an organization */
+  dataApiMrrs: DataApiMrrCollection;
+  /** Query revenue streams of an organization */
+  dataApiRevenueStreams: DataApiRevenueStreamCollection;
+  /** Query revenue streams customers of an organization */
+  dataApiRevenueStreamsCustomers: DataApiRevenueStreamCustomerCollection;
+  /** Query revenue streams plans of an organization */
+  dataApiRevenueStreamsPlans: RevenueStreamPlanCollection;
   /** Query a single dunning campaign of an organization */
   dunningCampaign: DunningCampaign;
   /** Query dunning campaigns of an organization */
@@ -4751,12 +4826,6 @@ export type Query = {
   plan?: Maybe<Plan>;
   /** Query plans of an organization */
   plans: PlanCollection;
-  /** Query revenue streams of an organization */
-  revenueStreams: RevenueStreamCollection;
-  /** Query revenue streams customers of an organization */
-  revenueStreamsCustomers: RevenueStreamCustomerCollection;
-  /** Query revenue streams plans of an organization */
-  revenueStreamsPlans: RevenueStreamPlanCollection;
   /** Query a single subscription of an organization */
   subscription?: Maybe<Subscription>;
   /** Query subscriptions of an organization */
@@ -4929,6 +4998,48 @@ export type QueryCustomersArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryDataApiMrrsArgs = {
+  currency?: InputMaybe<CurrencyEnum>;
+  customerCountry?: InputMaybe<CountryCode>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  planCode?: InputMaybe<Scalars['String']['input']>;
+  timeGranularity?: InputMaybe<TimeGranularityEnum>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+};
+
+
+export type QueryDataApiRevenueStreamsArgs = {
+  currency?: InputMaybe<CurrencyEnum>;
+  customerCountry?: InputMaybe<CountryCode>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  planCode?: InputMaybe<Scalars['String']['input']>;
+  timeGranularity?: InputMaybe<TimeGranularityEnum>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+};
+
+
+export type QueryDataApiRevenueStreamsCustomersArgs = {
+  currency?: InputMaybe<CurrencyEnum>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<OrderByEnum>;
+};
+
+
+export type QueryDataApiRevenueStreamsPlansArgs = {
+  currency?: InputMaybe<CurrencyEnum>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<OrderByEnum>;
 };
 
 
@@ -5148,33 +5259,6 @@ export type QueryPlansArgs = {
 };
 
 
-export type QueryRevenueStreamsArgs = {
-  currency?: InputMaybe<CurrencyEnum>;
-  customerCountry?: InputMaybe<CountryCode>;
-  customerType?: InputMaybe<CustomerTypeEnum>;
-  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
-  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
-  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
-  planCode?: InputMaybe<Scalars['String']['input']>;
-  timeGranularity?: InputMaybe<TimeGranularityEnum>;
-  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
-};
-
-
-export type QueryRevenueStreamsCustomersArgs = {
-  currency?: InputMaybe<CurrencyEnum>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<OrderByEnum>;
-};
-
-
-export type QueryRevenueStreamsPlansArgs = {
-  currency?: InputMaybe<CurrencyEnum>;
-  orderBy?: InputMaybe<OrderByEnum>;
-};
-
-
 export type QuerySubscriptionArgs = {
   id: Scalars['ID']['input'];
 };
@@ -5368,50 +5452,6 @@ export type RetryWebhookInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
-};
-
-export type RevenueStream = {
-  __typename?: 'RevenueStream';
-  amountCurrency: CurrencyEnum;
-  commitmentFeeAmountCents: Scalars['BigInt']['output'];
-  couponsAmountCents: Scalars['BigInt']['output'];
-  endOfPeriodDt: Scalars['ISO8601Date']['output'];
-  grossRevenueAmountCents: Scalars['BigInt']['output'];
-  netRevenueAmountCents: Scalars['BigInt']['output'];
-  oneOffFeeAmountCents: Scalars['BigInt']['output'];
-  startOfPeriodDt: Scalars['ISO8601Date']['output'];
-  subscriptionFeeAmountCents: Scalars['BigInt']['output'];
-  usageBasedFeeAmountCents: Scalars['BigInt']['output'];
-};
-
-/** RevenueStreamCollection type */
-export type RevenueStreamCollection = {
-  __typename?: 'RevenueStreamCollection';
-  /** A collection of paginated RevenueStreamCollection */
-  collection: Array<RevenueStream>;
-  /** Pagination Metadata for navigating the Pagination */
-  metadata: CollectionMetadata;
-};
-
-export type RevenueStreamCustomer = {
-  __typename?: 'RevenueStreamCustomer';
-  amountCurrency: CurrencyEnum;
-  customerId: Scalars['ID']['output'];
-  customerName: Scalars['String']['output'];
-  externalCustomerId: Scalars['String']['output'];
-  grossRevenueAmountCents: Scalars['BigInt']['output'];
-  grossRevenueShare: Scalars['Float']['output'];
-  netRevenueAmountCents: Scalars['BigInt']['output'];
-  netRevenueShare: Scalars['Float']['output'];
-};
-
-/** RevenueStreamCustomerCollection type */
-export type RevenueStreamCustomerCollection = {
-  __typename?: 'RevenueStreamCustomerCollection';
-  /** A collection of paginated RevenueStreamCustomerCollection */
-  collection: Array<RevenueStreamCustomer>;
-  /** Pagination Metadata for navigating the Pagination */
-  metadata: CollectionMetadata;
 };
 
 export type RevenueStreamPlan = {
@@ -6698,7 +6738,7 @@ export type GetRevenueStreamsQueryVariables = Exact<{
 }>;
 
 
-export type GetRevenueStreamsQuery = { __typename?: 'Query', revenueStreams: { __typename?: 'RevenueStreamCollection', collection: Array<{ __typename?: 'RevenueStream', amountCurrency: CurrencyEnum, commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any }> } };
+export type GetRevenueStreamsQuery = { __typename?: 'Query', dataApiRevenueStreams: { __typename?: 'DataApiRevenueStreamCollection', collection: Array<{ __typename?: 'DataApiRevenueStream', amountCurrency: CurrencyEnum, commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any }> } };
 
 export type GetGoogleAuthUrlQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -12969,7 +13009,7 @@ export type DeleteAddOnMutationResult = Apollo.MutationResult<DeleteAddOnMutatio
 export type DeleteAddOnMutationOptions = Apollo.BaseMutationOptions<DeleteAddOnMutation, DeleteAddOnMutationVariables>;
 export const GetRevenueStreamsDocument = gql`
     query getRevenueStreams($currency: CurrencyEnum, $customerCountry: CountryCode, $customerType: CustomerTypeEnum, $externalCustomerId: String, $externalSubscriptionId: String, $fromDate: ISO8601Date, $planCode: String, $timeGranularity: TimeGranularityEnum, $toDate: ISO8601Date) {
-  revenueStreams(
+  dataApiRevenueStreams(
     currency: $currency
     customerCountry: $customerCountry
     customerType: $customerType
