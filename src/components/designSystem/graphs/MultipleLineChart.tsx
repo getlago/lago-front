@@ -367,11 +367,11 @@ const MultipleLineChart = <T extends DataItem>({
               defaultIndex={localHoverDataIndex}
               active={typeof localHoverDataIndex === 'number'}
               includeHidden={true}
-              isAnimationActive={false}
               cursor={{
                 stroke: `${theme.palette.grey[500]}`,
                 strokeDasharray: '2 2',
               }}
+              offset={0}
               position={{ y: yTooltipPosition }}
               content={({ active, payload, includeHidden }) => (
                 <div className="min-w-90 rounded-xl bg-grey-700 px-4 py-3">
