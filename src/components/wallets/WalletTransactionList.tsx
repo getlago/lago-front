@@ -1,9 +1,12 @@
+/* eslint-disable no-nested-ternary */
 import { gql } from '@apollo/client'
-import { forwardRef, MutableRefObject, useEffect } from 'react'
+import { FC, useEffect } from 'react'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { Button, Skeleton, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { CREATE_WALLET_TOP_UP_ROUTE } from '~/core/router'
 import {
   TimezoneEnum,
   useGetWalletTransactionsLazyQuery,
@@ -16,7 +19,6 @@ import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { theme } from '~/styles'
 
-import { TopupWalletDialogRef } from './TopupWalletDialog'
 import { WalletTransactionListItem } from './WalletTransactionListItem'
 
 gql`
@@ -51,107 +53,117 @@ interface WalletTransactionListProps {
   wallet: WalletInfosForTransactionsFragment
 }
 
-export const WalletTransactionList = forwardRef<TopupWalletDialogRef, WalletTransactionListProps>(
-  ({ customerTimezone, isOpen, wallet }: WalletTransactionListProps, ref) => {
-    const { translate } = useInternationalization()
-    const [getWalletTransactions, { data, error, fetchMore, loading, refetch }] =
-      useGetWalletTransactionsLazyQuery({
-        variables: { walletId: wallet.id, limit: 20 },
-        notifyOnNetworkStatusChange: true,
-      })
-    const list = data?.walletTransactions?.collection
-    const { currentPage = 0, totalPages = 0 } = data?.walletTransactions?.metadata || {}
-    const hasData = !!list && !!list?.length
+export const WalletTransactionList: FC<WalletTransactionListProps> = ({
+  customerTimezone,
+  isOpen,
+  wallet,
+}) => {
+  const { translate } = useInternationalization()
+  const { customerId } = useParams()
+  const navigate = useNavigate()
 
-    useEffect(() => {
-      if (isOpen && !data && !loading && !error) {
-        getWalletTransactions()
-      }
-    }, [isOpen, error, data, loading, getWalletTransactions])
+  const [getWalletTransactions, { data, error, fetchMore, loading, refetch }] =
+    useGetWalletTransactionsLazyQuery({
+      variables: { walletId: wallet.id, limit: 20 },
+      notifyOnNetworkStatusChange: true,
+    })
+  const list = data?.walletTransactions?.collection
+  const { currentPage = 0, totalPages = 0 } = data?.walletTransactions?.metadata || {}
+  const hasData = !!list && !!list?.length
 
-    return (
-      <>
-        {(loading || (!error && !!hasData)) && (
-          <TransactionListHeader>
-            <Typography variant="bodyHl" color="grey500">
-              {translate('text_62da6ec24a8e24e44f81288e')}
-            </Typography>
-            <Typography variant="bodyHl" color="grey500">
-              {translate('text_62da6ec24a8e24e44f812890')}
-            </Typography>
-          </TransactionListHeader>
+  useEffect(() => {
+    if (isOpen && !data && !loading && !error) {
+      getWalletTransactions()
+    }
+  }, [isOpen, error, data, loading, getWalletTransactions])
+
+  return (
+    <>
+      {(loading || (!error && !!hasData)) && (
+        <TransactionListHeader>
+          <Typography variant="bodyHl" color="grey500">
+            {translate('text_62da6ec24a8e24e44f81288e')}
+          </Typography>
+          <Typography variant="bodyHl" color="grey500">
+            {translate('text_62da6ec24a8e24e44f812890')}
+          </Typography>
+        </TransactionListHeader>
+      )}
+      <TransactionListWrapper>
+        {!!error && !loading ? (
+          <GenericPlaceholder
+            className="mx-auto py-6 text-center"
+            title={translate('text_62d7ffcb1c57d7e6d15bdce3')}
+            subtitle={translate('text_62d7ffcb1c57d7e6d15bdce5')}
+            buttonTitle={translate('text_62d7ffcb1c57d7e6d15bdce7')}
+            buttonVariant="primary"
+            buttonAction={() => refetch()}
+            image={<ErrorImage width="136" height="104" />}
+          />
+        ) : !!loading ? (
+          [1, 2, 3].map((i) => (
+            <Loader key={`wallet-transaction-skeleton-${i}`}>
+              <Skeleton variant="connectorAvatar" size="big" className="mr-3" />
+              <LeftLoader>
+                <Skeleton variant="text" className="mb-3 w-36" />
+                <Skeleton variant="text" className="w-20" />
+              </LeftLoader>
+              <RightLoader>
+                <Skeleton variant="text" className="mb-3 w-36" />
+                <Skeleton variant="text" className="w-20" />
+              </RightLoader>
+            </Loader>
+          ))
+        ) : !hasData && wallet?.status !== WalletStatusEnum.Terminated ? (
+          <GenericPlaceholder
+            className="mx-auto py-6 text-center"
+            title={translate('text_62e0ee200a543924c8f67755')}
+            subtitle={translate('text_62e0ee200a543924c8f67759')}
+            buttonTitle={translate('text_62e0ee200a543924c8f6775d')}
+            buttonVariant="primary"
+            buttonAction={() => {
+              navigate(
+                generatePath(CREATE_WALLET_TOP_UP_ROUTE, {
+                  customerId: customerId ?? null,
+                  walletId: wallet.id,
+                }),
+              )
+            }}
+            image={<EmptyImage width="136" height="104" />}
+          />
+        ) : (
+          <>
+            {list?.map((transaction, i) => {
+              return (
+                <WalletTransactionListItem
+                  key={`wallet-transaction-${i}`}
+                  transaction={transaction}
+                  customerTimezone={customerTimezone}
+                />
+              )
+            })}
+            {currentPage < totalPages && (
+              <Loadmore>
+                <Button
+                  variant="quaternary"
+                  onClick={() =>
+                    fetchMore({
+                      variables: { page: currentPage + 1 },
+                    })
+                  }
+                >
+                  <Typography variant="body" color="grey600">
+                    {translate('text_62da6ec24a8e24e44f8128aa')}
+                  </Typography>
+                </Button>
+              </Loadmore>
+            )}
+          </>
         )}
-        <TransactionListWrapper>
-          {!!error && !loading ? (
-            <GenericPlaceholder
-              className="mx-auto py-6 text-center"
-              title={translate('text_62d7ffcb1c57d7e6d15bdce3')}
-              subtitle={translate('text_62d7ffcb1c57d7e6d15bdce5')}
-              buttonTitle={translate('text_62d7ffcb1c57d7e6d15bdce7')}
-              buttonVariant="primary"
-              buttonAction={() => refetch()}
-              image={<ErrorImage width="136" height="104" />}
-            />
-          ) : !!loading ? (
-            [1, 2, 3].map((i) => (
-              <Loader key={`wallet-transaction-skeleton-${i}`}>
-                <Skeleton variant="connectorAvatar" size="big" className="mr-3" />
-                <LeftLoader>
-                  <Skeleton variant="text" className="mb-3 w-36" />
-                  <Skeleton variant="text" className="w-20" />
-                </LeftLoader>
-                <RightLoader>
-                  <Skeleton variant="text" className="mb-3 w-36" />
-                  <Skeleton variant="text" className="w-20" />
-                </RightLoader>
-              </Loader>
-            ))
-          ) : !hasData && wallet?.status !== WalletStatusEnum.Terminated ? (
-            <GenericPlaceholder
-              className="mx-auto py-6 text-center"
-              title={translate('text_62e0ee200a543924c8f67755')}
-              subtitle={translate('text_62e0ee200a543924c8f67759')}
-              buttonTitle={translate('text_62e0ee200a543924c8f6775d')}
-              buttonVariant="primary"
-              buttonAction={() => {
-                ;(ref as MutableRefObject<TopupWalletDialogRef>)?.current?.openDialog()
-              }}
-              image={<EmptyImage width="136" height="104" />}
-            />
-          ) : (
-            <>
-              {list?.map((transaction, i) => {
-                return (
-                  <WalletTransactionListItem
-                    key={`wallet-transaction-${i}`}
-                    transaction={transaction}
-                    customerTimezone={customerTimezone}
-                  />
-                )
-              })}
-              {currentPage < totalPages && (
-                <Loadmore>
-                  <Button
-                    variant="quaternary"
-                    onClick={() =>
-                      fetchMore({
-                        variables: { page: currentPage + 1 },
-                      })
-                    }
-                  >
-                    <Typography variant="body" color="grey600">
-                      {translate('text_62da6ec24a8e24e44f8128aa')}
-                    </Typography>
-                  </Button>
-                </Loadmore>
-              )}
-            </>
-          )}
-        </TransactionListWrapper>
-      </>
-    )
-  },
-)
+      </TransactionListWrapper>
+    </>
+  )
+}
 
 const TransactionListHeader = styled.div`
   display: flex;
@@ -190,5 +202,3 @@ const RightLoader = styled.div`
   flex: 1;
   margin-left: ${theme.spacing(2)};
 `
-
-WalletTransactionList.displayName = 'WalletTransactionList'

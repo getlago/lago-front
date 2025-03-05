@@ -318,7 +318,7 @@ const CreateWallet = () => {
             variant="quaternary"
             icon="close"
             onClick={onAbort}
-            data-test="close-create-plan-button"
+            data-test="close-create-wallet-button"
           />
         </CenteredPage.Header>
 
