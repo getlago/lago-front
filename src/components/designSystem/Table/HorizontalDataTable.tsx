@@ -42,6 +42,7 @@ type HorizontalDataTableProps<T> = {
   leftColumnWidth?: number
   loading?: boolean
   setClickedDataIndex?: Dispatch<SetStateAction<number | undefined>>
+  setHoveredDataIndex?: Dispatch<SetStateAction<number | undefined>>
 }
 
 const getRowHeight = (rowType: RowType) => {
@@ -59,6 +60,7 @@ export const HorizontalDataTable = <T extends DataItem>({
   loading,
   rows,
   setClickedDataIndex,
+  setHoveredDataIndex,
 }: HorizontalDataTableProps<T>) => {
   const parentRef = useRef(null)
 
@@ -164,6 +166,20 @@ export const HorizontalDataTable = <T extends DataItem>({
                 width: `${virtualColumn.size}px`,
                 left: `${virtualColumn.start}px`,
               }}
+              onMouseEnter={
+                !loading && !!setHoveredDataIndex
+                  ? () => {
+                      setHoveredDataIndex(virtualColumn.index)
+                    }
+                  : undefined
+              }
+              onMouseLeave={
+                !loading && !!setHoveredDataIndex
+                  ? () => {
+                      setHoveredDataIndex(undefined)
+                    }
+                  : undefined
+              }
             >
               {rows.map((row, index) => {
                 return (

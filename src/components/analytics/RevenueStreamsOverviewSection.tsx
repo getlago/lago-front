@@ -72,6 +72,7 @@ const RevenueStreamsOverviewSection = () => {
   const { translate } = useInternationalization()
   const { organization } = useOrganizationInfos()
   const [clickedDataIndex, setClickedDataIndex] = useState<number | undefined>(undefined)
+  const [hoverDataIndex, setHoverDataIndex] = useState<number | undefined>(undefined)
 
   const currency = organization?.defaultCurrency || CurrencyEnum.Usd
 
@@ -202,6 +203,8 @@ const RevenueStreamsOverviewSection = () => {
             data={revenueStreamsData?.dataApiRevenueStreams.collection}
             xAxisDataKey="startOfPeriodDt"
             setClickedDataIndex={setClickedDataIndex}
+            hoveredDataIndex={hoverDataIndex}
+            setHoverDataIndex={setHoverDataIndex}
             lines={[
               {
                 dataKey: 'subscriptionFeeAmountCents',
@@ -247,6 +250,7 @@ const RevenueStreamsOverviewSection = () => {
             loading={revenueStreamsLoading}
             clickedDataIndex={clickedDataIndex}
             setClickedDataIndex={setClickedDataIndex}
+            setHoveredDataIndex={setHoverDataIndex}
             rows={[
               {
                 key: 'startOfPeriodDt',
