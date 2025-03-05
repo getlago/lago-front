@@ -27,6 +27,8 @@ import { formatDateToTZ } from '~/core/timezone'
 import { CurrencyEnum, TimezoneEnum } from '~/generated/graphql'
 import { theme } from '~/styles'
 
+import { calculateYAxisDomain, checkOnlyZeroValues } from './utils'
+
 const LOADING_TICK_SIZE = 32
 
 type DotPrefix<T extends string> = T extends '' ? '' : `.${T}`
@@ -57,7 +59,7 @@ type MultipleLineChartLineHiddenFromGraph<T> = {
   hideOnGraph: true
   colorHex?: never
 }
-type MultipleLineChartLine<T> =
+export type MultipleLineChartLine<T> =
   | MultipleLineChartLineVisibleOnGraph<T>
   | MultipleLineChartLineHiddenFromGraph<T>
 
@@ -152,13 +154,13 @@ const MultipleLineChart = <T extends DataItem>({
   const { localData, localLines } = useMemo(() => {
     if (loading) {
       return {
-        localData: multipleLineChartLoadingFakeData,
-        localLines: multipleLineChartLoadingFakeLines,
+        localData: multipleLineChartLoadingFakeData as unknown as T[],
+        localLines: multipleLineChartLoadingFakeLines as unknown as Array<MultipleLineChartLine<T>>,
       }
     } else if (!!blur) {
       return {
-        localData: multipleLineChartFakeData,
-        localLines: multipleLineChartFakeLines,
+        localData: multipleLineChartFakeData as unknown as T[],
+        localLines: multipleLineChartFakeLines as unknown as Array<MultipleLineChartLine<T>>,
       }
     }
 
@@ -175,49 +177,18 @@ const MultipleLineChart = <T extends DataItem>({
     return -(DEFAULT_TOOLTIP_Y_GAP + (lines.length || 0) * TOOLTIP_INNER_LINE_HEIGHT)
   }, [lines.length])
 
-  const hasOnlyZeroValues = useMemo(() => {
-    if (!localData?.length) return true
-
-    return localData?.every((item) => {
-      return lines
-        .filter((line) => !line.hideOnGraph)
-        .every((line) => {
-          return item[line.dataKey] === 0
-        })
-    })
-  }, [localData, lines])
-
-  const yAxisDomain: [number, number] = useMemo(() => {
-    const domain: [number, number] = [0, 1]
-
-    if (hasOnlyZeroValues || !localData?.length) {
-      return domain
+  const hasOnlyZeroValues: boolean = useMemo(() => {
+    if (!localData?.length || loading) {
+      return true
     }
 
-    for (let i = 0; i <= localData?.length - 1 || 0; i++) {
-      const item = localData[i]
+    return checkOnlyZeroValues(localData, localLines)
+  }, [localData, localLines, loading])
 
-      for (const line of lines) {
-        if (!!line.hideOnGraph) {
-          continue
-        }
-
-        const value = Number(item[line.dataKey])
-
-        if (isNaN(value)) {
-          continue
-        }
-
-        if (value < domain[0]) {
-          domain[0] = value
-        } else if (value > domain[1]) {
-          domain[1] = value
-        }
-      }
-    }
-
-    return domain
-  }, [hasOnlyZeroValues, lines, localData])
+  const yAxisDomain: [number, number] = useMemo(
+    () => calculateYAxisDomain(localData, localLines, hasOnlyZeroValues),
+    [localData, localLines, hasOnlyZeroValues],
+  )
 
   return (
     <ChartWrapper className="rounded-xl bg-white" blur={blur}>

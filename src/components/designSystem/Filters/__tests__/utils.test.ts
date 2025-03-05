@@ -74,8 +74,8 @@ describe('Filters utils', () => {
         planCode: 'planCodeValue',
         timeGranularity: 'day',
         toDate: '2022-01-31',
-        country: 'US',
         currency: 'USD',
+        customerCountry: 'US',
         customerExternalId: 'externalCustomerIdValue',
       })
     })

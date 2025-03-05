@@ -168,7 +168,12 @@ export const formatFiltersForCustomerQuery = (searchParams: URLSearchParams) => 
 }
 
 export const formatFiltersForRevenueStreamsQuery = (searchParams: URLSearchParams) => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
+    [AvailableFiltersEnum.country]: 'customerCountry',
+  }
+
   return formatFiltersForQuery({
+    keyMap,
     searchParams,
     availableFilters: [
       ...RevenueStreamsAvailablePopperFilters,

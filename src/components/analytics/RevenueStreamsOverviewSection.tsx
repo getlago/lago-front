@@ -40,7 +40,7 @@ gql`
     $timeGranularity: TimeGranularityEnum
     $toDate: ISO8601Date
   ) {
-    revenueStreams(
+    dataApiRevenueStreams(
       currency: $currency
       customerCountry: $customerCountry
       customerType: $customerType
@@ -91,7 +91,7 @@ const RevenueStreamsOverviewSection = () => {
   const displayError = !!revenueStreamsError && !revenueStreamsLoading
 
   const { lastNetRevenueAmountCents, netRevenueAmountCentsProgressionOnPeriod } = useMemo(() => {
-    if (!revenueStreamsData?.revenueStreams.collection.length) {
+    if (!revenueStreamsData?.dataApiRevenueStreams.collection.length) {
       return {
         lastNetRevenueAmountCents: 0,
         netRevenueAmountCentsProgressionOnPeriod: 0,
@@ -99,11 +99,11 @@ const RevenueStreamsOverviewSection = () => {
     }
 
     const localFirstNetRevenueAmountCents = Number(
-      revenueStreamsData?.revenueStreams.collection[0]?.netRevenueAmountCents,
+      revenueStreamsData?.dataApiRevenueStreams.collection[0]?.netRevenueAmountCents,
     )
     const localLastNetRevenueAmountCents = Number(
-      revenueStreamsData?.revenueStreams.collection[
-        revenueStreamsData?.revenueStreams.collection.length - 1
+      revenueStreamsData?.dataApiRevenueStreams.collection[
+        revenueStreamsData?.dataApiRevenueStreams.collection.length - 1
       ]?.netRevenueAmountCents,
     )
 
@@ -133,7 +133,6 @@ const RevenueStreamsOverviewSection = () => {
           staticQuickFilters={{
             timeGranularity: TimeGranularityEnum.Monthly,
           }}
-          // TODO: add filters
           availableFilters={RevenueStreamsAvailablePopperFilters}
           quickFiltersType={AvailableQuickFilters.timeGranularity}
         >
@@ -200,7 +199,7 @@ const RevenueStreamsOverviewSection = () => {
           <MultipleLineChart
             loading={revenueStreamsLoading}
             currency={currency}
-            data={revenueStreamsData?.revenueStreams.collection}
+            data={revenueStreamsData?.dataApiRevenueStreams.collection}
             xAxisDataKey="startOfPeriodDt"
             setClickedDataIndex={setClickedDataIndex}
             lines={[
@@ -244,7 +243,7 @@ const RevenueStreamsOverviewSection = () => {
 
           <HorizontalDataTable
             leftColumnWidth={190}
-            data={revenueStreamsData?.revenueStreams.collection}
+            data={revenueStreamsData?.dataApiRevenueStreams.collection}
             loading={revenueStreamsLoading}
             clickedDataIndex={clickedDataIndex}
             setClickedDataIndex={setClickedDataIndex}
