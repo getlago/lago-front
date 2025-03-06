@@ -40,19 +40,31 @@ export type WalletTransactionListItemProps = {
   customerTimezone: TimezoneEnum | undefined
   isRealTimeTransaction?: boolean
   transaction: LocalWalletTransaction
+  isWalletActive: boolean
+  onClick?: () => void
 }
 
 export const WalletTransactionListItem = ({
   customerTimezone,
   isRealTimeTransaction,
   transaction,
+  isWalletActive,
   ...props
 }: WalletTransactionListItemProps) => {
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
+
   const blurValue = !isPremium && isRealTimeTransaction
-  const { amount, createdAt, creditAmount, settledAt, status, transactionType, transactionStatus } =
-    transaction
+  const {
+    id,
+    amount,
+    createdAt,
+    creditAmount,
+    settledAt,
+    status,
+    transactionType,
+    transactionStatus,
+  } = transaction
   const isPending = status === WalletTransactionStatusEnum.Pending
   const isInbound = transactionType === WalletTransactionTransactionTypeEnum.Inbound
 
@@ -87,6 +99,8 @@ export const WalletTransactionListItem = ({
         creditsColor="grey600"
         credits={transactionAmountTranslationKey}
         amount={formattedCurrencyAmount}
+        hasAction={false}
+        transactionId={id}
       />
     )
   }
@@ -108,6 +122,8 @@ export const WalletTransactionListItem = ({
         creditsColor="success600"
         credits={`${Number(creditAmount) === 0 ? '' : '+ '} ${transactionAmountTranslationKey}`}
         amount={formattedCurrencyAmount}
+        hasAction={isWalletActive}
+        transactionId={id}
       />
     )
   }
@@ -131,6 +147,8 @@ export const WalletTransactionListItem = ({
         creditsColor="grey700"
         credits={`${Number(creditAmount) === 0 ? '' : '- '} ${transactionAmountTranslationKey}`}
         amount={formattedCurrencyAmount}
+        hasAction={isWalletActive}
+        transactionId={id}
       />
     )
 

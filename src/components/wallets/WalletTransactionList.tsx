@@ -15,6 +15,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
+import { tw } from '~/styles/utils'
 
 import { WalletTransactionListItem } from './WalletTransactionListItem'
 
@@ -83,11 +84,12 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
   return (
     <>
       {(loading || (!error && !!hasData)) && (
-        <div className="flex justify-between px-4 py-3 shadow-b">
-          <Typography variant="bodyHl" color="grey500">
-            {translate('text_62da6ec24a8e24e44f81288e')}
-          </Typography>
-          <Typography variant="bodyHl" color="grey500">
+        <div className="flex justify-between px-4 py-2 shadow-b">
+          <Typography variant="captionHl">{translate('text_62da6ec24a8e24e44f81288e')}</Typography>
+          <Typography
+            variant="captionHl"
+            className={tw(wallet.status === WalletStatusEnum.Active && 'mr-17')}
+          >
             {translate('text_62da6ec24a8e24e44f812890')}
           </Typography>
         </div>
@@ -145,8 +147,12 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
               return (
                 <WalletTransactionListItem
                   key={`wallet-transaction-${i}`}
+                  isWalletActive={wallet.status === WalletStatusEnum.Active}
                   transaction={transaction}
                   customerTimezone={customerTimezone}
+                  onClick={() => {
+                    console.log('Clicked on transaction')
+                  }}
                 />
               )
             })}

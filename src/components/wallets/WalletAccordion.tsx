@@ -460,6 +460,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
                   transactionStatus: undefined,
                 }}
                 customerTimezone={customerTimezone}
+                isWalletActive={isWalletActive}
               />
             )}
 
