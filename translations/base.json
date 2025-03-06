@@ -626,7 +626,6 @@
   "text_62e0ee200a543924c8f67759": "Looks like there are no available credits, please top up this wallet. If you already did, it can take some time to be updated.",
   "text_62e0ee200a543924c8f6775d": "Top up credits",
   "text_62e161ceb87c201025388aa2": "Edit wallet",
-  "text_62e161ceb87c201025388ade": "Terminate wallet",
   "text_62e257c032ae895bbfead62e": "Wallet successfully terminated",
   "text_62e161ceb87c201025388ada": "Top up credits",
   "text_62e2a2f2a79d60429eff3035": "Terminated",
@@ -2885,5 +2884,9 @@
   "text_17422274791228swi7c4ydc7": "No revenue per plan available",
   "text_17422274791226kjpamwz3pe": "Add your first customer subscriptions to see the breakdown per plans.",
   "text_17422274967581grox8em361": "No revenue per customer available",
-  "text_1742227496758jg629m9fga6": "Add your first customer subscriptions to see the breakdown per customers."
+  "text_1742227496758jg629m9fga6": "Add your first customer subscriptions to see the breakdown per customers.",
+  "text_1741251836185jea576d14uj": "More actions",
+  "text_1741253143637fb7iatyka9w": "Top-up credits",
+  "text_1741253143637fwbbxxn9195": "Copy wallet id",
+  "text_1741253143637w2e9cbec620": "Wallet id copied to clipboard"
 }

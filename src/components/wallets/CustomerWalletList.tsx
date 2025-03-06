@@ -6,11 +6,6 @@ import { Button, InfiniteScroll, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import {
-  TerminateCustomerWalletDialog,
-  TerminateCustomerWalletDialogRef,
-} from '~/components/wallets/TerminateCustomerWalletDialog'
-import { VoidWalletDialog, VoidWalletDialogRef } from '~/components/wallets/VoidWalletDialog'
 import { WalletAccordion, WalletAccordionSkeleton } from '~/components/wallets/WalletAccordion'
 import { CREATE_WALLET_ROUTE, CREATE_WALLET_TOP_UP_ROUTE } from '~/core/router'
 import {
@@ -59,8 +54,7 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
-  const terminateCustomerWalletDialogRef = useRef<TerminateCustomerWalletDialogRef>(null)
-  const voidWalletDialogRef = useRef<VoidWalletDialogRef>(null)
+
   const { data, error, loading, fetchMore } = useGetCustomerWalletListQuery({
     variables: { customerId, page: 0, limit: 20 },
   })
@@ -158,16 +152,6 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
             ))}
           </div>
         </InfiniteScroll>
-      )}
-
-      {activeWallet && (
-        <>
-          <TerminateCustomerWalletDialog
-            ref={terminateCustomerWalletDialogRef}
-            walletId={activeWallet.id}
-          />
-          <VoidWalletDialog ref={voidWalletDialogRef} wallet={activeWallet} />
-        </>
       )}
 
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
