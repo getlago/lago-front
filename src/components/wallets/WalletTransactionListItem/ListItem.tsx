@@ -1,11 +1,9 @@
 import { FC } from 'react'
-import styled from 'styled-components'
 
 import { Avatar, Icon, IconName, Typography, TypographyColor } from '~/components/designSystem'
 import { TimezoneDate } from '~/components/TimezoneDate'
 import { TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 interface ListItemProps {
   iconName: IconName
@@ -35,12 +33,12 @@ export const ListItem: FC<ListItemProps> = ({
   const { translate } = useInternationalization()
 
   return (
-    <ListItemWrapper {...props}>
-      <ListLeftWrapper>
+    <div className="flex justify-between px-4 py-3 shadow-b" {...props}>
+      <div className="flex items-center">
         <Avatar className="mr-3" size="big" variant="connector">
           <Icon name={isPending ? 'sync' : iconName} color="dark" />
         </Avatar>
-        <ColumnWrapper>
+        <div className="flex flex-col justify-end">
           <Typography variant="bodyHl" color={isPending ? 'grey600' : labelColor}>
             {label}
           </Typography>
@@ -58,9 +56,9 @@ export const ListItem: FC<ListItemProps> = ({
               )}
             </Typography>
           )}
-        </ColumnWrapper>
-      </ListLeftWrapper>
-      <ListRightWrapper>
+        </div>
+      </div>
+      <div className="flex flex-col items-end justify-end">
         <Typography
           variant="body"
           color={isPending ? 'grey600' : creditsColor}
@@ -72,36 +70,7 @@ export const ListItem: FC<ListItemProps> = ({
         <Typography variant="caption" color="grey600" blur={isBlurry} data-test="amount">
           {amount}
         </Typography>
-      </ListRightWrapper>
-    </ListItemWrapper>
+      </div>
+    </div>
   )
 }
-
-const ListItemWrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: ${theme.spacing(3)} ${theme.spacing(4)};
-  box-shadow: ${theme.shadows[7]};
-`
-
-const ListLeftWrapper = styled.div`
-  display: flex;
-  align-items: center;
-
-  &:last-child {
-    align-items: flex-end;
-  }
-`
-
-const ListRightWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: flex-end;
-`
-
-const ColumnWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-`

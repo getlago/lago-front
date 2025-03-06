@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import { Button, InfiniteScroll, Popper, Typography } from '~/components/designSystem'
+import { Button, InfiniteScroll, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
@@ -12,7 +12,7 @@ import {
 } from '~/components/wallets/TerminateCustomerWalletDialog'
 import { VoidWalletDialog, VoidWalletDialogRef } from '~/components/wallets/VoidWalletDialog'
 import { WalletAccordion, WalletAccordionSkeleton } from '~/components/wallets/WalletAccordion'
-import { CREATE_WALLET_ROUTE, CREATE_WALLET_TOP_UP_ROUTE, EDIT_WALLET_ROUTE } from '~/core/router'
+import { CREATE_WALLET_ROUTE, CREATE_WALLET_TOP_UP_ROUTE } from '~/core/router'
 import {
   TimezoneEnum,
   useGetCustomerWalletListQuery,
@@ -24,7 +24,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { MenuPopper } from '~/styles'
 
 gql`
   fragment CustomerWallet on Wallet {
@@ -68,12 +67,6 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
   const list = data?.wallets?.collection || []
   const hasNoWallet = !list || !list.length
   const activeWallet = list.find((wallet) => wallet.status === WalletStatusEnum.Active)
-  const hasAnyPermissionsToShowActions = hasPermissions([
-    'walletsCreate',
-    'walletsTopUp',
-    'walletsUpdate',
-    'walletsTerminate',
-  ])
 
   if (!loading && !!error) {
     return (
@@ -90,159 +83,92 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
 
   return (
     <>
-      <div>
-        <PageSectionTitle
-          title={translate('text_62d175066d2dbf1d50bc9384')}
-          subtitle={translate('text_1737647019083bbxjrexen5s')}
-          customAction={
-            <>
-              {hasAnyPermissionsToShowActions && (
-                <>
-                  {!activeWallet && hasPermissions(['walletsCreate']) ? (
-                    <Button
-                      variant="quaternary"
-                      onClick={() =>
-                        navigate(
-                          generatePath(CREATE_WALLET_ROUTE, {
-                            customerId: customerId as string,
-                          }),
-                        )
-                      }
-                    >
-                      {translate('text_62d175066d2dbf1d50bc9382')}
-                    </Button>
-                  ) : (
-                    <Popper
-                      PopperProps={{ placement: 'bottom-end' }}
-                      opener={
-                        <Button variant="quaternary" endIcon="chevron-down">
-                          {translate('text_62e161ceb87c201025388aa2')}
-                        </Button>
-                      }
-                    >
-                      {({ closePopper }) => (
-                        <MenuPopper>
-                          {hasPermissions(['walletsTopUp']) && (
-                            <Button
-                              variant="quaternary"
-                              align="left"
-                              onClick={() => {
-                                navigate(
-                                  generatePath(CREATE_WALLET_TOP_UP_ROUTE, {
-                                    customerId: customerId as string,
-                                    walletId: activeWallet?.id as string,
-                                  }),
-                                )
-                                closePopper()
-                              }}
-                            >
-                              {translate('text_62e161ceb87c201025388ada')}
-                            </Button>
-                          )}
+      <PageSectionTitle
+        title={translate('text_62d175066d2dbf1d50bc9384')}
+        subtitle={translate('text_1737647019083bbxjrexen5s')}
+        customAction={
+          <>
+            {!activeWallet && hasPermissions(['walletsCreate']) && (
+              <Button
+                variant="quaternary"
+                onClick={() =>
+                  navigate(
+                    generatePath(CREATE_WALLET_ROUTE, {
+                      customerId: customerId as string,
+                    }),
+                  )
+                }
+              >
+                {translate('text_62d175066d2dbf1d50bc9382')}
+              </Button>
+            )}
+            {activeWallet && hasPermissions(['walletsTopUp']) && (
+              <Button
+                variant="quaternary"
+                onClick={() =>
+                  navigate(
+                    generatePath(CREATE_WALLET_TOP_UP_ROUTE, {
+                      customerId: customerId,
+                      walletId: activeWallet.id,
+                    }),
+                  )
+                }
+              >
+                {translate('text_62e161ceb87c201025388ada')}
+              </Button>
+            )}
+          </>
+        }
+      />
 
-                          {hasPermissions(['walletsUpdate']) && (
-                            <Button
-                              variant="quaternary"
-                              align="left"
-                              onClick={() => {
-                                navigate(
-                                  generatePath(EDIT_WALLET_ROUTE, {
-                                    customerId: customerId as string,
-                                    walletId: activeWallet?.id as string,
-                                  }),
-                                )
-                                closePopper()
-                              }}
-                            >
-                              {translate('text_62e161ceb87c201025388aa2')}
-                            </Button>
-                          )}
+      {loading && (
+        <div className="flex flex-col gap-4">
+          {[1, 2, 3].map((i) => (
+            <WalletAccordionSkeleton key={`customer-wallet-skeleton-${i}`} />
+          ))}
+        </div>
+      )}
 
-                          {hasPermissions(['walletsTerminate']) && (
-                            <>
-                              <Button
-                                variant="quaternary"
-                                align="left"
-                                disabled={(activeWallet?.creditsBalance || 0) <= 0}
-                                onClick={() => {
-                                  voidWalletDialogRef.current?.openDialog()
-                                  closePopper()
-                                }}
-                              >
-                                {translate('text_63720bd734e1344aea75b7e9')}
-                              </Button>
+      {!loading && hasNoWallet && (
+        <Typography className="text-grey-500">
+          {translate('text_62d175066d2dbf1d50bc9386')}
+        </Typography>
+      )}
 
-                              <Button
-                                variant="quaternary"
-                                align="left"
-                                onClick={() => {
-                                  terminateCustomerWalletDialogRef?.current?.openDialog()
-                                  closePopper()
-                                }}
-                              >
-                                {translate('text_62e161ceb87c201025388ade')}
-                              </Button>
-                            </>
-                          )}
-                        </MenuPopper>
-                      )}
-                    </Popper>
-                  )}
-                </>
-              )}
-            </>
-          }
-        />
+      {!loading && !hasNoWallet && (
+        <InfiniteScroll
+          onBottom={() => {
+            const { currentPage = 0, totalPages = 0 } = data?.wallets?.metadata || {}
 
-        {loading && (
+            currentPage < totalPages &&
+              !loading &&
+              fetchMore({
+                variables: { page: currentPage + 1 },
+              })
+          }}
+        >
           <div className="flex flex-col gap-4">
-            {[1, 2, 3].map((i) => (
-              <WalletAccordionSkeleton key={`customer-wallet-skeleton-${i}`} />
+            {list.map((wallet) => (
+              <WalletAccordion
+                key={`wallet-${wallet.id}`}
+                premiumWarningDialogRef={premiumWarningDialogRef}
+                wallet={wallet}
+                customerTimezone={customerTimezone}
+              />
             ))}
           </div>
-        )}
+        </InfiniteScroll>
+      )}
 
-        {!loading && hasNoWallet && (
-          <Typography className="text-grey-500">
-            {translate('text_62d175066d2dbf1d50bc9386')}
-          </Typography>
-        )}
-
-        {!loading && !hasNoWallet && (
-          <InfiniteScroll
-            onBottom={() => {
-              const { currentPage = 0, totalPages = 0 } = data?.wallets?.metadata || {}
-
-              currentPage < totalPages &&
-                !loading &&
-                fetchMore({
-                  variables: { page: currentPage + 1 },
-                })
-            }}
-          >
-            <div className="flex flex-col gap-4">
-              {list.map((wallet) => (
-                <WalletAccordion
-                  key={`wallet-${wallet.id}`}
-                  premiumWarningDialogRef={premiumWarningDialogRef}
-                  wallet={wallet}
-                  customerTimezone={customerTimezone}
-                />
-              ))}
-            </div>
-          </InfiniteScroll>
-        )}
-
-        {activeWallet && (
-          <>
-            <TerminateCustomerWalletDialog
-              ref={terminateCustomerWalletDialogRef}
-              walletId={activeWallet.id}
-            />
-            <VoidWalletDialog ref={voidWalletDialogRef} wallet={activeWallet} />
-          </>
-        )}
-      </div>
+      {activeWallet && (
+        <>
+          <TerminateCustomerWalletDialog
+            ref={terminateCustomerWalletDialogRef}
+            walletId={activeWallet.id}
+          />
+          <VoidWalletDialog ref={voidWalletDialogRef} wallet={activeWallet} />
+        </>
+      )}
 
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
