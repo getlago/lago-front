@@ -1,13 +1,12 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
 import { DateTime } from 'luxon'
-import { FC, RefObject } from 'react'
-import styled, { css } from 'styled-components'
+import { FC, PropsWithChildren, RefObject } from 'react'
 
 import {
   Accordion,
   Avatar,
   Button,
+  Card,
   Icon,
   Skeleton,
   Status,
@@ -33,7 +32,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 gql`
   fragment WalletAccordion on Wallet {
@@ -119,12 +118,12 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
       noContentMargin
       transitionProps={{ unmountOnExit: false }}
       summary={
-        <SummaryContainer>
-          <SummaryLeft>
+        <div className="flex flex-1 items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
             <Avatar size="big" variant="connector">
               <Icon name="wallet" color="dark" />
             </Avatar>
-            <SummaryInfos>
+            <div>
               <Typography variant="bodyHl" color="grey700">
                 {name
                   ? name
@@ -140,29 +139,31 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
                   }),
                 })}
               </Typography>
-            </SummaryInfos>
-          </SummaryLeft>
+            </div>
+          </div>
 
-          <Status {...statusMap} />
-        </SummaryContainer>
+          <div>
+            <Status {...statusMap} />
+          </div>
+        </div>
       }
     >
       {({ isOpen }) => (
         <>
           {!isPremium && (
-            <FreemiumWarningBlock>
-              <Stack direction="column">
-                <Stack direction="row" spacing={1}>
+            <div className="flex items-center justify-between gap-4 bg-grey-100 p-4 shadow-y">
+              <div>
+                <div className="flex flex-row items-baseline gap-1">
                   <Typography variant="bodyHl" color="grey700">
                     {translate('text_65ae73ebe3a66bec2b91d721')}
                   </Typography>
 
                   <Icon name="sparkles" />
-                </Stack>
+                </div>
                 <Typography variant="caption" color="grey600">
                   {translate('text_65ae73ebe3a66bec2b91d727')}
                 </Typography>
-              </Stack>
+              </div>
               <Button
                 variant="tertiary"
                 endIcon="sparkles"
@@ -170,11 +171,11 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
               >
                 {translate('text_65ae73ebe3a66bec2b91d72d')}
               </Button>
-            </FreemiumWarningBlock>
+            </div>
           )}
-          <DetailSummary>
-            <DetailSummaryBlock>
-              <DetailSummaryLine>
+          <div className="flex flex-row items-end gap-8 px-4 py-6 shadow-b">
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center [&_*]:flex">
                 <Typography className="mr-1" variant="captionHl" color="grey600">
                   {translate('text_65ae73ebe3a66bec2b91d747')}
                 </Typography>
@@ -187,8 +188,8 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
                 >
                   <Icon name="info-circle" />
                 </Tooltip>
-              </DetailSummaryLine>
-              <DetailSummaryLine $alignBaseLine>
+              </div>
+              <DetailSummaryLine className="items-baseline">
                 <Typography color={isWalletActive ? 'grey700' : 'grey600'} variant="subhead" noWrap>
                   {creditAmountUnit}
                 </Typography>
@@ -215,10 +216,10 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
                   })}
                 </Typography>
               </DetailSummaryLine>
-            </DetailSummaryBlock>
+            </div>
 
             {isWalletActive && (
-              <DetailSummaryBlock>
+              <div className="flex flex-col gap-1">
                 <DetailSummaryLine>
                   <Typography className="mr-1" variant="captionHl" color="grey600">
                     {translate('text_65ae73ebe3a66bec2b91d75f')}
@@ -231,7 +232,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
                     <Icon name="info-circle" />
                   </Tooltip>
                 </DetailSummaryLine>
-                <DetailSummaryLine $alignBaseLine>
+                <DetailSummaryLine className="items-baseline">
                   <Typography
                     blur={!isPremium}
                     color={isWalletActive ? 'grey700' : 'grey600'}
@@ -271,10 +272,10 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
                     )}
                   </Typography>
                 </DetailSummaryLine>
-              </DetailSummaryBlock>
+              </div>
             )}
 
-            <DetailSummaryBlock>
+            <div className="flex flex-col gap-1">
               <DetailSummaryLine>
                 <Typography color="grey500" variant="captionHl">
                   {isWalletActive
@@ -283,26 +284,28 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
                 </Typography>
               </DetailSummaryLine>
               <DetailSummaryLine>
-                {!isWalletActive ? (
+                {!isWalletActive && (
                   <TimezoneDate
                     mainTypographyProps={{ variant: 'caption', color: 'grey700' }}
                     date={terminatedAt}
                     customerTimezone={customerTimezone}
                   />
-                ) : expirationAt ? (
+                )}
+                {isWalletActive && expirationAt && (
                   <TimezoneDate
                     mainTypographyProps={{ variant: 'caption', color: 'grey700' }}
                     date={expirationAt}
                     customerTimezone={customerTimezone}
                   />
-                ) : (
+                )}
+                {isWalletActive && !expirationAt && (
                   <Typography color="grey700" variant="caption">
                     {translate('text_62da6ec24a8e24e44f81288c')}
                   </Typography>
                 )}
               </DetailSummaryLine>
-            </DetailSummaryBlock>
-          </DetailSummary>
+            </div>
+          </div>
 
           {isWalletActive && (
             <WalletTransactionListItem
@@ -326,126 +329,55 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
             customerTimezone={customerTimezone}
             isOpen={isOpen}
             wallet={wallet}
+            footer={
+              <Typography
+                className="ml-auto flex items-center gap-1"
+                color="grey600"
+                variant="caption"
+              >
+                {`${translate('text_65ae73ece3a66bec2b91d7d7')} ${consumedCredits} ${translate('text_62da6ec24a8e24e44f81287a', undefined, Number(consumedCredits) || 0)} | ${intlFormatNumber(
+                  deserializeAmount(consumedAmountCents, currency),
+                  {
+                    currencyDisplay: 'symbol',
+                    currency,
+                  },
+                )}`}
+                <Tooltip
+                  className="flex h-5 items-end"
+                  placement="top-end"
+                  title={translate('text_62da6db136909f52c2704c40', {
+                    date: formatTimeOrgaTZ(lastConsumedCreditAt || DateTime.now()),
+                  })}
+                >
+                  <Icon name="info-circle" />
+                </Tooltip>
+              </Typography>
+            }
           />
-
-          <Typography
-            className="flex h-10 items-center justify-end px-4"
-            color="grey600"
-            variant="caption"
-          >
-            {translate('text_65ae73ece3a66bec2b91d7d7')}&nbsp;
-            {consumedCredits}&nbsp;
-            {translate('text_62da6ec24a8e24e44f81287a', undefined, Number(consumedCredits) || 0)}
-            &nbsp;|&nbsp;
-            {intlFormatNumber(deserializeAmount(consumedAmountCents, currency), {
-              currencyDisplay: 'symbol',
-              currency,
-            })}
-            &nbsp;
-            <Tooltip
-              className="flex h-5 items-end"
-              placement="top-end"
-              title={translate('text_62da6db136909f52c2704c40', {
-                date: formatTimeOrgaTZ(lastConsumedCreditAt || DateTime.now()),
-              })}
-            >
-              <Icon name="info-circle" />
-            </Tooltip>
-          </Typography>
         </>
       )}
     </Accordion>
   )
 }
 
-export const WalletAccordionSkeleton = () => {
-  return (
-    <SkeletonContainer>
-      <SummaryLeft>
-        <Icon name="chevron-right" color="disabled" />
-        <Skeleton variant="connectorAvatar" size="big" />
-        <SummaryInfos $isLoading>
-          <Skeleton variant="text" className="mb-3 w-60" />
-          <Skeleton variant="text" className="w-30" />
-        </SummaryInfos>
-      </SummaryLeft>
-    </SkeletonContainer>
-  )
+const DetailSummaryLine: FC<PropsWithChildren<{ className?: string }>> = ({
+  className,
+  children,
+}) => {
+  return <div className={tw('flex items-center [&_*]:flex', className)}>{children}</div>
 }
 
-const SkeletonContainer = styled.div`
-  border-radius: 12px;
-  border: 1px solid ${theme.palette.grey[400]};
-  padding: ${theme.spacing(4)};
-`
-
-const SummaryContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  flex: 1;
-  align-items: center;
-`
-
-const SummaryLeft = styled.div`
-  display: flex;
-  align-items: center;
-
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(3)};
-  }
-`
-
-const SummaryInfos = styled.div<{ $isLoading?: boolean }>`
-  display: flex;
-  flex-direction: column;
-  min-width: 20px;
-
-  > div:first-child {
-    margin-bottom: ${({ $isLoading }) => ($isLoading ? theme.spacing(3) : 0)};
-  }
-
-  ${({ $isLoading }) =>
-    $isLoading &&
-    css`
-      height: 40px;
-      justify-content: flex-end;
-    `}
-`
-
-const DetailSummary = styled.div`
-  display: flex;
-  padding: ${theme.spacing(6)} ${theme.spacing(4)};
-  align-items: flex-end;
-  box-shadow: ${theme.shadows[7]};
-
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(8)};
-  }
-`
-
-const DetailSummaryBlock = styled.div`
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(1)};
-  }
-`
-
-const DetailSummaryLine = styled.div<{ $alignBaseLine?: boolean }>`
-  display: flex;
-  align-items: center;
-  align-items: ${({ $alignBaseLine }) => ($alignBaseLine ? 'baseline' : undefined)};
-
-  > * {
-    display: flex;
-  }
-`
-
-const FreemiumWarningBlock = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: ${theme.spacing(4)};
-  background-color: ${theme.palette.grey[100]};
-  padding: ${theme.spacing(4)};
-  border-top: 1px solid ${theme.palette.grey[400]};
-  box-shadow: ${theme.shadows[7]};
-`
+export const WalletAccordionSkeleton = () => {
+  return (
+    <Card className="p-4">
+      <div className="flex flex-1 items-center gap-3">
+        <Icon name="chevron-right" color="disabled" />
+        <Skeleton variant="connectorAvatar" size="big" />
+        <div className="w-full">
+          <Skeleton variant="text" className="max-w-60" />
+          <Skeleton variant="text" className="max-w-30" />
+        </div>
+      </div>
+    </Card>
+  )
+}

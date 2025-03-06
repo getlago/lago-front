@@ -1,8 +1,6 @@
-/* eslint-disable no-nested-ternary */
 import { gql } from '@apollo/client'
-import { FC, useEffect } from 'react'
+import { FC, ReactNode, useEffect } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { Button, Skeleton, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
@@ -17,7 +15,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { theme } from '~/styles'
 
 import { WalletTransactionListItem } from './WalletTransactionListItem'
 
@@ -51,12 +48,14 @@ interface WalletTransactionListProps {
   customerTimezone?: TimezoneEnum
   isOpen: boolean
   wallet: WalletInfosForTransactionsFragment
+  footer: ReactNode
 }
 
 export const WalletTransactionList: FC<WalletTransactionListProps> = ({
   customerTimezone,
   isOpen,
   wallet,
+  footer,
 }) => {
   const { translate } = useInternationalization()
   const { customerId } = useParams()
@@ -69,7 +68,11 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
     })
   const list = data?.walletTransactions?.collection
   const { currentPage = 0, totalPages = 0 } = data?.walletTransactions?.metadata || {}
+
   const hasData = !!list && !!list?.length
+  const hasError = !!error && !loading
+  const isLoading = loading && !error
+  const isWalletEmpty = !hasData && wallet?.status !== WalletStatusEnum.Terminated
 
   useEffect(() => {
     if (isOpen && !data && !loading && !error) {
@@ -80,17 +83,17 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
   return (
     <>
       {(loading || (!error && !!hasData)) && (
-        <TransactionListHeader>
+        <div className="flex justify-between px-4 py-3 shadow-b">
           <Typography variant="bodyHl" color="grey500">
             {translate('text_62da6ec24a8e24e44f81288e')}
           </Typography>
           <Typography variant="bodyHl" color="grey500">
             {translate('text_62da6ec24a8e24e44f812890')}
           </Typography>
-        </TransactionListHeader>
+        </div>
       )}
-      <TransactionListWrapper>
-        {!!error && !loading ? (
+      <div className="shadow-b">
+        {hasError && (
           <GenericPlaceholder
             className="mx-auto py-6 text-center"
             title={translate('text_62d7ffcb1c57d7e6d15bdce3')}
@@ -100,21 +103,25 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
             buttonAction={() => refetch()}
             image={<ErrorImage width="136" height="104" />}
           />
-        ) : !!loading ? (
+        )}
+        {isLoading &&
           [1, 2, 3].map((i) => (
-            <Loader key={`wallet-transaction-skeleton-${i}`}>
+            <div
+              className="flex w-full gap-3 px-3 py-4 shadow-b"
+              key={`wallet-transaction-skeleton-${i}`}
+            >
               <Skeleton variant="connectorAvatar" size="big" className="mr-3" />
-              <LeftLoader>
-                <Skeleton variant="text" className="mb-3 w-36" />
-                <Skeleton variant="text" className="w-20" />
-              </LeftLoader>
-              <RightLoader>
-                <Skeleton variant="text" className="mb-3 w-36" />
-                <Skeleton variant="text" className="w-20" />
-              </RightLoader>
-            </Loader>
-          ))
-        ) : !hasData && wallet?.status !== WalletStatusEnum.Terminated ? (
+              <div className="flex flex-1 flex-col">
+                <Skeleton variant="text" className="max-w-66" />
+                <Skeleton variant="text" className="max-w-30" />
+              </div>
+              <div className="flex flex-1 flex-col items-end justify-end">
+                <Skeleton variant="text" className="max-w-36" />
+                <Skeleton variant="text" className="max-w-20" />
+              </div>
+            </div>
+          ))}
+        {!isLoading && isWalletEmpty && (
           <GenericPlaceholder
             className="mx-auto py-6 text-center"
             title={translate('text_62e0ee200a543924c8f67755')}
@@ -131,7 +138,8 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
             }}
             image={<EmptyImage width="136" height="104" />}
           />
-        ) : (
+        )}
+        {!isLoading && !isWalletEmpty && (
           <>
             {list?.map((transaction, i) => {
               return (
@@ -142,63 +150,25 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
                 />
               )
             })}
-            {currentPage < totalPages && (
-              <Loadmore>
-                <Button
-                  variant="quaternary"
-                  onClick={() =>
-                    fetchMore({
-                      variables: { page: currentPage + 1 },
-                    })
-                  }
-                >
-                  <Typography variant="body" color="grey600">
-                    {translate('text_62da6ec24a8e24e44f8128aa')}
-                  </Typography>
-                </Button>
-              </Loadmore>
-            )}
           </>
         )}
-      </TransactionListWrapper>
+      </div>
+      <div className="flex items-center justify-between gap-4 px-4 py-1">
+        {currentPage < totalPages && (
+          <Button
+            variant="quaternary"
+            size="medium"
+            onClick={() =>
+              fetchMore({
+                variables: { page: currentPage + 1 },
+              })
+            }
+          >
+            {translate('text_62da6ec24a8e24e44f8128aa')}
+          </Button>
+        )}
+        {footer}
+      </div>
     </>
   )
 }
-
-const TransactionListHeader = styled.div`
-  display: flex;
-  padding: 10px ${theme.spacing(4)};
-  justify-content: space-between;
-  box-shadow: ${theme.shadows[7]};
-`
-
-const TransactionListWrapper = styled.div`
-  box-shadow: ${theme.shadows[7]};
-`
-
-const Loadmore = styled.div`
-  margin: ${theme.spacing(1)} 0;
-  text-align: center;
-`
-
-const Loader = styled.div`
-  display: flex;
-  padding: ${theme.spacing(3)} ${theme.spacing(4)};
-`
-
-const LeftLoader = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  flex: 1;
-  margin-right: ${theme.spacing(2)};
-`
-
-const RightLoader = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-end;
-  flex: 1;
-  margin-left: ${theme.spacing(2)};
-`
