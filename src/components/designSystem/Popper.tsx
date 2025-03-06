@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import {
   ClickAwayListener,
   Popper as MuiPopper,
@@ -19,7 +20,9 @@ import { tw } from '~/styles/utils'
 
 interface PopperProps {
   className?: string
-  opener?: ReactElement | (({ isOpen }: { isOpen: boolean }) => ReactElement)
+  opener?:
+    | ReactElement
+    | (({ isOpen, openPopper }: { isOpen: boolean; openPopper: () => void }) => ReactElement)
   maxHeight?: number | string
   minWidth?: number
   PopperProps?: Pick<MUIPopperProps, 'placement' | 'modifiers' | 'disablePortal'>
@@ -86,9 +89,9 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
       <ClickAwayListener onClickAway={onClickAwayProxy}>
         <div className={tw(className)}>
           {typeof opener === 'function'
-            ? cloneElement(opener({ isOpen }), {
+            ? cloneElement(opener({ isOpen, openPopper: () => updateIsOpen(true) }), {
                 onClick: (e: MouseEvent<HTMLDivElement>) => {
-                  const element = opener({ isOpen })
+                  const element = opener({ isOpen, openPopper: () => updateIsOpen(true) })
 
                   element?.props?.onClick && element.props.onClick(e)
                   toggle()
@@ -137,7 +140,9 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
               }}
             >
               {typeof children === 'function'
-                ? children({ closePopper: () => updateIsOpen(false) })
+                ? children({
+                    closePopper: () => updateIsOpen(false),
+                  })
                 : children}
             </div>
           </MuiPopper>
