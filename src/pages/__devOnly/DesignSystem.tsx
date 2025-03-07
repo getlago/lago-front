@@ -11,6 +11,7 @@ import {
   Alert,
   ALL_ICONS,
   Avatar,
+  AvatarBadge,
   Button,
   ButtonLink,
   ChargeTable,
@@ -1002,6 +1003,12 @@ const DesignSystem = () => {
                       <Icon name="pulse" color="dark" />
                     </Avatar>
                   </Tooltip>
+                  <Tooltip title="Connector with avatar badge">
+                    <Avatar variant="connector">
+                      <Icon name="pulse" color="dark" />
+                      <AvatarBadge icon="stop" color="error" />
+                    </Avatar>
+                  </Tooltip>
                   <Tooltip title="Connector with image">
                     <Avatar variant="connector-full">
                       <Stripe />
@@ -1023,20 +1030,41 @@ const DesignSystem = () => {
                   Size
                 </Typography>
                 <Block $marginBottom={theme.spacing(6)}>
-                  <Avatar variant="user" size="small" identifier="Morguy" initials="ML" />
-                  <Avatar variant="user" size="intermediate" identifier="Morguy" initials="ML" />
-                  <Avatar variant="user" size="medium" identifier="Morguy" initials="ML" />
-                  <Avatar variant="user" size="large" identifier="Morguy" initials="ML" />
-                  <Avatar variant="company" size="small" identifier="Lago Corp" />
-                  <Avatar variant="company" size="intermediate" identifier="Lago Corp" />
-                  <Avatar variant="company" size="medium" identifier="Lago Corp" />
-                  <Avatar variant="company" size="large" identifier="Lago Corp" />
-                  <Avatar variant="connector" size="medium">
-                    <Icon name="pulse" color="dark" />
-                  </Avatar>
-                  <Avatar variant="connector" size="large">
-                    <Icon name="pulse" color="dark" />
-                  </Avatar>
+                  <div className="not-last-child:mb-4">
+                    <Avatar variant="user" size="small" identifier="Morguy" initials="ML" />
+                    <Avatar variant="user" size="intermediate" identifier="Morguy" initials="ML" />
+                    <Avatar variant="user" size="medium" identifier="Morguy" initials="ML" />
+                    <Avatar variant="user" size="large" identifier="Morguy" initials="ML" />
+                  </div>
+                  <div className="not-last-child:mb-4">
+                    <Avatar variant="company" size="small" identifier="Lago Corp" />
+                    <Avatar variant="company" size="intermediate" identifier="Lago Corp" />
+                    <Avatar variant="company" size="medium" identifier="Lago Corp" />
+                    <Avatar variant="company" size="large" identifier="Lago Corp" />
+                  </div>
+                  <div className="not-last-child:mb-4">
+                    <Avatar variant="connector" size="tiny">
+                      <Icon name="pulse" color="dark" />
+                    </Avatar>
+                    <Avatar variant="connector" size="small">
+                      <Icon name="pulse" color="dark" />
+                    </Avatar>
+                    <Avatar variant="connector" size="intermediate">
+                      <Icon name="pulse" color="dark" />
+                    </Avatar>
+                    <Avatar variant="connector" size="medium">
+                      <Icon name="pulse" color="dark" />
+                    </Avatar>
+                    <Avatar variant="connector" size="big">
+                      <Icon name="pulse" color="dark" />
+                      <AvatarBadge icon="stop" color="info" size="big" />
+                    </Avatar>
+                    <Avatar variant="connector" size="large">
+                      <Icon name="pulse" color="dark" />
+                      <AvatarBadge icon="stop" color="warning" size="large" />
+                    </Avatar>
+                  </div>
+
                   <Avatar variant="connector" size="medium">
                     <Stripe />
                   </Avatar>

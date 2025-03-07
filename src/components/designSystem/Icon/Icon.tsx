@@ -24,6 +24,7 @@ const iconStyles = cva('text-inherit', {
       skeleton: 'text-grey-100',
     },
     size: {
+      xsmall: 'size-2 min-w-2',
       small: 'size-3 min-w-3',
       medium: 'size-4 min-w-4',
       large: 'size-6 min-w-6',
@@ -47,7 +48,7 @@ export type IconColor =
 
 type IconVariantProps = VariantProps<typeof iconStyles>
 
-interface IconProps extends IconVariantProps {
+export interface IconProps extends IconVariantProps {
   name: IconName
   className?: string
   onClick?: () => void | void | Promise<void>
