@@ -4,7 +4,7 @@ import { get } from 'lodash'
 import { DateTime } from 'luxon'
 import { FC, RefObject, useMemo, useState } from 'react'
 
-import { Accordion, Alert, Button, Card, Icon, Typography } from '~/components/designSystem'
+import { Accordion, Alert, Button, Icon, Typography } from '~/components/designSystem'
 import {
   AmountInputField,
   ComboBox,
@@ -27,8 +27,8 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { walletFormErrorCodes } from '~/pages/WalletForm/form'
-import { TWalletDataForm } from '~/pages/WalletForm/types'
+import { walletFormErrorCodes } from '~/pages/wallet/form'
+import { TWalletDataForm } from '~/pages/wallet/types'
 
 const AccordionSummary: FC<{ label: string; isValid: boolean; onDelete: VoidFunction }> = ({
   label,
@@ -82,7 +82,7 @@ const DEFAULT_RULES: UpdateRecurringTransactionRuleInput = {
   invoiceRequiresSuccessfulPayment: false,
 }
 
-interface TopUpCardProps {
+interface TopUpSectionProps {
   formikProps: FormikProps<TWalletDataForm>
   formType: keyof typeof FORM_TYPE_ENUM
   customerData?: GetCustomerInfosForWalletFormQuery
@@ -91,7 +91,7 @@ interface TopUpCardProps {
   premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
 }
 
-export const TopUpCard: FC<TopUpCardProps> = ({
+export const TopUpSection: FC<TopUpSectionProps> = ({
   formikProps,
   formType,
   customerData,
@@ -117,21 +117,15 @@ export const TopUpCard: FC<TopUpCardProps> = ({
   }, [formikProps?.errors?.recurringTransactionRules])
 
   return (
-    <Card className="gap-12">
-      <Stack gap={6} width="100%">
-        <Typography variant="subhead">{translate('text_6657be42151661006d2f3b89')}</Typography>
+    <>
+      <section className="flex w-full flex-col gap-6 pb-12 shadow-b">
+        <div className="flex flex-col gap-1">
+          <Typography variant="subhead">{translate('text_6657be42151661006d2f3b89')}</Typography>
+          <Typography variant="caption">{translate('text_6657be42151661006d2f3b8a')}</Typography>
+        </div>
 
         {formType === FORM_TYPE_ENUM.creation && (
           <>
-            <Box>
-              <Typography variant="bodyHl" color="grey700">
-                {translate('text_6657be42151661006d2f3b8a')}
-              </Typography>
-              <Typography variant="caption">
-                {translate('text_6657be42151661006d2f3b8b')}
-              </Typography>
-            </Box>
-
             <AmountInputField
               name="paidCredits"
               currency={formikProps.values.currency}
@@ -178,33 +172,19 @@ export const TopUpCard: FC<TopUpCardProps> = ({
         )}
 
         {formType === FORM_TYPE_ENUM.edition && (
-          <>
-            <Box>
-              <Typography variant="bodyHl" color="grey700">
-                {translate('text_66a8aed1c3e07b277ec39909')}
-              </Typography>
-              <Typography variant="caption">
-                {translate('text_66a8aed1c3e07b277ec3990b')}
-              </Typography>
-            </Box>
-
-            <SwitchField
-              name="invoiceRequiresSuccessfulPayment"
-              formikProps={formikProps}
-              label={translate('text_66a8aed1c3e07b277ec3990d')}
-              subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
-            />
-          </>
+          <SwitchField
+            name="invoiceRequiresSuccessfulPayment"
+            formikProps={formikProps}
+            label={translate('text_66a8aed1c3e07b277ec3990d')}
+            subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
+          />
         )}
-      </Stack>
-
-      <Stack gap={6} width="100%">
-        <Box>
-          <Typography variant="bodyHl" color="grey700">
-            {translate('text_6657be42151661006d2f3b94')}
-          </Typography>
+      </section>
+      <section className="flex w-full flex-col gap-6">
+        <div className="flex flex-col gap-1">
+          <Typography variant="subhead">{translate('text_1741101674268ag60i0cc55m')}</Typography>
           <Typography variant="caption">{translate('text_6657be42151661006d2f3b95')}</Typography>
-        </Box>
+        </div>
 
         {!isRecurringTopUpEnabled ? (
           <Box>
@@ -490,7 +470,7 @@ export const TopUpCard: FC<TopUpCardProps> = ({
             </Stack>
           </Accordion>
         )}
-      </Stack>
-    </Card>
+      </section>
+    </>
   )
 }

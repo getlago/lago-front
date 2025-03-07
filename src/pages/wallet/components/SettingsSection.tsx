@@ -3,7 +3,7 @@ import { FormikProps } from 'formik'
 import { DateTime } from 'luxon'
 import { FC } from 'react'
 
-import { Button, Card, Tooltip, Typography } from '~/components/designSystem'
+import { Button, Tooltip, Typography } from '~/components/designSystem'
 import {
   AmountInputField,
   ComboBoxField,
@@ -15,10 +15,10 @@ import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, GetCustomerInfosForWalletFormQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { TWalletDataForm } from '~/pages/WalletForm/types'
+import { TWalletDataForm } from '~/pages/wallet/types'
 import { tw } from '~/styles/utils'
 
-interface SettingsCardProps {
+interface SettingsSectionProps {
   formikProps: FormikProps<TWalletDataForm>
   customerData?: GetCustomerInfosForWalletFormQuery
   showExpirationDate: boolean
@@ -26,7 +26,7 @@ interface SettingsCardProps {
   formType: keyof typeof FORM_TYPE_ENUM
 }
 
-export const SettingsCard: FC<SettingsCardProps> = ({
+export const SettingsSection: FC<SettingsSectionProps> = ({
   formikProps,
   formType,
   customerData,
@@ -36,23 +36,33 @@ export const SettingsCard: FC<SettingsCardProps> = ({
   const { translate } = useInternationalization()
 
   return (
-    <Card>
-      <Typography variant="subhead">{translate('text_6560809c38fb9de88d8a5090')}</Typography>
+    <section className="flex flex-col gap-6 pb-12 shadow-b">
+      <div className="flex flex-col gap-1">
+        <Typography variant="subhead">{translate('text_6560809c38fb9de88d8a5090')}</Typography>
+        <Typography variant="caption">{translate('text_1741101676181hja4m79j7qz')}</Typography>
+      </div>
 
       <TextInputField
+        // eslint-disable-next-line jsx-a11y/no-autofocus
+        autoFocus
         name="name"
         label={translate('text_62d18855b22699e5cf55f875')}
         placeholder={translate('text_62d18855b22699e5cf55f877')}
         formikProps={formikProps}
       />
+
       <div
         className={tw('grid grid-cols-[48px_48px_1fr_120px] items-end gap-3', {
-          'grid-cols-[minmax(48px,120px)_48px_minmax(160px,1fr)]':
-            !!customerData?.customer?.currency,
+          'grid-cols-[48px_48px_minmax(160px,1fr)]': !!customerData?.customer?.currency,
         })}
       >
-        <TextInput value="1" label={translate('text_62d18855b22699e5cf55f879')} disabled={true} />
-        <TextInput value="=" disabled={true} />
+        <TextInput
+          value="1"
+          label={translate('text_62d18855b22699e5cf55f879')}
+          disabled={true}
+          className="[&_input]:text-center"
+        />
+        <TextInput value="=" disabled={true} className="[&_input]:text-center" />
         <AmountInputField
           name="rateAmount"
           disabled={formType === FORM_TYPE_ENUM.edition}
@@ -125,6 +135,6 @@ export const SettingsCard: FC<SettingsCardProps> = ({
           {translate('text_6560809c38fb9de88d8a517e')}
         </Button>
       )}
-    </Card>
+    </section>
   )
 }

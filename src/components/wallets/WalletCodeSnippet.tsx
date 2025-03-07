@@ -5,7 +5,7 @@ import {
   RecurringTransactionMethodEnum,
   RecurringTransactionTriggerEnum,
 } from '~/generated/graphql'
-import { TWalletDataForm } from '~/pages/WalletForm'
+import { TWalletDataForm } from '~/pages/wallet'
 
 const { apiUrl } = envGlobalVar()
 

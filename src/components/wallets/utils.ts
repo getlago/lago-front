@@ -12,7 +12,7 @@ import {
   UpdateRecurringTransactionRuleInput,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { TWalletDataForm } from '~/pages/WalletForm'
+import { TWalletDataForm } from '~/pages/wallet'
 
 type TGetWordingForWalletAlert = {
   currency: CurrencyEnum

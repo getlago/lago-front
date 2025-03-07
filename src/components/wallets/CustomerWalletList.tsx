@@ -10,15 +10,13 @@ import {
   TerminateCustomerWalletDialog,
   TerminateCustomerWalletDialogRef,
 } from '~/components/wallets/TerminateCustomerWalletDialog'
-import { TopupWalletDialog, TopupWalletDialogRef } from '~/components/wallets/TopupWalletDialog'
 import { VoidWalletDialog, VoidWalletDialogRef } from '~/components/wallets/VoidWalletDialog'
 import { WalletAccordion, WalletAccordionSkeleton } from '~/components/wallets/WalletAccordion'
-import { CREATE_WALLET_ROUTE, EDIT_WALLET_ROUTE } from '~/core/router'
+import { CREATE_WALLET_ROUTE, CREATE_WALLET_TOP_UP_ROUTE, EDIT_WALLET_ROUTE } from '~/core/router'
 import {
   TimezoneEnum,
   useGetCustomerWalletListQuery,
   WalletAccordionFragmentDoc,
-  WalletForTopupFragmentDoc,
   WalletForUpdateFragmentDoc,
   WalletInfosForTransactionsFragmentDoc,
   WalletStatusEnum,
@@ -30,7 +28,6 @@ import { MenuPopper } from '~/styles'
 
 gql`
   fragment CustomerWallet on Wallet {
-    ...WalletForTopup
     ...WalletForUpdate
     ...WalletAccordion
     ...WalletInfosForTransactions
@@ -48,24 +45,22 @@ gql`
     }
   }
 
-  ${WalletForTopupFragmentDoc}
   ${WalletForUpdateFragmentDoc}
   ${WalletAccordionFragmentDoc}
   ${WalletInfosForTransactionsFragmentDoc}
 `
 
-interface CustommerWalletListProps {
+interface CustomerWalletListProps {
   customerId: string
   customerTimezone?: TimezoneEnum
 }
 
-export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerWalletListProps) => {
+export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWalletListProps) => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const terminateCustomerWalletDialogRef = useRef<TerminateCustomerWalletDialogRef>(null)
-  const topupWalletDialogRef = useRef<TopupWalletDialogRef>(null)
   const voidWalletDialogRef = useRef<VoidWalletDialogRef>(null)
   const { data, error, loading, fetchMore } = useGetCustomerWalletListQuery({
     variables: { customerId, page: 0, limit: 20 },
@@ -132,7 +127,12 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerW
                               variant="quaternary"
                               align="left"
                               onClick={() => {
-                                topupWalletDialogRef?.current?.openDialog()
+                                navigate(
+                                  generatePath(CREATE_WALLET_TOP_UP_ROUTE, {
+                                    customerId: customerId as string,
+                                    walletId: activeWallet?.id as string,
+                                  }),
+                                )
                                 closePopper()
                               }}
                             >
@@ -194,17 +194,21 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerW
           }
         />
 
-        {!!loading ? (
+        {loading && (
           <div className="flex flex-col gap-4">
             {[1, 2, 3].map((i) => (
               <WalletAccordionSkeleton key={`customer-wallet-skeleton-${i}`} />
             ))}
           </div>
-        ) : !loading && !!hasNoWallet ? (
+        )}
+
+        {!loading && hasNoWallet && (
           <Typography className="text-grey-500">
             {translate('text_62d175066d2dbf1d50bc9386')}
           </Typography>
-        ) : (
+        )}
+
+        {!loading && !hasNoWallet && (
           <InfiniteScroll
             onBottom={() => {
               const { currentPage = 0, totalPages = 0 } = data?.wallets?.metadata || {}
@@ -222,7 +226,6 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerW
                   key={`wallet-${wallet.id}`}
                   premiumWarningDialogRef={premiumWarningDialogRef}
                   wallet={wallet}
-                  ref={topupWalletDialogRef}
                   customerTimezone={customerTimezone}
                 />
               ))}
@@ -232,7 +235,6 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerW
 
         {activeWallet && (
           <>
-            <TopupWalletDialog ref={topupWalletDialogRef} wallet={activeWallet} />
             <TerminateCustomerWalletDialog
               ref={terminateCustomerWalletDialogRef}
               walletId={activeWallet.id}
@@ -246,5 +248,3 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustommerW
     </>
   )
 }
-
-CustomerWalletsList.displayName = 'CustomerWalletsList'
