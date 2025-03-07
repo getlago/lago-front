@@ -2194,6 +2194,29 @@ export type DataApiMrrCollection = {
   metadata: CollectionMetadata;
 };
 
+export type DataApiMrrPlan = {
+  __typename?: 'DataApiMrrPlan';
+  activeCustomersCount: Scalars['BigInt']['output'];
+  activeCustomersShare: Scalars['Float']['output'];
+  amountCurrency: CurrencyEnum;
+  dt: Scalars['ISO8601Date']['output'];
+  mrr: Scalars['Float']['output'];
+  mrrShare: Scalars['Float']['output'];
+  planCode: Scalars['String']['output'];
+  planId: Scalars['ID']['output'];
+  planInterval: PlanInterval;
+  planName: Scalars['String']['output'];
+};
+
+/** DataApiMrrPlanCollection type */
+export type DataApiMrrPlanCollection = {
+  __typename?: 'DataApiMrrPlanCollection';
+  /** A collection of paginated DataApiMrrPlanCollection */
+  collection: Array<DataApiMrrPlan>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
 export type DataApiRevenueStream = {
   __typename?: 'DataApiRevenueStream';
   amountCurrency: CurrencyEnum;
@@ -2977,6 +3000,7 @@ export enum IntegrationTypeEnum {
   Anrok = 'anrok',
   ApiPermissions = 'api_permissions',
   AutoDunning = 'auto_dunning',
+  BetaPaymentAuthorization = 'beta_payment_authorization',
   FromEmail = 'from_email',
   Hubspot = 'hubspot',
   IssueReceipts = 'issue_receipts',
@@ -4611,6 +4635,7 @@ export type PlanOverridesInput = {
 export enum PremiumIntegrationTypeEnum {
   ApiPermissions = 'api_permissions',
   AutoDunning = 'auto_dunning',
+  BetaPaymentAuthorization = 'beta_payment_authorization',
   FromEmail = 'from_email',
   Hubspot = 'hubspot',
   IssueReceipts = 'issue_receipts',
@@ -4752,6 +4777,8 @@ export type Query = {
   customers: CustomerCollection;
   /** Query monthly recurring revenues of an organization */
   dataApiMrrs: DataApiMrrCollection;
+  /** Query monthly recurring revenues plans of an organization */
+  dataApiMrrsPlans: DataApiMrrPlanCollection;
   /** Query revenue streams of an organization */
   dataApiRevenueStreams: DataApiRevenueStreamCollection;
   /** Query revenue streams customers of an organization */
@@ -5011,6 +5038,11 @@ export type QueryDataApiMrrsArgs = {
   planCode?: InputMaybe<Scalars['String']['input']>;
   timeGranularity?: InputMaybe<TimeGranularityEnum>;
   toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+};
+
+
+export type QueryDataApiMrrsPlansArgs = {
+  currency?: InputMaybe<CurrencyEnum>;
 };
 
 
@@ -6724,6 +6756,14 @@ export type DeleteAddOnMutationVariables = Exact<{
 
 
 export type DeleteAddOnMutation = { __typename?: 'Mutation', destroyAddOn?: { __typename?: 'DestroyAddOnPayload', id?: string | null } | null };
+
+export type GetRevenueStreamsPlansQueryVariables = Exact<{
+  currency?: InputMaybe<CurrencyEnum>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetRevenueStreamsPlansQuery = { __typename?: 'Query', dataApiRevenueStreamsPlans: { __typename?: 'RevenueStreamPlanCollection', collection: Array<{ __typename?: 'RevenueStreamPlan', amountCurrency: CurrencyEnum, customersCount: number, customersShare: number, netRevenueAmountCents: any, netRevenueShare: number, planCode: string, planInterval: PlanInterval, planName: string }> } };
 
 export type GetRevenueStreamsQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
@@ -13007,6 +13047,56 @@ export function useDeleteAddOnMutation(baseOptions?: Apollo.MutationHookOptions<
 export type DeleteAddOnMutationHookResult = ReturnType<typeof useDeleteAddOnMutation>;
 export type DeleteAddOnMutationResult = Apollo.MutationResult<DeleteAddOnMutation>;
 export type DeleteAddOnMutationOptions = Apollo.BaseMutationOptions<DeleteAddOnMutation, DeleteAddOnMutationVariables>;
+export const GetRevenueStreamsPlansDocument = gql`
+    query getRevenueStreamsPlans($currency: CurrencyEnum, $limit: Int) {
+  dataApiRevenueStreamsPlans(currency: $currency, limit: $limit) {
+    collection {
+      amountCurrency
+      customersCount
+      customersShare
+      netRevenueAmountCents
+      netRevenueShare
+      planCode
+      planInterval
+      planName
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetRevenueStreamsPlansQuery__
+ *
+ * To run a query within a React component, call `useGetRevenueStreamsPlansQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRevenueStreamsPlansQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRevenueStreamsPlansQuery({
+ *   variables: {
+ *      currency: // value for 'currency'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetRevenueStreamsPlansQuery(baseOptions?: Apollo.QueryHookOptions<GetRevenueStreamsPlansQuery, GetRevenueStreamsPlansQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetRevenueStreamsPlansQuery, GetRevenueStreamsPlansQueryVariables>(GetRevenueStreamsPlansDocument, options);
+      }
+export function useGetRevenueStreamsPlansLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRevenueStreamsPlansQuery, GetRevenueStreamsPlansQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetRevenueStreamsPlansQuery, GetRevenueStreamsPlansQueryVariables>(GetRevenueStreamsPlansDocument, options);
+        }
+export function useGetRevenueStreamsPlansSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRevenueStreamsPlansQuery, GetRevenueStreamsPlansQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetRevenueStreamsPlansQuery, GetRevenueStreamsPlansQueryVariables>(GetRevenueStreamsPlansDocument, options);
+        }
+export type GetRevenueStreamsPlansQueryHookResult = ReturnType<typeof useGetRevenueStreamsPlansQuery>;
+export type GetRevenueStreamsPlansLazyQueryHookResult = ReturnType<typeof useGetRevenueStreamsPlansLazyQuery>;
+export type GetRevenueStreamsPlansSuspenseQueryHookResult = ReturnType<typeof useGetRevenueStreamsPlansSuspenseQuery>;
+export type GetRevenueStreamsPlansQueryResult = Apollo.QueryResult<GetRevenueStreamsPlansQuery, GetRevenueStreamsPlansQueryVariables>;
 export const GetRevenueStreamsDocument = gql`
     query getRevenueStreams($currency: CurrencyEnum, $customerCountry: CountryCode, $customerType: CustomerTypeEnum, $externalCustomerId: String, $externalSubscriptionId: String, $fromDate: ISO8601Date, $planCode: String, $timeGranularity: TimeGranularityEnum, $toDate: ISO8601Date) {
   dataApiRevenueStreams(
