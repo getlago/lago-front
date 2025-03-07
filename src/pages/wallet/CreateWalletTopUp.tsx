@@ -222,6 +222,8 @@ const CreateWalletTopUp = () => {
               </div>
 
               <AmountInputField
+                // eslint-disable-next-line jsx-a11y/no-autofocus
+                autoFocus
                 name="paidCredits"
                 currency={wallet.currency}
                 beforeChangeFormatter={['positiveNumber']}
