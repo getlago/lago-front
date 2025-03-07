@@ -11,6 +11,7 @@ import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
 import { getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import {
@@ -139,7 +140,6 @@ const CreateWallet = () => {
 
   const currency =
     customerData?.customer?.currency || organization?.defaultCurrency || CurrencyEnum.Usd
-  const currencyPrecision = getCurrencyPrecision(currency)
 
   const navigateToCustomerWalletTab = useCallback(
     () =>
@@ -186,21 +186,11 @@ const CreateWallet = () => {
       grantedCredits: '',
       name: wallet?.name || '',
       paidCredits: '',
-      rateAmount: wallet?.rateAmount
-        ? String(wallet?.rateAmount)
-        : (() => {
-            let precision
-
-            if (currencyPrecision === 3) {
-              precision = '.000'
-            } else if (currencyPrecision === 4) {
-              precision = '.0000'
-            } else {
-              precision = '.00'
-            }
-
-            return `1${precision}`
-          })(),
+      rateAmount: intlFormatNumber(wallet?.rateAmount ?? 1, {
+        currency,
+        style: 'decimal',
+        minimumFractionDigits: getCurrencyPrecision(currency),
+      }),
       recurringTransactionRules: wallet?.recurringTransactionRules || undefined,
       invoiceRequiresSuccessfulPayment: wallet?.invoiceRequiresSuccessfulPayment ?? false,
     },

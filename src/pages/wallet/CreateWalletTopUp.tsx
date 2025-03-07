@@ -61,6 +61,8 @@ const CreateWalletTopUp = () => {
     },
   })
 
+  const currency = wallet?.currency || defaultCurrency || CurrencyEnum.Usd
+
   const [createWallet] = useCreateCustomerWalletTransactionMutation({
     onCompleted(res) {
       if (res?.createCustomerWalletTransaction) {
@@ -72,9 +74,6 @@ const CreateWalletTopUp = () => {
     },
   })
 
-  const currencyPrecision = getCurrencyPrecision(
-    wallet?.currency ?? defaultCurrency ?? CurrencyEnum.Usd,
-  )
   const formikProps = useFormik<Omit<CreateCustomerWalletTransactionInput, 'walletId'>>({
     initialValues: {
       grantedCredits: '',
@@ -134,23 +133,6 @@ const CreateWalletTopUp = () => {
     formikProps.dirty ? warningDialogRef.current?.openDialog() : navigateToCustomerWalletTab()
   }, [formikProps.dirty, navigateToCustomerWalletTab])
 
-  const setCurrencyPrecision = useCallback(
-    (value: number) => {
-      let precision
-
-      if (currencyPrecision === 3) {
-        precision = '.000'
-      } else if (currencyPrecision === 4) {
-        precision = '.0000'
-      } else {
-        precision = '.00'
-      }
-
-      return `${value}${precision}`
-    },
-    [currencyPrecision],
-  )
-
   return (
     <>
       <CenteredPage.Wrapper>
@@ -200,7 +182,11 @@ const CreateWalletTopUp = () => {
                 <TextInput
                   label={translate('text_62e79671d23ae6ff149de934')}
                   placeholder={translate('text_62d18855b22699e5cf55f87f')}
-                  value={setCurrencyPrecision(wallet.rateAmount)}
+                  value={intlFormatNumber(wallet.rateAmount, {
+                    currency,
+                    style: 'decimal',
+                    minimumFractionDigits: getCurrencyPrecision(currency),
+                  })}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">{wallet.currency}</InputAdornment>

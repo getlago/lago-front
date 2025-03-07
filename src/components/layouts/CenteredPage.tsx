@@ -42,7 +42,7 @@ const CenteredStickyFooter = ({ children }: PropsWithChildren) => {
 
 const PageTitle = ({ title, description }: { title: string; description?: string }) => {
   return (
-    <div className="not-last-child:mb-1">
+    <div className="flex flex-col gap-1">
       <Typography variant="headline" color="textSecondary">
         {title}
       </Typography>
