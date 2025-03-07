@@ -1,6 +1,7 @@
-import { cva, cx } from 'class-variance-authority'
-import { ReactNode } from 'react'
+import { cva, cx, VariantProps } from 'class-variance-authority'
+import { FC, ReactNode } from 'react'
 
+import { Icon, IconName, IconProps } from '~/components/designSystem'
 import { tw } from '~/styles/utils'
 
 import { Typography } from './Typography'
@@ -68,7 +69,7 @@ export const avatarSizeStyles: Record<AvatarSize, string> = {
 }
 
 const avatarStyles = cva(
-  'flex items-center justify-center [&>img]:size-full [&>img]:rounded-[inherit] [&>img]:object-cover',
+  'relative flex items-center justify-center [&>img]:size-full [&>img]:rounded-[inherit] [&>img]:object-cover',
   {
     variants: {
       size: avatarSizeStyles,
@@ -146,6 +147,48 @@ export const Avatar = ({
       data-test={`${variant}/${size}`}
     >
       {getContent()}
+    </div>
+  )
+}
+
+const avatarBadgeStyles = cva(
+  'absolute bottom-0 right-0 flex items-center justify-center rounded-full',
+  {
+    variants: {
+      size: {
+        big: 'size-4',
+        large: 'size-6',
+      },
+      color: {
+        primary: 'bg-blue-600',
+        success: 'bg-green-600',
+        error: 'bg-red-600',
+        warning: 'bg-yellow-600',
+        info: 'bg-purple-600',
+        light: 'bg-white',
+        black: 'bg-grey-700',
+        dark: 'bg-grey-600',
+        input: 'bg-grey-500',
+        disabled: 'bg-grey-400',
+        skeleton: 'bg-grey-100',
+      },
+    },
+  },
+)
+
+export const AvatarBadge: FC<{ icon: IconName } & VariantProps<typeof avatarBadgeStyles>> = ({
+  icon,
+  color,
+  size = 'big',
+}) => {
+  let iconSize: IconProps['size']
+
+  if (size === 'big') iconSize = 'xsmall'
+  if (size === 'large') iconSize = 'small'
+
+  return (
+    <div className={tw(avatarBadgeStyles({ color, size }))}>
+      <Icon name={icon} size={iconSize} color="light" />
     </div>
   )
 }
