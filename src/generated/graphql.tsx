@@ -4532,6 +4532,7 @@ export type Payment = {
   payable: Payable;
   payablePaymentStatus?: Maybe<PayablePaymentStatusEnum>;
   paymentProviderType?: Maybe<ProviderTypeEnum>;
+  paymentReceipt?: Maybe<PaymentReceipt>;
   paymentType: PaymentTypeEnum;
   providerPaymentId?: Maybe<Scalars['String']['output']>;
   reference?: Maybe<Scalars['String']['output']>;
@@ -7708,7 +7709,7 @@ export type GetInvoiceMetadatasQueryVariables = Exact<{
 
 export type GetInvoiceMetadatasQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, customer: { __typename?: 'Customer', id: string, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, displayInInvoice: boolean, key: string, value: string }> | null }, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null } | null };
 
-export type PaymentForPaymentsListFragment = { __typename?: 'Payment', amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, id: string, payablePaymentStatus?: PayablePaymentStatusEnum | null, paymentProviderType?: ProviderTypeEnum | null, paymentType: PaymentTypeEnum, providerPaymentId?: string | null, reference?: string | null, payable: { __typename?: 'Invoice', id: string, number: string, payableType: string } | { __typename?: 'PaymentRequest', payableType: string, invoices: Array<{ __typename?: 'Invoice', id: string }> }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } };
+export type PaymentForPaymentsListFragment = { __typename?: 'Payment', amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, id: string, payablePaymentStatus?: PayablePaymentStatusEnum | null, paymentProviderType?: ProviderTypeEnum | null, paymentType: PaymentTypeEnum, providerPaymentId?: string | null, reference?: string | null, payable: { __typename?: 'Invoice', id: string, number: string, payableType: string } | { __typename?: 'PaymentRequest', payableType: string, invoices: Array<{ __typename?: 'Invoice', id: string }> }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, paymentReceipt?: { __typename?: 'PaymentReceipt', id: string } | null };
 
 export type InvoiceForVoidInvoiceDialogFragment = { __typename?: 'Invoice', id: string, number: string };
 
@@ -8824,6 +8825,13 @@ export type UpdateSubscriptionMutationVariables = Exact<{
 
 export type UpdateSubscriptionMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, customerType?: CustomerTypeEnum | null, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, hubspotCustomer?: { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, salesforceCustomer?: { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null }, plan: { __typename?: 'Plan', id: string } } | null };
 
+export type DownloadPaymentReceiptMutationVariables = Exact<{
+  input: DownloadPaymentReceiptInput;
+}>;
+
+
+export type DownloadPaymentReceiptMutation = { __typename?: 'Mutation', downloadPaymentReceipt?: { __typename?: 'PaymentReceipt', id: string, fileUrl?: string | null } | null };
+
 export type GetSinglePlanQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
@@ -9453,7 +9461,7 @@ export type GetPaymentListQueryVariables = Exact<{
 }>;
 
 
-export type GetPaymentListQuery = { __typename?: 'Query', payments: { __typename?: 'PaymentCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Payment', amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, id: string, payablePaymentStatus?: PayablePaymentStatusEnum | null, paymentProviderType?: ProviderTypeEnum | null, paymentType: PaymentTypeEnum, providerPaymentId?: string | null, reference?: string | null, payable: { __typename?: 'Invoice', id: string, number: string, payableType: string } | { __typename?: 'PaymentRequest', payableType: string, invoices: Array<{ __typename?: 'Invoice', id: string }> }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } }> } };
+export type GetPaymentListQuery = { __typename?: 'Query', payments: { __typename?: 'PaymentCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Payment', amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, id: string, payablePaymentStatus?: PayablePaymentStatusEnum | null, paymentProviderType?: ProviderTypeEnum | null, paymentType: PaymentTypeEnum, providerPaymentId?: string | null, reference?: string | null, payable: { __typename?: 'Invoice', id: string, number: string, payableType: string } | { __typename?: 'PaymentRequest', payableType: string, invoices: Array<{ __typename?: 'Invoice', id: string }> }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, paymentReceipt?: { __typename?: 'PaymentReceipt', id: string } | null }> } };
 
 export type GetCreditNotesListQueryVariables = Exact<{
   amountFrom?: InputMaybe<Scalars['Int']['input']>;
@@ -9503,7 +9511,7 @@ export type GetPaymentDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetPaymentDetailsQuery = { __typename?: 'Query', payment?: { __typename?: 'Payment', id: string, amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, updatedAt?: any | null, reference?: string | null, paymentType: PaymentTypeEnum, paymentProviderType?: ProviderTypeEnum | null, payablePaymentStatus?: PayablePaymentStatusEnum | null, providerPaymentId?: string | null, customer: { __typename?: 'Customer', deletedAt?: any | null, id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, payable: { __typename?: 'Invoice', id: string, payableType: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, number: string, totalAmountCents: any, issuingDate: any, currency?: CurrencyEnum | null, paymentOverdue: boolean, totalPaidAmountCents: any, paymentDisputeLostAt?: any | null } | { __typename?: 'PaymentRequest', id: string, payableType: string, invoices: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, number: string, totalAmountCents: any, issuingDate: any, currency?: CurrencyEnum | null, paymentOverdue: boolean, totalPaidAmountCents: any, paymentDisputeLostAt?: any | null }> } } | null };
+export type GetPaymentDetailsQuery = { __typename?: 'Query', payment?: { __typename?: 'Payment', id: string, amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, updatedAt?: any | null, reference?: string | null, paymentType: PaymentTypeEnum, paymentProviderType?: ProviderTypeEnum | null, payablePaymentStatus?: PayablePaymentStatusEnum | null, providerPaymentId?: string | null, customer: { __typename?: 'Customer', deletedAt?: any | null, id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, payable: { __typename?: 'Invoice', id: string, payableType: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, number: string, totalAmountCents: any, issuingDate: any, currency?: CurrencyEnum | null, paymentOverdue: boolean, totalPaidAmountCents: any, paymentDisputeLostAt?: any | null } | { __typename?: 'PaymentRequest', id: string, payableType: string, invoices: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, number: string, totalAmountCents: any, issuingDate: any, currency?: CurrencyEnum | null, paymentOverdue: boolean, totalPaidAmountCents: any, paymentDisputeLostAt?: any | null }> }, paymentReceipt?: { __typename?: 'PaymentReceipt', id: string } | null } | null };
 
 export type GetPlanForDetailsQueryVariables = Exact<{
   planId: Scalars['ID']['input'];
@@ -10632,6 +10640,9 @@ export const PaymentForPaymentsListFragmentDoc = gql`
     name
     displayName
     applicableTimezone
+  }
+  paymentReceipt {
+    id
   }
 }
     `;
@@ -22003,6 +22014,40 @@ export function useUpdateSubscriptionMutation(baseOptions?: Apollo.MutationHookO
 export type UpdateSubscriptionMutationHookResult = ReturnType<typeof useUpdateSubscriptionMutation>;
 export type UpdateSubscriptionMutationResult = Apollo.MutationResult<UpdateSubscriptionMutation>;
 export type UpdateSubscriptionMutationOptions = Apollo.BaseMutationOptions<UpdateSubscriptionMutation, UpdateSubscriptionMutationVariables>;
+export const DownloadPaymentReceiptDocument = gql`
+    mutation downloadPaymentReceipt($input: DownloadPaymentReceiptInput!) {
+  downloadPaymentReceipt(input: $input) {
+    id
+    fileUrl
+  }
+}
+    `;
+export type DownloadPaymentReceiptMutationFn = Apollo.MutationFunction<DownloadPaymentReceiptMutation, DownloadPaymentReceiptMutationVariables>;
+
+/**
+ * __useDownloadPaymentReceiptMutation__
+ *
+ * To run a mutation, you first call `useDownloadPaymentReceiptMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDownloadPaymentReceiptMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [downloadPaymentReceiptMutation, { data, loading, error }] = useDownloadPaymentReceiptMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDownloadPaymentReceiptMutation(baseOptions?: Apollo.MutationHookOptions<DownloadPaymentReceiptMutation, DownloadPaymentReceiptMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DownloadPaymentReceiptMutation, DownloadPaymentReceiptMutationVariables>(DownloadPaymentReceiptDocument, options);
+      }
+export type DownloadPaymentReceiptMutationHookResult = ReturnType<typeof useDownloadPaymentReceiptMutation>;
+export type DownloadPaymentReceiptMutationResult = Apollo.MutationResult<DownloadPaymentReceiptMutation>;
+export type DownloadPaymentReceiptMutationOptions = Apollo.BaseMutationOptions<DownloadPaymentReceiptMutation, DownloadPaymentReceiptMutationVariables>;
 export const GetSinglePlanDocument = gql`
     query getSinglePlan($id: ID!) {
   plan(id: $id) {
@@ -25426,6 +25471,9 @@ export const GetPaymentDetailsDocument = gql`
           ...InvoiceForPaymentDetails
         }
       }
+    }
+    paymentReceipt {
+      id
     }
   }
 }
