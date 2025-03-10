@@ -336,7 +336,7 @@
   "text_66141e30699a0631f0b2ec7f": "There is no invoices with dispute lost",
   "text_66141e30699a0631f0b2ec87": "Disputed lost invoices occur when a customer chooses not to pay, requests a dispute, and demands a chargeback.",
   "text_66141e30699a0631f0b2ec59": "Mark this invoice as disputed",
-  "text_66141e30699a0631f0b2ec61": "If for any reason your customer does not want to pay this invoice, mark it as disputed. Please note that this action is irreversible and will not trigger any specific flow in the connected payment provider. Are you sure to proceed?",
+  "text_66141e30699a0631f0b2ec61": "If your customer wants to dispute this invoice, mark it as disputed. Please note that this action is irreversible and will not trigger any specific process with the connected payment provider. Are you sure you want to proceed?",
   "text_66141e30699a0631f0b2ec71": "Dispute invoice",
   "text_66178d027e220e00dff9f67d": "This invoice cannot be voided because it has been disputed",
   "text_66141e30699a0631f0b2ec9c": "Dispute lost",
