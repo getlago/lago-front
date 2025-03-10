@@ -1,9 +1,13 @@
 import { gql } from '@apollo/client'
-import { FC, ReactNode, useEffect } from 'react'
+import { FC, ReactNode, useEffect, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { Button, Skeleton, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import {
+  WalletDetailsDrawer,
+  WalletDetailsDrawerRef,
+} from '~/components/wallets/WalletDetailsDrawer'
 import { CREATE_WALLET_TOP_UP_ROUTE } from '~/core/router'
 import {
   TimezoneEnum,
@@ -61,6 +65,7 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
   const { translate } = useInternationalization()
   const { customerId } = useParams()
   const navigate = useNavigate()
+  const walletDetailsDrawerRef = useRef<WalletDetailsDrawerRef>(null)
 
   const [getWalletTransactions, { data, error, fetchMore, loading, refetch }] =
     useGetWalletTransactionsLazyQuery({
@@ -151,7 +156,7 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
                   transaction={transaction}
                   customerTimezone={customerTimezone}
                   onClick={() => {
-                    console.log('Clicked on transaction')
+                    walletDetailsDrawerRef.current?.openDrawer({ transaction })
                   }}
                 />
               )
@@ -175,6 +180,8 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
         )}
         {footer}
       </div>
+
+      <WalletDetailsDrawer wallet={wallet} ref={walletDetailsDrawerRef} />
     </>
   )
 }
