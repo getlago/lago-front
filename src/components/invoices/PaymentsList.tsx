@@ -21,6 +21,7 @@ import {
   PaymentTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import useDownloadPaymentReceipts from '~/hooks/paymentReceipts/useDownloadPaymentReceipts'
 
 gql`
   fragment PaymentForPaymentsList on Payment {
@@ -52,6 +53,9 @@ gql`
       displayName
       applicableTimezone
     }
+    paymentReceipt {
+      id
+    }
   }
 `
 
@@ -74,6 +78,8 @@ export const PaymentsList: FC<PaymentsListProps> = ({
 }) => {
   const [searchParams] = useSearchParams()
   const { translate } = useInternationalization()
+
+  const { canDownloadPaymentReceipts, downloadPaymentReceipts } = useDownloadPaymentReceipts()
 
   const listContainerElementRef = useRef<HTMLDivElement>(null)
 
@@ -104,7 +110,7 @@ export const PaymentsList: FC<PaymentsListProps> = ({
           }}
           isLoading={isLoading}
           hasError={!!error}
-          actionColumn={() => {
+          actionColumn={({ paymentReceipt }) => {
             return [
               {
                 startIcon: 'duplicate',
@@ -117,6 +123,18 @@ export const PaymentsList: FC<PaymentsListProps> = ({
                   })
                 },
               },
+              canDownloadPaymentReceipts
+                ? {
+                    startIcon: 'download',
+                    title: translate('text_1741334392622fl3ozwejrul'),
+                    onAction: ({ paymentReceipt }) => {
+                      downloadPaymentReceipts({
+                        paymentReceiptId: paymentReceipt?.id,
+                      })
+                    },
+                    disabled: !paymentReceipt?.id,
+                  }
+                : null,
             ]
           }}
           actionColumnTooltip={() => translate('text_637f813d31381b1ed90ab326')}

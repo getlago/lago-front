@@ -46,6 +46,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import useDownloadPaymentReceipts from '~/hooks/paymentReceipts/useDownloadPaymentReceipts'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper, PageHeader } from '~/styles'
@@ -96,6 +97,9 @@ gql`
             ...InvoiceForPaymentDetails
           }
         }
+      }
+      paymentReceipt {
+        id
       }
     }
   }
@@ -171,6 +175,8 @@ const PaymentDetails = () => {
   const requestPaymentInvoices = payable?.__typename === 'PaymentRequest' && payable?.invoices
   const invoices = payableInvoice || requestPaymentInvoices || []
 
+  const { canDownloadPaymentReceipts, downloadPaymentReceipts } = useDownloadPaymentReceipts()
+
   const goToPreviousRoute = useCallback(
     () =>
       goBack(
@@ -233,6 +239,23 @@ const PaymentDetails = () => {
               >
                 {translate('text_1737029625089rtcf3ah5khq')}
               </Button>
+
+              {canDownloadPaymentReceipts && (
+                <Button
+                  variant="quaternary"
+                  align="left"
+                  disabled={!payment?.paymentReceipt?.id}
+                  onClick={() => {
+                    downloadPaymentReceipts({
+                      paymentReceiptId: payment?.paymentReceipt?.id,
+                    })
+
+                    closePopper()
+                  }}
+                >
+                  {translate('text_1741334392622fl3ozwejrul')}
+                </Button>
+              )}
             </MenuPopper>
           )}
         </Popper>
