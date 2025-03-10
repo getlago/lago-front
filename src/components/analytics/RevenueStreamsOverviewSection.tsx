@@ -5,9 +5,11 @@ import { useSearchParams } from 'react-router-dom'
 
 import { HorizontalDataTable, Icon, Typography } from '~/components/designSystem'
 import {
+  AvailableFiltersEnum,
   AvailableQuickFilters,
   Filters,
   formatFiltersForRevenueStreamsQuery,
+  getFilterValue,
   RevenueStreamsAvailablePopperFilters,
 } from '~/components/designSystem/Filters'
 import { REVENUE_STREAMS_GRAPH_COLORS } from '~/components/designSystem/graphs/const'
@@ -16,13 +18,8 @@ import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ } from '~/core/timezone'
-import {
-  CurrencyEnum,
-  TimeGranularityEnum,
-  TimezoneEnum,
-  useGetRevenueStreamsQuery,
-} from '~/generated/graphql'
+import { intlFormatDateTime } from '~/core/timezone'
+import { CurrencyEnum, TimeGranularityEnum, useGetRevenueStreamsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -256,11 +253,50 @@ const RevenueStreamsOverviewSection = () => {
                 key: 'startOfPeriodDt',
                 type: 'header',
                 label: translate('text_1739268382272qnne2h7slna'),
-                content: (item) => (
-                  <Typography variant="captionHl">
-                    {formatDateToTZ(item.startOfPeriodDt, TimezoneEnum.TzUtc, 'LLL yyyy')}
-                  </Typography>
-                ),
+                content: (item) => {
+                  const currentTimeGranularity = getFilterValue({
+                    key: AvailableFiltersEnum.timeGranularity,
+                    searchParams,
+                    prefix: REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX,
+                  })
+
+                  const getFormatedTimeGramularity = (): string => {
+                    switch (currentTimeGranularity) {
+                      case TimeGranularityEnum.Daily:
+                        return intlFormatDateTime(item.startOfPeriodDt, {
+                          format: {
+                            month: 'short',
+                            day: 'numeric',
+                          },
+                        }).date
+                      case TimeGranularityEnum.Weekly:
+                        return `${
+                          intlFormatDateTime(item.startOfPeriodDt, {
+                            format: {
+                              month: 'short',
+                              day: 'numeric',
+                            },
+                          }).date
+                        } - ${
+                          intlFormatDateTime(item.endOfPeriodDt, {
+                            format: {
+                              month: 'short',
+                              day: 'numeric',
+                            },
+                          }).date
+                        }`
+                      default:
+                        return intlFormatDateTime(item.startOfPeriodDt, {
+                          format: {
+                            month: 'short',
+                            year: 'numeric',
+                          },
+                        }).date
+                    }
+                  }
+
+                  return <Typography variant="captionHl">{getFormatedTimeGramularity()}</Typography>
+                },
               },
               {
                 key: 'subscriptionFeeAmountCents',

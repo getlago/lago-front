@@ -311,3 +311,15 @@ export const isPaymentDisputeLostUrlParams = ({
     searchParams.get(keyWithPrefix('paymentDisputeLost', prefix)) === 'true'
   )
 }
+
+export const getFilterValue = ({
+  key,
+  searchParams,
+  prefix,
+}: {
+  key: AvailableFiltersEnum
+  searchParams: URLSearchParams
+  prefix?: string
+}): string | null => {
+  return searchParams.get(keyWithPrefix(key, prefix))
+}

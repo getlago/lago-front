@@ -3,6 +3,7 @@ import {
   formatActiveFilterValueDisplay,
   formatFiltersForInvoiceQuery,
   formatFiltersForRevenueStreamsQuery,
+  getFilterValue,
 } from '../utils'
 
 describe('Filters utils', () => {
@@ -164,6 +165,49 @@ describe('Filters utils', () => {
       const result = formatActiveFilterValueDisplay(AvailableFiltersEnum.timeGranularity, 'daily')
 
       expect(result).toBe('Daily')
+    })
+  })
+
+  describe('getFilterValue', () => {
+    it('should return null when filter value is not set', () => {
+      const searchParams = new URLSearchParams()
+
+      const result = getFilterValue({
+        key: AvailableFiltersEnum.timeGranularity,
+        searchParams,
+      })
+
+      expect(result).toBeNull()
+    })
+
+    it('should get filter value', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('timeGranularity', 'day')
+      searchParams.set('randomFilter', 'randomValue')
+
+      const result = getFilterValue({
+        key: AvailableFiltersEnum.timeGranularity,
+        searchParams,
+      })
+
+      expect(result).toBe('day')
+    })
+
+    it('should get filter value with prefix', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('timeGranularity', 'daily')
+      searchParams.set('rs_timeGranularity', 'monthly')
+      searchParams.set('rs_randomFilter', 'randomValue')
+
+      const result = getFilterValue({
+        key: AvailableFiltersEnum.timeGranularity,
+        searchParams,
+        prefix: 'rs',
+      })
+
+      expect(result).toBe('monthly')
     })
   })
 })
