@@ -31,13 +31,13 @@ import { usePermissions } from '~/hooks/usePermissions'
 const EmailScenarioTitleLookup: Record<EmailSettingsEnum, string> = {
   [EmailSettingsEnum.InvoiceFinalized]: 'text_6408b5ae7f629d008bc8af7d',
   [EmailSettingsEnum.CreditNoteCreated]: 'text_6408b5ae7f629d008bc8af86',
-  [EmailSettingsEnum.PaymentReceiptCreated]: '',
+  [EmailSettingsEnum.PaymentReceiptCreated]: 'text_1741334140002zdl3cl599ib',
 }
 
 const EmailScenarioSubtitleLookup: Record<EmailSettingsEnum, string> = {
   [EmailSettingsEnum.InvoiceFinalized]: 'text_6408b5ae7f629d008bc8af7e',
   [EmailSettingsEnum.CreditNoteCreated]: 'text_6408b5ae7f629d008bc8af87',
-  [EmailSettingsEnum.PaymentReceiptCreated]: '',
+  [EmailSettingsEnum.PaymentReceiptCreated]: 'text_1741334140002wx0sbk2bd13',
 }
 
 // NOTE: ids are present for display purpose, for table row keys
@@ -48,6 +48,10 @@ const EMAIL_SCENARIOS: Array<{ id: string; setting: EmailSettingsEnum }> = [
   },
   {
     id: 'scenario-2',
+    setting: EmailSettingsEnum.PaymentReceiptCreated,
+  },
+  {
+    id: 'scenario-3',
     setting: EmailSettingsEnum.CreditNoteCreated,
   },
 ]

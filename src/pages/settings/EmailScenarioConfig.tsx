@@ -6,7 +6,6 @@ import { Switch } from '~/components/form'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { LanguageSettingsButton } from '~/components/settings/LanguageSettingsButton'
 import { PreviewEmailLayout } from '~/components/settings/PreviewEmailLayout'
-import { envGlobalVar } from '~/core/apolloClient'
 import { EMAILS_SCENARIO_CONFIG_ROUTE, EMAILS_SETTINGS_ROUTE } from '~/core/router'
 import { LocaleEnum } from '~/core/translations'
 import { EmailSettingsEnum } from '~/generated/graphql'
@@ -18,8 +17,6 @@ import { useEmailConfig } from '~/hooks/useEmailConfig'
 import { usePermissions } from '~/hooks/usePermissions'
 import { PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
-
-const { disablePdfGeneration } = envGlobalVar()
 
 enum DisplayEnum {
   desktop = 'desktop',
@@ -41,6 +38,24 @@ const mapTranslationsKey = (type?: EmailSettingsEnum) => {
         invoice_number_value: 'text_64188b3d9735d5007d71226e',
         issue_date: 'text_64188b3d9735d5007d712270',
         issue_date_value: 'text_64188b3d9735d5007d712272',
+      }
+    case EmailSettingsEnum.PaymentReceiptCreated:
+      return {
+        header: 'text_17413343926218dbogzsvk4w',
+        title: 'text_1741334140002zdl3cl599ib',
+        substitle: 'text_1741334140002wx0sbk2bd13',
+        subject: 'text_17413343926218dbogzsvk4w',
+        invoice_from: 'text_1741334392621wr13yk143fc',
+        amount: 'text_17413343926218vamtw2ybko',
+        total: 'text_1741334392621yu0957trt4n',
+        receipt_number: 'text_17416040051091zpga3ugijs',
+        receipt_number_value: 'text_1741604005109q6qlr3qcc1u',
+        payment_date: 'text_1741604005109kywirovj4yo',
+        payment_date_value: 'text_17416040051098005r277i71',
+        payment_method: 'text_1741604005109ketx1wqspkz',
+        payment_method_value: 'text_1741604005109syz5h1opzkg',
+        amount_paid: 'text_1741604005109aspaz4chd7y',
+        amount_paid_value: 'text_1741604005109w5ns73xmam9',
       }
     default:
       return {
@@ -225,38 +240,93 @@ const EmailScenarioConfig = () => {
                         </Typography>
                       </div>
                     )}
-                    <div className="flex w-full items-center justify-between">
-                      <Typography variant="caption">
-                        {translateWithContextualLocal(translationsKey.invoice_number)}
-                      </Typography>
-                      <Typography variant="caption" color="grey700">
-                        {translateWithContextualLocal(translationsKey.invoice_number_value)}
-                      </Typography>
-                    </div>
-                    <div className="flex w-full items-center justify-between">
-                      <Typography variant="caption">
-                        {translateWithContextualLocal(translationsKey.issue_date)}
-                      </Typography>
-                      <Typography variant="caption" color="grey700">
-                        {translateWithContextualLocal(translationsKey.issue_date_value)}
-                      </Typography>
-                    </div>
-                  </div>
+                    {type === EmailSettingsEnum.PaymentReceiptCreated && (
+                      <>
+                        {[
+                          [translationsKey.receipt_number, translationsKey.receipt_number_value],
+                          [translationsKey.payment_date, translationsKey.payment_date_value],
+                          [translationsKey.payment_method, translationsKey.payment_method_value],
+                          [translationsKey.amount_paid, translationsKey.amount_paid_value],
+                        ].map(([label, value]) => (
+                          <div className="flex w-full items-center justify-between" key={label}>
+                            <Typography variant="caption">
+                              {translateWithContextualLocal(label as string)}
+                            </Typography>
+                            <Typography variant="caption" color="grey700">
+                              {translateWithContextualLocal(value as string)}
+                            </Typography>
+                          </div>
+                        ))}
 
-                  {!disablePdfGeneration && (
-                    <>
-                      <div className="my-6 h-px w-full bg-grey-300" />
+                        <div className="mt-6 flex w-full items-center justify-between">
+                          <Typography className="text-xs font-bold text-grey-700">
+                            {translateWithContextualLocal('text_6419c64eace749372fc72b3c')}
+                          </Typography>
+                          <Typography className="text-xs font-bold text-grey-700">
+                            {translateWithContextualLocal('text_6419c64eace749372fc72b3e')}
+                          </Typography>
+                        </div>
 
-                      <div className="flex flex-row items-center gap-2">
-                        <Icon name="arrow-bottom" color="primary" />
+                        {['INV-001-001', 'INV-001-002', 'INV-001-003', 'INV-001-004'].map(
+                          (invoice) => (
+                            <div className="flex w-full items-center justify-between" key={invoice}>
+                              <Typography variant="caption">{invoice}</Typography>
+                              <Typography variant="caption" color="grey700">
+                                $730,00
+                              </Typography>
+                            </div>
+                          ),
+                        )}
+                      </>
+                    )}
 
+                    {translationsKey.invoice_number && translationsKey.invoice_number_value && (
+                      <div className="flex w-full items-center justify-between">
+                        <Typography variant="caption">
+                          {translateWithContextualLocal(translationsKey.invoice_number)}
+                        </Typography>
                         <Typography variant="caption" color="grey700">
-                          {translateWithContextualLocal('text_64188b3d9735d5007d712274')}
+                          {translateWithContextualLocal(translationsKey.invoice_number_value)}
                         </Typography>
                       </div>
-                    </>
-                  )}
+                    )}
 
+                    {translationsKey.issue_date && translationsKey.issue_date_value && (
+                      <div className="flex w-full items-center justify-between">
+                        <Typography variant="caption">
+                          {translateWithContextualLocal(translationsKey.issue_date)}
+                        </Typography>
+                        <Typography variant="caption" color="grey700">
+                          {translateWithContextualLocal(translationsKey.issue_date_value)}
+                        </Typography>
+                      </div>
+                    )}
+                  </div>
+                  <div className="my-6 h-px w-full bg-grey-300" />
+                  {type === EmailSettingsEnum.PaymentReceiptCreated ? (
+                    <div className="flex flex-row items-center gap-6">
+                      <div className="flex items-center gap-2">
+                        <Icon name="arrow-bottom" color="primary" />
+                        <Typography variant="caption" color="grey700">
+                          {translateWithContextualLocal('text_17413343926225ug14ak60xv')}
+                        </Typography>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Icon name="arrow-bottom" color="primary" />
+                        <Typography variant="caption" color="grey700">
+                          {translateWithContextualLocal('text_1741334392622fl3ozwejrul')}
+                        </Typography>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-row items-center gap-2">
+                      <Icon name="arrow-bottom" color="primary" />
+                      <Typography variant="caption" color="grey700">
+                        {translateWithContextualLocal('text_64188b3d9735d5007d712274')}
+                      </Typography>
+                    </div>
+                  )}
                   <div className="my-6 h-px w-full bg-grey-300" />
                   <Typography className="text-center" variant="caption">
                     <span className="mr-1">
