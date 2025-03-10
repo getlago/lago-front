@@ -2,6 +2,7 @@ import { FC } from 'react'
 
 import {
   Avatar,
+  AvatarBadge,
   Button,
   Icon,
   IconName,
@@ -13,7 +14,7 @@ import {
 import { addToast } from '~/core/apolloClient'
 import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { TimezoneEnum } from '~/generated/graphql'
+import { TimezoneEnum, WalletTransactionStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { MenuPopper } from '~/styles'
 import { tw } from '~/styles/utils'
@@ -23,13 +24,13 @@ interface ListItemProps {
   labelColor: TypographyColor
   transactionId: string
   label: string
+  status?: WalletTransactionStatusEnum
   date?: string
   timezone?: TimezoneEnum
   creditsColor: TypographyColor
   credits: string
   amount: string
   isBlurry?: boolean
-  isPending?: boolean
   hasAction?: boolean
   onClick?: () => void
 }
@@ -43,7 +44,7 @@ export const ListItem: FC<ListItemProps> = ({
   credits,
   amount,
   isBlurry,
-  isPending,
+  status,
   hasAction,
   transactionId,
   onClick,
@@ -52,6 +53,8 @@ export const ListItem: FC<ListItemProps> = ({
   const { translate } = useInternationalization()
 
   const isClickable = !!onClick
+  const isPending = status === WalletTransactionStatusEnum.Pending
+  const isFailed = status === WalletTransactionStatusEnum.Failed
 
   return (
     <li className={tw('relative shadow-b', isClickable && 'hover:bg-grey-100')}>
@@ -72,10 +75,12 @@ export const ListItem: FC<ListItemProps> = ({
       >
         <div className="flex items-center">
           <Avatar className="mr-3" size="big" variant="connector">
-            <Icon name={isPending ? 'sync' : iconName} color="dark" />
+            <Icon name={iconName} color="dark" />
+            {isPending && <AvatarBadge icon="sync" color="dark" />}
+            {isFailed && <AvatarBadge icon="stop" color="warning" />}
           </Avatar>
           <div className="flex flex-col justify-end">
-            <Typography variant="bodyHl" color={isPending ? 'grey600' : labelColor}>
+            <Typography variant="bodyHl" color={isPending || isFailed ? 'grey500' : labelColor}>
               {label}
             </Typography>
             {date && (
@@ -83,6 +88,11 @@ export const ListItem: FC<ListItemProps> = ({
                 {isPending && (
                   <span data-test="caption-pending">{`${translate(
                     'text_62da6db136909f52c2704c30',
+                  )} • `}</span>
+                )}
+                {isFailed && (
+                  <span data-test="caption-failed">{`${translate(
+                    'text_637656ef3d876b0269edc7a1',
                   )} • `}</span>
                 )}
                 {intlFormatDateTime(date, { timezone }).date}
@@ -94,9 +104,10 @@ export const ListItem: FC<ListItemProps> = ({
           <div className="flex flex-col items-end">
             <Typography
               variant="bodyHl"
-              color={isPending ? 'grey600' : creditsColor}
+              color={isPending || isFailed ? 'grey500' : creditsColor}
               blur={isBlurry}
               data-test="credits"
+              className={tw(isFailed && 'line-through')}
             >
               {credits}
             </Typography>
