@@ -121,11 +121,11 @@ export const ListItem: FC<ListItemProps> = ({
       {hasAction && (
         <Popper
           PopperProps={{ placement: 'bottom-end' }}
-          opener={({ isOpen, openPopper }) => (
+          opener={(opener) => (
             <div className="absolute right-4 top-4">
               <Tooltip
                 placement="top-start"
-                disableHoverListener={isOpen}
+                disableHoverListener={opener.isOpen}
                 title={translate('text_1741251836185jea576d14uj')}
               >
                 <Button
@@ -135,7 +135,7 @@ export const ListItem: FC<ListItemProps> = ({
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    openPopper()
+                    opener.onClick()
                   }}
                 />
               </Tooltip>
@@ -144,6 +144,22 @@ export const ListItem: FC<ListItemProps> = ({
         >
           {({ closePopper }) => (
             <MenuPopper>
+              {!!onClick && (
+                <Button
+                  startIcon="eye"
+                  variant="quaternary"
+                  align="left"
+                  fullWidth
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    onClick()
+                    closePopper()
+                  }}
+                >
+                  {translate('text_1742218191558g0ysnnxbb32')}
+                </Button>
+              )}
               <Button
                 startIcon="duplicate"
                 variant="quaternary"

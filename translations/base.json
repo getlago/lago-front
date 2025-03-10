@@ -2890,5 +2890,22 @@
   "text_1741253143637fwbbxxn9195": "Copy wallet id",
   "text_1741253143637w2e9cbec620": "Wallet id copied to clipboard",
   "text_1741258064758s59ws4fg2l9": "Copy transaction id",
-  "text_17412580835361rm20fysfba": "Wallet transaction id copied to clipboard"
+  "text_17412580835361rm20fysfba": "Wallet transaction id copied to clipboard",
+  "text_1741943835752ac5uwdgkvfj": "Details",
+  "text_1741943835752ttg2ano3kju": "# of credits",
+  "text_1741943835752e00705sjtf8": "Created at",
+  "text_17419438357527l2yykxqmau": "Failed at",
+  "text_17419438357526t0aku37wn0": "Settled at",
+  "text_1741943835752hd6fcwsfprn": "Last payment",
+  "text_1741943835752p8v8nrgnuyl": "Payment ID",
+  "text_1741943835752rff77n2oaj6": "See all other payments",
+  "text_1741943835752na70uvegm9k": "The invoice will be available once the payment is succeeded.",
+  "text_1741943835752dyeh035aorl": "Invoice type",
+  "text_1741944051511g2xahsgoyn7": "Invoice ID",
+  "text_1741944051511ju78ai43hw9": "Transaction details",
+  "text_17419455271371fw602t6rhg": "Settled",
+  "text_17419455271376kghg3guq5i": "No metadata are available on this transaction.",
+  "text_174194552713793wk0n532oi": "Prepaid credits invoice",
+  "text_1741945527137rb74r70jp6v": "Subscription invoice",
+  "text_1742218191558g0ysnnxbb32": "View details"
 }

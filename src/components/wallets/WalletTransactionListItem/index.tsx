@@ -21,6 +21,7 @@ gql`
     amount
     creditAmount
     settledAt
+    failedAt
     createdAt
     wallet {
       id
@@ -61,12 +62,13 @@ export const WalletTransactionListItem = ({
     createdAt,
     creditAmount,
     settledAt,
-    // TODO: Support failed transactions
+    failedAt,
     status,
     transactionType,
     transactionStatus,
   } = transaction
   const isPending = status === WalletTransactionStatusEnum.Pending
+  const isFailed = status === WalletTransactionStatusEnum.Failed
   const isInbound = transactionType === WalletTransactionTransactionTypeEnum.Inbound
 
   const formattedCreditAmount = intlFormatNumber(Number(blurValue ? 0 : creditAmount) || 0, {
@@ -119,7 +121,7 @@ export const WalletTransactionListItem = ({
             ? translate('text_662fc05d2cfe3a0596b29db0', undefined, Number(creditAmount) || 0)
             : translate('text_62da6ec24a8e24e44f81289a', undefined, Number(creditAmount) || 0)
         }
-        date={isPending ? createdAt : settledAt}
+        date={(isPending && settledAt) || (isFailed && failedAt) || createdAt}
         creditsColor="success600"
         credits={`${Number(creditAmount) === 0 ? '' : '+ '} ${transactionAmountTranslationKey}`}
         amount={formattedCurrencyAmount}
@@ -142,7 +144,7 @@ export const WalletTransactionListItem = ({
             ? translate('text_662fc05d2cfe3a0596b29d98', undefined, Number(creditAmount) || 0)
             : translate('text_62da6ec24a8e24e44f812892', undefined, Number(creditAmount) || 0)
         }
-        date={isPending ? createdAt : settledAt}
+        date={(isPending && settledAt) || (isFailed && failedAt) || createdAt}
         creditsColor="grey700"
         credits={`${Number(creditAmount) === 0 ? '' : '- '} ${transactionAmountTranslationKey}`}
         amount={formattedCurrencyAmount}
