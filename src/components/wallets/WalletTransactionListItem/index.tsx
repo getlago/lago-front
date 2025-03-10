@@ -61,6 +61,7 @@ export const WalletTransactionListItem = ({
     createdAt,
     creditAmount,
     settledAt,
+    // TODO: Support failed transactions
     status,
     transactionType,
     transactionStatus,
@@ -109,7 +110,7 @@ export const WalletTransactionListItem = ({
     return (
       <ListItem
         {...props}
-        isPending={isPending}
+        status={status}
         iconName="plus"
         timezone={customerTimezone}
         labelColor="grey700"
@@ -132,10 +133,8 @@ export const WalletTransactionListItem = ({
     return (
       <ListItem
         {...props}
-        isPending={isPending}
-        iconName={
-          transactionStatus === WalletTransactionTransactionStatusEnum.Voided ? 'stop' : 'minus'
-        }
+        status={status}
+        iconName="minus"
         timezone={customerTimezone}
         labelColor="grey700"
         label={

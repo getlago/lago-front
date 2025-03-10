@@ -2,6 +2,7 @@ import { FC } from 'react'
 
 import {
   Avatar,
+  AvatarBadge,
   Button,
   Icon,
   IconName,
@@ -13,7 +14,7 @@ import {
 import { addToast } from '~/core/apolloClient'
 import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { TimezoneEnum } from '~/generated/graphql'
+import { TimezoneEnum, WalletTransactionStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { MenuPopper } from '~/styles'
 import { tw } from '~/styles/utils'
@@ -23,13 +24,13 @@ interface ListItemProps {
   labelColor: TypographyColor
   transactionId: string
   label: string
+  status?: WalletTransactionStatusEnum
   date?: string
   timezone?: TimezoneEnum
   creditsColor: TypographyColor
   credits: string
   amount: string
   isBlurry?: boolean
-  isPending?: boolean
   hasAction?: boolean
   onClick?: () => void
 }
@@ -43,7 +44,7 @@ export const ListItem: FC<ListItemProps> = ({
   credits,
   amount,
   isBlurry,
-  isPending,
+  status,
   hasAction,
   transactionId,
   onClick,
@@ -52,6 +53,7 @@ export const ListItem: FC<ListItemProps> = ({
   const { translate } = useInternationalization()
 
   const isClickable = !!onClick
+  const isPending = status === WalletTransactionStatusEnum.Pending
 
   return (
     <li className={tw('relative shadow-b', isClickable && 'hover:bg-grey-100')}>
@@ -72,10 +74,11 @@ export const ListItem: FC<ListItemProps> = ({
       >
         <div className="flex items-center">
           <Avatar className="mr-3" size="big" variant="connector">
-            <Icon name={isPending ? 'sync' : iconName} color="dark" />
+            <Icon name={iconName} color="dark" />
+            {isPending && <AvatarBadge icon="sync" color="dark" />}
           </Avatar>
           <div className="flex flex-col justify-end">
-            <Typography variant="bodyHl" color={isPending ? 'grey600' : labelColor}>
+            <Typography variant="bodyHl" color={isPending ? 'grey500' : labelColor}>
               {label}
             </Typography>
             {date && (
@@ -94,7 +97,7 @@ export const ListItem: FC<ListItemProps> = ({
           <div className="flex flex-col items-end">
             <Typography
               variant="bodyHl"
-              color={isPending ? 'grey600' : creditsColor}
+              color={isPending ? 'grey500' : creditsColor}
               blur={isBlurry}
               data-test="credits"
             >
