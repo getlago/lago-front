@@ -1,15 +1,11 @@
 import { gql } from '@apollo/client'
-import Decimal from 'decimal.js'
-import { useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useState } from 'react'
 
+import { useRevenueAnalyticsOverview } from '~/components/analytics/useRevenueAnalyticsOverview'
 import { HorizontalDataTable, Icon, Typography } from '~/components/designSystem'
 import {
-  AvailableFiltersEnum,
   AvailableQuickFilters,
   Filters,
-  formatFiltersForRevenueStreamsQuery,
-  getFilterValue,
   RevenueStreamsAvailablePopperFilters,
 } from '~/components/designSystem/Filters'
 import { REVENUE_STREAMS_GRAPH_COLORS } from '~/components/designSystem/graphs/const'
@@ -19,106 +15,38 @@ import { REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
-import { CurrencyEnum, TimeGranularityEnum, useGetRevenueStreamsQuery } from '~/generated/graphql'
+import { TimeGranularityEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { tw } from '~/styles/utils'
 
 gql`
-  query getRevenueStreams(
-    $currency: CurrencyEnum
-    $customerCountry: CountryCode
-    $customerType: CustomerTypeEnum
-    $externalCustomerId: String
-    $externalSubscriptionId: String
-    $fromDate: ISO8601Date
-    $planCode: String
-    $timeGranularity: TimeGranularityEnum
-    $toDate: ISO8601Date
-  ) {
-    dataApiRevenueStreams(
-      currency: $currency
-      customerCountry: $customerCountry
-      customerType: $customerType
-      externalCustomerId: $externalCustomerId
-      externalSubscriptionId: $externalSubscriptionId
-      fromDate: $fromDate
-      planCode: $planCode
-      timeGranularity: $timeGranularity
-      toDate: $toDate
-    ) {
-      collection {
-        amountCurrency
-        commitmentFeeAmountCents
-        couponsAmountCents
-        endOfPeriodDt
-        grossRevenueAmountCents
-        netRevenueAmountCents
-        oneOffFeeAmountCents
-        startOfPeriodDt
-        subscriptionFeeAmountCents
-        usageBasedFeeAmountCents
-      }
-    }
+  fragment RevenueStreamDataForOverviewSection on DataApiRevenueStream {
+    commitmentFeeAmountCents
+    couponsAmountCents
+    endOfPeriodDt
+    grossRevenueAmountCents
+    netRevenueAmountCents
+    oneOffFeeAmountCents
+    startOfPeriodDt
+    subscriptionFeeAmountCents
+    usageBasedFeeAmountCents
   }
 `
 
 const RevenueStreamsOverviewSection = () => {
-  const [searchParams] = useSearchParams()
   const { translate } = useInternationalization()
-  const { organization } = useOrganizationInfos()
+  const {
+    currency,
+    data,
+    hasError,
+    isLoading,
+    lastNetRevenueAmountCents,
+    netRevenueAmountCentsProgressionOnPeriod,
+    timeGranularity,
+  } = useRevenueAnalyticsOverview()
   const [clickedDataIndex, setClickedDataIndex] = useState<number | undefined>(undefined)
   const [hoverDataIndex, setHoverDataIndex] = useState<number | undefined>(undefined)
-
-  const currency = organization?.defaultCurrency || CurrencyEnum.Usd
-
-  const filtersForRevenueStreamsQuery = useMemo(() => {
-    return formatFiltersForRevenueStreamsQuery(searchParams)
-  }, [searchParams])
-
-  const {
-    data: revenueStreamsData,
-    loading: revenueStreamsLoading,
-    error: revenueStreamsError,
-  } = useGetRevenueStreamsQuery({
-    variables: {
-      ...filtersForRevenueStreamsQuery,
-    },
-  })
-  const displayError = !!revenueStreamsError && !revenueStreamsLoading
-
-  const { lastNetRevenueAmountCents, netRevenueAmountCentsProgressionOnPeriod } = useMemo(() => {
-    if (!revenueStreamsData?.dataApiRevenueStreams.collection.length) {
-      return {
-        lastNetRevenueAmountCents: 0,
-        netRevenueAmountCentsProgressionOnPeriod: 0,
-      }
-    }
-
-    const localFirstNetRevenueAmountCents = Number(
-      revenueStreamsData?.dataApiRevenueStreams.collection[0]?.netRevenueAmountCents,
-    )
-    const localLastNetRevenueAmountCents = Number(
-      revenueStreamsData?.dataApiRevenueStreams.collection[
-        revenueStreamsData?.dataApiRevenueStreams.collection.length - 1
-      ]?.netRevenueAmountCents,
-    )
-
-    // Bellow calcul should *100 but values are already in cents so no need to do it
-    // Also explain why the toFixed is 4 and not 2
-    const localNetRevenueAmountCentsProgressionOnPeriod = new Decimal(
-      Number(localLastNetRevenueAmountCents || 0),
-    )
-      .sub(localFirstNetRevenueAmountCents)
-      .dividedBy(localFirstNetRevenueAmountCents || 1)
-      .toFixed(4)
-
-    return {
-      lastNetRevenueAmountCents: localLastNetRevenueAmountCents,
-      netRevenueAmountCentsProgressionOnPeriod: localNetRevenueAmountCentsProgressionOnPeriod,
-    }
-  }, [revenueStreamsData])
 
   return (
     <section className="flex flex-col gap-6">
@@ -184,7 +112,7 @@ const RevenueStreamsOverviewSection = () => {
         </div>
       </div>
 
-      {displayError && (
+      {hasError && (
         <GenericPlaceholder
           title={translate('text_636d023ce11a9d038819b579')}
           subtitle={translate('text_636d023ce11a9d038819b57b')}
@@ -192,12 +120,12 @@ const RevenueStreamsOverviewSection = () => {
         />
       )}
 
-      {!displayError && (
+      {!hasError && (
         <>
           <MultipleLineChart
-            loading={revenueStreamsLoading}
+            loading={isLoading}
             currency={currency}
-            data={revenueStreamsData?.dataApiRevenueStreams.collection}
+            data={data}
             xAxisDataKey="startOfPeriodDt"
             setClickedDataIndex={setClickedDataIndex}
             hoveredDataIndex={hoverDataIndex}
@@ -243,8 +171,8 @@ const RevenueStreamsOverviewSection = () => {
 
           <HorizontalDataTable
             leftColumnWidth={190}
-            data={revenueStreamsData?.dataApiRevenueStreams.collection}
-            loading={revenueStreamsLoading}
+            data={data}
+            loading={isLoading}
             clickedDataIndex={clickedDataIndex}
             setClickedDataIndex={setClickedDataIndex}
             setHoveredDataIndex={setHoverDataIndex}
@@ -254,14 +182,8 @@ const RevenueStreamsOverviewSection = () => {
                 type: 'header',
                 label: translate('text_1739268382272qnne2h7slna'),
                 content: (item) => {
-                  const currentTimeGranularity = getFilterValue({
-                    key: AvailableFiltersEnum.timeGranularity,
-                    searchParams,
-                    prefix: REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX,
-                  })
-
                   const getFormatedTimeGramularity = (): string => {
-                    switch (currentTimeGranularity) {
+                    switch (timeGranularity) {
                       case TimeGranularityEnum.Daily:
                         return intlFormatDateTime(item.startOfPeriodDt, {
                           format: {
