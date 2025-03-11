@@ -14,6 +14,7 @@ import {
   useGetWalletTransactionsLazyQuery,
   WalletInfosForTransactionsFragment,
   WalletStatusEnum,
+  WalletTransactionDetailsFragmentDoc,
   WalletTransactionForTransactionListItemFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -47,6 +48,7 @@ gql`
   }
 
   ${WalletTransactionForTransactionListItemFragmentDoc}
+  ${WalletTransactionDetailsFragmentDoc}
 `
 
 interface WalletTransactionListProps {
@@ -156,7 +158,7 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
                   transaction={transaction}
                   customerTimezone={customerTimezone}
                   onClick={() => {
-                    walletDetailsDrawerRef.current?.openDrawer({ transaction })
+                    walletDetailsDrawerRef.current?.openDrawer({ transactionId: transaction.id })
                   }}
                 />
               )

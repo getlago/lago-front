@@ -4917,6 +4917,8 @@ export type Query = {
   taxes: TaxCollection;
   /** Query a single wallet of an organization */
   wallet?: Maybe<Wallet>;
+  /** Query a single wallet transaction */
+  walletTransaction?: Maybe<WalletTransaction>;
   /** Query wallet transactions */
   walletTransactions: WalletTransactionCollection;
   /** Query wallets */
@@ -5390,6 +5392,11 @@ export type QueryTaxesArgs = {
 
 
 export type QueryWalletArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryWalletTransactionArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -6689,6 +6696,7 @@ export type WalletTransaction = {
   createdAt: Scalars['ISO8601DateTime']['output'];
   creditAmount: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  invoice?: Maybe<Invoice>;
   invoiceRequiresSuccessfulPayment: Scalars['Boolean']['output'];
   metadata?: Maybe<Array<WalletTransactionMetadataObject>>;
   settledAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
@@ -6720,6 +6728,7 @@ export type WalletTransactionMetadataObject = {
 };
 
 export enum WalletTransactionStatusEnum {
+  Failed = 'failed',
   Pending = 'pending',
   Settled = 'settled'
 }
@@ -8612,6 +8621,15 @@ export type CreateCustomerWalletTransactionMutation = { __typename?: 'Mutation',
 export type WalletForVoidTransactionFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: number, creditsBalance: number };
 
 export type WalletAccordionFragment = { __typename?: 'Wallet', id: string, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number };
+
+export type WalletTransactionDetailsFragment = { __typename?: 'WalletTransaction', id: string, amount: string, createdAt: any, transactionType: WalletTransactionTransactionTypeEnum, creditAmount: string, settledAt?: any | null, status: WalletTransactionStatusEnum, transactionStatus: WalletTransactionTransactionStatusEnum, invoiceRequiresSuccessfulPayment: boolean, metadata?: Array<{ __typename?: 'WalletTransactionMetadataObject', key: string, value: string }> | null, invoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, customer: { __typename?: 'Customer', id: string } } | null };
+
+export type GetWalletTransactionDetailsQueryVariables = Exact<{
+  transactionId: Scalars['ID']['input'];
+}>;
+
+
+export type GetWalletTransactionDetailsQuery = { __typename?: 'Query', walletTransaction?: { __typename?: 'WalletTransaction', id: string, amount: string, createdAt: any, transactionType: WalletTransactionTransactionTypeEnum, creditAmount: string, settledAt?: any | null, status: WalletTransactionStatusEnum, transactionStatus: WalletTransactionTransactionStatusEnum, invoiceRequiresSuccessfulPayment: boolean, metadata?: Array<{ __typename?: 'WalletTransactionMetadataObject', key: string, value: string }> | null, invoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, customer: { __typename?: 'Customer', id: string } } | null } | null };
 
 export type WalletInfosForTransactionsFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, status: WalletStatusEnum, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number };
 
@@ -11067,6 +11085,33 @@ export const WalletForVoidTransactionFragmentDoc = gql`
   currency
   rateAmount
   creditsBalance
+}
+    `;
+export const WalletTransactionDetailsFragmentDoc = gql`
+    fragment WalletTransactionDetails on WalletTransaction {
+  id
+  amount
+  createdAt
+  transactionType
+  creditAmount
+  settledAt
+  status
+  transactionStatus
+  invoiceRequiresSuccessfulPayment
+  metadata {
+    key
+    value
+  }
+  invoice {
+    id
+    status
+    invoiceType
+    number
+    paymentStatus
+    customer {
+      id
+    }
+  }
 }
     `;
 export const WalletTransactionForTransactionListItemFragmentDoc = gql`
@@ -21093,6 +21138,47 @@ export function useCreateCustomerWalletTransactionMutation(baseOptions?: Apollo.
 export type CreateCustomerWalletTransactionMutationHookResult = ReturnType<typeof useCreateCustomerWalletTransactionMutation>;
 export type CreateCustomerWalletTransactionMutationResult = Apollo.MutationResult<CreateCustomerWalletTransactionMutation>;
 export type CreateCustomerWalletTransactionMutationOptions = Apollo.BaseMutationOptions<CreateCustomerWalletTransactionMutation, CreateCustomerWalletTransactionMutationVariables>;
+export const GetWalletTransactionDetailsDocument = gql`
+    query GetWalletTransactionDetails($transactionId: ID!) {
+  walletTransaction(id: $transactionId) {
+    id
+    ...WalletTransactionDetails
+  }
+}
+    ${WalletTransactionDetailsFragmentDoc}`;
+
+/**
+ * __useGetWalletTransactionDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetWalletTransactionDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetWalletTransactionDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetWalletTransactionDetailsQuery({
+ *   variables: {
+ *      transactionId: // value for 'transactionId'
+ *   },
+ * });
+ */
+export function useGetWalletTransactionDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetWalletTransactionDetailsQuery, GetWalletTransactionDetailsQueryVariables> & ({ variables: GetWalletTransactionDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetWalletTransactionDetailsQuery, GetWalletTransactionDetailsQueryVariables>(GetWalletTransactionDetailsDocument, options);
+      }
+export function useGetWalletTransactionDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetWalletTransactionDetailsQuery, GetWalletTransactionDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetWalletTransactionDetailsQuery, GetWalletTransactionDetailsQueryVariables>(GetWalletTransactionDetailsDocument, options);
+        }
+export function useGetWalletTransactionDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWalletTransactionDetailsQuery, GetWalletTransactionDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetWalletTransactionDetailsQuery, GetWalletTransactionDetailsQueryVariables>(GetWalletTransactionDetailsDocument, options);
+        }
+export type GetWalletTransactionDetailsQueryHookResult = ReturnType<typeof useGetWalletTransactionDetailsQuery>;
+export type GetWalletTransactionDetailsLazyQueryHookResult = ReturnType<typeof useGetWalletTransactionDetailsLazyQuery>;
+export type GetWalletTransactionDetailsSuspenseQueryHookResult = ReturnType<typeof useGetWalletTransactionDetailsSuspenseQuery>;
+export type GetWalletTransactionDetailsQueryResult = Apollo.QueryResult<GetWalletTransactionDetailsQuery, GetWalletTransactionDetailsQueryVariables>;
 export const GetWalletTransactionsDocument = gql`
     query getWalletTransactions($walletId: ID!, $page: Int, $limit: Int) {
   walletTransactions(walletId: $walletId, page: $page, limit: $limit) {
