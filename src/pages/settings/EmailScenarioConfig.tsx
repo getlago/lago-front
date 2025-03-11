@@ -52,8 +52,6 @@ const mapTranslationsKey = (type?: EmailSettingsEnum) => {
         receipt_number_value: 'text_1741604005109q6qlr3qcc1u',
         payment_date: 'text_1741604005109kywirovj4yo',
         payment_date_value: 'text_17416040051098005r277i71',
-        payment_method: 'text_1741604005109ketx1wqspkz',
-        payment_method_value: 'text_1741604005109syz5h1opzkg',
         amount_paid: 'text_1741604005109aspaz4chd7y',
         amount_paid_value: 'text_1741604005109w5ns73xmam9',
       }
@@ -245,7 +243,6 @@ const EmailScenarioConfig = () => {
                         {[
                           [translationsKey.receipt_number, translationsKey.receipt_number_value],
                           [translationsKey.payment_date, translationsKey.payment_date_value],
-                          [translationsKey.payment_method, translationsKey.payment_method_value],
                           [translationsKey.amount_paid, translationsKey.amount_paid_value],
                         ].map(([label, value]) => (
                           <div className="flex w-full items-center justify-between" key={label}>
