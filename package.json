@@ -117,7 +117,7 @@
     "localforage": "1.10.0",
     "lodash": "4.17.21",
     "luxon": "3.4.4",
-    "prismjs": "1.29.0",
+    "prismjs": "1.30.0",
     "react": "18.2.0",
     "react-ace": "^11.0.1",
     "react-dom": "18.2.0",
