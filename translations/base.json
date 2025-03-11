@@ -2879,5 +2879,6 @@
   "text_17411038928333ksu96fbmam": "The customer will receive a total of {{totalCreditCount}} credits.",
   "text_1741103892833yi7redcuhoc": "Top-up wallet",
   "text_1741689608703zttwsl2nnq2": "Leave this field empty to set no expiration date",
-  "text_1741690423581n3e4cj019jg": "Include metadata for every top-up created by this recurring rule."
+  "text_1741690423581n3e4cj019jg": "Include metadata for every top-up created by this recurring rule.",
+  "text_1741706729331emiq4h111k8": "Include metadata for this top-up transaction."
 }

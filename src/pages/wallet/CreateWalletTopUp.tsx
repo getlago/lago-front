@@ -1,12 +1,12 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
-import { useFormik } from 'formik'
+import { getIn, useFormik } from 'formik'
 import { useCallback, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { boolean, object, string } from 'yup'
 
-import { Alert, Button, Typography } from '~/components/designSystem'
-import { AmountInputField, SwitchField, TextInput } from '~/components/form'
+import { Accordion, Alert, Button, Tooltip, Typography } from '~/components/designSystem'
+import { AmountInputField, SwitchField, TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
@@ -14,6 +14,11 @@ import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
 import { getCurrencyPrecision } from '~/core/serializers/serializeAmount'
+import {
+  METADATA_VALUE_MAX_LENGTH_DEFAULT,
+  MetadataErrorsEnum,
+  metadataSchema,
+} from '~/formValidation/metadataSchema'
 import {
   CreateCustomerWalletTransactionInput,
   CurrencyEnum,
@@ -79,6 +84,7 @@ const CreateWalletTopUp = () => {
       grantedCredits: '',
       invoiceRequiresSuccessfulPayment: wallet?.invoiceRequiresSuccessfulPayment,
       paidCredits: '',
+      metadata: undefined,
     },
     validationSchema: object().shape({
       paidCredits: string().test({
@@ -96,14 +102,21 @@ const CreateWalletTopUp = () => {
           return !isNaN(Number(grantedCredits)) || !isNaN(Number(paidCredits))
         },
       }),
+      metadata: metadataSchema().nullable(),
     }),
     validateOnMount: true,
-    onSubmit: async ({ grantedCredits, paidCredits, invoiceRequiresSuccessfulPayment }) => {
+    onSubmit: async ({
+      grantedCredits,
+      paidCredits,
+      invoiceRequiresSuccessfulPayment,
+      ...rest
+    }) => {
       if (!wallet) return
 
       await createWallet({
         variables: {
           input: {
+            ...rest,
             walletId: wallet.id,
             grantedCredits: grantedCredits === '' ? '0' : String(grantedCredits),
             paidCredits: paidCredits === '' ? '0' : String(paidCredits),
@@ -197,7 +210,7 @@ const CreateWalletTopUp = () => {
               </div>
             </section>
 
-            <section className="flex flex-col gap-6">
+            <section className="flex flex-col gap-6 pb-12 shadow-b">
               <div className="flex flex-col gap-1">
                 <Typography variant="subhead">
                   {translate('text_6657be42151661006d2f3b89')}
@@ -284,6 +297,121 @@ const CreateWalletTopUp = () => {
                   })}
                 </Typography>
               </Alert>
+            </section>
+
+            <section className="flex flex-col gap-6">
+              <Accordion
+                variant="borderless"
+                summary={
+                  <div className="flex flex-col gap-2">
+                    <Typography variant="subhead">
+                      {translate('text_63fcc3218d35b9377840f59b')}
+                    </Typography>
+                    <Typography variant="caption">
+                      {translate('text_1741706729331emiq4h111k8')}
+                    </Typography>
+                  </div>
+                }
+              >
+                <div className="flex flex-col gap-6">
+                  {(formikProps.values.metadata ?? []).map((_metadata, index) => {
+                    const metadataItemKeyError = getIn(formikProps.errors, `metadata.${index}.key`)
+                    const metadataItemValueError = getIn(
+                      formikProps.errors,
+                      `metadata.${index}.value`,
+                    )
+
+                    const hasCustomKeyError =
+                      Object.keys(MetadataErrorsEnum).includes(metadataItemKeyError)
+                    const hasCustomValueError =
+                      Object.keys(MetadataErrorsEnum).includes(metadataItemValueError)
+
+                    return (
+                      <div
+                        className="flex w-full flex-row items-center gap-3"
+                        key={`metadata-item-${index}`}
+                      >
+                        <div className="basis-[200px]">
+                          <Tooltip
+                            placement="top-end"
+                            title={
+                              (metadataItemKeyError === MetadataErrorsEnum.uniqueness &&
+                                translate('text_63fcc3218d35b9377840f5dd')) ||
+                              (metadataItemKeyError === MetadataErrorsEnum.maxLength &&
+                                translate('text_63fcc3218d35b9377840f5d9'))
+                            }
+                            disableHoverListener={!hasCustomKeyError}
+                          >
+                            <TextInputField
+                              name={`metadata.${index}.key`}
+                              label={translate('text_63fcc3218d35b9377840f5a3')}
+                              silentError={!hasCustomKeyError}
+                              placeholder={translate('text_63fcc3218d35b9377840f5a7')}
+                              formikProps={formikProps}
+                              displayErrorText={false}
+                            />
+                          </Tooltip>
+                        </div>
+                        <div className="grow">
+                          <Tooltip
+                            placement="top-end"
+                            title={
+                              metadataItemValueError === MetadataErrorsEnum.maxLength
+                                ? translate('text_63fcc3218d35b9377840f5e5', {
+                                    max: METADATA_VALUE_MAX_LENGTH_DEFAULT,
+                                  })
+                                : undefined
+                            }
+                            disableHoverListener={!hasCustomValueError}
+                          >
+                            <TextInputField
+                              name={`metadata.${index}.value`}
+                              label={translate('text_63fcc3218d35b9377840f5ab')}
+                              silentError={!hasCustomValueError}
+                              placeholder={translate('text_63fcc3218d35b9377840f5af')}
+                              formikProps={formikProps}
+                              displayErrorText={false}
+                            />
+                          </Tooltip>
+                        </div>
+                        <Tooltip
+                          className="flex items-center"
+                          placement="top-end"
+                          title={translate('text_63fcc3218d35b9377840f5e1')}
+                        >
+                          <Button
+                            className="mt-7"
+                            variant="quaternary"
+                            size="medium"
+                            icon="trash"
+                            onClick={() => {
+                              formikProps.setFieldValue(
+                                'metadata',
+                                (formikProps.values.metadata ?? []).filter((_, i) => i !== index),
+                              )
+                            }}
+                          />
+                        </Tooltip>
+                      </div>
+                    )
+                  })}
+
+                  <Button
+                    className="self-start"
+                    startIcon="plus"
+                    variant="quaternary"
+                    onClick={() =>
+                      formikProps.setFieldValue('metadata', [
+                        ...(formikProps.values.metadata ?? []),
+                        { key: '', value: '' },
+                      ])
+                    }
+                    data-test="add-metadata"
+                  >
+                    {translate('text_63fcc3218d35b9377840f5bb')}
+                  </Button>
+                </div>
+              </Accordion>
             </section>
           </CenteredPage.Container>
         )}
