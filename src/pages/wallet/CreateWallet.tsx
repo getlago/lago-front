@@ -54,6 +54,11 @@ gql`
       thresholdCredits
       startedAt
       invoiceRequiresSuccessfulPayment
+      expirationAt
+      transactionMetadata {
+        key
+        value
+      }
     }
   }
 
@@ -219,6 +224,7 @@ const CreateWallet = () => {
                   invoiceRequiresSuccessfulPayment,
                   paidCredits: rulePaidCredit,
                   grantedCredits: ruleGrantedCredit,
+                  ...rest
                 } = rule
 
                 let targetedBalance: string | null = null
@@ -233,6 +239,7 @@ const CreateWallet = () => {
                 }
 
                 return {
+                  ...rest,
                   lagoId:
                     'lagoId' in rule && formType === FORM_TYPE_ENUM.edition
                       ? rule.lagoId
@@ -256,31 +263,27 @@ const CreateWallet = () => {
           : []
 
       if (formType === FORM_TYPE_ENUM.edition) {
-        const { errors } = await updateWallet({
-          variables: {
-            input: {
-              ...values,
-              recurringTransactionRules: recurringTransactionRulesFormatted,
-              id: walletId,
-            },
-          },
-        })
+        const input = {
+          ...values,
+          recurringTransactionRules: recurringTransactionRulesFormatted,
+          id: walletId,
+        }
+
+        const { errors } = await updateWallet({ variables: { input } })
 
         if (!!errors?.length) return
       } else {
-        const { errors } = await createWallet({
-          variables: {
-            input: {
-              ...values,
-              customerId,
-              currency: valuesCurrency,
-              rateAmount: String(rateAmount),
-              grantedCredits: grantedCredits === '' ? '0' : String(grantedCredits),
-              paidCredits: paidCredits === '' ? '0' : String(paidCredits),
-              recurringTransactionRules: recurringTransactionRulesFormatted,
-            },
-          },
-        })
+        const input = {
+          ...values,
+          customerId,
+          currency: valuesCurrency,
+          rateAmount: String(rateAmount),
+          grantedCredits: grantedCredits === '' ? '0' : String(grantedCredits),
+          paidCredits: paidCredits === '' ? '0' : String(paidCredits),
+          recurringTransactionRules: recurringTransactionRulesFormatted,
+        }
+
+        const { errors } = await createWallet({ variables: { input } })
 
         if (!!errors?.length) return
       }

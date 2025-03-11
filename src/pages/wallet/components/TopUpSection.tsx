@@ -1,10 +1,11 @@
 import { Box, InputAdornment, Stack } from '@mui/material'
-import { FormikProps } from 'formik'
+import { FormikProps, getIn } from 'formik'
 import { get } from 'lodash'
 import { DateTime } from 'luxon'
+import React, { Fragment } from 'react'
 import { FC, RefObject, useMemo, useState } from 'react'
 
-import { Accordion, Alert, Button, Icon, Typography } from '~/components/designSystem'
+import { Accordion, Alert, Button, Icon, Tooltip, Typography } from '~/components/designSystem'
 import {
   AmountInputField,
   ComboBox,
@@ -12,11 +13,17 @@ import {
   DatePickerField,
   Switch,
   SwitchField,
+  TextInputField,
 } from '~/components/form'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { getWordingForWalletCreationAlert } from '~/components/wallets/utils'
-import { FORM_TYPE_ENUM, getIntervalTranslationKey } from '~/core/constants/form'
+import { dateErrorCodes, FORM_TYPE_ENUM, getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { intlFormatDateTime, intlFormatDateToDateMed } from '~/core/timezone'
+import {
+  METADATA_VALUE_MAX_LENGTH_DEFAULT,
+  MetadataErrorsEnum,
+} from '~/formValidation/metadataSchema'
 import {
   CurrencyEnum,
   GetCustomerInfosForWalletFormQuery,
@@ -104,6 +111,10 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
   const [accordionIsOpen, setAccordionIsOpen] = useState(false)
 
   const recurringTransactionRules = formikProps.values?.recurringTransactionRules?.[0]
+
+  const [showExpirationDate, setShowExpirationDate] = useState(
+    !!recurringTransactionRules?.expirationAt,
+  )
 
   const canDisplayAccordionAlert =
     !!recurringTransactionRules?.method &&
@@ -207,6 +218,7 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
           </Box>
         ) : (
           <Accordion
+            noContentMargin
             initiallyOpen={accordionIsOpen}
             summary={
               <AccordionSummary
@@ -219,7 +231,7 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
               />
             }
           >
-            <Stack direction="column" spacing={6}>
+            <div className="flex flex-col gap-6 p-4 shadow-b">
               <ComboBox
                 name="recurringTransactionRules.0.method"
                 disableClearable
@@ -467,7 +479,169 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
                   })}
                 </Alert>
               )}
-            </Stack>
+
+              {showExpirationDate ? (
+                <div className="flex items-center gap-4">
+                  <DatePickerField
+                    className="grow"
+                    disablePast
+                    name="recurringTransactionRules.0.expirationAt"
+                    placement="top-end"
+                    label={translate('text_62d18855b22699e5cf55f897')}
+                    placeholder={translate('text_62d18855b22699e5cf55f899')}
+                    helperText={translate('text_1741689608703zttwsl2nnq2')}
+                    formikProps={formikProps}
+                    error={
+                      getIn(formikProps.errors, 'recurringTransactionRules.0.expirationAt') ===
+                      dateErrorCodes.shouldBeInFuture
+                        ? translate('text_630ccd87b251590eaa5f9831', {
+                            date: intlFormatDateTime(DateTime.now().toISO()).date,
+                          })
+                        : undefined
+                    }
+                  />
+                  <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
+                    <Button
+                      icon="trash"
+                      variant="quaternary"
+                      onClick={() => {
+                        formikProps.setFieldValue('recurringTransactionRules.0.expirationAt', null)
+                        setShowExpirationDate(false)
+                      }}
+                    />
+                  </Tooltip>
+                </div>
+              ) : (
+                <Button
+                  className="self-start"
+                  startIcon="plus"
+                  variant="quaternary"
+                  onClick={() => setShowExpirationDate(true)}
+                  data-test="show-recurring-expiration-at"
+                >
+                  {translate('text_6560809c38fb9de88d8a517e')}
+                </Button>
+              )}
+            </div>
+            <div className="flex flex-col gap-6 p-4">
+              <div>
+                <Typography variant="bodyHl" color="textSecondary">
+                  {translate('text_63fcc3218d35b9377840f59b')}
+                </Typography>
+                <Typography variant="caption">
+                  {translate('text_1741690423581n3e4cj019jg')}
+                </Typography>
+              </div>
+
+              {recurringTransactionRules?.transactionMetadata?.map((_metadata, index) => {
+                const localFormikId = 'recurringTransactionRules.0.transactionMetadata'
+                const metadataItemKeyError = getIn(
+                  formikProps.errors,
+                  `recurringTransactionRules.0.transactionMetadata.${index}.key`,
+                )
+                const metadataItemValueError = getIn(
+                  formikProps.errors,
+                  `recurringTransactionRules.0.transactionMetadata.${index}.value`,
+                )
+
+                const hasCustomKeyError =
+                  Object.keys(MetadataErrorsEnum).includes(metadataItemKeyError)
+                const hasCustomValueError =
+                  Object.keys(MetadataErrorsEnum).includes(metadataItemValueError)
+
+                return (
+                  <div
+                    className="flex w-full flex-row items-center gap-3"
+                    key={`metadata-item-${index}`}
+                  >
+                    <div className="basis-[200px]">
+                      <Tooltip
+                        placement="top-end"
+                        title={
+                          (metadataItemKeyError === MetadataErrorsEnum.uniqueness &&
+                            translate('text_63fcc3218d35b9377840f5dd')) ||
+                          (metadataItemKeyError === MetadataErrorsEnum.maxLength &&
+                            translate('text_63fcc3218d35b9377840f5d9'))
+                        }
+                        disableHoverListener={!hasCustomKeyError}
+                      >
+                        <TextInputField
+                          name={`${localFormikId}.${index}.key`}
+                          label={translate('text_63fcc3218d35b9377840f5a3')}
+                          silentError={!hasCustomKeyError}
+                          placeholder={translate('text_63fcc3218d35b9377840f5a7')}
+                          formikProps={formikProps}
+                          displayErrorText={false}
+                        />
+                      </Tooltip>
+                    </div>
+                    <div className="grow">
+                      <Tooltip
+                        placement="top-end"
+                        title={
+                          metadataItemValueError === MetadataErrorsEnum.maxLength
+                            ? translate('text_63fcc3218d35b9377840f5e5', {
+                                max: METADATA_VALUE_MAX_LENGTH_DEFAULT,
+                              })
+                            : undefined
+                        }
+                        disableHoverListener={!hasCustomValueError}
+                      >
+                        <TextInputField
+                          name={`${localFormikId}.${index}.value`}
+                          label={translate('text_63fcc3218d35b9377840f5ab')}
+                          silentError={!hasCustomValueError}
+                          placeholder={translate('text_63fcc3218d35b9377840f5af')}
+                          formikProps={formikProps}
+                          displayErrorText={false}
+                        />
+                      </Tooltip>
+                    </div>
+                    <Tooltip
+                      className="flex items-center"
+                      placement="top-end"
+                      title={translate('text_63fcc3218d35b9377840f5e1')}
+                    >
+                      <Button
+                        className="mt-7"
+                        variant="quaternary"
+                        size="medium"
+                        icon="trash"
+                        onClick={() => {
+                          formikProps.setFieldValue(localFormikId, [
+                            ...(recurringTransactionRules.transactionMetadata || []).filter(
+                              (_m, j) => {
+                                return j !== index
+                              },
+                            ),
+                          ])
+                        }}
+                      />
+                    </Tooltip>
+                  </div>
+                )
+              })}
+
+              <Button
+                className="self-start"
+                startIcon="plus"
+                variant="quaternary"
+                onClick={() => {
+                  const metadatas = [
+                    ...(recurringTransactionRules?.transactionMetadata || []),
+                    { key: '', value: '' },
+                  ]
+
+                  formikProps.setFieldValue(
+                    'recurringTransactionRules.0.transactionMetadata',
+                    metadatas,
+                  )
+                }}
+                data-test="add-metadata"
+              >
+                {translate('text_63fcc3218d35b9377840f5bb')}
+              </Button>
+            </div>
           </Accordion>
         )}
       </section>
