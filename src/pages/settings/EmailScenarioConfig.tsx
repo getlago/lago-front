@@ -41,7 +41,7 @@ const mapTranslationsKey = (type?: EmailSettingsEnum) => {
       }
     case EmailSettingsEnum.PaymentReceiptCreated:
       return {
-        header: 'text_17413343926218dbogzsvk4w',
+        header: 'text_1741334140002zdl3cl599ib',
         title: 'text_1741334140002zdl3cl599ib',
         substitle: 'text_1741334140002wx0sbk2bd13',
         subject: 'text_17413343926218dbogzsvk4w',
@@ -57,7 +57,7 @@ const mapTranslationsKey = (type?: EmailSettingsEnum) => {
       }
     default:
       return {
-        header: 'text_6408d63cb486aa006163f042',
+        header: 'text_1741334140002zdl3cl599ib',
         title: 'text_6408d642d50da800533e43d8',
         substitle: 'text_6408d64fb486aa006163f043',
         subject: 'text_64188b3d9735d5007d712271',
