@@ -2194,6 +2194,29 @@ export type DataApiMrrCollection = {
   metadata: CollectionMetadata;
 };
 
+export type DataApiMrrPlan = {
+  __typename?: 'DataApiMrrPlan';
+  activeCustomersCount: Scalars['BigInt']['output'];
+  activeCustomersShare: Scalars['Float']['output'];
+  amountCurrency: CurrencyEnum;
+  dt: Scalars['ISO8601Date']['output'];
+  mrr: Scalars['Float']['output'];
+  mrrShare: Scalars['Float']['output'];
+  planCode: Scalars['String']['output'];
+  planId: Scalars['ID']['output'];
+  planInterval: PlanInterval;
+  planName: Scalars['String']['output'];
+};
+
+/** DataApiMrrPlanCollection type */
+export type DataApiMrrPlanCollection = {
+  __typename?: 'DataApiMrrPlanCollection';
+  /** A collection of paginated DataApiMrrPlanCollection */
+  collection: Array<DataApiMrrPlan>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
 export type DataApiRevenueStream = {
   __typename?: 'DataApiRevenueStream';
   amountCurrency: CurrencyEnum;
@@ -2234,6 +2257,24 @@ export type DataApiRevenueStreamCustomerCollection = {
   __typename?: 'DataApiRevenueStreamCustomerCollection';
   /** A collection of paginated DataApiRevenueStreamCustomerCollection */
   collection: Array<DataApiRevenueStreamCustomer>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
+export type DataApiUsageInvoiced = {
+  __typename?: 'DataApiUsageInvoiced';
+  amountCents: Scalars['BigInt']['output'];
+  amountCurrency: CurrencyEnum;
+  billableMetricCode: Scalars['String']['output'];
+  endOfPeriodDt: Scalars['ISO8601Date']['output'];
+  startOfPeriodDt: Scalars['ISO8601Date']['output'];
+};
+
+/** DataApiUsageInvoicedCollection type */
+export type DataApiUsageInvoicedCollection = {
+  __typename?: 'DataApiUsageInvoicedCollection';
+  /** A collection of paginated DataApiUsageInvoicedCollection */
+  collection: Array<DataApiUsageInvoiced>;
   /** Pagination Metadata for navigating the Pagination */
   metadata: CollectionMetadata;
 };
@@ -2977,6 +3018,7 @@ export enum IntegrationTypeEnum {
   Anrok = 'anrok',
   ApiPermissions = 'api_permissions',
   AutoDunning = 'auto_dunning',
+  BetaPaymentAuthorization = 'beta_payment_authorization',
   FromEmail = 'from_email',
   Hubspot = 'hubspot',
   IssueReceipts = 'issue_receipts',
@@ -4611,6 +4653,7 @@ export type PlanOverridesInput = {
 export enum PremiumIntegrationTypeEnum {
   ApiPermissions = 'api_permissions',
   AutoDunning = 'auto_dunning',
+  BetaPaymentAuthorization = 'beta_payment_authorization',
   FromEmail = 'from_email',
   Hubspot = 'hubspot',
   IssueReceipts = 'issue_receipts',
@@ -4752,12 +4795,16 @@ export type Query = {
   customers: CustomerCollection;
   /** Query monthly recurring revenues of an organization */
   dataApiMrrs: DataApiMrrCollection;
+  /** Query monthly recurring revenues plans of an organization */
+  dataApiMrrsPlans: DataApiMrrPlanCollection;
   /** Query revenue streams of an organization */
   dataApiRevenueStreams: DataApiRevenueStreamCollection;
   /** Query revenue streams customers of an organization */
   dataApiRevenueStreamsCustomers: DataApiRevenueStreamCustomerCollection;
   /** Query revenue streams plans of an organization */
   dataApiRevenueStreamsPlans: RevenueStreamPlanCollection;
+  /** Query invoiced usages of an organization */
+  dataApiUsagesInvoiced: DataApiUsageInvoicedCollection;
   /** Query a single dunning campaign of an organization */
   dunningCampaign: DunningCampaign;
   /** Query dunning campaigns of an organization */
@@ -5014,6 +5061,11 @@ export type QueryDataApiMrrsArgs = {
 };
 
 
+export type QueryDataApiMrrsPlansArgs = {
+  currency?: InputMaybe<CurrencyEnum>;
+};
+
+
 export type QueryDataApiRevenueStreamsArgs = {
   currency?: InputMaybe<CurrencyEnum>;
   customerCountry?: InputMaybe<CountryCode>;
@@ -5040,6 +5092,22 @@ export type QueryDataApiRevenueStreamsPlansArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<OrderByEnum>;
+};
+
+
+export type QueryDataApiUsagesInvoicedArgs = {
+  billableMetricCode?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<CurrencyEnum>;
+  customerCountry?: InputMaybe<CountryCode>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  filterValues?: InputMaybe<Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  groupedBy?: InputMaybe<Scalars['String']['input']>;
+  planCode?: InputMaybe<Scalars['String']['input']>;
+  timeGranularity?: InputMaybe<TimeGranularityEnum>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
 };
 
 
@@ -6725,6 +6793,8 @@ export type DeleteAddOnMutationVariables = Exact<{
 
 export type DeleteAddOnMutation = { __typename?: 'Mutation', destroyAddOn?: { __typename?: 'DestroyAddOnPayload', id?: string | null } | null };
 
+export type RevenueStreamDataForOverviewSectionFragment = { __typename?: 'DataApiRevenueStream', commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any };
+
 export type GetRevenueStreamsQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
   customerCountry?: InputMaybe<CountryCode>;
@@ -6738,7 +6808,7 @@ export type GetRevenueStreamsQueryVariables = Exact<{
 }>;
 
 
-export type GetRevenueStreamsQuery = { __typename?: 'Query', dataApiRevenueStreams: { __typename?: 'DataApiRevenueStreamCollection', collection: Array<{ __typename?: 'DataApiRevenueStream', amountCurrency: CurrencyEnum, commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any }> } };
+export type GetRevenueStreamsQuery = { __typename?: 'Query', dataApiRevenueStreams: { __typename?: 'DataApiRevenueStreamCollection', collection: Array<{ __typename?: 'DataApiRevenueStream', commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any }> } };
 
 export type GetGoogleAuthUrlQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -8483,8 +8553,6 @@ export type CreateCustomerWalletTransactionMutationVariables = Exact<{
 
 export type CreateCustomerWalletTransactionMutation = { __typename?: 'Mutation', createCustomerWalletTransaction?: { __typename?: 'WalletTransactionCollection', collection: Array<{ __typename?: 'WalletTransaction', id: string }> } | null };
 
-export type WalletForTopupFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean };
-
 export type WalletForVoidTransactionFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: number, creditsBalance: number };
 
 export type WalletAccordionFragment = { __typename?: 'Wallet', id: string, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number };
@@ -9723,6 +9791,19 @@ export const DeleteAddOnFragmentDoc = gql`
   name
 }
     `;
+export const RevenueStreamDataForOverviewSectionFragmentDoc = gql`
+    fragment RevenueStreamDataForOverviewSection on DataApiRevenueStream {
+  commitmentFeeAmountCents
+  couponsAmountCents
+  endOfPeriodDt
+  grossRevenueAmountCents
+  netRevenueAmountCents
+  oneOffFeeAmountCents
+  startOfPeriodDt
+  subscriptionFeeAmountCents
+  usageBasedFeeAmountCents
+}
+    `;
 export const DeleteBillableMetricDialogFragmentDoc = gql`
     fragment DeleteBillableMetricDialog on BillableMetric {
   id
@@ -10919,14 +11000,6 @@ export const CustomerWalletFragmentDoc = gql`
     ${WalletForUpdateFragmentDoc}
 ${WalletAccordionFragmentDoc}
 ${WalletInfosForTransactionsFragmentDoc}`;
-export const WalletForTopupFragmentDoc = gql`
-    fragment WalletForTopup on Wallet {
-  id
-  currency
-  rateAmount
-  invoiceRequiresSuccessfulPayment
-}
-    `;
 export const WalletForVoidTransactionFragmentDoc = gql`
     fragment WalletForVoidTransaction on Wallet {
   id
@@ -13036,20 +13109,11 @@ export const GetRevenueStreamsDocument = gql`
     toDate: $toDate
   ) {
     collection {
-      amountCurrency
-      commitmentFeeAmountCents
-      couponsAmountCents
-      endOfPeriodDt
-      grossRevenueAmountCents
-      netRevenueAmountCents
-      oneOffFeeAmountCents
-      startOfPeriodDt
-      subscriptionFeeAmountCents
-      usageBasedFeeAmountCents
+      ...RevenueStreamDataForOverviewSection
     }
   }
 }
-    `;
+    ${RevenueStreamDataForOverviewSectionFragmentDoc}`;
 
 /**
  * __useGetRevenueStreamsQuery__
