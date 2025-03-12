@@ -14,7 +14,9 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useEmailConfig } from '~/hooks/useEmailConfig'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
+import { EMAIL_SCENARIOS } from '~/pages/settings/EmailSettings'
 import { PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
 
@@ -87,6 +89,13 @@ const EmailScenarioConfig = () => {
   const { hasPermissions } = usePermissions()
   const { loading, emailSettings, name, updateEmailSettings } = useEmailConfig()
   const { translateWithContextualLocal } = useContextualLocale(invoiceLanguage)
+  const { hasOrganizationPremiumAddon } = useOrganizationInfos()
+
+  const scenario = EMAIL_SCENARIOS.find((_scenario) => _scenario.setting === type)
+
+  const hasAccess = scenario?.integration
+    ? hasOrganizationPremiumAddon(scenario?.integration)
+    : isPremium
 
   return (
     <div className="flex h-screen flex-col overflow-auto">
@@ -116,14 +125,14 @@ const EmailScenarioConfig = () => {
                 e.preventDefault()
                 e.stopPropagation()
 
-                if (isPremium) {
+                if (hasAccess) {
                   await updateEmailSettings(type as EmailSettingsEnum, value)
                 } else {
                   premiumWarningDialogRef.current?.openDialog()
                 }
               }}
             />
-            {!isPremium && <Icon name="sparkles" />}
+            {!hasAccess && <Icon name="sparkles" />}
           </div>
         )}
       </PageHeader.Wrapper>
