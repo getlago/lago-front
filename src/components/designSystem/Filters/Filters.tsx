@@ -16,7 +16,7 @@ export const Filters = ({ className }: FiltersProps) => {
   const { hasAppliedFilters, resetFilters } = useFilters()
 
   return (
-    <div className={tw('flex w-full flex-wrap items-center gap-3 overflow-y-scroll', className)}>
+    <div className={tw('flex w-full flex-wrap items-center gap-3 overflow-y-auto', className)}>
       <FiltersPanelPopper />
       <ActiveFiltersList />
 
