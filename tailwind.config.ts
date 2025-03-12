@@ -240,15 +240,9 @@ const config = {
           },
 
           '@keyframes shadowLeft': {
-            '0%': {
-              position: 'sticky',
-              boxShadow: `1px 0px 0px 0px ${theme('colors.grey.300')} inset`,
-            },
-            '90%': {
-              position: 'sticky',
-              boxShadow: `1px 0px 0px 0px ${theme('colors.grey.300')} inset`,
-            },
-            '99%': { position: 'sticky', boxShadow: 'none' },
+            '0%': { boxShadow: `1px 0px 0px 0px ${theme('colors.grey.300')} inset` },
+            '90%': { boxShadow: `1px 0px 0px 0px ${theme('colors.grey.300')} inset` },
+            '99%': { boxShadow: 'none' },
           },
         },
       })

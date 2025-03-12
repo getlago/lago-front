@@ -182,15 +182,13 @@ const TableCell = ({
 const TableActionCell = ({
   children,
   className,
-  inHeader,
   ...props
-}: PropsWithChildren & TableCellProps & { className?: string; inHeader?: boolean }) => {
+}: PropsWithChildren & TableCellProps & { className?: string }) => {
   return (
     <TableCell
       className={tw(
         'lago-table-action-cell',
-        'right-0 z-10 w-10 bg-white animate-shadow-left [box-shadow:none]',
-        { sticky: !!inHeader },
+        'sticky right-0 z-10 w-10 bg-white animate-shadow-left [box-shadow:none]',
         className,
       )}
       sx={{
@@ -479,9 +477,11 @@ export const Table = <T extends DataItem>({
   return (
     // Width is set to 0 and minWidth to 100% to prevent table from overflowing its container
     // cf. https://stackoverflow.com/a/73091777
-    <div className="h-full w-0 min-w-full overflow-auto">
+    // [-webkit-transform:translateZ(0)] is used to prevent scrollbar flickering on Safari
+    // cf. https://stackoverflow.com/questions/67076468/why-scrollbar-is-behind-sticky-elements-in-ios-safari
+    <div className="h-full w-0 min-w-full overflow-auto [-webkit-transform:translateZ(0)]">
       <MUITable
-        className="border-collapse"
+        className="border-separate"
         data-test={TABLE_ID}
         id={TABLE_ID}
         ref={tableRef}
@@ -521,9 +521,7 @@ export const Table = <T extends DataItem>({
                   </TableInnerCell>
                 </TableCell>
               ))}
-              {shouldDisplayActionColumn && (
-                <TableActionCell inHeader className="top-0 z-sectionHead" />
-              )}
+              {shouldDisplayActionColumn && <TableActionCell className="top-0 z-sectionHead" />}
             </>
           </tr>
         </MUITableHead>
