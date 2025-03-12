@@ -182,13 +182,15 @@ const TableCell = ({
 const TableActionCell = ({
   children,
   className,
+  inHeader,
   ...props
-}: PropsWithChildren & TableCellProps & { className?: string }) => {
+}: PropsWithChildren & TableCellProps & { className?: string; inHeader?: boolean }) => {
   return (
     <TableCell
       className={tw(
         'lago-table-action-cell',
-        'sticky right-0 z-10 w-10 bg-white animate-shadow-left [box-shadow:none]',
+        'right-0 z-10 w-10 bg-white animate-shadow-left [box-shadow:none]',
+        { sticky: !!inHeader },
         className,
       )}
       sx={{
@@ -519,7 +521,9 @@ export const Table = <T extends DataItem>({
                   </TableInnerCell>
                 </TableCell>
               ))}
-              {shouldDisplayActionColumn && <TableActionCell className="top-0 z-sectionHead" />}
+              {shouldDisplayActionColumn && (
+                <TableActionCell inHeader className="top-0 z-sectionHead" />
+              )}
             </>
           </tr>
         </MUITableHead>
