@@ -20,6 +20,7 @@ import {
   PaymentTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import useDownloadPaymentReceipts from '~/hooks/paymentReceipts/useDownloadPaymentReceipts'
 
 interface CustomerPaymentsListProps {
   payments: PaymentForPaymentsListFragment[]
@@ -35,6 +36,8 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
   fetchMore,
 }) => {
   const { translate } = useInternationalization()
+
+  const { canDownloadPaymentReceipts, downloadPaymentReceipts } = useDownloadPaymentReceipts()
 
   return (
     <InfiniteScroll
@@ -53,7 +56,7 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
         data={payments}
         containerSize={{ default: 4 }}
         isLoading={loading}
-        actionColumn={() => {
+        actionColumn={({ paymentReceipt }) => {
           return [
             {
               startIcon: 'duplicate',
@@ -66,6 +69,18 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
                 })
               },
             },
+            canDownloadPaymentReceipts
+              ? {
+                  startIcon: 'download',
+                  title: translate('text_1741334392622fl3ozwejrul'),
+                  onAction: ({ paymentReceipt: _paymentReceipt }) => {
+                    downloadPaymentReceipts({
+                      paymentReceiptId: _paymentReceipt?.id,
+                    })
+                  },
+                  disabled: !paymentReceipt?.id,
+                }
+              : null,
           ]
         }}
         actionColumnTooltip={() => translate('text_637f813d31381b1ed90ab326')}
