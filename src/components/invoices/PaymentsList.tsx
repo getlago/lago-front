@@ -127,9 +127,9 @@ export const PaymentsList: FC<PaymentsListProps> = ({
                 ? {
                     startIcon: 'download',
                     title: translate('text_1741334392622fl3ozwejrul'),
-                    onAction: ({ paymentReceipt }) => {
+                    onAction: ({ paymentReceipt: _paymentReceipt }) => {
                       downloadPaymentReceipts({
-                        paymentReceiptId: paymentReceipt?.id,
+                        paymentReceiptId: _paymentReceipt?.id,
                       })
                     },
                     disabled: !paymentReceipt?.id,
