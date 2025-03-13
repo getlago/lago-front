@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import Decimal from 'decimal.js'
-import { useMemo } from 'react'
+import { DateTime } from 'luxon'
+import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { formatRevenueStreamsData } from '~/components/analytics/utils'
@@ -12,8 +13,10 @@ import {
 import { REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import {
   CurrencyEnum,
+  PremiumIntegrationTypeEnum,
   RevenueStreamDataForOverviewSectionFragment,
   RevenueStreamDataForOverviewSectionFragmentDoc,
+  TimeGranularityEnum,
   useGetRevenueStreamsQuery,
 } from '~/generated/graphql'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -57,7 +60,9 @@ type RevenueAnalyticsOverviewReturn = {
   isLoading: boolean
   lastNetRevenueAmountCents: string
   netRevenueAmountCentsProgressionOnPeriod: string
-  timeGranularity: string | null
+  timeGranularity: TimeGranularityEnum
+  getDefaultStaticDateFilter: () => string
+  getDefaultStaticTimeGranularityFilter: () => string
 }
 
 const getFilterByKey = (key: AvailableFiltersEnum, searchParams: URLSearchParams) => {
@@ -70,11 +75,45 @@ const getFilterByKey = (key: AvailableFiltersEnum, searchParams: URLSearchParams
 
 export const useRevenueAnalyticsOverview = (): RevenueAnalyticsOverviewReturn => {
   const [searchParams] = useSearchParams()
-  const { organization } = useOrganizationInfos()
+  const { organization, hasOrganizationPremiumAddon } = useOrganizationInfos()
+
+  const hasAccessToRevenueAnalyticsFeature = hasOrganizationPremiumAddon(
+    PremiumIntegrationTypeEnum.RevenueAnalytics,
+  )
+
+  const getDefaultStaticDateFilter = useCallback((): string => {
+    const now = DateTime.now()
+
+    if (!hasAccessToRevenueAnalyticsFeature) {
+      return `${now.minus({ month: 1 }).startOf('day').toISO()},${now.endOf('day').toISO()}`
+    }
+
+    return `${now.minus({ month: 12 }).startOf('day').toISO()},${now.endOf('day').toISO()}`
+  }, [hasAccessToRevenueAnalyticsFeature])
+
+  const getDefaultStaticTimeGranularityFilter = useCallback((): string => {
+    if (!hasAccessToRevenueAnalyticsFeature) {
+      return TimeGranularityEnum.Daily
+    }
+
+    return TimeGranularityEnum.Monthly
+  }, [hasAccessToRevenueAnalyticsFeature])
 
   const filtersForRevenueStreamsQuery = useMemo(() => {
+    if (!hasAccessToRevenueAnalyticsFeature) {
+      return {
+        date: getDefaultStaticDateFilter(),
+        timeGranularity: getDefaultStaticTimeGranularityFilter(),
+      }
+    }
+
     return formatFiltersForRevenueStreamsQuery(searchParams)
-  }, [searchParams])
+  }, [
+    hasAccessToRevenueAnalyticsFeature,
+    getDefaultStaticDateFilter,
+    getDefaultStaticTimeGranularityFilter,
+    searchParams,
+  ])
 
   const {
     data: revenueStreamsData,
@@ -86,7 +125,10 @@ export const useRevenueAnalyticsOverview = (): RevenueAnalyticsOverviewReturn =>
     },
   })
 
-  const timeGranularity = getFilterByKey(AvailableFiltersEnum.timeGranularity, searchParams)
+  const timeGranularity = getFilterByKey(
+    AvailableFiltersEnum.timeGranularity,
+    searchParams,
+  ) as TimeGranularityEnum
 
   const currency = useMemo(() => {
     const currencyFromFilter = getFilterByKey(AvailableFiltersEnum.currency, searchParams)
@@ -101,11 +143,18 @@ export const useRevenueAnalyticsOverview = (): RevenueAnalyticsOverviewReturn =>
     return formatRevenueStreamsData({
       searchParams,
       data: revenueStreamsData?.dataApiRevenueStreams.collection,
+      defaultStaticDatePeriod: getDefaultStaticDateFilter(),
+      defaultStaticTimeGranularity: getDefaultStaticTimeGranularityFilter(),
     })
-  }, [revenueStreamsData, searchParams])
+  }, [
+    getDefaultStaticDateFilter,
+    getDefaultStaticTimeGranularityFilter,
+    revenueStreamsData?.dataApiRevenueStreams.collection,
+    searchParams,
+  ])
 
   const { lastNetRevenueAmountCents, netRevenueAmountCentsProgressionOnPeriod } = useMemo(() => {
-    if (!formattedRevenueStreamsData.length) {
+    if (!formattedRevenueStreamsData?.length) {
       return {
         lastNetRevenueAmountCents: '0',
         netRevenueAmountCentsProgressionOnPeriod: '0',
@@ -116,7 +165,7 @@ export const useRevenueAnalyticsOverview = (): RevenueAnalyticsOverviewReturn =>
       formattedRevenueStreamsData[0]?.netRevenueAmountCents,
     )
     const localLastNetRevenueAmountCents: string =
-      formattedRevenueStreamsData[formattedRevenueStreamsData.length - 1]?.netRevenueAmountCents
+      formattedRevenueStreamsData[formattedRevenueStreamsData?.length - 1]?.netRevenueAmountCents
 
     // Bellow calcul should *100 but values are already in cents so no need to do it
     // Also explain why the toFixed is 4 and not 2
@@ -141,5 +190,7 @@ export const useRevenueAnalyticsOverview = (): RevenueAnalyticsOverviewReturn =>
     data: formattedRevenueStreamsData,
     hasError: !!revenueStreamsError && !revenueStreamsLoading,
     isLoading: revenueStreamsLoading,
+    getDefaultStaticDateFilter,
+    getDefaultStaticTimeGranularityFilter,
   }
 }
