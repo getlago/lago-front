@@ -303,9 +303,24 @@ const PaymentDetails = () => {
         </div>
 
         <div className="pb-12 shadow-b">
-          <Typography variant="subhead" className="mb-4">
-            {translate('text_634687079be251fdb43833b7')}
-          </Typography>
+          <div className="mb-4 flex items-center justify-between">
+            <Typography variant="subhead">{translate('text_634687079be251fdb43833b7')}</Typography>
+
+            {canDownloadPaymentReceipts && (
+              <Button
+                variant="quaternary"
+                align="left"
+                disabled={!payment?.paymentReceipt?.id}
+                onClick={() => {
+                  downloadPaymentReceipts({
+                    paymentReceiptId: payment?.paymentReceipt?.id,
+                  })
+                }}
+              >
+                {translate('text_1741334392622fl3ozwejrul')}
+              </Button>
+            )}
+          </div>
 
           {loading && <Loading />}
           {!loading && (
