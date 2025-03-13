@@ -10,12 +10,11 @@ import {
 } from '~/components/designSystem/Filters'
 import { REVENUE_STREAMS_GRAPH_COLORS } from '~/components/designSystem/graphs/const'
 import MultipleLineChart from '~/components/designSystem/graphs/MultipleLineChart'
+import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/graphs/utils'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { intlFormatDateTime } from '~/core/timezone'
-import { TimeGranularityEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { tw } from '~/styles/utils'
@@ -44,6 +43,8 @@ const RevenueStreamsOverviewSection = () => {
     lastNetRevenueAmountCents,
     netRevenueAmountCentsProgressionOnPeriod,
     timeGranularity,
+    getDefaultStaticDateFilter,
+    getDefaultStaticTimeGranularityFilter,
   } = useRevenueAnalyticsOverview()
   const [clickedDataIndex, setClickedDataIndex] = useState<number | undefined>(undefined)
   const [hoverDataIndex, setHoverDataIndex] = useState<number | undefined>(undefined)
@@ -55,9 +56,10 @@ const RevenueStreamsOverviewSection = () => {
           filtersNamePrefix={REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX}
           staticFilters={{
             currency,
+            date: getDefaultStaticDateFilter(),
           }}
           staticQuickFilters={{
-            timeGranularity: TimeGranularityEnum.Monthly,
+            timeGranularity: getDefaultStaticTimeGranularityFilter(),
           }}
           availableFilters={RevenueStreamsAvailablePopperFilters}
           quickFiltersType={AvailableQuickFilters.timeGranularity}
@@ -123,12 +125,13 @@ const RevenueStreamsOverviewSection = () => {
       {!hasError && (
         <>
           <MultipleLineChart
-            loading={isLoading}
+            xAxisDataKey="startOfPeriodDt"
             currency={currency}
             data={data}
-            xAxisDataKey="startOfPeriodDt"
-            setClickedDataIndex={setClickedDataIndex}
             hoveredDataIndex={hoverDataIndex}
+            loading={isLoading}
+            timeGranularity={timeGranularity}
+            setClickedDataIndex={setClickedDataIndex}
             setHoverDataIndex={setHoverDataIndex}
             lines={[
               {
@@ -182,42 +185,11 @@ const RevenueStreamsOverviewSection = () => {
                 type: 'header',
                 label: translate('text_1739268382272qnne2h7slna'),
                 content: (item) => {
-                  const getFormatedTimeGramularity = (): string => {
-                    switch (timeGranularity) {
-                      case TimeGranularityEnum.Daily:
-                        return intlFormatDateTime(item.startOfPeriodDt, {
-                          format: {
-                            month: 'short',
-                            day: 'numeric',
-                          },
-                        }).date
-                      case TimeGranularityEnum.Weekly:
-                        return `${
-                          intlFormatDateTime(item.startOfPeriodDt, {
-                            format: {
-                              month: 'short',
-                              day: 'numeric',
-                            },
-                          }).date
-                        } - ${
-                          intlFormatDateTime(item.endOfPeriodDt, {
-                            format: {
-                              month: 'short',
-                              day: 'numeric',
-                            },
-                          }).date
-                        }`
-                      default:
-                        return intlFormatDateTime(item.startOfPeriodDt, {
-                          format: {
-                            month: 'short',
-                            year: 'numeric',
-                          },
-                        }).date
-                    }
-                  }
-
-                  return <Typography variant="captionHl">{getFormatedTimeGramularity()}</Typography>
+                  return (
+                    <Typography variant="captionHl">
+                      {getItemDateFormatedByTimeGranularity({ item, timeGranularity })}
+                    </Typography>
+                  )
                 },
               },
               {

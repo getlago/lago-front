@@ -24,10 +24,14 @@ import {
 } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
-import { CurrencyEnum, TimezoneEnum } from '~/generated/graphql'
+import { CurrencyEnum, TimeGranularityEnum, TimezoneEnum } from '~/generated/graphql'
 import { theme } from '~/styles'
 
-import { calculateYAxisDomain, checkOnlyZeroValues } from './utils'
+import {
+  calculateYAxisDomain,
+  checkOnlyZeroValues,
+  getItemDateFormatedByTimeGranularity,
+} from './utils'
 
 const LOADING_TICK_SIZE = 32
 
@@ -73,6 +77,7 @@ type MultipleLineChartProps<T> = {
   xAxisDataKey: DotNestedKeys<T>
   setClickedDataIndex?: Dispatch<SetStateAction<number | undefined>>
   setHoverDataIndex?: Dispatch<SetStateAction<number | undefined>>
+  timeGranularity: TimeGranularityEnum
 }
 
 type CustomTooltipProps<T> = {
@@ -81,7 +86,7 @@ type CustomTooltipProps<T> = {
   currency: CurrencyEnum
   payload: Payload<ValueType & { payload: T }, NameType>[] | undefined
   lines: Array<MultipleLineChartLine<T>>
-  xAxisDataKey: DotNestedKeys<T>
+  timeGranularity: TimeGranularityEnum
 }
 
 const CustomTooltip = <T,>({
@@ -89,18 +94,22 @@ const CustomTooltip = <T,>({
   currency,
   payload,
   lines,
-  xAxisDataKey,
+  timeGranularity,
 }: CustomTooltipProps<T>): JSX.Element | null => {
   if (active && payload && payload.length) {
-    const labelValue: string | undefined = payload?.[0].payload[xAxisDataKey]
+    const labelValues: Record<string, string> = payload?.[0].payload
 
     return (
       <>
-        {!!labelValue && (
-          <Typography className="mb-3" variant="captionHl" color="white">
-            {formatDateToTZ(labelValue, TimezoneEnum.TzUtc, 'LLL yyyy')}
-          </Typography>
-        )}
+        <Typography className="mb-3" variant="captionHl" color="white">
+          {getItemDateFormatedByTimeGranularity({
+            item: {
+              startOfPeriodDt: labelValues.startOfPeriodDt,
+              endOfPeriodDt: labelValues.endOfPeriodDt,
+            },
+            timeGranularity,
+          })}
+        </Typography>
 
         <div className="flex flex-col gap-2">
           {lines.map((line, lineIndex) => {
@@ -152,6 +161,7 @@ const MultipleLineChart = <T extends DataItem>({
   lines,
   loading,
   xAxisDataKey,
+  timeGranularity,
   setClickedDataIndex,
   setHoverDataIndex,
 }: MultipleLineChartProps<T>) => {
@@ -160,7 +170,7 @@ const MultipleLineChart = <T extends DataItem>({
   >(undefined)
 
   const { localData, localLines } = useMemo(() => {
-    if (loading) {
+    if (loading || !data) {
       return {
         localData: multipleLineChartLoadingFakeData as unknown as T[],
         localLines: multipleLineChartLoadingFakeLines as unknown as Array<MultipleLineChartLine<T>>,
@@ -173,12 +183,13 @@ const MultipleLineChart = <T extends DataItem>({
     }
 
     return {
-      localData: data,
+      // Note: make sure there is at least 2 items to show 2 ticks on the graph
+      localData: data.length < 2 ? [...data, ...data] : data,
       localLines: lines,
     }
   }, [blur, data, lines, loading])
 
-  // This makes sure that tiiltip is shown on hover even if setHoverDataIndex is not defined: if chart is used as a standalone component
+  // This makes sure the tolltip is shown on hover even if setHoverDataIndex is not defined: if chart is used as a standalone component
   const { localHoverDataIndex, localSetHoverDataIndex } = useMemo(() => {
     if (!setHoverDataIndex) {
       return {
@@ -256,7 +267,8 @@ const MultipleLineChart = <T extends DataItem>({
             tick={(props: { x: number; y: number; index: number; payload: { value: string } }) => {
               const { x, y, payload, index } = props
 
-              if (index !== 0 && index !== (data?.length || 0) - 1) {
+              // Note: data?.length !== 1 is here to show 2 tick if data only contain one item
+              if (index !== 0 && data?.length !== 1 && index !== (data?.length || 0) - 1) {
                 return <></>
               }
 
@@ -382,7 +394,7 @@ const MultipleLineChart = <T extends DataItem>({
                       lines={lines}
                       // Payload does not cast T type from data, so we have to manually override
                       payload={payload as unknown as CustomTooltipProps<T>['payload']}
-                      xAxisDataKey={xAxisDataKey}
+                      timeGranularity={timeGranularity}
                       includeHidden={!!includeHidden}
                     />
                   )}
