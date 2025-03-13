@@ -2,7 +2,6 @@ import { Box, InputAdornment, Stack } from '@mui/material'
 import { FormikProps, getIn } from 'formik'
 import { get } from 'lodash'
 import { DateTime } from 'luxon'
-import React, { Fragment } from 'react'
 import { FC, RefObject, useMemo, useState } from 'react'
 
 import { Accordion, Alert, Button, Icon, Tooltip, Typography } from '~/components/designSystem'
@@ -19,7 +18,7 @@ import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { getWordingForWalletCreationAlert } from '~/components/wallets/utils'
 import { dateErrorCodes, FORM_TYPE_ENUM, getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { intlFormatDateTime, intlFormatDateToDateMed } from '~/core/timezone'
+import { intlFormatDateTime } from '~/core/timezone'
 import {
   METADATA_VALUE_MAX_LENGTH_DEFAULT,
   MetadataErrorsEnum,
@@ -111,10 +110,6 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
   const [accordionIsOpen, setAccordionIsOpen] = useState(false)
 
   const recurringTransactionRules = formikProps.values?.recurringTransactionRules?.[0]
-
-  const [showExpirationDate, setShowExpirationDate] = useState(
-    !!recurringTransactionRules?.expirationAt,
-  )
 
   const canDisplayAccordionAlert =
     !!recurringTransactionRules?.method &&
@@ -480,7 +475,8 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
                 </Alert>
               )}
 
-              {showExpirationDate ? (
+              {!!recurringTransactionRules?.expirationAt ||
+              recurringTransactionRules?.expirationAt === '' ? (
                 <div className="flex items-center gap-4">
                   <DatePickerField
                     className="grow"
@@ -506,7 +502,6 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
                       variant="quaternary"
                       onClick={() => {
                         formikProps.setFieldValue('recurringTransactionRules.0.expirationAt', null)
-                        setShowExpirationDate(false)
                       }}
                     />
                   </Tooltip>
@@ -516,7 +511,9 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
                   className="self-start"
                   startIcon="plus"
                   variant="quaternary"
-                  onClick={() => setShowExpirationDate(true)}
+                  onClick={() =>
+                    formikProps.setFieldValue('recurringTransactionRules.0.expirationAt', '')
+                  }
                   data-test="show-recurring-expiration-at"
                 >
                   {translate('text_6560809c38fb9de88d8a517e')}

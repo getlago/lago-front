@@ -170,6 +170,7 @@ const CreateWallet = () => {
       }
     },
   })
+
   const [updateWallet] = useUpdateCustomerWalletMutation({
     context: {
       silentErrorCodes: [LagoApiError.UnprocessableEntity],
@@ -224,6 +225,7 @@ const CreateWallet = () => {
                   invoiceRequiresSuccessfulPayment,
                   paidCredits: rulePaidCredit,
                   grantedCredits: ruleGrantedCredit,
+                  expirationAt,
                   ...rest
                 } = rule
 
@@ -257,6 +259,7 @@ const CreateWallet = () => {
                   grantedCredits: ruleGrantedCredit === '' ? '0' : String(ruleGrantedCredit),
                   targetOngoingBalance: targetedBalance,
                   invoiceRequiresSuccessfulPayment,
+                  expirationAt: expirationAt === '' ? null : expirationAt,
                 }
               },
             )
