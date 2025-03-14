@@ -17,9 +17,11 @@ import {
 
 import { tw } from '~/styles/utils'
 
-interface PopperProps {
+export interface PopperProps {
   className?: string
-  opener?: ReactElement | (({ isOpen }: { isOpen: boolean }) => ReactElement)
+  opener?:
+    | ReactElement
+    | (({ isOpen, onClick }: { isOpen: boolean; onClick: () => void }) => ReactElement)
   maxHeight?: number | string
   minWidth?: number
   PopperProps?: Pick<MUIPopperProps, 'placement' | 'modifiers' | 'disablePortal'>
@@ -86,12 +88,15 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
       <ClickAwayListener onClickAway={onClickAwayProxy}>
         <div className={tw(className)}>
           {typeof opener === 'function'
-            ? cloneElement(opener({ isOpen }), {
+            ? cloneElement(opener({ isOpen, onClick: toggle }), {
                 onClick: (e: MouseEvent<HTMLDivElement>) => {
-                  const element = opener({ isOpen })
+                  const element = opener({ isOpen, onClick: toggle })
 
                   element?.props?.onClick && element.props.onClick(e)
-                  toggle()
+                  // Only toggle if the event wasn't prevented
+                  if (!e.isPropagationStopped()) {
+                    toggle()
+                  }
                 },
                 ref: openerRef,
               })

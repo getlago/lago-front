@@ -14,8 +14,13 @@ import { useFilters } from './useFilters'
 
 export const FiltersPanelPopper = () => {
   const { translate } = useInternationalization()
-  const { availableFilters, initialFiltersFormValues, staticFiltersFormValues, applyFilters } =
-    useFilters()
+  const {
+    availableFilters,
+    initialFiltersFormValues,
+    staticFiltersFormValues,
+    applyFilters,
+    buttonOpener,
+  } = useFilters()
 
   const listContainerElementRef = useRef<HTMLDivElement>(null)
 
@@ -77,9 +82,11 @@ export const FiltersPanelPopper = () => {
     <Popper
       PopperProps={{ placement: 'bottom-start' }}
       opener={
-        <Button startIcon="filter" size="small" variant="quaternary">
-          {translate('text_66ab42d4ece7e6b7078993ad')}
-        </Button>
+        buttonOpener || (
+          <Button startIcon="filter" size="small" variant="quaternary">
+            {translate('text_66ab42d4ece7e6b7078993ad')}
+          </Button>
+        )
       }
     >
       {({ closePopper }) => (

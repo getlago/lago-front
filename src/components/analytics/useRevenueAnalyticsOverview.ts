@@ -56,6 +56,7 @@ gql`
 type RevenueAnalyticsOverviewReturn = {
   currency: CurrencyEnum
   data: RevenueStreamDataForOverviewSectionFragment[]
+  hasAccessToRevenueAnalyticsFeature: boolean
   hasError: boolean
   isLoading: boolean
   lastNetRevenueAmountCents: string
@@ -184,6 +185,7 @@ export const useRevenueAnalyticsOverview = (): RevenueAnalyticsOverviewReturn =>
 
   return {
     currency,
+    hasAccessToRevenueAnalyticsFeature,
     lastNetRevenueAmountCents,
     netRevenueAmountCentsProgressionOnPeriod,
     timeGranularity,
