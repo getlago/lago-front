@@ -231,7 +231,10 @@ export const InvoiceDetailsTableBodyLine = memo(
             <>
               <td>
                 <Typography variant="body" color="grey700">
-                  {fee?.units || 0}
+                  {intlFormatNumber(fee?.units || 0, {
+                    style: 'decimal',
+                    maximumFractionDigits: 6,
+                  })}
                 </Typography>
               </td>
               {canHaveUnitPrice && (
