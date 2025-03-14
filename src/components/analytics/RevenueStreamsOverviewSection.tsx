@@ -43,7 +43,8 @@ const RevenueStreamsOverviewSection = ({
 }: RevenueStreamsOverviewSectionProps) => {
   const { translate } = useInternationalization()
   const {
-    currency,
+    selectedCurrency,
+    defaultCurrency,
     data,
     hasError,
     isLoading,
@@ -61,7 +62,7 @@ const RevenueStreamsOverviewSection = ({
         <Filters.Provider
           filtersNamePrefix={REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX}
           staticFilters={{
-            currency,
+            currency: defaultCurrency,
             date: getDefaultStaticDateFilter(),
           }}
           staticQuickFilters={{
@@ -106,9 +107,9 @@ const RevenueStreamsOverviewSection = ({
 
       <div className="flex flex-col gap-1">
         <Typography variant="headline" color="grey700">
-          {intlFormatNumber(deserializeAmount(lastNetRevenueAmountCents || 0, currency), {
+          {intlFormatNumber(deserializeAmount(lastNetRevenueAmountCents || 0, selectedCurrency), {
             currencyDisplay: 'symbol',
-            currency: currency,
+            currency: selectedCurrency,
           })}
         </Typography>
         <div className="flex items-center gap-2">
@@ -150,7 +151,7 @@ const RevenueStreamsOverviewSection = ({
         <RevenueStreamsStateProvider>
           <MultipleLineChart
             xAxisDataKey="startOfPeriodDt"
-            currency={currency}
+            currency={selectedCurrency}
             data={data}
             loading={isLoading}
             timeGranularity={timeGranularity}
@@ -238,10 +239,10 @@ const RevenueStreamsOverviewSection = ({
                       })}
                     >
                       {intlFormatNumber(
-                        deserializeAmount(subscriptionFeeAmountCents || 0, currency),
+                        deserializeAmount(subscriptionFeeAmountCents || 0, selectedCurrency),
                         {
                           currencyDisplay: 'symbol',
-                          currency: currency,
+                          currency: selectedCurrency,
                         },
                       )}
                     </Typography>
@@ -276,10 +277,10 @@ const RevenueStreamsOverviewSection = ({
                       })}
                     >
                       {intlFormatNumber(
-                        deserializeAmount(usageBasedFeeAmountCents || 0, currency),
+                        deserializeAmount(usageBasedFeeAmountCents || 0, selectedCurrency),
                         {
                           currencyDisplay: 'symbol',
-                          currency: currency,
+                          currency: selectedCurrency,
                         },
                       )}
                     </Typography>
@@ -314,10 +315,10 @@ const RevenueStreamsOverviewSection = ({
                       })}
                     >
                       {intlFormatNumber(
-                        deserializeAmount(commitmentFeeAmountCents || 0, currency),
+                        deserializeAmount(commitmentFeeAmountCents || 0, selectedCurrency),
                         {
                           currencyDisplay: 'symbol',
-                          currency: currency,
+                          currency: selectedCurrency,
                         },
                       )}
                     </Typography>
@@ -351,10 +352,13 @@ const RevenueStreamsOverviewSection = ({
                         'text-grey-500': oneOffFeeAmountCents === 0,
                       })}
                     >
-                      {intlFormatNumber(deserializeAmount(oneOffFeeAmountCents || 0, currency), {
-                        currencyDisplay: 'symbol',
-                        currency: currency,
-                      })}
+                      {intlFormatNumber(
+                        deserializeAmount(oneOffFeeAmountCents || 0, selectedCurrency),
+                        {
+                          currencyDisplay: 'symbol',
+                          currency: selectedCurrency,
+                        },
+                      )}
                     </Typography>
                   )
                 },
@@ -378,10 +382,13 @@ const RevenueStreamsOverviewSection = ({
                         'text-grey-500': grossRevenueAmountCents === 0,
                       })}
                     >
-                      {intlFormatNumber(deserializeAmount(grossRevenueAmountCents || 0, currency), {
-                        currencyDisplay: 'symbol',
-                        currency: currency,
-                      })}
+                      {intlFormatNumber(
+                        deserializeAmount(grossRevenueAmountCents || 0, selectedCurrency),
+                        {
+                          currencyDisplay: 'symbol',
+                          currency: selectedCurrency,
+                        },
+                      )}
                     </Typography>
                   )
                 },
@@ -405,10 +412,13 @@ const RevenueStreamsOverviewSection = ({
                         'text-grey-500': couponsAmountCents === 0,
                       })}
                     >
-                      {intlFormatNumber(deserializeAmount(couponsAmountCents || 0, currency), {
-                        currencyDisplay: 'symbol',
-                        currency: currency,
-                      })}
+                      {intlFormatNumber(
+                        deserializeAmount(couponsAmountCents || 0, selectedCurrency),
+                        {
+                          currencyDisplay: 'symbol',
+                          currency: selectedCurrency,
+                        },
+                      )}
                     </Typography>
                   )
                 },
@@ -432,10 +442,13 @@ const RevenueStreamsOverviewSection = ({
                         'text-grey-500': netRevenueAmountCents === 0,
                       })}
                     >
-                      {intlFormatNumber(deserializeAmount(netRevenueAmountCents || 0, currency), {
-                        currencyDisplay: 'symbol',
-                        currency: currency,
-                      })}
+                      {intlFormatNumber(
+                        deserializeAmount(netRevenueAmountCents || 0, selectedCurrency),
+                        {
+                          currencyDisplay: 'symbol',
+                          currency: selectedCurrency,
+                        },
+                      )}
                     </Typography>
                   )
                 },
