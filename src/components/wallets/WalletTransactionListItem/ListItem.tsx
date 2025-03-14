@@ -54,6 +54,7 @@ export const ListItem: FC<ListItemProps> = ({
 
   const isClickable = !!onClick
   const isPending = status === WalletTransactionStatusEnum.Pending
+  const isFailed = status === WalletTransactionStatusEnum.Failed
 
   return (
     <li className={tw('relative shadow-b', isClickable && 'hover:bg-grey-100')}>
@@ -76,9 +77,10 @@ export const ListItem: FC<ListItemProps> = ({
           <Avatar className="mr-3" size="big" variant="connector">
             <Icon name={iconName} color="dark" />
             {isPending && <AvatarBadge icon="sync" color="dark" />}
+            {isFailed && <AvatarBadge icon="stop" color="warning" />}
           </Avatar>
           <div className="flex flex-col justify-end">
-            <Typography variant="bodyHl" color={isPending ? 'grey500' : labelColor}>
+            <Typography variant="bodyHl" color={isPending || isFailed ? 'grey500' : labelColor}>
               {label}
             </Typography>
             {date && (
@@ -86,6 +88,11 @@ export const ListItem: FC<ListItemProps> = ({
                 {isPending && (
                   <span data-test="caption-pending">{`${translate(
                     'text_62da6db136909f52c2704c30',
+                  )} • `}</span>
+                )}
+                {isFailed && (
+                  <span data-test="caption-failed">{`${translate(
+                    'text_637656ef3d876b0269edc7a1',
                   )} • `}</span>
                 )}
                 {intlFormatDateTime(date, { timezone }).date}
@@ -97,9 +104,10 @@ export const ListItem: FC<ListItemProps> = ({
           <div className="flex flex-col items-end">
             <Typography
               variant="bodyHl"
-              color={isPending ? 'grey500' : creditsColor}
+              color={isPending || isFailed ? 'grey500' : creditsColor}
               blur={isBlurry}
               data-test="credits"
+              className={tw(isFailed && 'line-through')}
             >
               {credits}
             </Typography>
