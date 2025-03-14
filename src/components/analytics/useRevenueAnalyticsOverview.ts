@@ -103,6 +103,7 @@ export const useRevenueAnalyticsOverview = (): RevenueAnalyticsOverviewReturn =>
   const filtersForRevenueStreamsQuery = useMemo(() => {
     if (!hasAccessToRevenueAnalyticsFeature) {
       return {
+        currency: organization?.defaultCurrency || CurrencyEnum.Usd,
         date: getDefaultStaticDateFilter(),
         timeGranularity: getDefaultStaticTimeGranularityFilter(),
       }
@@ -111,9 +112,10 @@ export const useRevenueAnalyticsOverview = (): RevenueAnalyticsOverviewReturn =>
     return formatFiltersForRevenueStreamsQuery(searchParams)
   }, [
     hasAccessToRevenueAnalyticsFeature,
+    searchParams,
+    organization?.defaultCurrency,
     getDefaultStaticDateFilter,
     getDefaultStaticTimeGranularityFilter,
-    searchParams,
   ])
 
   const {
