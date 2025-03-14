@@ -54,7 +54,8 @@ gql`
 `
 
 type RevenueAnalyticsOverviewReturn = {
-  currency: CurrencyEnum
+  selectedCurrency: CurrencyEnum
+  defaultCurrency: CurrencyEnum
   data: RevenueStreamDataForOverviewSectionFragment[]
   hasAccessToRevenueAnalyticsFeature: boolean
   hasError: boolean
@@ -82,6 +83,8 @@ export const useRevenueAnalyticsOverview = (): RevenueAnalyticsOverviewReturn =>
     PremiumIntegrationTypeEnum.RevenueAnalytics,
   )
 
+  const defaultCurrency = organization?.defaultCurrency || CurrencyEnum.Usd
+
   const getDefaultStaticDateFilter = useCallback((): string => {
     const now = DateTime.now()
 
@@ -103,7 +106,7 @@ export const useRevenueAnalyticsOverview = (): RevenueAnalyticsOverviewReturn =>
   const filtersForRevenueStreamsQuery = useMemo(() => {
     if (!hasAccessToRevenueAnalyticsFeature) {
       return {
-        currency: organization?.defaultCurrency || CurrencyEnum.Usd,
+        currency: defaultCurrency,
         date: getDefaultStaticDateFilter(),
         timeGranularity: getDefaultStaticTimeGranularityFilter(),
       }
@@ -113,7 +116,7 @@ export const useRevenueAnalyticsOverview = (): RevenueAnalyticsOverviewReturn =>
   }, [
     hasAccessToRevenueAnalyticsFeature,
     searchParams,
-    organization?.defaultCurrency,
+    defaultCurrency,
     getDefaultStaticDateFilter,
     getDefaultStaticTimeGranularityFilter,
   ])
@@ -133,14 +136,14 @@ export const useRevenueAnalyticsOverview = (): RevenueAnalyticsOverviewReturn =>
     searchParams,
   ) as TimeGranularityEnum
 
-  const currency = useMemo(() => {
+  const selectedCurrency = useMemo(() => {
     const currencyFromFilter = getFilterByKey(AvailableFiltersEnum.currency, searchParams)
 
     if (!!currencyFromFilter) {
       return currencyFromFilter as CurrencyEnum
     }
-    return organization?.defaultCurrency || CurrencyEnum.Usd
-  }, [searchParams, organization])
+    return defaultCurrency
+  }, [searchParams, defaultCurrency])
 
   const formattedRevenueStreamsData = useMemo(() => {
     return formatRevenueStreamsData({
@@ -186,10 +189,11 @@ export const useRevenueAnalyticsOverview = (): RevenueAnalyticsOverviewReturn =>
   }, [formattedRevenueStreamsData])
 
   return {
-    currency,
+    defaultCurrency,
     hasAccessToRevenueAnalyticsFeature,
     lastNetRevenueAmountCents,
     netRevenueAmountCentsProgressionOnPeriod,
+    selectedCurrency,
     timeGranularity,
     data: formattedRevenueStreamsData,
     hasError: !!revenueStreamsError && !revenueStreamsLoading,
