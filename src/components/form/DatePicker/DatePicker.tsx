@@ -246,6 +246,14 @@ export const DatePicker = ({
                 },
               },
             }}
+            sx={{
+              '& .MuiFormHelperText-contained': {
+                margin: '4px 0 0',
+              },
+              '& .MuiFormHelperText-root': {
+                color: theme.palette.grey[600],
+              },
+            }}
           />
         </ConditionalWrapper>
       </div>

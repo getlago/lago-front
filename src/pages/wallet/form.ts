@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import { array, object, string } from 'yup'
 
 import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
+import { metadataSchema } from '~/formValidation/metadataSchema'
 import {
   RecurringTransactionMethodEnum,
   RecurringTransactionTriggerEnum,
@@ -65,7 +66,6 @@ export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
       },
     }),
     rateAmount: string().required(''),
-
     recurringTransactionRules: array()
       .of(
         object().shape({
@@ -180,6 +180,37 @@ export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
                 return true
               },
             }),
+          expirationAt: string()
+            .test({
+              test: function (value, { path }) {
+                // Value can be undefined
+                if (!value) {
+                  return true
+                }
+
+                // Make sure value has correct format
+                if (!DateTime.fromISO(value).isValid) {
+                  return this.createError({
+                    path,
+                    message: dateErrorCodes.wrongFormat,
+                  })
+                }
+
+                const endingAt = DateTime.fromISO(value)
+
+                // Make sure endingAt is in the future
+                if (DateTime.now().diff(endingAt, 'days').days >= 0) {
+                  return this.createError({
+                    path,
+                    message: dateErrorCodes.shouldBeInFuture,
+                  })
+                }
+
+                return true
+              },
+            })
+            .nullable(),
+          transactionMetadata: metadataSchema({ metadataKey: 'transactionMetadata' }).nullable(),
         }),
       )
       .nullable(),

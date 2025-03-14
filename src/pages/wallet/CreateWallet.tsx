@@ -54,6 +54,11 @@ gql`
       thresholdCredits
       startedAt
       invoiceRequiresSuccessfulPayment
+      expirationAt
+      transactionMetadata {
+        key
+        value
+      }
     }
   }
 
@@ -165,6 +170,7 @@ const CreateWallet = () => {
       }
     },
   })
+
   const [updateWallet] = useUpdateCustomerWalletMutation({
     context: {
       silentErrorCodes: [LagoApiError.UnprocessableEntity],
@@ -219,6 +225,8 @@ const CreateWallet = () => {
                   invoiceRequiresSuccessfulPayment,
                   paidCredits: rulePaidCredit,
                   grantedCredits: ruleGrantedCredit,
+                  expirationAt,
+                  ...rest
                 } = rule
 
                 let targetedBalance: string | null = null
@@ -233,6 +241,7 @@ const CreateWallet = () => {
                 }
 
                 return {
+                  ...rest,
                   lagoId:
                     'lagoId' in rule && formType === FORM_TYPE_ENUM.edition
                       ? rule.lagoId
@@ -250,37 +259,34 @@ const CreateWallet = () => {
                   grantedCredits: ruleGrantedCredit === '' ? '0' : String(ruleGrantedCredit),
                   targetOngoingBalance: targetedBalance,
                   invoiceRequiresSuccessfulPayment,
+                  expirationAt: expirationAt === '' ? null : expirationAt,
                 }
               },
             )
           : []
 
       if (formType === FORM_TYPE_ENUM.edition) {
-        const { errors } = await updateWallet({
-          variables: {
-            input: {
-              ...values,
-              recurringTransactionRules: recurringTransactionRulesFormatted,
-              id: walletId,
-            },
-          },
-        })
+        const input = {
+          ...values,
+          recurringTransactionRules: recurringTransactionRulesFormatted,
+          id: walletId,
+        }
+
+        const { errors } = await updateWallet({ variables: { input } })
 
         if (!!errors?.length) return
       } else {
-        const { errors } = await createWallet({
-          variables: {
-            input: {
-              ...values,
-              customerId,
-              currency: valuesCurrency,
-              rateAmount: String(rateAmount),
-              grantedCredits: grantedCredits === '' ? '0' : String(grantedCredits),
-              paidCredits: paidCredits === '' ? '0' : String(paidCredits),
-              recurringTransactionRules: recurringTransactionRulesFormatted,
-            },
-          },
-        })
+        const input = {
+          ...values,
+          customerId,
+          currency: valuesCurrency,
+          rateAmount: String(rateAmount),
+          grantedCredits: grantedCredits === '' ? '0' : String(grantedCredits),
+          paidCredits: paidCredits === '' ? '0' : String(paidCredits),
+          recurringTransactionRules: recurringTransactionRulesFormatted,
+        }
+
+        const { errors } = await createWallet({ variables: { input } })
 
         if (!!errors?.length) return
       }

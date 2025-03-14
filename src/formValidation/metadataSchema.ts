@@ -8,7 +8,10 @@ export enum MetadataErrorsEnum {
   maxLength = 'maxLength',
 }
 
-export const metadataSchema = ({ valueMaxLength = METADATA_VALUE_MAX_LENGTH_DEFAULT } = {}) =>
+export const metadataSchema = ({
+  valueMaxLength = METADATA_VALUE_MAX_LENGTH_DEFAULT,
+  metadataKey = 'metadata',
+} = {}) =>
   array().of(
     object().shape({
       key: string().test({
@@ -17,8 +20,8 @@ export const metadataSchema = ({ valueMaxLength = METADATA_VALUE_MAX_LENGTH_DEFA
             return false
           }
 
-          if (from?.[1]?.value?.metadata?.length > 1) {
-            const keysList = from?.[1]?.value?.metadata?.map((m: { key: string }) => m.key)
+          if (from?.[1]?.value?.[metadataKey]?.length > 1) {
+            const keysList = from?.[1]?.value?.[metadataKey]?.map((m: { key: string }) => m.key)
 
             // Check key unicity
             if (keysList?.indexOf(value) !== keysList?.lastIndexOf(value)) {
