@@ -1,6 +1,8 @@
 import { createContext, FC, PropsWithChildren, useContext, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
+import { PopperProps } from '~/components/designSystem'
+
 import { AvailableFiltersEnum, AvailableQuickFilters } from './types'
 
 interface FilterContextType {
@@ -9,6 +11,7 @@ interface FilterContextType {
   staticFilters?: Partial<Record<AvailableFiltersEnum, string>>
   staticQuickFilters?: Partial<Record<AvailableQuickFilters, string>>
   filtersNamePrefix: string
+  buttonOpener?: PopperProps['opener']
 }
 
 export const FilterContext = createContext<FilterContextType | undefined>(undefined)

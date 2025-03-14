@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
-import { useState } from 'react'
 
+import { RevenueStreamsStateProvider } from '~/components/analytics/RevenueStreamsStateContext'
 import { useRevenueAnalyticsOverview } from '~/components/analytics/useRevenueAnalyticsOverview'
-import { HorizontalDataTable, Icon, Typography } from '~/components/designSystem'
+import { Button, HorizontalDataTable, Icon, Typography } from '~/components/designSystem'
 import {
   AvailableQuickFilters,
   Filters,
@@ -12,6 +12,7 @@ import { REVENUE_STREAMS_GRAPH_COLORS } from '~/components/designSystem/graphs/c
 import MultipleLineChart from '~/components/designSystem/graphs/MultipleLineChart'
 import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/graphs/utils'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -33,7 +34,13 @@ gql`
   }
 `
 
-const RevenueStreamsOverviewSection = () => {
+type RevenueStreamsOverviewSectionProps = {
+  premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
+}
+
+const RevenueStreamsOverviewSection = ({
+  premiumWarningDialogRef,
+}: RevenueStreamsOverviewSectionProps) => {
   const { translate } = useInternationalization()
   const {
     currency,
@@ -45,9 +52,8 @@ const RevenueStreamsOverviewSection = () => {
     timeGranularity,
     getDefaultStaticDateFilter,
     getDefaultStaticTimeGranularityFilter,
+    hasAccessToRevenueAnalyticsFeature,
   } = useRevenueAnalyticsOverview()
-  const [clickedDataIndex, setClickedDataIndex] = useState<number | undefined>(undefined)
-  const [hoverDataIndex, setHoverDataIndex] = useState<number | undefined>(undefined)
 
   return (
     <section className="flex flex-col gap-6">
@@ -63,6 +69,24 @@ const RevenueStreamsOverviewSection = () => {
           }}
           availableFilters={RevenueStreamsAvailablePopperFilters}
           quickFiltersType={AvailableQuickFilters.timeGranularity}
+          buttonOpener={({ onClick }) => (
+            <Button
+              startIcon="filter"
+              endIcon={!hasAccessToRevenueAnalyticsFeature ? 'sparkles' : undefined}
+              size="small"
+              variant="quaternary"
+              onClick={(e) => {
+                if (!hasAccessToRevenueAnalyticsFeature) {
+                  e.stopPropagation()
+                  premiumWarningDialogRef.current?.openDialog()
+                } else {
+                  onClick()
+                }
+              }}
+            >
+              {translate('text_66ab42d4ece7e6b7078993ad')}
+            </Button>
+          )}
         >
           <div className="flex items-center justify-between">
             <Typography variant="subhead" color="grey700">
@@ -123,16 +147,13 @@ const RevenueStreamsOverviewSection = () => {
       )}
 
       {!hasError && (
-        <>
+        <RevenueStreamsStateProvider>
           <MultipleLineChart
             xAxisDataKey="startOfPeriodDt"
             currency={currency}
             data={data}
-            hoveredDataIndex={hoverDataIndex}
             loading={isLoading}
             timeGranularity={timeGranularity}
-            setClickedDataIndex={setClickedDataIndex}
-            setHoverDataIndex={setHoverDataIndex}
             lines={[
               {
                 dataKey: 'subscriptionFeeAmountCents',
@@ -176,9 +197,6 @@ const RevenueStreamsOverviewSection = () => {
             leftColumnWidth={190}
             data={data}
             loading={isLoading}
-            clickedDataIndex={clickedDataIndex}
-            setClickedDataIndex={setClickedDataIndex}
-            setHoveredDataIndex={setHoverDataIndex}
             rows={[
               {
                 key: 'startOfPeriodDt',
@@ -424,7 +442,7 @@ const RevenueStreamsOverviewSection = () => {
               },
             ]}
           />
-        </>
+        </RevenueStreamsStateProvider>
       )}
     </section>
   )

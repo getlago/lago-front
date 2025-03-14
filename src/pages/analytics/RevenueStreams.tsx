@@ -1,11 +1,15 @@
+import { useRef } from 'react'
+
 import RevenueStreamsBreakdownSection from '~/components/analytics/RevenueStreamsBreakdownSection'
 import RevenueStreamsOverviewSection from '~/components/analytics/RevenueStreamsOverviewSection'
 import { Icon, Tooltip, Typography } from '~/components/designSystem'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
+import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 const RevenueStreams = () => {
   const { translate } = useInternationalization()
+  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
 
   return (
     <FullscreenPage.Wrapper>
@@ -16,9 +20,11 @@ const RevenueStreams = () => {
         </Tooltip>
       </Typography>
 
-      <RevenueStreamsOverviewSection />
+      <RevenueStreamsOverviewSection premiumWarningDialogRef={premiumWarningDialogRef} />
 
       <RevenueStreamsBreakdownSection />
+
+      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </FullscreenPage.Wrapper>
   )
 }
