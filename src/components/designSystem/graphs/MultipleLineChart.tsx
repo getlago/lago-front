@@ -1,4 +1,5 @@
-import { Dispatch, SetStateAction, useMemo, useState } from 'react'
+import debounce from 'lodash/debounce'
+import { useCallback, useMemo } from 'react'
 import {
   Line,
   LineChart,
@@ -9,6 +10,7 @@ import {
 } from 'recharts'
 import { NameType, Payload, ValueType } from 'recharts/types/component/DefaultTooltipContent'
 
+import { useRevenueStreamsState } from '~/components/analytics/RevenueStreamsStateContext'
 import { Typography } from '~/components/designSystem'
 import {
   multipleLineChartFakeData,
@@ -71,12 +73,9 @@ type MultipleLineChartProps<T> = {
   blur?: boolean
   currency: CurrencyEnum
   data?: T[]
-  hoveredDataIndex?: number | undefined
   lines: Array<MultipleLineChartLine<T>>
   loading: boolean
   xAxisDataKey: DotNestedKeys<T>
-  setClickedDataIndex?: Dispatch<SetStateAction<number | undefined>>
-  setHoverDataIndex?: Dispatch<SetStateAction<number | undefined>>
   timeGranularity: TimeGranularityEnum
 }
 
@@ -157,17 +156,19 @@ const MultipleLineChart = <T extends DataItem>({
   blur,
   currency,
   data,
-  hoveredDataIndex,
   lines,
   loading,
   xAxisDataKey,
   timeGranularity,
-  setClickedDataIndex,
-  setHoverDataIndex,
 }: MultipleLineChartProps<T>) => {
-  const [localHoverDataIndexFallback, setLocalHoverDataIndexFallback] = useState<
-    number | undefined
-  >(undefined)
+  const { hoverDataIndex, setHoverDataIndex, setClickedDataIndex } = useRevenueStreamsState()
+
+  const handleHoverUpdate = useCallback(
+    (index: number | undefined) => {
+      setHoverDataIndex(index)
+    },
+    [setHoverDataIndex],
+  )
 
   const { localData, localLines } = useMemo(() => {
     if (loading || !data) {
@@ -189,20 +190,12 @@ const MultipleLineChart = <T extends DataItem>({
     }
   }, [blur, data, lines, loading])
 
-  // This makes sure the tolltip is shown on hover even if setHoverDataIndex is not defined: if chart is used as a standalone component
-  const { localHoverDataIndex, localSetHoverDataIndex } = useMemo(() => {
-    if (!setHoverDataIndex) {
-      return {
-        localHoverDataIndex: localHoverDataIndexFallback,
-        localSetHoverDataIndex: setLocalHoverDataIndexFallback,
-      }
-    }
-
+  // Use the hover data index from context
+  const { localHoverDataIndex } = useMemo(() => {
     return {
-      localHoverDataIndex: hoveredDataIndex,
-      localSetHoverDataIndex: setHoverDataIndex,
+      localHoverDataIndex: hoverDataIndex,
     }
-  }, [setHoverDataIndex, hoveredDataIndex, localHoverDataIndexFallback])
+  }, [hoverDataIndex])
 
   const yTooltipPosition = useMemo(() => {
     const DEFAULT_TOOLTIP_Y_GAP = 60
@@ -237,24 +230,37 @@ const MultipleLineChart = <T extends DataItem>({
           width={500}
           height={300}
           data={localData}
-          onClick={
-            !!setClickedDataIndex
-              ? (event) =>
-                  typeof event?.activeTooltipIndex === 'number' &&
-                  setClickedDataIndex(event.activeTooltipIndex)
-              : undefined
+          onClick={(event) =>
+            typeof event?.activeTooltipIndex === 'number' &&
+            setClickedDataIndex(event.activeTooltipIndex)
           }
-          onMouseMove={
-            !!localSetHoverDataIndex
-              ? (event) => {
-                  typeof event?.activeTooltipIndex === 'number' &&
-                    event.activeTooltipIndex !== localHoverDataIndex &&
-                    localSetHoverDataIndex(event.activeTooltipIndex)
-                }
-              : undefined
-          }
+          onMouseMove={useMemo(
+            () =>
+              debounce(
+                (event) => {
+                  const newIndex = event?.activeTooltipIndex
+
+                  if (typeof newIndex === 'number') {
+                    handleHoverUpdate(newIndex)
+                  }
+                },
+                // Scale debounce time more aggressively for larger datasets
+                // For 300 elements: ~8ms
+                // For 1000 elements: ~49ms
+                Math.max(1, Math.round(Math.pow((localData?.length || 0) / 300, 1.5) * 8)),
+                {
+                  leading: true,
+                  trailing: true,
+                  maxWait: Math.max(
+                    2,
+                    Math.round(Math.pow((localData?.length || 0) / 300, 1.5) * 16),
+                  ),
+                },
+              ),
+            [handleHoverUpdate, localData?.length],
+          )}
           onMouseLeave={() => {
-            localSetHoverDataIndex(undefined)
+            handleHoverUpdate(undefined)
           }}
         >
           <XAxis

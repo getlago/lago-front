@@ -1,6 +1,7 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { Dispatch, ReactNode, SetStateAction, useCallback, useEffect, useMemo, useRef } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useRef } from 'react'
 
+import { useRevenueStreamsState } from '~/components/analytics/RevenueStreamsStateContext'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { tw } from '~/styles/utils'
 
@@ -35,14 +36,11 @@ type TRows<T> = {
 
 type HorizontalDataTableProps<T> = {
   rows: TRows<T>
-  clickedDataIndex?: number | undefined
   columnIdPrefix?: string
   columnWidth?: number
   data?: T[]
   leftColumnWidth?: number
   loading?: boolean
-  setClickedDataIndex?: Dispatch<SetStateAction<number | undefined>>
-  setHoveredDataIndex?: Dispatch<SetStateAction<number | undefined>>
 }
 
 const getRowHeight = (rowType: RowType) => {
@@ -52,16 +50,15 @@ const getRowHeight = (rowType: RowType) => {
 }
 
 export const HorizontalDataTable = <T extends DataItem>({
-  clickedDataIndex,
   columnIdPrefix = 'column-',
   columnWidth = DEFAULT_COLUMN_WIDTH,
   data,
   leftColumnWidth = DEFAULT_LEFT_COLUMN_WIDTH,
   loading,
   rows,
-  setClickedDataIndex,
-  setHoveredDataIndex,
 }: HorizontalDataTableProps<T>) => {
+  // Get the hover and click state from context
+  const { clickedDataIndex, setHoverDataIndex, setClickedDataIndex } = useRevenueStreamsState()
   const parentRef = useRef(null)
 
   const columnVirtualizer = useVirtualizer({
@@ -141,7 +138,7 @@ export const HorizontalDataTable = <T extends DataItem>({
         onMouseEnter={
           !loading
             ? () => {
-                if (typeof clickedDataIndex === 'number' && !!setClickedDataIndex) {
+                if (typeof clickedDataIndex === 'number') {
                   setClickedDataIndex(undefined)
                 }
               }
@@ -153,6 +150,13 @@ export const HorizontalDataTable = <T extends DataItem>({
           style={{
             width: `${columnVirtualizer.getTotalSize()}px`,
           }}
+          onMouseLeave={
+            !loading
+              ? () => {
+                  setHoverDataIndex(undefined)
+                }
+              : undefined
+          }
         >
           {columnVirtualizer.getVirtualItems().map((virtualColumn) => (
             <div
@@ -167,16 +171,9 @@ export const HorizontalDataTable = <T extends DataItem>({
                 left: `${virtualColumn.start}px`,
               }}
               onMouseEnter={
-                !loading && !!setHoveredDataIndex
+                !loading
                   ? () => {
-                      setHoveredDataIndex(virtualColumn.index)
-                    }
-                  : undefined
-              }
-              onMouseLeave={
-                !loading && !!setHoveredDataIndex
-                  ? () => {
-                      setHoveredDataIndex(undefined)
+                      setHoverDataIndex(virtualColumn.index)
                     }
                   : undefined
               }
