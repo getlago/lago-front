@@ -250,6 +250,9 @@ export const DatePicker = ({
               '& .MuiFormHelperText-contained': {
                 margin: '4px 0 0',
               },
+              '& .MuiFormHelperText-root.Mui-error': {
+                color: theme.palette.error.main,
+              },
               '& .MuiFormHelperText-root': {
                 color: theme.palette.grey[600],
               },
