@@ -7,12 +7,18 @@ import { tw } from '~/styles/utils'
 import { Icon, IconName } from './Icon'
 import { Skeleton } from './Skeleton'
 
+export enum TabManagedBy {
+  URL = 'url',
+  INDEX = 'index',
+}
+
 type NavigationTabProps = {
+  managedBy?: TabManagedBy
   loading?: boolean
   name?: string
   className?: string
   tabs: {
-    link: string
+    link?: string
     title: string
     match?: string[]
     icon?: IconName
@@ -54,6 +60,7 @@ const a11yProps = (index: number) => {
 export const NavigationTab = ({
   className,
   loading,
+  managedBy = TabManagedBy.URL,
   name = 'Navigation tab',
   tabs,
 }: NavigationTabProps) => {
@@ -69,8 +76,15 @@ export const NavigationTab = ({
 
   // Make sure the active tab is selected when the page is loaded
   useEffect(() => {
-    const activeTab = nonHiddenTabs.findIndex((tab) => {
-      return tab.link === window.location.pathname
+    const findActiveTabIndexLookup: Record<
+      TabManagedBy,
+      ({ tab, tabIndex }: { tab: { link?: string }; tabIndex: number }) => boolean
+    > = {
+      [TabManagedBy.URL]: ({ tab }) => tab.link === window.location.pathname,
+      [TabManagedBy.INDEX]: ({ tabIndex }) => tabIndex === value,
+    }
+    const activeTab = nonHiddenTabs.findIndex((tab, tabIndex) => {
+      return findActiveTabIndexLookup[managedBy]({ tab, tabIndex })
     })
 
     if (activeTab !== -1) {
@@ -130,7 +144,16 @@ export const NavigationTab = ({
                   label={<Typography variant="captionHl">{tab.title}</Typography>}
                   value={tabIndex}
                   onClick={() => {
-                    !!tab.link && navigate(tab.link)
+                    const onClickActionLookup: Record<TabManagedBy, () => void> = {
+                      [TabManagedBy.URL]: () => {
+                        !!tab.link && navigate(tab.link)
+                      },
+                      [TabManagedBy.INDEX]: () => {
+                        setValue(tabIndex)
+                      },
+                    }
+
+                    onClickActionLookup[managedBy]()
                   }}
                   {...a11yProps(tabIndex)}
                 />
