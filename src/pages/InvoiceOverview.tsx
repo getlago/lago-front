@@ -68,6 +68,9 @@ gql`
     externalHubspotIntegrationId
     integrationSalesforceSyncable
     externalSalesforceIntegrationId
+    fees {
+      id
+    }
     customer {
       id
       applicableTimezone
@@ -196,7 +199,7 @@ const InvoiceOverview = memo(
       (invoice?.status === InvoiceStatusTypeEnum.Finalized ||
         invoice?.status === InvoiceStatusTypeEnum.Voided) &&
       !!invoice?.customer?.anrokCustomer?.externalAccountId
-    const showAnrokSection = showAnrokReSyncButton || showAnrokLink
+    const showAnrokSection = (showAnrokReSyncButton || showAnrokLink) && !!invoice?.fees?.length
 
     const showHubspotReSyncButton = invoice?.integrationHubspotSyncable
     const showHubspotLink =
