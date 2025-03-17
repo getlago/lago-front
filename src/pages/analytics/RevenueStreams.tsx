@@ -22,7 +22,7 @@ const RevenueStreams = () => {
 
       <RevenueStreamsOverviewSection premiumWarningDialogRef={premiumWarningDialogRef} />
 
-      <RevenueStreamsBreakdownSection />
+      <RevenueStreamsBreakdownSection premiumWarningDialogRef={premiumWarningDialogRef} />
 
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </FullscreenPage.Wrapper>

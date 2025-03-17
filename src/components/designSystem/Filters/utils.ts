@@ -4,6 +4,8 @@ import {
   CREDIT_NOTE_LIST_FILTER_PREFIX,
   CUSTOMER_LIST_FILTER_PREFIX,
   INVOICE_LIST_FILTER_PREFIX,
+  REVENUE_STREAMS_BREAKDOWN_CUSTOMER_FILTER_PREFIX,
+  REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX,
   REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX,
 } from '~/core/constants/filters'
 import { intlFormatDateTime } from '~/core/timezone'
@@ -18,6 +20,8 @@ import {
   filterDataInlineSeparator,
   InvoiceAvailableFilters,
   RevenueStreamsAvailablePopperFilters,
+  RevenueStreamsCustomersAvailableFilters,
+  RevenueStreamsPlansAvailableFilters,
 } from './types'
 
 const keyWithPrefix = (key: string, prefix?: string) => (prefix ? `${prefix}_${key}` : key)
@@ -180,6 +184,22 @@ export const formatFiltersForRevenueStreamsQuery = (searchParams: URLSearchParam
       AvailableFiltersEnum.timeGranularity,
     ],
     filtersNamePrefix: REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX,
+  })
+}
+
+export const formatFiltersForRevenueStreamsPlansQuery = (searchParams: URLSearchParams) => {
+  return formatFiltersForQuery({
+    searchParams,
+    availableFilters: RevenueStreamsPlansAvailableFilters,
+    filtersNamePrefix: REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX,
+  })
+}
+
+export const formatFiltersForRevenueStreamsCustomersQuery = (searchParams: URLSearchParams) => {
+  return formatFiltersForQuery({
+    searchParams,
+    availableFilters: RevenueStreamsCustomersAvailableFilters,
+    filtersNamePrefix: REVENUE_STREAMS_BREAKDOWN_CUSTOMER_FILTER_PREFIX,
   })
 }
 

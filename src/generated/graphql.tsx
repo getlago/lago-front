@@ -6849,7 +6849,23 @@ export type DeleteAddOnMutationVariables = Exact<{
 
 export type DeleteAddOnMutation = { __typename?: 'Mutation', destroyAddOn?: { __typename?: 'DestroyAddOnPayload', id?: string | null } | null };
 
+export type GetRevenueStreamsCustomerBreakdownQueryVariables = Exact<{
+  currency?: InputMaybe<CurrencyEnum>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetRevenueStreamsCustomerBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsCustomers: { __typename?: 'DataApiRevenueStreamCustomerCollection', collection: Array<{ __typename?: 'DataApiRevenueStreamCustomer', amountCurrency: CurrencyEnum, customerName: string, externalCustomerId: string, netRevenueAmountCents: any, netRevenueShare: number }> } };
+
 export type RevenueStreamDataForOverviewSectionFragment = { __typename?: 'DataApiRevenueStream', commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any };
+
+export type GetRevenueStreamsPlanBreakdownQueryVariables = Exact<{
+  currency?: InputMaybe<CurrencyEnum>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetRevenueStreamsPlanBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsPlans: { __typename?: 'RevenueStreamPlanCollection', collection: Array<{ __typename?: 'RevenueStreamPlan', amountCurrency: CurrencyEnum, customersCount: number, customersShare: number, netRevenueAmountCents: any, netRevenueShare: number, planCode: string, planId: string, planInterval: PlanInterval, planName: string }> } };
 
 export type GetRevenueStreamsQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
@@ -13156,6 +13172,104 @@ export function useDeleteAddOnMutation(baseOptions?: Apollo.MutationHookOptions<
 export type DeleteAddOnMutationHookResult = ReturnType<typeof useDeleteAddOnMutation>;
 export type DeleteAddOnMutationResult = Apollo.MutationResult<DeleteAddOnMutation>;
 export type DeleteAddOnMutationOptions = Apollo.BaseMutationOptions<DeleteAddOnMutation, DeleteAddOnMutationVariables>;
+export const GetRevenueStreamsCustomerBreakdownDocument = gql`
+    query getRevenueStreamsCustomerBreakdown($currency: CurrencyEnum, $limit: Int) {
+  dataApiRevenueStreamsCustomers(currency: $currency, limit: $limit) {
+    collection {
+      amountCurrency
+      customerName
+      externalCustomerId
+      netRevenueAmountCents
+      netRevenueShare
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetRevenueStreamsCustomerBreakdownQuery__
+ *
+ * To run a query within a React component, call `useGetRevenueStreamsCustomerBreakdownQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRevenueStreamsCustomerBreakdownQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRevenueStreamsCustomerBreakdownQuery({
+ *   variables: {
+ *      currency: // value for 'currency'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetRevenueStreamsCustomerBreakdownQuery(baseOptions?: Apollo.QueryHookOptions<GetRevenueStreamsCustomerBreakdownQuery, GetRevenueStreamsCustomerBreakdownQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetRevenueStreamsCustomerBreakdownQuery, GetRevenueStreamsCustomerBreakdownQueryVariables>(GetRevenueStreamsCustomerBreakdownDocument, options);
+      }
+export function useGetRevenueStreamsCustomerBreakdownLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRevenueStreamsCustomerBreakdownQuery, GetRevenueStreamsCustomerBreakdownQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetRevenueStreamsCustomerBreakdownQuery, GetRevenueStreamsCustomerBreakdownQueryVariables>(GetRevenueStreamsCustomerBreakdownDocument, options);
+        }
+export function useGetRevenueStreamsCustomerBreakdownSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRevenueStreamsCustomerBreakdownQuery, GetRevenueStreamsCustomerBreakdownQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetRevenueStreamsCustomerBreakdownQuery, GetRevenueStreamsCustomerBreakdownQueryVariables>(GetRevenueStreamsCustomerBreakdownDocument, options);
+        }
+export type GetRevenueStreamsCustomerBreakdownQueryHookResult = ReturnType<typeof useGetRevenueStreamsCustomerBreakdownQuery>;
+export type GetRevenueStreamsCustomerBreakdownLazyQueryHookResult = ReturnType<typeof useGetRevenueStreamsCustomerBreakdownLazyQuery>;
+export type GetRevenueStreamsCustomerBreakdownSuspenseQueryHookResult = ReturnType<typeof useGetRevenueStreamsCustomerBreakdownSuspenseQuery>;
+export type GetRevenueStreamsCustomerBreakdownQueryResult = Apollo.QueryResult<GetRevenueStreamsCustomerBreakdownQuery, GetRevenueStreamsCustomerBreakdownQueryVariables>;
+export const GetRevenueStreamsPlanBreakdownDocument = gql`
+    query getRevenueStreamsPlanBreakdown($currency: CurrencyEnum, $limit: Int) {
+  dataApiRevenueStreamsPlans(currency: $currency, limit: $limit) {
+    collection {
+      amountCurrency
+      customersCount
+      customersShare
+      netRevenueAmountCents
+      netRevenueShare
+      planCode
+      planId
+      planInterval
+      planName
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetRevenueStreamsPlanBreakdownQuery__
+ *
+ * To run a query within a React component, call `useGetRevenueStreamsPlanBreakdownQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRevenueStreamsPlanBreakdownQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRevenueStreamsPlanBreakdownQuery({
+ *   variables: {
+ *      currency: // value for 'currency'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetRevenueStreamsPlanBreakdownQuery(baseOptions?: Apollo.QueryHookOptions<GetRevenueStreamsPlanBreakdownQuery, GetRevenueStreamsPlanBreakdownQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetRevenueStreamsPlanBreakdownQuery, GetRevenueStreamsPlanBreakdownQueryVariables>(GetRevenueStreamsPlanBreakdownDocument, options);
+      }
+export function useGetRevenueStreamsPlanBreakdownLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRevenueStreamsPlanBreakdownQuery, GetRevenueStreamsPlanBreakdownQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetRevenueStreamsPlanBreakdownQuery, GetRevenueStreamsPlanBreakdownQueryVariables>(GetRevenueStreamsPlanBreakdownDocument, options);
+        }
+export function useGetRevenueStreamsPlanBreakdownSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRevenueStreamsPlanBreakdownQuery, GetRevenueStreamsPlanBreakdownQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetRevenueStreamsPlanBreakdownQuery, GetRevenueStreamsPlanBreakdownQueryVariables>(GetRevenueStreamsPlanBreakdownDocument, options);
+        }
+export type GetRevenueStreamsPlanBreakdownQueryHookResult = ReturnType<typeof useGetRevenueStreamsPlanBreakdownQuery>;
+export type GetRevenueStreamsPlanBreakdownLazyQueryHookResult = ReturnType<typeof useGetRevenueStreamsPlanBreakdownLazyQuery>;
+export type GetRevenueStreamsPlanBreakdownSuspenseQueryHookResult = ReturnType<typeof useGetRevenueStreamsPlanBreakdownSuspenseQuery>;
+export type GetRevenueStreamsPlanBreakdownQueryResult = Apollo.QueryResult<GetRevenueStreamsPlanBreakdownQuery, GetRevenueStreamsPlanBreakdownQueryVariables>;
 export const GetRevenueStreamsDocument = gql`
     query getRevenueStreams($currency: CurrencyEnum, $customerCountry: CountryCode, $customerType: CustomerTypeEnum, $externalCustomerId: String, $externalSubscriptionId: String, $fromDate: ISO8601Date, $planCode: String, $timeGranularity: TimeGranularityEnum, $toDate: ISO8601Date) {
   dataApiRevenueStreams(

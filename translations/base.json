@@ -2880,5 +2880,10 @@
   "text_1741103892833yi7redcuhoc": "Top-up wallet",
   "text_1741689608703zttwsl2nnq2": "Leave this field empty to set no expiration date",
   "text_1741690423581n3e4cj019jg": "Include metadata for every top-up created by this recurring rule.",
-  "text_1741706729331emiq4h111k8": "Include metadata for this top-up transaction."
+  "text_1741706729331emiq4h111k8": "Include metadata for this top-up transaction.",
+  "text_17422232171950c2u9u3vuq7": "Revenue",
+  "text_17422274791228swi7c4ydc7": "No revenue per plan available",
+  "text_17422274791226kjpamwz3pe": "Add your first customer subscriptions to see the breakdown per plans.",
+  "text_17422274967581grox8em361": "No revenue per customer available",
+  "text_1742227496758jg629m9fga6": "Add your first customer subscriptions to see the breakdown per customers."
 }
