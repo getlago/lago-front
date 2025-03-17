@@ -17,6 +17,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Adyen from '~/public/images/adyen.svg'
 import Cashfree from '~/public/images/cashfree.svg'
 import GoCardless from '~/public/images/gocardless.svg'
+import Moneyhash from '~/public/images/moneyhash.svg'
 import Stripe from '~/public/images/stripe.svg'
 
 import { ExternalAppsAccordionLayout } from './ExternalAppsAccordionLayout'
@@ -52,6 +53,13 @@ gql`
           name
           code
         }
+
+        ... on MoneyhashProvider {
+          __typename
+          id
+          name
+          code
+        }
       }
     }
   }
@@ -67,6 +75,7 @@ const avatarMapping: Record<ProviderTypeEnum, ReactNode> = {
   [ProviderTypeEnum.Cashfree]: <Cashfree />,
   [ProviderTypeEnum.Gocardless]: <GoCardless />,
   [ProviderTypeEnum.Stripe]: <Stripe />,
+  [ProviderTypeEnum.Moneyhash]: <Moneyhash />,
 }
 
 export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
@@ -199,7 +208,9 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
                       ? translate('text_635bdbda84c98758f9bba8aa')
                       : formikProps.values.paymentProvider === ProviderTypeEnum.Adyen
                         ? translate('text_645d0728ea0a5a7bbf76d5c7')
-                        : translate('text_635bdbda84c98758f9bba89e')
+                        : formikProps.values.paymentProvider === ProviderTypeEnum.Moneyhash
+                          ? translate('text_1733992108437qlovqhjhqj4')
+                          : translate('text_635bdbda84c98758f9bba89e')
                   }${
                     formikProps.values.paymentProviderCode
                       ? ` • ${
@@ -222,6 +233,12 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
               </>
             )}
           </div>
+
+          {formikProps.values.paymentProvider === ProviderTypeEnum.Moneyhash && (
+            <div className="border-t border-grey-400 p-4">
+              <Alert type="info">{translate('text_64aeb7b998c4322918c84214')}</Alert>
+            </div>
+          )}
 
           {formikProps.values.paymentProvider === ProviderTypeEnum.Stripe && (
             <div className="flex flex-col gap-6 p-4 shadow-t">

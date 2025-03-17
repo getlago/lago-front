@@ -37,6 +37,10 @@ import {
   AddLagoTaxManagementDialogRef,
 } from '~/components/settings/integrations/AddLagoTaxManagementDialog'
 import {
+  AddMoneyhashDialog,
+  AddMoneyhashDialogRef,
+} from '~/components/settings/integrations/AddMoneyhashDialog'
+import {
   AddNetsuiteDialog,
   AddNetsuiteDialogRef,
 } from '~/components/settings/integrations/AddNetsuiteDialog'
@@ -63,6 +67,7 @@ import {
   GOCARDLESS_INTEGRATION_ROUTE,
   HUBSPOT_INTEGRATION_ROUTE,
   INTEGRATIONS_ROUTE,
+  MONEYHASH_INTEGRATION_ROUTE,
   NETSUITE_INTEGRATION_ROUTE,
   SALESFORCE_INTEGRATION_ROUTE,
   STRIPE_INTEGRATION_ROUTE,
@@ -81,6 +86,7 @@ import GoCardless from '~/public/images/gocardless.svg'
 import HightTouch from '~/public/images/hightouch.svg'
 import Hubspot from '~/public/images/hubspot.svg'
 import LagoTaxManagement from '~/public/images/lago-tax-management.svg'
+import Moneyhash from '~/public/images/moneyhash.svg'
 import Netsuite from '~/public/images/netsuite.svg'
 import Oso from '~/public/images/oso.svg'
 import Salesforce from '~/public/images/salesforce.svg'
@@ -98,6 +104,10 @@ gql`
 
     paymentProviders(limit: $limit) {
       collection {
+        ... on MoneyhashProvider {
+          id
+        }
+
         ... on StripeProvider {
           id
         }
@@ -151,6 +161,7 @@ const Integrations = () => {
   const addSalesforceDialogRef = useRef<AddSalesforceDialogRef>(null)
   const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
   const addHubspotDialogRef = useRef<AddHubspotDialogRef>(null)
+  const addMoneyhashDialogRef = useRef<AddMoneyhashDialogRef>(null)
 
   const { data, loading } = useIntegrationsSettingQuery({
     variables: { limit: 1000 },
@@ -168,6 +179,9 @@ const Integrations = () => {
   )
   const hasCashfreeIntegration = data?.paymentProviders?.collection?.some(
     (provider) => provider?.__typename === 'CashfreeProvider',
+  )
+  const hasMoneyhashIntegration = data?.paymentProviders?.collection?.some(
+    (provider) => provider?.__typename === 'MoneyhashProvider',
   )
   const hasTaxManagement = !!organization?.euTaxManagement
   const hasAccessToNetsuitePremiumIntegration = !!premiumIntegrations?.includes(
@@ -599,6 +613,31 @@ const Integrations = () => {
                           }
                         }}
                       />
+                      <Selector
+                        title={translate('text_1733427981129n3wxjui0bex')}
+                        subtitle={translate('text_634ea0ecc6147de10ddb6631')}
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            <Moneyhash />
+                          </Avatar>
+                        }
+                        endIcon={
+                          hasMoneyhashIntegration ? (
+                            <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+                          ) : undefined
+                        }
+                        onClick={() => {
+                          if (hasMoneyhashIntegration) {
+                            navigate(MONEYHASH_INTEGRATION_ROUTE)
+                          } else {
+                            const element = document.activeElement as HTMLElement
+
+                            element.blur && element.blur()
+                            addMoneyhashDialogRef.current?.openDialog()
+                          }
+                        }}
+                        fullWidth
+                      />
                     </SettingsListItem>
                   )}
                 </SettingsListWrapper>
@@ -613,6 +652,7 @@ const Integrations = () => {
       <AddAdyenDialog ref={addAdyenDialogRef} />
       <AddStripeDialog ref={addStripeDialogRef} />
       <AddCashfreeDialog ref={addCashfreeDialogRef} />
+      <AddMoneyhashDialog ref={addMoneyhashDialogRef} />
       <AddGocardlessDialog ref={addGocardlessDialogRef} />
       <AddLagoTaxManagementDialog
         country={organization?.country}

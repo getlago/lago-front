@@ -140,6 +140,12 @@ gql`
           code
         }
 
+        ... on MoneyhashProvider {
+          id
+          name
+          code
+        }
+
         ... on AdyenProvider {
           id
           name

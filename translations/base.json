@@ -2880,5 +2880,16 @@
   "text_1741103892833yi7redcuhoc": "Top-up wallet",
   "text_1741689608703zttwsl2nnq2": "Leave this field empty to set no expiration date",
   "text_1741690423581n3e4cj019jg": "Include metadata for every top-up created by this recurring rule.",
-  "text_1741706729331emiq4h111k8": "Include metadata for this top-up transaction."
+  "text_1741706729331emiq4h111k8": "Include metadata for this top-up transaction.",
+  "text_1733427981129n3wxjui0bex": "MoneyHash",
+  "text_1733489819311q0nzqi3u7wz": "Connect to MoneyHash",
+  "text_1733491430992msh3b2v8nlx": "To connect to MoneyHash, please enter the API key associated with your account at MoneyHash.",
+  "text_1737453888927uw38sepj7xy": "Flow Id",
+  "text_1737453902655bnm8uycr7o7": "Type a flow id",
+  "text_1733729938415dtehv31k9in": "Edit MoneyHash Connection",
+  "text_17337299668343fncntgiyhf": "Edit information linked to this MoneyHash connection.",
+  "text_17337300102103wt4s6yz2gh": "MoneyHash connection successfully edited",
+  "text_1733730115018i122xlyi662": "MoneyHash connection successfully added",
+  "text_1737463302046fgixue5wtvu": "MoneyHash connection successfully deleted",
+  "text_1733992108437qlovqhjhqj4": "Create automatically this customer in MoneyHash"
 }
