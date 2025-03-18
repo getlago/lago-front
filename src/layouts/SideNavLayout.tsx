@@ -265,7 +265,6 @@ const SideNav = () => {
                     title: translate('text_6553885df387fd0097fd7384'),
                     icon: 'chart-bar',
                     link: ANALYTIC_ROUTE,
-                    canBeClickedOnActive: true,
                     match: [ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE],
                     hidden: !hasPermissions(['analyticsView']),
                   },

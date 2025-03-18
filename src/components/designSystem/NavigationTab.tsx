@@ -1,6 +1,6 @@
 import { Tab, Tabs, Typography } from '@mui/material'
 import { ReactNode, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 
 import { tw } from '~/styles/utils'
 
@@ -65,6 +65,7 @@ export const NavigationTab = ({
   tabs,
 }: NavigationTabProps) => {
   const navigate = useNavigate()
+  const { pathname } = useLocation()
   const nonHiddenTabs = tabs.filter((t) => !t.hidden)
 
   // Default value is not 0 to prevent useEffect value udpate to flash first component
@@ -146,10 +147,14 @@ export const NavigationTab = ({
                   onClick={() => {
                     const onClickActionLookup: Record<TabManagedBy, () => void> = {
                       [TabManagedBy.URL]: () => {
-                        !!tab.link && navigate(tab.link)
+                        if (!!tab.link && !matchPath(tab.link, pathname)) {
+                          navigate(tab.link)
+                        }
                       },
                       [TabManagedBy.INDEX]: () => {
-                        setValue(tabIndex)
+                        if (tabIndex !== value) {
+                          setValue(tabIndex)
+                        }
                       },
                     }
 
