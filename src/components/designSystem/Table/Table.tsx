@@ -73,6 +73,7 @@ interface TableProps<T> {
   columns: Array<TableColumn<T> | null>
   isLoading?: boolean
   hasError?: boolean
+  loadingRowCount?: number
   placeholder?: {
     emptyState?: Partial<GenericPlaceholderProps>
     errorState?: Partial<GenericPlaceholderProps>
@@ -246,12 +247,13 @@ const LoadingRows = <T,>({
   id,
   shouldDisplayActionColumn,
   actionColumn,
-}: Pick<TableProps<T>, 'actionColumn'> & {
+  loadingRowCount = LOADING_ROW_COUNT,
+}: Pick<TableProps<T>, 'actionColumn' | 'loadingRowCount'> & {
   columns: Array<TableColumn<T>>
   id: string
   shouldDisplayActionColumn: boolean
 }) => {
-  return Array.from({ length: LOADING_ROW_COUNT }).map((_, i) => (
+  return Array.from({ length: loadingRowCount }).map((_, i) => (
     <TableRow key={`${id}-loading-row-${i}`}>
       {columns.map((col, j) => (
         <TableCell
@@ -333,6 +335,7 @@ export const Table = <T extends DataItem>({
   hasError,
   containerSize = 48,
   rowSize = 48,
+  loadingRowCount,
   placeholder,
   onRowActionLink,
   actionColumn,
@@ -613,6 +616,7 @@ export const Table = <T extends DataItem>({
             LoadingRows({
               columns: filteredColumns,
               id: TABLE_ID,
+              loadingRowCount,
               shouldDisplayActionColumn,
               actionColumn,
             })}

@@ -20,6 +20,8 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
+const ITEM_COUNT = 4
+
 gql`
   query getRevenueStreamsCustomerBreakdown($currency: CurrencyEnum, $limit: Int) {
     dataApiRevenueStreamsCustomers(currency: $currency, limit: $limit) {
@@ -67,7 +69,7 @@ export const RevenueStreamsCustomerBreakdownSection = ({
   } = useGetRevenueStreamsCustomerBreakdownQuery({
     variables: {
       ...filtersForRevenueStreamsQuery,
-      limit: 4,
+      limit: ITEM_COUNT,
     },
   })
 
@@ -109,6 +111,7 @@ export const RevenueStreamsCustomerBreakdownSection = ({
         name="revenue-streams-customer-breakdown"
         containerSize={{ default: 0 }}
         rowSize={72}
+        loadingRowCount={ITEM_COUNT}
         isLoading={revenueStreamsCustomerBreakdownLoading}
         hasError={!!revenueStreamsCustomerBreakdownError}
         data={
