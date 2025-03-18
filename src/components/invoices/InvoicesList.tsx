@@ -33,7 +33,7 @@ import {
 } from '~/components/invoices/FinalizeInvoiceDialog'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { INVOICE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -62,6 +62,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
+
+const { disablePdfGeneration } = envGlobalVar()
 
 type TInvoiceListProps = {
   error: ApolloError | undefined
@@ -190,7 +192,9 @@ const InvoicesList = ({
                   InvoiceStatusTypeEnum.Draft,
                   InvoiceStatusTypeEnum.Failed,
                   InvoiceStatusTypeEnum.Pending,
-                ].includes(status) && hasPermissions(['invoicesView'])
+                ].includes(status) &&
+                hasPermissions(['invoicesView']) &&
+                !disablePdfGeneration
               const canFinalize =
                 ![InvoiceStatusTypeEnum.Failed, InvoiceStatusTypeEnum.Pending].includes(status) &&
                 hasPermissions(['invoicesUpdate'])

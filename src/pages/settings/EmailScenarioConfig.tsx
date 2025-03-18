@@ -6,6 +6,7 @@ import { Switch } from '~/components/form'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { LanguageSettingsButton } from '~/components/settings/LanguageSettingsButton'
 import { PreviewEmailLayout } from '~/components/settings/PreviewEmailLayout'
+import { envGlobalVar } from '~/core/apolloClient'
 import { EMAILS_SCENARIO_CONFIG_ROUTE, EMAILS_SETTINGS_ROUTE } from '~/core/router'
 import { LocaleEnum } from '~/core/translations'
 import { EmailSettingsEnum } from '~/generated/graphql'
@@ -17,6 +18,8 @@ import { useEmailConfig } from '~/hooks/useEmailConfig'
 import { usePermissions } from '~/hooks/usePermissions'
 import { PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
+
+const { disablePdfGeneration } = envGlobalVar()
 
 enum DisplayEnum {
   desktop = 'desktop',
@@ -239,14 +242,21 @@ const EmailScenarioConfig = () => {
                       </Typography>
                     </div>
                   </div>
-                  <div className="my-6 h-px w-full bg-grey-300" />
-                  <div className="flex flex-row items-center gap-2">
-                    <Icon name="arrow-bottom" color="primary" />
 
-                    <Typography variant="caption" color="grey700">
-                      {translateWithContextualLocal('text_64188b3d9735d5007d712274')}
-                    </Typography>
-                  </div>
+                  {!disablePdfGeneration && (
+                    <>
+                      <div className="my-6 h-px w-full bg-grey-300" />
+
+                      <div className="flex flex-row items-center gap-2">
+                        <Icon name="arrow-bottom" color="primary" />
+
+                        <Typography variant="caption" color="grey700">
+                          {translateWithContextualLocal('text_64188b3d9735d5007d712274')}
+                        </Typography>
+                      </div>
+                    </>
+                  )}
+
                   <div className="my-6 h-px w-full bg-grey-300" />
                   <Typography className="text-center" variant="caption">
                     <span className="mr-1">

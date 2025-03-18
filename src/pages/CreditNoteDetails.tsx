@@ -22,7 +22,7 @@ import {
   Typography,
 } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { addToast } from '~/core/apolloClient'
+import { addToast, envGlobalVar } from '~/core/apolloClient'
 import {
   buildAnrokCreditNoteUrl,
   buildNetsuiteCreditNoteUrl,
@@ -70,6 +70,8 @@ import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader, theme } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
+
+const { disablePdfGeneration } = envGlobalVar()
 
 gql`
   query getCreditNote($id: ID!) {
@@ -368,7 +370,7 @@ const CreditNoteDetails = () => {
           >
             {({ closePopper }) => (
               <MenuPopper>
-                {hasPermissions(['creditNotesView']) && (
+                {hasPermissions(['creditNotesView']) && !disablePdfGeneration && (
                   <Button
                     variant="quaternary"
                     align="left"
@@ -513,19 +515,22 @@ const CreditNoteDetails = () => {
           <>
             <SectionHeader variant="subhead">
               {translate('text_637655cb50f04bf1c8379cfa')}
-              {!hasError && !loading && hasPermissions(['creditNotesView']) && (
-                <Button
-                  variant="quaternary"
-                  disabled={loadingCreditNoteDownload}
-                  onClick={async () => {
-                    await downloadCreditNote({
-                      variables: { input: { id: creditNoteId || '' } },
-                    })
-                  }}
-                >
-                  {translate('text_637655cb50f04bf1c8379cf8')}
-                </Button>
-              )}
+              {!hasError &&
+                !loading &&
+                hasPermissions(['creditNotesView']) &&
+                !disablePdfGeneration && (
+                  <Button
+                    variant="quaternary"
+                    disabled={loadingCreditNoteDownload}
+                    onClick={async () => {
+                      await downloadCreditNote({
+                        variables: { input: { id: creditNoteId || '' } },
+                      })
+                    }}
+                  >
+                    {translate('text_637655cb50f04bf1c8379cf8')}
+                  </Button>
+                )}
             </SectionHeader>
 
             {!!loading && !error ? (

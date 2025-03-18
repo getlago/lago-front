@@ -22,7 +22,7 @@ import {
 } from '~/components/invoices/FinalizeInvoiceDialog'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -51,6 +51,8 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
+
+const { disablePdfGeneration } = envGlobalVar()
 
 gql`
   fragment InvoiceListItem on Invoice {
@@ -348,7 +350,8 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 InvoiceStatusTypeEnum.Pending,
               ].includes(status) &&
               taxStatus !== InvoiceTaxStatusTypeEnum.Pending &&
-              hasPermissions(['invoicesView'])
+              hasPermissions(['invoicesView']) &&
+              !disablePdfGeneration
             const canFinalize =
               ![InvoiceStatusTypeEnum.Failed, InvoiceStatusTypeEnum.Pending].includes(status) &&
               hasPermissions(['invoicesUpdate'])
