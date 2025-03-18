@@ -196,8 +196,11 @@ const InvoicesList = ({
                 hasPermissions(['invoicesView']) &&
                 !disablePdfGeneration
               const canFinalize =
-                ![InvoiceStatusTypeEnum.Failed, InvoiceStatusTypeEnum.Pending].includes(status) &&
-                hasPermissions(['invoicesUpdate'])
+                ![
+                  InvoiceStatusTypeEnum.Failed,
+                  InvoiceStatusTypeEnum.Pending,
+                  InvoiceStatusTypeEnum.Finalized,
+                ].includes(status) && hasPermissions(['invoicesUpdate'])
               const canRetryCollect =
                 status === InvoiceStatusTypeEnum.Finalized &&
                 [
