@@ -5,7 +5,7 @@ import {
   TimeGranularityEnum,
 } from '~/generated/graphql'
 
-import { formatRevenueStreamsData } from '../utils'
+import { formatRevenueStreamsData } from '../revenueStreams/utils'
 
 jest.mock('~/components/designSystem/Filters', () => ({
   AvailableFiltersEnum: {

@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 
-import { RevenueStreamsBreakdownSection } from '~/components/analytics/RevenueStreamsBreakdownSection'
-import { RevenueStreamsOverviewSection } from '~/components/analytics/RevenueStreamsOverviewSection'
+import { RevenueStreamsBreakdownSection } from '~/components/analytics/revenueStreams/RevenueStreamsBreakdownSection'
+import { RevenueStreamsOverviewSection } from '~/components/analytics/revenueStreams/RevenueStreamsOverviewSection'
 import { Icon, Tooltip, Typography } from '~/components/designSystem'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'

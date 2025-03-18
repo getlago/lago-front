@@ -1,5 +1,5 @@
-import { RevenueStreamsCustomerBreakdownSection } from '~/components/analytics/RevenueStreamsCustomerBreakdownSection'
-import { RevenueStreamsPlanBreakdownSection } from '~/components/analytics/RevenueStreamsPlanBreakdownSection'
+import { RevenueStreamsCustomerBreakdownSection } from '~/components/analytics/revenueStreams/RevenueStreamsCustomerBreakdownSection'
+import { RevenueStreamsPlanBreakdownSection } from '~/components/analytics/revenueStreams/RevenueStreamsPlanBreakdownSection'
 import { NavigationTab, TabManagedBy, Typography } from '~/components/designSystem'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

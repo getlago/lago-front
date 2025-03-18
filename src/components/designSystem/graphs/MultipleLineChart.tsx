@@ -10,7 +10,7 @@ import {
 } from 'recharts'
 import { NameType, Payload, ValueType } from 'recharts/types/component/DefaultTooltipContent'
 
-import { useRevenueStreamsState } from '~/components/analytics/RevenueStreamsStateContext'
+import { useRevenueStreamsState } from '~/components/analytics/revenueStreams/RevenueStreamsStateContext'
 import { Typography } from '~/components/designSystem'
 import {
   multipleLineChartFakeData,

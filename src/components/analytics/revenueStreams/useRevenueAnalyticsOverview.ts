@@ -4,7 +4,7 @@ import { DateTime } from 'luxon'
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { formatRevenueStreamsData } from '~/components/analytics/utils'
+import { formatRevenueStreamsData } from '~/components/analytics/revenueStreams/utils'
 import { AvailableFiltersEnum } from '~/components/designSystem/Filters'
 import {
   formatFiltersForRevenueStreamsQuery,

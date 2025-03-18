@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 
-import { RevenueStreamsStateProvider } from '~/components/analytics/RevenueStreamsStateContext'
-import { useRevenueAnalyticsOverview } from '~/components/analytics/useRevenueAnalyticsOverview'
+import { RevenueStreamsStateProvider } from '~/components/analytics/revenueStreams/RevenueStreamsStateContext'
+import { useRevenueAnalyticsOverview } from '~/components/analytics/revenueStreams/useRevenueAnalyticsOverview'
 import { Button, HorizontalDataTable, Icon, Typography } from '~/components/designSystem'
 import {
   AvailableQuickFilters,
