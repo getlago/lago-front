@@ -36,6 +36,7 @@ gql`
       customersDelete
       customersUpdate
       customersView
+      dataApiView
       developersKeysManage
       developersManage
       draftInvoicesUpdate

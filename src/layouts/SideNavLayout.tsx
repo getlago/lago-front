@@ -20,6 +20,7 @@ import {
   ADD_ON_DETAILS_ROUTE,
   ADD_ONS_ROUTE,
   ANALYTIC_ROUTE,
+  ANALYTIC_TABS_ROUTE,
   API_KEYS_ROUTE,
   BILLABLE_METRICS_ROUTE,
   COUPON_DETAILS_ROUTE,
@@ -265,7 +266,7 @@ const SideNav = () => {
                     icon: 'chart-bar',
                     link: ANALYTIC_ROUTE,
                     canBeClickedOnActive: true,
-                    match: [ANALYTIC_ROUTE],
+                    match: [ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE],
                     hidden: !hasPermissions(['analyticsView']),
                   },
                   {
