@@ -250,11 +250,6 @@ const MultipleLineChart = <T extends DataItem>({
                 Math.max(1, Math.round(Math.pow((localData?.length || 0) / 300, 1.5) * 8)),
                 {
                   leading: true,
-                  trailing: true,
-                  maxWait: Math.max(
-                    2,
-                    Math.round(Math.pow((localData?.length || 0) / 300, 1.5) * 16),
-                  ),
                 },
               ),
             [handleHoverUpdate, localData?.length],
