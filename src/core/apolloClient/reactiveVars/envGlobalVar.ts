@@ -10,6 +10,7 @@ interface EnvGlobal {
   appVersion: string
   nangoPublicKey: string
   sentryDsn: string
+  disablePdfGeneration: boolean
 }
 
 const apiUrl = !!window.API_URL
@@ -26,4 +27,6 @@ export const envGlobalVar = makeVar<EnvGlobal>({
   appVersion: APP_VERSION,
   nangoPublicKey: window.NANGO_PUBLIC_KEY || NANGO_PUBLIC_KEY,
   sentryDsn: window.SENTRY_DSN || SENTRY_DSN,
+  disablePdfGeneration:
+    (window.LAGO_DISABLE_PDF_GENERATION || LAGO_DISABLE_PDF_GENERATION) === 'true',
 })

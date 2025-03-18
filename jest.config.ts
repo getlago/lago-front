@@ -67,5 +67,6 @@ export default {
     LAGO_DISABLE_SIGNUP: 'false',
     NANGO_PUBLIC_KEY: '',
     SENTRY_DSN: 'https://sentry.io/',
+    LAGO_DISABLE_PDF_GENERATION: 'false',
   },
 } satisfies Config
