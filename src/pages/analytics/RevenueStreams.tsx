@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 
-import RevenueStreamsBreakdownSection from '~/components/analytics/RevenueStreamsBreakdownSection'
-import RevenueStreamsOverviewSection from '~/components/analytics/RevenueStreamsOverviewSection'
+import { RevenueStreamsBreakdownSection } from '~/components/analytics/RevenueStreamsBreakdownSection'
+import { RevenueStreamsOverviewSection } from '~/components/analytics/RevenueStreamsOverviewSection'
 import { Icon, Tooltip, Typography } from '~/components/designSystem'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
@@ -22,7 +22,7 @@ const RevenueStreams = () => {
 
       <RevenueStreamsOverviewSection premiumWarningDialogRef={premiumWarningDialogRef} />
 
-      <RevenueStreamsBreakdownSection />
+      <RevenueStreamsBreakdownSection premiumWarningDialogRef={premiumWarningDialogRef} />
 
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </FullscreenPage.Wrapper>
