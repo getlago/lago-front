@@ -38,7 +38,7 @@ type RevenueStreamsCustomerBreakdownSectionProps = {
   premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
 }
 
-const RevenueStreamsCustomerBreakdownSection = ({
+export const RevenueStreamsCustomerBreakdownSection = ({
   premiumWarningDialogRef,
 }: RevenueStreamsCustomerBreakdownSectionProps) => {
   const [searchParams] = useSearchParams()
@@ -173,5 +173,3 @@ const RevenueStreamsCustomerBreakdownSection = ({
     </>
   )
 }
-
-export default RevenueStreamsCustomerBreakdownSection

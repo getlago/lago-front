@@ -38,7 +38,7 @@ type RevenueStreamsOverviewSectionProps = {
   premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
 }
 
-const RevenueStreamsOverviewSection = ({
+export const RevenueStreamsOverviewSection = ({
   premiumWarningDialogRef,
 }: RevenueStreamsOverviewSectionProps) => {
   const { translate } = useInternationalization()
@@ -460,5 +460,3 @@ const RevenueStreamsOverviewSection = ({
     </section>
   )
 }
-
-export default RevenueStreamsOverviewSection

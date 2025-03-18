@@ -1,5 +1,5 @@
-import RevenueStreamsCustomerBreakdownSection from '~/components/analytics/RevenueStreamsCustomerBreakdownSection'
-import RevenueStreamsPlanBreakdownSection from '~/components/analytics/RevenueStreamsPlanBreakdownSection'
+import { RevenueStreamsCustomerBreakdownSection } from '~/components/analytics/RevenueStreamsCustomerBreakdownSection'
+import { RevenueStreamsPlanBreakdownSection } from '~/components/analytics/RevenueStreamsPlanBreakdownSection'
 import { NavigationTab, TabManagedBy, Typography } from '~/components/designSystem'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -8,7 +8,7 @@ type RevenueStreamsBreakdownSectionProps = {
   premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
 }
 
-const RevenueStreamsBreakdownSection = ({
+export const RevenueStreamsBreakdownSection = ({
   premiumWarningDialogRef,
 }: RevenueStreamsBreakdownSectionProps) => {
   const { translate } = useInternationalization()
@@ -48,5 +48,3 @@ const RevenueStreamsBreakdownSection = ({
     </section>
   )
 }
-
-export default RevenueStreamsBreakdownSection
