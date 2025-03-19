@@ -3031,6 +3031,7 @@ export enum IntegrationItemTypeEnum {
 }
 
 export enum IntegrationTypeEnum {
+  AnalyticsDashboards = 'analytics_dashboards',
   Anrok = 'anrok',
   ApiPermissions = 'api_permissions',
   AutoDunning = 'auto_dunning',
@@ -4685,6 +4686,7 @@ export type PlanOverridesInput = {
 };
 
 export enum PremiumIntegrationTypeEnum {
+  AnalyticsDashboards = 'analytics_dashboards',
   ApiPermissions = 'api_permissions',
   AutoDunning = 'auto_dunning',
   BetaPaymentAuthorization = 'beta_payment_authorization',

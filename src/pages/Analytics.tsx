@@ -7,8 +7,8 @@ import OldAnalytics from '~/pages/OldAnalytics'
 const Analytics = () => {
   const { hasOrganizationPremiumAddon, loading: organizationDataLoading } = useOrganizationInfos()
 
-  const hasAccessToRevenueAnalyticsFeature = hasOrganizationPremiumAddon(
-    PremiumIntegrationTypeEnum.RevenueAnalytics,
+  const hasAccessToAnalyticsDashboardsFeature = hasOrganizationPremiumAddon(
+    PremiumIntegrationTypeEnum.AnalyticsDashboards,
   )
 
   if (organizationDataLoading) {
@@ -19,7 +19,7 @@ const Analytics = () => {
     )
   }
 
-  if (!hasAccessToRevenueAnalyticsFeature) {
+  if (!hasAccessToAnalyticsDashboardsFeature) {
     return <OldAnalytics />
   }
 

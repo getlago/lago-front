@@ -52,20 +52,20 @@ export const RevenueStreamsPlanBreakdownSection = ({
   const { organization, hasOrganizationPremiumAddon } = useOrganizationInfos()
   const { translate } = useInternationalization()
 
-  const hasAccessToRevenueAnalyticsFeature = hasOrganizationPremiumAddon(
-    PremiumIntegrationTypeEnum.RevenueAnalytics,
+  const hasAccessToAnalyticsDashboardsFeature = hasOrganizationPremiumAddon(
+    PremiumIntegrationTypeEnum.AnalyticsDashboards,
   )
   const defaultCurrency = organization?.defaultCurrency || CurrencyEnum.Usd
 
   const filtersForRevenueStreamsQuery = useMemo(() => {
-    if (!hasAccessToRevenueAnalyticsFeature) {
+    if (!hasAccessToAnalyticsDashboardsFeature) {
       return {
         currency: defaultCurrency,
       }
     }
 
     return formatFiltersForRevenueStreamsPlansQuery(searchParams)
-  }, [hasAccessToRevenueAnalyticsFeature, searchParams, defaultCurrency])
+  }, [hasAccessToAnalyticsDashboardsFeature, searchParams, defaultCurrency])
 
   const {
     data: revenueStreamsPlanBreakdownData,
@@ -90,11 +90,11 @@ export const RevenueStreamsPlanBreakdownSection = ({
           buttonOpener={({ onClick }) => (
             <Button
               startIcon="filter"
-              endIcon={!hasAccessToRevenueAnalyticsFeature ? 'sparkles' : undefined}
+              endIcon={!hasAccessToAnalyticsDashboardsFeature ? 'sparkles' : undefined}
               size="small"
               variant="quaternary"
               onClick={(e) => {
-                if (!hasAccessToRevenueAnalyticsFeature) {
+                if (!hasAccessToAnalyticsDashboardsFeature) {
                   e.stopPropagation()
                   premiumWarningDialogRef.current?.openDialog()
                 } else {

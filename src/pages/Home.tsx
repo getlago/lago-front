@@ -15,8 +15,8 @@ const Home = () => {
   const { loading: isUserLoading, currentMembership } = useCurrentUser()
   const { hasPermissions } = usePermissions()
   const { hasOrganizationPremiumAddon } = useOrganizationInfos()
-  const hasAccessToRevenueAnalyticsFeature = hasOrganizationPremiumAddon(
-    PremiumIntegrationTypeEnum.RevenueAnalytics,
+  const hasAccessToAnalyticsDashboardsFeature = hasOrganizationPremiumAddon(
+    PremiumIntegrationTypeEnum.AnalyticsDashboards,
   )
 
   useEffect(() => {
@@ -33,9 +33,9 @@ const Home = () => {
         navigate(lastPrivateVisitedRouteWhileNotConnected, { replace: true })
         // This is a temp value for redirection, should be removed after redirection have been performed
         removeItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
-      } else if (hasPermissions(['analyticsView']) && !hasAccessToRevenueAnalyticsFeature) {
+      } else if (hasPermissions(['analyticsView']) && !hasAccessToAnalyticsDashboardsFeature) {
         navigate(ANALYTIC_ROUTE, { replace: true })
-      } else if (hasPermissions(['dataApiView']) && hasAccessToRevenueAnalyticsFeature) {
+      } else if (hasPermissions(['dataApiView']) && hasAccessToAnalyticsDashboardsFeature) {
         navigate(
           generatePath(ANALYTIC_TABS_ROUTE, {
             tab: NewAnalyticsTabsOptionsEnum.revenueStreams,
