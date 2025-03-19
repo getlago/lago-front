@@ -22,7 +22,6 @@ import {
   Icon,
   Skeleton,
   Status,
-  StatusType,
   Typography,
 } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
@@ -473,29 +472,28 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
                   <Typography variant="subhead">
                     {translate('text_63fcc3218d35b9377840f5b3')}
                   </Typography>
-                  {hasNoSuccessfulPaymentButRequiresIt && (
+                  {hasNoSuccessfulPaymentButRequiresIt ? (
                     <Alert type="info">{translate('text_1741943835752na70uvegm9k')}</Alert>
-                  )}
-                  <div className={tw(GRID)}>
-                    <DetailRow
-                      label={translate('text_1741943835752dyeh035aorl')}
-                      value={
-                        <>
-                          {invoice.invoiceType === InvoiceTypeEnum.Credit &&
-                            translate('text_174194552713793wk0n532oi')}
-                          {invoice.invoiceType === InvoiceTypeEnum.Subscription &&
-                            translate('text_1741945527137rb74r70jp6v')}
-                        </>
-                      }
-                    />
-                    <DetailRow
-                      label={translate('text_1741944051511g2xahsgoyn7')}
-                      value={hasNoSuccessfulPaymentButRequiresIt ? undefined : invoice.id}
-                    />
-                    <DetailRow
-                      label={translate('text_64188b3d9735d5007d71226c')}
-                      value={
-                        hasNoSuccessfulPaymentButRequiresIt ? undefined : (
+                  ) : (
+                    <div className={tw(GRID)}>
+                      <DetailRow
+                        label={translate('text_1741943835752dyeh035aorl')}
+                        value={
+                          <>
+                            {invoice.invoiceType === InvoiceTypeEnum.Credit &&
+                              translate('text_174194552713793wk0n532oi')}
+                            {invoice.invoiceType === InvoiceTypeEnum.Subscription &&
+                              translate('text_1741945527137rb74r70jp6v')}
+                          </>
+                        }
+                      />
+                      <DetailRow
+                        label={translate('text_1741944051511g2xahsgoyn7')}
+                        value={invoice.id}
+                      />
+                      <DetailRow
+                        label={translate('text_64188b3d9735d5007d71226c')}
+                        value={
                           <Link
                             className="visited:text-blue focus:underline focus:ring-0"
                             to={generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
@@ -506,26 +504,21 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
                           >
                             {invoice.number}
                           </Link>
-                        )
-                      }
-                    />
-                    <DetailRow
-                      label={translate('text_63eba8c65a6c8043feee2a0f')}
-                      value={
-                        <Status
-                          {...(hasNoSuccessfulPaymentButRequiresIt
-                            ? {
-                                type: StatusType.default,
-                                label: 'pending',
-                              }
-                            : paymentStatusMapping({
-                                status: invoice.status,
-                                paymentStatus: invoice.paymentStatus,
-                              }))}
-                        />
-                      }
-                    />
-                  </div>
+                        }
+                      />
+                      <DetailRow
+                        label={translate('text_63eba8c65a6c8043feee2a0f')}
+                        value={
+                          <Status
+                            {...paymentStatusMapping({
+                              status: invoice.status,
+                              paymentStatus: invoice.paymentStatus,
+                            })}
+                          />
+                        }
+                      />
+                    </div>
+                  )}
                 </section>
               )}
             </>
