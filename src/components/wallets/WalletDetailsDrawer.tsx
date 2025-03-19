@@ -289,7 +289,8 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
                       {...(transactionType === WalletTransactionTransactionTypeEnum.Outbound && {
                         color: 'grey700',
                       })}
-                      {...(status === WalletTransactionStatusEnum.Pending && {
+                      {...((status === WalletTransactionStatusEnum.Pending ||
+                        status === WalletTransactionStatusEnum.Failed) && {
                         color: 'grey500',
                       })}
                       className={tw(
