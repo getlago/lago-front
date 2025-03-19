@@ -78,6 +78,7 @@ const CreateDunning = () => {
         ? String(campaign.daysBetweenAttempts)
         : '',
       maxAttempts: campaign?.maxAttempts ? String(campaign.maxAttempts) : '',
+      bccEmails: campaign?.bccEmails?.join(',') || '',
       appliedToOrganization: campaign?.appliedToOrganization || false,
     },
     validationSchema: object().shape({
@@ -101,6 +102,9 @@ const CreateDunning = () => {
       daysBetweenAttempts: number().min(1, '').required(''),
       maxAttempts: number().min(1, '').required(''),
       appliedToOrganization: boolean().required(''),
+      bccEmails: array()
+        .transform((value) => value.split(',').map((v: string) => v.trim()))
+        .of(string().email()),
     }),
     enableReinitialize: true,
     validateOnMount: true,
@@ -110,6 +114,14 @@ const CreateDunning = () => {
   const [shouldDisplayDescription, setShouldDisplayDescription] = useState(
     !!formikProps.initialValues.description,
   )
+  const [shouldDisplayBCCEmails, setShouldDisplayBCCEmails] = useState(
+    !!formikProps.initialValues.bccEmails.length,
+  )
+
+  useEffect(() => {
+    setShouldDisplayDescription(!!formikProps.initialValues.description)
+    setShouldDisplayBCCEmails(!!formikProps.initialValues.bccEmails.length)
+  }, [formikProps.initialValues])
 
   const onSubmit = () => {
     if (
@@ -173,6 +185,8 @@ const CreateDunning = () => {
                   </div>
                   <div className="flex items-start gap-6 *:flex-1">
                     <TextInputField
+                      // eslint-disable-next-line jsx-a11y/no-autofocus
+                      autoFocus
                       name="name"
                       formikProps={formikProps}
                       label={translate('text_6419c64eace749372fc72b0f')}
@@ -227,79 +241,74 @@ const CreateDunning = () => {
                 <section className="not-last-child:mb-6">
                   <div className="not-last-child:mb-2">
                     <Typography variant="subhead">
-                      {translate('text_1728584028187jkklv61y8ik')}
+                      {translate('text_1742392390147aoog6603wwy')}
                     </Typography>
                     <Typography variant="caption">
-                      {translate('text_1728584028187dlpga1pd7f8')}
+                      {translate('text_1742392390147fju3ihxmtin')}
                     </Typography>
                   </div>
 
-                  <div>
-                    <Typography variant="captionHl" color="textSecondary" className="mb-1">
-                      {translate('text_1728584028187gsi6wv2mf6y')}
-                    </Typography>
-                    <div className="flex flex-col gap-6">
-                      {formikProps.values.thresholds.map((_threshold, index) => {
-                        const key = `thresholds.${index}`
+                  <div className="flex flex-col gap-6">
+                    {formikProps.values.thresholds.map((_threshold, index) => {
+                      const key = `thresholds.${index}`
 
-                        return (
-                          <div key={key} className="flex flex-1 items-center gap-4">
-                            <ComboBoxField
-                              className="w-30"
-                              name={`${key}.currency`}
-                              formikProps={formikProps}
-                              data={Object.values(CurrencyEnum).map((currency) => ({
-                                label: currency,
-                                value: currency,
-                                disabled: formikProps.values.thresholds.some(
-                                  (localThreshold) => localThreshold.currency === currency,
-                                ),
-                              }))}
-                              placeholder={translate('text_632c6e59b73f9a54d4c7224b')}
-                              disableClearable
-                            />
-                            <AmountInputField
-                              className="flex-1"
-                              name={`${key}.amountCents`}
-                              formikProps={formikProps}
-                              currency={CurrencyEnum.Usd}
-                              beforeChangeFormatter={['positiveNumber']}
-                            />
-                            {index > 0 && (
-                              <Tooltip
-                                placement="top-end"
-                                title={translate('text_63aa085d28b8510cd46443ff')}
-                              >
-                                <Button
-                                  icon="trash"
-                                  variant="quaternary"
-                                  onClick={() => {
-                                    const newThresholds = [...formikProps.values.thresholds]
+                      return (
+                        <div key={key} className="flex flex-1 items-center gap-4">
+                          <ComboBoxField
+                            className="w-30"
+                            name={`${key}.currency`}
+                            formikProps={formikProps}
+                            data={Object.values(CurrencyEnum).map((currency) => ({
+                              label: currency,
+                              value: currency,
+                              disabled: formikProps.values.thresholds.some(
+                                (localThreshold) => localThreshold.currency === currency,
+                              ),
+                            }))}
+                            placeholder={translate('text_632c6e59b73f9a54d4c7224b')}
+                            disableClearable
+                          />
+                          <AmountInputField
+                            className="flex-1"
+                            name={`${key}.amountCents`}
+                            formikProps={formikProps}
+                            currency={CurrencyEnum.Usd}
+                            beforeChangeFormatter={['positiveNumber']}
+                          />
+                          {index > 0 && (
+                            <Tooltip
+                              placement="top-end"
+                              title={translate('text_63aa085d28b8510cd46443ff')}
+                            >
+                              <Button
+                                icon="trash"
+                                variant="quaternary"
+                                onClick={() => {
+                                  const newThresholds = [...formikProps.values.thresholds]
 
-                                    newThresholds.splice(index, 1)
-                                    formikProps.setFieldValue('thresholds', newThresholds)
-                                  }}
-                                />
-                              </Tooltip>
-                            )}
-                          </div>
-                        )
-                      })}
+                                  newThresholds.splice(index, 1)
+                                  formikProps.setFieldValue('thresholds', newThresholds)
+                                }}
+                              />
+                            </Tooltip>
+                          )}
+                        </div>
+                      )
+                    })}
 
-                      <div>
-                        <Button
-                          startIcon="plus"
-                          variant="quaternary"
-                          onClick={() =>
-                            formikProps.setFieldValue('thresholds', [
-                              ...formikProps.values.thresholds,
-                              { currency: undefined, amountCents: '' },
-                            ])
-                          }
-                        >
-                          {translate('text_1728584028187rmbbvaboadk')}
-                        </Button>
-                      </div>
+                    <div>
+                      <Button
+                        startIcon="plus"
+                        variant="quaternary"
+                        onClick={() =>
+                          formikProps.setFieldValue('thresholds', [
+                            ...formikProps.values.thresholds,
+                            { currency: undefined, amountCents: '' },
+                          ])
+                        }
+                      >
+                        {translate('text_1728584028187rmbbvaboadk')}
+                      </Button>
                     </div>
                   </div>
                 </section>
@@ -307,7 +316,7 @@ const CreateDunning = () => {
                 <section className="not-last-child:mb-6">
                   <div className="not-last-child:mb-2">
                     <Typography variant="subhead">
-                      {translate('text_1728584028187ij19lperkhf')}
+                      {translate('text_1742392390147pcg2p300roc')}
                     </Typography>
                     <Typography variant="caption">
                       <span className="mr-1">
@@ -352,6 +361,40 @@ const CreateDunning = () => {
                       ),
                     }}
                   />
+                  {shouldDisplayBCCEmails ? (
+                    <div className="flex flex-1 items-center gap-4">
+                      <TextInputField
+                        name="bccEmails"
+                        className="flex-1"
+                        formikProps={formikProps}
+                        label={translate('text_1742392390147xtfe9hub59a')}
+                        placeholder={translate('text_1742392390147xia24oyubb3')}
+                        helperText={translate('text_1742392390147638s3zam327')}
+                      />
+                      <Tooltip
+                        placement="top-end"
+                        title={translate('text_63aa085d28b8510cd46443ff')}
+                      >
+                        <Button
+                          icon="trash"
+                          variant="quaternary"
+                          onClick={() => {
+                            formikProps.setFieldValue('bccEmails', '')
+                            setShouldDisplayBCCEmails(false)
+                          }}
+                        />
+                      </Tooltip>
+                    </div>
+                  ) : (
+                    <Button
+                      startIcon="plus"
+                      variant="quaternary"
+                      onClick={() => setShouldDisplayBCCEmails(true)}
+                      data-test="show-bcc-emails"
+                    >
+                      {translate('text_1742392390147d9jizkapiou')}
+                    </Button>
+                  )}
                 </section>
 
                 <section className="not-last-child:mb-6">
@@ -386,7 +429,7 @@ const CreateDunning = () => {
             onClick={onSubmit}
           >
             {translate(
-              isEdition ? 'text_17295436903260tlyb1gp1i7' : 'text_1728584028187oqpu20oxuxq',
+              isEdition ? 'text_17295436903260tlyb1gp1i7' : 'text_1742392390147u5hy5yetful',
             )}
           </Button>
         </CenteredPage.StickyFooter>

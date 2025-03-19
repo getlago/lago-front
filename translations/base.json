@@ -2912,5 +2912,14 @@
   "text_17424672790819r1ua5ujpt3": "Breakdown by plan",
   "text_1742467700262idvii8tpg2w": "Plans with no active customers or relevant results are hidden",
   "text_1742480465327lfl86dyjywx": "Active customers",
-  "text_1742831422968chcjxyc2qjo": "New"
+  "text_1742831422968chcjxyc2qjo": "New",
+  "text_1742392390147aoog6603wwy": "When overdue balance reaches",
+  "text_1742392390147fju3ihxmtin": "The campaign will activate once a customer's overdue balance reaches the threshold.",
+  "text_1742392390147pcg2p300roc": "Request payments",
+  "text_1742392390147xtfe9hub59a": "Emails to BCC",
+  "text_1742392390147xia24oyubb3": "Type address emails",
+  "text_1742392390147638s3zam327": "Send emails to BCC addresses, specify multiple email addresses separated by commas.",
+  "text_1742392390147u5hy5yetful": "Create campaign",
+  "text_1742392390147d9jizkapiou": "Add BCC emails"
 }
+
