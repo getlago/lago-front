@@ -2885,5 +2885,14 @@
   "text_17422274791228swi7c4ydc7": "No revenue per plan available",
   "text_17422274791226kjpamwz3pe": "Add your first customer subscriptions to see the breakdown per plans.",
   "text_17422274967581grox8em361": "No revenue per customer available",
-  "text_1742227496758jg629m9fga6": "Add your first customer subscriptions to see the breakdown per customers."
+  "text_1742227496758jg629m9fga6": "Add your first customer subscriptions to see the breakdown per customers.",
+  "text_1742392390147aoog6603wwy": "When overdue balance reaches",
+  "text_1742392390147fju3ihxmtin": "The campaign will activate once a customer's overdue balance reaches the threshold.",
+  "text_1742392390147pcg2p300roc": "Request payments",
+  "text_1742392390147xtfe9hub59a": "Emails to BCC",
+  "text_1742392390147xia24oyubb3": "Type address emails",
+  "text_1742392390147638s3zam327": "Send emails to BCC addresses, specify multiple email addresses separated by commas.",
+  "text_1742392390147u5hy5yetful": "Create campaign",
+  "text_1742392390147d9jizkapiou": "Add BCC emails"
 }
+
