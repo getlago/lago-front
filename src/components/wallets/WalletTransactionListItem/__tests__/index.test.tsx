@@ -67,6 +67,7 @@ async function prepare(
       <WalletTransactionListItem
         customerTimezone={TimezoneEnum.TzEuropeParis}
         isRealTimeTransaction={isRealTimeTransaction ?? false}
+        isWalletActive={true}
         transaction={transaction}
       />,
       {
@@ -85,7 +86,7 @@ describe('WalletTransactionListItem', () => {
       transactionType: WalletTransactionTransactionTypeEnum.Inbound,
     })
 
-    expect(screen.getByTitle('sync/medium')).toBeInTheDocument()
+    expect(screen.getByTitle('sync/xsmall')).toBeInTheDocument()
     expect(screen.getByTestId('caption-pending')).toBeInTheDocument()
     expect(screen.getByText('Credits purchased')).toBeInTheDocument()
     expect(screen.getByTestId('credits')).toHaveTextContent(`+ ${CREDITS}`)
@@ -98,7 +99,7 @@ describe('WalletTransactionListItem', () => {
       transactionType: WalletTransactionTransactionTypeEnum.Outbound,
     })
 
-    expect(screen.getByTitle('sync/medium')).toBeInTheDocument()
+    expect(screen.getByTitle('sync/xsmall')).toBeInTheDocument()
     expect(screen.getByTestId('caption-pending')).toBeInTheDocument()
     expect(screen.getByText('Credits invoiced')).toBeInTheDocument()
     expect(screen.getByTestId('credits')).toHaveTextContent(`- ${CREDITS}`)
@@ -141,7 +142,7 @@ describe('WalletTransactionListItem', () => {
       transactionStatus: WalletTransactionTransactionStatusEnum.Voided,
     })
 
-    expect(screen.getByTitle('stop/medium')).toBeInTheDocument()
+    expect(screen.getByTitle('minus/medium')).toBeInTheDocument()
     expect(screen.getByText('Credits voided')).toBeInTheDocument()
   })
 

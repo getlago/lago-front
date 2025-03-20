@@ -252,7 +252,7 @@ const config = {
       addUtilities({
         '.ring': {
           outline: 'none',
-          boxShadow: `0px 0px 0px 4px ${theme('colors.blue.200')}`,
+          boxShadow: `0px 0px 0px 4px ${theme('colors.blue.200')} var(--tw-ring-inset)`,
         },
       })
       // Line break anywhere

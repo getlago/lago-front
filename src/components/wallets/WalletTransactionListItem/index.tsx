@@ -21,6 +21,7 @@ gql`
     amount
     creditAmount
     settledAt
+    failedAt
     createdAt
     wallet {
       id
@@ -40,20 +41,34 @@ export type WalletTransactionListItemProps = {
   customerTimezone: TimezoneEnum | undefined
   isRealTimeTransaction?: boolean
   transaction: LocalWalletTransaction
+  isWalletActive: boolean
+  onClick?: () => void
 }
 
 export const WalletTransactionListItem = ({
   customerTimezone,
   isRealTimeTransaction,
   transaction,
+  isWalletActive,
   ...props
 }: WalletTransactionListItemProps) => {
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
+
   const blurValue = !isPremium && isRealTimeTransaction
-  const { amount, createdAt, creditAmount, settledAt, status, transactionType, transactionStatus } =
-    transaction
+  const {
+    id,
+    amount,
+    createdAt,
+    creditAmount,
+    settledAt,
+    failedAt,
+    status,
+    transactionType,
+    transactionStatus,
+  } = transaction
   const isPending = status === WalletTransactionStatusEnum.Pending
+  const isFailed = status === WalletTransactionStatusEnum.Failed
   const isInbound = transactionType === WalletTransactionTransactionTypeEnum.Inbound
 
   const formattedCreditAmount = intlFormatNumber(Number(blurValue ? 0 : creditAmount) || 0, {
@@ -87,6 +102,8 @@ export const WalletTransactionListItem = ({
         creditsColor="grey600"
         credits={transactionAmountTranslationKey}
         amount={formattedCurrencyAmount}
+        hasAction={false}
+        transactionId={id}
       />
     )
   }
@@ -95,7 +112,7 @@ export const WalletTransactionListItem = ({
     return (
       <ListItem
         {...props}
-        isPending={isPending}
+        status={status}
         iconName="plus"
         timezone={customerTimezone}
         labelColor="grey700"
@@ -104,10 +121,12 @@ export const WalletTransactionListItem = ({
             ? translate('text_662fc05d2cfe3a0596b29db0', undefined, Number(creditAmount) || 0)
             : translate('text_62da6ec24a8e24e44f81289a', undefined, Number(creditAmount) || 0)
         }
-        date={isPending ? createdAt : settledAt}
+        date={(isPending && settledAt) || (isFailed && failedAt) || createdAt}
         creditsColor="success600"
         credits={`${Number(creditAmount) === 0 ? '' : '+ '} ${transactionAmountTranslationKey}`}
         amount={formattedCurrencyAmount}
+        hasAction={isWalletActive}
+        transactionId={id}
       />
     )
   }
@@ -116,10 +135,8 @@ export const WalletTransactionListItem = ({
     return (
       <ListItem
         {...props}
-        isPending={isPending}
-        iconName={
-          transactionStatus === WalletTransactionTransactionStatusEnum.Voided ? 'stop' : 'minus'
-        }
+        status={status}
+        iconName="minus"
         timezone={customerTimezone}
         labelColor="grey700"
         label={
@@ -127,10 +144,12 @@ export const WalletTransactionListItem = ({
             ? translate('text_662fc05d2cfe3a0596b29d98', undefined, Number(creditAmount) || 0)
             : translate('text_62da6ec24a8e24e44f812892', undefined, Number(creditAmount) || 0)
         }
-        date={isPending ? createdAt : settledAt}
+        date={(isPending && settledAt) || (isFailed && failedAt) || createdAt}
         creditsColor="grey700"
         credits={`${Number(creditAmount) === 0 ? '' : '- '} ${transactionAmountTranslationKey}`}
         amount={formattedCurrencyAmount}
+        hasAction={isWalletActive}
+        transactionId={id}
       />
     )
 
