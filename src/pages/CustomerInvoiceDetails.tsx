@@ -35,7 +35,7 @@ import { InvoiceCreditNoteList } from '~/components/invoices/InvoiceCreditNoteLi
 import { InvoicePaymentList } from '~/components/invoices/InvoicePaymentList'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { addToast, LagoGQLError } from '~/core/apolloClient'
+import { addToast, envGlobalVar, LagoGQLError } from '~/core/apolloClient'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import {
   CustomerDetailsTabsOptions,
@@ -93,6 +93,8 @@ import { usePermissions } from '~/hooks/usePermissions'
 import InvoiceOverview from '~/pages/InvoiceOverview'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader, theme } from '~/styles'
+
+const { disablePdfGeneration } = envGlobalVar()
 
 gql`
   fragment AllInvoiceDetailsForCustomerInvoiceDetails on Invoice {
@@ -658,8 +660,9 @@ const CustomerInvoiceDetails = () => {
                         {translate('text_63a41a8eabb9ae67047c1c06')}
                       </Button>
                     </>
-                  ) : status !== InvoiceStatusTypeEnum.Pending ||
-                    taxStatus !== InvoiceTaxStatusTypeEnum.Pending ? (
+                  ) : (status !== InvoiceStatusTypeEnum.Pending ||
+                      taxStatus !== InvoiceTaxStatusTypeEnum.Pending) &&
+                    !disablePdfGeneration ? (
                     <>
                       <Button
                         variant="quaternary"

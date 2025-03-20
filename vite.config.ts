@@ -69,6 +69,7 @@ export default defineConfig(({ mode }) => {
       LAGO_DISABLE_SIGNUP: JSON.stringify(env.LAGO_DISABLE_SIGNUP),
       NANGO_PUBLIC_KEY: JSON.stringify(env.NANGO_PUBLIC_KEY),
       SENTRY_DSN: JSON.stringify(env.SENTRY_DSN),
+      LAGO_DISABLE_PDF_GENERATION: JSON.stringify(env.LAGO_DISABLE_PDF_GENERATION),
     },
     resolve: {
       alias: {

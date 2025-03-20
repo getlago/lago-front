@@ -19,7 +19,7 @@ import {
 } from '~/components/designSystem'
 import { AvailableFiltersEnum, Filters } from '~/components/designSystem/Filters'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { addToast } from '~/core/apolloClient'
+import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { CREDIT_NOTE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE } from '~/core/router'
@@ -42,6 +42,8 @@ import { usePermissions } from '~/hooks/usePermissions'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import { BaseListItem, theme } from '~/styles'
 import { tw } from '~/styles/utils'
+
+const { disablePdfGeneration } = envGlobalVar()
 
 gql`
   fragment CreditNoteTableItem on CreditNote {
@@ -228,7 +230,7 @@ const CreditNotesTable = ({
               actionColumn={(creditNote) => {
                 let actions: ActionItem<CreditNoteTableItemFragment>[] = []
 
-                const canDownload = hasPermissions(['creditNotesView'])
+                const canDownload = hasPermissions(['creditNotesView']) && !disablePdfGeneration
                 const canVoid = creditNote.canBeVoided && hasPermissions(['creditNotesVoid'])
 
                 if (canDownload) {
