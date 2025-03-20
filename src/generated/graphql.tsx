@@ -5102,6 +5102,8 @@ export type QueryDataApiMrrsArgs = {
 
 export type QueryDataApiMrrsPlansArgs = {
   currency?: InputMaybe<CurrencyEnum>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -6861,6 +6863,16 @@ export type DeleteAddOnMutationVariables = Exact<{
 
 
 export type DeleteAddOnMutation = { __typename?: 'Mutation', destroyAddOn?: { __typename?: 'DestroyAddOnPayload', id?: string | null } | null };
+
+export type GetMrrPlanBreakdownQueryVariables = Exact<{
+  currency?: InputMaybe<CurrencyEnum>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetMrrPlanBreakdownQuery = { __typename?: 'Query', dataApiMrrsPlans: { __typename?: 'DataApiMrrPlanCollection', collection: Array<{ __typename?: 'DataApiMrrPlan', activeCustomersCount: any, activeCustomersShare: number, amountCurrency: CurrencyEnum, mrr: number, mrrShare: number, planCode: string, planId: string, planInterval: PlanInterval, planName: string }> } };
+
+export type MrrDataForOverviewSectionFragment = { __typename?: 'DataApiRevenueStream', commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any };
 
 export type GetRevenueStreamsCustomerBreakdownQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
@@ -9883,6 +9895,19 @@ export const DeleteAddOnFragmentDoc = gql`
     fragment DeleteAddOn on AddOn {
   id
   name
+}
+    `;
+export const MrrDataForOverviewSectionFragmentDoc = gql`
+    fragment MrrDataForOverviewSection on DataApiRevenueStream {
+  commitmentFeeAmountCents
+  couponsAmountCents
+  endOfPeriodDt
+  grossRevenueAmountCents
+  netRevenueAmountCents
+  oneOffFeeAmountCents
+  startOfPeriodDt
+  subscriptionFeeAmountCents
+  usageBasedFeeAmountCents
 }
     `;
 export const RevenueStreamDataForOverviewSectionFragmentDoc = gql`
@@ -13233,6 +13258,57 @@ export function useDeleteAddOnMutation(baseOptions?: Apollo.MutationHookOptions<
 export type DeleteAddOnMutationHookResult = ReturnType<typeof useDeleteAddOnMutation>;
 export type DeleteAddOnMutationResult = Apollo.MutationResult<DeleteAddOnMutation>;
 export type DeleteAddOnMutationOptions = Apollo.BaseMutationOptions<DeleteAddOnMutation, DeleteAddOnMutationVariables>;
+export const GetMrrPlanBreakdownDocument = gql`
+    query getMrrPlanBreakdown($currency: CurrencyEnum, $limit: Int) {
+  dataApiMrrsPlans(currency: $currency, limit: $limit) {
+    collection {
+      activeCustomersCount
+      activeCustomersShare
+      amountCurrency
+      mrr
+      mrrShare
+      planCode
+      planId
+      planInterval
+      planName
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetMrrPlanBreakdownQuery__
+ *
+ * To run a query within a React component, call `useGetMrrPlanBreakdownQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMrrPlanBreakdownQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMrrPlanBreakdownQuery({
+ *   variables: {
+ *      currency: // value for 'currency'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetMrrPlanBreakdownQuery(baseOptions?: Apollo.QueryHookOptions<GetMrrPlanBreakdownQuery, GetMrrPlanBreakdownQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetMrrPlanBreakdownQuery, GetMrrPlanBreakdownQueryVariables>(GetMrrPlanBreakdownDocument, options);
+      }
+export function useGetMrrPlanBreakdownLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMrrPlanBreakdownQuery, GetMrrPlanBreakdownQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetMrrPlanBreakdownQuery, GetMrrPlanBreakdownQueryVariables>(GetMrrPlanBreakdownDocument, options);
+        }
+export function useGetMrrPlanBreakdownSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMrrPlanBreakdownQuery, GetMrrPlanBreakdownQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetMrrPlanBreakdownQuery, GetMrrPlanBreakdownQueryVariables>(GetMrrPlanBreakdownDocument, options);
+        }
+export type GetMrrPlanBreakdownQueryHookResult = ReturnType<typeof useGetMrrPlanBreakdownQuery>;
+export type GetMrrPlanBreakdownLazyQueryHookResult = ReturnType<typeof useGetMrrPlanBreakdownLazyQuery>;
+export type GetMrrPlanBreakdownSuspenseQueryHookResult = ReturnType<typeof useGetMrrPlanBreakdownSuspenseQuery>;
+export type GetMrrPlanBreakdownQueryResult = Apollo.QueryResult<GetMrrPlanBreakdownQuery, GetMrrPlanBreakdownQueryVariables>;
 export const GetRevenueStreamsCustomerBreakdownDocument = gql`
     query getRevenueStreamsCustomerBreakdown($currency: CurrencyEnum, $limit: Int) {
   dataApiRevenueStreamsCustomers(currency: $currency, limit: $limit) {

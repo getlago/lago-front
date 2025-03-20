@@ -1,6 +1,7 @@
 // You can list your features such as FTR_ENABLED = 'ftr_enabled'
 export enum FeatureFlags {
   FTR_ENABLED = 'ftr_enabled',
+  FTR_NEW_ANALYTICS_MRR = 'ftr_new_analytics_mrr',
 }
 
 const FF_KEY = 'featureFlags'

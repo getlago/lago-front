@@ -5,18 +5,18 @@ import { useSearchParams } from 'react-router-dom'
 import { Button, Table, Typography } from '~/components/designSystem'
 import {
   Filters,
-  formatFiltersForRevenueStreamsPlansQuery,
-  RevenueStreamsPlansAvailableFilters,
+  formatFiltersForMrrPlansQuery,
+  MrrBreakdownPlansAvailableFilters,
 } from '~/components/designSystem/Filters'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX } from '~/core/constants/filters'
+import { MRR_BREAKDOWN_PLANS_FILTER_PREFIX } from '~/core/constants/filters'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
   PremiumIntegrationTypeEnum,
-  useGetRevenueStreamsPlanBreakdownQuery,
+  useGetMrrPlanBreakdownQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -24,14 +24,14 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 const ITEM_COUNT = 4
 
 gql`
-  query getRevenueStreamsPlanBreakdown($currency: CurrencyEnum, $limit: Int) {
-    dataApiRevenueStreamsPlans(currency: $currency, limit: $limit) {
+  query getMrrPlanBreakdown($currency: CurrencyEnum, $limit: Int) {
+    dataApiMrrsPlans(currency: $currency, limit: $limit) {
       collection {
+        activeCustomersCount
+        activeCustomersShare
         amountCurrency
-        customersCount
-        customersShare
-        netRevenueAmountCents
-        netRevenueShare
+        mrr
+        mrrShare
         planCode
         planId
         planInterval
@@ -41,52 +41,59 @@ gql`
   }
 `
 
-type RevenueStreamsPlanBreakdownSectionProps = {
+type MrrBreakdownSectionProps = {
   premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
 }
 
-export const RevenueStreamsPlanBreakdownSection = ({
-  premiumWarningDialogRef,
-}: RevenueStreamsPlanBreakdownSectionProps) => {
+export const MrrBreakdownSection = ({ premiumWarningDialogRef }: MrrBreakdownSectionProps) => {
   const [searchParams] = useSearchParams()
-  const { organization, hasOrganizationPremiumAddon } = useOrganizationInfos()
   const { translate } = useInternationalization()
+  const { organization, hasOrganizationPremiumAddon } = useOrganizationInfos()
 
   const hasAccessToAnalyticsDashboardsFeature = hasOrganizationPremiumAddon(
     PremiumIntegrationTypeEnum.AnalyticsDashboards,
   )
   const defaultCurrency = organization?.defaultCurrency || CurrencyEnum.Usd
 
-  const filtersForRevenueStreamsQuery = useMemo(() => {
+  const filtersForMrrQuery = useMemo(() => {
     if (!hasAccessToAnalyticsDashboardsFeature) {
       return {
         currency: defaultCurrency,
       }
     }
 
-    return formatFiltersForRevenueStreamsPlansQuery(searchParams)
+    return formatFiltersForMrrPlansQuery(searchParams)
   }, [hasAccessToAnalyticsDashboardsFeature, searchParams, defaultCurrency])
 
   const {
-    data: revenueStreamsPlanBreakdownData,
-    loading: revenueStreamsPlanBreakdownLoading,
-    error: revenueStreamsPlanBreakdownError,
-  } = useGetRevenueStreamsPlanBreakdownQuery({
+    data: mrrPlanBreakdownData,
+    loading: mrrPlanBreakdownLoading,
+    error: mrrPlanBreakdownError,
+  } = useGetMrrPlanBreakdownQuery({
     variables: {
-      ...filtersForRevenueStreamsQuery,
+      ...filtersForMrrQuery,
       limit: ITEM_COUNT,
     },
   })
 
   return (
-    <>
+    <section className="flex flex-col">
+      <div className="mb-6 flex flex-col gap-2">
+        <Typography className="mb-2" variant="subhead" color="grey700">
+          {translate('text_17424672790819r1ua5ujpt3')}
+        </Typography>
+        <Typography variant="caption" color="grey600">
+          {translate('text_1742467700262idvii8tpg2w')}
+        </Typography>
+      </div>
+
       <div className="flex flex-col">
         <Filters.Provider
-          filtersNamePrefix={REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX}
+          filtersNamePrefix={MRR_BREAKDOWN_PLANS_FILTER_PREFIX}
           staticFilters={{
             currency: defaultCurrency,
           }}
-          availableFilters={RevenueStreamsPlansAvailableFilters}
+          availableFilters={MrrBreakdownPlansAvailableFilters}
           buttonOpener={({ onClick }) => (
             <Button
               startIcon="filter"
@@ -113,14 +120,14 @@ export const RevenueStreamsPlanBreakdownSection = ({
       </div>
 
       <Table
-        name="revenue-streams-plan-breakdown"
+        name="mrr-plan-breakdown"
         containerSize={{ default: 0 }}
         rowSize={72}
         loadingRowCount={ITEM_COUNT}
-        isLoading={revenueStreamsPlanBreakdownLoading}
-        hasError={!!revenueStreamsPlanBreakdownError}
+        isLoading={mrrPlanBreakdownLoading}
+        hasError={!!mrrPlanBreakdownError}
         data={
-          revenueStreamsPlanBreakdownData?.dataApiRevenueStreamsPlans.collection.map((p) => ({
+          mrrPlanBreakdownData?.dataApiMrrsPlans.collection.map((p) => ({
             id: p.planId,
             ...p,
           })) || []
@@ -153,7 +160,7 @@ export const RevenueStreamsPlanBreakdownSection = ({
           {
             key: 'planInterval',
             title: translate('text_65201b8216455901fe273dc1'),
-            minWidth: 112,
+            minWidth: 120,
             content({ planInterval }) {
               return (
                 <Typography variant="body" noWrap>
@@ -163,42 +170,39 @@ export const RevenueStreamsPlanBreakdownSection = ({
             },
           },
           {
-            key: 'customersShare',
+            key: 'activeCustomersShare',
             textAlign: 'right',
-            title: translate('text_624efab67eb2570101d117a5'),
-            minWidth: 134,
-            content({ customersShare, customersCount }) {
+            title: translate('text_1742480465327lfl86dyjywx'),
+            minWidth: 147,
+            content({ activeCustomersShare, activeCustomersCount }) {
               return (
                 <div className="flex items-center gap-2">
                   <Typography variant="body" color="grey700" noWrap>
-                    {customersCount}
+                    {activeCustomersCount}
                   </Typography>
                   <Typography className="w-16" variant="body" color="grey600" noWrap>
-                    {intlFormatNumber(customersShare, { style: 'percent' })}
+                    {intlFormatNumber(activeCustomersShare, { style: 'percent' })}
                   </Typography>
                 </div>
               )
             },
           },
           {
-            key: 'netRevenueShare',
-            title: translate('text_17422232171950c2u9u3vuq7'),
+            key: 'mrrShare',
+            title: translate('text_6553885df387fd0097fd738c'),
             textAlign: 'right',
-            minWidth: 134,
-            content({ netRevenueShare, netRevenueAmountCents, amountCurrency }) {
+            minWidth: 148,
+            content({ mrrShare, mrr, amountCurrency }) {
               return (
                 <div className="flex items-center gap-2">
                   <Typography variant="body" color="grey700" noWrap>
-                    {intlFormatNumber(
-                      deserializeAmount(netRevenueAmountCents || 0, amountCurrency),
-                      {
-                        style: 'currency',
-                        currency: defaultCurrency,
-                      },
-                    )}
+                    {intlFormatNumber(deserializeAmount(mrr || 0, amountCurrency), {
+                      style: 'currency',
+                      currency: defaultCurrency,
+                    })}
                   </Typography>
                   <Typography className="w-16 text-right" variant="body" color="grey600" noWrap>
-                    {intlFormatNumber(netRevenueShare, { style: 'percent' })}
+                    {intlFormatNumber(mrrShare, { style: 'percent' })}
                   </Typography>
                 </div>
               )
@@ -206,6 +210,6 @@ export const RevenueStreamsPlanBreakdownSection = ({
           },
         ]}
       />
-    </>
+    </section>
   )
 }
