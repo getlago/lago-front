@@ -5,74 +5,71 @@ import { useSearchParams } from 'react-router-dom'
 import { Button, Table, Typography } from '~/components/designSystem'
 import {
   Filters,
-  formatFiltersForRevenueStreamsPlansQuery,
-  RevenueStreamsPlansAvailableFilters,
+  formatFiltersForRevenueStreamsCustomersQuery,
+  RevenueStreamsCustomersAvailableFilters,
 } from '~/components/designSystem/Filters'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX } from '~/core/constants/filters'
-import { getIntervalTranslationKey } from '~/core/constants/form'
+import { REVENUE_STREAMS_BREAKDOWN_CUSTOMER_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
   PremiumIntegrationTypeEnum,
-  useGetRevenueStreamsPlanBreakdownQuery,
+  useGetRevenueStreamsCustomerBreakdownQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
+const ITEM_COUNT = 4
+
 gql`
-  query getRevenueStreamsPlanBreakdown($currency: CurrencyEnum, $limit: Int) {
-    dataApiRevenueStreamsPlans(currency: $currency, limit: $limit) {
+  query getRevenueStreamsCustomerBreakdown($currency: CurrencyEnum, $limit: Int) {
+    dataApiRevenueStreamsCustomers(currency: $currency, limit: $limit) {
       collection {
         amountCurrency
-        customersCount
-        customersShare
+        customerName
+        externalCustomerId
         netRevenueAmountCents
         netRevenueShare
-        planCode
-        planId
-        planInterval
-        planName
       }
     }
   }
 `
 
-type RevenueStreamsPlanBreakdownSectionProps = {
+type RevenueStreamsCustomerBreakdownSectionProps = {
   premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
 }
 
-export const RevenueStreamsPlanBreakdownSection = ({
+export const RevenueStreamsCustomerBreakdownSection = ({
   premiumWarningDialogRef,
-}: RevenueStreamsPlanBreakdownSectionProps) => {
+}: RevenueStreamsCustomerBreakdownSectionProps) => {
   const [searchParams] = useSearchParams()
   const { organization, hasOrganizationPremiumAddon } = useOrganizationInfos()
   const { translate } = useInternationalization()
 
-  const hasAccessToRevenueAnalyticsFeature = hasOrganizationPremiumAddon(
-    PremiumIntegrationTypeEnum.RevenueAnalytics,
+  const hasAccessToAnalyticsDashboardsFeature = hasOrganizationPremiumAddon(
+    PremiumIntegrationTypeEnum.AnalyticsDashboards,
   )
   const defaultCurrency = organization?.defaultCurrency || CurrencyEnum.Usd
 
   const filtersForRevenueStreamsQuery = useMemo(() => {
-    if (!hasAccessToRevenueAnalyticsFeature) {
+    if (!hasAccessToAnalyticsDashboardsFeature) {
       return {
         currency: defaultCurrency,
       }
     }
 
-    return formatFiltersForRevenueStreamsPlansQuery(searchParams)
-  }, [hasAccessToRevenueAnalyticsFeature, searchParams, defaultCurrency])
+    return formatFiltersForRevenueStreamsCustomersQuery(searchParams)
+  }, [hasAccessToAnalyticsDashboardsFeature, searchParams, defaultCurrency])
 
   const {
-    data: revenueStreamsPlanBreakdownData,
-    loading: revenueStreamsPlanBreakdownLoading,
-    error: revenueStreamsPlanBreakdownError,
-  } = useGetRevenueStreamsPlanBreakdownQuery({
+    data: revenueStreamsCustomerBreakdownData,
+    loading: revenueStreamsCustomerBreakdownLoading,
+    error: revenueStreamsCustomerBreakdownError,
+  } = useGetRevenueStreamsCustomerBreakdownQuery({
     variables: {
       ...filtersForRevenueStreamsQuery,
-      limit: 4,
+      limit: ITEM_COUNT,
     },
   })
 
@@ -80,19 +77,19 @@ export const RevenueStreamsPlanBreakdownSection = ({
     <>
       <div className="flex flex-col">
         <Filters.Provider
-          filtersNamePrefix={REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX}
+          filtersNamePrefix={REVENUE_STREAMS_BREAKDOWN_CUSTOMER_FILTER_PREFIX}
           staticFilters={{
             currency: defaultCurrency,
           }}
-          availableFilters={RevenueStreamsPlansAvailableFilters}
+          availableFilters={RevenueStreamsCustomersAvailableFilters}
           buttonOpener={({ onClick }) => (
             <Button
               startIcon="filter"
-              endIcon={!hasAccessToRevenueAnalyticsFeature ? 'sparkles' : undefined}
+              endIcon={!hasAccessToAnalyticsDashboardsFeature ? 'sparkles' : undefined}
               size="small"
               variant="quaternary"
               onClick={(e) => {
-                if (!hasAccessToRevenueAnalyticsFeature) {
+                if (!hasAccessToAnalyticsDashboardsFeature) {
                   e.stopPropagation()
                   premiumWarningDialogRef.current?.openDialog()
                 } else {
@@ -111,69 +108,42 @@ export const RevenueStreamsPlanBreakdownSection = ({
       </div>
 
       <Table
-        name="revenue-streams-plan-breakdown"
+        name="revenue-streams-customer-breakdown"
         containerSize={{ default: 0 }}
         rowSize={72}
-        isLoading={revenueStreamsPlanBreakdownLoading}
-        hasError={!!revenueStreamsPlanBreakdownError}
+        loadingRowCount={ITEM_COUNT}
+        isLoading={revenueStreamsCustomerBreakdownLoading}
+        hasError={!!revenueStreamsCustomerBreakdownError}
         data={
-          revenueStreamsPlanBreakdownData?.dataApiRevenueStreamsPlans.collection.map((p) => ({
-            id: p.planId,
-            ...p,
-          })) || []
+          revenueStreamsCustomerBreakdownData?.dataApiRevenueStreamsCustomers.collection.map(
+            (c) => ({
+              id: c.externalCustomerId,
+              ...c,
+            }),
+          ) || []
         }
         placeholder={{
           emptyState: {
-            title: translate('text_17422274791228swi7c4ydc7'),
-            subtitle: translate('text_17422274791226kjpamwz3pe'),
+            title: translate('text_17422274967581grox8em361'),
+            subtitle: translate('text_1742227496758jg629m9fga6'),
           },
         }}
         columns={[
           {
-            key: 'planName',
+            key: 'customerName',
             title: translate('text_63d3a658c6d84a5843032145'),
             maxSpace: true,
             minWidth: 200,
-            content({ planName, planCode }) {
+            content({ customerName, externalCustomerId }) {
               return (
                 <>
                   <Typography color="grey700" variant="bodyHl" noWrap>
-                    {planName}
+                    {customerName}
                   </Typography>
                   <Typography variant="caption" color="grey600" noWrap>
-                    {planCode}
+                    {externalCustomerId}
                   </Typography>
                 </>
-              )
-            },
-          },
-          {
-            key: 'planInterval',
-            title: translate('text_65201b8216455901fe273dc1'),
-            minWidth: 112,
-            content({ planInterval }) {
-              return (
-                <Typography variant="body" noWrap>
-                  {translate(getIntervalTranslationKey[planInterval])}
-                </Typography>
-              )
-            },
-          },
-          {
-            key: 'customersShare',
-            textAlign: 'right',
-            title: translate('text_624efab67eb2570101d117a5'),
-            minWidth: 134,
-            content({ customersShare, customersCount }) {
-              return (
-                <div className="flex items-center gap-2">
-                  <Typography variant="body" color="grey700" noWrap>
-                    {customersCount}
-                  </Typography>
-                  <Typography className="w-16" variant="body" color="grey600" noWrap>
-                    {intlFormatNumber(customersShare, { style: 'percent' })}
-                  </Typography>
-                </div>
               )
             },
           },

@@ -27,7 +27,6 @@ const Home = lazyLoad(() => import('~/pages/Home'))
 const Error404 = lazyLoad(() => import('~/pages/Error404'))
 const Forbidden = lazyLoad(() => import('~/pages/Forbidden'))
 const Analytic = lazyLoad(() => import('~/pages/Analytics'))
-const NewAnalytic = lazyLoad(() => import('~/pages/analytics/NewAnalytics'))
 
 // Route Available only on dev mode
 const DesignSystem = lazyLoad(() => import('~/pages/__devOnly/DesignSystem'))
@@ -35,8 +34,7 @@ const DesignSystem = lazyLoad(() => import('~/pages/__devOnly/DesignSystem'))
 export const HOME_ROUTE = '/'
 export const FORBIDDEN_ROUTE = '/forbidden'
 export const ANALYTIC_ROUTE = '/analytics'
-export const NEW_ANALYTIC_ROUTE = '/new-analytics'
-export const NEW_ANALYTIC_TABS_ROUTE = '/new-analytics/:tab'
+export const ANALYTIC_TABS_ROUTE = '/analytics/:tab'
 export const ERROR_404_ROUTE = '/404'
 
 // Route Available only on dev mode
@@ -67,16 +65,14 @@ export const routes: CustomRouteObject[] = [
         element: <Home />,
       },
       {
-        path: [ANALYTIC_ROUTE],
+        path: [ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE],
         private: true,
         element: <Analytic />,
-        permissions: ['analyticsView'],
-      },
-      {
-        path: [NEW_ANALYTIC_ROUTE, NEW_ANALYTIC_TABS_ROUTE],
-        private: true,
-        element: <NewAnalytic />,
-        permissions: ['analyticsView'],
+        // IMPORTANT: This is not 100% correct but can be fixed later.
+        // Those 2 permissions are not the same and refer to the old and new analytics access, but are defined with the same restrictions per role
+        // To preserve cached last visited route and prevent broken redirection I prefer to keepboth in the same place and not fix this now.
+        // Maybe analyticsView will be removed in the future
+        permissions: ['analyticsView', 'dataApiView'],
       },
       ...customerRoutes,
       ...developperRoutes,

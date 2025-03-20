@@ -4,7 +4,7 @@ import { DateTime } from 'luxon'
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { formatRevenueStreamsData } from '~/components/analytics/utils'
+import { formatRevenueStreamsData } from '~/components/analytics/revenueStreams/utils'
 import { AvailableFiltersEnum } from '~/components/designSystem/Filters'
 import {
   formatFiltersForRevenueStreamsQuery,
@@ -57,7 +57,7 @@ type RevenueAnalyticsOverviewReturn = {
   selectedCurrency: CurrencyEnum
   defaultCurrency: CurrencyEnum
   data: RevenueStreamDataForOverviewSectionFragment[]
-  hasAccessToRevenueAnalyticsFeature: boolean
+  hasAccessToAnalyticsDashboardsFeature: boolean
   hasError: boolean
   isLoading: boolean
   lastNetRevenueAmountCents: string
@@ -79,8 +79,8 @@ export const useRevenueAnalyticsOverview = (): RevenueAnalyticsOverviewReturn =>
   const [searchParams] = useSearchParams()
   const { organization, hasOrganizationPremiumAddon } = useOrganizationInfos()
 
-  const hasAccessToRevenueAnalyticsFeature = hasOrganizationPremiumAddon(
-    PremiumIntegrationTypeEnum.RevenueAnalytics,
+  const hasAccessToAnalyticsDashboardsFeature = hasOrganizationPremiumAddon(
+    PremiumIntegrationTypeEnum.AnalyticsDashboards,
   )
 
   const defaultCurrency = organization?.defaultCurrency || CurrencyEnum.Usd
@@ -88,23 +88,23 @@ export const useRevenueAnalyticsOverview = (): RevenueAnalyticsOverviewReturn =>
   const getDefaultStaticDateFilter = useCallback((): string => {
     const now = DateTime.now()
 
-    if (!hasAccessToRevenueAnalyticsFeature) {
+    if (!hasAccessToAnalyticsDashboardsFeature) {
       return `${now.minus({ month: 1 }).startOf('day').toISO()},${now.endOf('day').toISO()}`
     }
 
     return `${now.minus({ month: 12 }).startOf('day').toISO()},${now.endOf('day').toISO()}`
-  }, [hasAccessToRevenueAnalyticsFeature])
+  }, [hasAccessToAnalyticsDashboardsFeature])
 
   const getDefaultStaticTimeGranularityFilter = useCallback((): string => {
-    if (!hasAccessToRevenueAnalyticsFeature) {
+    if (!hasAccessToAnalyticsDashboardsFeature) {
       return TimeGranularityEnum.Daily
     }
 
     return TimeGranularityEnum.Monthly
-  }, [hasAccessToRevenueAnalyticsFeature])
+  }, [hasAccessToAnalyticsDashboardsFeature])
 
   const filtersForRevenueStreamsQuery = useMemo(() => {
-    if (!hasAccessToRevenueAnalyticsFeature) {
+    if (!hasAccessToAnalyticsDashboardsFeature) {
       return {
         currency: defaultCurrency,
         date: getDefaultStaticDateFilter(),
@@ -114,7 +114,7 @@ export const useRevenueAnalyticsOverview = (): RevenueAnalyticsOverviewReturn =>
 
     return formatFiltersForRevenueStreamsQuery(searchParams)
   }, [
-    hasAccessToRevenueAnalyticsFeature,
+    hasAccessToAnalyticsDashboardsFeature,
     searchParams,
     defaultCurrency,
     getDefaultStaticDateFilter,
@@ -190,7 +190,7 @@ export const useRevenueAnalyticsOverview = (): RevenueAnalyticsOverviewReturn =>
 
   return {
     defaultCurrency,
-    hasAccessToRevenueAnalyticsFeature,
+    hasAccessToAnalyticsDashboardsFeature,
     lastNetRevenueAmountCents,
     netRevenueAmountCentsProgressionOnPeriod,
     selectedCurrency,

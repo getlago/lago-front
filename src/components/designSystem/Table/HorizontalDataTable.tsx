@@ -1,7 +1,7 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { ReactNode, useCallback, useEffect, useMemo, useRef } from 'react'
 
-import { useRevenueStreamsState } from '~/components/analytics/RevenueStreamsStateContext'
+import { useRevenueStreamsState } from '~/components/analytics/revenueStreams/RevenueStreamsStateContext'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { tw } from '~/styles/utils'
 

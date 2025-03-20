@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 
-import { RevenueStreamsStateProvider } from '~/components/analytics/RevenueStreamsStateContext'
-import { useRevenueAnalyticsOverview } from '~/components/analytics/useRevenueAnalyticsOverview'
+import { RevenueStreamsStateProvider } from '~/components/analytics/revenueStreams/RevenueStreamsStateContext'
+import { useRevenueAnalyticsOverview } from '~/components/analytics/revenueStreams/useRevenueAnalyticsOverview'
 import { Button, HorizontalDataTable, Icon, Typography } from '~/components/designSystem'
 import {
   AvailableQuickFilters,
@@ -53,7 +53,7 @@ export const RevenueStreamsOverviewSection = ({
     timeGranularity,
     getDefaultStaticDateFilter,
     getDefaultStaticTimeGranularityFilter,
-    hasAccessToRevenueAnalyticsFeature,
+    hasAccessToAnalyticsDashboardsFeature,
   } = useRevenueAnalyticsOverview()
 
   return (
@@ -73,11 +73,11 @@ export const RevenueStreamsOverviewSection = ({
           buttonOpener={({ onClick }) => (
             <Button
               startIcon="filter"
-              endIcon={!hasAccessToRevenueAnalyticsFeature ? 'sparkles' : undefined}
+              endIcon={!hasAccessToAnalyticsDashboardsFeature ? 'sparkles' : undefined}
               size="small"
               variant="quaternary"
               onClick={(e) => {
-                if (!hasAccessToRevenueAnalyticsFeature) {
+                if (!hasAccessToAnalyticsDashboardsFeature) {
                   e.stopPropagation()
                   premiumWarningDialogRef.current?.openDialog()
                 } else {
