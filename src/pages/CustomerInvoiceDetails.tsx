@@ -68,7 +68,6 @@ import {
   InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForInvoiceInfosFragmentDoc,
   InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
-  InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   InvoiceTaxStatusTypeEnum,
   LagoApiError,
@@ -90,6 +89,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
+import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import InvoiceOverview from '~/pages/InvoiceOverview'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader, theme } from '~/styles'
@@ -271,6 +271,7 @@ const CustomerInvoiceDetails = () => {
   const { goBack } = useLocationHistory()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
+  const actions = usePermissionsInvoiceActions()
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
@@ -437,6 +438,9 @@ const CustomerInvoiceDetails = () => {
     errorDetails,
     taxProviderVoidable,
     associatedActiveWalletPresent,
+    paymentDisputeLostAt,
+    integrationSyncable,
+    integrationHubspotSyncable,
   } = (data?.invoice as AllInvoiceDetailsForCustomerInvoiceDetailsFragment) || {}
 
   const isPartiallyPaid =
@@ -596,7 +600,8 @@ const CustomerInvoiceDetails = () => {
     taxStatus,
   ])
 
-  const canRetrySyncInvoice = hasTaxProviderError
+  // TODO: Compare this with src/hooks/usePermissionsInvoiceActions.ts:
+  // We don't check the same permissions here, but we could refactor this to use the same logic
   const canFinalizeInvoice =
     status === InvoiceStatusTypeEnum.Draft &&
     taxStatus !== InvoiceTaxStatusTypeEnum.Pending &&
@@ -604,26 +609,6 @@ const CustomerInvoiceDetails = () => {
   const canDownloadInvoice =
     (status !== InvoiceStatusTypeEnum.Pending || taxStatus !== InvoiceTaxStatusTypeEnum.Pending) &&
     !disablePdfGeneration
-  const canUpdatePaymentStatus =
-    ![
-      InvoiceStatusTypeEnum.Draft,
-      InvoiceStatusTypeEnum.Voided,
-      InvoiceStatusTypeEnum.Failed,
-      InvoiceStatusTypeEnum.Pending,
-    ].includes(status) &&
-    taxStatus !== InvoiceTaxStatusTypeEnum.Pending &&
-    hasPermissions(['invoicesUpdate'])
-  const canVoid =
-    status === InvoiceStatusTypeEnum.Finalized &&
-    [InvoicePaymentStatusTypeEnum.Pending, InvoicePaymentStatusTypeEnum.Failed].includes(
-      paymentStatus,
-    ) &&
-    hasPermissions(['invoicesVoid'])
-  const canDisputeInvoice =
-    status === InvoiceStatusTypeEnum.Finalized &&
-    !data?.invoice?.paymentDisputeLostAt &&
-    hasPermissions(['invoicesUpdate'])
-  const canSyncIntegrationInvoice = !!data?.invoice?.integrationSyncable
 
   return (
     <>
@@ -648,7 +633,7 @@ const CustomerInvoiceDetails = () => {
             {({ closePopper }) => {
               return (
                 <MenuPopper>
-                  {canRetrySyncInvoice ? (
+                  {hasTaxProviderError ? (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -792,7 +777,7 @@ const CustomerInvoiceDetails = () => {
                   >
                     {translate('text_634687079be251fdb438339b')}
                   </Button>
-                  {canUpdatePaymentStatus && (
+                  {actions.canUpdatePaymentStatus({ status, taxStatus }) && (
                     <>
                       <Button
                         variant="quaternary"
@@ -817,7 +802,7 @@ const CustomerInvoiceDetails = () => {
                       </Button>
                     </>
                   )}
-                  {canSyncIntegrationInvoice && (
+                  {actions.canSyncAccountingIntegration({ integrationSyncable }) && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -834,7 +819,7 @@ const CustomerInvoiceDetails = () => {
                       )}
                     </Button>
                   )}
-                  {!!data?.invoice?.integrationHubspotSyncable && (
+                  {actions.canSyncCRMIntegration({ integrationHubspotSyncable }) && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -847,7 +832,7 @@ const CustomerInvoiceDetails = () => {
                       {translate('text_1729611609136sul07rowhfi')}
                     </Button>
                   )}
-                  {canDisputeInvoice && (
+                  {actions.canDispute({ status, paymentDisputeLostAt }) && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -861,7 +846,7 @@ const CustomerInvoiceDetails = () => {
                       {translate('text_66141e30699a0631f0b2ec71')}
                     </Button>
                   )}
-                  {canVoid && (
+                  {actions.canVoid({ status, paymentStatus }) && (
                     <Tooltip
                       title={!isPartiallyPaid && translate('text_65269c2e471133226211fdd0')}
                       {...(!!data?.invoice?.paymentDisputeLostAt && {
@@ -884,7 +869,7 @@ const CustomerInvoiceDetails = () => {
                       </Button>
                     </Tooltip>
                   )}
-                  {data?.invoice?.taxProviderVoidable && (
+                  {actions.canSyncTaxIntegration({ taxProviderVoidable }) && (
                     <Button
                       variant="quaternary"
                       align="left"
