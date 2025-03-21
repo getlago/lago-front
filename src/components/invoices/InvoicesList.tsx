@@ -62,6 +62,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
+import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 
 type TInvoiceListProps = {
   error: ApolloError | undefined
@@ -85,6 +86,7 @@ const InvoicesList = ({
   const { isPremium } = useCurrentUser()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
+  const actions = usePermissionsInvoiceActions()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
 
   const hasAccessToRevenueShare = !!premiumIntegrations?.includes(
@@ -167,15 +169,6 @@ const InvoicesList = ({
             isLoading={isLoading}
             hasError={!!error}
             actionColumn={(invoice) => {
-              const {
-                status,
-                paymentStatus,
-                voidable,
-                totalDueAmountCents,
-                totalPaidAmountCents,
-                totalAmountCents,
-              } = invoice
-
               const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
                 createCreditNoteForInvoiceButtonProps({
                   invoiceType: invoice?.invoiceType,
@@ -185,46 +178,26 @@ const InvoicesList = ({
                   associatedActiveWalletPresent: invoice?.associatedActiveWalletPresent,
                 })
 
+              // TODO: Compare this with src/hooks/usePermissionsInvoiceActions.ts:
+              // We don't check the taxStatus here, is it an oversight?
               const canDownload =
                 ![
                   InvoiceStatusTypeEnum.Draft,
                   InvoiceStatusTypeEnum.Failed,
                   InvoiceStatusTypeEnum.Pending,
-                ].includes(status) && hasPermissions(['invoicesView'])
-              const canFinalize =
-                ![InvoiceStatusTypeEnum.Failed, InvoiceStatusTypeEnum.Pending].includes(status) &&
-                hasPermissions(['invoicesUpdate'])
-              const canRetryCollect =
-                status === InvoiceStatusTypeEnum.Finalized &&
-                [
-                  InvoicePaymentStatusTypeEnum.Failed,
-                  InvoicePaymentStatusTypeEnum.Pending,
-                ].includes(paymentStatus) &&
-                hasPermissions(['invoicesSend'])
+                ].includes(invoice.status) && hasPermissions(['invoicesView'])
+
               const canUpdatePaymentStatus =
                 ![
                   InvoiceStatusTypeEnum.Draft,
                   InvoiceStatusTypeEnum.Voided,
                   InvoiceStatusTypeEnum.Failed,
                   InvoiceStatusTypeEnum.Pending,
-                ].includes(status) && hasPermissions(['invoicesUpdate'])
-              const canVoid =
-                status === InvoiceStatusTypeEnum.Finalized &&
-                [
-                  InvoicePaymentStatusTypeEnum.Pending,
-                  InvoicePaymentStatusTypeEnum.Failed,
-                ].includes(paymentStatus) &&
-                hasPermissions(['invoicesVoid'])
-              const canIssueCreditNote =
-                ![InvoiceStatusTypeEnum.Draft, InvoiceStatusTypeEnum.Voided].includes(status) &&
-                hasPermissions(['creditNotesCreate'])
-              const canRecordPayment =
-                Number(totalDueAmountCents) > 0 &&
-                hasPermissions(['paymentsCreate']) &&
-                Number(totalPaidAmountCents) < Number(totalAmountCents)
+                ].includes(invoice.status) && hasPermissions(['invoicesUpdate'])
+
               const isPartiallyPaid =
-                Number(totalPaidAmountCents) > 0 &&
-                Number(totalAmountCents) - Number(totalPaidAmountCents) > 0
+                Number(invoice.totalPaidAmountCents) > 0 &&
+                Number(invoice.totalAmountCents) - Number(invoice.totalPaidAmountCents) > 0
 
               return [
                 canDownload
@@ -237,7 +210,7 @@ const InvoicesList = ({
                         })
                       },
                     }
-                  : canFinalize
+                  : actions.canFinalize(invoice)
                     ? {
                         startIcon: 'checkmark',
                         title: translate('text_63a41a8eabb9ae67047c1c08'),
@@ -256,7 +229,7 @@ const InvoicesList = ({
                   },
                 },
 
-                canRecordPayment
+                actions.canRecordPayment(invoice)
                   ? {
                       startIcon: 'receipt',
                       title: translate('text_1737471851634wpeojigr27w'),
@@ -272,7 +245,7 @@ const InvoicesList = ({
                     }
                   : null,
 
-                canRetryCollect
+                actions.canRetryCollect(invoice)
                   ? {
                       startIcon: 'push',
                       title: translate('text_63ac86d897f728a87b2fa039'),
@@ -296,6 +269,7 @@ const InvoicesList = ({
                       },
                     }
                   : null,
+
                 canUpdatePaymentStatus
                   ? {
                       startIcon: 'coin-dollar',
@@ -305,7 +279,8 @@ const InvoicesList = ({
                       },
                     }
                   : null,
-                canIssueCreditNote && !isPremium
+
+                actions.canIssueCreditNote(invoice) && !isPremium
                   ? {
                       startIcon: 'document',
                       endIcon: 'sparkles',
@@ -313,7 +288,8 @@ const InvoicesList = ({
                       onAction: () => premiumWarningDialogRef.current?.openDialog(),
                     }
                   : null,
-                canIssueCreditNote && isPremium
+
+                actions.canIssueCreditNote(invoice) && isPremium
                   ? {
                       startIcon: 'document',
                       title: translate('text_636bdef6565341dcb9cfb127'),
@@ -332,14 +308,15 @@ const InvoicesList = ({
                           : undefined,
                     }
                   : null,
-                canVoid
+
+                actions.canVoid(invoice)
                   ? {
                       startIcon: 'stop',
                       title: translate('text_65269b43d4d2b15dd929a259'),
-                      disabled: !voidable,
+                      disabled: !invoice.voidable,
                       onAction: (item) =>
                         voidInvoiceDialogRef?.current?.openDialog({ invoice: item }),
-                      ...(!voidable &&
+                      ...(!invoice.voidable &&
                         !isPartiallyPaid && {
                           tooltip: translate('text_65269c2e471133226211fdd0'),
                         }),
