@@ -198,7 +198,7 @@ export const MrrBreakdownSection = ({ premiumWarningDialogRef }: MrrBreakdownSec
                   <Typography variant="body" color="grey700" noWrap>
                     {intlFormatNumber(deserializeAmount(mrr || 0, amountCurrency), {
                       style: 'currency',
-                      currency: defaultCurrency,
+                      currency: amountCurrency,
                     })}
                   </Typography>
                   <Typography className="w-16 text-right" variant="body" color="grey600" noWrap>
