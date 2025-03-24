@@ -4,6 +4,7 @@ import {
   CREDIT_NOTE_LIST_FILTER_PREFIX,
   CUSTOMER_LIST_FILTER_PREFIX,
   INVOICE_LIST_FILTER_PREFIX,
+  MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX,
   MRR_BREAKDOWN_PLANS_FILTER_PREFIX,
   REVENUE_STREAMS_BREAKDOWN_CUSTOMER_FILTER_PREFIX,
   REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX,
@@ -21,6 +22,7 @@ import {
   filterDataInlineSeparator,
   InvoiceAvailableFilters,
   MrrBreakdownPlansAvailableFilters,
+  MrrOverviewAvailableFilters,
   RevenueStreamsAvailablePopperFilters,
   RevenueStreamsCustomersAvailableFilters,
   RevenueStreamsPlansAvailableFilters,
@@ -194,6 +196,19 @@ export const formatFiltersForRevenueStreamsPlansQuery = (searchParams: URLSearch
     searchParams,
     availableFilters: RevenueStreamsPlansAvailableFilters,
     filtersNamePrefix: REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX,
+  })
+}
+
+export const formatFiltersForMrrQuery = (searchParams: URLSearchParams) => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
+    [AvailableFiltersEnum.country]: 'customerCountry',
+  }
+
+  return formatFiltersForQuery({
+    keyMap,
+    searchParams,
+    availableFilters: MrrOverviewAvailableFilters,
+    filtersNamePrefix: MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX,
   })
 }
 

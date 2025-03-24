@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 
 import { MrrBreakdownSection } from '~/components/analytics/mrr/MrrBreakdownSection'
+import { MrrOverviewSection } from '~/components/analytics/mrr/MrrOverviewSection'
 import { Typography } from '~/components/designSystem'
 import { Icon, Tooltip } from '~/components/designSystem'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
@@ -19,6 +20,8 @@ const Mrr = () => {
           <Icon name="info-circle" />
         </Tooltip>
       </Typography>
+
+      <MrrOverviewSection premiumWarningDialogRef={premiumWarningDialogRef} />
 
       <MrrBreakdownSection premiumWarningDialogRef={premiumWarningDialogRef} />
 

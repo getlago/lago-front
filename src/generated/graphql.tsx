@@ -6872,7 +6872,21 @@ export type GetMrrPlanBreakdownQueryVariables = Exact<{
 
 export type GetMrrPlanBreakdownQuery = { __typename?: 'Query', dataApiMrrsPlans: { __typename?: 'DataApiMrrPlanCollection', collection: Array<{ __typename?: 'DataApiMrrPlan', activeCustomersCount: any, activeCustomersShare: number, amountCurrency: CurrencyEnum, mrr: number, mrrShare: number, planCode: string, planId: string, planInterval: PlanInterval, planName: string }> } };
 
-export type MrrDataForOverviewSectionFragment = { __typename?: 'DataApiRevenueStream', commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any };
+export type MrrDataForOverviewSectionFragment = { __typename?: 'DataApiMrr', endOfPeriodDt: any, endingMrr: any, mrrChange: any, mrrChurn: any, mrrContraction: any, mrrExpansion: any, mrrNew: any, startOfPeriodDt: any, startingMrr: any };
+
+export type GetMrrsQueryVariables = Exact<{
+  currency?: InputMaybe<CurrencyEnum>;
+  customerCountry?: InputMaybe<CountryCode>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  planCode?: InputMaybe<Scalars['String']['input']>;
+  timeGranularity?: InputMaybe<TimeGranularityEnum>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+}>;
+
+
+export type GetMrrsQuery = { __typename?: 'Query', dataApiMrrs: { __typename?: 'DataApiMrrCollection', collection: Array<{ __typename?: 'DataApiMrr', endOfPeriodDt: any, endingMrr: any, mrrChange: any, mrrChurn: any, mrrContraction: any, mrrExpansion: any, mrrNew: any, startOfPeriodDt: any, startingMrr: any }> } };
 
 export type GetRevenueStreamsCustomerBreakdownQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
@@ -9898,16 +9912,16 @@ export const DeleteAddOnFragmentDoc = gql`
 }
     `;
 export const MrrDataForOverviewSectionFragmentDoc = gql`
-    fragment MrrDataForOverviewSection on DataApiRevenueStream {
-  commitmentFeeAmountCents
-  couponsAmountCents
+    fragment MrrDataForOverviewSection on DataApiMrr {
   endOfPeriodDt
-  grossRevenueAmountCents
-  netRevenueAmountCents
-  oneOffFeeAmountCents
+  endingMrr
+  mrrChange
+  mrrChurn
+  mrrContraction
+  mrrExpansion
+  mrrNew
   startOfPeriodDt
-  subscriptionFeeAmountCents
-  usageBasedFeeAmountCents
+  startingMrr
 }
     `;
 export const RevenueStreamDataForOverviewSectionFragmentDoc = gql`
@@ -13309,6 +13323,64 @@ export type GetMrrPlanBreakdownQueryHookResult = ReturnType<typeof useGetMrrPlan
 export type GetMrrPlanBreakdownLazyQueryHookResult = ReturnType<typeof useGetMrrPlanBreakdownLazyQuery>;
 export type GetMrrPlanBreakdownSuspenseQueryHookResult = ReturnType<typeof useGetMrrPlanBreakdownSuspenseQuery>;
 export type GetMrrPlanBreakdownQueryResult = Apollo.QueryResult<GetMrrPlanBreakdownQuery, GetMrrPlanBreakdownQueryVariables>;
+export const GetMrrsDocument = gql`
+    query getMrrs($currency: CurrencyEnum, $customerCountry: CountryCode, $customerType: CustomerTypeEnum, $externalCustomerId: String, $fromDate: ISO8601Date, $planCode: String, $timeGranularity: TimeGranularityEnum, $toDate: ISO8601Date) {
+  dataApiMrrs(
+    currency: $currency
+    customerCountry: $customerCountry
+    customerType: $customerType
+    externalCustomerId: $externalCustomerId
+    fromDate: $fromDate
+    planCode: $planCode
+    timeGranularity: $timeGranularity
+    toDate: $toDate
+  ) {
+    collection {
+      ...MrrDataForOverviewSection
+    }
+  }
+}
+    ${MrrDataForOverviewSectionFragmentDoc}`;
+
+/**
+ * __useGetMrrsQuery__
+ *
+ * To run a query within a React component, call `useGetMrrsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMrrsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMrrsQuery({
+ *   variables: {
+ *      currency: // value for 'currency'
+ *      customerCountry: // value for 'customerCountry'
+ *      customerType: // value for 'customerType'
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *      fromDate: // value for 'fromDate'
+ *      planCode: // value for 'planCode'
+ *      timeGranularity: // value for 'timeGranularity'
+ *      toDate: // value for 'toDate'
+ *   },
+ * });
+ */
+export function useGetMrrsQuery(baseOptions?: Apollo.QueryHookOptions<GetMrrsQuery, GetMrrsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetMrrsQuery, GetMrrsQueryVariables>(GetMrrsDocument, options);
+      }
+export function useGetMrrsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMrrsQuery, GetMrrsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetMrrsQuery, GetMrrsQueryVariables>(GetMrrsDocument, options);
+        }
+export function useGetMrrsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMrrsQuery, GetMrrsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetMrrsQuery, GetMrrsQueryVariables>(GetMrrsDocument, options);
+        }
+export type GetMrrsQueryHookResult = ReturnType<typeof useGetMrrsQuery>;
+export type GetMrrsLazyQueryHookResult = ReturnType<typeof useGetMrrsLazyQuery>;
+export type GetMrrsSuspenseQueryHookResult = ReturnType<typeof useGetMrrsSuspenseQuery>;
+export type GetMrrsQueryResult = Apollo.QueryResult<GetMrrsQuery, GetMrrsQueryVariables>;
 export const GetRevenueStreamsCustomerBreakdownDocument = gql`
     query getRevenueStreamsCustomerBreakdown($currency: CurrencyEnum, $limit: Int) {
   dataApiRevenueStreamsCustomers(currency: $currency, limit: $limit) {
