@@ -17,6 +17,7 @@ import {
   Typography,
 } from '~/components/designSystem'
 import { SearchInput } from '~/components/SearchInput'
+import { envGlobalVar } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { handleDownloadFile } from '~/core/utils/downloadFiles'
@@ -146,6 +147,7 @@ const mapStatusConfig = ({
 
 const PortalInvoicesList = () => {
   const { translate, documentLocale } = useCustomerPortalTranslate()
+  const { disablePdfGeneration } = envGlobalVar()
 
   const [getInvoices, { data, loading, error, fetchMore, variables, refetch }] =
     useCustomerPortalInvoicesLazyQuery({
@@ -372,6 +374,8 @@ const PortalInvoicesList = () => {
               },
             ]}
             actionColumn={({ id }) => {
+              if (disablePdfGeneration) return null
+
               return (
                 <Tooltip
                   placement="top-end"
