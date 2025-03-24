@@ -9,11 +9,9 @@ interface RevenueStreamsStateContextValue {
 
 const MIN_UPDATE_INTERVAL = 1000 / 60 // Cap at 60fps
 
-const RevenueStreamsStateContext = createContext<RevenueStreamsStateContextValue | undefined>(
-  undefined,
-)
+const AnalyticsStateContext = createContext<RevenueStreamsStateContextValue | undefined>(undefined)
 
-export const RevenueStreamsStateProvider = ({ children }: { children: ReactNode }) => {
+export const AnalyticsStateProvider = ({ children }: { children: ReactNode }) => {
   const [hoverDataIndex, setHoverDataIndexState] = useState<number | undefined>(undefined)
   const [clickedDataIndex, setClickedDataIndexState] = useState<number | undefined>(undefined)
 
@@ -42,18 +40,14 @@ export const RevenueStreamsStateProvider = ({ children }: { children: ReactNode 
     setClickedDataIndex,
   }
 
-  return (
-    <RevenueStreamsStateContext.Provider value={value}>
-      {children}
-    </RevenueStreamsStateContext.Provider>
-  )
+  return <AnalyticsStateContext.Provider value={value}>{children}</AnalyticsStateContext.Provider>
 }
 
-export const useRevenueStreamsState = (): RevenueStreamsStateContextValue => {
-  const context = useContext(RevenueStreamsStateContext)
+export const useAnalyticsState = (): RevenueStreamsStateContextValue => {
+  const context = useContext(AnalyticsStateContext)
 
   if (!context) {
-    throw new Error('useRevenueStreamsState must be used within a RevenueStreamsStateProvider')
+    throw new Error('useAnalyticsState must be used within an AnalyticsStateProvider')
   }
 
   return context

@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 
-import { RevenueStreamsStateProvider } from '~/components/analytics/revenueStreams/RevenueStreamsStateContext'
+import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { useRevenueAnalyticsOverview } from '~/components/analytics/revenueStreams/useRevenueAnalyticsOverview'
 import { Button, HorizontalDataTable, Icon, Typography } from '~/components/designSystem'
 import {
@@ -148,7 +148,7 @@ export const RevenueStreamsOverviewSection = ({
       )}
 
       {!hasError && (
-        <RevenueStreamsStateProvider>
+        <AnalyticsStateProvider>
           <MultipleLineChart
             xAxisDataKey="startOfPeriodDt"
             currency={selectedCurrency}
@@ -455,7 +455,7 @@ export const RevenueStreamsOverviewSection = ({
               },
             ]}
           />
-        </RevenueStreamsStateProvider>
+        </AnalyticsStateProvider>
       )}
     </section>
   )

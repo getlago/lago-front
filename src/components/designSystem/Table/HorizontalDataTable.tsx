@@ -1,7 +1,7 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { ReactNode, useCallback, useEffect, useMemo, useRef } from 'react'
 
-import { useRevenueStreamsState } from '~/components/analytics/revenueStreams/RevenueStreamsStateContext'
+import { useAnalyticsState } from '~/components/analytics/AnalyticsStateContext'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { tw } from '~/styles/utils'
 
@@ -58,7 +58,7 @@ export const HorizontalDataTable = <T extends DataItem>({
   rows,
 }: HorizontalDataTableProps<T>) => {
   // Get the hover and click state from context
-  const { clickedDataIndex, setHoverDataIndex, setClickedDataIndex } = useRevenueStreamsState()
+  const { clickedDataIndex, setHoverDataIndex, setClickedDataIndex } = useAnalyticsState()
   const parentRef = useRef(null)
 
   const columnVirtualizer = useVirtualizer({
