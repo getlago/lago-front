@@ -22,6 +22,7 @@ import {
 import { InvoiceCreditNotesTable } from '~/components/invoices/InvoiceCreditNotesTable'
 import { InvoiceCustomerInfos } from '~/components/invoices/InvoiceCustomerInfos'
 import { Metadatas } from '~/components/invoices/Metadatas'
+import { envGlobalVar } from '~/core/apolloClient'
 import {
   buildAnrokInvoiceUrl,
   buildHubspotInvoiceUrl,
@@ -54,6 +55,8 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { theme } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
 import { tw } from '~/styles/utils'
+
+const { disablePdfGeneration } = envGlobalVar()
 
 gql`
   fragment InvoiceDetailsForInvoiceOverview on Invoice {
@@ -271,7 +274,8 @@ const InvoiceOverview = memo(
               </Button>
             ) : (
               !hasError &&
-              !loading && (
+              !loading &&
+              !disablePdfGeneration && (
                 <Button
                   variant="quaternary"
                   disabled={loadingInvoiceDownload || isTaxStatusPending}
