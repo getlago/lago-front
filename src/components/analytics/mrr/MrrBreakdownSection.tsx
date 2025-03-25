@@ -79,7 +79,7 @@ export const MrrBreakdownSection = ({ premiumWarningDialogRef }: MrrBreakdownSec
   return (
     <section className="flex flex-col">
       <div className="mb-6 flex flex-col gap-2">
-        <Typography className="mb-2" variant="subhead" color="grey700">
+        <Typography variant="subhead" color="grey700">
           {translate('text_17424672790819r1ua5ujpt3')}
         </Typography>
         <Typography variant="caption" color="grey600">

@@ -307,7 +307,7 @@ const MultipleLineChart = <T extends DataItem>({
             }}
           />
           <YAxis
-            allowDataOverflow
+            allowDataOverflow={false}
             axisLine={false}
             stroke={theme.palette.grey[600]}
             tickLine={false}

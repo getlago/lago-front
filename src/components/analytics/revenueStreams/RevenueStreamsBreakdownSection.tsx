@@ -16,7 +16,7 @@ export const RevenueStreamsBreakdownSection = ({
   return (
     <section className="flex flex-col">
       <div className="mb-6 flex flex-col gap-2">
-        <Typography className="mb-2" variant="subhead" color="grey700">
+        <Typography variant="subhead" color="grey700">
           {translate('text_1739206045861dgu7ype5jyx')}
         </Typography>
         <Typography variant="caption" color="grey600">

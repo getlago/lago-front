@@ -15,8 +15,12 @@ const RevenueStreams = () => {
     <FullscreenPage.Wrapper>
       <Typography className="flex items-center gap-2" variant="headline" color="grey700">
         {translate('text_1739203651003n5f5qzxnhin')}
-        <Tooltip placement="top-start" title={translate('text_1739204265494pq9zoax7hb0')}>
-          <Icon name="info-circle" />
+        <Tooltip
+          placement="top-start"
+          title={translate('text_1739204265494pq9zoax7hb0')}
+          className="flex" //Note: flex is used to shrink the container so have a better tooltip placement
+        >
+          <Icon name="info-circle" className="text-grey-600" />
         </Tooltip>
       </Typography>
 
