@@ -2566,7 +2566,7 @@
   "text_17296041075346803c5xv8um": "Do not impact overridden subscriptions",
   "text_1729604107534v8b3vembdla": "These changes will impact only non-overridden subscriptions.",
   "text_1729604107534vznb0h27kje": "Impact overridden subscriptions",
-  "text_1729604107534rrec9gxuh54": "These changes will impact both overridden subscriptions and those not overridden.",
+  "text_1729604107534rrec9gxuh54": "These changes will affect all linked subscriptions where specific prices have not been set manually.",
   "text_1729604107534dfyz8j53ho5": "Save editions",
   "text_1731079786592ksaixhj9ir9": "Token",
   "text_1731080136186pvllfpt35on": "Created",
