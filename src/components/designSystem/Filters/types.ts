@@ -78,6 +78,14 @@ export const CustomerAvailableFilters = [AvailableFiltersEnum.customerAccountTyp
 
 export const RevenueStreamsPlansAvailableFilters = [AvailableFiltersEnum.currency]
 export const RevenueStreamsCustomersAvailableFilters = [AvailableFiltersEnum.currency]
+export const MrrOverviewAvailableFilters = [
+  AvailableFiltersEnum.date,
+  AvailableFiltersEnum.country,
+  AvailableFiltersEnum.currency,
+  AvailableFiltersEnum.customerAccountType,
+  AvailableFiltersEnum.customerExternalId,
+]
+export const MrrBreakdownPlansAvailableFilters = [AvailableFiltersEnum.currency]
 
 const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.amount]: 'text_17346988752182hpzppdqk9t',

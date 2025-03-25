@@ -1,5 +1,5 @@
 import { createContext, FC, PropsWithChildren, useContext, useEffect } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { PopperProps } from '~/components/designSystem'
 
@@ -21,13 +21,14 @@ export const FiltersProvider: FC<PropsWithChildren<FilterContextType>> = ({
   ...props
 }) => {
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
 
   /**
    * Set the static filters in the URL
    */
   useEffect(() => {
     if (props.staticFilters || props.staticQuickFilters) {
+      const searchParams = new URLSearchParams(window.location.search)
+
       const staticFiltersEntries = Object.entries(props.staticFilters || []) as [
         AvailableFiltersEnum,
         unknown,

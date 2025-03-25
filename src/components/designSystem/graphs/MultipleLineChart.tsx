@@ -10,7 +10,7 @@ import {
 } from 'recharts'
 import { NameType, Payload, ValueType } from 'recharts/types/component/DefaultTooltipContent'
 
-import { useRevenueStreamsState } from '~/components/analytics/revenueStreams/RevenueStreamsStateContext'
+import { useAnalyticsState } from '~/components/analytics/AnalyticsStateContext'
 import { Typography } from '~/components/designSystem'
 import {
   multipleLineChartFakeData,
@@ -161,7 +161,7 @@ const MultipleLineChart = <T extends DataItem>({
   xAxisDataKey,
   timeGranularity,
 }: MultipleLineChartProps<T>) => {
-  const { hoverDataIndex, setHoverDataIndex, setClickedDataIndex } = useRevenueStreamsState()
+  const { hoverDataIndex, setHoverDataIndex, setClickedDataIndex } = useAnalyticsState()
 
   const handleHoverUpdate = useCallback(
     (index: number | undefined) => {

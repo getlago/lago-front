@@ -2906,5 +2906,11 @@
   "text_17419455271376kghg3guq5i": "No metadata are available on this transaction.",
   "text_174194552713793wk0n532oi": "Prepaid credits invoice",
   "text_1741945527137rb74r70jp6v": "Subscription invoice",
-  "text_1742218191558g0ysnnxbb32": "View details"
+  "text_1742218191558g0ysnnxbb32": "View details",
+  "text_1742467279081qp2hoida9d5": "Monthly recurring revenue",
+  "text_1742467279081fgvkpgka073": "Total monthly revenue from recurring subscriptions is calculated, taking into account the amount after coupon applications.",
+  "text_17424672790819r1ua5ujpt3": "Breakdown by plan",
+  "text_1742467700262idvii8tpg2w": "Plans with no active customers or relevant results are hidden",
+  "text_1742480465327lfl86dyjywx": "Active customers",
+  "text_1742831422968chcjxyc2qjo": "New"
 }
