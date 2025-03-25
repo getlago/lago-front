@@ -216,7 +216,6 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                   title: translate('text_63b5d225b075850e0fe489f4'),
                   content: ({
                     status,
-                    paymentOverdue,
                     paymentStatus,
                     paymentDisputeLostAt,
                     totalAmountCents,
@@ -231,8 +230,6 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                       statusEndIcon: undefined,
                     }
 
-                    const isOverdue =
-                      paymentOverdue && paymentStatus === InvoicePaymentStatusTypeEnum.Pending
                     const isPartiallyPaid =
                       Number(totalPaidAmountCents) > 0 &&
                       Number(totalAmountCents) - Number(totalPaidAmountCents) > 0
@@ -252,17 +249,12 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                     return (
                       <Tooltip placement="top" title={content.tooltipTitle}>
                         <Status
-                          {...(isOverdue
-                            ? {
-                                type: StatusType.danger,
-                                label: 'overdue',
-                              }
-                            : paymentStatusMapping({
-                                status,
-                                paymentStatus,
-                                totalPaidAmountCents,
-                                totalAmountCents,
-                              }))}
+                          {...paymentStatusMapping({
+                            status,
+                            paymentStatus,
+                            totalPaidAmountCents,
+                            totalAmountCents,
+                          })}
                           endIcon={content.statusEndIcon}
                         />
                       </Tooltip>
@@ -297,6 +289,16 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                     {intlFormatNumber(amount, { currency })}
                   </Typography>
                 )
+              },
+            },
+            {
+              key: 'paymentOverdue',
+              title: translate('text_666c5b12fea4aa1e1b26bf55'),
+              content: ({ paymentStatus, paymentOverdue }) => {
+                const isOverdue =
+                  paymentOverdue && paymentStatus === InvoicePaymentStatusTypeEnum.Pending
+
+                return isOverdue ? <Status type={StatusType.danger} label="overdue" /> : null
               },
             },
             {
