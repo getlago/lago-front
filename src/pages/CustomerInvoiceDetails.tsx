@@ -68,7 +68,6 @@ import {
   InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForInvoiceInfosFragmentDoc,
   InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
-  InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   InvoiceTaxStatusTypeEnum,
   LagoApiError,
@@ -90,6 +89,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
+import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import InvoiceOverview from '~/pages/InvoiceOverview'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader, theme } from '~/styles'
@@ -271,6 +271,7 @@ const CustomerInvoiceDetails = () => {
   const { goBack } = useLocationHistory()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
+  const actions = usePermissionsInvoiceActions()
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
@@ -437,6 +438,9 @@ const CustomerInvoiceDetails = () => {
     errorDetails,
     taxProviderVoidable,
     associatedActiveWalletPresent,
+    paymentDisputeLostAt,
+    integrationSyncable,
+    integrationHubspotSyncable,
   } = (data?.invoice as AllInvoiceDetailsForCustomerInvoiceDetailsFragment) || {}
 
   const isPartiallyPaid =
@@ -596,6 +600,16 @@ const CustomerInvoiceDetails = () => {
     taxStatus,
   ])
 
+  // TODO: Compare this with src/hooks/usePermissionsInvoiceActions.ts:
+  // We don't check the same permissions here, but we could refactor this to use the same logic
+  const canFinalizeInvoice =
+    status === InvoiceStatusTypeEnum.Draft &&
+    taxStatus !== InvoiceTaxStatusTypeEnum.Pending &&
+    hasPermissions(['draftInvoicesUpdate'])
+  const canDownloadInvoice =
+    (status !== InvoiceStatusTypeEnum.Pending || taxStatus !== InvoiceTaxStatusTypeEnum.Pending) &&
+    !disablePdfGeneration
+
   return (
     <>
       <PageHeader.Wrapper withSide>
@@ -632,9 +646,7 @@ const CustomerInvoiceDetails = () => {
                     >
                       {translate('text_1724164767403kyknbaw13mg')}
                     </Button>
-                  ) : status === InvoiceStatusTypeEnum.Draft &&
-                    taxStatus !== InvoiceTaxStatusTypeEnum.Pending &&
-                    hasPermissions(['draftInvoicesUpdate']) ? (
+                  ) : canFinalizeInvoice ? (
                     <>
                       <Button
                         variant="quaternary"
@@ -660,9 +672,7 @@ const CustomerInvoiceDetails = () => {
                         {translate('text_63a41a8eabb9ae67047c1c06')}
                       </Button>
                     </>
-                  ) : (status !== InvoiceStatusTypeEnum.Pending ||
-                      taxStatus !== InvoiceTaxStatusTypeEnum.Pending) &&
-                    !disablePdfGeneration ? (
+                  ) : canDownloadInvoice ? (
                     <>
                       <Button
                         variant="quaternary"
@@ -767,39 +777,32 @@ const CustomerInvoiceDetails = () => {
                   >
                     {translate('text_634687079be251fdb438339b')}
                   </Button>
-                  {![
-                    InvoiceStatusTypeEnum.Draft,
-                    InvoiceStatusTypeEnum.Voided,
-                    InvoiceStatusTypeEnum.Failed,
-                    InvoiceStatusTypeEnum.Pending,
-                  ].includes(status) &&
-                    taxStatus !== InvoiceTaxStatusTypeEnum.Pending &&
-                    hasPermissions(['invoicesUpdate']) && (
-                      <>
-                        <Button
-                          variant="quaternary"
-                          align="left"
-                          onClick={() => {
-                            !!data?.invoice &&
-                              updateInvoicePaymentStatusDialog?.current?.openDialog(data.invoice)
-                            closePopper()
-                          }}
-                        >
-                          {translate('text_63eba8c65a6c8043feee2a01')}
-                        </Button>
-                        <Button
-                          variant="quaternary"
-                          align="left"
-                          onClick={() => {
-                            addMetadataDrawerDialogRef.current?.openDrawer()
-                            closePopper()
-                          }}
-                        >
-                          {translate('text_1739289860782ljvy21lcake')}
-                        </Button>
-                      </>
-                    )}
-                  {!!data?.invoice?.integrationSyncable && (
+                  {actions.canUpdatePaymentStatus({ status, taxStatus }) && (
+                    <>
+                      <Button
+                        variant="quaternary"
+                        align="left"
+                        onClick={() => {
+                          !!data?.invoice &&
+                            updateInvoicePaymentStatusDialog?.current?.openDialog(data.invoice)
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_63eba8c65a6c8043feee2a01')}
+                      </Button>
+                      <Button
+                        variant="quaternary"
+                        align="left"
+                        onClick={() => {
+                          addMetadataDrawerDialogRef.current?.openDrawer()
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_1739289860782ljvy21lcake')}
+                      </Button>
+                    </>
+                  )}
+                  {actions.canSyncAccountingIntegration({ integrationSyncable }) && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -810,13 +813,13 @@ const CustomerInvoiceDetails = () => {
                       }}
                     >
                       {translate(
-                        data.invoice.customer.netsuiteCustomer
+                        data?.invoice?.customer.netsuiteCustomer
                           ? 'text_6650b36fc702a4014c8788fd'
                           : 'text_6690ef918777230093114d90',
                       )}
                     </Button>
                   )}
-                  {!!data?.invoice?.integrationHubspotSyncable && (
+                  {actions.canSyncCRMIntegration({ integrationHubspotSyncable }) && (
                     <Button
                       variant="quaternary"
                       align="left"
@@ -829,51 +832,44 @@ const CustomerInvoiceDetails = () => {
                       {translate('text_1729611609136sul07rowhfi')}
                     </Button>
                   )}
-                  {status === InvoiceStatusTypeEnum.Finalized &&
-                    !data?.invoice?.paymentDisputeLostAt &&
-                    hasPermissions(['invoicesUpdate']) && (
+                  {actions.canDispute({ status, paymentDisputeLostAt }) && (
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      onClick={() => {
+                        disputeInvoiceDialogRef.current?.openDialog({
+                          id: data?.invoice?.id || '',
+                        })
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_66141e30699a0631f0b2ec71')}
+                    </Button>
+                  )}
+                  {actions.canVoid({ status, paymentStatus }) && (
+                    <Tooltip
+                      title={!isPartiallyPaid && translate('text_65269c2e471133226211fdd0')}
+                      {...(!!data?.invoice?.paymentDisputeLostAt && {
+                        title: translate('text_66178d027e220e00dff9f67d'),
+                      })}
+                      placement="bottom-end"
+                      disableHoverListener={voidable}
+                    >
                       <Button
+                        className="w-full"
                         variant="quaternary"
                         align="left"
+                        disabled={!voidable}
                         onClick={() => {
-                          disputeInvoiceDialogRef.current?.openDialog({
-                            id: data?.invoice?.id || '',
-                          })
+                          voidInvoiceDialogRef?.current?.openDialog({ invoice: data?.invoice })
                           closePopper()
                         }}
                       >
-                        {translate('text_66141e30699a0631f0b2ec71')}
+                        {translate('text_65269b43d4d2b15dd929a259')}
                       </Button>
-                    )}
-                  {status === InvoiceStatusTypeEnum.Finalized &&
-                    [
-                      InvoicePaymentStatusTypeEnum.Pending,
-                      InvoicePaymentStatusTypeEnum.Failed,
-                    ].includes(paymentStatus) &&
-                    hasPermissions(['invoicesVoid']) && (
-                      <Tooltip
-                        title={!isPartiallyPaid && translate('text_65269c2e471133226211fdd0')}
-                        {...(!!data?.invoice?.paymentDisputeLostAt && {
-                          title: translate('text_66178d027e220e00dff9f67d'),
-                        })}
-                        placement="bottom-end"
-                        disableHoverListener={voidable}
-                      >
-                        <Button
-                          className="w-full"
-                          variant="quaternary"
-                          align="left"
-                          disabled={!voidable}
-                          onClick={() => {
-                            voidInvoiceDialogRef?.current?.openDialog({ invoice: data?.invoice })
-                            closePopper()
-                          }}
-                        >
-                          {translate('text_65269b43d4d2b15dd929a259')}
-                        </Button>
-                      </Tooltip>
-                    )}
-                  {data?.invoice?.taxProviderVoidable && (
+                    </Tooltip>
+                  )}
+                  {actions.canSyncTaxIntegration({ taxProviderVoidable }) && (
                     <Button
                       variant="quaternary"
                       align="left"
