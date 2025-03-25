@@ -6907,7 +6907,7 @@ export type GetRevenueStreamsPlanBreakdownQueryVariables = Exact<{
 }>;
 
 
-export type GetRevenueStreamsPlanBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsPlans: { __typename?: 'RevenueStreamPlanCollection', collection: Array<{ __typename?: 'RevenueStreamPlan', amountCurrency: CurrencyEnum, customersCount: number, customersShare: number, netRevenueAmountCents: any, netRevenueShare: number, planCode: string, planId: string, planInterval: PlanInterval, planName: string }> } };
+export type GetRevenueStreamsPlanBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsPlans: { __typename?: 'RevenueStreamPlanCollection', collection: Array<{ __typename?: 'RevenueStreamPlan', amountCurrency: CurrencyEnum, customersCount: number, customersShare: number, netRevenueAmountCents: any, netRevenueShare: number, planCode: string, planId: string, planInterval: PlanInterval, planName: string }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } };
 
 export type GetRevenueStreamsQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
@@ -13445,6 +13445,10 @@ export const GetRevenueStreamsPlanBreakdownDocument = gql`
       planId
       planInterval
       planName
+    }
+    metadata {
+      currentPage
+      totalPages
     }
   }
 }

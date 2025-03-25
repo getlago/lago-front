@@ -16,6 +16,7 @@ import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { TimeGranularityEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { tw } from '~/styles/utils'
@@ -196,6 +197,7 @@ export const RevenueStreamsOverviewSection = ({
 
           <HorizontalDataTable
             leftColumnWidth={190}
+            columnWidth={timeGranularity === TimeGranularityEnum.Monthly ? 180 : 228}
             data={data}
             loading={isLoading}
             rows={[
@@ -412,6 +414,7 @@ export const RevenueStreamsOverviewSection = ({
                         'text-grey-500': couponsAmountCents === 0,
                       })}
                     >
+                      {couponsAmountCents > 0 && '-'}
                       {intlFormatNumber(
                         deserializeAmount(couponsAmountCents || 0, selectedCurrency),
                         {

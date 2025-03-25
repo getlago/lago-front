@@ -69,6 +69,7 @@ export const getItemDateFormatedByTimeGranularity = ({
         format: {
           month: 'short',
           day: 'numeric',
+          year: '2-digit',
         },
       }).date
     case TimeGranularityEnum.Weekly:
@@ -77,6 +78,7 @@ export const getItemDateFormatedByTimeGranularity = ({
           format: {
             month: 'short',
             day: 'numeric',
+            year: '2-digit',
           },
         }).date
       } - ${
@@ -84,6 +86,7 @@ export const getItemDateFormatedByTimeGranularity = ({
           format: {
             month: 'short',
             day: 'numeric',
+            year: '2-digit',
           },
         }).date
       }`

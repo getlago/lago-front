@@ -16,8 +16,12 @@ const Mrr = () => {
     <FullscreenPage.Wrapper>
       <Typography className="flex items-center gap-2" variant="headline" color="grey700">
         {translate('text_1742467279081qp2hoida9d5')}
-        <Tooltip placement="top-start" title={translate('text_1742467279081fgvkpgka073')}>
-          <Icon name="info-circle" />
+        <Tooltip
+          placement="top-start"
+          title={translate('text_1742467279081fgvkpgka073')}
+          className="flex" //Note: flex is used to shrink the container so have a better tooltip placement
+        >
+          <Icon name="info-circle" className="text-grey-600" />
         </Tooltip>
       </Typography>
 

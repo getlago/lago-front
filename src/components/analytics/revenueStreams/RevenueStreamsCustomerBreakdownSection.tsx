@@ -138,7 +138,7 @@ export const RevenueStreamsCustomerBreakdownSection = ({
               return (
                 <>
                   <Typography color="grey700" variant="bodyHl" noWrap>
-                    {customerName}
+                    {customerName || '-'}
                   </Typography>
                   <Typography variant="caption" color="grey600" noWrap>
                     {externalCustomerId}
@@ -160,7 +160,7 @@ export const RevenueStreamsCustomerBreakdownSection = ({
                       deserializeAmount(netRevenueAmountCents || 0, amountCurrency),
                       {
                         style: 'currency',
-                        currency: defaultCurrency,
+                        currency: amountCurrency,
                       },
                     )}
                   </Typography>

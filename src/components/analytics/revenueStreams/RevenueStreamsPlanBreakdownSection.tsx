@@ -193,7 +193,7 @@ export const RevenueStreamsPlanBreakdownSection = ({
                       deserializeAmount(netRevenueAmountCents || 0, amountCurrency),
                       {
                         style: 'currency',
-                        currency: defaultCurrency,
+                        currency: amountCurrency,
                       },
                     )}
                   </Typography>
