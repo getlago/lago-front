@@ -18,10 +18,11 @@ import {
 
 export type DunningCampaignFormInput = Omit<
   CreateDunningCampaignInput,
-  'daysBetweenAttempts' | 'maxAttempts'
+  'daysBetweenAttempts' | 'maxAttempts' | 'bccEmails'
 > & {
   daysBetweenAttempts: string
   maxAttempts: string
+  bccEmails: string
 }
 
 gql`
@@ -36,6 +37,7 @@ gql`
     daysBetweenAttempts
     maxAttempts
     appliedToOrganization
+    bccEmails
   }
 
   query GetSingleCampaign($id: ID!) {
@@ -77,6 +79,14 @@ const formatPayload = (values: DunningCampaignFormInput): CreateDunningCampaignI
       ...threshold,
       amountCents: serializeAmount(threshold.amountCents, threshold.currency),
     })),
+    bccEmails: Array.from(
+      new Set(
+        values.bccEmails
+          .split(',')
+          .map((email) => email.trim())
+          .filter((email) => !!email),
+      ),
+    ),
   }
 }
 
