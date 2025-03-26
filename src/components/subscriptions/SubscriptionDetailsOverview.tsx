@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import PlanDetailsOverview from '~/components/plans/details/PlanDetailsOverview'
 import SkeletonDetailsPage, { LoadingSkeletonWrapper } from '~/components/SkeletonDetailsPage'
@@ -8,7 +7,6 @@ import {
   SubscriptionForSubscriptionInformationsFragmentDoc,
   useGetSubscriptionForDetailsOverviewQuery,
 } from '~/generated/graphql'
-import { theme } from '~/styles'
 
 import SubscriptionInformations from './SubscriptionInformations'
 
@@ -26,7 +24,7 @@ gql`
   ${SubscriptionForSubscriptionInformationsFragmentDoc}
 `
 
-const SubscriptionDetailsOverview = () => {
+export const SubscriptionDetailsOverview = () => {
   const { subscriptionId } = useParams()
   const { data: subscriptionResult, loading: isSubscriptionLoading } =
     useGetSubscriptionForDetailsOverviewQuery({
@@ -45,17 +43,9 @@ const SubscriptionDetailsOverview = () => {
   }
 
   return (
-    <Container>
+    <div className="flex flex-col gap-12">
       <SubscriptionInformations subscription={subscription} />
       <PlanDetailsOverview planId={subscription?.plan.id} />
-    </Container>
+    </div>
   )
 }
-
-export default SubscriptionDetailsOverview
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(12)};
-`

@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import {
   TerminateCustomerSubscriptionDialog,
@@ -16,9 +15,8 @@ import {
   Skeleton,
   Typography,
 } from '~/components/designSystem'
-import SkeletonDetailsPage, { LoadingSkeletonWrapper } from '~/components/SkeletonDetailsPage'
-import SubscriptionDetailsOverview from '~/components/subscriptions/SubscriptionDetailsOverview'
-import SubscriptionUsageTabContent from '~/components/subscriptions/SubscriptionUsageTabContent'
+import { SubscriptionDetailsOverview } from '~/components/subscriptions/SubscriptionDetailsOverview'
+import { SubscriptionUsageTabContent } from '~/components/subscriptions/SubscriptionUsageTabContent'
 import { addToast } from '~/core/apolloClient'
 import {
   CustomerSubscriptionDetailsTabsOptionsEnum,
@@ -36,7 +34,7 @@ import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { StatusTypeEnum, useGetSubscriptionForDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
-import { MenuPopper, PageHeader, theme } from '~/styles'
+import { MenuPopper, PageHeader } from '~/styles'
 
 gql`
   query getSubscriptionForDetails($subscriptionId: ID!) {
@@ -96,9 +94,7 @@ const SubscriptionDetails = () => {
             }}
           />
           {isSubscriptionLoading ? (
-            <TitleSkeletonWrapper>
-              <Skeleton variant="text" className="w-50" />
-            </TitleSkeletonWrapper>
+            <Skeleton variant="text" className="w-50" />
           ) : (
             <Typography variant="bodyHl" color="textSecondary" noWrap>
               {translate('text_6529666e71f6ce006d2bf011', {
@@ -196,15 +192,16 @@ const SubscriptionDetails = () => {
           </Popper>
         )}
       </PageHeader.Wrapper>
-      <PlanBlockWrapper>
+
+      <div className="mb-8 flex items-center gap-4 px-12 pt-8">
         <Avatar variant="connector" size="large">
           <Icon name="clock" color="dark" size="large" />
         </Avatar>
-        <PlanBlockInfos>
+        <div className="flex flex-1 flex-col gap-1 overflow-hidden">
           {isSubscriptionLoading ? (
             <>
-              <Skeleton variant="text" className="mb-4 w-50" />
               <Skeleton variant="text" className="w-50" />
+              <Skeleton variant="text" className="w-30" />
             </>
           ) : (
             <>
@@ -216,123 +213,80 @@ const SubscriptionDetails = () => {
               </Typography>
             </>
           )}
-        </PlanBlockInfos>
-      </PlanBlockWrapper>
-      {isSubscriptionLoading ? (
-        <ContentContainer>
-          <TabContentWrapper>
-            <LoadingSkeletonWrapper>
-              <SkeletonDetailsPage />
-              <SkeletonDetailsPage />
-            </LoadingSkeletonWrapper>
-          </TabContentWrapper>
-        </ContentContainer>
-      ) : (
-        <NavigationTab
-          className="px-12"
-          tabs={[
-            {
-              title: translate('text_628cf761cbe6820138b8f2e4'),
-              link: !!customerId
-                ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                    customerId,
-                    subscriptionId: subscriptionId as string,
-                    tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-                  })
-                : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
-                    planId: planId || '',
-                    subscriptionId: subscriptionId as string,
-                    tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-                  }),
-              match: [
-                generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                  customerId: customerId || '',
+        </div>
+      </div>
+
+      <NavigationTab
+        className="px-12"
+        tabs={[
+          {
+            title: translate('text_628cf761cbe6820138b8f2e4'),
+            link: !!customerId
+              ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                  customerId,
                   subscriptionId: subscriptionId as string,
                   tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-                }),
-                generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                })
+              : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
                   planId: planId || '',
                   subscriptionId: subscriptionId as string,
                   tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
                 }),
-              ],
-              component: (
-                <ContentContainer>
-                  <TabContentWrapper>
-                    <SubscriptionDetailsOverview />
-                  </TabContentWrapper>
-                </ContentContainer>
-              ),
-            },
-            {
-              title: translate('text_1725983967306cei92rkdtvb'),
-              link: !!customerId
-                ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                    customerId,
-                    subscriptionId: subscriptionId as string,
-                    tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
-                  })
-                : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
-                    planId: planId || '',
-                    subscriptionId: subscriptionId as string,
-                    tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
-                  }),
-              match: [
-                generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                  customerId: customerId || '',
+            match: [
+              generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                customerId: customerId || '',
+                subscriptionId: subscriptionId as string,
+                tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+              }),
+              generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                planId: planId || '',
+                subscriptionId: subscriptionId as string,
+                tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+              }),
+            ],
+            component: (
+              <div className="max-w-2xl px-12 pb-20">
+                <SubscriptionDetailsOverview />
+              </div>
+            ),
+          },
+          {
+            title: translate('text_1725983967306cei92rkdtvb'),
+            link: !!customerId
+              ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                  customerId,
                   subscriptionId: subscriptionId as string,
                   tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
-                }),
-                generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                })
+              : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
                   planId: planId || '',
                   subscriptionId: subscriptionId as string,
                   tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
                 }),
-              ],
-              component: (
-                <ContentContainer>
-                  <TabContentWrapper>
-                    <SubscriptionUsageTabContent />
-                  </TabContentWrapper>
-                </ContentContainer>
-              ),
-            },
-          ]}
-        />
-      )}
+            match: [
+              generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                customerId: customerId || '',
+                subscriptionId: subscriptionId as string,
+                tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+              }),
+              generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                planId: planId || '',
+                subscriptionId: subscriptionId as string,
+                tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+              }),
+            ],
+            component: (
+              <div className="max-w-2xl px-12 pb-20">
+                <SubscriptionUsageTabContent />
+              </div>
+            ),
+          },
+        ]}
+      />
+
       <TerminateCustomerSubscriptionDialog ref={terminateSubscriptionDialogRef} />
     </>
   )
 }
 
 export default SubscriptionDetails
-
-const ContentContainer = styled.div`
-  padding: 0 ${theme.spacing(12)} ${theme.spacing(20)};
-  box-sizing: border-box;
-`
-
-const TabContentWrapper = styled.div`
-  max-width: 672px;
-`
-
-const PlanBlockWrapper = styled.div`
-  display: flex;
-  gap: ${theme.spacing(4)};
-  align-items: center;
-  margin-bottom: ${theme.spacing(8)};
-  padding: ${theme.spacing(8)} ${theme.spacing(12)} 0;
-`
-
-const PlanBlockInfos = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: ${theme.spacing(1)};
-  /* Used to hide text overflow */
-  overflow: hidden;
-`
-
-const TitleSkeletonWrapper = styled.div`
-  width: 200px;
-`

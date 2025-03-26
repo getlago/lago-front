@@ -4,13 +4,11 @@ import { generatePath, Link } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
-import { Alert, Status, StatusType } from '~/components/designSystem'
+import { Alert, Status } from '~/components/designSystem'
+import { subscriptionStatusMapping } from '~/core/constants/statusSubscriptionMapping'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS } from '~/core/router'
-import {
-  StatusTypeEnum,
-  SubscriptionForSubscriptionInformationsFragment,
-} from '~/generated/graphql'
+import { SubscriptionForSubscriptionInformationsFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { theme } from '~/styles'
@@ -96,19 +94,7 @@ const SubscriptionInformations = ({
             },
             {
               label: translate('text_62d7f6178ec94cd09370e5fb'),
-              value: (
-                <Status
-                  {...(subscription?.status === StatusTypeEnum.Pending
-                    ? {
-                        type: StatusType.default,
-                        label: 'pending',
-                      }
-                    : {
-                        type: StatusType.success,
-                        label: 'active',
-                      })}
-                />
-              ),
+              value: <Status {...subscriptionStatusMapping(subscription?.status ?? undefined)} />,
             },
             {
               label: translate('text_65201c5a175a4b0238abf29e'),

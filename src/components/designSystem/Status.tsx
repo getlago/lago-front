@@ -28,6 +28,7 @@ type StatusLabelDanger =
   | 'consumed'
   | 'voided'
   | 'overdue'
+  | 'canceled'
 
 type StatusLabelDisabled = 'voided'
 
@@ -58,6 +59,7 @@ const statusLabelMapping: Record<StatusLabel, string> = {
   downgrade: 'text_1736972452609qdjngeuqsz0',
   scheduled: 'text_1736972452609g2v8mzgvi2t',
   processing: 'text_1740135074392314rc3ldv02',
+  canceled: 'text_17429854230668s8zhn9ujq6',
   ['n/a']: '-',
   // These keys below are displayed in the customer portal
   // Hence they must be translated in all available languages
