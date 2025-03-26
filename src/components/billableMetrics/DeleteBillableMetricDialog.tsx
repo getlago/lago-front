@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef } from 'react'
 
-import { DialogRef, Skeleton, Typography } from '~/components/designSystem'
+import { DialogRef, Skeleton } from '~/components/designSystem'
 import { WarningDialog } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import {
@@ -14,8 +14,8 @@ gql`
   fragment DeleteBillableMetricDialog on BillableMetric {
     id
     name
-    draftInvoicesCount # This attribute is heavy computation, so this fragment should not be used in collection query
-    activeSubscriptionsCount # This attribute is heavy computation, so this fragment should not be used in collection query
+    hasDraftInvoices
+    hasActiveSubscriptions
   }
 
   query getBillableMetricToDelete($id: ID!) {
@@ -43,12 +43,7 @@ export const DeleteBillableMetricDialog = forwardRef<DeleteBillableMetricDialogR
 
   const billableMetric = data?.billableMetric
 
-  const {
-    id = '',
-    name = '',
-    draftInvoicesCount = 0,
-    activeSubscriptionsCount = 0,
-  } = billableMetric || {}
+  const { id = '', name = '', hasDraftInvoices, hasActiveSubscriptions } = billableMetric || {}
 
   const [deleteBillableMetric] = useDeleteBillableMetricMutation({
     onCompleted({ destroyBillableMetric }) {
@@ -70,6 +65,37 @@ export const DeleteBillableMetricDialog = forwardRef<DeleteBillableMetricDialogR
     closeDialog: () => dialogRef.current?.closeDialog(),
   }))
 
+  const getDescription = () => {
+    if (loading) {
+      return (
+        <>
+          <Skeleton className="mb-4 w-full" variant="text" />
+          <Skeleton className="mb-4 w-full" variant="text" />
+          <Skeleton className="w-full" variant="text" />
+        </>
+      )
+    }
+
+    if (!!hasDraftInvoices || !!hasActiveSubscriptions) {
+      return translate(
+        'text_63c842d84a91637c3acf0395',
+        !!hasDraftInvoices && !!hasActiveSubscriptions
+          ? {
+              usedObject1: translate('text_63c842ee2cd5dfeb173c2726'),
+              usedObject2: translate('text_63c8431193e8aca80f14cced'),
+            }
+          : {
+              usedObject1: !!hasActiveSubscriptions
+                ? translate('text_63c842ee2cd5dfeb173c2726')
+                : translate('text_63c8431193e8aca80f14cced'),
+            },
+        !!hasDraftInvoices && !!hasActiveSubscriptions ? 2 : 0,
+      )
+    }
+
+    return translate('text_6256f824b6368e01153caa49')
+  }
+
   return (
     <WarningDialog
       ref={dialogRef}
@@ -83,51 +109,7 @@ export const DeleteBillableMetricDialog = forwardRef<DeleteBillableMetricDialogR
           })
         )
       }
-      description={
-        loading ? (
-          <>
-            <Skeleton className="mb-4 w-full" variant="text" />
-            <Skeleton className="mb-4 w-full" variant="text" />
-            <Skeleton className="w-full" variant="text" />
-          </>
-        ) : (billableMetric?.draftInvoicesCount || 0) > 0 ||
-          billableMetric?.activeSubscriptionsCount ||
-          0 ? (
-          translate(
-            'text_63c842d84a91637c3acf0395',
-            draftInvoicesCount > 0 && activeSubscriptionsCount > 0
-              ? {
-                  usedObject1: translate(
-                    'text_63c842ee2cd5dfeb173c2726',
-                    { count: activeSubscriptionsCount },
-                    activeSubscriptionsCount,
-                  ),
-                  usedObject2: translate(
-                    'text_63c8431193e8aca80f14cced',
-                    { count: draftInvoicesCount },
-                    draftInvoicesCount,
-                  ),
-                }
-              : {
-                  usedObject1:
-                    activeSubscriptionsCount > 0
-                      ? translate(
-                          'text_63c842ee2cd5dfeb173c2726',
-                          { count: activeSubscriptionsCount },
-                          activeSubscriptionsCount,
-                        )
-                      : translate(
-                          'text_63c8431193e8aca80f14cced',
-                          { count: draftInvoicesCount },
-                          draftInvoicesCount,
-                        ),
-                },
-            draftInvoicesCount > 0 && activeSubscriptionsCount > 0 ? 2 : 0,
-          )
-        ) : (
-          <Typography html={translate('text_6256f824b6368e01153caa49')} />
-        )
-      }
+      description={getDescription()}
       onContinue={async () =>
         await deleteBillableMetric({
           variables: { input: { id } },
