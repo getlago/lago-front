@@ -15,8 +15,10 @@ import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { TimeGranularityEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
+import { tw } from '~/styles/utils'
 
 gql`
   fragment MrrDataForOverviewSection on DataApiMrr {
@@ -144,11 +146,13 @@ export const MrrOverviewSection = ({ premiumWarningDialogRef }: MrrOverviewSecti
       {!hasError && (
         <AnalyticsStateProvider>
           <AreaChart
+            height={232}
+            tickFontSize={14}
             blur={false}
             currency={selectedCurrency}
             data={data.map((d) => ({
               axisName: d.startOfPeriodDt,
-              value: d.mrrNew,
+              value: Number(d.endingMrr),
               tooltipLabel: translate('text_1739268382272qnne2h7slna'),
             }))}
             loading={isLoading}

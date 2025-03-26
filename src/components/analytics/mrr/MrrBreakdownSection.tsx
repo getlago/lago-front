@@ -77,17 +77,17 @@ export const MrrBreakdownSection = ({ premiumWarningDialogRef }: MrrBreakdownSec
   })
 
   return (
-    <section className="flex flex-col">
-      <div className="mb-6 flex flex-col gap-2">
-        <Typography variant="subhead" color="grey700">
-          {translate('text_17424672790819r1ua5ujpt3')}
-        </Typography>
-        <Typography variant="caption" color="grey600">
-          {translate('text_1742467700262idvii8tpg2w')}
-        </Typography>
-      </div>
+    <section className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <Typography variant="subhead" color="grey700">
+            {translate('text_17424672790819r1ua5ujpt3')}
+          </Typography>
+          <Typography variant="caption" color="grey600">
+            {translate('text_1742467700262idvii8tpg2w')}
+          </Typography>
+        </div>
 
-      <div className="flex flex-col">
         <Filters.Provider
           filtersNamePrefix={MRR_BREAKDOWN_PLANS_FILTER_PREFIX}
           staticFilters={{
@@ -113,7 +113,7 @@ export const MrrBreakdownSection = ({ premiumWarningDialogRef }: MrrBreakdownSec
             </Button>
           )}
         >
-          <div className="flex w-full flex-col gap-3 py-3 shadow-b">
+          <div className="flex w-full flex-col gap-3">
             <Filters.Component />
           </div>
         </Filters.Provider>
