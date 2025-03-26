@@ -156,6 +156,7 @@ export const MrrOverviewSection = ({ premiumWarningDialogRef }: MrrOverviewSecti
 
           <HorizontalDataTable
             leftColumnWidth={190}
+            columnWidth={timeGranularity === TimeGranularityEnum.Monthly ? 180 : 228}
             data={data}
             loading={isLoading}
             rows={[
@@ -176,9 +177,179 @@ export const MrrOverviewSection = ({ premiumWarningDialogRef }: MrrOverviewSecti
                 type: 'data',
                 label: translate('text_1742831422968chcjxyc2qjo'),
                 content: (item) => {
+                  const newMrrAmountCents = Number(item.mrrNew) || 0
+
+                  return (
+                    <Typography
+                      variant="body"
+                      className={tw({
+                        'text-green-600': newMrrAmountCents > 0,
+                        'text-grey-500': newMrrAmountCents === 0,
+                      })}
+                    >
+                      {intlFormatNumber(deserializeAmount(newMrrAmountCents, selectedCurrency), {
+                        currencyDisplay: 'symbol',
+                        currency: selectedCurrency,
+                      })}
+                    </Typography>
+                  )
+                },
+              },
+              {
+                key: 'mrrExpansion',
+                type: 'data',
+                label: translate('text_17429967574516lh8r3sznyt'),
+                content: (item) => {
+                  const expansionMrrAmountCents = Number(item.mrrExpansion) || 0
+
+                  return (
+                    <Typography
+                      variant="body"
+                      className={tw({
+                        'text-green-600': expansionMrrAmountCents > 0,
+                        'text-grey-500': expansionMrrAmountCents === 0,
+                      })}
+                    >
+                      {intlFormatNumber(
+                        deserializeAmount(expansionMrrAmountCents, selectedCurrency),
+                        {
+                          currencyDisplay: 'symbol',
+                          currency: selectedCurrency,
+                        },
+                      )}
+                    </Typography>
+                  )
+                },
+              },
+              {
+                key: 'mrrContraction',
+                type: 'data',
+                label: translate('text_1742996757451c2a49pod8hm'),
+                content: (item) => {
+                  const contractionMrrAmountCents = Number(item.mrrContraction) || 0
+
+                  return (
+                    <Typography
+                      variant="body"
+                      className={tw({
+                        'text-red-600': contractionMrrAmountCents > 0,
+                        'text-grey-500': contractionMrrAmountCents === 0,
+                      })}
+                    >
+                      {contractionMrrAmountCents > 0 && '-'}
+                      {intlFormatNumber(
+                        deserializeAmount(contractionMrrAmountCents, selectedCurrency),
+                        {
+                          currencyDisplay: 'symbol',
+                          currency: selectedCurrency,
+                        },
+                      )}
+                    </Typography>
+                  )
+                },
+              },
+              {
+                key: 'mrrChurn',
+                type: 'data',
+                label: translate('text_1742996757451llxiqw85bvu'),
+                content: (item) => {
+                  const churnMrrAmountCents = Number(item.mrrChurn) || 0
+
+                  return (
+                    <Typography
+                      variant="body"
+                      className={tw({
+                        'text-red-600': churnMrrAmountCents > 0,
+                        'text-grey-500': churnMrrAmountCents === 0,
+                      })}
+                    >
+                      {churnMrrAmountCents > 0 && '-'}
+                      {intlFormatNumber(deserializeAmount(churnMrrAmountCents, selectedCurrency), {
+                        currencyDisplay: 'symbol',
+                        currency: selectedCurrency,
+                      })}
+                    </Typography>
+                  )
+                },
+              },
+              {
+                key: 'startOfPeriodDt',
+                type: 'header',
+                label: translate('text_174299767573783t24sdrsp1'),
+                content: (item) => {
                   return (
                     <Typography variant="captionHl">
-                      {intlFormatNumber(deserializeAmount(item.mrrNew, selectedCurrency), {
+                      {getItemDateFormatedByTimeGranularity({ item, timeGranularity })}
+                    </Typography>
+                  )
+                },
+              },
+              {
+                key: 'startingMrr',
+                type: 'data',
+                label: translate('text_1742996757451ng6z8o2xif2'),
+                content: (item) => {
+                  const startingMrrAmountCents = Number(item.startingMrr) || 0
+
+                  return (
+                    <Typography
+                      variant="body"
+                      className={tw({
+                        'text-green-600': startingMrrAmountCents > 0,
+                        'text-grey-500': startingMrrAmountCents === 0,
+                      })}
+                    >
+                      {intlFormatNumber(
+                        deserializeAmount(startingMrrAmountCents, selectedCurrency),
+                        {
+                          currencyDisplay: 'symbol',
+                          currency: selectedCurrency,
+                        },
+                      )}
+                    </Typography>
+                  )
+                },
+              },
+              {
+                key: 'mrrChange',
+                type: 'data',
+                label: translate('text_1742996757451700705sjtf8'),
+                content: (item) => {
+                  const mrrChangeAmountCents = Number(item.mrrChange) || 0
+
+                  return (
+                    <Typography
+                      variant="body"
+                      className={tw({
+                        'text-green-600': mrrChangeAmountCents > 0,
+                        'text-red-600': mrrChangeAmountCents < 0,
+                        'text-grey-500': mrrChangeAmountCents === 0,
+                      })}
+                    >
+                      {intlFormatNumber(deserializeAmount(mrrChangeAmountCents, selectedCurrency), {
+                        currencyDisplay: 'symbol',
+                        currency: selectedCurrency,
+                      })}
+                    </Typography>
+                  )
+                },
+              },
+              {
+                key: 'endingMrr',
+                type: 'data',
+                label: translate('text_17429967574517l2yykxqmau'),
+                content: (item) => {
+                  const endingMrrAmountCents = Number(item.endingMrr) || 0
+
+                  return (
+                    <Typography
+                      variant="body"
+                      className={tw({
+                        'text-green-600': endingMrrAmountCents > 0,
+                        'text-grey-500': endingMrrAmountCents === 0,
+                      })}
+                    >
+                      {intlFormatNumber(deserializeAmount(endingMrrAmountCents, selectedCurrency), {
                         currencyDisplay: 'symbol',
                         currency: selectedCurrency,
                       })}
