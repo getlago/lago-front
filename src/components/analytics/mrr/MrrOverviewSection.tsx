@@ -15,7 +15,7 @@ import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { TimeGranularityEnum } from '~/generated/graphql'
+import { CurrencyEnum, TimeGranularityEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { tw } from '~/styles/utils'
@@ -36,6 +36,28 @@ gql`
 
 type MrrOverviewSectionProps = {
   premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
+}
+
+const AmountCell = ({
+  value,
+  className,
+  currency,
+  showMinusSign = false,
+}: {
+  value: number
+  className: string
+  currency: CurrencyEnum
+  showMinusSign?: boolean
+}) => {
+  return (
+    <Typography variant="body" className={tw(className)}>
+      {showMinusSign && '-'}
+      {intlFormatNumber(deserializeAmount(value, currency), {
+        currencyDisplay: 'symbol',
+        currency,
+      })}
+    </Typography>
+  )
 }
 
 export const MrrOverviewSection = ({ premiumWarningDialogRef }: MrrOverviewSectionProps) => {
@@ -181,18 +203,14 @@ export const MrrOverviewSection = ({ premiumWarningDialogRef }: MrrOverviewSecti
                   const newMrrAmountCents = Number(item.mrrNew) || 0
 
                   return (
-                    <Typography
-                      variant="body"
+                    <AmountCell
                       className={tw({
                         'text-green-600': newMrrAmountCents > 0,
                         'text-grey-500': newMrrAmountCents === 0,
                       })}
-                    >
-                      {intlFormatNumber(deserializeAmount(newMrrAmountCents, selectedCurrency), {
-                        currencyDisplay: 'symbol',
-                        currency: selectedCurrency,
-                      })}
-                    </Typography>
+                      value={newMrrAmountCents}
+                      currency={selectedCurrency}
+                    />
                   )
                 },
               },
@@ -204,21 +222,14 @@ export const MrrOverviewSection = ({ premiumWarningDialogRef }: MrrOverviewSecti
                   const expansionMrrAmountCents = Number(item.mrrExpansion) || 0
 
                   return (
-                    <Typography
-                      variant="body"
+                    <AmountCell
                       className={tw({
                         'text-green-600': expansionMrrAmountCents > 0,
                         'text-grey-500': expansionMrrAmountCents === 0,
                       })}
-                    >
-                      {intlFormatNumber(
-                        deserializeAmount(expansionMrrAmountCents, selectedCurrency),
-                        {
-                          currencyDisplay: 'symbol',
-                          currency: selectedCurrency,
-                        },
-                      )}
-                    </Typography>
+                      value={expansionMrrAmountCents}
+                      currency={selectedCurrency}
+                    />
                   )
                 },
               },
@@ -230,22 +241,14 @@ export const MrrOverviewSection = ({ premiumWarningDialogRef }: MrrOverviewSecti
                   const contractionMrrAmountCents = Number(item.mrrContraction) || 0
 
                   return (
-                    <Typography
-                      variant="body"
+                    <AmountCell
                       className={tw({
-                        'text-red-600': contractionMrrAmountCents > 0,
+                        'text-red-600': contractionMrrAmountCents < 0,
                         'text-grey-500': contractionMrrAmountCents === 0,
                       })}
-                    >
-                      {contractionMrrAmountCents > 0 && '-'}
-                      {intlFormatNumber(
-                        deserializeAmount(contractionMrrAmountCents, selectedCurrency),
-                        {
-                          currencyDisplay: 'symbol',
-                          currency: selectedCurrency,
-                        },
-                      )}
-                    </Typography>
+                      value={contractionMrrAmountCents}
+                      currency={selectedCurrency}
+                    />
                   )
                 },
               },
@@ -257,19 +260,14 @@ export const MrrOverviewSection = ({ premiumWarningDialogRef }: MrrOverviewSecti
                   const churnMrrAmountCents = Number(item.mrrChurn) || 0
 
                   return (
-                    <Typography
-                      variant="body"
+                    <AmountCell
                       className={tw({
-                        'text-red-600': churnMrrAmountCents > 0,
+                        'text-red-600': churnMrrAmountCents < 0,
                         'text-grey-500': churnMrrAmountCents === 0,
                       })}
-                    >
-                      {churnMrrAmountCents > 0 && '-'}
-                      {intlFormatNumber(deserializeAmount(churnMrrAmountCents, selectedCurrency), {
-                        currencyDisplay: 'symbol',
-                        currency: selectedCurrency,
-                      })}
-                    </Typography>
+                      value={churnMrrAmountCents}
+                      currency={selectedCurrency}
+                    />
                   )
                 },
               },
@@ -293,21 +291,14 @@ export const MrrOverviewSection = ({ premiumWarningDialogRef }: MrrOverviewSecti
                   const startingMrrAmountCents = Number(item.startingMrr) || 0
 
                   return (
-                    <Typography
-                      variant="body"
+                    <AmountCell
                       className={tw({
                         'text-green-600': startingMrrAmountCents > 0,
                         'text-grey-500': startingMrrAmountCents === 0,
                       })}
-                    >
-                      {intlFormatNumber(
-                        deserializeAmount(startingMrrAmountCents, selectedCurrency),
-                        {
-                          currencyDisplay: 'symbol',
-                          currency: selectedCurrency,
-                        },
-                      )}
-                    </Typography>
+                      value={startingMrrAmountCents}
+                      currency={selectedCurrency}
+                    />
                   )
                 },
               },
@@ -319,19 +310,15 @@ export const MrrOverviewSection = ({ premiumWarningDialogRef }: MrrOverviewSecti
                   const mrrChangeAmountCents = Number(item.mrrChange) || 0
 
                   return (
-                    <Typography
-                      variant="body"
+                    <AmountCell
                       className={tw({
                         'text-green-600': mrrChangeAmountCents > 0,
                         'text-red-600': mrrChangeAmountCents < 0,
                         'text-grey-500': mrrChangeAmountCents === 0,
                       })}
-                    >
-                      {intlFormatNumber(deserializeAmount(mrrChangeAmountCents, selectedCurrency), {
-                        currencyDisplay: 'symbol',
-                        currency: selectedCurrency,
-                      })}
-                    </Typography>
+                      value={mrrChangeAmountCents}
+                      currency={selectedCurrency}
+                    />
                   )
                 },
               },
@@ -343,18 +330,14 @@ export const MrrOverviewSection = ({ premiumWarningDialogRef }: MrrOverviewSecti
                   const endingMrrAmountCents = Number(item.endingMrr) || 0
 
                   return (
-                    <Typography
-                      variant="body"
+                    <AmountCell
                       className={tw({
                         'text-green-600': endingMrrAmountCents > 0,
                         'text-grey-500': endingMrrAmountCents === 0,
                       })}
-                    >
-                      {intlFormatNumber(deserializeAmount(endingMrrAmountCents, selectedCurrency), {
-                        currencyDisplay: 'symbol',
-                        currency: selectedCurrency,
-                      })}
-                    </Typography>
+                      value={endingMrrAmountCents}
+                      currency={selectedCurrency}
+                    />
                   )
                 },
               },

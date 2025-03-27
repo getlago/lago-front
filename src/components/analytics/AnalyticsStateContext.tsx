@@ -29,14 +29,18 @@ export const AnalyticsStateProvider = ({ children }: { children: ReactNode }) =>
   const lastUpdateTime = useRef<number>(0)
   const mouseLeaveTimeoutRef = useRef<NodeJS.Timeout>()
 
+  const clearMouseLeaveTimeout = useCallback(() => {
+    if (mouseLeaveTimeoutRef.current) {
+      clearTimeout(mouseLeaveTimeoutRef.current)
+    }
+  }, [])
+
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
-      if (mouseLeaveTimeoutRef.current) {
-        clearTimeout(mouseLeaveTimeoutRef.current)
-      }
+      clearMouseLeaveTimeout()
     }
-  }, [])
+  }, [clearMouseLeaveTimeout])
 
   // Optimized setter for hover state to prevent too many updates
   const setHoverDataIndex = useCallback((index: number | undefined) => {
@@ -55,15 +59,13 @@ export const AnalyticsStateProvider = ({ children }: { children: ReactNode }) =>
 
   const handleMouseLeave = useCallback(() => {
     // Clear any existing timeout
-    if (mouseLeaveTimeoutRef.current) {
-      clearTimeout(mouseLeaveTimeoutRef.current)
-    }
+    clearMouseLeaveTimeout()
 
     // Set a new timeout to update hover state
     mouseLeaveTimeoutRef.current = setTimeout(() => {
       setHoverDataIndex(undefined)
     }, MOUSE_LEAVE_DELAY)
-  }, [setHoverDataIndex])
+  }, [setHoverDataIndex, clearMouseLeaveTimeout])
 
   const value = {
     hoverDataIndex,
