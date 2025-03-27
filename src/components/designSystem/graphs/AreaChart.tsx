@@ -73,7 +73,8 @@ const AreaChart = memo(
     height = DEFAULT_AREA_CHART_HEIGHT,
     tickFontSize = DEFAULT_TICK_FONT_SIZE,
   }: AreaChartProps) => {
-    const { hoverDataIndex, setHoverDataIndex, setClickedDataIndex } = useAnalyticsState()
+    const { hoverDataIndex, setHoverDataIndex, setClickedDataIndex, handleMouseLeave } =
+      useAnalyticsState()
 
     const handleHoverUpdate = useCallback(
       (index: number | undefined) => {
@@ -124,9 +125,7 @@ const AreaChart = memo(
                 ),
               [handleHoverUpdate, data?.length],
             )}
-            onMouseLeave={() => {
-              handleHoverUpdate(undefined)
-            }}
+            onMouseLeave={handleMouseLeave}
           >
             <defs>
               <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
