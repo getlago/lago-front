@@ -2212,6 +2212,7 @@ export type DataApiMrrPlan = {
   mrr: Scalars['Float']['output'];
   mrrShare: Scalars['Float']['output'];
   planCode: Scalars['String']['output'];
+  planDeletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   planId: Scalars['ID']['output'];
   planInterval: PlanInterval;
   planName: Scalars['String']['output'];
@@ -2252,6 +2253,7 @@ export type DataApiRevenueStreamCollection = {
 export type DataApiRevenueStreamCustomer = {
   __typename?: 'DataApiRevenueStreamCustomer';
   amountCurrency: CurrencyEnum;
+  customerDeletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   customerId: Scalars['ID']['output'];
   customerName: Scalars['String']['output'];
   externalCustomerId: Scalars['String']['output'];
@@ -5105,7 +5107,7 @@ export type QueryDataApiMrrsArgs = {
 export type QueryDataApiMrrsPlansArgs = {
   currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -5125,16 +5127,16 @@ export type QueryDataApiRevenueStreamsArgs = {
 export type QueryDataApiRevenueStreamsCustomersArgs = {
   currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<OrderByEnum>;
+  page?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
 export type QueryDataApiRevenueStreamsPlansArgs = {
   currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<OrderByEnum>;
+  page?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -5582,6 +5584,7 @@ export type RevenueStreamPlan = {
   netRevenueAmountCents: Scalars['BigInt']['output'];
   netRevenueShare: Scalars['Float']['output'];
   planCode: Scalars['String']['output'];
+  planDeletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   planId: Scalars['ID']['output'];
   planInterval: PlanInterval;
   planName: Scalars['String']['output'];

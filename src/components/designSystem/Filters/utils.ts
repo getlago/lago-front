@@ -207,7 +207,7 @@ export const formatFiltersForMrrQuery = (searchParams: URLSearchParams) => {
   return formatFiltersForQuery({
     keyMap,
     searchParams,
-    availableFilters: MrrOverviewAvailableFilters,
+    availableFilters: [...MrrOverviewAvailableFilters, AvailableFiltersEnum.timeGranularity],
     filtersNamePrefix: MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX,
   })
 }
