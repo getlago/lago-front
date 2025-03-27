@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { RefObject, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
+import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import Gross from '~/components/graphs/Gross'
 import MonthSelectorDropdown, {
   AnalyticsPeriodScopeEnum,
@@ -53,13 +54,15 @@ export const CustomerUsage = ({ premiumWarningDialogRef }: CustomerUsageProps) =
         }
       />
 
-      <Gross
-        // eslint-disable-next-line tailwindcss/no-custom-classname
-        className="analytics-graph py-0"
-        currency={data?.customer?.currency || organization?.defaultCurrency}
-        period={periodScope}
-        externalCustomerId={data?.customer?.externalId}
-      />
+      <AnalyticsStateProvider>
+        <Gross
+          // eslint-disable-next-line tailwindcss/no-custom-classname
+          className="analytics-graph py-0"
+          currency={data?.customer?.currency || organization?.defaultCurrency}
+          period={periodScope}
+          externalCustomerId={data?.customer?.externalId}
+        />
+      </AnalyticsStateProvider>
     </div>
   )
 }

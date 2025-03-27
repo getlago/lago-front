@@ -286,6 +286,10 @@ export type BillableMetric = {
   expression?: Maybe<Scalars['String']['output']>;
   fieldName?: Maybe<Scalars['String']['output']>;
   filters?: Maybe<Array<BillableMetricFilter>>;
+  hasActiveSubscriptions: Scalars['Boolean']['output'];
+  hasDraftInvoices: Scalars['Boolean']['output'];
+  hasPlans: Scalars['Boolean']['output'];
+  hasSubscriptions: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   integrationMappings?: Maybe<Array<Mapping>>;
   name: Scalars['String']['output'];
@@ -3043,6 +3047,7 @@ export enum IntegrationTypeEnum {
   FromEmail = 'from_email',
   Hubspot = 'hubspot',
   IssueReceipts = 'issue_receipts',
+  LifetimeUsage = 'lifetime_usage',
   ManualPayments = 'manual_payments',
   MultiEntitiesEnterprise = 'multi_entities_enterprise',
   MultiEntitiesPro = 'multi_entities_pro',
@@ -4645,7 +4650,12 @@ export type Plan = {
   customersCount: Scalars['Int']['output'];
   description?: Maybe<Scalars['String']['output']>;
   draftInvoicesCount: Scalars['Int']['output'];
+  hasActiveSubscriptions: Scalars['Boolean']['output'];
+  hasCharges: Scalars['Boolean']['output'];
+  hasCustomers: Scalars['Boolean']['output'];
+  hasDraftInvoices: Scalars['Boolean']['output'];
   hasOverriddenPlans?: Maybe<Scalars['Boolean']['output']>;
+  hasSubscriptions: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   interval: PlanInterval;
   invoiceDisplayName?: Maybe<Scalars['String']['output']>;
@@ -4698,6 +4708,7 @@ export enum PremiumIntegrationTypeEnum {
   FromEmail = 'from_email',
   Hubspot = 'hubspot',
   IssueReceipts = 'issue_receipts',
+  LifetimeUsage = 'lifetime_usage',
   ManualPayments = 'manual_payments',
   MultiEntitiesEnterprise = 'multi_entities_enterprise',
   MultiEntitiesPro = 'multi_entities_pro',
