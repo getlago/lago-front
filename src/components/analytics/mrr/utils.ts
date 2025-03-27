@@ -6,6 +6,7 @@ import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/
 import { MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { intlFormatDateTime } from '~/core/timezone/utils'
 import {
   CurrencyEnum,
   MrrDataForOverviewSectionFragment,
@@ -105,6 +106,12 @@ export const formatMrrDataForAreaChart = ({
       currency: selectedCurrency,
     })}`,
     value: Number(item.endingMrr),
-    axisName: item.endOfPeriodDt,
+    axisName: intlFormatDateTime(item.startOfPeriodDt, {
+      format: {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      },
+    }).date,
   }))
 }

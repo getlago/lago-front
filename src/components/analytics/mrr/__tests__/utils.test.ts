@@ -48,12 +48,12 @@ describe('formatMrrDataForAreaChart', () => {
     expect(result[0]).toEqual({
       tooltipLabel: 'Jan 2023: €1,000.00',
       value: 100000,
-      axisName: '2023-01-31',
+      axisName: 'Jan 1, 2023',
     })
     expect(result[1]).toEqual({
       tooltipLabel: 'Feb 2023: €1,200.00',
       value: 120000,
-      axisName: '2023-02-28',
+      axisName: 'Feb 1, 2023',
     })
   })
 
@@ -68,12 +68,12 @@ describe('formatMrrDataForAreaChart', () => {
     expect(result[0]).toEqual({
       tooltipLabel: 'Jan 1, 23: €1,000.00',
       value: 100000,
-      axisName: '2023-01-31',
+      axisName: 'Jan 1, 2023',
     })
     expect(result[1]).toEqual({
       tooltipLabel: 'Feb 1, 23: €1,200.00',
       value: 120000,
-      axisName: '2023-02-28',
+      axisName: 'Feb 1, 2023',
     })
   })
 
@@ -88,12 +88,12 @@ describe('formatMrrDataForAreaChart', () => {
     expect(result[0]).toEqual({
       tooltipLabel: 'Jan 1, 23 - Jan 31, 23: €1,000.00',
       value: 100000,
-      axisName: '2023-01-31',
+      axisName: 'Jan 1, 2023',
     })
     expect(result[1]).toEqual({
       tooltipLabel: 'Feb 1, 23 - Feb 28, 23: €1,200.00',
       value: 120000,
-      axisName: '2023-02-28',
+      axisName: 'Feb 1, 2023',
     })
   })
 
@@ -108,12 +108,12 @@ describe('formatMrrDataForAreaChart', () => {
     expect(result[0]).toEqual({
       tooltipLabel: 'Jan 2023: $1,000.00',
       value: 100000,
-      axisName: '2023-01-31',
+      axisName: 'Jan 1, 2023',
     })
     expect(result[1]).toEqual({
       tooltipLabel: 'Feb 2023: $1,200.00',
       value: 120000,
-      axisName: '2023-02-28',
+      axisName: 'Feb 1, 2023',
     })
   })
 

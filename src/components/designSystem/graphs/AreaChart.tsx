@@ -260,7 +260,8 @@ const AreaChart = memo(
                   stroke: `${theme.palette.grey[500]}`,
                   strokeDasharray: '2 2',
                 }}
-                position={{ y: -45 }}
+                position={{ y: -55 }}
+                offset={0}
                 content={<CustomTooltip />}
               />
             )}
