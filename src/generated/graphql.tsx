@@ -2184,6 +2184,15 @@ export type CustomerUsage = {
   totalAmountCents: Scalars['BigInt']['output'];
 };
 
+export type DataApiMetadata = {
+  __typename?: 'DataApiMetadata';
+  currentPage: Scalars['Int']['output'];
+  nextPage: Scalars['Int']['output'];
+  prevPage: Scalars['Int']['output'];
+  totalCount: Scalars['Int']['output'];
+  totalPages: Scalars['Int']['output'];
+};
+
 export type DataApiMrr = {
   __typename?: 'DataApiMrr';
   amountCurrency: CurrencyEnum;
@@ -2216,18 +2225,16 @@ export type DataApiMrrPlan = {
   mrr: Scalars['Float']['output'];
   mrrShare: Scalars['Float']['output'];
   planCode: Scalars['String']['output'];
+  planDeletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   planId: Scalars['ID']['output'];
   planInterval: PlanInterval;
   planName: Scalars['String']['output'];
 };
 
-/** DataApiMrrPlanCollection type */
-export type DataApiMrrPlanCollection = {
-  __typename?: 'DataApiMrrPlanCollection';
-  /** A collection of paginated DataApiMrrPlanCollection */
+export type DataApiMrrsPlans = {
+  __typename?: 'DataApiMrrsPlans';
   collection: Array<DataApiMrrPlan>;
-  /** Pagination Metadata for navigating the Pagination */
-  metadata: CollectionMetadata;
+  metadata: DataApiMetadata;
 };
 
 export type DataApiRevenueStream = {
@@ -2256,6 +2263,7 @@ export type DataApiRevenueStreamCollection = {
 export type DataApiRevenueStreamCustomer = {
   __typename?: 'DataApiRevenueStreamCustomer';
   amountCurrency: CurrencyEnum;
+  customerDeletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   customerId: Scalars['ID']['output'];
   customerName: Scalars['String']['output'];
   externalCustomerId: Scalars['String']['output'];
@@ -2265,13 +2273,32 @@ export type DataApiRevenueStreamCustomer = {
   netRevenueShare: Scalars['Float']['output'];
 };
 
-/** DataApiRevenueStreamCustomerCollection type */
-export type DataApiRevenueStreamCustomerCollection = {
-  __typename?: 'DataApiRevenueStreamCustomerCollection';
-  /** A collection of paginated DataApiRevenueStreamCustomerCollection */
+export type DataApiRevenueStreamPlan = {
+  __typename?: 'DataApiRevenueStreamPlan';
+  amountCurrency: CurrencyEnum;
+  customersCount: Scalars['Int']['output'];
+  customersShare: Scalars['Float']['output'];
+  grossRevenueAmountCents: Scalars['BigInt']['output'];
+  grossRevenueShare: Scalars['Float']['output'];
+  netRevenueAmountCents: Scalars['BigInt']['output'];
+  netRevenueShare: Scalars['Float']['output'];
+  planCode: Scalars['String']['output'];
+  planDeletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  planId: Scalars['ID']['output'];
+  planInterval: PlanInterval;
+  planName: Scalars['String']['output'];
+};
+
+export type DataApiRevenueStreamsCustomers = {
+  __typename?: 'DataApiRevenueStreamsCustomers';
   collection: Array<DataApiRevenueStreamCustomer>;
-  /** Pagination Metadata for navigating the Pagination */
-  metadata: CollectionMetadata;
+  metadata: DataApiMetadata;
+};
+
+export type DataApiRevenueStreamsPlans = {
+  __typename?: 'DataApiRevenueStreamsPlans';
+  collection: Array<DataApiRevenueStreamPlan>;
+  metadata: DataApiMetadata;
 };
 
 export type DataApiUsageInvoiced = {
@@ -4846,13 +4873,13 @@ export type Query = {
   /** Query monthly recurring revenues of an organization */
   dataApiMrrs: DataApiMrrCollection;
   /** Query monthly recurring revenues plans of an organization */
-  dataApiMrrsPlans: DataApiMrrPlanCollection;
+  dataApiMrrsPlans: DataApiMrrsPlans;
   /** Query revenue streams of an organization */
   dataApiRevenueStreams: DataApiRevenueStreamCollection;
   /** Query revenue streams customers of an organization */
-  dataApiRevenueStreamsCustomers: DataApiRevenueStreamCustomerCollection;
+  dataApiRevenueStreamsCustomers: DataApiRevenueStreamsCustomers;
   /** Query revenue streams plans of an organization */
-  dataApiRevenueStreamsPlans: RevenueStreamPlanCollection;
+  dataApiRevenueStreamsPlans: DataApiRevenueStreamsPlans;
   /** Query invoiced usages of an organization */
   dataApiUsagesInvoiced: DataApiUsageInvoicedCollection;
   /** Query a single dunning campaign of an organization */
@@ -5116,7 +5143,7 @@ export type QueryDataApiMrrsArgs = {
 export type QueryDataApiMrrsPlansArgs = {
   currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -5136,16 +5163,16 @@ export type QueryDataApiRevenueStreamsArgs = {
 export type QueryDataApiRevenueStreamsCustomersArgs = {
   currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<OrderByEnum>;
+  page?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
 export type QueryDataApiRevenueStreamsPlansArgs = {
   currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<OrderByEnum>;
+  page?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -5581,30 +5608,6 @@ export type RetryWebhookInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
-};
-
-export type RevenueStreamPlan = {
-  __typename?: 'RevenueStreamPlan';
-  amountCurrency: CurrencyEnum;
-  customersCount: Scalars['Int']['output'];
-  customersShare: Scalars['Float']['output'];
-  grossRevenueAmountCents: Scalars['BigInt']['output'];
-  grossRevenueShare: Scalars['Float']['output'];
-  netRevenueAmountCents: Scalars['BigInt']['output'];
-  netRevenueShare: Scalars['Float']['output'];
-  planCode: Scalars['String']['output'];
-  planId: Scalars['ID']['output'];
-  planInterval: PlanInterval;
-  planName: Scalars['String']['output'];
-};
-
-/** RevenueStreamPlanCollection type */
-export type RevenueStreamPlanCollection = {
-  __typename?: 'RevenueStreamPlanCollection';
-  /** A collection of paginated RevenueStreamPlanCollection */
-  collection: Array<RevenueStreamPlan>;
-  /** Pagination Metadata for navigating the Pagination */
-  metadata: CollectionMetadata;
 };
 
 /** Autogenerated input type of RevokeInvite */
@@ -6881,10 +6884,11 @@ export type DeleteAddOnMutation = { __typename?: 'Mutation', destroyAddOn?: { __
 export type GetMrrPlanBreakdownQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-export type GetMrrPlanBreakdownQuery = { __typename?: 'Query', dataApiMrrsPlans: { __typename?: 'DataApiMrrPlanCollection', collection: Array<{ __typename?: 'DataApiMrrPlan', activeCustomersCount: any, activeCustomersShare: number, amountCurrency: CurrencyEnum, mrr: number, mrrShare: number, planCode: string, planId: string, planInterval: PlanInterval, planName: string }> } };
+export type GetMrrPlanBreakdownQuery = { __typename?: 'Query', dataApiMrrsPlans: { __typename?: 'DataApiMrrsPlans', collection: Array<{ __typename?: 'DataApiMrrPlan', activeCustomersCount: any, activeCustomersShare: number, amountCurrency: CurrencyEnum, mrr: number, mrrShare: number, planCode: string, planId: string, planInterval: PlanInterval, planName: string }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
 
 export type MrrDataForOverviewSectionFragment = { __typename?: 'DataApiMrr', endOfPeriodDt: any, endingMrr: any, mrrChange: any, mrrChurn: any, mrrContraction: any, mrrExpansion: any, mrrNew: any, startOfPeriodDt: any, startingMrr: any };
 
@@ -6905,20 +6909,22 @@ export type GetMrrsQuery = { __typename?: 'Query', dataApiMrrs: { __typename?: '
 export type GetRevenueStreamsCustomerBreakdownQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-export type GetRevenueStreamsCustomerBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsCustomers: { __typename?: 'DataApiRevenueStreamCustomerCollection', collection: Array<{ __typename?: 'DataApiRevenueStreamCustomer', amountCurrency: CurrencyEnum, customerName: string, externalCustomerId: string, netRevenueAmountCents: any, netRevenueShare: number }> } };
+export type GetRevenueStreamsCustomerBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsCustomers: { __typename?: 'DataApiRevenueStreamsCustomers', collection: Array<{ __typename?: 'DataApiRevenueStreamCustomer', amountCurrency: CurrencyEnum, customerName: string, externalCustomerId: string, netRevenueAmountCents: any, netRevenueShare: number }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
 
 export type RevenueStreamDataForOverviewSectionFragment = { __typename?: 'DataApiRevenueStream', commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any };
 
 export type GetRevenueStreamsPlanBreakdownQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-export type GetRevenueStreamsPlanBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsPlans: { __typename?: 'RevenueStreamPlanCollection', collection: Array<{ __typename?: 'RevenueStreamPlan', amountCurrency: CurrencyEnum, customersCount: number, customersShare: number, netRevenueAmountCents: any, netRevenueShare: number, planCode: string, planId: string, planInterval: PlanInterval, planName: string }> } };
+export type GetRevenueStreamsPlanBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsPlans: { __typename?: 'DataApiRevenueStreamsPlans', collection: Array<{ __typename?: 'DataApiRevenueStreamPlan', amountCurrency: CurrencyEnum, customersCount: number, customersShare: number, netRevenueAmountCents: any, netRevenueShare: number, planCode: string, planId: string, planInterval: PlanInterval, planName: string }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
 
 export type GetRevenueStreamsQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
@@ -13288,8 +13294,8 @@ export type DeleteAddOnMutationHookResult = ReturnType<typeof useDeleteAddOnMuta
 export type DeleteAddOnMutationResult = Apollo.MutationResult<DeleteAddOnMutation>;
 export type DeleteAddOnMutationOptions = Apollo.BaseMutationOptions<DeleteAddOnMutation, DeleteAddOnMutationVariables>;
 export const GetMrrPlanBreakdownDocument = gql`
-    query getMrrPlanBreakdown($currency: CurrencyEnum, $limit: Int) {
-  dataApiMrrsPlans(currency: $currency, limit: $limit) {
+    query getMrrPlanBreakdown($currency: CurrencyEnum, $limit: Int, $page: Int) {
+  dataApiMrrsPlans(currency: $currency, limit: $limit, page: $page) {
     collection {
       activeCustomersCount
       activeCustomersShare
@@ -13300,6 +13306,10 @@ export const GetMrrPlanBreakdownDocument = gql`
       planId
       planInterval
       planName
+    }
+    metadata {
+      currentPage
+      totalPages
     }
   }
 }
@@ -13319,6 +13329,7 @@ export const GetMrrPlanBreakdownDocument = gql`
  *   variables: {
  *      currency: // value for 'currency'
  *      limit: // value for 'limit'
+ *      page: // value for 'page'
  *   },
  * });
  */
@@ -13397,14 +13408,18 @@ export type GetMrrsLazyQueryHookResult = ReturnType<typeof useGetMrrsLazyQuery>;
 export type GetMrrsSuspenseQueryHookResult = ReturnType<typeof useGetMrrsSuspenseQuery>;
 export type GetMrrsQueryResult = Apollo.QueryResult<GetMrrsQuery, GetMrrsQueryVariables>;
 export const GetRevenueStreamsCustomerBreakdownDocument = gql`
-    query getRevenueStreamsCustomerBreakdown($currency: CurrencyEnum, $limit: Int) {
-  dataApiRevenueStreamsCustomers(currency: $currency, limit: $limit) {
+    query getRevenueStreamsCustomerBreakdown($currency: CurrencyEnum, $limit: Int, $page: Int) {
+  dataApiRevenueStreamsCustomers(currency: $currency, limit: $limit, page: $page) {
     collection {
       amountCurrency
       customerName
       externalCustomerId
       netRevenueAmountCents
       netRevenueShare
+    }
+    metadata {
+      currentPage
+      totalPages
     }
   }
 }
@@ -13424,6 +13439,7 @@ export const GetRevenueStreamsCustomerBreakdownDocument = gql`
  *   variables: {
  *      currency: // value for 'currency'
  *      limit: // value for 'limit'
+ *      page: // value for 'page'
  *   },
  * });
  */
@@ -13444,8 +13460,8 @@ export type GetRevenueStreamsCustomerBreakdownLazyQueryHookResult = ReturnType<t
 export type GetRevenueStreamsCustomerBreakdownSuspenseQueryHookResult = ReturnType<typeof useGetRevenueStreamsCustomerBreakdownSuspenseQuery>;
 export type GetRevenueStreamsCustomerBreakdownQueryResult = Apollo.QueryResult<GetRevenueStreamsCustomerBreakdownQuery, GetRevenueStreamsCustomerBreakdownQueryVariables>;
 export const GetRevenueStreamsPlanBreakdownDocument = gql`
-    query getRevenueStreamsPlanBreakdown($currency: CurrencyEnum, $limit: Int) {
-  dataApiRevenueStreamsPlans(currency: $currency, limit: $limit) {
+    query getRevenueStreamsPlanBreakdown($currency: CurrencyEnum, $limit: Int, $page: Int) {
+  dataApiRevenueStreamsPlans(currency: $currency, limit: $limit, page: $page) {
     collection {
       amountCurrency
       customersCount
@@ -13456,6 +13472,10 @@ export const GetRevenueStreamsPlanBreakdownDocument = gql`
       planId
       planInterval
       planName
+    }
+    metadata {
+      currentPage
+      totalPages
     }
   }
 }
@@ -13475,6 +13495,7 @@ export const GetRevenueStreamsPlanBreakdownDocument = gql`
  *   variables: {
  *      currency: // value for 'currency'
  *      limit: // value for 'limit'
+ *      page: // value for 'page'
  *   },
  * });
  */
