@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
+import { Icon } from '~/components/designSystem'
 import { getItemFromLS, removeItemFromLS } from '~/core/apolloClient'
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE, CUSTOMERS_LIST_ROUTE } from '~/core/router'
@@ -50,7 +51,11 @@ const Home = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isUserLoading, currentMembership])
 
-  return null
+  return (
+    <div className="flex size-full items-center justify-center">
+      <Icon name="processing" color="info" size="large" animation="spin" />
+    </div>
+  )
 }
 
 export default Home
