@@ -10,6 +10,7 @@ import {
   REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX,
   REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX,
 } from '~/core/constants/filters'
+import { INVOICES_ROUTE } from '~/core/router'
 import { intlFormatDateTime } from '~/core/timezone'
 import { InvoicePaymentStatusTypeEnum, InvoiceStatusTypeEnum } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
@@ -367,4 +368,14 @@ export const getFilterValue = ({
   prefix?: string
 }): string | null => {
   return searchParams.get(keyWithPrefix(key, prefix))
+}
+
+export const buildUrlForInvoicesWithFilters = (searchParams: URLSearchParams) => {
+  const searchParamsWithPrefix = searchParams.entries().reduce((acc, [key, value]) => {
+    const prefix = keyWithPrefix(key, INVOICE_LIST_FILTER_PREFIX)
+
+    return { ...acc, [prefix]: value }
+  }, {})
+
+  return `${INVOICES_ROUTE}?${new URLSearchParams(searchParamsWithPrefix).toString()}`
 }

@@ -1,9 +1,11 @@
 import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 
 import { Skeleton, Typography } from '~/components/designSystem'
+import { buildUrlForInvoicesWithFilters } from '~/components/designSystem/Filters'
 import ChartHeader from '~/components/designSystem/graphs/ChartHeader'
 import { InvoiceCollectionsFakeData } from '~/components/designSystem/graphs/fixtures'
 import InlineBarsChart from '~/components/designSystem/graphs/InlineBarsChart'
@@ -254,6 +256,7 @@ const Invoices = ({
   forceLoading,
 }: TGraphProps) => {
   const { translate } = useInternationalization()
+  const searchParams = new URLSearchParams()
   const [hoveredBarId, setHoveredBarId] = useState<string | undefined>(undefined)
   const { data, loading, error } = useGetInvoiceCollectionsQuery({
     variables: {
@@ -326,28 +329,37 @@ const Invoices = ({
                       InvoicePaymentStatusTypeEnum.Succeeded,
                       InvoicePaymentStatusTypeEnum.Failed,
                       InvoicePaymentStatusTypeEnum.Pending,
-                    ].map((status, index) => (
-                      <InvoiceItem
-                        key={`invoices-item-${status}-${index}`}
-                        onMouseEnter={() => setHoveredBarId(status)}
-                        onMouseLeave={() => setHoveredBarId(undefined)}
-                      >
-                        <svg height={DOT_SIZE} width={DOT_SIZE}>
-                          <circle cx="4" cy="4" r="4" fill={GRAPH_COLORS[index]} />
-                        </svg>
-                        <Typography variant="caption" color="grey700">
-                          {translate(lookupInvoiceLineTranslation[status], {
-                            count: lineData.get(status)?.invoicesCount,
-                          })}
-                        </Typography>
-                        <Typography variant="caption" color="grey600">
-                          {intlFormatNumber(
-                            deserializeAmount(lineData.get(status)?.amountCents || 0, currency),
-                            { currency },
-                          )}
-                        </Typography>
-                      </InvoiceItem>
-                    ))}
+                    ].map((status, index) => {
+                      searchParams.set('paymentStatus', status)
+
+                      return (
+                        <Link
+                          className="hover:no-underline focus:ring-0 focus-visible:ring-0"
+                          to={buildUrlForInvoicesWithFilters(searchParams)}
+                          key={`invoices-item-${status}-${index}`}
+                        >
+                          <InvoiceItem
+                            onMouseEnter={() => setHoveredBarId(status)}
+                            onMouseLeave={() => setHoveredBarId(undefined)}
+                          >
+                            <svg height={DOT_SIZE} width={DOT_SIZE}>
+                              <circle cx="4" cy="4" r="4" fill={GRAPH_COLORS[index]} />
+                            </svg>
+                            <Typography variant="caption" color="grey700">
+                              {translate(lookupInvoiceLineTranslation[status], {
+                                count: lineData.get(status)?.invoicesCount,
+                              })}
+                            </Typography>
+                            <Typography variant="caption" color="grey600">
+                              {intlFormatNumber(
+                                deserializeAmount(lineData.get(status)?.amountCents || 0, currency),
+                                { currency },
+                              )}
+                            </Typography>
+                          </InvoiceItem>
+                        </Link>
+                      )
+                    })}
 
                     <InvoiceItem $disableHover>
                       <svg height={DOT_SIZE} width={DOT_SIZE}></svg>
