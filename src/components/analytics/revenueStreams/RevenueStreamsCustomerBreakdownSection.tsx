@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { Button, Table, Typography } from '~/components/designSystem'
+import { Button, InfiniteScroll, Table, Typography } from '~/components/designSystem'
 import {
   Filters,
   formatFiltersForRevenueStreamsCustomersQuery,
@@ -20,17 +20,19 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
-const ITEM_COUNT = 4
-
 gql`
-  query getRevenueStreamsCustomerBreakdown($currency: CurrencyEnum, $limit: Int) {
-    dataApiRevenueStreamsCustomers(currency: $currency, limit: $limit) {
+  query getRevenueStreamsCustomerBreakdown($currency: CurrencyEnum, $limit: Int, $page: Int) {
+    dataApiRevenueStreamsCustomers(currency: $currency, limit: $limit, page: $page) {
       collection {
         amountCurrency
         customerName
         externalCustomerId
         netRevenueAmountCents
         netRevenueShare
+      }
+      metadata {
+        currentPage
+        totalPages
       }
     }
   }
@@ -66,10 +68,13 @@ export const RevenueStreamsCustomerBreakdownSection = ({
     data: revenueStreamsCustomerBreakdownData,
     loading: revenueStreamsCustomerBreakdownLoading,
     error: revenueStreamsCustomerBreakdownError,
+    fetchMore,
+    variables,
   } = useGetRevenueStreamsCustomerBreakdownQuery({
+    notifyOnNetworkStatusChange: true,
     variables: {
       ...filtersForRevenueStreamsQuery,
-      limit: ITEM_COUNT,
+      limit: 20,
     },
   })
 
@@ -107,72 +112,87 @@ export const RevenueStreamsCustomerBreakdownSection = ({
         </Filters.Provider>
       </div>
 
-      <Table
-        name="revenue-streams-customer-breakdown"
-        containerSize={{ default: 0 }}
-        rowSize={72}
-        loadingRowCount={ITEM_COUNT}
-        isLoading={revenueStreamsCustomerBreakdownLoading}
-        hasError={!!revenueStreamsCustomerBreakdownError}
-        data={
-          revenueStreamsCustomerBreakdownData?.dataApiRevenueStreamsCustomers.collection.map(
-            (c) => ({
-              id: c.externalCustomerId,
-              ...c,
-            }),
-          ) || []
-        }
-        placeholder={{
-          emptyState: {
-            title: translate('text_17422274967581grox8em361'),
-            subtitle: translate('text_1742227496758jg629m9fga6'),
-          },
+      <InfiniteScroll
+        onBottom={() => {
+          const { currentPage = 0, totalPages = 0 } =
+            revenueStreamsCustomerBreakdownData?.dataApiRevenueStreamsCustomers.metadata || {}
+
+          currentPage < totalPages &&
+            !revenueStreamsCustomerBreakdownLoading &&
+            fetchMore({
+              variables: {
+                ...variables,
+                page: currentPage + 1,
+              },
+            })
         }}
-        columns={[
-          {
-            key: 'customerName',
-            title: translate('text_63d3a658c6d84a5843032145'),
-            maxSpace: true,
-            minWidth: 200,
-            content({ customerName, externalCustomerId }) {
-              return (
-                <>
-                  <Typography color="grey700" variant="bodyHl" noWrap>
-                    {customerName || '-'}
-                  </Typography>
-                  <Typography variant="caption" color="grey600" noWrap>
-                    {externalCustomerId}
-                  </Typography>
-                </>
-              )
+      >
+        <Table
+          name="revenue-streams-customer-breakdown"
+          containerSize={{ default: 0 }}
+          rowSize={72}
+          isLoading={revenueStreamsCustomerBreakdownLoading}
+          hasError={!!revenueStreamsCustomerBreakdownError}
+          data={
+            revenueStreamsCustomerBreakdownData?.dataApiRevenueStreamsCustomers.collection.map(
+              (c) => ({
+                id: c.externalCustomerId,
+                ...c,
+              }),
+            ) || []
+          }
+          placeholder={{
+            emptyState: {
+              title: translate('text_17422274967581grox8em361'),
+              subtitle: translate('text_1742227496758jg629m9fga6'),
             },
-          },
-          {
-            key: 'netRevenueShare',
-            title: translate('text_17422232171950c2u9u3vuq7'),
-            textAlign: 'right',
-            minWidth: 134,
-            content({ netRevenueShare, netRevenueAmountCents, amountCurrency }) {
-              return (
-                <div className="flex items-center gap-2">
-                  <Typography variant="body" color="grey700" noWrap>
-                    {intlFormatNumber(
-                      deserializeAmount(netRevenueAmountCents || 0, amountCurrency),
-                      {
-                        style: 'currency',
-                        currency: amountCurrency,
-                      },
-                    )}
-                  </Typography>
-                  <Typography className="w-16 text-right" variant="body" color="grey600" noWrap>
-                    {intlFormatNumber(netRevenueShare, { style: 'percent' })}
-                  </Typography>
-                </div>
-              )
+          }}
+          columns={[
+            {
+              key: 'customerName',
+              title: translate('text_63d3a658c6d84a5843032145'),
+              maxSpace: true,
+              minWidth: 200,
+              content({ customerName, externalCustomerId }) {
+                return (
+                  <>
+                    <Typography color="grey700" variant="bodyHl" noWrap>
+                      {customerName || '-'}
+                    </Typography>
+                    <Typography variant="caption" color="grey600" noWrap>
+                      {externalCustomerId}
+                    </Typography>
+                  </>
+                )
+              },
             },
-          },
-        ]}
-      />
+            {
+              key: 'netRevenueShare',
+              title: translate('text_17422232171950c2u9u3vuq7'),
+              textAlign: 'right',
+              minWidth: 134,
+              content({ netRevenueShare, netRevenueAmountCents, amountCurrency }) {
+                return (
+                  <div className="flex items-center gap-2">
+                    <Typography variant="body" color="grey700" noWrap>
+                      {intlFormatNumber(
+                        deserializeAmount(netRevenueAmountCents || 0, amountCurrency),
+                        {
+                          style: 'currency',
+                          currency: amountCurrency,
+                        },
+                      )}
+                    </Typography>
+                    <Typography className="w-16 text-right" variant="body" color="grey600" noWrap>
+                      {intlFormatNumber(netRevenueShare, { style: 'percent' })}
+                    </Typography>
+                  </div>
+                )
+              },
+            },
+          ]}
+        />
+      </InfiniteScroll>
     </>
   )
 }

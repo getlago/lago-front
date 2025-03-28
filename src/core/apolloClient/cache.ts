@@ -40,6 +40,18 @@ export const cache = new InMemoryCache({
           keyArgs: false,
           merge: mergePaginatedCollection,
         },
+        dataApiRevenueStreamsPlans: {
+          keyArgs: false,
+          merge: mergePaginatedCollection,
+        },
+        dataApiRevenueStreamsCustomers: {
+          keyArgs: false,
+          merge: mergePaginatedCollection,
+        },
+        dataApiMrrsPlans: {
+          keyArgs: false,
+          merge: mergePaginatedCollection,
+        },
         events: {
           keyArgs: false,
           merge: mergePaginatedCollection,

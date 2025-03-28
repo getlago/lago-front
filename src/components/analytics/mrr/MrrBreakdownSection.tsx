@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { Button, Table, Typography } from '~/components/designSystem'
+import { Button, InfiniteScroll, Table, Typography } from '~/components/designSystem'
 import {
   Filters,
   formatFiltersForMrrPlansQuery,
@@ -21,11 +21,9 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
-const ITEM_COUNT = 4
-
 gql`
-  query getMrrPlanBreakdown($currency: CurrencyEnum, $limit: Int) {
-    dataApiMrrsPlans(currency: $currency, limit: $limit) {
+  query getMrrPlanBreakdown($currency: CurrencyEnum, $limit: Int, $page: Int) {
+    dataApiMrrsPlans(currency: $currency, limit: $limit, page: $page) {
       collection {
         activeCustomersCount
         activeCustomersShare
@@ -36,6 +34,10 @@ gql`
         planId
         planInterval
         planName
+      }
+      metadata {
+        currentPage
+        totalPages
       }
     }
   }
@@ -69,10 +71,13 @@ export const MrrBreakdownSection = ({ premiumWarningDialogRef }: MrrBreakdownSec
     data: mrrPlanBreakdownData,
     loading: mrrPlanBreakdownLoading,
     error: mrrPlanBreakdownError,
+    fetchMore,
+    variables,
   } = useGetMrrPlanBreakdownQuery({
+    notifyOnNetworkStatusChange: true,
     variables: {
       ...filtersForMrrQuery,
-      limit: ITEM_COUNT,
+      limit: 20,
     },
   })
 
@@ -119,97 +124,112 @@ export const MrrBreakdownSection = ({ premiumWarningDialogRef }: MrrBreakdownSec
         </Filters.Provider>
       </div>
 
-      <Table
-        name="mrr-plan-breakdown"
-        containerSize={{ default: 0 }}
-        rowSize={72}
-        loadingRowCount={ITEM_COUNT}
-        isLoading={mrrPlanBreakdownLoading}
-        hasError={!!mrrPlanBreakdownError}
-        data={
-          mrrPlanBreakdownData?.dataApiMrrsPlans.collection.map((p) => ({
-            id: p.planId,
-            ...p,
-          })) || []
-        }
-        placeholder={{
-          emptyState: {
-            title: translate('text_17422274791228swi7c4ydc7'),
-            subtitle: translate('text_17422274791226kjpamwz3pe'),
-          },
+      <InfiniteScroll
+        onBottom={() => {
+          const { currentPage = 0, totalPages = 0 } =
+            mrrPlanBreakdownData?.dataApiMrrsPlans.metadata || {}
+
+          currentPage < totalPages &&
+            !mrrPlanBreakdownLoading &&
+            fetchMore({
+              variables: {
+                ...variables,
+                page: currentPage + 1,
+              },
+            })
         }}
-        columns={[
-          {
-            key: 'planName',
-            title: translate('text_63d3a658c6d84a5843032145'),
-            maxSpace: true,
-            minWidth: 200,
-            content({ planName, planCode }) {
-              return (
-                <>
-                  <Typography color="grey700" variant="bodyHl" noWrap>
-                    {planName || '-'}
-                  </Typography>
-                  <Typography variant="caption" color="grey600" noWrap>
-                    {planCode}
-                  </Typography>
-                </>
-              )
+      >
+        <Table
+          name="mrr-plan-breakdown"
+          containerSize={{ default: 0 }}
+          rowSize={72}
+          isLoading={mrrPlanBreakdownLoading}
+          hasError={!!mrrPlanBreakdownError}
+          data={
+            mrrPlanBreakdownData?.dataApiMrrsPlans.collection.map((p) => ({
+              id: p.planId,
+              ...p,
+            })) || []
+          }
+          placeholder={{
+            emptyState: {
+              title: translate('text_17422274791228swi7c4ydc7'),
+              subtitle: translate('text_17422274791226kjpamwz3pe'),
             },
-          },
-          {
-            key: 'planInterval',
-            title: translate('text_65201b8216455901fe273dc1'),
-            minWidth: 120,
-            content({ planInterval }) {
-              return (
-                <Typography variant="body" noWrap>
-                  {translate(getIntervalTranslationKey[planInterval])}
-                </Typography>
-              )
+          }}
+          columns={[
+            {
+              key: 'planName',
+              title: translate('text_63d3a658c6d84a5843032145'),
+              maxSpace: true,
+              minWidth: 200,
+              content({ planName, planCode }) {
+                return (
+                  <>
+                    <Typography color="grey700" variant="bodyHl" noWrap>
+                      {planName || '-'}
+                    </Typography>
+                    <Typography variant="caption" color="grey600" noWrap>
+                      {planCode}
+                    </Typography>
+                  </>
+                )
+              },
             },
-          },
-          {
-            key: 'activeCustomersShare',
-            textAlign: 'right',
-            title: translate('text_1742480465327lfl86dyjywx'),
-            minWidth: 147,
-            content({ activeCustomersShare, activeCustomersCount }) {
-              return (
-                <div className="flex items-center gap-2">
-                  <Typography variant="body" color="grey700" noWrap>
-                    {activeCustomersCount}
+            {
+              key: 'planInterval',
+              title: translate('text_65201b8216455901fe273dc1'),
+              minWidth: 120,
+              content({ planInterval }) {
+                return (
+                  <Typography variant="body" noWrap>
+                    {translate(getIntervalTranslationKey[planInterval])}
                   </Typography>
-                  <Typography className="w-16" variant="body" color="grey600" noWrap>
-                    {intlFormatNumber(activeCustomersShare, { style: 'percent' })}
-                  </Typography>
-                </div>
-              )
+                )
+              },
             },
-          },
-          {
-            key: 'mrrShare',
-            title: translate('text_6553885df387fd0097fd738c'),
-            textAlign: 'right',
-            minWidth: 148,
-            content({ mrrShare, mrr, amountCurrency }) {
-              return (
-                <div className="flex items-center gap-2">
-                  <Typography variant="body" color="grey700" noWrap>
-                    {intlFormatNumber(deserializeAmount(mrr || 0, amountCurrency), {
-                      style: 'currency',
-                      currency: amountCurrency,
-                    })}
-                  </Typography>
-                  <Typography className="w-16 text-right" variant="body" color="grey600" noWrap>
-                    {intlFormatNumber(mrrShare, { style: 'percent' })}
-                  </Typography>
-                </div>
-              )
+            {
+              key: 'activeCustomersShare',
+              textAlign: 'right',
+              title: translate('text_1742480465327lfl86dyjywx'),
+              minWidth: 147,
+              content({ activeCustomersShare, activeCustomersCount }) {
+                return (
+                  <div className="flex items-center gap-2">
+                    <Typography variant="body" color="grey700" noWrap>
+                      {activeCustomersCount}
+                    </Typography>
+                    <Typography className="w-16" variant="body" color="grey600" noWrap>
+                      {intlFormatNumber(activeCustomersShare, { style: 'percent' })}
+                    </Typography>
+                  </div>
+                )
+              },
             },
-          },
-        ]}
-      />
+            {
+              key: 'mrrShare',
+              title: translate('text_6553885df387fd0097fd738c'),
+              textAlign: 'right',
+              minWidth: 148,
+              content({ mrrShare, mrr, amountCurrency }) {
+                return (
+                  <div className="flex items-center gap-2">
+                    <Typography variant="body" color="grey700" noWrap>
+                      {intlFormatNumber(deserializeAmount(mrr || 0, amountCurrency), {
+                        style: 'currency',
+                        currency: amountCurrency,
+                      })}
+                    </Typography>
+                    <Typography className="w-16 text-right" variant="body" color="grey600" noWrap>
+                      {intlFormatNumber(mrrShare, { style: 'percent' })}
+                    </Typography>
+                  </div>
+                )
+              },
+            },
+          ]}
+        />
+      </InfiniteScroll>
     </section>
   )
 }
