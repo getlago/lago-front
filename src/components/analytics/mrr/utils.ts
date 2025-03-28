@@ -1,8 +1,17 @@
 import { DateTime, DateTimeUnit, Duration, DurationUnit, Interval } from 'luxon'
 
 import { AvailableFiltersEnum, getFilterValue } from '~/components/designSystem/Filters'
+import { AreaChartDataType } from '~/components/designSystem/graphs/types'
+import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/graphs/utils'
 import { MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
-import { MrrDataForOverviewSectionFragment, TimeGranularityEnum } from '~/generated/graphql'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { intlFormatDateTime } from '~/core/timezone/utils'
+import {
+  CurrencyEnum,
+  MrrDataForOverviewSectionFragment,
+  TimeGranularityEnum,
+} from '~/generated/graphql'
 
 const DIFF_CURSOR: Record<TimeGranularityEnum, DurationUnit> = {
   [TimeGranularityEnum.Daily]: 'days',
@@ -78,4 +87,31 @@ export const formatMrrData = ({
   })
 
   return paddedData
+}
+
+export const formatMrrDataForAreaChart = ({
+  data,
+  timeGranularity,
+  selectedCurrency,
+}: {
+  data: MrrDataForOverviewSectionFragment[]
+  timeGranularity: TimeGranularityEnum
+  selectedCurrency: CurrencyEnum
+}): AreaChartDataType[] => {
+  return data.map((item) => ({
+    tooltipLabel: `${getItemDateFormatedByTimeGranularity({
+      item,
+      timeGranularity,
+    })}: ${intlFormatNumber(deserializeAmount(item.endingMrr, selectedCurrency), {
+      currency: selectedCurrency,
+    })}`,
+    value: Number(item.endingMrr),
+    axisName: intlFormatDateTime(item.startOfPeriodDt, {
+      format: {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      },
+    }).date,
+  }))
 }

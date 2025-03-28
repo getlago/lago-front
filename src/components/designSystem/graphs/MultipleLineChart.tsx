@@ -161,7 +161,8 @@ const MultipleLineChart = <T extends DataItem>({
   xAxisDataKey,
   timeGranularity,
 }: MultipleLineChartProps<T>) => {
-  const { hoverDataIndex, setHoverDataIndex, setClickedDataIndex } = useAnalyticsState()
+  const { hoverDataIndex, setHoverDataIndex, setClickedDataIndex, handleMouseLeave } =
+    useAnalyticsState()
 
   const handleHoverUpdate = useCallback(
     (index: number | undefined) => {
@@ -254,9 +255,7 @@ const MultipleLineChart = <T extends DataItem>({
               ),
             [handleHoverUpdate, localData?.length],
           )}
-          onMouseLeave={() => {
-            handleHoverUpdate(undefined)
-          }}
+          onMouseLeave={handleMouseLeave}
         >
           <XAxis
             axisLine={true}

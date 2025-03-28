@@ -286,6 +286,10 @@ export type BillableMetric = {
   expression?: Maybe<Scalars['String']['output']>;
   fieldName?: Maybe<Scalars['String']['output']>;
   filters?: Maybe<Array<BillableMetricFilter>>;
+  hasActiveSubscriptions: Scalars['Boolean']['output'];
+  hasDraftInvoices: Scalars['Boolean']['output'];
+  hasPlans: Scalars['Boolean']['output'];
+  hasSubscriptions: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   integrationMappings?: Maybe<Array<Mapping>>;
   name: Scalars['String']['output'];
@@ -2212,6 +2216,7 @@ export type DataApiMrrPlan = {
   mrr: Scalars['Float']['output'];
   mrrShare: Scalars['Float']['output'];
   planCode: Scalars['String']['output'];
+  planDeletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   planId: Scalars['ID']['output'];
   planInterval: PlanInterval;
   planName: Scalars['String']['output'];
@@ -2252,6 +2257,7 @@ export type DataApiRevenueStreamCollection = {
 export type DataApiRevenueStreamCustomer = {
   __typename?: 'DataApiRevenueStreamCustomer';
   amountCurrency: CurrencyEnum;
+  customerDeletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   customerId: Scalars['ID']['output'];
   customerName: Scalars['String']['output'];
   externalCustomerId: Scalars['String']['output'];
@@ -3041,6 +3047,7 @@ export enum IntegrationTypeEnum {
   FromEmail = 'from_email',
   Hubspot = 'hubspot',
   IssueReceipts = 'issue_receipts',
+  LifetimeUsage = 'lifetime_usage',
   ManualPayments = 'manual_payments',
   MultiEntitiesEnterprise = 'multi_entities_enterprise',
   MultiEntitiesPro = 'multi_entities_pro',
@@ -4643,7 +4650,12 @@ export type Plan = {
   customersCount: Scalars['Int']['output'];
   description?: Maybe<Scalars['String']['output']>;
   draftInvoicesCount: Scalars['Int']['output'];
+  hasActiveSubscriptions: Scalars['Boolean']['output'];
+  hasCharges: Scalars['Boolean']['output'];
+  hasCustomers: Scalars['Boolean']['output'];
+  hasDraftInvoices: Scalars['Boolean']['output'];
   hasOverriddenPlans?: Maybe<Scalars['Boolean']['output']>;
+  hasSubscriptions: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   interval: PlanInterval;
   invoiceDisplayName?: Maybe<Scalars['String']['output']>;
@@ -4696,6 +4708,7 @@ export enum PremiumIntegrationTypeEnum {
   FromEmail = 'from_email',
   Hubspot = 'hubspot',
   IssueReceipts = 'issue_receipts',
+  LifetimeUsage = 'lifetime_usage',
   ManualPayments = 'manual_payments',
   MultiEntitiesEnterprise = 'multi_entities_enterprise',
   MultiEntitiesPro = 'multi_entities_pro',
@@ -5105,7 +5118,7 @@ export type QueryDataApiMrrsArgs = {
 export type QueryDataApiMrrsPlansArgs = {
   currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -5125,16 +5138,16 @@ export type QueryDataApiRevenueStreamsArgs = {
 export type QueryDataApiRevenueStreamsCustomersArgs = {
   currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<OrderByEnum>;
+  page?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
 export type QueryDataApiRevenueStreamsPlansArgs = {
   currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<OrderByEnum>;
+  page?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -5582,6 +5595,7 @@ export type RevenueStreamPlan = {
   netRevenueAmountCents: Scalars['BigInt']['output'];
   netRevenueShare: Scalars['Float']['output'];
   planCode: Scalars['String']['output'];
+  planDeletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   planId: Scalars['ID']['output'];
   planInterval: PlanInterval;
   planName: Scalars['String']['output'];

@@ -15,8 +15,10 @@ import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { CurrencyEnum, TimeGranularityEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
+import { tw } from '~/styles/utils'
 
 gql`
   fragment MrrDataForOverviewSection on DataApiMrr {
@@ -36,6 +38,28 @@ type MrrOverviewSectionProps = {
   premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
 }
 
+const AmountCell = ({
+  value,
+  className,
+  currency,
+  showMinusSign = false,
+}: {
+  value: number
+  className: string
+  currency: CurrencyEnum
+  showMinusSign?: boolean
+}) => {
+  return (
+    <Typography variant="body" className={tw(className)}>
+      {showMinusSign && '-'}
+      {intlFormatNumber(deserializeAmount(value, currency), {
+        currencyDisplay: 'symbol',
+        currency,
+      })}
+    </Typography>
+  )
+}
+
 export const MrrOverviewSection = ({ premiumWarningDialogRef }: MrrOverviewSectionProps) => {
   const { translate } = useInternationalization()
   const {
@@ -50,6 +74,7 @@ export const MrrOverviewSection = ({ premiumWarningDialogRef }: MrrOverviewSecti
     getDefaultStaticDateFilter,
     getDefaultStaticTimeGranularityFilter,
     hasAccessToAnalyticsDashboardsFeature,
+    formattedDataForAreaChart,
   } = useMrrAnalyticsOverview()
 
   return (
@@ -144,18 +169,17 @@ export const MrrOverviewSection = ({ premiumWarningDialogRef }: MrrOverviewSecti
       {!hasError && (
         <AnalyticsStateProvider>
           <AreaChart
+            height={232}
+            tickFontSize={14}
             blur={false}
             currency={selectedCurrency}
-            data={data.map((d) => ({
-              axisName: d.startOfPeriodDt,
-              value: d.mrrNew,
-              tooltipLabel: translate('text_1739268382272qnne2h7slna'),
-            }))}
+            data={formattedDataForAreaChart}
             loading={isLoading}
           />
 
           <HorizontalDataTable
             leftColumnWidth={190}
+            columnWidth={timeGranularity === TimeGranularityEnum.Monthly ? 180 : 228}
             data={data}
             loading={isLoading}
             rows={[
@@ -176,13 +200,144 @@ export const MrrOverviewSection = ({ premiumWarningDialogRef }: MrrOverviewSecti
                 type: 'data',
                 label: translate('text_1742831422968chcjxyc2qjo'),
                 content: (item) => {
+                  const newMrrAmountCents = Number(item.mrrNew) || 0
+
+                  return (
+                    <AmountCell
+                      className={tw({
+                        'text-green-600': newMrrAmountCents > 0,
+                        'text-grey-500': newMrrAmountCents === 0,
+                      })}
+                      value={newMrrAmountCents}
+                      currency={selectedCurrency}
+                    />
+                  )
+                },
+              },
+              {
+                key: 'mrrExpansion',
+                type: 'data',
+                label: translate('text_17429967574516lh8r3sznyt'),
+                content: (item) => {
+                  const expansionMrrAmountCents = Number(item.mrrExpansion) || 0
+
+                  return (
+                    <AmountCell
+                      className={tw({
+                        'text-green-600': expansionMrrAmountCents > 0,
+                        'text-grey-500': expansionMrrAmountCents === 0,
+                      })}
+                      value={expansionMrrAmountCents}
+                      currency={selectedCurrency}
+                    />
+                  )
+                },
+              },
+              {
+                key: 'mrrContraction',
+                type: 'data',
+                label: translate('text_1742996757451c2a49pod8hm'),
+                content: (item) => {
+                  const contractionMrrAmountCents = Number(item.mrrContraction) || 0
+
+                  return (
+                    <AmountCell
+                      className={tw({
+                        'text-red-600': contractionMrrAmountCents < 0,
+                        'text-grey-500': contractionMrrAmountCents === 0,
+                      })}
+                      value={contractionMrrAmountCents}
+                      currency={selectedCurrency}
+                    />
+                  )
+                },
+              },
+              {
+                key: 'mrrChurn',
+                type: 'data',
+                label: translate('text_1742996757451llxiqw85bvu'),
+                content: (item) => {
+                  const churnMrrAmountCents = Number(item.mrrChurn) || 0
+
+                  return (
+                    <AmountCell
+                      className={tw({
+                        'text-red-600': churnMrrAmountCents < 0,
+                        'text-grey-500': churnMrrAmountCents === 0,
+                      })}
+                      value={churnMrrAmountCents}
+                      currency={selectedCurrency}
+                    />
+                  )
+                },
+              },
+              {
+                key: 'startOfPeriodDt',
+                type: 'header',
+                label: translate('text_174299767573783t24sdrsp1'),
+                content: (item) => {
                   return (
                     <Typography variant="captionHl">
-                      {intlFormatNumber(deserializeAmount(item.mrrNew, selectedCurrency), {
-                        currencyDisplay: 'symbol',
-                        currency: selectedCurrency,
-                      })}
+                      {getItemDateFormatedByTimeGranularity({ item, timeGranularity })}
                     </Typography>
+                  )
+                },
+              },
+              {
+                key: 'startingMrr',
+                type: 'data',
+                label: translate('text_1742996757451ng6z8o2xif2'),
+                content: (item) => {
+                  const startingMrrAmountCents = Number(item.startingMrr) || 0
+
+                  return (
+                    <AmountCell
+                      className={tw({
+                        'text-green-600': startingMrrAmountCents > 0,
+                        'text-grey-500': startingMrrAmountCents === 0,
+                      })}
+                      value={startingMrrAmountCents}
+                      currency={selectedCurrency}
+                    />
+                  )
+                },
+              },
+              {
+                key: 'mrrChange',
+                type: 'data',
+                label: translate('text_1742996757451700705sjtf8'),
+                content: (item) => {
+                  const mrrChangeAmountCents = Number(item.mrrChange) || 0
+
+                  return (
+                    <AmountCell
+                      className={tw({
+                        'text-green-600': mrrChangeAmountCents > 0,
+                        'text-red-600': mrrChangeAmountCents < 0,
+                        'text-grey-500': mrrChangeAmountCents === 0,
+                      })}
+                      value={mrrChangeAmountCents}
+                      currency={selectedCurrency}
+                    />
+                  )
+                },
+              },
+              {
+                key: 'endingMrr',
+                type: 'data',
+                label: translate('text_17429967574517l2yykxqmau'),
+                content: (item) => {
+                  const endingMrrAmountCents = Number(item.endingMrr) || 0
+
+                  return (
+                    <AmountCell
+                      className={tw({
+                        'text-green-600': endingMrrAmountCents > 0,
+                        'text-grey-500': endingMrrAmountCents === 0,
+                      })}
+                      value={endingMrrAmountCents}
+                      currency={selectedCurrency}
+                    />
                   )
                 },
               },

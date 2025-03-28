@@ -2916,5 +2916,12 @@
   "text_1742392390147638s3zam327": "Send emails to BCC addresses, specify multiple email addresses separated by commas.",
   "text_1742392390147u5hy5yetful": "Create campaign",
   "text_1742392390147d9jizkapiou": "Add BCC emails",
-  "text_17429854230668s8zhn9ujq6": "Canceled"
+  "text_17429854230668s8zhn9ujq6": "Canceled",
+  "text_17429967574516lh8r3sznyt": "Expansion",
+  "text_1742996757451c2a49pod8hm": "Contraction",
+  "text_1742996757451llxiqw85bvu": "Churn",
+  "text_1742996757451ng6z8o2xif2": "Starting MRR",
+  "text_1742996757451700705sjtf8": "Change",
+  "text_17429967574517l2yykxqmau": "Ending MRR",
+  "text_174299767573783t24sdrsp1": "Summary"
 }

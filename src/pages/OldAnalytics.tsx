@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
+import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { Button, Icon, Popper, Typography } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
 import Gross from '~/components/graphs/Gross'
@@ -167,16 +168,22 @@ const Analytics = () => {
       )}
 
       <div className="mx-4 my-12 grid grid-cols-[1fr] gap-px bg-grey-300 md:m-12 lg:grid-cols-[1fr_1fr]">
-        <Overview currency={selectedCurrency} period={periodScope} />
-        <Gross className="lg:pr-6" currency={selectedCurrency} period={periodScope} />
-        <Mrr
-          blur={!isPremium || !currentUser}
-          className="lg:pl-6"
-          currency={selectedCurrency}
-          demoMode={!isPremium || !currentUser}
-          forceLoading={currentUserDataLoading || currentOrganizationDataLoading}
-          period={periodScope}
-        />
+        <AnalyticsStateProvider>
+          <Overview currency={selectedCurrency} period={periodScope} />
+        </AnalyticsStateProvider>
+        <AnalyticsStateProvider>
+          <Gross className="lg:pr-6" currency={selectedCurrency} period={periodScope} />
+        </AnalyticsStateProvider>
+        <AnalyticsStateProvider>
+          <Mrr
+            blur={!isPremium || !currentUser}
+            className="lg:pl-6"
+            currency={selectedCurrency}
+            demoMode={!isPremium || !currentUser}
+            forceLoading={currentUserDataLoading || currentOrganizationDataLoading}
+            period={periodScope}
+          />
+        </AnalyticsStateProvider>
         <Usage
           demoMode={!isPremium || !currentUser}
           className="lg:pr-6"

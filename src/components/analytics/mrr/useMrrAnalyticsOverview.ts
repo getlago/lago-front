@@ -4,9 +4,10 @@ import { DateTime } from 'luxon'
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { formatMrrData } from '~/components/analytics/mrr/utils'
+import { formatMrrData, formatMrrDataForAreaChart } from '~/components/analytics/mrr/utils'
 import { AvailableFiltersEnum } from '~/components/designSystem/Filters'
 import { formatFiltersForMrrQuery, getFilterValue } from '~/components/designSystem/Filters/utils'
+import { AreaChartDataType } from '~/components/designSystem/graphs/types'
 import { MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import {
   CurrencyEnum,
@@ -52,6 +53,7 @@ type MrrAnalyticsOverviewReturn = {
   selectedCurrency: CurrencyEnum
   defaultCurrency: CurrencyEnum
   data: MrrDataForOverviewSectionFragment[]
+  formattedDataForAreaChart: AreaChartDataType[]
   hasAccessToAnalyticsDashboardsFeature: boolean
   hasError: boolean
   isLoading: boolean
@@ -140,18 +142,31 @@ export const useMrrAnalyticsOverview = (): MrrAnalyticsOverviewReturn => {
     return defaultCurrency
   }, [searchParams, defaultCurrency])
 
-  const formattedMrrData = useMemo(() => {
-    return formatMrrData({
+  const { formattedMrrData, formattedDataForAreaChart } = useMemo(() => {
+    const localFormattedMrrData = formatMrrData({
       searchParams,
       data: mrrData?.dataApiMrrs.collection,
       defaultStaticDatePeriod: getDefaultStaticDateFilter(),
       defaultStaticTimeGranularity: getDefaultStaticTimeGranularityFilter(),
     })
+
+    const localFormattedDataForAreaChart = formatMrrDataForAreaChart({
+      data: mrrData?.dataApiMrrs.collection || [],
+      timeGranularity,
+      selectedCurrency,
+    })
+
+    return {
+      formattedMrrData: localFormattedMrrData,
+      formattedDataForAreaChart: localFormattedDataForAreaChart,
+    }
   }, [
     getDefaultStaticDateFilter,
     getDefaultStaticTimeGranularityFilter,
     mrrData?.dataApiMrrs.collection,
     searchParams,
+    selectedCurrency,
+    timeGranularity,
   ])
 
   const { lastMrrAmountCents, mrrAmountCentsProgressionOnPeriod } = useMemo(() => {
@@ -189,6 +204,7 @@ export const useMrrAnalyticsOverview = (): MrrAnalyticsOverviewReturn => {
     selectedCurrency,
     timeGranularity,
     data: formattedMrrData,
+    formattedDataForAreaChart,
     hasError: !!mrrError && !mrrLoading,
     isLoading: mrrLoading,
     getDefaultStaticDateFilter,
