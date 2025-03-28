@@ -9,7 +9,7 @@ import { FiltersFormValues } from '../types'
 
 gql`
   query getPlansForFiltersItemPlanCode($page: Int, $limit: Int, $searchTerm: String) {
-    plans(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    plans(page: $page, limit: $limit, searchTerm: $searchTerm, withDeleted: true) {
       metadata {
         currentPage
         totalPages
@@ -17,6 +17,7 @@ gql`
       collection {
         id
         code
+        deletedAt
       }
     }
   }
@@ -37,9 +38,10 @@ export const FiltersItemPlanCode = ({ value, setFilterValue }: FiltersItemPlanCo
     if (!data?.plans?.collection) return []
 
     return data.plans.collection.map((plan) => ({
+      label: `${plan.code}${plan.deletedAt ? ` (${translate('text_1743158702704o1juwxmr4ab')})` : ''}`,
       value: plan.code,
     }))
-  }, [data])
+  }, [data?.plans?.collection, translate])
 
   return (
     <ComboBox
