@@ -61,8 +61,8 @@ gql`
     description
     aggregationType
     fieldName
-    subscriptionsCount
-    plansCount
+    hasSubscriptions
+    hasPlans
     recurring
     roundingFunction
     roundingPrecision
@@ -103,7 +103,7 @@ const CreateBillableMetric = () => {
 
   const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
   const customExpressionDrawerRef = useRef<CustomExpressionDrawerRef>(null)
-  const canBeEdited = !billableMetric?.subscriptionsCount && !billableMetric?.plansCount
+  const canBeEdited = !billableMetric?.hasSubscriptions && !billableMetric?.hasPlans
 
   const formikProps = useFormik<
     CreateBillableMetricInput & {

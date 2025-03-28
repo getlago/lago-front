@@ -2216,7 +2216,6 @@ export type DataApiMrrPlan = {
   mrr: Scalars['Float']['output'];
   mrrShare: Scalars['Float']['output'];
   planCode: Scalars['String']['output'];
-  planDeletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   planId: Scalars['ID']['output'];
   planInterval: PlanInterval;
   planName: Scalars['String']['output'];
@@ -2257,7 +2256,6 @@ export type DataApiRevenueStreamCollection = {
 export type DataApiRevenueStreamCustomer = {
   __typename?: 'DataApiRevenueStreamCustomer';
   amountCurrency: CurrencyEnum;
-  customerDeletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   customerId: Scalars['ID']['output'];
   customerName: Scalars['String']['output'];
   externalCustomerId: Scalars['String']['output'];
@@ -5118,7 +5116,7 @@ export type QueryDataApiMrrsArgs = {
 export type QueryDataApiMrrsPlansArgs = {
   currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
-  page?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -5138,16 +5136,16 @@ export type QueryDataApiRevenueStreamsArgs = {
 export type QueryDataApiRevenueStreamsCustomersArgs = {
   currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<OrderByEnum>;
-  page?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
 export type QueryDataApiRevenueStreamsPlansArgs = {
   currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<OrderByEnum>;
-  page?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -5595,7 +5593,6 @@ export type RevenueStreamPlan = {
   netRevenueAmountCents: Scalars['BigInt']['output'];
   netRevenueShare: Scalars['Float']['output'];
   planCode: Scalars['String']['output'];
-  planDeletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   planId: Scalars['ID']['output'];
   planInterval: PlanInterval;
   planName: Scalars['String']['output'];
@@ -6943,14 +6940,14 @@ export type GetGoogleAuthUrlQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetGoogleAuthUrlQuery = { __typename?: 'Query', googleAuthUrl: { __typename?: 'AuthUrl', url: string } };
 
-export type DeleteBillableMetricDialogFragment = { __typename?: 'BillableMetric', id: string, name: string, draftInvoicesCount: number, activeSubscriptionsCount: number };
+export type DeleteBillableMetricDialogFragment = { __typename?: 'BillableMetric', id: string, name: string, hasDraftInvoices: boolean, hasActiveSubscriptions: boolean };
 
 export type GetBillableMetricToDeleteQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetBillableMetricToDeleteQuery = { __typename?: 'Query', billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, draftInvoicesCount: number, activeSubscriptionsCount: number } | null };
+export type GetBillableMetricToDeleteQuery = { __typename?: 'Query', billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, hasDraftInvoices: boolean, hasActiveSubscriptions: boolean } | null };
 
 export type DeleteBillableMetricMutationVariables = Exact<{
   input: DestroyBillableMetricInput;
@@ -8794,7 +8791,7 @@ export type GetSingleBillableMetricQueryVariables = Exact<{
 }>;
 
 
-export type GetSingleBillableMetricQuery = { __typename?: 'Query', billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, expression?: string | null, description?: string | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, subscriptionsCount: number, plansCount: number, recurring: boolean, roundingFunction?: RoundingFunctionEnum | null, roundingPrecision?: number | null, filters?: Array<{ __typename?: 'BillableMetricFilter', key: string, values: Array<string> }> | null } | null };
+export type GetSingleBillableMetricQuery = { __typename?: 'Query', billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, expression?: string | null, description?: string | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, hasSubscriptions: boolean, hasPlans: boolean, recurring: boolean, roundingFunction?: RoundingFunctionEnum | null, roundingPrecision?: number | null, filters?: Array<{ __typename?: 'BillableMetricFilter', key: string, values: Array<string> }> | null } | null };
 
 export type CreateBillableMetricMutationVariables = Exact<{
   input: CreateBillableMetricInput;
@@ -9033,7 +9030,7 @@ export type GetTaxesForAddOnFormQueryVariables = Exact<{
 
 export type GetTaxesForAddOnFormQuery = { __typename?: 'Query', taxes: { __typename?: 'TaxCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> } };
 
-export type EditBillableMetricFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, expression?: string | null, description?: string | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, subscriptionsCount: number, plansCount: number, recurring: boolean, roundingFunction?: RoundingFunctionEnum | null, roundingPrecision?: number | null, filters?: Array<{ __typename?: 'BillableMetricFilter', key: string, values: Array<string> }> | null };
+export type EditBillableMetricFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, expression?: string | null, description?: string | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, hasSubscriptions: boolean, hasPlans: boolean, recurring: boolean, roundingFunction?: RoundingFunctionEnum | null, roundingPrecision?: number | null, filters?: Array<{ __typename?: 'BillableMetricFilter', key: string, values: Array<string> }> | null };
 
 export type CreateCreditNoteInvoiceFragment = { __typename?: 'Invoice', id: string, currency?: CurrencyEnum | null, number: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, creditableAmountCents: any, refundableAmountCents: any, subTotalIncludingTaxesAmountCents: any, availableToCreditAmountCents: any, totalPaidAmountCents: any, totalAmountCents: any, paymentDisputeLostAt?: any | null, invoiceType: InvoiceTypeEnum, couponsAmountCents: any, feesAmountCents: any, versionNumber: number, fees?: Array<{ __typename?: 'Fee', id: string, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxName: string, taxRate: number }> | null }> | null };
 
@@ -9958,8 +9955,8 @@ export const DeleteBillableMetricDialogFragmentDoc = gql`
     fragment DeleteBillableMetricDialog on BillableMetric {
   id
   name
-  draftInvoicesCount
-  activeSubscriptionsCount
+  hasDraftInvoices
+  hasActiveSubscriptions
 }
     `;
 export const CouponCaptionFragmentDoc = gql`
@@ -11619,8 +11616,8 @@ export const EditBillableMetricFragmentDoc = gql`
   description
   aggregationType
   fieldName
-  subscriptionsCount
-  plansCount
+  hasSubscriptions
+  hasPlans
   recurring
   roundingFunction
   roundingPrecision
