@@ -266,7 +266,7 @@ export const formatActiveFilterValueDisplay = (
 
   switch (key) {
     case AvailableFiltersEnum.customerExternalId:
-      return value.split(filterDataInlineSeparator)[1]
+      return value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0]
     case AvailableFiltersEnum.date:
     case AvailableFiltersEnum.issuingDate:
       return value
