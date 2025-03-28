@@ -371,11 +371,13 @@ export const getFilterValue = ({
 }
 
 export const buildUrlForInvoicesWithFilters = (searchParams: URLSearchParams) => {
-  const searchParamsWithPrefix = searchParams.entries().reduce((acc, [key, value]) => {
+  const searchParamsWithPrefix: Record<string, string> = {}
+
+  searchParams.forEach((value, key) => {
     const prefix = keyWithPrefix(key, INVOICE_LIST_FILTER_PREFIX)
 
-    return { ...acc, [prefix]: value }
-  }, {})
+    searchParamsWithPrefix[prefix] = value
+  })
 
   return `${INVOICES_ROUTE}?${new URLSearchParams(searchParamsWithPrefix).toString()}`
 }

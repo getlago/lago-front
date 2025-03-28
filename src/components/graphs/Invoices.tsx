@@ -256,7 +256,6 @@ const Invoices = ({
   forceLoading,
 }: TGraphProps) => {
   const { translate } = useInternationalization()
-  const searchParams = new URLSearchParams()
   const [hoveredBarId, setHoveredBarId] = useState<string | undefined>(undefined)
   const { data, loading, error } = useGetInvoiceCollectionsQuery({
     variables: {
@@ -330,12 +329,14 @@ const Invoices = ({
                       InvoicePaymentStatusTypeEnum.Failed,
                       InvoicePaymentStatusTypeEnum.Pending,
                     ].map((status, index) => {
-                      searchParams.set('paymentStatus', status)
+                      const linkParams = new URLSearchParams()
+
+                      linkParams.set('paymentStatus', status)
 
                       return (
                         <Link
                           className="hover:no-underline focus:ring-0 focus-visible:ring-0"
-                          to={buildUrlForInvoicesWithFilters(searchParams)}
+                          to={buildUrlForInvoicesWithFilters(linkParams)}
                           key={`invoices-item-${status}-${index}`}
                         >
                           <InvoiceItem
