@@ -9,7 +9,7 @@ import { filterDataInlineSeparator, FiltersFormValues } from '../types'
 
 gql`
   query getCustomersForFilterItemCustomer($page: Int, $limit: Int, $searchTerm: String) {
-    customers(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    customers(page: $page, limit: $limit, searchTerm: $searchTerm, withDeleted: true) {
       metadata {
         currentPage
         totalPages
@@ -18,6 +18,7 @@ gql`
         id
         displayName
         externalId
+        deletedAt
       }
     }
   }
@@ -43,11 +44,11 @@ export const FiltersItemCustomer = ({ value, setFilterValue }: FiltersItemCustom
       const customerName = customer?.displayName
 
       return {
-        label: customerName || '',
+        label: `${customerName || externalId || ''}${customer.deletedAt ? ` (${translate('text_1743158702704o1juwxmr4ab')})` : ''}`,
         value: `${externalId}${filterDataInlineSeparator}${customerName}`,
       }
     })
-  }, [data])
+  }, [data?.customers?.collection, translate])
 
   return (
     <ComboBox

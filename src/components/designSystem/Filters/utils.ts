@@ -179,6 +179,9 @@ export const formatFiltersForCustomerQuery = (searchParams: URLSearchParams) => 
 export const formatFiltersForRevenueStreamsQuery = (searchParams: URLSearchParams) => {
   const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
     [AvailableFiltersEnum.country]: 'customerCountry',
+    [AvailableFiltersEnum.customerAccountType]: 'customerType',
+    [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
+    [AvailableFiltersEnum.subscriptionExternalId]: 'externalSubscriptionId',
   }
 
   return formatFiltersForQuery({
@@ -203,6 +206,9 @@ export const formatFiltersForRevenueStreamsPlansQuery = (searchParams: URLSearch
 export const formatFiltersForMrrQuery = (searchParams: URLSearchParams) => {
   const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
     [AvailableFiltersEnum.country]: 'customerCountry',
+    [AvailableFiltersEnum.customerAccountType]: 'customerType',
+    [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
+    [AvailableFiltersEnum.subscriptionExternalId]: 'externalSubscriptionId',
   }
 
   return formatFiltersForQuery({
@@ -260,7 +266,7 @@ export const formatActiveFilterValueDisplay = (
 
   switch (key) {
     case AvailableFiltersEnum.customerExternalId:
-      return value.split(filterDataInlineSeparator)[1]
+      return value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0]
     case AvailableFiltersEnum.date:
     case AvailableFiltersEnum.issuingDate:
       return value

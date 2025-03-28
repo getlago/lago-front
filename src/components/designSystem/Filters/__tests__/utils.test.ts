@@ -2,6 +2,7 @@ import { AvailableFiltersEnum, filterDataInlineSeparator } from '../types'
 import {
   formatActiveFilterValueDisplay,
   formatFiltersForInvoiceQuery,
+  formatFiltersForMrrQuery,
   formatFiltersForRevenueStreamsQuery,
   getFilterValue,
 } from '../utils'
@@ -70,14 +71,48 @@ describe('Filters utils', () => {
       const result = formatFiltersForRevenueStreamsQuery(searchParams)
 
       expect(result).toEqual({
-        accountType: 'company',
+        customerType: 'company',
         fromDate: '2022-01-01',
         planCode: 'planCodeValue',
         timeGranularity: 'day',
         toDate: '2022-01-31',
         currency: 'USD',
         customerCountry: 'US',
-        customerExternalId: 'externalCustomerIdValue',
+        externalCustomerId: 'externalCustomerIdValue',
+      })
+    })
+  })
+
+  describe('formatFiltersForMrrQuery', () => {
+    it('should format filters for MRR query', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('timeGranularity', 'month')
+      searchParams.set('accountType', 'individual')
+      searchParams.set('invoiceType', 'advance_charges,credit,one_off,subscription')
+      searchParams.set('status', 'finalized')
+      searchParams.set('currency', 'EUR')
+      searchParams.set('paymentOverdue', 'true')
+      searchParams.set('date', '2023-01-01,2023-01-31')
+      searchParams.set('country', 'FR')
+      searchParams.set(
+        'customerExternalId',
+        `customer123${filterDataInlineSeparator}Customer Display Name`,
+      )
+      searchParams.set('planCode', 'premium')
+      searchParams.set('partiallyPaid', 'true')
+      searchParams.set('selfBilled', 'true')
+
+      const result = formatFiltersForMrrQuery(searchParams)
+
+      expect(result).toEqual({
+        customerType: 'individual',
+        fromDate: '2023-01-01',
+        timeGranularity: 'month',
+        toDate: '2023-01-31',
+        currency: 'EUR',
+        customerCountry: 'FR',
+        externalCustomerId: 'customer123',
       })
     })
   })

@@ -25,6 +25,7 @@ gql`
     dataApiRevenueStreamsCustomers(currency: $currency, limit: $limit, page: $page) {
       collection {
         amountCurrency
+        customerDeletedAt
         customerName
         externalCustomerId
         netRevenueAmountCents
@@ -153,12 +154,19 @@ export const RevenueStreamsCustomerBreakdownSection = ({
               title: translate('text_63d3a658c6d84a5843032145'),
               maxSpace: true,
               minWidth: 200,
-              content({ customerName, externalCustomerId }) {
+              content({ customerName, externalCustomerId, customerDeletedAt }) {
                 return (
                   <>
-                    <Typography color="grey700" variant="bodyHl" noWrap>
-                      {customerName || '-'}
-                    </Typography>
+                    <div className="flex items-baseline gap-1">
+                      <Typography color="grey700" variant="bodyHl" noWrap>
+                        {customerName || '-'}
+                      </Typography>
+                      {!!customerDeletedAt && (
+                        <Typography variant="caption" color="grey600" noWrap>
+                          ({translate('text_1743158702704o1juwxmr4ab')})
+                        </Typography>
+                      )}
+                    </div>
                     <Typography variant="caption" color="grey600" noWrap>
                       {externalCustomerId}
                     </Typography>

@@ -4673,6 +4673,7 @@ export type Plan = {
   createdAt: Scalars['ISO8601DateTime']['output'];
   /** Number of customers attached to a plan */
   customersCount: Scalars['Int']['output'];
+  deletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   draftInvoicesCount: Scalars['Int']['output'];
   hasActiveSubscriptions: Scalars['Boolean']['output'];
@@ -5124,6 +5125,7 @@ export type QueryCustomersArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+  withDeleted?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -5214,6 +5216,7 @@ export type QueryEventsArgs = {
 
 
 export type QueryGrossRevenuesArgs = {
+  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   expireCache?: InputMaybe<Scalars['Boolean']['input']>;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
@@ -5290,6 +5293,7 @@ export type QueryInvoiceArgs = {
 
 
 export type QueryInvoiceCollectionsArgs = {
+  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
 };
 
@@ -5313,6 +5317,7 @@ export type QueryInvoiceCustomSectionsArgs = {
 
 
 export type QueryInvoicedUsagesArgs = {
+  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
 };
 
@@ -5346,11 +5351,13 @@ export type QueryMembershipsArgs = {
 
 
 export type QueryMrrsArgs = {
+  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
 };
 
 
 export type QueryOverdueBalancesArgs = {
+  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   expireCache?: InputMaybe<Scalars['Boolean']['input']>;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
@@ -5405,6 +5412,7 @@ export type QueryPlansArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+  withDeleted?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -6888,7 +6896,7 @@ export type GetMrrPlanBreakdownQueryVariables = Exact<{
 }>;
 
 
-export type GetMrrPlanBreakdownQuery = { __typename?: 'Query', dataApiMrrsPlans: { __typename?: 'DataApiMrrsPlans', collection: Array<{ __typename?: 'DataApiMrrPlan', activeCustomersCount: any, activeCustomersShare: number, amountCurrency: CurrencyEnum, mrr: number, mrrShare: number, planCode: string, planId: string, planInterval: PlanInterval, planName: string }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
+export type GetMrrPlanBreakdownQuery = { __typename?: 'Query', dataApiMrrsPlans: { __typename?: 'DataApiMrrsPlans', collection: Array<{ __typename?: 'DataApiMrrPlan', activeCustomersCount: any, activeCustomersShare: number, amountCurrency: CurrencyEnum, mrr: number, mrrShare: number, planCode: string, planDeletedAt?: any | null, planId: string, planInterval: PlanInterval, planName: string }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
 
 export type MrrDataForOverviewSectionFragment = { __typename?: 'DataApiMrr', endOfPeriodDt: any, endingMrr: any, mrrChange: any, mrrChurn: any, mrrContraction: any, mrrExpansion: any, mrrNew: any, startOfPeriodDt: any, startingMrr: any };
 
@@ -6913,7 +6921,7 @@ export type GetRevenueStreamsCustomerBreakdownQueryVariables = Exact<{
 }>;
 
 
-export type GetRevenueStreamsCustomerBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsCustomers: { __typename?: 'DataApiRevenueStreamsCustomers', collection: Array<{ __typename?: 'DataApiRevenueStreamCustomer', amountCurrency: CurrencyEnum, customerName: string, externalCustomerId: string, netRevenueAmountCents: any, netRevenueShare: number }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
+export type GetRevenueStreamsCustomerBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsCustomers: { __typename?: 'DataApiRevenueStreamsCustomers', collection: Array<{ __typename?: 'DataApiRevenueStreamCustomer', amountCurrency: CurrencyEnum, customerDeletedAt?: any | null, customerName: string, externalCustomerId: string, netRevenueAmountCents: any, netRevenueShare: number }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
 
 export type RevenueStreamDataForOverviewSectionFragment = { __typename?: 'DataApiRevenueStream', commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any };
 
@@ -6924,7 +6932,7 @@ export type GetRevenueStreamsPlanBreakdownQueryVariables = Exact<{
 }>;
 
 
-export type GetRevenueStreamsPlanBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsPlans: { __typename?: 'DataApiRevenueStreamsPlans', collection: Array<{ __typename?: 'DataApiRevenueStreamPlan', amountCurrency: CurrencyEnum, customersCount: number, customersShare: number, netRevenueAmountCents: any, netRevenueShare: number, planCode: string, planId: string, planInterval: PlanInterval, planName: string }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
+export type GetRevenueStreamsPlanBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsPlans: { __typename?: 'DataApiRevenueStreamsPlans', collection: Array<{ __typename?: 'DataApiRevenueStreamPlan', amountCurrency: CurrencyEnum, customersCount: number, customersShare: number, netRevenueAmountCents: any, netRevenueShare: number, planCode: string, planDeletedAt?: any | null, planId: string, planInterval: PlanInterval, planName: string }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
 
 export type GetRevenueStreamsQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
@@ -7453,7 +7461,7 @@ export type GetCustomersForFilterItemCustomerQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomersForFilterItemCustomerQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Customer', id: string, displayName: string, externalId: string }> } };
+export type GetCustomersForFilterItemCustomerQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Customer', id: string, displayName: string, externalId: string, deletedAt?: any | null }> } };
 
 export type GetInvoiceNumbersForFilterItemInvoiceNumbersQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -7471,7 +7479,7 @@ export type GetPlansForFiltersItemPlanCodeQueryVariables = Exact<{
 }>;
 
 
-export type GetPlansForFiltersItemPlanCodeQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Plan', id: string, code: string }> } };
+export type GetPlansForFiltersItemPlanCodeQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Plan', id: string, code: string, deletedAt?: any | null }> } };
 
 export type WebhookForCreateAndEditFragment = { __typename?: 'WebhookEndpoint', id: string, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null };
 
@@ -13303,6 +13311,7 @@ export const GetMrrPlanBreakdownDocument = gql`
       mrr
       mrrShare
       planCode
+      planDeletedAt
       planId
       planInterval
       planName
@@ -13412,6 +13421,7 @@ export const GetRevenueStreamsCustomerBreakdownDocument = gql`
   dataApiRevenueStreamsCustomers(currency: $currency, limit: $limit, page: $page) {
     collection {
       amountCurrency
+      customerDeletedAt
       customerName
       externalCustomerId
       netRevenueAmountCents
@@ -13469,6 +13479,7 @@ export const GetRevenueStreamsPlanBreakdownDocument = gql`
       netRevenueAmountCents
       netRevenueShare
       planCode
+      planDeletedAt
       planId
       planInterval
       planName
@@ -16215,7 +16226,12 @@ export type GetCustomerSubscriptionForUsageSuspenseQueryHookResult = ReturnType<
 export type GetCustomerSubscriptionForUsageQueryResult = Apollo.QueryResult<GetCustomerSubscriptionForUsageQuery, GetCustomerSubscriptionForUsageQueryVariables>;
 export const GetCustomersForFilterItemCustomerDocument = gql`
     query getCustomersForFilterItemCustomer($page: Int, $limit: Int, $searchTerm: String) {
-  customers(page: $page, limit: $limit, searchTerm: $searchTerm) {
+  customers(
+    page: $page
+    limit: $limit
+    searchTerm: $searchTerm
+    withDeleted: true
+  ) {
     metadata {
       currentPage
       totalPages
@@ -16224,6 +16240,7 @@ export const GetCustomersForFilterItemCustomerDocument = gql`
       id
       displayName
       externalId
+      deletedAt
     }
   }
 }
@@ -16314,7 +16331,7 @@ export type GetInvoiceNumbersForFilterItemInvoiceNumbersSuspenseQueryHookResult 
 export type GetInvoiceNumbersForFilterItemInvoiceNumbersQueryResult = Apollo.QueryResult<GetInvoiceNumbersForFilterItemInvoiceNumbersQuery, GetInvoiceNumbersForFilterItemInvoiceNumbersQueryVariables>;
 export const GetPlansForFiltersItemPlanCodeDocument = gql`
     query getPlansForFiltersItemPlanCode($page: Int, $limit: Int, $searchTerm: String) {
-  plans(page: $page, limit: $limit, searchTerm: $searchTerm) {
+  plans(page: $page, limit: $limit, searchTerm: $searchTerm, withDeleted: true) {
     metadata {
       currentPage
       totalPages
@@ -16322,6 +16339,7 @@ export const GetPlansForFiltersItemPlanCodeDocument = gql`
     collection {
       id
       code
+      deletedAt
     }
   }
 }
