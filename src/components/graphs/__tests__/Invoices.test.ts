@@ -11,6 +11,10 @@ import { AnalyticsPeriodScopeEnum } from '~/components/graphs/MonthSelectorDropd
 import { GRAPH_YEAR_MONTH_DATE_FORMAT } from '~/components/graphs/utils'
 import { CurrencyEnum, InvoicePaymentStatusTypeEnum } from '~/generated/graphql'
 
+jest.mock('~/components/designSystem/Filters', () => ({
+  buildUrlForInvoicesWithFilters: jest.fn(),
+}))
+
 describe('components/graphs/Invoices', () => {
   describe('fillInvoicesDataPerMonthForPaymentStatus', () => {
     it('should return a map with 13 entries', () => {
