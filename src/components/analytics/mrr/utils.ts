@@ -66,7 +66,7 @@ export const formatMrrData = ({
         : end
     const foundDataWithSamePeriod = data?.find((d) => d.startOfPeriodDt === start)
 
-    if (!!foundDataWithSamePeriod) {
+    if (foundDataWithSamePeriod) {
       return foundDataWithSamePeriod
     }
 
