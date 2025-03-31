@@ -123,6 +123,7 @@ export const useMrrAnalyticsOverview = (): MrrAnalyticsOverviewReturn => {
     loading: mrrLoading,
     error: mrrError,
   } = useGetMrrsQuery({
+    notifyOnNetworkStatusChange: true,
     variables: {
       ...filtersForMrrQuery,
     },

@@ -276,13 +276,11 @@ export type Authorize = {
 /** Base billable metric */
 export type BillableMetric = {
   __typename?: 'BillableMetric';
-  activeSubscriptionsCount: Scalars['Int']['output'];
   aggregationType: AggregationTypeEnum;
   code: Scalars['String']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
   deletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   description?: Maybe<Scalars['String']['output']>;
-  draftInvoicesCount: Scalars['Int']['output'];
   expression?: Maybe<Scalars['String']['output']>;
   fieldName?: Maybe<Scalars['String']['output']>;
   filters?: Maybe<Array<BillableMetricFilter>>;
@@ -294,11 +292,9 @@ export type BillableMetric = {
   integrationMappings?: Maybe<Array<Mapping>>;
   name: Scalars['String']['output'];
   organization?: Maybe<Organization>;
-  plansCount: Scalars['Int']['output'];
   recurring: Scalars['Boolean']['output'];
   roundingFunction?: Maybe<RoundingFunctionEnum>;
   roundingPrecision?: Maybe<Scalars['Int']['output']>;
-  subscriptionsCount: Scalars['Int']['output'];
   updatedAt: Scalars['ISO8601DateTime']['output'];
   weightedInterval?: Maybe<WeightedIntervalEnum>;
 };
