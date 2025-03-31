@@ -126,6 +126,7 @@ export const useRevenueAnalyticsOverview = (): RevenueAnalyticsOverviewReturn =>
     loading: revenueStreamsLoading,
     error: revenueStreamsError,
   } = useGetRevenueStreamsQuery({
+    notifyOnNetworkStatusChange: true,
     variables: {
       ...filtersForRevenueStreamsQuery,
     },
