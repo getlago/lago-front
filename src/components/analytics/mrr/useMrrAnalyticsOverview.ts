@@ -4,6 +4,10 @@ import { DateTime } from 'luxon'
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import {
+  formattedMrrDataForAreaChartLoadingFixture,
+  formattedMrrDataLoadingFixture,
+} from '~/components/analytics/mrr/fixture'
 import { formatMrrData, formatMrrDataForAreaChart } from '~/components/analytics/mrr/utils'
 import { AvailableFiltersEnum } from '~/components/designSystem/Filters'
 import { formatFiltersForMrrQuery, getFilterValue } from '~/components/designSystem/Filters/utils'
@@ -144,6 +148,13 @@ export const useMrrAnalyticsOverview = (): MrrAnalyticsOverviewReturn => {
   }, [searchParams, defaultCurrency])
 
   const { formattedMrrData, formattedDataForAreaChart } = useMemo(() => {
+    if (!mrrData?.dataApiMrrs.collection && !!mrrLoading) {
+      return {
+        formattedMrrData: formattedMrrDataLoadingFixture,
+        formattedDataForAreaChart: formattedMrrDataForAreaChartLoadingFixture,
+      }
+    }
+
     const localFormattedMrrData = formatMrrData({
       searchParams,
       data: mrrData?.dataApiMrrs.collection,
@@ -152,7 +163,7 @@ export const useMrrAnalyticsOverview = (): MrrAnalyticsOverviewReturn => {
     })
 
     const localFormattedDataForAreaChart = formatMrrDataForAreaChart({
-      data: mrrData?.dataApiMrrs.collection || [],
+      data: localFormattedMrrData || [],
       timeGranularity,
       selectedCurrency,
     })
@@ -165,6 +176,7 @@ export const useMrrAnalyticsOverview = (): MrrAnalyticsOverviewReturn => {
     getDefaultStaticDateFilter,
     getDefaultStaticTimeGranularityFilter,
     mrrData?.dataApiMrrs.collection,
+    mrrLoading,
     searchParams,
     selectedCurrency,
     timeGranularity,
