@@ -24,6 +24,7 @@ import {
   SubscrptionForSubscriptionUsageQuery,
   TimezoneEnum,
   UsageForSubscriptionUsageQuery,
+  UsageForSubscriptionUsageQueryResult,
   useCustomerForSubscriptionUsageQuery,
   useSubscrptionForSubscriptionUsageQuery,
   useUsageForSubscriptionUsageQuery,
@@ -123,7 +124,7 @@ type SubscriptionCurrentUsageTableComponentProps = {
   customerError?: ApolloError
   showExcludingTaxLabel?: boolean
 
-  refetchUsage: () => void
+  refetchUsage: UsageForSubscriptionUsageQueryResult['refetch']
 
   noUsageOverride?: React.ReactNode
 
@@ -306,10 +307,21 @@ export const SubscriptionCurrentUsageTableComponent = ({
                                 onClick={() => {
                                   subscriptionUsageDetailDrawerRef.current?.openDrawer(
                                     row as ChargeUsage,
+                                    async () => {
+                                      const { data } = await refetchUsage()
+
+                                      const updatedChargesUsage =
+                                        data?.customerUsage.chargesUsage.find(
+                                          (usage) =>
+                                            usage.billableMetric.id === row.billableMetric.id,
+                                        ) as ChargeUsage | undefined
+
+                                      return updatedChargesUsage
+                                    },
                                   )
                                 }}
-                                >
-                                  {translate('text_1725983967306c736sdyjohn')}
+                              >
+                                {translate('text_1725983967306c736sdyjohn')}
                               </button>
                             </>
                           )}
@@ -402,7 +414,10 @@ export const SubscriptionCurrentUsageTable = ({
       subscriptionId: subscription?.id || '',
     },
     skip: !customerId || !subscription || subscription.status === StatusTypeEnum.Pending,
+    // No-cache policy to avoid caching the usage data
+    // IDs in the usage data are not stable and can change, hence having inconsistent data in the Drawer
     fetchPolicy: 'no-cache',
+    nextFetchPolicy: 'no-cache',
   })
 
   return (
