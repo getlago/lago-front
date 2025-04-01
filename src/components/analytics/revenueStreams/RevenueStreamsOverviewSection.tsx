@@ -152,6 +152,7 @@ export const RevenueStreamsOverviewSection = ({
         <AnalyticsStateProvider>
           <MultipleLineChart
             xAxisDataKey="startOfPeriodDt"
+            xAxisTickAttributes={['startOfPeriodDt', 'endOfPeriodDt']}
             currency={selectedCurrency}
             data={data}
             loading={isLoading}
