@@ -76,6 +76,7 @@ type MultipleLineChartProps<T> = {
   lines: Array<MultipleLineChartLine<T>>
   loading: boolean
   xAxisDataKey: DotNestedKeys<T>
+  xAxisTickAttributes?: [DotNestedKeys<T>, DotNestedKeys<T>]
   timeGranularity: TimeGranularityEnum
 }
 
@@ -159,6 +160,7 @@ const MultipleLineChart = <T extends DataItem>({
   lines,
   loading,
   xAxisDataKey,
+  xAxisTickAttributes,
   timeGranularity,
 }: MultipleLineChartProps<T>) => {
   const { hoverDataIndex, setHoverDataIndex, setClickedDataIndex, handleMouseLeave } =
@@ -264,44 +266,72 @@ const MultipleLineChart = <T extends DataItem>({
             stroke={theme.palette.grey[300]}
             interval={0}
             domain={['dataMin', 'dataMax']}
-            tick={(props: { x: number; y: number; index: number; payload: { value: string } }) => {
-              const { x, y, payload, index } = props
+            tick={(props: {
+              x: number
+              y: number
+              index: number
+              payload: { value: string }
+            }): React.ReactElement => {
+              const { x, y, index } = props
 
-              // Note: data?.length !== 1 is here to show 2 tick if data only contain one item
-              if (index !== 0 && data?.length !== 1 && index !== (data?.length || 0) - 1) {
+              // Make sure we only render 2 ticks on the graph
+              if (index !== 0 && index !== (localData?.length || 0) - 1) {
                 return <></>
               }
 
+              // Early return for loading state
+              if (loading) {
+                return (
+                  <g transform={`translate(${index !== 0 ? x - LOADING_TICK_SIZE : x},${y + 6})`}>
+                    <rect
+                      width={LOADING_TICK_SIZE}
+                      height={12}
+                      rx={6}
+                      fill={theme.palette.grey[100]}
+                    ></rect>
+                  </g>
+                )
+              }
+
+              let dateValue = ''
+
+              if (xAxisTickAttributes && localData?.length) {
+                // For first tick, use the first attribute on the first data item
+                if (index === 0 && localData[0]) {
+                  const firstAttributeKey = xAxisTickAttributes[0]
+                  const attributeValue = localData[0][firstAttributeKey]
+
+                  dateValue = String(attributeValue)
+                }
+                // For last tick, use the second attribute on the last data item
+                else if (index === localData.length - 1 && localData[localData.length - 1]) {
+                  const secondAttributeKey = xAxisTickAttributes[1]
+                  const lastItem = localData[localData.length - 1]
+
+                  dateValue = String(lastItem[secondAttributeKey])
+                }
+              } else {
+                // Fallback to previous payload-based approach if xAxisTickAttributes not provided
+                dateValue = props.payload?.value || ''
+              }
+
               return (
-                <>
-                  {!loading ? (
-                    <g transform={`translate(${x},${y + 16})`}>
-                      <text
-                        fill={theme.palette.grey[600]}
-                        style={{
-                          fontFamily: 'Inter',
-                          fontSize: '14px',
-                          fontStyle: 'normal',
-                          fontWeight: '400',
-                          lineHeight: '24px',
-                          letterSpacing: '-0.16px',
-                          textAnchor: index === 0 ? 'start' : 'end',
-                        }}
-                      >
-                        {formatDateToTZ(payload?.value, TimezoneEnum.TzUtc, 'LLL dd yyyy')}
-                      </text>
-                    </g>
-                  ) : (
-                    <g transform={`translate(${index !== 0 ? x - LOADING_TICK_SIZE : x},${y + 6})`}>
-                      <rect
-                        width={LOADING_TICK_SIZE}
-                        height={12}
-                        rx={6}
-                        fill={theme.palette.grey[100]}
-                      ></rect>
-                    </g>
-                  )}
-                </>
+                <g transform={`translate(${x},${y + 16})`}>
+                  <text
+                    fill={theme.palette.grey[600]}
+                    style={{
+                      fontFamily: 'Inter',
+                      fontSize: '14px',
+                      fontStyle: 'normal',
+                      fontWeight: '400',
+                      lineHeight: '24px',
+                      letterSpacing: '-0.16px',
+                      textAnchor: index === 0 ? 'start' : 'end',
+                    }}
+                  >
+                    {formatDateToTZ(dateValue, TimezoneEnum.TzUtc, 'LLL dd yyyy')}
+                  </text>
+                </g>
               )
             }}
           />
