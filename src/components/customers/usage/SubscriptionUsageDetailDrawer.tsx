@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import styled from 'styled-components'
 
 import { Button, Drawer, DrawerRef, Table, Typography } from '~/components/designSystem'
 import {
@@ -14,7 +13,6 @@ import { formatDateToTZ, intlFormatDateToDateMed } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
 import { ChargeUsage, CurrencyEnum, TimezoneEnum } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 const NO_ID_FILTER_DEFAULT_VALUE = 'NO_ID_FILTER_DEFAULT_VALUE'
 
@@ -113,7 +111,8 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
           </Button>
         )}
       >
-        <Title>
+        <div className="mb-6 flex items-center justify-between">
+          <div>
           <Typography variant="headline">
             {translate('text_633dae57ca9a923dd53c208f', {
               billableMetricName: displayName,
@@ -129,9 +128,10 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                 : formatDateToTZ(toDatetime, customerTimezone),
             })}
           </Typography>
-        </Title>
-        {hasAnyFilterInGroupUsage ? (
-          <ItemsWrapper>
+          </div>
+          </div>
+        {hasAnyFilterInGroupUsage && (
+          <div className="[&_table:not(#table-grouped-usage-with-filters-table-0)_thead]:hidden">
             {/* NOTE: We have to make a copy of the array here, otherwise we got an error after usage reload while opening the Drawer */}
             {[...(usage?.groupedUsage || [])]
               ?.sort((a, b) => {
@@ -209,9 +209,9 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                   />
                 )
               })}
-          </ItemsWrapper>
-        ) : hasAnyUnitsInGroupUsage ? (
-          <ItemsWrapper>
+          </div>
+        )}
+        {!hasAnyFilterInGroupUsage && hasAnyUnitsInGroupUsage && (
             <Table
               name="grouped-usage-table"
               containerSize={0}
@@ -260,9 +260,8 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                 },
               ]}
             />
-          </ItemsWrapper>
-        ) : (
-          <ItemsWrapper>
+        )}
+        {!hasAnyFilterInGroupUsage && !hasAnyUnitsInGroupUsage && (
             <Table
               name="filters-table"
               containerSize={0}
@@ -322,28 +321,10 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                 },
               ]}
             />
-          </ItemsWrapper>
         )}
       </Drawer>
     )
   },
 )
-
-const Title = styled.div`
-  margin-bottom: ${theme.spacing(6)};
-`
-
-const ItemsWrapper = styled.div`
-  &:not(:last-child) {
-    margin-bottom: ${theme.spacing(8)};
-  }
-
-  /* Note: This css makes multiple table's header hidden so they appear as one big table */
-  &:has(table#table-grouped-usage-with-filters-table-0) {
-    table:not(#table-grouped-usage-with-filters-table-0) thead {
-      display: none;
-    }
-  }
-`
 
 SubscriptionUsageDetailDrawer.displayName = 'SubscriptionUsageDetailDrawer'
