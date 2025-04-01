@@ -97,6 +97,8 @@ const UsagePage = () => {
       subscriptionId: itemId as string,
     },
     skip: !itemId,
+    fetchPolicy: 'no-cache',
+    nextFetchPolicy: 'no-cache',
   })
 
   const { data: organization, loading: organizationLoading } = useGetPortalOrgaInfosQuery()

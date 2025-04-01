@@ -19,6 +19,7 @@ import {
   CustomerForSubscriptionUsageQuery,
   CustomerUsageForUsageDetailsFragmentDoc,
   GetCustomerUsageForPortalQuery,
+  GetCustomerUsageForPortalQueryResult,
   LagoApiError,
   StatusTypeEnum,
   SubscrptionForSubscriptionUsageQuery,
@@ -124,7 +125,9 @@ type SubscriptionCurrentUsageTableComponentProps = {
   customerError?: ApolloError
   showExcludingTaxLabel?: boolean
 
-  refetchUsage: UsageForSubscriptionUsageQueryResult['refetch']
+  refetchUsage:
+    | UsageForSubscriptionUsageQueryResult['refetch']
+    | GetCustomerUsageForPortalQueryResult['refetch']
 
   noUsageOverride?: React.ReactNode
 
@@ -310,13 +313,17 @@ export const SubscriptionCurrentUsageTableComponent = ({
                                     async () => {
                                       const { data } = await refetchUsage()
 
-                                      const updatedChargesUsage =
-                                        data?.customerUsage.chargesUsage.find(
+                                      if ('customerPortalCustomerUsage' in data) {
+                                        return data?.customerPortalCustomerUsage.chargesUsage.find(
                                           (usage) =>
                                             usage.billableMetric.id === row.billableMetric.id,
                                         ) as ChargeUsage | undefined
-
-                                      return updatedChargesUsage
+                                      } else if ('customerUsage' in data) {
+                                        return data?.customerUsage.chargesUsage.find(
+                                          (usage) =>
+                                            usage.billableMetric.id === row.billableMetric.id,
+                                        ) as ChargeUsage | undefined
+                                      }
                                     },
                                   )
                                 }}
