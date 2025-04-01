@@ -1,8 +1,7 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import styled from 'styled-components'
 
-import { Button, Drawer, DrawerRef, Table, Typography } from '~/components/designSystem'
+import { Button, Drawer, DrawerRef, Table, Tooltip, Typography } from '~/components/designSystem'
 import {
   composeChargeFilterDisplayName,
   composeGroupedByDisplayName,
@@ -14,7 +13,6 @@ import { formatDateToTZ, intlFormatDateToDateMed } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
 import { ChargeUsage, CurrencyEnum, TimezoneEnum } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 const NO_ID_FILTER_DEFAULT_VALUE = 'NO_ID_FILTER_DEFAULT_VALUE'
 
@@ -56,7 +54,7 @@ gql`
 `
 
 export interface SubscriptionUsageDetailDrawerRef {
-  openDrawer: (usage: ChargeUsage) => unknown
+  openDrawer: (usage: ChargeUsage, refreshUsage: () => Promise<ChargeUsage | undefined>) => unknown
   closeDialog: () => unknown
 }
 
@@ -86,6 +84,7 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
   ) => {
     const drawerRef = useRef<DrawerRef>(null)
     const [usage, setUsage] = useState<ChargeUsage>()
+    const [refreshFunction, setRefreshFunction] = useState<() => Promise<ChargeUsage | undefined>>()
 
     const displayName = usage?.charge.invoiceDisplayName || usage?.billableMetric.name
     const hasAnyFilterInGroupUsage = usage?.groupedUsage?.some(
@@ -94,8 +93,9 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
     const hasAnyUnitsInGroupUsage = usage?.groupedUsage?.some((u) => u?.units > 0)
 
     useImperativeHandle(ref, () => ({
-      openDrawer: (data) => {
+      openDrawer: (data, refreshData) => {
         setUsage(data)
+        setRefreshFunction(() => refreshData)
         drawerRef.current?.openDrawer()
       },
       closeDialog: () => drawerRef.current?.closeDrawer(),
@@ -113,25 +113,39 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
           </Button>
         )}
       >
-        <Title>
-          <Typography variant="headline">
-            {translate('text_633dae57ca9a923dd53c208f', {
-              billableMetricName: displayName,
-            })}
-          </Typography>
-          <Typography>
-            {translate('text_633dae57ca9a923dd53c2097', {
-              fromDate: locale
-                ? intlFormatDateToDateMed(fromDatetime, customerTimezone, locale)
-                : formatDateToTZ(fromDatetime, customerTimezone),
-              toDate: locale
-                ? intlFormatDateToDateMed(toDatetime, customerTimezone, locale)
-                : formatDateToTZ(toDatetime, customerTimezone),
-            })}
-          </Typography>
-        </Title>
-        {hasAnyFilterInGroupUsage ? (
-          <ItemsWrapper>
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <Typography variant="headline">
+              {translate('text_633dae57ca9a923dd53c208f', {
+                billableMetricName: displayName,
+              })}
+            </Typography>
+            <Typography>
+              {translate('text_633dae57ca9a923dd53c2097', {
+                fromDate: locale
+                  ? intlFormatDateToDateMed(fromDatetime, customerTimezone, locale)
+                  : formatDateToTZ(fromDatetime, customerTimezone),
+                toDate: locale
+                  ? intlFormatDateToDateMed(toDatetime, customerTimezone, locale)
+                  : formatDateToTZ(toDatetime, customerTimezone),
+              })}
+            </Typography>
+          </div>
+          <Tooltip placement="top-start" title={translate('text_62d7f6178ec94cd09370e4b3')}>
+            <Button
+              variant="quaternary"
+              icon="reload"
+              size="small"
+              onClick={async () => {
+                const updatedUsage = await refreshFunction?.()
+
+                setUsage(updatedUsage)
+              }}
+            />
+          </Tooltip>
+        </div>
+        {hasAnyFilterInGroupUsage && (
+          <div className="[&_table:not(#table-grouped-usage-with-filters-table-0)_thead]:hidden">
             {/* NOTE: We have to make a copy of the array here, otherwise we got an error after usage reload while opening the Drawer */}
             {[...(usage?.groupedUsage || [])]
               ?.sort((a, b) => {
@@ -209,141 +223,122 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                   />
                 )
               })}
-          </ItemsWrapper>
-        ) : hasAnyUnitsInGroupUsage ? (
-          <ItemsWrapper>
-            <Table
-              name="grouped-usage-table"
-              containerSize={0}
-              data={usage?.groupedUsage || []}
-              columns={[
-                {
-                  key: 'id',
-                  title: translate('text_1726158292600r2xetfumq5t'),
-                  maxSpace: true,
-                  truncateOverflow: true,
-                  content: (row) => {
-                    const currentGroupedByDisplayName = composeGroupedByDisplayName(row?.groupedBy)
+          </div>
+        )}
+        {!hasAnyFilterInGroupUsage && hasAnyUnitsInGroupUsage && (
+          <Table
+            name="grouped-usage-table"
+            containerSize={0}
+            data={usage?.groupedUsage || []}
+            columns={[
+              {
+                key: 'id',
+                title: translate('text_1726158292600r2xetfumq5t'),
+                maxSpace: true,
+                truncateOverflow: true,
+                content: (row) => {
+                  const currentGroupedByDisplayName = composeGroupedByDisplayName(row?.groupedBy)
 
-                    return (
-                      <Typography variant="body" color="grey700" noWrap>
-                        {currentGroupedByDisplayName || displayName}
-                      </Typography>
-                    )
-                  },
-                },
-                {
-                  key: 'units',
-                  title: translate('text_65771fa3f4ab9a00720726ce'),
-                  textAlign: 'right',
-                  minWidth: 70,
-                  content: (row) => (
-                    <Typography variant="body" color="grey700">
-                      {row.units}
+                  return (
+                    <Typography variant="body" color="grey700" noWrap>
+                      {currentGroupedByDisplayName || displayName}
                     </Typography>
-                  ),
+                  )
                 },
-                {
-                  key: 'amountCents',
-                  title: translate('text_6419c64eace749372fc72b3e'),
-                  textAlign: 'right',
-                  minWidth: 100,
-                  content: (row) => (
-                    <Typography variant="bodyHl" color="grey700">
-                      {intlFormatNumber(deserializeAmount(row.amountCents, currency) || 0, {
-                        currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
-                        currency,
-                        locale,
-                      })}
-                    </Typography>
-                  ),
-                },
-              ]}
-            />
-          </ItemsWrapper>
-        ) : (
-          <ItemsWrapper>
-            <Table
-              name="filters-table"
-              containerSize={0}
-              data={
-                usage?.filters?.map((f) => {
-                  return {
-                    ...f,
-                    // Table component expect all elements to have an ID
-                    id: f.id || NO_ID_FILTER_DEFAULT_VALUE,
-                  }
-                }) || []
-              }
-              columns={[
-                {
-                  key: 'invoiceDisplayName',
-                  title: translate('text_1726158292600r2xetfumq5t'),
-                  maxSpace: true,
-                  truncateOverflow: true,
-                  content: (row) => {
-                    const mappedFilterDisplayName =
-                      row.id === NO_ID_FILTER_DEFAULT_VALUE
-                        ? translate('text_64e620bca31226337ffc62ad')
-                        : composeChargeFilterDisplayName(row)
+              },
+              {
+                key: 'units',
+                title: translate('text_65771fa3f4ab9a00720726ce'),
+                textAlign: 'right',
+                minWidth: 70,
+                content: (row) => (
+                  <Typography variant="body" color="grey700">
+                    {row.units}
+                  </Typography>
+                ),
+              },
+              {
+                key: 'amountCents',
+                title: translate('text_6419c64eace749372fc72b3e'),
+                textAlign: 'right',
+                minWidth: 100,
+                content: (row) => (
+                  <Typography variant="bodyHl" color="grey700">
+                    {intlFormatNumber(deserializeAmount(row.amountCents, currency) || 0, {
+                      currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
+                      currency,
+                      locale,
+                    })}
+                  </Typography>
+                ),
+              },
+            ]}
+          />
+        )}
+        {!hasAnyFilterInGroupUsage && !hasAnyUnitsInGroupUsage && (
+          <Table
+            name="filters-table"
+            containerSize={0}
+            data={
+              usage?.filters?.map((f) => {
+                return {
+                  ...f,
+                  // Table component expect all elements to have an ID
+                  id: f.id || NO_ID_FILTER_DEFAULT_VALUE,
+                }
+              }) || []
+            }
+            columns={[
+              {
+                key: 'invoiceDisplayName',
+                title: translate('text_1726158292600r2xetfumq5t'),
+                maxSpace: true,
+                truncateOverflow: true,
+                content: (row) => {
+                  const mappedFilterDisplayName =
+                    row.id === NO_ID_FILTER_DEFAULT_VALUE
+                      ? translate('text_64e620bca31226337ffc62ad')
+                      : composeChargeFilterDisplayName(row)
 
-                    return (
-                      <Typography variant="body" color="grey700" noWrap>
-                        {row.invoiceDisplayName || mappedFilterDisplayName || displayName}
-                      </Typography>
-                    )
-                  },
-                },
-                {
-                  key: 'units',
-                  title: translate('text_65771fa3f4ab9a00720726ce'),
-                  textAlign: 'right',
-                  minWidth: 70,
-                  content: (row) => (
-                    <Typography variant="body" color="grey700">
-                      {row.units}
+                  return (
+                    <Typography variant="body" color="grey700" noWrap>
+                      {row.invoiceDisplayName || mappedFilterDisplayName || displayName}
                     </Typography>
-                  ),
+                  )
                 },
-                {
-                  key: 'amountCents',
-                  title: translate('text_6419c64eace749372fc72b3e'),
-                  textAlign: 'right',
-                  minWidth: 100,
-                  content: (row) => (
-                    <Typography variant="bodyHl" color="grey700">
-                      {intlFormatNumber(deserializeAmount(row.amountCents, currency) || 0, {
-                        currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
-                        currency,
-                        locale,
-                      })}
-                    </Typography>
-                  ),
-                },
-              ]}
-            />
-          </ItemsWrapper>
+              },
+              {
+                key: 'units',
+                title: translate('text_65771fa3f4ab9a00720726ce'),
+                textAlign: 'right',
+                minWidth: 70,
+                content: (row) => (
+                  <Typography variant="body" color="grey700">
+                    {row.units}
+                  </Typography>
+                ),
+              },
+              {
+                key: 'amountCents',
+                title: translate('text_6419c64eace749372fc72b3e'),
+                textAlign: 'right',
+                minWidth: 100,
+                content: (row) => (
+                  <Typography variant="bodyHl" color="grey700">
+                    {intlFormatNumber(deserializeAmount(row.amountCents, currency) || 0, {
+                      currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
+                      currency,
+                      locale,
+                    })}
+                  </Typography>
+                ),
+              },
+            ]}
+          />
         )}
       </Drawer>
     )
   },
 )
-
-const Title = styled.div`
-  margin-bottom: ${theme.spacing(6)};
-`
-
-const ItemsWrapper = styled.div`
-  &:not(:last-child) {
-    margin-bottom: ${theme.spacing(8)};
-  }
-
-  /* Note: This css makes multiple table's header hidden so they appear as one big table */
-  &:has(table#table-grouped-usage-with-filters-table-0) {
-    table:not(#table-grouped-usage-with-filters-table-0) thead {
-      display: none;
-    }
-  }
-`
 
 SubscriptionUsageDetailDrawer.displayName = 'SubscriptionUsageDetailDrawer'

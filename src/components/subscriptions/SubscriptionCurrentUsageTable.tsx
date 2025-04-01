@@ -1,8 +1,5 @@
 import { ApolloError, gql } from '@apollo/client'
-import { Box, Stack } from '@mui/material'
 import { useRef } from 'react'
-import { Link } from 'react-router-dom'
-import styled from 'styled-components'
 
 import {
   SubscriptionUsageDetailDrawer,
@@ -22,11 +19,13 @@ import {
   CustomerForSubscriptionUsageQuery,
   CustomerUsageForUsageDetailsFragmentDoc,
   GetCustomerUsageForPortalQuery,
+  GetCustomerUsageForPortalQueryResult,
   LagoApiError,
   StatusTypeEnum,
   SubscrptionForSubscriptionUsageQuery,
   TimezoneEnum,
   UsageForSubscriptionUsageQuery,
+  UsageForSubscriptionUsageQueryResult,
   useCustomerForSubscriptionUsageQuery,
   useSubscrptionForSubscriptionUsageQuery,
   useUsageForSubscriptionUsageQuery,
@@ -34,7 +33,6 @@ import {
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { NAV_HEIGHT, theme } from '~/styles'
 
 gql`
   query customerForSubscriptionUsage($customerId: ID!) {
@@ -127,7 +125,9 @@ type SubscriptionCurrentUsageTableComponentProps = {
   customerError?: ApolloError
   showExcludingTaxLabel?: boolean
 
-  refetchUsage: () => void
+  refetchUsage:
+    | UsageForSubscriptionUsageQueryResult['refetch']
+    | GetCustomerUsageForPortalQueryResult['refetch']
 
   noUsageOverride?: React.ReactNode
 
@@ -168,14 +168,8 @@ export const SubscriptionCurrentUsageTableComponent = ({
 
   return (
     <section>
-      <Stack
-        direction={'row'}
-        height={40}
-        boxShadow={theme.shadows[7]}
-        alignItems={'flex-start'}
-        justifyContent={'space-between'}
-      >
-        <Stack direction={'row'} gap={2}>
+      <div className="flex h-10 flex-row items-start justify-between shadow-b">
+        <div className="flex flex-row gap-2">
           <Typography variant="subhead" color="grey700" noWrap>
             {translate('text_1725983967306cf8dwr2r4u2')}
           </Typography>
@@ -189,11 +183,10 @@ export const SubscriptionCurrentUsageTableComponent = ({
               }}
             />
           </Tooltip>
-        </Stack>
+        </div>
 
-        {isLoading ? (
-          <Skeleton variant="text" className="mt-2 w-36" />
-        ) : !hasError && !!usageData?.fromDatetime && !!usageData?.toDatetime ? (
+        {isLoading && <Skeleton variant="text" className="mt-1 w-36" />}
+        {!isLoading && !hasError && !!usageData?.fromDatetime && !!usageData?.toDatetime && (
           <Typography variant="caption" color="grey600" noWrap>
             {translate('text_633dae57ca9a923dd53c2097', {
               fromDate: locale
@@ -204,9 +197,10 @@ export const SubscriptionCurrentUsageTableComponent = ({
                 : formatDateToTZ(usageData?.toDatetime, customerTimezone),
             })}
           </Typography>
-        ) : null}
-      </Stack>
-      {!!hasError && !isLoading ? (
+        )}
+      </div>
+
+      {!!hasError && !isLoading && (
         <>
           {(usageError?.graphQLErrors?.length || 0) > 0 &&
           usageError?.graphQLErrors.find((graphQLError) => {
@@ -215,7 +209,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
             return extensions?.details?.taxError?.length
           }) ? (
             <Alert fullWidth type="warning" className="shadow-t">
-              <Stack>
+              <div>
                 <Typography variant="body" color="grey700">
                   {translate('text_1724165657161stcilcabm7x')}
                 </Typography>
@@ -223,7 +217,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
                 <Typography variant="caption">
                   {translate(LocalTaxProviderErrorsEnum.GenericErrorMessage)}
                 </Typography>
-              </Stack>
+              </div>
             </Alert>
           ) : (
             <GenericPlaceholder
@@ -236,7 +230,8 @@ export const SubscriptionCurrentUsageTableComponent = ({
             />
           )}
         </>
-      ) : !isLoading && !usageData?.chargesUsage.length ? (
+      )}
+      {!hasError && !isLoading && !usageData?.chargesUsage.length && (
         <>
           {noUsageOverride ? (
             noUsageOverride
@@ -252,15 +247,10 @@ export const SubscriptionCurrentUsageTableComponent = ({
             />
           )}
         </>
-      ) : (
+      )}
+      {!hasError && usageData?.chargesUsage.length && (
         <>
-          <Stack
-            direction={'row'}
-            height={48}
-            boxShadow={theme.shadows[7]}
-            alignItems={'center'}
-            justifyContent={'space-between'}
-          >
+          <div className="flex h-10 flex-row items-center justify-between">
             <Typography variant="bodyHl" color="grey700" noWrap>
               {showExcludingTaxLabel
                 ? translate('text_17326286491076m81w5uy3el')
@@ -268,7 +258,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
             </Typography>
 
             {isLoading ? (
-              <Skeleton variant="text" className="mt-2 w-36" />
+              <Skeleton variant="text" className="w-36" />
             ) : (
               <Typography variant="bodyHl" color="grey700" noWrap>
                 {intlFormatNumber(deserializeAmount(usageData?.amountCents, currency) || 0, {
@@ -278,7 +268,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
                 })}
               </Typography>
             )}
-          </Stack>
+          </div>
 
           <Table
             name="subscription-current-usage-table"
@@ -301,27 +291,11 @@ export const SubscriptionCurrentUsageTableComponent = ({
                   )
 
                   return (
-                    <Box
-                      sx={{
-                        paddingY: theme.spacing(3),
-                      }}
-                    >
+                    <div className="py-3">
                       <Typography variant="body" color="grey700">
                         {row.charge.invoiceDisplayName || row.billableMetric?.name}
                       </Typography>
-                      <Stack
-                        direction={'row'}
-                        gap={1}
-                        width={'100%'}
-                        sx={{
-                          '> span': {
-                            display: 'inline',
-                            '> span': {
-                              padding: theme.spacing(1),
-                            },
-                          },
-                        }}
-                      >
+                      <div className="flex w-full flex-row gap-1">
                         <Typography variant="caption" color="grey600" component={'span'}>
                           {row.billableMetric?.code}
                           {(!!row.filters?.length ||
@@ -329,33 +303,38 @@ export const SubscriptionCurrentUsageTableComponent = ({
                             hasAnyGroupedUsageUnits) && (
                             <>
                               <Typography variant="caption" color="grey600" component={'span'}>
-                                •
+                                {' • '}
                               </Typography>
-                              <NoFocusLink
-                                to={'#'}
+                              <button
+                                className="h-auto whitespace-nowrap rounded-none p-0 text-purple-600 hover:underline focus:underline"
                                 onClick={() => {
                                   subscriptionUsageDetailDrawerRef.current?.openDrawer(
                                     row as ChargeUsage,
+                                    async () => {
+                                      const { data } = await refetchUsage()
+
+                                      if ('customerPortalCustomerUsage' in data) {
+                                        return data?.customerPortalCustomerUsage.chargesUsage.find(
+                                          (usage) =>
+                                            usage.billableMetric.id === row.billableMetric.id,
+                                        ) as ChargeUsage | undefined
+                                      } else if ('customerUsage' in data) {
+                                        return data?.customerUsage.chargesUsage.find(
+                                          (usage) =>
+                                            usage.billableMetric.id === row.billableMetric.id,
+                                        ) as ChargeUsage | undefined
+                                      }
+                                    },
                                   )
                                 }}
                               >
-                                <Typography
-                                  variant="caption"
-                                  color="info600"
-                                  sx={{
-                                    // Have to use !important to override the parent's link style override
-                                    whiteSpace: 'nowrap !important',
-                                  }}
-                                  component={'span'}
-                                >
-                                  {translate('text_1725983967306c736sdyjohn')}
-                                </Typography>
-                              </NoFocusLink>
+                                {translate('text_1725983967306c736sdyjohn')}
+                              </button>
                             </>
                           )}
                         </Typography>
-                      </Stack>
-                    </Box>
+                      </div>
+                    </div>
                   )
                 },
               },
@@ -389,6 +368,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
           />
         </>
       )}
+
       <SubscriptionUsageDetailDrawer
         ref={subscriptionUsageDetailDrawerRef}
         currency={currency}
@@ -441,7 +421,10 @@ export const SubscriptionCurrentUsageTable = ({
       subscriptionId: subscription?.id || '',
     },
     skip: !customerId || !subscription || subscription.status === StatusTypeEnum.Pending,
+    // No-cache policy to avoid caching the usage data
+    // IDs in the usage data are not stable and can change, hence having inconsistent data in the Drawer
     fetchPolicy: 'no-cache',
+    nextFetchPolicy: 'no-cache',
   })
 
   return (
@@ -460,35 +443,3 @@ export const SubscriptionCurrentUsageTable = ({
     />
   )
 }
-
-export const SubscriptionCurrentUsageTableSkeleton = () => {
-  return (
-    <SkeletonItem>
-      <Button size="small" variant="quaternary" disabled icon="chevron-right" />
-      <Skeleton variant="connectorAvatar" size="big" className="mr-3" />
-      <div>
-        <Skeleton variant="text" className="mb-3 w-60" />
-        <Skeleton variant="text" className="w-30" />
-      </div>
-    </SkeletonItem>
-  )
-}
-
-const SkeletonItem = styled.div`
-  border: 1px solid ${theme.palette.grey[400]};
-  height: ${NAV_HEIGHT}px;
-  align-items: center;
-  display: flex;
-  padding: 0 ${theme.spacing(4)};
-  border-radius: 12px;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-  }
-`
-
-const NoFocusLink = styled(Link)`
-  text-decoration: none !important;
-  /* Link as a button-like action here, and there is no place to display the focus ring, so better to hide it and break the internet */
-  box-shadow: none !important;
-`
