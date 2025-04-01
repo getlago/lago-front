@@ -98,7 +98,7 @@ export const formatMrrDataForAreaChart = ({
   timeGranularity: TimeGranularityEnum
   selectedCurrency: CurrencyEnum
 }): AreaChartDataType[] => {
-  return data.map((item) => ({
+  return data.map((item, index) => ({
     tooltipLabel: `${getItemDateFormatedByTimeGranularity({
       item,
       timeGranularity,
@@ -106,7 +106,7 @@ export const formatMrrDataForAreaChart = ({
       currency: selectedCurrency,
     })}`,
     value: Number(item.endingMrr),
-    axisName: intlFormatDateTime(item.startOfPeriodDt, {
+    axisName: intlFormatDateTime(index === 0 ? item.startOfPeriodDt : item.endOfPeriodDt, {
       format: {
         day: 'numeric',
         month: 'short',
