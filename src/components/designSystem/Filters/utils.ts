@@ -109,6 +109,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.timeGranularity]: (value: string) => value,
   [AvailableFiltersEnum.period]: (value: string) => value,
   [AvailableFiltersEnum.webhookStatus]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.billingEntity]: (value: string) => value,
 }
 
 const formatFiltersForQuery = ({

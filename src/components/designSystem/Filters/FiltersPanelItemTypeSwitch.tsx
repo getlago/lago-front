@@ -1,5 +1,6 @@
 import { Typography } from '~/components/designSystem'
 import { FiltersItemAmount } from '~/components/designSystem/Filters/filtersElements/FiltersItemAmount'
+import { FiltersItemBillingEntity } from '~/components/designSystem/Filters/filtersElements/FiltersItemBillingEntity'
 import { FiltersItemCountry } from '~/components/designSystem/Filters/filtersElements/FiltersItemCountry'
 import { FiltersItemCreditNoteCreditStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemCreditNoteCreditStatus'
 import { FiltersItemCreditNoteReason } from '~/components/designSystem/Filters/filtersElements/FiltersItemCreditNoteReason'
@@ -107,6 +108,9 @@ export const FiltersPanelItemTypeSwitch = ({
     ),
     [AvailableFiltersEnum.webhookStatus]: (
       <FiltersItemWebhookStatus value={value} setFilterValue={setFilterValue} />
+    ),
+    [AvailableFiltersEnum.billingEntity]: (
+      <FiltersItemBillingEntity value={value} setFilterValue={setFilterValue} />
     ),
   }
 

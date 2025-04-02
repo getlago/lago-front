@@ -38,6 +38,7 @@ export enum AvailableFiltersEnum {
   timeGranularity = 'timeGranularity',
   period = 'period',
   webhookStatus = 'webhookStatus',
+  billingEntity = 'billingEntity',
 }
 
 export const CreditNoteAvailableFilters = [
@@ -50,6 +51,7 @@ export const CreditNoteAvailableFilters = [
   AvailableFiltersEnum.creditNoteReason,
   AvailableFiltersEnum.creditNoteRefundStatus,
   AvailableFiltersEnum.selfBilled,
+  AvailableFiltersEnum.billingEntity,
 ]
 
 export const InvoiceAvailableFilters = [
@@ -64,6 +66,7 @@ export const InvoiceAvailableFilters = [
   AvailableFiltersEnum.status,
   AvailableFiltersEnum.amount,
   AvailableFiltersEnum.selfBilled,
+  AvailableFiltersEnum.billingEntity,
 ]
 
 export const RevenueStreamsAvailablePopperFilters = [
@@ -76,7 +79,10 @@ export const RevenueStreamsAvailablePopperFilters = [
   AvailableFiltersEnum.subscriptionExternalId,
 ]
 
-export const CustomerAvailableFilters = [AvailableFiltersEnum.customerAccountType]
+export const CustomerAvailableFilters = [
+  AvailableFiltersEnum.customerAccountType,
+  AvailableFiltersEnum.billingEntity,
+]
 
 export const RevenueStreamsPlansAvailableFilters = [AvailableFiltersEnum.currency]
 export const RevenueStreamsCustomersAvailableFilters = [AvailableFiltersEnum.currency]
@@ -124,7 +130,12 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.subscriptionExternalId]: 'text_1741008626283x4p1zwj11zi',
   [AvailableFiltersEnum.timeGranularity]: '', // Used in quick filters only
   [AvailableFiltersEnum.period]: 'text_1746532851931rt2nl6vdlnh',
+<<<<<<< HEAD
   [AvailableFiltersEnum.webhookStatus]: 'text_63ac86d797f728a87b2f9fa7',
+||||||| parent of b4a7384e (feat(filters): create billing entity filter for invoices, credit notes and customers)
+=======
+  [AvailableFiltersEnum.billingEntity]: 'text_17436114971570doqrwuwhf0',
+>>>>>>> b4a7384e (feat(filters): create billing entity filter for invoices, credit notes and customers)
 }
 
 export type FiltersFormValues = {
