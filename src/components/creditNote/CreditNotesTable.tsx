@@ -99,7 +99,9 @@ gql`
 type TCreditNoteTableProps = {
   creditNotes: GetCreditNotesListQuery['creditNotes']['collection'] | undefined
   error: ApolloError | undefined
-  fetchMore: Function
+  fetchMore: (options: {
+    variables: { page: number }
+  }) => Promise<{ data?: GetCreditNotesListQuery }>
   isLoading: boolean
   metadata: GetCreditNotesListQuery['creditNotes']['metadata'] | undefined
   variables: LazyQueryHookOptions['variables'] | undefined
@@ -180,19 +182,23 @@ const CreditNotesTable = ({
       )}
 
       <div>
-        {isLoading && !!variables?.searchTerm ? (
+        {isLoading && !!variables?.searchTerm && (
           <>
             {[1, 2, 3, 4].map((i) => (
               <CreditNoteTableItemSkeleton key={`key-initial-loading-skeleton-line-${i}`} />
             ))}
           </>
-        ) : !isLoading && !!variables?.searchTerm && !creditNotes?.length ? (
+        )}
+
+        {!isLoading && !!variables?.searchTerm && !creditNotes?.length && (
           <GenericPlaceholder
             title={translate('text_63c6edd80c57d0dfaae389a4')}
             subtitle={translate('text_63c6edd80c57d0dfaae389a8')}
             image={<EmptyImage width="136" height="104" />}
           />
-        ) : (
+        )}
+
+        {(!isLoading || !variables?.searchTerm || !!creditNotes?.length) && (
           <InfiniteScroll
             onBottom={() => {
               const { currentPage = 0, totalPages = 0 } = metadata || {}
