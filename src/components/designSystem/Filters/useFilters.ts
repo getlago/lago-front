@@ -126,12 +126,12 @@ export const useFilters = () => {
     return staticFilters ? `${staticFilters}&${newFiltersJoined}` : newFiltersJoined
   }
 
-  const selectTimeGranularity = (timeGranularity: TimeGranularityEnum) => {
-    return Object.entries(searchParamsObject)
-      .filter(([key]) => key !== keyWithPrefix(AvailableQuickFilters.timeGranularity))
-      .map(([key, value]) => `${key}=${value}`)
-      .concat(`${keyWithPrefix(AvailableQuickFilters.timeGranularity)}=${timeGranularity}`)
-      .join('&')
+  const selectTimeGranularity = (timeGranularity: TimeGranularityEnum): string => {
+    const newSearchParams = new URLSearchParams(searchParams)
+
+    newSearchParams.set(keyWithPrefix(AvailableQuickFilters.timeGranularity), timeGranularity)
+
+    return newSearchParams.toString()
   }
 
   const isQuickFilterActive = (filters: { [key: string]: unknown }) => {

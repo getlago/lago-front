@@ -48,7 +48,9 @@ export const FiltersPanelPopper = () => {
             filterType: string().required(''),
             value: string().when('filterType', {
               is: (filterType: AvailableFiltersEnum) =>
-                !!filterType && filterType === AvailableFiltersEnum.issuingDate,
+                !!filterType &&
+                (filterType === AvailableFiltersEnum.issuingDate ||
+                  filterType === AvailableFiltersEnum.date),
               then: (schema) => schema.matches(/\w+,\w+/, '').required(''),
               otherwise: (schema) => schema.required(''),
             }),
