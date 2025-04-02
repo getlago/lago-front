@@ -402,7 +402,7 @@ const InvoiceOverview = memo(
                 </div>
               )}
               {billingEntity && (
-                <div className="box-border flex gap-2 py-6 shadow-b">
+                <div className="box-border flex items-center gap-2 py-6 shadow-b">
                   <div className="min-w-[140px]">
                     <Typography className="text-sm text-grey-600">
                       {translate('text_1743611497157teaa1zu8l24')}
