@@ -2,7 +2,7 @@ import { useId } from 'react'
 import styled from 'styled-components'
 
 import { Alert, Chip } from '~/components/designSystem'
-import DetailsJSONDisplay from '~/components/details/DetailsJSONDisplay'
+import { JsonEditor } from '~/components/form'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { ChargeModelEnum, CurrencyEnum, Maybe, Properties } from '~/generated/graphql'
@@ -219,9 +219,21 @@ const PlanDetailsChargeWrapperSwitch = ({
       )}
       {chargeModel === ChargeModelEnum.Custom && (
         <ChargeContentWrapper>
-          <DetailsJSONDisplay
-            header={translate('text_663dea5702b60301d8d06502')}
-            value={values?.customProperties}
+          <DetailsPage.TableDisplay
+            name="custom"
+            className="[&_tbody_td]:p-0"
+            header={[translate('text_663dea5702b60301d8d06502')]}
+            body={[
+              [
+                <JsonEditor
+                  key="custom-json-editor"
+                  label={translate('text_663dea5702b60301d8d06502')}
+                  value={values?.customProperties}
+                  hideLabel
+                  readOnly
+                />,
+              ],
+            ]}
           />
         </ChargeContentWrapper>
       )}
