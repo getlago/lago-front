@@ -97,6 +97,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.subscriptionExternalId]: (value: string) =>
     (value as string).split(filterDataInlineSeparator)[0],
   [AvailableFiltersEnum.timeGranularity]: (value: string) => value,
+  [AvailableFiltersEnum.billingEntity]: (value: string) => value,
 }
 
 const formatFiltersForQuery = ({
