@@ -19,6 +19,7 @@ gql`
   fragment OrganizationInfoForPreviewDunningCampaign on CurrentOrganization {
     name
     email
+    logoUrl
   }
 
   query getOrganizationInfoForPreviewDunningCampaign {
@@ -27,7 +28,6 @@ gql`
     }
   }
 `
-
 export interface PreviewCampaignEmailDrawerRef extends DrawerRef {
   openDrawer: () => void
   closeDrawer: () => void
@@ -88,6 +88,8 @@ export const PreviewCampaignEmailDrawer = forwardRef<PreviewCampaignEmailDrawerR
         <div className="h-full bg-grey-100 p-12 pb-0">
           <div className="mx-auto max-w-150">
             <PreviewEmailLayout
+              name={data?.organization?.name}
+              logoUrl={data?.organization?.logoUrl}
               isLoading={loading}
               language={locale}
               emailObject={translateWithContextualLocal('text_1729256593854oiy13slixjr', {
