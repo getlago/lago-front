@@ -82,6 +82,10 @@ gql`
       errorCode
       errorDetails
     }
+    billingEntity {
+      name
+      code
+    }
 
     ...InvoiceForFinalizeInvoice
     ...InvoiceForUpdateInvoicePaymentStatus

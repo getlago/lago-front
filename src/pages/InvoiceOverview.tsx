@@ -93,6 +93,10 @@ gql`
         externalCustomerId
       }
     }
+    billingEntity {
+      name
+      code
+    }
   }
 
   fragment NetsuiteIntegrationInfosForInvoiceOverview on NetsuiteIntegration {
@@ -179,6 +183,7 @@ const InvoiceOverview = memo(
     const { translate } = useInternationalization()
     const { invoiceId } = useParams()
     const customer = invoice?.customer
+    const billingEntity = invoice?.billingEntity
     const deleteAdjustedFeeDialogRef = useRef<DeleteAdjustedFeeDialogRef>(null)
     const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
     const editFeeDrawerRef = useRef<EditFeeDrawerRef>(null)
@@ -381,7 +386,6 @@ const InvoiceOverview = memo(
                   </Alert>
                 </div>
               )}
-
               {customerIsPartner && (
                 <div className={tw(isDraft ? 'pt-3' : 'pt-6')}>
                   <Alert type="info">
@@ -397,7 +401,19 @@ const InvoiceOverview = memo(
                   </Alert>
                 </div>
               )}
+              {billingEntity && (
+                <div className="box-border flex gap-2 py-6 shadow-b">
+                  <div className="min-w-[140px]">
+                    <Typography className="text-sm text-grey-600">
+                      {translate('text_1743611497157teaa1zu8l24')}
+                    </Typography>
+                  </div>
 
+                  <Typography className="text-grey-700">
+                    {billingEntity.name || billingEntity.code}
+                  </Typography>
+                </div>
+              )}
               <InvoiceCustomerInfos invoice={invoice} />
               <InvoiceDetailsTable
                 customer={customer as Customer}
@@ -415,7 +431,6 @@ const InvoiceOverview = memo(
                     invoiceType={invoice?.invoiceType}
                   />
                 )}
-
               {showExternalAppsSection && (
                 <Stack marginTop={8} gap={6}>
                   <SectionHeader variant="subhead">
@@ -620,7 +635,6 @@ const InvoiceOverview = memo(
                   )}
                 </Stack>
               )}
-
               {invoice?.status !== InvoiceStatusTypeEnum.Draft && <Metadatas />}
             </>
           )}
