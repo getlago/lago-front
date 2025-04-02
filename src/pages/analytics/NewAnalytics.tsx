@@ -1,4 +1,5 @@
-import { generatePath } from 'react-router-dom'
+import { useEffect } from 'react'
+import { generatePath, useLocation, useNavigate } from 'react-router-dom'
 
 import { NavigationTab, Typography } from '~/components/designSystem'
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -10,6 +11,21 @@ import { PageHeader } from '~/styles'
 
 const NewAnalytics = () => {
   const { translate } = useInternationalization()
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
+
+  // Redirect to revenue-streams when URL is exactly /analytics
+  // Cause we support old and new analytics routes, this is needed
+  useEffect(() => {
+    if (pathname === ANALYTIC_ROUTE) {
+      navigate(
+        generatePath(ANALYTIC_TABS_ROUTE, {
+          tab: NewAnalyticsTabsOptionsEnum.revenueStreams,
+        }),
+        { replace: true },
+      )
+    }
+  }, [pathname, navigate])
 
   return (
     <>
@@ -28,6 +44,8 @@ const NewAnalytics = () => {
               tab: NewAnalyticsTabsOptionsEnum.revenueStreams,
             }),
             match: [
+              ANALYTIC_ROUTE,
+              generatePath(ANALYTIC_ROUTE),
               generatePath(ANALYTIC_TABS_ROUTE, {
                 tab: NewAnalyticsTabsOptionsEnum.revenueStreams,
               }),
