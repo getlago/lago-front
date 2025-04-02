@@ -1,10 +1,10 @@
 import { Accordion, Typography } from '~/components/designSystem'
 import DetailsTableDisplay from '~/components/details/DetailsTableDisplay'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, EditPlanFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { DetailsInfoGrid } from '~/styles/detailsPage'
 
 const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment | null }) => {
   const { translate } = useInternationalization()
@@ -29,7 +29,7 @@ const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment | null
             ],
           ]}
         />
-        <DetailsInfoGrid
+        <DetailsPage.InfoGrid
           grid={[
             {
               label: translate('text_65201b8216455901fe273dd9'),

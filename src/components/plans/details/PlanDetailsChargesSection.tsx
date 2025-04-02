@@ -2,6 +2,7 @@ import { Stack } from '@mui/material'
 import styled from 'styled-components'
 
 import { Accordion, Typography } from '~/components/designSystem'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { mapChargeIntervalCopy } from '~/components/plans/ChargeAccordion'
 import PlanDetailsChargesSectionAccordion from '~/components/plans/details/PlanDetailsChargesSectionAccordion'
 import { chargeModelLookupTranslation } from '~/core/constants/form'
@@ -16,7 +17,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
-import { DetailsInfoGrid } from '~/styles/detailsPage'
 
 const PlanDetailsChargesSection = ({
   currency,
@@ -72,7 +72,7 @@ const PlanDetailsChargesSection = ({
               <ChargeSectionWrapper>
                 {/* Charge main infos */}
                 <PaddedChargeModelWrapper>
-                  <DetailsInfoGrid
+                  <DetailsPage.InfoGrid
                     grid={[
                       {
                         label: translate('text_65201b8216455901fe273dd5'),
@@ -96,7 +96,7 @@ const PlanDetailsChargesSection = ({
                 <PlanDetailsChargesSectionAccordion currency={currency} charge={charge as Charge} />
                 {/* Options */}
                 <PaddedOptionsWrapper>
-                  <DetailsInfoGrid
+                  <DetailsPage.InfoGrid
                     grid={[
                       {
                         label: translate('text_65201b8216455901fe273dd9'),
@@ -186,7 +186,7 @@ const PlanDetailsChargesSection = ({
               <ChargeSectionWrapper>
                 {/* Charge main infos */}
                 <PaddedChargeModelWrapper>
-                  <DetailsInfoGrid
+                  <DetailsPage.InfoGrid
                     grid={[
                       {
                         label: translate('text_65201b8216455901fe273dd5'),
@@ -210,7 +210,7 @@ const PlanDetailsChargesSection = ({
                 <PlanDetailsChargesSectionAccordion currency={currency} charge={charge as Charge} />
                 {/* Options */}
                 <PaddedOptionsWrapper>
-                  <DetailsInfoGrid
+                  <DetailsPage.InfoGrid
                     grid={[
                       {
                         label: translate('text_65201b8216455901fe273dd9'),

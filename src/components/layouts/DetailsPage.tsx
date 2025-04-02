@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren } from 'react'
+import { FC, PropsWithChildren, ReactNode } from 'react'
 
 import {
   Avatar,
@@ -131,10 +131,46 @@ const DetailsPageSectionTitle: FC<PropsWithChildren<TypographyProps>> = ({
   </Typography>
 )
 
+interface DetailsInfoItemProps {
+  label: string
+  value: ReactNode | string
+}
+
+const DetailsPageInfoGridItem: FC<DetailsInfoItemProps> = ({ label, value }) => {
+  return (
+    <div>
+      <Typography variant="caption">{label}</Typography>
+      <Typography variant="body" color="grey700">
+        {value}
+      </Typography>
+    </div>
+  )
+}
+
+const DetailsPageInfoGrid: FC<{ grid: Array<DetailsInfoItemProps | false> }> = ({ grid }) => {
+  return (
+    <div className="grid grid-cols-[repeat(2,minmax(auto,1fr))] gap-[16px_32px]">
+      {grid.map((item, index) => {
+        if (item) {
+          return (
+            <DetailsPageInfoGridItem
+              key={`details-info-grid-${item.label}-${index}`}
+              label={item.label}
+              value={item.value}
+            />
+          )
+        }
+      })}
+    </div>
+  )
+}
+
 export const DetailsPage = {
   Container: DetailsPageContainer,
   Header: DetailsPageHeader,
   Overview: DetailsPageOverview,
   OverviewLine: DetailsPageOverviewLine,
   SectionTitle: DetailsPageSectionTitle,
+  InfoGrid: DetailsPageInfoGrid,
+  InfoGridItem: DetailsPageInfoGridItem,
 }

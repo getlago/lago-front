@@ -42,7 +42,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper, PageHeader } from '~/styles'
-import { DetailsInfoGrid, DetailsInfoItem } from '~/styles/detailsPage'
 
 gql`
   fragment CouponDetails on Coupon {
@@ -229,7 +228,7 @@ const CouponDetails = () => {
               <DetailsPage.SectionTitle variant="subhead" noWrap>
                 {translate('text_664cb90097bfa800e6efa3e4')}
               </DetailsPage.SectionTitle>
-              <DetailsInfoGrid
+              <DetailsPage.InfoGrid
                 grid={[
                   {
                     label: translate('text_62865498824cc10126ab2960'),
@@ -270,7 +269,7 @@ const CouponDetails = () => {
                 </div>
 
                 <div className="flex flex-col gap-4 p-4">
-                  <DetailsInfoGrid
+                  <DetailsPage.InfoGrid
                     grid={[
                       {
                         label: translate('text_6560809c38fb9de88d8a52fb'),
@@ -329,7 +328,7 @@ const CouponDetails = () => {
                       body={[
                         [
                           <Stack key="limitation-date-body-1" padding="16px 0">
-                            <DetailsInfoItem
+                            <DetailsPage.InfoGridItem
                               label={translate('text_664cb90097bfa800e6efa3f5')}
                               value={formatTimeOrgaTZ(coupon.expirationAt)}
                             />

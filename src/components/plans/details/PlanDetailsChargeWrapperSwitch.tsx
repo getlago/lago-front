@@ -4,11 +4,11 @@ import styled from 'styled-components'
 import { Alert, Chip } from '~/components/designSystem'
 import DetailsJSONDisplay from '~/components/details/DetailsJSONDisplay'
 import DetailsTableDisplay from '~/components/details/DetailsTableDisplay'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { ChargeModelEnum, CurrencyEnum, Maybe, Properties } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
-import { DetailsInfoGrid, DetailsInfoItem } from '~/styles/detailsPage'
 
 const PlanDetailsChargeWrapperSwitch = ({
   currency,
@@ -40,7 +40,7 @@ const PlanDetailsChargeWrapperSwitch = ({
             ]}
           />
           {groupedBy.length > 0 && (
-            <DetailsInfoItem
+            <DetailsPage.InfoGridItem
               label={translate('text_65ba6d45e780c1ff8acb20ce')}
               value={
                 <GroupChipWrapper>
@@ -162,7 +162,7 @@ const PlanDetailsChargeWrapperSwitch = ({
             ]}
           />
 
-          <DetailsInfoGrid
+          <DetailsPage.InfoGrid
             grid={[
               {
                 label: translate('text_65201b8216455901fe273e01'),
@@ -225,7 +225,7 @@ const PlanDetailsChargeWrapperSwitch = ({
           <Alert type="info">{translate('text_17277706303454rxgscdqklx')}</Alert>
 
           {groupedBy.length > 0 && (
-            <DetailsInfoItem
+            <DetailsPage.InfoGridItem
               label={translate('text_65ba6d45e780c1ff8acb20ce')}
               value={
                 <GroupChipWrapper>

@@ -13,7 +13,6 @@ import { SubscriptionForSubscriptionInformationsFragment } from '~/generated/gra
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { theme } from '~/styles'
-import { DetailsInfoGrid, DetailsInfoItem } from '~/styles/detailsPage'
 
 gql`
   fragment SubscriptionForSubscriptionInformations on Subscription {
@@ -67,11 +66,11 @@ const SubscriptionInformations = ({
             })}
           </Alert>
         )}
-        <DetailsInfoItem
+        <DetailsPage.InfoGridItem
           label={translate('text_65201c5a175a4b0238abf298')}
           value={subscription?.externalId}
         />
-        <DetailsInfoGrid
+        <DetailsPage.InfoGrid
           grid={[
             {
               label: translate('text_65201c5a175a4b0238abf29a'),

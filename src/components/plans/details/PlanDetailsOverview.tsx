@@ -12,7 +12,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
-import { DetailsInfoGrid, DetailsInfoItem } from '~/styles/detailsPage'
 
 import PlanDetailsAdvancedSettingsSection from './PlanDetailsAdvancedSettingsSection'
 import PlanDetailsChargesSection from './PlanDetailsChargesSection'
@@ -47,7 +46,7 @@ const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
           {translate('text_642d5eb2783a2ad10d67031a')}
         </DetailsPage.SectionTitle>
         <ContentWrapper>
-          <DetailsInfoGrid
+          <DetailsPage.InfoGrid
             grid={[
               {
                 label: translate('text_62442e40cea25600b0b6d852'),
@@ -69,7 +68,7 @@ const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
           />
 
           {!!plan?.description && (
-            <DetailsInfoItem
+            <DetailsPage.InfoGridItem
               label={translate('text_6388b923e514213fed58331c')}
               value={plan?.description}
             />

@@ -13,7 +13,6 @@ import { CurrencyEnum, useGetAddOnForDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper, PageHeader } from '~/styles'
-import { DetailsInfoGrid } from '~/styles/detailsPage'
 
 gql`
   query getAddOnForDetails($addOn: ID!) {
@@ -144,7 +143,7 @@ const AddOnDetails = () => {
           <DetailsPage.SectionTitle variant="subhead" noWrap>
             {translate('text_6627e7b9732dbfb6c472e027')}
           </DetailsPage.SectionTitle>
-          <DetailsInfoGrid
+          <DetailsPage.InfoGrid
             grid={[
               {
                 label: translate('text_629728388c4d2300e2d380bd'),
@@ -175,7 +174,7 @@ const AddOnDetails = () => {
             </div>
 
             <div className="p-4">
-              <DetailsInfoGrid
+              <DetailsPage.InfoGrid
                 grid={[
                   {
                     label: translate('text_64be910fba8ef9208686a8e3'),

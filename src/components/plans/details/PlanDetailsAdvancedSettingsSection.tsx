@@ -12,7 +12,6 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, EditPlanFragment, PlanInterval } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { DetailsInfoGrid } from '~/styles/detailsPage'
 
 const PlanDetailsAdvancedSettingsSection = ({
   currency,
@@ -86,7 +85,7 @@ const PlanDetailsAdvancedSettingsSection = ({
                   ]}
                 />
 
-                <DetailsInfoGrid
+                <DetailsPage.InfoGrid
                   grid={[
                     {
                       label: translate('text_17241798877230y851fdxzqt'),
@@ -164,7 +163,7 @@ const PlanDetailsAdvancedSettingsSection = ({
                   ]}
                 />
 
-                <DetailsInfoGrid
+                <DetailsPage.InfoGrid
                   grid={[
                     {
                       label: translate('text_65201b8216455901fe273dc1'),
