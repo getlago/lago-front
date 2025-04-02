@@ -134,11 +134,12 @@ const DetailsPageSectionTitle: FC<PropsWithChildren<TypographyProps>> = ({
 interface DetailsInfoItemProps {
   label: string
   value: ReactNode | string
+  className?: string
 }
 
-const DetailsPageInfoGridItem: FC<DetailsInfoItemProps> = ({ label, value }) => {
+const DetailsPageInfoGridItem: FC<DetailsInfoItemProps> = ({ label, value, className }) => {
   return (
-    <div>
+    <div className={tw(className)}>
       <Typography variant="caption">{label}</Typography>
       <Typography variant="body" color="grey700">
         {value}
@@ -165,6 +166,68 @@ const DetailsPageInfoGrid: FC<{ grid: Array<DetailsInfoItemProps | false> }> = (
   )
 }
 
+const DetailsPageTableDisplay: FC<{
+  name: string
+  header?: Array<string | ReactNode>
+  body?: Array<Array<string | number | ReactNode>>
+  className?: string
+}> = ({ name, header, body, className }) => {
+  const ID = `details-table-display-${name}`
+
+  return (
+    <table
+      className={tw(
+        'w-full border-separate border-spacing-0 overflow-hidden rounded-xl border border-grey-300',
+        (header?.length || 0) > 3 ? 'table-auto' : 'table-fixed',
+        className,
+      )}
+    >
+      {!!header?.length && header && (
+        <thead className={tw('h-12 bg-grey-100 text-left', !!body?.length && 'shadow-b')}>
+          <tr>
+            {header
+              .filter((headerItem) => headerItem !== false && headerItem !== undefined)
+              .map((headerItem, index) => (
+                <th
+                  className="border-grey-300 px-4 not-last:border-r"
+                  key={`${ID}-header-${index}`}
+                >
+                  {typeof headerItem === 'object' ? (
+                    headerItem
+                  ) : (
+                    <Typography variant="captionHl">{headerItem}</Typography>
+                  )}
+                </th>
+              ))}
+          </tr>
+        </thead>
+      )}
+      {!!body?.length && body && (
+        <tbody className="text-left">
+          {body.map((bodyItem, i) => (
+            <tr key={`${ID}-body-row-${i}`} className="not-last:shadow-b">
+              {bodyItem.map((bodyCell, j) => (
+                <td
+                  key={`${ID}-row-${i}-cell-${j}`}
+                  className="h-12 min-h-11 border-r-grey-300 px-4 not-last:border-r"
+                >
+                  {typeof bodyCell === 'object' ? (
+                    bodyCell
+                  ) : (
+                    <Typography variant="body" color="grey700">
+                      {bodyCell}
+                    </Typography>
+                  )}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      )}
+    </table>
+  )
+}
+
 export const DetailsPage = {
   Container: DetailsPageContainer,
   Header: DetailsPageHeader,
@@ -173,4 +236,5 @@ export const DetailsPage = {
   SectionTitle: DetailsPageSectionTitle,
   InfoGrid: DetailsPageInfoGrid,
   InfoGridItem: DetailsPageInfoGridItem,
+  TableDisplay: DetailsPageTableDisplay,
 }

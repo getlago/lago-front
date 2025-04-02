@@ -3,7 +3,6 @@ import styled from 'styled-components'
 
 import { Alert, Chip } from '~/components/designSystem'
 import DetailsJSONDisplay from '~/components/details/DetailsJSONDisplay'
-import DetailsTableDisplay from '~/components/details/DetailsTableDisplay'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { ChargeModelEnum, CurrencyEnum, Maybe, Properties } from '~/generated/graphql'
@@ -27,7 +26,8 @@ const PlanDetailsChargeWrapperSwitch = ({
     <div>
       {chargeModel === ChargeModelEnum.Standard && (
         <ChargeContentWrapper>
-          <DetailsTableDisplay
+          <DetailsPage.TableDisplay
+            name="standard"
             header={[translate('text_624453d52e945301380e49b6')]}
             body={[
               [
@@ -55,7 +55,8 @@ const PlanDetailsChargeWrapperSwitch = ({
       )}
       {chargeModel === ChargeModelEnum.Package && (
         <ChargeContentWrapper>
-          <DetailsTableDisplay
+          <DetailsPage.TableDisplay
+            name="package"
             header={[
               translate('text_624453d52e945301380e49b6'),
               translate('text_65201b8216455901fe273de7'),
@@ -77,7 +78,8 @@ const PlanDetailsChargeWrapperSwitch = ({
       )}
       {chargeModel === ChargeModelEnum.Graduated && !!values?.graduatedRanges?.length && (
         <ChargeContentWrapper>
-          <DetailsTableDisplay
+          <DetailsPage.TableDisplay
+            name="graduated-ranges"
             header={[
               translate('text_62793bbb599f1c01522e91ab'),
               translate('text_62793bbb599f1c01522e91b1'),
@@ -108,7 +110,8 @@ const PlanDetailsChargeWrapperSwitch = ({
       {chargeModel === ChargeModelEnum.GraduatedPercentage &&
         !!values?.graduatedPercentageRanges?.length && (
           <ChargeContentWrapper>
-            <DetailsTableDisplay
+            <DetailsPage.TableDisplay
+              name="graduated-percentage-ranges"
               header={[
                 translate('text_62793bbb599f1c01522e91ab'),
                 translate('text_62793bbb599f1c01522e91b1'),
@@ -136,7 +139,8 @@ const PlanDetailsChargeWrapperSwitch = ({
         )}
       {chargeModel === ChargeModelEnum.Percentage && (
         <ChargeContentWrapper>
-          <DetailsTableDisplay
+          <DetailsPage.TableDisplay
+            name="percentage"
             header={[
               translate('text_64de472463e2da6b31737de0'),
               translate('text_62ff5d01a306e274d4ffcc1e'),
@@ -184,7 +188,8 @@ const PlanDetailsChargeWrapperSwitch = ({
       )}
       {chargeModel === ChargeModelEnum.Volume && !!values?.volumeRanges?.length && (
         <ChargeContentWrapper>
-          <DetailsTableDisplay
+          <DetailsPage.TableDisplay
+            name="volume-ranges"
             header={[
               translate('text_62793bbb599f1c01522e91ab'),
               translate('text_62793bbb599f1c01522e91b1'),

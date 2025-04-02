@@ -3,7 +3,6 @@ import { Stack } from '@mui/material'
 import styled from 'styled-components'
 
 import { Accordion, Typography } from '~/components/designSystem'
-import DetailsTableDisplay from '~/components/details/DetailsTableDisplay'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { mapChargeIntervalCopy } from '~/components/plans/ChargeAccordion'
 import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'
@@ -57,7 +56,8 @@ const PlanDetailsAdvancedSettingsSection = ({
               }
             >
               <Stack direction="column" spacing={4}>
-                <DetailsTableDisplay
+                <DetailsPage.TableDisplay
+                  name="progressive-billing"
                   className="details-table-display-last-cell-ellipsis"
                   header={[
                     '',
@@ -97,7 +97,8 @@ const PlanDetailsAdvancedSettingsSection = ({
                 />
 
                 {plan?.usageThresholds?.some((threshold) => threshold.recurring) && (
-                  <DetailsTableDisplay
+                  <DetailsPage.TableDisplay
+                    name="progressive-billing-recurring"
                     className="details-table-display-last-cell-ellipsis"
                     // Only take the first recurring threshold
                     body={[
@@ -146,7 +147,8 @@ const PlanDetailsAdvancedSettingsSection = ({
               }
             >
               <Stack direction="column" spacing={4}>
-                <DetailsTableDisplay
+                <DetailsPage.TableDisplay
+                  name="minimum-commitment"
                   header={[translate('text_65d601bffb11e0f9d1d9f571')]}
                   body={[
                     [

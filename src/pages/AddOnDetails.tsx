@@ -4,7 +4,6 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { DeleteAddOnDialog, DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
 import { Button, Card, Popper, Skeleton, Typography } from '~/components/designSystem'
-import DetailsTableDisplay from '~/components/details/DetailsTableDisplay'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { ADD_ONS_ROUTE, UPDATE_ADD_ON_ROUTE } from '~/core/router'
@@ -167,7 +166,8 @@ const AddOnDetails = () => {
           </DetailsPage.SectionTitle>
           <Card className="gap-0 p-0">
             <div className="p-4 shadow-b">
-              <DetailsTableDisplay
+              <DetailsPage.TableDisplay
+                name="addon-settings"
                 header={[translate('text_624453d52e945301380e49b6')]}
                 body={[[amountWithCurrency]]}
               />

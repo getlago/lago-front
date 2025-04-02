@@ -1,5 +1,4 @@
 import { Accordion, Typography } from '~/components/designSystem'
-import DetailsTableDisplay from '~/components/details/DetailsTableDisplay'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -18,7 +17,8 @@ const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment | null
       }
     >
       <div className="flex flex-col gap-6">
-        <DetailsTableDisplay
+        <DetailsPage.TableDisplay
+          name="fixed-fee"
           header={[translate('text_624453d52e945301380e49b6')]}
           body={[
             [
