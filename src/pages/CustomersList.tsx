@@ -48,8 +48,7 @@ gql`
     $page: Int
     $limit: Int
     $searchTerm: String
-    $accountType: [CustomerAccountTypeEnum!]
-    $billingEntityId: ID
+    $accountType: [CustomerAccountTypeEnum!] # $billingEntityId: ID
   ) {
     customers(
       page: $page

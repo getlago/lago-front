@@ -68,8 +68,7 @@ gql`
     $status: [InvoiceStatusTypeEnum!]
     $amountFrom: Int
     $amountTo: Int
-    $selfBilled: Boolean
-    $billingEntityId: ID
+    $selfBilled: Boolean # $billingEntityId: ID
   ) {
     invoices(
       currency: $currency
@@ -133,8 +132,7 @@ gql`
     $limit: Int
     $page: Int
     $searchTerm: String
-    $selfBilled: Boolean
-    $billingEntityId: ID
+    $selfBilled: Boolean # $billingEntityId: ID
   ) {
     creditNotes(
       amountFrom: $amountFrom
