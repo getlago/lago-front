@@ -168,16 +168,16 @@ export const MrrBreakdownSection = ({ premiumWarningDialogRef }: MrrBreakdownSec
                 return (
                   <>
                     <div className="flex items-baseline gap-1">
-                      <Typography color="grey700" variant="bodyHl" noWrap>
+                      <Typography color="grey700" variant="bodyHl">
                         {planName || '-'}
                       </Typography>
                       {!!planDeletedAt && (
-                        <Typography variant="caption" color="grey600" noWrap>
+                        <Typography variant="caption" color="grey600">
                           ({translate('text_1743158702704o1juwxmr4ab')})
                         </Typography>
                       )}
                     </div>
-                    <Typography variant="caption" color="grey600" noWrap>
+                    <Typography variant="caption" color="grey600">
                       {planCode}
                     </Typography>
                   </>
@@ -190,7 +190,7 @@ export const MrrBreakdownSection = ({ premiumWarningDialogRef }: MrrBreakdownSec
               minWidth: 120,
               content({ planInterval }) {
                 return (
-                  <Typography variant="body" noWrap>
+                  <Typography variant="body">
                     {translate(getIntervalTranslationKey[planInterval])}
                   </Typography>
                 )
@@ -204,10 +204,10 @@ export const MrrBreakdownSection = ({ premiumWarningDialogRef }: MrrBreakdownSec
               content({ activeCustomersShare, activeCustomersCount }) {
                 return (
                   <div className="flex items-center gap-2">
-                    <Typography variant="body" color="grey700" noWrap>
+                    <Typography variant="body" color="grey700">
                       {activeCustomersCount}
                     </Typography>
-                    <Typography className="w-16" variant="body" color="grey600" noWrap>
+                    <Typography className="w-16" variant="body" color="grey600">
                       {intlFormatNumber(activeCustomersShare, { style: 'percent' })}
                     </Typography>
                   </div>
@@ -222,13 +222,13 @@ export const MrrBreakdownSection = ({ premiumWarningDialogRef }: MrrBreakdownSec
               content({ mrrShare, mrr, amountCurrency }) {
                 return (
                   <div className="flex items-center gap-2">
-                    <Typography variant="body" color="grey700" noWrap>
+                    <Typography variant="body" color="grey700">
                       {intlFormatNumber(deserializeAmount(mrr || 0, amountCurrency), {
                         style: 'currency',
                         currency: amountCurrency,
                       })}
                     </Typography>
-                    <Typography className="w-16 text-right" variant="body" color="grey600" noWrap>
+                    <Typography className="w-16 text-right" variant="body" color="grey600">
                       {intlFormatNumber(mrrShare, { style: 'percent' })}
                     </Typography>
                   </div>

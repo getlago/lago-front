@@ -158,16 +158,16 @@ export const RevenueStreamsCustomerBreakdownSection = ({
                 return (
                   <>
                     <div className="flex items-baseline gap-1">
-                      <Typography color="grey700" variant="bodyHl" noWrap>
+                      <Typography color="grey700" variant="bodyHl">
                         {customerName || '-'}
                       </Typography>
                       {!!customerDeletedAt && (
-                        <Typography variant="caption" color="grey600" noWrap>
+                        <Typography variant="caption" color="grey600">
                           ({translate('text_1743158702704o1juwxmr4ab')})
                         </Typography>
                       )}
                     </div>
-                    <Typography variant="caption" color="grey600" noWrap>
+                    <Typography variant="caption" color="grey600">
                       {externalCustomerId}
                     </Typography>
                   </>
@@ -182,7 +182,7 @@ export const RevenueStreamsCustomerBreakdownSection = ({
               content({ netRevenueShare, netRevenueAmountCents, amountCurrency }) {
                 return (
                   <div className="flex items-center gap-2">
-                    <Typography variant="body" color="grey700" noWrap>
+                    <Typography variant="body" color="grey700">
                       {intlFormatNumber(
                         deserializeAmount(netRevenueAmountCents || 0, amountCurrency),
                         {
@@ -191,7 +191,7 @@ export const RevenueStreamsCustomerBreakdownSection = ({
                         },
                       )}
                     </Typography>
-                    <Typography className="w-16 text-right" variant="body" color="grey600" noWrap>
+                    <Typography className="w-16 text-right" variant="body" color="grey600">
                       {intlFormatNumber(netRevenueShare, { style: 'percent' })}
                     </Typography>
                   </div>
