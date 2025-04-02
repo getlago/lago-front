@@ -90,31 +90,27 @@ export const ExportDialog = forwardRef<ExportDialogRef, ExportDialogProps>(
         )}
       >
         <div className="mb-8">
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-3">
-              <Typography variant="caption" color="grey600" className="w-35">
-                {translate('text_6419c64eace749372fc72b27')}
-              </Typography>
-              <Typography variant="body" color="grey700" className="flex-1">
-                {currentUser?.email}
-              </Typography>
-            </div>
-            <div className="flex items-center gap-3">
-              <Typography variant="caption" color="grey600" className="w-35">
-                {translate('text_66b21236c939426d07ff9936')}
-              </Typography>
-              <Typography variant="body" color="grey700" className="flex-1">
-                {translate('text_66b21236c939426d07ff9935')}
-              </Typography>
-            </div>
-            <div className="flex items-center gap-3">
-              <Typography variant="caption" color="grey600" className="w-35">
-                {translate('text_66b21236c939426d07ff9938')}
-              </Typography>
-              <Typography variant="body" color="grey700" className="flex-1">
-                {totalCountLabel}
-              </Typography>
-            </div>
+          <div className="grid grid-cols-[140px_1fr] items-center gap-3">
+            <Typography variant="caption" color="grey600">
+              {translate('text_6419c64eace749372fc72b27')}
+            </Typography>
+            <Typography variant="body" color="grey700">
+              {currentUser?.email}
+            </Typography>
+
+            <Typography variant="caption" color="grey600">
+              {translate('text_66b21236c939426d07ff9936')}
+            </Typography>
+            <Typography variant="body" color="grey700">
+              {translate('text_66b21236c939426d07ff9935')}
+            </Typography>
+
+            <Typography variant="caption" color="grey600">
+              {translate('text_66b21236c939426d07ff9938')}
+            </Typography>
+            <Typography variant="body" color="grey700">
+              {totalCountLabel}
+            </Typography>
           </div>
 
           <div className="my-8 w-full border-b border-grey-300" />
