@@ -1,6 +1,8 @@
 import { DateTime } from 'luxon'
 
 import { DatePicker } from '~/components/form'
+import { getTimezoneConfig } from '~/core/timezone'
+import { TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { Typography } from '../../Typography'
@@ -20,6 +22,7 @@ export const FiltersItemDate = ({ value = ',', setFilterValue }: FiltersItemDate
       <DatePicker
         showErrorInTooltip
         className="flex-1"
+        defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
         onChange={(dateFrom) => {
           setFilterValue(`${DateTime.fromISO(dateFrom as string).startOf('day')},${givenValueTo}`)
         }}
@@ -34,6 +37,7 @@ export const FiltersItemDate = ({ value = ',', setFilterValue }: FiltersItemDate
       <DatePicker
         showErrorInTooltip
         className="flex-1"
+        defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
         onChange={(dateTo) => {
           setFilterValue(`${givenValueFrom},${DateTime.fromISO(dateTo as string).endOf('day')}`)
         }}

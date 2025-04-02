@@ -11,12 +11,14 @@ import {
   getFilterValue,
 } from '~/components/designSystem/Filters/utils'
 import { REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
+import { getTimezoneConfig } from '~/core/timezone'
 import {
   CurrencyEnum,
   PremiumIntegrationTypeEnum,
   RevenueStreamDataForOverviewSectionFragment,
   RevenueStreamDataForOverviewSectionFragmentDoc,
   TimeGranularityEnum,
+  TimezoneEnum,
   useGetRevenueStreamsQuery,
 } from '~/generated/graphql'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -86,7 +88,7 @@ export const useRevenueAnalyticsOverview = (): RevenueAnalyticsOverviewReturn =>
   const defaultCurrency = organization?.defaultCurrency || CurrencyEnum.Usd
 
   const getDefaultStaticDateFilter = useCallback((): string => {
-    const now = DateTime.now()
+    const now = DateTime.now().setZone(getTimezoneConfig(TimezoneEnum.TzUtc).name)
 
     if (!hasAccessToAnalyticsDashboardsFeature) {
       return `${now.minus({ month: 1 }).startOf('day').toISO()},${now.endOf('day').toISO()}`
