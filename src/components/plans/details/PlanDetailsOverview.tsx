@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import styled from 'styled-components'
 
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import SkeletonDetailsPage from '~/components/SkeletonDetailsPage'
@@ -11,11 +10,10 @@ import {
   useGetPlanForDetailsOverviewSectionQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
-import PlanDetailsAdvancedSettingsSection from './PlanDetailsAdvancedSettingsSection'
-import PlanDetailsChargesSection from './PlanDetailsChargesSection'
-import PlanDetailsFixedFeeAccordion from './PlanDetailsFixedFeeAccordion'
+import { PlanDetailsAdvancedSettingsSection } from './PlanDetailsAdvancedSettingsSection'
+import { PlanDetailsChargesSection } from './PlanDetailsChargesSection'
+import { PlanDetailsFixedFeeAccordion } from './PlanDetailsFixedFeeAccordion'
 
 gql`
   query getPlanForDetailsOverviewSection($plan: ID!) {
@@ -27,7 +25,7 @@ gql`
   ${EditPlanFragmentDoc}
 `
 
-const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
+export const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
   const { translate } = useInternationalization()
   const { data: planResult, loading: isPlanLoading } = useGetPlanForDetailsOverviewSectionQuery({
     variables: { plan: planId as string },
@@ -40,12 +38,12 @@ const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
   }
 
   return (
-    <Container>
+    <section className="flex flex-col gap-12">
       <section>
         <DetailsPage.SectionTitle variant="subhead" noWrap>
           {translate('text_642d5eb2783a2ad10d67031a')}
         </DetailsPage.SectionTitle>
-        <ContentWrapper>
+        <div className="flex flex-col gap-4">
           <DetailsPage.InfoGrid
             grid={[
               {
@@ -73,7 +71,7 @@ const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
               value={plan?.description}
             />
           )}
-        </ContentWrapper>
+        </div>
       </section>
       <section>
         <DetailsPage.SectionTitle variant="subhead" noWrap>
@@ -97,20 +95,6 @@ const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
         plan={plan}
         currency={plan?.amountCurrency || CurrencyEnum.Usd}
       />
-    </Container>
+    </section>
   )
 }
-
-export default PlanDetailsOverview
-
-const Container = styled.section`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(12)};
-`
-
-const ContentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(4)};
-`

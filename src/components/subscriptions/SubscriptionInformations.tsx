@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 import { generatePath, Link } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Alert, Status } from '~/components/designSystem'
@@ -12,7 +11,6 @@ import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS } from '~/co
 import { SubscriptionForSubscriptionInformationsFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { theme } from '~/styles'
 
 gql`
   fragment SubscriptionForSubscriptionInformations on Subscription {
@@ -42,7 +40,7 @@ gql`
   }
 `
 
-const SubscriptionInformations = ({
+export const SubscriptionInformations = ({
   subscription,
 }: {
   subscription?: SubscriptionForSubscriptionInformationsFragment | null
@@ -57,7 +55,7 @@ const SubscriptionInformations = ({
       <DetailsPage.SectionTitle variant="subhead" noWrap>
         {translate('text_6335e8900c69f8ebdfef5312')}
       </DetailsPage.SectionTitle>
-      <ContentWrapper>
+      <div className="flex flex-col gap-4">
         {!!subscription?.nextPlan?.id && (
           <Alert type="info">
             {translate('text_62681c60582e4f00aa82938a', {
@@ -135,15 +133,7 @@ const SubscriptionInformations = ({
             },
           ]}
         />
-      </ContentWrapper>
+      </div>
     </section>
   )
 }
-
-export default SubscriptionInformations
-
-const ContentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(4)};
-`

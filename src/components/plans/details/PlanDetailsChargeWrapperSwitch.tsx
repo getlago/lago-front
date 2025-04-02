@@ -1,5 +1,4 @@
 import { useId } from 'react'
-import styled from 'styled-components'
 
 import { Alert, Chip } from '~/components/designSystem'
 import { JsonEditor } from '~/components/form'
@@ -7,9 +6,8 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { ChargeModelEnum, CurrencyEnum, Maybe, Properties } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
-const PlanDetailsChargeWrapperSwitch = ({
+export const PlanDetailsChargeWrapperSwitch = ({
   currency,
   chargeModel,
   values,
@@ -25,7 +23,7 @@ const PlanDetailsChargeWrapperSwitch = ({
   return (
     <div>
       {chargeModel === ChargeModelEnum.Standard && (
-        <ChargeContentWrapper>
+        <div className="flex flex-col gap-4">
           <DetailsPage.TableDisplay
             name="standard"
             header={[translate('text_624453d52e945301380e49b6')]}
@@ -43,18 +41,18 @@ const PlanDetailsChargeWrapperSwitch = ({
             <DetailsPage.InfoGridItem
               label={translate('text_65ba6d45e780c1ff8acb20ce')}
               value={
-                <GroupChipWrapper>
+                <div className="mt-1 flex flex-wrap gap-2">
                   {groupedBy.map((group, groupIndex) => (
                     <Chip key={`${componentId}-${groupIndex}`} label={group} />
                   ))}
-                </GroupChipWrapper>
+                </div>
               }
             />
           )}
-        </ChargeContentWrapper>
+        </div>
       )}
       {chargeModel === ChargeModelEnum.Package && (
-        <ChargeContentWrapper>
+        <div className="flex flex-col gap-4">
           <DetailsPage.TableDisplay
             name="package"
             header={[
@@ -74,10 +72,10 @@ const PlanDetailsChargeWrapperSwitch = ({
               ],
             ]}
           />
-        </ChargeContentWrapper>
+        </div>
       )}
       {chargeModel === ChargeModelEnum.Graduated && !!values?.graduatedRanges?.length && (
-        <ChargeContentWrapper>
+        <div className="flex flex-col gap-4">
           <DetailsPage.TableDisplay
             name="graduated-ranges"
             header={[
@@ -105,11 +103,11 @@ const PlanDetailsChargeWrapperSwitch = ({
               })
             })()}
           />
-        </ChargeContentWrapper>
+        </div>
       )}
       {chargeModel === ChargeModelEnum.GraduatedPercentage &&
         !!values?.graduatedPercentageRanges?.length && (
-          <ChargeContentWrapper>
+          <div className="flex flex-col gap-4">
             <DetailsPage.TableDisplay
               name="graduated-percentage-ranges"
               header={[
@@ -135,10 +133,10 @@ const PlanDetailsChargeWrapperSwitch = ({
                 })
               })()}
             />
-          </ChargeContentWrapper>
+          </div>
         )}
       {chargeModel === ChargeModelEnum.Percentage && (
-        <ChargeContentWrapper>
+        <div className="flex flex-col gap-4">
           <DetailsPage.TableDisplay
             name="percentage"
             header={[
@@ -184,10 +182,10 @@ const PlanDetailsChargeWrapperSwitch = ({
               },
             ]}
           />
-        </ChargeContentWrapper>
+        </div>
       )}
       {chargeModel === ChargeModelEnum.Volume && !!values?.volumeRanges?.length && (
-        <ChargeContentWrapper>
+        <div className="flex flex-col gap-4">
           <DetailsPage.TableDisplay
             name="volume-ranges"
             header={[
@@ -215,10 +213,10 @@ const PlanDetailsChargeWrapperSwitch = ({
               })
             })()}
           />
-        </ChargeContentWrapper>
+        </div>
       )}
       {chargeModel === ChargeModelEnum.Custom && (
-        <ChargeContentWrapper>
+        <div className="flex flex-col gap-4">
           <DetailsPage.TableDisplay
             name="custom"
             className="[&_tbody_td]:p-0"
@@ -235,41 +233,26 @@ const PlanDetailsChargeWrapperSwitch = ({
               ],
             ]}
           />
-        </ChargeContentWrapper>
+        </div>
       )}
       {chargeModel === ChargeModelEnum.Dynamic && (
-        <ChargeContentWrapper>
+        <div className="flex flex-col gap-4">
           <Alert type="info">{translate('text_17277706303454rxgscdqklx')}</Alert>
 
           {groupedBy.length > 0 && (
             <DetailsPage.InfoGridItem
               label={translate('text_65ba6d45e780c1ff8acb20ce')}
               value={
-                <GroupChipWrapper>
+                <div className="mt-1 flex flex-wrap gap-2">
                   {groupedBy.map((group, groupIndex) => (
                     <Chip key={`${componentId}-${groupIndex}`} label={group} />
                   ))}
-                </GroupChipWrapper>
+                </div>
               }
             />
           )}
-        </ChargeContentWrapper>
+        </div>
       )}
     </div>
   )
 }
-
-export default PlanDetailsChargeWrapperSwitch
-
-const ChargeContentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(4)};
-`
-
-const GroupChipWrapper = styled.div`
-  margin-top: ${theme.spacing(1)};
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${theme.spacing(2)};
-`

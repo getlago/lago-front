@@ -1,14 +1,14 @@
 import { gql } from '@apollo/client'
 import { useParams } from 'react-router-dom'
 
-import PlanDetailsOverview from '~/components/plans/details/PlanDetailsOverview'
+import { PlanDetailsOverview } from '~/components/plans/details/PlanDetailsOverview'
 import SkeletonDetailsPage, { LoadingSkeletonWrapper } from '~/components/SkeletonDetailsPage'
 import {
   SubscriptionForSubscriptionInformationsFragmentDoc,
   useGetSubscriptionForDetailsOverviewQuery,
 } from '~/generated/graphql'
 
-import SubscriptionInformations from './SubscriptionInformations'
+import { SubscriptionInformations } from './SubscriptionInformations'
 
 gql`
   query getSubscriptionForDetailsOverview($subscriptionId: ID!) {

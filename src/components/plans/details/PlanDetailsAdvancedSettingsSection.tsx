@@ -1,7 +1,3 @@
-/* eslint-disable tailwindcss/no-custom-classname */
-import { Stack } from '@mui/material'
-import styled from 'styled-components'
-
 import { Accordion, Typography } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { mapChargeIntervalCopy } from '~/components/plans/ChargeAccordion'
@@ -12,7 +8,7 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, EditPlanFragment, PlanInterval } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-const PlanDetailsAdvancedSettingsSection = ({
+export const PlanDetailsAdvancedSettingsSection = ({
   currency,
   plan,
 }: {
@@ -27,14 +23,14 @@ const PlanDetailsAdvancedSettingsSection = ({
   if (!hasMinimumCommitment && !hasProgressiveBilling) return null
 
   return (
-    <Container>
+    <section>
       <DetailsPage.SectionTitle variant="subhead" noWrap>
         {translate('text_6661fc17337de3591e29e44d')}
       </DetailsPage.SectionTitle>
 
-      <Stack direction="column" gap={12}>
+      <div className="flex flex-col gap-12">
         {hasProgressiveBilling && (
-          <Stack direction="column" gap={6}>
+          <div className="flex flex-col gap-6">
             <div>
               <Typography variant="bodyHl" color="grey700">
                 {translate('text_1724179887722baucvj7bvc1')}
@@ -55,10 +51,10 @@ const PlanDetailsAdvancedSettingsSection = ({
                 </Typography>
               }
             >
-              <Stack direction="column" spacing={4}>
+              <div className="flex flex-col gap-4">
                 <DetailsPage.TableDisplay
                   name="progressive-billing"
-                  className="details-table-display-last-cell-ellipsis"
+                  className="[&_tr>td:last-child>div]:inline [&_tr>td:last-child>div]:whitespace-pre [&_tr>td:last-child]:max-w-[100px] [&_tr>td:last-child]:truncate"
                   header={[
                     '',
                     translate('text_1724179887723eh12a0kqbdw'),
@@ -99,7 +95,7 @@ const PlanDetailsAdvancedSettingsSection = ({
                 {plan?.usageThresholds?.some((threshold) => threshold.recurring) && (
                   <DetailsPage.TableDisplay
                     name="progressive-billing-recurring"
-                    className="details-table-display-last-cell-ellipsis"
+                    className="[&_tr>td:last-child>div]:inline [&_tr>td:last-child>div]:whitespace-pre [&_tr>td:last-child]:max-w-[100px] [&_tr>td:last-child]:truncate"
                     // Only take the first recurring threshold
                     body={[
                       ...([plan?.usageThresholds?.find((t) => t.recurring)]?.map((threshold) => [
@@ -118,13 +114,13 @@ const PlanDetailsAdvancedSettingsSection = ({
                     ]}
                   />
                 )}
-              </Stack>
+              </div>
             </Accordion>
-          </Stack>
+          </div>
         )}
 
         {hasMinimumCommitment && (
-          <Stack direction="column" gap={6}>
+          <div className="flex flex-col gap-6">
             <div>
               <Typography variant="bodyHl" color="grey700">
                 {translate('text_65d601bffb11e0f9d1d9f569')}
@@ -146,7 +142,7 @@ const PlanDetailsAdvancedSettingsSection = ({
                 </Typography>
               }
             >
-              <Stack direction="column" spacing={4}>
+              <div className="flex flex-col gap-4">
                 <DetailsPage.TableDisplay
                   name="minimum-commitment"
                   header={[translate('text_65d601bffb11e0f9d1d9f571')]}
@@ -191,24 +187,11 @@ const PlanDetailsAdvancedSettingsSection = ({
                     },
                   ]}
                 />
-              </Stack>
+              </div>
             </Accordion>
-          </Stack>
+          </div>
         )}
-      </Stack>
-    </Container>
+      </div>
+    </section>
   )
 }
-
-export default PlanDetailsAdvancedSettingsSection
-
-const Container = styled.section`
-  .details-table-display-last-cell-ellipsis {
-    tr > td:last-child {
-      max-width: 100px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-  }
-`

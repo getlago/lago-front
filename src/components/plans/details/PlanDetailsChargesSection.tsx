@@ -1,10 +1,7 @@
-import { Stack } from '@mui/material'
-import styled from 'styled-components'
-
 import { Accordion, Typography } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { mapChargeIntervalCopy } from '~/components/plans/ChargeAccordion'
-import PlanDetailsChargesSectionAccordion from '~/components/plans/details/PlanDetailsChargesSectionAccordion'
+import { PlanDetailsChargesSectionAccordion } from '~/components/plans/details/PlanDetailsChargesSectionAccordion'
 import { chargeModelLookupTranslation } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -16,9 +13,8 @@ import {
   RegroupPaidFeesEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
-const PlanDetailsChargesSection = ({
+export const PlanDetailsChargesSection = ({
   currency,
   plan,
 }: {
@@ -43,9 +39,9 @@ const PlanDetailsChargesSection = ({
     ) ?? {}
 
   return (
-    <Container>
+    <section className="flex flex-col gap-12">
       {!!meteredCharges?.length && (
-        <Stack direction="column" gap={6}>
+        <div className="flex flex-col gap-6">
           <div>
             <Typography variant="bodyHl" color="grey700">
               {translate('text_64d2713ec021c6005ef64e03')}
@@ -59,19 +55,19 @@ const PlanDetailsChargesSection = ({
               noContentMargin
               key={`plan-details_charges-section_metered-charge-${i}`}
               summary={
-                <ChargeSummaryWrapper>
+                <div>
                   <Typography variant="bodyHl" color="grey700">
                     {charge.invoiceDisplayName || charge.billableMetric.name}
                   </Typography>
                   <Typography variant="caption" noWrap>
                     {charge.billableMetric.code}
                   </Typography>
-                </ChargeSummaryWrapper>
+                </div>
               }
             >
-              <ChargeSectionWrapper>
+              <section className="flex flex-col gap-4">
                 {/* Charge main infos */}
-                <PaddedChargeModelWrapper>
+                <div className="px-4 pt-4">
                   <DetailsPage.InfoGrid
                     grid={[
                       {
@@ -91,11 +87,11 @@ const PlanDetailsChargesSection = ({
                       },
                     ]}
                   />
-                </PaddedChargeModelWrapper>
-                {/* Propertiers accordion */}
+                </div>
+                {/* Properties accordion */}
                 <PlanDetailsChargesSectionAccordion currency={currency} charge={charge as Charge} />
                 {/* Options */}
-                <PaddedOptionsWrapper>
+                <div className="px-4 pb-4">
                   <DetailsPage.InfoGrid
                     grid={[
                       {
@@ -152,14 +148,14 @@ const PlanDetailsChargesSection = ({
                       },
                     ]}
                   />
-                </PaddedOptionsWrapper>
-              </ChargeSectionWrapper>
+                </div>
+              </section>
             </Accordion>
           ))}
-        </Stack>
+        </div>
       )}
       {!!recurringCharges?.length && (
-        <Stack direction="column" gap={6}>
+        <div className="flex flex-col gap-6">
           <div>
             <Typography variant="bodyHl" color="grey700">
               {translate('text_64d271e20a9c11005bd6688a')}
@@ -173,19 +169,19 @@ const PlanDetailsChargesSection = ({
               noContentMargin
               key={`plan-details_charges-section_recurring-charge-${i}`}
               summary={
-                <Typography variant="bodyHl" color="grey700">
-                  <ChargeSummaryWrapper>
+                <div>
+                  <Typography variant="bodyHl" color="grey700">
                     {charge.invoiceDisplayName || charge.billableMetric.name}
-                  </ChargeSummaryWrapper>
+                  </Typography>
                   <Typography variant="caption" noWrap>
                     {charge.billableMetric.code}
                   </Typography>
-                </Typography>
+                </div>
               }
             >
-              <ChargeSectionWrapper>
+              <section className="flex flex-col gap-4">
                 {/* Charge main infos */}
-                <PaddedChargeModelWrapper>
+                <div className="px-4 pt-4">
                   <DetailsPage.InfoGrid
                     grid={[
                       {
@@ -205,11 +201,11 @@ const PlanDetailsChargesSection = ({
                       },
                     ]}
                   />
-                </PaddedChargeModelWrapper>
-                {/* Propertiers accordion */}
+                </div>
+                {/* Properties accordion */}
                 <PlanDetailsChargesSectionAccordion currency={currency} charge={charge as Charge} />
                 {/* Options */}
-                <PaddedOptionsWrapper>
+                <div className="px-4 pb-4">
                   <DetailsPage.InfoGrid
                     grid={[
                       {
@@ -262,40 +258,12 @@ const PlanDetailsChargesSection = ({
                       },
                     ]}
                   />
-                </PaddedOptionsWrapper>
-              </ChargeSectionWrapper>
+                </div>
+              </section>
             </Accordion>
           ))}
-        </Stack>
+        </div>
       )}
-    </Container>
+    </section>
   )
 }
-
-export default PlanDetailsChargesSection
-
-const Container = styled.section`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(12)};
-`
-
-const ChargeSectionWrapper = styled.section`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(4)};
-`
-
-const PaddedChargeModelWrapper = styled.div`
-  padding: ${theme.spacing(4)} ${theme.spacing(4)} 0;
-`
-
-const ChargeSummaryWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-`
-
-const PaddedOptionsWrapper = styled.div`
-  padding: 0 ${theme.spacing(4)} ${theme.spacing(4)};
-  box-sizing: border-box;
-`

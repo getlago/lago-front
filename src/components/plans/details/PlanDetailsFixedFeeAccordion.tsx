@@ -5,7 +5,7 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, EditPlanFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment | null }) => {
+export const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment | null }) => {
   const { translate } = useInternationalization()
 
   return (
@@ -63,5 +63,3 @@ const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment | null
     </Accordion>
   )
 }
-
-export default PlanDetailsFixedFeeAccordion
