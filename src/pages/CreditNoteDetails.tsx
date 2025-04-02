@@ -168,6 +168,10 @@ gql`
           }
         }
       }
+      billingEntity {
+        name
+        code
+      }
     }
   }
 
@@ -305,6 +309,7 @@ const CreditNoteDetails = () => {
   ) as NetsuiteIntegration
 
   const creditNote = data?.creditNote
+  const billingEntity = data?.creditNote?.billingEntity
   const creditedFormattedStatus = creditedMapStatus(creditNote?.creditStatus)
   const consumedFormattedStatus = consumedMapStatus(creditNote?.refundStatus)
   const isRefunded = creditNote?.refundAmountCents > 0
@@ -515,6 +520,20 @@ const CreditNoteDetails = () => {
                     </Button>
                   )}
               </SectionHeader>
+
+              {billingEntity && (
+                <div className="box-border flex items-center gap-2 py-6 shadow-b">
+                  <div className="min-w-[140px]">
+                    <Typography className="text-sm text-grey-600">
+                      {translate('text_1743611497157teaa1zu8l24')}
+                    </Typography>
+                  </div>
+
+                  <Typography className="text-grey-700">
+                    {billingEntity.name || billingEntity.code}
+                  </Typography>
+                </div>
+              )}
 
               <DetailsPage.Overview
                 isLoading={loading}
