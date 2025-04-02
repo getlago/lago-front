@@ -5,6 +5,7 @@ import styled from 'styled-components'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Alert, Status } from '~/components/designSystem'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { subscriptionStatusMapping } from '~/core/constants/statusSubscriptionMapping'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS } from '~/core/router'
@@ -12,7 +13,7 @@ import { SubscriptionForSubscriptionInformationsFragment } from '~/generated/gra
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { theme } from '~/styles'
-import { DetailsInfoGrid, DetailsInfoItem, DetailsSectionTitle } from '~/styles/detailsPage'
+import { DetailsInfoGrid, DetailsInfoItem } from '~/styles/detailsPage'
 
 gql`
   fragment SubscriptionForSubscriptionInformations on Subscription {
@@ -54,9 +55,9 @@ const SubscriptionInformations = ({
 
   return (
     <section>
-      <DetailsSectionTitle variant="subhead" noWrap>
+      <DetailsPage.SectionTitle variant="subhead" noWrap>
         {translate('text_6335e8900c69f8ebdfef5312')}
-      </DetailsSectionTitle>
+      </DetailsPage.SectionTitle>
       <ContentWrapper>
         {!!subscription?.nextPlan?.id && (
           <Alert type="info">

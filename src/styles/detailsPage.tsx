@@ -1,8 +1,6 @@
-import { FC, PropsWithChildren, ReactNode } from 'react'
+import { ReactNode } from 'react'
 
-import { Typography, TypographyProps } from '~/components/designSystem'
-
-import { tw } from './utils'
+import { Typography } from '~/components/designSystem'
 
 interface DetailsInfoItemProps {
   label: string
@@ -18,16 +16,6 @@ export const DetailsInfoItem = ({ label, value }: DetailsInfoItemProps) => {
     </div>
   )
 }
-
-export const DetailsSectionTitle: FC<PropsWithChildren<TypographyProps>> = ({
-  children,
-  className,
-  ...props
-}) => (
-  <Typography className={tw('flex h-18 items-center', className)} {...props}>
-    {children}
-  </Typography>
-)
 
 export const DetailsInfoGrid = ({ grid }: { grid: Array<DetailsInfoItemProps | false> }) => {
   return (

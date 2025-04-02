@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import styled from 'styled-components'
 
+import { DetailsPage } from '~/components/layouts/DetailsPage'
 import SkeletonDetailsPage from '~/components/SkeletonDetailsPage'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import {
@@ -11,7 +12,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
-import { DetailsInfoGrid, DetailsInfoItem, DetailsSectionTitle } from '~/styles/detailsPage'
+import { DetailsInfoGrid, DetailsInfoItem } from '~/styles/detailsPage'
 
 import PlanDetailsAdvancedSettingsSection from './PlanDetailsAdvancedSettingsSection'
 import PlanDetailsChargesSection from './PlanDetailsChargesSection'
@@ -42,9 +43,9 @@ const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
   return (
     <Container>
       <section>
-        <DetailsSectionTitle variant="subhead" noWrap>
+        <DetailsPage.SectionTitle variant="subhead" noWrap>
           {translate('text_642d5eb2783a2ad10d67031a')}
-        </DetailsSectionTitle>
+        </DetailsPage.SectionTitle>
         <ContentWrapper>
           <DetailsInfoGrid
             grid={[
@@ -76,16 +77,16 @@ const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
         </ContentWrapper>
       </section>
       <section>
-        <DetailsSectionTitle variant="subhead" noWrap>
+        <DetailsPage.SectionTitle variant="subhead" noWrap>
           {translate('text_642d5eb2783a2ad10d670332')}
-        </DetailsSectionTitle>
+        </DetailsPage.SectionTitle>
         <PlanDetailsFixedFeeAccordion plan={plan} />
       </section>
       {!!plan?.charges?.length && (
         <section>
-          <DetailsSectionTitle variant="subhead" noWrap>
+          <DetailsPage.SectionTitle variant="subhead" noWrap>
             {translate('text_6435888d7cc86500646d8977')}
-          </DetailsSectionTitle>
+          </DetailsPage.SectionTitle>
           <PlanDetailsChargesSection
             plan={plan}
             currency={plan?.amountCurrency || CurrencyEnum.Usd}

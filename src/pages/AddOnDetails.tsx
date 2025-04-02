@@ -13,7 +13,7 @@ import { CurrencyEnum, useGetAddOnForDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper, PageHeader } from '~/styles'
-import { DetailsInfoGrid, DetailsSectionTitle } from '~/styles/detailsPage'
+import { DetailsInfoGrid } from '~/styles/detailsPage'
 
 gql`
   query getAddOnForDetails($addOn: ID!) {
@@ -141,9 +141,9 @@ const AddOnDetails = () => {
 
       <DetailsPage.Container>
         <section>
-          <DetailsSectionTitle variant="subhead" noWrap>
+          <DetailsPage.SectionTitle variant="subhead" noWrap>
             {translate('text_6627e7b9732dbfb6c472e027')}
-          </DetailsSectionTitle>
+          </DetailsPage.SectionTitle>
           <DetailsInfoGrid
             grid={[
               {
@@ -163,9 +163,9 @@ const AddOnDetails = () => {
         </section>
 
         <section>
-          <DetailsSectionTitle variant="subhead" noWrap>
+          <DetailsPage.SectionTitle variant="subhead" noWrap>
             {translate('text_629728388c4d2300e2d38117')}
-          </DetailsSectionTitle>
+          </DetailsPage.SectionTitle>
           <Card className="gap-0 p-0">
             <div className="p-4 shadow-b">
               <DetailsTableDisplay

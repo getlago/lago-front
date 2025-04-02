@@ -4,6 +4,7 @@ import styled from 'styled-components'
 
 import { Accordion, Typography } from '~/components/designSystem'
 import DetailsTableDisplay from '~/components/details/DetailsTableDisplay'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { mapChargeIntervalCopy } from '~/components/plans/ChargeAccordion'
 import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'
 import { getIntervalTranslationKey } from '~/core/constants/form'
@@ -11,7 +12,7 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, EditPlanFragment, PlanInterval } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { DetailsInfoGrid, DetailsSectionTitle } from '~/styles/detailsPage'
+import { DetailsInfoGrid } from '~/styles/detailsPage'
 
 const PlanDetailsAdvancedSettingsSection = ({
   currency,
@@ -29,9 +30,9 @@ const PlanDetailsAdvancedSettingsSection = ({
 
   return (
     <Container>
-      <DetailsSectionTitle variant="subhead" noWrap>
+      <DetailsPage.SectionTitle variant="subhead" noWrap>
         {translate('text_6661fc17337de3591e29e44d')}
-      </DetailsSectionTitle>
+      </DetailsPage.SectionTitle>
 
       <Stack direction="column" gap={12}>
         {hasProgressiveBilling && (

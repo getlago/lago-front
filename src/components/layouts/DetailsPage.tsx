@@ -1,6 +1,13 @@
 import { FC, PropsWithChildren } from 'react'
 
-import { Avatar, Icon, IconName, Skeleton, Typography } from '~/components/designSystem'
+import {
+  Avatar,
+  Icon,
+  IconName,
+  Skeleton,
+  Typography,
+  TypographyProps,
+} from '~/components/designSystem'
 import { tw } from '~/styles/utils'
 
 const DetailsPageContainer: FC<PropsWithChildren<{ className?: string }>> = ({
@@ -114,9 +121,20 @@ const DetailsPageOverview: FC<
   )
 }
 
+const DetailsPageSectionTitle: FC<PropsWithChildren<TypographyProps>> = ({
+  children,
+  className,
+  ...props
+}) => (
+  <Typography className={tw('flex h-18 items-center', className)} {...props}>
+    {children}
+  </Typography>
+)
+
 export const DetailsPage = {
   Container: DetailsPageContainer,
   Header: DetailsPageHeader,
   Overview: DetailsPageOverview,
   OverviewLine: DetailsPageOverviewLine,
+  SectionTitle: DetailsPageSectionTitle,
 }

@@ -42,7 +42,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper, PageHeader } from '~/styles'
-import { DetailsInfoGrid, DetailsInfoItem, DetailsSectionTitle } from '~/styles/detailsPage'
+import { DetailsInfoGrid, DetailsInfoItem } from '~/styles/detailsPage'
 
 gql`
   fragment CouponDetails on Coupon {
@@ -226,9 +226,9 @@ const CouponDetails = () => {
         ) : (
           <>
             <section>
-              <DetailsSectionTitle variant="subhead" noWrap>
+              <DetailsPage.SectionTitle variant="subhead" noWrap>
                 {translate('text_664cb90097bfa800e6efa3e4')}
-              </DetailsSectionTitle>
+              </DetailsPage.SectionTitle>
               <DetailsInfoGrid
                 grid={[
                   {
@@ -252,9 +252,9 @@ const CouponDetails = () => {
             </section>
 
             <section>
-              <DetailsSectionTitle variant="subhead" noWrap>
+              <DetailsPage.SectionTitle variant="subhead" noWrap>
                 {translate('text_62876e85e32e0300e1803137')}
-              </DetailsSectionTitle>
+              </DetailsPage.SectionTitle>
               <Card className="gap-0 p-0">
                 <div className="flex flex-col gap-4 p-4 shadow-b">
                   <DetailsTableDisplay
@@ -295,9 +295,9 @@ const CouponDetails = () => {
               !!coupon?.billableMetrics?.length ||
               !!coupon?.plans?.length) && (
               <section>
-                <DetailsSectionTitle variant="subhead" noWrap>
+                <DetailsPage.SectionTitle variant="subhead" noWrap>
                   {translate('text_63c83d58e697e8e9236da806')}
-                </DetailsSectionTitle>
+                </DetailsPage.SectionTitle>
                 <Card className="p-4">
                   {!!coupon?.reusable && (
                     <DetailsTableDisplay
