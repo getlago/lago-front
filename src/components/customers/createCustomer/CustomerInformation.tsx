@@ -12,6 +12,7 @@ import {
   CustomerTypeEnum,
   TimezoneEnum,
   UpdateCustomerInput,
+  useGetBillingEntitiesQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -31,6 +32,18 @@ export const CustomerInformation: FC<CustomerInformationProps> = ({
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
   const { timezoneConfig } = useOrganizationInfos()
+  const { data: billingEntitiesData, loading: billingEntitiesLoading } =
+    useGetBillingEntitiesQuery()
+
+  const billingEntitiesList = useMemo(
+    () =>
+      billingEntitiesData?.billingEntities?.collection?.map((billingEntity) => ({
+        label: billingEntity.name || billingEntity.code,
+        value: billingEntity.code,
+      })) || [],
+    [billingEntitiesData],
+  )
+
   const timezoneComboboxData = useMemo(
     () =>
       Object.values(TimezoneEnum).map((timezoneValue) => ({
@@ -50,6 +63,15 @@ export const CustomerInformation: FC<CustomerInformationProps> = ({
         <Typography variant="caption">{translate('text_1735652987833k0i3l9ill5g')}</Typography>
       </div>
 
+      <ComboBoxField
+        name="billingEntity.code"
+        label={translate('text_1743600025133gjunh3ialgx')}
+        placeholder={translate('text_174360002513391n72uwg6bb')}
+        formikProps={formikProps}
+        PopperProps={{ displayInDialog: true }}
+        loading={billingEntitiesLoading}
+        data={billingEntitiesList}
+      />
       <TextInputField
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus={!isEdition}
