@@ -18,6 +18,16 @@ gql`
       billableMetricsDelete
       billableMetricsUpdate
       billableMetricsView
+      billingEntitiesView
+      billingEntitiesCreate
+      billingEntitiesUpdate
+      billingEntitiesDelete
+      billingEntitiesInvoicesView
+      billingEntitiesInvoicesUpdate
+      billingEntitiesTaxesView
+      billingEntitiesTaxesUpdate
+      billingEntitiesEmailsView
+      billingEntitiesEmailsUpdate
       couponsAttach
       couponsCreate
       couponsDelete
