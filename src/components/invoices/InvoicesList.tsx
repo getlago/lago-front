@@ -354,6 +354,15 @@ const InvoicesList = ({
                 },
               },
               {
+                key: 'billingEntity',
+                title: translate('text_17436114971570doqrwuwhf0'),
+                content: ({ billingEntity }) => (
+                  <Typography variant="body" noWrap>
+                    {billingEntity.name || billingEntity.code || '-'}
+                  </Typography>
+                ),
+              },
+              {
                 key: 'number',
                 title: translate('text_63ac86d797f728a87b2f9fad'),
                 minWidth: 160,
