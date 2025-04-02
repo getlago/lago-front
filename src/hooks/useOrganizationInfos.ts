@@ -17,6 +17,7 @@ gql`
     timezone
     defaultCurrency
     premiumIntegrations
+    canCreateBillingEntity
 
     ...OrganizationForDatePicker
   }
