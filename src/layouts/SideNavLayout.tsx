@@ -32,7 +32,6 @@ import {
   CUSTOMERS_LIST_ROUTE,
   DEBUGGER_ROUTE,
   DEVELOPERS_ROUTE,
-  EMAILS_SCENARIO_CONFIG_ROUTE,
   EMAILS_SETTINGS_ROUTE,
   HOME_ROUTE,
   INTEGRATIONS_ROUTE,
@@ -393,7 +392,6 @@ const SideNav = () => {
                     link: SETTINGS_ROUTE,
                     canBeClickedOnActive: true,
                     match: [
-                      EMAILS_SCENARIO_CONFIG_ROUTE,
                       EMAILS_SETTINGS_ROUTE,
                       INTEGRATIONS_ROUTE,
                       INVOICE_SETTINGS_ROUTE,
