@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
 import { useParams } from 'react-router-dom'
 
+import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PlanDetailsOverview } from '~/components/plans/details/PlanDetailsOverview'
-import SkeletonDetailsPage, { LoadingSkeletonWrapper } from '~/components/SkeletonDetailsPage'
 import {
   SubscriptionForSubscriptionInformationsFragmentDoc,
   useGetSubscriptionForDetailsOverviewQuery,
@@ -35,10 +35,10 @@ export const SubscriptionDetailsOverview = () => {
 
   if (isSubscriptionLoading) {
     return (
-      <LoadingSkeletonWrapper>
-        <SkeletonDetailsPage />
-        <SkeletonDetailsPage />
-      </LoadingSkeletonWrapper>
+      <div className="flex flex-col gap-12">
+        <DetailsPage.Skeleton />
+        <DetailsPage.Skeleton />
+      </div>
     )
   }
 

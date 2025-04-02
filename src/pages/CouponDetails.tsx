@@ -18,7 +18,6 @@ import {
   Typography,
 } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import SkeletonDetailsPage from '~/components/SkeletonDetailsPage'
 import {
   getCouponFrequencyTranslationKey,
   getCouponTypeTranslationKey,
@@ -227,7 +226,7 @@ const CouponDetails = () => {
 
       <DetailsPage.Container>
         {!coupon && isCouponLoading ? (
-          <SkeletonDetailsPage />
+          <DetailsPage.Skeleton />
         ) : (
           <>
             <section>

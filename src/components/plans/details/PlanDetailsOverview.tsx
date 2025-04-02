@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import SkeletonDetailsPage from '~/components/SkeletonDetailsPage'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import {
   CurrencyEnum,
@@ -34,7 +33,7 @@ export const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
   const plan = planResult?.plan
 
   if (!plan && isPlanLoading) {
-    return <SkeletonDetailsPage />
+    return <DetailsPage.Skeleton />
   }
 
   return (
