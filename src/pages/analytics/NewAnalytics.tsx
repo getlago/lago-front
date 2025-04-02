@@ -1,9 +1,9 @@
-import { generatePath } from 'react-router-dom'
+import { useEffect } from 'react'
+import { generatePath, useLocation, useNavigate } from 'react-router-dom'
 
 import { NavigationTab, Typography } from '~/components/designSystem'
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { ANALYTIC_TABS_ROUTE } from '~/core/router'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
+import { ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Mrr from '~/pages/analytics/Mrr'
 import RevenueStreams from '~/pages/analytics/RevenueStreams'
@@ -11,7 +11,21 @@ import { PageHeader } from '~/styles'
 
 const NewAnalytics = () => {
   const { translate } = useInternationalization()
-  const hasAccessToMrr = isFeatureFlagActive(FeatureFlags.FTR_NEW_ANALYTICS_MRR)
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
+
+  // Redirect to revenue-streams when URL is exactly /analytics
+  // Cause we support old and new analytics routes, this is needed
+  useEffect(() => {
+    if (pathname === ANALYTIC_ROUTE) {
+      navigate(
+        generatePath(ANALYTIC_TABS_ROUTE, {
+          tab: NewAnalyticsTabsOptionsEnum.revenueStreams,
+        }),
+        { replace: true },
+      )
+    }
+  }, [pathname, navigate])
 
   return (
     <>
@@ -30,23 +44,21 @@ const NewAnalytics = () => {
               tab: NewAnalyticsTabsOptionsEnum.revenueStreams,
             }),
             match: [
+              ANALYTIC_ROUTE,
+              generatePath(ANALYTIC_ROUTE),
               generatePath(ANALYTIC_TABS_ROUTE, {
                 tab: NewAnalyticsTabsOptionsEnum.revenueStreams,
               }),
             ],
             component: <RevenueStreams />,
           },
-          ...(hasAccessToMrr
-            ? [
-                {
-                  title: translate('text_6553885df387fd0097fd738c'),
-                  link: generatePath(ANALYTIC_TABS_ROUTE, {
-                    tab: NewAnalyticsTabsOptionsEnum.mrr,
-                  }),
-                  component: <Mrr />,
-                },
-              ]
-            : []),
+          {
+            title: translate('text_6553885df387fd0097fd738c'),
+            link: generatePath(ANALYTIC_TABS_ROUTE, {
+              tab: NewAnalyticsTabsOptionsEnum.mrr,
+            }),
+            component: <Mrr />,
+          },
         ]}
       />
     </>
