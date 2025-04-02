@@ -79,9 +79,16 @@ export const NavigationTab = ({
   useEffect(() => {
     const findActiveTabIndexLookup: Record<
       TabManagedBy,
-      ({ tab, tabIndex }: { tab: { link?: string }; tabIndex: number }) => boolean
+      ({ tab, tabIndex }: { tab: { link?: string; match?: string[] }; tabIndex: number }) => boolean
     > = {
-      [TabManagedBy.URL]: ({ tab }) => tab.link === window.location.pathname,
+      [TabManagedBy.URL]: ({ tab }) => {
+        // Check if the current URL matches any of the paths in the match array
+        if (!!tab?.match?.length) {
+          return tab.match.some((matchUrl) => window.location.pathname === matchUrl)
+        }
+        // Fall back to direct link comparison
+        return tab.link === window.location.pathname
+      },
       [TabManagedBy.INDEX]: ({ tabIndex }) => tabIndex === value,
     }
     const activeTab = nonHiddenTabs.findIndex((tab, tabIndex) => {
