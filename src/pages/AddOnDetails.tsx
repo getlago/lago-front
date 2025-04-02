@@ -1,20 +1,17 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { DeleteAddOnDialog, DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
-import { Button, Popper, Skeleton, Typography } from '~/components/designSystem'
-import { DetailsHeader, DetailsHeaderSkeleton } from '~/components/details/DetailsHeader'
-import DetailsTableDisplay from '~/components/details/DetailsTableDisplay'
+import { Button, Card, Popper, Skeleton, Typography } from '~/components/designSystem'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { ADD_ONS_ROUTE, UPDATE_ADD_ON_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, useGetAddOnForDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
-import { MenuPopper, PageHeader, theme } from '~/styles'
-import { DetailsInfoGrid, DetailsSectionTitle } from '~/styles/detailsPage'
+import { MenuPopper, PageHeader } from '~/styles'
 
 gql`
   query getAddOnForDetails($addOn: ID!) {
@@ -74,9 +71,7 @@ const AddOnDetails = () => {
             }}
           />
           {isAddOnLoading && !addOn ? (
-            <AddOnTitleLoadingWrapper>
-              <Skeleton variant="text" className="w-50" />
-            </AddOnTitleLoadingWrapper>
+            <Skeleton variant="text" className="w-50" />
           ) : (
             <Typography
               variant="bodyHl"
@@ -135,21 +130,19 @@ const AddOnDetails = () => {
         )}
       </PageHeader.Wrapper>
 
-      {isAddOnLoading ? (
-        <DetailsHeaderSkeleton />
-      ) : (
-        <DetailsHeader
-          icon="puzzle"
-          title={addOn?.name || ''}
-          description={translate('text_629728388c4d2300e2d3810b', { amountWithCurrency })}
-        />
-      )}
-      <Container>
+      <DetailsPage.Header
+        isLoading={isAddOnLoading}
+        icon="puzzle"
+        title={addOn?.name || ''}
+        description={translate('text_629728388c4d2300e2d3810b', { amountWithCurrency })}
+      />
+
+      <DetailsPage.Container>
         <section>
-          <DetailsSectionTitle variant="subhead" noWrap>
+          <DetailsPage.SectionTitle variant="subhead" noWrap>
             {translate('text_6627e7b9732dbfb6c472e027')}
-          </DetailsSectionTitle>
-          <DetailsInfoGrid
+          </DetailsPage.SectionTitle>
+          <DetailsPage.InfoGrid
             grid={[
               {
                 label: translate('text_629728388c4d2300e2d380bd'),
@@ -168,19 +161,20 @@ const AddOnDetails = () => {
         </section>
 
         <section>
-          <DetailsSectionTitle variant="subhead" noWrap>
+          <DetailsPage.SectionTitle variant="subhead" noWrap>
             {translate('text_629728388c4d2300e2d38117')}
-          </DetailsSectionTitle>
-          <DetailsCard>
+          </DetailsPage.SectionTitle>
+          <Card className="gap-0 p-0">
             <div className="p-4 shadow-b">
-              <DetailsTableDisplay
+              <DetailsPage.TableDisplay
+                name="addon-settings"
                 header={[translate('text_624453d52e945301380e49b6')]}
                 body={[[amountWithCurrency]]}
               />
             </div>
 
             <div className="p-4">
-              <DetailsInfoGrid
+              <DetailsPage.InfoGrid
                 grid={[
                   {
                     label: translate('text_64be910fba8ef9208686a8e3'),
@@ -199,30 +193,13 @@ const AddOnDetails = () => {
                 ]}
               />
             </div>
-          </DetailsCard>
+          </Card>
         </section>
-      </Container>
+      </DetailsPage.Container>
+
       <DeleteAddOnDialog ref={deleteDialogRef} />
     </>
   )
 }
 
 export default AddOnDetails
-
-const Container = styled.section`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(12)};
-
-  padding: 0 ${theme.spacing(12)};
-  max-width: 672px;
-`
-
-const AddOnTitleLoadingWrapper = styled.div`
-  width: 200px;
-`
-
-const DetailsCard = styled.div`
-  border: 1px solid ${theme.palette.grey[400]};
-  border-radius: 12px;
-`

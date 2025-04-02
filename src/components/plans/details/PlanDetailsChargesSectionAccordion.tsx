@@ -1,13 +1,10 @@
-import styled from 'styled-components'
-
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Accordion, Typography } from '~/components/designSystem'
 import { composeChargeFilterDisplayName } from '~/core/formats/formatInvoiceItemsMap'
 import { Charge, CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
-import PlanDetailsChargeWrapperSwitch from './PlanDetailsChargeWrapperSwitch'
+import { PlanDetailsChargeWrapperSwitch } from './PlanDetailsChargeWrapperSwitch'
 
 interface ChargeWithIndex extends Charge {
   [index: number]: unknown
@@ -18,15 +15,15 @@ type PlanDetailsChargesSectionAccordionProps = {
   currency: CurrencyEnum
 }
 
-const PlanDetailsChargesSectionAccordion = ({
+export const PlanDetailsChargesSectionAccordion = ({
   charge,
   currency,
 }: PlanDetailsChargesSectionAccordionProps) => {
   const { translate } = useInternationalization()
 
   return (
-    <Container>
-      <PaddedChargesWrapper>
+    <section className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 px-4 pb-4 shadow-b">
         {/* Default properties */}
         <ConditionalWrapper
           condition={!!charge?.billableMetric?.filters?.length}
@@ -72,24 +69,7 @@ const PlanDetailsChargesSectionAccordion = ({
               </Accordion>
             )
           })}
-      </PaddedChargesWrapper>
-    </Container>
+      </div>
+    </section>
   )
 }
-
-export default PlanDetailsChargesSectionAccordion
-
-const Container = styled.section`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(4)};
-`
-
-const PaddedChargesWrapper = styled.div`
-  padding: 0 ${theme.spacing(4)} ${theme.spacing(4)};
-  box-sizing: border-box;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(4)};
-`

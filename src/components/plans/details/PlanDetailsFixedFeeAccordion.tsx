@@ -1,12 +1,11 @@
 import { Accordion, Typography } from '~/components/designSystem'
-import DetailsTableDisplay from '~/components/details/DetailsTableDisplay'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, EditPlanFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { DetailsInfoGrid } from '~/styles/detailsPage'
 
-const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment | null }) => {
+export const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment | null }) => {
   const { translate } = useInternationalization()
 
   return (
@@ -18,7 +17,8 @@ const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment | null
       }
     >
       <div className="flex flex-col gap-6">
-        <DetailsTableDisplay
+        <DetailsPage.TableDisplay
+          name="fixed-fee"
           header={[translate('text_624453d52e945301380e49b6')]}
           body={[
             [
@@ -29,7 +29,7 @@ const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment | null
             ],
           ]}
         />
-        <DetailsInfoGrid
+        <DetailsPage.InfoGrid
           grid={[
             {
               label: translate('text_65201b8216455901fe273dd9'),
@@ -63,5 +63,3 @@ const PlanDetailsFixedFeeAccordion = ({ plan }: { plan?: EditPlanFragment | null
     </Accordion>
   )
 }
-
-export default PlanDetailsFixedFeeAccordion

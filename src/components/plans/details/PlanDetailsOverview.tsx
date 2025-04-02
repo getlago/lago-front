@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
-import styled from 'styled-components'
 
-import SkeletonDetailsPage from '~/components/SkeletonDetailsPage'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import {
   CurrencyEnum,
@@ -10,12 +9,10 @@ import {
   useGetPlanForDetailsOverviewSectionQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
-import { DetailsInfoGrid, DetailsInfoItem, DetailsSectionTitle } from '~/styles/detailsPage'
 
-import PlanDetailsAdvancedSettingsSection from './PlanDetailsAdvancedSettingsSection'
-import PlanDetailsChargesSection from './PlanDetailsChargesSection'
-import PlanDetailsFixedFeeAccordion from './PlanDetailsFixedFeeAccordion'
+import { PlanDetailsAdvancedSettingsSection } from './PlanDetailsAdvancedSettingsSection'
+import { PlanDetailsChargesSection } from './PlanDetailsChargesSection'
+import { PlanDetailsFixedFeeAccordion } from './PlanDetailsFixedFeeAccordion'
 
 gql`
   query getPlanForDetailsOverviewSection($plan: ID!) {
@@ -27,7 +24,7 @@ gql`
   ${EditPlanFragmentDoc}
 `
 
-const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
+export const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
   const { translate } = useInternationalization()
   const { data: planResult, loading: isPlanLoading } = useGetPlanForDetailsOverviewSectionQuery({
     variables: { plan: planId as string },
@@ -36,17 +33,17 @@ const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
   const plan = planResult?.plan
 
   if (!plan && isPlanLoading) {
-    return <SkeletonDetailsPage />
+    return <DetailsPage.Skeleton />
   }
 
   return (
-    <Container>
+    <section className="flex flex-col gap-12">
       <section>
-        <DetailsSectionTitle variant="subhead" noWrap>
+        <DetailsPage.SectionTitle variant="subhead" noWrap>
           {translate('text_642d5eb2783a2ad10d67031a')}
-        </DetailsSectionTitle>
-        <ContentWrapper>
-          <DetailsInfoGrid
+        </DetailsPage.SectionTitle>
+        <div className="flex flex-col gap-4">
+          <DetailsPage.InfoGrid
             grid={[
               {
                 label: translate('text_62442e40cea25600b0b6d852'),
@@ -68,24 +65,24 @@ const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
           />
 
           {!!plan?.description && (
-            <DetailsInfoItem
+            <DetailsPage.InfoGridItem
               label={translate('text_6388b923e514213fed58331c')}
               value={plan?.description}
             />
           )}
-        </ContentWrapper>
+        </div>
       </section>
       <section>
-        <DetailsSectionTitle variant="subhead" noWrap>
+        <DetailsPage.SectionTitle variant="subhead" noWrap>
           {translate('text_642d5eb2783a2ad10d670332')}
-        </DetailsSectionTitle>
+        </DetailsPage.SectionTitle>
         <PlanDetailsFixedFeeAccordion plan={plan} />
       </section>
       {!!plan?.charges?.length && (
         <section>
-          <DetailsSectionTitle variant="subhead" noWrap>
+          <DetailsPage.SectionTitle variant="subhead" noWrap>
             {translate('text_6435888d7cc86500646d8977')}
-          </DetailsSectionTitle>
+          </DetailsPage.SectionTitle>
           <PlanDetailsChargesSection
             plan={plan}
             currency={plan?.amountCurrency || CurrencyEnum.Usd}
@@ -97,20 +94,6 @@ const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
         plan={plan}
         currency={plan?.amountCurrency || CurrencyEnum.Usd}
       />
-    </Container>
+    </section>
   )
 }
-
-export default PlanDetailsOverview
-
-const Container = styled.section`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(12)};
-`
-
-const ContentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(4)};
-`

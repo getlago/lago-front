@@ -4,6 +4,7 @@ import styled from 'styled-components'
 
 import { InfiniteScroll, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
 import {
   PlanSubscriptionListItemForSubscriptionListFragmentDoc,
   StatusTypeEnum,
@@ -13,7 +14,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { HEADER_TABLE_HEIGHT, theme } from '~/styles'
-import { DetailsSectionTitle } from '~/styles/detailsPage'
 
 import {
   PlanSubscriptionListItem,
@@ -63,9 +63,9 @@ const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
   return (
     <Container>
       <section>
-        <DetailsSectionTitle className="shadow-b" variant="subhead" noWrap>
+        <DetailsPage.SectionTitle variant="subhead" noWrap>
           {translate('text_65281f686a80b400c8e2f6be')}
-        </DetailsSectionTitle>
+        </DetailsPage.SectionTitle>
 
         {subscriptionsError ? (
           <GenericPlaceholder

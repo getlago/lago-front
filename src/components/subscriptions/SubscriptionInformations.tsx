@@ -1,18 +1,16 @@
 import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 import { generatePath, Link } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Alert, Status } from '~/components/designSystem'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { subscriptionStatusMapping } from '~/core/constants/statusSubscriptionMapping'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS } from '~/core/router'
 import { SubscriptionForSubscriptionInformationsFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { theme } from '~/styles'
-import { DetailsInfoGrid, DetailsInfoItem, DetailsSectionTitle } from '~/styles/detailsPage'
 
 gql`
   fragment SubscriptionForSubscriptionInformations on Subscription {
@@ -42,7 +40,7 @@ gql`
   }
 `
 
-const SubscriptionInformations = ({
+export const SubscriptionInformations = ({
   subscription,
 }: {
   subscription?: SubscriptionForSubscriptionInformationsFragment | null
@@ -54,10 +52,10 @@ const SubscriptionInformations = ({
 
   return (
     <section>
-      <DetailsSectionTitle variant="subhead" noWrap>
+      <DetailsPage.SectionTitle variant="subhead" noWrap>
         {translate('text_6335e8900c69f8ebdfef5312')}
-      </DetailsSectionTitle>
-      <ContentWrapper>
+      </DetailsPage.SectionTitle>
+      <div className="flex flex-col gap-4">
         {!!subscription?.nextPlan?.id && (
           <Alert type="info">
             {translate('text_62681c60582e4f00aa82938a', {
@@ -66,11 +64,11 @@ const SubscriptionInformations = ({
             })}
           </Alert>
         )}
-        <DetailsInfoItem
+        <DetailsPage.InfoGridItem
           label={translate('text_65201c5a175a4b0238abf298')}
           value={subscription?.externalId}
         />
-        <DetailsInfoGrid
+        <DetailsPage.InfoGrid
           grid={[
             {
               label: translate('text_65201c5a175a4b0238abf29a'),
@@ -135,15 +133,7 @@ const SubscriptionInformations = ({
             },
           ]}
         />
-      </ContentWrapper>
+      </div>
     </section>
   )
 }
-
-export default SubscriptionInformations
-
-const ContentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(4)};
-`
