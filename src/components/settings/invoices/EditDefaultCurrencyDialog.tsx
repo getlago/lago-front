@@ -8,22 +8,22 @@ import { ComboBoxField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import {
   CurrencyEnum,
-  EditOrganizationDefaultCurrencyForDialogFragment,
-  UpdateOrganizationInput,
-  useUpdateOrganizationDefaultCurrencyMutation,
+  EditBillingEntityDefaultCurrencyForDialogFragment,
+  UpdateBillingEntityInput,
+  useUpdateBillingEntityDefaultCurrencyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
-  fragment EditOrganizationDefaultCurrencyForDialog on CurrentOrganization {
-    id
+  fragment EditBillingEntityDefaultCurrencyForDialog on BillingEntity {
+    code
     defaultCurrency
   }
 
-  mutation updateOrganizationDefaultCurrency($input: UpdateOrganizationInput!) {
-    updateOrganization(input: $input) {
-      id
-      ...EditOrganizationDefaultCurrencyForDialog
+  mutation updateBillingEntityDefaultCurrency($input: UpdateBillingEntityInput!) {
+    updateBillingEntity(input: $input) {
+      code
+      ...EditBillingEntityDefaultCurrencyForDialog
     }
   }
 `
@@ -34,16 +34,16 @@ export interface EditDefaultCurrencyDialogRef {
 }
 
 type EditDefaultCurrencyDialogImperativeProps = {
-  organization?: EditOrganizationDefaultCurrencyForDialogFragment | null
+  billingEntity?: EditBillingEntityDefaultCurrencyForDialogFragment | null
 }
 
 export const EditDefaultCurrencyDialog = forwardRef<EditDefaultCurrencyDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)
   const [localData, setLocalData] = useState<EditDefaultCurrencyDialogImperativeProps | null>(null)
-  const [updateOrganization] = useUpdateOrganizationDefaultCurrencyMutation({
+  const [updateBillingEntity] = useUpdateBillingEntityDefaultCurrencyMutation({
     onCompleted(res) {
-      if (res?.updateOrganization) {
+      if (res?.updateBillingEntity) {
         addToast({
           severity: 'success',
           translateKey: 'text_6543ca0fdebf76a18e159303',
@@ -52,9 +52,9 @@ export const EditDefaultCurrencyDialog = forwardRef<EditDefaultCurrencyDialogRef
     },
   })
 
-  const formikProps = useFormik<Pick<UpdateOrganizationInput, 'defaultCurrency'>>({
+  const formikProps = useFormik<Pick<UpdateBillingEntityInput, 'defaultCurrency'>>({
     initialValues: {
-      defaultCurrency: localData?.organization?.defaultCurrency || CurrencyEnum.Usd,
+      defaultCurrency: localData?.billingEntity?.defaultCurrency || CurrencyEnum.Usd,
     },
     validationSchema: object().shape({
       defaultCurrency: string()
@@ -68,9 +68,12 @@ export const EditDefaultCurrencyDialog = forwardRef<EditDefaultCurrencyDialogRef
     validateOnMount: true,
     enableReinitialize: true,
     onSubmit: async (values) => {
-      await updateOrganization({
+      await updateBillingEntity({
         variables: {
-          input: values,
+          input: {
+            code: localData?.billingEntity?.code as string,
+            ...values,
+          },
         },
       })
     },
@@ -109,7 +112,7 @@ export const EditDefaultCurrencyDialog = forwardRef<EditDefaultCurrencyDialogRef
               setLocalData(null)
             }}
           >
-            {translate('text_6543ca0fdebf76a18e159294')}
+            {translate('text_17432414198706rdwf76ek3u')}
           </Button>
         </>
       )}
