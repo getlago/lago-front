@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
-import { BrowserRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router-dom'
 
 import {
   InvoicePaymentStatusTypeEnum,
@@ -33,13 +33,15 @@ const wrapper = ({
   children,
   withStaticFilters,
   withStaticQuickFilters,
+  initialSearchParams,
 }: {
   children: ReactNode
   withStaticFilters: boolean
   withStaticQuickFilters: boolean
+  initialSearchParams?: string
 }): JSX.Element => {
   return (
-    <BrowserRouter basename="/">
+    <MemoryRouter initialEntries={initialSearchParams ? [`/?${initialSearchParams}`] : ['/']}>
       <div>
         <FilterContext.Provider
           value={{
@@ -53,13 +55,15 @@ const wrapper = ({
               AvailableFiltersEnum.paymentStatus,
               AvailableFiltersEnum.paymentOverdue,
               AvailableFiltersEnum.paymentDisputeLost,
+              AvailableFiltersEnum.date,
+              AvailableFiltersEnum.timeGranularity,
             ],
           }}
         >
           {children}
         </FilterContext.Provider>
       </div>
-    </BrowserRouter>
+    </MemoryRouter>
   )
 }
 
@@ -385,5 +389,31 @@ describe('selectTimeGranularity', () => {
     expect(result.current.selectTimeGranularity(TimeGranularityEnum.Monthly)).toEqual(
       'f_timeGranularity=monthly',
     )
+  })
+
+  it('should not modify ISO date with timezone when updating timeGranularity', () => {
+    const isoDateWithTimezone = '2023-04-01T00:00:00.000Z'
+    const initialSearchParams = `${FILTER_PREFIX}_date=${encodeURIComponent(isoDateWithTimezone)}`
+
+    const { result } = renderHook(() => useFilters(), {
+      wrapper: ({ children }) =>
+        wrapper({
+          children,
+          withStaticFilters: false,
+          withStaticQuickFilters: false,
+          initialSearchParams,
+        }),
+    })
+
+    // When updating the time granularity
+    const updatedParams = result.current.selectTimeGranularity(TimeGranularityEnum.Weekly)
+
+    // The date parameter should still be present and unchanged
+    expect(updatedParams).toContain(
+      `${FILTER_PREFIX}_date=${encodeURIComponent(isoDateWithTimezone)}`,
+    )
+
+    // And the time granularity should be updated
+    expect(updatedParams).toContain(`${FILTER_PREFIX}_timeGranularity=weekly`)
   })
 })
