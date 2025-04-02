@@ -1,7 +1,6 @@
 import { ApolloError, gql, LazyQueryHookOptions } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
-import styled, { css } from 'styled-components'
 
 import CreditNoteBadge from '~/components/creditNote/CreditNoteBadge'
 import {
@@ -11,7 +10,6 @@ import {
 import {
   ActionItem,
   InfiniteScroll,
-  Skeleton,
   Table,
   TableColumn,
   TableContainerSize,
@@ -40,7 +38,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import EmptyImage from '~/public/images/maneki/empty.svg'
-import { BaseListItem, theme } from '~/styles'
 import { tw } from '~/styles/utils'
 
 const { disablePdfGeneration } = envGlobalVar()
@@ -111,19 +108,6 @@ type TCreditNoteTableProps = {
   filtersContainerClassName?: string
 }
 
-const CreditNoteTableItemSkeleton = () => {
-  return (
-    <SkeletonLine>
-      <Skeleton variant="text" className="w-45" />
-      <Skeleton variant="text" className="w-20" />
-      <Skeleton variant="text" className="w-40" />
-      <Skeleton className="hidden w-40 justify-self-end md:flex" variant="text" />
-      <Skeleton variant="text" className="w-28" />
-      <Skeleton variant="text" className="w-10" />
-    </SkeletonLine>
-  )
-}
-
 const CreditNotesTable = ({
   creditNotes,
   fetchMore,
@@ -182,14 +166,6 @@ const CreditNotesTable = ({
       )}
 
       <div>
-        {isLoading && !!variables?.searchTerm && (
-          <>
-            {[1, 2, 3, 4].map((i) => (
-              <CreditNoteTableItemSkeleton key={`key-initial-loading-skeleton-line-${i}`} />
-            ))}
-          </>
-        )}
-
         {!isLoading && !!variables?.searchTerm && !creditNotes?.length && (
           <GenericPlaceholder
             title={translate('text_63c6edd80c57d0dfaae389a4')}
@@ -368,24 +344,3 @@ const CreditNotesTable = ({
 }
 
 export default CreditNotesTable
-
-const CreditNotesTableItemGridTemplate = () => css`
-  display: grid;
-  grid-template-columns: minmax(200px, auto) minmax(160px, auto) 1fr 1fr 112px 40px;
-  gap: ${theme.spacing(3)};
-
-  ${theme.breakpoints.down('md')} {
-    grid-template-columns: minmax(200px, auto) minmax(160px, auto) 1fr 112px 40px;
-  }
-`
-
-const Grid = () => css`
-  position: relative;
-  align-items: center;
-  width: 100%;
-  ${CreditNotesTableItemGridTemplate()}
-`
-
-const SkeletonLine = styled(BaseListItem)`
-  ${Grid()}
-`
