@@ -1,6 +1,5 @@
 import { useFormik } from 'formik'
 import { forwardRef } from 'react'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Dialog, Typography } from '~/components/designSystem'
@@ -12,7 +11,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { theme } from '~/styles'
 
 type ExportTypeEnum = CreditNoteExportTypeEnum | InvoiceExportTypeEnum
 
@@ -91,44 +89,40 @@ export const ExportDialog = forwardRef<ExportDialogRef, ExportDialogProps>(
           </>
         )}
       >
-        <ExportDialogContentWrapper>
-          <InfosLineWrapper>
-            <InfoLine>
-              <Typography variant="caption" color="grey600">
-                {translate('text_6419c64eace749372fc72b27')}
-              </Typography>
-              <Typography variant="body" color="grey700">
-                {currentUser?.email}
-              </Typography>
-            </InfoLine>
-            <InfoLine>
-              <Typography variant="caption" color="grey600">
-                {translate('text_66b21236c939426d07ff9936')}
-              </Typography>
-              <Typography variant="body" color="grey700">
-                {translate('text_66b21236c939426d07ff9935')}
-              </Typography>
-            </InfoLine>
-            <InfoLine>
-              <Typography variant="caption" color="grey600">
-                {translate('text_66b21236c939426d07ff9938')}
-              </Typography>
-              <Typography variant="body" color="grey700">
-                {totalCountLabel}
-              </Typography>
-            </InfoLine>
-          </InfosLineWrapper>
+        <div className="mb-8">
+          <div className="grid grid-cols-[140px_1fr] items-center gap-3">
+            <Typography variant="caption" color="grey600">
+              {translate('text_6419c64eace749372fc72b27')}
+            </Typography>
+            <Typography variant="body" color="grey700">
+              {currentUser?.email}
+            </Typography>
 
-          <Separator />
+            <Typography variant="caption" color="grey600">
+              {translate('text_66b21236c939426d07ff9936')}
+            </Typography>
+            <Typography variant="body" color="grey700">
+              {translate('text_66b21236c939426d07ff9935')}
+            </Typography>
 
-          <ExportTypeLabelWrapper>
+            <Typography variant="caption" color="grey600">
+              {translate('text_66b21236c939426d07ff9938')}
+            </Typography>
+            <Typography variant="body" color="grey700">
+              {totalCountLabel}
+            </Typography>
+          </div>
+
+          <div className="my-8 w-full border-b border-grey-300" />
+
+          <div className="mb-4">
             <Typography variant="bodyHl" color="grey700">
               {translate('text_66b21236c939426d07ff9939')}
             </Typography>
             <Typography variant="caption" color="grey600">
               {translate('text_66b21236c939426d07ff993a')}
             </Typography>
-          </ExportTypeLabelWrapper>
+          </div>
 
           <RadioGroupField
             name="resourceType"
@@ -137,44 +131,10 @@ export const ExportDialog = forwardRef<ExportDialogRef, ExportDialogProps>(
             options={resourceTypeOptions}
             formikProps={formikProps}
           />
-        </ExportDialogContentWrapper>
+        </div>
       </Dialog>
     )
   },
 )
 
 ExportDialog.displayName = 'ExportDialog'
-
-const ExportDialogContentWrapper = styled.div`
-  margin-bottom: ${theme.spacing(8)};
-`
-
-const InfosLineWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(3)};
-`
-
-const InfoLine = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-
-  > *:first-child {
-    width: 140px;
-  }
-
-  > *:last-child {
-    flex: 1;
-  }
-`
-
-const Separator = styled.div`
-  width: 100%;
-  border-bottom: 1px solid ${theme.palette.grey[300]};
-  margin: ${theme.spacing(8)} 0;
-`
-
-const ExportTypeLabelWrapper = styled.div`
-  margin-bottom: ${theme.spacing(4)};
-`
