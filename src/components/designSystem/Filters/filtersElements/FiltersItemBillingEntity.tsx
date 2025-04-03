@@ -4,7 +4,7 @@ import { ComboBox } from '~/components/form'
 import { useGetBillingEntitiesQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { FiltersFormValues } from '../types'
+import { filterDataInlineSeparator, FiltersFormValues } from '../types'
 
 type FiltersItemBillingEntityProps = {
   value: FiltersFormValues['filters'][0]['value']
@@ -23,7 +23,7 @@ export const FiltersItemBillingEntity = ({
 
     return data.billingEntities.collection.map((billingEntity) => ({
       label: billingEntity.name || billingEntity.code,
-      value: billingEntity.code,
+      value: `${billingEntity.id}${filterDataInlineSeparator}${billingEntity.name || billingEntity.code}`,
     }))
   }, [data])
 

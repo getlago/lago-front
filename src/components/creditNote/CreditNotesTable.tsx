@@ -152,7 +152,7 @@ const CreditNotesTable = ({
             filtersNamePrefix={CREDIT_NOTE_LIST_FILTER_PREFIX}
             availableFilters={[
               AvailableFiltersEnum.amount,
-              AvailableFiltersEnum.billingEntity,
+              AvailableFiltersEnum.billingEntityId,
               AvailableFiltersEnum.creditNoteCreditStatus,
               AvailableFiltersEnum.currency,
               AvailableFiltersEnum.customerExternalId,
