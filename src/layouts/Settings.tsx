@@ -3,7 +3,14 @@ import { useRef, useState } from 'react'
 import { generatePath, Outlet, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Button, ButtonLink, Icon, Typography, VerticalMenu } from '~/components/designSystem'
+import {
+  Button,
+  ButtonLink,
+  Icon,
+  Skeleton,
+  Typography,
+  VerticalMenu,
+} from '~/components/designSystem'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
@@ -178,7 +185,7 @@ const Settings = () => {
             </div>
 
             <div className="flex flex-col gap-1">
-              {billingEntitiesLoading && <div>Loading TODO</div>}
+              {billingEntitiesLoading && <Skeleton className="w-full px-3" variant="text" />}
 
               {!billingEntitiesLoading &&
                 billingEntities?.billingEntities?.collection?.map((entity, index) => (
