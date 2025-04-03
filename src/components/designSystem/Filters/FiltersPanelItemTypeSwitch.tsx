@@ -101,7 +101,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.subscriptionExternalId]: (
       <FiltersItemSubscription value={value} setFilterValue={setFilterValue} />
     ),
-    [AvailableFiltersEnum.billingEntity]: (
+    [AvailableFiltersEnum.billingEntityId]: (
       <FiltersItemBillingEntity value={value} setFilterValue={setFilterValue} />
     ),
   }

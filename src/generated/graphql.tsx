@@ -8122,15 +8122,6 @@ export type GetSubscribtionsForPlanDetailsQuery = { __typename?: 'Query', subscr
 
 export type PlanSubscriptionListItemForSubscriptionListFragment = { __typename?: 'Subscription', id: string, endingAt?: any | null, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, parent?: { __typename?: 'Plan', id: string } | null }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string } };
 
-export type EditOrganizationInformationsDialogFragment = { __typename?: 'CurrentOrganization', id: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null };
-
-export type UpdateOrganizationInformationsMutationVariables = Exact<{
-  input: UpdateOrganizationInput;
-}>;
-
-
-export type UpdateOrganizationInformationsMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, timezone?: TimezoneEnum | null } | null };
-
 export type DeleteOktaIntegrationDialogFragment = { __typename?: 'OktaIntegration', id: string, name: string };
 
 export type DestroyIntegrationMutationVariables = Exact<{
@@ -9650,6 +9641,7 @@ export type CustomersQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   accountType?: InputMaybe<Array<CustomerAccountTypeEnum> | CustomerAccountTypeEnum>;
+  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
 }>;
 
 
@@ -9715,6 +9707,7 @@ export type GetInvoicesListQueryVariables = Exact<{
   amountFrom?: InputMaybe<Scalars['Int']['input']>;
   amountTo?: InputMaybe<Scalars['Int']['input']>;
   selfBilled?: InputMaybe<Scalars['Boolean']['input']>;
+  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
 }>;
 
 
@@ -9745,6 +9738,7 @@ export type GetCreditNotesListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   selfBilled?: InputMaybe<Scalars['Boolean']['input']>;
+  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
 }>;
 
 
@@ -10242,13 +10236,6 @@ export type GetNetsuiteIntegrationsListQueryVariables = Exact<{
 
 
 export type GetNetsuiteIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration', id: string, name: string, code: string, accountId?: string | null, clientId?: string | null, clientSecret?: any | null, scriptEndpointUrl: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null, tokenId?: string | null, tokenSecret?: any | null } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
-
-export type OrganizationInformationsFragment = { __typename?: 'CurrentOrganization', id: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, timezone?: TimezoneEnum | null };
-
-export type GetOrganizationInformationsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetOrganizationInformationsQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, timezone?: TimezoneEnum | null } | null };
 
 export type SalesforceIntegrationDetailsFragment = { __typename?: 'SalesforceIntegration', id: string, name: string, code: string, instanceId: string };
 
@@ -11044,23 +11031,6 @@ export const PlanSubscriptionListItemForSubscriptionListFragmentDoc = gql`
     lastname
     externalId
   }
-}
-    `;
-export const EditOrganizationInformationsDialogFragmentDoc = gql`
-    fragment EditOrganizationInformationsDialog on CurrentOrganization {
-  id
-  logoUrl
-  name
-  legalName
-  legalNumber
-  taxIdentificationNumber
-  email
-  addressLine1
-  addressLine2
-  zipcode
-  city
-  state
-  country
 }
     `;
 export const DeleteOktaIntegrationDialogFragmentDoc = gql`
@@ -13617,24 +13587,6 @@ export const NetsuiteIntegrationsFragmentDoc = gql`
   ...NetsuiteForCreateDialogDialog
 }
     ${NetsuiteForCreateDialogDialogFragmentDoc}`;
-export const OrganizationInformationsFragmentDoc = gql`
-    fragment OrganizationInformations on CurrentOrganization {
-  id
-  logoUrl
-  name
-  legalName
-  legalNumber
-  taxIdentificationNumber
-  email
-  addressLine1
-  addressLine2
-  zipcode
-  city
-  state
-  country
-  timezone
-}
-    `;
 export const DeleteSalesforceIntegrationDialogFragmentDoc = gql`
     fragment DeleteSalesforceIntegrationDialog on SalesforceIntegration {
   id
@@ -18206,41 +18158,6 @@ export type GetSubscribtionsForPlanDetailsQueryHookResult = ReturnType<typeof us
 export type GetSubscribtionsForPlanDetailsLazyQueryHookResult = ReturnType<typeof useGetSubscribtionsForPlanDetailsLazyQuery>;
 export type GetSubscribtionsForPlanDetailsSuspenseQueryHookResult = ReturnType<typeof useGetSubscribtionsForPlanDetailsSuspenseQuery>;
 export type GetSubscribtionsForPlanDetailsQueryResult = Apollo.QueryResult<GetSubscribtionsForPlanDetailsQuery, GetSubscribtionsForPlanDetailsQueryVariables>;
-export const UpdateOrganizationInformationsDocument = gql`
-    mutation updateOrganizationInformations($input: UpdateOrganizationInput!) {
-  updateOrganization(input: $input) {
-    ...OrganizationInformations
-    ...EditOrganizationInformationsDialog
-  }
-}
-    ${OrganizationInformationsFragmentDoc}
-${EditOrganizationInformationsDialogFragmentDoc}`;
-export type UpdateOrganizationInformationsMutationFn = Apollo.MutationFunction<UpdateOrganizationInformationsMutation, UpdateOrganizationInformationsMutationVariables>;
-
-/**
- * __useUpdateOrganizationInformationsMutation__
- *
- * To run a mutation, you first call `useUpdateOrganizationInformationsMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateOrganizationInformationsMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateOrganizationInformationsMutation, { data, loading, error }] = useUpdateOrganizationInformationsMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateOrganizationInformationsMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrganizationInformationsMutation, UpdateOrganizationInformationsMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateOrganizationInformationsMutation, UpdateOrganizationInformationsMutationVariables>(UpdateOrganizationInformationsDocument, options);
-      }
-export type UpdateOrganizationInformationsMutationHookResult = ReturnType<typeof useUpdateOrganizationInformationsMutation>;
-export type UpdateOrganizationInformationsMutationResult = Apollo.MutationResult<UpdateOrganizationInformationsMutation>;
-export type UpdateOrganizationInformationsMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationInformationsMutation, UpdateOrganizationInformationsMutationVariables>;
 export const DestroyIntegrationDocument = gql`
     mutation DestroyIntegration($input: DestroyIntegrationInput!) {
   destroyIntegration(input: $input) {
@@ -25340,12 +25257,13 @@ export type CreatePaymentRequestMutationHookResult = ReturnType<typeof useCreate
 export type CreatePaymentRequestMutationResult = Apollo.MutationResult<CreatePaymentRequestMutation>;
 export type CreatePaymentRequestMutationOptions = Apollo.BaseMutationOptions<CreatePaymentRequestMutation, CreatePaymentRequestMutationVariables>;
 export const CustomersDocument = gql`
-    query customers($page: Int, $limit: Int, $searchTerm: String, $accountType: [CustomerAccountTypeEnum!]) {
+    query customers($page: Int, $limit: Int, $searchTerm: String, $accountType: [CustomerAccountTypeEnum!], $billingEntityId: ID) {
   customers(
     page: $page
     limit: $limit
     searchTerm: $searchTerm
     accountType: $accountType
+    billingEntityId: $billingEntityId
   ) {
     metadata {
       currentPage
@@ -25374,6 +25292,7 @@ export const CustomersDocument = gql`
  *      limit: // value for 'limit'
  *      searchTerm: // value for 'searchTerm'
  *      accountType: // value for 'accountType'
+ *      billingEntityId: // value for 'billingEntityId'
  *   },
  * });
  */
@@ -25583,7 +25502,7 @@ export type OktaAcceptInviteMutationHookResult = ReturnType<typeof useOktaAccept
 export type OktaAcceptInviteMutationResult = Apollo.MutationResult<OktaAcceptInviteMutation>;
 export type OktaAcceptInviteMutationOptions = Apollo.BaseMutationOptions<OktaAcceptInviteMutation, OktaAcceptInviteMutationVariables>;
 export const GetInvoicesListDocument = gql`
-    query getInvoicesList($currency: CurrencyEnum, $customerExternalId: String, $invoiceType: [InvoiceTypeEnum!], $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $limit: Int, $page: Int, $partiallyPaid: Boolean, $paymentDisputeLost: Boolean, $paymentOverdue: Boolean, $paymentStatus: [InvoicePaymentStatusTypeEnum!], $searchTerm: String, $status: [InvoiceStatusTypeEnum!], $amountFrom: Int, $amountTo: Int, $selfBilled: Boolean) {
+    query getInvoicesList($currency: CurrencyEnum, $customerExternalId: String, $invoiceType: [InvoiceTypeEnum!], $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $limit: Int, $page: Int, $partiallyPaid: Boolean, $paymentDisputeLost: Boolean, $paymentOverdue: Boolean, $paymentStatus: [InvoicePaymentStatusTypeEnum!], $searchTerm: String, $status: [InvoiceStatusTypeEnum!], $amountFrom: Int, $amountTo: Int, $selfBilled: Boolean, $billingEntityId: ID) {
   invoices(
     currency: $currency
     customerExternalId: $customerExternalId
@@ -25601,6 +25520,7 @@ export const GetInvoicesListDocument = gql`
     amountFrom: $amountFrom
     amountTo: $amountTo
     selfBilled: $selfBilled
+    billingEntityId: $billingEntityId
   ) {
     metadata {
       currentPage
@@ -25643,6 +25563,7 @@ export const GetInvoicesListDocument = gql`
  *      amountFrom: // value for 'amountFrom'
  *      amountTo: // value for 'amountTo'
  *      selfBilled: // value for 'selfBilled'
+ *      billingEntityId: // value for 'billingEntityId'
  *   },
  * });
  */
@@ -25718,7 +25639,7 @@ export type GetPaymentListLazyQueryHookResult = ReturnType<typeof useGetPaymentL
 export type GetPaymentListSuspenseQueryHookResult = ReturnType<typeof useGetPaymentListSuspenseQuery>;
 export type GetPaymentListQueryResult = Apollo.QueryResult<GetPaymentListQuery, GetPaymentListQueryVariables>;
 export const GetCreditNotesListDocument = gql`
-    query getCreditNotesList($amountFrom: Int, $amountTo: Int, $creditStatus: [CreditNoteCreditStatusEnum!], $currency: CurrencyEnum, $customerExternalId: String, $invoiceNumber: String, $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $reason: [CreditNoteReasonEnum!], $refundStatus: [CreditNoteRefundStatusEnum!], $limit: Int, $page: Int, $searchTerm: String, $selfBilled: Boolean) {
+    query getCreditNotesList($amountFrom: Int, $amountTo: Int, $creditStatus: [CreditNoteCreditStatusEnum!], $currency: CurrencyEnum, $customerExternalId: String, $invoiceNumber: String, $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $reason: [CreditNoteReasonEnum!], $refundStatus: [CreditNoteRefundStatusEnum!], $limit: Int, $page: Int, $searchTerm: String, $selfBilled: Boolean, $billingEntityId: ID) {
   creditNotes(
     amountFrom: $amountFrom
     amountTo: $amountTo
@@ -25734,6 +25655,7 @@ export const GetCreditNotesListDocument = gql`
     page: $page
     searchTerm: $searchTerm
     selfBilled: $selfBilled
+    billingEntityId: $billingEntityId
   ) {
     ...CreditNotesForTable
   }
@@ -25766,6 +25688,7 @@ export const GetCreditNotesListDocument = gql`
  *      page: // value for 'page'
  *      searchTerm: // value for 'searchTerm'
  *      selfBilled: // value for 'selfBilled'
+ *      billingEntityId: // value for 'billingEntityId'
  *   },
  * });
  */
@@ -28518,48 +28441,6 @@ export type GetNetsuiteIntegrationsListQueryHookResult = ReturnType<typeof useGe
 export type GetNetsuiteIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsListLazyQuery>;
 export type GetNetsuiteIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsListSuspenseQuery>;
 export type GetNetsuiteIntegrationsListQueryResult = Apollo.QueryResult<GetNetsuiteIntegrationsListQuery, GetNetsuiteIntegrationsListQueryVariables>;
-export const GetOrganizationInformationsDocument = gql`
-    query getOrganizationInformations {
-  organization {
-    id
-    ...OrganizationInformations
-    ...EditOrganizationInformationsDialog
-  }
-}
-    ${OrganizationInformationsFragmentDoc}
-${EditOrganizationInformationsDialogFragmentDoc}`;
-
-/**
- * __useGetOrganizationInformationsQuery__
- *
- * To run a query within a React component, call `useGetOrganizationInformationsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetOrganizationInformationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetOrganizationInformationsQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetOrganizationInformationsQuery(baseOptions?: Apollo.QueryHookOptions<GetOrganizationInformationsQuery, GetOrganizationInformationsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetOrganizationInformationsQuery, GetOrganizationInformationsQueryVariables>(GetOrganizationInformationsDocument, options);
-      }
-export function useGetOrganizationInformationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrganizationInformationsQuery, GetOrganizationInformationsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetOrganizationInformationsQuery, GetOrganizationInformationsQueryVariables>(GetOrganizationInformationsDocument, options);
-        }
-export function useGetOrganizationInformationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationInformationsQuery, GetOrganizationInformationsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetOrganizationInformationsQuery, GetOrganizationInformationsQueryVariables>(GetOrganizationInformationsDocument, options);
-        }
-export type GetOrganizationInformationsQueryHookResult = ReturnType<typeof useGetOrganizationInformationsQuery>;
-export type GetOrganizationInformationsLazyQueryHookResult = ReturnType<typeof useGetOrganizationInformationsLazyQuery>;
-export type GetOrganizationInformationsSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationInformationsSuspenseQuery>;
-export type GetOrganizationInformationsQueryResult = Apollo.QueryResult<GetOrganizationInformationsQuery, GetOrganizationInformationsQueryVariables>;
 export const GetSalesforceIntegrationsDetailsDocument = gql`
     query getSalesforceIntegrationsDetails($id: ID!, $limit: Int, $integrationsType: IntegrationTypeEnum!) {
   integration(id: $id) {
