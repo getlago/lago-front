@@ -15,7 +15,6 @@ import {
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   BillingEntity,
-  DeleteTaxFragmentDoc,
   Tax,
   useGetBillingEntityQuery,
   useGetBillingEntityTaxesQuery,
@@ -45,8 +44,6 @@ gql`
       }
     }
   }
-
-  ${DeleteTaxFragmentDoc}
 `
 
 const BillingEntityTaxesSettings = () => {
