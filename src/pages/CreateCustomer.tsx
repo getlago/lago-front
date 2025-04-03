@@ -99,7 +99,7 @@ const CreateCustomer = () => {
       },
       paymentProvider: customer?.paymentProvider ?? undefined,
       metadata: customer?.metadata ?? undefined,
-      billingEntity: customer?.billingEntity ?? null,
+      billingEntityCode: customer?.billingEntity?.code ?? null,
     },
     validationSchema: object().shape({
       customerType: string().oneOf(Object.values(CustomerTypeEnum)).nullable(),
@@ -218,7 +218,7 @@ const CreateCustomer = () => {
             .nullable(),
         )
         .nullable(),
-      billingEntity: object(),
+      billingEntityCode: string(),
     }),
     validateOnMount: true,
     enableReinitialize: true,
