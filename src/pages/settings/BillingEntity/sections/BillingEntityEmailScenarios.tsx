@@ -21,7 +21,11 @@ import {
 } from '~/components/layouts/Settings'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { BILLING_ENTITY_EMAIL_SCENARIOS_CONFIG_ROUTE } from '~/core/router'
-import { BillingEntity, EmailSettingsEnum, useGetBillingEntityQuery } from '~/generated/graphql'
+import {
+  BillingEntity,
+  BillingEntityEmailSettingsEnum,
+  useGetBillingEntityQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useEmailConfig } from '~/hooks/useEmailConfig'
@@ -29,26 +33,24 @@ import { usePermissions } from '~/hooks/usePermissions'
 import { BillingEntityTab } from '~/pages/settings/BillingEntity/BillingEntity'
 import BillingEntityHeader from '~/pages/settings/BillingEntity/components/BillingEntityHeader'
 
-const EmailScenarioTitleLookup: Record<EmailSettingsEnum, string> = {
-  [EmailSettingsEnum.InvoiceFinalized]: 'text_6408b5ae7f629d008bc8af7d',
-  [EmailSettingsEnum.CreditNoteCreated]: 'text_6408b5ae7f629d008bc8af86',
-  [EmailSettingsEnum.PaymentReceiptCreated]: '',
+const EmailScenarioTitleLookup: Record<BillingEntityEmailSettingsEnum, string> = {
+  [BillingEntityEmailSettingsEnum.InvoiceFinalized]: 'text_6408b5ae7f629d008bc8af7d',
+  [BillingEntityEmailSettingsEnum.CreditNoteCreated]: 'text_6408b5ae7f629d008bc8af86',
 }
 
-const EmailScenarioSubtitleLookup: Record<EmailSettingsEnum, string> = {
-  [EmailSettingsEnum.InvoiceFinalized]: 'text_6408b5ae7f629d008bc8af7e',
-  [EmailSettingsEnum.CreditNoteCreated]: 'text_6408b5ae7f629d008bc8af87',
-  [EmailSettingsEnum.PaymentReceiptCreated]: '',
+const EmailScenarioSubtitleLookup: Record<BillingEntityEmailSettingsEnum, string> = {
+  [BillingEntityEmailSettingsEnum.InvoiceFinalized]: 'text_6408b5ae7f629d008bc8af7e',
+  [BillingEntityEmailSettingsEnum.CreditNoteCreated]: 'text_6408b5ae7f629d008bc8af87',
 }
 
-const EMAIL_SCENARIOS: Array<{ id: string; setting: EmailSettingsEnum }> = [
+const EMAIL_SCENARIOS: Array<{ id: string; setting: BillingEntityEmailSettingsEnum }> = [
   {
     id: 'scenario-1',
-    setting: EmailSettingsEnum.InvoiceFinalized,
+    setting: BillingEntityEmailSettingsEnum.InvoiceFinalized,
   },
   {
     id: 'scenario-2',
-    setting: EmailSettingsEnum.CreditNoteCreated,
+    setting: BillingEntityEmailSettingsEnum.CreditNoteCreated,
   },
 ]
 
@@ -73,13 +75,13 @@ const BillingEntityEmailScenarios = () => {
     billingEntity: billingEntity as BillingEntity,
   })
 
-  const generateConfigRoute = (setting: EmailSettingsEnum) =>
+  const generateConfigRoute = (setting: BillingEntityEmailSettingsEnum) =>
     generatePath(BILLING_ENTITY_EMAIL_SCENARIOS_CONFIG_ROUTE, {
       billingEntityCode: billingEntityCode as string,
       type: setting,
     })
 
-  const goToConfigRoute = (setting: EmailSettingsEnum) => {
+  const goToConfigRoute = (setting: BillingEntityEmailSettingsEnum) => {
     if (billingEntityCode) {
       navigate(generateConfigRoute(setting))
     }
@@ -165,7 +167,7 @@ const BillingEntityEmailScenarios = () => {
                             },
                           } as TableColumn<{
                             id: string
-                            setting: EmailSettingsEnum
+                            setting: BillingEntityEmailSettingsEnum
                           }>,
                         ]
                       : []),
