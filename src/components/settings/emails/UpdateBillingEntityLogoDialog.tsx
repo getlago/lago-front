@@ -3,7 +3,7 @@ import { forwardRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
-import { OrganizationLogoPicker } from '~/components/OrganizationLogoPicker'
+import { LogoPicker } from '~/components/LogoPicker'
 import { useUpdateBillingEntityLogoMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -53,11 +53,7 @@ export const UpdateBillingEntityLogoDialog = forwardRef<UpdateBillingEntityLogoD
           </>
         )}
       >
-        <OrganizationLogoPicker
-          className="mb-8"
-          logoValue={logo}
-          onChange={(value) => setLogo(value)}
-        />
+        <LogoPicker className="mb-8" logoValue={logo} onChange={(value) => setLogo(value)} />
       </Dialog>
     )
   },
