@@ -65,7 +65,7 @@ export const CustomerInformation: FC<CustomerInformationProps> = ({
 
       <ComboBoxField
         name="billingEntityCode"
-        label={translate('text_1743600025133gjunh3ialgx')}
+        label={translate('text_1743611497157teaa1zu8l24')}
         placeholder={translate('text_174360002513391n72uwg6bb')}
         disabled={isEdition && !customer?.canEditAttributes}
         formikProps={formikProps}
