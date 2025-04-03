@@ -137,7 +137,7 @@ const InfoLine = ({
   value: string | ReactNode
   isBold?: boolean
 }) => (
-  <div className="flex gap-3 align-baseline [&>a>*]:text-inherit [&>a]:text-blue-600">
+  <div className="flex items-center gap-3 align-baseline [&>a>*]:text-inherit [&>a]:text-blue-600">
     <Typography variant={isBold ? 'captionHl' : 'caption'} noWrap className="min-w-35">
       {label}
     </Typography>
