@@ -84,6 +84,7 @@ export const EditNetPaymentTermDialog = forwardRef<
         })
       }
     },
+    refetchQueries: ['getBillingEntitySettings'],
   })
   const [updateCustomer] = useUpdateCustomerNetPaymentTermMutation({
     onCompleted(res) {
