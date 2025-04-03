@@ -27,6 +27,9 @@ export const getTimezoneConfig = (timezone: TimezoneEnum | null | undefined) => 
   return TimeZonesConfig[timezone as TimezoneEnum]
 }
 
+/**
+ * @deprecated Use `intlFormatDateTime` instead.
+ */
 export const formatDateToTZ = (
   date: string,
   timezone: TimezoneEnum | null | undefined,
@@ -41,6 +44,9 @@ export const isSameDay = (a: DateTime, b: DateTime): boolean => {
   return a.hasSame(b, 'day') && a.hasSame(b, 'month') && a.hasSame(b, 'year')
 }
 
+/**
+ * @deprecated Use `intlFormatDateTime` instead.
+ */
 export const intlFormatDateToDateMed = (
   date: string,
   timezone: TimezoneEnum | null | undefined,
@@ -52,36 +58,127 @@ export const intlFormatDateToDateMed = (
   }).toLocaleString(DateTime.DATE_MED)
 }
 
+export enum DateFormat {
+  /** Apr 18, 2025 */
+  DATE_MED = 'DATE_MED',
+  /** 4/18/2025 */
+  DATE_SHORT = 'DATE_SHORT',
+  /** April 18, 2025 */
+  DATE_FULL = 'DATE_FULL',
+  /** Friday, April 18, 2025 */
+  DATE_HUGE = 'DATE_HUGE',
+  /** Fri, Apr 18, 2025 */
+  DATE_MED_WITH_WEEKDAY = 'DATE_MED_WITH_WEEKDAY',
+  /** Apr 18, 25 */
+  DATE_MED_SHORT_YEAR = 'DATE_MED_SHORT_YEAR',
+  /** Apr 2024 */
+  DATE_MONTH_YEAR = 'DATE_MONTH_YEAR',
+}
+
+export enum TimeFormat {
+  /** 1:41 PM */
+  TIME_SIMPLE = 'TIME_SIMPLE',
+  /** 1:41:39 PM */
+  TIME_WITH_SECONDS = 'TIME_WITH_SECONDS',
+  /** 13:41 */
+  TIME_24_SIMPLE = 'TIME_24_SIMPLE',
+  /** 13:41:39 */
+  TIME_24_WITH_SECONDS = 'TIME_24_WITH_SECONDS',
+}
+
+export enum TimezoneFormat {
+  /** UTC+5 */
+  UTC_OFFSET = 'UTC_OFFSET',
+  /** PDT */
+  TIMEZONE_SHORT = 'TIMEZONE_SHORT',
+  /** Pacific Daylight Time */
+  TIMEZONE_LONG = 'TIMEZONE_LONG',
+  /** GMT-7 */
+  TIMEZONE_OFFSET = 'TIMEZONE_OFFSET',
+}
+
+const getDateString = (dateTime: DateTime, format: DateFormat) => {
+  if (format === 'DATE_MONTH_YEAR' || format === 'DATE_MED_SHORT_YEAR') {
+    return dateTime.toLocaleString({
+      month: 'short',
+      ...(format === 'DATE_MONTH_YEAR' && {
+        year: 'numeric',
+      }),
+      ...(format === 'DATE_MED_SHORT_YEAR' && {
+        day: 'numeric',
+        year: '2-digit',
+      }),
+    })
+  }
+  return dateTime.toLocaleString(DateTime[format])
+}
+const getTimezoneString = (dateTime: DateTime, format: TimezoneFormat) => {
+  let timeZoneName: DateTimeFormatOptions['timeZoneName'] | undefined
+  let timezoneString: string | undefined
+
+  switch (format) {
+    case 'TIMEZONE_SHORT':
+      timeZoneName = 'short'
+      break
+    case 'TIMEZONE_LONG':
+      timeZoneName = 'long'
+      break
+    case 'TIMEZONE_OFFSET':
+      timeZoneName = 'shortOffset'
+      break
+    default:
+      timeZoneName = undefined
+      break
+  }
+
+  if (timeZoneName) {
+    timezoneString =
+      dateTime
+        .toLocaleParts({
+          timeZoneName: timeZoneName,
+        })
+        .find((part) => part.type === 'timeZoneName')?.value || ''
+  } else {
+    const timezoneOffset = dateTime.offset / 60
+
+    timezoneString =
+      timezoneOffset === 0
+        ? 'UTC'
+        : `UTC${timezoneOffset > 0 ? `+${timezoneOffset}` : timezoneOffset}`
+  }
+  return timezoneString
+}
+
 export const intlFormatDateTime = (
   date: string,
   options:
     | {
         timezone?: TimezoneEnum | null | undefined
         locale?: LocaleEnum
-        format?: DateTimeFormatOptions
+        formatDate?: DateFormat
+        formatTime?: TimeFormat
+        formatTimezone?: TimezoneFormat
       }
     | undefined = {},
-) => {
+): {
+  date: string
+  time: string
+  timezone: string
+} => {
   const timezone = options?.timezone || TimezoneEnum.TzUtc
   const locale = options?.locale || LocaleEnum.en
-  const format = options?.format || DateTime.DATE_MED
 
   const localeDateTime = DateTime.fromISO(date, {
     zone: getTimezoneConfig(timezone).name,
     locale: locale,
   })
 
-  const localeDate = localeDateTime.toLocaleString(format)
-
-  const localeTime = localeDateTime
-    .toLocaleParts({
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: LocaleEnum.en === locale,
-      timeZoneName: 'short',
-    })
-    .map((part) => part.value)
-    .join('')
-
-  return { date: localeDate, time: localeTime }
+  return {
+    date: getDateString(localeDateTime, options.formatDate || DateFormat.DATE_MED),
+    time: localeDateTime.toLocaleString(DateTime[options?.formatTime || TimeFormat.TIME_SIMPLE]),
+    timezone: getTimezoneString(
+      localeDateTime,
+      options?.formatTimezone || TimezoneFormat.UTC_OFFSET,
+    ),
+  }
 }
