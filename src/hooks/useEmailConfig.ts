@@ -32,7 +32,9 @@ type UseEmailConfigProps = {
 export const useEmailConfig = ({ billingEntity }: UseEmailConfigProps): UseEmailConfigReturn => {
   const emailSettings = billingEntity?.emailSettings
 
-  const [updateSetting] = useUpdateBillingEntityEmailSettingMutation()
+  const [updateSetting] = useUpdateBillingEntityEmailSettingMutation({
+    refetchQueries: ['getBillingEntity'],
+  })
 
   const updateEmailSettings = async (type: BillingEntityEmailSettingsEnum, value: boolean) => {
     const existingSettings = emailSettings || []
