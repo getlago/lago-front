@@ -11,7 +11,6 @@ import { LocaleEnum } from '~/core/translations'
 import {
   BillingEntity,
   BillingEntityEmailSettingsEnum,
-  EmailSettingsEnum,
   useGetBillingEntityQuery,
 } from '~/generated/graphql'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
@@ -235,7 +234,7 @@ const BillingEntityEmailScenariosConfig = () => {
                     </Typography>
                     <div className="my-6 h-px w-full bg-grey-300" />
                     <div className="flex w-full flex-col gap-1">
-                      {type === EmailSettingsEnum.CreditNoteCreated && (
+                      {type === BillingEntityEmailSettingsEnum.CreditNoteCreated && (
                         <div className="flex w-full items-center justify-between">
                           <Typography variant="caption">
                             {translateWithContextualLocal(

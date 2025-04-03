@@ -9,7 +9,6 @@ import { addToast } from '~/core/apolloClient'
 import { getBillingEntityNumberPreview } from '~/core/utils/billingEntityNumberPreview'
 import {
   BillingEntityDocumentNumberingEnum,
-  DocumentNumberingEnum,
   useUpdateBillingEntityInvoiceNumberingMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -128,11 +127,11 @@ export const EditBillingEntityInvoiceNumberingDialog = forwardRef<
             options={[
               {
                 label: translate('text_6566f920a1d6c35693d6ccb8'),
-                value: DocumentNumberingEnum.PerCustomer,
+                value: BillingEntityDocumentNumberingEnum.PerCustomer,
               },
               {
                 label: translate('text_6566f920a1d6c35693d6ccc0'),
-                value: DocumentNumberingEnum.PerBillingEntity,
+                value: BillingEntityDocumentNumberingEnum.PerBillingEntity,
               },
             ]}
           />
@@ -156,7 +155,7 @@ export const EditBillingEntityInvoiceNumberingDialog = forwardRef<
               label={translate('text_6566f920a1d6c35693d6ccd8')}
               value={translate(
                 DynamicPrefixTranslationLookup[
-                  formikProps.values.documentNumbering as DocumentNumberingEnum
+                  formikProps.values.documentNumbering as BillingEntityDocumentNumberingEnum
                 ],
               )}
             />

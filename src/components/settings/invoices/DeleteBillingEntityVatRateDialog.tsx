@@ -67,7 +67,7 @@ export const DeleteBillingEntityVatRateDialog = forwardRef<DeleteBillingEntityVa
         description={<Typography html={translate('text_64639cfe2e46e9007d11b460')} />}
         onContinue={async () =>
           await unasignTaxRate({
-            variables: { input: { id: taxRate?.id || '', appliedToBillingEntity: false } },
+            variables: { input: { id: taxRate?.id || '' } },
           })
         }
         continueText={translate('text_64639cfe2e46e9007d11b466')}

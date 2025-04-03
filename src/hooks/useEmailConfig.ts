@@ -18,7 +18,7 @@ gql`
 
 type UseEmailConfigReturn = {
   loading: boolean
-  emailSettings: BillingEntityEmailSettingsEnum[]
+  emailSettings?: BillingEntityEmailSettingsEnum[] | null
   updateEmailSettings: (
     type: BillingEntityEmailSettingsEnum,
     value: boolean,
