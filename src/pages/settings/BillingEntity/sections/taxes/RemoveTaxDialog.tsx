@@ -36,6 +36,7 @@ export const RemoveTaxDialog = forwardRef<RemoveTaxDialogRef>((_, ref) => {
         })
       }
     },
+    refetchQueries: ['getBillingEntityTaxes'],
   })
 
   useImperativeHandle(ref, () => ({

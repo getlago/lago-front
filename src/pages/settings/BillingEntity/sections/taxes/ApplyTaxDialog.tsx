@@ -62,6 +62,7 @@ export const ApplyTaxDialog = forwardRef<ApplyTaxDialogRef>((_, ref) => {
         })
       }
     },
+    refetchQueries: ['getBillingEntityTaxes'],
   })
 
   const taxes = useMemo(
