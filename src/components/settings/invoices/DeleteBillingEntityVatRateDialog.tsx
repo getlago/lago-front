@@ -35,7 +35,7 @@ export const DeleteBillingEntityVatRateDialog = forwardRef<DeleteBillingEntityVa
     const { translate } = useInternationalization()
     const dialogRef = useRef<DialogRef>(null)
     const [taxRate, setTaxRate] = useState<DeleteBillingEntityVatRateFragment>()
-    const [unasignTaxRate] = useAssignTaxRateToBillingEntityMutation({
+    const [unassignTaxRate] = useAssignTaxRateToBillingEntityMutation({
       context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
       onCompleted({ updateTax }) {
         if (updateTax?.id) {
@@ -66,7 +66,7 @@ export const DeleteBillingEntityVatRateDialog = forwardRef<DeleteBillingEntityVa
         })}
         description={<Typography html={translate('text_64639cfe2e46e9007d11b460')} />}
         onContinue={async () =>
-          await unasignTaxRate({
+          await unassignTaxRate({
             variables: { input: { id: taxRate?.id || '' } },
           })
         }
