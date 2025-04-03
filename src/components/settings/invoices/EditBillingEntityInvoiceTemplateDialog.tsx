@@ -48,6 +48,7 @@ export const EditBillingEntityInvoiceTemplateDialog = forwardRef<
         })
       }
     },
+    refetchQueries: ['getBillingEntitySettings'],
   })
 
   // Type is manually written here as errors type are not correclty read from UpdateBillingEntityInput

@@ -46,6 +46,7 @@ export const EditBillingEntityGracePeriodDialog = forwardRef<
         })
       }
     },
+    refetchQueries: ['getBillingEntitySettings'],
   })
   const formikProps = useFormik<UpdateBillingEntityInput>({
     initialValues: {
