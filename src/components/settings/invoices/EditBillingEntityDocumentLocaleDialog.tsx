@@ -56,6 +56,7 @@ export const EditBillingEntityDocumentLocaleDialog = forwardRef<
         })
       }
     },
+    refetchQueries: ['getBillingEntitySettings'],
   })
 
   const formikProps = useFormik<UpdateBillingEntityInput>({

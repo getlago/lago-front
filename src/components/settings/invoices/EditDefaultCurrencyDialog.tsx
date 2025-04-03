@@ -50,6 +50,7 @@ export const EditDefaultCurrencyDialog = forwardRef<EditDefaultCurrencyDialogRef
         })
       }
     },
+    refetchQueries: ['getBillingEntitySettings'],
   })
 
   const formikProps = useFormik<Pick<UpdateBillingEntityInput, 'defaultCurrency'>>({
