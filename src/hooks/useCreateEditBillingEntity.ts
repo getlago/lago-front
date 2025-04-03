@@ -114,7 +114,7 @@ const useCreateEditBillingEntity = () => {
         })
 
         navigate(
-          generatePath(BILLING_ENTITY_ROUTE, {
+          generatePath(BILLING_ENTITY_GENERAL_ROUTE, {
             billingEntityCode: updateBillingEntity.code,
           }),
         )
