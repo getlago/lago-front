@@ -81,6 +81,7 @@ export const EditFinalizeZeroAmountInvoiceDialog = forwardRef<
           })
         }
       },
+      refetchQueries: ['getBillingEntitySettings'],
     })
 
   const isCustomer = entity?.__typename === 'Customer'
