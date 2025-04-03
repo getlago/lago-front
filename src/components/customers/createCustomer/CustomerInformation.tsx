@@ -64,9 +64,10 @@ export const CustomerInformation: FC<CustomerInformationProps> = ({
       </div>
 
       <ComboBoxField
-        name="billingEntity.code"
+        name="billingEntityCode"
         label={translate('text_1743600025133gjunh3ialgx')}
         placeholder={translate('text_174360002513391n72uwg6bb')}
+        disabled={isEdition && !customer?.canEditAttributes}
         formikProps={formikProps}
         PopperProps={{ displayInDialog: true }}
         loading={billingEntitiesLoading}
