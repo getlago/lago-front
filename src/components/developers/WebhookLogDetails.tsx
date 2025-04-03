@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import styled from 'styled-components'
 
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { Button, Chip, Typography } from '~/components/designSystem'
@@ -11,7 +10,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { theme } from '~/styles'
 
 gql`
   fragment WebhookLogDetails on Webhook {
@@ -77,21 +75,22 @@ export const WebhookLogDetails = ({ log }: WebhookLogDetailsProps) => {
           </Button>
         )}
       </Typography>
-      <PropertiesContainer>
-        <WideLine>
+
+      <div className="grid grid-cols-[140px,_1fr] items-baseline gap-3 p-8 shadow-b">
+        <div className="col-span-2">
           <Typography variant="captionHl" color="grey700">
             {translate('text_63e27c56dfe64b846474ef6a')}
           </Typography>
-        </WideLine>
+        </div>
 
         {hasError && (
-          <WideLine>
+          <div className="col-span-2">
             <Chip
               error
               icon="close-circle-unfilled"
               label={translate('text_63e27c56dfe64b846474efa6')}
             />
-          </WideLine>
+          </div>
         )}
 
         <Typography className="pt-1" variant="caption">
@@ -139,61 +138,34 @@ export const WebhookLogDetails = ({ log }: WebhookLogDetailsProps) => {
             </Typography>
           </>
         )}
-      </PropertiesContainer>
+      </div>
+
       {response && hasError && (
-        <CodeBlock>
-          <Typography color="grey700" variant="captionHl">
+        <div className="ml-px bg-grey-100 pb-4 shadow-b">
+          <Typography color="grey700" variant="captionHl" className="pl-8 pt-8">
             {translate('text_63e27c56dfe64b846474efb3')}
           </Typography>
           <CodeSnippet
-            className="*:pb-0"
+            className="h-[calc(100%-52px)]"
             language="json"
             code={response}
             canCopy={false}
             displayHead={false}
           />
-        </CodeBlock>
+        </div>
       )}
-      <CodeBlock $maxHeight>
-        <Typography color="grey700" variant="captionHl">
+      <div className="ml-px flex-1 bg-grey-100 pb-4 shadow-b">
+        <Typography className="pl-8 pt-8" color="grey700" variant="captionHl">
           {translate('text_63e27c56dfe64b846474efb6')}
         </Typography>
         <CodeSnippet
-          className="*:pb-0"
+          className="h-[calc(100%-52px)]"
           language="json"
           code={JSON.stringify(JSON.parse(payload || ''), null, 2)}
           canCopy={false}
           displayHead={false}
         />
-      </CodeBlock>
+      </div>
     </>
   )
 }
-
-const WideLine = styled.div`
-  grid-column: span 2;
-`
-
-const PropertiesContainer = styled.div`
-  padding: ${theme.spacing(8)};
-  box-shadow: ${theme.shadows[7]};
-  display: grid;
-  grid-template-columns: 140px 1fr;
-  gap: ${theme.spacing(3)};
-`
-
-const CodeBlock = styled.div<{ $maxHeight?: boolean }>`
-  background-color: ${theme.palette.grey[100]};
-  box-shadow: ${theme.shadows[7]};
-  margin-left: 1px;
-  flex: ${({ $maxHeight }) => ($maxHeight ? 1 : 'initial')};
-  padding-bottom: ${theme.spacing(4)};
-
-  > *:first-child {
-    padding: ${theme.spacing(8)} 0 0 ${theme.spacing(8)};
-  }
-
-  > *:last-child {
-    height: calc(100% - 52px);
-  }
-`
