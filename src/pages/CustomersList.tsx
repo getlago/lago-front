@@ -48,14 +48,14 @@ gql`
     $limit: Int
     $searchTerm: String
     $accountType: [CustomerAccountTypeEnum!]
-    $billingEntityId: ID
+    $billingEntityIds: [ID!]
   ) {
     customers(
       page: $page
       limit: $limit
       searchTerm: $searchTerm
       accountType: $accountType
-      billingEntityId: $billingEntityId
+      billingEntityIds: $billingEntityIds
     ) {
       metadata {
         currentPage
@@ -125,7 +125,7 @@ const CustomersList = () => {
           quickFiltersType={AvailableQuickFilters.customerAccountType}
           availableFilters={[
             AvailableFiltersEnum.customerAccountType,
-            AvailableFiltersEnum.billingEntityId,
+            AvailableFiltersEnum.billingEntityIds,
           ]}
         >
           <Filters.QuickFilters />
