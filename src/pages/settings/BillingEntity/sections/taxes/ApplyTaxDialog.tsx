@@ -67,7 +67,7 @@ export const ApplyTaxDialog = forwardRef<ApplyTaxDialogRef>((_, ref) => {
   const taxes = useMemo(
     () =>
       data?.taxes?.collection?.map((item) => ({
-        value: item.id,
+        value: item.code,
         label: item.name,
         description: item.code,
       })) || [],
@@ -75,7 +75,7 @@ export const ApplyTaxDialog = forwardRef<ApplyTaxDialogRef>((_, ref) => {
   )
 
   const [billingEntityId, setBillingEntityId] = useState<string | null>(null)
-  const [taxId, setTaxId] = useState<string | null>(null)
+  const [taxCode, setTaxCode] = useState<string | null>(null)
 
   useImperativeHandle(ref, () => ({
     openDialog: (_billingEntityId) => {
@@ -100,12 +100,12 @@ export const ApplyTaxDialog = forwardRef<ApplyTaxDialogRef>((_, ref) => {
           <Button
             variant="primary"
             onClick={async () => {
-              if (billingEntityId && taxId) {
+              if (billingEntityId && taxCode) {
                 applyTax({
                   variables: {
                     input: {
                       billingEntityId,
-                      taxCodes: [taxId],
+                      taxCodes: [taxCode],
                     },
                   },
                 })
@@ -125,8 +125,8 @@ export const ApplyTaxDialog = forwardRef<ApplyTaxDialogRef>((_, ref) => {
         className="mb-8"
         loading={loading}
         data={taxes}
-        value={taxId || ''}
-        onChange={(t) => setTaxId(t)}
+        value={taxCode || ''}
+        onChange={(t) => setTaxCode(t)}
         searchQuery={getTaxes}
         placeholder={translate('text_17436000251334xxp8qsljsk')}
         PopperProps={{ displayInDialog: true }}
