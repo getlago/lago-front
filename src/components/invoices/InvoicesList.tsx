@@ -133,7 +133,7 @@ const InvoicesList = ({
           quickFiltersType={AvailableQuickFilters.invoiceStatus}
           availableFilters={[
             AvailableFiltersEnum.amount,
-            AvailableFiltersEnum.billingEntity,
+            AvailableFiltersEnum.billingEntityId,
             AvailableFiltersEnum.status,
             AvailableFiltersEnum.invoiceType,
             AvailableFiltersEnum.paymentStatus,
@@ -354,7 +354,7 @@ const InvoicesList = ({
                 },
               },
               {
-                key: 'billingEntity',
+                key: 'billingEntity.code',
                 title: translate('text_17436114971570doqrwuwhf0'),
                 content: ({ billingEntity }) => (
                   <Typography variant="body" noWrap>

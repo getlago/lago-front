@@ -107,9 +107,16 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.subscriptionExternalId]: (value: string) =>
     (value as string).split(filterDataInlineSeparator)[0],
   [AvailableFiltersEnum.timeGranularity]: (value: string) => value,
+<<<<<<< HEAD
   [AvailableFiltersEnum.period]: (value: string) => value,
   [AvailableFiltersEnum.webhookStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.billingEntity]: (value: string) => value,
+||||||| parent of 35687bad (refactor(filters): align filters with backend implementation)
+  [AvailableFiltersEnum.billingEntity]: (value: string) => value,
+=======
+  [AvailableFiltersEnum.billingEntityId]: (value: string) =>
+    (value as string).split(filterDataInlineSeparator)[0],
+>>>>>>> 35687bad (refactor(filters): align filters with backend implementation)
 }
 
 const formatFiltersForQuery = ({
@@ -333,10 +340,16 @@ export const formatActiveFilterValueDisplay = (
           return intlFormatDateTime(v, { formatDate: DateFormat.DATE_SHORT }).date
         })
         .join(' - ')
+<<<<<<< HEAD
     case AvailableFiltersEnum.period:
       return (
         translate?.(PeriodScopeTranslationLookup[value as TPeriodScopeTranslationLookupValue]) || ''
       )
+||||||| parent of 35687bad (refactor(filters): align filters with backend implementation)
+=======
+    case AvailableFiltersEnum.billingEntityId:
+      return value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0]
+>>>>>>> 35687bad (refactor(filters): align filters with backend implementation)
     default:
       return value
         .split(',')
