@@ -8338,14 +8338,14 @@ export type AddAdyenApiKeyMutationVariables = Exact<{
 }>;
 
 
-export type AddAdyenApiKeyMutation = { __typename?: 'Mutation', addAdyenPaymentProvider?: { __typename?: 'AdyenProvider', id: string, name: string, code: string, apiKey?: any | null, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null } | null };
+export type AddAdyenApiKeyMutation = { __typename?: 'Mutation', addAdyenPaymentProvider?: { __typename?: 'AdyenProvider', id: string, name: string, code: string, apiKey?: any | null, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null, successRedirectUrl?: string | null } | null };
 
 export type UpdateAdyenApiKeyMutationVariables = Exact<{
   input: UpdateAdyenPaymentProviderInput;
 }>;
 
 
-export type UpdateAdyenApiKeyMutation = { __typename?: 'Mutation', updateAdyenPaymentProvider?: { __typename?: 'AdyenProvider', id: string, name: string, code: string, apiKey?: any | null, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null } | null };
+export type UpdateAdyenApiKeyMutation = { __typename?: 'Mutation', updateAdyenPaymentProvider?: { __typename?: 'AdyenProvider', id: string, name: string, code: string, apiKey?: any | null, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null, successRedirectUrl?: string | null } | null };
 
 export type AddAnrokIntegrationDialogFragment = { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: any };
 
@@ -8385,6 +8385,51 @@ export type UpdateCashfreeApiKeyMutationVariables = Exact<{
 
 
 export type UpdateCashfreeApiKeyMutation = { __typename?: 'Mutation', updateCashfreePaymentProvider?: { __typename?: 'CashfreeProvider', id: string, name: string, code: string, clientId?: string | null, clientSecret?: string | null, successRedirectUrl?: string | null } | null };
+
+export type AdyenForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'AdyenProvider', id: string, successRedirectUrl?: string | null };
+
+export type CashfreeForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'CashfreeProvider', id: string, successRedirectUrl?: string | null };
+
+export type GocardlessForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'GocardlessProvider', id: string, successRedirectUrl?: string | null };
+
+export type StripeForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'StripeProvider', id: string, successRedirectUrl?: string | null };
+
+export type MoneyhashForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'MoneyhashProvider', id: string, flowId?: string | null, successRedirectUrl?: string | null };
+
+export type UpdateAdyenPaymentProviderMutationVariables = Exact<{
+  input: UpdateAdyenPaymentProviderInput;
+}>;
+
+
+export type UpdateAdyenPaymentProviderMutation = { __typename?: 'Mutation', updateAdyenPaymentProvider?: { __typename?: 'AdyenProvider', id: string, successRedirectUrl?: string | null } | null };
+
+export type UpdateCashfreePaymentProviderMutationVariables = Exact<{
+  input: UpdateCashfreePaymentProviderInput;
+}>;
+
+
+export type UpdateCashfreePaymentProviderMutation = { __typename?: 'Mutation', updateCashfreePaymentProvider?: { __typename?: 'CashfreeProvider', id: string, successRedirectUrl?: string | null } | null };
+
+export type UpdateGocardlessPaymentProviderMutationVariables = Exact<{
+  input: UpdateGocardlessPaymentProviderInput;
+}>;
+
+
+export type UpdateGocardlessPaymentProviderMutation = { __typename?: 'Mutation', updateGocardlessPaymentProvider?: { __typename?: 'GocardlessProvider', id: string, successRedirectUrl?: string | null } | null };
+
+export type UpdateStripePaymentProviderMutationVariables = Exact<{
+  input: UpdateStripePaymentProviderInput;
+}>;
+
+
+export type UpdateStripePaymentProviderMutation = { __typename?: 'Mutation', updateStripePaymentProvider?: { __typename?: 'StripeProvider', id: string, successRedirectUrl?: string | null } | null };
+
+export type UpdateMoneyhashPaymentProviderMutationVariables = Exact<{
+  input: UpdateMoneyhashPaymentProviderInput;
+}>;
+
+
+export type UpdateMoneyhashPaymentProviderMutation = { __typename?: 'Mutation', updateMoneyhashPaymentProvider?: { __typename?: 'MoneyhashProvider', id: string, flowId?: string | null } | null };
 
 export type AddGocardlessProviderDialogFragment = { __typename?: 'GocardlessProvider', id: string, name: string, code: string };
 
@@ -10051,6 +10096,17 @@ export type GetWebhookListQueryVariables = Exact<{
 
 export type GetWebhookListQuery = { __typename?: 'Query', webhookEndpoints: { __typename?: 'WebhookEndpointCollection', collection: Array<{ __typename?: 'WebhookEndpoint', id: string, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null }> } };
 
+export type AdyenIntegrationDetailsFragment = { __typename?: 'AdyenProvider', id: string, apiKey?: any | null, code: string, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null, successRedirectUrl?: string | null, name: string };
+
+export type GetAdyenIntegrationsDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<ProviderTypeEnum>;
+}>;
+
+
+export type GetAdyenIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider', id: string, apiKey?: any | null, code: string, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null, successRedirectUrl?: string | null, name: string } | { __typename?: 'CashfreeProvider' } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string } | { __typename?: 'CashfreeProvider' } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' }> } | null };
+
 export type AdyenIntegrationsFragment = { __typename?: 'AdyenProvider', id: string, name: string, code: string };
 
 export type GetAdyenIntegrationsListQueryVariables = Exact<{
@@ -10289,6 +10345,17 @@ export type GetMembersQueryVariables = Exact<{
 
 
 export type GetMembersQuery = { __typename?: 'Query', memberships: { __typename?: 'MembershipCollection', metadata: { __typename?: 'Metadata', currentPage: number, totalPages: number, totalCount: number, adminCount: number }, collection: Array<{ __typename?: 'Membership', id: string, role: MembershipRole, user: { __typename?: 'User', id: string, email?: string | null }, organization: { __typename?: 'Organization', id: string, name: string }, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, analyticsOverdueBalancesView: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, billingEntitiesInvoicesView: boolean, billingEntitiesInvoicesUpdate: boolean, billingEntitiesTaxesView: boolean, billingEntitiesTaxesUpdate: boolean, billingEntitiesEmailsView: boolean, billingEntitiesEmailsUpdate: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, dunningCampaignsCreate: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> } };
+
+export type MoneyhashIntegrationDetailsFragment = { __typename?: 'MoneyhashProvider', id: string, apiKey?: string | null, code: string, flowId?: string | null, name: string };
+
+export type GetMoneyhashIntegrationsDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<ProviderTypeEnum>;
+}>;
+
+
+export type GetMoneyhashIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider', id: string, apiKey?: string | null, code: string, flowId?: string | null, name: string, successRedirectUrl?: string | null } | { __typename?: 'StripeProvider' } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider', id: string } | { __typename?: 'StripeProvider' }> } | null };
 
 export type MoneyhashIntegrationsFragment = { __typename?: 'MoneyhashProvider', id: string, name: string, code: string };
 
@@ -11167,6 +11234,37 @@ export const AddCashfreeProviderDialogFragmentDoc = gql`
   code
   clientId
   clientSecret
+  successRedirectUrl
+}
+    `;
+export const AdyenForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
+    fragment AdyenForCreateAndEditSuccessRedirectUrl on AdyenProvider {
+  id
+  successRedirectUrl
+}
+    `;
+export const CashfreeForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
+    fragment CashfreeForCreateAndEditSuccessRedirectUrl on CashfreeProvider {
+  id
+  successRedirectUrl
+}
+    `;
+export const GocardlessForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
+    fragment gocardlessForCreateAndEditSuccessRedirectUrl on GocardlessProvider {
+  id
+  successRedirectUrl
+}
+    `;
+export const StripeForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
+    fragment StripeForCreateAndEditSuccessRedirectUrl on StripeProvider {
+  id
+  successRedirectUrl
+}
+    `;
+export const MoneyhashForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
+    fragment MoneyhashForCreateAndEditSuccessRedirectUrl on MoneyhashProvider {
+  id
+  flowId
   successRedirectUrl
 }
     `;
@@ -13374,6 +13472,18 @@ export const WebhookLogFragmentDoc = gql`
 }
     ${WebhookLogItemFragmentDoc}
 ${WebhookLogDetailsFragmentDoc}`;
+export const AdyenIntegrationDetailsFragmentDoc = gql`
+    fragment AdyenIntegrationDetails on AdyenProvider {
+  id
+  apiKey
+  code
+  hmacKey
+  livePrefix
+  merchantAccount
+  successRedirectUrl
+  name
+}
+    `;
 export const AdyenIntegrationsFragmentDoc = gql`
     fragment AdyenIntegrations on AdyenProvider {
   id
@@ -13569,6 +13679,15 @@ export const MembershipItemForMembershipSettingsFragmentDoc = gql`
   ...MemberForEditRoleForDialog
 }
     ${MemberForEditRoleForDialogFragmentDoc}`;
+export const MoneyhashIntegrationDetailsFragmentDoc = gql`
+    fragment MoneyhashIntegrationDetails on MoneyhashProvider {
+  id
+  apiKey
+  code
+  flowId
+  name
+}
+    `;
 export const MoneyhashIntegrationsFragmentDoc = gql`
     fragment MoneyhashIntegrations on MoneyhashProvider {
   id
@@ -18523,9 +18642,11 @@ export const AddAdyenApiKeyDocument = gql`
   addAdyenPaymentProvider(input: $input) {
     id
     ...AddAdyenProviderDialog
+    ...AdyenIntegrationDetails
   }
 }
-    ${AddAdyenProviderDialogFragmentDoc}`;
+    ${AddAdyenProviderDialogFragmentDoc}
+${AdyenIntegrationDetailsFragmentDoc}`;
 export type AddAdyenApiKeyMutationFn = Apollo.MutationFunction<AddAdyenApiKeyMutation, AddAdyenApiKeyMutationVariables>;
 
 /**
@@ -18557,9 +18678,11 @@ export const UpdateAdyenApiKeyDocument = gql`
   updateAdyenPaymentProvider(input: $input) {
     id
     ...AddAdyenProviderDialog
+    ...AdyenIntegrationDetails
   }
 }
-    ${AddAdyenProviderDialogFragmentDoc}`;
+    ${AddAdyenProviderDialogFragmentDoc}
+${AdyenIntegrationDetailsFragmentDoc}`;
 export type UpdateAdyenApiKeyMutationFn = Apollo.MutationFunction<UpdateAdyenApiKeyMutation, UpdateAdyenApiKeyMutationVariables>;
 
 /**
@@ -18784,6 +18907,176 @@ export function useUpdateCashfreeApiKeyMutation(baseOptions?: Apollo.MutationHoo
 export type UpdateCashfreeApiKeyMutationHookResult = ReturnType<typeof useUpdateCashfreeApiKeyMutation>;
 export type UpdateCashfreeApiKeyMutationResult = Apollo.MutationResult<UpdateCashfreeApiKeyMutation>;
 export type UpdateCashfreeApiKeyMutationOptions = Apollo.BaseMutationOptions<UpdateCashfreeApiKeyMutation, UpdateCashfreeApiKeyMutationVariables>;
+export const UpdateAdyenPaymentProviderDocument = gql`
+    mutation updateAdyenPaymentProvider($input: UpdateAdyenPaymentProviderInput!) {
+  updateAdyenPaymentProvider(input: $input) {
+    id
+    successRedirectUrl
+  }
+}
+    `;
+export type UpdateAdyenPaymentProviderMutationFn = Apollo.MutationFunction<UpdateAdyenPaymentProviderMutation, UpdateAdyenPaymentProviderMutationVariables>;
+
+/**
+ * __useUpdateAdyenPaymentProviderMutation__
+ *
+ * To run a mutation, you first call `useUpdateAdyenPaymentProviderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAdyenPaymentProviderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAdyenPaymentProviderMutation, { data, loading, error }] = useUpdateAdyenPaymentProviderMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateAdyenPaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAdyenPaymentProviderMutation, UpdateAdyenPaymentProviderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateAdyenPaymentProviderMutation, UpdateAdyenPaymentProviderMutationVariables>(UpdateAdyenPaymentProviderDocument, options);
+      }
+export type UpdateAdyenPaymentProviderMutationHookResult = ReturnType<typeof useUpdateAdyenPaymentProviderMutation>;
+export type UpdateAdyenPaymentProviderMutationResult = Apollo.MutationResult<UpdateAdyenPaymentProviderMutation>;
+export type UpdateAdyenPaymentProviderMutationOptions = Apollo.BaseMutationOptions<UpdateAdyenPaymentProviderMutation, UpdateAdyenPaymentProviderMutationVariables>;
+export const UpdateCashfreePaymentProviderDocument = gql`
+    mutation updateCashfreePaymentProvider($input: UpdateCashfreePaymentProviderInput!) {
+  updateCashfreePaymentProvider(input: $input) {
+    id
+    successRedirectUrl
+  }
+}
+    `;
+export type UpdateCashfreePaymentProviderMutationFn = Apollo.MutationFunction<UpdateCashfreePaymentProviderMutation, UpdateCashfreePaymentProviderMutationVariables>;
+
+/**
+ * __useUpdateCashfreePaymentProviderMutation__
+ *
+ * To run a mutation, you first call `useUpdateCashfreePaymentProviderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCashfreePaymentProviderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCashfreePaymentProviderMutation, { data, loading, error }] = useUpdateCashfreePaymentProviderMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCashfreePaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCashfreePaymentProviderMutation, UpdateCashfreePaymentProviderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCashfreePaymentProviderMutation, UpdateCashfreePaymentProviderMutationVariables>(UpdateCashfreePaymentProviderDocument, options);
+      }
+export type UpdateCashfreePaymentProviderMutationHookResult = ReturnType<typeof useUpdateCashfreePaymentProviderMutation>;
+export type UpdateCashfreePaymentProviderMutationResult = Apollo.MutationResult<UpdateCashfreePaymentProviderMutation>;
+export type UpdateCashfreePaymentProviderMutationOptions = Apollo.BaseMutationOptions<UpdateCashfreePaymentProviderMutation, UpdateCashfreePaymentProviderMutationVariables>;
+export const UpdateGocardlessPaymentProviderDocument = gql`
+    mutation updateGocardlessPaymentProvider($input: UpdateGocardlessPaymentProviderInput!) {
+  updateGocardlessPaymentProvider(input: $input) {
+    id
+    successRedirectUrl
+  }
+}
+    `;
+export type UpdateGocardlessPaymentProviderMutationFn = Apollo.MutationFunction<UpdateGocardlessPaymentProviderMutation, UpdateGocardlessPaymentProviderMutationVariables>;
+
+/**
+ * __useUpdateGocardlessPaymentProviderMutation__
+ *
+ * To run a mutation, you first call `useUpdateGocardlessPaymentProviderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateGocardlessPaymentProviderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateGocardlessPaymentProviderMutation, { data, loading, error }] = useUpdateGocardlessPaymentProviderMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateGocardlessPaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateGocardlessPaymentProviderMutation, UpdateGocardlessPaymentProviderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateGocardlessPaymentProviderMutation, UpdateGocardlessPaymentProviderMutationVariables>(UpdateGocardlessPaymentProviderDocument, options);
+      }
+export type UpdateGocardlessPaymentProviderMutationHookResult = ReturnType<typeof useUpdateGocardlessPaymentProviderMutation>;
+export type UpdateGocardlessPaymentProviderMutationResult = Apollo.MutationResult<UpdateGocardlessPaymentProviderMutation>;
+export type UpdateGocardlessPaymentProviderMutationOptions = Apollo.BaseMutationOptions<UpdateGocardlessPaymentProviderMutation, UpdateGocardlessPaymentProviderMutationVariables>;
+export const UpdateStripePaymentProviderDocument = gql`
+    mutation updateStripePaymentProvider($input: UpdateStripePaymentProviderInput!) {
+  updateStripePaymentProvider(input: $input) {
+    id
+    successRedirectUrl
+  }
+}
+    `;
+export type UpdateStripePaymentProviderMutationFn = Apollo.MutationFunction<UpdateStripePaymentProviderMutation, UpdateStripePaymentProviderMutationVariables>;
+
+/**
+ * __useUpdateStripePaymentProviderMutation__
+ *
+ * To run a mutation, you first call `useUpdateStripePaymentProviderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateStripePaymentProviderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateStripePaymentProviderMutation, { data, loading, error }] = useUpdateStripePaymentProviderMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateStripePaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateStripePaymentProviderMutation, UpdateStripePaymentProviderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateStripePaymentProviderMutation, UpdateStripePaymentProviderMutationVariables>(UpdateStripePaymentProviderDocument, options);
+      }
+export type UpdateStripePaymentProviderMutationHookResult = ReturnType<typeof useUpdateStripePaymentProviderMutation>;
+export type UpdateStripePaymentProviderMutationResult = Apollo.MutationResult<UpdateStripePaymentProviderMutation>;
+export type UpdateStripePaymentProviderMutationOptions = Apollo.BaseMutationOptions<UpdateStripePaymentProviderMutation, UpdateStripePaymentProviderMutationVariables>;
+export const UpdateMoneyhashPaymentProviderDocument = gql`
+    mutation updateMoneyhashPaymentProvider($input: UpdateMoneyhashPaymentProviderInput!) {
+  updateMoneyhashPaymentProvider(input: $input) {
+    id
+    flowId
+  }
+}
+    `;
+export type UpdateMoneyhashPaymentProviderMutationFn = Apollo.MutationFunction<UpdateMoneyhashPaymentProviderMutation, UpdateMoneyhashPaymentProviderMutationVariables>;
+
+/**
+ * __useUpdateMoneyhashPaymentProviderMutation__
+ *
+ * To run a mutation, you first call `useUpdateMoneyhashPaymentProviderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateMoneyhashPaymentProviderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateMoneyhashPaymentProviderMutation, { data, loading, error }] = useUpdateMoneyhashPaymentProviderMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateMoneyhashPaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateMoneyhashPaymentProviderMutation, UpdateMoneyhashPaymentProviderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateMoneyhashPaymentProviderMutation, UpdateMoneyhashPaymentProviderMutationVariables>(UpdateMoneyhashPaymentProviderDocument, options);
+      }
+export type UpdateMoneyhashPaymentProviderMutationHookResult = ReturnType<typeof useUpdateMoneyhashPaymentProviderMutation>;
+export type UpdateMoneyhashPaymentProviderMutationResult = Apollo.MutationResult<UpdateMoneyhashPaymentProviderMutation>;
+export type UpdateMoneyhashPaymentProviderMutationOptions = Apollo.BaseMutationOptions<UpdateMoneyhashPaymentProviderMutation, UpdateMoneyhashPaymentProviderMutationVariables>;
 export const GetProviderByCodeForGocardlessDocument = gql`
     query getProviderByCodeForGocardless($code: String) {
   paymentProvider(code: $code) {
@@ -19032,9 +19325,11 @@ export const AddMoneyhashApiKeyDocument = gql`
   addMoneyhashPaymentProvider(input: $input) {
     id
     ...AddMoneyhashProviderDialog
+    ...MoneyhashIntegrationDetails
   }
 }
-    ${AddMoneyhashProviderDialogFragmentDoc}`;
+    ${AddMoneyhashProviderDialogFragmentDoc}
+${MoneyhashIntegrationDetailsFragmentDoc}`;
 export type AddMoneyhashApiKeyMutationFn = Apollo.MutationFunction<AddMoneyhashApiKeyMutation, AddMoneyhashApiKeyMutationVariables>;
 
 /**
@@ -19066,9 +19361,11 @@ export const UpdateMoneyhashApiKeyDocument = gql`
   updateMoneyhashPaymentProvider(input: $input) {
     id
     ...AddMoneyhashProviderDialog
+    ...MoneyhashIntegrationDetails
   }
 }
-    ${AddMoneyhashProviderDialogFragmentDoc}`;
+    ${AddMoneyhashProviderDialogFragmentDoc}
+${MoneyhashIntegrationDetailsFragmentDoc}`;
 export type UpdateMoneyhashApiKeyMutationFn = Apollo.MutationFunction<UpdateMoneyhashApiKeyMutation, UpdateMoneyhashApiKeyMutationVariables>;
 
 /**
@@ -26765,6 +27062,64 @@ export type GetWebhookListQueryHookResult = ReturnType<typeof useGetWebhookListQ
 export type GetWebhookListLazyQueryHookResult = ReturnType<typeof useGetWebhookListLazyQuery>;
 export type GetWebhookListSuspenseQueryHookResult = ReturnType<typeof useGetWebhookListSuspenseQuery>;
 export type GetWebhookListQueryResult = Apollo.QueryResult<GetWebhookListQuery, GetWebhookListQueryVariables>;
+export const GetAdyenIntegrationsDetailsDocument = gql`
+    query getAdyenIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
+  paymentProvider(id: $id) {
+    ... on AdyenProvider {
+      id
+      ...AdyenIntegrationDetails
+      ...DeleteAdyenIntegrationDialog
+      ...AddAdyenProviderDialog
+      ...AdyenForCreateAndEditSuccessRedirectUrl
+    }
+  }
+  paymentProviders(limit: $limit, type: $type) {
+    collection {
+      ... on AdyenProvider {
+        id
+      }
+    }
+  }
+}
+    ${AdyenIntegrationDetailsFragmentDoc}
+${DeleteAdyenIntegrationDialogFragmentDoc}
+${AddAdyenProviderDialogFragmentDoc}
+${AdyenForCreateAndEditSuccessRedirectUrlFragmentDoc}`;
+
+/**
+ * __useGetAdyenIntegrationsDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetAdyenIntegrationsDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAdyenIntegrationsDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAdyenIntegrationsDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      limit: // value for 'limit'
+ *      type: // value for 'type'
+ *   },
+ * });
+ */
+export function useGetAdyenIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables> & ({ variables: GetAdyenIntegrationsDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>(GetAdyenIntegrationsDetailsDocument, options);
+      }
+export function useGetAdyenIntegrationsDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>(GetAdyenIntegrationsDetailsDocument, options);
+        }
+export function useGetAdyenIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>(GetAdyenIntegrationsDetailsDocument, options);
+        }
+export type GetAdyenIntegrationsDetailsQueryHookResult = ReturnType<typeof useGetAdyenIntegrationsDetailsQuery>;
+export type GetAdyenIntegrationsDetailsLazyQueryHookResult = ReturnType<typeof useGetAdyenIntegrationsDetailsLazyQuery>;
+export type GetAdyenIntegrationsDetailsSuspenseQueryHookResult = ReturnType<typeof useGetAdyenIntegrationsDetailsSuspenseQuery>;
+export type GetAdyenIntegrationsDetailsQueryResult = Apollo.QueryResult<GetAdyenIntegrationsDetailsQuery, GetAdyenIntegrationsDetailsQueryVariables>;
 export const GetAdyenIntegrationsListDocument = gql`
     query getAdyenIntegrationsList($limit: Int, $type: ProviderTypeEnum) {
   paymentProviders(limit: $limit, type: $type) {
@@ -28090,6 +28445,64 @@ export type GetMembersQueryHookResult = ReturnType<typeof useGetMembersQuery>;
 export type GetMembersLazyQueryHookResult = ReturnType<typeof useGetMembersLazyQuery>;
 export type GetMembersSuspenseQueryHookResult = ReturnType<typeof useGetMembersSuspenseQuery>;
 export type GetMembersQueryResult = Apollo.QueryResult<GetMembersQuery, GetMembersQueryVariables>;
+export const GetMoneyhashIntegrationsDetailsDocument = gql`
+    query getMoneyhashIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
+  paymentProvider(id: $id) {
+    ... on MoneyhashProvider {
+      id
+      ...MoneyhashIntegrationDetails
+      ...DeleteMoneyhashIntegrationDialog
+      ...AddMoneyhashProviderDialog
+      ...MoneyhashForCreateAndEditSuccessRedirectUrl
+    }
+  }
+  paymentProviders(limit: $limit, type: $type) {
+    collection {
+      ... on MoneyhashProvider {
+        id
+      }
+    }
+  }
+}
+    ${MoneyhashIntegrationDetailsFragmentDoc}
+${DeleteMoneyhashIntegrationDialogFragmentDoc}
+${AddMoneyhashProviderDialogFragmentDoc}
+${MoneyhashForCreateAndEditSuccessRedirectUrlFragmentDoc}`;
+
+/**
+ * __useGetMoneyhashIntegrationsDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetMoneyhashIntegrationsDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMoneyhashIntegrationsDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMoneyhashIntegrationsDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      limit: // value for 'limit'
+ *      type: // value for 'type'
+ *   },
+ * });
+ */
+export function useGetMoneyhashIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetMoneyhashIntegrationsDetailsQuery, GetMoneyhashIntegrationsDetailsQueryVariables> & ({ variables: GetMoneyhashIntegrationsDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetMoneyhashIntegrationsDetailsQuery, GetMoneyhashIntegrationsDetailsQueryVariables>(GetMoneyhashIntegrationsDetailsDocument, options);
+      }
+export function useGetMoneyhashIntegrationsDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMoneyhashIntegrationsDetailsQuery, GetMoneyhashIntegrationsDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetMoneyhashIntegrationsDetailsQuery, GetMoneyhashIntegrationsDetailsQueryVariables>(GetMoneyhashIntegrationsDetailsDocument, options);
+        }
+export function useGetMoneyhashIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMoneyhashIntegrationsDetailsQuery, GetMoneyhashIntegrationsDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetMoneyhashIntegrationsDetailsQuery, GetMoneyhashIntegrationsDetailsQueryVariables>(GetMoneyhashIntegrationsDetailsDocument, options);
+        }
+export type GetMoneyhashIntegrationsDetailsQueryHookResult = ReturnType<typeof useGetMoneyhashIntegrationsDetailsQuery>;
+export type GetMoneyhashIntegrationsDetailsLazyQueryHookResult = ReturnType<typeof useGetMoneyhashIntegrationsDetailsLazyQuery>;
+export type GetMoneyhashIntegrationsDetailsSuspenseQueryHookResult = ReturnType<typeof useGetMoneyhashIntegrationsDetailsSuspenseQuery>;
+export type GetMoneyhashIntegrationsDetailsQueryResult = Apollo.QueryResult<GetMoneyhashIntegrationsDetailsQuery, GetMoneyhashIntegrationsDetailsQueryVariables>;
 export const GetMoneyhashIntegrationsListDocument = gql`
     query getMoneyhashIntegrationsList($limit: Int, $type: ProviderTypeEnum) {
   paymentProviders(limit: $limit, type: $type) {
@@ -28392,6 +28805,7 @@ export const GetStripeIntegrationsDetailsDocument = gql`
       ...StripeIntegrationDetails
       ...DeleteStripeIntegrationDialog
       ...AddStripeProviderDialog
+      ...StripeForCreateAndEditSuccessRedirectUrl
     }
   }
   paymentProviders(limit: $limit, type: $type) {
@@ -28404,7 +28818,8 @@ export const GetStripeIntegrationsDetailsDocument = gql`
 }
     ${StripeIntegrationDetailsFragmentDoc}
 ${DeleteStripeIntegrationDialogFragmentDoc}
-${AddStripeProviderDialogFragmentDoc}`;
+${AddStripeProviderDialogFragmentDoc}
+${StripeForCreateAndEditSuccessRedirectUrlFragmentDoc}`;
 
 /**
  * __useGetStripeIntegrationsDetailsQuery__
