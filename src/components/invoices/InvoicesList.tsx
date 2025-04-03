@@ -133,7 +133,7 @@ const InvoicesList = ({
           quickFiltersType={AvailableQuickFilters.invoiceStatus}
           availableFilters={[
             AvailableFiltersEnum.amount,
-            AvailableFiltersEnum.billingEntityId,
+            AvailableFiltersEnum.billingEntityIds,
             AvailableFiltersEnum.status,
             AvailableFiltersEnum.invoiceType,
             AvailableFiltersEnum.paymentStatus,

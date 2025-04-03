@@ -2981,6 +2981,7 @@
   "text_1744037119235rz9n0rfhwcp": "Visa **** 1234",
   "text_1733992108437qlovqhjhqj4": "Create automatically this customer in MoneyHash",
   "text_1741706729331emiq4h111k8": "Include metadata for this top-up transaction.",
+  "text_1741706729331emiq4h111k8": "Include metadata for this top-up transaction.",
   "text_1742230191028ts64cxrgwdj": "Your organization",
   "text_1742230191028y9ffl7i1dhe": "Your billing entities",
   "text_1742230191028qkwly181six": "Invoice sections",
@@ -3040,5 +3041,6 @@
   "text_1743600025133454kb04evs6": "No taxes",
   "text_174360002513391n72uwg6bb": "Search or select an entity",
   "text_1743611497157teaa1zu8l24": "Affiliated entity",
-  "text_17436114971570doqrwuwhf0": "Billing entity"
+  "text_17436114971570doqrwuwhf0": "Billing entity",
+  "text_1743688264122ndlc0cpwtzd": "Search or select multiple entities"
 }

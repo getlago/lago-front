@@ -109,7 +109,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.webhookStatus]: (
       <FiltersItemWebhookStatus value={value} setFilterValue={setFilterValue} />
     ),
-    [AvailableFiltersEnum.billingEntity]: (
+    [AvailableFiltersEnum.billingEntityIds]: (
       <FiltersItemBillingEntity value={value} setFilterValue={setFilterValue} />
     ),
   }

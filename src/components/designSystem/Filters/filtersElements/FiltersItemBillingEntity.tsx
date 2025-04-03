@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { ComboBox } from '~/components/form'
+import { MultipleComboBox } from '~/components/form'
 import { useGetBillingEntitiesQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -16,7 +16,7 @@ export const FiltersItemBillingEntity = ({
   setFilterValue,
 }: FiltersItemBillingEntityProps) => {
   const { translate } = useInternationalization()
-  const { data, loading } = useGetBillingEntitiesQuery()
+  const { data } = useGetBillingEntitiesQuery()
 
   const comboboxData = useMemo(() => {
     if (!data?.billingEntities?.collection) return []
@@ -28,13 +28,20 @@ export const FiltersItemBillingEntity = ({
   }, [data])
 
   return (
-    <ComboBox
+    <MultipleComboBox
       disableClearable
-      loading={loading}
-      placeholder={translate('text_174360002513391n72uwg6bb')}
+      placeholder={translate('text_1743688264122ndlc0cpwtzd')}
       data={comboboxData}
-      onChange={(billingEntityValue) => setFilterValue(billingEntityValue)}
-      value={value}
+      onChange={(billingEntity) => {
+        setFilterValue(String(billingEntity.map((b) => b.value).join(',')))
+      }}
+      value={value
+        ?.split(',')
+        .filter((v) => !!v)
+        .map((v) => ({
+          label: v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0],
+          value: v,
+        }))}
     />
   )
 }
