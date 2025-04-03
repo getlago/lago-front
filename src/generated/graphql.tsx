@@ -5276,7 +5276,7 @@ export type QueryCreditNoteEstimateArgs = {
 export type QueryCreditNotesArgs = {
   amountFrom?: InputMaybe<Scalars['Int']['input']>;
   amountTo?: InputMaybe<Scalars['Int']['input']>;
-  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
+  billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   creditStatus?: InputMaybe<Array<CreditNoteCreditStatusEnum>>;
   currency?: InputMaybe<CurrencyEnum>;
   customerExternalId?: InputMaybe<Scalars['String']['input']>;
@@ -5359,7 +5359,7 @@ export type QueryCustomerUsageArgs = {
 
 export type QueryCustomersArgs = {
   accountType?: InputMaybe<Array<CustomerAccountTypeEnum>>;
-  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
+  billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
@@ -5563,7 +5563,7 @@ export type QueryInvoicedUsagesArgs = {
 export type QueryInvoicesArgs = {
   amountFrom?: InputMaybe<Scalars['Int']['input']>;
   amountTo?: InputMaybe<Scalars['Int']['input']>;
-  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
+  billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   currency?: InputMaybe<CurrencyEnum>;
   customerExternalId?: InputMaybe<Scalars['String']['input']>;
   customerId?: InputMaybe<Scalars['ID']['input']>;
@@ -9641,7 +9641,7 @@ export type CustomersQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   accountType?: InputMaybe<Array<CustomerAccountTypeEnum> | CustomerAccountTypeEnum>;
-  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
+  billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
 }>;
 
 
@@ -9707,7 +9707,7 @@ export type GetInvoicesListQueryVariables = Exact<{
   amountFrom?: InputMaybe<Scalars['Int']['input']>;
   amountTo?: InputMaybe<Scalars['Int']['input']>;
   selfBilled?: InputMaybe<Scalars['Boolean']['input']>;
-  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
+  billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
 }>;
 
 
@@ -9738,7 +9738,7 @@ export type GetCreditNotesListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   selfBilled?: InputMaybe<Scalars['Boolean']['input']>;
-  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
+  billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
 }>;
 
 
@@ -25257,13 +25257,13 @@ export type CreatePaymentRequestMutationHookResult = ReturnType<typeof useCreate
 export type CreatePaymentRequestMutationResult = Apollo.MutationResult<CreatePaymentRequestMutation>;
 export type CreatePaymentRequestMutationOptions = Apollo.BaseMutationOptions<CreatePaymentRequestMutation, CreatePaymentRequestMutationVariables>;
 export const CustomersDocument = gql`
-    query customers($page: Int, $limit: Int, $searchTerm: String, $accountType: [CustomerAccountTypeEnum!], $billingEntityId: ID) {
+    query customers($page: Int, $limit: Int, $searchTerm: String, $accountType: [CustomerAccountTypeEnum!], $billingEntityIds: [ID!]) {
   customers(
     page: $page
     limit: $limit
     searchTerm: $searchTerm
     accountType: $accountType
-    billingEntityId: $billingEntityId
+    billingEntityIds: $billingEntityIds
   ) {
     metadata {
       currentPage
@@ -25292,7 +25292,7 @@ export const CustomersDocument = gql`
  *      limit: // value for 'limit'
  *      searchTerm: // value for 'searchTerm'
  *      accountType: // value for 'accountType'
- *      billingEntityId: // value for 'billingEntityId'
+ *      billingEntityIds: // value for 'billingEntityIds'
  *   },
  * });
  */
@@ -25502,7 +25502,7 @@ export type OktaAcceptInviteMutationHookResult = ReturnType<typeof useOktaAccept
 export type OktaAcceptInviteMutationResult = Apollo.MutationResult<OktaAcceptInviteMutation>;
 export type OktaAcceptInviteMutationOptions = Apollo.BaseMutationOptions<OktaAcceptInviteMutation, OktaAcceptInviteMutationVariables>;
 export const GetInvoicesListDocument = gql`
-    query getInvoicesList($currency: CurrencyEnum, $customerExternalId: String, $invoiceType: [InvoiceTypeEnum!], $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $limit: Int, $page: Int, $partiallyPaid: Boolean, $paymentDisputeLost: Boolean, $paymentOverdue: Boolean, $paymentStatus: [InvoicePaymentStatusTypeEnum!], $searchTerm: String, $status: [InvoiceStatusTypeEnum!], $amountFrom: Int, $amountTo: Int, $selfBilled: Boolean, $billingEntityId: ID) {
+    query getInvoicesList($currency: CurrencyEnum, $customerExternalId: String, $invoiceType: [InvoiceTypeEnum!], $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $limit: Int, $page: Int, $partiallyPaid: Boolean, $paymentDisputeLost: Boolean, $paymentOverdue: Boolean, $paymentStatus: [InvoicePaymentStatusTypeEnum!], $searchTerm: String, $status: [InvoiceStatusTypeEnum!], $amountFrom: Int, $amountTo: Int, $selfBilled: Boolean, $billingEntityIds: [ID!]) {
   invoices(
     currency: $currency
     customerExternalId: $customerExternalId
@@ -25520,7 +25520,7 @@ export const GetInvoicesListDocument = gql`
     amountFrom: $amountFrom
     amountTo: $amountTo
     selfBilled: $selfBilled
-    billingEntityId: $billingEntityId
+    billingEntityIds: $billingEntityIds
   ) {
     metadata {
       currentPage
@@ -25563,7 +25563,7 @@ export const GetInvoicesListDocument = gql`
  *      amountFrom: // value for 'amountFrom'
  *      amountTo: // value for 'amountTo'
  *      selfBilled: // value for 'selfBilled'
- *      billingEntityId: // value for 'billingEntityId'
+ *      billingEntityIds: // value for 'billingEntityIds'
  *   },
  * });
  */
@@ -25639,7 +25639,7 @@ export type GetPaymentListLazyQueryHookResult = ReturnType<typeof useGetPaymentL
 export type GetPaymentListSuspenseQueryHookResult = ReturnType<typeof useGetPaymentListSuspenseQuery>;
 export type GetPaymentListQueryResult = Apollo.QueryResult<GetPaymentListQuery, GetPaymentListQueryVariables>;
 export const GetCreditNotesListDocument = gql`
-    query getCreditNotesList($amountFrom: Int, $amountTo: Int, $creditStatus: [CreditNoteCreditStatusEnum!], $currency: CurrencyEnum, $customerExternalId: String, $invoiceNumber: String, $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $reason: [CreditNoteReasonEnum!], $refundStatus: [CreditNoteRefundStatusEnum!], $limit: Int, $page: Int, $searchTerm: String, $selfBilled: Boolean, $billingEntityId: ID) {
+    query getCreditNotesList($amountFrom: Int, $amountTo: Int, $creditStatus: [CreditNoteCreditStatusEnum!], $currency: CurrencyEnum, $customerExternalId: String, $invoiceNumber: String, $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $reason: [CreditNoteReasonEnum!], $refundStatus: [CreditNoteRefundStatusEnum!], $limit: Int, $page: Int, $searchTerm: String, $selfBilled: Boolean, $billingEntityIds: [ID!]) {
   creditNotes(
     amountFrom: $amountFrom
     amountTo: $amountTo
@@ -25655,7 +25655,7 @@ export const GetCreditNotesListDocument = gql`
     page: $page
     searchTerm: $searchTerm
     selfBilled: $selfBilled
-    billingEntityId: $billingEntityId
+    billingEntityIds: $billingEntityIds
   ) {
     ...CreditNotesForTable
   }
@@ -25688,7 +25688,7 @@ export const GetCreditNotesListDocument = gql`
  *      page: // value for 'page'
  *      searchTerm: // value for 'searchTerm'
  *      selfBilled: // value for 'selfBilled'
- *      billingEntityId: // value for 'billingEntityId'
+ *      billingEntityIds: // value for 'billingEntityIds'
  *   },
  * });
  */
