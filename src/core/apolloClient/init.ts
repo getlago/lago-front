@@ -1,5 +1,6 @@
 import { ApolloClient, ApolloLink, NormalizedCacheObject } from '@apollo/client'
 import { onError } from '@apollo/client/link/error'
+import { captureException } from '@sentry/react'
 import { LocalForageWrapper, persistCache } from 'apollo3-cache-persist'
 import ApolloLinkTimeout from 'apollo-link-timeout'
 import { createUploadLink } from 'apollo-upload-client'
@@ -74,14 +75,32 @@ export const initializeApolloClient = async () => {
             logOut(globalApolloClient)
           }
 
-          !silentError &&
+          // Capture non-silent GraphQL errors with Sentry
+          if (
+            !silentError &&
             !silentErrorCodes.includes(extensions?.code) &&
             !isUnauthorized &&
-            message !== 'PersistedQueryNotFound' &&
+            message !== 'PersistedQueryNotFound'
+          ) {
+            // Capture in Sentry with operation details
+            captureException(value, {
+              tags: {
+                errorType: 'GraphQLError',
+                operationName: operation.operationName,
+              },
+              extra: {
+                path,
+                locations,
+                extensions,
+                variables: operation.variables,
+              },
+            })
+
             addToast({
               severity: 'danger',
               translateKey: 'text_622f7a3dc32ce100c46a5154',
             })
+          }
 
           // eslint-disable-next-line no-console
           console.warn(
@@ -93,6 +112,17 @@ export const initializeApolloClient = async () => {
       }
 
       if (networkError) {
+        // Capture network errors with Sentry
+        captureException(networkError, {
+          tags: {
+            errorType: 'NetworkError',
+            operationName: operation.operationName,
+          },
+          extra: {
+            variables: operation.variables,
+          },
+        })
+
         addToast({
           severity: 'danger',
           translateKey: 'text_622f7a3dc32ce100c46a5154',
