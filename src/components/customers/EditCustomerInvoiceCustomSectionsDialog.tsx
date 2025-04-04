@@ -19,7 +19,7 @@ gql`
   fragment EditCustomerInvoiceCustomSection on Customer {
     id
     externalId
-    applicableInvoiceCustomSections {
+    configurableInvoiceCustomSections {
       id
       selected
     }
@@ -80,7 +80,7 @@ export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
 
   const formikProps = useFormik<{
     behavior: BehaviorType | ''
-    applicableInvoiceCustomSectionIds: string[] | undefined
+    configurableInvoiceCustomSectionIds: string[] | undefined
   }>({
     initialValues: {
       behavior: customer.hasOverwrittenInvoiceCustomSectionsSelection
@@ -88,13 +88,13 @@ export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
         : customer.skipInvoiceCustomSections
           ? BehaviorType.DEACTIVATE
           : BehaviorType.FALLBACK,
-      applicableInvoiceCustomSectionIds: customer.hasOverwrittenInvoiceCustomSectionsSelection
-        ? customer.applicableInvoiceCustomSections?.map((section) => section.id)
+      configurableInvoiceCustomSectionIds: customer.hasOverwrittenInvoiceCustomSectionsSelection
+        ? customer.configurableInvoiceCustomSections?.map((section) => section.id)
         : undefined,
     },
     validationSchema: object().shape({
       behavior: mixed().oneOf(Object.values(BehaviorType)).required(''),
-      applicableInvoiceCustomSectionIds: array()
+      configurableInvoiceCustomSectionIds: array()
         .of(string())
         .when('behavior', {
           is: (val: BehaviorType) => val === BehaviorType.CUSTOM_SECTIONS,
@@ -112,21 +112,21 @@ export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
           formattedValues = {
             ...formattedValues,
             skipInvoiceCustomSections: false,
-            applicableInvoiceCustomSectionIds: [],
+            configurableInvoiceCustomSectionIds: [],
           }
           break
         case BehaviorType.CUSTOM_SECTIONS:
           formattedValues = {
             ...formattedValues,
             skipInvoiceCustomSections: false,
-            applicableInvoiceCustomSectionIds: values.applicableInvoiceCustomSectionIds,
+            configurableInvoiceCustomSectionIds: values.configurableInvoiceCustomSectionIds,
           }
           break
         case BehaviorType.DEACTIVATE:
           formattedValues = {
             ...formattedValues,
             skipInvoiceCustomSections: true,
-            applicableInvoiceCustomSectionIds: null,
+            configurableInvoiceCustomSectionIds: null,
           }
           break
       }
@@ -182,7 +182,7 @@ export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
           <MultipleComboBox
             hideTags={false}
             forcePopupIcon
-            name="applicableInvoiceCustomSectionIds"
+            name="configurableInvoiceCustomSectionIds"
             data={
               data?.invoiceCustomSections?.collection.map((section) => ({
                 labelNode: section.name,
@@ -193,12 +193,12 @@ export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
             }
             onChange={(section) =>
               formikProps.setFieldValue(
-                'applicableInvoiceCustomSectionIds',
+                'configurableInvoiceCustomSectionIds',
                 section.map(({ value }) => value),
               )
             }
             value={
-              formikProps.values.applicableInvoiceCustomSectionIds?.map((id) => {
+              formikProps.values.configurableInvoiceCustomSectionIds?.map((id) => {
                 const foundSection = data?.invoiceCustomSections?.collection.find(
                   (section) => section.id === id,
                 )
