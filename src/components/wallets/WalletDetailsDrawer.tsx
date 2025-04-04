@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { DateTime } from 'luxon'
 import {
   FC,
   forwardRef,
@@ -33,7 +32,7 @@ import {
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
-import { intlFormatDateTime } from '~/core/timezone'
+import { DateFormat, intlFormatDateTime, TimeFormat } from '~/core/timezone'
 import {
   InvoiceStatusTypeEnum,
   InvoiceTypeEnum,
@@ -194,6 +193,28 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
       settledAt === null &&
       invoice?.status !== InvoiceStatusTypeEnum.Finalized
 
+    const createdAtDate = createdAt
+      ? intlFormatDateTime(createdAt, {
+          timezone,
+          formatDate: DateFormat.DATE_FULL,
+          formatTime: TimeFormat.TIME_WITH_SECONDS,
+        })
+      : undefined
+    const failedAtDate = failedAt
+      ? intlFormatDateTime(failedAt, {
+          timezone,
+          formatDate: DateFormat.DATE_FULL,
+          formatTime: TimeFormat.TIME_WITH_SECONDS,
+        })
+      : undefined
+    const settledAtDate = settledAt
+      ? intlFormatDateTime(settledAt, {
+          timezone,
+          formatDate: DateFormat.DATE_FULL,
+          formatTime: TimeFormat.TIME_WITH_SECONDS,
+        })
+      : undefined
+
     return (
       <Drawer
         className="px-12 pt-12"
@@ -336,33 +357,15 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
                   />
                   <DetailRow
                     label={translate('text_1741943835752e00705sjtf8')}
-                    value={
-                      createdAt &&
-                      intlFormatDateTime(createdAt, {
-                        timezone,
-                        format: DateTime.DATETIME_FULL_WITH_SECONDS,
-                      }).date
-                    }
+                    value={createdAtDate && `${createdAtDate?.date} ${createdAtDate?.time}`}
                   />
                   <DetailRow
                     label={translate('text_17419438357527l2yykxqmau')}
-                    value={
-                      failedAt &&
-                      intlFormatDateTime(failedAt, {
-                        timezone,
-                        format: DateTime.DATETIME_FULL_WITH_SECONDS,
-                      }).date
-                    }
+                    value={failedAtDate && `${failedAtDate?.date} ${failedAtDate?.time}`}
                   />
                   <DetailRow
                     label={translate('text_17419438357526t0aku37wn0')}
-                    value={
-                      settledAt &&
-                      intlFormatDateTime(settledAt, {
-                        timezone,
-                        format: DateTime.DATETIME_FULL_WITH_SECONDS,
-                      }).date
-                    }
+                    value={settledAtDate && `${settledAtDate?.date} ${settledAtDate?.time}`}
                   />
                   <DetailRow label={translate('text_6298bd525e359200d5ea01f2')} value={id} />
                 </div>
