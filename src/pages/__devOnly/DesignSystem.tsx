@@ -6,6 +6,7 @@ import { generatePath, Link } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 import { boolean, number, object, string } from 'yup'
 
+import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import {
   Accordion,
   Alert,
@@ -719,269 +720,271 @@ const DesignSystem = () => {
                     Virtualized horizontal Table
                   </Typography>
 
-                  <HorizontalDataTable
-                    leftColumnWidth={130}
-                    data={fakeDataHorizontalTable}
-                    rows={[
-                      {
-                        label: 'Breakout',
-                        key: 'end_of_period_dt',
-                        type: 'header',
-                        content: (item) => {
-                          return (
-                            <Typography variant="captionHl">
-                              {formatDateToTZ(
-                                item.end_of_period_dt,
-                                TimezoneEnum.TzUtc,
-                                'LLL yyyy',
-                              )}
-                            </Typography>
-                          )
+                  <AnalyticsStateProvider>
+                    <HorizontalDataTable
+                      leftColumnWidth={130}
+                      data={fakeDataHorizontalTable}
+                      rows={[
+                        {
+                          label: 'Breakout',
+                          key: 'end_of_period_dt',
+                          type: 'header',
+                          content: (item) => {
+                            return (
+                              <Typography variant="captionHl">
+                                {formatDateToTZ(
+                                  item.end_of_period_dt,
+                                  TimezoneEnum.TzUtc,
+                                  'LLL yyyy',
+                                )}
+                              </Typography>
+                            )
+                          },
                         },
-                      },
-                      {
-                        label: 'New',
-                        key: 'mrr_new',
-                        type: 'data',
-                        content: (item) => {
-                          return (
-                            <Typography
-                              variant="body"
-                              className={tw({
-                                'text-green-600': item.mrr_new > 0,
-                                'text-grey-500': item.mrr_new === 0,
-                                'text-red-600': item.mrr_new < 0,
-                              })}
-                            >
-                              {intlFormatNumber(
-                                deserializeAmount(
-                                  item.mrr_new || 0,
-                                  formikProps.values.amountCurrency,
-                                ),
-                                {
-                                  currencyDisplay: 'symbol',
-                                  currency: formikProps.values.amountCurrency,
-                                },
-                              )}
-                            </Typography>
-                          )
+                        {
+                          label: 'New',
+                          key: 'mrr_new',
+                          type: 'data',
+                          content: (item) => {
+                            return (
+                              <Typography
+                                variant="body"
+                                className={tw({
+                                  'text-green-600': item.mrr_new > 0,
+                                  'text-grey-500': item.mrr_new === 0,
+                                  'text-red-600': item.mrr_new < 0,
+                                })}
+                              >
+                                {intlFormatNumber(
+                                  deserializeAmount(
+                                    item.mrr_new || 0,
+                                    formikProps.values.amountCurrency,
+                                  ),
+                                  {
+                                    currencyDisplay: 'symbol',
+                                    currency: formikProps.values.amountCurrency,
+                                  },
+                                )}
+                              </Typography>
+                            )
+                          },
                         },
-                      },
-                      {
-                        label: 'Expansion',
-                        key: 'mrr_expansion',
-                        type: 'data',
-                        content: (item) => {
-                          return (
-                            <Typography
-                              variant="body"
-                              className={tw({
-                                'text-green-600': item.mrr_expansion > 0,
-                                'text-grey-500': item.mrr_expansion === 0,
-                                'text-red-600': item.mrr_expansion < 0,
-                              })}
-                            >
-                              {intlFormatNumber(
-                                deserializeAmount(
-                                  item.mrr_expansion || 0,
-                                  formikProps.values.amountCurrency,
-                                ),
-                                {
-                                  currencyDisplay: 'symbol',
-                                  currency: formikProps.values.amountCurrency,
-                                },
-                              )}
-                            </Typography>
-                          )
+                        {
+                          label: 'Expansion',
+                          key: 'mrr_expansion',
+                          type: 'data',
+                          content: (item) => {
+                            return (
+                              <Typography
+                                variant="body"
+                                className={tw({
+                                  'text-green-600': item.mrr_expansion > 0,
+                                  'text-grey-500': item.mrr_expansion === 0,
+                                  'text-red-600': item.mrr_expansion < 0,
+                                })}
+                              >
+                                {intlFormatNumber(
+                                  deserializeAmount(
+                                    item.mrr_expansion || 0,
+                                    formikProps.values.amountCurrency,
+                                  ),
+                                  {
+                                    currencyDisplay: 'symbol',
+                                    currency: formikProps.values.amountCurrency,
+                                  },
+                                )}
+                              </Typography>
+                            )
+                          },
                         },
-                      },
-                      {
-                        label: 'Contraction',
-                        key: 'mrr_contraction',
-                        type: 'data',
-                        content: (item) => {
-                          return (
-                            <Typography
-                              variant="body"
-                              className={tw({
-                                'text-green-600': item.mrr_contraction > 0,
-                                'text-grey-500': item.mrr_contraction === 0,
-                                'text-red-600': item.mrr_contraction < 0,
-                              })}
-                            >
-                              {intlFormatNumber(
-                                deserializeAmount(
-                                  item.mrr_contraction || 0,
-                                  formikProps.values.amountCurrency,
-                                ),
-                                {
-                                  currencyDisplay: 'symbol',
-                                  currency: formikProps.values.amountCurrency,
-                                },
-                              )}
-                            </Typography>
-                          )
+                        {
+                          label: 'Contraction',
+                          key: 'mrr_contraction',
+                          type: 'data',
+                          content: (item) => {
+                            return (
+                              <Typography
+                                variant="body"
+                                className={tw({
+                                  'text-green-600': item.mrr_contraction > 0,
+                                  'text-grey-500': item.mrr_contraction === 0,
+                                  'text-red-600': item.mrr_contraction < 0,
+                                })}
+                              >
+                                {intlFormatNumber(
+                                  deserializeAmount(
+                                    item.mrr_contraction || 0,
+                                    formikProps.values.amountCurrency,
+                                  ),
+                                  {
+                                    currencyDisplay: 'symbol',
+                                    currency: formikProps.values.amountCurrency,
+                                  },
+                                )}
+                              </Typography>
+                            )
+                          },
                         },
-                      },
-                      {
-                        label: 'Churn',
-                        key: 'mrr_churn',
-                        type: 'data',
-                        content: (item) => {
-                          return (
-                            <Typography
-                              variant="body"
-                              className={tw({
-                                'text-red-600': item.mrr_churn < 0,
-                              })}
-                            >
-                              {intlFormatNumber(
-                                deserializeAmount(
-                                  item.mrr_churn || 0,
-                                  formikProps.values.amountCurrency,
-                                ),
-                                {
-                                  currencyDisplay: 'symbol',
-                                  currency: formikProps.values.amountCurrency,
-                                },
-                              )}
-                            </Typography>
-                          )
+                        {
+                          label: 'Churn',
+                          key: 'mrr_churn',
+                          type: 'data',
+                          content: (item) => {
+                            return (
+                              <Typography
+                                variant="body"
+                                className={tw({
+                                  'text-red-600': item.mrr_churn < 0,
+                                })}
+                              >
+                                {intlFormatNumber(
+                                  deserializeAmount(
+                                    item.mrr_churn || 0,
+                                    formikProps.values.amountCurrency,
+                                  ),
+                                  {
+                                    currencyDisplay: 'symbol',
+                                    currency: formikProps.values.amountCurrency,
+                                  },
+                                )}
+                              </Typography>
+                            )
+                          },
                         },
-                      },
-                      {
-                        label: 'Summary',
-                        key: 'end_of_period_dt',
-                        type: 'header',
-                        content: (item) => {
-                          return (
-                            <Typography variant="captionHl">
-                              {formatDateToTZ(
-                                item.end_of_period_dt,
-                                TimezoneEnum.TzUtc,
-                                'LLL yyyy',
-                              )}
-                            </Typography>
-                          )
+                        {
+                          label: 'Summary',
+                          key: 'end_of_period_dt',
+                          type: 'header',
+                          content: (item) => {
+                            return (
+                              <Typography variant="captionHl">
+                                {formatDateToTZ(
+                                  item.end_of_period_dt,
+                                  TimezoneEnum.TzUtc,
+                                  'LLL yyyy',
+                                )}
+                              </Typography>
+                            )
+                          },
                         },
-                      },
-                      {
-                        label: 'Starting MRR',
-                        key: 'starting_mrr',
-                        type: 'data',
-                        content: (item) => {
-                          return (
-                            <Typography
-                              variant="body"
-                              className={tw({
-                                'text-green-600': item.starting_mrr > 0,
-                                'text-grey-500': item.starting_mrr === 0,
-                                'text-red-600': item.starting_mrr < 0,
-                              })}
-                            >
-                              {intlFormatNumber(
-                                deserializeAmount(
-                                  item.starting_mrr || 0,
-                                  formikProps.values.amountCurrency,
-                                ),
-                                {
-                                  currencyDisplay: 'symbol',
-                                  currency: formikProps.values.amountCurrency,
-                                },
-                              )}
-                            </Typography>
-                          )
+                        {
+                          label: 'Starting MRR',
+                          key: 'starting_mrr',
+                          type: 'data',
+                          content: (item) => {
+                            return (
+                              <Typography
+                                variant="body"
+                                className={tw({
+                                  'text-green-600': item.starting_mrr > 0,
+                                  'text-grey-500': item.starting_mrr === 0,
+                                  'text-red-600': item.starting_mrr < 0,
+                                })}
+                              >
+                                {intlFormatNumber(
+                                  deserializeAmount(
+                                    item.starting_mrr || 0,
+                                    formikProps.values.amountCurrency,
+                                  ),
+                                  {
+                                    currencyDisplay: 'symbol',
+                                    currency: formikProps.values.amountCurrency,
+                                  },
+                                )}
+                              </Typography>
+                            )
+                          },
                         },
-                      },
-                      {
-                        label: 'Change',
-                        key: 'mrr_change',
-                        type: 'data',
-                        content: (item) => {
-                          return (
-                            <Typography
-                              variant="body"
-                              className={tw({
-                                'text-green-600': item.mrr_change > 0,
-                                'text-grey-500': item.mrr_change === 0,
-                                'text-red-600': item.mrr_change < 0,
-                              })}
-                            >
-                              {intlFormatNumber(
-                                deserializeAmount(
-                                  item.mrr_change || 0,
-                                  formikProps.values.amountCurrency,
-                                ),
-                                {
-                                  currencyDisplay: 'symbol',
-                                  currency: formikProps.values.amountCurrency,
-                                },
-                              )}
-                            </Typography>
-                          )
+                        {
+                          label: 'Change',
+                          key: 'mrr_change',
+                          type: 'data',
+                          content: (item) => {
+                            return (
+                              <Typography
+                                variant="body"
+                                className={tw({
+                                  'text-green-600': item.mrr_change > 0,
+                                  'text-grey-500': item.mrr_change === 0,
+                                  'text-red-600': item.mrr_change < 0,
+                                })}
+                              >
+                                {intlFormatNumber(
+                                  deserializeAmount(
+                                    item.mrr_change || 0,
+                                    formikProps.values.amountCurrency,
+                                  ),
+                                  {
+                                    currencyDisplay: 'symbol',
+                                    currency: formikProps.values.amountCurrency,
+                                  },
+                                )}
+                              </Typography>
+                            )
+                          },
                         },
-                      },
-                      {
-                        label: 'Ending MRR',
-                        key: 'ending_mrr',
-                        type: 'data',
-                        content: (item) => {
-                          return (
-                            <Typography
-                              variant="body"
-                              className={tw({
-                                'text-green-600': item.ending_mrr > 0,
-                                'text-grey-500': item.ending_mrr === 0,
-                                'text-red-600': item.ending_mrr < 0,
-                              })}
-                            >
-                              {intlFormatNumber(
-                                deserializeAmount(
-                                  item.ending_mrr || 0,
-                                  formikProps.values.amountCurrency,
-                                ),
-                                {
-                                  currencyDisplay: 'symbol',
-                                  currency: formikProps.values.amountCurrency,
-                                },
-                              )}
-                            </Typography>
-                          )
+                        {
+                          label: 'Ending MRR',
+                          key: 'ending_mrr',
+                          type: 'data',
+                          content: (item) => {
+                            return (
+                              <Typography
+                                variant="body"
+                                className={tw({
+                                  'text-green-600': item.ending_mrr > 0,
+                                  'text-grey-500': item.ending_mrr === 0,
+                                  'text-red-600': item.ending_mrr < 0,
+                                })}
+                              >
+                                {intlFormatNumber(
+                                  deserializeAmount(
+                                    item.ending_mrr || 0,
+                                    formikProps.values.amountCurrency,
+                                  ),
+                                  {
+                                    currencyDisplay: 'symbol',
+                                    currency: formikProps.values.amountCurrency,
+                                  },
+                                )}
+                              </Typography>
+                            )
+                          },
                         },
-                      },
-                      {
-                        label: 'TOTAL',
-                        key: 'id',
-                        type: 'data',
-                        content: (item) => {
-                          const total =
-                            item.mrr_new +
-                            item.mrr_expansion +
-                            item.mrr_contraction -
-                            item.mrr_churn
+                        {
+                          label: 'TOTAL',
+                          key: 'id',
+                          type: 'data',
+                          content: (item) => {
+                            const total =
+                              item.mrr_new +
+                              item.mrr_expansion +
+                              item.mrr_contraction -
+                              item.mrr_churn
 
-                          return (
-                            <Typography
-                              variant="body"
-                              className={tw({
-                                'text-green-600': total > 0,
-                                'text-grey-500': total === 0,
-                                'text-red-600': total < 0,
-                              })}
-                            >
-                              {intlFormatNumber(
-                                deserializeAmount(total || 0, formikProps.values.amountCurrency),
-                                {
-                                  currencyDisplay: 'symbol',
-                                  currency: formikProps.values.amountCurrency,
-                                },
-                              )}
-                            </Typography>
-                          )
+                            return (
+                              <Typography
+                                variant="body"
+                                className={tw({
+                                  'text-green-600': total > 0,
+                                  'text-grey-500': total === 0,
+                                  'text-red-600': total < 0,
+                                })}
+                              >
+                                {intlFormatNumber(
+                                  deserializeAmount(total || 0, formikProps.values.amountCurrency),
+                                  {
+                                    currencyDisplay: 'symbol',
+                                    currency: formikProps.values.amountCurrency,
+                                  },
+                                )}
+                              </Typography>
+                            )
+                          },
                         },
-                      },
-                    ]}
-                  />
+                      ]}
+                    />
+                  </AnalyticsStateProvider>
                 </Block>
               </Container>
             ),
