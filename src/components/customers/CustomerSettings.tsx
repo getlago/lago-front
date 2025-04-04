@@ -120,7 +120,7 @@ gql`
   }
 
   fragment CustomerAppliedInvoiceCustomSections on Customer {
-    applicableInvoiceCustomSections {
+    configurableInvoiceCustomSections {
       id
       name
       selected
@@ -243,7 +243,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
     !!dunningCampaign &&
     !!dunningCampaign?.thresholds.some((threshold) => threshold.currency === customer?.currency)
 
-  const isInvoiceCustomSectionApplicable = !!customer?.applicableInvoiceCustomSections?.length
+  const isInvoiceCustomSectionApplicable = !!customer?.configurableInvoiceCustomSections?.length
 
   return (
     <>
@@ -612,7 +612,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                     containerSize={{ default: 0 }}
                     rowSize={48}
                     isLoading={loading}
-                    data={customer.applicableInvoiceCustomSections || []}
+                    data={customer.configurableInvoiceCustomSections || []}
                     columns={[
                       {
                         key: 'name',
