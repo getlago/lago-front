@@ -9,7 +9,7 @@ import {
 } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ, intlFormatDateToDateMed } from '~/core/timezone'
+import { formatDateToTZ, intlFormatDateTime } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
 import { ChargeUsage, CurrencyEnum, TimezoneEnum } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
@@ -123,10 +123,10 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
             <Typography>
               {translate('text_633dae57ca9a923dd53c2097', {
                 fromDate: locale
-                  ? intlFormatDateToDateMed(fromDatetime, customerTimezone, locale)
+                  ? intlFormatDateTime(fromDatetime, { timezone: customerTimezone, locale }).date
                   : formatDateToTZ(fromDatetime, customerTimezone),
                 toDate: locale
-                  ? intlFormatDateToDateMed(toDatetime, customerTimezone, locale)
+                  ? intlFormatDateTime(toDatetime, { timezone: customerTimezone, locale }).date
                   : formatDateToTZ(toDatetime, customerTimezone),
               })}
             </Typography>

@@ -44,20 +44,6 @@ export const isSameDay = (a: DateTime, b: DateTime): boolean => {
   return a.hasSame(b, 'day') && a.hasSame(b, 'month') && a.hasSame(b, 'year')
 }
 
-/**
- * @deprecated Use `intlFormatDateTime` instead.
- */
-export const intlFormatDateToDateMed = (
-  date: string,
-  timezone: TimezoneEnum | null | undefined,
-  locale: LocaleEnum,
-) => {
-  return DateTime.fromISO(date, {
-    zone: getTimezoneConfig(timezone).name,
-    locale: locale,
-  }).toLocaleString(DateTime.DATE_MED)
-}
-
 export enum DateFormat {
   /** Apr 18, 2025 */
   DATE_MED = 'DATE_MED',
