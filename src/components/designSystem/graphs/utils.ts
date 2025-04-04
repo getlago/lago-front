@@ -1,5 +1,5 @@
 import { MultipleLineChartLine } from '~/components/designSystem/graphs/MultipleLineChart'
-import { intlFormatDateTime } from '~/core/timezone'
+import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import { TimeGranularityEnum } from '~/generated/graphql'
 
 export const checkOnlyZeroValues = <T extends Record<string, unknown>>(
@@ -66,36 +66,21 @@ export const getItemDateFormatedByTimeGranularity = ({
   switch (timeGranularity) {
     case TimeGranularityEnum.Daily:
       return intlFormatDateTime(item.startOfPeriodDt, {
-        format: {
-          month: 'short',
-          day: 'numeric',
-          year: '2-digit',
-        },
+        formatDate: DateFormat.DATE_MED_SHORT_YEAR,
       }).date
     case TimeGranularityEnum.Weekly:
       return `${
         intlFormatDateTime(item.startOfPeriodDt, {
-          format: {
-            month: 'short',
-            day: 'numeric',
-            year: '2-digit',
-          },
+          formatDate: DateFormat.DATE_MED_SHORT_YEAR,
         }).date
       } - ${
         intlFormatDateTime(item.endOfPeriodDt, {
-          format: {
-            month: 'short',
-            day: 'numeric',
-            year: '2-digit',
-          },
+          formatDate: DateFormat.DATE_MED_SHORT_YEAR,
         }).date
       }`
     default:
       return intlFormatDateTime(item.startOfPeriodDt, {
-        format: {
-          month: 'short',
-          year: 'numeric',
-        },
+        formatDate: DateFormat.DATE_MONTH_YEAR,
       }).date
   }
 }

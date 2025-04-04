@@ -1,5 +1,3 @@
-import { DateTime } from 'luxon'
-
 import {
   CREDIT_NOTE_LIST_FILTER_PREFIX,
   CUSTOMER_LIST_FILTER_PREFIX,
@@ -11,7 +9,7 @@ import {
   REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX,
 } from '~/core/constants/filters'
 import { INVOICES_ROUTE } from '~/core/router'
-import { intlFormatDateTime } from '~/core/timezone'
+import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import { InvoicePaymentStatusTypeEnum, InvoiceStatusTypeEnum } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
@@ -272,7 +270,7 @@ export const formatActiveFilterValueDisplay = (
       return value
         .split(',')
         .map((v) => {
-          return intlFormatDateTime(v, { format: DateTime.DATE_SHORT }).date
+          return intlFormatDateTime(v, { formatDate: DateFormat.DATE_SHORT }).date
         })
         .join(' - ')
     default:

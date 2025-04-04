@@ -11,7 +11,7 @@ import { LagoGQLError } from '~/core/apolloClient'
 import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ, intlFormatDateToDateMed } from '~/core/timezone'
+import { formatDateToTZ, intlFormatDateTime } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
 import {
   ChargeUsage,
@@ -190,10 +190,14 @@ export const SubscriptionCurrentUsageTableComponent = ({
           <Typography variant="caption" color="grey600" noWrap>
             {translate('text_633dae57ca9a923dd53c2097', {
               fromDate: locale
-                ? intlFormatDateToDateMed(usageData?.fromDatetime, customerTimezone, locale)
+                ? intlFormatDateTime(usageData?.fromDatetime, {
+                    timezone: customerTimezone,
+                    locale,
+                  }).date
                 : formatDateToTZ(usageData?.fromDatetime, customerTimezone),
               toDate: locale
-                ? intlFormatDateToDateMed(usageData?.toDatetime, customerTimezone, locale)
+                ? intlFormatDateTime(usageData?.toDatetime, { timezone: customerTimezone, locale })
+                    .date
                 : formatDateToTZ(usageData?.toDatetime, customerTimezone),
             })}
           </Typography>
