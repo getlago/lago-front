@@ -36,6 +36,7 @@ export enum AvailableFiltersEnum {
   status = 'status',
   subscriptionExternalId = 'subscriptionExternalId',
   timeGranularity = 'timeGranularity',
+  billingEntityIds = 'billingEntityIds',
 }
 
 export const CreditNoteAvailableFilters = [
@@ -48,6 +49,7 @@ export const CreditNoteAvailableFilters = [
   AvailableFiltersEnum.creditNoteReason,
   AvailableFiltersEnum.creditNoteRefundStatus,
   AvailableFiltersEnum.selfBilled,
+  AvailableFiltersEnum.billingEntityIds,
 ]
 
 export const InvoiceAvailableFilters = [
@@ -62,6 +64,7 @@ export const InvoiceAvailableFilters = [
   AvailableFiltersEnum.status,
   AvailableFiltersEnum.amount,
   AvailableFiltersEnum.selfBilled,
+  AvailableFiltersEnum.billingEntityIds,
 ]
 
 export const RevenueStreamsAvailablePopperFilters = [
@@ -74,7 +77,10 @@ export const RevenueStreamsAvailablePopperFilters = [
   AvailableFiltersEnum.subscriptionExternalId,
 ]
 
-export const CustomerAvailableFilters = [AvailableFiltersEnum.customerAccountType]
+export const CustomerAvailableFilters = [
+  AvailableFiltersEnum.customerAccountType,
+  AvailableFiltersEnum.billingEntityIds,
+]
 
 export const RevenueStreamsPlansAvailableFilters = [AvailableFiltersEnum.currency]
 export const RevenueStreamsCustomersAvailableFilters = [AvailableFiltersEnum.currency]
@@ -109,6 +115,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.status]: 'text_63ac86d797f728a87b2f9fa7',
   [AvailableFiltersEnum.subscriptionExternalId]: 'text_1741008626283x4p1zwj11zi',
   [AvailableFiltersEnum.timeGranularity]: '', // Used in quick filters only
+  [AvailableFiltersEnum.billingEntityIds]: 'text_17436114971570doqrwuwhf0',
 }
 
 export type FiltersFormValues = {

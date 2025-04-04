@@ -8,14 +8,14 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CREATE_TAX_ROUTE } from '~/core/router'
 import {
   LagoApiError,
-  useAssignTaxRateToOrganizationMutation,
-  useGetTaxRatesForEditOrgaLazyQuery,
+  useAssignTaxRateToBillingEntityMutation,
+  useGetTaxRatesForEditBillingEntityLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
-  query getTaxRatesForEditOrga($limit: Int, $page: Int, $searchTerm: String) {
+  query getTaxRatesForEditBillingEntity($limit: Int, $page: Int, $searchTerm: String) {
     taxes(limit: $limit, page: $page, searchTerm: $searchTerm) {
       metadata {
         currentPage
@@ -29,29 +29,29 @@ gql`
     }
   }
 
-  mutation assignTaxRateToOrganization($input: TaxUpdateInput!) {
+  mutation assignTaxRateToBillingEntity($input: TaxUpdateInput!) {
     updateTax(input: $input) {
       id
     }
   }
 `
-export type AddOrganizationVatRateDialogRef = DialogRef
+export type AddBillingEntityVatRateDialogRef = DialogRef
 
-interface AddOrganizationVatRateDialogProps {
+interface AddBillingEntityVatRateDialogProps {
   appliedTaxRatesTaxesIds?: string[]
 }
 
-export const AddOrganizationVatRateDialog = forwardRef<
+export const AddBillingEntityVatRateDialog = forwardRef<
   DialogRef,
-  AddOrganizationVatRateDialogProps
->(({ appliedTaxRatesTaxesIds }: AddOrganizationVatRateDialogProps, ref) => {
+  AddBillingEntityVatRateDialogProps
+>(({ appliedTaxRatesTaxesIds }: AddBillingEntityVatRateDialogProps, ref) => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const [getTaxRates, { loading, data }] = useGetTaxRatesForEditOrgaLazyQuery({
+  const [getTaxRates, { loading, data }] = useGetTaxRatesForEditBillingEntityLazyQuery({
     variables: { limit: 20 },
   })
   const [localVatRate, setLocalVatRate] = useState<string>('')
-  const [updateVatRate] = useAssignTaxRateToOrganizationMutation({
+  const [updateVatRate] = useAssignTaxRateToBillingEntityMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted({ updateTax }) {
       if (updateTax?.id) {
@@ -61,7 +61,7 @@ export const AddOrganizationVatRateDialog = forwardRef<
         })
       }
     },
-    refetchQueries: ['getOrganizationSettings'],
+    refetchQueries: ['getBillingEntitySettings'],
   })
 
   const comboboxTaxRatesData = useMemo(() => {
@@ -155,4 +155,4 @@ export const AddOrganizationVatRateDialog = forwardRef<
   )
 })
 
-AddOrganizationVatRateDialog.displayName = 'forwardRef'
+AddBillingEntityVatRateDialog.displayName = 'forwardRef'
