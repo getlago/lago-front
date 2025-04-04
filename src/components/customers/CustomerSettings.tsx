@@ -243,7 +243,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
     !!dunningCampaign &&
     !!dunningCampaign?.thresholds.some((threshold) => threshold.currency === customer?.currency)
 
-  const isInvoiceCustomSectionApplicable = !!customer?.configurableInvoiceCustomSections?.length
+  const isInvoiceCustomSectionConfigurable = !!customer?.configurableInvoiceCustomSections?.length
 
   return (
     <>
@@ -578,7 +578,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
               {/* Invoice custom section */}
               <SettingsListItem
                 className={tw(
-                  isInvoiceCustomSectionApplicable &&
+                  isInvoiceCustomSectionConfigurable &&
                     !customer.skipInvoiceCustomSections &&
                     'shadow-inherit',
                 )}
@@ -606,7 +606,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                   <Typography variant="body" color="grey700">
                     {translate('text_1735223938916tlygbi5v0nd')}
                   </Typography>
-                ) : isInvoiceCustomSectionApplicable ? (
+                ) : isInvoiceCustomSectionConfigurable ? (
                   <Table
                     name="customer-custom-sections-settings"
                     containerSize={{ default: 0 }}
