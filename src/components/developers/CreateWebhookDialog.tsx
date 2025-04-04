@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
@@ -20,7 +19,6 @@ import {
   WebhookForCreateAndEditFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 gql`
   fragment WebhookForCreateAndEdit on WebhookEndpoint {
@@ -162,7 +160,7 @@ export const CreateWebhookDialog = forwardRef<CreateWebhookDialogRef>((_, ref) =
         </>
       )}
     >
-      <Content>
+      <div className="mb-8 flex flex-col gap-6">
         <TextInput
           // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus
@@ -202,17 +200,9 @@ export const CreateWebhookDialog = forwardRef<CreateWebhookDialogRef>((_, ref) =
             sublabel={translate('text_64d23a81a7d807f8aa57051b')}
           />
         </div>
-      </Content>
+      </div>
     </Dialog>
   )
 })
-
-const Content = styled.div`
-  margin-bottom: ${theme.spacing(8)};
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
-  }
-`
 
 CreateWebhookDialog.displayName = 'forwardRef'
