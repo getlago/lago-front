@@ -1,5 +1,5 @@
 import { useFormik } from 'formik'
-import { RefObject, useCallback, useRef } from 'react'
+import { RefObject, useCallback, useMemo, useRef } from 'react'
 import { array, object, ref, string } from 'yup'
 
 import { BillingAccordion } from '~/components/customers/createCustomer/BillingAccordion'
@@ -31,6 +31,7 @@ import {
   ProviderTypeEnum,
   SalesforceCustomer,
   UpdateCustomerInput,
+  useGetBillingEntitiesQuery,
   XeroCustomer,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -49,6 +50,21 @@ const CreateCustomer = () => {
   )
 
   const { isEdition, onSave, customer, loading, onClose } = useCreateEditCustomer()
+
+  const { data: billingEntitiesData, loading: billingEntitiesLoading } =
+    useGetBillingEntitiesQuery()
+
+  const billingEntitiesList = useMemo(
+    () =>
+      billingEntitiesData?.billingEntities?.collection?.map((billingEntity) => ({
+        label: billingEntity.name || billingEntity.code,
+        value: billingEntity.code,
+        isDefault: billingEntity.isDefault,
+      })) || [],
+    [billingEntitiesData],
+  )
+
+  const defaultBillingEntity = billingEntitiesList?.find((b) => b.isDefault)
 
   const canEditAccountType =
     hasAccessToRevenueShare && (isEdition ? customer?.canEditAttributes : true)
@@ -100,7 +116,7 @@ const CreateCustomer = () => {
       },
       paymentProvider: customer?.paymentProvider ?? undefined,
       metadata: customer?.metadata ?? undefined,
-      billingEntityCode: customer?.billingEntity?.code ?? null,
+      billingEntityCode: customer?.billingEntity?.code ?? defaultBillingEntity?.value ?? null,
     },
     validationSchema: object().shape({
       customerType: string().oneOf(Object.values(CustomerTypeEnum)).nullable(),
@@ -301,6 +317,8 @@ const CreateCustomer = () => {
               formikProps={formikProps}
               isEdition={isEdition}
               customer={customer}
+              billingEntitiesList={billingEntitiesList}
+              billingEntitiesLoading={billingEntitiesLoading}
             />
             <BillingAccordion formikProps={formikProps} isEdition={isEdition} customer={customer} />
             <MetadataAccordion formikProps={formikProps} />
