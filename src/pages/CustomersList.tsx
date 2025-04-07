@@ -186,6 +186,11 @@ const CustomersList = () => {
               minWidth: 200,
             },
             {
+              key: 'billingEntity.name',
+              title: translate('text_17436114971570doqrwuwhf0'),
+              content: ({ billingEntity }) => billingEntity.name || billingEntity.code || '-',
+            },
+            {
               key: 'activeSubscriptionsCount',
               title: translate('text_1734452833961chacuky8218'),
               content: ({ activeSubscriptionsCount }) => activeSubscriptionsCount,
