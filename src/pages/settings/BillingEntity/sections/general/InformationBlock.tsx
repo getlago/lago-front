@@ -71,6 +71,8 @@ const InformationBlock = ({ billingEntity }: { billingEntity: BillingEntity }) =
 
   const loading = false
 
+  const emptyPlaceholder = translate('text_1744030459568c0h1b5p25u6')
+
   const fields: SettingsField[] = [
     {
       label: translate('text_1744018116743pwoqp40bkhp'),
@@ -79,66 +81,76 @@ const InformationBlock = ({ billingEntity }: { billingEntity: BillingEntity }) =
       labelTrue: translate('text_17440181167432q7jzt9znuh'),
       labelFalse: translate('text_1744018116743ntlygtcnq95'),
     },
-    { label: translate('text_17430772961896bgqutmnx7g'), value: name, fieldKey: 'name' },
-    { label: translate('text_1744018116743dttk8bbrqan'), value: code, fieldKey: 'code' },
+    {
+      label: translate('text_17430772961896bgqutmnx7g'),
+      value: name,
+      fieldKey: 'name',
+      emptyPlaceholder,
+    },
+    {
+      label: translate('text_1744018116743dttk8bbrqan'),
+      value: code,
+      fieldKey: 'code',
+      emptyPlaceholder,
+    },
     {
       label: translate('text_62ab2d0396dd6b0361614d6c'),
       value: legalName,
-      emptyPlaceholder: translate('text_62ab2d0396dd6b0361614d64'),
+      emptyPlaceholder,
       fieldKey: 'legalName',
     },
     {
       label: translate('text_62ab2d0396dd6b0361614d7c'),
       value: legalNumber,
-      emptyPlaceholder: translate('text_62ab2d0396dd6b0361614d74'),
+      emptyPlaceholder,
       fieldKey: 'legalNumber',
     },
     {
       label: translate('text_648053ee819b60364c675cf1'),
       value: taxIdentificationNumber,
-      emptyPlaceholder: translate('text_62ab2d0396dd6b0361614d74'),
+      emptyPlaceholder,
       fieldKey: 'taxIdentificationNumber',
     },
     {
       label: translate('text_62ab2d0396dd6b0361614d8c'),
       value: email,
-      emptyPlaceholder: translate('text_62ab2d0396dd6b0361614d84'),
+      emptyPlaceholder,
       fieldKey: 'email',
     },
     {
       label: translate('text_62ab2d0396dd6b0361614d9c'),
       value: addressLine1,
-      emptyPlaceholder: translate('text_62ab2d0396dd6b0361614d94'),
+      emptyPlaceholder,
       fieldKey: 'addressLine1',
     },
     {
       label: translate('text_62ab2d0396dd6b0361614dac'),
       value: addressLine2,
-      emptyPlaceholder: translate('text_62ab2d0396dd6b0361614da4'),
+      emptyPlaceholder,
       fieldKey: 'addressLine2',
     },
     {
       label: translate('text_62ab2d0396dd6b0361614dc8'),
       value: zipcode,
-      emptyPlaceholder: translate('text_62ab2d0396dd6b0361614dc0'),
+      emptyPlaceholder,
       fieldKey: 'zipcode',
     },
     {
       label: translate('text_62ab2d0396dd6b0361614dd6'),
       value: city,
-      emptyPlaceholder: translate('text_62ab2d0396dd6b0361614dd0'),
+      emptyPlaceholder,
       fieldKey: 'city',
     },
     {
       label: translate('text_62ab2d0396dd6b0361614db6'),
       value: state,
-      emptyPlaceholder: translate('text_62ab2d0396dd6b0361614db0'),
+      emptyPlaceholder,
       fieldKey: 'state',
     },
     {
       label: translate('text_62ab2d0396dd6b0361614de3'),
       value: country ? CountryCodes[country] : null,
-      emptyPlaceholder: translate('text_62ab2d0396dd6b0361614ddd'),
+      emptyPlaceholder,
       fieldKey: 'country',
     },
   ]
@@ -188,9 +200,9 @@ const InformationBlock = ({ billingEntity }: { billingEntity: BillingEntity }) =
               </Typography>
 
               <Typography
-                className="flex h-7 items-center text-grey-700"
+                className="flex h-7 items-center"
                 variant="body"
-                color={field.label ? 'grey700' : 'grey500'}
+                color={field.value ? 'grey700' : 'grey600'}
               >
                 {!!field.labelTrue && field.value === true ? field.labelTrue : field.labelFalse}
 
