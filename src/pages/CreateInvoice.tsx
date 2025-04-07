@@ -54,6 +54,7 @@ import {
   useCreateInvoiceMutation,
   useFetchDraftInvoiceTaxesMutation,
   useGetAddonListForInfoiceLazyQuery,
+  useGetBillingEntityQuery,
   useGetInfosForCreateInvoiceQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -93,6 +94,9 @@ gql`
       state
       zipcode
       accountType
+      billingEntity {
+        code
+      }
       taxes {
         id
         ...TaxInfosForCreateInvoice
@@ -103,23 +107,6 @@ gql`
       avalaraCustomer {
         id
       }
-    }
-
-    organization {
-      id
-      addressLine1
-      addressLine2
-      city
-      country
-      email
-      name
-      legalName
-      legalNumber
-      taxIdentificationNumber
-      logoUrl
-      state
-      zipcode
-      defaultCurrency
     }
 
     taxes(page: 1, limit: 1000, appliedToOrganization: true) {
@@ -207,7 +194,16 @@ const CreateInvoice = () => {
     skip: !customerId,
     notifyOnNetworkStatusChange: true,
   })
-  const { customer, organization, taxes } = data || {}
+  const { customer, taxes } = data || {}
+
+  const { data: billingEntityData } = useGetBillingEntityQuery({
+    variables: {
+      code: customer?.billingEntity?.code as string,
+    },
+    skip: !customer?.billingEntity?.code,
+  })
+
+  const billingEntity = billingEntityData?.billingEntity
 
   const hasTaxProvider = !!customer?.anrokCustomer?.id || !!customer?.avalaraCustomer?.id
 
@@ -256,7 +252,7 @@ const CreateInvoice = () => {
   const formikProps = useFormik<InvoiceFormInput>({
     initialValues: {
       customerId: customerId || '',
-      currency: data?.customer?.currency || data?.organization?.defaultCurrency || CurrencyEnum.Usd,
+      currency: data?.customer?.currency || billingEntity?.defaultCurrency || CurrencyEnum.Usd,
       fees: [],
     },
     validationSchema: object().shape({
@@ -523,9 +519,9 @@ const CreateInvoice = () => {
                   <Typography variant="headline" color="textSecondary">
                     {translate('text_6453819268763979024acff5')}
                   </Typography>
-                  {!!organization?.logoUrl && (
+                  {!!billingEntity?.logoUrl && (
                     <Avatar size="big" variant="connector">
-                      <img src={organization?.logoUrl ?? undefined} alt="company-logo" />
+                      <img src={billingEntity?.logoUrl ?? undefined} alt="company-logo" />
                     </Avatar>
                   )}
                 </div>
@@ -559,53 +555,55 @@ const CreateInvoice = () => {
                       )}
                     </Typography>
                     <Typography variant="body" color="grey700" forceBreak>
-                      {organization?.legalName || organization?.name}
+                      {billingEntity?.legalName || billingEntity?.name}
                     </Typography>
-                    {organization?.legalNumber && (
+                    {billingEntity?.legalNumber && (
                       <Typography variant="body" color="grey700">
-                        {organization?.legalNumber}
+                        {billingEntity?.legalNumber}
                       </Typography>
                     )}
                     {!!(
-                      organization?.addressLine1 ||
-                      organization?.addressLine2 ||
-                      organization?.state ||
-                      organization?.country ||
-                      organization?.city ||
-                      organization?.zipcode
+                      billingEntity?.addressLine1 ||
+                      billingEntity?.addressLine2 ||
+                      billingEntity?.state ||
+                      billingEntity?.country ||
+                      billingEntity?.city ||
+                      billingEntity?.zipcode
                     ) && (
                       <>
-                        {organization?.addressLine1 && (
+                        {billingEntity?.addressLine1 && (
                           <Typography variant="body" color="grey700">
-                            {organization?.addressLine1}
+                            {billingEntity?.addressLine1}
                           </Typography>
                         )}
-                        {organization?.addressLine2 && (
+                        {billingEntity?.addressLine2 && (
                           <Typography variant="body" color="grey700">
-                            {organization?.addressLine2}
+                            {billingEntity?.addressLine2}
                           </Typography>
                         )}
-                        {(organization?.zipcode || organization?.city || organization?.state) && (
+                        {(billingEntity?.zipcode ||
+                          billingEntity?.city ||
+                          billingEntity?.state) && (
                           <Typography variant="body" color="grey700">
-                            {organization?.zipcode} {organization?.city} {organization?.state}
+                            {billingEntity?.zipcode} {billingEntity?.city} {billingEntity?.state}
                           </Typography>
                         )}
-                        {organization?.country && (
+                        {billingEntity?.country && (
                           <Typography variant="body" color="grey700">
-                            {CountryCodes[organization?.country]}
+                            {CountryCodes[billingEntity?.country]}
                           </Typography>
                         )}
                       </>
                     )}
-                    {organization?.email && (
+                    {billingEntity?.email && (
                       <Typography variant="body" color="grey700">
-                        {organization?.email}
+                        {billingEntity?.email}
                       </Typography>
                     )}
-                    {organization?.taxIdentificationNumber && (
+                    {billingEntity?.taxIdentificationNumber && (
                       <Typography variant="body" color="grey700">
                         {translate('text_648053ee819b60364c675c78', {
-                          taxIdentificationNumber: organization.taxIdentificationNumber,
+                          taxIdentificationNumber: billingEntity.taxIdentificationNumber,
                         })}
                       </Typography>
                     )}
