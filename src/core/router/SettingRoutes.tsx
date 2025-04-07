@@ -1,5 +1,3 @@
-import { Navigate } from 'react-router-dom'
-
 import AnrokIntegrationDetails from '~/pages/settings/AnrokIntegrationDetails'
 import AnrokIntegrations from '~/pages/settings/AnrokIntegrations'
 import BillingEntity from '~/pages/settings/BillingEntity/BillingEntity'
