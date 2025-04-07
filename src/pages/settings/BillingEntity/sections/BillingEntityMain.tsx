@@ -83,42 +83,47 @@ const Item = ({ item, billingEntityCode }: ItemProps) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
 
+  const onClick = () => {
+    if (item.path) {
+      navigate(
+        generatePath(item.path(), {
+          billingEntityCode,
+        }),
+      )
+    }
+
+    if (item.onClick) {
+      item.onClick()
+    }
+  }
+
   return (
-    <div className={tw('flex gap-4 pb-8 shadow-b', item.className)}>
-      <Avatar size="big" variant="connector">
-        <Icon size="medium" name={item.icon as IconName} color="dark" />
-      </Avatar>
-      <div className="grow">
-        <Typography className="text-base font-medium text-grey-700">
-          {translate(item.label)}
-        </Typography>
-        <Typography className="text-sm font-normal text-grey-600">
-          {translate(item.sublabel)}
-        </Typography>
+    <>
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
+      <div
+        className={tw('flex cursor-pointer gap-4 pb-8 shadow-b', item.className)}
+        onClick={() => onClick()}
+        onKeyDown={() => {}}
+      >
+        <Avatar size="big" variant="connector">
+          <Icon size="medium" name={item.icon as IconName} color="dark" />
+        </Avatar>
+        <div className="grow">
+          <Typography className="text-base font-medium text-grey-700">
+            {translate(item.label)}
+          </Typography>
+          <Typography className="text-sm font-normal text-grey-600">
+            {translate(item.sublabel)}
+          </Typography>
+        </div>
+
+        {(item.path || item.onClick) && (
+          <Tooltip placement="top-end" title={item.actionLabel ? translate(item.actionLabel) : ''}>
+            <Button icon="chevron-right" variant="quaternary" onClick={() => onClick()} />
+          </Tooltip>
+        )}
       </div>
-
-      {(item.path || item.onClick) && (
-        <Tooltip placement="top-end" title={item.actionLabel ? translate(item.actionLabel) : ''}>
-          <Button
-            icon="chevron-right"
-            variant="quaternary"
-            onClick={() => {
-              if (item.path) {
-                navigate(
-                  generatePath(item.path(), {
-                    billingEntityCode,
-                  }),
-                )
-              }
-
-              if (item.onClick) {
-                item.onClick()
-              }
-            }}
-          />
-        </Tooltip>
-      )}
-    </div>
+    </>
   )
 }
 
@@ -136,7 +141,7 @@ const BillingEntityMain = ({ billingEntity }: BillingEntityMainProps) => {
         {translate('text_1742367266660b7aw6idpgux')}
       </Typography>
 
-      <div className="mt-4 flex flex-col gap-6">
+      <div className="mt-4 flex flex-col gap-8">
         {SETTINGS_LIST_ITEMS.map((item) => (
           <Item key={item.id} item={item} billingEntityCode={billingEntity?.code} />
         ))}
