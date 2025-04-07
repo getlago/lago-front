@@ -14,8 +14,20 @@ const { appEnv, sentryDsn } = envGlobalVar()
 if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
   Sentry.init({
     dsn: sentryDsn,
-    integrations: [Sentry.browserTracingIntegration()],
+    integrations: [
+      Sentry.browserTracingIntegration(),
+      Sentry.replayIntegration({
+        maskAllText: false,
+        blockAllMedia: false,
+        maskAllInputs: false,
+      }),
+    ],
     environment: appEnv,
+    // Prevent sending recorded session if no error occurs
+    replaysSessionSampleRate: 0.0,
+    // Buffer (locally recorded) and send all errors if one occurs
+    replaysOnErrorSampleRate: 1.0,
+    // Collect traces for 30% of sessions
     tracesSampleRate: 0.3,
   })
 
