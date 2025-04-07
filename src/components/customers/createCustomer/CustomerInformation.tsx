@@ -12,7 +12,6 @@ import {
   CustomerTypeEnum,
   TimezoneEnum,
   UpdateCustomerInput,
-  useGetBillingEntitiesQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -22,27 +21,20 @@ interface CustomerInformationProps {
   formikProps: FormikProps<CreateCustomerInput | UpdateCustomerInput>
   isEdition?: boolean
   customer?: AddCustomerDrawerFragment | null
+  billingEntitiesList: { value: string; label: string }[]
+  billingEntitiesLoading: boolean
 }
 
 export const CustomerInformation: FC<CustomerInformationProps> = ({
   formikProps,
   isEdition,
   customer,
+  billingEntitiesList,
+  billingEntitiesLoading,
 }) => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
   const { timezoneConfig } = useOrganizationInfos()
-  const { data: billingEntitiesData, loading: billingEntitiesLoading } =
-    useGetBillingEntitiesQuery()
-
-  const billingEntitiesList = useMemo(
-    () =>
-      billingEntitiesData?.billingEntities?.collection?.map((billingEntity) => ({
-        label: billingEntity.name || billingEntity.code,
-        value: billingEntity.code,
-      })) || [],
-    [billingEntitiesData],
-  )
 
   const timezoneComboboxData = useMemo(
     () =>
@@ -72,6 +64,7 @@ export const CustomerInformation: FC<CustomerInformationProps> = ({
         PopperProps={{ displayInDialog: true }}
         loading={billingEntitiesLoading}
         data={billingEntitiesList}
+        disableClearable={isEdition && !customer?.canEditAttributes}
       />
       <TextInputField
         // eslint-disable-next-line jsx-a11y/no-autofocus
