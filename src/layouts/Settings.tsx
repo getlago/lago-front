@@ -23,6 +23,8 @@ import {
   CREATE_TAX_ROUTE,
   DUNNINGS_SETTINGS_ROUTE,
   EDIT_INVOICE_CUSTOM_SECTION,
+  FULL_INTEGRATIONS_ROUTE,
+  FULL_INTEGRATIONS_ROUTE_ID,
   HOME_ROUTE,
   INTEGRATIONS_ROUTE,
   INVOICE_SETTINGS_ROUTE,
@@ -58,6 +60,7 @@ const generateTabs = ({
     link: generatePath(INTEGRATIONS_ROUTE, {
       integrationGroup: IntegrationsTabsOptionsEnum.Lago,
     }),
+    match: [FULL_INTEGRATIONS_ROUTE, FULL_INTEGRATIONS_ROUTE_ID],
     hidden: !hasPermissions(['organizationIntegrationsView']),
   },
   {
