@@ -354,7 +354,7 @@ const InvoiceSettings = () => {
                   <Table
                     name="invoice-custom-section"
                     containerSize={{ default: 0 }}
-                    data={data.invoiceCustomSections?.collection || []}
+                    data={data?.invoiceCustomSections?.collection || []}
                     columns={[
                       {
                         key: 'name',

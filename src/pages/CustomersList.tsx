@@ -135,7 +135,7 @@ const CustomersList = () => {
       >
         <Table
           name="customers-list"
-          data={data?.customers.collection || []}
+          data={data?.customers?.collection || []}
           isLoading={loading}
           hasError={!!error}
           containerSize={{
