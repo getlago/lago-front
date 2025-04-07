@@ -25,8 +25,8 @@ if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
     environment: appEnv,
     // Prevent sending recorded session if no error occurs
     replaysSessionSampleRate: 0.0,
-    // Buffer (locally recorded) and send all errors if one occurs
-    replaysOnErrorSampleRate: 1.0,
+    // Buffer (locally recorded) and send 30% of errors if one occurs
+    replaysOnErrorSampleRate: 0.3,
     // Collect traces for 30% of sessions
     tracesSampleRate: 0.3,
   })
