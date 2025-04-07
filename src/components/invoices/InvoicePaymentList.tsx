@@ -18,6 +18,7 @@ import {
   useGetPaymentListQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import useDownloadPaymentReceipts from '~/hooks/paymentReceipts/useDownloadPaymentReceipts'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 
@@ -33,6 +34,8 @@ export const InvoicePaymentList: FC<{
     variables: { invoiceId: invoiceId as string, limit: 20 },
     skip: !invoiceId,
   })
+
+  const { canDownloadPaymentReceipts, downloadPaymentReceipts } = useDownloadPaymentReceipts()
 
   const payments = data?.payments.collection || []
 
@@ -83,6 +86,22 @@ export const InvoicePaymentList: FC<{
                 paymentId: request.id,
               })
             }
+            actionColumn={({ paymentReceipt }) => {
+              return [
+                canDownloadPaymentReceipts
+                  ? {
+                      startIcon: 'download',
+                      title: translate('text_1741334392622fl3ozwejrul'),
+                      onAction: ({ paymentReceipt: _paymentReceipt }) => {
+                        downloadPaymentReceipts({
+                          paymentReceiptId: _paymentReceipt?.id,
+                        })
+                      },
+                      disabled: !paymentReceipt?.id,
+                    }
+                  : null,
+              ]
+            }}
             columns={[
               {
                 key: 'payablePaymentStatus',

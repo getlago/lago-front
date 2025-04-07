@@ -113,7 +113,6 @@
   "text_6407684eaf41130074c4b2f0": "Send an email when an invoice is finalized",
   "text_6407684eaf41130074c4b2f3": "Send an email when an invoice is finalized",
   "text_6407684eaf41130074c4b2f4": "invoice.created",
-  "text_6408d63cb486aa006163f042": "Send an email when a credit note is created",
   "text_6408d642d50da800533e43d8": "Send an email when a credit note is created",
   "text_6408d64fb486aa006163f043": "credit_note.created",
   "text_641394c4c936000079c5639a": "Leave this field blank if you prefer not to send invoices to this customer by email. To send an email to multiple recipients, please separate emails with a comma.",
@@ -2935,5 +2934,22 @@
   "text_17337300102103wt4s6yz2gh": "MoneyHash connection successfully edited",
   "text_1733730115018i122xlyi662": "MoneyHash connection successfully added",
   "text_1737463302046fgixue5wtvu": "MoneyHash connection successfully deleted",
-  "text_1733992108437qlovqhjhqj4": "Create automatically this customer in MoneyHash"
+  "text_1733992108437qlovqhjhqj4": "Create automatically this customer in MoneyHash",
+  "text_1741334140002zdl3cl599ib": "Send an email when a payment receipt is created",
+  "text_1741334140002wx0sbk2bd13": "receipt.created",
+  "text_17413343926218dbogzsvk4w": "Your payement receipt from {{organization}} #2465-1465",
+  "text_1741334392621wr13yk143fc": "Receipt from {{organization}}",
+  "text_17413343926218vamtw2ybko": "$730.00",
+  "text_1741334392621yu0957trt4n": "Paid on February 17, 2025",
+  "text_17413343926225ug14ak60xv": "Download invoice",
+  "text_1741334392622fl3ozwejrul": "Download receipt",
+  "text_17416040051091zpga3ugijs": "Receipt number",
+  "text_1741604005109q6qlr3qcc1u": "1234-5678",
+  "text_1741604005109kywirovj4yo": "Payment date",
+  "text_17416040051098005r277i71": "Sep. 15, 2023 UTC+0",
+  "text_1741604005109aspaz4chd7y": "Amount paid",
+  "text_1741604005109w5ns73xmam9": "$730,00",
+  "text_17440371192353kif37ol194": "Payment method",
+  "text_1744037119235rz9n0rfhwcp": "Visa **** 1234"
 }
+
