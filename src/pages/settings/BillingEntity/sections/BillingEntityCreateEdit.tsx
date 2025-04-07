@@ -39,6 +39,7 @@ const BillingEntityCreateEdit = () => {
 
   const formikProps = useFormik<BillingEntityFormInput>({
     initialValues: {
+      name: billingEntity?.name || '',
       code: billingEntity?.code || '',
       legalName: billingEntity?.legalName || '',
       legalNumber: billingEntity?.legalNumber || '',
@@ -111,6 +112,8 @@ const BillingEntityCreateEdit = () => {
                       formikProps={formikProps}
                       label={translate('text_6419c64eace749372fc72b0f')}
                       placeholder={translate('text_6584550dc4cec7adf861504f')}
+                      // eslint-disable-next-line jsx-a11y/no-autofocus
+                      autoFocus
                     />
 
                     <TextInputField
