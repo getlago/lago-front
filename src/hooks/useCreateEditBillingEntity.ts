@@ -41,6 +41,7 @@ gql`
     emailSettings
     timezone
     isDefault
+    defaultCurrency
   }
 
   query getBillingEntities {
