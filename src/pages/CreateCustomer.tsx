@@ -58,9 +58,8 @@ const CreateCustomer = () => {
     () =>
       billingEntitiesData?.billingEntities?.collection
         ?.map((billingEntity) => ({
-          label: billingEntity.name || billingEntity.code,
+          label: `${billingEntity.name || billingEntity.code}${billingEntity.isDefault ? ` (${translate('text_1744018116743pwoqp40bkhp')})` : ''}`,
           value: billingEntity.code,
-          description: billingEntity.isDefault ? translate('text_1744018116743pwoqp40bkhp') : '',
           isDefault: billingEntity.isDefault,
         }))
         .sort((a) => (a.isDefault ? -1 : 1)) || [],
