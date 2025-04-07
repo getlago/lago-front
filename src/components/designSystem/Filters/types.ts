@@ -21,6 +21,7 @@ export enum AvailableFiltersEnum {
   creditNoteReason = 'creditNoteReason',
   creditNoteRefundStatus = 'creditNoteRefundStatus',
   currency = 'currency',
+  customerType = 'customerType',
   customerAccountType = 'accountType',
   customerExternalId = 'customerExternalId',
   date = 'date',
@@ -73,7 +74,7 @@ export const RevenueStreamsAvailablePopperFilters = [
   AvailableFiltersEnum.date,
   AvailableFiltersEnum.country,
   AvailableFiltersEnum.currency,
-  AvailableFiltersEnum.customerAccountType,
+  AvailableFiltersEnum.customerType,
   AvailableFiltersEnum.customerExternalId,
   AvailableFiltersEnum.planCode,
   AvailableFiltersEnum.subscriptionExternalId,
@@ -90,7 +91,7 @@ export const MrrOverviewAvailableFilters = [
   AvailableFiltersEnum.date,
   AvailableFiltersEnum.country,
   AvailableFiltersEnum.currency,
-  AvailableFiltersEnum.customerAccountType,
+  AvailableFiltersEnum.customerType,
   AvailableFiltersEnum.customerExternalId,
 ]
 export const MrrBreakdownPlansAvailableFilters = [AvailableFiltersEnum.currency]
@@ -114,6 +115,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.creditNoteReason]: 'text_1734703891144ptrs5sty2bg',
   [AvailableFiltersEnum.creditNoteRefundStatus]: 'text_1734703891144vv5iclhl4vz',
   [AvailableFiltersEnum.currency]: 'text_632b4acf0c41206cbcb8c324',
+  [AvailableFiltersEnum.customerType]: 'text_1726128938631ioz4orixel3',
   [AvailableFiltersEnum.customerAccountType]: 'text_1726128938631ioz4orixel3',
   [AvailableFiltersEnum.customerExternalId]: 'text_65201c5a175a4b0238abf29a',
   [AvailableFiltersEnum.date]: 'text_664cb90097bfa800e6efa3f5',

@@ -7,6 +7,7 @@ import { FiltersItemCreditNoteReason } from '~/components/designSystem/Filters/f
 import { FiltersItemCreditNoteRefundStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemCreditNoteRefundStatus'
 import { FiltersItemCurrency } from '~/components/designSystem/Filters/filtersElements/FiltersItemCurrency'
 import { FiltersItemCustomer } from '~/components/designSystem/Filters/filtersElements/FiltersItemCustomer'
+import { FiltersItemCustomerAccountType } from '~/components/designSystem/Filters/filtersElements/FiltersItemCustomerAccountType'
 import { FiltersItemCustomerType } from '~/components/designSystem/Filters/filtersElements/FiltersItemCustomerType'
 import { FiltersItemDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemDate'
 import { FiltersItemInvoiceNumber } from '~/components/designSystem/Filters/filtersElements/FiltersItemInvoiceNumber'
@@ -62,8 +63,11 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.currency]: (
       <FiltersItemCurrency value={value} setFilterValue={setFilterValue} />
     ),
-    [AvailableFiltersEnum.customerAccountType]: (
+    [AvailableFiltersEnum.customerType]: (
       <FiltersItemCustomerType value={value} setFilterValue={setFilterValue} />
+    ),
+    [AvailableFiltersEnum.customerAccountType]: (
+      <FiltersItemCustomerAccountType value={value} setFilterValue={setFilterValue} />
     ),
     [AvailableFiltersEnum.timeGranularity]: null, // Used in quick filters only
     [AvailableFiltersEnum.customerExternalId]: (
