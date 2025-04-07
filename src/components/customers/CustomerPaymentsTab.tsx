@@ -65,7 +65,7 @@ export const CustomerPaymentsTab: FC<CustomerPaymentsTabProps> = ({ externalCust
           payments={payments}
           loading={loading}
           fetchMore={fetchMore}
-          metadata={data?.payments.metadata}
+          metadata={data?.payments?.metadata}
         />
       )}
     </div>
