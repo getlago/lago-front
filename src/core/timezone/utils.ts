@@ -130,6 +130,9 @@ const getTimezoneString = (dateTime: DateTime, timezone: TimezoneEnum, format: T
   return timezoneString
 }
 
+/**
+ * @warning If you use it for organization-based dates, make sure to use the `formatTimeOrgaTZ` function instead.
+ */
 export const intlFormatDateTime = (
   date: string,
   options:
