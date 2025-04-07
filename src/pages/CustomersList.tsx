@@ -120,7 +120,7 @@ const CustomersList = () => {
         </div>
       </PageHeader.Wrapper>
 
-      <div className="px-12 py-3 shadow-b">
+      <div className="box-border flex w-full flex-col gap-3 p-4 shadow-b md:px-12 md:py-3">
         <Filters.Provider
           filtersNamePrefix={CUSTOMER_LIST_FILTER_PREFIX}
           quickFiltersType={AvailableQuickFilters.customerAccountType}
@@ -130,6 +130,7 @@ const CustomersList = () => {
           ]}
         >
           <Filters.QuickFilters />
+          <Filters.Component />
         </Filters.Provider>
       </div>
 

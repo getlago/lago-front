@@ -65,6 +65,7 @@ export const CustomerInformation: FC<CustomerInformationProps> = ({
         loading={billingEntitiesLoading}
         data={billingEntitiesList}
         disableClearable={isEdition && !customer?.canEditAttributes}
+        sortValues={false}
       />
       <TextInputField
         // eslint-disable-next-line jsx-a11y/no-autofocus

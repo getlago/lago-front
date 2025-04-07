@@ -56,12 +56,15 @@ const CreateCustomer = () => {
 
   const billingEntitiesList = useMemo(
     () =>
-      billingEntitiesData?.billingEntities?.collection?.map((billingEntity) => ({
-        label: billingEntity.name || billingEntity.code,
-        value: billingEntity.code,
-        isDefault: billingEntity.isDefault,
-      })) || [],
-    [billingEntitiesData],
+      billingEntitiesData?.billingEntities?.collection
+        ?.map((billingEntity) => ({
+          label: billingEntity.name || billingEntity.code,
+          value: billingEntity.code,
+          description: billingEntity.isDefault ? translate('text_1744018116743pwoqp40bkhp') : '',
+          isDefault: billingEntity.isDefault,
+        }))
+        .sort((a) => (a.isDefault ? -1 : 1)) || [],
+    [billingEntitiesData, translate],
   )
 
   const defaultBillingEntity = billingEntitiesList?.find((b) => b.isDefault)
