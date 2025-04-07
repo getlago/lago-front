@@ -75,7 +75,7 @@ const InformationBlock = ({ billingEntity }: { billingEntity: BillingEntity }) =
 
   const fields: SettingsField[] = [
     {
-      label: translate('text_1744018116743pwoqp40bkhp'),
+      label: translate('text_17440321235444hcxi31f8j6'),
       value: isDefault,
       fieldKey: 'isDefault',
       labelTrue: translate('text_17440181167432q7jzt9znuh'),

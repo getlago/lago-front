@@ -118,6 +118,7 @@ const BillingEntityCreateEdit = () => {
 
                     <TextInputField
                       name="code"
+                      disabled={!!isEdition}
                       beforeChangeFormatter="code"
                       formikProps={formikProps}
                       label={translate('text_62876e85e32e0300e1803127')}
