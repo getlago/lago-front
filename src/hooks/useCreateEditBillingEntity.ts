@@ -39,6 +39,8 @@ gql`
     state
     country
     emailSettings
+    timezone
+    isDefault
   }
 
   query getBillingEntities {
@@ -100,6 +102,7 @@ const useCreateEditBillingEntity = () => {
         )
       }
     },
+    refetchQueries: ['getOrganizationInfos'],
   })
 
   const [update, { error: updateError }] = useUpdateBillingEntityMutation({
