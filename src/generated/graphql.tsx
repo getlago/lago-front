@@ -388,6 +388,7 @@ export type BillingEntity = {
   euTaxManagement: Scalars['Boolean']['output'];
   finalizeZeroAmountInvoice: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
+  isDefault: Scalars['Boolean']['output'];
   legalName?: Maybe<Scalars['String']['output']>;
   legalNumber?: Maybe<Scalars['String']['output']>;
   logoUrl?: Maybe<Scalars['String']['output']>;
@@ -9155,33 +9156,33 @@ export type UpdateBillableMetricMutationVariables = Exact<{
 
 export type UpdateBillableMetricMutation = { __typename?: 'Mutation', updateBillableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any } | null };
 
-export type BillingEntityItemFragment = { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null };
+export type BillingEntityItemFragment = { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean };
 
 export type GetBillingEntitiesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetBillingEntitiesQuery = { __typename?: 'Query', billingEntities: { __typename?: 'BillingEntityCollection', collection: Array<{ __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null }> } };
+export type GetBillingEntitiesQuery = { __typename?: 'Query', billingEntities: { __typename?: 'BillingEntityCollection', collection: Array<{ __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean }> } };
 
 export type GetBillingEntityQueryVariables = Exact<{
   code: Scalars['String']['input'];
 }>;
 
 
-export type GetBillingEntityQuery = { __typename?: 'Query', billingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null } | null };
+export type GetBillingEntityQuery = { __typename?: 'Query', billingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean } | null };
 
 export type CreateBillingEntityMutationVariables = Exact<{
   input: CreateBillingEntityInput;
 }>;
 
 
-export type CreateBillingEntityMutation = { __typename?: 'Mutation', createBillingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null } | null };
+export type CreateBillingEntityMutation = { __typename?: 'Mutation', createBillingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean } | null };
 
 export type UpdateBillingEntityMutationVariables = Exact<{
   input: UpdateBillingEntityInput;
 }>;
 
 
-export type UpdateBillingEntityMutation = { __typename?: 'Mutation', updateBillingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null } | null };
+export type UpdateBillingEntityMutation = { __typename?: 'Mutation', updateBillingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean } | null };
 
 export type EditCouponFragment = { __typename?: 'Coupon', id: string, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, appliedCouponsCount: number, code?: string | null, couponType: CouponTypeEnum, description?: string | null, expiration: CouponExpiration, expirationAt?: any | null, frequency: CouponFrequency, frequencyDuration?: number | null, limitedBillableMetrics: boolean, limitedPlans: boolean, name: string, percentageRate?: number | null, reusable: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null };
 
@@ -9419,7 +9420,7 @@ export type GetInfosForCreateInvoiceQueryVariables = Exact<{
 }>;
 
 
-export type GetInfosForCreateInvoiceQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, displayName: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, state?: string | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string } | null } | null, organization?: { __typename?: 'CurrentOrganization', id: string, addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, email?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, logoUrl?: string | null, state?: string | null, zipcode?: string | null, defaultCurrency: CurrencyEnum } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> } };
+export type GetInfosForCreateInvoiceQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, displayName: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, state?: string | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, billingEntity: { __typename?: 'BillingEntity', code: string }, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string } | null } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> } };
 
 export type GetAddonListForInfoiceQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -11828,6 +11829,8 @@ export const BillingEntityItemFragmentDoc = gql`
   state
   country
   emailSettings
+  timezone
+  isDefault
 }
     `;
 export const PlansForCouponsFragmentDoc = gql`
@@ -23977,6 +23980,9 @@ export const GetInfosForCreateInvoiceDocument = gql`
     state
     zipcode
     accountType
+    billingEntity {
+      code
+    }
     taxes {
       id
       ...TaxInfosForCreateInvoice
@@ -23984,22 +23990,6 @@ export const GetInfosForCreateInvoiceDocument = gql`
     anrokCustomer {
       id
     }
-  }
-  organization {
-    id
-    addressLine1
-    addressLine2
-    city
-    country
-    email
-    name
-    legalName
-    legalNumber
-    taxIdentificationNumber
-    logoUrl
-    state
-    zipcode
-    defaultCurrency
   }
   taxes(page: 1, limit: 1000, appliedToOrganization: true) {
     collection {
