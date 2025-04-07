@@ -12,6 +12,7 @@ import BillingEntityInvoiceSettings from '~/pages/settings/BillingEntity/section
 import BillingEntityGeneral from '~/pages/settings/BillingEntity/sections/general/BillingEntityGeneral'
 import BillingEntityTaxesSettings from '~/pages/settings/BillingEntity/sections/taxes/BillingEntityTaxesSettings'
 import InvoiceSections from '~/pages/settings/Invoices/InvoiceSections'
+import SettingsHomePage from '~/pages/settings/SettingsHomePage'
 
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
@@ -139,7 +140,7 @@ export const settingRoutes: CustomRouteObject[] = [
       {
         path: SETTINGS_ROUTE,
         private: true,
-        element: <Navigate replace to={SETTINGS_HOME_PAGE} />,
+        element: <SettingsHomePage />,
       },
       {
         path: [INVOICE_SETTINGS_ROUTE],
