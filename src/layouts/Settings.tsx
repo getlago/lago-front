@@ -163,23 +163,6 @@ const Settings = () => {
 
           <div>
             <div className="mb-1 flex items-center gap-2 px-3 py-1">
-              <Icon name="globe" size="small" />
-
-              <Typography className="text-sm font-medium text-grey-600">
-                {translate('text_1742230191028ts64cxrgwdj')}
-              </Typography>
-            </div>
-
-            <VerticalMenu
-              onClick={() => {
-                setOpen(false)
-              }}
-              tabs={TABS_ORGANIZATION}
-            />
-          </div>
-
-          <div>
-            <div className="mb-1 mt-4 flex items-center gap-2 px-3 py-1">
               <Icon name="company" size="small" />
 
               <Typography className="text-sm font-medium text-grey-600">
@@ -233,6 +216,23 @@ const Settings = () => {
                 </div>
               </ButtonLink>
             </div>
+          </div>
+
+          <div>
+            <div className="mb-1 mt-4 flex items-center gap-2 px-3 py-1">
+              <Icon name="globe" size="small" />
+
+              <Typography className="text-sm font-medium text-grey-600">
+                {translate('text_1742230191028ts64cxrgwdj')}
+              </Typography>
+            </div>
+
+            <VerticalMenu
+              onClick={() => {
+                setOpen(false)
+              }}
+              tabs={TABS_ORGANIZATION}
+            />
           </div>
         </NavWrapper>
       </ClickAwayListener>
