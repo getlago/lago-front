@@ -40,9 +40,11 @@ const Logo = ({ name, logoUrl }: LogoProps) => {
 
 type SettingsField = {
   label: string
-  value?: string | null
+  value?: string | boolean | null
   fieldKey: string
   emptyPlaceholder?: string
+  labelTrue?: string
+  labelFalse?: string
 }
 
 const InformationBlock = ({ billingEntity }: { billingEntity: BillingEntity }) => {
@@ -52,6 +54,7 @@ const InformationBlock = ({ billingEntity }: { billingEntity: BillingEntity }) =
 
   const {
     logoUrl,
+    code,
     name,
     legalName,
     legalNumber,
@@ -63,12 +66,21 @@ const InformationBlock = ({ billingEntity }: { billingEntity: BillingEntity }) =
     city,
     state,
     country,
+    isDefault,
   } = billingEntity
 
   const loading = false
 
   const fields: SettingsField[] = [
+    {
+      label: translate('text_1744018116743pwoqp40bkhp'),
+      value: isDefault,
+      fieldKey: 'name',
+      labelTrue: translate('text_17440181167432q7jzt9znuh'),
+      labelFalse: translate('text_1744018116743ntlygtcnq95'),
+    },
     { label: translate('text_17430772961896bgqutmnx7g'), value: name, fieldKey: 'name' },
+    { label: translate('text_1744018116743dttk8bbrqan'), value: code, fieldKey: 'code' },
     {
       label: translate('text_62ab2d0396dd6b0361614d6c'),
       value: legalName,
@@ -180,7 +192,9 @@ const InformationBlock = ({ billingEntity }: { billingEntity: BillingEntity }) =
                 variant="body"
                 color={field.label ? 'grey700' : 'grey500'}
               >
-                {field.value || field.emptyPlaceholder || ''}
+                {!!field.labelTrue && field.value === true ? field.labelTrue : field.labelFalse}
+
+                {!field.labelTrue && (field.value || field.emptyPlaceholder || '')}
               </Typography>
             </div>
           ))}
