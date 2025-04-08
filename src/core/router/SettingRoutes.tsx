@@ -130,8 +130,6 @@ export const UPDATE_DUNNING_ROUTE = `${SETTINGS_ROUTE}/dunnings/:campaignId/edit
 export const CREATE_INVOICE_CUSTOM_SECTION = `${INVOICE_SETTINGS_ROUTE}/custom-section/create`
 export const EDIT_INVOICE_CUSTOM_SECTION = `${INVOICE_SETTINGS_ROUTE}/custom-section/:sectionId/edit`
 
-export const SETTINGS_HOME_PAGE = AUTHENTICATION_ROUTE
-
 export const settingRoutes: CustomRouteObject[] = [
   {
     private: true,

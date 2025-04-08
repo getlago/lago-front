@@ -202,7 +202,7 @@ const InformationBlock = ({ billingEntity }: { billingEntity: BillingEntity }) =
               <Typography
                 className="flex h-7 items-center"
                 variant="body"
-                color={field.value ? 'grey700' : 'grey600'}
+                color={!!field.labelTrue || field.value ? 'grey700' : 'grey500'}
               >
                 {!!field.labelTrue && field.value === true ? field.labelTrue : field.labelFalse}
 
