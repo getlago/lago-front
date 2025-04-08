@@ -35,7 +35,63 @@ jobs:
           echo "LAGO_RSA_PRIVATE_KEY=\"`openssl genrsa 2048 | base64`\"" >> .env
 
       - name: Launch API
-        run: docker compose -f ./ci/docker-compose.ci.yml --env-file ./.env up -d api
+        run: |
+          docker compose -f ./ci/docker-compose.ci.yml --env-file ./.env up -d api
+          docker ps
+          docker network ls
+
+      - name: Check API logs
+        run: |
+          echo "Waiting 30 seconds for initial startup..."
+          sleep 30
+          echo "API container logs:"
+          docker logs lago-api
+
+      - name: Debug network
+        run: |
+          # Install netcat for debugging
+          sudo apt-get update && sudo apt-get install -y netcat-openbsd
+          echo "Testing connection to API port:"
+          nc -zv localhost 3000 || echo "Port 3000 not reachable"
+          
+          # Check all running containers
+          docker ps
+          
+          # Get API container IP
+          API_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' lago-api)
+          echo "API container IP: $API_IP"
+          
+          # Try to reach the API directly from inside a container
+          docker run --rm curlimages/curl:7.80.0 -v curl --max-time 10 http://$API_IP:3000/graphql || echo "Failed to reach API from container network"
+
+      - name: Wait for API to be ready
+        run: |
+          # Retry mechanism to check if the API is ready
+          max_retries=60
+          retries=0
+          echo "Waiting for API to be ready at http://localhost:3000/graphql..."
+          until curl -s -f -o /dev/null http://localhost:3000/graphql || [ $retries -eq $max_retries ]; do
+            echo "API not ready yet, retrying in 5 seconds..."
+            sleep 5
+            retries=$((retries+1))
+            
+            if [ $((retries % 10)) -eq 0 ]; then
+              echo "Still waiting, checking container status:"
+              docker ps | grep lago-api
+              docker logs --tail 20 lago-api
+            fi
+          done
+          
+          if [ $retries -eq $max_retries ]; then
+            echo "API did not become ready in time"
+            echo "Final container status:"
+            docker ps
+            echo "Final API logs:"
+            docker logs lago-api
+            exit 1
+          fi
+          
+          echo "API is ready!"
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
