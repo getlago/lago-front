@@ -433,7 +433,9 @@ export enum BillingEntityEmailSettingsEnum {
   /** credit_note.created */
   CreditNoteCreated = 'credit_note_created',
   /** invoice.finalized */
-  InvoiceFinalized = 'invoice_finalized'
+  InvoiceFinalized = 'invoice_finalized',
+  /** payment_receipt.created */
+  PaymentReceiptCreated = 'payment_receipt_created'
 }
 
 export enum BillingTimeEnum {
