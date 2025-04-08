@@ -98,7 +98,7 @@ const getDateString = (dateTime: DateTime, format: DateFormat) => {
   }
   return dateTime.toLocaleString(DateTime[format])
 }
-const getTimezoneString = (dateTime: DateTime, format: TimezoneFormat) => {
+const getTimezoneString = (dateTime: DateTime, timezone: TimezoneEnum, format: TimezoneFormat) => {
   let timeZoneName: DateTimeFormatOptions['timeZoneName'] | undefined
   let timezoneString: string | undefined
 
@@ -125,16 +125,14 @@ const getTimezoneString = (dateTime: DateTime, format: TimezoneFormat) => {
         })
         .find((part) => part.type === 'timeZoneName')?.value || ''
   } else {
-    const timezoneOffset = dateTime.offset / 60
-
-    timezoneString =
-      timezoneOffset === 0
-        ? 'UTC'
-        : `UTC${timezoneOffset > 0 ? `+${timezoneOffset}` : timezoneOffset}`
+    timezoneString = `UTC${getTimezoneConfig(timezone).offset}`
   }
   return timezoneString
 }
 
+/**
+ * @warning If you use it for organization-based dates, make sure to use the `formatTimeOrgaTZ` function instead.
+ */
 export const intlFormatDateTime = (
   date: string,
   options:
@@ -164,6 +162,7 @@ export const intlFormatDateTime = (
     time: localeDateTime.toLocaleString(DateTime[options?.formatTime || TimeFormat.TIME_SIMPLE]),
     timezone: getTimezoneString(
       localeDateTime,
+      timezone,
       options?.formatTimezone || TimezoneFormat.UTC_OFFSET,
     ),
   }

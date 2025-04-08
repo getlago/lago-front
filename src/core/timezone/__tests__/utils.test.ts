@@ -115,26 +115,26 @@ describe('intlFormatDateTime', () => {
   })
 
   describe('it should format timezones correctly', () => {
-    it('should format to "UTC"', () => {
+    it('should format to "UTC±0:00"', () => {
       const { timezone } = intlFormatDateTime('2025-04-18T00:00:00Z')
 
-      expect(timezone).toEqual('UTC')
+      expect(timezone).toEqual('UTC±0:00')
     })
 
-    it('should format to "UTC+12"', () => {
+    it('should format to "UTC+12:00"', () => {
       const { timezone } = intlFormatDateTime('2025-04-18T00:00:00Z', {
         timezone: TimezoneEnum.TzPacificAuckland,
       })
 
-      expect(timezone).toEqual('UTC+12')
+      expect(timezone).toEqual('UTC+12:00')
     })
 
-    it('should format to "UTC-4"', () => {
+    it('should format to "UTC-4:00"', () => {
       const { timezone } = intlFormatDateTime('2025-04-18T00:00:00Z', {
         timezone: TimezoneEnum.TzAmericaNewYork,
       })
 
-      expect(timezone).toEqual('UTC-4')
+      expect(timezone).toEqual('UTC-4:00')
     })
 
     it('should format to "PDT"', () => {
@@ -180,7 +180,7 @@ describe('intlFormatDateTime', () => {
       expect(result).toEqual('From Apr 2024 to Apr 2025')
     })
 
-    it('should format to "Apr 3, 2025, 6:06 PM UTC"', () => {
+    it('should format to "Apr 3, 2025, 6:06 PM UTC±0:00"', () => {
       const { date, time, timezone } = intlFormatDateTime('2025-04-03T18:06:33Z', {
         timezone: TimezoneEnum.TzUtc,
         formatDate: DateFormat.DATE_MED,
@@ -189,10 +189,10 @@ describe('intlFormatDateTime', () => {
 
       const result = `${date}, ${time} ${timezone}`
 
-      expect(result).toEqual('Apr 3, 2025, 6:06 PM UTC')
+      expect(result).toEqual('Apr 3, 2025, 6:06 PM UTC±0:00')
     })
 
-    it('should format to "Apr 18, 2025 UTC-11"', () => {
+    it('should format to "Apr 18, 2025 UTC-11:00"', () => {
       const { date, timezone } = intlFormatDateTime('2025-04-18T18:25:33Z', {
         timezone: TimezoneEnum.TzPacificMidway,
         formatDate: DateFormat.DATE_MED,
@@ -200,10 +200,10 @@ describe('intlFormatDateTime', () => {
 
       const result = `${date} ${timezone}`
 
-      expect(result).toEqual('Apr 18, 2025 UTC-11')
+      expect(result).toEqual('Apr 18, 2025 UTC-11:00')
     })
 
-    it('should format to "Saturday, April 19, 2025 UTC+8"', () => {
+    it('should format to "Saturday, April 19, 2025 UTC+8:00"', () => {
       const { date, timezone } = intlFormatDateTime('2025-04-18T18:25:33Z', {
         timezone: TimezoneEnum.TzAsiaSingapore,
         formatDate: DateFormat.DATE_HUGE,
@@ -211,10 +211,10 @@ describe('intlFormatDateTime', () => {
 
       const result = `${date} ${timezone}`
 
-      expect(result).toEqual('Saturday, April 19, 2025 UTC+8')
+      expect(result).toEqual('Saturday, April 19, 2025 UTC+8:00')
     })
 
-    it('should format to "April 2, 2025 at 3:30:13 PM UTC"', () => {
+    it('should format to "April 2, 2025 at 3:30:13 PM UTC±0:00"', () => {
       const { date, time, timezone } = intlFormatDateTime('2025-04-02T15:30:13Z', {
         formatDate: DateFormat.DATE_FULL,
         formatTime: TimeFormat.TIME_WITH_SECONDS,
@@ -222,7 +222,7 @@ describe('intlFormatDateTime', () => {
 
       const result = `${date} at ${time} ${timezone}`
 
-      expect(result).toEqual('April 2, 2025 at 3:30:13 PM UTC')
+      expect(result).toEqual('April 2, 2025 at 3:30:13 PM UTC±0:00')
     })
 
     it('should format to "Thu, Apr 3, 2025 09:32:01"', () => {
@@ -236,7 +236,7 @@ describe('intlFormatDateTime', () => {
       expect(result).toEqual('Thu, Apr 3, 2025 09:32:01')
     })
 
-    it('should format to "Apr 18, 2025 18:25:33 UTC"', () => {
+    it('should format to "Apr 18, 2025 18:25:33 UTC±0:00"', () => {
       const { date, time, timezone } = intlFormatDateTime('2025-04-18T18:25:33Z', {
         formatDate: DateFormat.DATE_MED,
         formatTime: TimeFormat.TIME_24_WITH_SECONDS,
@@ -244,7 +244,7 @@ describe('intlFormatDateTime', () => {
 
       const result = `${date} ${time} ${timezone}`
 
-      expect(result).toEqual('Apr 18, 2025 18:25:33 UTC')
+      expect(result).toEqual('Apr 18, 2025 18:25:33 UTC±0:00')
     })
   })
 })
