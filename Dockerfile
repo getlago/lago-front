@@ -6,7 +6,8 @@ COPY . .
 
 RUN apk add python3 build-base
 RUN corepack enable && corepack prepare pnpm@latest --activate
-RUN pnpm install && pnpm run build
+RUN rm -rf /app/node_modules
+RUN pnpm install && pnpm build
 
 FROM nginx:1.27-alpine
 
