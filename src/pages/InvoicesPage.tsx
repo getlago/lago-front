@@ -69,6 +69,7 @@ gql`
     $amountFrom: Int
     $amountTo: Int
     $selfBilled: Boolean
+    $billingEntityIds: [ID!]
   ) {
     invoices(
       currency: $currency
@@ -87,6 +88,7 @@ gql`
       amountFrom: $amountFrom
       amountTo: $amountTo
       selfBilled: $selfBilled
+      billingEntityIds: $billingEntityIds
     ) {
       metadata {
         currentPage
@@ -133,6 +135,7 @@ gql`
     $page: Int
     $searchTerm: String
     $selfBilled: Boolean
+    $billingEntityIds: [ID!]
   ) {
     creditNotes(
       amountFrom: $amountFrom
@@ -149,6 +152,7 @@ gql`
       page: $page
       searchTerm: $searchTerm
       selfBilled: $selfBilled
+      billingEntityIds: $billingEntityIds
     ) {
       ...CreditNotesForTable
     }

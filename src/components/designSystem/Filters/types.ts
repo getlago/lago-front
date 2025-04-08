@@ -21,6 +21,7 @@ export enum AvailableFiltersEnum {
   creditNoteReason = 'creditNoteReason',
   creditNoteRefundStatus = 'creditNoteRefundStatus',
   currency = 'currency',
+  customerType = 'customerType',
   customerAccountType = 'accountType',
   customerExternalId = 'customerExternalId',
   date = 'date',
@@ -36,6 +37,7 @@ export enum AvailableFiltersEnum {
   status = 'status',
   subscriptionExternalId = 'subscriptionExternalId',
   timeGranularity = 'timeGranularity',
+  billingEntityIds = 'billingEntityIds',
 }
 
 export const CreditNoteAvailableFilters = [
@@ -48,6 +50,7 @@ export const CreditNoteAvailableFilters = [
   AvailableFiltersEnum.creditNoteReason,
   AvailableFiltersEnum.creditNoteRefundStatus,
   AvailableFiltersEnum.selfBilled,
+  AvailableFiltersEnum.billingEntityIds,
 ]
 
 export const InvoiceAvailableFilters = [
@@ -62,19 +65,23 @@ export const InvoiceAvailableFilters = [
   AvailableFiltersEnum.status,
   AvailableFiltersEnum.amount,
   AvailableFiltersEnum.selfBilled,
+  AvailableFiltersEnum.billingEntityIds,
 ]
 
 export const RevenueStreamsAvailablePopperFilters = [
   AvailableFiltersEnum.date,
   AvailableFiltersEnum.country,
   AvailableFiltersEnum.currency,
-  AvailableFiltersEnum.customerAccountType,
+  AvailableFiltersEnum.customerType,
   AvailableFiltersEnum.customerExternalId,
   AvailableFiltersEnum.planCode,
   AvailableFiltersEnum.subscriptionExternalId,
 ]
 
-export const CustomerAvailableFilters = [AvailableFiltersEnum.customerAccountType]
+export const CustomerAvailableFilters = [
+  AvailableFiltersEnum.customerAccountType,
+  AvailableFiltersEnum.billingEntityIds,
+]
 
 export const RevenueStreamsPlansAvailableFilters = [AvailableFiltersEnum.currency]
 export const RevenueStreamsCustomersAvailableFilters = [AvailableFiltersEnum.currency]
@@ -82,7 +89,7 @@ export const MrrOverviewAvailableFilters = [
   AvailableFiltersEnum.date,
   AvailableFiltersEnum.country,
   AvailableFiltersEnum.currency,
-  AvailableFiltersEnum.customerAccountType,
+  AvailableFiltersEnum.customerType,
   AvailableFiltersEnum.customerExternalId,
 ]
 export const MrrBreakdownPlansAvailableFilters = [AvailableFiltersEnum.currency]
@@ -94,7 +101,8 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.creditNoteReason]: 'text_1734703891144ptrs5sty2bg',
   [AvailableFiltersEnum.creditNoteRefundStatus]: 'text_1734703891144vv5iclhl4vz',
   [AvailableFiltersEnum.currency]: 'text_632b4acf0c41206cbcb8c324',
-  [AvailableFiltersEnum.customerAccountType]: 'text_1726128938631ioz4orixel3',
+  [AvailableFiltersEnum.customerType]: 'text_1726128938631ioz4orixel3',
+  [AvailableFiltersEnum.customerAccountType]: 'text_1744108096469xz5cnvtoixf',
   [AvailableFiltersEnum.customerExternalId]: 'text_65201c5a175a4b0238abf29a',
   [AvailableFiltersEnum.date]: 'text_664cb90097bfa800e6efa3f5',
   [AvailableFiltersEnum.invoiceNumber]: 'text_1734698875218fbxzci2g2s2',
@@ -109,6 +117,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.status]: 'text_63ac86d797f728a87b2f9fa7',
   [AvailableFiltersEnum.subscriptionExternalId]: 'text_1741008626283x4p1zwj11zi',
   [AvailableFiltersEnum.timeGranularity]: '', // Used in quick filters only
+  [AvailableFiltersEnum.billingEntityIds]: 'text_17436114971570doqrwuwhf0',
 }
 
 export type FiltersFormValues = {

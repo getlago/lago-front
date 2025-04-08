@@ -22,6 +22,7 @@ import {
   AddCustomerDrawerFragmentDoc,
   CustomerAccountTypeEnum,
   CustomerItemFragmentDoc,
+  PremiumIntegrationTypeEnum,
   useCustomersLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -48,8 +49,15 @@ gql`
     $limit: Int
     $searchTerm: String
     $accountType: [CustomerAccountTypeEnum!]
+    $billingEntityIds: [ID!]
   ) {
-    customers(page: $page, limit: $limit, searchTerm: $searchTerm, accountType: $accountType) {
+    customers(
+      page: $page
+      limit: $limit
+      searchTerm: $searchTerm
+      accountType: $accountType
+      billingEntityIds: $billingEntityIds
+    ) {
       metadata {
         currentPage
         totalPages
@@ -67,7 +75,7 @@ gql`
 const CustomersList = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { formatTimeOrgaTZ, hasOrganizationPremiumAddon } = useOrganizationInfos()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
@@ -93,6 +101,14 @@ const CustomersList = () => {
 
   const { debouncedSearch, isLoading } = useDebouncedSearch(getCustomers, loading)
 
+  const hasAccessToRevenueShare = hasOrganizationPremiumAddon(
+    PremiumIntegrationTypeEnum.RevenueShare,
+  )
+
+  const availableFilters = hasAccessToRevenueShare
+    ? [AvailableFiltersEnum.customerAccountType, AvailableFiltersEnum.billingEntityIds]
+    : [AvailableFiltersEnum.billingEntityIds]
+
   return (
     <div>
       <PageHeader.Wrapper withSide className="gap-4 whitespace-pre">
@@ -112,13 +128,14 @@ const CustomersList = () => {
         </div>
       </PageHeader.Wrapper>
 
-      <div className="px-12 py-3 shadow-b">
+      <div className="box-border flex w-full flex-col gap-3 p-4 shadow-b md:px-12 md:py-3">
         <Filters.Provider
           filtersNamePrefix={CUSTOMER_LIST_FILTER_PREFIX}
           quickFiltersType={AvailableQuickFilters.customerAccountType}
-          availableFilters={[AvailableFiltersEnum.customerAccountType]}
+          availableFilters={availableFilters}
         >
           <Filters.QuickFilters />
+          <Filters.Component />
         </Filters.Provider>
       </div>
 
@@ -172,6 +189,11 @@ const CustomersList = () => {
               content: ({ email }) => email || '-',
               maxSpace: true,
               minWidth: 200,
+            },
+            {
+              key: 'billingEntity.name',
+              title: translate('text_17436114971570doqrwuwhf0'),
+              content: ({ billingEntity }) => billingEntity.name || billingEntity.code || '-',
             },
             {
               key: 'activeSubscriptionsCount',

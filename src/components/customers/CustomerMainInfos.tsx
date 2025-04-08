@@ -117,6 +117,10 @@ gql`
       key
       value
     }
+    billingEntity {
+      name
+      code
+    }
   }
 
   query paymentProvidersListForCustomerMainInfos($limit: Int) {
@@ -334,6 +338,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     providerCustomer,
     timezone,
     metadata,
+    billingEntity,
   } = customer
 
   const hasExternalIntegration =
@@ -381,6 +386,16 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
 
       <div className="flex flex-col gap-12" data-id="customer-info-list">
         <InfoSection title={translate('text_1737892224509yezgypqk5vp')}>
+          {billingEntity && (
+            <InfoBlock>
+              <Typography variant="caption">
+                {translate('text_1743611497157teaa1zu8l24')}
+              </Typography>
+              <Typography color="textSecondary" forceBreak>
+                {billingEntity.name || billingEntity.code}
+              </Typography>
+            </InfoBlock>
+          )}
           {customerType && (
             <InfoBlock>
               <Typography variant="caption">

@@ -5,14 +5,13 @@ import { LocaleEnum } from '~/core/translations'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useEmailConfig } from '~/hooks/useEmailConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
 
 import {
-  UpdateOrganizationLogoDialog,
-  UpdateOrganizationLogoDialogRef,
-} from './emails/UpdateOrganizationLogoDialog'
+  UpdateBillingEntityLogoDialog,
+  UpdateBillingEntityLogoDialogRef,
+} from './emails/UpdateBillingEntityLogoDialog'
 
 interface PreviewEmailLayoutProps extends PropsWithChildren {
   language: LocaleEnum
@@ -20,6 +19,8 @@ interface PreviewEmailLayoutProps extends PropsWithChildren {
   emailFrom?: string
   emailTo?: string
   isLoading?: boolean
+  logoUrl?: string | null
+  name?: string | null
 }
 
 export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
@@ -29,13 +30,13 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
   emailTo,
   isLoading,
   children,
+  logoUrl,
+  name,
 }) => {
-  const updateLogoDialogRef = useRef<UpdateOrganizationLogoDialogRef>(null)
+  const updateLogoDialogRef = useRef<UpdateBillingEntityLogoDialogRef>(null)
 
   const { translate } = useInternationalization()
   const { translateWithContextualLocal } = useContextualLocale(language)
-
-  const { logoUrl, name } = useEmailConfig()
 
   const { hasOrganizationPremiumAddon } = useOrganizationInfos()
 
@@ -133,7 +134,8 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
           )}
         </div>
       </div>
-      <UpdateOrganizationLogoDialog ref={updateLogoDialogRef} />
+
+      <UpdateBillingEntityLogoDialog ref={updateLogoDialogRef} />
     </>
   )
 }
