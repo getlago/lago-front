@@ -24,11 +24,13 @@ import { BILLING_ENTITY_EMAIL_SCENARIOS_CONFIG_ROUTE } from '~/core/router'
 import {
   BillingEntity,
   BillingEntityEmailSettingsEnum,
+  PremiumIntegrationTypeEnum,
   useGetBillingEntityQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useEmailConfig } from '~/hooks/useEmailConfig'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { BillingEntityTab } from '~/pages/settings/BillingEntity/BillingEntity'
 import BillingEntityHeader from '~/pages/settings/BillingEntity/components/BillingEntityHeader'
@@ -36,20 +38,33 @@ import BillingEntityHeader from '~/pages/settings/BillingEntity/components/Billi
 const EmailScenarioTitleLookup: Record<BillingEntityEmailSettingsEnum, string> = {
   [BillingEntityEmailSettingsEnum.InvoiceFinalized]: 'text_6408b5ae7f629d008bc8af7d',
   [BillingEntityEmailSettingsEnum.CreditNoteCreated]: 'text_6408b5ae7f629d008bc8af86',
+  [BillingEntityEmailSettingsEnum.PaymentReceiptCreated]: 'text_1741334140002zdl3cl599ib',
 }
 
 const EmailScenarioSubtitleLookup: Record<BillingEntityEmailSettingsEnum, string> = {
   [BillingEntityEmailSettingsEnum.InvoiceFinalized]: 'text_6408b5ae7f629d008bc8af7e',
   [BillingEntityEmailSettingsEnum.CreditNoteCreated]: 'text_6408b5ae7f629d008bc8af87',
+  [BillingEntityEmailSettingsEnum.PaymentReceiptCreated]: 'text_1741334140002wx0sbk2bd13',
 }
 
-const EMAIL_SCENARIOS: Array<{ id: string; setting: BillingEntityEmailSettingsEnum }> = [
+type EmailScenario = {
+  id: string
+  setting: BillingEntityEmailSettingsEnum
+  integration?: PremiumIntegrationTypeEnum
+}
+
+export const EMAIL_SCENARIOS: Array<EmailScenario> = [
   {
     id: 'scenario-1',
     setting: BillingEntityEmailSettingsEnum.InvoiceFinalized,
   },
   {
     id: 'scenario-2',
+    setting: BillingEntityEmailSettingsEnum.CreditNoteCreated,
+    integration: PremiumIntegrationTypeEnum.IssueReceipts,
+  },
+  {
+    id: 'scenario-3',
     setting: BillingEntityEmailSettingsEnum.CreditNoteCreated,
   },
 ]
@@ -61,6 +76,7 @@ const BillingEntityEmailScenarios = () => {
   const { hasPermissions } = usePermissions()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { billingEntityCode } = useParams()
+  const { hasOrganizationPremiumAddon } = useOrganizationInfos()
 
   const { data: billingEntityData } = useGetBillingEntityQuery({
     variables: {
@@ -139,35 +155,45 @@ const BillingEntityEmailScenarios = () => {
                         </div>
                       ),
                     },
-                    ...(hasPermissions(['organizationEmailsUpdate'])
+                    ...(hasPermissions(['billingEntitiesEmailsUpdate'])
                       ? [
                           {
                             key: 'setting',
-                            textAlign: 'right',
                             title: translate('text_63ac86d797f728a87b2f9fa7'),
-                            content: ({ setting }) => {
+                            tdCellClassName: '[&>div]:pr-2',
+                            content: ({ setting, integration }) => {
                               const uniqName = `email-setting-item-${Math.round(Math.random() * 1000)}`
 
+                              const hasAccess = integration
+                                ? hasOrganizationPremiumAddon(integration)
+                                : isPremium
+
                               return (
-                                <div>
+                                <div className="flex items-center gap-2">
                                   <Switch
                                     name={uniqName}
                                     checked={emailSettings?.includes(setting)}
                                     onChange={async (value) => {
-                                      if (isPremium) {
+                                      if (hasAccess) {
                                         await updateEmailSettings(setting, value)
                                       } else {
                                         premiumWarningDialogRef.current?.openDialog()
                                       }
                                     }}
                                   />
-                                  {!isPremium && <Icon name="sparkles" />}
+
+                                  {hasAccess ? (
+                                    <div className="size-4"></div>
+                                  ) : (
+                                    <Icon name="sparkles" />
+                                  )}
                                 </div>
                               )
                             },
                           } as TableColumn<{
                             id: string
                             setting: BillingEntityEmailSettingsEnum
+                            integration?: PremiumIntegrationTypeEnum
                           }>,
                         ]
                       : []),

@@ -736,23 +736,14 @@
   "text_62ab2d0396dd6b0361614d1e": "JPG or PNG. Max size of 800K",
   "text_62ab2d0396dd6b0361614d24": "Invoice settings",
   "text_62ab2d0396dd6b0361614d44": "Information",
-  "text_62ab2d0396dd6b0361614d64": "No value",
   "text_62ab2d0396dd6b0361614d6c": "Legal name",
-  "text_62ab2d0396dd6b0361614d74": "No value",
   "text_62ab2d0396dd6b0361614d7c": "Legal number",
-  "text_62ab2d0396dd6b0361614d84": "No value",
   "text_62ab2d0396dd6b0361614d8c": "Email",
-  "text_62ab2d0396dd6b0361614d94": "No value",
   "text_62ab2d0396dd6b0361614d9c": "Address line 1",
-  "text_62ab2d0396dd6b0361614da4": "No value",
   "text_62ab2d0396dd6b0361614dac": "Address line 2",
-  "text_62ab2d0396dd6b0361614dc0": "No value",
   "text_62ab2d0396dd6b0361614dc8": "Zipcode",
-  "text_62ab2d0396dd6b0361614dd0": "No value",
   "text_62ab2d0396dd6b0361614dd6": "City",
-  "text_62ab2d0396dd6b0361614db0": "No value",
   "text_62ab2d0396dd6b0361614db6": "State",
-  "text_62ab2d0396dd6b0361614ddd": "No value",
   "text_62ab2d0396dd6b0361614de3": "Country",
   "text_62bb102b66ff57dbfe7905c0": "Something went wrong",
   "text_62bb102b66ff57dbfe7905c2": "Please refresh the page or contact us if the error persists.",
@@ -3050,4 +3041,3 @@
   "text_1744030459568c0h1b5p25u6": "Not defined",
   "text_17440321235444hcxi31f8j6": "Default"
 }
-
