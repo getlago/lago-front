@@ -23,6 +23,7 @@ import {
   AddCustomerDrawerFragmentDoc,
   CustomerAccountTypeEnum,
   CustomerItemFragmentDoc,
+  PremiumIntegrationTypeEnum,
   useCustomersLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -75,7 +76,7 @@ gql`
 const CustomersList = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { formatTimeOrgaTZ, hasOrganizationPremiumAddon } = useOrganizationInfos()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
@@ -101,6 +102,14 @@ const CustomersList = () => {
 
   const { debouncedSearch, isLoading } = useDebouncedSearch(getCustomers, loading)
 
+  const hasAccessToRevenueShare = hasOrganizationPremiumAddon(
+    PremiumIntegrationTypeEnum.RevenueShare,
+  )
+
+  const availableFilters = hasAccessToRevenueShare
+    ? [AvailableFiltersEnum.customerAccountType, AvailableFiltersEnum.billingEntityIds]
+    : [AvailableFiltersEnum.billingEntityIds]
+
   return (
     <div>
       <PageHeader.Wrapper withSide className="gap-4 whitespace-pre">
@@ -124,10 +133,7 @@ const CustomersList = () => {
         <Filters.Provider
           filtersNamePrefix={CUSTOMER_LIST_FILTER_PREFIX}
           quickFiltersType={AvailableQuickFilters.customerAccountType}
-          availableFilters={[
-            AvailableFiltersEnum.customerAccountType,
-            AvailableFiltersEnum.billingEntityIds,
-          ]}
+          availableFilters={availableFilters}
         >
           <Filters.QuickFilters />
           <Filters.Component />

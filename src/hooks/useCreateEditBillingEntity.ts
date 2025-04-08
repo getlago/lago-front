@@ -8,7 +8,7 @@ import {
   BILLING_ENTITY_GENERAL_ROUTE,
   BILLING_ENTITY_ROUTE,
   ERROR_404_ROUTE,
-  SETTINGS_HOME_PAGE,
+  SETTINGS_ROUTE,
 } from '~/core/router'
 import {
   CreateBillingEntityInput,
@@ -151,7 +151,7 @@ const useCreateEditBillingEntity = () => {
       )
     }
 
-    return navigate(generatePath(SETTINGS_HOME_PAGE))
+    return navigate(generatePath(SETTINGS_ROUTE))
   }
 
   useEffect(() => {

@@ -2969,7 +2969,14 @@
   "text_1746621029319goh9pr7g67d": "Delivered",
   "text_174677760992972pm9p2l5on": "Re-authentication successful",
   "text_1746004262383fhhy4jl1g6o": "Restart the synchronization of {{failedInvoicesCount}} failed invoice to recalculate tax information.|Restart the synchronization of {{failedInvoicesCount}} failed invoices to recalculate tax information.",
+  "text_1745415984416mjvvaj4ahgp": "Type an Avalara tax code",
   "text_1744037119235rz9n0rfhwcp": "Visa **** 1234",
+  "text_1745415984416mjvvaj4ahgp": "Type an Avalara tax code",
+  "text_1744037119235rz9n0rfhwcp": "Visa **** 1234",
+  "text_1733992108437qlovqhjhqj4": "Create automatically this customer in MoneyHash",
+  "text_1741706729331emiq4h111k8": "Include metadata for this top-up transaction.",
+  "text_1741706729331emiq4h111k8": "Include metadata for this top-up transaction.",
+  "text_1733992108437qlovqhjhqj4": "Create automatically this customer in MoneyHash",
   "text_1733992108437qlovqhjhqj4": "Create automatically this customer in MoneyHash",
   "text_1741706729331emiq4h111k8": "Include metadata for this top-up transaction.",
   "text_1741706729331emiq4h111k8": "Include metadata for this top-up transaction.",
@@ -3000,7 +3007,7 @@
   "text_1742367266659ihskmbc8ugz": "Archive billing entity",
   "text_1742367266660brmeya6gbcn": "To permanently archive a billing entity, please contact us and we will handle this for you.",
   "text_1742367266660b7aw6idpgux": "Settings",
-  "text_1742367266660p3a701mnvli": "Add entity",
+  "text_1742367266660p3a701mnvli": "Create entity",
   "text_17423672666602uggxpe1r0v": "Create a billing entity",
   "text_1743077296189h6w5gkxmgwz": "Edit billing entity",
   "text_1743077296189ji809eyi90y": "A billing entity allows you to invoice a customer with customized settings and information.",
@@ -3039,5 +3046,6 @@
   "text_17440181167432q7jzt9znuh": "True",
   "text_1744018116743ntlygtcnq95": "False",
   "text_1744030459568c0h1b5p25u6": "Not defined",
-  "text_17440321235444hcxi31f8j6": "Default"
+  "text_17440321235444hcxi31f8j6": "Default",
+  "text_1744108096469xz5cnvtoixf": "Account type"
 }

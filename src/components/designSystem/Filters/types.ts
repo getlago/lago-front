@@ -116,7 +116,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.creditNoteRefundStatus]: 'text_1734703891144vv5iclhl4vz',
   [AvailableFiltersEnum.currency]: 'text_632b4acf0c41206cbcb8c324',
   [AvailableFiltersEnum.customerType]: 'text_1726128938631ioz4orixel3',
-  [AvailableFiltersEnum.customerAccountType]: 'text_1726128938631ioz4orixel3',
+  [AvailableFiltersEnum.customerAccountType]: 'text_1744108096469xz5cnvtoixf',
   [AvailableFiltersEnum.customerExternalId]: 'text_65201c5a175a4b0238abf29a',
   [AvailableFiltersEnum.date]: 'text_664cb90097bfa800e6efa3f5',
   [AvailableFiltersEnum.invoiceNumber]: 'text_1734698875218fbxzci2g2s2',
