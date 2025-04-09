@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef } from 'react'
-import { generatePath, useNavigate } from 'react-router'
+import { generatePath, useNavigate } from 'react-router-dom'
 import { object, string } from 'yup'
 
 import { Alert, Button, Dialog, DialogRef, Typography } from '~/components/designSystem'

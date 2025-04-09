@@ -37,18 +37,34 @@ jobs:
       - name: Launch API
         run: docker compose -f ./ci/docker-compose.ci.yml --env-file ./.env up -d api
 
+      - name: Wait for API to be ready
+        run: |
+          timeout 60s bash -c '
+            until curl -s -f -X POST http://localhost:3000/graphql \
+              -H "Content-Type: application/json" \
+              -d "{\"query\": \"query { __typename }\"}" > /dev/null; do
+              echo "Waiting for API to be ready..."
+              sleep 2
+            done
+          '
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'pnpm'
 
       - name: Install Node.js dependencies
-        run: yarn
+        run: pnpm install
 
       - name: Run codegen
         env:
           CODEGEN_API: http://localhost:3000/graphql
         run: |
-          yarn codegen
+          pnpm run codegen
+
       - name: Run Typescript
-        run: yarn tsc
+        run: pnpm run build:tsc

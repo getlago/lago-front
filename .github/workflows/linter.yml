@@ -1,6 +1,6 @@
 name: Lint
 
-on: 
+on:
   pull_request:
     types: [opened, reopened, review_requested, ready_for_review, synchronize]
 
@@ -13,19 +13,22 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'pnpm'
 
-      # ESLint and Prettier must be in `package.json`
       - name: Install Node.js dependencies
-        run: yarn
+        run: pnpm install
 
       - name: Run Translation Check
         run: |
-          yarn translations:inspect
+          pnpm run translations:inspect
 
       - name: Run linters
         run: |
-          yarn lint
+          pnpm run lint
