@@ -60,7 +60,7 @@ export const EMAIL_SCENARIOS: Array<EmailScenario> = [
   },
   {
     id: 'scenario-2',
-    setting: BillingEntityEmailSettingsEnum.CreditNoteCreated,
+    setting: BillingEntityEmailSettingsEnum.PaymentReceiptCreated,
     integration: PremiumIntegrationTypeEnum.IssueReceipts,
   },
   {
