@@ -4,10 +4,10 @@ WORKDIR /app
 
 COPY . .
 
-RUN apk add python3 build-base
-RUN corepack enable && corepack prepare pnpm@latest --activate
-RUN rm -rf /app/node_modules
-RUN pnpm install && pnpm build
+RUN apk add python3 build-base && \
+    corepack enable && corepack prepare pnpm@latest --activate && \
+    rm -rf /app/node_modules && \
+    pnpm install && pnpm build
 
 FROM nginx:1.27-alpine
 
