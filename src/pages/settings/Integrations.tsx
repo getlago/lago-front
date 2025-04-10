@@ -212,6 +212,24 @@ const Integrations = () => {
     (integration) => integration.__typename === 'SalesforceIntegration',
   )
 
+  const getEndIcon = ({
+    showSparkles,
+    showConnectedBadge,
+  }: {
+    showSparkles?: boolean
+    showConnectedBadge?: boolean
+  }) => {
+    if (showSparkles === true) {
+      return 'sparkles'
+    }
+
+    if (showConnectedBadge === true) {
+      return <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
+    }
+
+    return undefined
+  }
+
   return (
     <>
       <PageBannerHeaderWithBurgerMenu>
@@ -247,11 +265,9 @@ const Integrations = () => {
                             <Adyen />
                           </Avatar>
                         }
-                        endIcon={
-                          hasAdyenIntegration ? (
-                            <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
-                          ) : undefined
-                        }
+                        endIcon={getEndIcon({
+                          showConnectedBadge: hasAdyenIntegration,
+                        })}
                         onClick={() => {
                           if (hasAdyenIntegration) {
                             navigate(
@@ -272,13 +288,10 @@ const Integrations = () => {
                         fullWidth
                         title={translate('text_6668821d94e4da4dfd8b3834')}
                         subtitle={translate('text_6668821d94e4da4dfd8b3840')}
-                        endIcon={
-                          !isPremium ? (
-                            'sparkles'
-                          ) : hasAnrokIntegration ? (
-                            <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
-                          ) : undefined
-                        }
+                        endIcon={getEndIcon({
+                          showSparkles: !isPremium,
+                          showConnectedBadge: hasAnrokIntegration,
+                        })}
                         icon={
                           <Avatar size="big" variant="connector-full">
                             {<Anrok />}
@@ -324,11 +337,9 @@ const Integrations = () => {
                             <GoCardless />
                           </Avatar>
                         }
-                        endIcon={
-                          hasGocardlessIntegration ? (
-                            <Chip label={translate('text_634ea0ecc6147de10ddb6646')} />
-                          ) : undefined
-                        }
+                        endIcon={getEndIcon({
+                          showConnectedBadge: hasGocardlessIntegration,
+                        })}
                         onClick={() => {
                           if (hasGocardlessIntegration) {
                             navigate(
@@ -363,13 +374,10 @@ const Integrations = () => {
                             {<Hubspot />}
                           </Avatar>
                         }
-                        endIcon={
-                          !hasAccessToHubspotPremiumIntegration ? (
-                            'sparkles'
-                          ) : hasHubspotIntegration ? (
-                            <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
-                          ) : undefined
-                        }
+                        endIcon={getEndIcon({
+                          showSparkles: !hasAccessToHubspotPremiumIntegration,
+                          showConnectedBadge: hasHubspotIntegration,
+                        })}
                         onClick={() => {
                           if (!hasAccessToHubspotPremiumIntegration) {
                             premiumWarningDialogRef.current?.openDialog({
@@ -399,11 +407,9 @@ const Integrations = () => {
                             {<LagoTaxManagement />}
                           </Avatar>
                         }
-                        endIcon={
-                          hasTaxManagement ? (
-                            <Chip label={translate('text_634ea0ecc6147de10ddb6646')} />
-                          ) : undefined
-                        }
+                        endIcon={getEndIcon({
+                          showConnectedBadge: hasTaxManagement,
+                        })}
                         onClick={() => {
                           if (hasTaxManagement) {
                             navigate(
@@ -420,13 +426,10 @@ const Integrations = () => {
                         fullWidth
                         title={translate('text_661ff6e56ef7e1b7c542b239')}
                         subtitle={translate('text_661ff6e56ef7e1b7c542b245')}
-                        endIcon={
-                          !hasAccessToNetsuitePremiumIntegration ? (
-                            'sparkles'
-                          ) : hasNetsuiteIntegration ? (
-                            <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
-                          ) : undefined
-                        }
+                        endIcon={getEndIcon({
+                          showSparkles: !hasAccessToNetsuitePremiumIntegration,
+                          showConnectedBadge: hasNetsuiteIntegration,
+                        })}
                         icon={
                           <Avatar size="big" variant="connector-full">
                             {<Netsuite />}
@@ -460,7 +463,9 @@ const Integrations = () => {
                             {<Salesforce />}
                           </Avatar>
                         }
-                        endIcon={!hasAccessToSalesforcePremiumIntegration ? 'sparkles' : undefined}
+                        endIcon={getEndIcon({
+                          showSparkles: !hasAccessToSalesforcePremiumIntegration,
+                        })}
                         onClick={() => {
                           if (!hasAccessToSalesforcePremiumIntegration) {
                             premiumWarningDialogRef.current?.openDialog({
@@ -501,11 +506,9 @@ const Integrations = () => {
                             <Stripe />
                           </Avatar>
                         }
-                        endIcon={
-                          hasStripeIntegration ? (
-                            <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
-                          ) : undefined
-                        }
+                        endIcon={getEndIcon({
+                          showConnectedBadge: hasStripeIntegration,
+                        })}
                         onClick={() => {
                           if (hasStripeIntegration) {
                             navigate(
@@ -526,13 +529,10 @@ const Integrations = () => {
                         fullWidth
                         title={translate('text_6672ebb8b1b50be550eccaf8')}
                         subtitle={translate('text_661ff6e56ef7e1b7c542b245')}
-                        endIcon={
-                          !hasAccessToXeroPremiumIntegration ? (
-                            'sparkles'
-                          ) : hasXeroIntegration ? (
-                            <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
-                          ) : undefined
-                        }
+                        endIcon={getEndIcon({
+                          showSparkles: !hasAccessToXeroPremiumIntegration,
+                          showConnectedBadge: hasXeroIntegration,
+                        })}
                         icon={
                           <Avatar size="big" variant="connector-full">
                             {<Xero />}
@@ -596,11 +596,9 @@ const Integrations = () => {
                             <Cashfree />
                           </Avatar>
                         }
-                        endIcon={
-                          hasCashfreeIntegration ? (
-                            <Chip label={translate('text_634ea0ecc6147de10ddb6646')} />
-                          ) : undefined
-                        }
+                        endIcon={getEndIcon({
+                          showConnectedBadge: hasCashfreeIntegration,
+                        })}
                         onClick={() => {
                           if (hasCashfreeIntegration) {
                             navigate(
@@ -621,11 +619,9 @@ const Integrations = () => {
                             <Moneyhash />
                           </Avatar>
                         }
-                        endIcon={
-                          hasMoneyhashIntegration ? (
-                            <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
-                          ) : undefined
-                        }
+                        endIcon={getEndIcon({
+                          showConnectedBadge: hasMoneyhashIntegration,
+                        })}
                         onClick={() => {
                           if (hasMoneyhashIntegration) {
                             navigate(MONEYHASH_INTEGRATION_ROUTE)
