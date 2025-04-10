@@ -12,6 +12,9 @@
   "changelog": {
     "repo": "git@gitlab.com:getlago/lago-front.git"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -68,7 +71,6 @@
     "cypress": "13.14.2",
     "dotenv": "16.3.1",
     "eslint": "^9.15.0",
-    "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-prettier": "^5.2.1",
@@ -114,6 +116,7 @@
     "decimal.js": "^10.4.3",
     "formik": "2.4.5",
     "graphql": "^16.6.0",
+    "lago-configs": "workspace:*",
     "lago-expression": "0.1.2",
     "localforage": "1.10.0",
     "lodash": "4.17.21",
