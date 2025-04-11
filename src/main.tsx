@@ -31,15 +31,7 @@ if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
     tracesSampleRate: 0.3,
   })
 
-  // Capture unhandled exceptions and promise rejections
-  window.addEventListener('error', (event) => {
-    Sentry.withScope((scope) => {
-      scope.setTag('errorType', 'uncaughtException')
-      scope.setTag('location', 'window')
-      Sentry.captureException(event.error)
-    })
-  })
-
+  // Capture unhandled promise rejections
   window.addEventListener('unhandledrejection', (event) => {
     Sentry.withScope((scope) => {
       scope.setTag('errorType', 'unhandledRejection')
