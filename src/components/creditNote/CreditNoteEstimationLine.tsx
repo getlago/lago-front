@@ -32,7 +32,7 @@ export const CreditNoteEstimationLine: FC<CreditNoteEstimationLineProps> = ({
 
       {loading && <Skeleton variant="text" className="w-22" />}
 
-      <Typography color="grey700">{value}</Typography>
+      {!loading && <Typography color="grey700">{value}</Typography>}
     </div>
   )
 }
