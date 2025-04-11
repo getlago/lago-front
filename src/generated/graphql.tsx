@@ -288,6 +288,7 @@ export type AvalaraIntegration = {
   __typename?: 'AvalaraIntegration';
   accountId: Scalars['String']['output'];
   code: Scalars['String']['output'];
+  companyCode: Scalars['String']['output'];
   failedInvoicesCount?: Maybe<Scalars['Int']['output']>;
   hasMappingsConfigured?: Maybe<Scalars['Boolean']['output']>;
   id: Scalars['ID']['output'];
@@ -417,7 +418,9 @@ export enum BillingEntityEmailSettingsEnum {
   /** credit_note.created */
   CreditNoteCreated = 'credit_note_created',
   /** invoice.finalized */
-  InvoiceFinalized = 'invoice_finalized'
+  InvoiceFinalized = 'invoice_finalized',
+  /** payment_receipt.created */
+  PaymentReceiptCreated = 'payment_receipt_created'
 }
 
 export enum BillingTimeEnum {
@@ -1211,6 +1214,7 @@ export type CreateAvalaraIntegrationInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code: Scalars['String']['input'];
+  companyCode: Scalars['String']['input'];
   connectionId: Scalars['String']['input'];
   licenseKey: Scalars['String']['input'];
   name: Scalars['String']['input'];
@@ -2395,7 +2399,7 @@ export type DataApiRevenueStreamCustomer = {
   amountCurrency: CurrencyEnum;
   customerDeletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   customerId: Scalars['ID']['output'];
-  customerName: Scalars['String']['output'];
+  customerName?: Maybe<Scalars['String']['output']>;
   externalCustomerId: Scalars['String']['output'];
   grossRevenueAmountCents: Scalars['BigInt']['output'];
   grossRevenueShare: Scalars['Float']['output'];
@@ -6471,6 +6475,7 @@ export type UpdateAvalaraIntegrationInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code?: InputMaybe<Scalars['String']['input']>;
+  companyCode?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['ID']['input']>;
   licenseKey?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
@@ -7207,7 +7212,7 @@ export type GetRevenueStreamsCustomerBreakdownQueryVariables = Exact<{
 }>;
 
 
-export type GetRevenueStreamsCustomerBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsCustomers: { __typename?: 'DataApiRevenueStreamsCustomers', collection: Array<{ __typename?: 'DataApiRevenueStreamCustomer', amountCurrency: CurrencyEnum, customerDeletedAt?: any | null, customerName: string, externalCustomerId: string, netRevenueAmountCents: any, netRevenueShare: number }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
+export type GetRevenueStreamsCustomerBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsCustomers: { __typename?: 'DataApiRevenueStreamsCustomers', collection: Array<{ __typename?: 'DataApiRevenueStreamCustomer', amountCurrency: CurrencyEnum, customerDeletedAt?: any | null, customerName?: string | null, externalCustomerId: string, netRevenueAmountCents: any, netRevenueShare: number }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
 
 export type RevenueStreamDataForOverviewSectionFragment = { __typename?: 'DataApiRevenueStream', commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any };
 
@@ -8212,6 +8217,22 @@ export type UpdateAnrokIntegrationMutationVariables = Exact<{
 
 export type UpdateAnrokIntegrationMutation = { __typename?: 'Mutation', updateAnrokIntegration?: { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: any } | null };
 
+export type AddAvalaraIntegrationDialogFragment = { __typename?: 'AvalaraIntegration', id: string, accountId: string, code: string, companyCode: string, licenseKey: any, name: string };
+
+export type CreateAvalaraIntegrationMutationVariables = Exact<{
+  input: CreateAvalaraIntegrationInput;
+}>;
+
+
+export type CreateAvalaraIntegrationMutation = { __typename?: 'Mutation', createAvalaraIntegration?: { __typename?: 'AvalaraIntegration', id: string, accountId: string, code: string, companyCode: string, licenseKey: any, name: string } | null };
+
+export type UpdateAvalaraIntegrationMutationVariables = Exact<{
+  input: UpdateAvalaraIntegrationInput;
+}>;
+
+
+export type UpdateAvalaraIntegrationMutation = { __typename?: 'Mutation', updateAvalaraIntegration?: { __typename?: 'AvalaraIntegration', id: string, accountId: string, code: string, companyCode: string, licenseKey: any, name: string } | null };
+
 export type AddCashfreeProviderDialogFragment = { __typename?: 'CashfreeProvider', id: string, name: string, code: string, clientId?: string | null, clientSecret?: string | null, successRedirectUrl?: string | null };
 
 export type GetProviderByCodeForCashfreeQueryVariables = Exact<{
@@ -8513,6 +8534,15 @@ export type RetryAllInvoicesMutationVariables = Exact<{
 
 export type RetryAllInvoicesMutation = { __typename?: 'Mutation', retryAllInvoices?: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number } } | null };
 
+export type AvalaraIntegrationSettingsFragment = { __typename?: 'AvalaraIntegration', id: string, name: string, code: string, accountId: string };
+
+export type GetAvalaraIntegrationSettingsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetAvalaraIntegrationSettingsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration', id: string, name: string, code: string, accountId: string } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' } | null };
+
 export type DeleteAdyenIntegrationDialogFragment = { __typename?: 'AdyenProvider', id: string, name: string };
 
 export type DeleteAdyenIntegrationMutationVariables = Exact<{
@@ -8530,6 +8560,15 @@ export type DestroyNangoIntegrationMutationVariables = Exact<{
 
 
 export type DestroyNangoIntegrationMutation = { __typename?: 'Mutation', destroyIntegration?: { __typename?: 'DestroyIntegrationPayload', id?: string | null } | null };
+
+export type DeleteAvalaraIntegrationDialogFragment = { __typename?: 'AvalaraIntegration', id: string, name: string };
+
+export type DestroyAvalaraIntegrationMutationVariables = Exact<{
+  input: DestroyIntegrationInput;
+}>;
+
+
+export type DestroyAvalaraIntegrationMutation = { __typename?: 'Mutation', destroyIntegration?: { __typename?: 'DestroyIntegrationPayload', id?: string | null } | null };
 
 export type DeleteCashfreeIntegrationDialogFragment = { __typename?: 'CashfreeProvider', id: string, name: string };
 
@@ -9980,6 +10019,27 @@ export type GetOktaIntegrationQueryVariables = Exact<{
 
 export type GetOktaIntegrationQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration', id: string, clientId?: string | null, clientSecret?: any | null, code: string, organizationName: string, domain: string, name: string } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' } | null };
 
+export type AvalaraIntegrationDetailsFragment = { __typename?: 'AvalaraIntegration', id: string, name: string, accountId: string, code: string, companyCode: string, licenseKey: any };
+
+export type GetAvalaraIntegrationsDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  integrationsType: IntegrationTypeEnum;
+}>;
+
+
+export type GetAvalaraIntegrationsDetailsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration', id: string, name: string, accountId: string, code: string, companyCode: string, licenseKey: any } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration', id: string } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+
+export type AvalaraIntegrationsFragment = { __typename?: 'AvalaraIntegration', id: string, name: string, code: string, accountId: string, companyCode: string, licenseKey: any };
+
+export type GetAvalaraIntegrationsListQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<IntegrationTypeEnum>;
+}>;
+
+
+export type GetAvalaraIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration', id: string, name: string, code: string, accountId: string, companyCode: string, licenseKey: any } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+
 export type CashfreeIntegrationDetailsFragment = { __typename?: 'CashfreeProvider', id: string, code: string, name: string, clientId?: string | null, clientSecret?: string | null, successRedirectUrl?: string | null };
 
 export type GetCashfreeIntegrationsDetailsQueryVariables = Exact<{
@@ -10074,7 +10134,7 @@ export type IntegrationsSettingQueryVariables = Exact<{
 }>;
 
 
-export type IntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, euTaxManagement: boolean, country?: CountryCode | null } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string } | { __typename?: 'CashfreeProvider' } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'MoneyhashProvider', id: string } | { __typename?: 'StripeProvider', id: string }> } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration', id: string } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration', id: string } | { __typename?: 'NetsuiteIntegration', id: string } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration', id: string } | { __typename?: 'XeroIntegration', id: string }> } | null };
+export type IntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, euTaxManagement: boolean, country?: CountryCode | null } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider', id: string } | { __typename?: 'CashfreeProvider' } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'MoneyhashProvider', id: string } | { __typename?: 'StripeProvider', id: string }> } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration', id: string } | { __typename?: 'AvalaraIntegration', id: string } | { __typename?: 'HubspotIntegration', id: string } | { __typename?: 'NetsuiteIntegration', id: string } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration', id: string } | { __typename?: 'XeroIntegration', id: string }> } | null };
 
 export type GetOrganizationSettingsQueryVariables = Exact<{
   appliedToOrganization?: InputMaybe<Scalars['Boolean']['input']>;
@@ -11155,6 +11215,14 @@ export const AnrokIntegrationSettingsFragmentDoc = gql`
   apiKey
   hasMappingsConfigured
   failedInvoicesCount
+}
+    `;
+export const AvalaraIntegrationSettingsFragmentDoc = gql`
+    fragment AvalaraIntegrationSettings on AvalaraIntegration {
+  id
+  name
+  code
+  accountId
 }
     `;
 export const DeleteAdyenIntegrationDialogFragmentDoc = gql`
@@ -13288,6 +13356,39 @@ export const OktaIntegrationDetailsFragmentDoc = gql`
   name
 }
     `;
+export const DeleteAvalaraIntegrationDialogFragmentDoc = gql`
+    fragment DeleteAvalaraIntegrationDialog on AvalaraIntegration {
+  id
+  name
+}
+    `;
+export const AddAvalaraIntegrationDialogFragmentDoc = gql`
+    fragment AddAvalaraIntegrationDialog on AvalaraIntegration {
+  id
+  accountId
+  code
+  companyCode
+  licenseKey
+  name
+}
+    `;
+export const AvalaraIntegrationDetailsFragmentDoc = gql`
+    fragment AvalaraIntegrationDetails on AvalaraIntegration {
+  id
+  name
+  ...DeleteAvalaraIntegrationDialog
+  ...AddAvalaraIntegrationDialog
+}
+    ${DeleteAvalaraIntegrationDialogFragmentDoc}
+${AddAvalaraIntegrationDialogFragmentDoc}`;
+export const AvalaraIntegrationsFragmentDoc = gql`
+    fragment AvalaraIntegrations on AvalaraIntegration {
+  id
+  name
+  code
+  ...AddAvalaraIntegrationDialog
+}
+    ${AddAvalaraIntegrationDialogFragmentDoc}`;
 export const CashfreeIntegrationDetailsFragmentDoc = gql`
     fragment CashfreeIntegrationDetails on CashfreeProvider {
   id
@@ -18543,6 +18644,77 @@ export function useUpdateAnrokIntegrationMutation(baseOptions?: Apollo.MutationH
 export type UpdateAnrokIntegrationMutationHookResult = ReturnType<typeof useUpdateAnrokIntegrationMutation>;
 export type UpdateAnrokIntegrationMutationResult = Apollo.MutationResult<UpdateAnrokIntegrationMutation>;
 export type UpdateAnrokIntegrationMutationOptions = Apollo.BaseMutationOptions<UpdateAnrokIntegrationMutation, UpdateAnrokIntegrationMutationVariables>;
+export const CreateAvalaraIntegrationDocument = gql`
+    mutation createAvalaraIntegration($input: CreateAvalaraIntegrationInput!) {
+  createAvalaraIntegration(input: $input) {
+    ...AddAvalaraIntegrationDialog
+    ...AvalaraIntegrationDetails
+  }
+}
+    ${AddAvalaraIntegrationDialogFragmentDoc}
+${AvalaraIntegrationDetailsFragmentDoc}`;
+export type CreateAvalaraIntegrationMutationFn = Apollo.MutationFunction<CreateAvalaraIntegrationMutation, CreateAvalaraIntegrationMutationVariables>;
+
+/**
+ * __useCreateAvalaraIntegrationMutation__
+ *
+ * To run a mutation, you first call `useCreateAvalaraIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateAvalaraIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createAvalaraIntegrationMutation, { data, loading, error }] = useCreateAvalaraIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateAvalaraIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<CreateAvalaraIntegrationMutation, CreateAvalaraIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateAvalaraIntegrationMutation, CreateAvalaraIntegrationMutationVariables>(CreateAvalaraIntegrationDocument, options);
+      }
+export type CreateAvalaraIntegrationMutationHookResult = ReturnType<typeof useCreateAvalaraIntegrationMutation>;
+export type CreateAvalaraIntegrationMutationResult = Apollo.MutationResult<CreateAvalaraIntegrationMutation>;
+export type CreateAvalaraIntegrationMutationOptions = Apollo.BaseMutationOptions<CreateAvalaraIntegrationMutation, CreateAvalaraIntegrationMutationVariables>;
+export const UpdateAvalaraIntegrationDocument = gql`
+    mutation updateAvalaraIntegration($input: UpdateAvalaraIntegrationInput!) {
+  updateAvalaraIntegration(input: $input) {
+    id
+    ...AddAvalaraIntegrationDialog
+    ...AvalaraIntegrationDetails
+  }
+}
+    ${AddAvalaraIntegrationDialogFragmentDoc}
+${AvalaraIntegrationDetailsFragmentDoc}`;
+export type UpdateAvalaraIntegrationMutationFn = Apollo.MutationFunction<UpdateAvalaraIntegrationMutation, UpdateAvalaraIntegrationMutationVariables>;
+
+/**
+ * __useUpdateAvalaraIntegrationMutation__
+ *
+ * To run a mutation, you first call `useUpdateAvalaraIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAvalaraIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAvalaraIntegrationMutation, { data, loading, error }] = useUpdateAvalaraIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateAvalaraIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAvalaraIntegrationMutation, UpdateAvalaraIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateAvalaraIntegrationMutation, UpdateAvalaraIntegrationMutationVariables>(UpdateAvalaraIntegrationDocument, options);
+      }
+export type UpdateAvalaraIntegrationMutationHookResult = ReturnType<typeof useUpdateAvalaraIntegrationMutation>;
+export type UpdateAvalaraIntegrationMutationResult = Apollo.MutationResult<UpdateAvalaraIntegrationMutation>;
+export type UpdateAvalaraIntegrationMutationOptions = Apollo.BaseMutationOptions<UpdateAvalaraIntegrationMutation, UpdateAvalaraIntegrationMutationVariables>;
 export const GetProviderByCodeForCashfreeDocument = gql`
     query getProviderByCodeForCashfree($code: String) {
   paymentProvider(code: $code) {
@@ -19911,6 +20083,49 @@ export function useRetryAllInvoicesMutation(baseOptions?: Apollo.MutationHookOpt
 export type RetryAllInvoicesMutationHookResult = ReturnType<typeof useRetryAllInvoicesMutation>;
 export type RetryAllInvoicesMutationResult = Apollo.MutationResult<RetryAllInvoicesMutation>;
 export type RetryAllInvoicesMutationOptions = Apollo.BaseMutationOptions<RetryAllInvoicesMutation, RetryAllInvoicesMutationVariables>;
+export const GetAvalaraIntegrationSettingsDocument = gql`
+    query getAvalaraIntegrationSettings($id: ID!) {
+  integration(id: $id) {
+    ... on AvalaraIntegration {
+      id
+      ...AvalaraIntegrationSettings
+    }
+  }
+}
+    ${AvalaraIntegrationSettingsFragmentDoc}`;
+
+/**
+ * __useGetAvalaraIntegrationSettingsQuery__
+ *
+ * To run a query within a React component, call `useGetAvalaraIntegrationSettingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAvalaraIntegrationSettingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAvalaraIntegrationSettingsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetAvalaraIntegrationSettingsQuery(baseOptions: Apollo.QueryHookOptions<GetAvalaraIntegrationSettingsQuery, GetAvalaraIntegrationSettingsQueryVariables> & ({ variables: GetAvalaraIntegrationSettingsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAvalaraIntegrationSettingsQuery, GetAvalaraIntegrationSettingsQueryVariables>(GetAvalaraIntegrationSettingsDocument, options);
+      }
+export function useGetAvalaraIntegrationSettingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAvalaraIntegrationSettingsQuery, GetAvalaraIntegrationSettingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAvalaraIntegrationSettingsQuery, GetAvalaraIntegrationSettingsQueryVariables>(GetAvalaraIntegrationSettingsDocument, options);
+        }
+export function useGetAvalaraIntegrationSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAvalaraIntegrationSettingsQuery, GetAvalaraIntegrationSettingsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAvalaraIntegrationSettingsQuery, GetAvalaraIntegrationSettingsQueryVariables>(GetAvalaraIntegrationSettingsDocument, options);
+        }
+export type GetAvalaraIntegrationSettingsQueryHookResult = ReturnType<typeof useGetAvalaraIntegrationSettingsQuery>;
+export type GetAvalaraIntegrationSettingsLazyQueryHookResult = ReturnType<typeof useGetAvalaraIntegrationSettingsLazyQuery>;
+export type GetAvalaraIntegrationSettingsSuspenseQueryHookResult = ReturnType<typeof useGetAvalaraIntegrationSettingsSuspenseQuery>;
+export type GetAvalaraIntegrationSettingsQueryResult = Apollo.QueryResult<GetAvalaraIntegrationSettingsQuery, GetAvalaraIntegrationSettingsQueryVariables>;
 export const DeleteAdyenIntegrationDocument = gql`
     mutation deleteAdyenIntegration($input: DestroyPaymentProviderInput!) {
   destroyPaymentProvider(input: $input) {
@@ -19977,6 +20192,39 @@ export function useDestroyNangoIntegrationMutation(baseOptions?: Apollo.Mutation
 export type DestroyNangoIntegrationMutationHookResult = ReturnType<typeof useDestroyNangoIntegrationMutation>;
 export type DestroyNangoIntegrationMutationResult = Apollo.MutationResult<DestroyNangoIntegrationMutation>;
 export type DestroyNangoIntegrationMutationOptions = Apollo.BaseMutationOptions<DestroyNangoIntegrationMutation, DestroyNangoIntegrationMutationVariables>;
+export const DestroyAvalaraIntegrationDocument = gql`
+    mutation destroyAvalaraIntegration($input: DestroyIntegrationInput!) {
+  destroyIntegration(input: $input) {
+    id
+  }
+}
+    `;
+export type DestroyAvalaraIntegrationMutationFn = Apollo.MutationFunction<DestroyAvalaraIntegrationMutation, DestroyAvalaraIntegrationMutationVariables>;
+
+/**
+ * __useDestroyAvalaraIntegrationMutation__
+ *
+ * To run a mutation, you first call `useDestroyAvalaraIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDestroyAvalaraIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [destroyAvalaraIntegrationMutation, { data, loading, error }] = useDestroyAvalaraIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDestroyAvalaraIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<DestroyAvalaraIntegrationMutation, DestroyAvalaraIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DestroyAvalaraIntegrationMutation, DestroyAvalaraIntegrationMutationVariables>(DestroyAvalaraIntegrationDocument, options);
+      }
+export type DestroyAvalaraIntegrationMutationHookResult = ReturnType<typeof useDestroyAvalaraIntegrationMutation>;
+export type DestroyAvalaraIntegrationMutationResult = Apollo.MutationResult<DestroyAvalaraIntegrationMutation>;
+export type DestroyAvalaraIntegrationMutationOptions = Apollo.BaseMutationOptions<DestroyAvalaraIntegrationMutation, DestroyAvalaraIntegrationMutationVariables>;
 export const DeleteCashfreeDocument = gql`
     mutation deleteCashfree($input: DestroyPaymentProviderInput!) {
   destroyPaymentProvider(input: $input) {
@@ -27018,6 +27266,108 @@ export type GetOktaIntegrationQueryHookResult = ReturnType<typeof useGetOktaInte
 export type GetOktaIntegrationLazyQueryHookResult = ReturnType<typeof useGetOktaIntegrationLazyQuery>;
 export type GetOktaIntegrationSuspenseQueryHookResult = ReturnType<typeof useGetOktaIntegrationSuspenseQuery>;
 export type GetOktaIntegrationQueryResult = Apollo.QueryResult<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>;
+export const GetAvalaraIntegrationsDetailsDocument = gql`
+    query getAvalaraIntegrationsDetails($id: ID!, $limit: Int, $integrationsType: IntegrationTypeEnum!) {
+  integration(id: $id) {
+    ... on AvalaraIntegration {
+      id
+      ...AvalaraIntegrationDetails
+    }
+  }
+  integrations(limit: $limit, type: $integrationsType) {
+    collection {
+      ... on AvalaraIntegration {
+        id
+      }
+    }
+  }
+}
+    ${AvalaraIntegrationDetailsFragmentDoc}`;
+
+/**
+ * __useGetAvalaraIntegrationsDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetAvalaraIntegrationsDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAvalaraIntegrationsDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAvalaraIntegrationsDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      limit: // value for 'limit'
+ *      integrationsType: // value for 'integrationsType'
+ *   },
+ * });
+ */
+export function useGetAvalaraIntegrationsDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetAvalaraIntegrationsDetailsQuery, GetAvalaraIntegrationsDetailsQueryVariables> & ({ variables: GetAvalaraIntegrationsDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAvalaraIntegrationsDetailsQuery, GetAvalaraIntegrationsDetailsQueryVariables>(GetAvalaraIntegrationsDetailsDocument, options);
+      }
+export function useGetAvalaraIntegrationsDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAvalaraIntegrationsDetailsQuery, GetAvalaraIntegrationsDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAvalaraIntegrationsDetailsQuery, GetAvalaraIntegrationsDetailsQueryVariables>(GetAvalaraIntegrationsDetailsDocument, options);
+        }
+export function useGetAvalaraIntegrationsDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAvalaraIntegrationsDetailsQuery, GetAvalaraIntegrationsDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAvalaraIntegrationsDetailsQuery, GetAvalaraIntegrationsDetailsQueryVariables>(GetAvalaraIntegrationsDetailsDocument, options);
+        }
+export type GetAvalaraIntegrationsDetailsQueryHookResult = ReturnType<typeof useGetAvalaraIntegrationsDetailsQuery>;
+export type GetAvalaraIntegrationsDetailsLazyQueryHookResult = ReturnType<typeof useGetAvalaraIntegrationsDetailsLazyQuery>;
+export type GetAvalaraIntegrationsDetailsSuspenseQueryHookResult = ReturnType<typeof useGetAvalaraIntegrationsDetailsSuspenseQuery>;
+export type GetAvalaraIntegrationsDetailsQueryResult = Apollo.QueryResult<GetAvalaraIntegrationsDetailsQuery, GetAvalaraIntegrationsDetailsQueryVariables>;
+export const GetAvalaraIntegrationsListDocument = gql`
+    query getAvalaraIntegrationsList($limit: Int, $type: IntegrationTypeEnum) {
+  integrations(limit: $limit, type: $type) {
+    collection {
+      ... on AvalaraIntegration {
+        id
+        ...AvalaraIntegrations
+        ...AddAvalaraIntegrationDialog
+        ...DeleteAvalaraIntegrationDialog
+      }
+    }
+  }
+}
+    ${AvalaraIntegrationsFragmentDoc}
+${AddAvalaraIntegrationDialogFragmentDoc}
+${DeleteAvalaraIntegrationDialogFragmentDoc}`;
+
+/**
+ * __useGetAvalaraIntegrationsListQuery__
+ *
+ * To run a query within a React component, call `useGetAvalaraIntegrationsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAvalaraIntegrationsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAvalaraIntegrationsListQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      type: // value for 'type'
+ *   },
+ * });
+ */
+export function useGetAvalaraIntegrationsListQuery(baseOptions?: Apollo.QueryHookOptions<GetAvalaraIntegrationsListQuery, GetAvalaraIntegrationsListQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAvalaraIntegrationsListQuery, GetAvalaraIntegrationsListQueryVariables>(GetAvalaraIntegrationsListDocument, options);
+      }
+export function useGetAvalaraIntegrationsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAvalaraIntegrationsListQuery, GetAvalaraIntegrationsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAvalaraIntegrationsListQuery, GetAvalaraIntegrationsListQueryVariables>(GetAvalaraIntegrationsListDocument, options);
+        }
+export function useGetAvalaraIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAvalaraIntegrationsListQuery, GetAvalaraIntegrationsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAvalaraIntegrationsListQuery, GetAvalaraIntegrationsListQueryVariables>(GetAvalaraIntegrationsListDocument, options);
+        }
+export type GetAvalaraIntegrationsListQueryHookResult = ReturnType<typeof useGetAvalaraIntegrationsListQuery>;
+export type GetAvalaraIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetAvalaraIntegrationsListLazyQuery>;
+export type GetAvalaraIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetAvalaraIntegrationsListSuspenseQuery>;
+export type GetAvalaraIntegrationsListQueryResult = Apollo.QueryResult<GetAvalaraIntegrationsListQuery, GetAvalaraIntegrationsListQueryVariables>;
 export const GetCashfreeIntegrationsDetailsDocument = gql`
     query getCashfreeIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
   paymentProvider(id: $id) {
@@ -27476,6 +27826,9 @@ export const IntegrationsSettingDocument = gql`
   integrations(limit: $limit) {
     collection {
       ... on AnrokIntegration {
+        id
+      }
+      ... on AvalaraIntegration {
         id
       }
       ... on NetsuiteIntegration {

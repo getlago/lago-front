@@ -2950,6 +2950,21 @@
   "text_1741604005109aspaz4chd7y": "Amount paid",
   "text_1741604005109w5ns73xmam9": "$730,00",
   "text_17440371192353kif37ol194": "Payment method",
-  "text_1744037119235rz9n0rfhwcp": "Visa **** 1234"
+  "text_1744037119235rz9n0rfhwcp": "Visa **** 1234",
+  "text_1744293609277s53zn6jcoq4": "Avalara",
+  "text_174429360927877m0kmo6gmm": "Connect to Avalara",
+  "text_174429360927806xa8sxsreg": "To connect to Avalara, please enter the following information.",
+  "text_1744293609278tzbixvdszc6": "Avalara account ID",
+  "text_1744293635186p3wseb9b7hl": "Type your Avalara account ID",
+  "text_1744293635187073v2g6xw0o": "Avalara license key",
+  "text_1744293635187idjlrbzbv21": "Type your Avalara license key",
+  "text_1744293635187hxvz11n5bq3": "Avalara company code",
+  "text_1744293635187q00705sjtf8": "Type your Avalara company code",
+  "text_1744293680332cq4cd1dpiu6": "Avalara integration successfully connected.",
+  "text_1744293680332firnbl6qch5": "Avalara integration successfully edited",
+  "text_1744293680332iekl1thphr6": "Avalara integration successfully deleted",
+  "text_17442936803327ymv9v7ecv0": "Edit information linked to this Avalara connection.",
+  "text_1744293719130klvtjda8wjz": "By deleting the connection, it will no longer be utilized, and upcoming data will not be synchronized to the connected Avalara account. Additionally, please note that deleting this connection will also result in the removal of all connections with Lago customers. Are you sure you want to proceed?",
+  "text_1744296980972iaigqgcpb8t": "Request access to premium Avalara add-on",
+  "text_1744296980972op5ch5zpl78": "Hello, I would like to access your Avalara add-on.%0D%0APlease let me know if you need more info!"
 }
-

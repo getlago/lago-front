@@ -1,5 +1,7 @@
 import AnrokIntegrationDetails from '~/pages/settings/AnrokIntegrationDetails'
 import AnrokIntegrations from '~/pages/settings/AnrokIntegrations'
+import AvalaraIntegrationDetails from '~/pages/settings/AvalaraIntegrationDetails'
+import AvalaraIntegrations from '~/pages/settings/AvalaraIntegrations'
 
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
@@ -74,6 +76,8 @@ export const AUTHENTICATION_ROUTE = `${SETTINGS_ROUTE}/authentication`
 export const OKTA_AUTHENTICATION_ROUTE = `${AUTHENTICATION_ROUTE}/okta/:integrationId`
 export const ANROK_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/anrok`
 export const ANROK_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/anrok/:integrationId/:tab`
+export const AVALARA_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/avalara`
+export const AVALARA_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/avalara/:integrationId/:tab`
 export const ADYEN_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/adyen`
 export const ADYEN_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/adyen/:integrationId`
 export const HUBSPOT_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/hubspot`
@@ -184,6 +188,19 @@ export const settingRoutes: CustomRouteObject[] = [
         element: <AdyenIntegrations />,
         permissions: ['organizationIntegrationsView'],
       },
+      {
+        path: AVALARA_INTEGRATION_ROUTE,
+        private: true,
+        element: <AvalaraIntegrations />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: AVALARA_INTEGRATION_DETAILS_ROUTE,
+        private: true,
+        element: <AvalaraIntegrationDetails />,
+        permissions: ['organizationIntegrationsView'],
+      },
+
       {
         path: HUBSPOT_INTEGRATION_ROUTE,
         private: true,
