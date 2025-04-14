@@ -98,6 +98,7 @@ export default defineConfig(({ mode }) => {
           sourcemapFileNames: '[name].[hash].js.map',
         },
       },
+      exclude: ['packages/**'],
     },
   }
 })
