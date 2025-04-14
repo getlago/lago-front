@@ -1,4 +1,4 @@
-import { colors } from '../../tailwind.config'
+import { colors } from 'lago-configs/tailwind'
 
 /**
  * In primary, secondary, info, success, warning and error color set

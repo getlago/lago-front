@@ -1,5 +1,5 @@
 {
-  "include": ["**/*.tsx", "**/*.ts", "**/*.d.ts"],
+  "include": ["src/*.{tsx,ts}", "src/**/*.d.ts", "materialUiTheme.d.ts"],
   "compilerOptions": {
     "outDir": "./dist",
     "baseUrl": "src",
