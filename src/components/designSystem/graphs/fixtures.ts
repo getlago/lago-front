@@ -476,3 +476,7 @@ export const multipleLineChartLoadingFakeLines = [
     hideOnGraph: false,
   },
 ]
+
+export const multipleStackedBarChartLoadingFakeData = []
+
+export const multipleStackedBarChartLoadingFakeBars = []
