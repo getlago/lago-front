@@ -4,6 +4,7 @@ import {
   INVOICE_LIST_FILTER_PREFIX,
   MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX,
   MRR_BREAKDOWN_PLANS_FILTER_PREFIX,
+  PREPAID_CREDITS_OVERVIEW_FILTER_PREFIX,
   REVENUE_STREAMS_BREAKDOWN_CUSTOMER_FILTER_PREFIX,
   REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX,
   REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX,
@@ -230,6 +231,22 @@ export const formatFiltersForRevenueStreamsCustomersQuery = (searchParams: URLSe
     searchParams,
     availableFilters: RevenueStreamsCustomersAvailableFilters,
     filtersNamePrefix: REVENUE_STREAMS_BREAKDOWN_CUSTOMER_FILTER_PREFIX,
+  })
+}
+
+export const formatFiltersForPrepaidCreditsQuery = (searchParams: URLSearchParams) => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
+    [AvailableFiltersEnum.country]: 'customerCountry',
+    [AvailableFiltersEnum.customerAccountType]: 'customerType',
+    [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
+    [AvailableFiltersEnum.subscriptionExternalId]: 'externalSubscriptionId',
+  }
+
+  return formatFiltersForQuery({
+    keyMap,
+    searchParams,
+    availableFilters: [...MrrOverviewAvailableFilters, AvailableFiltersEnum.timeGranularity],
+    filtersNamePrefix: PREPAID_CREDITS_OVERVIEW_FILTER_PREFIX,
   })
 }
 

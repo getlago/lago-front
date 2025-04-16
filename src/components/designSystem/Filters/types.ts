@@ -86,6 +86,13 @@ export const MrrOverviewAvailableFilters = [
   AvailableFiltersEnum.customerExternalId,
 ]
 export const MrrBreakdownPlansAvailableFilters = [AvailableFiltersEnum.currency]
+export const PrepaidCreditsOverviewAvailableFilters = [
+  AvailableFiltersEnum.date,
+  AvailableFiltersEnum.country,
+  AvailableFiltersEnum.currency,
+  AvailableFiltersEnum.customerAccountType,
+  AvailableFiltersEnum.customerExternalId,
+]
 
 const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.amount]: 'text_17346988752182hpzppdqk9t',
