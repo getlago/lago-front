@@ -6,6 +6,7 @@ import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Mrr from '~/pages/analytics/Mrr'
+import PrepaidCredits from '~/pages/analytics/PrepaidCredits'
 import RevenueStreams from '~/pages/analytics/RevenueStreams'
 import { PageHeader } from '~/styles'
 
@@ -58,6 +59,13 @@ const NewAnalytics = () => {
               tab: NewAnalyticsTabsOptionsEnum.mrr,
             }),
             component: <Mrr />,
+          },
+          {
+            title: translate('text_1744192691931osnm4ckcvzj'),
+            link: generatePath(ANALYTIC_TABS_ROUTE, {
+              tab: NewAnalyticsTabsOptionsEnum.prepaidCredits,
+            }),
+            component: <PrepaidCredits />,
           },
         ]}
       />

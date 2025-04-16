@@ -107,6 +107,7 @@ const CustomTooltip = <T,>({
           timeGranularity,
         })}
       </Typography>
+
       <div className="flex flex-col gap-2">
         {bars.map((bar, i) => (
           <div key={i} className="flex items-center justify-between gap-2">
@@ -183,10 +184,13 @@ const StackedBarChart = <T extends DataItem>({
     return -(DEFAULT_TOOLTIP_Y_GAP + (bars.length || 0) * TOOLTIP_INNER_LINE_HEIGHT)
   }, [bars.length])
 
-  const hasOnlyZeroValues = useMemo(
-    () => checkOnlyZeroValues(localData, localBars),
-    [localData, localBars],
-  )
+  const hasOnlyZeroValues: boolean = useMemo(() => {
+    if (!localData?.length || loading) {
+      return true
+    }
+
+    return checkOnlyZeroValues(localData, localBars)
+  }, [localData, localBars, loading])
 
   const yAxisDomain: [number, number] = useMemo(
     () => calculateYAxisDomain(localData, localBars, hasOnlyZeroValues),
@@ -229,12 +233,10 @@ const StackedBarChart = <T extends DataItem>({
             }): React.ReactElement => {
               const { x, y, index } = props
 
-              // Make sure we only render 2 ticks on the graph
               if (index !== 0 && index !== (localData?.length || 0) - 1) {
                 return <></>
               }
 
-              // Early return for loading state
               if (loading) {
                 return (
                   <g transform={`translate(${index !== 0 ? x - LOADING_TICK_SIZE : x},${y + 6})`}>
@@ -251,22 +253,18 @@ const StackedBarChart = <T extends DataItem>({
               let dateValue = ''
 
               if (xAxisTickAttributes && localData?.length) {
-                // For first tick, use the first attribute on the first data item
                 if (index === 0 && localData[0]) {
                   const firstAttributeKey = xAxisTickAttributes[0]
                   const attributeValue = localData[0][firstAttributeKey]
 
                   dateValue = String(attributeValue)
-                }
-                // For last tick, use the second attribute on the last data item
-                else if (index === localData.length - 1 && localData[localData.length - 1]) {
+                } else if (index === localData.length - 1 && localData[localData.length - 1]) {
                   const secondAttributeKey = xAxisTickAttributes[1]
                   const lastItem = localData[localData.length - 1]
 
                   dateValue = String(lastItem[secondAttributeKey])
                 }
               } else {
-                // Fallback to previous payload-based approach if xAxisTickAttributes not provided
                 dateValue = props.payload?.value || ''
               }
 
@@ -290,7 +288,6 @@ const StackedBarChart = <T extends DataItem>({
               )
             }}
           />
-
           <YAxis
             allowDataOverflow={false}
             axisLine={false}
@@ -362,17 +359,10 @@ const StackedBarChart = <T extends DataItem>({
           />
 
           <Customized
-            component={({
-              xAxisMap,
-              offset,
-              height,
-            }: {
-              xAxisMap: { [key: string]: any }
-              offset: { top: number; bottom: number }
-              height: number
-            }) => {
+            // @ts-ignore
+            component={({ xAxisMap, offset, height }) => {
               const xAxis = xAxisMap[Object.keys(xAxisMap)[0]]
-              const scale = xAxis?.scale as (val: any) => number & { bandwidth: () => number }
+              const scale = xAxis?.scale
 
               if (!scale || !localData?.length) return null
 
@@ -391,7 +381,6 @@ const StackedBarChart = <T extends DataItem>({
               )
             }}
           />
-
           {localData?.map((item, index) => (
             <ReferenceLine
               key={`ref-line-${index}`}
@@ -400,16 +389,12 @@ const StackedBarChart = <T extends DataItem>({
               strokeWidth={1}
             />
           ))}
-
           {!loading && (
             <RechartTooltip
               defaultIndex={localHoverDataIndex}
+              cursor={false}
               active={typeof localHoverDataIndex === 'number'}
               includeHidden={true}
-              cursor={{
-                stroke: `${theme.palette.grey[500]}`,
-                strokeDasharray: '2 2',
-              }}
               offset={0}
               position={{ y: yTooltipPosition }}
               content={({ active, payload, includeHidden }) => (
@@ -428,7 +413,36 @@ const StackedBarChart = <T extends DataItem>({
               )}
             />
           )}
+          {typeof localHoverDataIndex === 'number' && (
+            <>
+              <Customized
+                // @ts-ignore
+                component={({ xAxisMap, yAxisMap }) => {
+                  const xAxis = xAxisMap[Object.keys(xAxisMap)[0]]
+                  const yAxis = yAxisMap[Object.keys(yAxisMap)[0]]
+                  const xValue = data?.[localHoverDataIndex]?.[xAxisDataKey]
 
+                  if (!xAxis || !xValue || typeof xAxis.scale !== 'function') return null
+
+                  const x = xAxis.scale(xValue)
+                  const bandwidth = xAxis.bandSize ?? 0
+
+                  if (typeof x !== 'number' || !yAxis) return null
+
+                  return (
+                    <line
+                      x1={x + bandwidth / 2}
+                      x2={x + bandwidth / 2}
+                      y1={yAxis.y}
+                      y2={yAxis.y + yAxis.height}
+                      stroke={theme.palette.primary[200]}
+                      strokeWidth={2}
+                    />
+                  )
+                }}
+              />
+            </>
+          )}
           {localBars.map((line) => (
             <Bar
               key={line.dataKey}
