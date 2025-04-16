@@ -1,6 +1,6 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src"],
+  "include": ["src", "../../materialUiTheme.d.ts"],
   "exclude": ["**/__tests__/**", "**/*.test.{ts,tsx}", "playground", "dist", "node_modules"],
   "compilerOptions": {
     "declaration": true,
