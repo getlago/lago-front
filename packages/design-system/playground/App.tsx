@@ -5,8 +5,8 @@ export default function App() {
     <div className="mx-auto max-w-screen-md p-4">
       <div className="mb-4">Icons</div>
       <div className="mb-6 flex flex-wrap gap-2">
-        {Object.keys(ALL_ICONS).map((iconName, i) => (
-          <Icon key={`icon-${i}`} name={iconName as IconName} />
+        {Object.keys(ALL_ICONS).map((iconName) => (
+          <Icon key={iconName} name={iconName as IconName} />
         ))}
       </div>
       <div className="mb-4">Colors</div>

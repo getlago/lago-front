@@ -10,7 +10,7 @@ const config = {
     tailwindcss,
     autoprefixer,
     process.env.APP_ENV === 'production' ? cssnano : null,
-  ],
+  ].filter(Boolean),
 }
 
 export default config
