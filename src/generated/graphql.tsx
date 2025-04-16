@@ -2072,6 +2072,8 @@ export type Customer = {
   addressLine1?: Maybe<Scalars['String']['output']>;
   addressLine2?: Maybe<Scalars['String']['output']>;
   anrokCustomer?: Maybe<AnrokCustomer>;
+  /** Invoice custom sections applicable to the customer */
+  applicableInvoiceCustomSections?: Maybe<Array<InvoiceCustomSection>>;
   applicableTimezone: TimezoneEnum;
   appliedAddOns?: Maybe<Array<AppliedAddOn>>;
   appliedCoupons?: Maybe<Array<AppliedCoupon>>;
@@ -2081,8 +2083,6 @@ export type Customer = {
   /** Check if customer attributes are editable */
   canEditAttributes: Scalars['Boolean']['output'];
   city?: Maybe<Scalars['String']['output']>;
-  /** Invoice custom sections manually configured for the customer */
-  configurableInvoiceCustomSections?: Maybe<Array<InvoiceCustomSection>>;
   country?: Maybe<CountryCode>;
   createdAt: Scalars['ISO8601DateTime']['output'];
   creditNotes?: Maybe<Array<CreditNote>>;
@@ -2367,6 +2367,30 @@ export type DataApiMrrsPlans = {
   __typename?: 'DataApiMrrsPlans';
   collection: Array<DataApiMrrPlan>;
   metadata: DataApiMetadata;
+};
+
+export type DataApiPrepaidCredit = {
+  __typename?: 'DataApiPrepaidCredit';
+  amountCurrency: CurrencyEnum;
+  consumedAmount: Scalars['BigInt']['output'];
+  consumedCreditsQuantity: Scalars['BigInt']['output'];
+  endOfPeriodDt: Scalars['ISO8601Date']['output'];
+  offeredAmount: Scalars['BigInt']['output'];
+  offeredCreditsQuantity: Scalars['BigInt']['output'];
+  purchasedAmount: Scalars['BigInt']['output'];
+  purchasedCreditsQuantity: Scalars['BigInt']['output'];
+  startOfPeriodDt: Scalars['ISO8601Date']['output'];
+  voidedAmount: Scalars['BigInt']['output'];
+  voidedCreditsQuantity: Scalars['BigInt']['output'];
+};
+
+/** DataApiPrepaidCreditCollection type */
+export type DataApiPrepaidCreditCollection = {
+  __typename?: 'DataApiPrepaidCreditCollection';
+  /** A collection of paginated DataApiPrepaidCreditCollection */
+  collection: Array<DataApiPrepaidCredit>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
 };
 
 export type DataApiRevenueStream = {
@@ -5100,6 +5124,8 @@ export type Query = {
   dataApiMrrs: DataApiMrrCollection;
   /** Query monthly recurring revenues plans of an organization */
   dataApiMrrsPlans: DataApiMrrsPlans;
+  /** Query prepaid credits of an organization */
+  dataApiPrepaidCredits: DataApiPrepaidCreditCollection;
   /** Query revenue streams of an organization */
   dataApiRevenueStreams: DataApiRevenueStreamCollection;
   /** Query revenue streams customers of an organization */
@@ -5378,6 +5404,19 @@ export type QueryDataApiMrrsPlansArgs = {
   currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryDataApiPrepaidCreditsArgs = {
+  currency?: InputMaybe<CurrencyEnum>;
+  customerCountry?: InputMaybe<CountryCode>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  planCode?: InputMaybe<Scalars['String']['input']>;
+  timeGranularity?: InputMaybe<TimeGranularityEnum>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
 };
 
 
@@ -6568,13 +6607,13 @@ export type UpdateCustomerInput = {
   accountType?: InputMaybe<CustomerAccountTypeEnum>;
   addressLine1?: InputMaybe<Scalars['String']['input']>;
   addressLine2?: InputMaybe<Scalars['String']['input']>;
+  applicableInvoiceCustomSectionIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   appliedDunningCampaignId?: InputMaybe<Scalars['ID']['input']>;
   billingConfiguration?: InputMaybe<CustomerBillingConfigurationInput>;
   billingEntityCode?: InputMaybe<Scalars['String']['input']>;
   city?: InputMaybe<Scalars['String']['input']>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  configurableInvoiceCustomSectionIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   country?: InputMaybe<CountryCode>;
   currency?: InputMaybe<CurrencyEnum>;
   customerType?: InputMaybe<CustomerTypeEnum>;
@@ -7202,6 +7241,23 @@ export type GetMrrsQueryVariables = Exact<{
 
 export type GetMrrsQuery = { __typename?: 'Query', dataApiMrrs: { __typename?: 'DataApiMrrCollection', collection: Array<{ __typename?: 'DataApiMrr', endOfPeriodDt: any, endingMrr: any, mrrChange: any, mrrChurn: any, mrrContraction: any, mrrExpansion: any, mrrNew: any, startOfPeriodDt: any, startingMrr: any }> } };
 
+export type PrepaidCreditsDataForOverviewSectionFragment = { __typename?: 'DataApiPrepaidCredit', amountCurrency: CurrencyEnum, consumedAmount: any, consumedCreditsQuantity: any, endOfPeriodDt: any, offeredAmount: any, offeredCreditsQuantity: any, purchasedAmount: any, purchasedCreditsQuantity: any, startOfPeriodDt: any, voidedAmount: any, voidedCreditsQuantity: any };
+
+export type GetPrepaidCreditsQueryVariables = Exact<{
+  currency?: InputMaybe<CurrencyEnum>;
+  customerCountry?: InputMaybe<CountryCode>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  planCode?: InputMaybe<Scalars['String']['input']>;
+  timeGranularity?: InputMaybe<TimeGranularityEnum>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+}>;
+
+
+export type GetPrepaidCreditsQuery = { __typename?: 'Query', dataApiPrepaidCredits: { __typename?: 'DataApiPrepaidCreditCollection', collection: Array<{ __typename?: 'DataApiPrepaidCredit', amountCurrency: CurrencyEnum, consumedAmount: any, consumedCreditsQuantity: any, endOfPeriodDt: any, offeredAmount: any, offeredCreditsQuantity: any, purchasedAmount: any, purchasedCreditsQuantity: any, startOfPeriodDt: any, voidedAmount: any, voidedCreditsQuantity: any }> } };
+
 export type GetRevenueStreamsCustomerBreakdownQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7505,14 +7561,14 @@ export type CustomerAppliedTaxRatesForSettingsFragment = { __typename?: 'Custome
 
 export type CustomerAppliedDunningCampaignForSettingsFragment = { __typename?: 'Customer', currency?: CurrencyEnum | null, excludeFromDunningCampaign: boolean, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, appliedToOrganization: boolean, code: string, name: string, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null };
 
-export type CustomerAppliedInvoiceCustomSectionsFragment = { __typename?: 'Customer', skipInvoiceCustomSections?: boolean | null, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, selected: boolean }> | null };
+export type CustomerAppliedInvoiceCustomSectionsFragment = { __typename?: 'Customer', skipInvoiceCustomSections?: boolean | null, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, applicableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, selected: boolean }> | null };
 
 export type GetCustomerSettingsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCustomerSettingsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, invoiceGracePeriod?: number | null, netPaymentTerm?: number | null, finalizeZeroAmountInvoice?: FinalizeZeroAmountInvoiceEnum | null, currency?: CurrencyEnum | null, excludeFromDunningCampaign: boolean, skipInvoiceCustomSections?: boolean | null, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, name?: string | null, displayName: string, externalId: string, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, autoGenerated: boolean }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, appliedToOrganization: boolean, code: string, name: string, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, selected: boolean }> | null } | null, organization?: { __typename?: 'CurrentOrganization', id: string, netPaymentTerm: number, finalizeZeroAmountInvoice: boolean, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, invoiceGracePeriod: number, documentLocale?: string | null } | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string, appliedToOrganization: boolean, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null } | null };
+export type GetCustomerSettingsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, invoiceGracePeriod?: number | null, netPaymentTerm?: number | null, finalizeZeroAmountInvoice?: FinalizeZeroAmountInvoiceEnum | null, currency?: CurrencyEnum | null, excludeFromDunningCampaign: boolean, skipInvoiceCustomSections?: boolean | null, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, name?: string | null, displayName: string, externalId: string, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, autoGenerated: boolean }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, appliedToOrganization: boolean, code: string, name: string, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null, applicableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, selected: boolean }> | null } | null, organization?: { __typename?: 'CurrentOrganization', id: string, netPaymentTerm: number, finalizeZeroAmountInvoice: boolean, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, invoiceGracePeriod: number, documentLocale?: string | null } | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string, appliedToOrganization: boolean, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null } | null };
 
 export type DeleteCustomerDialogFragment = { __typename?: 'Customer', id: string, name?: string | null, displayName: string };
 
@@ -7595,7 +7651,7 @@ export type EditCustomerDunningCampaignMutationVariables = Exact<{
 
 export type EditCustomerDunningCampaignMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, excludeFromDunningCampaign: boolean, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string } | null } | null };
 
-export type EditCustomerInvoiceCustomSectionFragment = { __typename?: 'Customer', id: string, externalId: string, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, skipInvoiceCustomSections?: boolean | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, selected: boolean }> | null };
+export type EditCustomerInvoiceCustomSectionFragment = { __typename?: 'Customer', id: string, externalId: string, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, skipInvoiceCustomSections?: boolean | null, applicableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, selected: boolean }> | null };
 
 export type GetInvoiceCustomSectionsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -7607,7 +7663,7 @@ export type EditCustomerInvoiceCustomSectionMutationVariables = Exact<{
 }>;
 
 
-export type EditCustomerInvoiceCustomSectionMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, skipInvoiceCustomSections?: boolean | null, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, selected: boolean }> | null } | null };
+export type EditCustomerInvoiceCustomSectionMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, skipInvoiceCustomSections?: boolean | null, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, applicableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, selected: boolean }> | null } | null };
 
 export type EditCustomerInvoiceGracePeriodFragment = { __typename?: 'Customer', id: string, invoiceGracePeriod?: number | null };
 
@@ -10316,6 +10372,21 @@ export const MrrDataForOverviewSectionFragmentDoc = gql`
   startingMrr
 }
     `;
+export const PrepaidCreditsDataForOverviewSectionFragmentDoc = gql`
+    fragment PrepaidCreditsDataForOverviewSection on DataApiPrepaidCredit {
+  amountCurrency
+  consumedAmount
+  consumedCreditsQuantity
+  endOfPeriodDt
+  offeredAmount
+  offeredCreditsQuantity
+  purchasedAmount
+  purchasedCreditsQuantity
+  startOfPeriodDt
+  voidedAmount
+  voidedCreditsQuantity
+}
+    `;
 export const RevenueStreamDataForOverviewSectionFragmentDoc = gql`
     fragment RevenueStreamDataForOverviewSection on DataApiRevenueStream {
   commitmentFeeAmountCents
@@ -10569,7 +10640,7 @@ export const CustomerAppliedDunningCampaignForSettingsFragmentDoc = gql`
     `;
 export const CustomerAppliedInvoiceCustomSectionsFragmentDoc = gql`
     fragment CustomerAppliedInvoiceCustomSections on Customer {
-  configurableInvoiceCustomSections {
+  applicableInvoiceCustomSections {
     id
     name
     selected
@@ -10662,7 +10733,7 @@ export const EditCustomerInvoiceCustomSectionFragmentDoc = gql`
     fragment EditCustomerInvoiceCustomSection on Customer {
   id
   externalId
-  configurableInvoiceCustomSections {
+  applicableInvoiceCustomSections {
     id
     selected
   }
@@ -13821,6 +13892,66 @@ export type GetMrrsQueryHookResult = ReturnType<typeof useGetMrrsQuery>;
 export type GetMrrsLazyQueryHookResult = ReturnType<typeof useGetMrrsLazyQuery>;
 export type GetMrrsSuspenseQueryHookResult = ReturnType<typeof useGetMrrsSuspenseQuery>;
 export type GetMrrsQueryResult = Apollo.QueryResult<GetMrrsQuery, GetMrrsQueryVariables>;
+export const GetPrepaidCreditsDocument = gql`
+    query getPrepaidCredits($currency: CurrencyEnum, $customerCountry: CountryCode, $customerType: CustomerTypeEnum, $externalCustomerId: String, $externalSubscriptionId: String, $fromDate: ISO8601Date, $planCode: String, $timeGranularity: TimeGranularityEnum, $toDate: ISO8601Date) {
+  dataApiPrepaidCredits(
+    currency: $currency
+    customerCountry: $customerCountry
+    customerType: $customerType
+    externalCustomerId: $externalCustomerId
+    externalSubscriptionId: $externalSubscriptionId
+    fromDate: $fromDate
+    planCode: $planCode
+    timeGranularity: $timeGranularity
+    toDate: $toDate
+  ) {
+    collection {
+      ...PrepaidCreditsDataForOverviewSection
+    }
+  }
+}
+    ${PrepaidCreditsDataForOverviewSectionFragmentDoc}`;
+
+/**
+ * __useGetPrepaidCreditsQuery__
+ *
+ * To run a query within a React component, call `useGetPrepaidCreditsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPrepaidCreditsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPrepaidCreditsQuery({
+ *   variables: {
+ *      currency: // value for 'currency'
+ *      customerCountry: // value for 'customerCountry'
+ *      customerType: // value for 'customerType'
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *      externalSubscriptionId: // value for 'externalSubscriptionId'
+ *      fromDate: // value for 'fromDate'
+ *      planCode: // value for 'planCode'
+ *      timeGranularity: // value for 'timeGranularity'
+ *      toDate: // value for 'toDate'
+ *   },
+ * });
+ */
+export function useGetPrepaidCreditsQuery(baseOptions?: Apollo.QueryHookOptions<GetPrepaidCreditsQuery, GetPrepaidCreditsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPrepaidCreditsQuery, GetPrepaidCreditsQueryVariables>(GetPrepaidCreditsDocument, options);
+      }
+export function useGetPrepaidCreditsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPrepaidCreditsQuery, GetPrepaidCreditsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPrepaidCreditsQuery, GetPrepaidCreditsQueryVariables>(GetPrepaidCreditsDocument, options);
+        }
+export function useGetPrepaidCreditsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPrepaidCreditsQuery, GetPrepaidCreditsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetPrepaidCreditsQuery, GetPrepaidCreditsQueryVariables>(GetPrepaidCreditsDocument, options);
+        }
+export type GetPrepaidCreditsQueryHookResult = ReturnType<typeof useGetPrepaidCreditsQuery>;
+export type GetPrepaidCreditsLazyQueryHookResult = ReturnType<typeof useGetPrepaidCreditsLazyQuery>;
+export type GetPrepaidCreditsSuspenseQueryHookResult = ReturnType<typeof useGetPrepaidCreditsSuspenseQuery>;
+export type GetPrepaidCreditsQueryResult = Apollo.QueryResult<GetPrepaidCreditsQuery, GetPrepaidCreditsQueryVariables>;
 export const GetRevenueStreamsCustomerBreakdownDocument = gql`
     query getRevenueStreamsCustomerBreakdown($currency: CurrencyEnum, $limit: Int, $page: Int) {
   dataApiRevenueStreamsCustomers(currency: $currency, limit: $limit, page: $page) {
