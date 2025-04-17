@@ -4,6 +4,7 @@ import { AvatarSection } from './components/AvatarSection'
 import { ButtonsSection } from './components/ButtonsSection'
 import { ChipsSection } from './components/ChipsSection'
 import { IconsSection } from './components/IconsSection'
+import { SelectorSection } from './components/SelectorSection'
 import { SkeletonSection } from './components/SkeletonSection'
 import { TypographySection } from './components/TypographySection'
 
@@ -14,6 +15,7 @@ export default function App() {
         <AccordionSection />
         <AlertSection />
         <ChipsSection />
+        <SelectorSection />
         <IconsSection />
         <ButtonsSection />
         <TypographySection />
