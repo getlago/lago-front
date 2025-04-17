@@ -5,6 +5,7 @@ import { ButtonsSection } from './components/ButtonsSection'
 import { ChipsSection } from './components/ChipsSection'
 import { GenericPlaceholderSection } from './components/GenericPlaceholderSection'
 import { IconsSection } from './components/IconsSection'
+import { LinksSection } from './components/LinksSection'
 import { PoppersSection } from './components/PoppersSection'
 import { SelectorSection } from './components/SelectorSection'
 import { ShowMoreSection } from './components/ShowMoreSection'
@@ -27,6 +28,7 @@ export default function App() {
         <TypographySection />
         <AvatarSection />
         <SkeletonSection />
+        <LinksSection />
       </div>
     </div>
   )
