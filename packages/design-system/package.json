@@ -11,12 +11,14 @@
       "import": "./dist/index.js",
       "types": "./dist/types/index.d.ts",
       "style": "./dist/style.css"
-    }
+    },
+    "./images/*": "./dist/images/*"
   },
   "files": [
     "dist/index.js",
     "dist/style.css",
-    "dist/types"
+    "dist/types",
+    "dist/images"
   ],
   "scripts": {
     "dev": "vite --config playground/vite.config.playground.ts",
