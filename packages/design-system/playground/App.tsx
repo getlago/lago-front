@@ -3,6 +3,7 @@ import { AlertSection } from './components/AlertSection'
 import { AvatarSection } from './components/AvatarSection'
 import { ButtonsSection } from './components/ButtonsSection'
 import { ChipsSection } from './components/ChipsSection'
+import { GenericPlaceholderSection } from './components/GenericPlaceholderSection'
 import { IconsSection } from './components/IconsSection'
 import { SelectorSection } from './components/SelectorSection'
 import { SkeletonSection } from './components/SkeletonSection'
@@ -16,6 +17,7 @@ export default function App() {
         <AlertSection />
         <ChipsSection />
         <SelectorSection />
+        <GenericPlaceholderSection />
         <IconsSection />
         <ButtonsSection />
         <TypographySection />
