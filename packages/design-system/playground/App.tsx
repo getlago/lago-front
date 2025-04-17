@@ -5,6 +5,7 @@ import { ButtonsSection } from './components/ButtonsSection'
 import { ChipsSection } from './components/ChipsSection'
 import { GenericPlaceholderSection } from './components/GenericPlaceholderSection'
 import { IconsSection } from './components/IconsSection'
+import { PoppersSection } from './components/PoppersSection'
 import { SelectorSection } from './components/SelectorSection'
 import { SkeletonSection } from './components/SkeletonSection'
 import { TypographySection } from './components/TypographySection'
@@ -16,6 +17,7 @@ export default function App() {
         <AccordionSection />
         <AlertSection />
         <ChipsSection />
+        <PoppersSection />
         <SelectorSection />
         <GenericPlaceholderSection />
         <IconsSection />
