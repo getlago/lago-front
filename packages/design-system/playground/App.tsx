@@ -1,5 +1,6 @@
 import { ButtonsSection } from './components/ButtonsSection'
 import { IconsSection } from './components/IconsSection'
+import { TypographySection } from './components/TypographySection'
 
 export default function App() {
   return (
@@ -7,6 +8,7 @@ export default function App() {
       <div className="mx-auto flex max-w-screen-lg flex-col gap-20">
         <IconsSection />
         <ButtonsSection />
+        <TypographySection />
       </div>
     </div>
   )
