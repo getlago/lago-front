@@ -28,7 +28,8 @@
   },
   "peerDependencies": {
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "react-router-dom": "6.15.0"
   },
   "dependencies": {
     "lodash": "4.17.21",
@@ -46,6 +47,7 @@
     "@types/lodash": "4.17.13",
     "@types/react": "18.2.38",
     "@types/react-dom": "18.2.17",
+    "@types/react-router-dom": "5.3.3",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.19",
     "class-variance-authority": "^0.7.0",

@@ -29,7 +29,7 @@ type MuiColor =
   | 'warning'
   | undefined
 
-interface SimpleButtonProps
+export interface SimpleButtonProps
   extends Pick<
     MuiButtonProps,
     'id' | 'disabled' | 'children' | 'onClick' | 'fullWidth' | 'tabIndex'
