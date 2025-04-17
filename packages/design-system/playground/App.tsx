@@ -1,6 +1,7 @@
 import { AvatarSection } from './components/AvatarSection'
 import { ButtonsSection } from './components/ButtonsSection'
 import { IconsSection } from './components/IconsSection'
+import { SkeletonSection } from './components/SkeletonSection'
 import { TypographySection } from './components/TypographySection'
 
 export default function App() {
@@ -11,6 +12,7 @@ export default function App() {
         <ButtonsSection />
         <TypographySection />
         <AvatarSection />
+        <SkeletonSection />
       </div>
     </div>
   )
