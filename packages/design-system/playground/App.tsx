@@ -7,6 +7,7 @@ import { GenericPlaceholderSection } from './components/GenericPlaceholderSectio
 import { IconsSection } from './components/IconsSection'
 import { PoppersSection } from './components/PoppersSection'
 import { SelectorSection } from './components/SelectorSection'
+import { ShowMoreSection } from './components/ShowMoreSection'
 import { SkeletonSection } from './components/SkeletonSection'
 import { TypographySection } from './components/TypographySection'
 
@@ -19,6 +20,7 @@ export default function App() {
         <ChipsSection />
         <PoppersSection />
         <SelectorSection />
+        <ShowMoreSection />
         <GenericPlaceholderSection />
         <IconsSection />
         <ButtonsSection />
