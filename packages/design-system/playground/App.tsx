@@ -2,6 +2,7 @@ import { AccordionSection } from './components/AccordionSection'
 import { AlertSection } from './components/AlertSection'
 import { AvatarSection } from './components/AvatarSection'
 import { ButtonsSection } from './components/ButtonsSection'
+import { ChipsSection } from './components/ChipsSection'
 import { IconsSection } from './components/IconsSection'
 import { SkeletonSection } from './components/SkeletonSection'
 import { TypographySection } from './components/TypographySection'
@@ -12,6 +13,7 @@ export default function App() {
       <div className="mx-auto flex max-w-screen-lg flex-col gap-10">
         <AccordionSection />
         <AlertSection />
+        <ChipsSection />
         <IconsSection />
         <ButtonsSection />
         <TypographySection />
