@@ -284,10 +284,21 @@ export type Authorize = {
   url: Scalars['String']['output'];
 };
 
+export type AvalaraCustomer = {
+  __typename?: 'AvalaraCustomer';
+  externalCustomerId?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  integrationCode?: Maybe<Scalars['String']['output']>;
+  integrationId?: Maybe<Scalars['ID']['output']>;
+  integrationType?: Maybe<IntegrationTypeEnum>;
+  syncWithProvider?: Maybe<Scalars['Boolean']['output']>;
+};
+
 export type AvalaraIntegration = {
   __typename?: 'AvalaraIntegration';
   accountId: Scalars['String']['output'];
   code: Scalars['String']['output'];
+  companyCode: Scalars['String']['output'];
   failedInvoicesCount?: Maybe<Scalars['Int']['output']>;
   hasMappingsConfigured?: Maybe<Scalars['Boolean']['output']>;
   id: Scalars['ID']['output'];
@@ -1213,6 +1224,7 @@ export type CreateAvalaraIntegrationInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code: Scalars['String']['input'];
+  companyCode: Scalars['String']['input'];
   connectionId: Scalars['String']['input'];
   licenseKey: Scalars['String']['input'];
   name: Scalars['String']['input'];
@@ -2072,17 +2084,18 @@ export type Customer = {
   addressLine1?: Maybe<Scalars['String']['output']>;
   addressLine2?: Maybe<Scalars['String']['output']>;
   anrokCustomer?: Maybe<AnrokCustomer>;
-  /** Invoice custom sections applicable to the customer */
-  applicableInvoiceCustomSections?: Maybe<Array<InvoiceCustomSection>>;
   applicableTimezone: TimezoneEnum;
   appliedAddOns?: Maybe<Array<AppliedAddOn>>;
   appliedCoupons?: Maybe<Array<AppliedCoupon>>;
   appliedDunningCampaign?: Maybe<DunningCampaign>;
+  avalaraCustomer?: Maybe<AvalaraCustomer>;
   billingConfiguration?: Maybe<CustomerBillingConfiguration>;
   billingEntity: BillingEntity;
   /** Check if customer attributes are editable */
   canEditAttributes: Scalars['Boolean']['output'];
   city?: Maybe<Scalars['String']['output']>;
+  /** Invoice custom sections manually configured for the customer */
+  configurableInvoiceCustomSections?: Maybe<Array<InvoiceCustomSection>>;
   country?: Maybe<CountryCode>;
   createdAt: Scalars['ISO8601DateTime']['output'];
   creditNotes?: Maybe<Array<CreditNote>>;
@@ -6512,6 +6525,7 @@ export type UpdateAvalaraIntegrationInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code?: InputMaybe<Scalars['String']['input']>;
+  companyCode?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['ID']['input']>;
   licenseKey?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
@@ -6607,13 +6621,13 @@ export type UpdateCustomerInput = {
   accountType?: InputMaybe<CustomerAccountTypeEnum>;
   addressLine1?: InputMaybe<Scalars['String']['input']>;
   addressLine2?: InputMaybe<Scalars['String']['input']>;
-  applicableInvoiceCustomSectionIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   appliedDunningCampaignId?: InputMaybe<Scalars['ID']['input']>;
   billingConfiguration?: InputMaybe<CustomerBillingConfigurationInput>;
   billingEntityCode?: InputMaybe<Scalars['String']['input']>;
   city?: InputMaybe<Scalars['String']['input']>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  configurableInvoiceCustomSectionIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   country?: InputMaybe<CountryCode>;
   currency?: InputMaybe<CurrencyEnum>;
   customerType?: InputMaybe<CustomerTypeEnum>;
@@ -6871,7 +6885,7 @@ export type UpdatePlanInput = {
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
-  id: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
   interval: PlanInterval;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
   minimumCommitment?: InputMaybe<CommitmentInput>;
@@ -7561,14 +7575,14 @@ export type CustomerAppliedTaxRatesForSettingsFragment = { __typename?: 'Custome
 
 export type CustomerAppliedDunningCampaignForSettingsFragment = { __typename?: 'Customer', currency?: CurrencyEnum | null, excludeFromDunningCampaign: boolean, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, appliedToOrganization: boolean, code: string, name: string, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null };
 
-export type CustomerAppliedInvoiceCustomSectionsFragment = { __typename?: 'Customer', skipInvoiceCustomSections?: boolean | null, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, applicableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, selected: boolean }> | null };
+export type CustomerAppliedInvoiceCustomSectionsFragment = { __typename?: 'Customer', skipInvoiceCustomSections?: boolean | null, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, selected: boolean }> | null };
 
 export type GetCustomerSettingsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCustomerSettingsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, invoiceGracePeriod?: number | null, netPaymentTerm?: number | null, finalizeZeroAmountInvoice?: FinalizeZeroAmountInvoiceEnum | null, currency?: CurrencyEnum | null, excludeFromDunningCampaign: boolean, skipInvoiceCustomSections?: boolean | null, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, name?: string | null, displayName: string, externalId: string, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, autoGenerated: boolean }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, appliedToOrganization: boolean, code: string, name: string, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null, applicableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, selected: boolean }> | null } | null, organization?: { __typename?: 'CurrentOrganization', id: string, netPaymentTerm: number, finalizeZeroAmountInvoice: boolean, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, invoiceGracePeriod: number, documentLocale?: string | null } | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string, appliedToOrganization: boolean, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null } | null };
+export type GetCustomerSettingsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, invoiceGracePeriod?: number | null, netPaymentTerm?: number | null, finalizeZeroAmountInvoice?: FinalizeZeroAmountInvoiceEnum | null, currency?: CurrencyEnum | null, excludeFromDunningCampaign: boolean, skipInvoiceCustomSections?: boolean | null, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, name?: string | null, displayName: string, externalId: string, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, autoGenerated: boolean }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, appliedToOrganization: boolean, code: string, name: string, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, selected: boolean }> | null } | null, organization?: { __typename?: 'CurrentOrganization', id: string, netPaymentTerm: number, finalizeZeroAmountInvoice: boolean, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, invoiceGracePeriod: number, documentLocale?: string | null } | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string, appliedToOrganization: boolean, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null } | null };
 
 export type DeleteCustomerDialogFragment = { __typename?: 'Customer', id: string, name?: string | null, displayName: string };
 
@@ -7651,7 +7665,7 @@ export type EditCustomerDunningCampaignMutationVariables = Exact<{
 
 export type EditCustomerDunningCampaignMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, excludeFromDunningCampaign: boolean, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string } | null } | null };
 
-export type EditCustomerInvoiceCustomSectionFragment = { __typename?: 'Customer', id: string, externalId: string, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, skipInvoiceCustomSections?: boolean | null, applicableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, selected: boolean }> | null };
+export type EditCustomerInvoiceCustomSectionFragment = { __typename?: 'Customer', id: string, externalId: string, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, skipInvoiceCustomSections?: boolean | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, selected: boolean }> | null };
 
 export type GetInvoiceCustomSectionsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -7663,7 +7677,7 @@ export type EditCustomerInvoiceCustomSectionMutationVariables = Exact<{
 }>;
 
 
-export type EditCustomerInvoiceCustomSectionMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, skipInvoiceCustomSections?: boolean | null, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, applicableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, selected: boolean }> | null } | null };
+export type EditCustomerInvoiceCustomSectionMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, skipInvoiceCustomSections?: boolean | null, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, selected: boolean }> | null } | null };
 
 export type EditCustomerInvoiceGracePeriodFragment = { __typename?: 'Customer', id: string, invoiceGracePeriod?: number | null };
 
@@ -10640,7 +10654,7 @@ export const CustomerAppliedDunningCampaignForSettingsFragmentDoc = gql`
     `;
 export const CustomerAppliedInvoiceCustomSectionsFragmentDoc = gql`
     fragment CustomerAppliedInvoiceCustomSections on Customer {
-  applicableInvoiceCustomSections {
+  configurableInvoiceCustomSections {
     id
     name
     selected
@@ -10733,7 +10747,7 @@ export const EditCustomerInvoiceCustomSectionFragmentDoc = gql`
     fragment EditCustomerInvoiceCustomSection on Customer {
   id
   externalId
-  applicableInvoiceCustomSections {
+  configurableInvoiceCustomSections {
     id
     selected
   }

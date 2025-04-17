@@ -171,7 +171,6 @@ export const usePrepaidCreditsAnalyticsOverview = (): PrepaidCreditsAnalyticsOve
     prepaidCreditsLoading,
     searchParams,
     selectedCurrency,
-    timeGranularity,
   ])
 
   return {

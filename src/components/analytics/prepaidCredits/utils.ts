@@ -81,5 +81,9 @@ export const formatPrepaidCreditsData = ({
     return emptyData
   })
 
-  return paddedData
+  return paddedData.map((item) => ({
+    ...item,
+    consumedAmount: -item.consumedAmount,
+    voidedAmount: -item.voidedAmount,
+  }))
 }

@@ -50,6 +50,8 @@ type StackedBarChartBarVisibleOnGraph<T> = {
   tooltipLabel: string
   colorHex: string
   hideOnGraph?: never
+  tooltipIndex?: number
+  barIndex?: number
 }
 
 type StackedBarChartBarHiddenFromGraph<T> = {
@@ -57,6 +59,8 @@ type StackedBarChartBarHiddenFromGraph<T> = {
   tooltipLabel: string
   hideOnGraph: true
   colorHex?: never
+  tooltipIndex?: number
+  barIndex?: number
 }
 
 export type StackedBarChartBar<T> =
@@ -109,25 +113,27 @@ const CustomTooltip = <T,>({
       </Typography>
 
       <div className="flex flex-col gap-2">
-        {bars.map((bar, i) => (
-          <div key={i} className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <div className="size-3 rounded-full" style={{ backgroundColor: bar.colorHex }} />
+        {bars
+          .sort((a, b) => (a?.tooltipIndex || 0) - (b?.tooltipIndex || 0))
+          .map((bar, i) => (
+            <div key={i} className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <div className="size-3 rounded-full" style={{ backgroundColor: bar.colorHex }} />
+                <Typography variant="caption" color="white" noWrap>
+                  {bar.tooltipLabel}
+                </Typography>
+              </div>
               <Typography variant="caption" color="white" noWrap>
-                {bar.tooltipLabel}
+                {intlFormatNumber(
+                  deserializeAmount(String(labelValues[bar.dataKey]) || '0', currency),
+                  {
+                    currencyDisplay: 'symbol',
+                    currency,
+                  },
+                )}
               </Typography>
             </div>
-            <Typography variant="caption" color="white" noWrap>
-              {intlFormatNumber(
-                deserializeAmount(String(labelValues[bar.dataKey]) || '0', currency),
-                {
-                  currencyDisplay: 'symbol',
-                  currency,
-                },
-              )}
-            </Typography>
-          </div>
-        ))}
+          ))}
       </div>
     </div>
   )
@@ -202,6 +208,7 @@ const StackedBarChart = <T extends DataItem>({
       <ResponsiveContainer width="100%" height={232}>
         <BarChart
           data={localData}
+          stackOffset="sign"
           onMouseLeave={handleMouseLeave}
           onMouseMove={useMemo(
             () =>
@@ -294,8 +301,8 @@ const StackedBarChart = <T extends DataItem>({
             stroke={theme.palette.grey[600]}
             tickLine={false}
             interval={0}
-            domain={yAxisDomain}
             orientation="right"
+            domain={yAxisDomain}
             tick={(props: {
               x: number
               y: number
@@ -305,41 +312,76 @@ const StackedBarChart = <T extends DataItem>({
             }) => {
               const { x, y, payload, index, visibleTicksCount } = props
 
-              if (index !== 0 && index !== visibleTicksCount - 1) {
+              const isZeroTick = payload.value === 0
+              const isEdgeTick = index === 0 || index === visibleTicksCount - 1
+
+              if (!isZeroTick && !isEdgeTick) {
                 return <></>
               }
 
+              if (loading) {
+                return (
+                  <g transform={`translate(${x},${index !== 0 ? y + 2 : y - 12})`}>
+                    <rect width={32} height={12} rx={6} fill={theme.palette.grey[100]}></rect>
+                  </g>
+                )
+              }
+
               return (
-                <>
-                  {!loading ? (
-                    <g transform={`translate(${x},${index !== 0 ? y + 12 : y - 2})`}>
-                      <text
-                        fill={theme.palette.grey[600]}
-                        style={{
-                          fontFamily: 'Inter',
-                          fontSize: '14px',
-                          fontStyle: 'normal',
-                          fontWeight: '400',
-                          lineHeight: '24px',
-                          letterSpacing: '-0.16px',
-                        }}
-                      >
-                        {index !== 0 && hasOnlyZeroValues
-                          ? '-'
-                          : bigNumberShortenNotationFormater(
-                              deserializeAmount(payload.value, currency),
-                              {
-                                currency,
-                              },
-                            )}
-                      </text>
-                    </g>
-                  ) : (
-                    <g transform={`translate(${x},${index !== 0 ? y + 2 : y - 12})`}>
-                      <rect width={32} height={12} rx={6} fill={theme.palette.grey[100]}></rect>
-                    </g>
-                  )}
-                </>
+                <g transform={`translate(${x},${index !== 0 ? y + 12 : y - 2})`}>
+                  <text
+                    fill={theme.palette.grey[600]}
+                    style={{
+                      fontFamily: 'Inter',
+                      fontSize: '14px',
+                      fontStyle: 'normal',
+                      fontWeight: '400',
+                      lineHeight: '24px',
+                      letterSpacing: '-0.16px',
+                    }}
+                  >
+                    {index !== 0 && hasOnlyZeroValues
+                      ? '-'
+                      : bigNumberShortenNotationFormater(
+                          deserializeAmount(payload.value, currency),
+                          {
+                            currency,
+                          },
+                        )}
+                  </text>
+                </g>
+              )
+            }}
+          />
+
+          <Customized
+            // @ts-ignore
+            component={({ yAxisMap }) => {
+              const yAxis = yAxisMap[Object.keys(yAxisMap)[0]]
+
+              if (!yAxis || typeof yAxis.scale !== 'function') return null
+
+              const yZero = yAxis.scale(0)
+
+              if (typeof yZero !== 'number') return null
+
+              return (
+                <g>
+                  <text
+                    x={yAxis.x + 8}
+                    y={yZero + 4}
+                    textAnchor="start"
+                    fill={theme.palette.grey[600]}
+                    style={{
+                      fontFamily: 'Inter',
+                      fontSize: '14px',
+                      fontWeight: 400,
+                      letterSpacing: '-0.16px',
+                    }}
+                  >
+                    {bigNumberShortenNotationFormater(deserializeAmount(0, currency), { currency })}
+                  </text>
+                </g>
               )
             }}
           />
@@ -357,6 +399,7 @@ const StackedBarChart = <T extends DataItem>({
             stroke={theme.palette.grey[200]}
             strokeWidth={1}
           />
+          <ReferenceLine y={0} stroke={theme.palette.grey[200]} />
 
           <Customized
             // @ts-ignore
@@ -381,6 +424,7 @@ const StackedBarChart = <T extends DataItem>({
               )
             }}
           />
+
           {localData?.map((item, index) => (
             <ReferenceLine
               key={`ref-line-${index}`}
@@ -389,6 +433,7 @@ const StackedBarChart = <T extends DataItem>({
               strokeWidth={1}
             />
           ))}
+
           {!loading && (
             <RechartTooltip
               defaultIndex={localHoverDataIndex}
@@ -413,6 +458,7 @@ const StackedBarChart = <T extends DataItem>({
               )}
             />
           )}
+
           {typeof localHoverDataIndex === 'number' && (
             <>
               <Customized
@@ -443,15 +489,18 @@ const StackedBarChart = <T extends DataItem>({
               />
             </>
           )}
-          {localBars.map((line) => (
-            <Bar
-              key={line.dataKey}
-              dataKey={line.dataKey}
-              stackId="stack"
-              fill={line.colorHex}
-              isAnimationActive={false}
-            />
-          ))}
+
+          {localBars
+            .sort((a, b) => (a?.barIndex || -100) - (b?.barIndex || -100))
+            .map((line) => (
+              <Bar
+                key={line.dataKey}
+                dataKey={line.dataKey}
+                stackId="stack"
+                fill={line.colorHex}
+                isAnimationActive={false}
+              />
+            ))}
         </BarChart>
       </ResponsiveContainer>
     </ChartWrapper>

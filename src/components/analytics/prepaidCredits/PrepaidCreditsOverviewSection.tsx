@@ -173,21 +173,29 @@ export const PrepaidCreditsOverviewSection = ({
             timeGranularity={timeGranularity}
             bars={[
               {
-                dataKey: 'offeredAmount',
-                colorHex: PREPAID_CREDITS_GRAPH_COLORS.offeredAmount,
-                tooltipLabel: translate('text_1744192691931pjtht59xxk0'),
-              },
-              {
+                tooltipIndex: 1,
+                barIndex: 0,
                 dataKey: 'purchasedAmount',
                 colorHex: PREPAID_CREDITS_GRAPH_COLORS.purchasedAmount,
                 tooltipLabel: translate('text_17441926919314anbpq9h0t3'),
               },
               {
+                tooltipIndex: 0,
+                barIndex: 1,
+                dataKey: 'offeredAmount',
+                colorHex: PREPAID_CREDITS_GRAPH_COLORS.offeredAmount,
+                tooltipLabel: translate('text_1744192691931pjtht59xxk0'),
+              },
+              {
+                tooltipIndex: 2,
+                barIndex: 3,
                 dataKey: 'consumedAmount',
                 colorHex: PREPAID_CREDITS_GRAPH_COLORS.consumedAmount,
                 tooltipLabel: translate('text_17441926919313u9z1er36fh'),
               },
               {
+                tooltipIndex: 3,
+                barIndex: 4,
                 dataKey: 'voidedAmount',
                 colorHex: PREPAID_CREDITS_GRAPH_COLORS.voidedAmount,
                 tooltipLabel: translate('text_1744192691931co5ozcxf9qw'),
@@ -213,7 +221,6 @@ export const PrepaidCreditsOverviewSection = ({
                   )
                 },
               },
-
               {
                 key: 'offeredAmount',
                 type: 'data',
