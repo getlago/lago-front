@@ -417,7 +417,9 @@ export enum BillingEntityEmailSettingsEnum {
   /** credit_note.created */
   CreditNoteCreated = 'credit_note_created',
   /** invoice.finalized */
-  InvoiceFinalized = 'invoice_finalized'
+  InvoiceFinalized = 'invoice_finalized',
+  /** payment_receipt.created */
+  PaymentReceiptCreated = 'payment_receipt_created'
 }
 
 export enum BillingTimeEnum {
@@ -2395,7 +2397,7 @@ export type DataApiRevenueStreamCustomer = {
   amountCurrency: CurrencyEnum;
   customerDeletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   customerId: Scalars['ID']['output'];
-  customerName: Scalars['String']['output'];
+  customerName?: Maybe<Scalars['String']['output']>;
   externalCustomerId: Scalars['String']['output'];
   grossRevenueAmountCents: Scalars['BigInt']['output'];
   grossRevenueShare: Scalars['Float']['output'];
@@ -7207,7 +7209,7 @@ export type GetRevenueStreamsCustomerBreakdownQueryVariables = Exact<{
 }>;
 
 
-export type GetRevenueStreamsCustomerBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsCustomers: { __typename?: 'DataApiRevenueStreamsCustomers', collection: Array<{ __typename?: 'DataApiRevenueStreamCustomer', amountCurrency: CurrencyEnum, customerDeletedAt?: any | null, customerName: string, externalCustomerId: string, netRevenueAmountCents: any, netRevenueShare: number }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
+export type GetRevenueStreamsCustomerBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsCustomers: { __typename?: 'DataApiRevenueStreamsCustomers', collection: Array<{ __typename?: 'DataApiRevenueStreamCustomer', amountCurrency: CurrencyEnum, customerDeletedAt?: any | null, customerName?: string | null, externalCustomerId: string, netRevenueAmountCents: any, netRevenueShare: number }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
 
 export type RevenueStreamDataForOverviewSectionFragment = { __typename?: 'DataApiRevenueStream', commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any };
 
@@ -8984,6 +8986,13 @@ export type GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables = Exa
 
 
 export type GetSubscriptionForSubscriptionUsageLifetimeGraphQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string } } | null };
+
+export type GetCustomerFromSubscriptionQueryVariables = Exact<{
+  subscriptionId: Scalars['ID']['input'];
+}>;
+
+
+export type GetCustomerFromSubscriptionQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', customer: { __typename?: 'Customer', id: string } } | null };
 
 export type DeleteTaxFragment = { __typename?: 'Tax', id: string, name: string, customersCount: number };
 
@@ -21927,6 +21936,48 @@ export type GetSubscriptionForSubscriptionUsageLifetimeGraphQueryHookResult = Re
 export type GetSubscriptionForSubscriptionUsageLifetimeGraphLazyQueryHookResult = ReturnType<typeof useGetSubscriptionForSubscriptionUsageLifetimeGraphLazyQuery>;
 export type GetSubscriptionForSubscriptionUsageLifetimeGraphSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionForSubscriptionUsageLifetimeGraphSuspenseQuery>;
 export type GetSubscriptionForSubscriptionUsageLifetimeGraphQueryResult = Apollo.QueryResult<GetSubscriptionForSubscriptionUsageLifetimeGraphQuery, GetSubscriptionForSubscriptionUsageLifetimeGraphQueryVariables>;
+export const GetCustomerFromSubscriptionDocument = gql`
+    query getCustomerFromSubscription($subscriptionId: ID!) {
+  subscription(id: $subscriptionId) {
+    customer {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetCustomerFromSubscriptionQuery__
+ *
+ * To run a query within a React component, call `useGetCustomerFromSubscriptionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerFromSubscriptionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomerFromSubscriptionQuery({
+ *   variables: {
+ *      subscriptionId: // value for 'subscriptionId'
+ *   },
+ * });
+ */
+export function useGetCustomerFromSubscriptionQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerFromSubscriptionQuery, GetCustomerFromSubscriptionQueryVariables> & ({ variables: GetCustomerFromSubscriptionQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCustomerFromSubscriptionQuery, GetCustomerFromSubscriptionQueryVariables>(GetCustomerFromSubscriptionDocument, options);
+      }
+export function useGetCustomerFromSubscriptionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerFromSubscriptionQuery, GetCustomerFromSubscriptionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCustomerFromSubscriptionQuery, GetCustomerFromSubscriptionQueryVariables>(GetCustomerFromSubscriptionDocument, options);
+        }
+export function useGetCustomerFromSubscriptionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerFromSubscriptionQuery, GetCustomerFromSubscriptionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCustomerFromSubscriptionQuery, GetCustomerFromSubscriptionQueryVariables>(GetCustomerFromSubscriptionDocument, options);
+        }
+export type GetCustomerFromSubscriptionQueryHookResult = ReturnType<typeof useGetCustomerFromSubscriptionQuery>;
+export type GetCustomerFromSubscriptionLazyQueryHookResult = ReturnType<typeof useGetCustomerFromSubscriptionLazyQuery>;
+export type GetCustomerFromSubscriptionSuspenseQueryHookResult = ReturnType<typeof useGetCustomerFromSubscriptionSuspenseQuery>;
+export type GetCustomerFromSubscriptionQueryResult = Apollo.QueryResult<GetCustomerFromSubscriptionQuery, GetCustomerFromSubscriptionQueryVariables>;
 export const DeleteTaxDocument = gql`
     mutation deleteTax($input: DestroyTaxInput!) {
   destroyTax(input: $input) {
