@@ -1,10 +1,11 @@
 import { MultipleLineChartLine } from '~/components/designSystem/graphs/MultipleLineChart'
+import { StackedBarChartBar } from '~/components/designSystem/graphs/StackedBarChart'
 import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import { TimeGranularityEnum } from '~/generated/graphql'
 
 export const checkOnlyZeroValues = <T extends Record<string, unknown>>(
   data: T[],
-  lines: MultipleLineChartLine<T>[],
+  lines: Array<MultipleLineChartLine<T> | StackedBarChartBar<T>>,
 ): boolean => {
   if (!data?.length) return true
 
@@ -19,7 +20,7 @@ export const checkOnlyZeroValues = <T extends Record<string, unknown>>(
 
 export const calculateYAxisDomain = <T extends Record<string, unknown>>(
   data: T[] | undefined,
-  lines: Array<MultipleLineChartLine<T>>,
+  lines: Array<MultipleLineChartLine<T> | StackedBarChartBar<T>>,
   hasOnlyZeroValues: boolean,
 ): [number, number] => {
   if (hasOnlyZeroValues || !data?.length) {
