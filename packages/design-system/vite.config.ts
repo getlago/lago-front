@@ -27,6 +27,7 @@ export default defineConfig({
       },
     }),
   ],
+  publicDir: path.resolve(__dirname, 'public'),
   resolve: {
     alias: {
       '~': path.resolve(__dirname, 'src'),
@@ -52,6 +53,7 @@ export default defineConfig({
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
+          'react-router-dom': 'ReactRouterDOM',
         },
       },
       external: ['react', 'react-dom'],

@@ -348,12 +348,24 @@ importers:
 
   packages/design-system:
     dependencies:
+      lodash:
+        specifier: 4.17.21
+        version: 4.17.21
+      lodash-es:
+        specifier: ^4.17.21
+        version: 4.17.21
       react:
         specifier: 18.2.0
         version: 18.2.0
       react-dom:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
+      react-router-dom:
+        specifier: 6.15.0
+        version: 6.15.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      sanitize-html:
+        specifier: 2.12.1
+        version: 2.12.1
     devDependencies:
       '@mui/material':
         specifier: 5.14.18
@@ -376,12 +388,18 @@ importers:
       '@svgr/plugin-svgo':
         specifier: ^8.1.0
         version: 8.1.0(@svgr/core@8.1.0(typescript@5.5.3))(typescript@5.5.3)
+      '@types/lodash':
+        specifier: 4.17.13
+        version: 4.17.13
       '@types/react':
         specifier: 18.2.38
         version: 18.2.38
       '@types/react-dom':
         specifier: 18.2.17
         version: 18.2.17
+      '@types/react-router-dom':
+        specifier: 5.3.3
+        version: 5.3.3
       '@vitejs/plugin-react':
         specifier: ^4.3.4
         version: 4.3.4(vite@4.5.13(@types/node@22.10.5)(lightningcss@1.29.2)(terser@5.37.0))
@@ -14279,7 +14297,7 @@ snapshots:
       htmlparser2: 8.0.2
       is-plain-object: 5.0.0
       parse-srcset: 1.0.2
-      postcss: 8.4.49
+      postcss: 8.5.3
 
   saxes@6.0.0:
     dependencies:

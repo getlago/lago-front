@@ -11,12 +11,14 @@
       "import": "./dist/index.js",
       "types": "./dist/types/index.d.ts",
       "style": "./dist/style.css"
-    }
+    },
+    "./images/*": "./dist/images/*"
   },
   "files": [
     "dist/index.js",
     "dist/style.css",
-    "dist/types"
+    "dist/types",
+    "dist/images"
   ],
   "scripts": {
     "dev": "vite --config playground/vite.config.playground.ts",
@@ -26,7 +28,13 @@
   },
   "peerDependencies": {
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "react-router-dom": "6.15.0"
+  },
+  "dependencies": {
+    "lodash": "4.17.21",
+    "lodash-es": "^4.17.21",
+    "sanitize-html": "2.12.1"
   },
   "devDependencies": {
     "@mui/material": "5.14.18",
@@ -36,8 +44,10 @@
     "@svgr/core": "^8.1.0",
     "@svgr/plugin-svgo": "^8.1.0",
     "@svgr/plugin-jsx": "^8.1.0",
+    "@types/lodash": "4.17.13",
     "@types/react": "18.2.38",
     "@types/react-dom": "18.2.17",
+    "@types/react-router-dom": "5.3.3",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.19",
     "class-variance-authority": "^0.7.0",
@@ -48,5 +58,8 @@
     "typescript": "5.5.3",
     "vite": "^4.5.2",
     "vite-plugin-svgr": "^4.2.0"
+  },
+  "alias": {
+    "@mui/styled-engine": "@mui/styled-engine-sc"
   }
 }
