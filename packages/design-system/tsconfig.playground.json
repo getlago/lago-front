@@ -11,5 +11,5 @@
       "~/*": ["./src/*"],
     }
   },
-  "include": ["playground/**/*", "src/**/*"]
+  "include": ["playground/**/*", "src/**/*", "../../materialUiTheme.d.ts"]
 }

@@ -1,37 +1,34 @@
-import { ALL_ICONS, Icon, IconName } from '~/components'
+import { AccordionSection } from './components/AccordionSection'
+import { AlertSection } from './components/AlertSection'
+import { AvatarSection } from './components/AvatarSection'
+import { ButtonsSection } from './components/ButtonsSection'
+import { ChipsSection } from './components/ChipsSection'
+import { GenericPlaceholderSection } from './components/GenericPlaceholderSection'
+import { IconsSection } from './components/IconsSection'
+import { LinksSection } from './components/LinksSection'
+import { PoppersSection } from './components/PoppersSection'
+import { SelectorSection } from './components/SelectorSection'
+import { ShowMoreSection } from './components/ShowMoreSection'
+import { SkeletonSection } from './components/SkeletonSection'
+import { TypographySection } from './components/TypographySection'
 
 export default function App() {
   return (
-    <div className="mx-auto max-w-screen-md p-4">
-      <div className="mb-4">Icons</div>
-      <div className="mb-6 flex flex-wrap gap-2">
-        {Object.keys(ALL_ICONS).map((iconName) => (
-          <Icon key={iconName} name={iconName as IconName} />
-        ))}
-      </div>
-      <div className="mb-4">Colors</div>
-      <div className="mb-6 flex flex-wrap gap-2">
-        <Icon name="plug" color="success" />
-        <Icon name="plug" color="error" />
-        <Icon name="plug" color="warning" />
-        <Icon name="plug" color="info" />
-        <Icon name="plug" color="light" />
-        <Icon name="plug" color="dark" />
-        <Icon name="plug" color="skeleton" />
-        <Icon name="plug" color="disabled" />
-        <Icon name="plug" color="input" />
-        <Icon name="plug" color="primary" />
-      </div>
-      <div className="mb-4">Animation</div>
-      <div className="mb-6 flex flex-wrap gap-2">
-        <Icon name="processing" animation="spin" />
-        <Icon name="star-filled" animation="pulse" />
-      </div>
-      <div className="mb-4">Size</div>
-      <div className="mb-6 flex flex-wrap gap-2">
-        <Icon name="puzzle" size="small" />
-        <Icon name="puzzle" size="medium" />
-        <Icon name="puzzle" size="large" />
+    <div className="min-h-screen px-4 pb-20 pt-8">
+      <div className="mx-auto flex max-w-screen-lg flex-col gap-10">
+        <AccordionSection />
+        <AlertSection />
+        <ChipsSection />
+        <PoppersSection />
+        <SelectorSection />
+        <ShowMoreSection />
+        <GenericPlaceholderSection />
+        <IconsSection />
+        <ButtonsSection />
+        <TypographySection />
+        <AvatarSection />
+        <SkeletonSection />
+        <LinksSection />
       </div>
     </div>
   )
