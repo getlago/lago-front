@@ -1,6 +1,5 @@
 import { DateTime } from 'luxon'
 
-import { PREPAID_CREDITS_GRAPH_COLORS } from '~/components/analytics/prepaidCredits/PrepaidCreditsOverviewSection'
 import { REVENUE_STREAMS_GRAPH_COLORS } from '~/components/designSystem/graphs/const'
 import { TInvoiceCollectionsDataResult } from '~/components/graphs/Invoices'
 import { TGetInvoicedUsagesQuery } from '~/components/graphs/Usage'
