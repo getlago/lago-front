@@ -1,0 +1,15 @@
+{
+  "extends": "lago-configs/tsconfig",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "@mui/styled-engine": ["../../node_modules/@mui/styled-engine-sc"],
+      "~/*": ["./src/*"],
+    }
+  },
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "./tsconfig.playground.json" }
+  ]
+}

@@ -49,6 +49,9 @@ jobs:
       - name: Install Node.js dependencies
         run: pnpm install
 
+      - name: Build packages
+        run: pnpm prebuild
+
       - name: Wait for API to be ready
         run: |
           timeout 5m bash -c '
@@ -73,4 +76,4 @@ jobs:
           pnpm run codegen
 
       - name: Run Typescript
-        run: pnpm run build:tsc
+        run: pnpm tsc
