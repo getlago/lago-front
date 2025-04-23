@@ -83,7 +83,7 @@ const AnrokIntegrationSettings = () => {
   const deleteDialogRef = useRef<DeleteAnrokIntegrationDialogRef>(null)
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
-  const [retryAllInvoices] = useRetryAllInvoicesMutation({
+  const [retryAllInvoices, { loading: retryAllInvoicesLoading }] = useRetryAllInvoicesMutation({
     onCompleted(result) {
       if (!!result?.retryAllInvoices?.metadata?.totalCount) {
         addToast({
@@ -217,7 +217,9 @@ const AnrokIntegrationSettings = () => {
               </Stack>
             ) : (
               <Typography variant="caption" color="grey600">
-                {translate('text_66ba5ca33713b600c4e8fcf0')}
+                {retryAllInvoicesLoading
+                  ? translate('text_66ba5ca33713b600c4e8fcf0')
+                  : translate('text_66ba5ca33713b600c4e8fcf1')}
               </Typography>
             )}
           </Stack>
