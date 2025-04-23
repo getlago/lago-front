@@ -106,7 +106,7 @@
     "@mui/styled-engine": "6.1.9",
     "@mui/styled-engine-sc": "6.1.9",
     "@mui/x-date-pickers": "6.20.0",
-    "@nangohq/frontend": "0.40.8",
+    "@nangohq/frontend": "0.58.4",
     "@sentry/react": "9.11.0",
     "@tanstack/react-virtual": "3.11.2",
     "ace-builds": "^1.37.3",
