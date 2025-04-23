@@ -613,22 +613,22 @@ export const multipleStackedBarChartLoadingFakeData = [
 export const multipleStackedBarChartLoadingFakeBars = [
   {
     dataKey: 'offeredAmount',
-    colorHex: '#ABF5DC',
+    colorHex: 'rgba(217, 222, 231, 0.5)',
     tooltipLabel: '',
   },
   {
     dataKey: 'purchasedAmount',
-    colorHex: '#36B389',
+    colorHex: 'rgba(217, 222, 231, 0.5)',
     tooltipLabel: '',
   },
   {
     dataKey: 'consumedAmount',
-    colorHex: '#FF8F73',
+    colorHex: 'rgba(217, 222, 231, 0.5)',
     tooltipLabel: '',
   },
   {
     dataKey: 'voidedAmount',
-    colorHex: '#D9DEE7',
+    colorHex: 'rgba(217, 222, 231, 0.5)',
     tooltipLabel: '',
   },
 ]

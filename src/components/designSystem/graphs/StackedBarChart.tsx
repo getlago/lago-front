@@ -359,11 +359,21 @@ const StackedBarChart = <T extends DataItem>({
             component={({ yAxisMap }) => {
               const yAxis = yAxisMap[Object.keys(yAxisMap)[0]]
 
+              if (yAxisDomain[0] === 0 || yAxisDomain[1] === 0) return null
+
               if (!yAxis || typeof yAxis.scale !== 'function') return null
 
               const yZero = yAxis.scale(0)
 
               if (typeof yZero !== 'number') return null
+
+              if (loading) {
+                return (
+                  <g>
+                    <rect width={32} height={12} rx={6} fill={theme.palette.grey[100]}></rect>
+                  </g>
+                )
+              }
 
               return (
                 <g>
@@ -399,6 +409,7 @@ const StackedBarChart = <T extends DataItem>({
             stroke={theme.palette.grey[200]}
             strokeWidth={1}
           />
+
           <ReferenceLine y={0} stroke={theme.palette.grey[200]} />
 
           <Customized
