@@ -319,6 +319,16 @@ const StackedBarChart = <T extends DataItem>({
                 return <></>
               }
 
+              const deserialized = deserializeAmount(payload.value, currency)
+
+              const formatted = bigNumberShortenNotationFormater(deserialized, {
+                currency,
+              })
+
+              if (deserialized < 1) {
+                return <></>
+              }
+
               if (loading) {
                 return (
                   <g transform={`translate(${x},${index !== 0 ? y + 2 : y - 12})`}>
@@ -340,14 +350,7 @@ const StackedBarChart = <T extends DataItem>({
                       letterSpacing: '-0.16px',
                     }}
                   >
-                    {index !== 0 && hasOnlyZeroValues
-                      ? '-'
-                      : bigNumberShortenNotationFormater(
-                          deserializeAmount(payload.value, currency),
-                          {
-                            currency,
-                          },
-                        )}
+                    {index !== 0 && hasOnlyZeroValues ? '-' : formatted}
                   </text>
                 </g>
               )
@@ -379,7 +382,7 @@ const StackedBarChart = <T extends DataItem>({
                 <g>
                   <text
                     x={yAxis.x + 8}
-                    y={yZero + 4}
+                    y={yZero + 12}
                     textAnchor="start"
                     fill={theme.palette.grey[600]}
                     style={{
