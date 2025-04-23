@@ -21,6 +21,10 @@ import {
   AddAnrokDialogRef,
 } from '~/components/settings/integrations/AddAnrokDialog'
 import {
+  AddAvalaraDialog,
+  AddAvalaraDialogRef,
+} from '~/components/settings/integrations/AddAvalaraDialog'
+import {
   AddCashfreeDialog,
   AddCashfreeDialogRef,
 } from '~/components/settings/integrations/AddCashfreeDialog'
@@ -63,6 +67,7 @@ import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   ADYEN_INTEGRATION_ROUTE,
   ANROK_INTEGRATION_ROUTE,
+  AVALARA_INTEGRATION_ROUTE,
   CASHFREE_INTEGRATION_ROUTE,
   GOCARDLESS_INTEGRATION_ROUTE,
   HUBSPOT_INTEGRATION_ROUTE,
@@ -74,6 +79,8 @@ import {
   TAX_MANAGEMENT_INTEGRATION_ROUTE,
   XERO_INTEGRATION_ROUTE,
 } from '~/core/router'
+import { isFeatureFlagActive } from '~/core/utils/featureFlags'
+import { FeatureFlags } from '~/core/utils/featureFlags'
 import { PremiumIntegrationTypeEnum, useIntegrationsSettingQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -81,6 +88,7 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import Adyen from '~/public/images/adyen.svg'
 import Airbyte from '~/public/images/airbyte.svg'
 import Anrok from '~/public/images/anrok.svg'
+import Avalara from '~/public/images/avalara.svg'
 import Cashfree from '~/public/images/cashfree.svg'
 import GoCardless from '~/public/images/gocardless.svg'
 import HightTouch from '~/public/images/hightouch.svg'
@@ -127,6 +135,9 @@ gql`
         ... on AnrokIntegration {
           id
         }
+        ... on AvalaraIntegration {
+          id
+        }
         ... on NetsuiteIntegration {
           id
         }
@@ -152,6 +163,7 @@ const Integrations = () => {
 
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const addAnrokDialogRef = useRef<AddAnrokDialogRef>(null)
+  const addAvalaraDialogRef = useRef<AddAvalaraDialogRef>(null)
   const addStripeDialogRef = useRef<AddStripeDialogRef>(null)
   const addAdyenDialogRef = useRef<AddAdyenDialogRef>(null)
   const addGocardlessDialogRef = useRef<AddGocardlessDialogRef>(null)
@@ -184,6 +196,9 @@ const Integrations = () => {
     (provider) => provider?.__typename === 'MoneyhashProvider',
   )
   const hasTaxManagement = !!organization?.euTaxManagement
+  const hasAccessToAvalaraPremiumIntegration = !!premiumIntegrations?.includes(
+    PremiumIntegrationTypeEnum.Avalara,
+  )
   const hasAccessToNetsuitePremiumIntegration = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.Netsuite,
   )
@@ -201,6 +216,9 @@ const Integrations = () => {
   )
   const hasAnrokIntegration = data?.integrations?.collection?.some(
     (integration) => integration?.__typename === 'AnrokIntegration',
+  )
+  const hasAvalaraIntegration = data?.integrations?.collection?.some(
+    (integration) => integration?.__typename === 'AvalaraIntegration',
   )
   const hasXeroIntegration = data?.integrations?.collection?.some(
     (integration) => integration?.__typename === 'XeroIntegration',
@@ -316,6 +334,40 @@ const Integrations = () => {
                           }
                         }}
                       />
+                      {isFeatureFlagActive(FeatureFlags.FTR_AVALARA_INTEGRATION) && (
+                        <Selector
+                          fullWidth
+                          title={translate('text_1744293609277s53zn6jcoq4')}
+                          subtitle={translate('text_6668821d94e4da4dfd8b3840')}
+                          endIcon={getEndIcon({
+                            showSparkles: !hasAccessToAvalaraPremiumIntegration,
+                            showConnectedBadge: hasAvalaraIntegration,
+                          })}
+                          icon={
+                            <Avatar size="big" variant="connector-full">
+                              {<Avalara />}
+                            </Avatar>
+                          }
+                          onClick={() => {
+                            if (!hasAccessToAvalaraPremiumIntegration) {
+                              premiumWarningDialogRef.current?.openDialog({
+                                title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                                description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                                mailtoSubject: translate('text_1744296980972iaigqgcpb8t'),
+                                mailtoBody: translate('text_1744296980972op5ch5zpl78'),
+                              })
+                            } else if (hasAvalaraIntegration) {
+                              navigate(
+                                generatePath(AVALARA_INTEGRATION_ROUTE, {
+                                  integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                                }),
+                              )
+                            } else {
+                              addAvalaraDialogRef.current?.openDialog()
+                            }
+                          }}
+                        />
+                      )}
                       <Selector
                         title={translate('text_63e26d8308d03687188221a5')}
                         subtitle={translate('text_63e26d8308d03687188221a6')}
@@ -645,6 +697,7 @@ const Integrations = () => {
       </SettingsPaddedContainer>
 
       <AddAnrokDialog ref={addAnrokDialogRef} />
+      <AddAvalaraDialog ref={addAvalaraDialogRef} />
       <AddAdyenDialog ref={addAdyenDialogRef} />
       <AddStripeDialog ref={addStripeDialogRef} />
       <AddCashfreeDialog ref={addCashfreeDialogRef} />
