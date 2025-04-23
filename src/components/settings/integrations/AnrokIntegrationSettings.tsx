@@ -25,10 +25,6 @@ import { theme } from '~/styles'
 
 import { AddAnrokDialog, AddAnrokDialogRef } from './AddAnrokDialog'
 import {
-  AddEditDeleteSuccessRedirectUrlDialog,
-  AddEditDeleteSuccessRedirectUrlDialogRef,
-} from './AddEditDeleteSuccessRedirectUrlDialog'
-import {
   DeleteAnrokIntegrationDialog,
   DeleteAnrokIntegrationDialogRef,
 } from './DeleteAnrokIntegrationDialog'
@@ -81,7 +77,6 @@ const AnrokIntegrationSettings = () => {
   const { integrationId = '' } = useParams()
   const addAnrokDialogRef = useRef<AddAnrokDialogRef>(null)
   const deleteDialogRef = useRef<DeleteAnrokIntegrationDialogRef>(null)
-  const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
   const [retryAllInvoices, { loading: retryAllInvoicesLoading }] = useRetryAllInvoicesMutation({
     onCompleted(result) {
@@ -236,7 +231,6 @@ const AnrokIntegrationSettings = () => {
 
       <AddAnrokDialog ref={addAnrokDialogRef} />
       <DeleteAnrokIntegrationDialog ref={deleteDialogRef} />
-      <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
 }
