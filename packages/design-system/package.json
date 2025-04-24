@@ -12,7 +12,8 @@
       "types": "./dist/types/index.d.ts",
       "style": "./dist/style.css"
     },
-    "./images/*": "./dist/images/*"
+    "./images/*": "./dist/images/*",
+    "./style": "./dist/style.css"
   },
   "files": [
     "dist/index.js",
@@ -27,6 +28,10 @@
     "preview": "vite preview"
   },
   "peerDependencies": {
+    "@mui/material": "5.14.18",
+    "@mui/styled-engine": "6.1.9",
+    "@mui/styled-engine-sc": "6.1.9",
+    "@mui/x-date-pickers": "6.20.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-router-dom": "6.15.0"
@@ -37,10 +42,6 @@
     "sanitize-html": "2.12.1"
   },
   "devDependencies": {
-    "@mui/material": "5.14.18",
-    "@mui/styled-engine": "6.1.9",
-    "@mui/styled-engine-sc": "6.1.9",
-    "@mui/x-date-pickers": "6.20.0",
     "@svgr/core": "^8.1.0",
     "@svgr/plugin-svgo": "^8.1.0",
     "@svgr/plugin-jsx": "^8.1.0",
