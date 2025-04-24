@@ -72,7 +72,7 @@ export const theme = createTheme({
               overflow: 'hidden',
             },
           },
-          '.MuiDateCalendar-root,.PrivatePickersSlideTransiti on-root,.MuiPaper-root > div > div:first-of-type':
+          '.MuiDateCalendar-root,.PrivatePickersSlideTransition-root,.MuiPaper-root > div > div:first-of-type':
             {
               overflowX: 'visible',
             },
