@@ -36,9 +36,4 @@
   span.line-break-anywhere {
     @apply break-all;
   }
-
-  /* TODO: Might be able to delete after migration */
-  button {
-    @apply h-10 cursor-pointer rounded-xl border-0 px-3 py-[6px] font-sans outline-none active:outline-none;
-  }
 }
