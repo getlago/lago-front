@@ -1,6 +1,7 @@
 import { ApolloClient, ApolloProvider, NormalizedCacheObject } from '@apollo/client'
 import { loadDevMessages, loadErrorMessages } from '@apollo/client/dev'
 import { StyledEngineProvider, ThemeProvider } from '@mui/material'
+import { DesignSystemProvider } from 'lago-design-system'
 import { useEffect, useState } from 'react'
 import { BrowserRouter } from 'react-router-dom'
 
@@ -42,11 +43,13 @@ const App = () => {
       <ApolloProvider client={client}>
         <StyledEngineProvider injectFirst>
           <ThemeProvider theme={theme}>
-            <ErrorBoundary>
-              <RouteWrapper />
-            </ErrorBoundary>
-            <UserIdentifier />
-            <ToastContainer />
+            <DesignSystemProvider>
+              <ErrorBoundary>
+                <RouteWrapper />
+              </ErrorBoundary>
+              <UserIdentifier />
+              <ToastContainer />
+            </DesignSystemProvider>
           </ThemeProvider>
         </StyledEngineProvider>
       </ApolloProvider>

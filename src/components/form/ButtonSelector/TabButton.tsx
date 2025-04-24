@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { forwardRef, MouseEvent, ReactNode, useEffect, useRef, useState } from 'react'
-import styled, { css } from 'styled-components'
 
 import { Icon, IconName, Typography } from '~/components/designSystem'
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 export interface TabButtonProps {
   active?: boolean
@@ -32,11 +31,19 @@ export const TabButton = forwardRef<HTMLButtonElement, TabButtonProps>(
     }, [])
 
     return (
-      <Container
+      <button
         {...props}
         ref={ref}
-        className={className}
-        $active={active}
+        className={tw(
+          'transition-250 flex min-h-10 items-center justify-center rounded-xl px-3 py-[6px] font-sans outline-none transition-colors ease-in',
+          active
+            ? 'bg-grey-200 text-blue'
+            : 'bg-white text-grey-500 shadow-[0px_0px_0px_1px_#8C95A6_inset] focus-not-active:rounded-xl focus-not-active:shadow-none focus-not-active:ring hover-not-active:bg-grey-200',
+          'disabled:bg-transparent disabled:pointer-events-none disabled:cursor-default disabled:text-grey-400 disabled:shadow-none',
+          active ? 'disabled:bg-grey-100' : 'disabled:bg-transparent',
+          'not-last-child:mr-2',
+          className,
+        )}
         disabled={disabled}
         tabIndex={disabled || active ? -1 : 0}
         onClick={(e) => {
@@ -74,50 +81,9 @@ export const TabButton = forwardRef<HTMLButtonElement, TabButtonProps>(
             {title}
           </Typography>
         )}
-      </Container>
+      </button>
     )
   },
 )
 
 TabButton.displayName = 'TabButton'
-
-const Container = styled.button<{ $active: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: ${({ $active }) =>
-    $active ? theme.palette.grey[200] : theme.palette.common.white};
-  color: ${({ $active }) => ($active ? theme.palette.primary.main : theme.palette.text.primary)};
-  border-radius: 12px;
-  transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-  ${({ $active }) =>
-    !$active &&
-    css`
-      box-shadow: 0px 0px 0px 1px ${theme.palette.grey[500]} inset;
-
-      &:focus:not(:active) {
-        box-shadow: 0px 0px 0px 4px ${theme.palette.primary[200]};
-        border-radius: 12px;
-      }
-    `}
-
-  ${({ $active }) =>
-    !$active &&
-    css`
-      &:hover:not(:disabled) {
-        background-color: ${theme.palette.grey[200]};
-        color: ${theme.palette.text.primary};
-      }
-    `}
-
-  &:disabled {
-    cursor: default;
-    background-color: ${({ $active }) => ($active ? theme.palette.grey[100] : 'transparent')};
-    color: ${theme.palette.grey[400]};
-    box-shadow: none;
-  }
-
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(2)};
-  }
-`

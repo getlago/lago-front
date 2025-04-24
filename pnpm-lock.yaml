@@ -348,6 +348,18 @@ importers:
 
   packages/design-system:
     dependencies:
+      '@mui/material':
+        specifier: 5.14.18
+        version: 5.14.18(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@mui/styled-engine':
+        specifier: 6.1.9
+        version: 6.1.9(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(react@18.2.0)
+      '@mui/styled-engine-sc':
+        specifier: 6.1.9
+        version: 6.1.9(styled-components@6.1.14(react-dom@18.2.0(react@18.2.0))(react@18.2.0))
+      '@mui/x-date-pickers':
+        specifier: 6.20.0
+        version: 6.20.0(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@mui/material@5.14.18(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/system@5.16.14(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(dayjs@1.11.13)(luxon@3.4.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       lodash:
         specifier: 4.17.21
         version: 4.17.21
@@ -367,18 +379,6 @@ importers:
         specifier: 2.12.1
         version: 2.12.1
     devDependencies:
-      '@mui/material':
-        specifier: 5.14.18
-        version: 5.14.18(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@mui/styled-engine':
-        specifier: 6.1.9
-        version: 6.1.9(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(react@18.2.0)
-      '@mui/styled-engine-sc':
-        specifier: 6.1.9
-        version: 6.1.9(styled-components@6.1.14(react-dom@18.2.0(react@18.2.0))(react@18.2.0))
-      '@mui/x-date-pickers':
-        specifier: 6.20.0
-        version: 6.20.0(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@mui/material@5.14.18(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/system@5.16.14(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(react@18.2.0))(@types/react@18.2.38)(dayjs@1.11.13)(luxon@3.4.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@svgr/core':
         specifier: ^8.1.0
         version: 8.1.0(typescript@5.5.3)

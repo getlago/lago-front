@@ -66,28 +66,28 @@ export const theme = createTheme({
             zIndex: 2000,
           },
           '.MuiDateCalendar-viewTransitionContainer': {
-            'min-height': '304px',
+            minHeight: '304px',
 
-            '> *:first-child': {
+            '> *:first-of-type': {
               overflow: 'hidden',
             },
           },
-          '.MuiDateCalendar-root,.PrivatePickersSlideTransition-root,.MuiPaper-root > div > div:first-child':
+          '.MuiDateCalendar-root,.PrivatePickersSlideTransition-root,.MuiPaper-root > div > div:first-of-type':
             {
-              'overflow-x': 'visible',
+              overflowX: 'visible',
             },
           '.MuiPickersCalendarHeader-root': {
             margin: '6px 0 16px 0',
             padding: '0 6px 0',
-            'min-height': 'unset',
-            'max-height': 'fit-content',
+            minHeight: 'unset',
+            maxHeight: 'fit-content',
           },
           '.MuiPickersCalendarHeader-label': {
             color: palette.grey[700],
-            'font-size': '16px',
-            'line-height': '24px',
-            'letter-spacing': '-0.16px',
-            'font-weight': 400,
+            fontSize: '16px',
+            lineHeight: '24px',
+            letterSpacing: '-0.16px',
+            fontWeight: 400,
           },
           '.custom-date-picker-header': {
             marginTop: '6px',
@@ -96,19 +96,19 @@ export const theme = createTheme({
           },
 
           '.custom-date-picker-day': {
-            'border-radius': '12px',
+            borderRadius: '12px',
             color: palette.grey[600],
             height: '40px',
             width: '40px',
             margin: '0px',
-            'font-size': '16px',
-            'line-height': '24px',
-            'letter-spacing': '-0.16px',
-            'font-weight': 400,
+            fontSize: '16px',
+            lineHeight: '24px',
+            letterSpacing: '-0.16px',
+            fontWeight: 400,
 
             '&:focus': {
               backgroundColor: 'white',
-              'box-shadow': 'rgb(179, 212, 255) 0px 0px 0px 4px',
+              boxShadow: 'rgb(179, 212, 255) 0px 0px 0px 4px',
 
               '&.Mui-selected': {
                 backgroundColor: `${palette.primary[600]} !important`,
@@ -125,7 +125,7 @@ export const theme = createTheme({
             padding: '4px',
           },
           '.MuiDayCalendar-slideTransition': {
-            'min-height': '248px',
+            minHeight: '248px',
           },
           '.MuiDayCalendar-weekContainer': {
             justifyContent: 'space-between',
@@ -319,7 +319,7 @@ export const theme = createTheme({
           },
           textarea: {
             padding: '5px 11px',
-            'min-height': '38px',
+            minHeight: '38px',
             resize: 'vertical',
             'white-space': 'pre-wrap',
           },

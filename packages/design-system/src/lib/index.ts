@@ -1,3 +1,3 @@
 export * from './conditionalWrapper'
-export * from './muiTheme'
+export * from './provider'
 export * from './tw'

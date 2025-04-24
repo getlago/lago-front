@@ -134,7 +134,7 @@ export const JsonEditor = ({
           <div
             className={tw(
               'absolute inset-0 z-10 rounded-xl bg-gradient-to-t from-white from-20% transition-opacity',
-              showOverlay ? 'opacity-100' : 'opacity-0',
+              showOverlay ? 'opacity-100' : '-z-10 opacity-0',
             )}
           >
             <button

@@ -3,7 +3,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 
-import { theme } from '~/lib'
+import { theme } from '~/lib/muiTheme'
 import '~/style.css'
 
 import App from './App'
