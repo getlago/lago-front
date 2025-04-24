@@ -207,6 +207,14 @@ const StackedBarChart = <T extends DataItem>({
     <ChartWrapper className="rounded-xl bg-white" blur={blur}>
       <ResponsiveContainer width="100%" height={232}>
         <BarChart
+          width={500}
+          height={300}
+          margin={{
+            top: 1,
+            left: 1,
+            right: 12,
+            bottom: -2,
+          }}
           data={localData}
           stackOffset="sign"
           onMouseLeave={handleMouseLeave}
@@ -223,7 +231,6 @@ const StackedBarChart = <T extends DataItem>({
               setClickedDataIndex(event.activeTooltipIndex)
             }
           }}
-          margin={{ top: 1, left: 1, right: 4, bottom: 0 }}
         >
           <XAxis
             axisLine={true}
@@ -275,13 +282,17 @@ const StackedBarChart = <T extends DataItem>({
                 dateValue = props.payload?.value || ''
               }
 
+              const shift = localData?.length ? 500 / localData?.length : 0
+
+              const translateX = index === 0 ? 0 : x + shift
+
               return (
-                <g transform={`translate(${x},${y + 16})`}>
+                <g transform={`translate(${translateX},${y + 16})`}>
                   <text
                     fill={theme.palette.grey[600]}
                     style={{
                       fontFamily: 'Inter',
-                      fontSize: '14px',
+                      fontSize: '12px',
                       fontStyle: 'normal',
                       fontWeight: '400',
                       lineHeight: '24px',
@@ -325,10 +336,6 @@ const StackedBarChart = <T extends DataItem>({
                 currency,
               })
 
-              if (deserialized < 1) {
-                return <></>
-              }
-
               if (loading) {
                 return (
                   <g transform={`translate(${x},${index !== 0 ? y + 2 : y - 12})`}>
@@ -343,7 +350,7 @@ const StackedBarChart = <T extends DataItem>({
                     fill={theme.palette.grey[600]}
                     style={{
                       fontFamily: 'Inter',
-                      fontSize: '14px',
+                      fontSize: '12px',
                       fontStyle: 'normal',
                       fontWeight: '400',
                       lineHeight: '24px',
@@ -362,7 +369,7 @@ const StackedBarChart = <T extends DataItem>({
             component={({ yAxisMap }) => {
               const yAxis = yAxisMap[Object.keys(yAxisMap)[0]]
 
-              if (yAxisDomain[0] === 0 || yAxisDomain[1] === 0) return null
+              if (yAxisDomain[0] === 0 || yAxisDomain[1] === 0 || yAxisDomain[1] === 1) return null
 
               if (!yAxis || typeof yAxis.scale !== 'function') return null
 
@@ -382,12 +389,12 @@ const StackedBarChart = <T extends DataItem>({
                 <g>
                   <text
                     x={yAxis.x + 8}
-                    y={yZero + 12}
+                    y={yZero + 4}
                     textAnchor="start"
                     fill={theme.palette.grey[600]}
                     style={{
                       fontFamily: 'Inter',
-                      fontSize: '14px',
+                      fontSize: '12px',
                       fontWeight: 400,
                       letterSpacing: '-0.16px',
                     }}
