@@ -62,6 +62,9 @@ export const onLogIn = (token: string, user: CurrentUserFragment) => {
   // Check if user has already logged in an orga and find it in the list
   if (previousOrganizationId) {
     organization = (user?.organizations || []).find((org) => org.id === previousOrganizationId)
+  } else {
+    // if no orga have been found, any redirection logic should be prevented later
+    removeItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
   }
 
   // If still not organization, take the first one
