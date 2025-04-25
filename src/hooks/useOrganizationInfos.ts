@@ -37,15 +37,16 @@ type UseOrganizationInfos = () => {
   timezoneConfig: TimezoneConfigObject
   formatTimeOrgaTZ: (date: string, format?: string) => string
   hasOrganizationPremiumAddon: (integration: PremiumIntegrationTypeEnum) => boolean
+  refetchOrganizationInfos: () => void
 }
 
 export const useOrganizationInfos: UseOrganizationInfos = () => {
-  const { data, loading } = useGetOrganizationInfosQuery({
+  const { data, loading, refetch } = useGetOrganizationInfosQuery({
     fetchPolicy: 'cache-first',
     nextFetchPolicy: 'cache-first',
-    canonizeResults: true,
     notifyOnNetworkStatusChange: true,
   })
+
   const orgaTimezone = data?.organization?.timezone || TimezoneEnum.TzUtc
   const timezoneConfig = TimeZonesConfig[orgaTimezone]
 
@@ -60,5 +61,6 @@ export const useOrganizationInfos: UseOrganizationInfos = () => {
       formatDateToTZ(date, orgaTimezone, format || 'LLL. dd, yyyy'),
     hasOrganizationPremiumAddon: (integration: PremiumIntegrationTypeEnum) =>
       !!premiumIntegrations?.includes(integration),
+    refetchOrganizationInfos: refetch,
   }
 }

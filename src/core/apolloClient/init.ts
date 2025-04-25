@@ -13,10 +13,11 @@ import {
   CUSTOMER_PORTAL_TOKEN_LS_KEY,
   envGlobalVar,
 } from '~/core/apolloClient/reactiveVars'
+import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
 import { LagoApiError } from '~/generated/graphql'
 
 import { cache } from './cache'
-import { getItemFromLS, logOut, omitDeep, ORGANIZATION_LS_KEY_ID } from './cacheUtils'
+import { getItemFromLS, logOut, omitDeep } from './cacheUtils'
 import { LagoGQLError } from './errorUtils'
 import { resolvers, typeDefs } from './graphqlResolvers'
 

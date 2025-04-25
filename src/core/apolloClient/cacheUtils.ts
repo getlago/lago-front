@@ -1,5 +1,9 @@
 import { ApolloClient, gql } from '@apollo/client'
 
+import {
+  LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY,
+  ORGANIZATION_LS_KEY_ID,
+} from '~/core/constants/localStorageKeys'
 import { CurrentUserFragment } from '~/generated/graphql'
 
 import {
@@ -7,8 +11,6 @@ import {
   updateAuthTokenVar,
   updateCustomerPortalTokenVar,
 } from './reactiveVars'
-
-export const ORGANIZATION_LS_KEY_ID = 'currentOrganization'
 
 gql`
   fragment CurrentUser on User {
@@ -44,6 +46,9 @@ export const removeItemFromLS = (key: string) => {
 
 // --------------------- Auth utils ---------------------
 export const logOut = async (client: ApolloClient<object>, resetLocationHistory?: boolean) => {
+  // Prevent active queries re-fetch
+  await client.clearStore()
+  // Clear store
   await client.cache.reset()
   updateAuthTokenVar()
   resetLocationHistory && resetLocationHistoryVar()
@@ -57,6 +62,9 @@ export const onLogIn = (token: string, user: CurrentUserFragment) => {
   // Check if user has already logged in an orga and find it in the list
   if (previousOrganizationId) {
     organization = (user?.organizations || []).find((org) => org.id === previousOrganizationId)
+  } else {
+    // if no orga have been found, any redirection logic should be prevented later
+    removeItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
   }
 
   // If still not organization, take the first one
@@ -73,9 +81,13 @@ export const switchCurrentOrganization = async (
   client: ApolloClient<object>,
   organizationId: string,
 ) => {
-  setItemFromLS(ORGANIZATION_LS_KEY_ID, organizationId)
+  // Stop the client to prevent active queries re-fetch
+  client.stop()
 
-  await client.cache.reset()
+  // We should not be redirected to any route on orga switch, but rather bring to home (prevent )
+  removeItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
+  // Set the new organization id in local storage
+  setItemFromLS(ORGANIZATION_LS_KEY_ID, organizationId)
 }
 
 export const onAccessCustomerPortal = (token?: string) => {
@@ -86,7 +98,7 @@ export const onAccessCustomerPortal = (token?: string) => {
 const omitDeepArrayWalk = (arr: Array<unknown>, key: string): unknown => {
   return arr.map((val) => {
     if (Array.isArray(val)) return omitDeepArrayWalk(val, key)
-    // @ts-expect-error
+    // @ts-expect-error: val could be null which would cause type error when passing to omitDeep
     else if (typeof val === 'object') return omitDeep(val, key)
     return val
   })
@@ -103,7 +115,7 @@ export const omitDeep = (obj: Record<string | number, unknown>, key: string) => 
       if (val instanceof Date) newObj[i] = val
       else if (Array.isArray(val)) newObj[i] = omitDeepArrayWalk(val, key)
       else if (typeof val === 'object' && val !== null)
-        // @ts-expect-error
+        // @ts-expect-error: val could be any object type which would cause type error when passing to omitDeep
         newObj[i] = omitDeep(val, key)
       else newObj[i] = val
     }

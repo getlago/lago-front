@@ -21,7 +21,7 @@ import {
   DeleteCashfreeIntegrationDialog,
   DeleteCashfreeIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteCashfreeIntegrationDialog'
-import { addToast, envGlobalVar, getItemFromLS, ORGANIZATION_LS_KEY_ID } from '~/core/apolloClient'
+import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CASHFREE_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -33,6 +33,7 @@ import {
   useGetCashfreeIntegrationsDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import Cashfree from '~/public/images/cashfree.svg'
 import { MenuPopper, PageHeader } from '~/styles'
@@ -79,7 +80,8 @@ const CashfreeIntegrationDetails = () => {
   const addDialogRef = useRef<AddCashfreeDialogRef>(null)
   const deleteDialogRef = useRef<DeleteCashfreeIntegrationDialogRef>(null)
   const { apiUrl } = envGlobalVar()
-  const currentOrganizationId = getItemFromLS(ORGANIZATION_LS_KEY_ID)
+  const { organization } = useOrganizationInfos()
+  const currentOrganizationId = organization?.id || ''
   const { translate } = useInternationalization()
   const { data, loading } = useGetCashfreeIntegrationsDetailsQuery({
     variables: {

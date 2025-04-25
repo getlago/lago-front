@@ -5,13 +5,17 @@ import NewAnalytics from '~/pages/analytics/NewAnalytics'
 import OldAnalytics from '~/pages/OldAnalytics'
 
 const Analytics = () => {
-  const { hasOrganizationPremiumAddon, loading: organizationDataLoading } = useOrganizationInfos()
+  const {
+    hasOrganizationPremiumAddon,
+    loading: organizationDataLoading,
+    organization,
+  } = useOrganizationInfos()
 
   const hasAccessToAnalyticsDashboardsFeature = hasOrganizationPremiumAddon(
     PremiumIntegrationTypeEnum.AnalyticsDashboards,
   )
 
-  if (organizationDataLoading) {
+  if (organizationDataLoading || !organization?.id) {
     return (
       <div className="m-auto flex size-full items-center justify-center">
         <Icon name="processing" color="info" size="large" animation="spin" />
@@ -19,11 +23,11 @@ const Analytics = () => {
     )
   }
 
-  if (!hasAccessToAnalyticsDashboardsFeature) {
-    return <OldAnalytics />
+  if (hasAccessToAnalyticsDashboardsFeature) {
+    return <NewAnalytics />
   }
 
-  return <NewAnalytics />
+  return <OldAnalytics />
 }
 
 export default Analytics
