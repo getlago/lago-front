@@ -86,7 +86,11 @@ const SideNav = () => {
   const [open, setOpen] = useState(false)
   const { currentUser, loading: currentUserLoading } = useCurrentUser()
   const { hasPermissions } = usePermissions()
-  const { organization, loading: currentOrganizationLoading } = useOrganizationInfos()
+  const {
+    organization,
+    loading: currentOrganizationLoading,
+    refetchOrganizationInfos,
+  } = useOrganizationInfos()
   const { translate } = useInternationalization()
   const { data, loading, error } = useSideNavInfosQuery()
   const { pathname, state } = location as Location & { state: { disableScrollTop?: boolean } }
@@ -181,11 +185,12 @@ const SideNav = () => {
                         )
                         ?.map(({ id, name, logoUrl }) => (
                           <Button
-                            key={id}
+                            key={`organization-in-side-nav-${id}`}
                             align="left"
                             variant={id === organization?.id ? 'secondary' : 'quaternary'}
                             onClick={async () => {
                               await switchCurrentOrganization(client, id)
+                              await refetchOrganizationInfos()
                               navigate(HOME_ROUTE)
                               closePopper()
                             }}

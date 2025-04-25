@@ -81,9 +81,13 @@ export const switchCurrentOrganization = async (
   client: ApolloClient<object>,
   organizationId: string,
 ) => {
-  setItemFromLS(ORGANIZATION_LS_KEY_ID, organizationId)
+  // Stop the client to prevent active queries re-fetch
+  client.stop()
 
-  await client.cache.reset()
+  // We should not be redirected to any route on orga switch, but rather bring to home (prevent )
+  removeItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
+  // Set the new organization id in local storage
+  setItemFromLS(ORGANIZATION_LS_KEY_ID, organizationId)
 }
 
 export const onAccessCustomerPortal = (token?: string) => {
