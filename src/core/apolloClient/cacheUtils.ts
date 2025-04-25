@@ -1,5 +1,9 @@
 import { ApolloClient, gql } from '@apollo/client'
 
+import {
+  LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY,
+  ORGANIZATION_LS_KEY_ID,
+} from '~/core/constants/localStorageKeys'
 import { CurrentUserFragment } from '~/generated/graphql'
 
 import {
@@ -7,8 +11,6 @@ import {
   updateAuthTokenVar,
   updateCustomerPortalTokenVar,
 } from './reactiveVars'
-
-export const ORGANIZATION_LS_KEY_ID = 'currentOrganization'
 
 gql`
   fragment CurrentUser on User {

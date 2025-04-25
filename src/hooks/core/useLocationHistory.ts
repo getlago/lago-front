@@ -8,11 +8,10 @@ import {
   removeItemFromLS,
   setItemFromLS,
 } from '~/core/apolloClient'
+import { LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY } from '~/core/constants/localStorageKeys'
 import { CustomRouteObject, FORBIDDEN_ROUTE, HOME_ROUTE, LOGIN_ROUTE } from '~/core/router'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
-
-export const LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY = 'lastPrivateVisitedRoute'
 
 type GoBack = (
   fallback: string,

@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 
-import { getItemFromLS, ORGANIZATION_LS_KEY_ID } from '~/core/apolloClient'
+import { getItemFromLS } from '~/core/apolloClient'
+import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
 import {
   CurrentUserInfosFragment,
   MembershipPermissionsFragmentDoc,
