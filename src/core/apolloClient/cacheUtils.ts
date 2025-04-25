@@ -46,6 +46,9 @@ export const removeItemFromLS = (key: string) => {
 
 // --------------------- Auth utils ---------------------
 export const logOut = async (client: ApolloClient<object>, resetLocationHistory?: boolean) => {
+  // Prevent active queries re-fetch
+  await client.clearStore()
+  // Clear store
   await client.cache.reset()
   updateAuthTokenVar()
   resetLocationHistory && resetLocationHistoryVar()
