@@ -401,6 +401,7 @@ const MultipleLineChart = <T extends DataItem>({
                 stroke={line.colorHex}
                 strokeWidth={2}
                 isAnimationActive={false}
+                dot={false}
               />
             )
           })}

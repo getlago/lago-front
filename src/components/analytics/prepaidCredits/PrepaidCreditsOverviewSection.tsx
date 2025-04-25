@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { usePrepaidCreditsAnalyticsOverview } from '~/components/analytics/prepaidCredits/usePrepaidCreditsAnalyticsOverview'
+import { toAmountCents } from '~/components/analytics/prepaidCredits/utils'
 import { Button, HorizontalDataTable, Typography } from '~/components/designSystem'
 import {
   AvailableQuickFilters,
@@ -13,8 +14,6 @@ import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { PREPAID_CREDITS_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, TimeGranularityEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -50,20 +49,16 @@ const AmountCell = ({
   value,
   className,
   currency,
-  showMinusSign = false,
 }: {
   value: number
   className: string
   currency: CurrencyEnum
-  showMinusSign?: boolean
 }) => {
+  const formatted = toAmountCents(value, currency)
+
   return (
     <Typography variant="body" className={tw(className)}>
-      {showMinusSign && '-'}
-      {intlFormatNumber(deserializeAmount(value, currency), {
-        currencyDisplay: 'symbol',
-        currency,
-      })}
+      {formatted}
     </Typography>
   )
 }
@@ -231,10 +226,7 @@ export const PrepaidCreditsOverviewSection = ({
                   />
                 ),
                 content: (item) => (
-                  <CreditsAmountCell
-                    value={Number(item.offeredAmount) || 0}
-                    currency={selectedCurrency}
-                  />
+                  <CreditsAmountCell value={item.offeredAmount} currency={selectedCurrency} />
                 ),
               },
               {
@@ -247,10 +239,7 @@ export const PrepaidCreditsOverviewSection = ({
                   />
                 ),
                 content: (item) => (
-                  <CreditsAmountCell
-                    value={Number(item.purchasedAmount) || 0}
-                    currency={selectedCurrency}
-                  />
+                  <CreditsAmountCell value={item.purchasedAmount} currency={selectedCurrency} />
                 ),
               },
               {
@@ -263,10 +252,7 @@ export const PrepaidCreditsOverviewSection = ({
                   />
                 ),
                 content: (item) => (
-                  <CreditsAmountCell
-                    value={Number(item.consumedAmount) || 0}
-                    currency={selectedCurrency}
-                  />
+                  <CreditsAmountCell value={item.consumedAmount} currency={selectedCurrency} />
                 ),
               },
               {
@@ -279,10 +265,7 @@ export const PrepaidCreditsOverviewSection = ({
                   />
                 ),
                 content: (item) => (
-                  <CreditsAmountCell
-                    value={Number(item.voidedAmount) || 0}
-                    currency={selectedCurrency}
-                  />
+                  <CreditsAmountCell value={item.voidedAmount} currency={selectedCurrency} />
                 ),
               },
             ]}

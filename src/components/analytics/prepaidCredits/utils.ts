@@ -2,6 +2,8 @@ import { DateTime, DateTimeUnit, Duration, DurationUnit, Interval } from 'luxon'
 
 import { AvailableFiltersEnum, getFilterValue } from '~/components/designSystem/Filters'
 import { PREPAID_CREDITS_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
   PrepaidCreditsDataForOverviewSectionFragment,
@@ -13,6 +15,15 @@ const DIFF_CURSOR: Record<TimeGranularityEnum, DurationUnit> = {
   [TimeGranularityEnum.Weekly]: 'weeks',
   [TimeGranularityEnum.Monthly]: 'months',
 } as const
+
+export const toAmountCents = (amount: number, currency: CurrencyEnum): string => {
+  return intlFormatNumber(amount, {
+    currency,
+    style: 'currency',
+    currencyDisplay: 'symbol',
+    minimumFractionDigits: getCurrencyPrecision(currency),
+  })
+}
 
 export const formatPrepaidCreditsData = ({
   data,
@@ -83,9 +94,9 @@ export const formatPrepaidCreditsData = ({
 
   return paddedData.map((item) => ({
     ...item,
-    consumedAmount: -item.consumedAmount * 100,
-    voidedAmount: -item.voidedAmount * 100,
-    offeredAmount: item.offeredAmount * 100,
-    purchasedAmount: item.purchasedAmount * 100,
+    consumedAmount: item.consumedAmount === '0' ? '0' : -item.consumedAmount,
+    voidedAmount: item.voidedAmount === '0' ? '0' : -item.voidedAmount,
+    offeredAmount: item.offeredAmount,
+    purchasedAmount: item.purchasedAmount,
   }))
 }

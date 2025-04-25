@@ -13,13 +13,14 @@ import {
 import { NameType, Payload, ValueType } from 'recharts/types/component/DefaultTooltipContent'
 
 import { useAnalyticsState } from '~/components/analytics/AnalyticsStateContext'
+import { toAmountCents } from '~/components/analytics/prepaidCredits/utils'
 import { Typography } from '~/components/designSystem'
 import {
   multipleStackedBarChartLoadingFakeBars,
   multipleStackedBarChartLoadingFakeData,
 } from '~/components/designSystem/graphs/fixtures'
 import { ChartWrapper } from '~/components/layouts/Charts'
-import { bigNumberShortenNotationFormater, intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { bigNumberShortenNotationFormater } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
 import { CurrencyEnum, TimeGranularityEnum, TimezoneEnum } from '~/generated/graphql'
@@ -101,7 +102,7 @@ const CustomTooltip = <T,>({
   const labelValues = payload[0].payload
 
   return (
-    <div className="min-w-90 rounded-xl bg-grey-700 px-4 py-3">
+    <>
       <Typography className="mb-3" variant="captionHl" color="white">
         {getItemDateFormatedByTimeGranularity({
           item: {
@@ -124,18 +125,12 @@ const CustomTooltip = <T,>({
                 </Typography>
               </div>
               <Typography variant="caption" color="white" noWrap>
-                {intlFormatNumber(
-                  deserializeAmount(String(labelValues[bar.dataKey]) || '0', currency),
-                  {
-                    currencyDisplay: 'symbol',
-                    currency,
-                  },
-                )}
+                {toAmountCents(labelValues[bar.dataKey || '0'], currency)}
               </Typography>
             </div>
           ))}
       </div>
-    </div>
+    </>
   )
 }
 
@@ -292,7 +287,7 @@ const StackedBarChart = <T extends DataItem>({
                     fill={theme.palette.grey[600]}
                     style={{
                       fontFamily: 'Inter',
-                      fontSize: '12px',
+                      fontSize: '14px',
                       fontStyle: 'normal',
                       fontWeight: '400',
                       lineHeight: '24px',
@@ -350,7 +345,7 @@ const StackedBarChart = <T extends DataItem>({
                     fill={theme.palette.grey[600]}
                     style={{
                       fontFamily: 'Inter',
-                      fontSize: '12px',
+                      fontSize: '14px',
                       fontStyle: 'normal',
                       fontWeight: '400',
                       lineHeight: '24px',
@@ -394,7 +389,7 @@ const StackedBarChart = <T extends DataItem>({
                     fill={theme.palette.grey[600]}
                     style={{
                       fontFamily: 'Inter',
-                      fontSize: '12px',
+                      fontSize: '14px',
                       fontWeight: 400,
                       letterSpacing: '-0.16px',
                     }}
@@ -408,52 +403,10 @@ const StackedBarChart = <T extends DataItem>({
 
           <ReferenceLine
             ifOverflow="extendDomain"
-            x={1}
-            stroke={theme.palette.grey[200]}
-            strokeWidth={2}
-          />
-
-          <ReferenceLine
-            ifOverflow="extendDomain"
             y={0}
-            stroke={theme.palette.grey[200]}
+            stroke={theme.palette.grey[300]}
             strokeWidth={1}
           />
-
-          <ReferenceLine y={0} stroke={theme.palette.grey[200]} />
-
-          <Customized
-            // @ts-ignore
-            component={({ xAxisMap, offset, height }) => {
-              const xAxis = xAxisMap[Object.keys(xAxisMap)[0]]
-              const scale = xAxis?.scale
-
-              if (!scale || !localData?.length) return null
-
-              const lastX =
-                scale(localData[localData.length - 1][xAxis.dataKey]) + scale.bandwidth()
-
-              return (
-                <line
-                  x1={lastX}
-                  x2={lastX}
-                  y1={offset.top}
-                  y2={height - offset.bottom}
-                  stroke={theme.palette.grey[200]}
-                  strokeWidth={1}
-                />
-              )
-            }}
-          />
-
-          {localData?.map((item, index) => (
-            <ReferenceLine
-              key={`ref-line-${index}`}
-              x={item[xAxisDataKey] as number | string}
-              stroke={theme.palette.grey[200]}
-              strokeWidth={1}
-            />
-          ))}
 
           {!loading && (
             <RechartTooltip
@@ -502,8 +455,9 @@ const StackedBarChart = <T extends DataItem>({
                       x2={x + bandwidth / 2}
                       y1={yAxis.y}
                       y2={yAxis.y + yAxis.height}
-                      stroke={theme.palette.primary[200]}
-                      strokeWidth={2}
+                      stroke={theme.palette.grey[500]}
+                      strokeDasharray="2 2"
+                      strokeWidth={1}
                     />
                   )
                 }}
