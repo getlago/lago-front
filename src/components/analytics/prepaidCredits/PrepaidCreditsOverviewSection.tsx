@@ -67,7 +67,7 @@ const CreditsAmountCell = ({ value, currency }: { value: number; currency: Curre
   <AmountCell
     className={tw({
       'text-green-600': value > 0,
-      'text-grey-500': value === 0,
+      'text-grey-500': Number(value) === 0,
       'text-red-600': value < 0,
     })}
     value={value}
