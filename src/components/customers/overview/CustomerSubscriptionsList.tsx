@@ -42,7 +42,7 @@ gql`
   query getCustomerSubscriptionForList($id: ID!) {
     customer(id: $id) {
       id
-      subscriptions(status: [active, pending]) {
+      subscriptions {
         id
         status
         startedAt
@@ -128,15 +128,25 @@ const annotateSubscriptions = (
       frequency: plan.interval,
       startDate: startedAt || subscriptionAt,
       statusType: {
-        ...(status === StatusTypeEnum.Pending
-          ? {
-              type: StatusType.default,
-              label: 'pending',
-            }
-          : {
-              type: StatusType.success,
-              label: 'active',
-            }),
+        ...(status === StatusTypeEnum.Pending && {
+          type: StatusType.default,
+          label: 'pending',
+        }),
+        ...(status === StatusTypeEnum.Active && {
+          type: StatusType.success,
+          label: 'active',
+        }),
+        ...(status === StatusTypeEnum.Canceled && {
+          type: StatusType.disabled,
+          label: 'canceled',
+        }),
+        ...(status === StatusTypeEnum.Terminated && {
+          type: StatusType.danger,
+          label: 'terminated',
+        }),
+      } as {
+        type: StatusType
+        label: string
       },
       customerId: customer?.id,
       isScheduled: status === StatusTypeEnum.Pending,
@@ -179,6 +189,28 @@ const generateActionColumn = ({
 }) => {
   let actions: ActionItem<AnnotatedSubscription>[] = []
 
+  const copyToClipboardAction: ActionItem<AnnotatedSubscription> = {
+    startIcon: 'duplicate',
+    title: translate('text_62d7f6178ec94cd09370e65b'),
+    onAction: () => {
+      if (!subscription.externalId) return
+
+      copyToClipboard(subscription.externalId)
+
+      addToast({
+        severity: 'info',
+        translateKey: 'text_62d94cc9ccc5eebcc03160a0',
+      })
+    },
+  }
+
+  if (
+    subscription.status === StatusTypeEnum.Terminated ||
+    subscription.status === StatusTypeEnum.Canceled
+  ) {
+    return [copyToClipboardAction]
+  }
+
   if (!subscription.isDowngrade && hasSubscriptionsUpdatePermission) {
     actions = actions.concat([
       {
@@ -206,20 +238,7 @@ const generateActionColumn = ({
     ])
   }
 
-  actions = actions.concat({
-    startIcon: 'duplicate',
-    title: translate('text_62d7f6178ec94cd09370e65b'),
-    onAction: () => {
-      if (!subscription.externalId) return
-
-      copyToClipboard(subscription.externalId)
-
-      addToast({
-        severity: 'info',
-        translateKey: 'text_62d94cc9ccc5eebcc03160a0',
-      })
-    },
-  })
+  actions = actions.concat(copyToClipboardAction)
 
   if (hasSubscriptionsUpdatePermission) {
     actions = actions.concat({
