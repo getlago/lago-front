@@ -101,7 +101,10 @@ export const FiltersPanelPopper = () => {
             </Typography>
             <Button
               onClick={() => {
-                formikProps.setFieldValue('filters', [...(staticFiltersFormValues ?? {})])
+                formikProps.setFieldValue(
+                  'filters',
+                  staticFiltersFormValues.length ? staticFiltersFormValues : [{}],
+                )
               }}
               variant="quaternary"
             >
