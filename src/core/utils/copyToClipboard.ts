@@ -7,6 +7,26 @@ const filterComment = (value: string) => {
     .join('\n')
 }
 
+const unsecuredCopyToClipboard = (text: string) => {
+  const textArea = document.createElement('textarea')
+
+  textArea.value = text.trim()
+  document.body.appendChild(textArea)
+  textArea.focus()
+  textArea.select()
+  try {
+    document.execCommand('copy')
+  } catch {
+    addToast({
+      severity: 'danger',
+      translateKey: 'text_63a5ba11eb4e7e17ef88e9f0',
+    })
+    throw new Error('Unable to copy to clipboard')
+  } finally {
+    document.body.removeChild(textArea)
+  }
+}
+
 export const copyToClipboard: (value: string, options?: { ignoreComment?: boolean }) => void = (
   value,
   ignoreComment,
@@ -16,10 +36,6 @@ export const copyToClipboard: (value: string, options?: { ignoreComment?: boolea
   try {
     navigator.clipboard.writeText(serializedValue)
   } catch {
-    addToast({
-      severity: 'danger',
-      translateKey: 'text_63a5ba11eb4e7e17ef88e9f0',
-    })
-    throw new Error('Browser running in non secure context')
+    unsecuredCopyToClipboard(serializedValue)
   }
 }
