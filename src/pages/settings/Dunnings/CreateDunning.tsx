@@ -366,6 +366,7 @@ const CreateDunning = () => {
                       <TextInputField
                         name="bccEmails"
                         className="flex-1"
+                        beforeChangeFormatter={['lowercase']}
                         formikProps={formikProps}
                         label={translate('text_1742392390147xtfe9hub59a')}
                         placeholder={translate('text_1742392390147xia24oyubb3')}
