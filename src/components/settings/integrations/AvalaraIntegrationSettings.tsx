@@ -173,7 +173,7 @@ const AvalaraIntegrationSettings = () => {
               <IntegrationsPage.DetailsItem
                 icon="key"
                 label={translate('text_1744293609278tzbixvdszc6')}
-                value={avalaraIntegration?.accountId}
+                value={avalaraIntegration?.accountId || ''}
               />
               <IntegrationsPage.DetailsItem
                 icon="key"

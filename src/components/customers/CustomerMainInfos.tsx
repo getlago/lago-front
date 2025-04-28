@@ -9,6 +9,7 @@ import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { CountryCodes } from '~/core/constants/countryCodes'
 import {
   buildAnrokCustomerUrl,
+  buildAvalaraCustomerUrl,
   buildHubspotObjectUrl,
   buildNetsuiteCustomerUrl,
   buildSalesforceUrl,
@@ -19,6 +20,7 @@ import { getTargetedObjectTranslationKey } from '~/core/constants/form'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
   AnrokIntegration,
+  AvalaraIntegration,
   CustomerMainInfosFragment,
   HubspotIntegration,
   NetsuiteIntegration,
@@ -32,6 +34,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Anrok from '~/public/images/anrok.svg'
+import Avalara from '~/public/images/avalara.svg'
 import Hubspot from '~/public/images/hubspot.svg'
 import Netsuite from '~/public/images/netsuite.svg'
 import Salesforce from '~/public/images/salesforce.svg'
@@ -81,6 +84,11 @@ gql`
     paymentProvider
     timezone
     anrokCustomer {
+      id
+      integrationId
+      externalCustomerId
+    }
+    avalaraCustomer {
       id
       integrationId
       externalCustomerId
@@ -171,6 +179,12 @@ gql`
           apiKey
           externalAccountId
         }
+        ... on AvalaraIntegration {
+          __typename
+          id
+          name
+          accountId
+        }
         ... on XeroIntegration {
           __typename
           id
@@ -243,6 +257,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
       skip:
         !customer?.netsuiteCustomer &&
         !customer?.anrokCustomer &&
+        !customer?.avalaraCustomer &&
         !customer?.xeroCustomer &&
         !customer?.hubspotCustomer &&
         !customer?.salesforceCustomer,
@@ -259,6 +274,10 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
   const allAnrokIntegrations = integrationsData?.integrations?.collection.filter(
     (i) => i.__typename === 'AnrokIntegration',
   ) as AnrokIntegration[] | undefined
+
+  const allAvalaraIntegrations = integrationsData?.integrations?.collection.filter(
+    (i) => i.__typename === 'AvalaraIntegration',
+  ) as AvalaraIntegration[] | undefined
 
   const allXeroIntegrations = integrationsData?.integrations?.collection.filter(
     (i) => i.__typename === 'XeroIntegration',
@@ -279,6 +298,10 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
   const connectedAnrokIntegration = allAnrokIntegrations?.find(
     (integration) => integration?.id === customer?.anrokCustomer?.integrationId,
   ) as AnrokIntegration
+
+  const connectedAvalaraIntegration = allAvalaraIntegrations?.find(
+    (integration) => integration?.id === customer?.avalaraCustomer?.integrationId,
+  ) as AvalaraIntegration
 
   const connectedXeroIntegration = allXeroIntegrations?.find(
     (integration) => integration?.id === customer?.xeroCustomer?.integrationId,
@@ -340,6 +363,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
     connectedSalesforceIntegration ||
     connectedHubspotIntegration ||
     connectedAnrokIntegration ||
+    connectedAvalaraIntegration ||
     !!customer?.xeroCustomer ||
     !!connectedXeroIntegration?.id ||
     !!customer?.netsuiteCustomer ||
@@ -714,6 +738,41 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
               </InfoBlock>
             )}
 
+            {(!!customer?.avalaraCustomer || !!connectedAvalaraIntegration?.id) && (
+              <InfoBlock>
+                <Typography variant="caption">
+                  {translate('text_6668821d94e4da4dfd8b3840')}
+                </Typography>
+                <div>
+                  {integrationsLoading && <IntegrationsLoadingSkeleton />}
+                  {!integrationsLoading &&
+                    !!connectedAvalaraIntegration &&
+                    customer?.avalaraCustomer?.externalCustomerId && (
+                      <div>
+                        <div className="flex flex-row items-center gap-2">
+                          <Avatar variant="connector-full" size="small">
+                            <Avalara />
+                          </Avatar>
+                          <Typography color="grey700">
+                            {connectedAvalaraIntegration?.name}
+                          </Typography>
+                        </div>
+                        <InlineLink
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          to={buildAvalaraCustomerUrl(
+                            customer?.avalaraCustomer?.externalCustomerId,
+                          )}
+                        >
+                          <Typography className="flex items-center gap-1" color="info600">
+                            {customer?.avalaraCustomer?.externalCustomerId} <Icon name="outside" />
+                          </Typography>
+                        </InlineLink>
+                      </div>
+                    )}
+                </div>
+              </InfoBlock>
+            )}
             {!!connectedHubspotIntegration && (
               <InfoBlock>
                 <Typography variant="caption">

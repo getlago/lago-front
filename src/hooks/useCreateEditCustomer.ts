@@ -53,6 +53,15 @@ gql`
       integrationType
       syncWithProvider
     }
+    avalaraCustomer {
+      __typename
+      id
+      integrationId
+      externalCustomerId
+      integrationCode
+      integrationType
+      syncWithProvider
+    }
     xeroCustomer {
       __typename
       id
