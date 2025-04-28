@@ -232,13 +232,13 @@ const SideNav = () => {
                     ) : !!data && !error ? (
                       <div className="flex h-5 items-center justify-between py-3 pl-5 pr-2">
                         <a
-                          className="text-blue visited:text-blue"
+                          className="flex items-center gap-2 text-blue visited:text-blue"
                           href={data?.currentVersion?.githubUrl}
                           target="_blank"
                           rel="noreferrer noopener"
                         >
                           {data?.currentVersion?.number}
-                          <Icon className="ml-2 hover:cursor-pointer" name="outside" size="small" />
+                          <Icon className="hover:cursor-pointer" name="outside" size="small" />
                         </a>
                       </div>
                     ) : undefined}
