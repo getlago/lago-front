@@ -16951,7 +16951,7 @@ export const GetCustomerSubscriptionForListDocument = gql`
     query getCustomerSubscriptionForList($id: ID!) {
   customer(id: $id) {
     id
-    subscriptions(status: [active, pending]) {
+    subscriptions {
       id
       status
       startedAt
