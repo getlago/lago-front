@@ -99,6 +99,7 @@ export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
           <TextInputField
             formikProps={formikProps}
             name="emails"
+            beforeChangeFormatter={['lowercase']}
             placeholder={translate('text_66b25bc7a069220091457628')}
             label={translate('text_66b258f62100490d0eb5ca88')}
             description={translate('text_66b258f62100490d0eb5ca89')}
