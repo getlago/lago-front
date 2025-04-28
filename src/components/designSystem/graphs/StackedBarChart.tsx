@@ -325,11 +325,14 @@ const StackedBarChart = <T extends DataItem>({
                 return <></>
               }
 
-              const deserialized = deserializeAmount(payload.value, currency)
+              const isNegative = payload.value < 0
 
-              const formatted = bigNumberShortenNotationFormater(deserialized, {
-                currency,
-              })
+              const formatted = bigNumberShortenNotationFormater(
+                isNegative ? -payload.value : payload.value,
+                {
+                  currency,
+                },
+              )
 
               if (loading) {
                 return (
@@ -352,7 +355,14 @@ const StackedBarChart = <T extends DataItem>({
                       letterSpacing: '-0.16px',
                     }}
                   >
-                    {index !== 0 && hasOnlyZeroValues ? '-' : formatted}
+                    {index !== 0 && hasOnlyZeroValues ? (
+                      '-'
+                    ) : (
+                      <>
+                        {isNegative && '-'}
+                        {formatted}
+                      </>
+                    )}
                   </text>
                 </g>
               )
