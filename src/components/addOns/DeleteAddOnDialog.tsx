@@ -48,15 +48,7 @@ export const DeleteAddOnDialog = forwardRef<DeleteAddOnDialogRef>((_, ref) => {
         localData?.callback && localData.callback()
       }
     },
-    update(cache, { data }) {
-      if (!data?.destroyAddOn) return
-      const cacheId = cache.identify({
-        id: data?.destroyAddOn.id,
-        __typename: 'AddOn',
-      })
-
-      cache.evict({ id: cacheId })
-    },
+    refetchQueries: ['addOns'],
   })
 
   useImperativeHandle(ref, () => ({

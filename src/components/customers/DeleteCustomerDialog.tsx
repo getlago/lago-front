@@ -57,16 +57,7 @@ export const DeleteCustomerDialog = forwardRef<DeleteCustomerDialogRef, unknown>
         })
       }
     },
-    update(cache, { data }) {
-      if (!data?.destroyCustomer) return
-
-      const cacheId = cache.identify({
-        id: data?.destroyCustomer.id,
-        __typename: 'Customer',
-      })
-
-      cache.evict({ id: cacheId })
-    },
+    refetchQueries: ['customers'],
   })
 
   return (
