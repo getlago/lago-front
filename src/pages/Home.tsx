@@ -23,13 +23,13 @@ const Home = () => {
   useEffect(() => {
     // Make sure user permissions are loaded before performing redirection
     if (!isUserLoading && !!currentMembership) {
-      const lastPrivateVisitedRouteWhileNotConnected: Location | undefined = getItemFromLS(
-        LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY,
-      )
+      const lastPrivateVisitedRouteWhileNotConnected:
+        | { location: Location; organizationId: string }
+        | undefined = getItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
 
       if (
         !!lastPrivateVisitedRouteWhileNotConnected &&
-        lastPrivateVisitedRouteWhileNotConnected.pathname !== '/'
+        lastPrivateVisitedRouteWhileNotConnected.location.pathname !== '/'
       ) {
         navigate(lastPrivateVisitedRouteWhileNotConnected, { replace: true })
         // This is a temp value for redirection, should be removed after redirection have been performed
