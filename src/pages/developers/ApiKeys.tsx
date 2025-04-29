@@ -24,19 +24,18 @@ import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/Prem
 import { addToast } from '~/core/apolloClient'
 import { obfuscateValue } from '~/core/formats/obfuscate'
 import { CREATE_API_KEYS_ROUTE, UPDATE_API_KEYS_ROUTE } from '~/core/router'
-import { formatDateToTZ } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   ApiKeyForDeleteApiKeyDialogFragmentDoc,
   ApiKeyForRotateApiKeyDialogFragmentDoc,
   GetOrganizationInfosForApiKeyQuery,
-  TimezoneEnum,
   useGetApiKeysQuery,
   useGetApiKeyValueLazyQuery,
   useGetOrganizationInfosForApiKeyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { tw } from '~/styles/utils'
 
@@ -93,6 +92,7 @@ const ApiKeys = () => {
   const { isPremium } = useCurrentUser()
   const { state } = useLocation()
   const { translate } = useInternationalization()
+  const { formatTimeOrgaTZ } = useOrganizationInfos()
   const rotateApiKeyDialogRef = useRef<RotateApiKeyDialogRef>(null)
   const deleteApiKeyDialogRef = useRef<DeleteApiKeyDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
@@ -227,7 +227,7 @@ const ApiKeys = () => {
                       minWidth: 138,
                       content: ({ createdAt }) => (
                         <Typography color="grey700" variant="body">
-                          {formatDateToTZ(createdAt, TimezoneEnum.TzUtc, 'LLL. dd, yyyy')}
+                          {formatTimeOrgaTZ(createdAt)}
                         </Typography>
                       ),
                     },
@@ -402,9 +402,7 @@ const ApiKeys = () => {
                       minWidth: 140,
                       content: ({ lastUsedAt }) => (
                         <Typography color="grey700" variant="body">
-                          {!!lastUsedAt
-                            ? formatDateToTZ(lastUsedAt, TimezoneEnum.TzUtc, 'LLL. dd, yyyy')
-                            : '-'}
+                          {!!lastUsedAt ? formatTimeOrgaTZ(lastUsedAt) : '-'}
                         </Typography>
                       ),
                     },
@@ -414,7 +412,7 @@ const ApiKeys = () => {
                       minWidth: 140,
                       content: ({ createdAt }) => (
                         <Typography color="grey700" variant="body">
-                          {formatDateToTZ(createdAt, TimezoneEnum.TzUtc, 'LLL. dd, yyyy')}
+                          {formatTimeOrgaTZ(createdAt)}
                         </Typography>
                       ),
                     },
