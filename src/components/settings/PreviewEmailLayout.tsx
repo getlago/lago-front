@@ -1,6 +1,7 @@
+import { Avatar } from 'lago-design-system'
 import { FC, PropsWithChildren, useRef } from 'react'
 
-import { Avatar, Button, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { Button, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { LocaleEnum } from '~/core/translations'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'

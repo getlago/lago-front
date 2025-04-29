@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
+import { Avatar } from 'lago-design-system'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { array, object, Schema, string } from 'yup'
@@ -12,7 +13,6 @@ import { CreditNoteForm, CreditTypeEnum } from '~/components/creditNote/types'
 import { creditNoteFormCalculationCalculation } from '~/components/creditNote/utils'
 import {
   Alert,
-  Avatar,
   Button,
   Card,
   Icon,

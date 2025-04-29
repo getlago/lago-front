@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
+import { Avatar } from 'lago-design-system'
 
-import { Avatar, Icon, Skeleton, Typography } from '~/components/designSystem'
+import { Icon, Skeleton, Typography } from '~/components/designSystem'
 import { WebhookLogItemFragment, WebhookStatusEnum } from '~/generated/graphql'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'

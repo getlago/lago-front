@@ -1,8 +1,9 @@
 import { gql } from '@apollo/client'
 import { FormikProps } from 'formik'
+import { Avatar } from 'lago-design-system'
 import { Dispatch, FC, ReactNode, SetStateAction, useMemo } from 'react'
 
-import { Accordion, Alert, Avatar, Typography } from '~/components/designSystem'
+import { Accordion, Alert, Typography } from '~/components/designSystem'
 import { Checkbox, ComboBox, ComboboxDataGrouped, TextInputField } from '~/components/form'
 import { ADD_CUSTOMER_PAYMENT_PROVIDER_ACCORDION } from '~/core/constants/form'
 import {

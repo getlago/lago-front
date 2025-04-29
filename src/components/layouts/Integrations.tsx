@@ -1,7 +1,8 @@
+import { Avatar } from 'lago-design-system'
 import { FC, PropsWithChildren } from 'react'
 import { Link } from 'react-router-dom'
 
-import { Avatar, Chip, Icon, IconName, Skeleton, Typography } from '~/components/designSystem'
+import { Chip, Icon, IconName, Skeleton, Typography } from '~/components/designSystem'
 import { tw } from '~/styles/utils'
 
 const IntegrationsContainer: FC<PropsWithChildren<{ className?: string }>> = ({

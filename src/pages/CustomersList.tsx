@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { Avatar } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -7,7 +8,7 @@ import {
   DeleteCustomerDialogRef,
 } from '~/components/customers/DeleteCustomerDialog'
 import { computeCustomerInitials } from '~/components/customers/utils'
-import { Avatar, Button, InfiniteScroll, Table, Typography } from '~/components/designSystem'
+import { Button, InfiniteScroll, Table, Typography } from '~/components/designSystem'
 import {
   AvailableFiltersEnum,
   AvailableQuickFilters,

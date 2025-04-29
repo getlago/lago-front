@@ -1,6 +1,5 @@
 export * from './Accordion'
 export * from './Alert'
-export * from './Avatar'
 export * from './Button'
 export * from './ButtonLink'
 export * from './Card'

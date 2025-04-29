@@ -123,11 +123,15 @@ export const Avatar = ({
   }
 
   const getContent = () => {
+    // Remove all non-alphanumeric characters
+    const text = initials || identifier || ''
+    const sanitizedText = text.replace(/[^a-zA-Z0-9]/g, '')
+
     const cursor = size === 'small' || size === 'intermediate' ? 1 : 2
 
     return (
       <Typography color="inherit" variant={mapTypographyVariant(size)}>
-        {(initials || identifier || '').substring(0, cursor).toUpperCase()}
+        {sanitizedText.substring(0, cursor).toUpperCase()}
       </Typography>
     )
   }

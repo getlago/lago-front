@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client'
+import { Avatar } from 'lago-design-system'
 import { useEffect, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import {
-  Avatar,
   Button,
   Icon,
   NavigationTab,
