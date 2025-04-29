@@ -17,7 +17,9 @@
   ],
   "scripts": {
     "dev": "vite",
-    "prebuild": "pnpm --filter lago-design-system build",
+    "build:packages": "pnpm --filter lago-design-system build",
+    "postinstall": "pnpm run build:packages",
+    "prebuild": "pnpm run build:packages",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "prettier --check src/**/*.{ts,tsx,svg} --check index.html --check cypress/**/*.ts && eslint",

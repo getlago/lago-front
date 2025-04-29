@@ -6,3 +6,5 @@ coverage
 cypress/downloads
 .swc/
 .pnpm-store/
+node-jiti/
+v8-compile-cache*
