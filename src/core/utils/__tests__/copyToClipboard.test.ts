@@ -79,7 +79,7 @@ describe('copyToClipboard', () => {
     // Verify error toast was called
     expect(addToast).toHaveBeenCalledWith({
       severity: 'danger',
-      translateKey: 'text_63a5ba11eb4e7e17ef88e9f0',
+      translateKey: 'text_1745919770448pvibiukolis',
     })
 
     // Restore mocks

@@ -19,7 +19,7 @@ const unsecuredCopyToClipboard = (text: string) => {
   } catch {
     addToast({
       severity: 'danger',
-      translateKey: 'text_63a5ba11eb4e7e17ef88e9f0',
+      translateKey: 'text_1745919770448pvibiukolis',
     })
     throw new Error('Unable to copy to clipboard')
   } finally {
@@ -37,5 +37,9 @@ export const copyToClipboard: (value: string, options?: { ignoreComment?: boolea
     navigator.clipboard.writeText(serializedValue)
   } catch {
     unsecuredCopyToClipboard(serializedValue)
+    addToast({
+      severity: 'info',
+      translateKey: 'text_63a5ba11eb4e7e17ef88e9f0',
+    })
   }
 }
