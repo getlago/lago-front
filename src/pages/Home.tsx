@@ -3,7 +3,10 @@ import { generatePath, useNavigate } from 'react-router-dom'
 
 import { Icon } from '~/components/designSystem'
 import { getItemFromLS, removeItemFromLS } from '~/core/apolloClient'
-import { LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY } from '~/core/constants/localStorageKeys'
+import {
+  LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY,
+  ORGANIZATION_LS_KEY_ID,
+} from '~/core/constants/localStorageKeys'
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE, CUSTOMERS_LIST_ROUTE } from '~/core/router'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
@@ -23,18 +26,26 @@ const Home = () => {
   useEffect(() => {
     // Make sure user permissions are loaded before performing redirection
     if (!isUserLoading && !!currentMembership) {
-      const lastPrivateVisitedRouteWhileNotConnected: Location | undefined = getItemFromLS(
-        LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY,
-      )
+      const lastPrivateVisitedRouteWhileNotConnected:
+        | { location: Location; organizationId: string }
+        | undefined = getItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
 
       if (
         !!lastPrivateVisitedRouteWhileNotConnected &&
-        lastPrivateVisitedRouteWhileNotConnected.pathname !== '/'
+        lastPrivateVisitedRouteWhileNotConnected.location.pathname !== '/'
       ) {
-        navigate(lastPrivateVisitedRouteWhileNotConnected, { replace: true })
-        // This is a temp value for redirection, should be removed after redirection have been performed
+        const currentOrganizationId = getItemFromLS(ORGANIZATION_LS_KEY_ID)
+
+        if (lastPrivateVisitedRouteWhileNotConnected.organizationId === currentOrganizationId) {
+          // Return navigation to prevent later ones to be performed
+          return navigate(lastPrivateVisitedRouteWhileNotConnected.location, { replace: true })
+        }
+
+        // This is a temp value for redirection, should be removed if it does not match the current organization
         removeItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
-      } else if (hasPermissions(['analyticsView']) && !hasAccessToAnalyticsDashboardsFeature) {
+      }
+
+      if (hasPermissions(['analyticsView']) && !hasAccessToAnalyticsDashboardsFeature) {
         navigate(ANALYTIC_ROUTE, { replace: true })
       } else if (hasPermissions(['dataApiView']) && hasAccessToAnalyticsDashboardsFeature) {
         navigate(

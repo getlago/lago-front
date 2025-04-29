@@ -8,8 +8,9 @@ import { object, string } from 'yup'
 import GoogleAuthButton from '~/components/auth/GoogleAuthButton'
 import { Alert, Button, Skeleton, Typography } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
-import { hasDefinedGQLError, onLogIn } from '~/core/apolloClient'
+import { hasDefinedGQLError, onLogIn, removeItemFromLS } from '~/core/apolloClient'
 import { DOCUMENTATION_ENV_VARS } from '~/core/constants/externalUrls'
+import { LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY } from '~/core/constants/localStorageKeys'
 import { LOGIN_ROUTE } from '~/core/router'
 import { addValuesToUrlState } from '~/core/utils/urlUtils'
 import {
@@ -168,6 +169,9 @@ const Invitation = () => {
   )
   const onInvitation = async () => {
     const { password } = formFields
+
+    // make sure no previous visited route is saved in the LS
+    removeItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
 
     await acceptInvite({
       variables: {

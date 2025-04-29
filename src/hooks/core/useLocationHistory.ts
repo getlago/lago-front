@@ -8,7 +8,10 @@ import {
   removeItemFromLS,
   setItemFromLS,
 } from '~/core/apolloClient'
-import { LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY } from '~/core/constants/localStorageKeys'
+import {
+  LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY,
+  ORGANIZATION_LS_KEY_ID,
+} from '~/core/constants/localStorageKeys'
 import { CustomRouteObject, FORBIDDEN_ROUTE, HOME_ROUTE, LOGIN_ROUTE } from '~/core/router'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -89,10 +92,12 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
           pathname: LOGIN_ROUTE,
           search: location.search,
         })
-        addLocationToHistory(location)
 
-        // If user is kickd out or logs out, we save the last private route visited to redirect after login
-        setItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY, location)
+        // If user is kicked out or logs out, we save manually the last private route visited to redirect after login
+        setItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY, {
+          location,
+          organizationId: getItemFromLS(ORGANIZATION_LS_KEY_ID),
+        })
       } else if (
         isAuthenticated &&
         routeConfig.permissions?.length &&
