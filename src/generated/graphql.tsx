@@ -315,7 +315,7 @@ export type AvalaraCustomer = {
 
 export type AvalaraIntegration = {
   __typename?: 'AvalaraIntegration';
-  accountId: Scalars['String']['output'];
+  accountId?: Maybe<Scalars['String']['output']>;
   code: Scalars['String']['output'];
   companyCode: Scalars['String']['output'];
   failedInvoicesCount?: Maybe<Scalars['Int']['output']>;
@@ -2405,16 +2405,16 @@ export type DataApiMrrsPlans = {
 export type DataApiPrepaidCredit = {
   __typename?: 'DataApiPrepaidCredit';
   amountCurrency: CurrencyEnum;
-  consumedAmount: Scalars['BigInt']['output'];
-  consumedCreditsQuantity: Scalars['BigInt']['output'];
+  consumedAmount: Scalars['Float']['output'];
+  consumedCreditsQuantity: Scalars['Float']['output'];
   endOfPeriodDt: Scalars['ISO8601Date']['output'];
-  offeredAmount: Scalars['BigInt']['output'];
-  offeredCreditsQuantity: Scalars['BigInt']['output'];
-  purchasedAmount: Scalars['BigInt']['output'];
-  purchasedCreditsQuantity: Scalars['BigInt']['output'];
+  offeredAmount: Scalars['Float']['output'];
+  offeredCreditsQuantity: Scalars['Float']['output'];
+  purchasedAmount: Scalars['Float']['output'];
+  purchasedCreditsQuantity: Scalars['Float']['output'];
   startOfPeriodDt: Scalars['ISO8601Date']['output'];
-  voidedAmount: Scalars['BigInt']['output'];
-  voidedCreditsQuantity: Scalars['BigInt']['output'];
+  voidedAmount: Scalars['Float']['output'];
+  voidedCreditsQuantity: Scalars['Float']['output'];
 };
 
 /** DataApiPrepaidCreditCollection type */
@@ -2518,6 +2518,7 @@ export type DataExport = {
 export type DataExportCreditNoteFiltersInput = {
   amountFrom?: InputMaybe<Scalars['Int']['input']>;
   amountTo?: InputMaybe<Scalars['Int']['input']>;
+  billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   creditStatus?: InputMaybe<Array<CreditNoteCreditStatusEnum>>;
   currency?: InputMaybe<CurrencyEnum>;
   customerExternalId?: InputMaybe<Scalars['String']['input']>;
@@ -2540,6 +2541,7 @@ export enum DataExportFormatTypeEnum {
 export type DataExportInvoiceFiltersInput = {
   amountFrom?: InputMaybe<Scalars['Int']['input']>;
   amountTo?: InputMaybe<Scalars['Int']['input']>;
+  billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   currency?: InputMaybe<CurrencyEnum>;
   customerExternalId?: InputMaybe<Scalars['String']['input']>;
   invoiceType?: InputMaybe<Array<InvoiceTypeEnum>>;
@@ -7310,7 +7312,7 @@ export type GetMrrsQueryVariables = Exact<{
 
 export type GetMrrsQuery = { __typename?: 'Query', dataApiMrrs: { __typename?: 'DataApiMrrCollection', collection: Array<{ __typename?: 'DataApiMrr', endOfPeriodDt: any, endingMrr: any, mrrChange: any, mrrChurn: any, mrrContraction: any, mrrExpansion: any, mrrNew: any, startOfPeriodDt: any, startingMrr: any }> } };
 
-export type PrepaidCreditsDataForOverviewSectionFragment = { __typename?: 'DataApiPrepaidCredit', amountCurrency: CurrencyEnum, consumedAmount: any, consumedCreditsQuantity: any, endOfPeriodDt: any, offeredAmount: any, offeredCreditsQuantity: any, purchasedAmount: any, purchasedCreditsQuantity: any, startOfPeriodDt: any, voidedAmount: any, voidedCreditsQuantity: any };
+export type PrepaidCreditsDataForOverviewSectionFragment = { __typename?: 'DataApiPrepaidCredit', amountCurrency: CurrencyEnum, consumedAmount: number, consumedCreditsQuantity: number, endOfPeriodDt: any, offeredAmount: number, offeredCreditsQuantity: number, purchasedAmount: number, purchasedCreditsQuantity: number, startOfPeriodDt: any, voidedAmount: number, voidedCreditsQuantity: number };
 
 export type GetPrepaidCreditsQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
@@ -7325,7 +7327,7 @@ export type GetPrepaidCreditsQueryVariables = Exact<{
 }>;
 
 
-export type GetPrepaidCreditsQuery = { __typename?: 'Query', dataApiPrepaidCredits: { __typename?: 'DataApiPrepaidCreditCollection', collection: Array<{ __typename?: 'DataApiPrepaidCredit', amountCurrency: CurrencyEnum, consumedAmount: any, consumedCreditsQuantity: any, endOfPeriodDt: any, offeredAmount: any, offeredCreditsQuantity: any, purchasedAmount: any, purchasedCreditsQuantity: any, startOfPeriodDt: any, voidedAmount: any, voidedCreditsQuantity: any }> } };
+export type GetPrepaidCreditsQuery = { __typename?: 'Query', dataApiPrepaidCredits: { __typename?: 'DataApiPrepaidCreditCollection', collection: Array<{ __typename?: 'DataApiPrepaidCredit', amountCurrency: CurrencyEnum, consumedAmount: number, consumedCreditsQuantity: number, endOfPeriodDt: any, offeredAmount: number, offeredCreditsQuantity: number, purchasedAmount: number, purchasedCreditsQuantity: number, startOfPeriodDt: any, voidedAmount: number, voidedCreditsQuantity: number }> } };
 
 export type GetRevenueStreamsCustomerBreakdownQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
@@ -8323,21 +8325,21 @@ export type UpdateAnrokIntegrationMutationVariables = Exact<{
 
 export type UpdateAnrokIntegrationMutation = { __typename?: 'Mutation', updateAnrokIntegration?: { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: any } | null };
 
-export type AddAvalaraIntegrationDialogFragment = { __typename?: 'AvalaraIntegration', id: string, accountId: string, code: string, companyCode: string, licenseKey: any, name: string };
+export type AddAvalaraIntegrationDialogFragment = { __typename?: 'AvalaraIntegration', id: string, accountId?: string | null, code: string, companyCode: string, licenseKey: any, name: string };
 
 export type CreateAvalaraIntegrationMutationVariables = Exact<{
   input: CreateAvalaraIntegrationInput;
 }>;
 
 
-export type CreateAvalaraIntegrationMutation = { __typename?: 'Mutation', createAvalaraIntegration?: { __typename?: 'AvalaraIntegration', id: string, accountId: string, code: string, companyCode: string, licenseKey: any, name: string } | null };
+export type CreateAvalaraIntegrationMutation = { __typename?: 'Mutation', createAvalaraIntegration?: { __typename?: 'AvalaraIntegration', id: string, accountId?: string | null, code: string, companyCode: string, licenseKey: any, name: string } | null };
 
 export type UpdateAvalaraIntegrationMutationVariables = Exact<{
   input: UpdateAvalaraIntegrationInput;
 }>;
 
 
-export type UpdateAvalaraIntegrationMutation = { __typename?: 'Mutation', updateAvalaraIntegration?: { __typename?: 'AvalaraIntegration', id: string, accountId: string, code: string, companyCode: string, licenseKey: any, name: string } | null };
+export type UpdateAvalaraIntegrationMutation = { __typename?: 'Mutation', updateAvalaraIntegration?: { __typename?: 'AvalaraIntegration', id: string, accountId?: string | null, code: string, companyCode: string, licenseKey: any, name: string } | null };
 
 export type AddCashfreeProviderDialogFragment = { __typename?: 'CashfreeProvider', id: string, name: string, code: string, clientId?: string | null, clientSecret?: string | null, successRedirectUrl?: string | null };
 
@@ -8723,7 +8725,7 @@ export type DeleteAvalaraIntegrationMappingMutationVariables = Exact<{
 
 export type DeleteAvalaraIntegrationMappingMutation = { __typename?: 'Mutation', destroyIntegrationMapping?: { __typename?: 'DestroyIntegrationMappingPayload', id?: string | null } | null };
 
-export type AvalaraIntegrationSettingsFragment = { __typename?: 'AvalaraIntegration', id: string, accountId: string, code: string, companyCode: string, failedInvoicesCount?: number | null, hasMappingsConfigured?: boolean | null, licenseKey: any, name: string };
+export type AvalaraIntegrationSettingsFragment = { __typename?: 'AvalaraIntegration', id: string, accountId?: string | null, code: string, companyCode: string, failedInvoicesCount?: number | null, hasMappingsConfigured?: boolean | null, licenseKey: any, name: string };
 
 export type GetAvalaraIntegrationSettingsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -8731,7 +8733,7 @@ export type GetAvalaraIntegrationSettingsQueryVariables = Exact<{
 }>;
 
 
-export type GetAvalaraIntegrationSettingsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration', id: string, accountId: string, code: string, companyCode: string, failedInvoicesCount?: number | null, hasMappingsConfigured?: boolean | null, licenseKey: any, name: string } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration', id: string } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetAvalaraIntegrationSettingsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration', id: string, accountId?: string | null, code: string, companyCode: string, failedInvoicesCount?: number | null, hasMappingsConfigured?: boolean | null, licenseKey: any, name: string } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration', id: string } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
 
 export type RetryAllAvalaraInvoicesMutationVariables = Exact<{
   input: RetryAllInvoicesInput;
@@ -10249,7 +10251,7 @@ export type GetOktaIntegrationQueryVariables = Exact<{
 
 export type GetOktaIntegrationQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration', id: string, clientId?: string | null, clientSecret?: any | null, code: string, organizationName: string, domain: string, name: string } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' } | null };
 
-export type AvalaraIntegrationDetailsFragment = { __typename?: 'AvalaraIntegration', id: string, name: string, accountId: string, code: string, companyCode: string, licenseKey: any };
+export type AvalaraIntegrationDetailsFragment = { __typename?: 'AvalaraIntegration', id: string, name: string, accountId?: string | null, code: string, companyCode: string, licenseKey: any };
 
 export type GetAvalaraIntegrationsDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -10258,9 +10260,9 @@ export type GetAvalaraIntegrationsDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetAvalaraIntegrationsDetailsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration', id: string, name: string, accountId: string, code: string, companyCode: string, licenseKey: any } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration', id: string } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetAvalaraIntegrationsDetailsQuery = { __typename?: 'Query', integration?: { __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration', id: string, name: string, accountId?: string | null, code: string, companyCode: string, licenseKey: any } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' } | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration', id: string } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
 
-export type AvalaraIntegrationsFragment = { __typename?: 'AvalaraIntegration', id: string, name: string, code: string, accountId: string, companyCode: string, licenseKey: any };
+export type AvalaraIntegrationsFragment = { __typename?: 'AvalaraIntegration', id: string, name: string, code: string, accountId?: string | null, companyCode: string, licenseKey: any };
 
 export type GetAvalaraIntegrationsListQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -10268,7 +10270,7 @@ export type GetAvalaraIntegrationsListQueryVariables = Exact<{
 }>;
 
 
-export type GetAvalaraIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration', id: string, name: string, code: string, accountId: string, companyCode: string, licenseKey: any } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetAvalaraIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration', id: string, name: string, code: string, accountId?: string | null, companyCode: string, licenseKey: any } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
 
 export type GetBillingEntitySettingsQueryVariables = Exact<{
   code: Scalars['String']['input'];
