@@ -1,10 +1,11 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
+import { Avatar } from 'lago-design-system'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { object, string } from 'yup'
 
-import { Avatar, Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
+import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 import {
   InviteForEditRoleForDialogFragment,

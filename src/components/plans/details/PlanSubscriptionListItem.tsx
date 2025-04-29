@@ -1,10 +1,11 @@
 import { gql } from '@apollo/client'
+import { Avatar } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { generatePath } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 
 import { computeCustomerInitials } from '~/components/customers/utils'
-import { Avatar, Skeleton, Typography } from '~/components/designSystem'
+import { Skeleton, Typography } from '~/components/designSystem'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { PLAN_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
 import { PlanSubscriptionListItemForSubscriptionListFragment } from '~/generated/graphql'

@@ -1,7 +1,8 @@
+import { Avatar } from 'lago-design-system'
 import { useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { Avatar, Button, Icon, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { Button, Icon, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { Switch } from '~/components/form'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { LanguageSettingsButton } from '~/components/settings/LanguageSettingsButton'

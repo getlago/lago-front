@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
+import { Avatar } from 'lago-design-system'
 
-import { Avatar, Icon, Skeleton, Typography } from '~/components/designSystem'
+import { Icon, Skeleton, Typography } from '~/components/designSystem'
 import { formatDateToTZ } from '~/core/timezone'
 import { EventItemFragment, TimezoneEnum } from '~/generated/graphql'
 import { ListKeyNavigationItemProps } from '~/hooks/ui/useListKeyNavigation'

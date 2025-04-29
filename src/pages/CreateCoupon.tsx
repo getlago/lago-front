@@ -1,5 +1,6 @@
 import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
+import { Avatar } from 'lago-design-system'
 import isEqual from 'lodash/isEqual'
 import { DateTime } from 'luxon'
 import { useEffect, useRef, useState } from 'react'
@@ -15,16 +16,7 @@ import {
   AddPlanToCouponDialogRef,
 } from '~/components/coupons/AddPlanToCouponDialog'
 import { CouponCodeSnippet } from '~/components/coupons/CouponCodeSnippet'
-import {
-  Alert,
-  Avatar,
-  Button,
-  Card,
-  Icon,
-  Skeleton,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Alert, Button, Card, Icon, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import {
   AmountInputField,
   Checkbox,

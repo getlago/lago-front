@@ -1,8 +1,8 @@
 import { cva } from 'class-variance-authority'
+import { AvatarSize, avatarSizeStyles } from 'lago-design-system'
 
 import { tw } from '~/styles/utils'
 
-import { AvatarSize, avatarSizeStyles } from './Avatar'
 import { TypographyProps } from './Typography'
 
 import { ConditionalWrapper } from '../ConditionalWrapper'

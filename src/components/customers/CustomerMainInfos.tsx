@@ -1,9 +1,10 @@
 import { gql } from '@apollo/client'
+import { Avatar } from 'lago-design-system'
 import { FC, PropsWithChildren } from 'react'
 import { Link, LinkProps } from 'react-router-dom'
 
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
-import { Avatar, Icon, Skeleton, Typography } from '~/components/designSystem'
+import { Icon, Skeleton, Typography } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { CountryCodes } from '~/core/constants/countryCodes'

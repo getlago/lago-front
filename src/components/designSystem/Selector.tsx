@@ -1,9 +1,9 @@
 import { cva } from 'class-variance-authority'
+import { Avatar } from 'lago-design-system'
 import { ReactElement, useState } from 'react'
 
 import { tw } from '~/styles/utils'
 
-import { Avatar } from './Avatar'
 import { Icon, IconName } from './Icon'
 import { Typography } from './Typography'
 

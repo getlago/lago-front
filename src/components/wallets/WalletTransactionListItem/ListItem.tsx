@@ -1,8 +1,7 @@
+import { Avatar, AvatarBadge } from 'lago-design-system'
 import { FC } from 'react'
 
 import {
-  Avatar,
-  AvatarBadge,
   Button,
   Icon,
   IconName,

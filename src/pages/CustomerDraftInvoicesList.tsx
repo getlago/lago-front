@@ -1,9 +1,10 @@
 import { gql } from '@apollo/client'
+import { Avatar } from 'lago-design-system'
 import { generatePath, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { CustomerInvoicesList } from '~/components/customers/CustomerInvoicesList'
-import { Avatar, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
+import { Button, Icon, Skeleton, Typography } from '~/components/designSystem'
 import { SearchInput } from '~/components/SearchInput'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'

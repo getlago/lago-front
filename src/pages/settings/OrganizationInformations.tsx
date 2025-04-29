@@ -1,7 +1,8 @@
 import { gql } from '@apollo/client'
+import { Avatar } from 'lago-design-system'
 import { useRef } from 'react'
 
-import { Avatar, Button, Typography } from '~/components/designSystem'
+import { Button, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {

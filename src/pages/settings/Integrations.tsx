@@ -1,8 +1,9 @@
 import { gql } from '@apollo/client'
+import { Avatar } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import { Alert, Avatar, Chip, NavigationTab, Selector, Typography } from '~/components/designSystem'
+import { Alert, Chip, NavigationTab, Selector, Typography } from '~/components/designSystem'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
   SettingsListItem,
@@ -79,8 +80,7 @@ import {
   TAX_MANAGEMENT_INTEGRATION_ROUTE,
   XERO_INTEGRATION_ROUTE,
 } from '~/core/router'
-import { isFeatureFlagActive } from '~/core/utils/featureFlags'
-import { FeatureFlags } from '~/core/utils/featureFlags'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { PremiumIntegrationTypeEnum, useIntegrationsSettingQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'

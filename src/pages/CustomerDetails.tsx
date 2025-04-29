@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { Avatar } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
@@ -20,7 +21,6 @@ import { CustomerSubscriptionsList } from '~/components/customers/overview/Custo
 import { CustomerUsage } from '~/components/customers/usage/CustomerUsage'
 import { computeCustomerInitials } from '~/components/customers/utils'
 import {
-  Avatar,
   Button,
   Chip,
   NavigationTab,

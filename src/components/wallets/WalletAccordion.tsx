@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
+import { Avatar } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { FC, PropsWithChildren, RefObject, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import {
   Accordion,
-  Avatar,
   Button,
   Card,
   Icon,
