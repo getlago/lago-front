@@ -82,6 +82,7 @@ const CreateCustomer = () => {
       url: customer?.url ?? undefined,
       integrationCustomers: [
         ...(!!customer?.netsuiteCustomer ? [customer?.netsuiteCustomer] : []),
+        ...(!!customer?.avalaraCustomer ? [customer?.avalaraCustomer] : []),
         ...(!!customer?.anrokCustomer ? [customer?.anrokCustomer] : []),
         ...(!!customer?.xeroCustomer ? [customer?.xeroCustomer] : []),
         ...(!!customer?.hubspotCustomer ? [customer?.hubspotCustomer] : []),
