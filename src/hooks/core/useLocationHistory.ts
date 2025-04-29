@@ -89,7 +89,6 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
           pathname: LOGIN_ROUTE,
           search: location.search,
         })
-        addLocationToHistory(location)
 
         // If user is kickd out or logs out, we save the last private route visited to redirect after login
         setItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY, location)
