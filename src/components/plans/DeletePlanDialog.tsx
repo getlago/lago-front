@@ -54,16 +54,7 @@ export const DeletePlanDialog = forwardRef<DeletePlanDialogRef>((_, ref) => {
         localData?.callback && localData.callback()
       }
     },
-    update(cache, { data }) {
-      if (!data?.destroyPlan) return
-
-      const cacheId = cache.identify({
-        id: data?.destroyPlan.id,
-        __typename: 'Plan',
-      })
-
-      cache.evict({ id: cacheId })
-    },
+    refetchQueries: ['plans'],
   })
 
   useImperativeHandle(ref, () => ({
