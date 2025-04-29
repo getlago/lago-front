@@ -38,7 +38,9 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
     ),
   )
   const hadInitialTaxProvider = !!formikProps.values.integrationCustomers?.find((i) =>
-    [IntegrationTypeEnum.Anrok].includes(i.integrationType as IntegrationTypeEnum),
+    [IntegrationTypeEnum.Anrok, IntegrationTypeEnum.Avalara].includes(
+      i.integrationType as IntegrationTypeEnum,
+    ),
   )
   const hadInitialCRMProvider = !!formikProps.values.integrationCustomers?.find((i) =>
     [IntegrationTypeEnum.Hubspot, IntegrationTypeEnum.Salesforce].includes(

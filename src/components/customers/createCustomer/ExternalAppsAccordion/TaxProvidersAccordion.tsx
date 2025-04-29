@@ -3,10 +3,11 @@ import { FormikProps } from 'formik'
 import { Dispatch, FC, SetStateAction, useMemo } from 'react'
 
 import { Accordion, Avatar, Typography } from '~/components/designSystem'
-import { BasicComboBoxData, Checkbox, ComboBox, TextInputField } from '~/components/form'
+import { Checkbox, ComboBox, ComboboxDataGrouped, TextInputField } from '~/components/form'
 import { ADD_CUSTOMER_TAX_PROVIDER_ACCORDION } from '~/core/constants/form'
 import {
   AnrokIntegration,
+  AvalaraIntegration,
   CreateCustomerInput,
   IntegrationTypeEnum,
   UpdateCustomerInput,
@@ -14,6 +15,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Anrok from '~/public/images/anrok.svg'
+import Avalara from '~/public/images/avalara.svg'
 
 import { ExternalAppsAccordionLayout } from './ExternalAppsAccordionLayout'
 import { getIntegration } from './utils'
@@ -23,6 +25,12 @@ gql`
     integrations(limit: $limit, page: $page) {
       collection {
         ... on AnrokIntegration {
+          __typename
+          id
+          code
+          name
+        }
+        ... on AvalaraIntegration {
           __typename
           id
           code
@@ -62,12 +70,29 @@ export const TaxProvidersAccordion: FC<TaxProvidersAccordionProps> = ({
     allIntegrationsData,
   })
 
-  const connectedAnrokIntegrationsData: BasicComboBoxData[] | [] = useMemo(() => {
-    if (!allAnrokIntegrations?.length) return []
+  const {
+    hadInitialIntegrationCustomer: hadInitialAvalaraIntegrationCustomer,
+    selectedIntegration: selectedAvalaraIntegration,
+    allIntegrations: allAvalaraIntegrations,
+    integrationPointerInIntegrationCustomer: avalaraIntegrationPointerInIntegration,
+    selectedIntegrationSettings: selectedAvalaraIntegrationSettings,
+  } = getIntegration<AvalaraIntegration>({
+    integrationType: IntegrationTypeEnum.Avalara,
+    formikProps,
+    allIntegrationsData,
+  })
 
-    return allAnrokIntegrations?.map((integration) => ({
+  const allTaxIntegrationsData = useMemo(() => {
+    return [...(allAnrokIntegrations || []), ...(allAvalaraIntegrations || [])]
+  }, [allAnrokIntegrations, allAvalaraIntegrations])
+
+  const connectedTaxIntegrationsData: ComboboxDataGrouped[] | [] = useMemo(() => {
+    if (!allTaxIntegrationsData?.length) return []
+
+    return allTaxIntegrationsData?.map((integration) => ({
       value: integration.code,
       label: integration.name,
+      group: integration?.__typename?.replace('Integration', '') || '',
       labelNode: (
         <ExternalAppsAccordionLayout.ComboboxItem
           label={integration.name}
@@ -75,7 +100,11 @@ export const TaxProvidersAccordion: FC<TaxProvidersAccordionProps> = ({
         />
       ),
     }))
-  }, [allAnrokIntegrations])
+  }, [allTaxIntegrationsData])
+
+  const selectedIntegration = selectedAnrokIntegration || selectedAvalaraIntegration
+  const selectedIntegrationSettings =
+    selectedAnrokIntegrationSettings || selectedAvalaraIntegrationSettings
 
   return (
     <div>
@@ -89,19 +118,24 @@ export const TaxProvidersAccordion: FC<TaxProvidersAccordionProps> = ({
           <ExternalAppsAccordionLayout.Summary
             loading={loading}
             avatar={
-              selectedAnrokIntegrationSettings && (
+              selectedIntegration && (
                 <Avatar size="big" variant="connector-full">
-                  <Anrok />
+                  {selectedIntegration?.integrationType === IntegrationTypeEnum.Anrok && <Anrok />}
+                  {selectedIntegration?.integrationType === IntegrationTypeEnum.Avalara && (
+                    <Avalara />
+                  )}
                 </Avatar>
               )
             }
-            label={selectedAnrokIntegrationSettings?.name}
-            subLabel={selectedAnrokIntegrationSettings?.code}
+            label={selectedIntegrationSettings?.name}
+            subLabel={selectedIntegrationSettings?.code}
             onDelete={() => {
               formikProps.setFieldValue(
                 'integrationCustomers',
                 formikProps.values.integrationCustomers?.filter(
-                  (i) => i.integrationType !== IntegrationTypeEnum.Anrok,
+                  (i) =>
+                    i.integrationType !== IntegrationTypeEnum.Anrok &&
+                    i.integrationType !== IntegrationTypeEnum.Avalara,
                 ),
               )
               setShowTaxSection(false)
@@ -116,32 +150,58 @@ export const TaxProvidersAccordion: FC<TaxProvidersAccordionProps> = ({
 
           {/* Select connected account */}
           <ComboBox
-            disabled={hadInitialAnrokIntegrationCustomer}
-            data={connectedAnrokIntegrationsData}
+            disabled={hadInitialAnrokIntegrationCustomer || hadInitialAvalaraIntegrationCustomer}
+            data={connectedTaxIntegrationsData}
             label={translate('text_66423cad72bbad009f2f5695')}
             placeholder={translate('text_66423cad72bbad009f2f5697')}
             emptyText={translate('text_6645daa0468420011304aded')}
             PopperProps={{ displayInDialog: true }}
-            value={selectedAnrokIntegration?.integrationCode as string}
+            value={selectedIntegration?.integrationCode as string}
             onChange={(value) => {
-              const newAnrokIntegrationObject = {
-                integrationCode: value,
-                integrationType: IntegrationTypeEnum.Anrok,
-                syncWithProvider: false,
-              }
+              const localSelectedIntegration = connectedTaxIntegrationsData.find(
+                (data) => data.value === value,
+              )
 
-              // If no existing anrok integration, add it
-              if (!selectedAnrokIntegration) {
-                formikProps.setFieldValue('integrationCustomers', [
-                  ...(formikProps.values.integrationCustomers || []),
-                  newAnrokIntegrationObject,
-                ])
-              } else {
-                // If existing anrok integration, update it
-                formikProps.setFieldValue(
-                  `${anrokIntegrationPointerInIntegration}`,
-                  newAnrokIntegrationObject,
-                )
+              if (localSelectedIntegration?.group === 'Anrok') {
+                const newAnrokIntegrationObject = {
+                  integrationCode: value,
+                  integrationType: IntegrationTypeEnum.Anrok,
+                  syncWithProvider: false,
+                }
+
+                // If no existing anrok integration, add it
+                if (!selectedAnrokIntegration) {
+                  formikProps.setFieldValue('integrationCustomers', [
+                    ...(formikProps.values.integrationCustomers || []),
+                    newAnrokIntegrationObject,
+                  ])
+                } else {
+                  // If existing anrok integration, update it
+                  formikProps.setFieldValue(
+                    `${anrokIntegrationPointerInIntegration}`,
+                    newAnrokIntegrationObject,
+                  )
+                }
+              } else if (localSelectedIntegration?.group === 'Avalara') {
+                const newAvalaraIntegrationObject = {
+                  integrationCode: value,
+                  integrationType: IntegrationTypeEnum.Avalara,
+                  syncWithProvider: false,
+                }
+
+                // If no existing avalara integration, add it
+                if (!selectedAvalaraIntegration) {
+                  formikProps.setFieldValue('integrationCustomers', [
+                    ...(formikProps.values.integrationCustomers || []),
+                    newAvalaraIntegrationObject,
+                  ])
+                } else {
+                  // If existing avalara integration, update it
+                  formikProps.setFieldValue(
+                    `${avalaraIntegrationPointerInIntegration}`,
+                    newAvalaraIntegrationObject,
+                  )
+                }
               }
             }}
           />
@@ -178,6 +238,45 @@ export const TaxProvidersAccordion: FC<TaxProvidersAccordionProps> = ({
                   formikProps.setFieldValue(
                     `${anrokIntegrationPointerInIntegration}`,
                     newAnrokIntegrationObject,
+                  )
+                }}
+              />
+            </>
+          )}
+
+          {!!selectedAvalaraIntegration && (
+            <>
+              <TextInputField
+                label={translate('text_1745827156646ff5h5i281gc')}
+                placeholder={translate('text_1745827156646zoyf7wmog2m')}
+                name={`${avalaraIntegrationPointerInIntegration}.externalCustomerId`}
+                disabled={
+                  !!selectedAvalaraIntegration?.syncWithProvider ||
+                  hadInitialAvalaraIntegrationCustomer
+                }
+                formikProps={formikProps}
+              />
+
+              <Checkbox
+                name={`${avalaraIntegrationPointerInIntegration}.syncWithProvider`}
+                disabled={hadInitialAvalaraIntegrationCustomer}
+                value={!!selectedAvalaraIntegration?.syncWithProvider}
+                label={translate('text_66423cad72bbad009f2f569e', {
+                  connectionName: selectedAvalaraIntegrationSettings?.name,
+                })}
+                onChange={(_, checked) => {
+                  const newAvalaraIntegrationObject = {
+                    ...selectedAvalaraIntegration,
+                    syncWithProvider: checked,
+                  }
+
+                  if (!isEdition && checked) {
+                    newAvalaraIntegrationObject.externalCustomerId = ''
+                  }
+
+                  formikProps.setFieldValue(
+                    `${avalaraIntegrationPointerInIntegration}`,
+                    newAvalaraIntegrationObject,
                   )
                 }}
               />

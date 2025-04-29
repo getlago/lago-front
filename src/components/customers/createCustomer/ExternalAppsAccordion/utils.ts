@@ -2,6 +2,7 @@ import { FormikProps } from 'formik'
 
 import {
   AnrokIntegration,
+  AvalaraIntegration,
   CreateCustomerInput,
   GetAccountingIntegrationsForExternalAppsAccordionQuery,
   GetCrmIntegrationsForExternalAppsAccordionQuery,
@@ -15,11 +16,12 @@ import {
 } from '~/generated/graphql'
 
 type SupportedIntegration =
-  | NetsuiteIntegration
-  | XeroIntegration
   | AnrokIntegration
+  | AvalaraIntegration
   | HubspotIntegration
+  | NetsuiteIntegration
   | SalesforceIntegration
+  | XeroIntegration
 
 const integrationTypeToTypename: Partial<Record<IntegrationTypeEnum, string>> = {
   // Account integrations
@@ -27,6 +29,7 @@ const integrationTypeToTypename: Partial<Record<IntegrationTypeEnum, string>> = 
   [IntegrationTypeEnum.Xero]: 'XeroIntegration',
   // Tax integrations
   [IntegrationTypeEnum.Anrok]: 'AnrokIntegration',
+  [IntegrationTypeEnum.Avalara]: 'AvalaraIntegration',
   // CRM integrations
   [IntegrationTypeEnum.Hubspot]: 'HubspotIntegration',
   [IntegrationTypeEnum.Salesforce]: 'SalesforceIntegration',

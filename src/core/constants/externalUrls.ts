@@ -55,6 +55,9 @@ export const buildAnrokCustomerUrl = (
 ) => {
   return `https://app.anrok.com/${connectionAccountId}/customers/${anrokCustomerId}`
 }
+export const buildAvalaraCustomerUrl = (externalCustomerId?: string | null) => {
+  return `https://sbx.exemptions.avalara.com/customer/${externalCustomerId}`
+}
 export const buildXeroCustomerUrl = (xeroCustomerId?: string | null) => {
   return `https://go.xero.com/app/contacts/contact/${xeroCustomerId}`
 }
