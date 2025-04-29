@@ -32,7 +32,8 @@ const Home = () => {
 
       if (
         !!lastPrivateVisitedRouteWhileNotConnected &&
-        lastPrivateVisitedRouteWhileNotConnected.location.pathname !== '/'
+        !!lastPrivateVisitedRouteWhileNotConnected?.organizationId &&
+        lastPrivateVisitedRouteWhileNotConnected?.location?.pathname !== '/'
       ) {
         const currentOrganizationId = getItemFromLS(ORGANIZATION_LS_KEY_ID)
 
