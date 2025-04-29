@@ -4,7 +4,6 @@ import { generatePath, useLocation, useNavigate } from 'react-router-dom'
 import { NavigationTab, Typography } from '~/components/designSystem'
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE } from '~/core/router'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Mrr from '~/pages/analytics/Mrr'
 import PrepaidCredits from '~/pages/analytics/PrepaidCredits'
@@ -61,17 +60,13 @@ const NewAnalytics = () => {
             }),
             component: <Mrr />,
           },
-          ...(isFeatureFlagActive(FeatureFlags.ANALYTICS_PREPAID_CREDITS)
-            ? [
-                {
-                  title: translate('text_1744192691931osnm4ckcvzj'),
-                  link: generatePath(ANALYTIC_TABS_ROUTE, {
-                    tab: NewAnalyticsTabsOptionsEnum.prepaidCredits,
-                  }),
-                  component: <PrepaidCredits />,
-                },
-              ]
-            : []),
+          {
+            title: translate('text_1744192691931osnm4ckcvzj'),
+            link: generatePath(ANALYTIC_TABS_ROUTE, {
+              tab: NewAnalyticsTabsOptionsEnum.prepaidCredits,
+            }),
+            component: <PrepaidCredits />,
+          },
         ]}
       />
     </>
