@@ -7,15 +7,15 @@ export default {
 
   automock: false,
 
-  // Jest transformations -- this adds support for TypeScript
-  // using ts-jest
+  // Jest transformations -- using babel-jest for both TS and JS files
   transform: {
-    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.(ts|tsx|js|jsx)$': 'babel-jest',
     '\\.svg$': '<rootDir>/__mocks__/svgMock.cjs',
   },
 
   transformIgnorePatterns: [
-    '[/\\\\]node_modules[/\\\\].+\\.(js|jsx)$',
+    // Ignore node_modules except lago-design-system (internal dependency)
+    '/node_modules[\\\\/](?!lago-design-system)',
     '^.+\\.module\\.(css|sass|scss)$',
   ],
 
@@ -53,10 +53,12 @@ export default {
     '^~/(.*)$': '<rootDir>/src/$1',
     'ace-builds': '<rootDir>/node_modules/ace-builds',
     '\\.(css|less|sass|scss)$': '<rootDir>/__mocks__/styleMock.cjs',
+    '^lago-design-system$': '<rootDir>/packages/design-system/dist/index.js',
   },
 
   // Module file extensions for importing
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+
   globals: {
     APP_ENV: 'production',
     API_URL: 'http://localhost:3000',
