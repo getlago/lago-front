@@ -132,6 +132,7 @@
     "react": "18.2.0",
     "react-ace": "^11.0.1",
     "react-dom": "18.2.0",
+    "react-resizable-panels": "^2.1.9",
     "react-router-dom": "6.15.0",
     "recharts": "^2.15.1",
     "sanitize-html": "2.12.1",
