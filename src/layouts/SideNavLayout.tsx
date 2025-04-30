@@ -21,7 +21,6 @@ import {
   ADD_ONS_ROUTE,
   ANALYTIC_ROUTE,
   ANALYTIC_TABS_ROUTE,
-  API_KEYS_ROUTE,
   BILLABLE_METRICS_ROUTE,
   COUPON_DETAILS_ROUTE,
   COUPONS_ROUTE,
@@ -30,8 +29,6 @@ import {
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   CUSTOMER_SUBSCRIPTION_PLAN_DETAILS,
   CUSTOMERS_LIST_ROUTE,
-  DEBUGGER_ROUTE,
-  DEVELOPERS_ROUTE,
   EMAILS_SCENARIO_CONFIG_ROUTE,
   EMAILS_SETTINGS_ROUTE,
   HOME_ROUTE,
@@ -48,13 +45,11 @@ import {
   PLANS_ROUTE,
   SETTINGS_ROUTE,
   TAXES_SETTINGS_ROUTE,
-  WEBHOOK_LOGS_ROUTE,
-  WEBHOOK_LOGS_TAB_ROUTE,
-  WEBHOOK_ROUTE,
 } from '~/core/router'
 import { useSideNavInfosQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper } from '~/styles/designSystem'
@@ -93,6 +88,8 @@ const SideNav = () => {
   } = useOrganizationInfos()
   const { translate } = useInternationalization()
   const { data, loading, error } = useSideNavInfosQuery()
+  const { open: openInspector } = useDeveloperTool()
+
   const { pathname, state } = location as Location & { state: { disableScrollTop?: boolean } }
   const contentRef = useRef<HTMLDivElement>(null)
   const organizationList = currentUser?.memberships.map((membership) => membership.organization)
@@ -373,20 +370,21 @@ const SideNav = () => {
                     link: DOCUMENTATION_URL,
                     external: true,
                   },
-                  {
-                    title: translate('text_6271200984178801ba8bdeac'),
-                    icon: 'laptop',
-                    link: DEVELOPERS_ROUTE,
-                    canBeClickedOnActive: true,
-                    match: [
-                      API_KEYS_ROUTE,
-                      WEBHOOK_ROUTE,
-                      DEBUGGER_ROUTE,
-                      WEBHOOK_LOGS_ROUTE,
-                      WEBHOOK_LOGS_TAB_ROUTE,
-                    ],
-                    hidden: !hasPermissions(['developersManage']),
-                  },
+                  // TODO: To remove
+                  // {
+                  //   title: translate('text_6271200984178801ba8bdeac'),
+                  //   icon: 'laptop',
+                  //   link: DEVELOPERS_ROUTE,
+                  //   canBeClickedOnActive: true,
+                  //   match: [
+                  //     API_KEYS_ROUTE,
+                  //     WEBHOOK_ROUTE,
+                  //     DEBUGGER_ROUTE,
+                  //     WEBHOOK_LOGS_ROUTE,
+                  //     WEBHOOK_LOGS_TAB_ROUTE,
+                  //   ],
+                  //   hidden: !hasPermissions(['developersManage']),
+                  // },
                   {
                     title: translate('text_62728ff857d47b013204c726'),
                     icon: 'settings',
@@ -402,6 +400,13 @@ const SideNav = () => {
                       TAXES_SETTINGS_ROUTE,
                     ],
                     hidden: !hasPermissions(['organizationView']),
+                  },
+                  {
+                    title: translate('text_6271200984178801ba8bdeac'),
+                    icon: 'laptop',
+                    onAction: openInspector,
+                    canBeClickedOnActive: true,
+                    hidden: !hasPermissions(['developersManage']),
                   },
                 ]}
               />
