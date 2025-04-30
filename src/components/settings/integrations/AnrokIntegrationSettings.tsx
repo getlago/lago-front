@@ -78,7 +78,7 @@ const AnrokIntegrationSettings = () => {
   const addAnrokDialogRef = useRef<AddAnrokDialogRef>(null)
   const deleteDialogRef = useRef<DeleteAnrokIntegrationDialogRef>(null)
   const { translate } = useInternationalization()
-  const [retryAllInvoices, { loading: retryAllInvoicesLoading }] = useRetryAllInvoicesMutation({
+  const [retryAllInvoices] = useRetryAllInvoicesMutation({
     onCompleted(result) {
       if (!!result?.retryAllInvoices?.metadata?.totalCount) {
         addToast({
@@ -190,9 +190,8 @@ const AnrokIntegrationSettings = () => {
             <Typography variant="bodyHl" color="grey700">
               {translate('text_66ba5a76e614f000a738c97a')}
             </Typography>
-            {loading ? (
-              <Skeleton className="mb-1 mt-2" variant="text" />
-            ) : !!anrokIntegration?.failedInvoicesCount ? (
+            {loading && <Skeleton className="mb-1 mt-2" variant="text" />}
+            {!loading && !!anrokIntegration?.failedInvoicesCount && (
               <Typography variant="caption" color="grey600">
                 {translate(
                   'text_1746004262383fhhy4jl1g6o',
@@ -202,11 +201,10 @@ const AnrokIntegrationSettings = () => {
                   anrokIntegration?.failedInvoicesCount,
                 )}
               </Typography>
-            ) : (
+            )}
+            {!loading && !anrokIntegration?.failedInvoicesCount && (
               <Typography variant="caption" color="grey600">
-                {retryAllInvoicesLoading
-                  ? translate('text_66ba5ca33713b600c4e8fcf0')
-                  : translate('text_66ba5ca33713b600c4e8fcf1')}
+                {translate('text_66ba5ca33713b600c4e8fcf1')}
               </Typography>
             )}
           </Stack>
