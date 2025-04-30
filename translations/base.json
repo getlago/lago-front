@@ -2980,5 +2980,6 @@
   "text_1746004262383fhhy4jl1g6o": "Restart the synchronization of {{failedInvoicesCount}} failed invoice to recalculate tax information.|Restart the synchronization of {{failedInvoicesCount}} failed invoices to recalculate tax information.",
   "text_1746621029319goh9pr7g67d": "Delivered",
   "text_1746019984781hsxx9jjjska": "Enter full screen",
-  "text_1746019984781u1ftea09d0b": "Exit full screen"
+  "text_1746019984781u1ftea09d0b": "Exit full screen",
+  "text_17460208605597iyd249v26z": "Copy link"
 }
