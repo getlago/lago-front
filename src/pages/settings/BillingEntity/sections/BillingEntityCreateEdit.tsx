@@ -39,7 +39,6 @@ const BillingEntityCreateEdit = () => {
 
   const formikProps = useFormik<BillingEntityFormInput>({
     initialValues: {
-      id: billingEntity?.id || '',
       name: billingEntity?.name || '',
       code: billingEntity?.code || '',
       legalName: billingEntity?.legalName || '',
