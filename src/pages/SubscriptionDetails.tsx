@@ -250,37 +250,42 @@ const SubscriptionDetails = () => {
               </div>
             ),
           },
-          {
-            title: translate('text_1725983967306cei92rkdtvb'),
-            link: !!customerId
-              ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                  customerId,
-                  subscriptionId: subscriptionId as string,
-                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
-                })
-              : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
-                  planId: planId || '',
-                  subscriptionId: subscriptionId as string,
-                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
-                }),
-            match: [
-              generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                customerId: customerId || '',
-                subscriptionId: subscriptionId as string,
-                tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
-              }),
-              generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
-                planId: planId || '',
-                subscriptionId: subscriptionId as string,
-                tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
-              }),
-            ],
-            component: (
-              <div className="max-w-2xl px-12 pb-20">
-                <SubscriptionUsageTabContent />
-              </div>
-            ),
-          },
+          ...(subscription?.status !== StatusTypeEnum.Canceled &&
+          subscription?.status !== StatusTypeEnum.Terminated
+            ? [
+                {
+                  title: translate('text_1725983967306cei92rkdtvb'),
+                  link: !!customerId
+                    ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                        customerId,
+                        subscriptionId: subscriptionId as string,
+                        tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+                      })
+                    : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                        planId: planId || '',
+                        subscriptionId: subscriptionId as string,
+                        tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+                      }),
+                  match: [
+                    generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                      customerId: customerId || '',
+                      subscriptionId: subscriptionId as string,
+                      tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+                    }),
+                    generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                      planId: planId || '',
+                      subscriptionId: subscriptionId as string,
+                      tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+                    }),
+                  ],
+                  component: (
+                    <div className="max-w-2xl px-12 pb-20">
+                      <SubscriptionUsageTabContent />
+                    </div>
+                  ),
+                },
+              ]
+            : []),
         ]}
       />
 

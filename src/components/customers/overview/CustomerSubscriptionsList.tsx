@@ -19,6 +19,7 @@ import { PageSectionTitle } from '~/components/layouts/Section'
 import { TimezoneDate } from '~/components/TimezoneDate'
 import { addToast } from '~/core/apolloClient'
 import { getIntervalTranslationKey } from '~/core/constants/form'
+import { subscriptionStatusMapping } from '~/core/constants/statusSubscriptionMapping'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   CREATE_SUBSCRIPTION,
@@ -127,27 +128,7 @@ const annotateSubscriptions = (
       endingAt: endingAt,
       frequency: plan.interval,
       startDate: startedAt || subscriptionAt,
-      statusType: {
-        ...(status === StatusTypeEnum.Pending && {
-          type: StatusType.default,
-          label: 'pending',
-        }),
-        ...(status === StatusTypeEnum.Active && {
-          type: StatusType.success,
-          label: 'active',
-        }),
-        ...(status === StatusTypeEnum.Canceled && {
-          type: StatusType.disabled,
-          label: 'canceled',
-        }),
-        ...(status === StatusTypeEnum.Terminated && {
-          type: StatusType.danger,
-          label: 'terminated',
-        }),
-      } as {
-        type: StatusType
-        label: string
-      },
+      statusType: subscriptionStatusMapping(status),
       customerId: customer?.id,
       isScheduled: status === StatusTypeEnum.Pending,
     }

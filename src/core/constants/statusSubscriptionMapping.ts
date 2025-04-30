@@ -1,7 +1,7 @@
 import { StatusProps, StatusType } from '~/components/designSystem'
 import { StatusTypeEnum } from '~/generated/graphql'
 
-export const subscriptionStatusMapping = (status?: StatusTypeEnum): StatusProps => {
+export const subscriptionStatusMapping = (status?: StatusTypeEnum | null): StatusProps => {
   switch (status) {
     case StatusTypeEnum.Active:
       return {
@@ -15,7 +15,7 @@ export const subscriptionStatusMapping = (status?: StatusTypeEnum): StatusProps 
       }
     case StatusTypeEnum.Canceled:
       return {
-        type: StatusType.danger,
+        type: StatusType.disabled,
         label: 'canceled',
       }
     case StatusTypeEnum.Terminated:
