@@ -5,6 +5,7 @@ import {
   ORGANIZATION_LS_KEY_ID,
 } from '~/core/constants/localStorageKeys'
 import { CurrentUserFragment } from '~/generated/graphql'
+import { DEVTOOL_STORAGE_KEY } from '~/hooks/useDeveloperTool'
 
 import {
   resetLocationHistoryVar,
@@ -51,6 +52,7 @@ export const logOut = async (client: ApolloClient<object>, resetLocationHistory?
   // Clear store
   await client.cache.reset()
   updateAuthTokenVar()
+  removeItemFromLS(DEVTOOL_STORAGE_KEY)
   resetLocationHistory && resetLocationHistoryVar()
 }
 

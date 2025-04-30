@@ -72,6 +72,7 @@ const routesFormatter: (routesToFormat: CustomRouteObject[], loggedIn: boolean) 
 
 export const RouteWrapper = () => {
   const { isAuthenticated } = useIsAuthenticated()
+
   const formattedRoutes = routesFormatter(routes, isAuthenticated)
 
   return useRoutes(formattedRoutes)
