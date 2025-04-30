@@ -79,18 +79,17 @@ const AvalaraIntegrationSettings = () => {
   const deleteDialogRef = useRef<DeleteAvalaraIntegrationDialogRef>(null)
   const { translate } = useInternationalization()
 
-  const [retryAllAvalaraInvoices, { loading: retryAllAvalaraInvoicesLoading }] =
-    useRetryAllAvalaraInvoicesMutation({
-      onCompleted(result) {
-        if (!!result?.retryAllInvoices?.metadata?.totalCount) {
-          addToast({
-            severity: 'info',
-            message: translate('text_66ba5a76e614f000a738c97f'),
-          })
-        }
-      },
-      refetchQueries: ['getAvalaraIntegrationsSettings'],
-    })
+  const [retryAllAvalaraInvoices] = useRetryAllAvalaraInvoicesMutation({
+    onCompleted(result) {
+      if (!!result?.retryAllInvoices?.metadata?.totalCount) {
+        addToast({
+          severity: 'info',
+          message: translate('text_66ba5a76e614f000a738c97f'),
+        })
+      }
+    },
+    refetchQueries: ['getAvalaraIntegrationsSettings'],
+  })
 
   const { data, loading } = useGetAvalaraIntegrationSettingsQuery({
     variables: {
@@ -114,6 +113,7 @@ const AvalaraIntegrationSettings = () => {
       )
     }
   }
+
   return (
     <>
       <IntegrationsPage.Container className="my-4 md:my-8">
@@ -194,31 +194,21 @@ const AvalaraIntegrationSettings = () => {
             <Typography variant="bodyHl" color="grey700">
               {translate('text_66ba5a76e614f000a738c97a')}
             </Typography>
-            {loading ? (
-              <Skeleton className="mb-1 mt-2" variant="text" />
-            ) : !!avalaraIntegration?.failedInvoicesCount ? (
-              <div className="inline-flex flex-row gap-1">
-                <Typography component="span" variant="caption" color="grey600">
-                  {translate('text_66ba5a76e614f000a738c97b')}
-                </Typography>
-                <Typography component="span" variant="caption" color="grey700">
-                  {translate(
-                    'text_66ba5a76e614f000a738c97c',
-                    {
-                      failedInvoicesCount: avalaraIntegration?.failedInvoicesCount,
-                    },
-                    avalaraIntegration?.failedInvoicesCount || 1,
-                  )}
-                </Typography>
-                <Typography component="span" variant="caption" color="grey600">
-                  {translate('text_66ba5a76e614f000a738c97d')}
-                </Typography>
-              </div>
-            ) : (
+            {loading && <Skeleton className="mb-1 mt-2" variant="text" />}
+            {!loading && !!avalaraIntegration?.failedInvoicesCount && (
               <Typography variant="caption" color="grey600">
-                {retryAllAvalaraInvoicesLoading
-                  ? translate('text_66ba5ca33713b600c4e8fcf0')
-                  : translate('text_66ba5ca33713b600c4e8fcf2')}
+                {translate(
+                  'text_1746004262383fhhy4jl1g6o',
+                  {
+                    failedInvoicesCount: avalaraIntegration?.failedInvoicesCount,
+                  },
+                  avalaraIntegration?.failedInvoicesCount,
+                )}
+              </Typography>
+            )}
+            {!loading && !avalaraIntegration?.failedInvoicesCount && (
+              <Typography variant="caption" color="grey600">
+                {translate('text_66ba5ca33713b600c4e8fcf2')}
               </Typography>
             )}
           </div>
