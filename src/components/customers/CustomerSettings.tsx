@@ -136,6 +136,26 @@ gql`
       netPaymentTerm
       finalizeZeroAmountInvoice
 
+      billingEntity {
+        id
+        netPaymentTerm
+        finalizeZeroAmountInvoice
+        billingConfiguration {
+          id
+          invoiceGracePeriod
+          documentLocale
+        }
+        appliedDunningCampaign {
+          id
+          name
+          code
+          appliedToOrganization
+          thresholds {
+            currency
+          }
+        }
+      }
+
       billingConfiguration {
         id
         documentLocale
@@ -153,26 +173,6 @@ gql`
       ...DeleteCustomerDocumentLocale
       ...CustomerForDeleteVatRateDialog
       ...DeleteCustomerNetPaymentTerm
-    }
-
-    organization {
-      id
-      netPaymentTerm
-      finalizeZeroAmountInvoice
-      billingConfiguration {
-        id
-        invoiceGracePeriod
-        documentLocale
-      }
-      appliedDunningCampaign {
-        id
-        name
-        code
-        appliedToOrganization
-        thresholds {
-          currency
-        }
-      }
     }
   }
 
@@ -201,7 +201,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
     skip: !customerId,
   })
   const customer = data?.customer
-  const organization = data?.organization
+  const billingEntity = data?.customer?.billingEntity
   const editVATDialogRef = useRef<EditCustomerVatRateDialogRef>(null)
   const deleteVatRateDialogRef = useRef<DeleteCustomerVatRateDialogRef>(null)
   const editInvoiceGracePeriodDialogRef = useRef<EditCustomerInvoiceGracePeriodDialogRef>(null)
@@ -237,7 +237,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
     PremiumIntegrationTypeEnum.AutoDunning,
   )
   const dunningCampaign =
-    customer?.appliedDunningCampaign ?? organization?.appliedDunningCampaign ?? undefined
+    customer?.appliedDunningCampaign ?? billingEntity?.appliedDunningCampaign ?? undefined
 
   const isDunningCampaignApplicable =
     !!dunningCampaign &&
@@ -326,7 +326,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                     : translate('text_1728374331992d2alok9y3kr', {
                         value:
                           DocumentLocales[
-                            organization?.billingConfiguration?.documentLocale || 'en'
+                            billingEntity?.billingConfiguration?.documentLocale || 'en'
                           ],
                       })}
                 </Typography>
@@ -472,7 +472,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                 <Typography variant="body" color="grey700">
                   {customer?.finalizeZeroAmountInvoice === FinalizeZeroAmountInvoiceEnum.Inherit ? (
                     <>
-                      {organization?.finalizeZeroAmountInvoice
+                      {billingEntity?.finalizeZeroAmountInvoice
                         ? translate('text_1725549671287ancbf00edxx')
                         : translate('text_1725549671288zkq9sr0y46l')}
                       {` ${translate('text_17255500892009uqfqttms4w')}`}
@@ -568,9 +568,9 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                         'text_63aa085d28b8510cd464440d',
                         {
                           invoiceGracePeriod:
-                            organization?.billingConfiguration?.invoiceGracePeriod || 0,
+                            billingEntity?.billingConfiguration?.invoiceGracePeriod || 0,
                         },
-                        organization?.billingConfiguration?.invoiceGracePeriod || 0,
+                        billingEntity?.billingConfiguration?.invoiceGracePeriod || 0,
                       )}
                 </Typography>
               </SettingsListItem>
@@ -714,9 +714,9 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                     ? translate(
                         'text_64c7a89b6c67eb6c98898241',
                         {
-                          days: organization?.netPaymentTerm,
+                          days: billingEntity?.netPaymentTerm,
                         },
-                        organization?.netPaymentTerm,
+                        billingEntity?.netPaymentTerm,
                       )
                     : customer?.netPaymentTerm === 0
                       ? translate('text_64c7a89b6c67eb6c98898125')

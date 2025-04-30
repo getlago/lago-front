@@ -4,13 +4,13 @@ import { useParams } from 'react-router-dom'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { LogoPicker } from '~/components/LogoPicker'
-import { useUpdateBillingEntityLogoMutation } from '~/generated/graphql'
+import { useGetBillingEntityQuery, useUpdateBillingEntityLogoMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   mutation updateBillingEntityLogo($input: UpdateBillingEntityInput!) {
     updateBillingEntity(input: $input) {
-      code
+      id
       logoUrl
     }
   }
@@ -24,6 +24,15 @@ export const UpdateBillingEntityLogoDialog = forwardRef<UpdateBillingEntityLogoD
     const { translate } = useInternationalization()
     const [logo, setLogo] = useState<string>()
     const [updateLogo] = useUpdateBillingEntityLogoMutation()
+
+    const { data: billingEntityData } = useGetBillingEntityQuery({
+      variables: {
+        code: billingEntityCode as string,
+      },
+      skip: !billingEntityCode,
+    })
+
+    const billingEntity = billingEntityData?.billingEntity
 
     return (
       <Dialog
@@ -43,7 +52,7 @@ export const UpdateBillingEntityLogoDialog = forwardRef<UpdateBillingEntityLogoD
               disabled={!logo}
               onClick={async () => {
                 await updateLogo({
-                  variables: { input: { code: billingEntityCode as string, logo } },
+                  variables: { input: { id: billingEntity?.id as string, logo } },
                 })
                 closeDialog()
               }}
