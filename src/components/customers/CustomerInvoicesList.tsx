@@ -295,12 +295,8 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
             {
               key: 'paymentOverdue',
               title: translate('text_666c5b12fea4aa1e1b26bf55'),
-              content: ({ paymentStatus, paymentOverdue }) => {
-                const isOverdue =
-                  paymentOverdue && paymentStatus === InvoicePaymentStatusTypeEnum.Pending
-
-                return isOverdue ? <Status type={StatusType.danger} label="overdue" /> : null
-              },
+              content: ({ paymentOverdue }) =>
+                paymentOverdue && <Status type={StatusType.danger} label="overdue" />,
             },
             {
               key: 'issuingDate',
