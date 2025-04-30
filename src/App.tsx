@@ -4,7 +4,7 @@ import { StyledEngineProvider, ThemeProvider } from '@mui/material'
 import { DesignSystemProvider } from 'lago-design-system'
 import { useEffect, useState } from 'react'
 import { Panel, PanelGroup } from 'react-resizable-panels'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter, MemoryRouter } from 'react-router-dom'
 
 import { ToastContainer } from '~/components/designSystem/Toasts'
 import { DevtoolsView } from '~/components/developers/DevtoolsView'
@@ -42,29 +42,32 @@ const App = () => {
   if (!client) return null
 
   return (
-    <BrowserRouter basename="/">
-      <ApolloProvider client={client}>
-        <StyledEngineProvider injectFirst>
-          <ThemeProvider theme={theme}>
-            <DesignSystemProvider>
-              <ErrorBoundary>
-                <DeveloperToolProvider>
-                  <PanelGroup direction="vertical" autoSaveId="devtools">
-                    <Panel id="app-panel" order={1}>
-                      <RouteWrapper />
-                    </Panel>
-
+    <ApolloProvider client={client}>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <DesignSystemProvider>
+            <ErrorBoundary>
+              <DeveloperToolProvider>
+                <PanelGroup direction="vertical" autoSaveId="devtools">
+                  <Panel id="app-panel" order={1}>
+                    <div className="h-full overflow-auto">
+                      <BrowserRouter basename="/">
+                        <RouteWrapper />
+                      </BrowserRouter>
+                    </div>
+                  </Panel>
+                  <MemoryRouter initialEntries={['/devtool']}>
                     <DevtoolsView />
-                  </PanelGroup>
-                </DeveloperToolProvider>
-              </ErrorBoundary>
-              <UserIdentifier />
-              <ToastContainer />
-            </DesignSystemProvider>
-          </ThemeProvider>
-        </StyledEngineProvider>
-      </ApolloProvider>
-    </BrowserRouter>
+                  </MemoryRouter>
+                </PanelGroup>
+              </DeveloperToolProvider>
+            </ErrorBoundary>
+            <UserIdentifier />
+            <ToastContainer />
+          </DesignSystemProvider>
+        </ThemeProvider>
+      </StyledEngineProvider>
+    </ApolloProvider>
   )
 }
 
