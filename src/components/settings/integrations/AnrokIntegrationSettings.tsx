@@ -193,23 +193,15 @@ const AnrokIntegrationSettings = () => {
             {loading ? (
               <Skeleton className="mb-1 mt-2" variant="text" />
             ) : !!anrokIntegration?.failedInvoicesCount ? (
-              <Stack display="inline" divider={<>{/* Space here is important */} </>}>
-                <Typography component="span" variant="caption" color="grey600">
-                  {translate('text_66ba5a76e614f000a738c97b')}
-                </Typography>
-                <Typography component="span" variant="caption" color="grey700">
-                  {translate(
-                    'text_66ba5a76e614f000a738c97c',
-                    {
-                      failedInvoicesCount: anrokIntegration?.failedInvoicesCount,
-                    },
-                    anrokIntegration?.failedInvoicesCount || 1,
-                  )}
-                </Typography>
-                <Typography component="span" variant="caption" color="grey600">
-                  {translate('text_66ba5a76e614f000a738c97d')}
-                </Typography>
-              </Stack>
+              <Typography variant="caption" color="grey600">
+                {translate(
+                  'text_1746004262383fhhy4jl1g6o',
+                  {
+                    failedInvoicesCount: anrokIntegration?.failedInvoicesCount,
+                  },
+                  anrokIntegration?.failedInvoicesCount,
+                )}
+              </Typography>
             ) : (
               <Typography variant="caption" color="grey600">
                 {retryAllInvoicesLoading

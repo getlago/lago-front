@@ -2980,5 +2980,6 @@
   "text_1745415984416mjvvaj4ahgp": "Type an Avalara tax code",
   "text_1745827156646ff5h5i281gc": "Avalara customer code",
   "text_1745827156646zoyf7wmog2m": "Type an Avalara customer code",
-  "text_1745919770448pvibiukolis": "We cannot access your clipboard. Please try again."
+  "text_1745919770448pvibiukolis": "We cannot access your clipboard. Please try again.",
+  "text_1746004262383fhhy4jl1g6o": "Restart the synchronization of {{failedInvoicesCount}} failed invoice to recalculate tax information.|Restart the synchronization of {{failedInvoicesCount}} failed invoices to recalculate tax information."
 }

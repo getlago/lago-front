@@ -197,23 +197,15 @@ const AvalaraIntegrationSettings = () => {
             {loading ? (
               <Skeleton className="mb-1 mt-2" variant="text" />
             ) : !!avalaraIntegration?.failedInvoicesCount ? (
-              <div className="inline-flex flex-row gap-1">
-                <Typography component="span" variant="caption" color="grey600">
-                  {translate('text_66ba5a76e614f000a738c97b')}
-                </Typography>
-                <Typography component="span" variant="caption" color="grey700">
-                  {translate(
-                    'text_66ba5a76e614f000a738c97c',
-                    {
-                      failedInvoicesCount: avalaraIntegration?.failedInvoicesCount,
-                    },
-                    avalaraIntegration?.failedInvoicesCount || 1,
-                  )}
-                </Typography>
-                <Typography component="span" variant="caption" color="grey600">
-                  {translate('text_66ba5a76e614f000a738c97d')}
-                </Typography>
-              </div>
+              <Typography variant="caption" color="grey600">
+                {translate(
+                  'text_1746004262383fhhy4jl1g6o',
+                  {
+                    failedInvoicesCount: avalaraIntegration?.failedInvoicesCount,
+                  },
+                  avalaraIntegration?.failedInvoicesCount,
+                )}
+              </Typography>
             ) : (
               <Typography variant="caption" color="grey600">
                 {retryAllAvalaraInvoicesLoading
