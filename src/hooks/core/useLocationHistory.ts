@@ -67,6 +67,12 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
   const goBack: GoBack = (fallback, options) => {
     const { previous, remaingHistory } = getPreviousLocation(options || {})
 
+    if (fallback === HOME_ROUTE) {
+      // Make sure the LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY is not set
+      // Otherwise, the back redirection will not always work in Home page
+      removeItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
+    }
+
     navigate(previous || fallback)
 
     locationHistoryVar(remaingHistory || [])
@@ -82,7 +88,7 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
          * In case of navigation to a only public route while authenticated
          * Go back to previously visited page in app or fallback to the home
          */
-        goBack(HOME_ROUTE, { previousCount: 0 })
+        navigate(HOME_ROUTE)
       } else if (routeConfig.private && !isAuthenticated) {
         /**
          * In case of navigation to a private route while NOT authenticated
