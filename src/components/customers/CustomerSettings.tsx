@@ -145,15 +145,6 @@ gql`
           invoiceGracePeriod
           documentLocale
         }
-        appliedDunningCampaign {
-          id
-          name
-          code
-          appliedToOrganization
-          thresholds {
-            currency
-          }
-        }
       }
 
       billingConfiguration {
@@ -173,6 +164,18 @@ gql`
       ...DeleteCustomerDocumentLocale
       ...CustomerForDeleteVatRateDialog
       ...DeleteCustomerNetPaymentTerm
+    }
+
+    organization {
+      appliedDunningCampaign {
+        id
+        name
+        code
+        appliedToOrganization
+        thresholds {
+          currency
+        }
+      }
     }
   }
 
@@ -202,6 +205,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   })
   const customer = data?.customer
   const billingEntity = data?.customer?.billingEntity
+  const organization = data?.organization
   const editVATDialogRef = useRef<EditCustomerVatRateDialogRef>(null)
   const deleteVatRateDialogRef = useRef<DeleteCustomerVatRateDialogRef>(null)
   const editInvoiceGracePeriodDialogRef = useRef<EditCustomerInvoiceGracePeriodDialogRef>(null)
@@ -237,7 +241,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
     PremiumIntegrationTypeEnum.AutoDunning,
   )
   const dunningCampaign =
-    customer?.appliedDunningCampaign ?? billingEntity?.appliedDunningCampaign ?? undefined
+    customer?.appliedDunningCampaign ?? organization?.appliedDunningCampaign ?? undefined
 
   const isDunningCampaignApplicable =
     !!dunningCampaign &&
