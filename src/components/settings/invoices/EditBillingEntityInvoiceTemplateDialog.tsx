@@ -21,7 +21,7 @@ gql`
 
   mutation updateBillingEntityInvoiceTemplate($input: UpdateBillingEntityInput!) {
     updateBillingEntity(input: $input) {
-      code
+      id
       ...EditBillingEntityInvoiceTemplateDialog
     }
   }
@@ -30,14 +30,14 @@ gql`
 export type EditBillingEntityInvoiceTemplateDialogRef = DialogRef
 
 interface EditBillingEntityInvoiceTemplateDialogProps {
-  code: string
+  id: string
   invoiceFooter: string
 }
 
 export const EditBillingEntityInvoiceTemplateDialog = forwardRef<
   DialogRef,
   EditBillingEntityInvoiceTemplateDialogProps
->(({ code, invoiceFooter }: EditBillingEntityInvoiceTemplateDialogProps, ref) => {
+>(({ id, invoiceFooter }: EditBillingEntityInvoiceTemplateDialogProps, ref) => {
   const { translate } = useInternationalization()
   const [updateBillingEntityInvoiceTemplate] = useUpdateBillingEntityInvoiceTemplateMutation({
     onCompleted(res) {
@@ -52,9 +52,9 @@ export const EditBillingEntityInvoiceTemplateDialog = forwardRef<
   })
 
   // Type is manually written here as errors type are not correclty read from UpdateBillingEntityInput
-  const formikProps = useFormik<{ code: string; billingConfiguration: { invoiceFooter: string } }>({
+  const formikProps = useFormik<{ id: string; billingConfiguration: { invoiceFooter: string } }>({
     initialValues: {
-      code,
+      id,
       billingConfiguration: { invoiceFooter },
     },
     validationSchema: object().shape({

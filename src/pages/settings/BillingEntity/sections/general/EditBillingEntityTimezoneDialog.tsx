@@ -15,7 +15,6 @@ gql`
   mutation updateBillingEntityTimezone($input: UpdateBillingEntityInput!) {
     updateBillingEntity(input: $input) {
       id
-      code
       timezone
     }
   }
@@ -24,14 +23,14 @@ gql`
 export type EditBillingEntityTimezoneDialogRef = DialogRef
 
 interface EditBillingEntityTimezoneProps {
-  billingEntityCode?: string
+  id?: string
   timezone?: TimezoneEnum | null
 }
 
 export const EditBillingEntityTimezoneDialog = forwardRef<
   EditBillingEntityTimezoneDialogRef,
   EditBillingEntityTimezoneProps
->(({ billingEntityCode, timezone }: EditBillingEntityTimezoneProps, ref) => {
+>(({ id, timezone }: EditBillingEntityTimezoneProps, ref) => {
   const { translate } = useInternationalization()
   const [update] = useUpdateBillingEntityTimezoneMutation({
     onCompleted(res) {
@@ -57,7 +56,7 @@ export const EditBillingEntityTimezoneDialog = forwardRef<
       await update({
         variables: {
           input: {
-            code: billingEntityCode as string,
+            id: id as string,
             ...values,
           },
         },

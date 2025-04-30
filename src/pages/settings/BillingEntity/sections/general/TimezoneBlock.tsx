@@ -22,7 +22,7 @@ const TimezoneBlock = ({ billingEntity }: TimezoneBlockProps) => {
   const { hasPermissions } = usePermissions()
   const { isPremium } = useCurrentUser()
 
-  const { code: billingEntityCode, timezone } = billingEntity
+  const { id, timezone } = billingEntity
   const timezoneConfig = getTimezoneConfig(timezone)
 
   const editTimezoneDialogRef = useRef<EditBillingEntityTimezoneDialogRef>(null)
@@ -59,11 +59,7 @@ const TimezoneBlock = ({ billingEntity }: TimezoneBlockProps) => {
         })}
       </Typography>
 
-      <EditBillingEntityTimezoneDialog
-        ref={editTimezoneDialogRef}
-        billingEntityCode={billingEntityCode}
-        timezone={timezone}
-      />
+      <EditBillingEntityTimezoneDialog ref={editTimezoneDialogRef} id={id} timezone={timezone} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </SettingsListItem>
   )

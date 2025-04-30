@@ -20,14 +20,14 @@ const DynamicPrefixTranslationLookup = {
 
 gql`
   fragment EditBillingEntityInvoiceNumberingDialog on BillingEntity {
-    code
+    id
     documentNumbering
     documentNumberPrefix
   }
 
   mutation updateBillingEntityInvoiceNumbering($input: UpdateBillingEntityInput!) {
     updateBillingEntity(input: $input) {
-      code
+      id
       ...EditBillingEntityInvoiceNumberingDialog
     }
   }
@@ -36,7 +36,7 @@ gql`
 export type EditBillingEntityInvoiceNumberingDialogRef = DialogRef
 
 interface EditBillingEntityInvoiceNumberingDialogProps {
-  code: string
+  id: string
   documentNumbering?: BillingEntityDocumentNumberingEnum
   documentNumberPrefix?: string
 }
@@ -46,7 +46,7 @@ export const EditBillingEntityInvoiceNumberingDialog = forwardRef<
   EditBillingEntityInvoiceNumberingDialogProps
 >(
   (
-    { code, documentNumbering, documentNumberPrefix }: EditBillingEntityInvoiceNumberingDialogProps,
+    { id, documentNumbering, documentNumberPrefix }: EditBillingEntityInvoiceNumberingDialogProps,
     ref,
   ) => {
     const { translate } = useInternationalization()
@@ -65,7 +65,7 @@ export const EditBillingEntityInvoiceNumberingDialog = forwardRef<
     // Type is manually written here as errors type are not correctly read from UpdateBillingEntityInput
     const formikProps = useFormik<EditBillingEntityInvoiceNumberingDialogProps>({
       initialValues: {
-        code,
+        id,
         documentNumbering,
         documentNumberPrefix,
       },

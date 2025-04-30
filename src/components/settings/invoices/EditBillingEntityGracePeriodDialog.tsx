@@ -16,7 +16,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 gql`
   mutation updateBillingEntityGracePeriod($input: UpdateBillingEntityInput!) {
     updateBillingEntity(input: $input) {
-      code
+      id
       billingConfiguration {
         id
         invoiceGracePeriod
@@ -28,14 +28,14 @@ gql`
 export type EditBillingEntityGracePeriodDialogRef = DialogRef
 
 interface EditBillingEntityGracePeriodDialogProps {
-  code: string
+  id: string
   invoiceGracePeriod: number
 }
 
 export const EditBillingEntityGracePeriodDialog = forwardRef<
   DialogRef,
   EditBillingEntityGracePeriodDialogProps
->(({ code, invoiceGracePeriod }: EditBillingEntityGracePeriodDialogProps, ref) => {
+>(({ id, invoiceGracePeriod }: EditBillingEntityGracePeriodDialogProps, ref) => {
   const { translate } = useInternationalization()
   const [updateBillingEntityGracePeriod] = useUpdateBillingEntityGracePeriodMutation({
     onCompleted(res) {
@@ -50,7 +50,7 @@ export const EditBillingEntityGracePeriodDialog = forwardRef<
   })
   const formikProps = useFormik<UpdateBillingEntityInput>({
     initialValues: {
-      code,
+      id,
       billingConfiguration: {
         invoiceGracePeriod,
       },
