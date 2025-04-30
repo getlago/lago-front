@@ -24,7 +24,7 @@ gql`
   }
 
   fragment EditBillingEntityFinalizeZeroAmountInvoiceForDialog on BillingEntity {
-    code
+    id
     finalizeZeroAmountInvoice
   }
 
@@ -37,7 +37,7 @@ gql`
 
   mutation updateBillingEntityFinalizeZeroAmountInvoice($input: UpdateBillingEntityInput!) {
     updateBillingEntity(input: $input) {
-      code
+      id
       ...EditBillingEntityFinalizeZeroAmountInvoiceForDialog
     }
   }
@@ -123,7 +123,7 @@ export const EditFinalizeZeroAmountInvoiceDialog = forwardRef<
       return await updateBillingEntityFinalizeZeroAmountInvoice({
         variables: {
           input: {
-            code: (entity as EditBillingEntityFinalizeZeroAmountInvoiceForDialogFragment)?.code,
+            id: (entity as EditBillingEntityFinalizeZeroAmountInvoiceForDialogFragment)?.id,
             finalizeZeroAmountInvoice: values.finalizeZeroAmountInvoice === 'true',
           },
         },

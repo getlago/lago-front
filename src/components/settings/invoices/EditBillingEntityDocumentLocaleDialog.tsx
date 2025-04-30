@@ -17,7 +17,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 gql`
   mutation updateDocumentLocaleBillingEntity($input: UpdateBillingEntityInput!) {
     updateBillingEntity(input: $input) {
-      code
+      id
       billingConfiguration {
         id
         documentLocale
@@ -28,7 +28,7 @@ gql`
 export type EditBillingEntityDocumentLocaleDialogRef = DialogRef
 
 interface EditBillingEntityDocumentLocaleDialogProps {
-  code: string
+  id: string
   documentLocale: string
 }
 
@@ -44,7 +44,7 @@ const documentLocalesData: { value: string; label: string }[] = Object.keys(Docu
 export const EditBillingEntityDocumentLocaleDialog = forwardRef<
   DialogRef,
   EditBillingEntityDocumentLocaleDialogProps
->(({ code, documentLocale }: EditBillingEntityDocumentLocaleDialogProps, ref) => {
+>(({ id, documentLocale }: EditBillingEntityDocumentLocaleDialogProps, ref) => {
   const { translate } = useInternationalization()
   const [updateDocumentLocale] = useUpdateDocumentLocaleBillingEntityMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
@@ -61,7 +61,7 @@ export const EditBillingEntityDocumentLocaleDialog = forwardRef<
 
   const formikProps = useFormik<UpdateBillingEntityInput>({
     initialValues: {
-      code,
+      id,
       billingConfiguration: {
         documentLocale,
       },

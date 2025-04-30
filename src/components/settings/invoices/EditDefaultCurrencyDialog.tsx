@@ -16,13 +16,13 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   fragment EditBillingEntityDefaultCurrencyForDialog on BillingEntity {
-    code
+    id
     defaultCurrency
   }
 
   mutation updateBillingEntityDefaultCurrency($input: UpdateBillingEntityInput!) {
     updateBillingEntity(input: $input) {
-      code
+      id
       ...EditBillingEntityDefaultCurrencyForDialog
     }
   }
@@ -72,7 +72,7 @@ export const EditDefaultCurrencyDialog = forwardRef<EditDefaultCurrencyDialogRef
       await updateBillingEntity({
         variables: {
           input: {
-            code: localData?.billingEntity?.code as string,
+            id: localData?.billingEntity?.id as string,
             ...values,
           },
         },

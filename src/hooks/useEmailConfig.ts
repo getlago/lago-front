@@ -10,7 +10,7 @@ import {
 gql`
   mutation updateBillingEntityEmailSetting($input: UpdateBillingEntityInput!) {
     updateBillingEntity(input: $input) {
-      code
+      id
       emailSettings
     }
   }
@@ -50,7 +50,7 @@ export const useEmailConfig = ({ billingEntity }: UseEmailConfigProps): UseEmail
     const res = await updateSetting({
       variables: {
         input: {
-          code: billingEntity.code,
+          id: billingEntity.id,
           emailSettings: newSetting,
         },
       },

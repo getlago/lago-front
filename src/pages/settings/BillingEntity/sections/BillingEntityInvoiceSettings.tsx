@@ -266,7 +266,7 @@ const BillingEntityInvoiceSettings = () => {
         <EditBillingEntityDocumentLocaleDialog
           ref={editDocumentLanguageDialogRef}
           documentLocale={documentLocale}
-          code={billingEntity?.code as string}
+          id={billingEntity?.id as string}
         />
       ),
     },
@@ -322,7 +322,7 @@ const BillingEntityInvoiceSettings = () => {
         <EditBillingEntityGracePeriodDialog
           ref={editGracePeriodDialogRef}
           invoiceGracePeriod={invoiceGracePeriod}
-          code={billingEntity?.code as string}
+          id={billingEntity?.id as string}
         />
       ),
     },
@@ -463,7 +463,7 @@ const BillingEntityInvoiceSettings = () => {
         <EditBillingEntityInvoiceTemplateDialog
           ref={editInvoiceTemplateDialogRef}
           invoiceFooter={invoiceFooter}
-          code={billingEntity?.code as string}
+          id={billingEntity?.id as string}
         />
       ),
     },
@@ -502,7 +502,7 @@ const BillingEntityInvoiceSettings = () => {
           ref={editInvoiceNumberingDialogRef}
           documentNumbering={billingEntity?.documentNumbering}
           documentNumberPrefix={billingEntity?.documentNumberPrefix}
-          code={billingEntity?.code as string}
+          id={billingEntity?.id as string}
         />
       ),
     },

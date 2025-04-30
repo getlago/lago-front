@@ -26,7 +26,6 @@ gql`
 
   fragment EditBillingEntityNetPaymentTermForDialog on BillingEntity {
     id
-    code
     netPaymentTerm
   }
 
@@ -156,7 +155,7 @@ export const EditNetPaymentTermDialog = forwardRef<
           variables: {
             input: {
               ...localInput,
-              code: model.code,
+              id: model.id,
             },
           },
         })
