@@ -84,7 +84,7 @@ export const initializeApolloClient = async () => {
             message !== 'PersistedQueryNotFound'
           ) {
             // Capture in Sentry with operation details
-            captureException(value, {
+            captureException(message, {
               tags: {
                 errorType: 'GraphQLError',
                 operationName: operation.operationName,
@@ -93,6 +93,7 @@ export const initializeApolloClient = async () => {
                 path,
                 locations,
                 extensions,
+                value,
                 variables: operation.variables,
               },
             })
