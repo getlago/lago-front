@@ -130,7 +130,10 @@ const useCreateEditBillingEntity = () => {
     if (billingEntity && billingEntityCode) {
       return await update({
         variables: {
-          input: values as UpdateBillingEntityInput,
+          input: {
+            ...values,
+            id: billingEntity.id,
+          },
         },
       })
     }
