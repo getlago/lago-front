@@ -6,11 +6,11 @@ import { Button, Table, Tooltip, Typography } from '~/components/designSystem'
 import {
   CreateWebhookDialog,
   CreateWebhookDialogRef,
-} from '~/components/developers/CreateWebhookDialog'
+} from '~/components/developers/webhooks/CreateWebhookDialog'
 import {
   DeleteWebhookDialog,
   DeleteWebhookDialogRef,
-} from '~/components/developers/DeleteWebhookDialog'
+} from '~/components/developers/webhooks/DeleteWebhookDialog'
 import {
   SettingsListItem,
   SettingsListItemHeader,

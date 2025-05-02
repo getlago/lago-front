@@ -1,6 +1,6 @@
 import { useRoutes } from 'react-router-dom'
 
-import { ApiKeys } from '~/components/developers/views'
+import { ApiKeys, WebhookLogs, Webhooks } from '~/components/developers/views'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 
@@ -14,9 +14,9 @@ export const DevtoolsRouter = () => {
     { path: API_KEYS_ROUTE, element: <ApiKeys /> },
     {
       path: WEBHOOKS_ROUTE,
-      element: <div />,
+      element: <Webhooks />,
     },
-    { path: WEBHOOK_LOGS_ROUTE, element: <div /> },
+    { path: WEBHOOK_LOGS_ROUTE, element: <WebhookLogs /> },
     { path: EVENTS_ROUTE, element: <div /> },
     { path: '*', element: <ApiKeys /> },
   ])
