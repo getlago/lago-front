@@ -4833,6 +4833,7 @@ export type Permissions = {
   addonsView: Scalars['Boolean']['output'];
   analyticsOverdueBalancesView: Scalars['Boolean']['output'];
   analyticsView: Scalars['Boolean']['output'];
+  auditLogsView: Scalars['Boolean']['output'];
   billableMetricsCreate: Scalars['Boolean']['output'];
   billableMetricsDelete: Scalars['Boolean']['output'];
   billableMetricsUpdate: Scalars['Boolean']['output'];
@@ -8229,9 +8230,7 @@ export type GetSubscribtionsForPlanDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscribtionsForPlanDetailsQuery = { __typename?: 'Query', subscriptions: { __typename?: 'SubscriptionCollection', collection: Array<{ __typename?: 'Subscription', id: string, endingAt?: any | null, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, parent?: { __typename?: 'Plan', id: string } | null }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } };
-
-export type PlanSubscriptionListItemForSubscriptionListFragment = { __typename?: 'Subscription', id: string, endingAt?: any | null, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, parent?: { __typename?: 'Plan', id: string } | null }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string } };
+export type GetSubscribtionsForPlanDetailsQuery = { __typename?: 'Query', subscriptions: { __typename?: 'SubscriptionCollection', collection: Array<{ __typename?: 'Subscription', id: string, endingAt?: any | null, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, parent?: { __typename?: 'Plan', id: string } | null }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } };
 
 export type EditOrganizationInformationsDialogFragment = { __typename?: 'CurrentOrganization', id: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null };
 
@@ -11232,27 +11231,6 @@ export const BillableMetricForChargeSectionFragmentDoc = gql`
     id
     key
     values
-  }
-}
-    `;
-export const PlanSubscriptionListItemForSubscriptionListFragmentDoc = gql`
-    fragment PlanSubscriptionListItemForSubscriptionList on Subscription {
-  id
-  endingAt
-  subscriptionAt
-  plan {
-    id
-    parent {
-      id
-    }
-  }
-  customer {
-    id
-    name
-    displayName
-    firstname
-    lastname
-    externalId
   }
 }
     `;
@@ -18516,7 +18494,20 @@ export const GetSubscribtionsForPlanDetailsDocument = gql`
   subscriptions(page: $page, limit: $limit, planCode: $planCode, status: $status) {
     collection {
       id
-      ...PlanSubscriptionListItemForSubscriptionList
+      endingAt
+      subscriptionAt
+      plan {
+        id
+        parent {
+          id
+        }
+      }
+      customer {
+        id
+        name
+        displayName
+        externalId
+      }
     }
     metadata {
       currentPage
@@ -18524,7 +18515,7 @@ export const GetSubscribtionsForPlanDetailsDocument = gql`
     }
   }
 }
-    ${PlanSubscriptionListItemForSubscriptionListFragmentDoc}`;
+    `;
 
 /**
  * __useGetSubscribtionsForPlanDetailsQuery__
