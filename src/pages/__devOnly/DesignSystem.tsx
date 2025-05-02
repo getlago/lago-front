@@ -4,7 +4,6 @@ import { useFormik } from 'formik'
 import { Accordion, Avatar, AvatarBadge, Button, Icon } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, Link } from 'react-router-dom'
-import styled, { css } from 'styled-components'
 import { boolean, number, object, string } from 'yup'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
@@ -61,7 +60,7 @@ import {
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import Stripe from '~/public/images/stripe.svg'
-import { MenuPopper, PageHeader, theme } from '~/styles'
+import { MenuPopper, PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
 
 const FORM_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'form' })
@@ -73,6 +72,26 @@ const ICONS_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'ico
 const AVATAR_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'avatar' })
 const SKELETON_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'skeleton' })
 const TABLE_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'table' })
+
+const Container = ({ children }: { children: React.ReactNode }) => (
+  <div className="px-12 pb-20 pt-8">{children}</div>
+)
+
+const Block = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+  <div className={tw('mb-6 flex flex-wrap gap-4', className)}>{children}</div>
+)
+
+const VerticalBlock = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode
+  className?: string
+}) => <div className={tw('*:mb-4', className)}>{children}</div>
+
+const ComboboxHeader = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex w-full gap-1 *:whitespace-nowrap">{children}</div>
+)
 
 const DesignSystem = () => {
   const dialogRef = useRef<DialogRef>(null)
@@ -186,7 +205,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="headline">
                   Alert
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <Alert
                     fullWidth
                     className="md:px-12"
@@ -215,7 +234,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="headline">
                   Chips
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <Chip label="Small" size="small" />
                   <Chip label="Default" />
                   <Chip label="Big" size="big" />
@@ -283,7 +302,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="headline">
                   Poppers
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <Drawer title="Imma supa drawa" opener={<Button>Drawer</Button>}>
                     <iframe
                       title="hey you"
@@ -363,7 +382,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="headline">
                   Selector
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <Selector
                     title="A simple selector"
                     subtitle="with more info"
@@ -410,7 +429,7 @@ const DesignSystem = () => {
                   Status
                 </Typography>
                 <VerticalBlock>
-                  <Block>
+                  <Block className="mb-0">
                     <Typography className="mb-4" variant="bodyHl" color="textSecondary">
                       Success
                     </Typography>
@@ -429,19 +448,19 @@ const DesignSystem = () => {
                       labelVariables={{ date: '2024-04-12' }}
                     />
                   </Block>
-                  <Block>
+                  <Block className="mb-0">
                     <Typography className="mb-4" variant="bodyHl" color="textSecondary">
                       Warning
                     </Typography>
                     <Status type={StatusType.warning} label="failed" endIcon="warning-unfilled" />
                   </Block>
-                  <Block>
+                  <Block className="mb-0">
                     <Typography className="mb-4" variant="bodyHl" color="textSecondary">
                       Outline
                     </Typography>
                     <Status type={StatusType.outline} label="draft" endIcon="warning-unfilled" />
                   </Block>
-                  <Block>
+                  <Block className="mb-0">
                     <Typography className="mb-4" variant="bodyHl" color="textSecondary">
                       Default
                     </Typography>
@@ -449,7 +468,7 @@ const DesignSystem = () => {
                     <Status type={StatusType.default} label="toPay" />
                     <Status type={StatusType.default} label="n/a" />
                   </Block>
-                  <Block>
+                  <Block className="mb-0">
                     <Typography className="mb-4" variant="bodyHl" color="textSecondary">
                       Danger
                     </Typography>
@@ -464,7 +483,7 @@ const DesignSystem = () => {
                     <Status type={StatusType.danger} label="consumed" />
                     <Status type={StatusType.danger} label="voided" />
                   </Block>
-                  <Block>
+                  <Block className="mb-0">
                     <Typography className="mb-4" variant="bodyHl" color="textSecondary">
                       Disabled
                     </Typography>
@@ -475,27 +494,27 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="headline">
                   ShowMoreText
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <ShowMoreText
                     text="Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium praesentium minus necessitatibus. Placeat, ratione ipsam dolor, quas iste obcaecati tenetur esse tempora quidem eveniet iure quasi repellat debitis doloribus? Distinctio iure quisquam ipsam minus dolorum corporis, eligendi iusto. Animi assumenda reprehenderit atque corrupti, a iste illo porro facilis maxime. Quod eaque ratione, ullam tempore blanditiis placeat odit, assumenda labore accusamus libero nostrum qui et architecto inventore atque, veritatis vitae nisi quas veniam sit! Quasi natus, neque sed soluta perspiciatis officiis?"
                     limit={30}
                   />
                 </Block>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <ShowMoreText
                     text="Custom show more. Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium praesentium minus necessitatibus. Placeat, ratione ipsam dolor, quas iste obcaecati tenetur esse tempora quidem eveniet iure quasi repellat debitis doloribus? Distinctio iure quisquam ipsam minus dolorum corporis, eligendi iusto. Animi assumenda reprehenderit atque corrupti, a iste illo porro facilis maxime. Quod eaque ratione, ullam tempore blanditiis placeat odit, assumenda labore accusamus libero nostrum qui et architecto inventore atque, veritatis vitae nisi quas veniam sit! Quasi natus, neque sed soluta perspiciatis officiis?"
                     limit={30}
                     showMore="Please show more"
                   />
                 </Block>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <ShowMoreText
                     text="Custom show more with button. Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium praesentium minus necessitatibus. Placeat, ratione ipsam dolor, quas iste obcaecati tenetur esse tempora quidem eveniet iure quasi repellat debitis doloribus? Distinctio iure quisquam ipsam minus dolorum corporis, eligendi iusto. Animi assumenda reprehenderit atque corrupti, a iste illo porro facilis maxime. Quod eaque ratione, ullam tempore blanditiis placeat odit, assumenda labore accusamus libero nostrum qui et architecto inventore atque, veritatis vitae nisi quas veniam sit! Quasi natus, neque sed soluta perspiciatis officiis?"
                     limit={30}
                     showMore={<Button variant="secondary" size="small" icon="plus" />}
                   />
                 </Block>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <GenericPlaceholder
                     title="Something went wrong"
                     subtitle="Please refresh the page or contact us if the error persists."
@@ -521,7 +540,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="headline">
                   Skeleton
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <Skeleton variant="connectorAvatar" size="small" />
                   <Skeleton variant="connectorAvatar" size="medium" />
                   <Skeleton variant="connectorAvatar" size="large" />
@@ -546,7 +565,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="headline">
                   Table
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <ChargeTable
                     name="graduated-charge-table"
                     data={chargeTableData}
@@ -560,10 +579,10 @@ const DesignSystem = () => {
                         ),
                         size: 300,
                         content: (row) => (
-                          <TableContent>
+                          <div className="flex items-center gap-2 px-2">
                             <Avatar variant="user" identifier={row.name} size="small" />
                             <Typography>{row.name}</Typography>
-                          </TableContent>
+                          </div>
                         ),
                       },
                       {
@@ -583,9 +602,9 @@ const DesignSystem = () => {
                         ),
                         size: 124,
                         content: (row) => (
-                          <TableContent>
+                          <div className="flex items-center gap-2 px-2">
                             <Icon color="primary" name={row.icon as IconName} />
-                          </TableContent>
+                          </div>
                         ),
                       },
                     ]}
@@ -594,7 +613,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="headline">
                   Display Table
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <Table
                     name="display-table"
                     containerSize={{
@@ -996,7 +1015,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="subhead">
                   Variants
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <Tooltip title="Connector with icon">
                     <Avatar variant="connector">
                       <Icon name="pulse" color="dark" />
@@ -1028,7 +1047,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="subhead">
                   Size
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <div className="not-last-child:mb-4">
                     <Avatar variant="user" size="small" identifier="Morguy" initials="ML" />
                     <Avatar variant="user" size="intermediate" identifier="Morguy" initials="ML" />
@@ -1078,7 +1097,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4">
                   Color is defined automatically based on initials or identifier
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <Avatar variant="company" identifier="AA" />
                   <Avatar variant="company" identifier="AB" />
                   <Avatar variant="company" identifier="AC" />
@@ -1099,7 +1118,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="headline">
                   Icons
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   {Object.keys(ALL_ICONS).map((iconName, i) => (
                     <Icon key={`icon-${i}`} name={iconName as IconName} />
                   ))}
@@ -1107,7 +1126,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="headline">
                   Colors
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <Icon name="plug" color="success" />
                   <Icon name="plug" color="error" />
                   <Icon name="plug" color="warning" />
@@ -1122,7 +1141,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="headline">
                   Animation
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <Icon name="processing" animation="spin" />
                   <Icon name="star-filled" animation="pulse" />
                 </Block>
@@ -1130,7 +1149,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="headline">
                   Size
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <Icon name="puzzle" size="small" />
                   <Icon name="puzzle" size="medium" />
                   <Icon name="puzzle" size="large" />
@@ -1146,8 +1165,8 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="headline">
                   Typography
                 </Typography>
-                <Block>
-                  <VerticalBlock $marginRight={theme.spacing(12)}>
+                <Block className="mb-0">
+                  <VerticalBlock className="mr-12">
                     <Typography className="mb-4" variant="subhead">
                       Variant
                     </Typography>
@@ -1197,7 +1216,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="subhead">
                   General use
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <Button variant="primary" size="large">
                     Large
                   </Button>
@@ -1230,7 +1249,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="subhead">
                   Primary
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <Button variant="primary">Default</Button>
                   <Button variant="primary" disabled>
                     Disabled
@@ -1243,7 +1262,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="subhead">
                   Secondary
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <Button variant="secondary">Default</Button>
                   <Button variant="secondary" size="large">
                     Large
@@ -1265,7 +1284,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="subhead">
                   Tertiary
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <Button variant="tertiary">Default</Button>
                   <Button variant="tertiary" size="large">
                     Large
@@ -1287,7 +1306,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="subhead">
                   Quaternary
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <Button variant="quaternary">Default</Button>
                   <Button variant="quaternary" size="large">
                     Large
@@ -1312,7 +1331,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="subhead">
                   Google connect
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <Button fullWidth startIcon="google" size="large" variant="tertiary">
                     Log In with Google
                   </Button>
@@ -1325,7 +1344,7 @@ const DesignSystem = () => {
             link: FORM_TAB_URL,
             component: (
               <Container>
-                <Form onSubmit={(e) => e.preventDefault()}>
+                <form onSubmit={(e) => e.preventDefault()}>
                   <Typography className="mb-4" variant="headline">
                     Form
                   </Typography>
@@ -1334,7 +1353,7 @@ const DesignSystem = () => {
                     Checkbox
                   </Typography>
 
-                  <Block $marginBottom={theme.spacing(6)}>
+                  <Block>
                     <Checkbox
                       name="checkboxCond3"
                       canBeIndeterminate
@@ -1412,7 +1431,7 @@ const DesignSystem = () => {
                   <Typography className="mb-4" variant="subhead">
                     ButtonSelector
                   </Typography>
-                  <Block $marginBottom={theme.spacing(6)}>
+                  <Block>
                     <ButtonSelectorField
                       name="buttonSelector"
                       label="You'd rather..."
@@ -1451,7 +1470,7 @@ const DesignSystem = () => {
                   <Typography className="mb-4" variant="subhead">
                     Switch
                   </Typography>
-                  <Block $marginBottom={theme.spacing(6)}>
+                  <Block>
                     <SwitchField
                       name="switch"
                       formikProps={formikProps}
@@ -1476,7 +1495,7 @@ const DesignSystem = () => {
                   <Typography className="mb-4" variant="subhead">
                     Combobox
                   </Typography>
-                  <Block $marginBottom={theme.spacing(6)}>
+                  <Block>
                     <ComboBoxField
                       name="combobox"
                       data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
@@ -1529,8 +1548,8 @@ const DesignSystem = () => {
                       renderGroupHeader={{
                         '0': (
                           <ComboboxHeader>
-                            <Typography variant="captionHl" color="textSecondary">
-                              The good •&#32;
+                            <Typography component="span" variant="captionHl" color="textSecondary">
+                              The good •
                             </Typography>
                             <Typography component="span" variant="caption" noWrap>
                               Based on several survey
@@ -1539,8 +1558,8 @@ const DesignSystem = () => {
                         ),
                         '1': (
                           <ComboboxHeader>
-                            <Typography variant="captionHl" color="textSecondary">
-                              The bad •&#32;
+                            <Typography component="span" variant="captionHl" color="textSecondary">
+                              The bad •
                             </Typography>
                             <Typography component="span" variant="caption" noWrap>
                               Because I say so
@@ -1549,8 +1568,8 @@ const DesignSystem = () => {
                         ),
                         '2': (
                           <ComboboxHeader>
-                            <Typography variant="captionHl" color="textSecondary">
-                              The ugly •&#32;
+                            <Typography component="span" variant="captionHl" color="textSecondary">
+                              The ugly •
                             </Typography>
                             <Typography component="span" variant="caption" noWrap>
                               Don&apos;t look at it
@@ -1572,8 +1591,8 @@ const DesignSystem = () => {
                       renderGroupHeader={{
                         '0': (
                           <ComboboxHeader>
-                            <Typography variant="captionHl" color="textSecondary">
-                              The good •&#32;
+                            <Typography component="span" variant="captionHl" color="textSecondary">
+                              The good •
                             </Typography>
                             <Typography component="span" variant="caption" noWrap>
                               Based on several survey
@@ -1582,8 +1601,8 @@ const DesignSystem = () => {
                         ),
                         '1': (
                           <ComboboxHeader>
-                            <Typography variant="captionHl" color="textSecondary">
-                              The bad •&#32;
+                            <Typography component="span" variant="captionHl" color="textSecondary">
+                              The bad •
                             </Typography>
                             <Typography component="span" variant="caption" noWrap>
                               Because I say so
@@ -1592,8 +1611,8 @@ const DesignSystem = () => {
                         ),
                         '2': (
                           <ComboboxHeader>
-                            <Typography variant="captionHl" color="textSecondary">
-                              The ugly •&#32;
+                            <Typography component="span" variant="captionHl" color="textSecondary">
+                              The ugly •
                             </Typography>
                             <Typography component="span" variant="caption" noWrap>
                               Don&apos;t look at it
@@ -1727,7 +1746,7 @@ const DesignSystem = () => {
                   <Typography className="mb-4" variant="subhead">
                     Radio
                   </Typography>
-                  <Block $marginBottom={theme.spacing(6)}>
+                  <Block>
                     <RadioField
                       name="radio"
                       formikProps={formikProps}
@@ -1761,7 +1780,7 @@ const DesignSystem = () => {
                   <Typography className="mb-4" variant="subhead">
                     DatePicker
                   </Typography>
-                  <Block $childMinWidth="325px" $marginBottom={theme.spacing(6)}>
+                  <Block className="min-w-[325px]">
                     <DatePickerField
                       name="date"
                       label="When is Morguy's birthday ?"
@@ -1784,7 +1803,7 @@ const DesignSystem = () => {
                   <Typography className="mb-4" variant="subhead">
                     AmountInput
                   </Typography>
-                  <Block $marginBottom={theme.spacing(6)}>
+                  <Block>
                     <AmountInputField
                       beforeChangeFormatter={['positiveNumber']}
                       currency={formikProps.values.amountCurrency}
@@ -1810,7 +1829,7 @@ const DesignSystem = () => {
                   <Typography className="mb-4" variant="subhead">
                     TextInput
                   </Typography>
-                  <Block $marginBottom={theme.spacing(6)}>
+                  <Block>
                     <TextInputField
                       label="Label"
                       placeholder="Type something"
@@ -1891,7 +1910,7 @@ const DesignSystem = () => {
                   <Typography className="mb-4" variant="subhead">
                     JSON Editor
                   </Typography>
-                  <Block $marginBottom={theme.spacing(6)}>
+                  <Block>
                     <JsonEditorField
                       name="json"
                       label="With small editor and overlay"
@@ -1913,7 +1932,7 @@ const DesignSystem = () => {
                   </Block>
 
                   <Button onClick={formikProps.submitForm}>Check your answers</Button>
-                </Form>
+                </form>
               </Container>
             ),
           },
@@ -1928,7 +1947,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="subhead">
                   Link in navigation tabs with &#60;ButtonLink/&#62;
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <ButtonLink type="tab" icon="rocket" to={ONLY_DEV_DESIGN_SYSTEM_ROUTE}>
                     Non active Link
                   </ButtonLink>
@@ -1950,7 +1969,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="subhead">
                   Button Links with &#60;ButtonLink/&#62;
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <ButtonLink type="button" to={ONLY_DEV_DESIGN_SYSTEM_ROUTE}>
                     Internal
                   </ButtonLink>
@@ -1973,7 +1992,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="subhead">
                   Simple links with &#60;a/&#62;
                 </Typography>
-                <Block $marginBottom={theme.spacing(6)}>
+                <Block>
                   <a href="https://main-app.staging.getlago.com/coupons"> Normal Link </a>
                 </Block>
               </Container>
@@ -1991,77 +2010,5 @@ const DesignSystem = () => {
     </>
   )
 }
-
-const Container = styled.div`
-  padding: ${theme.spacing(8)} ${theme.spacing(12)} ${theme.spacing(20)};
-`
-
-const Form = styled.form`
-  > *:first-child {
-    margin-bottom: ${theme.spacing(4)};
-  }
-`
-
-const Block = styled.div<{ $childMinWidth?: string; $marginBottom?: string }>`
-  display: flex;
-  gap: ${theme.spacing(4)};
-  flex-wrap: wrap;
-
-  ${({ $childMinWidth }) =>
-    !!$childMinWidth &&
-    css`
-      > * {
-        min-width: ${$childMinWidth};
-      }
-    `}
-
-  ${({ $marginBottom }) =>
-    !!$marginBottom &&
-    css`
-      > * {
-        margin-bottom: ${$marginBottom};
-      }
-    `}
-`
-
-const VerticalBlock = styled.div<{ $marginRight?: string }>`
-  ${({ $marginRight }) =>
-    !!$marginRight &&
-    css`
-      > * {
-        margin-right: ${$marginRight};
-      }
-    `}
-
-  > * {
-    margin-bottom: ${theme.spacing(4)};
-  }
-`
-
-const TableContent = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 0 ${theme.spacing(2)};
-
-  > * {
-    margin-right: ${theme.spacing(4)};
-  }
-`
-
-const ComboboxHeader = styled.div`
-  display: flex;
-  width: 100%;
-
-  > * {
-    white-space: nowrap;
-
-    &:first-child {
-      margin-right: ${theme.spacing(1)};
-    }
-    &:last-child {
-      min-width: 0;
-    }
-  }
-`
 
 export default DesignSystem
