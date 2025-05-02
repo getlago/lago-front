@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 import { useMemo, useState } from 'react'
-import styled, { css } from 'styled-components'
 
 import { Skeleton, Typography } from '~/components/designSystem'
 import ChartHeader from '~/components/designSystem/graphs/ChartHeader'
@@ -18,7 +17,8 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { palette, theme } from '~/styles'
+import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import {
   AnalyticsPeriodScopeEnum,
@@ -206,7 +206,7 @@ const Usage = ({
   )
 
   return (
-    <Wrapper className={className}>
+    <div className={tw('flex flex-col gap-6 bg-white px-0 py-6', className)}>
       {!!error ? (
         <GenericPlaceholder
           className="m-0 p-0"
@@ -231,18 +231,18 @@ const Usage = ({
           />
 
           <ChartWrapper blur={blur}>
-            <GraphWrapper>
+            <div className="flex flex-col gap-4">
               {!!isLoading ? (
                 <>
                   <Skeleton variant="text" />
 
                   <div>
                     {[...Array(3)].map((_, index) => (
-                      <SkeletonLine key={`usage-skeleton-${index}`}>
-                        <Skeleton variant="circular" size="tiny" />
-                        <Skeleton variant="text" className="w-[32%]" />
-                        <Skeleton variant="text" className="w-[32%]" />
-                      </SkeletonLine>
+                      <div key={`usage-skeleton-${index}`} className="flex h-10 items-center gap-2">
+                        <Skeleton className="shadow-b" variant="circular" size="tiny" />
+                        <Skeleton className="w-[32%] shadow-b" variant="text" />
+                        <Skeleton className="ml-auto w-[32%]" variant="text" />
+                      </div>
                     ))}
                   </div>
                 </>
@@ -255,9 +255,9 @@ const Usage = ({
                     }
                     hoveredBarId={hoveredBarId}
                   />
-                  <div>
+                  <>
                     {hasNoDataToDisplay ? (
-                      <BMItem $disableHover>
+                      <div className="flex h-10 items-center gap-2">
                         <svg height={DOT_SIZE} width={DOT_SIZE}>
                           <circle
                             cx="4"
@@ -269,15 +269,16 @@ const Usage = ({
                         <Typography variant="caption" color="grey700">
                           {translate('text_655633c844bc8a00577061b9')}
                         </Typography>
-                        <Typography variant="caption" color="grey600">
+                        <Typography className="ml-auto" variant="caption" color="grey600">
                           {intlFormatNumber(0, { currency })}
                         </Typography>
-                      </BMItem>
+                      </div>
                     ) : (
-                      <>
+                      <div className="not-last-child:shadow-b">
                         {dataLinesForDisplay.map((item, index) => (
-                          <BMItem
+                          <div
                             key={`usage-item-${index}`}
+                            className="flex h-10 items-center gap-2 hover:bg-grey-100"
                             onMouseEnter={() => setHoveredBarId(item[0])}
                             onMouseLeave={() => setHoveredBarId(undefined)}
                           >
@@ -298,75 +299,22 @@ const Usage = ({
                                 ? translate('text_6553885df387fd0097fd739e')
                                 : item[0]}
                             </Typography>
-                            <Typography variant="caption" color="grey600">
+                            <Typography className="ml-auto" variant="caption" color="grey600">
                               {intlFormatNumber(deserializeAmount(item[1], currency), { currency })}
                             </Typography>
-                          </BMItem>
+                          </div>
                         ))}
-                      </>
+                      </div>
                     )}
-                  </div>
+                  </>
                 </>
               )}
-            </GraphWrapper>
+            </div>
           </ChartWrapper>
         </>
       )}
-    </Wrapper>
+    </div>
   )
 }
 
 export default Usage
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(6)};
-  padding: ${theme.spacing(6)} 0;
-  box-sizing: border-box;
-  background-color: ${theme.palette.common.white};
-`
-
-const GraphWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(4)};
-`
-
-const BMItem = styled.div<{ $disableHover?: boolean }>`
-  display: flex;
-  align-items: center;
-  height: 40px;
-  gap: ${theme.spacing(2)};
-
-  ${({ $disableHover }) =>
-    !$disableHover &&
-    css`
-      &:hover {
-        background-color: ${palette.grey[100]};
-      }
-    `}
-
-  &:not(:last-child) {
-    box-shadow: ${theme.shadows[7]};
-  }
-
-  > *:last-child {
-    margin-left: auto;
-  }
-`
-
-const SkeletonLine = styled.div`
-  display: flex;
-  align-items: center;
-  height: 40px;
-  gap: ${theme.spacing(2)};
-
-  &:not(:last-child) {
-    box-shadow: ${theme.shadows[7]};
-  }
-
-  > *:last-child {
-    margin-left: auto;
-  }
-`
