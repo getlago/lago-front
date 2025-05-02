@@ -4,7 +4,10 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { Button, InfiniteScroll, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { WebhookLogDetails } from '~/components/developers/webhooks/WebhookLogDetails'
-import { WebhookLogItem, WebhookLogItemSkeleton } from '~/components/developers/webhooks/WebhookLogItem'
+import {
+  WebhookLogItem,
+  WebhookLogItemSkeleton,
+} from '~/components/developers/webhooks/WebhookLogItem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { SearchInput } from '~/components/SearchInput'
 import { WEBHOOK_LOGS_ROUTE, WEBHOOK_LOGS_TAB_ROUTE, WEBHOOK_ROUTE } from '~/core/router'
@@ -71,7 +74,7 @@ gql`
 
 const WEBHOOK_ITEM_NAV_KEY = 'webhook-item-'
 
-const WebhookLogs = () => {
+export const WebhookLogs = () => {
   const { webhookId = '' } = useParams<{ webhookId: string }>()
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
@@ -335,5 +338,3 @@ const WebhookLogs = () => {
     </div>
   )
 }
-
-export default WebhookLogs
