@@ -46,10 +46,7 @@ export default defineConfig({
       output: {
         format: 'es',
         entryFileNames: 'index.js',
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.name === 'style.css') return 'style.css'
-          return assetInfo.name || ''
-        },
+        assetFileNames: 'style.css',
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
