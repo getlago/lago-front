@@ -1,6 +1,5 @@
 import { Stack } from '@mui/material'
 import { memo, useEffect, useMemo, useState } from 'react'
-import styled from 'styled-components'
 
 import { Button, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { BasicComboBoxData, MultipleComboBox } from '~/components/form'
@@ -11,7 +10,6 @@ import {
 } from '~/core/constants/form'
 import { BillableMetricFilter } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 import { LocalChargeFilterInput } from './types'
 import { transformFilterObjectToString } from './utils'
@@ -93,7 +91,7 @@ export const ChargeFilter = memo(
     }, [showComboBox])
 
     return (
-      <Wrapper>
+      <div className="flex flex-col gap-6 p-4">
         {hasValuesDefined && (
           <Stack spacing={1}>
             <Typography variant="captionHl" color="grey700">
@@ -188,16 +186,9 @@ export const ChargeFilter = memo(
             </Tooltip>
           </Stack>
         )}
-      </Wrapper>
+      </div>
     )
   },
 )
 
 ChargeFilter.displayName = 'ChargeFilter'
-
-const Wrapper = styled.div`
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(6)};
-`
