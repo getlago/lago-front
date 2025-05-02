@@ -8,6 +8,12 @@ const DeveloperToolContext = createContext<DeveloperToolContextType | undefined>
 export const DEVTOOL_STORAGE_KEY = 'devtoolIsOpen'
 export const DEVTOOL_TAB_PARAMS = 'devtool-tab'
 
+export enum ConsoleTabs {
+  API_KEYS = 'api-keys',
+  WEBHOOKS = 'webhooks',
+  EVENTS = 'events',
+}
+
 export interface DeveloperToolContextType {
   isOpen: boolean
   open: () => void

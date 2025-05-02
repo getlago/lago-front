@@ -1,4 +1,4 @@
-import { Location, matchPath, useNavigate } from 'react-router-dom'
+import { Location, matchPath, NavigateOptions, useNavigate } from 'react-router-dom'
 
 import {
   addLocationToHistory,
@@ -22,6 +22,7 @@ type GoBack = (
     // Previous count represents how many location from now you want to go back to
     previousCount?: number
     exclude?: string | string[]
+    state?: NavigateOptions['state']
   },
 ) => void
 
@@ -45,18 +46,18 @@ const getPreviousLocation = ({
         }
 
         // If exclude, find index of the first location that doesn't match
-        const isExluded =
+        const isExcluded =
           typeof exclude === 'string'
             ? matchPath(exclude, location.pathname)
             : exclude.some((pathToExclude) => matchPath(pathToExclude, location.pathname))
 
-        return !isExluded
+        return !isExcluded
       })
     : Math.abs(previousCount)
 
   return {
     previous: previousLocations[index],
-    remaingHistory: index > -1 ? previousLocations.slice(index + 1) : [],
+    remainingHistory: index > -1 ? previousLocations.slice(index + 1) : [],
   }
 }
 
@@ -65,7 +66,7 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
   const { loading: isCurrentUserLoading } = useCurrentUser()
   const { hasPermissions } = usePermissions()
   const goBack: GoBack = (fallback, options) => {
-    const { previous, remaingHistory } = getPreviousLocation(options || {})
+    const { previous, remainingHistory } = getPreviousLocation(options || {})
 
     if (fallback === HOME_ROUTE) {
       // Make sure the LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY is not set
@@ -73,9 +74,13 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
       removeItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
     }
 
-    navigate(previous || fallback)
+    if (options?.state) {
+      navigate(previous || fallback, { state: options.state })
+    } else {
+      navigate(previous || fallback)
+    }
 
-    locationHistoryVar(remaingHistory || [])
+    locationHistoryVar(remainingHistory || [])
   }
 
   return {
