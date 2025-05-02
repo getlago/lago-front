@@ -2,17 +2,12 @@ import { Outlet } from 'react-router-dom'
 
 import { NavigationTab, Typography } from '~/components/designSystem'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
-import { API_KEYS_ROUTE, DEBUGGER_ROUTE, DEVELOPERS_ROUTE, WEBHOOK_ROUTE } from '~/core/router'
+import { DEBUGGER_ROUTE, WEBHOOK_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 const Developers = () => {
   const { translate } = useInternationalization()
   const tabsOptions = [
-    {
-      title: translate('text_636df520279a9e1b3c68cc67'),
-      link: API_KEYS_ROUTE,
-      match: [DEVELOPERS_ROUTE, API_KEYS_ROUTE],
-    },
     {
       title: translate('text_6271200984178801ba8bdede'),
       link: WEBHOOK_ROUTE,

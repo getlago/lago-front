@@ -11,7 +11,7 @@ export const PageBannerHeaderWithBurgerMenu = ({ children }: PropsWithChildren) 
 }
 
 const CenteredPageWrapper = ({ children }: PropsWithChildren) => {
-  return <div className="flex min-h-full w-full flex-col bg-white">{children}</div>
+  return <div className="flex size-full min-h-full flex-col overflow-auto bg-white">{children}</div>
 }
 
 const PageBannerHeader = ({ children }: PropsWithChildren) => {
