@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import styled, { css } from 'styled-components'
 
 import { Skeleton, Typography } from '~/components/designSystem'
 import { buildUrlForInvoicesWithFilters } from '~/components/designSystem/Filters'
@@ -21,7 +20,8 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { palette, theme } from '~/styles'
+import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import {
   AnalyticsPeriodScopeEnum,
@@ -276,7 +276,7 @@ const Invoices = ({
   }, [blur, currency, data?.invoiceCollections.collection, demoMode, period])
 
   return (
-    <Wrapper className={className}>
+    <div className={tw('flex flex-col gap-6 bg-white px-0 py-6', className)}>
       {!!error ? (
         <GenericPlaceholder
           className="m-0 p-0"
@@ -301,18 +301,21 @@ const Invoices = ({
           />
 
           <ChartWrapper blur={blur}>
-            <GraphWrapper>
+            <div className="flex flex-col gap-4">
               {!!isLoading ? (
                 <>
                   <Skeleton variant="text" />
 
                   <div>
                     {[...Array(3)].map((_, index) => (
-                      <SkeletonLine key={`invoices-skeleton-${index}`}>
-                        <Skeleton variant="circular" size="tiny" />
-                        <Skeleton variant="text" className="w-[32%]" />
-                        <Skeleton variant="text" className="w-[32%]" />
-                      </SkeletonLine>
+                      <div
+                        key={`invoices-skeleton-${index}`}
+                        className="flex h-10 items-center gap-2"
+                      >
+                        <Skeleton className="shadow-b" variant="circular" size="tiny" />
+                        <Skeleton className="w-[32%] shadow-b" variant="text" />
+                        <Skeleton className="ml-auto w-[32%]" variant="text" />
+                      </div>
                     ))}
                   </div>
                 </>
@@ -339,7 +342,8 @@ const Invoices = ({
                           to={buildUrlForInvoicesWithFilters(linkParams)}
                           key={`invoices-item-${status}-${index}`}
                         >
-                          <InvoiceItem
+                          <div
+                            className="flex h-10 items-center gap-2 shadow-b hover:bg-grey-100"
                             onMouseEnter={() => setHoveredBarId(status)}
                             onMouseLeave={() => setHoveredBarId(undefined)}
                           >
@@ -351,25 +355,25 @@ const Invoices = ({
                                 count: lineData.get(status)?.invoicesCount,
                               })}
                             </Typography>
-                            <Typography variant="caption" color="grey600">
+                            <Typography className="ml-auto" variant="caption" color="grey600">
                               {intlFormatNumber(
                                 deserializeAmount(lineData.get(status)?.amountCents || 0, currency),
                                 { currency },
                               )}
                             </Typography>
-                          </InvoiceItem>
+                          </div>
                         </Link>
                       )
                     })}
 
-                    <InvoiceItem $disableHover>
+                    <div className="flex h-10 items-center gap-2">
                       <svg height={DOT_SIZE} width={DOT_SIZE}></svg>
                       <Typography variant="caption" color="grey700">
                         {translate('text_6553885df387fd0097fd73a9', {
                           count: lineData.get(LINE_DATA_ALL_KEY_NAME)?.invoicesCount,
                         })}
                       </Typography>
-                      <Typography variant="caption" color="grey600">
+                      <Typography className="ml-auto" variant="caption" color="grey600">
                         {intlFormatNumber(
                           deserializeAmount(
                             lineData.get(LINE_DATA_ALL_KEY_NAME)?.amountCents || 0,
@@ -380,69 +384,16 @@ const Invoices = ({
                           },
                         )}
                       </Typography>
-                    </InvoiceItem>
+                    </div>
                   </div>
                 </>
               )}
-            </GraphWrapper>
+            </div>
           </ChartWrapper>
         </>
       )}
-    </Wrapper>
+    </div>
   )
 }
 
 export default Invoices
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(6)};
-  padding: ${theme.spacing(6)} 0;
-  box-sizing: border-box;
-  background-color: ${theme.palette.common.white};
-`
-
-const GraphWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(4)};
-`
-
-const InvoiceItem = styled.div<{ $disableHover?: boolean }>`
-  display: flex;
-  align-items: center;
-  height: 40px;
-  gap: ${theme.spacing(2)};
-
-  ${({ $disableHover }) =>
-    !$disableHover &&
-    css`
-      &:hover {
-        background-color: ${palette.grey[100]};
-      }
-    `}
-
-  &:not(:last-child) {
-    box-shadow: ${theme.shadows[7]};
-  }
-
-  > *:last-child {
-    margin-left: auto;
-  }
-`
-
-const SkeletonLine = styled.div`
-  display: flex;
-  align-items: center;
-  height: 40px;
-  gap: ${theme.spacing(2)};
-
-  &:not(:last-child) {
-    box-shadow: ${theme.shadows[7]};
-  }
-
-  > *:last-child {
-    margin-left: auto;
-  }
-`
