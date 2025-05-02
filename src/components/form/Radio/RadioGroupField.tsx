@@ -1,10 +1,9 @@
 import { Stack } from '@mui/material'
 import { FormikProps } from 'formik'
 import { FC } from 'react'
-import styled, { css } from 'styled-components'
 
 import { Icon, Tooltip, Typography } from '~/components/designSystem'
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import { RadioProps } from './Radio'
 import { RadioField, RadioFieldProps } from './RadioField'
@@ -36,9 +35,14 @@ export const RadioGroupField: FC<RadioGroupFieldProps> = ({
   return (
     <div>
       {!!label && (
-        <InlineLabelContainer>
+        <div className="flex justify-between">
           {label && (
-            <Label $withInfo={!!infoText}>
+            <div
+              className={tw(
+                'flex items-center justify-between',
+                !!infoText && '*:first-child:mr-1',
+              )}
+            >
               <Typography variant="captionHl" color="textSecondary" component="legend">
                 {label}
               </Typography>
@@ -47,14 +51,14 @@ export const RadioGroupField: FC<RadioGroupFieldProps> = ({
                   <Icon name="info-circle" />
                 </Tooltip>
               )}
-            </Label>
+            </div>
           )}
-        </InlineLabelContainer>
+        </div>
       )}
       {!!description && (
-        <Description>
-          <Typography variant="caption">{description}</Typography>
-        </Description>
+        <Typography className="mb-4" variant="caption">
+          {description}
+        </Typography>
       )}
 
       <Stack width="100%" gap={optionsGapSpacing}>
@@ -79,25 +83,3 @@ export const RadioGroupField: FC<RadioGroupFieldProps> = ({
     </div>
   )
 }
-
-const InlineLabelContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-`
-
-const Label = styled.div<{ $withInfo?: boolean }>`
-  display: flex;
-  align-items: center;
-
-  ${({ $withInfo }) =>
-    $withInfo &&
-    css`
-      > *:first-child {
-        margin-right: ${theme.spacing(1)};
-      }
-    `}
-`
-
-const Description = styled.div`
-  margin-bottom: ${theme.spacing(4)} !important;
-`
