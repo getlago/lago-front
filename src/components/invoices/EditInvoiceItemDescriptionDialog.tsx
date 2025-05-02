@@ -1,6 +1,5 @@
 import { useFormik } from 'formik'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import styled from 'styled-components'
 import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
@@ -88,16 +87,16 @@ export const EditInvoiceItemDescriptionDialog = forwardRef<EditInvoiceItemDescri
           error={formikProps.errors.description}
           formikProps={formikProps}
           helperText={
-            <TextInputHelper>
-              <div>
+            <div className="flex justify-between">
+              <div className="flex-1">
                 {!!formikProps.errors?.description
                   ? translate('text_6453819268763979024ad029')
                   : translate('text_64539c4583bc9200f203b11d')}
               </div>
-              <div>
+              <div className="shrink-0">
                 {(formikProps.values?.description || '').length}/{MAX_CHAR_LIMIT}
               </div>
-            </TextInputHelper>
+            </div>
           }
         />
       </Dialog>
@@ -106,16 +105,3 @@ export const EditInvoiceItemDescriptionDialog = forwardRef<EditInvoiceItemDescri
 )
 
 EditInvoiceItemDescriptionDialog.displayName = 'forwardRef'
-
-const TextInputHelper = styled.div`
-  display: flex;
-  justify-content: space-between;
-
-  > div:first-child {
-    flex: 1;
-  }
-
-  > div:last-child {
-    flex-shrink: 0;
-  }
-`
