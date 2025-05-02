@@ -81,7 +81,7 @@ export const DevtoolsView: FC = () => {
           }
         }}
       >
-        <div className="relative w-full">
+        <div className="relative size-full overflow-auto">
           <NavigationTab
             name="devtools"
             managedBy={TabManagedBy.URL}
