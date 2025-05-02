@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { DateTime } from 'luxon'
 import { FC } from 'react'
-import styled from 'styled-components'
 
 import { Icon, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
@@ -17,7 +16,6 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, useGetOverdueQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { theme } from '~/styles'
 
 gql`
   query getOverdue($currency: CurrencyEnum!, $externalCustomerId: String, $months: Int!) {
@@ -91,7 +89,7 @@ const Overview: FC<TGraphProps & { externalCustomerId?: string }> = ({
   )
 
   return (
-    <GridItem>
+    <div className="col-[span_1] bg-white pb-6 lg:col-[span_2]">
       {!!error ? (
         <GenericPlaceholder
           title={translate('text_636d023ce11a9d038819b579')}
@@ -125,7 +123,7 @@ const Overview: FC<TGraphProps & { externalCustomerId?: string }> = ({
             {intlFormatNumber(overdueData?.amountCents || 0, {
               currency,
             })}
-            <Typography variant="caption" component="span" sx={{ marginLeft: theme.spacing(1) }}>
+            <Typography className="ml-1" variant="caption" component="span">
               {translate(
                 'text_6670a6577ecbf200898af64a',
                 { count: overdueData?.invoiceCount },
@@ -135,18 +133,8 @@ const Overview: FC<TGraphProps & { externalCustomerId?: string }> = ({
           </Typography>
         </Stack>
       )}
-    </GridItem>
+    </div>
   )
 }
 
 export default Overview
-
-const GridItem = styled.div`
-  grid-column: span 1;
-  background-color: ${theme.palette.common.white};
-  padding-bottom: ${theme.spacing(6)};
-
-  ${theme.breakpoints.up('lg')} {
-    grid-column: span 2;
-  }
-`
