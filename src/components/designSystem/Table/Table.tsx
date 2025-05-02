@@ -84,6 +84,7 @@ interface TableProps<T> {
   rowDataTestId?: (item: T) => string
   containerSize?: ResponsiveStyleValue<TableContainerSize>
   rowSize?: RowSize
+  tableInDialog?: boolean
 }
 
 const ACTION_COLUMN_ID = 'actionColumn'
@@ -337,6 +338,7 @@ export const Table = <T extends DataItem>({
   rowSize = 48,
   loadingRowCount,
   placeholder,
+  tableInDialog,
   onRowActionLink,
   actionColumn,
   actionColumnTooltip,
@@ -564,6 +566,7 @@ export const Table = <T extends DataItem>({
                       <TableInnerCell data-id={ACTION_COLUMN_ID}>
                         {Array.isArray(actionColumn(item)) ? (
                           <Popper
+                            displayInDialog={tableInDialog}
                             popperGroupName={`${TABLE_ID}-action-cell`}
                             PopperProps={{ placement: 'bottom-end' }}
                             opener={({ isOpen }) => (
