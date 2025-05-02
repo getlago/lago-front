@@ -80,11 +80,11 @@ const Settings = () => {
             <Button
               variant="quaternary"
               startIcon="arrow-left"
-              onClick={() =>
+              onClick={() => {
                 goBack(HOME_ROUTE, {
                   exclude: routesToExcludeFromBackRedirection,
                 })
-              }
+              }}
             >
               <Typography variant="body" color="textSecondary" noWrap>
                 {translate('text_65df4fc6314ffd006ce0a537')}
