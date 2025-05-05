@@ -1,25 +1,15 @@
-/* eslint-disable tailwindcss/no-custom-classname */
 import { gql } from '@apollo/client'
-import styled from 'styled-components'
+import { Avatar } from 'lago-design-system'
+import { DateTime } from 'luxon'
+import { generatePath } from 'react-router-dom'
 
-import { InfiniteScroll, Typography } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { computeCustomerInitials } from '~/components/customers/utils'
+import { InfiniteScroll, Table, Typography } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import {
-  PlanSubscriptionListItemForSubscriptionListFragmentDoc,
-  StatusTypeEnum,
-  useGetSubscribtionsForPlanDetailsQuery,
-} from '~/generated/graphql'
+import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { PLAN_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router/ObjectsRoutes'
+import { StatusTypeEnum, useGetSubscribtionsForPlanDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import EmptyImage from '~/public/images/maneki/empty.svg'
-import ErrorImage from '~/public/images/maneki/error.svg'
-import { HEADER_TABLE_HEIGHT, theme } from '~/styles'
-
-import {
-  PlanSubscriptionListItem,
-  PlanSubscriptionListItemGridTemplate,
-  PlanSubscriptionListItemSkeleton,
-} from './PlanSubscriptionListItem'
 
 gql`
   query getSubscribtionsForPlanDetails(
@@ -31,7 +21,20 @@ gql`
     subscriptions(page: $page, limit: $limit, planCode: $planCode, status: $status) {
       collection {
         id
-        ...PlanSubscriptionListItemForSubscriptionList
+        endingAt
+        subscriptionAt
+        plan {
+          id
+          parent {
+            id
+          }
+        }
+        customer {
+          id
+          name
+          displayName
+          externalId
+        }
       }
       metadata {
         currentPage
@@ -39,8 +42,6 @@ gql`
       }
     }
   }
-
-  ${PlanSubscriptionListItemForSubscriptionListFragmentDoc}
 `
 
 const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
@@ -56,131 +57,118 @@ const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
   })
-  const subscriptions = subscriptionResult?.subscriptions?.collection
-  const displayLoadingState = areSubscriptionsLoading && !subscriptions?.length
-  const displayEmptyState = !areSubscriptionsLoading && !subscriptions?.length
 
   return (
-    <Container>
-      <section>
-        <DetailsPage.SectionTitle variant="subhead" noWrap>
-          {translate('text_65281f686a80b400c8e2f6be')}
-        </DetailsPage.SectionTitle>
+    <section>
+      <DetailsPage.SectionTitle variant="subhead" noWrap>
+        {translate('text_65281f686a80b400c8e2f6be')}
+      </DetailsPage.SectionTitle>
 
-        {subscriptionsError ? (
-          <GenericPlaceholder
-            image={<ErrorImage width="136" height="104" />}
-            title={translate('text_62bb102b66ff57dbfe7905c0')}
-            subtitle={translate('text_62c3f3fca8a1625624e8337e')}
-            buttonTitle={translate('text_62c3f3fca8a1625624e83382')}
-            buttonVariant="primary"
-            buttonAction={() => location.reload()}
-          />
-        ) : displayEmptyState ? (
-          <GenericPlaceholder
-            image={<EmptyImage width="136" height="104" />}
-            title={translate('text_65281f686a80b400c8e2f6c3')}
-            subtitle={translate('text_65281f686a80b400c8e2f6c6')}
-          />
-        ) : (
-          <ScrollWrapper>
-            <ListWrapper>
-              <HeaderLine>
-                <Typography variant="bodyHl" color="grey500" noWrap>
-                  {translate('text_624efab67eb2570101d117be')}
-                </Typography>
-                <Typography variant="bodyHl" color="grey500" noWrap>
-                  {translate('text_65281f686a80b400c8e2f6c4')}
-                </Typography>
-                <Typography variant="bodyHl" color="grey500" noWrap>
-                  {translate('text_65201c5a175a4b0238abf29e')}
-                </Typography>
-                <Typography variant="bodyHl" color="disabled">
-                  {translate('text_65201c5a175a4b0238abf2a0')}
-                </Typography>
-              </HeaderLine>
+      <InfiniteScroll
+        onBottom={() => {
+          const { currentPage = 0, totalPages = 0 } =
+            subscriptionResult?.subscriptions?.metadata || {}
 
-              {displayLoadingState && !subscriptions?.length ? (
-                <SubscriptionListWrapper>
-                  {[0, 1, 2].map((_, i) => (
-                    <PlanSubscriptionListItemSkeleton
-                      key={`plan-subscription-list-item-skeleton-${i}`}
-                      className="plan-subscription-list-item"
+          currentPage < totalPages &&
+            !areSubscriptionsLoading &&
+            fetchMoreSubscriptions({
+              variables: { page: currentPage + 1 },
+            })
+        }}
+      >
+        <Table
+          name="plan-subscriptions"
+          data={subscriptionResult?.subscriptions?.collection || []}
+          containerSize={0}
+          isLoading={areSubscriptionsLoading}
+          hasError={!!subscriptionsError}
+          rowSize={72}
+          onRowActionLink={({ id, plan }) =>
+            generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+              planId: plan?.id as string,
+              subscriptionId: id as string,
+              tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+            })
+          }
+          placeholder={{
+            emptyState: {
+              title: translate('text_65281f686a80b400c8e2f6c3'),
+              subtitle: translate('text_65281f686a80b400c8e2f6c6'),
+            },
+            errorState: {
+              title: translate('text_62bb102b66ff57dbfe7905c0'),
+              subtitle: translate('text_62c3f3fca8a1625624e8337e'),
+              buttonTitle: translate('text_62c3f3fca8a1625624e83382'),
+              buttonAction: () => location.reload(),
+            },
+          }}
+          columns={[
+            {
+              key: 'customer.name',
+              title: translate('text_624efab67eb2570101d117be'),
+              maxSpace: true,
+              minWidth: 340,
+              content: ({ customer }) => {
+                const customerName = customer?.displayName
+                const customerInitials = computeCustomerInitials(customer)
+
+                return (
+                  <div className="flex items-center gap-3">
+                    <Avatar
+                      size="big"
+                      variant="user"
+                      identifier={customerName as string}
+                      initials={customerInitials}
                     />
-                  ))}
-                </SubscriptionListWrapper>
-              ) : (
-                <InfiniteScroll
-                  onBottom={() => {
-                    const { currentPage = 0, totalPages = 0 } =
-                      subscriptionResult?.subscriptions?.metadata || {}
-
-                    currentPage < totalPages &&
-                      !areSubscriptionsLoading &&
-                      fetchMoreSubscriptions({
-                        variables: { page: currentPage + 1 },
-                      })
-                  }}
-                >
-                  {!!subscriptions?.length && (
-                    <SubscriptionListWrapper>
-                      {subscriptions?.map((subscription, i) => {
-                        return (
-                          <PlanSubscriptionListItem
-                            key={`plan-subscription-list-item-${i}`}
-                            className="plan-subscription-list-item"
-                            subscriptionItem={subscription}
-                          />
-                        )
-                      })}
-                      {areSubscriptionsLoading &&
-                        [0, 1, 2].map((_, i) => (
-                          <PlanSubscriptionListItemSkeleton
-                            key={`plan-subscription-list-item-loading-more-${i}`}
-                            className="plan-subscription-list-item"
-                          />
-                        ))}
-                    </SubscriptionListWrapper>
-                  )}
-                </InfiniteScroll>
-              )}
-            </ListWrapper>
-          </ScrollWrapper>
-        )}
-      </section>
-    </Container>
+                    <div className="flex flex-col">
+                      <Typography variant="bodyHl" color="textSecondary" noWrap>
+                        {customerName}
+                      </Typography>
+                      <Typography variant="caption" color="grey600" noWrap>
+                        {customer?.externalId}
+                      </Typography>
+                    </div>
+                  </div>
+                )
+              },
+            },
+            {
+              key: 'plan.parent.id',
+              title: translate('text_65281f686a80b400c8e2f6c4'),
+              minWidth: 120,
+              content: ({ plan }) => (
+                <Typography variant="body" color="grey700">
+                  {!!plan?.parent?.id
+                    ? translate('text_65281f686a80b400c8e2f6dd')
+                    : translate('text_65281f686a80b400c8e2f6d1')}
+                </Typography>
+              ),
+            },
+            {
+              key: 'subscriptionAt',
+              title: translate('text_65281f686a80b400c8e2f6d1'),
+              minWidth: 150,
+              content: ({ subscriptionAt }) => (
+                <Typography variant="body" color="grey700">
+                  {DateTime.fromISO(subscriptionAt).toFormat('LLL. dd, yyyy')}
+                </Typography>
+              ),
+            },
+            {
+              key: 'endingAt',
+              title: translate('text_65201c5a175a4b0238abf2a0'),
+              minWidth: 150,
+              content: ({ endingAt }) => (
+                <Typography variant="body" color="grey700">
+                  {!!endingAt ? DateTime.fromISO(endingAt).toFormat('LLL. dd, yyyy') : '-'}
+                </Typography>
+              ),
+            },
+          ]}
+        />
+      </InfiniteScroll>
+    </section>
   )
 }
 
 export default PlanSubscriptionList
-
-const Container = styled.section`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(12)};
-`
-
-const ScrollWrapper = styled.div`
-  overflow: auto;
-`
-
-const ListWrapper = styled.div`
-  min-width: 0;
-`
-
-const SubscriptionListWrapper = styled.div`
-  border: 1px solid ${theme.palette.grey[400]};
-  border-radius: 12px;
-
-  .plan-subscription-list-item:not(:last-child) {
-    box-shadow: ${theme.shadows[7]};
-  }
-`
-
-const HeaderLine = styled.div`
-  height: ${HEADER_TABLE_HEIGHT}px;
-  display: grid;
-  align-items: center;
-  ${PlanSubscriptionListItemGridTemplate()}
-  padding: 0 ${theme.spacing(4)};
-`

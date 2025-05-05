@@ -1,17 +1,9 @@
 import { gql } from '@apollo/client'
-import { Avatar } from 'lago-design-system'
 import { useEffect, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
-import {
-  Button,
-  Icon,
-  NavigationTab,
-  Popper,
-  Skeleton,
-  Typography,
-} from '~/components/designSystem'
+import { Button, NavigationTab, Popper, Skeleton, Typography } from '~/components/designSystem'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
 import { PlanDetailsOverview } from '~/components/plans/details/PlanDetailsOverview'
 import PlanSubscriptionList from '~/components/plans/details/PlanSubscriptionList'
@@ -32,7 +24,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
-import { MenuPopper, PageHeader, theme } from '~/styles'
+import { MenuPopper, PageHeader } from '~/styles'
 
 gql`
   query getPlanForDetails($planId: ID!) {
@@ -93,9 +85,9 @@ const PlanDetails = () => {
             }}
           />
           {isPlanLoading && !plan ? (
-            <PlanTitleLoadingWrapper>
+            <div className="w-50">
               <Skeleton variant="text" className="w-50" />
-            </PlanTitleLoadingWrapper>
+            </div>
           ) : (
             <Typography variant="bodyHl" color="textSecondary" noWrap>
               {translate('text_65281f686a80b400c8e2f6ad', { planName: plan?.name })}
@@ -156,28 +148,14 @@ const PlanDetails = () => {
           </Popper>
         )}
       </PageHeader.Wrapper>
-      <PlanBlockWrapper>
-        <Avatar variant="connector" size="large">
-          <Icon name="board" color="dark" size="large" />
-        </Avatar>
-        <PlanBlockInfos>
-          {isPlanLoading && !plan ? (
-            <PlanTitleLoadingWrapper>
-              <Skeleton variant="text" className="mb-5 w-50" />
-              <Skeleton variant="text" className="w-50" />
-            </PlanTitleLoadingWrapper>
-          ) : (
-            <>
-              <Typography variant="headline" color="grey700" noWrap>
-                {translate('text_65281f686a80b400c8e2f6ad', { planName: plan?.name })}
-              </Typography>
-              <Typography variant="body" color="grey600" noWrap>
-                {plan?.code}
-              </Typography>
-            </>
-          )}
-        </PlanBlockInfos>
-      </PlanBlockWrapper>
+
+      <DetailsPage.Header
+        isLoading={isPlanLoading}
+        icon="puzzle"
+        title={translate('text_65281f686a80b400c8e2f6ad', { planName: plan?.name })}
+        description={plan?.code || ''}
+      />
+
       <NavigationTab
         className="px-12"
         loading={isPlanLoading}
@@ -201,11 +179,9 @@ const PlanDetails = () => {
               }),
             ],
             component: (
-              <ContentContainer>
-                <TabContentWrapper>
-                  <PlanDetailsOverview planId={planId} />
-                </TabContentWrapper>
-              </ContentContainer>
+              <DetailsPage.Container>
+                <PlanDetailsOverview planId={planId} />
+              </DetailsPage.Container>
             ),
           },
           {
@@ -221,9 +197,9 @@ const PlanDetails = () => {
               }),
             ],
             component: (
-              <ContentContainer>
+              <DetailsPage.Container className="max-w-full">
                 <PlanSubscriptionList planCode={plan?.code} />
-              </ContentContainer>
+              </DetailsPage.Container>
             ),
           },
         ]}
@@ -234,32 +210,3 @@ const PlanDetails = () => {
 }
 
 export default PlanDetails
-
-const ContentContainer = styled.div`
-  padding: 0 ${theme.spacing(12)} ${theme.spacing(20)};
-  box-sizing: border-box;
-`
-
-const TabContentWrapper = styled.div`
-  max-width: 672px;
-`
-
-const PlanBlockWrapper = styled.div`
-  display: flex;
-  gap: ${theme.spacing(4)};
-  align-items: center;
-  margin-bottom: ${theme.spacing(8)};
-  padding: ${theme.spacing(8)} ${theme.spacing(12)} 0;
-`
-
-const PlanBlockInfos = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(1)};
-  /* Used to hide text overflow */
-  overflow: hidden;
-`
-
-const PlanTitleLoadingWrapper = styled.div`
-  width: 200px;
-`
