@@ -1,5 +1,4 @@
 import { FC, useState } from 'react'
-import styled from 'styled-components'
 
 import { Button, Icon, Typography } from '~/components/designSystem'
 import { Radio } from '~/components/form'
@@ -7,7 +6,6 @@ import { LocalChargeInput } from '~/components/plans/types'
 import { RegroupPaidFeesEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { theme } from '~/styles'
 
 interface ChargeBillingRadioGroupProps {
   localCharge: LocalChargeInput
@@ -56,13 +54,13 @@ export const ChargeBillingRadioGroup: FC<ChargeBillingRadioGroupProps> = ({
   }
 
   return (
-    <RadioGroup>
-      <RadioLabel>
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1">
         <Typography variant="captionHl" color="textSecondary" component="legend">
           {translate('text_6682c52081acea90520744ca')}
         </Typography>
         <Typography variant="caption">{translate('text_6682c52081acea90520745c4')}</Typography>
-      </RadioLabel>
+      </div>
 
       <Radio
         label={translate('text_6687b0081931407697975943')}
@@ -76,9 +74,9 @@ export const ChargeBillingRadioGroup: FC<ChargeBillingRadioGroupProps> = ({
         disabled={disabled}
       />
       {!isPremium && (
-        <PremiumOption>
+        <div className="flex items-center justify-between gap-4 rounded-lg bg-grey-100 px-6 py-4">
           <div>
-            <Typography variant="bodyHl" color="textSecondary">
+            <Typography className="flex items-center" variant="bodyHl" color="textSecondary">
               {translate('text_6682c52081acea90520744d0')}
               <Icon className="ml-2" name="sparkles" />
             </Typography>
@@ -88,7 +86,7 @@ export const ChargeBillingRadioGroup: FC<ChargeBillingRadioGroupProps> = ({
           <Button endIcon="sparkles" variant="tertiary" onClick={openPremiumDialog}>
             {translate('text_65ae73ebe3a66bec2b91d72d')}
           </Button>
-        </PremiumOption>
+        </div>
       )}
       <Radio
         label={translate('text_6687b0081931407697975945')}
@@ -112,30 +110,6 @@ export const ChargeBillingRadioGroup: FC<ChargeBillingRadioGroupProps> = ({
         labelVariant="body"
         disabled={!isPremium || disabled}
       />
-    </RadioGroup>
+    </div>
   )
 }
-
-const RadioGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(2)};
-`
-
-const RadioLabel = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(1)};
-  margin-bottom: ${theme.spacing(2)};
-`
-
-const PremiumOption = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  gap: ${theme.spacing(4)};
-  background-color: ${theme.palette.grey[100]};
-  border-radius: 8px;
-  padding: ${theme.spacing(4)} ${theme.spacing(6)};
-`

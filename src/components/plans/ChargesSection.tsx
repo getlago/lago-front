@@ -1,8 +1,6 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
 import { FormikProps } from 'formik'
 import { memo, RefObject, useEffect, useMemo, useRef, useState } from 'react'
-import styled from 'styled-components'
 
 import { Button, Card, Popper, Tooltip, Typography } from '~/components/designSystem'
 import { ComboBox, ComboboxItem, SwitchField } from '~/components/form'
@@ -23,7 +21,7 @@ import {
   useGetRecurringBillableMetricsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { MenuPopper, theme } from '~/styles'
+import { MenuPopper } from '~/styles'
 
 import { ChargeAccordion } from './ChargeAccordion'
 import {
@@ -220,15 +218,15 @@ export const ChargesSection = memo(
     return (
       <>
         <Card className="gap-8">
-          <SectionTitle>
-            <Stack gap={2}>
+          <div className="flex items-center justify-between gap-8">
+            <div className="flex flex-col gap-2">
               <Typography variant="subhead">
                 {translate('text_6435888d7cc86500646d8977')}
               </Typography>
               <Typography variant="caption">
                 {translate('text_6661ffe746c680007e2df0d6')}
               </Typography>
-            </Stack>
+            </div>
 
             {!isInSubscriptionForm && (
               <Popper
@@ -294,7 +292,7 @@ export const ChargesSection = memo(
                 )}
               </Popper>
             )}
-          </SectionTitle>
+          </div>
 
           {/* METERED */}
           {!!hasAnyCharge && formikProps.values.interval === PlanInterval.Yearly && (
@@ -308,18 +306,18 @@ export const ChargesSection = memo(
           )}
 
           {(hasAnyMeteredCharge || !isInSubscriptionForm) && (
-            <Group>
-              <GroupTitle>
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
                 <Typography variant="bodyHl" color="grey700">
                   {translate('text_6661fc17337de3591e29e40f')}
                 </Typography>
                 <Typography variant="caption" color="grey600">
                   {translate('text_6661fc17337de3591e29e411')}
                 </Typography>
-              </GroupTitle>
+              </div>
 
               {hasAnyMeteredCharge && (
-                <Charges>
+                <div className="flex flex-col gap-6">
                   {formikProps.values.charges.map((charge, i) => {
                     // Prevent displaying recurring charges
                     if (charge.billableMetric.recurring) return
@@ -350,11 +348,12 @@ export const ChargesSection = memo(
                       />
                     )
                   })}
-                </Charges>
+                </div>
               )}
               {showAddMeteredCharge ? (
-                <AddChargeInlineWrapper>
+                <div className="flex items-center gap-3">
                   <ComboBox
+                    containerClassName="flex-1"
                     className={SEARCH_METERED_CHARGE_INPUT_CLASSNAME}
                     data={meteredBillableMetrics}
                     searchQuery={getMeteredBillableMetrics}
@@ -397,10 +396,11 @@ export const ChargesSection = memo(
                       }}
                     />
                   </Tooltip>
-                </AddChargeInlineWrapper>
+                </div>
               ) : (
                 !isInSubscriptionForm && (
                   <Button
+                    fitContent
                     startIcon="plus"
                     variant="quaternary"
                     data-test="add-metered-charge"
@@ -419,23 +419,23 @@ export const ChargesSection = memo(
                   </Button>
                 )
               )}
-            </Group>
+            </div>
           )}
 
           {/* RECURRING */}
           {(hasAnyRecurringCharge || !isInSubscriptionForm) && (
-            <Group>
-              <GroupTitle>
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
                 <Typography variant="bodyHl" color="grey700">
                   {translate('text_64d271e20a9c11005bd6688a')}
                 </Typography>
                 <Typography variant="caption" color="grey600">
                   {translate('text_6661fc17337de3591e29e449')}
                 </Typography>
-              </GroupTitle>
+              </div>
 
               {hasAnyRecurringCharge && (
-                <Charges>
+                <div className="flex flex-col gap-6">
                   {formikProps.values.charges.map((charge, i) => {
                     // Prevent displaying metered charges
                     if (!charge.billableMetric.recurring) return
@@ -466,11 +466,12 @@ export const ChargesSection = memo(
                       />
                     )
                   })}
-                </Charges>
+                </div>
               )}
               {showAddRecurringCharge ? (
-                <AddChargeInlineWrapper>
+                <div className="flex items-center gap-3">
                   <ComboBox
+                    containerClassName="flex-1"
                     className={SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME}
                     data={recurringBillableMetrics}
                     searchQuery={getRecurringBillableMetrics}
@@ -510,10 +511,11 @@ export const ChargesSection = memo(
                       }}
                     />
                   </Tooltip>
-                </AddChargeInlineWrapper>
+                </div>
               ) : (
                 !isInSubscriptionForm && (
                   <Button
+                    fitContent
                     startIcon="plus"
                     variant="quaternary"
                     data-test="add-recurring-charge"
@@ -532,7 +534,7 @@ export const ChargesSection = memo(
                   </Button>
                 )
               )}
-            </Group>
+            </div>
           )}
         </Card>
 
@@ -557,38 +559,3 @@ export const ChargesSection = memo(
 )
 
 ChargesSection.displayName = 'ChargesSection'
-
-const SectionTitle = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: ${theme.spacing(8)};
-`
-
-const AddChargeInlineWrapper = styled.div`
-  > :first-child {
-    flex: 1;
-    margin-right: ${theme.spacing(3)};
-  }
-
-  display: flex;
-  align-items: center;
-`
-
-const Charges = styled.div`
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
-  }
-`
-
-const Group = styled.div`
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(4)};
-  }
-`
-
-const GroupTitle = styled.div`
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(1)};
-  }
-`

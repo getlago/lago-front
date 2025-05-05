@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { FormikProps } from 'formik'
 import { RefObject, useEffect, useMemo, useState } from 'react'
-import styled from 'styled-components'
 
 import { Accordion, Button, Chip, Icon, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInputField, ComboBox, ComboboxItem } from '~/components/form'
@@ -20,7 +19,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { NAV_HEIGHT, theme } from '~/styles'
 
 import { mapChargeIntervalCopy } from './ChargeAccordion'
 import { PlanFormInput } from './types'
@@ -112,8 +110,8 @@ export const CommitmentsSection = ({
   }, [formikProps.initialValues.minimumCommitment?.amountCents])
 
   return (
-    <Stack gap={4} alignItems="flex-start">
-      <SectionTitle>
+    <div className="flex flex-col items-start gap-4">
+      <div className="flex flex-col gap-1">
         <Typography variant="bodyHl" color="grey700">
           {translate('text_65d601bffb11e0f9d1d9f569')}
         </Typography>
@@ -124,13 +122,13 @@ export const CommitmentsSection = ({
             ).toLocaleLowerCase(),
           })}
         </Typography>
-      </SectionTitle>
+      </div>
       {displayMinimumCommitment ? (
         <Accordion
           className="w-full"
           summary={
-            <BoxHeader>
-              <BoxHeaderGroupLeft>
+            <div className="flex h-18 w-full items-center justify-between gap-3 overflow-hidden">
+              <div className="flex items-center gap-3 overflow-hidden py-1 pr-1">
                 <Typography variant="bodyHl" color="grey700" noWrap>
                   {formikProps.values.minimumCommitment?.invoiceDisplayName ||
                     translate('text_65d601bffb11e0f9d1d9f569')}
@@ -156,9 +154,9 @@ export const CommitmentsSection = ({
                     }}
                   />
                 </Tooltip>
-              </BoxHeaderGroupLeft>
+              </div>
 
-              <BoxHeaderGroupRight>
+              <div className="flex items-center gap-3">
                 <Tooltip
                   placement="top-end"
                   title={
@@ -194,8 +192,8 @@ export const CommitmentsSection = ({
                     }}
                   />
                 </Tooltip>
-              </BoxHeaderGroupRight>
-            </BoxHeader>
+              </div>
+            </div>
           }
         >
           <Stack direction="column" spacing={6}>
@@ -212,9 +210,9 @@ export const CommitmentsSection = ({
               <Typography className="mb-2" variant="captionHl" color="grey700">
                 {translate('text_64be910fba8ef9208686a8e3')}
               </Typography>
-              <Group>
+              <div className="flex flex-col gap-4">
                 {!!formikProps?.values?.minimumCommitment?.taxes?.length && (
-                  <InlineTaxesWrapper>
+                  <div className="flex flex-wrap items-center gap-3">
                     {formikProps?.values?.minimumCommitment?.taxes.map(
                       ({ id: localTaxId, name, rate }) => (
                         <Chip
@@ -236,12 +234,13 @@ export const CommitmentsSection = ({
                         />
                       ),
                     )}
-                  </InlineTaxesWrapper>
+                  </div>
                 )}
 
                 {shouldDisplayTaxesInput ? (
-                  <InlineTaxInputWrapper>
+                  <div className="flex items-center gap-3">
                     <ComboBox
+                      containerClassName="flex-1"
                       className={SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME}
                       data={taxesDataForCombobox}
                       searchQuery={getTaxes}
@@ -273,11 +272,12 @@ export const CommitmentsSection = ({
                         }}
                       />
                     </Tooltip>
-                  </InlineTaxInputWrapper>
+                  </div>
                 ) : (
                   // Wrapping div to avoid the button to be full width, caused by the <Stack> parent
                   <div>
                     <Button
+                      fitContent
                       startIcon="plus"
                       variant="quaternary"
                       onClick={() => {
@@ -299,7 +299,7 @@ export const CommitmentsSection = ({
                     </Button>
                   </div>
                 )}
-              </Group>
+              </div>
             </div>
           </Stack>
         </Accordion>
@@ -326,65 +326,8 @@ export const CommitmentsSection = ({
           {translate('text_6661ffe746c680007e2df0e1')}
         </Button>
       )}
-    </Stack>
+    </div>
   )
 }
 
 CommitmentsSection.displayName = 'CommitmentsSection'
-
-const SectionTitle = styled.div`
-  > div:not(:last-child) {
-    margin-bottom: ${theme.spacing(1)};
-  }
-`
-
-const BoxHeader = styled.div`
-  /* Used to prevent long invoice display name to overflow */
-  overflow: hidden;
-  width: 100%;
-  height: ${NAV_HEIGHT}px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: ${theme.spacing(3)};
-`
-
-const BoxHeaderGroupLeft = styled.div`
-  /* Used to prevent long invoice display name to overflow */
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-  /* Padding added to prevent overflow hidden to crop the focus ring */
-  box-sizing: border-box;
-  padding: ${theme.spacing(1)} ${theme.spacing(1)} ${theme.spacing(1)} 0;
-`
-
-const BoxHeaderGroupRight = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-`
-
-const InlineTaxesWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-  flex-wrap: wrap;
-`
-
-const InlineTaxInputWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-
-  > *:first-child {
-    flex: 1;
-  }
-`
-
-const Group = styled.div`
-  > div:not(:last-child) {
-    margin-bottom: ${theme.spacing(4)};
-  }
-`

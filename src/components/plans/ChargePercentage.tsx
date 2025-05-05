@@ -3,7 +3,6 @@ import { InputAdornment } from '@mui/material'
 import { FormikErrors, FormikProps } from 'formik'
 import _get from 'lodash/get'
 import { memo, RefObject, useCallback } from 'react'
-import styled from 'styled-components'
 
 import { Alert, Button, Popper, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
@@ -13,7 +12,7 @@ import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNu
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { MenuPopper, theme } from '~/styles'
+import { MenuPopper } from '~/styles'
 
 import {
   LocalChargeFilterInput,
@@ -96,7 +95,7 @@ export const ChargePercentage = memo(
     }
 
     return (
-      <Container>
+      <div className="flex flex-col gap-6">
         <TextInput
           className="flex-1"
           name={`${propertyCursor}.rate`}
@@ -117,7 +116,7 @@ export const ChargePercentage = memo(
         />
 
         {valuePointer?.fixedAmount !== undefined && (
-          <LineAmount>
+          <div className="flex gap-3">
             <AmountInput
               className="flex-1"
               name={`${propertyCursor}.fixedAmount`}
@@ -135,6 +134,7 @@ export const ChargePercentage = memo(
               helperText={translate('text_62ff5d01a306e274d4ffcc30')}
             />
             <Tooltip
+              className="mt-8"
               disableHoverListener={disabled}
               title={translate('text_62ff5d01a306e274d4ffcc28')}
               placement="top-end"
@@ -152,11 +152,11 @@ export const ChargePercentage = memo(
                 data-test="remove-fixed-fee"
               />
             </Tooltip>
-          </LineAmount>
+          </div>
         )}
 
         {valuePointer?.freeUnitsPerEvents !== undefined && (
-          <LineAmount>
+          <div className="flex gap-3">
             <TextInput
               className="flex-1"
               name={`${propertyCursor}.freeUnitsPerEvents`}
@@ -176,6 +176,7 @@ export const ChargePercentage = memo(
               data-test="free-unit-per-event"
             />
             <Tooltip
+              className="mt-8"
               disableHoverListener={disabled}
               title={translate('text_62ff5d01a306e274d4ffcc46')}
               placement="top-end"
@@ -193,11 +194,11 @@ export const ChargePercentage = memo(
                 data-test="remove-free-units-per-event"
               />
             </Tooltip>
-          </LineAmount>
+          </div>
         )}
 
         {valuePointer?.freeUnitsPerTotalAggregation !== undefined && (
-          <LineAmount>
+          <div className="flex gap-3">
             {valuePointer?.freeUnitsPerEvents !== undefined &&
               valuePointer?.freeUnitsPerTotalAggregation !== undefined && (
                 <Typography className="mt-10 flex-initial" variant="body">
@@ -223,6 +224,7 @@ export const ChargePercentage = memo(
               data-test="free-unit-per-total-aggregation"
             />
             <Tooltip
+              className="mt-8"
               disableHoverListener={disabled}
               title={translate('text_62ff5d01a306e274d4ffcc5b')}
               placement="top-end"
@@ -240,11 +242,11 @@ export const ChargePercentage = memo(
                 data-test="remove-free-unit-per-total-aggregation"
               />
             </Tooltip>
-          </LineAmount>
+          </div>
         )}
 
         {valuePointer?.perTransactionMinAmount !== undefined && (
-          <LineAmount>
+          <div className="flex gap-3">
             <AmountInput
               className="flex-1"
               name={`${propertyCursor}.perTransactionMinAmount`}
@@ -277,6 +279,7 @@ export const ChargePercentage = memo(
               data-test="per-transaction-min-amount"
             />
             <Tooltip
+              className="mt-8"
               disableHoverListener={disabled}
               title={translate('text_64e7b273b046851c46d78249')}
               placement="top-end"
@@ -294,11 +297,11 @@ export const ChargePercentage = memo(
                 data-test="remove-per-transaction-min-amount-cta"
               />
             </Tooltip>
-          </LineAmount>
+          </div>
         )}
 
         {valuePointer?.perTransactionMaxAmount !== undefined && (
-          <LineAmount>
+          <div className="flex gap-3">
             <AmountInput
               className="flex-1"
               name={`${propertyCursor}.perTransactionMaxAmount`}
@@ -318,6 +321,7 @@ export const ChargePercentage = memo(
               data-test="per-transaction-max-amount"
             />
             <Tooltip
+              className="mt-8"
               disableHoverListener={disabled}
               title={translate('text_64e7b273b046851c46d782d6')}
               placement="top-end"
@@ -335,10 +339,10 @@ export const ChargePercentage = memo(
                 data-test="remove-per-transaction-max-amount-cta"
               />
             </Tooltip>
-          </LineAmount>
+          </div>
         )}
 
-        <LineButton>
+        <div className="flex flex-wrap gap-3">
           <Button
             startIcon="plus"
             variant="quaternary"
@@ -474,7 +478,7 @@ export const ChargePercentage = memo(
               </MenuPopper>
             )}
           </Popper>
-        </LineButton>
+        </div>
 
         <Alert type="info">
           <Typography color="textSecondary">
@@ -529,7 +533,7 @@ export const ChargePercentage = memo(
           )}
 
           {/* Min max alert message */}
-          {!!showPerTransactionMinAmount && !showPerTransactionMmaxAmount ? (
+          {!!showPerTransactionMinAmount && !showPerTransactionMmaxAmount && (
             <Typography color="textSecondary">
               {translate('text_64e7b273b046851c46d78241', {
                 minAmount: intlFormatNumber(Number(valuePointer?.perTransactionMinAmount || 0), {
@@ -539,7 +543,8 @@ export const ChargePercentage = memo(
                 }),
               })}
             </Typography>
-          ) : !showPerTransactionMinAmount && !!showPerTransactionMmaxAmount ? (
+          )}
+          {!showPerTransactionMinAmount && !!showPerTransactionMmaxAmount && (
             <Typography color="textSecondary">
               {translate('text_64e7b273b046851c46d78245', {
                 maxAmount: intlFormatNumber(Number(valuePointer?.perTransactionMaxAmount || 0), {
@@ -549,7 +554,8 @@ export const ChargePercentage = memo(
                 }),
               })}
             </Typography>
-          ) : !!showPerTransactionMinAmount && !!showPerTransactionMmaxAmount ? (
+          )}
+          {!!showPerTransactionMinAmount && !!showPerTransactionMmaxAmount && (
             <Typography color="textSecondary">
               {translate('text_64e7b273b046851c46d78250', {
                 minAmount: intlFormatNumber(Number(valuePointer?.perTransactionMinAmount || 0), {
@@ -564,35 +570,11 @@ export const ChargePercentage = memo(
                 }),
               })}
             </Typography>
-          ) : undefined}
+          )}
         </Alert>
-      </Container>
+      </div>
     )
   },
 )
 
 ChargePercentage.displayName = 'ChargePercentage'
-
-const Container = styled.div`
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
-  }
-`
-
-const LineAmount = styled.div`
-  display: flex;
-
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(3)};
-  }
-
-  > *:last-child {
-    margin-top: 34px;
-  }
-`
-
-const LineButton = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${theme.spacing(3)};
-`

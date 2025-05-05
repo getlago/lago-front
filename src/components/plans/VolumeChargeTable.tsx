@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { FormikProps } from 'formik'
 import { memo, useState } from 'react'
-import styled from 'styled-components'
 
 import { Alert, Button, ChargeTable, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
@@ -10,7 +9,6 @@ import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNu
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useVolumeChargeForm } from '~/hooks/plans/useVolumeChargeForm'
-import { theme } from '~/styles'
 
 import { LocalChargeFilterInput, LocalPropertiesInput, PlanFormInput } from './types'
 
@@ -34,6 +32,15 @@ interface VolumeChargeTableProps {
   valuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }
 
+const DisabledAmountCell = ({ amount, currency }: { amount?: string; currency: CurrencyEnum }) => (
+  <div className="flex max-w-31 items-center gap-2 px-4">
+    <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
+    <Typography color="disabled" noWrap>
+      {amount || '0.0'}
+    </Typography>
+  </div>
+)
+
 export const VolumeChargeTable = memo(
   ({
     chargeIndex,
@@ -55,7 +62,7 @@ export const VolumeChargeTable = memo(
       })
 
     return (
-      <Container>
+      <div className="flex flex-col">
         <Button
           className="mb-2 ml-auto"
           startIcon="plus"
@@ -66,7 +73,7 @@ export const VolumeChargeTable = memo(
         >
           {translate('text_6304e74aab6dbc18d615f38e')}
         </Button>
-        <TableContainer>
+        <div className="-mx-4 overflow-auto px-4 pb-6">
           <ChargeTable
             name="volume-charge-table"
             data={tableDatas}
@@ -143,12 +150,7 @@ export const VolumeChargeTable = memo(
                 size: 124,
                 content: (row, i) =>
                   disabled ? (
-                    <DisabledAmountCell>
-                      <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
-                      <Typography color="disabled" noWrap>
-                        {row.perUnitAmount || '0.0'}
-                      </Typography>
-                    </DisabledAmountCell>
+                    <DisabledAmountCell currency={currency} amount={row.perUnitAmount} />
                   ) : (
                     <AmountInput
                       variant="outlined"
@@ -176,12 +178,7 @@ export const VolumeChargeTable = memo(
                 size: 124,
                 content: (row, i) =>
                   disabled ? (
-                    <DisabledAmountCell>
-                      <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
-                      <Typography color="disabled" noWrap>
-                        {row.flatAmount || '0.0'}
-                      </Typography>
-                    </DisabledAmountCell>
+                    <DisabledAmountCell currency={currency} amount={row.flatAmount} />
                   ) : (
                     <AmountInput
                       variant="outlined"
@@ -201,7 +198,7 @@ export const VolumeChargeTable = memo(
               },
             ]}
           />
-        </TableContainer>
+        </div>
 
         <Alert type="info">
           <Typography variant="bodyHl" color="textSecondary">
@@ -235,33 +232,9 @@ export const VolumeChargeTable = memo(
             })}
           </Typography>
         </Alert>
-      </Container>
+      </div>
     )
   },
 )
 
 VolumeChargeTable.displayName = 'VolumeChargeTable'
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-`
-
-const TableContainer = styled.div`
-  overflow: auto;
-  padding-right: ${theme.spacing(4)};
-  margin-left: -${theme.spacing(4)};
-  margin-right: -${theme.spacing(4)};
-  padding-left: ${theme.spacing(4)};
-  padding-bottom: ${theme.spacing(6)};
-`
-
-const DisabledAmountCell = styled.div`
-  max-width: 124px;
-  padding: 0px ${theme.spacing(4)};
-  display: flex;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(2)};
-  }
-`

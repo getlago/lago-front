@@ -3,14 +3,12 @@ import { InputAdornment } from '@mui/material'
 import { FormikProps } from 'formik'
 import _get from 'lodash/get'
 import { memo, useCallback } from 'react'
-import styled from 'styled-components'
 
 import { Alert, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 import { LocalChargeFilterInput, LocalPropertiesInput, PlanFormInput } from './types'
 
@@ -53,7 +51,7 @@ export const PackageCharge = memo(
     const serializedFreeUnits = Number(valuePointer?.freeUnits || 0)
 
     return (
-      <Container>
+      <div className="flex flex-col gap-6">
         <AmountInput
           name={`${propertyCursor}.amount`}
           currency={currency}
@@ -162,15 +160,9 @@ export const PackageCharge = memo(
             </>
           )}
         </Alert>
-      </Container>
+      </div>
     )
   },
 )
 
 PackageCharge.displayName = 'PackageCharge'
-
-const Container = styled.div`
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
-  }
-`

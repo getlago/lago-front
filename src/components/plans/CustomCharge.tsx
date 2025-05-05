@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { FormikProps } from 'formik'
 import _get from 'lodash/get'
 import { memo, useCallback, useRef } from 'react'
-import styled from 'styled-components'
 
 import { JsonEditor } from '~/components/form'
 import {
@@ -10,7 +9,6 @@ import {
   EditCustomChargeDrawerRef,
 } from '~/components/plans/EditCustomChargeDrawer'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 import { LocalChargeFilterInput, LocalPropertiesInput, PlanFormInput } from './types'
 
@@ -46,7 +44,7 @@ export const CustomCharge = memo(
 
     return (
       <>
-        <Container>
+        <div className="flex flex-col gap-6">
           <JsonEditor
             name={`${propertyCursor}.${propertyInput}`}
             label={translate('text_663dea5702b60301d8d06502')}
@@ -59,7 +57,7 @@ export const CustomCharge = memo(
               })
             }
           />
-        </Container>
+        </div>
         <EditCustomChargeDrawer ref={drawerRef} onSubmit={(value) => handleUpdate(value)} />
       </>
     )
@@ -67,9 +65,3 @@ export const CustomCharge = memo(
 )
 
 CustomCharge.displayName = 'CustomCharge'
-
-const Container = styled.div`
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
-  }
-`
