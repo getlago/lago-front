@@ -2,14 +2,12 @@ import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { FormikProps } from 'formik'
 import { memo, useCallback, useEffect, useState } from 'react'
-import styled from 'styled-components'
 
 import { Button, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 import { LocalChargeFilterInput, LocalPropertiesInput, PlanFormInput } from './types'
 
@@ -58,7 +56,7 @@ export const StandardCharge = memo(
     }, [initialValuePointer?.groupedBy])
 
     return (
-      <Container>
+      <div className="flex flex-col gap-6">
         <AmountInput
           name={`${propertyCursor}.amount`}
           currency={currency}
@@ -73,15 +71,15 @@ export const StandardCharge = memo(
             ),
           }}
         />
-        <Group>
-          <GroupTitle>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
             <Typography variant="captionHl" color="textSecondary">
               {translate('text_65ba6d45e780c1ff8acb20e0')}
             </Typography>
             <Typography variant="caption">{translate('text_6661fc17337de3591e29e425')}</Typography>
-          </GroupTitle>
+          </div>
           {shouldDisplayGroupedBy || !!valuePointer?.groupedBy ? (
-            <InlineFields>
+            <div className="flex gap-3">
               <TextInput
                 className="flex-1"
                 name={`${propertyCursor}.groupedBy`}
@@ -92,20 +90,25 @@ export const StandardCharge = memo(
                 onChange={(value) => handleUpdate(`${propertyCursor}.groupedBy`, value)}
               />
 
-              <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
+              <Tooltip
+                className="mt-1"
+                placement="top-end"
+                title={translate('text_63aa085d28b8510cd46443ff')}
+              >
                 <Button
                   icon="trash"
                   variant="quaternary"
                   onClick={() => {
-                    // @ts-ignore NOTE: that should be removed once the new multiple combobox is implemented and used to define the groupedBy
+                    // NOTE: that should be removed once the new multiple combobox is implemented and used to define the groupedBy
                     handleUpdate(`${propertyCursor}.groupedBy`, '')
                     setShouldDisplayGroupedBy(false)
                   }}
                 />
               </Tooltip>
-            </InlineFields>
+            </div>
           ) : (
             <Button
+              fitContent
               startIcon="plus"
               variant="quaternary"
               onClick={() => setShouldDisplayGroupedBy(true)}
@@ -113,37 +116,10 @@ export const StandardCharge = memo(
               {translate('text_6661fc17337de3591e29e427')}
             </Button>
           )}
-        </Group>
-      </Container>
+        </div>
+      </div>
     )
   },
 )
 
 StandardCharge.displayName = 'StandardCharge'
-
-const Container = styled.div`
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
-  }
-`
-
-const InlineFields = styled.div`
-  display: flex;
-  gap: ${theme.spacing(3)};
-
-  > *:last-child {
-    margin-top: ${theme.spacing(1)};
-  }
-`
-
-const GroupTitle = styled.div`
-  > div:not(:last-child) {
-    margin-bottom: ${theme.spacing(1)};
-  }
-`
-
-const Group = styled.div`
-  > :not(:last-child) {
-    margin-bottom: ${theme.spacing(4)};
-  }
-`

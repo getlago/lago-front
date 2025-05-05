@@ -86,7 +86,7 @@ export const DynamicCharge = memo(
                   icon="trash"
                   variant="quaternary"
                   onClick={() => {
-                    // @ts-ignore NOTE: that should be removed once the new multiple combobox is implemented and used to define the groupedBy
+                    // NOTE: that should be removed once the new multiple combobox is implemented and used to define the groupedBy
                     handleUpdate(`${propertyCursor}.groupedBy`, '')
                     setShouldDisplayGroupedBy(false)
                   }}

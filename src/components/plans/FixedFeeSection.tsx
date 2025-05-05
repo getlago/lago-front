@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { FormikProps } from 'formik'
 import { memo, RefObject, useEffect, useState } from 'react'
-import styled from 'styled-components'
 
 import { Accordion, Button, Card, Chip, Icon, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInputField, RadioGroupField, TextInputField } from '~/components/form'
@@ -11,7 +10,6 @@ import { FORM_TYPE_ENUM, getIntervalTranslationKey } from '~/core/constants/form
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { NAV_HEIGHT, theme } from '~/styles'
 
 import { PlanFormInput } from './types'
 
@@ -58,21 +56,21 @@ export const FixedFeeSection = memo(
 
     return (
       <Card>
-        <SectionTitle>
+        <div className="flex flex-col gap-2">
           <Typography variant="subhead">{translate('text_642d5eb2783a2ad10d670336')}</Typography>
           <Typography variant="caption">
             {translate('text_6661fc17337de3591e29e3ed', {
               interval: translate(getIntervalTranslationKey[formikProps.values.interval]),
             })}
           </Typography>
-        </SectionTitle>
+        </div>
 
         <Accordion
           noContentMargin
           initiallyOpen={isInitiallyOpen}
           summary={
-            <BoxHeader>
-              <BoxHeaderGroupLeft>
+            <div className="flex h-18 w-full items-center justify-between gap-3 overflow-hidden">
+              <div className="flex items-center gap-3 overflow-hidden py-1 pr-1">
                 <Typography noWrap variant="bodyHl" color="grey700">
                   {formikProps.values.invoiceDisplayName ||
                     translate('text_642d5eb2783a2ad10d670336')}
@@ -94,8 +92,8 @@ export const FixedFeeSection = memo(
                     }}
                   />
                 </Tooltip>
-              </BoxHeaderGroupLeft>
-              <BoxHeaderGroupRight>
+              </div>
+              <div className="flex items-center gap-3">
                 <Tooltip
                   placement="top-end"
                   title={
@@ -118,12 +116,12 @@ export const FixedFeeSection = memo(
                   />
                 )}
                 <Chip label={translate(getIntervalTranslationKey[formikProps.values.interval])} />
-              </BoxHeaderGroupRight>
-            </BoxHeader>
+              </div>
+            </div>
           }
           data-test="fixed-fee-section-accordion"
         >
-          <BoxContent>
+          <div className="flex flex-col gap-6 p-6">
             <AmountInputField
               name="amountCents"
               currency={formikProps.values.amountCurrency}
@@ -158,18 +156,18 @@ export const FixedFeeSection = memo(
               ]}
             />
 
-            <Group>
-              <GroupTitle>
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
                 <Typography variant="captionHl" color="textSecondary">
                   {translate('text_624453d52e945301380e49c2')}
                 </Typography>
                 <Typography variant="caption">
                   {translate('text_6661fc17337de3591e29e403')}
                 </Typography>
-              </GroupTitle>
+              </div>
 
               {shouldDisplayTrialPeriod ? (
-                <InlineTrialPeriod>
+                <div className="flex items-center gap-3">
                   <TextInputField
                     className="flex-1"
                     name="trialPeriod"
@@ -207,9 +205,10 @@ export const FixedFeeSection = memo(
                       }}
                     />
                   </Tooltip>
-                </InlineTrialPeriod>
+                </div>
               ) : (
                 <Button
+                  fitContent
                   startIcon="plus"
                   disabled={
                     subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
@@ -221,8 +220,8 @@ export const FixedFeeSection = memo(
                   {translate('text_642d5eb2783a2ad10d670344')}
                 </Button>
               )}
-            </Group>
-          </BoxContent>
+            </div>
+          </div>
         </Accordion>
       </Card>
     )
@@ -230,63 +229,3 @@ export const FixedFeeSection = memo(
 )
 
 FixedFeeSection.displayName = 'FixedFeeSection'
-
-const SectionTitle = styled.div`
-  > div:not(:last-child) {
-    margin-bottom: ${theme.spacing(2)};
-  }
-`
-
-const InlineTrialPeriod = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-`
-
-const BoxHeader = styled.div`
-  /* Used to prevent long invoice display name to overflow */
-  overflow: hidden;
-  width: 100%;
-  height: ${NAV_HEIGHT}px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: ${theme.spacing(3)};
-`
-
-const BoxHeaderGroupLeft = styled.div`
-  /* Used to prevent long invoice display name to overflow */
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-  /* Padding added to prevent overflow hidden to crop the focus ring */
-  box-sizing: border-box;
-  padding: ${theme.spacing(1)} ${theme.spacing(1)} ${theme.spacing(1)} 0;
-`
-
-const BoxHeaderGroupRight = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-`
-
-const BoxContent = styled.div`
-  padding: ${theme.spacing(6)};
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(8)};
-  }
-`
-
-const Group = styled.div`
-  > div:not(:last-child) {
-    margin-bottom: ${theme.spacing(4)};
-  }
-`
-
-const GroupTitle = styled.div`
-  > div:not(:last-child) {
-    margin-bottom: ${theme.spacing(1)};
-  }
-`

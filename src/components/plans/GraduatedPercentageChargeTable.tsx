@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { FormikProps } from 'formik'
 import { memo, useState } from 'react'
-import styled from 'styled-components'
 
 import { Alert, Button, ChargeTable, Icon, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
@@ -10,7 +9,6 @@ import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNu
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useGraduatedPercentageChargeForm } from '~/hooks/plans/useGraduatedPercentageChargeForm'
-import { theme } from '~/styles'
 
 import { LocalChargeFilterInput, LocalPropertiesInput, PlanFormInput } from './types'
 
@@ -34,6 +32,15 @@ interface GraduatedPercentageChargeTableProps {
   valuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }
 
+const DisabledAmountCell = ({ amount, currency }: { amount?: string; currency: CurrencyEnum }) => (
+  <div className="flex max-w-31 items-center gap-2 px-4">
+    <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
+    <Typography color="disabled" noWrap>
+      {amount || '0.0'}
+    </Typography>
+  </div>
+)
+
 export const GraduatedPercentageChargeTable = memo(
   ({
     chargeIndex,
@@ -55,7 +62,7 @@ export const GraduatedPercentageChargeTable = memo(
       })
 
     return (
-      <Container>
+      <div className="flex flex-col">
         <Button
           className="mb-2 ml-auto"
           startIcon="plus"
@@ -66,7 +73,7 @@ export const GraduatedPercentageChargeTable = memo(
         >
           {translate('text_62793bbb599f1c01522e91a5')}
         </Button>
-        <TableContainer>
+        <div className="-mx-4 overflow-auto px-4 pb-6">
           <ChargeTable
             name="graduated-percentage-charge-table"
             data={tableDatas}
@@ -145,12 +152,7 @@ export const GraduatedPercentageChargeTable = memo(
                 size: 124,
                 content: (row, i) =>
                   disabled ? (
-                    <DisabledAmountCell>
-                      <Typography color="disabled" noWrap>
-                        {row.rate || '0.00'}
-                      </Typography>
-                      <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
-                    </DisabledAmountCell>
+                    <DisabledAmountCell amount={row.rate} currency={currency} />
                   ) : (
                     <AmountInput
                       variant="outlined"
@@ -187,12 +189,7 @@ export const GraduatedPercentageChargeTable = memo(
                 size: 124,
                 content: (row, i) =>
                   disabled ? (
-                    <DisabledAmountCell>
-                      <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
-                      <Typography color="disabled" noWrap>
-                        {row.flatAmount || '0.0'}
-                      </Typography>
-                    </DisabledAmountCell>
+                    <DisabledAmountCell amount={row.flatAmount} currency={currency} />
                   ) : (
                     <AmountInput
                       variant="outlined"
@@ -212,7 +209,7 @@ export const GraduatedPercentageChargeTable = memo(
               },
             ]}
           />
-        </TableContainer>
+        </div>
 
         <Alert type="info">
           <>
@@ -270,33 +267,9 @@ export const GraduatedPercentageChargeTable = memo(
             })}
           </>
         </Alert>
-      </Container>
+      </div>
     )
   },
 )
 
 GraduatedPercentageChargeTable.displayName = 'GraduatedPercentageChargeTable'
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-`
-
-const TableContainer = styled.div`
-  overflow: auto;
-  padding-right: ${theme.spacing(4)};
-  margin-left: -${theme.spacing(4)};
-  margin-right: -${theme.spacing(4)};
-  padding-left: ${theme.spacing(4)};
-  padding-bottom: ${theme.spacing(6)};
-`
-
-const DisabledAmountCell = styled.div`
-  max-width: 124px;
-  padding: 0px ${theme.spacing(4)};
-  display: flex;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(2)};
-  }
-`

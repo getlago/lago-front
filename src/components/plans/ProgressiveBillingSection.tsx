@@ -1,7 +1,6 @@
 import { Box, InputAdornment, Stack } from '@mui/material'
 import { FormikProps } from 'formik'
 import { FC, useEffect, useState } from 'react'
-import styled from 'styled-components'
 
 import {
   Accordion,
@@ -20,7 +19,6 @@ import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useProgressiveBillingForm } from '~/hooks/plans/useProgressiveBillingForm'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { NAV_HEIGHT, theme } from '~/styles'
 
 import { PlanFormInput } from './types'
 
@@ -71,8 +69,8 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
   ])
 
   return (
-    <Stack gap={4} alignItems="flex-start">
-      <SectionTitle>
+    <div className="flex flex-col items-start gap-4">
+      <div className="flex flex-col gap-1">
         <Typography variant="bodyHl" color="grey700">
           {translate('text_1724179887722baucvj7bvc1')}
         </Typography>
@@ -81,10 +79,10 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
           color="grey600"
           html={translate('text_1724179887723kdf3nisf6hp', { href: PROGRESSIVE_BILLING_DOC_URL })}
         />
-      </SectionTitle>
+      </div>
 
-      {!hasPremiumIntegration ? (
-        <PremiumWarning>
+      {!hasPremiumIntegration && (
+        <div className="flex items-center justify-between gap-4 rounded-lg bg-grey-100 px-6 py-4">
           <Box>
             <Typography variant="bodyHl" color="textSecondary">
               {translate('text_1724345142892pcnx5m2k3r2')} <Icon name="sparkles" />
@@ -103,8 +101,10 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
           >
             {translate('text_65ae73ebe3a66bec2b91d72d')}
           </ButtonLink>
-        </PremiumWarning>
-      ) : displayProgressiveBillingAccordion ? (
+        </div>
+      )}
+
+      {hasPremiumIntegration && displayProgressiveBillingAccordion && (
         <Accordion
           className="w-full"
           initiallyOpen={!isInSubscriptionForm}
@@ -129,7 +129,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
               >
                 {translate('text_1724233213997l2ksi40t8q6')}
               </Button>
-              <TableContainer>
+              <div className="-mx-4 -mb-1 overflow-auto px-4 pb-1">
                 <ChargeTable
                   name="graduated-percentage-charge-table"
                   data={(nonRecurringUsageThresholds ?? []).map((localData) => ({
@@ -218,7 +218,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
                     },
                   ]}
                 />
-              </TableContainer>
+              </div>
             </Box>
             <Switch
               name="progressiveBillingRecurring"
@@ -235,7 +235,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
               subLabel={translate('text_172423417494563qf45qet2d')}
             />
             {displayRecurring && (
-              <TableContainer>
+              <div className="-mx-4 -mb-1 overflow-auto px-4 pb-1">
                 <ChargeTable
                   name={'progressive-billing-recurring'}
                   columns={[
@@ -294,12 +294,14 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
                   ]}
                   data={[recurringUsageThreshold ?? {}]}
                 />
-              </TableContainer>
+              </div>
             )}
             <Alert type="info">{translate('text_1724252232460iqofvwnpgnx')}</Alert>
           </Stack>
         </Accordion>
-      ) : (
+      )}
+
+      {hasPremiumIntegration && !displayProgressiveBillingAccordion && (
         <Button
           variant="quaternary"
           startIcon="plus"
@@ -312,7 +314,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
           {translate('text_1724233213996upb98e8b8xx')}
         </Button>
       )}
-    </Stack>
+    </div>
   )
 }
 
@@ -325,14 +327,14 @@ const AccordionSummary: FC<{ onDelete: VoidFunction; hasErrorInGroup: boolean }>
   const { translate } = useInternationalization()
 
   return (
-    <BoxHeader>
-      <BoxHeaderGroupLeft>
+    <div className="flex h-18 w-full items-center justify-between gap-3 overflow-hidden">
+      <div className="flex items-center gap-3 overflow-hidden py-1 pr-1">
         <Typography variant="bodyHl" color="grey700" noWrap>
           {translate('text_1724179887722baucvj7bvc1')}
         </Typography>
-      </BoxHeaderGroupLeft>
+      </div>
 
-      <BoxHeaderGroupRight>
+      <div className="flex items-center gap-3">
         <Tooltip
           placement="top-end"
           title={
@@ -351,63 +353,7 @@ const AccordionSummary: FC<{ onDelete: VoidFunction; hasErrorInGroup: boolean }>
         <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
           <Button size="small" icon="trash" variant="quaternary" onClick={onDelete} />
         </Tooltip>
-      </BoxHeaderGroupRight>
-    </BoxHeader>
+      </div>
+    </div>
   )
 }
-
-const SectionTitle = styled.div`
-  > div:not(:last-child) {
-    margin-bottom: ${theme.spacing(1)};
-  }
-`
-
-const BoxHeader = styled.div`
-  /* Used to prevent long invoice display name to overflow */
-  overflow: hidden;
-  width: 100%;
-  height: ${NAV_HEIGHT}px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: ${theme.spacing(3)};
-`
-
-const BoxHeaderGroupLeft = styled.div`
-  /* Used to prevent long invoice display name to overflow */
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-  /* Padding added to prevent overflow hidden to crop the focus ring */
-  box-sizing: border-box;
-  padding: ${theme.spacing(1)} ${theme.spacing(1)} ${theme.spacing(1)} 0;
-`
-
-const BoxHeaderGroupRight = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-`
-
-const TableContainer = styled.div`
-  overflow: auto;
-  padding-right: ${theme.spacing(4)};
-  margin-left: -${theme.spacing(4)};
-  margin-right: -${theme.spacing(4)};
-  padding-left: ${theme.spacing(4)};
-
-  /* Make sure focus ring is not crop at the bottom */
-  padding-bottom: ${theme.spacing(1)};
-  margin-bottom: -${theme.spacing(1)};
-`
-
-const PremiumWarning = styled.div`
-  background-color: ${theme.palette.grey[100]};
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: ${theme.spacing(4)} ${theme.spacing(6)};
-  gap: ${theme.spacing(4)};
-  border-radius: 8px;
-`

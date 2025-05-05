@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { FormikProps } from 'formik'
 import { memo, useEffect, useMemo, useState } from 'react'
-import styled from 'styled-components'
 
 import { Button, Card, Chip, Tooltip, Typography } from '~/components/designSystem'
 import {
@@ -21,7 +20,6 @@ import {
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, PlanInterval, useGetTaxesForPlanLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 import { PlanFormInput } from './types'
 
@@ -133,7 +131,7 @@ export const PlanSettingsSection = memo(
 
     return (
       <Card>
-        <AdjustableSection $shouldDisplayDescription={shouldDisplayDescription}>
+        <div className="flex flex-col gap-8">
           <TextInputField
             name="name"
             // eslint-disable-next-line jsx-a11y/no-autofocus
@@ -144,7 +142,7 @@ export const PlanSettingsSection = memo(
           />
 
           {shouldDisplayDescription ? (
-            <InlineDescription>
+            <div className="flex items-center">
               <TextInputField
                 multiline
                 className="mr-3 flex-1"
@@ -168,9 +166,10 @@ export const PlanSettingsSection = memo(
                   }}
                 />
               </Tooltip>
-            </InlineDescription>
+            </div>
           ) : (
             <Button
+              fitContent
               startIcon="plus"
               variant="quaternary"
               onClick={() => setShouldDisplayDescription(true)}
@@ -188,7 +187,7 @@ export const PlanSettingsSection = memo(
             placeholder={translate('text_624453d52e945301380e499e')}
             formikProps={formikProps}
           />
-        </AdjustableSection>
+        </div>
 
         <ButtonSelectorField
           disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
@@ -232,7 +231,7 @@ export const PlanSettingsSection = memo(
             <Typography className="mb-1" variant="captionHl" color="grey700">
               {translate('text_6661fc17337de3591e29e3e1')}
             </Typography>
-            <InlineTaxesWrapper>
+            <div className="flex flex-wrap items-center gap-3">
               {plan.taxes.map(({ id, name, rate }) => (
                 <Chip
                   key={id}
@@ -252,7 +251,7 @@ export const PlanSettingsSection = memo(
                   }}
                 />
               ))}
-            </InlineTaxesWrapper>
+            </div>
           </div>
         )}
 
@@ -263,8 +262,9 @@ export const PlanSettingsSection = memo(
                 {translate('text_6661fc17337de3591e29e3e1')}
               </Typography>
             )}
-            <InlineTaxInputWrapper>
+            <div className="flex items-center gap-3">
               <ComboBox
+                containerClassName="flex-1"
                 className={SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME}
                 data={taxesDataForCombobox}
                 searchQuery={getTaxes}
@@ -289,7 +289,7 @@ export const PlanSettingsSection = memo(
                   }}
                 />
               </Tooltip>
-            </InlineTaxInputWrapper>
+            </div>
           </div>
         ) : (
           <Button
@@ -320,31 +320,3 @@ export const PlanSettingsSection = memo(
 )
 
 PlanSettingsSection.displayName = 'PlanSettingsSection'
-
-const AdjustableSection = styled.div<{ $shouldDisplayDescription: boolean }>`
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(8)};
-  }
-`
-
-const InlineDescription = styled.div`
-  display: flex;
-  align-items: center;
-`
-
-const InlineTaxInputWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-
-  > *:first-child {
-    flex: 1;
-  }
-`
-
-const InlineTaxesWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-  flex-wrap: wrap;
-`
