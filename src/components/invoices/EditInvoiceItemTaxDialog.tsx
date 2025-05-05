@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import styled from 'styled-components'
 import { array, object, string } from 'yup'
 
 import { Button, Dialog, DialogRef, Tooltip, Typography } from '~/components/designSystem'
@@ -10,7 +9,6 @@ import { SEARCH_TAX_INPUT_FOR_INVOICE_ADD_ON_CLASSNAME } from '~/core/constants/
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { useGetTaxesForInvoiceEditTaxDialogQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 import { LocalFeeInput } from './types'
 
@@ -128,16 +126,17 @@ export const EditInvoiceItemTaxDialog = forwardRef<EditInvoiceItemTaxDialogRef>(
         </Typography>
       ) : (
         <>
-          <TaxesWrapperTitle>
+          <div className="mb-1">
             <Typography variant="captionHl" color="grey700">
               {translate('text_636bedf292786b19d3398f06')}
             </Typography>
-          </TaxesWrapperTitle>
-          <TaxesWrapper>
+          </div>
+          <div className="mb-4 flex flex-col gap-3">
             {formikProps.values?.taxes.map((tax, i) => (
-              <InlineTaxItemWrapper key={`tax-${i}-item-${tax?.code}`}>
+              <div key={`tax-${i}-item-${tax?.code}`} className="flex items-center gap-3">
                 <ComboBox
                   disableClearable
+                  containerClassName="flex-1"
                   className={SEARCH_TAX_INPUT_FOR_INVOICE_ADD_ON_CLASSNAME}
                   data={[
                     ...(taxesCollection || []).map(
@@ -197,9 +196,9 @@ export const EditInvoiceItemTaxDialog = forwardRef<EditInvoiceItemTaxDialogRef>(
                     }}
                   />
                 </Tooltip>
-              </InlineTaxItemWrapper>
+              </div>
             ))}
-          </TaxesWrapper>
+          </div>
         </>
       )}
 
@@ -219,24 +218,3 @@ export const EditInvoiceItemTaxDialog = forwardRef<EditInvoiceItemTaxDialogRef>(
 })
 
 EditInvoiceItemTaxDialog.displayName = 'forwardRef'
-
-const TaxesWrapper = styled.div`
-  margin-bottom: ${theme.spacing(4)};
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(3)};
-`
-
-const TaxesWrapperTitle = styled.div`
-  margin-bottom: ${theme.spacing(1)};
-`
-
-const InlineTaxItemWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-
-  > *:first-child {
-    flex: 1;
-  }
-`

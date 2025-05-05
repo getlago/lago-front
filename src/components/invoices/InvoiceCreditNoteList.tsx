@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
@@ -22,7 +21,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { NAV_HEIGHT, theme } from '~/styles'
 
 gql`
   query getInvoiceCreditNotes($invoiceId: ID!, $page: Int, $limit: Int) {
@@ -79,7 +77,7 @@ export const InvoiceCreditNoteList = () => {
   return (
     <div>
       {(!loading || !!creditNotes?.length) && (
-        <Header>
+        <div className="flex h-18 items-center justify-between shadow-b">
           <Typography variant="subhead">{translate('text_636bdef6565341dcb9cfb129')}</Typography>
           {data?.invoice?.status !== InvoiceStatusTypeEnum.Draft && (
             <>
@@ -119,7 +117,7 @@ export const InvoiceCreditNoteList = () => {
               )}
             </>
           )}
-        </Header>
+        </div>
       )}
       <>
         {!!error && !loading ? (
@@ -155,11 +153,3 @@ export const InvoiceCreditNoteList = () => {
 }
 
 InvoiceCreditNoteList.displayName = 'InvoiceCreditNoteList'
-
-const Header = styled.div`
-  height: ${NAV_HEIGHT}px;
-  box-shadow: ${theme.shadows[7]};
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`

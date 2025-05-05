@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
 import { forwardRef } from 'react'
-import styled from 'styled-components'
 import { number, object } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
@@ -15,7 +14,6 @@ import {
   WalletForVoidTransactionFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 gql`
   mutation createCustomerWalletTransaction($input: CreateCustomerWalletTransactionInput!) {
@@ -108,7 +106,7 @@ export const VoidWalletDialog = forwardRef<DialogRef, VoidWalletDialogProps>(
           </>
         )}
       >
-        <Wrapper>
+        <div className="mb-8">
           <AmountInputField
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
@@ -141,14 +139,10 @@ export const VoidWalletDialog = forwardRef<DialogRef, VoidWalletDialogProps>(
               ),
             }}
           />
-        </Wrapper>
+        </div>
       </Dialog>
     )
   },
 )
 
 VoidWalletDialog.displayName = 'VoidWalletDialog'
-
-const Wrapper = styled.div`
-  margin-bottom: ${theme.spacing(8)};
-`

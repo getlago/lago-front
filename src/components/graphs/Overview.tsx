@@ -1,8 +1,6 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
 import { DateTime } from 'luxon'
 import { FC } from 'react'
-import styled from 'styled-components'
 
 import { Icon, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
@@ -17,7 +15,6 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, useGetOverdueQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { theme } from '~/styles'
 
 gql`
   query getOverdue($currency: CurrencyEnum!, $externalCustomerId: String, $months: Int!) {
@@ -91,41 +88,43 @@ const Overview: FC<TGraphProps & { externalCustomerId?: string }> = ({
   )
 
   return (
-    <GridItem>
-      {!!error ? (
+    <div className="col-[span_1] bg-white pb-6 lg:col-[span_2]">
+      {!!error && !loading && (
         <GenericPlaceholder
           title={translate('text_636d023ce11a9d038819b579')}
           subtitle={translate('text_636d023ce11a9d038819b57b')}
           image={<ErrorImage width="136" height="104" />}
         />
-      ) : !!loading ? (
-        <Stack flexDirection="column" gap={5} height={56}>
+      )}
+      {!!loading && !error && (
+        <div className="flex h-14 flex-col gap-5">
           <Skeleton variant="text" className="w-25" />
           <Skeleton variant="text" className="w-75" />
-        </Stack>
-      ) : (
-        <Stack flexDirection="column" gap={2}>
-          <Stack flexDirection="row" justifyContent="space-between" alignItems="center">
-            <Stack flexDirection="row" gap={2} alignItems="center">
+        </div>
+      )}
+      {!loading && !error && (
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-row items-center justify-between">
+            <div className="flex flex-row items-center gap-2">
               <Typography variant="captionHl">
                 {translate('text_6670a6577ecbf200898af647')}
               </Typography>
               <Tooltip title={translate('text_6670a6577ecbf200898af646')} placement="top-start">
                 <Icon name="info-circle" />
               </Tooltip>
-            </Stack>
+            </div>
             <Typography variant="note" color="grey600">
               {translate('text_633dae57ca9a923dd53c2097', {
                 fromDate: from,
                 toDate: to,
               })}
             </Typography>
-          </Stack>
+          </div>
           <Typography variant="subhead">
             {intlFormatNumber(overdueData?.amountCents || 0, {
               currency,
             })}
-            <Typography variant="caption" component="span" sx={{ marginLeft: theme.spacing(1) }}>
+            <Typography className="ml-1" variant="caption" component="span">
               {translate(
                 'text_6670a6577ecbf200898af64a',
                 { count: overdueData?.invoiceCount },
@@ -133,20 +132,10 @@ const Overview: FC<TGraphProps & { externalCustomerId?: string }> = ({
               )}
             </Typography>
           </Typography>
-        </Stack>
+        </div>
       )}
-    </GridItem>
+    </div>
   )
 }
 
 export default Overview
-
-const GridItem = styled.div`
-  grid-column: span 1;
-  background-color: ${theme.palette.common.white};
-  padding-bottom: ${theme.spacing(6)};
-
-  ${theme.breakpoints.up('lg')} {
-    grid-column: span 2;
-  }
-`

@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { useMemo } from 'react'
-import styled from 'styled-components'
 
 import AreaChart from '~/components/designSystem/graphs/AreaChart'
 import ChartHeader from '~/components/designSystem/graphs/ChartHeader'
@@ -11,7 +10,7 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, GetGrossRevenuesQuery, useGetGrossRevenuesQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import {
   AnalyticsPeriodScopeEnum,
@@ -87,7 +86,7 @@ const Gross = ({
   }, [data, currency, demoMode, blur, period])
 
   return (
-    <Wrapper className={className}>
+    <div className={tw('flex flex-col gap-6 bg-white px-0 py-6', className)}>
       {!!error ? (
         <GenericPlaceholder
           className="m-0 p-0"
@@ -123,17 +122,8 @@ const Gross = ({
           />
         </>
       )}
-    </Wrapper>
+    </div>
   )
 }
 
 export default Gross
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(6)};
-  padding: ${theme.spacing(6)} 0;
-  box-sizing: border-box;
-  background-color: ${theme.palette.common.white};
-`

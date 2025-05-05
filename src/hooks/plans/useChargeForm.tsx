@@ -1,10 +1,7 @@
-import styled from 'styled-components'
-
 import { Icon, Typography } from '~/components/designSystem'
 import { BasicComboBoxData } from '~/components/form'
 import { AggregationTypeEnum, ChargeModelEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 export type TGetChargeModelComboboxDataProps = {
   isPremium: boolean
@@ -67,14 +64,14 @@ export const useChargeForm: () => TUseChargeFormReturn = () => {
       chargeModelComboboxData.push(
         {
           labelNode: (
-            <InlineComboboxLabelForPremiumWrapper>
-              <InlineComboboxLabel>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
                 <Typography variant="body" color="grey700">
                   {translate('text_64de472463e2da6b31737db0')}
                 </Typography>
-              </InlineComboboxLabel>
+              </div>
               {!isPremium && <Icon name="sparkles" />}
-            </InlineComboboxLabelForPremiumWrapper>
+            </div>
           ),
           label: translate('text_64de472463e2da6b31737db0'),
           value: ChargeModelEnum.GraduatedPercentage,
@@ -208,15 +205,3 @@ export const useChargeForm: () => TUseChargeFormReturn = () => {
     getIsProRatedOptionDisabled,
   }
 }
-
-const InlineComboboxLabelForPremiumWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
-
-const InlineComboboxLabel = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(2)};
-`
