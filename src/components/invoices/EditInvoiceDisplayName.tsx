@@ -32,7 +32,7 @@ export const EditInvoiceDisplayName = forwardRef<EditInvoiceDisplayNameRef>((_, 
     validateOnMount: true,
     enableReinitialize: true,
     onSubmit: async (values, formikBag) => {
-      !!values.invoiceDisplayName && data?.callback(values.invoiceDisplayName)
+      data?.callback(values.invoiceDisplayName || '')
 
       dialogRef?.current?.closeDialog()
       formikBag.resetForm()
