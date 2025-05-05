@@ -338,13 +338,16 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
               {
                 key: 'startedAt',
                 title: translate('text_65201c5a175a4b0238abf29e'),
-                content: ({ startedAt }) => (
-                  <TimezoneDate
-                    typographyClassName="text-nowrap text-base font-normal text-grey-600"
-                    date={startedAt}
-                    customerTimezone={customerTimezone}
-                  />
-                ),
+                content: ({ startedAt }) =>
+                  !!startedAt ? (
+                    <TimezoneDate
+                      typographyClassName="text-nowrap text-base font-normal text-grey-600"
+                      date={startedAt}
+                      customerTimezone={customerTimezone}
+                    />
+                  ) : (
+                    <Typography>-</Typography>
+                  ),
               },
               {
                 key: 'endingAt',

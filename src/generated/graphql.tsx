@@ -37,6 +37,124 @@ export type AcceptInviteInput = {
   token: Scalars['String']['input'];
 };
 
+/** Base activity log */
+export type ActivityLog = {
+  __typename?: 'ActivityLog';
+  activityId: Scalars['ID']['output'];
+  activityObject?: Maybe<Scalars['JSON']['output']>;
+  activityObjectChanges?: Maybe<Scalars['JSON']['output']>;
+  activitySource: ActivitySourceEnum;
+  activityType: ActivityTypeEnum;
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  externalCustomerId?: Maybe<Scalars['String']['output']>;
+  externalSubscriptionId?: Maybe<Scalars['String']['output']>;
+  loggedAt: Scalars['ISO8601DateTime']['output'];
+  organization?: Maybe<Organization>;
+  resourceId: Scalars['String']['output'];
+  resourceType: Scalars['String']['output'];
+  userEmail?: Maybe<Scalars['String']['output']>;
+};
+
+/** ActivityLogCollection type */
+export type ActivityLogCollection = {
+  __typename?: 'ActivityLogCollection';
+  /** A collection of paginated ActivityLogCollection */
+  collection: Array<ActivityLog>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
+/** Activity Logs source enums */
+export enum ActivitySourceEnum {
+  Api = 'api',
+  Front = 'front',
+  System = 'system'
+}
+
+/** Activity Logs type enums */
+export enum ActivityTypeEnum {
+  /** applied_coupon.created */
+  AppliedCouponCreated = 'applied_coupon_created',
+  /** applied_coupon.deleted */
+  AppliedCouponDeleted = 'applied_coupon_deleted',
+  /** billable_metric.created */
+  BillableMetricCreated = 'billable_metric_created',
+  /** billable_metric.deleted */
+  BillableMetricDeleted = 'billable_metric_deleted',
+  /** billable_metric.updated */
+  BillableMetricUpdated = 'billable_metric_updated',
+  /** billing_entities.created */
+  BillingEntitiesCreated = 'billing_entities_created',
+  /** billing_entities.deleted */
+  BillingEntitiesDeleted = 'billing_entities_deleted',
+  /** billing_entities.updated */
+  BillingEntitiesUpdated = 'billing_entities_updated',
+  /** coupon.created */
+  CouponCreated = 'coupon_created',
+  /** coupon.deleted */
+  CouponDeleted = 'coupon_deleted',
+  /** coupon.updated */
+  CouponUpdated = 'coupon_updated',
+  /** credit_note.created */
+  CreditNoteCreated = 'credit_note_created',
+  /** credit_note.generated */
+  CreditNoteGenerated = 'credit_note_generated',
+  /** credit_note.refund_failure */
+  CreditNoteRefundFailure = 'credit_note_refund_failure',
+  /** customer.created */
+  CustomerCreated = 'customer_created',
+  /** customer.deleted */
+  CustomerDeleted = 'customer_deleted',
+  /** customer.updated */
+  CustomerUpdated = 'customer_updated',
+  /** invoice.created */
+  InvoiceCreated = 'invoice_created',
+  /** invoice.drafted */
+  InvoiceDrafted = 'invoice_drafted',
+  /** invoice.failed */
+  InvoiceFailed = 'invoice_failed',
+  /** invoice.generated */
+  InvoiceGenerated = 'invoice_generated',
+  /** invoice.paid_credit_added */
+  InvoicePaidCreditAdded = 'invoice_paid_credit_added',
+  /** invoice.payment_failure */
+  InvoicePaymentFailure = 'invoice_payment_failure',
+  /** invoice.payment_overdue */
+  InvoicePaymentOverdue = 'invoice_payment_overdue',
+  /** invoice.payment_status_updated */
+  InvoicePaymentStatusUpdated = 'invoice_payment_status_updated',
+  /** invoice.voided */
+  InvoiceVoided = 'invoice_voided',
+  /** payment_receipt.created */
+  PaymentReceiptCreated = 'payment_receipt_created',
+  /** payment_receipt.generated */
+  PaymentReceiptGenerated = 'payment_receipt_generated',
+  /** payment.recorded */
+  PaymentRecorded = 'payment_recorded',
+  /** plan.created */
+  PlanCreated = 'plan_created',
+  /** plan.deleted */
+  PlanDeleted = 'plan_deleted',
+  /** plan.updated */
+  PlanUpdated = 'plan_updated',
+  /** subscription.started */
+  SubscriptionStarted = 'subscription_started',
+  /** subscription.terminated */
+  SubscriptionTerminated = 'subscription_terminated',
+  /** subscription.updated */
+  SubscriptionUpdated = 'subscription_updated',
+  /** wallet.created */
+  WalletCreated = 'wallet_created',
+  /** wallet_transaction.created */
+  WalletTransactionCreated = 'wallet_transaction_created',
+  /** wallet_transaction.payment_failure */
+  WalletTransactionPaymentFailure = 'wallet_transaction_payment_failure',
+  /** wallet_transaction.updated */
+  WalletTransactionUpdated = 'wallet_transaction_updated',
+  /** wallet.updated */
+  WalletUpdated = 'wallet_updated'
+}
+
 /** Adyen input arguments */
 export type AddAdyenPaymentProviderInput = {
   apiKey: Scalars['String']['input'];
@@ -4833,6 +4951,7 @@ export type Permissions = {
   addonsView: Scalars['Boolean']['output'];
   analyticsOverdueBalancesView: Scalars['Boolean']['output'];
   analyticsView: Scalars['Boolean']['output'];
+  auditLogsView: Scalars['Boolean']['output'];
   billableMetricsCreate: Scalars['Boolean']['output'];
   billableMetricsDelete: Scalars['Boolean']['output'];
   billableMetricsUpdate: Scalars['Boolean']['output'];
@@ -5079,6 +5198,10 @@ export enum ProviderTypeEnum {
 
 export type Query = {
   __typename?: 'Query';
+  /** Query a single activity log of an organization */
+  activityLog?: Maybe<ActivityLog>;
+  /** Query activity logs of an organization */
+  activityLogs?: Maybe<ActivityLogCollection>;
   /** Query a single add-on of an organization */
   addOn?: Maybe<AddOn>;
   /** Query add-ons of an organization */
@@ -5241,6 +5364,27 @@ export type Query = {
   webhookEndpoints: WebhookEndpointCollection;
   /** Query Webhooks */
   webhooks: WebhookCollection;
+};
+
+
+export type QueryActivityLogArgs = {
+  activityId: Scalars['ID']['input'];
+};
+
+
+export type QueryActivityLogsArgs = {
+  activitySources?: InputMaybe<Array<ActivitySourceEnum>>;
+  activityTypes?: InputMaybe<Array<ActivityTypeEnum>>;
+  apiKeyIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  resourceIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  resourceTypes?: InputMaybe<Array<Scalars['String']['input']>>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  userEmails?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 
