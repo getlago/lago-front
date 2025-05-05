@@ -134,6 +134,7 @@ const annotateSubscriptions = (
     }
 
     const _subDowngrade = isDowngrading &&
+      status !== StatusTypeEnum.Terminated &&
       nextPlan && {
         id: nextSubscription?.id || nextPlan.id,
         externalId: nextSubscription?.externalId,
