@@ -60,7 +60,7 @@ export const initializeApolloClient = async () => {
 
   const links = [
     initialLink.concat(timeoutLink),
-    onError(({ graphQLErrors, networkError, operation }) => {
+    onError(({ graphQLErrors, operation }) => {
       const { silentError = false, silentErrorCodes = [] } = operation.getContext()
 
       // Silent auth and permissions related errors by default
@@ -111,26 +111,6 @@ export const initializeApolloClient = async () => {
             )}`,
           )
         })
-      }
-
-      if (networkError) {
-        // Capture network errors with Sentry
-        captureException(networkError, {
-          tags: {
-            errorType: 'NetworkError',
-            operationName: operation.operationName,
-          },
-          extra: {
-            variables: operation.variables,
-          },
-        })
-
-        addToast({
-          severity: 'danger',
-          translateKey: 'text_622f7a3dc32ce100c46a5154',
-        })
-        // eslint-disable-next-line no-console
-        console.warn(`[Network error]: ${JSON.stringify(networkError)}`)
       }
     }),
 
