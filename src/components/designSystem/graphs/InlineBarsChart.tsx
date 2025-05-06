@@ -10,6 +10,7 @@ type InlineBarsChartProps = {
   data: Record<string, number>[]
   hoveredBarId?: string
   tooltipsData?: Record<string, string>[]
+  lineHeight?: number
 }
 
 type TShapeBarProps = Omit<BarProps, 'name' | 'opacity'>
@@ -33,14 +34,22 @@ const BarWithBorder = (
         stroke="none"
         fill={fill}
       />
-      {x !== 0 && <rect className="fill-white" x={x} y={y} width={2} height={12} stroke="none" />}
+      {x !== 0 && (
+        <rect className="fill-white" x={x} y={y} width={2} height={height} stroke="none" />
+      )}
     </g>
   )
 }
 
 BarWithBorder.displayName = 'BarWithBorder'
 
-const InlineBarsChart = ({ colors, data, hoveredBarId, tooltipsData }: InlineBarsChartProps) => {
+const InlineBarsChart = ({
+  colors,
+  data,
+  hoveredBarId,
+  tooltipsData,
+  lineHeight = 12,
+}: InlineBarsChartProps) => {
   const [localHoveredBarId, setLocalHoveredBarId] = useState<string | undefined>(undefined)
 
   useEffect(() => {
@@ -49,7 +58,7 @@ const InlineBarsChart = ({ colors, data, hoveredBarId, tooltipsData }: InlineBar
 
   return (
     <ChartWrapper className="overflow-hidden rounded-xl bg-white">
-      <ResponsiveContainer width="100%" height={12}>
+      <ResponsiveContainer width="100%" height={lineHeight}>
         <BarChart
           layout="vertical"
           data={data}
@@ -81,6 +90,7 @@ const InlineBarsChart = ({ colors, data, hoveredBarId, tooltipsData }: InlineBar
                     className="bar-with-border"
                     opacity={!localHoveredBarId || localHoveredBarId === key ? 1 : 0.2}
                     {...props}
+                    height={lineHeight || props.height}
                   />
                   {!!tooltipsData?.length && (
                     <foreignObject
