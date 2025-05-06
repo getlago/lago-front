@@ -5,6 +5,7 @@ import { NavigationTab, Typography } from '~/components/designSystem'
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import Invoices from '~/pages/analytics/Invoices'
 import Mrr from '~/pages/analytics/Mrr'
 import PrepaidCredits from '~/pages/analytics/PrepaidCredits'
 import RevenueStreams from '~/pages/analytics/RevenueStreams'
@@ -66,6 +67,13 @@ const NewAnalytics = () => {
               tab: NewAnalyticsTabsOptionsEnum.prepaidCredits,
             }),
             component: <PrepaidCredits />,
+          },
+          {
+            title: translate('text_1745933666707rlg89cuv1i0'),
+            link: generatePath(ANALYTIC_TABS_ROUTE, {
+              tab: NewAnalyticsTabsOptionsEnum.invoices,
+            }),
+            component: <Invoices />,
           },
         ]}
       />

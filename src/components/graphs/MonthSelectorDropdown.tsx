@@ -12,7 +12,7 @@ export const AnalyticsPeriodScopeEnum = {
   Month: 'month',
 } as const
 
-const PeriodScopeTranslationLookup = {
+export const PeriodScopeTranslationLookup = {
   [AnalyticsPeriodScopeEnum.Year]: 'text_6553885df387fd0097fd7383',
   [AnalyticsPeriodScopeEnum.Quarter]: 'text_65562f85ed468200b9debb48',
   [AnalyticsPeriodScopeEnum.Month]: 'text_65562f85ed468200b9debb49',
