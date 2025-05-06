@@ -350,9 +350,7 @@ const Invoices = () => {
 
                     <div className="flex items-center justify-between border-b border-grey-300 py-3">
                       <Typography className="font-medium text-grey-700">
-                        {translate('text_6553885df387fd0097fd73a9', {
-                          count: lineData.get(LINE_DATA_ALL_KEY_NAME)?.invoicesCount,
-                        })}
+                        {translate('text_1746536317559r1gbassfgec')}
                       </Typography>
 
                       <Typography className="text-grey-700">

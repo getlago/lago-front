@@ -1303,7 +1303,7 @@
   "text_6553885df387fd0097fd73a3": "{{count}} paid invoices|{{count}} paid invoice|{{count}} paid invoices",
   "text_6553885df387fd0097fd73a5": "{{count}} failed payment invoices|{{count}} failed payment invoice|{{count}} failed payment invoices",
   "text_6553885df387fd0097fd73a7": "{{count}} pending payment invoices|{{count}} pending payment invoice|{{count}} pending payment invoices",
-  "text_6553885df387fd0097fd73a9": "Total invoices",
+  "text_6553885df387fd0097fd73a9": "{{count}} invoices|{{count}} invoice|{{count}} invoices",
   "text_65562f85ed468200b9debb48": "Last quarter",
   "text_65562f85ed468200b9debb49": "Last month",
   "text_65562f85ed468200b9debb53": "Total monthly income, covering all financial aspects including taxes, discounts like credit notes, coupons, and credits, for an accurate financial overview.",
@@ -2986,5 +2986,7 @@
   "text_17465244633260sz1d0bnp8v": "Overdue balance",
   "text_1746526888530pbjcvaaox2c": "Invoice balances",
   "text_1746532851931rt2nl6vdlnh": "Period",
-  "text_1746535056345h6ij1b79vyo": "Number and value of invoices across all payment statuses. Outstanding invoices specifically highlight the amounts associated with failed and pending invoices"
+  "text_1746535056345h6ij1b79vyo": "Number and value of invoices across all payment statuses. Outstanding invoices specifically highlight the amounts associated with failed and pending invoices",
+  "text_1746536317559r1gbassfgec": "Total invoices"
 }
+
