@@ -284,7 +284,7 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
         </Typography>
       )}
 
-      {!hasNoSubscription && (
+      {(!hasNoSubscription || !!loading) && (
         <>
           <Table
             name="customer-subscriptions"
