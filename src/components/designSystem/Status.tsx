@@ -16,7 +16,14 @@ export enum StatusType {
   disabled = 'disabled',
 }
 
-type StatusLabelSuccess = 'succeeded' | 'finalized' | 'active' | 'pay' | 'available' | 'refunded'
+type StatusLabelSuccess =
+  | 'succeeded'
+  | 'finalized'
+  | 'active'
+  | 'pay'
+  | 'available'
+  | 'refunded'
+  | 'delivered'
 type StatusLabelWarning = 'failed'
 type StatusLabelOutline = 'draft'
 type StatusLabelDefault = 'downgrade' | 'scheduled' | 'pending' | 'toPay' | 'processing' | 'n/a'
@@ -29,6 +36,7 @@ type StatusLabelDanger =
   | 'voided'
   | 'overdue'
   | 'canceled'
+  | 'failed'
 
 type StatusLabelDisabled = 'voided'
 
@@ -60,6 +68,7 @@ const statusLabelMapping: Record<StatusLabel, string> = {
   scheduled: 'text_1736972452609g2v8mzgvi2t',
   processing: 'text_1740135074392314rc3ldv02',
   canceled: 'text_17429854230668s8zhn9ujq6',
+  delivered: 'text_1746621029319goh9pr7g67d',
   ['n/a']: '-',
   // These keys below are displayed in the customer portal
   // Hence they must be translated in all available languages
