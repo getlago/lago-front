@@ -12,6 +12,7 @@ interface FilterContextType {
   staticQuickFilters?: Partial<Record<AvailableQuickFilters, string>>
   filtersNamePrefix: string
   buttonOpener?: PopperProps['opener']
+  displayInDialog?: boolean
 }
 
 export const FilterContext = createContext<FilterContextType | undefined>(undefined)
