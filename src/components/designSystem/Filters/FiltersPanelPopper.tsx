@@ -12,7 +12,7 @@ import { FiltersPanelItemTypeSwitch } from './FiltersPanelItemTypeSwitch'
 import { AvailableFiltersEnum, FiltersFormValues, mapFilterToTranslationKey } from './types'
 import { useFilters } from './useFilters'
 
-export const FiltersPanelPopper = () => {
+export const FiltersPanelPopper = ({ displayInDialog }: { displayInDialog?: boolean }) => {
   const { translate } = useInternationalization()
   const {
     availableFilters,

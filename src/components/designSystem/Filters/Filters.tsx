@@ -8,16 +8,17 @@ import { useFilters } from './useFilters'
 
 interface FiltersProps {
   className?: string
+  displayInDialog?: boolean
 }
 
-export const Filters = ({ className }: FiltersProps) => {
+export const Filters = ({ className, displayInDialog }: FiltersProps) => {
   const { translate } = useInternationalization()
 
   const { hasAppliedFilters, resetFilters } = useFilters()
 
   return (
     <div className={tw('flex w-full flex-wrap items-center gap-3 overflow-y-auto', className)}>
-      <FiltersPanelPopper />
+      <FiltersPanelPopper displayInDialog={displayInDialog} />
       <ActiveFiltersList />
 
       {hasAppliedFilters && (
