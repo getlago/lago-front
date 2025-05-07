@@ -36,6 +36,7 @@ export enum AvailableFiltersEnum {
   status = 'status',
   subscriptionExternalId = 'subscriptionExternalId',
   timeGranularity = 'timeGranularity',
+  webhookStatus = 'webhookStatus',
 }
 
 export const CreditNoteAvailableFilters = [
@@ -116,6 +117,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.status]: 'text_63ac86d797f728a87b2f9fa7',
   [AvailableFiltersEnum.subscriptionExternalId]: 'text_1741008626283x4p1zwj11zi',
   [AvailableFiltersEnum.timeGranularity]: '', // Used in quick filters only
+  [AvailableFiltersEnum.webhookStatus]: 'text_63ac86d797f728a87b2f9fa7',
 }
 
 export type FiltersFormValues = {
