@@ -1,6 +1,6 @@
+import { Avatar, Button, Typography } from 'lago-design-system'
 import { useRef, useState } from 'react'
 
-import { Avatar, Button, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'
 
