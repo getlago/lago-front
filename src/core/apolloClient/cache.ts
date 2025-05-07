@@ -104,11 +104,15 @@ export const cache = new InMemoryCache({
           merge: mergePaginatedCollection,
         },
         webhooks: {
-          keyArgs: false,
+          keyArgs: ['webhookEndpointId', 'status', 'searchTerm'],
           merge: mergePaginatedCollection,
         },
-        webhookEndpoints: {
-          keyArgs: false,
+        webhook: {
+          keyArgs: ['id'],
+          merge: mergePaginatedCollection,
+        },
+        webhookEndpoint: {
+          keyArgs: ['id'],
           merge: mergePaginatedCollection,
         },
         appliedtaxes: {

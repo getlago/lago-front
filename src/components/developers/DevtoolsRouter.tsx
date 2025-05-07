@@ -6,7 +6,8 @@ import { usePermissions } from '~/hooks/usePermissions'
 
 export const API_KEYS_ROUTE = '/devtool'
 export const WEBHOOKS_ROUTE = '/webhooks'
-export const WEBHOOK_LOGS_ROUTE = '/webhooks/:webhookId/logs'
+export const WEBHOOK_ROUTE = '/webhooks/:webhookId'
+export const WEBHOOK_LOGS_ROUTE = '/webhooks/:webhookId/logs/:logId'
 export const EVENTS_ROUTE = '/events'
 
 export const DevtoolsRouter = () => {
@@ -16,6 +17,7 @@ export const DevtoolsRouter = () => {
       path: WEBHOOKS_ROUTE,
       element: <Webhooks />,
     },
+    { path: WEBHOOK_ROUTE, element: <WebhookLogs /> },
     { path: WEBHOOK_LOGS_ROUTE, element: <WebhookLogs /> },
     { path: EVENTS_ROUTE, element: <div /> },
     { path: '*', element: <ApiKeys /> },
@@ -37,7 +39,7 @@ export const devToolsNavigationMapping = (
     {
       title: translate('text_6271200984178801ba8bdede'),
       link: WEBHOOKS_ROUTE,
-      match: [WEBHOOKS_ROUTE, WEBHOOK_LOGS_ROUTE],
+      match: [WEBHOOKS_ROUTE, WEBHOOK_ROUTE, WEBHOOK_LOGS_ROUTE],
       hidden: !hasPermissions(['developersManage']),
     },
     {

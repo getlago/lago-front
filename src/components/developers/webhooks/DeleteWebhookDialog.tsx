@@ -24,7 +24,7 @@ export const DeleteWebhookDialog = forwardRef<DeleteWebhookDialogRef>((_, ref) =
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)
   const [localId, setLocalId] = useState<string | undefined>(undefined)
-  const [deleteCustomer] = useDeleteWebhookMutation({
+  const [deleteWebhook] = useDeleteWebhookMutation({
     onCompleted(res) {
       if (!!res.destroyWebhookEndpoint) {
         addToast({
@@ -33,16 +33,7 @@ export const DeleteWebhookDialog = forwardRef<DeleteWebhookDialogRef>((_, ref) =
         })
       }
     },
-    update(cache, { data }) {
-      if (!data?.destroyWebhookEndpoint) return
-
-      const cacheId = cache.identify({
-        id: data?.destroyWebhookEndpoint.id,
-        __typename: 'WebhookEndpoint',
-      })
-
-      cache.evict({ id: cacheId })
-    },
+    refetchQueries: ['getWebhookList'],
   })
 
   useImperativeHandle(ref, () => ({
@@ -61,7 +52,7 @@ export const DeleteWebhookDialog = forwardRef<DeleteWebhookDialogRef>((_, ref) =
       title={translate('text_6271200984178801ba8bdeb2')}
       description={translate('text_6271200984178801ba8bded2')}
       onContinue={async () =>
-        await deleteCustomer({
+        await deleteWebhook({
           variables: { input: { id: localId as string } },
         })
       }

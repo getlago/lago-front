@@ -3,7 +3,7 @@ import { useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button, Table, Tooltip, Typography } from '~/components/designSystem'
-import { WEBHOOK_LOGS_ROUTE } from '~/components/developers/DevtoolsRouter'
+import { WEBHOOK_ROUTE } from '~/components/developers/DevtoolsRouter'
 import {
   CreateWebhookDialog,
   CreateWebhookDialogRef,
@@ -83,7 +83,7 @@ export const Webhooks = () => {
                         (webhookData?.webhookEndpoints.collection || []).length >=
                         WEBHOOK_COUNT_LIMIT
                       }
-                      variant="quaternary"
+                      variant="inline"
                       onClick={() => createDialogRef?.current?.openDialog()}
                       startIcon="plus"
                     >
@@ -112,9 +112,7 @@ export const Webhooks = () => {
                         ),
                       },
                     ]}
-                    onRowActionLink={({ id }) =>
-                      generatePath(WEBHOOK_LOGS_ROUTE, { webhookId: id })
-                    }
+                    onRowActionLink={({ id }) => generatePath(WEBHOOK_ROUTE, { webhookId: id })}
                     actionColumnTooltip={() => translate('text_6256de3bba111e00b3bfa51b')}
                     actionColumn={(webhook) => {
                       return [
