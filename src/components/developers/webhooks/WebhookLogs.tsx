@@ -1,32 +1,37 @@
 import { gql } from '@apollo/client'
-import { useEffect, useMemo, useState } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { useEffect, useMemo } from 'react'
+import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
-import { Button, InfiniteScroll, Skeleton, Tooltip, Typography } from '~/components/designSystem'
-import { WebhookLogDetails } from '~/components/developers/webhooks/WebhookLogDetails'
 import {
-  WebhookLogItem,
-  WebhookLogItemSkeleton,
-} from '~/components/developers/webhooks/WebhookLogItem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+  Button,
+  InfiniteScroll,
+  NavigationTab,
+  Skeleton,
+  Status,
+  Table,
+  TabManagedBy,
+  Typography,
+} from '~/components/designSystem'
+import {
+  AvailableFiltersEnum,
+  Filters,
+  formatFiltersForWebhookLogsQuery,
+} from '~/components/designSystem/Filters'
+import { WEBHOOK_LOGS_ROUTE, WEBHOOKS_ROUTE } from '~/components/developers/DevtoolsRouter'
+import { WebhookLogDetails } from '~/components/developers/webhooks/WebhookLogDetails'
 import { SearchInput } from '~/components/SearchInput'
-import { WEBHOOK_LOGS_ROUTE, WEBHOOK_LOGS_TAB_ROUTE, WEBHOOK_ROUTE } from '~/core/router'
+import { WEBHOOK_LOGS_FILTER_PREFIX } from '~/core/constants/filters'
+import { statusWebhookMapping } from '~/core/constants/statusWebhookMapping'
 import {
   useGetWebhookInformationsQuery,
   useGetWebhookLogLazyQuery,
   WebhookLogDetailsFragmentDoc,
-  WebhookLogFragment,
-  WebhookLogItemFragmentDoc,
-  WebhookStatusEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useLocationHistory } from '~/hooks/core/useLocationHistory'
-import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import EmptyImage from '~/public/images/maneki/empty.svg'
-import ErrorImage from '~/public/images/maneki/error.svg'
-import { PageHeader } from '~/styles'
+import { tw } from '~/styles/utils'
 
 gql`
   query getWebhookInformations($id: ID!) {
@@ -38,9 +43,11 @@ gql`
 
   fragment WebhookLog on Webhook {
     id
+    status
+    webhookType
     createdAt
+    updatedAt
     endpoint
-    ...WebhookLogItem
     ...WebhookLogDetails
   }
 
@@ -68,273 +75,205 @@ gql`
     }
   }
 
-  ${WebhookLogItemFragmentDoc}
   ${WebhookLogDetailsFragmentDoc}
 `
 
-const WEBHOOK_ITEM_NAV_KEY = 'webhook-item-'
-
 export const WebhookLogs = () => {
-  const { webhookId = '' } = useParams<{ webhookId: string }>()
+  const { webhookId = '', logId } = useParams<{ webhookId: string; logId: string }>()
   const { translate } = useInternationalization()
-  const { goBack } = useLocationHistory()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { size } = useDeveloperTool()
+
+  const filtersForWebhookLogsQuery = useMemo(() => {
+    return formatFiltersForWebhookLogsQuery(searchParams)
+  }, [searchParams])
+
   const { data: webhookUrlData, loading: webhookUrlLoading } = useGetWebhookInformationsQuery({
     variables: { id: webhookId },
     skip: !webhookId,
   })
-  const { tab: statusFilter } = useParams<{ tab: WebhookStatusEnum }>()
-  const [fetchMoreLoading, setFetchMoreLoading] = useState<boolean>(false)
-  const [getWebhookLogs, { data, error, refetch, fetchMore, variables, loading }] =
+
+  const [getWebhookLogs, { data, error, refetch, fetchMore, variables, loading: logsLoading }] =
     useGetWebhookLogLazyQuery({
       variables: {
         webhookEndpointId: webhookId,
         limit: 50,
-        ...(statusFilter ? { status: statusFilter } : {}),
+        ...filtersForWebhookLogsQuery,
       },
       notifyOnNetworkStatusChange: true,
     })
-  const hasLogs = !!data?.webhooks?.collection?.length
-  const [selectedLogId, setSelectedLogId] = useState<string | undefined>(undefined)
 
+  const loading = logsLoading || webhookUrlLoading
   const { debouncedSearch, isLoading } = useDebouncedSearch(getWebhookLogs, loading)
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
-  const groupedLogs = useMemo(
-    () =>
-      (data?.webhooks?.collection || []).reduce<Record<string, WebhookLogFragment[]>>(
-        (acc, item) => {
-          const date = formatTimeOrgaTZ(item.createdAt)
 
-          acc[date] = [...(acc[date] ? acc[date] : []), item]
+  const webhookLog = useMemo(() => {
+    return data?.webhooks.collection.find((log) => log.id === logId)
+  }, [data?.webhooks.collection, logId])
 
-          return acc
-        },
-        {},
-      ),
-    [data?.webhooks?.collection, formatTimeOrgaTZ],
-  )
-  const { onKeyDown } = useListKeysNavigation({
-    getElmId: (i) => `${WEBHOOK_ITEM_NAV_KEY}${i}`,
-    navigate: (id) => {
-      setSelectedLogId(id as string)
-      const element = document.activeElement as HTMLElement
-
-      element.blur && element.blur()
-    },
-  })
-
+  // If no logId is provided, navigate to the first log
   useEffect(() => {
-    if (hasLogs) {
-      setSelectedLogId(data?.webhooks?.collection[0]?.id)
-    } else {
-      setSelectedLogId(undefined)
-    }
-  }, [hasLogs, data?.webhooks?.collection])
+    if (!logId) {
+      const firstLog = data?.webhooks.collection[0]
 
-  let index = -1
+      if (firstLog) {
+        navigate(generatePath(WEBHOOK_LOGS_ROUTE, { webhookId, logId: firstLog.id }), {
+          replace: true,
+        })
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.webhooks])
+
+  const shouldDisplayLogDetails = webhookLog && logId && !!data?.webhooks.collection.length
 
   return (
-    <div role="grid" tabIndex={-1} onKeyDown={onKeyDown}>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group>
-          <Button
-            icon="arrow-left"
-            variant="quaternary"
-            onClick={() =>
-              goBack(WEBHOOK_ROUTE, { exclude: [WEBHOOK_LOGS_TAB_ROUTE, WEBHOOK_LOGS_ROUTE] })
-            }
-          />
+    <div>
+      <div className="p-4 shadow-b">
+        <Button variant="inline" startIcon="arrow-left" onClick={() => navigate(WEBHOOKS_ROUTE)}>
+          {translate('text_1746622271766rvabvdcmo7v')}
+        </Button>
+        <Typography variant="headline">
           {webhookUrlLoading ? (
             <Skeleton variant="text" className="w-60" />
           ) : (
-            <>
-              <Typography className="mr-1" color="textSecondary" variant="bodyHl" noWrap>
-                {translate('text_63e3a496be166d8f3279b594', {
-                  url: webhookUrlData?.webhookEndpoint?.webhookUrl,
-                })}
-              </Typography>
-            </>
+            webhookUrlData?.webhookEndpoint?.webhookUrl
           )}
-        </PageHeader.Group>
-        <SearchInput
-          onChange={debouncedSearch}
-          placeholder={translate('text_63e27c56dfe64b846474ef49')}
-        />
-      </PageHeader.Wrapper>
-      {!!error && !loading && !isLoading ? (
-        <GenericPlaceholder
-          title={translate('text_63e27c56dfe64b846474ef3a')}
-          subtitle={translate('text_63e27c56dfe64b846474ef3b')}
-          buttonTitle={translate('text_63e27c56dfe64b846474ef3c')}
-          buttonVariant="primary"
-          buttonAction={() => location.reload()}
-          image={<ErrorImage width="136" height="104" />}
-        />
-      ) : (
-        <div className="relative flex h-[calc(100vh-theme(space.nav))]">
-          <div className="w-full md:w-1/2">
-            <Typography
-              className="ml-px flex h-18 items-center justify-between bg-white px-12 shadow-b"
-              variant="bodyHl"
-              color="grey700"
-            >
-              {translate('text_63e27c56dfe64b846474ef4b')}
-              {!!data?.webhooks?.collection && (
-                <Tooltip title={translate('text_63e27c56dfe64b846474ef4a')} placement="top-end">
-                  <Button
-                    icon="reload"
-                    variant="quaternary"
-                    onClick={async () => {
-                      await refetch()
-                    }}
+        </Typography>
+      </div>
+
+      <NavigationTab
+        className="px-4"
+        name="webhook-logs"
+        managedBy={TabManagedBy.INDEX}
+        loading={loading}
+        tabs={[
+          {
+            title: translate('text_1746622271766kgqyug3llin'),
+            component: (
+              <div>
+                <section className="flex flex-row items-center gap-4 p-4 shadow-b">
+                  <SearchInput
+                    onChange={debouncedSearch}
+                    placeholder={translate('text_1746622271766lr6wf4y0ppn')}
                   />
-                </Tooltip>
-              )}
-            </Typography>
-            <div className="flex items-center gap-3 px-12 py-4 shadow-b">
-              <Button
-                variant={!statusFilter ? 'secondary' : 'quaternary'}
-                onClick={() => {
-                  navigate(
-                    generatePath(WEBHOOK_LOGS_ROUTE, {
-                      webhookId,
-                    }),
-                  )
-                }}
-              >
-                {translate('text_63e27c56dfe64b846474ef4c')}
-              </Button>
-              <Button
-                variant={statusFilter === WebhookStatusEnum.Succeeded ? 'secondary' : 'quaternary'}
-                onClick={() => {
-                  navigate(
-                    generatePath(WEBHOOK_LOGS_TAB_ROUTE, {
-                      webhookId,
-                      tab: WebhookStatusEnum.Succeeded,
-                    }),
-                  )
-                }}
-              >
-                {translate('text_63e27c56dfe64b846474ef4d')}
-              </Button>
-              <Button
-                variant={statusFilter === WebhookStatusEnum.Failed ? 'secondary' : 'quaternary'}
-                onClick={() => {
-                  navigate(
-                    generatePath(WEBHOOK_LOGS_TAB_ROUTE, {
-                      webhookId,
-                      tab: WebhookStatusEnum.Failed,
-                    }),
-                  )
-                }}
-              >
-                {translate('text_63e27c56dfe64b846474ef4e')}
-              </Button>
-            </div>
 
-            {!loading && !isLoading && !hasLogs ? (
-              <GenericPlaceholder
-                className="m-12"
-                title={translate(
-                  !!variables?.searchTerm
-                    ? 'text_63ebafd12755e50052a86e13'
-                    : 'text_63ebaf555f88d954d73beb7e',
-                )}
-                subtitle={
-                  !variables?.searchTerm ? (
-                    <Typography html={translate('text_63ebafc2c3d08550e5c0341c')} />
-                  ) : (
-                    translate('text_63ebafd92755e50052a86e14')
-                  )
-                }
-                image={<EmptyImage width="136" height="104" />}
-              />
-            ) : (
-              <div className="h-[calc(100vh-3*theme(space.nav))] overflow-scroll">
-                {isLoading && !fetchMoreLoading && !hasLogs && (
-                  <div className="sticky top-0 z-10 flex h-12 items-center bg-grey-100 px-12 py-0 shadow-b" />
-                )}
-                <InfiniteScroll
-                  onBottom={async () => {
-                    const { currentPage = 0, totalPages = 0 } = data?.webhooks?.metadata || {}
+                  <Filters.Provider
+                    filtersNamePrefix={WEBHOOK_LOGS_FILTER_PREFIX}
+                    availableFilters={[AvailableFiltersEnum.webhookStatus]}
+                    displayInDialog
+                  >
+                    <Filters.Component />
+                  </Filters.Provider>
 
-                    if (currentPage < totalPages && !isLoading) {
-                      setFetchMoreLoading(true)
-                      await fetchMore({
-                        variables: { page: currentPage + 1 },
-                      })
-                      setFetchMoreLoading(false)
-                    }
-                  }}
-                >
-                  <div className="mb-20">
-                    {Object.keys(groupedLogs).map((logDate) => {
-                      return (
-                        <div key={logDate}>
-                          <div className="sticky top-0 z-10 flex h-12 items-center bg-grey-100 px-12 py-0 shadow-b">
-                            {logDate}
-                          </div>
-                          {groupedLogs[logDate].map((log) => {
-                            const { id } = log
+                  <div className="h-8 w-px shadow-r" />
 
-                            index += 1
-
-                            return (
-                              <div key={id}>
-                                <WebhookLogItem
-                                  log={log}
-                                  onClick={() => {
-                                    setSelectedLogId(id)
-                                    const element = document.activeElement as HTMLElement
-
-                                    element.blur && element.blur()
-                                  }}
-                                  selected={selectedLogId === id}
-                                  navigationProps={{
-                                    id: `${WEBHOOK_ITEM_NAV_KEY}${index}`,
-                                    'data-id': id,
-                                  }}
-                                />
-                                {selectedLogId === id && (
-                                  <div className="right-0 top-0 z-10 flex size-full flex-col overflow-auto bg-white shadow-b md:absolute md:w-1/2 md:shadow-l">
-                                    <WebhookLogDetails log={log} />
-                                  </div>
-                                )}
-                              </div>
-                            )
-                          })}
-                        </div>
-                      )
-                    })}
-                    {isLoading &&
-                      [0, 1, 2].map((i) => (
-                        <WebhookLogItemSkeleton key={`webhook-skeleton-item-${i}`} />
-                      ))}
+                  <div>
+                    <Button
+                      startIcon="reload"
+                      size="small"
+                      variant="quaternary"
+                      onClick={async () => await refetch()}
+                    >
+                      {translate('text_1746622271766igknqtl9xg8')}
+                    </Button>
                   </div>
-                </InfiniteScroll>
-              </div>
-            )}
-          </div>
-          <div className="hidden h-full w-1/2 flex-col bg-grey-100 shadow-l md:flex">
-            {isLoading && (
-              <>
-                <Typography className="ml-px flex h-18 items-center justify-between bg-white px-12 pl-8 shadow-b">
-                  <Skeleton variant="text" className="w-45" />
-                </Typography>
-                <div className="ml-px bg-white px-8 py-10 shadow-l">
-                  {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-                    <div className="flex items-center gap-10" key={`skeleton-event-${i}`}>
-                      <Skeleton variant="text" className="w-20" />
-                      <Skeleton variant="text" className="w-60" />
+                </section>
+                <section
+                  className="flex min-h-20 flex-row overflow-hidden"
+                  // 228px is the height of the headers (52px+104px+72px)
+                  style={{ height: shouldDisplayLogDetails ? `calc(${size}vh - 228px)` : '100%' }}
+                >
+                  <div
+                    className={tw(
+                      shouldDisplayLogDetails ? 'h-full w-1/2 overflow-auto' : 'w-full',
+                    )}
+                  >
+                    <InfiniteScroll
+                      onBottom={async () => {
+                        const { currentPage = 0, totalPages = 0 } = data?.webhooks?.metadata || {}
+
+                        if (currentPage < totalPages && !isLoading) {
+                          await fetchMore({
+                            variables: { page: currentPage + 1 },
+                          })
+                        }
+                      }}
+                    >
+                      <Table
+                        name="webhook-logs"
+                        containerSize={16}
+                        rowSize={48}
+                        data={data?.webhooks.collection || []}
+                        hasError={!!error}
+                        isLoading={loading}
+                        onRowActionLink={({ id }) => {
+                          const currentParams = searchParams.toString()
+                          const path = generatePath(WEBHOOK_LOGS_ROUTE, {
+                            webhookId,
+                            logId: id,
+                          })
+
+                          return currentParams ? `${path}?${currentParams}` : path
+                        }}
+                        columns={[
+                          {
+                            title: translate('text_63ac86d797f728a87b2f9fa7'),
+                            key: 'status',
+                            content: ({ status }) => <Status {...statusWebhookMapping(status)} />,
+                          },
+                          {
+                            title: translate('text_1746622271766rmi2hgoq1sb'),
+                            key: 'webhookType',
+                            content: ({ webhookType }) => (
+                              <Typography color="grey700" variant="captionCode">
+                                {webhookType}
+                              </Typography>
+                            ),
+                            maxSpace: true,
+                          },
+                          {
+                            title: translate('text_664cb90097bfa800e6efa3f5'),
+                            key: 'updatedAt',
+                            content: ({ updatedAt }) => (
+                              <Typography noWrap>
+                                {formatTimeOrgaTZ(updatedAt, 'LLL dd, hh:mm:ss a')}
+                              </Typography>
+                            ),
+                          },
+                        ]}
+                        placeholder={{
+                          emptyState: {
+                            title: translate(
+                              !!variables?.searchTerm
+                                ? 'text_63ebafd12755e50052a86e13'
+                                : 'text_63ebaf555f88d954d73beb7e',
+                            ),
+                            subtitle: !variables?.searchTerm ? (
+                              <Typography
+                                className="[&_a]:text-blue"
+                                html={translate('text_63ebafc2c3d08550e5c0341c')}
+                              />
+                            ) : (
+                              translate('text_63ebafd92755e50052a86e14')
+                            ),
+                          },
+                        }}
+                      />
+                    </InfiniteScroll>
+                  </div>
+                  {shouldDisplayLogDetails && (
+                    <div className="w-1/2 shadow-l">
+                      <WebhookLogDetails log={webhookLog} />
                     </div>
-                  ))}
-                </div>
-                <div className="flex-1 bg-grey-100 shadow-l md:shadow-b" />
-              </>
-            )}
-          </div>
-        </div>
-      )}
+                  )}
+                </section>
+              </div>
+            ),
+          },
+        ]}
+      />
     </div>
   )
 }

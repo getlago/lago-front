@@ -75,7 +75,6 @@
   "text_63e27c56dfe64b846474ef4c": "All",
   "text_63e27c56dfe64b846474ef4d": "Succeeded",
   "text_63e27c56dfe64b846474ef4e": "Failed",
-  "text_63e27c56dfe64b846474ef6a": "Properties",
   "text_63e27c56dfe64b846474ef6c": "Time",
   "text_63e27c56dfe64b846474ef6e": "Webhook url",
   "text_63e27c56dfe64b846474ef70": "Unique key",
@@ -83,7 +82,6 @@
   "text_63e27c56dfe64b846474ef73": "200 OK",
   "text_63e27c56dfe64b846474ef74": "Response",
   "text_63e27c56dfe64b846474efa3": "Retry",
-  "text_63e27c56dfe64b846474efa6": "ERROR",
   "text_63e27c56dfe64b846474efb2": "# Retries",
   "text_63e27c56dfe64b846474efb3": "Error details",
   "text_63e27c56dfe64b846474efb6": "Payload",
@@ -3083,6 +3081,13 @@
   "text_1746019984781u1ftea09d0b": "Exit full screen",
   "text_17460208605597iyd249v26z": "Copy link",
   "text_1746190277237kaa03zrbbd9": "Listen to Lago real-time events by adding a hosted endpoint and see related logs.",
-  "text_1746190277237vdc9v07s2fe": "Add an endpoint"
+  "text_1746190277237vdc9v07s2fe": "Add an endpoint",
+  "text_1746622271766kgqyug3llin": "Event deliveries",
+  "text_1746622271766rvabvdcmo7v": "Back to webhook endpoints",
+  "text_1746622271766igknqtl9xg8": "Refetch",
+  "text_1746622271766rmi2hgoq1sb": "Event type",
+  "text_1746622271766lr6wf4y0ppn": "Search event ID",
+  "text_174662372967481i3t20hzfv": "Event details",
+  "text_1746623729674wq0tach0cop": "Event payload",
+  "text_1746623729674lo13y0oatk9": "Event response"
 }
-

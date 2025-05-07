@@ -5,8 +5,6 @@ import { lazyLoad } from './utils'
 const Developers = lazyLoad(() => import('~/layouts/Developers'))
 // ----------- Pages -----------
 
-const Webhooks = lazyLoad(() => import('~/pages/developers/Webhooks'))
-const WebhookLogs = lazyLoad(() => import('~/pages/developers/WebhookLogs'))
 const Debugger = lazyLoad(() => import('~/pages/developers/Debugger'))
 
 // ----------- Routes -----------
@@ -21,26 +19,6 @@ export const developperRoutes: CustomRouteObject[] = [
   {
     private: true,
     element: <Developers />,
-    permissions: ['developersManage'],
-    children: [
-      {
-        path: WEBHOOK_ROUTE,
-        private: true,
-        element: <Webhooks />,
-        permissions: ['developersManage'],
-      },
-      {
-        path: DEBUGGER_ROUTE,
-        private: true,
-        element: <Debugger />,
-        permissions: ['developersManage'],
-      },
-    ],
-  },
-  {
-    private: true,
-    path: [WEBHOOK_LOGS_ROUTE, WEBHOOK_LOGS_TAB_ROUTE],
-    element: <WebhookLogs />,
     permissions: ['developersManage'],
   },
 ]

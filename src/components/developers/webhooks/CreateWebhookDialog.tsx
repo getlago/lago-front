@@ -5,9 +5,9 @@ import { generatePath, useNavigate } from 'react-router-dom'
 import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
+import { WEBHOOK_ROUTE } from '~/components/developers/DevtoolsRouter'
 import { RadioField, TextInput } from '~/components/form'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { WEBHOOK_LOGS_ROUTE } from '~/core/router'
 import {
   CreateWebhookEndpointMutation,
   LagoApiError,
@@ -112,7 +112,7 @@ export const CreateWebhookDialog = forwardRef<CreateWebhookDialogRef>((_, ref) =
 
         if (!isEdit) {
           navigate(
-            generatePath(WEBHOOK_LOGS_ROUTE, {
+            generatePath(WEBHOOK_ROUTE, {
               webhookId: (res?.data as CreateWebhookEndpointMutation)?.createWebhookEndpoint
                 ?.id as string,
             }),

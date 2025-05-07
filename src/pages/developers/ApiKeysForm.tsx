@@ -22,7 +22,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
-import { ConsoleTabs, useDeveloperTool } from '~/hooks/useDeveloperTool'
+import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
@@ -130,7 +130,7 @@ const ApiKeysForm = () => {
 
   const onClose = (state?: NavigateOptions['state']) => {
     goBack(HOME_ROUTE, { state })
-    devtool.open(ConsoleTabs.API_KEYS)
+    devtool.open()
   }
 
   const [createApiKey] = useCreateApiKeyMutation({
