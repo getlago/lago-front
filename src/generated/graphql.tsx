@@ -8440,13 +8440,6 @@ export type UpdateHubspotIntegrationMutationVariables = Exact<{
 
 export type UpdateHubspotIntegrationMutation = { __typename?: 'Mutation', updateHubspotIntegration?: { __typename?: 'HubspotIntegration', id: string, name: string, code: string, defaultTargetedObject: HubspotTargetedObjectsEnum, syncInvoices?: boolean | null, syncSubscriptions?: boolean | null } | null };
 
-export type UpdateOrgaForLagoTaxManagementMutationVariables = Exact<{
-  input: UpdateOrganizationInput;
-}>;
-
-
-export type UpdateOrgaForLagoTaxManagementMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string } | null };
-
 export type AddMoneyhashProviderDialogFragment = { __typename?: 'MoneyhashProvider', id: string, name: string, code: string, apiKey?: string | null, flowId?: string | null };
 
 export type GetProviderByCodeForMoneyhashQueryVariables = Exact<{
@@ -9399,33 +9392,33 @@ export type UpdateBillableMetricMutationVariables = Exact<{
 
 export type UpdateBillableMetricMutation = { __typename?: 'Mutation', updateBillableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any } | null };
 
-export type BillingEntityItemFragment = { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum };
+export type BillingEntityItemFragment = { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean };
 
 export type GetBillingEntitiesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetBillingEntitiesQuery = { __typename?: 'Query', billingEntities: { __typename?: 'BillingEntityCollection', collection: Array<{ __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum }> } };
+export type GetBillingEntitiesQuery = { __typename?: 'Query', billingEntities: { __typename?: 'BillingEntityCollection', collection: Array<{ __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean }> } };
 
 export type GetBillingEntityQueryVariables = Exact<{
   code: Scalars['String']['input'];
 }>;
 
 
-export type GetBillingEntityQuery = { __typename?: 'Query', billingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum } | null };
+export type GetBillingEntityQuery = { __typename?: 'Query', billingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean } | null };
 
 export type CreateBillingEntityMutationVariables = Exact<{
   input: CreateBillingEntityInput;
 }>;
 
 
-export type CreateBillingEntityMutation = { __typename?: 'Mutation', createBillingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum } | null };
+export type CreateBillingEntityMutation = { __typename?: 'Mutation', createBillingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean } | null };
 
 export type UpdateBillingEntityMutationVariables = Exact<{
   input: UpdateBillingEntityInput;
 }>;
 
 
-export type UpdateBillingEntityMutation = { __typename?: 'Mutation', updateBillingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum } | null };
+export type UpdateBillingEntityMutation = { __typename?: 'Mutation', updateBillingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean } | null };
 
 export type EditCouponFragment = { __typename?: 'Coupon', id: string, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, appliedCouponsCount: number, code?: string | null, couponType: CouponTypeEnum, description?: string | null, expiration: CouponExpiration, expirationAt?: any | null, frequency: CouponFrequency, frequencyDuration?: number | null, limitedBillableMetrics: boolean, limitedPlans: boolean, name: string, percentageRate?: number | null, reusable: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null };
 
@@ -10425,11 +10418,6 @@ export type GetOrganizationSettingsInvoiceSectionsQueryVariables = Exact<{ [key:
 
 
 export type GetOrganizationSettingsInvoiceSectionsQuery = { __typename?: 'Query', invoiceCustomSections?: { __typename?: 'InvoiceCustomSectionCollection', collection: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string, selected: boolean }> } | null };
-
-export type LagoTaxManagementIntegrationsSettingQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type LagoTaxManagementIntegrationsSettingQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, country?: CountryCode | null, euTaxManagement: boolean } | null };
 
 export type GetTaxesForTaxManagementIntegrationDetailsPageQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -12168,6 +12156,7 @@ export const BillingEntityItemFragmentDoc = gql`
   timezone
   isDefault
   defaultCurrency
+  euTaxManagement
 }
     `;
 export const PlansForCouponsFragmentDoc = gql`
@@ -19561,39 +19550,6 @@ export function useUpdateHubspotIntegrationMutation(baseOptions?: Apollo.Mutatio
 export type UpdateHubspotIntegrationMutationHookResult = ReturnType<typeof useUpdateHubspotIntegrationMutation>;
 export type UpdateHubspotIntegrationMutationResult = Apollo.MutationResult<UpdateHubspotIntegrationMutation>;
 export type UpdateHubspotIntegrationMutationOptions = Apollo.BaseMutationOptions<UpdateHubspotIntegrationMutation, UpdateHubspotIntegrationMutationVariables>;
-export const UpdateOrgaForLagoTaxManagementDocument = gql`
-    mutation updateOrgaForLagoTaxManagement($input: UpdateOrganizationInput!) {
-  updateOrganization(input: $input) {
-    id
-  }
-}
-    `;
-export type UpdateOrgaForLagoTaxManagementMutationFn = Apollo.MutationFunction<UpdateOrgaForLagoTaxManagementMutation, UpdateOrgaForLagoTaxManagementMutationVariables>;
-
-/**
- * __useUpdateOrgaForLagoTaxManagementMutation__
- *
- * To run a mutation, you first call `useUpdateOrgaForLagoTaxManagementMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateOrgaForLagoTaxManagementMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateOrgaForLagoTaxManagementMutation, { data, loading, error }] = useUpdateOrgaForLagoTaxManagementMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateOrgaForLagoTaxManagementMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrgaForLagoTaxManagementMutation, UpdateOrgaForLagoTaxManagementMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateOrgaForLagoTaxManagementMutation, UpdateOrgaForLagoTaxManagementMutationVariables>(UpdateOrgaForLagoTaxManagementDocument, options);
-      }
-export type UpdateOrgaForLagoTaxManagementMutationHookResult = ReturnType<typeof useUpdateOrgaForLagoTaxManagementMutation>;
-export type UpdateOrgaForLagoTaxManagementMutationResult = Apollo.MutationResult<UpdateOrgaForLagoTaxManagementMutation>;
-export type UpdateOrgaForLagoTaxManagementMutationOptions = Apollo.BaseMutationOptions<UpdateOrgaForLagoTaxManagementMutation, UpdateOrgaForLagoTaxManagementMutationVariables>;
 export const GetProviderByCodeForMoneyhashDocument = gql`
     query getProviderByCodeForMoneyhash($code: String) {
   paymentProvider(code: $code) {
@@ -29162,47 +29118,6 @@ export type GetOrganizationSettingsInvoiceSectionsQueryHookResult = ReturnType<t
 export type GetOrganizationSettingsInvoiceSectionsLazyQueryHookResult = ReturnType<typeof useGetOrganizationSettingsInvoiceSectionsLazyQuery>;
 export type GetOrganizationSettingsInvoiceSectionsSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationSettingsInvoiceSectionsSuspenseQuery>;
 export type GetOrganizationSettingsInvoiceSectionsQueryResult = Apollo.QueryResult<GetOrganizationSettingsInvoiceSectionsQuery, GetOrganizationSettingsInvoiceSectionsQueryVariables>;
-export const LagoTaxManagementIntegrationsSettingDocument = gql`
-    query lagoTaxManagementIntegrationsSetting {
-  organization {
-    id
-    country
-    euTaxManagement
-  }
-}
-    `;
-
-/**
- * __useLagoTaxManagementIntegrationsSettingQuery__
- *
- * To run a query within a React component, call `useLagoTaxManagementIntegrationsSettingQuery` and pass it any options that fit your needs.
- * When your component renders, `useLagoTaxManagementIntegrationsSettingQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useLagoTaxManagementIntegrationsSettingQuery({
- *   variables: {
- *   },
- * });
- */
-export function useLagoTaxManagementIntegrationsSettingQuery(baseOptions?: Apollo.QueryHookOptions<LagoTaxManagementIntegrationsSettingQuery, LagoTaxManagementIntegrationsSettingQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<LagoTaxManagementIntegrationsSettingQuery, LagoTaxManagementIntegrationsSettingQueryVariables>(LagoTaxManagementIntegrationsSettingDocument, options);
-      }
-export function useLagoTaxManagementIntegrationsSettingLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<LagoTaxManagementIntegrationsSettingQuery, LagoTaxManagementIntegrationsSettingQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<LagoTaxManagementIntegrationsSettingQuery, LagoTaxManagementIntegrationsSettingQueryVariables>(LagoTaxManagementIntegrationsSettingDocument, options);
-        }
-export function useLagoTaxManagementIntegrationsSettingSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<LagoTaxManagementIntegrationsSettingQuery, LagoTaxManagementIntegrationsSettingQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<LagoTaxManagementIntegrationsSettingQuery, LagoTaxManagementIntegrationsSettingQueryVariables>(LagoTaxManagementIntegrationsSettingDocument, options);
-        }
-export type LagoTaxManagementIntegrationsSettingQueryHookResult = ReturnType<typeof useLagoTaxManagementIntegrationsSettingQuery>;
-export type LagoTaxManagementIntegrationsSettingLazyQueryHookResult = ReturnType<typeof useLagoTaxManagementIntegrationsSettingLazyQuery>;
-export type LagoTaxManagementIntegrationsSettingSuspenseQueryHookResult = ReturnType<typeof useLagoTaxManagementIntegrationsSettingSuspenseQuery>;
-export type LagoTaxManagementIntegrationsSettingQueryResult = Apollo.QueryResult<LagoTaxManagementIntegrationsSettingQuery, LagoTaxManagementIntegrationsSettingQueryVariables>;
 export const GetTaxesForTaxManagementIntegrationDetailsPageDocument = gql`
     query getTaxesForTaxManagementIntegrationDetailsPage {
   taxes(page: 1, limit: 1000, order: "rate", autoGenerated: true) {
