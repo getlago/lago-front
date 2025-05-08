@@ -51,7 +51,6 @@ import { handleDownloadFile } from '~/core/utils/downloadFiles'
 import {
   CurrencyEnum,
   GetInvoicesListQuery,
-  InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   LagoApiError,
   PremiumIntegrationTypeEnum,
