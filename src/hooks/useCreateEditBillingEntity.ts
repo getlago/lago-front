@@ -42,6 +42,7 @@ gql`
     timezone
     isDefault
     defaultCurrency
+    euTaxManagement
   }
 
   query getBillingEntities {
