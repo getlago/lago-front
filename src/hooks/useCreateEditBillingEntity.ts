@@ -133,7 +133,7 @@ const useCreateEditBillingEntity = () => {
         variables: {
           input: {
             ...values,
-            id: billingEntity.id,
+            id: (billingEntity as UpdateBillingEntityInput).id,
           },
         },
       })
