@@ -72,6 +72,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.creditNoteReason]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.creditNoteRefundStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.currency]: (value: string) => value,
+  [AvailableFiltersEnum.customerType]: (value: string) => value,
   [AvailableFiltersEnum.customerAccountType]: (value: string) => value,
   [AvailableFiltersEnum.customerExternalId]: (value: string) =>
     (value as string).split(filterDataInlineSeparator)[0],
@@ -96,6 +97,8 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.subscriptionExternalId]: (value: string) =>
     (value as string).split(filterDataInlineSeparator)[0],
   [AvailableFiltersEnum.timeGranularity]: (value: string) => value,
+  [AvailableFiltersEnum.billingEntityIds]: (value: string) =>
+    (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
 }
 
 const formatFiltersForQuery = ({
@@ -178,7 +181,7 @@ export const formatFiltersForCustomerQuery = (searchParams: URLSearchParams) => 
 export const formatFiltersForRevenueStreamsQuery = (searchParams: URLSearchParams) => {
   const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
     [AvailableFiltersEnum.country]: 'customerCountry',
-    [AvailableFiltersEnum.customerAccountType]: 'customerType',
+    [AvailableFiltersEnum.customerType]: 'customerType',
     [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
     [AvailableFiltersEnum.subscriptionExternalId]: 'externalSubscriptionId',
   }
@@ -205,7 +208,7 @@ export const formatFiltersForRevenueStreamsPlansQuery = (searchParams: URLSearch
 export const formatFiltersForMrrQuery = (searchParams: URLSearchParams) => {
   const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
     [AvailableFiltersEnum.country]: 'customerCountry',
-    [AvailableFiltersEnum.customerAccountType]: 'customerType',
+    [AvailableFiltersEnum.customerType]: 'customerType',
     [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
     [AvailableFiltersEnum.subscriptionExternalId]: 'externalSubscriptionId',
   }
@@ -290,6 +293,13 @@ export const formatActiveFilterValueDisplay = (
           return intlFormatDateTime(v, { formatDate: DateFormat.DATE_SHORT }).date
         })
         .join(' - ')
+    case AvailableFiltersEnum.billingEntityIds:
+      return value
+        .split(',')
+        .map(
+          (v) => v.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0],
+        )
+        .join(', ')
     default:
       return value
         .split(',')

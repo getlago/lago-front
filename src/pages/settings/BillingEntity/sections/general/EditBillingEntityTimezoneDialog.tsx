@@ -8,36 +8,38 @@ import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { ComboBoxField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { getTimezoneConfig } from '~/core/timezone'
-import { TimezoneEnum, useUpdateOrganizationTimezoneMutation } from '~/generated/graphql'
+import { TimezoneEnum, useUpdateBillingEntityTimezoneMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
-  mutation updateOrganizationTimezone($input: UpdateOrganizationInput!) {
-    updateOrganization(input: $input) {
+  mutation updateBillingEntityTimezone($input: UpdateBillingEntityInput!) {
+    updateBillingEntity(input: $input) {
       id
       timezone
     }
   }
 `
 
-export type EditOrganizationTimezoneDialogRef = DialogRef
-interface EditOrganizationTimezoneProps {
+export type EditBillingEntityTimezoneDialogRef = DialogRef
+
+interface EditBillingEntityTimezoneProps {
+  id?: string
   timezone?: TimezoneEnum | null
 }
 
-export const EditOrganizationTimezoneDialog = forwardRef<
-  EditOrganizationTimezoneDialogRef,
-  EditOrganizationTimezoneProps
->(({ timezone }: EditOrganizationTimezoneProps, ref) => {
+export const EditBillingEntityTimezoneDialog = forwardRef<
+  EditBillingEntityTimezoneDialogRef,
+  EditBillingEntityTimezoneProps
+>(({ id, timezone }: EditBillingEntityTimezoneProps, ref) => {
   const { translate } = useInternationalization()
-  const [update] = useUpdateOrganizationTimezoneMutation({
+  const [update] = useUpdateBillingEntityTimezoneMutation({
     onCompleted(res) {
-      if (res?.updateOrganization) {
+      if (res?.updateBillingEntity) {
         addToast({
           severity: 'success',
           translateKey: 'text_63891ad3dd238c657ea00954',
         })
-        Settings.defaultZone = getTimezoneConfig(res?.updateOrganization?.timezone).name
+        Settings.defaultZone = getTimezoneConfig(res?.updateBillingEntity?.timezone).name
       }
     },
   })
@@ -54,6 +56,7 @@ export const EditOrganizationTimezoneDialog = forwardRef<
       await update({
         variables: {
           input: {
+            id: id as string,
             ...values,
           },
         },
@@ -108,4 +111,4 @@ export const EditOrganizationTimezoneDialog = forwardRef<
   )
 })
 
-EditOrganizationTimezoneDialog.displayName = 'EditOrganizationTimezoneDialog'
+EditBillingEntityTimezoneDialog.displayName = 'EditBillingEntityTimezoneDialog'

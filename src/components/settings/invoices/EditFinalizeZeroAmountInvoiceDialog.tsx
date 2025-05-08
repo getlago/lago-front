@@ -7,11 +7,11 @@ import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { ComboBoxField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import {
+  EditBillingEntityFinalizeZeroAmountInvoiceForDialogFragment,
   EditCustomerFinalizeZeroAmountInvoiceForDialogFragment,
-  EditOrganizationFinalizeZeroAmountInvoiceForDialogFragment,
   FinalizeZeroAmountInvoiceEnum,
+  useUpdateBillingEntityFinalizeZeroAmountInvoiceMutation,
   useUpdateCustomerFinalizeZeroAmountInvoiceMutation,
-  useUpdateOrganizationFinalizeZeroAmountInvoiceMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -23,7 +23,7 @@ gql`
     finalizeZeroAmountInvoice
   }
 
-  fragment EditOrganizationFinalizeZeroAmountInvoiceForDialog on CurrentOrganization {
+  fragment EditBillingEntityFinalizeZeroAmountInvoiceForDialog on BillingEntity {
     id
     finalizeZeroAmountInvoice
   }
@@ -35,10 +35,10 @@ gql`
     }
   }
 
-  mutation updateOrganizationFinalizeZeroAmountInvoice($input: UpdateOrganizationInput!) {
-    updateOrganization(input: $input) {
+  mutation updateBillingEntityFinalizeZeroAmountInvoice($input: UpdateBillingEntityInput!) {
+    updateBillingEntity(input: $input) {
       id
-      ...EditOrganizationFinalizeZeroAmountInvoiceForDialog
+      ...EditBillingEntityFinalizeZeroAmountInvoiceForDialog
     }
   }
 `
@@ -46,7 +46,7 @@ gql`
 type EditFinalizeZeroAmountInvoiceDialogProps = {
   entity?:
     | EditCustomerFinalizeZeroAmountInvoiceForDialogFragment
-    | EditOrganizationFinalizeZeroAmountInvoiceForDialogFragment
+    | EditBillingEntityFinalizeZeroAmountInvoiceForDialogFragment
     | null
   finalizeZeroAmountInvoice?: FinalizeZeroAmountInvoiceEnum | boolean | null
 }
@@ -71,16 +71,17 @@ export const EditFinalizeZeroAmountInvoiceDialog = forwardRef<
       },
     })
 
-  const [updateOrganizationFinalizeZeroAmountInvoice] =
-    useUpdateOrganizationFinalizeZeroAmountInvoiceMutation({
+  const [updateBillingEntityFinalizeZeroAmountInvoice] =
+    useUpdateBillingEntityFinalizeZeroAmountInvoiceMutation({
       onCompleted(res) {
-        if (res?.updateOrganization) {
+        if (res?.updateBillingEntity) {
           addToast({
             severity: 'success',
             translateKey: translate('text_17255496712882bspi9zp0ii'),
           })
         }
       },
+      refetchQueries: ['getBillingEntitySettings'],
     })
 
   const isCustomer = entity?.__typename === 'Customer'
@@ -119,9 +120,10 @@ export const EditFinalizeZeroAmountInvoiceDialog = forwardRef<
         })
       }
 
-      return await updateOrganizationFinalizeZeroAmountInvoice({
+      return await updateBillingEntityFinalizeZeroAmountInvoice({
         variables: {
           input: {
+            id: (entity as EditBillingEntityFinalizeZeroAmountInvoiceForDialogFragment)?.id,
             finalizeZeroAmountInvoice: values.finalizeZeroAmountInvoice === 'true',
           },
         },
@@ -161,9 +163,7 @@ export const EditFinalizeZeroAmountInvoiceDialog = forwardRef<
               formikProps.resetForm()
             }}
           >
-            {finalizeZeroAmountInvoice === FinalizeZeroAmountInvoiceEnum.Inherit
-              ? translate('text_1725550747818f6v0c35vzdk')
-              : translate('text_1725549671288w2pu90s5rhq')}
+            {translate('text_17432414198706rdwf76ek3u')}
           </Button>
         </>
       )}

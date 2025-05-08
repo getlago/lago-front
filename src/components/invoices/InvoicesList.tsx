@@ -51,7 +51,6 @@ import { handleDownloadFile } from '~/core/utils/downloadFiles'
 import {
   CurrencyEnum,
   GetInvoicesListQuery,
-  InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   LagoApiError,
   PremiumIntegrationTypeEnum,
@@ -133,6 +132,7 @@ const InvoicesList = ({
           quickFiltersType={AvailableQuickFilters.invoiceStatus}
           availableFilters={[
             AvailableFiltersEnum.amount,
+            AvailableFiltersEnum.billingEntityIds,
             AvailableFiltersEnum.status,
             AvailableFiltersEnum.invoiceType,
             AvailableFiltersEnum.paymentStatus,
@@ -353,6 +353,15 @@ const InvoicesList = ({
                 },
               },
               {
+                key: 'billingEntity.code',
+                title: translate('text_17436114971570doqrwuwhf0'),
+                content: ({ billingEntity }) => (
+                  <Typography variant="body" noWrap>
+                    {billingEntity.name || billingEntity.code || '-'}
+                  </Typography>
+                ),
+              },
+              {
                 key: 'number',
                 title: translate('text_63ac86d797f728a87b2f9fad'),
                 minWidth: 160,
@@ -438,12 +447,8 @@ const InvoicesList = ({
               {
                 key: 'paymentOverdue',
                 title: translate('text_666c5b12fea4aa1e1b26bf55'),
-                content: ({ paymentStatus, paymentOverdue }) => {
-                  const isOverdue =
-                    paymentOverdue && paymentStatus === InvoicePaymentStatusTypeEnum.Pending
-
-                  return isOverdue ? <Status type={StatusType.danger} label="overdue" /> : null
-                },
+                content: ({ paymentOverdue }) =>
+                  paymentOverdue && <Status type={StatusType.danger} label="overdue" />,
               },
               {
                 key: 'customer.name',

@@ -137,6 +137,10 @@ gql`
       value
       displayInInvoice
     }
+    billingEntity {
+      code
+      name
+    }
 
     ...CustomerForExternalAppsAccordion
   }
