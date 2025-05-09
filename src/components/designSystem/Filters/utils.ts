@@ -1,4 +1,9 @@
 import {
+  PeriodScopeTranslationLookup,
+  TPeriodScopeTranslationLookupValue,
+} from '~/components/graphs/MonthSelectorDropdown'
+import {
+  ANALYTICS_INVOICES_FILTER_PREFIX,
   CREDIT_NOTE_LIST_FILTER_PREFIX,
   CUSTOMER_LIST_FILTER_PREFIX,
   INVOICE_LIST_FILTER_PREFIX,
@@ -16,6 +21,7 @@ import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 import {
   AmountFilterInterval,
+  AnalyticsInvoicesAvailableFilters,
   AvailableFiltersEnum,
   CreditNoteAvailableFilters,
   CustomerAvailableFilters,
@@ -96,6 +102,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.subscriptionExternalId]: (value: string) =>
     (value as string).split(filterDataInlineSeparator)[0],
   [AvailableFiltersEnum.timeGranularity]: (value: string) => value,
+  [AvailableFiltersEnum.period]: (value: string) => value,
 }
 
 const formatFiltersForQuery = ({
@@ -250,6 +257,14 @@ export const formatFiltersForPrepaidCreditsQuery = (searchParams: URLSearchParam
   })
 }
 
+export const formatFiltersForAnalyticsInvoicesQuery = (searchParams: URLSearchParams) => {
+  return formatFiltersForQuery({
+    searchParams,
+    availableFilters: AnalyticsInvoicesAvailableFilters,
+    filtersNamePrefix: ANALYTICS_INVOICES_FILTER_PREFIX,
+  })
+}
+
 export const AMOUNT_INTERVALS_TRANSLATION_MAP = {
   [AmountFilterInterval.isBetween]: 'text_1734774653389kvylgxjiltu',
   [AmountFilterInterval.isEqualTo]: 'text_1734774653389pt3rhh3lspa',
@@ -290,6 +305,10 @@ export const formatActiveFilterValueDisplay = (
           return intlFormatDateTime(v, { formatDate: DateFormat.DATE_SHORT }).date
         })
         .join(' - ')
+    case AvailableFiltersEnum.period:
+      return (
+        translate?.(PeriodScopeTranslationLookup[value as TPeriodScopeTranslationLookupValue]) || ''
+      )
     default:
       return value
         .split(',')

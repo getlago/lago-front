@@ -7,6 +7,7 @@ import { FiltersItemCreditNoteRefundStatus } from '~/components/designSystem/Fil
 import { FiltersItemCustomerType } from '~/components/designSystem/Filters/filtersElements/FiltersItemCustomerType'
 import { FiltersItemDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemDate'
 import { FiltersItemInvoiceNumber } from '~/components/designSystem/Filters/filtersElements/FiltersItemInvoiceNumber'
+import { FiltersItemPeriod } from '~/components/designSystem/Filters/filtersElements/FiltersItemPeriod'
 import { FiltersItemPlanCode } from '~/components/designSystem/Filters/filtersElements/FiltersItemPlanCode'
 import { FiltersItemSelfBilled } from '~/components/designSystem/Filters/filtersElements/FiltersItemSelfBilled'
 import { FiltersItemSubscription } from '~/components/designSystem/Filters/filtersElements/FiltersItemSubscription'
@@ -99,6 +100,9 @@ export const FiltersPanelItemTypeSwitch = ({
     ),
     [AvailableFiltersEnum.subscriptionExternalId]: (
       <FiltersItemSubscription value={value} setFilterValue={setFilterValue} />
+    ),
+    [AvailableFiltersEnum.period]: (
+      <FiltersItemPeriod value={value} setFilterValue={setFilterValue} />
     ),
   }
 

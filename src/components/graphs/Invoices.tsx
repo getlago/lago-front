@@ -55,7 +55,7 @@ gql`
 export type TInvoiceCollectionsDataResult =
   GetInvoiceCollectionsQuery['invoiceCollections']['collection']
 
-type TFormatInvoiceCollectionsDataReturn = Map<
+export type TFormatInvoiceCollectionsDataReturn = Map<
   InvoicePaymentStatusTypeEnum,
   TInvoiceCollectionsDataResult
 >

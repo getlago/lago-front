@@ -36,6 +36,7 @@ export enum AvailableFiltersEnum {
   status = 'status',
   subscriptionExternalId = 'subscriptionExternalId',
   timeGranularity = 'timeGranularity',
+  period = 'period',
 }
 
 export const CreditNoteAvailableFilters = [
@@ -94,6 +95,11 @@ export const PrepaidCreditsOverviewAvailableFilters = [
   AvailableFiltersEnum.customerExternalId,
 ]
 
+export const AnalyticsInvoicesAvailableFilters = [
+  AvailableFiltersEnum.currency,
+  AvailableFiltersEnum.period,
+]
+
 const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.amount]: 'text_17346988752182hpzppdqk9t',
   [AvailableFiltersEnum.country]: 'text_62ab2d0396dd6b0361614da0',
@@ -116,6 +122,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.status]: 'text_63ac86d797f728a87b2f9fa7',
   [AvailableFiltersEnum.subscriptionExternalId]: 'text_1741008626283x4p1zwj11zi',
   [AvailableFiltersEnum.timeGranularity]: '', // Used in quick filters only
+  [AvailableFiltersEnum.period]: 'text_1746532851931rt2nl6vdlnh',
 }
 
 export type FiltersFormValues = {

@@ -2977,5 +2977,16 @@
   "text_1745827156646ff5h5i281gc": "Avalara customer code",
   "text_1745827156646zoyf7wmog2m": "Type an Avalara customer code",
   "text_1745919770448pvibiukolis": "We cannot access your clipboard. Please try again.",
-  "text_1746004262383fhhy4jl1g6o": "Restart the synchronization of {{failedInvoicesCount}} failed invoice to recalculate tax information.|Restart the synchronization of {{failedInvoicesCount}} failed invoices to recalculate tax information."
+  "text_1746004262383fhhy4jl1g6o": "Restart the synchronization of {{failedInvoicesCount}} failed invoice to recalculate tax information.|Restart the synchronization of {{failedInvoicesCount}} failed invoices to recalculate tax information.",
+  "text_1745933666707rlg89cuv1i0": "Invoices",
+  "text_1745934224037o00zwo5xesp": "Invoice collection",
+  "text_17464599455321p5nbjbsg2o": "Invoice per payment status",
+  "text_1746524463326xwlgt1hv5se": "Total invoices",
+  "text_1746524463326uzhfmw9wa51": "Outstanding balance",
+  "text_17465244633260sz1d0bnp8v": "Overdue balance",
+  "text_1746526888530pbjcvaaox2c": "Invoice balances",
+  "text_1746532851931rt2nl6vdlnh": "Period",
+  "text_1746535056345h6ij1b79vyo": "Number and value of invoices across all payment statuses. Outstanding invoices specifically highlight the amounts associated with failed and pending invoices",
+  "text_1746536317559r1gbassfgec": "Total invoices"
 }
+
