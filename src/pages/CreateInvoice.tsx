@@ -101,6 +101,9 @@ gql`
       anrokCustomer {
         id
       }
+      avalaraCustomer {
+        id
+      }
     }
 
     organization {
@@ -207,7 +210,7 @@ const CreateInvoice = () => {
   })
   const { customer, organization, taxes } = data || {}
 
-  const hasTaxProvider = !!customer?.anrokCustomer?.id
+  const hasTaxProvider = !!customer?.anrokCustomer?.id || !!customer?.avalaraCustomer?.id
 
   const customerName = customer?.displayName
 
