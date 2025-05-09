@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import Nango from '@nangohq/frontend'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
@@ -22,6 +23,7 @@ import {
 } from '~/components/settings/integrations/DeleteXeroIntegrationDialog'
 import XeroIntegrationItemsList from '~/components/settings/integrations/XeroIntegrationItemsList'
 import XeroIntegrationSettings from '~/components/settings/integrations/XeroIntegrationSettings'
+import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   INTEGRATIONS_ROUTE,
@@ -51,6 +53,7 @@ gql`
   fragment XeroIntegrationDetails on XeroIntegration {
     id
     name
+    connectionId
     ...DeleteXeroIntegrationDialog
     ...XeroForCreateDialogDialog
     ...XeroIntegrationItems
@@ -80,6 +83,7 @@ gql`
 
 const XeroIntegrationDetails = () => {
   const navigate = useNavigate()
+  const { nangoPublicKey } = envGlobalVar()
   const { integrationId = '' } = useParams()
   const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
   const deleteDialogRef = useRef<DeleteXeroIntegrationDialogRef>(null)
@@ -163,6 +167,32 @@ const XeroIntegrationDetails = () => {
                 }}
               >
                 {translate('text_65845f35d7d69c3ab4793dad')}
+              </Button>
+              <Button
+                variant="quaternary"
+                align="left"
+                fullWidth
+                onClick={async () => {
+                  const nango = new Nango({ publicKey: nangoPublicKey })
+
+                  try {
+                    await nango.auth('xero', xeroIntegration?.connectionId)
+
+                    addToast({
+                      message: translate('text_174677760992972pm9p2l5on'),
+                      severity: 'success',
+                    })
+                  } catch {
+                    addToast({
+                      message: translate('text_62b31e1f6a5b8b1b745ece48'),
+                      severity: 'danger',
+                    })
+                  } finally {
+                    closePopper()
+                  }
+                }}
+              >
+                {translate('text_62b31e1f6a5b8b1b745ece41')}
               </Button>
             </MenuPopper>
           )}
