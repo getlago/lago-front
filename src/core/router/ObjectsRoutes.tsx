@@ -22,6 +22,7 @@ const CreateSubscription = lazyLoad(() => import('~/pages/CreateSubscription'))
 const CreateWallet = lazyLoad(() => import('~/pages/wallet/CreateWallet'))
 const CreateWalletTopUp = lazyLoad(() => import('~/pages/wallet/CreateWalletTopUp'))
 const CreatePayment = lazyLoad(() => import('~/pages/CreatePayment'))
+const AlertForm = lazyLoad(() => import('~/pages/AlertForm'))
 
 // Details
 const SubscriptionDetails = lazyLoad(() => import('~/pages/SubscriptionDetails'))
@@ -75,6 +76,15 @@ export const CREATE_WALLET_TOP_UP_ROUTE = '/customer/:customerId/wallet/:walletI
 
 export const CREATE_PAYMENT_ROUTE = '/create/payment'
 export const CREATE_INVOICE_PAYMENT_ROUTE = '/invoice/:invoiceId/create/payment'
+
+export const CREATE_ALERT_PLAN_SUBSCRIPTION_ROUTE =
+  '/plan/:planId/subscription/:subscriptionId/alert/create'
+export const CREATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE =
+  '/customer/:customerId/subscription/:subscriptionId/alert/create'
+export const UPDATE_ALERT_PLAN_SUBSCRIPTION_ROUTE =
+  '/plan/:planId/subscription/:subscriptionId/alert/:alertId/edit'
+export const UPDATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE =
+  '/customer/:customerId/subscription/:subscriptionId/alert/:alertId/edit'
 
 // Details
 export const CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE =
@@ -193,6 +203,17 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     private: true,
     element: <CreatePayment />,
     permissions: ['paymentsCreate'],
+  },
+  {
+    path: [
+      CREATE_ALERT_PLAN_SUBSCRIPTION_ROUTE,
+      CREATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE,
+      UPDATE_ALERT_PLAN_SUBSCRIPTION_ROUTE,
+      UPDATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE,
+    ],
+    private: true,
+    element: <AlertForm />,
+    permissions: ['subscriptionsCreate', 'subscriptionsUpdate'],
   },
 ]
 
