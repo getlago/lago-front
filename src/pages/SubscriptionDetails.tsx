@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
-import { Avatar } from 'lago-design-system'
-import { useRef } from 'react'
+import { Avatar, ButtonLink } from 'lago-design-system'
+import { useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import {
@@ -15,6 +15,7 @@ import {
   Skeleton,
   Typography,
 } from '~/components/designSystem'
+import { SubscriptionAlertsList } from '~/components/subscriptions/SubscriptionAlertsList'
 import { SubscriptionDetailsOverview } from '~/components/subscriptions/SubscriptionDetailsOverview'
 import { SubscriptionUsageTabContent } from '~/components/subscriptions/SubscriptionUsageTabContent'
 import { addToast } from '~/core/apolloClient'
@@ -23,6 +24,8 @@ import {
   PlanDetailsTabsOptionsEnum,
 } from '~/core/constants/tabsOptions'
 import {
+  CREATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE,
+  CREATE_ALERT_PLAN_SUBSCRIPTION_ROUTE,
   CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   PLAN_DETAILS_ROUTE,
@@ -31,8 +34,11 @@ import {
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { isFeatureFlagActive } from '~/core/utils/featureFlags'
+import { FeatureFlags } from '~/core/utils/featureFlags'
 import { StatusTypeEnum, useGetSubscriptionForDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper, PageHeader } from '~/styles'
 
@@ -62,16 +68,40 @@ gql`
 
 const SubscriptionDetails = () => {
   const navigate = useNavigate()
+  const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
-  const { planId, customerId, subscriptionId } = useParams()
+  const { planId = '', customerId = '', subscriptionId = '' } = useParams()
   const { translate } = useInternationalization()
   const terminateSubscriptionDialogRef = useRef<TerminateCustomerSubscriptionDialogRef>(null)
+  const hasAccessToAlerts = isFeatureFlagActive(FeatureFlags.FTR_ALERTS)
   const { data: subscriptionResult, loading: isSubscriptionLoading } =
     useGetSubscriptionForDetailsQuery({
       variables: { subscriptionId: subscriptionId as string },
       skip: !subscriptionId,
     })
   const subscription = subscriptionResult?.subscription
+
+  const canCreateOrUpdateAlert = useMemo(() => {
+    return hasPermissions(['subscriptionsCreate', 'subscriptionsUpdate'])
+  }, [hasPermissions])
+
+  const getAlertCreationLink = useMemo(() => {
+    if (!isPremium) {
+      return `mailto:hello@getlago.com?subject=${translate('text_174652384902646b3ma52uww')}&body=${translate('text_1746523849026ljzi79afhmq')}`
+    }
+
+    if (!!customerId) {
+      return generatePath(CREATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE, {
+        customerId,
+        subscriptionId,
+      })
+    }
+
+    return generatePath(CREATE_ALERT_PLAN_SUBSCRIPTION_ROUTE, {
+      planId,
+      subscriptionId,
+    })
+  }, [isPremium, customerId, planId, subscriptionId, translate])
 
   return (
     <>
@@ -147,6 +177,20 @@ const SubscriptionDetails = () => {
                       {translate('text_62d7f6178ec94cd09370e64a')}
                     </Button>
                   </>
+                )}
+                {hasAccessToAlerts && canCreateOrUpdateAlert && (
+                  <ButtonLink
+                    type="button"
+                    buttonProps={{
+                      fullWidth: true,
+                      variant: 'quaternary',
+                      align: 'left',
+                      endIcon: !isPremium ? 'sparkles' : undefined,
+                    }}
+                    to={getAlertCreationLink}
+                  >
+                    {translate('text_174652384902646b3ma52uws')}
+                  </ButtonLink>
                 )}
                 <Button
                   variant="quaternary"
@@ -281,6 +325,41 @@ const SubscriptionDetails = () => {
                   component: (
                     <div className="max-w-2xl px-12 pb-20">
                       <SubscriptionUsageTabContent />
+                    </div>
+                  ),
+                },
+              ]
+            : []),
+          ...(hasAccessToAlerts
+            ? [
+                {
+                  title: translate('text_17465238490269pahbvl3s2m'),
+                  link: !!customerId
+                    ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                        customerId,
+                        subscriptionId: subscriptionId as string,
+                        tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
+                      })
+                    : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                        planId: planId || '',
+                        subscriptionId: subscriptionId as string,
+                        tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
+                      }),
+                  match: [
+                    generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                      customerId: customerId || '',
+                      subscriptionId: subscriptionId as string,
+                      tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
+                    }),
+                    generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                      planId: planId || '',
+                      subscriptionId: subscriptionId as string,
+                      tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
+                    }),
+                  ],
+                  component: (
+                    <div className="px-12 pb-20">
+                      <SubscriptionAlertsList subscriptionExternalId={subscription?.externalId} />
                     </div>
                   ),
                 },

@@ -28,6 +28,8 @@ import {
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { isFeatureFlagActive } from '~/core/utils/featureFlags'
+import { FeatureFlags } from '~/core/utils/featureFlags'
 import {
   NextSubscriptionTypeEnum,
   Plan,
@@ -168,6 +170,7 @@ const generateActionColumn = ({
   terminateSubscriptionDialogRef,
   translate,
   navigate,
+  hasAccessToAlerts,
 }: {
   subscription: AnnotatedSubscription
   hasSubscriptionsUpdatePermission: boolean
@@ -175,6 +178,7 @@ const generateActionColumn = ({
   terminateSubscriptionDialogRef: RefObject<TerminateCustomerSubscriptionDialogRef>
   translate: TranslateFunc
   navigate: NavigateFunction
+  hasAccessToAlerts: boolean
 }) => {
   let actions: ActionItem<AnnotatedSubscription>[] = []
 
@@ -229,6 +233,22 @@ const generateActionColumn = ({
 
   actions = actions.concat(copyToClipboardAction)
 
+  if (hasAccessToAlerts) {
+    actions = actions.concat({
+      startIcon: 'bell',
+      title: translate('text_1746785137190vu5wwlsmzmz'),
+      onAction: () => {
+        navigate(
+          generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+            customerId: customerId as string,
+            subscriptionId: subscription.id,
+            tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
+          }),
+        )
+      },
+    })
+  }
+
   if (hasSubscriptionsUpdatePermission) {
     actions = actions.concat({
       startIcon: 'trash',
@@ -253,6 +273,7 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
+  const hasAccessToAlerts = isFeatureFlagActive(FeatureFlags.FTR_ALERTS)
   const { data, loading } = useGetCustomerSubscriptionForListQuery({
     variables: { id: customerId as string },
     skip: !customerId,
@@ -380,6 +401,7 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
                 translate,
                 terminateSubscriptionDialogRef,
                 hasSubscriptionsUpdatePermission: hasPermissions(['subscriptionsUpdate']),
+                hasAccessToAlerts,
               })
             }
           />
