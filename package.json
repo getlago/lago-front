@@ -60,7 +60,7 @@
     "@types/apollo-upload-client": "17.0.5",
     "@types/jest": "29.5.12",
     "@types/jsonwebtoken": "^9.0.2",
-    "@types/lodash": "4.17.13",
+    "@types/lodash": "4.17.16",
     "@types/luxon": "3.4.2",
     "@types/node": "^22.10.2",
     "@types/prismjs": "1.26.3",
