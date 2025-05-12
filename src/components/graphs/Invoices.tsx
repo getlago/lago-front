@@ -310,10 +310,10 @@ const Invoices = ({
                     {[...Array(3)].map((_, index) => (
                       <div
                         key={`invoices-skeleton-${index}`}
-                        className="flex h-10 items-center gap-2"
+                        className="flex h-10 flex-1 items-center gap-2 shadow-b"
                       >
-                        <Skeleton className="shadow-b" variant="circular" size="tiny" />
-                        <Skeleton className="w-[32%] shadow-b" variant="text" />
+                        <Skeleton variant="circular" size="tiny" />
+                        <Skeleton className="w-[32%]" variant="text" />
                         <Skeleton className="ml-auto w-[32%]" variant="text" />
                       </div>
                     ))}
