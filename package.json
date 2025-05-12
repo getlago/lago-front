@@ -143,5 +143,11 @@
   },
   "alias": {
     "@mui/styled-engine": "@mui/styled-engine-sc"
+  },
+  "pnpm": {
+    "overrides": {
+      "@babel/helpers": "7.26.10",
+      "@babel/runtime": "7.26.10"
+    }
   }
 }
