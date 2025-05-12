@@ -8276,10 +8276,6 @@ export type GetPlansForFiltersItemPlanCodeQueryVariables = Exact<{
 
 export type GetPlansForFiltersItemPlanCodeQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Plan', id: string, code: string, deletedAt?: any | null }> } };
 
-export type DebuggerEventDetailsFragment = { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum };
-
-export type EventItemFragment = { __typename?: 'Event', id: string, code: string, receivedAt?: any | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null };
-
 export type ApiKeyRevealedForApiKeysListFragment = { __typename?: 'ApiKey', id: string, value: string };
 
 export type GetOrganizationInfosForApiKeyQueryVariables = Exact<{ [key: string]: never; }>;
@@ -8319,6 +8315,20 @@ export type RotateApiKeyMutationVariables = Exact<{
 
 
 export type RotateApiKeyMutation = { __typename?: 'Mutation', rotateApiKey?: { __typename?: 'ApiKey', id: string, value: string } | null };
+
+export type EventDetailsFragment = { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum };
+
+export type EventItemFragment = { __typename?: 'Event', id: string, code: string, receivedAt?: any | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null };
+
+export type EventListFragment = { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum };
+
+export type EventsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type EventsQuery = { __typename?: 'Query', events?: { __typename?: 'EventCollection', collection: Array<{ __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
 
 export type WebhookForCreateAndEditFragment = { __typename?: 'WebhookEndpoint', id: string, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null };
 
@@ -10596,16 +10606,6 @@ export type UpdateApiKeyMutationVariables = Exact<{
 
 export type UpdateApiKeyMutation = { __typename?: 'Mutation', updateApiKey?: { __typename?: 'ApiKey', id: string } | null };
 
-export type EventListFragment = { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum };
-
-export type EventsQueryVariables = Exact<{
-  page?: InputMaybe<Scalars['Int']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-export type EventsQuery = { __typename?: 'Query', events?: { __typename?: 'EventCollection', collection: Array<{ __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
-
 export type AdyenIntegrationDetailsFragment = { __typename?: 'AdyenProvider', id: string, apiKey?: any | null, code: string, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null, successRedirectUrl?: string | null, name: string };
 
 export type GetAdyenIntegrationsDetailsQueryVariables = Exact<{
@@ -11525,6 +11525,52 @@ export const ApiKeyForRotateApiKeyDialogFragmentDoc = gql`
   name
 }
     `;
+export const EventItemFragmentDoc = gql`
+    fragment EventItem on Event {
+  id
+  code
+  receivedAt
+  matchBillableMetric
+  matchCustomField
+}
+    `;
+export const EventDetailsFragmentDoc = gql`
+    fragment EventDetails on Event {
+  id
+  code
+  transactionId
+  timestamp
+  receivedAt
+  payload
+  billableMetricName
+  matchBillableMetric
+  matchCustomField
+  apiClient
+  ipAddress
+  externalSubscriptionId
+  customerTimezone
+}
+    `;
+export const EventListFragmentDoc = gql`
+    fragment EventList on Event {
+  id
+  code
+  transactionId
+  timestamp
+  receivedAt
+  payload
+  billableMetricName
+  matchBillableMetric
+  matchCustomField
+  apiClient
+  ipAddress
+  externalSubscriptionId
+  customerTimezone
+  ...EventItem
+  ...EventDetails
+}
+    ${EventItemFragmentDoc}
+${EventDetailsFragmentDoc}`;
 export const WebhookForCreateAndEditFragmentDoc = gql`
     fragment WebhookForCreateAndEdit on WebhookEndpoint {
   id
@@ -14027,52 +14073,6 @@ export const PlanItemFragmentDoc = gql`
   ...DeletePlanDialog
 }
     ${DeletePlanDialogFragmentDoc}`;
-export const EventItemFragmentDoc = gql`
-    fragment EventItem on Event {
-  id
-  code
-  receivedAt
-  matchBillableMetric
-  matchCustomField
-}
-    `;
-export const DebuggerEventDetailsFragmentDoc = gql`
-    fragment DebuggerEventDetails on Event {
-  id
-  code
-  transactionId
-  timestamp
-  receivedAt
-  payload
-  billableMetricName
-  matchBillableMetric
-  matchCustomField
-  apiClient
-  ipAddress
-  externalSubscriptionId
-  customerTimezone
-}
-    `;
-export const EventListFragmentDoc = gql`
-    fragment EventList on Event {
-  id
-  code
-  transactionId
-  timestamp
-  receivedAt
-  payload
-  billableMetricName
-  matchBillableMetric
-  matchCustomField
-  apiClient
-  ipAddress
-  externalSubscriptionId
-  customerTimezone
-  ...EventItem
-  ...DebuggerEventDetails
-}
-    ${EventItemFragmentDoc}
-${DebuggerEventDetailsFragmentDoc}`;
 export const AdyenIntegrationDetailsFragmentDoc = gql`
     fragment AdyenIntegrationDetails on AdyenProvider {
   id
@@ -18109,6 +18109,53 @@ export function useRotateApiKeyMutation(baseOptions?: Apollo.MutationHookOptions
 export type RotateApiKeyMutationHookResult = ReturnType<typeof useRotateApiKeyMutation>;
 export type RotateApiKeyMutationResult = Apollo.MutationResult<RotateApiKeyMutation>;
 export type RotateApiKeyMutationOptions = Apollo.BaseMutationOptions<RotateApiKeyMutation, RotateApiKeyMutationVariables>;
+export const EventsDocument = gql`
+    query events($page: Int, $limit: Int) {
+  events(page: $page, limit: $limit) {
+    collection {
+      ...EventList
+    }
+    metadata {
+      currentPage
+      totalPages
+    }
+  }
+}
+    ${EventListFragmentDoc}`;
+
+/**
+ * __useEventsQuery__
+ *
+ * To run a query within a React component, call `useEventsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useEventsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useEventsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useEventsQuery(baseOptions?: Apollo.QueryHookOptions<EventsQuery, EventsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<EventsQuery, EventsQueryVariables>(EventsDocument, options);
+      }
+export function useEventsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<EventsQuery, EventsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<EventsQuery, EventsQueryVariables>(EventsDocument, options);
+        }
+export function useEventsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<EventsQuery, EventsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<EventsQuery, EventsQueryVariables>(EventsDocument, options);
+        }
+export type EventsQueryHookResult = ReturnType<typeof useEventsQuery>;
+export type EventsLazyQueryHookResult = ReturnType<typeof useEventsLazyQuery>;
+export type EventsSuspenseQueryHookResult = ReturnType<typeof useEventsSuspenseQuery>;
+export type EventsQueryResult = Apollo.QueryResult<EventsQuery, EventsQueryVariables>;
 export const CreateWebhookEndpointDocument = gql`
     mutation createWebhookEndpoint($input: WebhookEndpointCreateInput!) {
   createWebhookEndpoint(input: $input) {
@@ -28625,53 +28672,6 @@ export function useUpdateApiKeyMutation(baseOptions?: Apollo.MutationHookOptions
 export type UpdateApiKeyMutationHookResult = ReturnType<typeof useUpdateApiKeyMutation>;
 export type UpdateApiKeyMutationResult = Apollo.MutationResult<UpdateApiKeyMutation>;
 export type UpdateApiKeyMutationOptions = Apollo.BaseMutationOptions<UpdateApiKeyMutation, UpdateApiKeyMutationVariables>;
-export const EventsDocument = gql`
-    query events($page: Int, $limit: Int) {
-  events(page: $page, limit: $limit) {
-    collection {
-      ...EventList
-    }
-    metadata {
-      currentPage
-      totalPages
-    }
-  }
-}
-    ${EventListFragmentDoc}`;
-
-/**
- * __useEventsQuery__
- *
- * To run a query within a React component, call `useEventsQuery` and pass it any options that fit your needs.
- * When your component renders, `useEventsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useEventsQuery({
- *   variables: {
- *      page: // value for 'page'
- *      limit: // value for 'limit'
- *   },
- * });
- */
-export function useEventsQuery(baseOptions?: Apollo.QueryHookOptions<EventsQuery, EventsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<EventsQuery, EventsQueryVariables>(EventsDocument, options);
-      }
-export function useEventsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<EventsQuery, EventsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<EventsQuery, EventsQueryVariables>(EventsDocument, options);
-        }
-export function useEventsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<EventsQuery, EventsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<EventsQuery, EventsQueryVariables>(EventsDocument, options);
-        }
-export type EventsQueryHookResult = ReturnType<typeof useEventsQuery>;
-export type EventsLazyQueryHookResult = ReturnType<typeof useEventsLazyQuery>;
-export type EventsSuspenseQueryHookResult = ReturnType<typeof useEventsSuspenseQuery>;
-export type EventsQueryResult = Apollo.QueryResult<EventsQuery, EventsQueryVariables>;
 export const GetAdyenIntegrationsDetailsDocument = gql`
     query getAdyenIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
   paymentProvider(id: $id) {
