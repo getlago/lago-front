@@ -119,7 +119,7 @@
     "apollo-upload-client": "17.0.0",
     "apollo3-cache-persist": "0.15.0",
     "decimal.js": "^10.4.3",
-    "formik": "2.4.5",
+    "formik": "2.4.6",
     "graphql": "^16.6.0",
     "lago-configs": "workspace:*",
     "lago-design-system": "workspace:*",
