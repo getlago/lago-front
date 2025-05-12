@@ -1,6 +1,6 @@
 import { useRoutes } from 'react-router-dom'
 
-import { ApiKeys, WebhookLogs, Webhooks } from '~/components/developers/views'
+import { ApiKeys, Events, WebhookLogs, Webhooks } from '~/components/developers/views'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 
@@ -9,6 +9,7 @@ export const WEBHOOKS_ROUTE = '/webhooks'
 export const WEBHOOK_ROUTE = '/webhooks/:webhookId'
 export const WEBHOOK_LOGS_ROUTE = '/webhooks/:webhookId/logs/:logId'
 export const EVENTS_ROUTE = '/events'
+export const EVENT_LOG_ROUTE = '/events/:eventId'
 
 export const DevtoolsRouter = () => {
   const routes = useRoutes([
@@ -19,7 +20,8 @@ export const DevtoolsRouter = () => {
     },
     { path: WEBHOOK_ROUTE, element: <WebhookLogs /> },
     { path: WEBHOOK_LOGS_ROUTE, element: <WebhookLogs /> },
-    { path: EVENTS_ROUTE, element: <div /> },
+    { path: EVENTS_ROUTE, element: <Events /> },
+    { path: EVENT_LOG_ROUTE, element: <Events /> },
     { path: '*', element: <ApiKeys /> },
   ])
 
@@ -43,9 +45,9 @@ export const devToolsNavigationMapping = (
       hidden: !hasPermissions(['developersManage']),
     },
     {
-      title: 'Events',
-      component: <div>Events</div>,
+      title: translate('text_6298bd525e359200d5ea0020'),
       link: EVENTS_ROUTE,
+      match: [EVENTS_ROUTE, EVENT_LOG_ROUTE],
       hidden: !hasPermissions(['developersManage']),
     },
   ]

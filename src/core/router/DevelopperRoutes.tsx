@@ -3,9 +3,6 @@ import { lazyLoad } from './utils'
 
 // ----------- Layouts -----------
 const Developers = lazyLoad(() => import('~/layouts/Developers'))
-// ----------- Pages -----------
-
-const Debugger = lazyLoad(() => import('~/pages/developers/Debugger'))
 
 // ----------- Routes -----------
 // Developers routes
