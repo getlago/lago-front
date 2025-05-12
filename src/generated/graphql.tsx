@@ -9902,7 +9902,7 @@ export type GetInfosForCreateInvoiceQueryVariables = Exact<{
 }>;
 
 
-export type GetInfosForCreateInvoiceQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, displayName: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, state?: string | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string } | null } | null, organization?: { __typename?: 'CurrentOrganization', id: string, addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, email?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, logoUrl?: string | null, state?: string | null, zipcode?: string | null, defaultCurrency: CurrencyEnum } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> } };
+export type GetInfosForCreateInvoiceQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, displayName: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, state?: string | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string } | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string } | null } | null, organization?: { __typename?: 'CurrentOrganization', id: string, addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, email?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, logoUrl?: string | null, state?: string | null, zipcode?: string | null, defaultCurrency: CurrencyEnum } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> } };
 
 export type GetAddonListForInfoiceQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -25168,6 +25168,9 @@ export const GetInfosForCreateInvoiceDocument = gql`
       ...TaxInfosForCreateInvoice
     }
     anrokCustomer {
+      id
+    }
+    avalaraCustomer {
       id
     }
   }
