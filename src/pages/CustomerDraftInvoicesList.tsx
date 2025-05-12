@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { Avatar } from 'lago-design-system'
 import { generatePath, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { CustomerInvoicesList } from '~/components/customers/CustomerInvoicesList'
 import { Button, Icon, Skeleton, Typography } from '~/components/designSystem'
@@ -18,7 +17,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { NAV_HEIGHT, PageHeader, theme } from '~/styles'
+import { PageHeader } from '~/styles'
 
 gql`
   query getCustomerDraftInvoices(
@@ -97,18 +96,18 @@ const CustomerDraftInvoicesList = () => {
           </Typography>
         </PageHeader.Group>
       </PageHeader.Wrapper>
-      <Wrapper>
+      <div className="px-12 py-8">
         {customerLoading ? (
-          <MainInfos>
-            <Skeleton variant="userAvatar" size="large" />
+          <div className="mb-8 flex items-center">
+            <Skeleton className="mr-4" variant="userAvatar" size="large" />
             <div>
               <Skeleton variant="text" className="mb-5 w-50" />
               <Skeleton variant="text" className="w-32" />
             </div>
-          </MainInfos>
+          </div>
         ) : (
-          <MainInfos>
-            <Avatar size="large" variant="connector">
+          <div className="mb-8 flex items-center">
+            <Avatar className="mr-4" size="large" variant="connector">
               <Icon name="document" />
             </Avatar>
             <div>
@@ -123,10 +122,10 @@ const CustomerDraftInvoicesList = () => {
                 })}
               </Typography>
             </div>
-          </MainInfos>
+          </div>
         )}
 
-        <ListHeader>
+        <div className="flex h-18 items-center justify-between">
           <Typography variant="bodyHl" color="textSecondary">
             {translate('text_63c6cac5c1fc58028d0235dd')}
           </Typography>
@@ -134,7 +133,7 @@ const CustomerDraftInvoicesList = () => {
             onChange={debouncedSearch}
             placeholder={translate('text_63c6cac5c1fc58028d0235d9')}
           />
-        </ListHeader>
+        </div>
 
         <CustomerInvoicesList
           isLoading={isLoading}
@@ -144,30 +143,9 @@ const CustomerDraftInvoicesList = () => {
           invoiceData={data?.customerInvoices}
           fetchMore={fetchMore}
         />
-      </Wrapper>
+      </div>
     </>
   )
 }
-
-const ListHeader = styled.div`
-  height: ${NAV_HEIGHT}px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
-
-const Wrapper = styled.div`
-  padding: ${theme.spacing(8)} ${theme.spacing(12)};
-`
-
-const MainInfos = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: ${theme.spacing(8)};
-
-  > *:first-child {
-    margin-right: ${theme.spacing(4)};
-  }
-`
 
 export default CustomerDraftInvoicesList

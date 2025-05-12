@@ -160,6 +160,7 @@ const config: Config = {
         50: '12.5rem',
         55: '13.75rem',
         57: '14.25rem',
+        58: '14.5rem',
         66: '16.5rem',
         70: '17.5rem',
         74: '18.5rem',
@@ -293,7 +294,9 @@ const config: Config = {
       addVariant('not-last-child', '&>*:not(:last-child)')
       // Not last element
       addVariant('not-last', '&:not(:last-child)')
+      // Children selector
       addVariant('first-child', '&>*:first-child')
+      addVariant('last-child', '&>*:last-child')
 
       /**
        * Components

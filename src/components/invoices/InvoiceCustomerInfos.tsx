@@ -3,7 +3,6 @@ import { Box, Stack } from '@mui/material'
 import { DateTime } from 'luxon'
 import { memo } from 'react'
 import { generatePath, Link } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Icon, Status, StatusType, Typography } from '~/components/designSystem'
@@ -17,7 +16,6 @@ import {
   InvoiceStatusTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 gql`
   fragment InvoiceForInvoiceInfos on Invoice {
@@ -56,6 +54,12 @@ gql`
   }
 `
 
+const InfoLine = ({ children }: { children: React.ReactNode }) => (
+  <div className="mb-2 flex items-baseline gap-2 first-child:mt-1 first-child:min-w-35 last-child:w-full">
+    {children}
+  </div>
+)
+
 interface InvoiceCustomerInfosProps {
   invoice?: InvoiceForInvoiceInfosFragment | null
 }
@@ -68,8 +72,8 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
   const customerIsPartner = customer?.accountType === CustomerAccountTypeEnum.Partner
 
   return (
-    <Wrapper>
-      <div>
+    <section className="grid grid-cols-1 gap-0 py-6 shadow-b md:grid-cols-2">
+      <div className="pr-8">
         {customer && customerName && (
           <InfoLine>
             <Typography variant="caption" color="grey600" noWrap>
@@ -84,6 +88,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
               validWrapper={(children) => <>{children}</>}
               invalidWrapper={(children) => (
                 <Link
+                  className="*:text-blue-600"
                   to={generatePath(CUSTOMER_DETAILS_ROUTE, {
                     customerId: customer.id,
                   })}
@@ -261,48 +266,8 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
           </InfoLine>
         )}
       </div>
-    </Wrapper>
+    </section>
   )
 })
 
 InvoiceCustomerInfos.displayName = 'InvoiceCustomerInfos'
-
-const Wrapper = styled.section`
-  padding: ${theme.spacing(6)} 0;
-  box-shadow: ${theme.shadows[7]};
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-
-  > div:not(:last-child) {
-    padding-right: ${theme.spacing(8)};
-  }
-
-  ${theme.breakpoints.down('md')} {
-    grid-template-columns: 1fr;
-    gap: initial;
-  }
-`
-
-const InfoLine = styled.div`
-  display: flex;
-  align-items: baseline;
-  margin-bottom: ${theme.spacing(2)};
-  gap: ${theme.spacing(2)};
-
-  > div:first-child {
-    min-width: 140px;
-    margin-top: ${theme.spacing(1)};
-  }
-
-  > div:last-child {
-    width: 100%;
-  }
-
-  > a {
-    color: ${theme.palette.primary[600]};
-
-    > * {
-      color: inherit;
-    }
-  }
-`

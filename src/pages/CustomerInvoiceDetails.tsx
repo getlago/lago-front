@@ -3,7 +3,6 @@ import { Stack } from '@mui/material'
 import { Avatar } from 'lago-design-system'
 import { useCallback, useMemo, useRef } from 'react'
 import { generatePath, Outlet, useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import {
@@ -92,7 +91,7 @@ import { usePermissions } from '~/hooks/usePermissions'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import InvoiceOverview from '~/pages/InvoiceOverview'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { MenuPopper, PageHeader, theme } from '~/styles'
+import { MenuPopper, PageHeader } from '~/styles'
 
 const { disablePdfGeneration } = envGlobalVar()
 
@@ -921,23 +920,23 @@ const CustomerInvoiceDetails = () => {
           image={<ErrorImage width="136" height="104" />}
         />
       ) : (
-        <Content>
+        <div className="px-4 pb-20 pt-8 md:px-12">
           {loading ? (
-            <MainInfos>
-              <Skeleton variant="connectorAvatar" size="large" />
+            <div className="mb-8 flex items-center">
+              <Skeleton className="mr-4" variant="connectorAvatar" size="large" />
               <div>
                 <Skeleton variant="text" className="mb-5 w-50" />
                 <Skeleton variant="text" className="w-32" />
               </div>
-            </MainInfos>
+            </div>
           ) : (
-            <MainInfos>
-              <Avatar size="large" variant="connector">
+            <div className="mb-8 flex items-center">
+              <Avatar className="mr-4" size="large" variant="connector">
                 <Icon name="document" color="dark" size="large" />
               </Avatar>
               <div>
-                <MainInfoLine>
-                  <Typography variant="headline" color="grey700">
+                <div className="mb-1 flex items-center">
+                  <Typography className="mr-2" variant="headline" color="grey700">
                     {number}
                   </Typography>
                   <Status
@@ -953,10 +952,10 @@ const CustomerInvoiceDetails = () => {
                         : undefined
                     }
                   />
-                </MainInfoLine>
-                <MainInfoLine>
+                </div>
+                <div className="flex items-center">
                   <Typography
-                    className="flex flex-wrap items-center gap-1"
+                    className="mr-2 flex flex-wrap items-center gap-1"
                     variant="body"
                     color="grey600"
                   >
@@ -974,13 +973,13 @@ const CustomerInvoiceDetails = () => {
                     <span>•</span>
                     <span>{invoiceId}</span>
                   </Typography>
-                </MainInfoLine>
+                </div>
               </div>
-            </MainInfos>
+            </div>
           )}
           <NavigationTab name="Invoice details tab switcher" tabs={tabsOptions} loading={loading} />
           <Outlet />
-        </Content>
+        </div>
       )}
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
@@ -993,36 +992,5 @@ const CustomerInvoiceDetails = () => {
     </>
   )
 }
-
-const Content = styled.div`
-  padding: ${theme.spacing(8)} ${theme.spacing(12)} ${theme.spacing(20)};
-
-  ${theme.breakpoints.down('md')} {
-    padding: ${theme.spacing(8)} ${theme.spacing(4)} ${theme.spacing(20)};
-  }
-`
-
-const MainInfos = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: ${theme.spacing(8)};
-
-  > *:first-child {
-    margin-right: ${theme.spacing(4)};
-  }
-`
-
-const MainInfoLine = styled.div`
-  display: flex;
-  align-items: center;
-
-  &:first-child {
-    margin-bottom: ${theme.spacing(1)};
-  }
-
-  > *:first-child {
-    margin-right: ${theme.spacing(2)};
-  }
-`
 
 export default CustomerInvoiceDetails

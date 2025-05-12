@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { memo } from 'react'
-import styled from 'styled-components'
 
 import { Alert, Typography } from '~/components/designSystem'
 import { appliedTaxEnumedTaxCodeTranslationKey } from '~/core/constants/form'
@@ -403,25 +402,21 @@ export const InvoiceDetailsTableFooter = memo(
         {invoice.status === InvoiceStatusTypeEnum.Draft ? (
           <tr>
             <td></td>
-            <NoShadowTD colSpan={4}>
+            <td colSpan={4} className="!shadow-none">
               <Alert type="info">{translate('text_63b6f4e9b074e3b8beebb97f')}</Alert>
-            </NoShadowTD>
+            </td>
           </tr>
         ) : shouldDisplayPlaceholder || invoice.taxStatus === InvoiceTaxStatusTypeEnum.Pending ? (
           <tr>
             <td></td>
-            <NoShadowTD colSpan={4}>
+            <td colSpan={4} className="!shadow-none">
               <Alert type="info">{translate('text_1724166369123t6c4k8zn80c')}</Alert>
-            </NoShadowTD>
+            </td>
           </tr>
         ) : null}
       </tfoot>
     )
   },
 )
-
-const NoShadowTD = styled.td`
-  box-shadow: none !important;
-`
 
 InvoiceDetailsTableFooter.displayName = 'InvoiceDetailsTableFooter'

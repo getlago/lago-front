@@ -3,7 +3,6 @@ import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { memo, RefObject } from 'react'
 import { useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { Button, Popper, Tooltip, Typography } from '~/components/designSystem'
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
@@ -298,7 +297,7 @@ export const InvoiceDetailsTableBodyLine = memo(
                 <Popper
                   PopperProps={{ placement: 'bottom-end' }}
                   opener={({ isOpen }) => (
-                    <LocalPopperOpener>
+                    <PopperOpener className="static">
                       <Tooltip
                         placement="top-end"
                         disableHoverListener={isOpen}
@@ -310,7 +309,7 @@ export const InvoiceDetailsTableBodyLine = memo(
                       >
                         <Button size="small" icon="dots-horizontal" variant="quaternary" />
                       </Tooltip>
-                    </LocalPopperOpener>
+                    </PopperOpener>
                   )}
                 >
                   {({ closePopper }) => (
@@ -403,7 +402,3 @@ export const InvoiceDetailsTableBodyLine = memo(
 )
 
 InvoiceDetailsTableBodyLine.displayName = 'InvoiceDetailsTableBodyLine'
-
-const LocalPopperOpener = styled(PopperOpener)`
-  position: initial;
-`
