@@ -23,6 +23,7 @@ interface CodeSnippetProps {
   language?: 'bash' | 'javascript' | 'json'
   canCopy?: boolean
   displayHead?: boolean
+  variant?: 'minimal' | 'default'
 }
 
 export const CodeSnippet = memo(
@@ -33,6 +34,7 @@ export const CodeSnippet = memo(
     language = 'javascript',
     canCopy = true,
     displayHead = true,
+    variant = 'default',
   }: CodeSnippetProps) => {
     const codeRef = useRef(null)
     const { translate } = useInternationalization()
@@ -43,8 +45,30 @@ export const CodeSnippet = memo(
       }
     })
 
+    const handleCopy = () => {
+      copyToClipboard(code, { ignoreComment: true })
+
+      addToast({
+        severity: 'info',
+        translateKey: 'text_6241ce41ae814301478358a2',
+      })
+    }
+
     return (
-      <div className={tw('code-snippet', 'relative h-full', className)}>
+      <div
+        className={tw(
+          'code-snippet',
+          'relative h-full',
+          variant === 'minimal' && 'overflow-hidden rounded-lg bg-grey-100',
+          className,
+        )}
+      >
+        {canCopy && variant === 'minimal' && (
+          <div className="flex items-center justify-end bg-grey-200 p-2">
+            <Button variant="quaternary" icon="duplicate" size="small" onClick={handleCopy} />
+          </div>
+        )}
+
         {!loading && (
           <>
             {displayHead && (
@@ -70,19 +94,12 @@ export const CodeSnippet = memo(
                 {code}
               </code>
             </pre>
-            {canCopy && (
+            {canCopy && variant === 'default' && (
               <Button
                 className="absolute inset-x-0 bottom-12 mx-auto w-fit"
                 variant="secondary"
                 startIcon="duplicate"
-                onClick={() => {
-                  copyToClipboard(code, { ignoreComment: true })
-
-                  addToast({
-                    severity: 'info',
-                    translateKey: 'text_6241ce41ae814301478358a2',
-                  })
-                }}
+                onClick={handleCopy}
               >
                 {translate('text_623b42ff8ee4e000ba87d0c6')}
               </Button>
