@@ -29,6 +29,7 @@ import {
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
+  NextSubscriptionTypeEnum,
   Plan,
   StatusTypeEnum,
   Subscription,
@@ -47,7 +48,8 @@ gql`
         id
         status
         startedAt
-        nextPendingStartDate
+        nextSubscriptionAt
+        nextSubscriptionType
         name
         nextName
         externalId
@@ -106,7 +108,8 @@ const annotateSubscriptions = (
       plan,
       status,
       nextPlan,
-      nextPendingStartDate,
+      nextSubscriptionAt,
+      nextSubscriptionType,
       externalId,
       nextName,
       name,
@@ -117,7 +120,7 @@ const annotateSubscriptions = (
       nextSubscription,
     } = subscription || {}
 
-    const isDowngrading = !!nextPlan
+    const isDowngrading = !!nextPlan && nextSubscriptionType === NextSubscriptionTypeEnum.Downgrade
 
     const _sub = {
       id,
@@ -141,7 +144,7 @@ const annotateSubscriptions = (
         name: nextSubscription?.name || nextName || nextPlan.name,
         status: nextSubscription?.status,
         frequency: nextPlan.interval,
-        startedAt: nextPendingStartDate,
+        startedAt: nextSubscriptionAt,
         statusType: {
           type: StatusType.default,
           label: 'pending',
