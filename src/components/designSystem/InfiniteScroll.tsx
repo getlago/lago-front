@@ -3,17 +3,23 @@ import { ReactNode, useEffect, useRef } from 'react'
 interface InfiniteScrollProps {
   onBottom: () => void
   children: ReactNode
+  mode?: 'viewport' | 'element'
 }
 
-export const InfiniteScroll = ({ children, onBottom }: InfiniteScrollProps) => {
+export const InfiniteScroll = ({ children, onBottom, mode = 'viewport' }: InfiniteScrollProps) => {
   const hiddenBottom = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         // isIntersecting is true when element and viewport are overlapping
-        if (entries[0].isIntersecting === true) {
-          onBottom && onBottom()
+        if (mode === 'viewport' && entries[0].isIntersecting === true) {
+          onBottom?.()
+        }
+
+        // intersectionRatio is 1 when element is fully visible in viewport
+        if (mode === 'element' && entries[0].intersectionRatio === 1) {
+          onBottom?.()
         }
       },
       { threshold: [0] },
