@@ -44,6 +44,7 @@ export function DeveloperToolProvider({ children }: { children: ReactNode }) {
 export function useDeveloperTool(): DeveloperToolContextType {
   const context = useContext(DeveloperToolContext)
   const { currentUser } = useCurrentUser()
+
   const navigate = useNavigate()
   const [isMounted, setIsMounted] = useState(false)
 

@@ -52,7 +52,7 @@ export const logOut = async (client: ApolloClient<object>, resetLocationHistory?
   // Clear store
   await client.cache.reset()
   updateAuthTokenVar()
-  removeItemFromLS(DEVTOOL_STORAGE_KEY)
+
   resetLocationHistory && resetLocationHistoryVar()
 }
 
@@ -88,6 +88,10 @@ export const switchCurrentOrganization = async (
 
   // We should not be redirected to any route on orga switch, but rather bring to home (prevent )
   removeItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
+
+  // Close the devtools
+  removeItemFromLS(DEVTOOL_STORAGE_KEY)
+
   // Set the new organization id in local storage
   setItemFromLS(ORGANIZATION_LS_KEY_ID, organizationId)
 }

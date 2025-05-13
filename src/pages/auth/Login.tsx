@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
+import { useEffect } from 'react'
 import { generatePath, Link, useNavigate } from 'react-router-dom'
 import { object, string } from 'yup'
 
@@ -12,6 +13,7 @@ import { FORGOT_PASSWORD_ROUTE, LOGIN_OKTA, SIGN_UP_ROUTE } from '~/core/router'
 import { CurrentUserFragmentDoc, LagoApiError, useLoginUserMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
+import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
 import { Card, Page, StyledLogo } from '~/styles/auth'
 
@@ -35,6 +37,12 @@ const Login = () => {
   const { translate } = useInternationalization()
   const { isRunningInSalesForceIframe } = useSalesForceConfig()
   const navigate = useNavigate()
+  const { close: closeDevTool } = useDeveloperTool()
+
+  useEffect(() => {
+    // In case the devtools are open, close it
+    closeDevTool()
+  }, [])
 
   const [loginUser, { error: loginError }] = useLoginUserMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
