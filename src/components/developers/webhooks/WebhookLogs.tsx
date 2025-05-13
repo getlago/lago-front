@@ -191,6 +191,7 @@ export const WebhookLogs = () => {
                     )}
                   >
                     <InfiniteScroll
+                      mode="element"
                       onBottom={async () => {
                         const { currentPage = 0, totalPages = 0 } = data?.webhooks?.metadata || {}
 
@@ -203,6 +204,7 @@ export const WebhookLogs = () => {
                     >
                       <Table
                         name="webhook-logs"
+                        containerClassName="h-auto"
                         containerSize={16}
                         rowSize={48}
                         data={data?.webhooks.collection || []}
@@ -264,7 +266,7 @@ export const WebhookLogs = () => {
                     </InfiniteScroll>
                   </div>
                   {shouldDisplayLogDetails && (
-                    <div className="w-1/2 shadow-l">
+                    <div className="w-1/2 overflow-auto shadow-l">
                       <WebhookLogDetails log={webhookLog} />
                     </div>
                   )}
