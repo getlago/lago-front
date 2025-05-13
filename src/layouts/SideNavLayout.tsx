@@ -43,7 +43,7 @@ import {
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   PLANS_ROUTE,
   SETTINGS_ROUTE,
-  TAXES_SETTINGS_ROUTE
+  TAXES_SETTINGS_ROUTE,
 } from '~/core/router'
 import { useSideNavInfosQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
