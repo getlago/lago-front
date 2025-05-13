@@ -31,11 +31,6 @@
     "prefix": "imui",
     "body": "import { $1 } from '@mui/material'",
   },
-  "Import styled from styled-components": {
-    "scope": "typescript, typescriptreact",
-    "prefix": "istyled",
-    "body": "import styled from 'styled-components'",
-  },
   "Import from components generics": {
     "scope": "typescript, typescriptreact",
     "prefix": "ids",

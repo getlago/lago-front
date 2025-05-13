@@ -1,8 +1,7 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { memo, useRef } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import styled from 'styled-components'
+import { Link, LinkProps, useParams } from 'react-router-dom'
 
 import { Alert, Button, Icon, Skeleton, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
@@ -52,7 +51,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { theme } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
 import { tw } from '~/styles/utils'
 
@@ -137,6 +135,22 @@ interface InvoiceOverviewProps {
   syncSalesforceIntegrationInvoice: SyncSalesforceInvoiceMutationFn
   loadingSyncHubspotIntegrationInvoice: boolean
   loadingSyncSalesforceIntegrationInvoice: boolean
+}
+
+const InlineLink = ({ children, ...props }: LinkProps) => {
+  return (
+    <Link className="w-fit line-break-anywhere hover:underline" {...props}>
+      {children}
+    </Link>
+  )
+}
+
+const InfoLine = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <div className="mb-3 flex items-start first-child:mr-3 first-child:min-w-58 first-child:leading-7 last-child:w-full last-child:line-break-anywhere">
+      {children}
+    </div>
+  )
 }
 
 const InvoiceOverview = memo(
@@ -239,7 +253,7 @@ const InvoiceOverview = memo(
       <>
         <SectionHeader variant="subhead">
           {translate('text_634687079be251fdb43833bf')}
-          <NavigationRightActions>
+          <div className="flex gap-3">
             {invoice?.status === InvoiceStatusTypeEnum.Draft ? (
               <>
                 <Button
@@ -289,22 +303,26 @@ const InvoiceOverview = memo(
                 </Button>
               )
             )}
-          </NavigationRightActions>
+          </div>
         </SectionHeader>
         <>
           {loading ? (
             <>
-              <LoadingInfosWrapper>
+              <div className="pb-7 shadow-b">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <SkeletonLine key={`key-skeleton-line-${i}`}>
-                    <Skeleton variant="text" className="mr-[6.4%] w-[mr-[6.4%]]" />
-                    <Skeleton variant="text" className="mr-[11.2%] w-[mr-[11.2%]]" />
-                    <Skeleton variant="text" className="mr-[6.4%] w-[mr-[6.4%]]" />
-                    <Skeleton variant="text" className="mr-[9.25%] w-[mr-[9.25%]]" />
-                  </SkeletonLine>
+                  <div key={`key-skeleton-line-${i}`} className="mt-7 flex">
+                    <Skeleton variant="text" className="mr-[6.4%]" />
+                    <Skeleton variant="text" className="mr-[11.2%]" />
+                    <Skeleton variant="text" className="mr-[6.4%]" />
+                    <Skeleton variant="text" className="mr-[9.25%]" />
+                  </div>
                 ))}
-              </LoadingInfosWrapper>
-              <LoadingInvoiceWrapper $isDraftInvoice={false} $canHaveUnitPrice={true}>
+              </div>
+              <InvoiceWrapper
+                className="[&_table_tbody_tr_td]:py-5"
+                $isDraftInvoice={false}
+                $canHaveUnitPrice={true}
+              >
                 <table>
                   <tbody>
                     {[1, 2, 3, 4, 5].map((k) => (
@@ -313,35 +331,35 @@ const InvoiceOverview = memo(
                           <Skeleton variant="text" className="w-60" />
                         </td>
                         <td>
-                          <Skeleton className="float-right w-20" variant="text" />
+                          <Skeleton className="float-right" variant="text" />
                         </td>
                         <td>
-                          <Skeleton className="float-right w-10" variant="text" />
+                          <Skeleton className="float-right" variant="text" />
                         </td>
                         <td>
-                          <Skeleton className="float-right w-30" variant="text" />
+                          <Skeleton className="float-right" variant="text" />
                         </td>
                         <td>
-                          <Skeleton className="float-right w-30" variant="text" />
+                          <Skeleton className="float-right" variant="text" />
                         </td>
                       </tr>
                     ))}
                   </tbody>
                   <tfoot>
                     {[1, 2, 3].map((i) => (
-                      <LoadingTR key={`invoice-details-table-footer-loading-${i}`}>
+                      <tr key={`invoice-details-table-footer-loading-${i}`}>
                         <td></td>
-                        <td colSpan={3}>
+                        <td className="py-3" colSpan={3}>
                           <Skeleton variant="text" className="w-40" />
                         </td>
-                        <td>
+                        <td className="py-3">
                           <Skeleton className="float-right w-30" variant="text" />
                         </td>
-                      </LoadingTR>
+                      </tr>
                     ))}
                   </tfoot>
                 </table>
-              </LoadingInvoiceWrapper>
+              </InvoiceWrapper>
             </>
           ) : (
             <>
@@ -616,58 +634,5 @@ const InvoiceOverview = memo(
 )
 
 InvoiceOverview.displayName = 'InvoiceOverview'
-
-const SkeletonLine = styled.div`
-  display: flex;
-  margin-top: ${theme.spacing(7)};
-`
-
-const NavigationRightActions = styled.div`
-  display: flex;
-  gap: ${theme.spacing(3)};
-`
-
-const LoadingTR = styled.tr`
-  > td {
-    box-sizing: border-box;
-    padding: ${theme.spacing(3)} 0;
-  }
-`
-
-const LoadingInfosWrapper = styled.div`
-  margin-bottom: ${theme.spacing(7)};
-`
-
-const LoadingInvoiceWrapper = styled(InvoiceWrapper)`
-  > table > tbody > tr > td {
-    padding: ${theme.spacing(5)} 0;
-  }
-`
-
-const InlineLink = styled(Link)`
-  width: fit-content;
-  line-break: anywhere;
-
-  &:hover {
-    text-decoration: none;
-  }
-`
-
-const InfoLine = styled.div`
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: ${theme.spacing(3)};
-
-  > div:first-child {
-    min-width: 232px;
-    margin-right: ${theme.spacing(3)};
-    line-height: 28px;
-  }
-
-  > div:last-child {
-    width: 100%;
-    line-break: anywhere;
-  }
-`
 
 export default InvoiceOverview

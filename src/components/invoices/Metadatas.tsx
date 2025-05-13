@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { memo, useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { Button, Typography } from '~/components/designSystem'
 import {
@@ -9,7 +8,6 @@ import {
   useGetInvoiceMetadatasQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
 
 import { AddMetadataDrawer, AddMetadataDrawerRef } from './AddMetadataDrawer'
@@ -48,6 +46,18 @@ gql`
   ${InvoiceMetadatasForMetadataDrawerFragmentDoc}
 `
 
+const InfoLine = ({
+  children,
+  ...props
+}: { children: React.ReactNode } & React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className="mb-3 flex items-start first-child:mr-3 first-child:min-w-58 first-child:leading-7 last-child:w-full last-child:line-break-anywhere"
+    {...props}
+  >
+    {children}
+  </div>
+)
+
 export const Metadatas = memo(() => {
   const { translate } = useInternationalization()
   const { invoiceId } = useParams()
@@ -70,7 +80,7 @@ export const Metadatas = memo(() => {
 
   return (
     <>
-      <Wrapper>
+      <section className="mt-8 flex flex-col gap-6">
         <SectionHeader variant="subhead">
           {translate('text_6405cac5c833dcf18cad019c')}
           <Button
@@ -124,7 +134,7 @@ export const Metadatas = memo(() => {
             </div>
           </>
         )}
-      </Wrapper>
+      </section>
 
       {invoice && <AddMetadataDrawer ref={addMetadataDrawerDialogRef} invoiceId={invoice?.id} />}
     </>
@@ -132,28 +142,3 @@ export const Metadatas = memo(() => {
 })
 
 Metadatas.displayName = 'Metadatas'
-
-const Wrapper = styled.section`
-  margin-top: ${theme.spacing(8)};
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
-  }
-`
-
-const InfoLine = styled.div`
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: ${theme.spacing(3)};
-
-  > div:first-child {
-    min-width: 232px;
-    margin-right: ${theme.spacing(3)};
-    line-height: 28px;
-  }
-
-  > div:last-child {
-    width: 100%;
-    line-break: anywhere;
-  }
-`

@@ -1,9 +1,8 @@
 /* eslint-disable tailwindcss/no-custom-classname */
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
-import { memo, RefObject } from 'react'
+import { memo, RefObject, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 import { Button, Popper, Tooltip, Typography } from '~/components/designSystem'
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
@@ -176,33 +175,55 @@ export const InvoiceDetailsTableBodyLine = memo(
     const chargeModel = fee?.charge?.chargeModel
     const isTrueUpFee = !!fee?.metadata?.isTrueUpFee && !!fee?.charge?.minAmountCents
     const isAdjustedFee = !!fee?.adjustedFee
-    const subLabel = !canHaveUnitPrice
-      ? undefined
-      : fee?.description
-        ? fee?.description
-        : chargeModel === ChargeModelEnum.Percentage
-          ? translate('text_659e67cd63512ef53284303e', { eventsCount: fee?.eventsCount })
-          : fee?.charge?.prorated
-            ? translate('text_659e6b6b8e57e6ff88a34930')
-            : isTrueUpFee
-              ? translate('text_659e67cd63512ef53284305a', {
-                  amount: intlFormatNumber(
-                    deserializeAmount(fee?.charge?.minAmountCents, currency),
-                    {
-                      currencyDisplay: 'symbol',
-                      currency,
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 15,
-                    },
-                  ),
-                })
-              : undefined
+    const subLabel = useMemo(() => {
+      if (!canHaveUnitPrice) return undefined
+      if (fee?.description) return fee.description
+      if (chargeModel === ChargeModelEnum.Percentage) {
+        return translate('text_659e67cd63512ef53284303e', { eventsCount: fee?.eventsCount })
+      }
+      if (fee?.charge?.prorated) {
+        return translate('text_659e6b6b8e57e6ff88a34930')
+      }
+      if (isTrueUpFee) {
+        return translate('text_659e67cd63512ef53284305a', {
+          amount: intlFormatNumber(deserializeAmount(fee?.charge?.minAmountCents, currency), {
+            currencyDisplay: 'symbol',
+            currency,
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 15,
+          }),
+        })
+      }
+      return undefined
+    }, [canHaveUnitPrice, fee, chargeModel, translate, isTrueUpFee, currency])
 
     const shouldDisplayFeeDetail = calculateIfDetailsShouldBeDisplayed(
       fee,
       isTrueUpFee,
       canHaveUnitPrice,
     )
+
+    const taxRateDisplay = useMemo(() => {
+      if (hasTaxProviderError) {
+        return '-'
+      }
+
+      if (fee?.appliedTaxes?.length) {
+        return fee.appliedTaxes.map((appliedTaxes) => (
+          <Typography
+            key={`fee-${fee.id}-applied-tax-${appliedTaxes.id}`}
+            variant="body"
+            color="grey700"
+          >
+            {intlFormatNumber(appliedTaxes.taxRate / 100 || 0, {
+              style: 'percent',
+            })}
+          </Typography>
+        ))
+      }
+
+      return '0%'
+    }, [fee, hasTaxProviderError])
 
     return (
       <>
@@ -263,21 +284,7 @@ export const InvoiceDetailsTableBodyLine = memo(
               {!hideVat && (
                 <td>
                   <Typography variant="body" color="grey700">
-                    {hasTaxProviderError
-                      ? '-'
-                      : fee?.appliedTaxes?.length
-                        ? fee?.appliedTaxes.map((appliedTaxes) => (
-                            <Typography
-                              key={`fee-${fee?.id}-applied-tax-${appliedTaxes.id}`}
-                              variant="body"
-                              color="grey700"
-                            >
-                              {intlFormatNumber(appliedTaxes.taxRate / 100 || 0, {
-                                style: 'percent',
-                              })}
-                            </Typography>
-                          ))
-                        : '0%'}
+                    {taxRateDisplay}
                   </Typography>
                 </td>
               )}
@@ -298,7 +305,7 @@ export const InvoiceDetailsTableBodyLine = memo(
                 <Popper
                   PopperProps={{ placement: 'bottom-end' }}
                   opener={({ isOpen }) => (
-                    <LocalPopperOpener>
+                    <PopperOpener className="static">
                       <Tooltip
                         placement="top-end"
                         disableHoverListener={isOpen}
@@ -310,7 +317,7 @@ export const InvoiceDetailsTableBodyLine = memo(
                       >
                         <Button size="small" icon="dots-horizontal" variant="quaternary" />
                       </Tooltip>
-                    </LocalPopperOpener>
+                    </PopperOpener>
                   )}
                 >
                   {({ closePopper }) => (
@@ -343,42 +350,46 @@ export const InvoiceDetailsTableBodyLine = memo(
         </tr>
         {shouldDisplayFeeDetail && (
           <>
-            {chargeModel === ChargeModelEnum.Graduated ? (
+            {chargeModel === ChargeModelEnum.Graduated && (
               <InvoiceDetailsTableBodyLineGraduated
                 currency={currency}
                 fee={fee}
                 hideVat={hideVat}
                 isDraftInvoice={isDraftInvoice}
               />
-            ) : chargeModel === ChargeModelEnum.GraduatedPercentage ? (
+            )}
+            {chargeModel === ChargeModelEnum.GraduatedPercentage && (
               <InvoiceDetailsTableBodyLineGraduatedPercentage
                 currency={currency}
                 fee={fee}
                 hideVat={hideVat}
                 isDraftInvoice={isDraftInvoice}
               />
-            ) : chargeModel === ChargeModelEnum.Volume ? (
+            )}
+            {chargeModel === ChargeModelEnum.Volume && (
               <InvoiceDetailsTableBodyLineVolume
                 currency={currency}
                 fee={fee}
                 hideVat={hideVat}
                 isDraftInvoice={isDraftInvoice}
               />
-            ) : chargeModel === ChargeModelEnum.Package ? (
+            )}
+            {chargeModel === ChargeModelEnum.Package && (
               <InvoiceDetailsTableBodyLinePackage
                 currency={currency}
                 fee={fee}
                 hideVat={hideVat}
                 isDraftInvoice={isDraftInvoice}
               />
-            ) : chargeModel === ChargeModelEnum.Percentage ? (
+            )}
+            {chargeModel === ChargeModelEnum.Percentage && (
               <InvoiceDetailsTableBodyLinePercentage
                 currency={currency}
                 fee={fee}
                 hideVat={hideVat}
                 isDraftInvoice={isDraftInvoice}
               />
-            ) : null}
+            )}
             <tr className="details-line subtotal">
               <td colSpan={hideVat && !isDraftInvoice ? 3 : 4}>
                 <Typography variant="body" color="grey700">
@@ -403,7 +414,3 @@ export const InvoiceDetailsTableBodyLine = memo(
 )
 
 InvoiceDetailsTableBodyLine.displayName = 'InvoiceDetailsTableBodyLine'
-
-const LocalPopperOpener = styled(PopperOpener)`
-  position: initial;
-`
