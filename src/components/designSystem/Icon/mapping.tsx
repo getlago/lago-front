@@ -110,6 +110,7 @@ import Sync from '~/public/icons/sync.svg'
 import TableHorizontale from '~/public/icons/table-horizontale.svg'
 import Table from '~/public/icons/table.svg'
 import Target from '~/public/icons/target.svg'
+import Terminal from '~/public/icons/terminal.svg'
 import Text from '~/public/icons/text.svg'
 import Trash from '~/public/icons/trash.svg'
 import Unlock from '~/public/icons/unlock.svg'
@@ -235,6 +236,7 @@ export const ALL_ICONS = {
   table: Table,
   'table-horizontale': TableHorizontale,
   target: Target,
+  terminal: Terminal,
   text: Text,
   trash: Trash,
   unlock: Unlock,
