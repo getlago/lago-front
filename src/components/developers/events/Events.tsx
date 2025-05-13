@@ -85,6 +85,7 @@ export const Events = () => {
       <div className="p-4 shadow-b">
         <Button
           variant="quaternary"
+          size="small"
           startIcon="reload"
           loading={loading}
           onClick={async () => await refetch()}
@@ -93,13 +94,14 @@ export const Events = () => {
         </Button>
       </div>
 
-      <section className="flex min-h-20 flex-row overflow-hidden">
-        <div
-          className={tw(shouldDisplayLogDetails ? 'h-full w-1/2 overflow-auto' : 'w-full')}
-          // 188px is the height of the headers (52px+64px+72px)
-          style={{ height: shouldDisplayLogDetails ? `calc(${size}vh - 188px)` : '100%' }}
-        >
+      <section
+        className="flex min-h-20 flex-row overflow-hidden"
+        // 180px is the height of the headers (52px+64px+64px)
+        style={{ height: shouldDisplayLogDetails ? `calc(${size}vh - 180px)` : '100%' }}
+      >
+        <div className={tw(shouldDisplayLogDetails ? 'h-full w-1/2 overflow-auto' : 'w-full')}>
           <InfiniteScroll
+            mode="element"
             onBottom={() => {
               const { currentPage = 0, totalPages = 0 } = data?.events?.metadata || {}
 
@@ -112,6 +114,7 @@ export const Events = () => {
           >
             <Table
               name="events-logs"
+              containerClassName="h-auto"
               containerSize={16}
               rowSize={48}
               data={data?.events?.collection || []}
@@ -159,7 +162,7 @@ export const Events = () => {
           </InfiniteScroll>
         </div>
         {shouldDisplayLogDetails && (
-          <div className="w-1/2 shadow-l">
+          <div className="w-1/2 overflow-auto shadow-l">
             <EventDetails event={event} />
           </div>
         )}

@@ -15,7 +15,7 @@ const DEFAULT_RESIZABLE_HEIGHT = 40
 const FULLSCREEN = 100
 
 export const DevtoolsView: FC = () => {
-  const { isOpen, close } = useDeveloperTool()
+  const { isOpen, close, setSize } = useDeveloperTool()
   const [isFullscreen, setIsFullscreen] = useState(false)
   const { translate } = useInternationalization()
   const { pathname } = useLocation()
@@ -72,8 +72,10 @@ export const DevtoolsView: FC = () => {
         defaultSize={DEFAULT_RESIZABLE_HEIGHT}
         minSize={MIN_RESIZABLE_HEIGHT}
         maxSize={isFullscreen ? FULLSCREEN : MAX_RESIZABLE_HEIGHT}
-        className="z-console bg-white shadow-[0_-6px_8px_0px_#19212E1F]"
+        className="z-console min-h-50 bg-white shadow-[0_-6px_8px_0px_#19212E1F]"
         onResize={(size) => {
+          setSize(size)
+
           if (size === FULLSCREEN) {
             setIsFullscreen(true)
           } else if (size < FULLSCREEN) {

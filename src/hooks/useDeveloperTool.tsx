@@ -16,19 +16,24 @@ export enum ConsoleTabs {
 
 export interface DeveloperToolContextType {
   isOpen: boolean
+  size: number
   open: () => void
   close: () => void
+  setSize: (size: number) => void
 }
 
 export function DeveloperToolProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false)
+  const [size, setSize] = useState(0)
 
   return (
     <DeveloperToolContext.Provider
       value={{
         isOpen,
+        size,
         open: () => setIsOpen(true),
         close: () => setIsOpen(false),
+        setSize,
       }}
     >
       {children}
