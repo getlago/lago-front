@@ -534,6 +534,11 @@ export const theme = createTheme({
           '&:active': {
             transform: 'scale(0.99)',
           },
+          '&.button-inline': {
+            height: 'auto',
+            minWidth: 'unset',
+            padding: '0px',
+          },
         },
         endIcon: {
           marginLeft: '8px',
@@ -625,6 +630,46 @@ export const theme = createTheme({
             },
             '&:active': {
               backgroundColor: alpha(palette.grey[700], 0.2),
+            },
+          },
+          '&.button-inline': {
+            position: 'relative',
+            color: palette.primary.main,
+            backgroundColor: 'transparent',
+            '&:hover': {
+              color: palette.primary[700],
+            },
+
+            '&:active': {
+              color: palette.primary[800],
+            },
+
+            '&:focus-visible': {
+              boxShadow: 'none',
+
+              '&::before': {
+                content: '""',
+                display: 'block',
+                width: '100%',
+                height: '4px',
+                backgroundColor: palette.primary[200],
+                position: 'absolute',
+                left: 0,
+                bottom: '-4px',
+              },
+            },
+
+            '&.button-danger': {
+              backgroundColor: 'transparent',
+              color: palette.error.main,
+
+              '&:hover': {
+                color: palette.error[700],
+              },
+
+              '&:active': {
+                color: palette.error[700],
+              },
             },
           },
         },

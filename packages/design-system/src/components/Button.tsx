@@ -13,6 +13,7 @@ enum ButtonVariantEnum {
   quaternary = 'quaternary',
   'quaternary-dark' = 'quaternary-dark',
   'quaternary-light' = 'quaternary-light',
+  inline = 'inline',
 }
 
 type ButtonSize = 'small' | 'medium' | 'large'
@@ -85,6 +86,11 @@ const mapProperties = (
     case ButtonVariantEnum['quaternary-dark']:
       return {
         color: inheritColor ? 'inherit' : undefined,
+        variant: 'text',
+      }
+    case ButtonVariantEnum.inline:
+      return {
+        color: 'primary',
         variant: 'text',
       }
     case ButtonVariantEnum.primary:
@@ -182,6 +188,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             'button-icon-only': icon && !children,
             'button-quaternary-light': variant === 'quaternary-light',
             'button-quaternary-dark': variant === 'quaternary-dark',
+            'button-inline': variant === 'inline',
           },
           buttonVariants({
             align,
