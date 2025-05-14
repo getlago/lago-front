@@ -12,6 +12,7 @@ interface ComboBoxFieldProps extends Omit<ComboBoxProps, 'onChange' | 'value' | 
   formikProps: FormikProps<any>
   isEmptyNull?: boolean // If false, on field reset the combobox will return an empty string
   containerClassName?: string
+  customOnChange?: (value: string) => unknown
 }
 
 export const ComboBoxField = memo(
@@ -22,9 +23,15 @@ export const ComboBoxField = memo(
     renderGroupHeader,
     data,
     containerClassName,
+    customOnChange,
     ...props
   }: ComboBoxFieldProps) => {
     const { setFieldValue, values, errors, touched } = formikProps
+
+    const defaultOnChange = (newValue: string) =>
+      setFieldValue(name, newValue || (isEmptyNull ? null : ''))
+
+    const onChange = customOnChange ?? defaultOnChange
 
     return renderGroupHeader ? (
       <ComboBox
@@ -34,7 +41,7 @@ export const ComboBoxField = memo(
         renderGroupHeader={renderGroupHeader}
         value={_get(values, name)}
         error={touched[name] ? (errors[name] as string) : undefined}
-        onChange={(newValue) => setFieldValue(name, newValue || (isEmptyNull ? null : ''))}
+        onChange={onChange}
         {...props}
       />
     ) : (
@@ -44,7 +51,7 @@ export const ComboBoxField = memo(
         name={name}
         value={_get(values, name)}
         error={touched[name] ? (errors[name] as string) : undefined}
-        onChange={(newValue) => setFieldValue(name, newValue || (isEmptyNull ? null : ''))}
+        onChange={onChange}
         {...props}
       />
     )
