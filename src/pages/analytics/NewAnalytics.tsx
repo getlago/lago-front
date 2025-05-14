@@ -9,6 +9,7 @@ import Invoices from '~/pages/analytics/Invoices'
 import Mrr from '~/pages/analytics/Mrr'
 import PrepaidCredits from '~/pages/analytics/PrepaidCredits'
 import RevenueStreams from '~/pages/analytics/RevenueStreams'
+import Usage from '~/pages/analytics/Usage'
 import { PageHeader } from '~/styles'
 
 const NewAnalytics = () => {
@@ -60,6 +61,13 @@ const NewAnalytics = () => {
               tab: NewAnalyticsTabsOptionsEnum.mrr,
             }),
             component: <Mrr />,
+          },
+          {
+            title: translate('text_17465414264635ktqocy7leo'),
+            link: generatePath(ANALYTIC_TABS_ROUTE, {
+              tab: NewAnalyticsTabsOptionsEnum.usage,
+            }),
+            component: <Usage />,
           },
           {
             title: translate('text_1744192691931osnm4ckcvzj'),

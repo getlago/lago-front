@@ -1,5 +1,6 @@
 import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
+import UsageBillableMetric from '~/pages/analytics/UsageBillableMetric'
 
 import { authRoutes } from './AuthRoutes'
 import { customerPortalRoutes } from './CustomerPortalRoutes'
@@ -35,6 +36,7 @@ export const HOME_ROUTE = '/'
 export const FORBIDDEN_ROUTE = '/forbidden'
 export const ANALYTIC_ROUTE = '/analytics'
 export const ANALYTIC_TABS_ROUTE = '/analytics/:tab'
+export const ANALYTIC_USAGE_BILLABLE_METRIC_ROUTE = '/analytics/usage/:billableMetricCode'
 export const ERROR_404_ROUTE = '/404'
 
 // Route Available only on dev mode
@@ -72,6 +74,12 @@ export const routes: CustomRouteObject[] = [
         // Those 2 permissions are not the same and refer to the old and new analytics access, but are defined with the same restrictions per role
         // To preserve cached last visited route and prevent broken redirection I prefer to keepboth in the same place and not fix this now.
         // Maybe analyticsView will be removed in the future
+        permissions: ['analyticsView', 'dataApiView'],
+      },
+      {
+        path: ANALYTIC_USAGE_BILLABLE_METRIC_ROUTE,
+        private: true,
+        element: <UsageBillableMetric />,
         permissions: ['analyticsView', 'dataApiView'],
       },
       ...customerRoutes,
