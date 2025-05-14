@@ -1,6 +1,6 @@
 import { useFormik } from 'formik'
 import { tw } from 'lago-design-system'
-import { forwardRef, useEffect } from 'react'
+import { forwardRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 import { array, object, string } from 'yup'
 
@@ -224,6 +224,22 @@ export const AddLagoTaxManagementDialog = forwardRef<
       )}
     >
       <div className="flex flex-col gap-3">
+        {formikProps.values.billingEntities?.length > 0 && (
+          <div className="grid grid-cols-7 gap-3">
+            <div className="col-span-3">
+              <Typography className="text-sm font-medium text-grey-700">
+                {translate('text_1743077296189ms0shds6g53')}
+              </Typography>
+            </div>
+
+            <div className="col-span-3">
+              <Typography className="text-sm font-medium text-grey-700">
+                {translate('text_62ab2d0396dd6b0361614da0')}
+              </Typography>
+            </div>
+          </div>
+        )}
+
         {formikProps.values.billingEntities.map((_b, index) => (
           <div
             className="grid grid-cols-7 gap-3"
@@ -232,7 +248,6 @@ export const AddLagoTaxManagementDialog = forwardRef<
             <div className="col-span-3">
               <ComboBoxField
                 name={`billingEntities[${index}].id`}
-                label={translate('text_1743077296189ms0shds6g53')}
                 placeholder={translate('text_174360002513391n72uwg6bb')}
                 formikProps={formikProps}
                 PopperProps={{ displayInDialog: true }}
@@ -247,7 +262,6 @@ export const AddLagoTaxManagementDialog = forwardRef<
               <ComboBoxField
                 data={countryDataForCombobox}
                 name={`billingEntities[${index}].country`}
-                label={translate('text_62ab2d0396dd6b0361614da0')}
                 placeholder={translate('text_657078c28394d6b1ae1b9771')}
                 formikProps={formikProps}
                 PopperProps={{ displayInDialog: true }}
@@ -259,7 +273,7 @@ export const AddLagoTaxManagementDialog = forwardRef<
 
             <div className="flex items-center justify-center">
               <Button
-                className="col-span-1 mt-7"
+                className="col-span-1"
                 variant="quaternary"
                 size="medium"
                 icon="trash"
