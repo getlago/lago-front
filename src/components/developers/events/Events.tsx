@@ -1,39 +1,27 @@
 import { gql } from '@apollo/client'
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { Button, InfiniteScroll, Table, Typography } from '~/components/designSystem'
 import { EVENT_LOG_ROUTE } from '~/components/developers/DevtoolsRouter'
 import { EventDetails } from '~/components/developers/events/EventDetails'
-import { EventDetailsFragmentDoc, EventItemFragmentDoc, useEventsQuery } from '~/generated/graphql'
+import { useEventsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { tw } from '~/styles/utils'
 
 gql`
-  fragment EventList on Event {
+  fragment EventItem on Event {
     id
     code
-    transactionId
-    timestamp
     receivedAt
-    payload
-    billableMetricName
-    matchBillableMetric
-    matchCustomField
-    apiClient
-    ipAddress
-    externalSubscriptionId
-    customerTimezone
-    ...EventItem
-    ...EventDetails
   }
 
   query events($page: Int, $limit: Int) {
     events(page: $page, limit: $limit) {
       collection {
-        ...EventList
+        ...EventItem
       }
       metadata {
         currentPage
@@ -41,9 +29,6 @@ gql`
       }
     }
   }
-
-  ${EventItemFragmentDoc}
-  ${EventDetailsFragmentDoc}
 `
 
 export const Events = () => {
@@ -58,11 +43,7 @@ export const Events = () => {
     notifyOnNetworkStatusChange: true,
   })
 
-  const event = useMemo(() => {
-    return data?.events?.collection.find(({ id }) => id === eventId)
-  }, [data?.events?.collection, eventId])
-
-  // If no eventId is provided, navigate to the first event
+  // If no eventId is provided in params, navigate to the first event
   useEffect(() => {
     if (!eventId) {
       const firstEvent = data?.events?.collection[0]
@@ -74,7 +55,7 @@ export const Events = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.events?.collection])
 
-  const shouldDisplayLogDetails = !error && eventId && !!event
+  const shouldDisplayLogDetails = eventId && !!data?.events?.collection.length
 
   return (
     <div>
@@ -96,20 +77,20 @@ export const Events = () => {
 
       <section
         className="flex min-h-20 flex-row overflow-hidden"
-        // 180px is the height of the headers (52px+64px+64px)
-        style={{ height: shouldDisplayLogDetails ? `calc(${size}vh - 180px)` : '100%' }}
+        // 182px is the height of the headers (52px+65px+65px)
+        style={{ height: shouldDisplayLogDetails ? `calc(${size}vh - 182px)` : '100%' }}
       >
         <div className={tw(shouldDisplayLogDetails ? 'h-full w-1/2 overflow-auto' : 'w-full')}>
           <InfiniteScroll
             mode="element"
-            onBottom={() => {
+            onBottom={async () => {
               const { currentPage = 0, totalPages = 0 } = data?.events?.metadata || {}
 
-              currentPage < totalPages &&
-                !loading &&
-                fetchMore({
+              if (currentPage < totalPages && !loading) {
+                await fetchMore({
                   variables: { page: currentPage + 1 },
                 })
+              }
             }}
           >
             <Table
@@ -163,7 +144,7 @@ export const Events = () => {
         </div>
         {shouldDisplayLogDetails && (
           <div className="w-1/2 overflow-auto shadow-l">
-            <EventDetails event={event} />
+            <EventDetails />
           </div>
         )}
       </section>

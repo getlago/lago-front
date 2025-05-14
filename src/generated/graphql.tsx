@@ -8173,9 +8173,14 @@ export type RotateApiKeyMutation = { __typename?: 'Mutation', rotateApiKey?: { _
 
 export type EventDetailsFragment = { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum };
 
-export type EventItemFragment = { __typename?: 'Event', id: string, code: string, receivedAt?: any | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null };
+export type GetSingleEventQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
 
-export type EventListFragment = { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum };
+
+export type GetSingleEventQuery = { __typename?: 'Query', event?: { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum } | null };
+
+export type EventItemFragment = { __typename?: 'Event', id: string, code: string, receivedAt?: any | null };
 
 export type EventsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -8183,7 +8188,7 @@ export type EventsQueryVariables = Exact<{
 }>;
 
 
-export type EventsQuery = { __typename?: 'Query', events?: { __typename?: 'EventCollection', collection: Array<{ __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+export type EventsQuery = { __typename?: 'Query', events?: { __typename?: 'EventCollection', collection: Array<{ __typename?: 'Event', id: string, code: string, receivedAt?: any | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
 
 export type WebhookForCreateAndEditFragment = { __typename?: 'WebhookEndpoint', id: string, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null };
 
@@ -8217,6 +8222,13 @@ export type RetryWebhookMutationVariables = Exact<{
 
 export type RetryWebhookMutation = { __typename?: 'Mutation', retryWebhook?: { __typename?: 'Webhook', id: string } | null };
 
+export type GetSingleWebhookLogQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetSingleWebhookLogQuery = { __typename?: 'Query', webhook?: { __typename?: 'Webhook', id: string, webhookType: string, status: WebhookStatusEnum, payload?: string | null, response?: string | null, httpStatus?: number | null, endpoint: string, retries: number, updatedAt: any } | null };
+
 export type GetWebhookInformationsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
@@ -8224,7 +8236,7 @@ export type GetWebhookInformationsQueryVariables = Exact<{
 
 export type GetWebhookInformationsQuery = { __typename?: 'Query', webhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, webhookUrl: string } | null };
 
-export type WebhookLogFragment = { __typename?: 'Webhook', id: string, status: WebhookStatusEnum, webhookType: string, createdAt: any, updatedAt: any, endpoint: string, payload?: string | null, response?: string | null, httpStatus?: number | null, retries: number };
+export type WebhookLogFragment = { __typename?: 'Webhook', id: string, status: WebhookStatusEnum, webhookType: string, createdAt: any, updatedAt: any, endpoint: string };
 
 export type GetWebhookLogQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -8235,7 +8247,7 @@ export type GetWebhookLogQueryVariables = Exact<{
 }>;
 
 
-export type GetWebhookLogQuery = { __typename?: 'Query', webhooks: { __typename?: 'WebhookCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Webhook', id: string, status: WebhookStatusEnum, webhookType: string, createdAt: any, updatedAt: any, endpoint: string, payload?: string | null, response?: string | null, httpStatus?: number | null, retries: number }> } };
+export type GetWebhookLogQuery = { __typename?: 'Query', webhooks: { __typename?: 'WebhookCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Webhook', id: string, status: WebhookStatusEnum, webhookType: string, createdAt: any, updatedAt: any, endpoint: string }> } };
 
 export type GetOrganizationHmacDataQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -11336,15 +11348,6 @@ export const ApiKeyForRotateApiKeyDialogFragmentDoc = gql`
   name
 }
     `;
-export const EventItemFragmentDoc = gql`
-    fragment EventItem on Event {
-  id
-  code
-  receivedAt
-  matchBillableMetric
-  matchCustomField
-}
-    `;
 export const EventDetailsFragmentDoc = gql`
     fragment EventDetails on Event {
   id
@@ -11362,26 +11365,13 @@ export const EventDetailsFragmentDoc = gql`
   customerTimezone
 }
     `;
-export const EventListFragmentDoc = gql`
-    fragment EventList on Event {
+export const EventItemFragmentDoc = gql`
+    fragment EventItem on Event {
   id
   code
-  transactionId
-  timestamp
   receivedAt
-  payload
-  billableMetricName
-  matchBillableMetric
-  matchCustomField
-  apiClient
-  ipAddress
-  externalSubscriptionId
-  customerTimezone
-  ...EventItem
-  ...EventDetails
 }
-    ${EventItemFragmentDoc}
-${EventDetailsFragmentDoc}`;
+    `;
 export const WebhookForCreateAndEditFragmentDoc = gql`
     fragment WebhookForCreateAndEdit on WebhookEndpoint {
   id
@@ -11410,9 +11400,8 @@ export const WebhookLogFragmentDoc = gql`
   createdAt
   updatedAt
   endpoint
-  ...WebhookLogDetails
 }
-    ${WebhookLogDetailsFragmentDoc}`;
+    `;
 export const CustomerForDunningEmailFragmentDoc = gql`
     fragment CustomerForDunningEmail on Customer {
   displayName
@@ -17754,11 +17743,52 @@ export function useRotateApiKeyMutation(baseOptions?: Apollo.MutationHookOptions
 export type RotateApiKeyMutationHookResult = ReturnType<typeof useRotateApiKeyMutation>;
 export type RotateApiKeyMutationResult = Apollo.MutationResult<RotateApiKeyMutation>;
 export type RotateApiKeyMutationOptions = Apollo.BaseMutationOptions<RotateApiKeyMutation, RotateApiKeyMutationVariables>;
+export const GetSingleEventDocument = gql`
+    query getSingleEvent($id: ID!) {
+  event(id: $id) {
+    id
+    ...EventDetails
+  }
+}
+    ${EventDetailsFragmentDoc}`;
+
+/**
+ * __useGetSingleEventQuery__
+ *
+ * To run a query within a React component, call `useGetSingleEventQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSingleEventQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSingleEventQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetSingleEventQuery(baseOptions: Apollo.QueryHookOptions<GetSingleEventQuery, GetSingleEventQueryVariables> & ({ variables: GetSingleEventQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSingleEventQuery, GetSingleEventQueryVariables>(GetSingleEventDocument, options);
+      }
+export function useGetSingleEventLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSingleEventQuery, GetSingleEventQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSingleEventQuery, GetSingleEventQueryVariables>(GetSingleEventDocument, options);
+        }
+export function useGetSingleEventSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleEventQuery, GetSingleEventQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetSingleEventQuery, GetSingleEventQueryVariables>(GetSingleEventDocument, options);
+        }
+export type GetSingleEventQueryHookResult = ReturnType<typeof useGetSingleEventQuery>;
+export type GetSingleEventLazyQueryHookResult = ReturnType<typeof useGetSingleEventLazyQuery>;
+export type GetSingleEventSuspenseQueryHookResult = ReturnType<typeof useGetSingleEventSuspenseQuery>;
+export type GetSingleEventQueryResult = Apollo.QueryResult<GetSingleEventQuery, GetSingleEventQueryVariables>;
 export const EventsDocument = gql`
     query events($page: Int, $limit: Int) {
   events(page: $page, limit: $limit) {
     collection {
-      ...EventList
+      ...EventItem
     }
     metadata {
       currentPage
@@ -17766,7 +17796,7 @@ export const EventsDocument = gql`
     }
   }
 }
-    ${EventListFragmentDoc}`;
+    ${EventItemFragmentDoc}`;
 
 /**
  * __useEventsQuery__
@@ -17935,6 +17965,47 @@ export function useRetryWebhookMutation(baseOptions?: Apollo.MutationHookOptions
 export type RetryWebhookMutationHookResult = ReturnType<typeof useRetryWebhookMutation>;
 export type RetryWebhookMutationResult = Apollo.MutationResult<RetryWebhookMutation>;
 export type RetryWebhookMutationOptions = Apollo.BaseMutationOptions<RetryWebhookMutation, RetryWebhookMutationVariables>;
+export const GetSingleWebhookLogDocument = gql`
+    query getSingleWebhookLog($id: ID!) {
+  webhook(id: $id) {
+    id
+    ...WebhookLogDetails
+  }
+}
+    ${WebhookLogDetailsFragmentDoc}`;
+
+/**
+ * __useGetSingleWebhookLogQuery__
+ *
+ * To run a query within a React component, call `useGetSingleWebhookLogQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSingleWebhookLogQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSingleWebhookLogQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetSingleWebhookLogQuery(baseOptions: Apollo.QueryHookOptions<GetSingleWebhookLogQuery, GetSingleWebhookLogQueryVariables> & ({ variables: GetSingleWebhookLogQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSingleWebhookLogQuery, GetSingleWebhookLogQueryVariables>(GetSingleWebhookLogDocument, options);
+      }
+export function useGetSingleWebhookLogLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSingleWebhookLogQuery, GetSingleWebhookLogQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSingleWebhookLogQuery, GetSingleWebhookLogQueryVariables>(GetSingleWebhookLogDocument, options);
+        }
+export function useGetSingleWebhookLogSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleWebhookLogQuery, GetSingleWebhookLogQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetSingleWebhookLogQuery, GetSingleWebhookLogQueryVariables>(GetSingleWebhookLogDocument, options);
+        }
+export type GetSingleWebhookLogQueryHookResult = ReturnType<typeof useGetSingleWebhookLogQuery>;
+export type GetSingleWebhookLogLazyQueryHookResult = ReturnType<typeof useGetSingleWebhookLogLazyQuery>;
+export type GetSingleWebhookLogSuspenseQueryHookResult = ReturnType<typeof useGetSingleWebhookLogSuspenseQuery>;
+export type GetSingleWebhookLogQueryResult = Apollo.QueryResult<GetSingleWebhookLogQuery, GetSingleWebhookLogQueryVariables>;
 export const GetWebhookInformationsDocument = gql`
     query getWebhookInformations($id: ID!) {
   webhookEndpoint(id: $id) {
@@ -17990,6 +18061,7 @@ export const GetWebhookLogDocument = gql`
       totalPages
     }
     collection {
+      id
       ...WebhookLog
     }
   }

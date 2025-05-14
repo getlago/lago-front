@@ -22,11 +22,7 @@ import { WebhookLogDetails } from '~/components/developers/webhooks/WebhookLogDe
 import { SearchInput } from '~/components/SearchInput'
 import { WEBHOOK_LOGS_FILTER_PREFIX } from '~/core/constants/filters'
 import { statusWebhookMapping } from '~/core/constants/statusWebhookMapping'
-import {
-  useGetWebhookInformationsQuery,
-  useGetWebhookLogLazyQuery,
-  WebhookLogDetailsFragmentDoc,
-} from '~/generated/graphql'
+import { useGetWebhookInformationsQuery, useGetWebhookLogLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
@@ -48,7 +44,6 @@ gql`
     createdAt
     updatedAt
     endpoint
-    ...WebhookLogDetails
   }
 
   query getWebhookLog(
@@ -70,12 +65,11 @@ gql`
         totalPages
       }
       collection {
+        id
         ...WebhookLog
       }
     }
   }
-
-  ${WebhookLogDetailsFragmentDoc}
 `
 
 export const WebhookLogs = () => {
@@ -99,7 +93,7 @@ export const WebhookLogs = () => {
     useGetWebhookLogLazyQuery({
       variables: {
         webhookEndpointId: webhookId,
-        limit: 50,
+        limit: 20,
         ...filtersForWebhookLogsQuery,
       },
       notifyOnNetworkStatusChange: true,
@@ -108,11 +102,7 @@ export const WebhookLogs = () => {
   const loading = logsLoading || webhookUrlLoading
   const { debouncedSearch, isLoading } = useDebouncedSearch(getWebhookLogs, loading)
 
-  const webhookLog = useMemo(() => {
-    return data?.webhooks.collection.find((log) => log.id === logId)
-  }, [data?.webhooks.collection, logId])
-
-  // If no logId is provided, navigate to the first log
+  // If no logId is provided in params, navigate to the first log
   useEffect(() => {
     if (!logId) {
       const firstLog = data?.webhooks.collection[0]
@@ -126,7 +116,7 @@ export const WebhookLogs = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.webhooks])
 
-  const shouldDisplayLogDetails = webhookLog && logId && !!data?.webhooks.collection.length
+  const shouldDisplayLogDetails = logId && !!data?.webhooks.collection.length
 
   return (
     <div>
@@ -182,8 +172,8 @@ export const WebhookLogs = () => {
                 </section>
                 <section
                   className="flex min-h-20 flex-row overflow-hidden"
-                  // 228px is the height of the headers (52px+104px+72px)
-                  style={{ height: shouldDisplayLogDetails ? `calc(${size}vh - 228px)` : '100%' }}
+                  // 216px is the height of the headers (52px+92px+72px)
+                  style={{ height: shouldDisplayLogDetails ? `calc(${size}vh - 216px)` : '100%' }}
                 >
                   <div
                     className={tw(
@@ -267,7 +257,7 @@ export const WebhookLogs = () => {
                   </div>
                   {shouldDisplayLogDetails && (
                     <div className="w-1/2 overflow-auto shadow-l">
-                      <WebhookLogDetails log={webhookLog} />
+                      <WebhookLogDetails />
                     </div>
                   )}
                 </section>
