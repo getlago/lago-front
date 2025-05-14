@@ -29,7 +29,6 @@ import {
   useGetCouponForCustomerLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { LineAmount } from '~/styles/mainObjectsForm'
 
 gql`
   fragment CouponPlansForCustomer on Plan {
@@ -368,8 +367,9 @@ export const AddCouponToCustomerDialog = forwardRef<
         {!!formikProps.values.couponId && (
           <>
             {formikProps.values.couponType === CouponTypeEnum.FixedAmount ? (
-              <LineAmount>
+              <div className="flex gap-3">
                 <AmountInputField
+                  className="flex-1"
                   name="amountCents"
                   currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
                   beforeChangeFormatter={['positiveNumber']}
@@ -377,6 +377,7 @@ export const AddCouponToCustomerDialog = forwardRef<
                   formikProps={formikProps}
                 />
                 <ComboBoxField
+                  containerClassName="max-w-30 mt-7"
                   name="amountCurrency"
                   data={Object.values(CurrencyEnum).map((currencyType) => ({
                     value: currencyType,
@@ -386,7 +387,7 @@ export const AddCouponToCustomerDialog = forwardRef<
                   formikProps={formikProps}
                   PopperProps={{ displayInDialog: true }}
                 />
-              </LineAmount>
+              </div>
             ) : (
               <TextInputField
                 name="percentageRate"

@@ -44,7 +44,6 @@ import { PageHeader } from '~/styles'
 import {
   ButtonContainer,
   Content,
-  LineAmount,
   Main,
   Side,
   SkeletonHeader,
@@ -341,8 +340,9 @@ const CreateCoupon = () => {
                   />
 
                   {formikProps.values.couponType === CouponTypeEnum.FixedAmount ? (
-                    <LineAmount>
+                    <div className="flex gap-3">
                       <AmountInputField
+                        className="flex-1"
                         name="amountCents"
                         currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
                         beforeChangeFormatter={['positiveNumber']}
@@ -351,6 +351,7 @@ const CreateCoupon = () => {
                         formikProps={formikProps}
                       />
                       <ComboBoxField
+                        containerClassName="max-w-30 mt-7"
                         disabled={isEdition && !!coupon?.appliedCouponsCount}
                         name="amountCurrency"
                         data={Object.values(CurrencyEnum).map((currencyType) => ({
@@ -359,7 +360,7 @@ const CreateCoupon = () => {
                         disableClearable
                         formikProps={formikProps}
                       />
-                    </LineAmount>
+                    </div>
                   ) : (
                     <TextInputField
                       name="percentageRate"

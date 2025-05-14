@@ -83,20 +83,6 @@ export const SkeletonHeader = styled.div`
   padding: 0 ${theme.spacing(8)};
 `
 
-export const LineAmount = styled.div`
-  display: flex;
-
-  > *:first-child {
-    margin-right: ${theme.spacing(3)};
-    flex: 1;
-  }
-
-  > *:last-child {
-    max-width: 120px;
-    margin-top: 28px;
-  }
-`
-
 export const ButtonContainer = styled.div`
   margin: 0 ${theme.spacing(6)} ${theme.spacing(20)} ${theme.spacing(6)};
 `
