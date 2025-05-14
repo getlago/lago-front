@@ -14,7 +14,6 @@ import { useCreateEditTax } from '~/hooks/useCreateEditTax'
 import { PageHeader } from '~/styles'
 import {
   ButtonContainer,
-  Content,
   Main,
   Side,
   SkeletonHeader,
@@ -81,7 +80,7 @@ const CreateTaxRate = () => {
           }
         />
       </PageHeader.Wrapper>
-      <Content>
+      <div className="min-height-minus-nav flex">
         <Main>
           <div>
             {loading && !tax ? (
@@ -228,7 +227,7 @@ const CreateTaxRate = () => {
             initialTaxCode={tax?.code}
           />
         </Side>
-      </Content>
+      </div>
       <WarningDialog
         ref={leavingNotSavedChargesWarningDialogRef}
         title={translate('text_645bb193927b375079d289cb')}

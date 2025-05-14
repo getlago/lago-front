@@ -43,7 +43,6 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { PageHeader } from '~/styles'
 import {
   ButtonContainer,
-  Content,
   Main,
   Side,
   SkeletonHeader,
@@ -222,7 +221,7 @@ const CreateCoupon = () => {
           }
         />
       </PageHeader.Wrapper>
-      <Content>
+      <div className="min-height-minus-nav flex">
         <Main>
           <div>
             {loading ? (
@@ -646,7 +645,7 @@ const CreateCoupon = () => {
             limitBillableMetricsList={limitBillableMetricsList}
           />
         </Side>
-      </Content>
+      </div>
       <WarningDialog
         ref={warningDialogRef}
         title={translate('text_665deda4babaf700d603ea13')}

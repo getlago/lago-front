@@ -43,7 +43,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
 import { PageHeader } from '~/styles'
-import { Content, Main, Side, SkeletonHeader } from '~/styles/mainObjectsForm'
+import { Main, Side, SkeletonHeader } from '~/styles/mainObjectsForm'
 
 gql`
   fragment TaxForPlanAndChargesInPlanForm on Tax {
@@ -188,7 +188,7 @@ const CreatePlan = () => {
           data-test="close-create-plan-button"
         />
       </PageHeader.Wrapper>
-      <Content>
+      <div className="min-height-minus-nav flex">
         <Main>
           <MainMinimumContent>
             {loading && !plan ? (
@@ -312,7 +312,7 @@ const CreatePlan = () => {
         <Side>
           <PlanCodeSnippet loading={loading} plan={formikProps.values} />
         </Side>
-      </Content>
+      </div>
       <WarningDialog
         ref={warningDialogRef}
         title={translate('text_665deda4babaf700d603ea13')}

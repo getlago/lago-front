@@ -305,6 +305,9 @@ const config: Config = {
         '.height-minus-nav': {
           height: `calc(100vh - ${theme('spacing.nav')})`,
         },
+        '.min-height-minus-nav': {
+          minHeight: `calc(100vh - ${theme('spacing.nav')})`,
+        },
         '.height-minus-nav-footer': {
           height: `calc(100vh - ${theme('spacing.nav')} - ${theme('spacing.footer')})`,
         },

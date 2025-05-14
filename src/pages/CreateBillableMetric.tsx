@@ -42,7 +42,6 @@ import { useCreateEditBillableMetric } from '~/hooks/useCreateEditBillableMetric
 import { PageHeader } from '~/styles'
 import {
   ButtonContainer,
-  Content,
   Main,
   Side,
   SkeletonHeader,
@@ -265,7 +264,7 @@ const CreateBillableMetric = () => {
           }
         />
       </PageHeader.Wrapper>
-      <Content>
+      <div className="min-height-minus-nav flex">
         <Main>
           <div>
             {loading ? (
@@ -869,7 +868,7 @@ const CreateBillableMetric = () => {
         <Side>
           <BillableMetricCodeSnippet loading={loading} billableMetric={formikProps.values} />
         </Side>
-      </Content>
+      </div>
       <CustomExpressionDrawer
         ref={customExpressionDrawerRef}
         onSave={(expression: string) => formikProps.setFieldValue('expression', expression)}

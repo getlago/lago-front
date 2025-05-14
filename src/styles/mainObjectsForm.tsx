@@ -30,10 +30,6 @@ export const Main = styled.div`
   }
 `
 
-export const Content = styled.div`
-  display: flex;
-  min-height: calc(100vh - ${NAV_HEIGHT}px);
-`
 export const Title: FC<PropsWithChildren<TypographyProps>> = ({
   children,
   className,
