@@ -4,24 +4,25 @@ import { FiltersItemCountry } from '~/components/designSystem/Filters/filtersEle
 import { FiltersItemCreditNoteCreditStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemCreditNoteCreditStatus'
 import { FiltersItemCreditNoteReason } from '~/components/designSystem/Filters/filtersElements/FiltersItemCreditNoteReason'
 import { FiltersItemCreditNoteRefundStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemCreditNoteRefundStatus'
+import { FiltersItemCurrency } from '~/components/designSystem/Filters/filtersElements/FiltersItemCurrency'
+import { FiltersItemCustomer } from '~/components/designSystem/Filters/filtersElements/FiltersItemCustomer'
 import { FiltersItemCustomerType } from '~/components/designSystem/Filters/filtersElements/FiltersItemCustomerType'
 import { FiltersItemDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemDate'
 import { FiltersItemInvoiceNumber } from '~/components/designSystem/Filters/filtersElements/FiltersItemInvoiceNumber'
+import { FiltersItemInvoiceType } from '~/components/designSystem/Filters/filtersElements/FiltersItemInvoiceType'
+import { FiltersItemIssuingDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemIssuingDate'
+import { FiltersItemPartiallyPaid } from '~/components/designSystem/Filters/filtersElements/FiltersItemPartiallyPaid'
+import { FiltersItemPaymentDisputeLost } from '~/components/designSystem/Filters/filtersElements/FiltersItemPaymentDisputeLost'
+import { FiltersItemPaymentOverdue } from '~/components/designSystem/Filters/filtersElements/FiltersItemPaymentOverdue'
+import { FiltersItemPaymentStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemPaymentStatus'
 import { FiltersItemPeriod } from '~/components/designSystem/Filters/filtersElements/FiltersItemPeriod'
 import { FiltersItemPlanCode } from '~/components/designSystem/Filters/filtersElements/FiltersItemPlanCode'
 import { FiltersItemSelfBilled } from '~/components/designSystem/Filters/filtersElements/FiltersItemSelfBilled'
+import { FiltersItemStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemStatus'
 import { FiltersItemSubscription } from '~/components/designSystem/Filters/filtersElements/FiltersItemSubscription'
+import { FiltersItemWebhookStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemWebhookStatus'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { FiltersItemCurrency } from './filtersElements/FiltersItemCurrency'
-import { FiltersItemCustomer } from './filtersElements/FiltersItemCustomer'
-import { FiltersItemInvoiceType } from './filtersElements/FiltersItemInvoiceType'
-import { FiltersItemIssuingDate } from './filtersElements/FiltersItemIssuingDate'
-import { FiltersItemPartiallyPaid } from './filtersElements/FiltersItemPartiallyPaid'
-import { FiltersItemPaymentDisputeLost } from './filtersElements/FiltersItemPaymentDisputeLost'
-import { FiltersItemPaymentOverdue } from './filtersElements/FiltersItemPaymentOverdue'
-import { FiltersItemPaymentStatus } from './filtersElements/FiltersItemPaymentStatus'
-import { FiltersItemStatus } from './filtersElements/FiltersItemStatus'
 import { AvailableFiltersEnum, FiltersFormValues } from './types'
 
 type FiltersPanelItemTypeSwitchProps = {
@@ -103,6 +104,9 @@ export const FiltersPanelItemTypeSwitch = ({
     ),
     [AvailableFiltersEnum.period]: (
       <FiltersItemPeriod value={value} setFilterValue={setFilterValue} />
+    ),
+    [AvailableFiltersEnum.webhookStatus]: (
+      <FiltersItemWebhookStatus value={value} setFilterValue={setFilterValue} />
     ),
   }
 

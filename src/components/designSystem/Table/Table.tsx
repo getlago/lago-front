@@ -84,6 +84,8 @@ interface TableProps<T> {
   rowDataTestId?: (item: T) => string
   containerSize?: ResponsiveStyleValue<TableContainerSize>
   rowSize?: RowSize
+  tableInDialog?: boolean
+  containerClassName?: string
 }
 
 const ACTION_COLUMN_ID = 'actionColumn'
@@ -337,6 +339,8 @@ export const Table = <T extends DataItem>({
   rowSize = 48,
   loadingRowCount,
   placeholder,
+  tableInDialog,
+  containerClassName,
   onRowActionLink,
   actionColumn,
   actionColumnTooltip,
@@ -482,7 +486,12 @@ export const Table = <T extends DataItem>({
     // cf. https://stackoverflow.com/a/73091777
     // [-webkit-transform:translateZ(0)] is used to prevent scrollbar flickering on Safari
     // cf. https://stackoverflow.com/questions/67076468/why-scrollbar-is-behind-sticky-elements-in-ios-safari
-    <div className="h-full w-0 min-w-full overflow-auto [-webkit-transform:translateZ(0)]">
+    <div
+      className={tw(
+        'h-full w-0 min-w-full overflow-auto [-webkit-transform:translateZ(0)]',
+        containerClassName,
+      )}
+    >
       <MUITable
         className="border-separate"
         data-test={TABLE_ID}
@@ -564,6 +573,7 @@ export const Table = <T extends DataItem>({
                       <TableInnerCell data-id={ACTION_COLUMN_ID}>
                         {Array.isArray(actionColumn(item)) ? (
                           <Popper
+                            displayInDialog={tableInDialog}
                             popperGroupName={`${TABLE_ID}-action-cell`}
                             PopperProps={{ placement: 'bottom-end' }}
                             opener={({ isOpen }) => (

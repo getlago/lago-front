@@ -26,6 +26,7 @@ type NavigationTabProps = {
     hidden?: boolean
     component?: ReactNode
   }[]
+  children?: ReactNode
 }
 
 interface TabPanelProps {
@@ -63,6 +64,7 @@ export const NavigationTab = ({
   managedBy = TabManagedBy.URL,
   name = 'Navigation tab',
   tabs,
+  children,
 }: NavigationTabProps) => {
   const navigate = useNavigate()
   const { pathname } = useLocation()
@@ -84,10 +86,15 @@ export const NavigationTab = ({
       [TabManagedBy.URL]: ({ tab }) => {
         // Check if the current URL matches any of the paths in the match array
         if (!!tab?.match?.length) {
-          return tab.match.some((matchUrl) => window.location.pathname === matchUrl)
+          return tab.match.some((matchUrl) => matchPath(matchUrl, pathname))
         }
+
         // Fall back to direct link comparison
-        return tab.link === window.location.pathname
+        if (tab.link) {
+          return !!matchPath(tab.link, pathname)
+        }
+
+        return false
       },
       [TabManagedBy.INDEX]: ({ tabIndex }) => tabIndex === value,
     }
@@ -101,9 +108,8 @@ export const NavigationTab = ({
       setValue(0)
     }
 
-    // NOTE: window.location.pathname has to be watched for programatic navigation (without clicking on tabs)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nonHiddenTabs, window.location.pathname])
+  }, [nonHiddenTabs, pathname])
 
   // Prevent blink on first render
   if (value === null) return null
@@ -172,6 +178,7 @@ export const NavigationTab = ({
               )
             })
           : null}
+        {children}
       </Tabs>
       {value !== null &&
         nonHiddenTabs.map((tab, index) => {

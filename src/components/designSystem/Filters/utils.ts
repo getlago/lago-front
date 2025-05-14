@@ -13,10 +13,15 @@ import {
   REVENUE_STREAMS_BREAKDOWN_CUSTOMER_FILTER_PREFIX,
   REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX,
   REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX,
+  WEBHOOK_LOGS_FILTER_PREFIX,
 } from '~/core/constants/filters'
 import { INVOICES_ROUTE } from '~/core/router'
 import { DateFormat, intlFormatDateTime } from '~/core/timezone'
-import { InvoicePaymentStatusTypeEnum, InvoiceStatusTypeEnum } from '~/generated/graphql'
+import {
+  InvoicePaymentStatusTypeEnum,
+  InvoiceStatusTypeEnum,
+  WebhookStatusEnum,
+} from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 import {
@@ -103,6 +108,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
     (value as string).split(filterDataInlineSeparator)[0],
   [AvailableFiltersEnum.timeGranularity]: (value: string) => value,
   [AvailableFiltersEnum.period]: (value: string) => value,
+  [AvailableFiltersEnum.webhookStatus]: (value: string) => (value as string).split(','),
 }
 
 const formatFiltersForQuery = ({
@@ -263,6 +269,27 @@ export const formatFiltersForAnalyticsInvoicesQuery = (searchParams: URLSearchPa
     availableFilters: AnalyticsInvoicesAvailableFilters,
     filtersNamePrefix: ANALYTICS_INVOICES_FILTER_PREFIX,
   })
+}
+
+export const formatFiltersForWebhookLogsQuery = (searchParams: URLSearchParams) => {
+  const filters = formatFiltersForQuery({
+    searchParams,
+    availableFilters: [AvailableFiltersEnum.webhookStatus],
+    filtersNamePrefix: WEBHOOK_LOGS_FILTER_PREFIX,
+  })
+
+  // Convert webhookStatus array to status property
+  if (
+    filters.webhookStatus &&
+    Array.isArray(filters.webhookStatus) &&
+    filters.webhookStatus.length > 0
+  ) {
+    return {
+      status: filters.webhookStatus[0] as WebhookStatusEnum,
+    }
+  }
+
+  return undefined
 }
 
 export const AMOUNT_INTERVALS_TRANSLATION_MAP = {

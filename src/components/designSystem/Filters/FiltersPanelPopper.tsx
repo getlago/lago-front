@@ -20,6 +20,7 @@ export const FiltersPanelPopper = () => {
     staticFiltersFormValues,
     applyFilters,
     buttonOpener,
+    displayInDialog,
   } = useFilters()
 
   const listContainerElementRef = useRef<HTMLDivElement>(null)
@@ -82,6 +83,7 @@ export const FiltersPanelPopper = () => {
 
   return (
     <Popper
+      displayInDialog={displayInDialog}
       PopperProps={{ placement: 'bottom-start' }}
       opener={
         buttonOpener || (
@@ -140,6 +142,9 @@ export const FiltersPanelPopper = () => {
                 </div>
                 <div className="flex flex-col justify-start gap-2 lg:flex-1 lg:flex-row lg:items-center lg:gap-3 lg:[&>div:first-child]:w-[200px] lg:[&>div:last-child]:flex-1">
                   <ComboBox
+                    PopperProps={{
+                      displayInDialog,
+                    }}
                     disableClearable
                     data={comboboxFiltersData}
                     placeholder={translate('text_66ab42d4ece7e6b7078993b1')}

@@ -130,6 +130,32 @@ export const ButtonsSection = () => {
         </section>
         <section>
           <Typography className="mb-4" variant="subhead">
+            Inline
+          </Typography>
+          <div className="mb-4 flex flex-wrap gap-4">
+            <Button variant="inline">Default</Button>
+            <Button variant="inline" size="large">
+              Large
+            </Button>
+            <Button variant="inline" size="medium">
+              Medium
+            </Button>
+            <Button variant="inline" size="small">
+              small
+            </Button>
+            <Button variant="inline" startIcon="plus" size="small">
+              Add
+            </Button>
+            <Button variant="inline" disabled>
+              Disabled
+            </Button>
+            <Button variant="inline" danger>
+              Danger
+            </Button>
+          </div>
+        </section>
+        <section>
+          <Typography className="mb-4" variant="subhead">
             Google connect
           </Typography>
           <div className="mb-4 flex flex-wrap gap-4">
