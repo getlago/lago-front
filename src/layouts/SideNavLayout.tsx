@@ -369,21 +369,6 @@ const SideNav = () => {
                     link: DOCUMENTATION_URL,
                     external: true,
                   },
-                  // TODO: To remove
-                  // {
-                  //   title: translate('text_6271200984178801ba8bdeac'),
-                  //   icon: 'laptop',
-                  //   link: DEVELOPERS_ROUTE,
-                  //   canBeClickedOnActive: true,
-                  //   match: [
-                  //     API_KEYS_ROUTE,
-                  //     WEBHOOK_ROUTE,
-                  //     DEBUGGER_ROUTE,
-                  //     WEBHOOK_LOGS_ROUTE,
-                  //     WEBHOOK_LOGS_TAB_ROUTE,
-                  //   ],
-                  //   hidden: !hasPermissions(['developersManage']),
-                  // },
                   {
                     title: translate('text_62728ff857d47b013204c726'),
                     icon: 'settings',
