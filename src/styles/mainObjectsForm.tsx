@@ -101,14 +101,6 @@ export const ButtonContainer = styled.div`
   margin: 0 ${theme.spacing(6)} ${theme.spacing(20)} ${theme.spacing(6)};
 `
 
-export const StickySubmitBar = styled.div`
-  position: sticky;
-  bottom: 0;
-  background-color: ${theme.palette.background.paper};
-  z-index: ${theme.zIndex.navBar};
-  border-top: 1px solid ${theme.palette.grey[200]};
-`
-
 // ------------------------------------------------------------
 
 export const FormLoadingSkeleton = ({ id, length = 2 }: { id: string; length?: number }) => {
