@@ -66,10 +66,6 @@ export const Side = styled.div`
   }
 `
 
-export const SkeletonHeader = styled.div`
-  padding: 0 ${theme.spacing(8)};
-`
-
 export const ButtonContainer = styled.div`
   margin: 0 ${theme.spacing(6)} ${theme.spacing(20)} ${theme.spacing(6)};
 `

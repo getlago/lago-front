@@ -12,14 +12,7 @@ import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditTax } from '~/hooks/useCreateEditTax'
 import { PageHeader } from '~/styles'
-import {
-  ButtonContainer,
-  Main,
-  Side,
-  SkeletonHeader,
-  Subtitle,
-  Title,
-} from '~/styles/mainObjectsForm'
+import { ButtonContainer, Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
 const CreateTaxRate = () => {
   const { isEdition, errorCode, loading, onClose, onSave, tax } = useCreateEditTax()
@@ -85,11 +78,11 @@ const CreateTaxRate = () => {
           <div>
             {loading && !tax ? (
               <>
-                <SkeletonHeader>
+                <div className="px-8">
                   <Skeleton variant="text" className="mb-5 w-70" />
                   <Skeleton variant="text" className="mb-4" />
                   <Skeleton variant="text" className="w-30" />
-                </SkeletonHeader>
+                </div>
 
                 {[0, 1, 2].map((skeletonCard) => (
                   <Card key={`skeleton-${skeletonCard}`}>

@@ -41,14 +41,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { PageHeader } from '~/styles'
-import {
-  ButtonContainer,
-  Main,
-  Side,
-  SkeletonHeader,
-  Subtitle,
-  Title,
-} from '~/styles/mainObjectsForm'
+import { ButtonContainer, Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
 const CreateCoupon = () => {
   const { translate } = useInternationalization()
@@ -226,11 +219,11 @@ const CreateCoupon = () => {
           <div>
             {loading ? (
               <>
-                <SkeletonHeader>
+                <div className="px-8">
                   <Skeleton variant="text" className="mb-5 w-70" />
                   <Skeleton variant="text" className="mb-4" />
                   <Skeleton variant="text" className="w-30" />
-                </SkeletonHeader>
+                </div>
 
                 {[0, 1].map((skeletonCard) => (
                   <Card key={`skeleton-${skeletonCard}`}>

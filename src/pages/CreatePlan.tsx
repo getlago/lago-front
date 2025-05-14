@@ -43,7 +43,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
 import { PageHeader } from '~/styles'
-import { Main, Side, SkeletonHeader } from '~/styles/mainObjectsForm'
+import { Main, Side } from '~/styles/mainObjectsForm'
 
 gql`
   fragment TaxForPlanAndChargesInPlanForm on Tax {
@@ -193,11 +193,11 @@ const CreatePlan = () => {
           <MainMinimumContent>
             {loading && !plan ? (
               <>
-                <SkeletonHeader>
+                <div className="px-8">
                   <Skeleton variant="text" className="mb-5 w-70" />
                   <Skeleton variant="text" className="mb-4" />
                   <Skeleton variant="text" className="w-30" />
-                </SkeletonHeader>
+                </div>
 
                 {[0, 1, 2].map((skeletonCard) => (
                   <Card key={`skeleton-${skeletonCard}`}>
