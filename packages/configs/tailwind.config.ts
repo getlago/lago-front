@@ -180,6 +180,7 @@ const config: Config = {
         164: '41rem',
         168: '42rem',
         170: '42.5rem',
+        180: '45rem',
         192: '48rem',
         footer: '5rem',
         nav: '4.5rem',
