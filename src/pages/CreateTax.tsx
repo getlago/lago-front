@@ -12,7 +12,7 @@ import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditTax } from '~/hooks/useCreateEditTax'
 import { PageHeader } from '~/styles'
-import { ButtonContainer, Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
+import { Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
 const CreateTaxRate = () => {
   const { isEdition, errorCode, loading, onClose, onSave, tax } = useCreateEditTax()
@@ -191,7 +191,7 @@ const CreateTaxRate = () => {
                   />
                 </Card>
 
-                <ButtonContainer>
+                <div className="px-6 pb-20">
                   <Button
                     disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
                     fullWidth
@@ -207,7 +207,7 @@ const CreateTaxRate = () => {
                       isEdition ? 'text_645bb193927b375079d28ab7' : 'text_645bb193927b375079d28b8e',
                     )}
                   </Button>
-                </ButtonContainer>
+                </div>
               </>
             )}
           </div>

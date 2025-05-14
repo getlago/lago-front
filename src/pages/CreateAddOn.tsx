@@ -32,7 +32,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditAddOn } from '~/hooks/useCreateEditAddOn'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { PageHeader } from '~/styles'
-import { ButtonContainer, Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
+import { Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
 gql`
   query getTaxesForAddOnForm($limit: Int, $page: Int, $searchTerm: String) {
@@ -379,7 +379,7 @@ const CreateAddOn = () => {
                   )}
                 </Card>
 
-                <ButtonContainer>
+                <div className="px-6 pb-20">
                   <Button
                     disabled={!formikProps.isValid || !formikProps.dirty}
                     fullWidth
@@ -391,7 +391,7 @@ const CreateAddOn = () => {
                       isEdition ? 'text_629728388c4d2300e2d38170' : 'text_629728388c4d2300e2d38179',
                     )}
                   </Button>
-                </ButtonContainer>
+                </div>
               </>
             )}
           </div>

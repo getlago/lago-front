@@ -41,7 +41,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { PageHeader } from '~/styles'
-import { ButtonContainer, Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
+import { Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
 const CreateCoupon = () => {
   const { translate } = useInternationalization()
@@ -601,7 +601,7 @@ const CreateCoupon = () => {
                   )}
                 </Card>
 
-                <ButtonContainer>
+                <div className="px-6 pb-20">
                   <Button
                     disabled={
                       !formikProps.isValid ||
@@ -623,7 +623,7 @@ const CreateCoupon = () => {
                       isEdition ? 'text_6287a9bdac160c00b2e0fc6b' : 'text_62876e85e32e0300e180317d',
                     )}
                   </Button>
-                </ButtonContainer>
+                </div>
               </>
             )}
           </div>

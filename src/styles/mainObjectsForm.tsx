@@ -66,10 +66,6 @@ export const Side = styled.div`
   }
 `
 
-export const ButtonContainer = styled.div`
-  margin: 0 ${theme.spacing(6)} ${theme.spacing(20)} ${theme.spacing(6)};
-`
-
 // ------------------------------------------------------------
 
 export const FormLoadingSkeleton = ({ id, length = 2 }: { id: string; length?: number }) => {

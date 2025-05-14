@@ -40,7 +40,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditBillableMetric } from '~/hooks/useCreateEditBillableMetric'
 import { PageHeader } from '~/styles'
-import { ButtonContainer, Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
+import { Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
 const NOT_UNIQUE_KEY_ERROR = 'key_not_unique'
 
@@ -841,7 +841,7 @@ const CreateBillableMetric = () => {
                   </Stack>
                 </Card>
 
-                <ButtonContainer>
+                <div className="px-6 pb-20">
                   <Button
                     disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
                     fullWidth
@@ -853,7 +853,7 @@ const CreateBillableMetric = () => {
                       isEdition ? 'text_62582fb4675ece01137a7e6c' : 'text_623b42ff8ee4e000ba87d0d4',
                     )}
                   </Button>
-                </ButtonContainer>
+                </div>
               </>
             )}
           </div>
