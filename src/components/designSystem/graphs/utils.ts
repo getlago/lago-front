@@ -51,7 +51,14 @@ export const calculateYAxisDomain = <T extends Record<string, unknown>>(
     }
   }
 
-  return [minValue || 0, maxValue || 1]
+  const min = minValue || 0
+  const max = maxValue || 1
+
+  if (min === max) {
+    return [min - 1, max + 1]
+  }
+
+  return [min, max]
 }
 
 export const getItemDateFormatedByTimeGranularity = ({

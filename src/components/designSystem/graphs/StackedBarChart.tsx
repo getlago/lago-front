@@ -77,6 +77,12 @@ type StackedBarChartProps<T> = {
   xAxisDataKey: DotNestedKeys<T>
   xAxisTickAttributes?: [DotNestedKeys<T>, DotNestedKeys<T>]
   timeGranularity: TimeGranularityEnum
+  margin?: {
+    top?: number
+    right?: number
+    bottom?: number
+    left?: number
+  }
 }
 
 const LOADING_TICK_SIZE = 32
@@ -143,6 +149,7 @@ const StackedBarChart = <T extends DataItem>({
   xAxisDataKey,
   xAxisTickAttributes,
   timeGranularity,
+  margin,
 }: StackedBarChartProps<T>) => {
   const { setClickedDataIndex, setHoverDataIndex, hoverDataIndex, handleMouseLeave } =
     useAnalyticsState()
@@ -205,10 +212,10 @@ const StackedBarChart = <T extends DataItem>({
           width={500}
           height={300}
           margin={{
-            top: 1,
-            left: 1,
-            right: 12,
-            bottom: -2,
+            top: margin?.top ?? 1,
+            left: margin?.left ?? 1,
+            right: margin?.right ?? 12,
+            bottom: margin?.bottom ?? -2,
           }}
           data={localData}
           stackOffset="sign"
@@ -381,6 +388,10 @@ const StackedBarChart = <T extends DataItem>({
               const yZero = yAxis.scale(0)
 
               if (typeof yZero !== 'number') return null
+
+              const hasZeroTick = yZero >= yAxis.y && yZero <= yAxis.y + yAxis.height
+
+              if (hasZeroTick) return null
 
               if (loading) {
                 return (
