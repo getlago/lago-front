@@ -4,18 +4,16 @@ import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { authRoutes } from './AuthRoutes'
 import { customerPortalRoutes } from './CustomerPortalRoutes'
 import { customerObjectCreationRoutes, customerRoutes } from './CustomerRoutes'
-import { developperRoutes } from './DevelopperRoutes'
 import { objectCreationRoutes, objectDetailsRoutes, objectListRoutes } from './ObjectsRoutes'
 import { settingRoutes } from './SettingRoutes'
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
 
-export * from './types'
 export * from './AuthRoutes'
 export * from './CustomerRoutes'
-export * from './DevelopperRoutes'
 export * from './ObjectsRoutes'
 export * from './SettingRoutes'
+export * from './types'
 
 const { appEnv } = envGlobalVar()
 
@@ -75,7 +73,6 @@ export const routes: CustomRouteObject[] = [
         permissions: ['analyticsView', 'dataApiView'],
       },
       ...customerRoutes,
-      ...developperRoutes,
       ...objectListRoutes,
       ...objectDetailsRoutes,
       ...([AppEnvEnum.qa, AppEnvEnum.development].includes(appEnv)
