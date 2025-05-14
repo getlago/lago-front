@@ -1,0 +1,208 @@
+import { gql } from '@apollo/client'
+import { Button, ButtonLink, Icon, Typography } from 'lago-design-system'
+import { useMemo, useRef } from 'react'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
+
+import { Table } from '~/components/designSystem/Table'
+import {
+  DeleteAlertDialog,
+  DeleteAlertDialogRef,
+} from '~/components/subscriptions/alerts/DeleteAlertDialog'
+import { CREATE_ALERT_PLAN_SUBSCRIPTION_ROUTE } from '~/core/router/ObjectsRoutes'
+import { CREATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE } from '~/core/router/ObjectsRoutes'
+import { useGetAlertsOfSubscriptionQuery } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
+
+gql`
+  query getAlertsOfSubscription($subscriptionExternalId: String!, $limit: Int, $page: Int) {
+    alerts(subscriptionExternalId: $subscriptionExternalId, limit: $limit, page: $page) {
+      collection {
+        id
+        code
+        createdAt
+        name
+      }
+    }
+  }
+`
+export const SubscriptionAlertsList = ({
+  subscriptionExternalId,
+}: {
+  subscriptionExternalId?: string | null
+}) => {
+  const { customerId = '', planId = '', subscriptionId = '' } = useParams()
+  const { isPremium } = useCurrentUser()
+  const { hasPermissions } = usePermissions()
+  const navigate = useNavigate()
+  const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { translate } = useInternationalization()
+  const deleteAlertDialogRef = useRef<DeleteAlertDialogRef>(null)
+
+  const canCreateOrUpdateAlert = useMemo(() => {
+    return hasPermissions(['subscriptionsCreate', 'subscriptionsUpdate'])
+  }, [hasPermissions])
+
+  const {
+    data: alertsData,
+    loading: alertsLoading,
+    error: alertsError,
+  } = useGetAlertsOfSubscriptionQuery({
+    notifyOnNetworkStatusChange: true,
+    variables: {
+      subscriptionExternalId: subscriptionExternalId || '',
+      limit: 20,
+    },
+    skip: !isPremium || !subscriptionExternalId,
+  })
+
+  return (
+    <>
+      <section className="flex flex-col gap-4 pt-8">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-col gap-2">
+            <Typography variant="subhead" color="grey700">
+              {translate('text_17465238490269pahbvl3s2m')}
+            </Typography>
+            <Typography variant="caption" color="grey600">
+              {translate('text_17465238490260r2325jwada')}
+            </Typography>
+          </div>
+
+          {isPremium && canCreateOrUpdateAlert && (
+            <Button
+              variant="quaternary"
+              onClick={() => {
+                if (!!customerId) {
+                  navigate(
+                    generatePath(CREATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE, {
+                      customerId,
+                      subscriptionId,
+                    }),
+                  )
+                } else if (!!planId) {
+                  navigate(
+                    generatePath(CREATE_ALERT_PLAN_SUBSCRIPTION_ROUTE, { planId, subscriptionId }),
+                  )
+                }
+              }}
+            >
+              {translate('text_174652384902646b3ma52uws')}
+            </Button>
+          )}
+        </div>
+
+        {!isPremium && (
+          <div className="flex items-center justify-between gap-4 rounded-lg bg-grey-100 px-6 py-4">
+            <div>
+              <Typography
+                className="flex items-center gap-2"
+                variant="bodyHl"
+                color="textSecondary"
+              >
+                {translate('text_1746523849026gmu98qidikp')} <Icon name="sparkles" />
+              </Typography>
+              <Typography variant="caption">
+                {translate('text_1746523849026ljzi79afhmc')}
+              </Typography>
+            </div>
+            <ButtonLink
+              buttonProps={{
+                variant: 'tertiary',
+                size: 'medium',
+                endIcon: 'sparkles',
+              }}
+              type="button"
+              external
+              to={`mailto:hello@getlago.com?subject=${translate('text_174652384902646b3ma52uww')}&body=${translate('text_1746523849026ljzi79afhmq')}`}
+            >
+              {translate('text_65ae73ebe3a66bec2b91d72d')}
+            </ButtonLink>
+          </div>
+        )}
+
+        {!!isPremium && (
+          <>
+            {!alertsLoading && !alertsData?.alerts.collection.length ? (
+              <Typography variant="body" color="grey500">
+                {translate('text_1746523849026ljzi79afhmr')}
+              </Typography>
+            ) : (
+              <Table
+                name="alerts-list"
+                containerSize={0}
+                data={alertsData?.alerts.collection || []}
+                hasError={!!alertsError}
+                isLoading={alertsLoading}
+                rowSize={72}
+                placeholder={{
+                  errorState: {
+                    title: translate('text_634812d6f16b31ce5cbf4111'),
+                    subtitle: translate('text_634812d6f16b31ce5cbf411f'),
+                    buttonTitle: translate('text_634812d6f16b31ce5cbf4123'),
+                    buttonAction: () => location.reload(),
+                  },
+                  emptyState: {
+                    title: translate('text_174652384902646b3ma52uwq'),
+                    subtitle: translate('text_1746523849026ljzi79afhmr'),
+                  },
+                }}
+                columns={[
+                  {
+                    key: 'name',
+                    maxSpace: true,
+                    minWidth: 200,
+                    title: translate('text_6388b923e514213fed58331c'),
+                    content: ({ name, code }) => (
+                      <div className="flex flex-col gap-1">
+                        <Typography color="grey700" variant="bodyHl">
+                          {name || '-'}
+                        </Typography>
+                        <Typography color="grey600" variant="caption">
+                          {code || '-'}
+                        </Typography>
+                      </div>
+                    ),
+                  },
+                  {
+                    key: 'createdAt',
+                    minWidth: 150,
+                    title: translate('text_62442e40cea25600b0b6d858'),
+                    content: ({ createdAt }) => (
+                      <Typography color="grey700" variant="body">
+                        {/* TODO: make sure the format is correct  */}
+                        {formatTimeOrgaTZ(createdAt, 'EEE dd LLL, yyyy HH:mm:ss')}
+                      </Typography>
+                    ),
+                  },
+                ]}
+                actionColumnTooltip={() => translate('text_6256de3bba111e00b3bfa51b')}
+                actionColumn={({ id }) => {
+                  return [
+                    {
+                      title: translate('text_1746546924392wfvshvfrjos'),
+                      startIcon: 'pen',
+                      onAction: () => {
+                        // TODO:
+                      },
+                    },
+                    {
+                      title: translate('text_17465469243924wwxl5pgoxi'),
+                      startIcon: 'trash',
+                      onAction: () => {
+                        deleteAlertDialogRef.current?.openDialog({ id })
+                      },
+                    },
+                  ]
+                }}
+              />
+            )}
+          </>
+        )}
+      </section>
+      <DeleteAlertDialog ref={deleteAlertDialogRef} />
+    </>
+  )
+}

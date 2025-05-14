@@ -7,6 +7,7 @@ export enum CustomerInvoiceDetailsTabsOptionsEnum {
 export enum CustomerSubscriptionDetailsTabsOptionsEnum {
   overview = 'overview',
   usage = 'usage',
+  alerts = 'alerts',
 }
 
 export enum IntegrationsTabsOptionsEnum {
