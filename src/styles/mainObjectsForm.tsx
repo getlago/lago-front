@@ -70,18 +70,6 @@ export const Side = styled.div`
   }
 `
 
-export const Line = styled.div`
-  display: flex;
-  margin: -${theme.spacing(3)} -${theme.spacing(3)} ${theme.spacing(3)} -${theme.spacing(3)};
-  flex-wrap: wrap;
-
-  > * {
-    flex: 1;
-    margin: ${theme.spacing(3)};
-    min-width: 110px;
-  }
-`
-
 export const LineSplit = styled.div`
   display: flex;
   column-gap: ${theme.spacing(6)};
