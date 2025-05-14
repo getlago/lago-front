@@ -1,6 +1,6 @@
 import { useFormik } from 'formik'
 import { tw } from 'lago-design-system'
-import { forwardRef } from 'react'
+import { forwardRef, useEffect } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 import { array, object, string } from 'yup'
 
@@ -22,6 +22,7 @@ import { useIntegrations } from '~/hooks/useIntegrations'
 type BillingEntityFormItem = {
   id?: string
   country?: CountryCode | null
+  initialCountry?: CountryCode | null
 }
 
 export type AddLagoTaxManagementDialogRef = DialogRef
@@ -77,6 +78,7 @@ export const AddLagoTaxManagementDialog = forwardRef<
           .map((billingEntity) => ({
             id: billingEntity.id,
             country: billingEntity.country,
+            initialCountry: billingEntity?.country,
           })) || [],
     },
     validationSchema: object().shape({
@@ -159,6 +161,33 @@ export const AddLagoTaxManagementDialog = forwardRef<
     return availableBillingEntities
   }
 
+  const onBillingEntityIdChange = (id: string, index: number) => {
+    const entity = billingEntitiesData?.billingEntities?.collection?.find((_b) => _b.id === id)
+
+    if (!id) {
+      return formikProps.setFieldValue(`billingEntities[${index}]`, {})
+    }
+
+    if (entity?.country) {
+      return formikProps.setFieldValue(`billingEntities[${index}]`, {
+        id: entity.id,
+        country: entity.country,
+        initialCountry: entity.country,
+      })
+    }
+
+    return formikProps.setFieldValue(`billingEntities[${index}]`, {
+      id: entity?.id,
+    })
+  }
+
+  const onBillingEntityCountryChange = (country: string, index: number) => {
+    return formikProps.setFieldValue(`billingEntities[${index}]`, {
+      ...formikProps.values.billingEntities[index],
+      country,
+    })
+  }
+
   return (
     <Dialog
       ref={ref}
@@ -214,6 +243,7 @@ export const AddLagoTaxManagementDialog = forwardRef<
                 loading={billingEntitiesLoading}
                 data={availableBillingEntitiesForEntity(_b.id)}
                 sortValues={false}
+                customOnChange={(val: string) => onBillingEntityIdChange(val, index)}
               />
             </div>
 
@@ -225,6 +255,9 @@ export const AddLagoTaxManagementDialog = forwardRef<
                 placeholder={translate('text_657078c28394d6b1ae1b9771')}
                 formikProps={formikProps}
                 PopperProps={{ displayInDialog: true }}
+                disabled={!!_b.initialCountry}
+                disableClearable={!!_b.initialCountry}
+                customOnChange={(val: string) => onBillingEntityCountryChange(val, index)}
               />
             </div>
 
