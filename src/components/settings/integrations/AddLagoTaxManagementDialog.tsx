@@ -51,22 +51,7 @@ export const AddLagoTaxManagementDialog = forwardRef<
 
   const maxBillingEntities = billingEntitiesList?.length || 0
 
-  const [update] = useUpdateBillingEntityMutation({
-    onCompleted({ updateBillingEntity }) {
-      if (!!updateBillingEntity) {
-        navigate(
-          generatePath(TAX_MANAGEMENT_INTEGRATION_ROUTE, {
-            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-          }),
-        )
-
-        addToast({
-          message: translate('text_1746630247115t9xocnxcb1n'),
-          severity: 'success',
-        })
-      }
-    },
-  })
+  const [update] = useUpdateBillingEntityMutation()
 
   const formikProps = useFormik<{
     billingEntities: Array<BillingEntityFormItem>
@@ -109,6 +94,17 @@ export const AddLagoTaxManagementDialog = forwardRef<
           })
         }),
       )
+
+      navigate(
+        generatePath(TAX_MANAGEMENT_INTEGRATION_ROUTE, {
+          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+        }),
+      )
+
+      addToast({
+        message: translate('text_1746630247115t9xocnxcb1n'),
+        severity: 'success',
+      })
     },
     validateOnMount: true,
     enableReinitialize: true,
@@ -268,6 +264,7 @@ export const AddLagoTaxManagementDialog = forwardRef<
                 size="medium"
                 icon="trash"
                 onClick={() => removeBillingEntity(index)}
+                disabled={isUpdate && index === 0}
               />
             </div>
           </div>
