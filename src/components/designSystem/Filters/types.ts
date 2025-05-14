@@ -5,6 +5,7 @@ export enum AvailableQuickFilters {
   invoiceStatus = 'invoiceStatus',
   customerAccountType = 'customerAccountType',
   timeGranularity = 'timeGranularity',
+  unitsAmount = 'unitsAmount',
 }
 
 export enum AmountFilterInterval {
@@ -106,6 +107,56 @@ export const PrepaidCreditsOverviewAvailableFilters = [
 export const AnalyticsInvoicesAvailableFilters = [
   AvailableFiltersEnum.currency,
   AvailableFiltersEnum.period,
+]
+
+export const UsageOverviewAvailableFilters = [
+  AvailableFiltersEnum.date,
+  AvailableFiltersEnum.country,
+  AvailableFiltersEnum.currency,
+  AvailableFiltersEnum.customerAccountType,
+  AvailableFiltersEnum.customerExternalId,
+  AvailableFiltersEnum.planCode,
+  AvailableFiltersEnum.subscriptionExternalId,
+]
+
+export const UsageBreakdownAvailableFilters = [
+  AvailableFiltersEnum.date,
+  AvailableFiltersEnum.country,
+  AvailableFiltersEnum.currency,
+  AvailableFiltersEnum.customerAccountType,
+  AvailableFiltersEnum.customerExternalId,
+  AvailableFiltersEnum.planCode,
+  AvailableFiltersEnum.subscriptionExternalId,
+]
+
+export const UsageBreakdownMeteredAvailableFilters = [
+  AvailableFiltersEnum.date,
+  AvailableFiltersEnum.country,
+  AvailableFiltersEnum.currency,
+  AvailableFiltersEnum.customerAccountType,
+  AvailableFiltersEnum.customerExternalId,
+  AvailableFiltersEnum.planCode,
+  AvailableFiltersEnum.subscriptionExternalId,
+]
+
+export const UsageBreakdownRecurringAvailableFilters = [
+  AvailableFiltersEnum.date,
+  AvailableFiltersEnum.country,
+  AvailableFiltersEnum.currency,
+  AvailableFiltersEnum.customerAccountType,
+  AvailableFiltersEnum.customerExternalId,
+  AvailableFiltersEnum.planCode,
+  AvailableFiltersEnum.subscriptionExternalId,
+]
+
+export const UsageBillableMetricAvailableFilters = [
+  AvailableFiltersEnum.date,
+  AvailableFiltersEnum.country,
+  AvailableFiltersEnum.currency,
+  AvailableFiltersEnum.customerAccountType,
+  AvailableFiltersEnum.customerExternalId,
+  AvailableFiltersEnum.planCode,
+  AvailableFiltersEnum.subscriptionExternalId,
 ]
 
 const translationMap: Record<AvailableFiltersEnum, string> = {

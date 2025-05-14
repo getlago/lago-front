@@ -1,5 +1,6 @@
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
+import { UsageBreakdownType } from '~/components/analytics/usage/UsageBreakdownSection'
 import { TimeGranularityEnum } from '~/generated/graphql'
 
 import { useFilterContext } from './context'
@@ -134,6 +135,14 @@ export const useFilters = () => {
     return newSearchParams.toString()
   }
 
+  const selectUnitsAmount = (unitsAmount: UsageBreakdownType): string => {
+    const newSearchParams = new URLSearchParams(searchParams)
+
+    newSearchParams.set(keyWithPrefix(AvailableQuickFilters.unitsAmount), unitsAmount)
+
+    return newSearchParams.toString()
+  }
+
   const isQuickFilterActive = (filters: { [key: string]: unknown }) => {
     for (const [_key, value] of Object.entries(filters)) {
       const key = keyWithPrefix(_key)
@@ -164,5 +173,6 @@ export const useFilters = () => {
     keyWithPrefix,
     resetFilters,
     selectTimeGranularity,
+    selectUnitsAmount,
   }
 }
