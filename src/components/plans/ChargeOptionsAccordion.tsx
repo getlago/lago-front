@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { AccordionDetails, AccordionSummary, Accordion as MuiAccordion } from '@mui/material'
 import { TransitionProps } from '@mui/material/transitions'
 import { ReactNode, useState } from 'react'
-import styled from 'styled-components'
 
 import { Button, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -59,19 +58,40 @@ export const ChargeOptionsAccordion = ({
   }
 
   return (
-    <Container id={id}>
-      <StyledChargeOptionsAccordion
+    <div id={id} className="rounded-b-xl border-t border-grey-400">
+      <MuiAccordion
         expanded={isOpen}
         onChange={(_, expanded) => setIsOpen(expanded)}
         TransitionProps={{ unmountOnExit: true, ...transitionProps }}
         square
       >
-        <SummaryWrapper>
-          <Summary>
+        <AccordionSummary
+          className="min-h-18 rounded-b-xl"
+          sx={{
+            '&.Mui-expanded': {
+              borderRadius: 0,
+            },
+            '&.MuiAccordionSummary-root.Mui-focusVisible': {
+              backgroundColor: 'inherit',
+              boxShadow: `0px 0px 0px 4px ${theme.palette.primary[200]}`,
+            },
+            '&:hover': {
+              backgroundColor: theme.palette.grey[100],
+            },
+            '&:active': {
+              backgroundColor: theme.palette.grey[200],
+            },
+            '.MuiAccordionSummary-content': {
+              minHeight: `${NAV_HEIGHT}px`,
+              padding: `${theme.spacing(3)} ${theme.spacing(4)}`,
+            },
+          }}
+        >
+          <div className="mr-3 flex flex-1 flex-col gap-1">
             <Typography variant="captionHl" color="grey700">
               {translate('text_646e2d0cc536351b62ba6f01')}
             </Typography>
-            <ChipsWrapper>
+            <div className="flex flex-wrap gap-2">
               <Chip
                 label={
                   charge.payInAdvance
@@ -101,8 +121,8 @@ export const ChargeOptionsAccordion = ({
                     : translate('text_646e2d0cc536351b62ba6f20')
                 }
               />
-            </ChipsWrapper>
-          </Summary>
+            </div>
+          </div>
           <Tooltip
             placement="top-start"
             title={translate(
@@ -117,102 +137,11 @@ export const ChargeOptionsAccordion = ({
               icon={isOpen ? 'chevron-down' : 'chevron-right'}
             />
           </Tooltip>
-        </SummaryWrapper>
-        <Details>{typeof children === 'function' ? children({ isOpen }) : children}</Details>
-      </StyledChargeOptionsAccordion>
-    </Container>
+        </AccordionSummary>
+        <AccordionDetails className="flex flex-col gap-6 p-4 shadow-t">
+          {typeof children === 'function' ? children({ isOpen }) : children}
+        </AccordionDetails>
+      </MuiAccordion>
+    </div>
   )
 }
-
-const Container = styled.div`
-  border-top: 1px solid ${theme.palette.grey[400]};
-  border-radius: 0 0 12px 12px;
-`
-
-const StyledChargeOptionsAccordion = styled(MuiAccordion)`
-  border-radius: 0 0 12px 12px;
-  overflow: hidden;
-
-  &.MuiAccordion-root.MuiPaper-root {
-    border-radius: 0 0 12px 12px;
-    background-color: transparent;
-  }
-  &.MuiAccordion-root {
-    overflow: inherit;
-
-    &:before {
-      height: 0;
-    }
-    &.Mui-expanded {
-      margin: 0;
-    }
-  }
-
-  .MuiAccordionSummary-content {
-    width: 100%;
-  }
-`
-
-const SummaryWrapper = styled(AccordionSummary)`
-  && {
-    min-height: ${NAV_HEIGHT}px;
-    border-radius: 0 0 12px 12px;
-    transition: border-radius 0.025s ease-in-out;
-
-    &.Mui-expanded {
-      border-radius: 0;
-    }
-
-    &.MuiAccordionSummary-root.Mui-focusVisible {
-      background-color: inherit;
-      box-shadow: 0px 0px 0px 4px ${theme.palette.primary[200]};
-      &:hover {
-        background-color: ${theme.palette.grey[100]};
-      }
-    }
-
-    &:hover {
-      background-color: ${theme.palette.grey[100]};
-    }
-
-    &:active {
-      background-color: ${theme.palette.grey[200]};
-    }
-
-    .MuiAccordionSummary-content {
-      display: flex;
-      min-height: ${NAV_HEIGHT}px;
-      box-sizing: border-box;
-      align-items: center;
-      padding: ${theme.spacing(3)} ${theme.spacing(4)};
-    }
-  }
-`
-
-const Summary = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: ${theme.spacing(1)};
-  margin-right: ${theme.spacing(3)};
-`
-
-const ChipsWrapper = styled.div`
-  display: flex;
-  gap: ${theme.spacing(2)};
-  flex-wrap: wrap;
-`
-
-const Details = styled(AccordionDetails)`
-  display: flex;
-  flex-direction: column;
-  box-shadow: ${theme.shadows[5]};
-
-  > *:not(:last-child) {
-    margin-bottom: ${theme.spacing(6)};
-  }
-
-  &.MuiAccordionDetails-root {
-    padding: ${theme.spacing(4)};
-  }
-`

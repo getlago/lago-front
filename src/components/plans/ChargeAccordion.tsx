@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { FormikErrors, FormikProps } from 'formik'
+import { tw } from 'lago-design-system'
 import { memo, MouseEvent, RefObject, useCallback, useEffect, useMemo, useState } from 'react'
-import styled from 'styled-components'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import {
@@ -50,7 +50,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useChargeForm } from '~/hooks/plans/useChargeForm'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { NAV_HEIGHT, theme } from '~/styles'
 
 import { buildChargeFilterAddFilterButtonId, ChargeFilter } from './ChargeFilter'
 import { ChargeOptionsAccordion } from './ChargeOptionsAccordion'
@@ -357,9 +356,9 @@ export const ChargeAccordion = memo(
         id={id}
         initiallyOpen={!!(isInitiallyOpen || !formikProps.values.charges?.[index]?.id)}
         summary={
-          <Summary>
-            <ChargeSummaryLeftWrapper>
-              <SummaryLeft>
+          <div className="flex w-full items-center justify-between gap-3 overflow-hidden">
+            <div className="flex flex-col overflow-hidden">
+              <div className="flex items-center gap-2 truncate p-1 pl-0">
                 <Typography variant="bodyHl" color="textSecondary" noWrap>
                   {localCharge.invoiceDisplayName || localCharge?.billableMetric?.name}
                 </Typography>
@@ -383,12 +382,12 @@ export const ChargeAccordion = memo(
                     }}
                   />
                 </Tooltip>
-              </SummaryLeft>
+              </div>
               <Typography variant="caption" noWrap>
                 {localCharge?.billableMetric?.code}
               </Typography>
-            </ChargeSummaryLeftWrapper>
-            <SummaryRight>
+            </div>
+            <div className="flex items-center gap-3 p-1 pl-0">
               <Tooltip
                 placement="top-end"
                 title={
@@ -448,14 +447,14 @@ export const ChargeAccordion = memo(
                   />
                 </Tooltip>
               )}
-            </SummaryRight>
-          </Summary>
+            </div>
+          </div>
         }
         data-test={`charge-accordion-${index}`}
       >
         <>
           {/* Charge main infos */}
-          <ChargeModelWrapper data-test="charge-model-wrapper">
+          <div className="p-4 pb-0" data-test="charge-model-wrapper">
             {!!shouldDisplayAlreadyUsedChargeAlert && (
               <Alert type="warning" className="mb-4">
                 {translate('text_6435895831d323008a47911f')}
@@ -471,11 +470,16 @@ export const ChargeAccordion = memo(
               helperText={translate(getChargeModelHelpTextTranslationKey[localCharge.chargeModel])}
               onChange={(value) => handleUpdate('chargeModel', value)}
             />
-          </ChargeModelWrapper>
+          </div>
 
           {(!!localCharge.properties || !!localCharge?.filters?.length) && (
             <>
-              <AllChargesWrapper $canHaveFilters={!!localCharge?.billableMetric?.filters?.length}>
+              <div
+                className={tw(
+                  'flex flex-col gap-4',
+                  !!localCharge?.billableMetric?.filters?.length && 'mt-6 px-4',
+                )}
+              >
                 {/* Simple charge or default property for groups */}
                 {!!localCharge.properties && (
                   <ConditionalWrapper
@@ -491,8 +495,8 @@ export const ChargeAccordion = memo(
                           noContentMargin
                           className={buildChargeDefaultPropertyId(index)}
                           summary={
-                            <BoxHeader>
-                              <BoxHeaderGroupLeft>
+                            <div className="flex h-18 w-full items-center justify-between gap-3 overflow-hidden">
+                              <div className="flex items-center gap-3 overflow-hidden p-1 pl-0">
                                 <div>
                                   <Typography noWrap variant="bodyHl" color="grey700">
                                     {translate('text_64e620bca31226337ffc62ad')}
@@ -501,8 +505,8 @@ export const ChargeAccordion = memo(
                                     {translate('text_65f847a944603a01034f5830')}
                                   </Typography>
                                 </div>
-                              </BoxHeaderGroupLeft>
-                              <BoxHeaderGroupRight>
+                              </div>
+                              <div className="flex items-center gap-3 p-1 pl-0">
                                 <Tooltip
                                   placement="top-end"
                                   title={
@@ -538,8 +542,8 @@ export const ChargeAccordion = memo(
                                     }}
                                   />
                                 </Tooltip>
-                              </BoxHeaderGroupRight>
-                            </BoxHeader>
+                              </div>
+                            </div>
                           }
                           data-test={buildChargeDefaultPropertyId(index)}
                         >
@@ -585,8 +589,8 @@ export const ChargeAccordion = memo(
                         noContentMargin
                         initiallyOpen={filter.values.length === 0}
                         summary={
-                          <BoxHeader>
-                            <BoxHeaderGroupLeft>
+                          <div className="flex h-18 w-full items-center justify-between gap-3 overflow-hidden">
+                            <div className="flex items-center gap-3 overflow-hidden p-1 pl-0">
                               <Typography variant="bodyHl" color="textSecondary" noWrap>
                                 {filter.invoiceDisplayName ||
                                   accordionMappedDisplayValues ||
@@ -616,8 +620,8 @@ export const ChargeAccordion = memo(
                                   }}
                                 />
                               </Tooltip>
-                            </BoxHeaderGroupLeft>
-                            <BoxHeaderGroupRight>
+                            </div>
+                            <div className="flex items-center gap-3 p-1 pl-0">
                               <Tooltip
                                 placement="top-end"
                                 title={
@@ -652,12 +656,12 @@ export const ChargeAccordion = memo(
                                   }}
                                 />
                               </Tooltip>
-                            </BoxHeaderGroupRight>
-                          </BoxHeader>
+                            </div>
+                          </div>
                         }
                         data-test={`filter-charge-accordion-${filterIndex}`}
                       >
-                        <ChargeWithFiltersWrapper>
+                        <div className="not-last-child:shadow-b">
                           <ChargeFilter
                             filter={filter}
                             chargeIndex={index}
@@ -693,16 +697,16 @@ export const ChargeAccordion = memo(
                             valuePointer={filter.properties}
                             initialValuePointer={initialLocalCharge?.properties}
                           />
-                        </ChargeWithFiltersWrapper>
+                        </div>
                       </Accordion>
                     )
                   })}
-              </AllChargesWrapper>
+              </div>
             </>
           )}
 
           {!!localCharge?.billableMetric?.filters?.length && (
-            <ButtonWrapper>
+            <div className="mx-0 mb-4 mt-6 px-4">
               {!!localCharge.billableMetric.filters?.length && (
                 <Button
                   variant="quaternary"
@@ -760,7 +764,7 @@ export const ChargeAccordion = memo(
                   {translate('text_65faba06377c5900f5111cc6')}
                 </Button>
               )}
-            </ButtonWrapper>
+            </div>
           )}
 
           {/* Charge options */}
@@ -820,8 +824,8 @@ export const ChargeAccordion = memo(
             )}
 
             {!localCharge.payInAdvance && (
-              <Group>
-                <GroupTitle>
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-1">
                   <Typography variant="captionHl" color="textSecondary">
                     {translate('text_643e592657fc1ba5ce110c30')}
                   </Typography>
@@ -832,9 +836,10 @@ export const ChargeAccordion = memo(
                       ).toLocaleLowerCase(),
                     })}
                   </Typography>
-                </GroupTitle>
+                </div>
                 {!showSpendingMinimum ? (
                   <Button
+                    fitContent
                     variant="quaternary"
                     startIcon="plus"
                     disabled={subscriptionFormType === FORM_TYPE_ENUM.edition || disabled}
@@ -853,7 +858,7 @@ export const ChargeAccordion = memo(
                     {translate('text_643e592657fc1ba5ce110b9e')}
                   </Button>
                 ) : (
-                  <SpendingMinimumWrapper>
+                  <div className="flex items-center gap-3">
                     <AmountInput
                       className="flex-1"
                       id={`spending-minimum-input-${index}`}
@@ -882,22 +887,22 @@ export const ChargeAccordion = memo(
                         }}
                       />
                     </Tooltip>
-                  </SpendingMinimumWrapper>
+                  </div>
                 )}
-              </Group>
+              </div>
             )}
 
-            <Group>
-              <GroupTitle>
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
                 <Typography variant="captionHl" color="textSecondary">
                   {translate('text_6661fc17337de3591e29e3e1')}
                 </Typography>
                 <Typography variant="caption">
                   {translate('text_6662c316125d2400f7995ff6')}
                 </Typography>
-              </GroupTitle>
+              </div>
               {!!localCharge?.taxes?.length && (
-                <InlineTaxesWrapper>
+                <div className="flex flex-wrap items-center gap-3">
                   {localCharge.taxes.map(({ id: localTaxId, name, rate }) => (
                     <Chip
                       key={localTaxId}
@@ -915,11 +920,12 @@ export const ChargeAccordion = memo(
                       }}
                     />
                   ))}
-                </InlineTaxesWrapper>
+                </div>
               )}
 
               {!shouldDisplayTaxesInput ? (
                 <Button
+                  fitContent
                   startIcon="plus"
                   variant="quaternary"
                   onClick={() => {
@@ -941,8 +947,9 @@ export const ChargeAccordion = memo(
                   {translate('text_64be910fba8ef9208686a8c9')}
                 </Button>
               ) : (
-                <InlineTaxInputWrapper>
+                <div className="flex items-center gap-3">
                   <ComboBox
+                    containerClassName="flex-1"
                     className={SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME}
                     data={taxesDataForCombobox}
                     searchQuery={getTaxes}
@@ -969,9 +976,9 @@ export const ChargeAccordion = memo(
                       }}
                     />
                   </Tooltip>
-                </InlineTaxInputWrapper>
+                </div>
               )}
-            </Group>
+            </div>
           </ChargeOptionsAccordion>
         </>
       </Accordion>
@@ -980,131 +987,3 @@ export const ChargeAccordion = memo(
 )
 
 ChargeAccordion.displayName = 'ChargeAccordion'
-
-const ChargeModelWrapper = styled.div`
-  padding: ${theme.spacing(4)} ${theme.spacing(4)} 0 ${theme.spacing(4)};
-`
-
-const SummaryLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(2)};
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  /* Padding added to prevent overflow hidden to crop the focus ring */
-  box-sizing: border-box;
-  padding: ${theme.spacing(1)} ${theme.spacing(1)} ${theme.spacing(1)} 0;
-`
-
-const SummaryRight = styled.div`
-  display: flex;
-  align-items: center;
-  /* Padding added to prevent overflow hidden to crop the focus ring */
-  box-sizing: border-box;
-  padding: ${theme.spacing(1)} ${theme.spacing(1)} ${theme.spacing(1)} 0;
-
-  > *:not(:last-child) {
-    margin-right: ${theme.spacing(3)};
-  }
-`
-
-const SpendingMinimumWrapper = styled.div`
-  display: flex;
-  gap: ${theme.spacing(3)};
-  align-items: center;
-`
-
-const InlineTaxInputWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-
-  > *:first-child {
-    flex: 1;
-  }
-`
-
-const InlineTaxesWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-  flex-wrap: wrap;
-`
-
-const Summary = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-  overflow: hidden;
-`
-
-const AllChargesWrapper = styled.div<{ $canHaveFilters?: boolean }>`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing(4)};
-  margin-top: ${({ $canHaveFilters }) => ($canHaveFilters ? theme.spacing(6) : 0)};
-  padding: ${({ $canHaveFilters }) => ($canHaveFilters ? `0 ${theme.spacing(4)}` : 0)};
-`
-
-const ChargeSummaryLeftWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-`
-
-const ButtonWrapper = styled.div`
-  padding: 0 ${theme.spacing(4)};
-  margin: ${theme.spacing(6)} 0 ${theme.spacing(4)};
-`
-
-const BoxHeader = styled.div`
-  /* Used to prevent long invoice display name to overflow */
-  overflow: hidden;
-  width: 100%;
-  height: ${NAV_HEIGHT}px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: ${theme.spacing(3)};
-`
-
-const BoxHeaderGroupLeft = styled.div`
-  /* Used to prevent long invoice display name to overflow */
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-  /* Padding added to prevent overflow hidden to crop the focus ring */
-  box-sizing: border-box;
-  padding: ${theme.spacing(1)} ${theme.spacing(1)} ${theme.spacing(1)} 0;
-`
-
-const BoxHeaderGroupRight = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-
-  /* Padding added to prevent overflow hidden to crop the focus ring */
-  box-sizing: border-box;
-  padding: ${theme.spacing(1)} ${theme.spacing(1)} ${theme.spacing(1)} 0;
-`
-
-const ChargeWithFiltersWrapper = styled.div`
-  > *:not(:last-child) {
-    border-bottom: 1px solid ${theme.palette.grey[300]};
-  }
-`
-
-const Group = styled.div`
-  > div:not(:last-child) {
-    margin-bottom: ${theme.spacing(4)};
-  }
-`
-
-const GroupTitle = styled.div`
-  > div:not(:last-child) {
-    margin-bottom: ${theme.spacing(1)};
-  }
-`
