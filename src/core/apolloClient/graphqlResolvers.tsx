@@ -56,6 +56,7 @@ export const typeDefs = gql`
   }
 
   enum ApiKeysPermissionsEnum {
+    # activity_log # Need to add the corresponding translation in src/pages/developers/ApiKeysForm.tsx
     add_on
     analytic
     applied_coupon
@@ -67,8 +68,11 @@ export const typeDefs = gql`
     event
     fee
     invoice
+    invoice_custom_section
     lifetime_usage
     organization
+    payment
+    payment_receipt
     payment_request
     plan
     subscription
