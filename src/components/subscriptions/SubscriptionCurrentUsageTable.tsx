@@ -252,7 +252,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
           )}
         </>
       )}
-      {!hasError && usageData?.chargesUsage.length && (
+      {!hasError && !!usageData?.chargesUsage.length && (
         <>
           <div className="flex h-10 flex-row items-center justify-between">
             <Typography variant="bodyHl" color="grey700" noWrap>
