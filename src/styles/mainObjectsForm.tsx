@@ -5,7 +5,7 @@ import { Skeleton, Typography, TypographyProps } from '~/components/designSystem
 import { tw } from './utils'
 
 export const Main = ({ children }: PropsWithChildren) => (
-  <div className="w-full px-4 pt-18 md:w-3/5 md:p-18 md:pb-0 [&>div>*:not(:last-child)]:mb-8 [&>div]:max-w-180">
+  <div className="w-full px-4 pt-12 md:w-3/5 md:p-12 md:pb-0 [&>div>*:not(:last-child)]:mb-8 [&>div]:max-w-180">
     {children}
   </div>
 )
