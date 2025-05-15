@@ -37,6 +37,124 @@ export type AcceptInviteInput = {
   token: Scalars['String']['input'];
 };
 
+/** Base activity log */
+export type ActivityLog = {
+  __typename?: 'ActivityLog';
+  activityId: Scalars['ID']['output'];
+  activityObject?: Maybe<Scalars['JSON']['output']>;
+  activityObjectChanges?: Maybe<Scalars['JSON']['output']>;
+  activitySource: ActivitySourceEnum;
+  activityType: ActivityTypeEnum;
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  externalCustomerId?: Maybe<Scalars['String']['output']>;
+  externalSubscriptionId?: Maybe<Scalars['String']['output']>;
+  loggedAt: Scalars['ISO8601DateTime']['output'];
+  organization?: Maybe<Organization>;
+  resourceId: Scalars['String']['output'];
+  resourceType: Scalars['String']['output'];
+  userEmail?: Maybe<Scalars['String']['output']>;
+};
+
+/** ActivityLogCollection type */
+export type ActivityLogCollection = {
+  __typename?: 'ActivityLogCollection';
+  /** A collection of paginated ActivityLogCollection */
+  collection: Array<ActivityLog>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
+/** Activity Logs source enums */
+export enum ActivitySourceEnum {
+  Api = 'api',
+  Front = 'front',
+  System = 'system'
+}
+
+/** Activity Logs type enums */
+export enum ActivityTypeEnum {
+  /** applied_coupon.created */
+  AppliedCouponCreated = 'applied_coupon_created',
+  /** applied_coupon.deleted */
+  AppliedCouponDeleted = 'applied_coupon_deleted',
+  /** billable_metric.created */
+  BillableMetricCreated = 'billable_metric_created',
+  /** billable_metric.deleted */
+  BillableMetricDeleted = 'billable_metric_deleted',
+  /** billable_metric.updated */
+  BillableMetricUpdated = 'billable_metric_updated',
+  /** billing_entities.created */
+  BillingEntitiesCreated = 'billing_entities_created',
+  /** billing_entities.deleted */
+  BillingEntitiesDeleted = 'billing_entities_deleted',
+  /** billing_entities.updated */
+  BillingEntitiesUpdated = 'billing_entities_updated',
+  /** coupon.created */
+  CouponCreated = 'coupon_created',
+  /** coupon.deleted */
+  CouponDeleted = 'coupon_deleted',
+  /** coupon.updated */
+  CouponUpdated = 'coupon_updated',
+  /** credit_note.created */
+  CreditNoteCreated = 'credit_note_created',
+  /** credit_note.generated */
+  CreditNoteGenerated = 'credit_note_generated',
+  /** credit_note.refund_failure */
+  CreditNoteRefundFailure = 'credit_note_refund_failure',
+  /** customer.created */
+  CustomerCreated = 'customer_created',
+  /** customer.deleted */
+  CustomerDeleted = 'customer_deleted',
+  /** customer.updated */
+  CustomerUpdated = 'customer_updated',
+  /** invoice.created */
+  InvoiceCreated = 'invoice_created',
+  /** invoice.drafted */
+  InvoiceDrafted = 'invoice_drafted',
+  /** invoice.failed */
+  InvoiceFailed = 'invoice_failed',
+  /** invoice.generated */
+  InvoiceGenerated = 'invoice_generated',
+  /** invoice.paid_credit_added */
+  InvoicePaidCreditAdded = 'invoice_paid_credit_added',
+  /** invoice.payment_failure */
+  InvoicePaymentFailure = 'invoice_payment_failure',
+  /** invoice.payment_overdue */
+  InvoicePaymentOverdue = 'invoice_payment_overdue',
+  /** invoice.payment_status_updated */
+  InvoicePaymentStatusUpdated = 'invoice_payment_status_updated',
+  /** invoice.voided */
+  InvoiceVoided = 'invoice_voided',
+  /** payment_receipt.created */
+  PaymentReceiptCreated = 'payment_receipt_created',
+  /** payment_receipt.generated */
+  PaymentReceiptGenerated = 'payment_receipt_generated',
+  /** payment.recorded */
+  PaymentRecorded = 'payment_recorded',
+  /** plan.created */
+  PlanCreated = 'plan_created',
+  /** plan.deleted */
+  PlanDeleted = 'plan_deleted',
+  /** plan.updated */
+  PlanUpdated = 'plan_updated',
+  /** subscription.started */
+  SubscriptionStarted = 'subscription_started',
+  /** subscription.terminated */
+  SubscriptionTerminated = 'subscription_terminated',
+  /** subscription.updated */
+  SubscriptionUpdated = 'subscription_updated',
+  /** wallet.created */
+  WalletCreated = 'wallet_created',
+  /** wallet_transaction.created */
+  WalletTransactionCreated = 'wallet_transaction_created',
+  /** wallet_transaction.payment_failure */
+  WalletTransactionPaymentFailure = 'wallet_transaction_payment_failure',
+  /** wallet_transaction.updated */
+  WalletTransactionUpdated = 'wallet_transaction_updated',
+  /** wallet.updated */
+  WalletUpdated = 'wallet_updated'
+}
+
 /** Adyen input arguments */
 export type AddAdyenPaymentProviderInput = {
   apiKey: Scalars['String']['input'];
@@ -2463,6 +2581,42 @@ export type DataApiRevenueStreamsPlans = {
   metadata: DataApiMetadata;
 };
 
+export type DataApiUsage = {
+  __typename?: 'DataApiUsage';
+  amountCents: Scalars['BigInt']['output'];
+  amountCurrency: CurrencyEnum;
+  billableMetricCode: Scalars['String']['output'];
+  endOfPeriodDt: Scalars['ISO8601Date']['output'];
+  startOfPeriodDt: Scalars['ISO8601Date']['output'];
+  units: Scalars['Float']['output'];
+};
+
+export type DataApiUsageAggregatedAmount = {
+  __typename?: 'DataApiUsageAggregatedAmount';
+  amountCents: Scalars['BigInt']['output'];
+  amountCurrency: CurrencyEnum;
+  endOfPeriodDt: Scalars['ISO8601Date']['output'];
+  startOfPeriodDt: Scalars['ISO8601Date']['output'];
+};
+
+/** DataApiUsageAggregatedAmountCollection type */
+export type DataApiUsageAggregatedAmountCollection = {
+  __typename?: 'DataApiUsageAggregatedAmountCollection';
+  /** A collection of paginated DataApiUsageAggregatedAmountCollection */
+  collection: Array<DataApiUsageAggregatedAmount>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
+/** DataApiUsageCollection type */
+export type DataApiUsageCollection = {
+  __typename?: 'DataApiUsageCollection';
+  /** A collection of paginated DataApiUsageCollection */
+  collection: Array<DataApiUsage>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
 export type DataApiUsageInvoiced = {
   __typename?: 'DataApiUsageInvoiced';
   amountCents: Scalars['BigInt']['output'];
@@ -4651,6 +4805,11 @@ export type NetsuiteIntegration = {
   tokenSecret?: Maybe<Scalars['ObfuscatedString']['output']>;
 };
 
+export enum NextSubscriptionTypeEnum {
+  Downgrade = 'downgrade',
+  Upgrade = 'upgrade'
+}
+
 /** Accept Invite with Okta Oauth input arguments */
 export type OktaAcceptInviteInput = {
   /** A unique identifier for the client performing the mutation. */
@@ -4838,6 +4997,7 @@ export type Permissions = {
   addonsView: Scalars['Boolean']['output'];
   analyticsOverdueBalancesView: Scalars['Boolean']['output'];
   analyticsView: Scalars['Boolean']['output'];
+  auditLogsView: Scalars['Boolean']['output'];
   billableMetricsCreate: Scalars['Boolean']['output'];
   billableMetricsDelete: Scalars['Boolean']['output'];
   billableMetricsUpdate: Scalars['Boolean']['output'];
@@ -5084,6 +5244,10 @@ export enum ProviderTypeEnum {
 
 export type Query = {
   __typename?: 'Query';
+  /** Query a single activity log of an organization */
+  activityLog?: Maybe<ActivityLog>;
+  /** Query activity logs of an organization */
+  activityLogs?: Maybe<ActivityLogCollection>;
   /** Query a single add-on of an organization */
   addOn?: Maybe<AddOn>;
   /** Query add-ons of an organization */
@@ -5154,12 +5318,18 @@ export type Query = {
   dataApiRevenueStreamsCustomers: DataApiRevenueStreamsCustomers;
   /** Query revenue streams plans of an organization */
   dataApiRevenueStreamsPlans: DataApiRevenueStreamsPlans;
+  /** Query usages of an organization */
+  dataApiUsages: DataApiUsageCollection;
+  /** Query usages of an organization */
+  dataApiUsagesAggregatedAmounts: DataApiUsageAggregatedAmountCollection;
   /** Query invoiced usages of an organization */
   dataApiUsagesInvoiced: DataApiUsageInvoicedCollection;
   /** Query a single dunning campaign of an organization */
   dunningCampaign: DunningCampaign;
   /** Query dunning campaigns of an organization */
   dunningCampaigns: DunningCampaignCollection;
+  /** Query a single event of an organization */
+  event?: Maybe<Event>;
   /** Query events of an organization */
   events?: Maybe<EventCollection>;
   /** Get Google auth url. */
@@ -5240,12 +5410,35 @@ export type Query = {
   walletTransactions: WalletTransactionCollection;
   /** Query wallets */
   wallets: WalletCollection;
+  /** Query a webhook */
+  webhook?: Maybe<Webhook>;
   /** Query a single webhook endpoint */
   webhookEndpoint?: Maybe<WebhookEndpoint>;
   /** Query webhook endpoints of an organization */
   webhookEndpoints: WebhookEndpointCollection;
   /** Query Webhooks */
   webhooks: WebhookCollection;
+};
+
+
+export type QueryActivityLogArgs = {
+  activityId: Scalars['ID']['input'];
+};
+
+
+export type QueryActivityLogsArgs = {
+  activitySources?: InputMaybe<Array<ActivitySourceEnum>>;
+  activityTypes?: InputMaybe<Array<ActivityTypeEnum>>;
+  apiKeyIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  resourceIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  resourceTypes?: InputMaybe<Array<Scalars['String']['input']>>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  userEmails?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 
@@ -5476,6 +5669,35 @@ export type QueryDataApiRevenueStreamsPlansArgs = {
 };
 
 
+export type QueryDataApiUsagesArgs = {
+  billableMetricCode?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<CurrencyEnum>;
+  customerCountry?: InputMaybe<CountryCode>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  isBillableMetricRecurring?: InputMaybe<Scalars['Boolean']['input']>;
+  planCode?: InputMaybe<Scalars['String']['input']>;
+  timeGranularity?: InputMaybe<TimeGranularityEnum>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+};
+
+
+export type QueryDataApiUsagesAggregatedAmountsArgs = {
+  currency?: InputMaybe<CurrencyEnum>;
+  customerCountry?: InputMaybe<CountryCode>;
+  customerType?: InputMaybe<CustomerTypeEnum>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  isBillableMetricRecurring?: InputMaybe<Scalars['Boolean']['input']>;
+  planCode?: InputMaybe<Scalars['String']['input']>;
+  timeGranularity?: InputMaybe<TimeGranularityEnum>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+};
+
+
 export type QueryDataApiUsagesInvoicedArgs = {
   billableMetricCode?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
@@ -5504,6 +5726,11 @@ export type QueryDunningCampaignsArgs = {
   order?: InputMaybe<Scalars['String']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryEventArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -5771,6 +5998,11 @@ export type QueryWalletsArgs = {
 };
 
 
+export type QueryWebhookArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryWebhookEndpointArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6034,6 +6266,8 @@ export type Subscription = {
   nextPendingStartDate?: Maybe<Scalars['ISO8601Date']['output']>;
   nextPlan?: Maybe<Plan>;
   nextSubscription?: Maybe<Subscription>;
+  nextSubscriptionAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  nextSubscriptionType?: Maybe<NextSubscriptionTypeEnum>;
   periodEndDate?: Maybe<Scalars['ISO8601Date']['output']>;
   plan: Plan;
   startedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
@@ -7852,7 +8086,7 @@ export type GetCustomerSubscriptionForListQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerSubscriptionForListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null }> } | null };
+export type GetCustomerSubscriptionForListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null }> } | null };
 
 export type TerminateCustomerSubscriptionMutationVariables = Exact<{
   input: TerminateSubscriptionInput;
@@ -9202,9 +9436,9 @@ export type GetSubscriptionForDetailsOverviewQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionForDetailsOverviewQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, externalId: string, status?: StatusTypeEnum | null, subscriptionAt?: any | null, endingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, parent?: { __typename?: 'Plan', id: string, name: string } | null }, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string } } | null };
+export type GetSubscriptionForDetailsOverviewQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, externalId: string, status?: StatusTypeEnum | null, subscriptionAt?: any | null, endingAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string, parent?: { __typename?: 'Plan', id: string, name: string } | null }, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string } } | null };
 
-export type SubscriptionForSubscriptionInformationsFragment = { __typename?: 'Subscription', id: string, externalId: string, status?: StatusTypeEnum | null, subscriptionAt?: any | null, endingAt?: any | null, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, plan: { __typename?: 'Plan', id: string, name: string, parent?: { __typename?: 'Plan', id: string, name: string } | null } };
+export type SubscriptionForSubscriptionInformationsFragment = { __typename?: 'Subscription', id: string, externalId: string, status?: StatusTypeEnum | null, subscriptionAt?: any | null, endingAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, plan: { __typename?: 'Plan', id: string, name: string, parent?: { __typename?: 'Plan', id: string, name: string } | null } };
 
 export type SubscriptionUsageLifetimeGraphForLifetimeGraphFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string } };
 
@@ -11815,6 +12049,8 @@ export const SubscriptionForSubscriptionInformationsFragmentDoc = gql`
   status
   subscriptionAt
   endingAt
+  nextSubscriptionAt
+  nextSubscriptionType
   nextPlan {
     id
     name
@@ -17024,6 +17260,8 @@ export const GetCustomerSubscriptionForListDocument = gql`
       id
       status
       startedAt
+      nextSubscriptionAt
+      nextSubscriptionType
       name
       nextName
       externalId
