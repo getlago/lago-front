@@ -44,7 +44,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateCreditNote } from '~/hooks/useCreateCreditNote'
 import { PageHeader } from '~/styles'
-import { Content, Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
+import { Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
 gql`
   fragment CreateCreditNoteInvoice on Invoice {
@@ -226,7 +226,7 @@ const CreateCreditNote = () => {
           }
         />
       </PageHeader.Wrapper>
-      <Content>
+      <div className="min-height-minus-nav flex">
         <Main>
           <div>
             {loading ? (
@@ -427,7 +427,7 @@ const CreateCreditNote = () => {
             currency={currency}
           />
         </Side>
-      </Content>
+      </div>
       <WarningDialog
         ref={warningDialogRef}
         title={translate('text_636bdf192a28e7cf28abf00d')}

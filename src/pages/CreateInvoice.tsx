@@ -60,7 +60,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
-import { StickySubmitBar } from '~/styles/mainObjectsForm'
 import { tw } from '~/styles/utils'
 
 gql`
@@ -1177,7 +1176,7 @@ const CreateInvoice = () => {
         </div>
 
         {!loading && (
-          <StickySubmitBar>
+          <div className="sticky bottom-0 z-navBar border-t border-t-grey-200 bg-white">
             <div className="mx-auto flex h-20 max-w-5xl items-center justify-end gap-3 px-4">
               {!!hasTaxProvider && (
                 <Button
@@ -1252,7 +1251,7 @@ const CreateInvoice = () => {
                 {translate('text_6453819268763979024ad134')}
               </Button>
             </div>
-          </StickySubmitBar>
+          </div>
         )}
       </div>
       <WarningDialog

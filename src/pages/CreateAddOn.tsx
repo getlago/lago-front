@@ -32,15 +32,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditAddOn } from '~/hooks/useCreateEditAddOn'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { PageHeader } from '~/styles'
-import {
-  ButtonContainer,
-  Content,
-  Main,
-  Side,
-  SkeletonHeader,
-  Subtitle,
-  Title,
-} from '~/styles/mainObjectsForm'
+import { Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
 gql`
   query getTaxesForAddOnForm($limit: Int, $page: Int, $searchTerm: String) {
@@ -166,16 +158,16 @@ const CreateAddOn = () => {
           }
         />
       </PageHeader.Wrapper>
-      <Content>
+      <div className="min-height-minus-nav flex">
         <Main>
           <div>
             {loading ? (
               <>
-                <SkeletonHeader>
+                <div className="px-8">
                   <Skeleton variant="text" className="mb-5 w-70" />
                   <Skeleton variant="text" className="mb-4" />
                   <Skeleton variant="text" className="w-30" />
-                </SkeletonHeader>
+                </div>
 
                 {[0, 1].map((skeletonCard) => (
                   <Card key={`skeleton-${skeletonCard}`}>
@@ -387,7 +379,7 @@ const CreateAddOn = () => {
                   )}
                 </Card>
 
-                <ButtonContainer>
+                <div className="px-6 pb-20">
                   <Button
                     disabled={!formikProps.isValid || !formikProps.dirty}
                     fullWidth
@@ -399,7 +391,7 @@ const CreateAddOn = () => {
                       isEdition ? 'text_629728388c4d2300e2d38170' : 'text_629728388c4d2300e2d38179',
                     )}
                   </Button>
-                </ButtonContainer>
+                </div>
               </>
             )}
           </div>
@@ -407,7 +399,7 @@ const CreateAddOn = () => {
         <Side>
           <AddOnCodeSnippet loading={loading} addOn={formikProps.values} />
         </Side>
-      </Content>
+      </div>
       <WarningDialog
         ref={warningDialogRef}
         title={translate('text_665deda4babaf700d603ea13')}

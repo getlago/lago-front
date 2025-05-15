@@ -40,15 +40,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditBillableMetric } from '~/hooks/useCreateEditBillableMetric'
 import { PageHeader } from '~/styles'
-import {
-  ButtonContainer,
-  Content,
-  Main,
-  Side,
-  SkeletonHeader,
-  Subtitle,
-  Title,
-} from '~/styles/mainObjectsForm'
+import { Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
 const NOT_UNIQUE_KEY_ERROR = 'key_not_unique'
 
@@ -265,16 +257,16 @@ const CreateBillableMetric = () => {
           }
         />
       </PageHeader.Wrapper>
-      <Content>
+      <div className="min-height-minus-nav flex">
         <Main>
           <div>
             {loading ? (
               <>
-                <SkeletonHeader>
+                <div className="px-8">
                   <Skeleton variant="text" className="mb-5 w-70" />
                   <Skeleton variant="text" className="mb-4" />
                   <Skeleton variant="text" className="w-30" />
-                </SkeletonHeader>
+                </div>
 
                 {[0, 1, 2].map((skeletonCard) => (
                   <Card key={`skeleton-${skeletonCard}`}>
@@ -849,7 +841,7 @@ const CreateBillableMetric = () => {
                   </Stack>
                 </Card>
 
-                <ButtonContainer>
+                <div className="px-6 pb-20">
                   <Button
                     disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
                     fullWidth
@@ -861,7 +853,7 @@ const CreateBillableMetric = () => {
                       isEdition ? 'text_62582fb4675ece01137a7e6c' : 'text_623b42ff8ee4e000ba87d0d4',
                     )}
                   </Button>
-                </ButtonContainer>
+                </div>
               </>
             )}
           </div>
@@ -869,7 +861,7 @@ const CreateBillableMetric = () => {
         <Side>
           <BillableMetricCodeSnippet loading={loading} billableMetric={formikProps.values} />
         </Side>
-      </Content>
+      </div>
       <CustomExpressionDrawer
         ref={customExpressionDrawerRef}
         onSave={(expression: string) => formikProps.setFieldValue('expression', expression)}

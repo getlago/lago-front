@@ -180,6 +180,7 @@ const config: Config = {
         164: '41rem',
         168: '42rem',
         170: '42.5rem',
+        180: '45rem',
         192: '48rem',
         footer: '5rem',
         nav: '4.5rem',
@@ -304,6 +305,9 @@ const config: Config = {
       addComponents({
         '.height-minus-nav': {
           height: `calc(100vh - ${theme('spacing.nav')})`,
+        },
+        '.min-height-minus-nav': {
+          minHeight: `calc(100vh - ${theme('spacing.nav')})`,
         },
         '.height-minus-nav-footer': {
           height: `calc(100vh - ${theme('spacing.nav')} - ${theme('spacing.footer')})`,

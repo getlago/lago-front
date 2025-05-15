@@ -41,16 +41,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { PageHeader } from '~/styles'
-import {
-  ButtonContainer,
-  Content,
-  LineAmount,
-  Main,
-  Side,
-  SkeletonHeader,
-  Subtitle,
-  Title,
-} from '~/styles/mainObjectsForm'
+import { Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
 const CreateCoupon = () => {
   const { translate } = useInternationalization()
@@ -223,16 +214,16 @@ const CreateCoupon = () => {
           }
         />
       </PageHeader.Wrapper>
-      <Content>
+      <div className="min-height-minus-nav flex">
         <Main>
           <div>
             {loading ? (
               <>
-                <SkeletonHeader>
+                <div className="px-8">
                   <Skeleton variant="text" className="mb-5 w-70" />
                   <Skeleton variant="text" className="mb-4" />
                   <Skeleton variant="text" className="w-30" />
-                </SkeletonHeader>
+                </div>
 
                 {[0, 1].map((skeletonCard) => (
                   <Card key={`skeleton-${skeletonCard}`}>
@@ -341,8 +332,9 @@ const CreateCoupon = () => {
                   />
 
                   {formikProps.values.couponType === CouponTypeEnum.FixedAmount ? (
-                    <LineAmount>
+                    <div className="flex gap-3">
                       <AmountInputField
+                        className="flex-1"
                         name="amountCents"
                         currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
                         beforeChangeFormatter={['positiveNumber']}
@@ -351,6 +343,7 @@ const CreateCoupon = () => {
                         formikProps={formikProps}
                       />
                       <ComboBoxField
+                        containerClassName="max-w-30 mt-7"
                         disabled={isEdition && !!coupon?.appliedCouponsCount}
                         name="amountCurrency"
                         data={Object.values(CurrencyEnum).map((currencyType) => ({
@@ -359,7 +352,7 @@ const CreateCoupon = () => {
                         disableClearable
                         formikProps={formikProps}
                       />
-                    </LineAmount>
+                    </div>
                   ) : (
                     <TextInputField
                       name="percentageRate"
@@ -608,7 +601,7 @@ const CreateCoupon = () => {
                   )}
                 </Card>
 
-                <ButtonContainer>
+                <div className="px-6 pb-20">
                   <Button
                     disabled={
                       !formikProps.isValid ||
@@ -630,7 +623,7 @@ const CreateCoupon = () => {
                       isEdition ? 'text_6287a9bdac160c00b2e0fc6b' : 'text_62876e85e32e0300e180317d',
                     )}
                   </Button>
-                </ButtonContainer>
+                </div>
               </>
             )}
           </div>
@@ -645,7 +638,7 @@ const CreateCoupon = () => {
             limitBillableMetricsList={limitBillableMetricsList}
           />
         </Side>
-      </Content>
+      </div>
       <WarningDialog
         ref={warningDialogRef}
         title={translate('text_665deda4babaf700d603ea13')}
