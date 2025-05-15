@@ -112,7 +112,7 @@ const LagoTaxManagementIntegration = () => {
     )
 
     addToast({
-      message: translate('text_1747222453821rgp736ajugu'),
+      message: translate('text_657078c28394d6b1ae1b981d'),
       severity: 'success',
     })
   }
