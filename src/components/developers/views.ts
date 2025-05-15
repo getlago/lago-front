@@ -1,3 +1,4 @@
+export { ActivityLogs } from '~/components/developers/activityLogs/ActivityLogs'
 export { ApiKeys } from '~/components/developers/apiKeys/ApiKeys'
 export { Events } from '~/components/developers/events/Events'
 export { WebhookLogs } from '~/components/developers/webhooks/WebhookLogs'

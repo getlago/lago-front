@@ -3074,5 +3074,14 @@
   "text_1747058197364ivug6k5e2nc": "Events received",
   "text_1747058197364eeqig77mkmq": "Event code",
   "text_1747058197364dm3no1jnete": "Oops! Something went wrong.",
-  "text_1747726772472cm6yllhi7eh": "Page link copied to clipboard"
+  "text_1747726772472cm6yllhi7eh": "Page link copied to clipboard",
+  "text_1747314141347qq6rasuxisl": "Activity logs",
+  "text_1747314141347sfeoozf86o7": "There is no API logs",
+  "text_1747314141347gs3g2lpln2h": "API logs provide detailed records of user actions, system events, and API interactions. However, there are currently no logs available for this organization.",
+  "text_1747352070254nf3uobwaiwg": "Event ID",
+  "text_17473520702542eqnulj06zc": "Log date",
+  "text_174735207025406tp34gdzxb": "User",
+  "text_1747352070254xmjaw609ifs": "Source",
+  "text_1747352070255d4ehqskdfn3": "Changes",
+  "text_1747352070255f5ai2kw7zka": "New object"
 }
