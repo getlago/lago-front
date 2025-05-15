@@ -19,6 +19,10 @@ export const cache = new InMemoryCache({
   typePolicies: {
     Query: {
       fields: {
+        activityLogs: {
+          keyArgs: false,
+          merge: mergePaginatedCollection,
+        },
         billableMetrics: {
           // Usefull in plan creation, where 2 combobox display billableMetrics with different recurring value
           keyArgs: ['id', 'recurring'],
