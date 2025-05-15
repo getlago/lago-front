@@ -1156,18 +1156,18 @@ const CreateInvoice = () => {
                                 })}
                         </Typography>
                       </div>
-                    </div>
 
-                    {!!taxProviderTaxesErrorMessage && (
-                      <Alert type="warning">
-                        <Typography variant="bodyHl" color="grey700">
-                          {translate('text_1723831735547ttel1jl0yva')}
-                        </Typography>
-                        <Typography variant="caption" color="grey600">
-                          {translate(taxProviderTaxesErrorMessage)}
-                        </Typography>
-                      </Alert>
-                    )}
+                      {!!taxProviderTaxesErrorMessage && (
+                        <Alert type="warning">
+                          <Typography variant="bodyHl" color="grey700">
+                            {translate('text_1723831735547ttel1jl0yva')}
+                          </Typography>
+                          <Typography variant="caption" color="grey600">
+                            {translate(taxProviderTaxesErrorMessage)}
+                          </Typography>
+                        </Alert>
+                      )}
+                    </div>
                   </div>
                 </div>
               </>
