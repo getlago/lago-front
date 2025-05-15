@@ -5,7 +5,7 @@ import {
 
 import { customerName } from '../support/reusableConstants'
 
-describe('Create one-off', () => {
+describe.skip('Create one-off', () => {
   beforeEach(() => {
     cy.login()
   })

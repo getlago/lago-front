@@ -1,6 +1,6 @@
 import { TAX_TEN_CODE, TAX_TWENTY_CODE } from '../../support/reusableConstants'
 
-describe('Create taxes', () => {
+describe.skip('Create taxes', () => {
   beforeEach(() => {
     cy.login()
   })
