@@ -6,52 +6,55 @@ import { object, string } from 'yup'
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
-import { useUpdateOrganizationInvoiceTemplateMutation } from '~/generated/graphql'
+import { useUpdateBillingEntityInvoiceTemplateMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 const MAX_CHAR_LIMIT = 600
 
 gql`
-  fragment EditOrganizationInvoiceTemplateDialog on CurrentOrganization {
+  fragment EditBillingEntityInvoiceTemplateDialog on BillingEntity {
     billingConfiguration {
       id
       invoiceFooter
     }
   }
 
-  mutation updateOrganizationInvoiceTemplate($input: UpdateOrganizationInput!) {
-    updateOrganization(input: $input) {
+  mutation updateBillingEntityInvoiceTemplate($input: UpdateBillingEntityInput!) {
+    updateBillingEntity(input: $input) {
       id
-      ...EditOrganizationInvoiceTemplateDialog
+      ...EditBillingEntityInvoiceTemplateDialog
     }
   }
 `
 
-export type EditOrganizationInvoiceTemplateDialogRef = DialogRef
+export type EditBillingEntityInvoiceTemplateDialogRef = DialogRef
 
-interface EditOrganizationInvoiceTemplateDialogProps {
+interface EditBillingEntityInvoiceTemplateDialogProps {
+  id: string
   invoiceFooter: string
 }
 
-export const EditOrganizationInvoiceTemplateDialog = forwardRef<
+export const EditBillingEntityInvoiceTemplateDialog = forwardRef<
   DialogRef,
-  EditOrganizationInvoiceTemplateDialogProps
->(({ invoiceFooter }: EditOrganizationInvoiceTemplateDialogProps, ref) => {
+  EditBillingEntityInvoiceTemplateDialogProps
+>(({ id, invoiceFooter }: EditBillingEntityInvoiceTemplateDialogProps, ref) => {
   const { translate } = useInternationalization()
-  const [updateOrganizationInvoiceTemplate] = useUpdateOrganizationInvoiceTemplateMutation({
+  const [updateBillingEntityInvoiceTemplate] = useUpdateBillingEntityInvoiceTemplateMutation({
     onCompleted(res) {
-      if (res?.updateOrganization) {
+      if (res?.updateBillingEntity) {
         addToast({
           severity: 'success',
           translateKey: 'text_62bb10ad2a10bd182d002077',
         })
       }
     },
+    refetchQueries: ['getBillingEntitySettings'],
   })
 
-  // Type is manually written here as errors type are not correclty read from UpdateOrganizationInput
-  const formikProps = useFormik<{ billingConfiguration: { invoiceFooter: string } }>({
+  // Type is manually written here as errors type are not correclty read from UpdateBillingEntityInput
+  const formikProps = useFormik<{ id: string; billingConfiguration: { invoiceFooter: string } }>({
     initialValues: {
+      id,
       billingConfiguration: { invoiceFooter },
     },
     validationSchema: object().shape({
@@ -62,7 +65,7 @@ export const EditOrganizationInvoiceTemplateDialog = forwardRef<
     enableReinitialize: true,
     validateOnMount: true,
     onSubmit: async (values) => {
-      await updateOrganizationInvoiceTemplate({
+      await updateBillingEntityInvoiceTemplate({
         variables: {
           input: {
             ...values,
@@ -90,7 +93,7 @@ export const EditOrganizationInvoiceTemplateDialog = forwardRef<
               closeDialog()
             }}
           >
-            {translate('text_62bb10ad2a10bd182d002037')}
+            {translate('text_17432414198706rdwf76ek3u')}
           </Button>
         </>
       )}
@@ -125,4 +128,4 @@ export const EditOrganizationInvoiceTemplateDialog = forwardRef<
   )
 })
 
-EditOrganizationInvoiceTemplateDialog.displayName = 'forwardRef'
+EditBillingEntityInvoiceTemplateDialog.displayName = 'forwardRef'

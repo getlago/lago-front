@@ -1,27 +1,38 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useState } from 'react'
+import { useParams } from 'react-router-dom'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
-import { OrganizationLogoPicker } from '~/components/OrganizationLogoPicker'
-import { useUpdateOrganizationLogoMutation } from '~/generated/graphql'
+import { LogoPicker } from '~/components/LogoPicker'
+import { useGetBillingEntityQuery, useUpdateBillingEntityLogoMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
-  mutation updateOrganizationLogo($input: UpdateOrganizationInput!) {
-    updateOrganization(input: $input) {
+  mutation updateBillingEntityLogo($input: UpdateBillingEntityInput!) {
+    updateBillingEntity(input: $input) {
       id
       logoUrl
     }
   }
 `
 
-export type UpdateOrganizationLogoDialogRef = DialogRef
+export type UpdateBillingEntityLogoDialogRef = DialogRef
 
-export const UpdateOrganizationLogoDialog = forwardRef<UpdateOrganizationLogoDialogRef>(
+export const UpdateBillingEntityLogoDialog = forwardRef<UpdateBillingEntityLogoDialogRef>(
   (_, ref) => {
+    const { billingEntityCode } = useParams<string>()
     const { translate } = useInternationalization()
     const [logo, setLogo] = useState<string>()
-    const [updateLogo] = useUpdateOrganizationLogoMutation()
+    const [updateLogo] = useUpdateBillingEntityLogoMutation()
+
+    const { data: billingEntityData } = useGetBillingEntityQuery({
+      variables: {
+        code: billingEntityCode as string,
+      },
+      skip: !billingEntityCode,
+    })
+
+    const billingEntity = billingEntityData?.billingEntity
 
     return (
       <Dialog
@@ -41,7 +52,7 @@ export const UpdateOrganizationLogoDialog = forwardRef<UpdateOrganizationLogoDia
               disabled={!logo}
               onClick={async () => {
                 await updateLogo({
-                  variables: { input: { logo } },
+                  variables: { input: { id: billingEntity?.id as string, logo } },
                 })
                 closeDialog()
               }}
@@ -51,14 +62,10 @@ export const UpdateOrganizationLogoDialog = forwardRef<UpdateOrganizationLogoDia
           </>
         )}
       >
-        <OrganizationLogoPicker
-          className="mb-8"
-          logoValue={logo}
-          onChange={(value) => setLogo(value)}
-        />
+        <LogoPicker className="mb-8" logoValue={logo} onChange={(value) => setLogo(value)} />
       </Dialog>
     )
   },
 )
 
-UpdateOrganizationLogoDialog.displayName = 'UpdateOrganizationLogoDialog'
+UpdateBillingEntityLogoDialog.displayName = 'UpdateBillingEntityLogoDialog'

@@ -9,10 +9,10 @@ import { ComboBoxField, TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { NetPaymentTermValuesEnum } from '~/core/constants/paymentTerm'
 import {
+  EditBillingEntityNetPaymentTermForDialogFragment,
   EditCustomerNetPaymentTermForDialogFragment,
-  EditOrganizationNetPaymentTermForDialogFragment,
+  useUpdateBillingEntityNetPaymentTermMutation,
   useUpdateCustomerNetPaymentTermMutation,
-  useUpdateOrganizationNetPaymentTermMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -24,7 +24,7 @@ gql`
     netPaymentTerm
   }
 
-  fragment EditOrganizationNetPaymentTermForDialog on CurrentOrganization {
+  fragment EditBillingEntityNetPaymentTermForDialog on BillingEntity {
     id
     netPaymentTerm
   }
@@ -36,24 +36,24 @@ gql`
     }
   }
 
-  mutation updateOrganizationNetPaymentTerm($input: UpdateOrganizationInput!) {
-    updateOrganization(input: $input) {
+  mutation updateBillingEntityNetPaymentTerm($input: UpdateBillingEntityInput!) {
+    updateBillingEntity(input: $input) {
       id
-      ...EditOrganizationNetPaymentTermForDialog
+      ...EditBillingEntityNetPaymentTermForDialog
     }
   }
 `
 
 enum NetPaymentTermModelTypesEnum {
   'Customer' = 'Customer',
-  'CurrentOrganization' = 'CurrentOrganization',
+  'BillingEntity' = 'BillingEntity',
 }
 
 export interface EditNetPaymentTermDialogRef {
   openDialog: (
     model:
       | EditCustomerNetPaymentTermForDialogFragment
-      | EditOrganizationNetPaymentTermForDialogFragment
+      | EditBillingEntityNetPaymentTermForDialogFragment
       | null
       | undefined,
   ) => unknown
@@ -71,18 +71,19 @@ export const EditNetPaymentTermDialog = forwardRef<
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)
   const [model, setLocalModel] = useState<
-    EditCustomerNetPaymentTermForDialogFragment | EditOrganizationNetPaymentTermForDialogFragment
+    EditCustomerNetPaymentTermForDialogFragment | EditBillingEntityNetPaymentTermForDialogFragment
   >()
   const [isEdit, setIsEdit] = useState<boolean>(false)
-  const [updateOrganization] = useUpdateOrganizationNetPaymentTermMutation({
+  const [updateBillingEntity] = useUpdateBillingEntityNetPaymentTermMutation({
     onCompleted(res) {
-      if (res?.updateOrganization) {
+      if (res?.updateBillingEntity) {
         addToast({
           severity: 'success',
           translateKey: isEdit ? 'text_64c7a89b6c67eb6c98898181' : 'text_64c7a89b6c67eb6c98898350',
         })
       }
     },
+    refetchQueries: ['getBillingEntitySettings'],
   })
   const [updateCustomer] = useUpdateCustomerNetPaymentTermMutation({
     onCompleted(res) {
@@ -149,10 +150,13 @@ export const EditNetPaymentTermDialog = forwardRef<
             },
           },
         })
-      } else if (model.__typename === NetPaymentTermModelTypesEnum.CurrentOrganization) {
-        await updateOrganization({
+      } else if (model.__typename === NetPaymentTermModelTypesEnum.BillingEntity) {
+        await updateBillingEntity({
           variables: {
-            input: localInput,
+            input: {
+              ...localInput,
+              id: model.id,
+            },
           },
         })
       }
@@ -194,7 +198,7 @@ export const EditNetPaymentTermDialog = forwardRef<
               closeDialog()
             }}
           >
-            {translate(isEdit ? 'text_64c7a89b6c67eb6c988981e0' : 'text_64c7a89b6c67eb6c98898073')}
+            {translate('text_17432414198706rdwf76ek3u')}
           </Button>
         </>
       )}

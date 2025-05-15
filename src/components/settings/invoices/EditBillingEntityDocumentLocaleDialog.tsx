@@ -9,14 +9,14 @@ import { addToast } from '~/core/apolloClient'
 import { DocumentLocales } from '~/core/translations/documentLocales'
 import {
   LagoApiError,
-  UpdateOrganizationInput,
-  useUpdateDocumentLocaleOrganizationMutation,
+  UpdateBillingEntityInput,
+  useUpdateDocumentLocaleBillingEntityMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
-  mutation updateDocumentLocaleOrganization($input: UpdateOrganizationInput!) {
-    updateOrganization(input: $input) {
+  mutation updateDocumentLocaleBillingEntity($input: UpdateBillingEntityInput!) {
+    updateBillingEntity(input: $input) {
       id
       billingConfiguration {
         id
@@ -25,9 +25,10 @@ gql`
     }
   }
 `
-export type EditOrganizationDocumentLocaleDialogRef = DialogRef
+export type EditBillingEntityDocumentLocaleDialogRef = DialogRef
 
-interface EditOrganizationDocumentLocaleDialogProps {
+interface EditBillingEntityDocumentLocaleDialogProps {
+  id: string
   documentLocale: string
 }
 
@@ -40,25 +41,27 @@ const documentLocalesData: { value: string; label: string }[] = Object.keys(Docu
   },
 )
 
-export const EditOrganizationDocumentLocaleDialog = forwardRef<
+export const EditBillingEntityDocumentLocaleDialog = forwardRef<
   DialogRef,
-  EditOrganizationDocumentLocaleDialogProps
->(({ documentLocale }: EditOrganizationDocumentLocaleDialogProps, ref) => {
+  EditBillingEntityDocumentLocaleDialogProps
+>(({ id, documentLocale }: EditBillingEntityDocumentLocaleDialogProps, ref) => {
   const { translate } = useInternationalization()
-  const [updateDocumentLocale] = useUpdateDocumentLocaleOrganizationMutation({
+  const [updateDocumentLocale] = useUpdateDocumentLocaleBillingEntityMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted(res) {
-      if (res?.updateOrganization) {
+      if (res?.updateBillingEntity) {
         addToast({
           severity: 'success',
           translateKey: 'text_63e51ef4985f0ebd75c21349',
         })
       }
     },
+    refetchQueries: ['getBillingEntitySettings'],
   })
 
-  const formikProps = useFormik<UpdateOrganizationInput>({
+  const formikProps = useFormik<UpdateBillingEntityInput>({
     initialValues: {
+      id,
       billingConfiguration: {
         documentLocale,
       },
@@ -103,7 +106,7 @@ export const EditOrganizationDocumentLocaleDialog = forwardRef<
               closeDialog()
             }}
           >
-            {translate('text_63e51ef4985f0ebd75c21314')}
+            {translate('text_17432414198706rdwf76ek3u')}
           </Button>
         </>
       )}
@@ -125,4 +128,4 @@ export const EditOrganizationDocumentLocaleDialog = forwardRef<
   )
 })
 
-EditOrganizationDocumentLocaleDialog.displayName = 'forwardRef'
+EditBillingEntityDocumentLocaleDialog.displayName = 'forwardRef'

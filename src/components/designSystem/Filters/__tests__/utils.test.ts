@@ -53,7 +53,7 @@ describe('Filters utils', () => {
       const searchParams = new URLSearchParams()
 
       searchParams.set('timeGranularity', 'day')
-      searchParams.set('accountType', 'company')
+      searchParams.set('customerType', 'company')
       searchParams.set('invoiceType', 'advance_charges,credit,one_off,subscription')
       searchParams.set('status', 'finalized')
       searchParams.set('currency', 'USD')
@@ -88,7 +88,7 @@ describe('Filters utils', () => {
       const searchParams = new URLSearchParams()
 
       searchParams.set('timeGranularity', 'month')
-      searchParams.set('accountType', 'individual')
+      searchParams.set('customerType', 'individual')
       searchParams.set('invoiceType', 'advance_charges,credit,one_off,subscription')
       searchParams.set('status', 'finalized')
       searchParams.set('currency', 'EUR')

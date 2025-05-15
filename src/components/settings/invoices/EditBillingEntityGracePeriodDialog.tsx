@@ -8,14 +8,14 @@ import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import {
-  UpdateOrganizationInput,
-  useUpdateOrganizationGracePeriodMutation,
+  UpdateBillingEntityInput,
+  useUpdateBillingEntityGracePeriodMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
-  mutation updateOrganizationGracePeriod($input: UpdateOrganizationInput!) {
-    updateOrganization(input: $input) {
+  mutation updateBillingEntityGracePeriod($input: UpdateBillingEntityInput!) {
+    updateBillingEntity(input: $input) {
       id
       billingConfiguration {
         id
@@ -25,29 +25,32 @@ gql`
   }
 `
 
-export type EditOrganizationGracePeriodDialogRef = DialogRef
+export type EditBillingEntityGracePeriodDialogRef = DialogRef
 
-interface EditOrganizationGracePeriodDialogProps {
+interface EditBillingEntityGracePeriodDialogProps {
+  id: string
   invoiceGracePeriod: number
 }
 
-export const EditOrganizationGracePeriodDialog = forwardRef<
+export const EditBillingEntityGracePeriodDialog = forwardRef<
   DialogRef,
-  EditOrganizationGracePeriodDialogProps
->(({ invoiceGracePeriod }: EditOrganizationGracePeriodDialogProps, ref) => {
+  EditBillingEntityGracePeriodDialogProps
+>(({ id, invoiceGracePeriod }: EditBillingEntityGracePeriodDialogProps, ref) => {
   const { translate } = useInternationalization()
-  const [updateOrganizationGracePeriod] = useUpdateOrganizationGracePeriodMutation({
+  const [updateBillingEntityGracePeriod] = useUpdateBillingEntityGracePeriodMutation({
     onCompleted(res) {
-      if (res?.updateOrganization) {
+      if (res?.updateBillingEntity) {
         addToast({
           severity: 'success',
           translateKey: 'text_638dc196fb209d551f3d81ba',
         })
       }
     },
+    refetchQueries: ['getBillingEntitySettings'],
   })
-  const formikProps = useFormik<UpdateOrganizationInput>({
+  const formikProps = useFormik<UpdateBillingEntityInput>({
     initialValues: {
+      id,
       billingConfiguration: {
         invoiceGracePeriod,
       },
@@ -60,7 +63,7 @@ export const EditOrganizationGracePeriodDialog = forwardRef<
     enableReinitialize: true,
     validateOnMount: true,
     onSubmit: async (values) => {
-      await updateOrganizationGracePeriod({
+      await updateBillingEntityGracePeriod({
         variables: {
           input: {
             ...values,
@@ -89,7 +92,7 @@ export const EditOrganizationGracePeriodDialog = forwardRef<
               closeDialog()
             }}
           >
-            {translate('text_638dc196fb209d551f3d8159')}
+            {translate('text_17432414198706rdwf76ek3u')}
           </Button>
         </>
       )}
@@ -114,4 +117,4 @@ export const EditOrganizationGracePeriodDialog = forwardRef<
   )
 })
 
-EditOrganizationGracePeriodDialog.displayName = 'forwardRef'
+EditBillingEntityGracePeriodDialog.displayName = 'forwardRef'

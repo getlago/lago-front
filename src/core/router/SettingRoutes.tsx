@@ -2,6 +2,15 @@ import AnrokIntegrationDetails from '~/pages/settings/AnrokIntegrationDetails'
 import AnrokIntegrations from '~/pages/settings/AnrokIntegrations'
 import AvalaraIntegrationDetails from '~/pages/settings/AvalaraIntegrationDetails'
 import AvalaraIntegrations from '~/pages/settings/AvalaraIntegrations'
+import BillingEntity from '~/pages/settings/BillingEntity/BillingEntity'
+import BillingEntityCreateEdit from '~/pages/settings/BillingEntity/sections/BillingEntityCreateEdit'
+import BillingEntityEmailScenarios from '~/pages/settings/BillingEntity/sections/BillingEntityEmailScenarios'
+import BillingEntityEmailScenariosConfig from '~/pages/settings/BillingEntity/sections/BillingEntityEmailScenariosConfig'
+import BillingEntityInvoiceSettings from '~/pages/settings/BillingEntity/sections/BillingEntityInvoiceSettings'
+import BillingEntityGeneral from '~/pages/settings/BillingEntity/sections/general/BillingEntityGeneral'
+import BillingEntityTaxesSettings from '~/pages/settings/BillingEntity/sections/taxes/BillingEntityTaxesSettings'
+import InvoiceSections from '~/pages/settings/Invoices/InvoiceSections'
+import SettingsHomePage from '~/pages/settings/SettingsHomePage'
 
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
@@ -10,9 +19,6 @@ import { lazyLoad } from './utils'
 const Settings = lazyLoad(() => import('~/layouts/Settings'))
 
 // ----------- Pages -----------
-const OrganizationInformations = lazyLoad(() => import('~/pages/settings/OrganizationInformations'))
-const InvoiceSettings = lazyLoad(() => import('~/pages/settings/Invoices/InvoiceSettings'))
-
 const CreateInvoiceCustomSection = lazyLoad(
   () => import('~/pages/settings/Invoices/CreateCustomSection'),
 )
@@ -58,8 +64,6 @@ const GocardlessIntegrationDetails = lazyLoad(
 const TaxManagementIntegration = lazyLoad(
   () => import('~/pages/settings/LagoTaxManagementIntegration'),
 )
-const EmailSettings = lazyLoad(() => import('~/pages/settings/EmailSettings'))
-const EmailScenarioConfig = lazyLoad(() => import('~/pages/settings/EmailScenarioConfig'))
 const XeroIntegrations = lazyLoad(() => import('~/pages/settings/XeroIntegrations'))
 const XeroIntegrationDetails = lazyLoad(() => import('~/pages/settings/XeroIntegrationDetails'))
 const DunningsSettings = lazyLoad(() => import('~/pages/settings/Dunnings/Dunnings'))
@@ -67,11 +71,13 @@ const CreateDunning = lazyLoad(() => import('~/pages/settings/Dunnings/CreateDun
 
 // ----------- Routes -----------
 export const SETTINGS_ROUTE = '/settings'
-export const INVOICE_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/invoice`
+export const INVOICE_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/invoice-sections`
 export const TAXES_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/taxes`
 export const ORGANIZATION_INFORMATIONS_ROUTE = `${SETTINGS_ROUTE}/organization-informations`
 export const ROOT_INTEGRATIONS_ROUTE = `${SETTINGS_ROUTE}/integrations`
 export const INTEGRATIONS_ROUTE = `${ROOT_INTEGRATIONS_ROUTE}/:integrationGroup`
+export const FULL_INTEGRATIONS_ROUTE = `${ROOT_INTEGRATIONS_ROUTE}/:integrationGroup/:tab`
+export const FULL_INTEGRATIONS_ROUTE_ID = `${ROOT_INTEGRATIONS_ROUTE}/:integrationGroup/:tab/:id`
 export const AUTHENTICATION_ROUTE = `${SETTINGS_ROUTE}/authentication`
 export const OKTA_AUTHENTICATION_ROUTE = `${AUTHENTICATION_ROUTE}/okta/:integrationId`
 export const ANROK_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/anrok`
@@ -98,14 +104,27 @@ export const GOCARDLESS_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/gocar
 export const TAX_MANAGEMENT_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/lago-tax-management`
 export const MEMBERS_ROUTE = `${SETTINGS_ROUTE}/members`
 export const EMAILS_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/emails`
-export const EMAILS_SCENARIO_CONFIG_ROUTE = `${SETTINGS_ROUTE}/emails/config/:type`
 export const XERO_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/xero`
 export const XERO_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/xero/:integrationId/:tab`
 export const DUNNINGS_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/dunnings`
 
+const BILLING_ENTITY_BASE = `${SETTINGS_ROUTE}/billing-entity`
+const BILLING_ENTITY_BASE_WITH_CODE = `${BILLING_ENTITY_BASE}/:billingEntityCode`
+
+export const BILLING_ENTITY_ROUTE = BILLING_ENTITY_BASE_WITH_CODE
+export const BILLING_ENTITY_GENERAL_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/general`
+export const BILLING_ENTITY_EMAIL_SCENARIOS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/email-scenarios`
+export const BILLING_ENTITY_EMAIL_SCENARIOS_CONFIG_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/email-scenarios/:type`
+export const BILLING_ENTITY_DUNNINGS_SETTINGS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/dunnings`
+export const BILLING_ENTITY_DUNNING_CAMPAIGNS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/dunning-campaigns`
+export const BILLING_ENTITY_INVOICE_SETTINGS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/invoice-settings`
+export const BILLING_ENTITY_TAXES_SETTINGS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/taxes`
+
 /**
  * Creation routes
  */
+export const BILLING_ENTITY_CREATE_ROUTE = `${BILLING_ENTITY_BASE}/create`
+export const BILLING_ENTITY_UPDATE_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/edit`
 export const CREATE_DUNNING_ROUTE = `${SETTINGS_ROUTE}/dunnings/create`
 export const UPDATE_DUNNING_ROUTE = `${SETTINGS_ROUTE}/dunnings/:campaignId/edit`
 export const CREATE_INVOICE_CUSTOM_SECTION = `${INVOICE_SETTINGS_ROUTE}/custom-section/create`
@@ -117,15 +136,14 @@ export const settingRoutes: CustomRouteObject[] = [
     element: <Settings />,
     children: [
       {
-        path: [SETTINGS_ROUTE, ORGANIZATION_INFORMATIONS_ROUTE],
+        path: SETTINGS_ROUTE,
         private: true,
-        element: <OrganizationInformations />,
-        permissions: ['organizationView'],
+        element: <SettingsHomePage />,
       },
       {
         path: [INVOICE_SETTINGS_ROUTE],
         private: true,
-        element: <InvoiceSettings />,
+        element: <InvoiceSections />,
         permissions: ['organizationInvoicesView'],
       },
       {
@@ -133,12 +151,6 @@ export const settingRoutes: CustomRouteObject[] = [
         private: true,
         element: <TaxesSettings />,
         permissions: ['organizationTaxesView'],
-      },
-      {
-        path: EMAILS_SETTINGS_ROUTE,
-        private: true,
-        element: <EmailSettings />,
-        permissions: ['organizationEmailsView'],
       },
       {
         path: INTEGRATIONS_ROUTE,
@@ -298,12 +310,6 @@ export const settingRoutes: CustomRouteObject[] = [
         permissions: ['organizationIntegrationsView'],
       },
       {
-        path: EMAILS_SCENARIO_CONFIG_ROUTE,
-        private: true,
-        element: <EmailScenarioConfig />,
-        permissions: ['organizationEmailsUpdate', 'organizationEmailsView'],
-      },
-      {
         path: XERO_INTEGRATION_DETAILS_ROUTE,
         private: true,
         element: <XeroIntegrationDetails />,
@@ -321,6 +327,48 @@ export const settingRoutes: CustomRouteObject[] = [
         element: <DunningsSettings />,
         permissions: ['dunningCampaignsView'],
       },
+      {
+        path: BILLING_ENTITY_ROUTE,
+        private: true,
+        element: <BillingEntity />,
+        permissions: ['billingEntitiesView'],
+      },
+      {
+        path: BILLING_ENTITY_GENERAL_ROUTE,
+        private: true,
+        element: <BillingEntityGeneral />,
+        permissions: ['billingEntitiesView'],
+      },
+      {
+        path: BILLING_ENTITY_EMAIL_SCENARIOS_ROUTE,
+        private: true,
+        element: <BillingEntityEmailScenarios />,
+        permissions: ['billingEntitiesEmailsView'],
+      },
+      {
+        path: BILLING_ENTITY_EMAIL_SCENARIOS_CONFIG_ROUTE,
+        private: true,
+        element: <BillingEntityEmailScenariosConfig />,
+        permissions: ['billingEntitiesEmailsView'],
+      },
+      {
+        path: BILLING_ENTITY_DUNNINGS_SETTINGS_ROUTE,
+        private: true,
+        element: <DunningsSettings />,
+        permissions: ['billingEntitiesView'],
+      },
+      {
+        path: BILLING_ENTITY_INVOICE_SETTINGS_ROUTE,
+        private: true,
+        element: <BillingEntityInvoiceSettings />,
+        permissions: ['billingEntitiesInvoicesView'],
+      },
+      {
+        path: BILLING_ENTITY_TAXES_SETTINGS_ROUTE,
+        private: true,
+        element: <BillingEntityTaxesSettings />,
+        permissions: ['billingEntitiesTaxesView'],
+      },
     ],
   },
   {
@@ -334,5 +382,11 @@ export const settingRoutes: CustomRouteObject[] = [
     private: true,
     element: <CreateInvoiceCustomSection />,
     permissions: ['invoiceCustomSectionsCreate', 'invoiceCustomSectionsUpdate'],
+  },
+  {
+    path: [BILLING_ENTITY_CREATE_ROUTE, BILLING_ENTITY_UPDATE_ROUTE],
+    private: true,
+    element: <BillingEntityCreateEdit />,
+    permissions: ['billingEntitiesCreate', 'billingEntitiesUpdate'],
   },
 ]

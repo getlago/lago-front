@@ -81,7 +81,11 @@ import {
   XERO_INTEGRATION_ROUTE,
 } from '~/core/router'
 import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
-import { PremiumIntegrationTypeEnum, useIntegrationsSettingQuery } from '~/generated/graphql'
+import {
+  PremiumIntegrationTypeEnum,
+  useGetBillingEntitiesQuery,
+  useIntegrationsSettingQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -104,12 +108,6 @@ import Xero from '~/public/images/xero.svg'
 
 gql`
   query integrationsSetting($limit: Int) {
-    organization {
-      id
-      euTaxManagement
-      country
-    }
-
     paymentProviders(limit: $limit) {
       collection {
         ... on MoneyhashProvider {
@@ -179,7 +177,13 @@ const Integrations = () => {
     variables: { limit: 1000 },
   })
 
-  const organization = data?.organization
+  const { data: billingEntitiesData } = useGetBillingEntitiesQuery()
+
+  const hasBillingEntitiesWithTaxManagement =
+    billingEntitiesData?.billingEntities?.collection?.find(
+      (billingEntity) => billingEntity?.euTaxManagement,
+    )
+
   const hasAdyenIntegration = data?.paymentProviders?.collection?.some(
     (provider) => provider?.__typename === 'AdyenProvider',
   )
@@ -195,7 +199,7 @@ const Integrations = () => {
   const hasMoneyhashIntegration = data?.paymentProviders?.collection?.some(
     (provider) => provider?.__typename === 'MoneyhashProvider',
   )
-  const hasTaxManagement = !!organization?.euTaxManagement
+  const hasTaxManagement = !!hasBillingEntitiesWithTaxManagement
   const hasAccessToAvalaraPremiumIntegration = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.Avalara,
   )
@@ -703,10 +707,7 @@ const Integrations = () => {
       <AddCashfreeDialog ref={addCashfreeDialogRef} />
       <AddMoneyhashDialog ref={addMoneyhashDialogRef} />
       <AddGocardlessDialog ref={addGocardlessDialogRef} />
-      <AddLagoTaxManagementDialog
-        country={organization?.country}
-        ref={addLagoTaxManagementDialog}
-      />
+      <AddLagoTaxManagementDialog ref={addLagoTaxManagementDialog} />
       <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
       <AddXeroDialog ref={addXeroDialogRef} />
       <AddHubspotDialog ref={addHubspotDialogRef} />

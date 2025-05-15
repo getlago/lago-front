@@ -21,16 +21,21 @@ interface CustomerInformationProps {
   formikProps: FormikProps<CreateCustomerInput | UpdateCustomerInput>
   isEdition?: boolean
   customer?: AddCustomerDrawerFragment | null
+  billingEntitiesList: { value: string; label: string }[]
+  billingEntitiesLoading: boolean
 }
 
 export const CustomerInformation: FC<CustomerInformationProps> = ({
   formikProps,
   isEdition,
   customer,
+  billingEntitiesList,
+  billingEntitiesLoading,
 }) => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
   const { timezoneConfig } = useOrganizationInfos()
+
   const timezoneComboboxData = useMemo(
     () =>
       Object.values(TimezoneEnum).map((timezoneValue) => ({
@@ -50,6 +55,18 @@ export const CustomerInformation: FC<CustomerInformationProps> = ({
         <Typography variant="caption">{translate('text_1735652987833k0i3l9ill5g')}</Typography>
       </div>
 
+      <ComboBoxField
+        name="billingEntityCode"
+        label={translate('text_1743611497157teaa1zu8l24')}
+        placeholder={translate('text_174360002513391n72uwg6bb')}
+        disabled={isEdition && !customer?.canEditAttributes}
+        formikProps={formikProps}
+        PopperProps={{ displayInDialog: true }}
+        loading={billingEntitiesLoading}
+        data={billingEntitiesList}
+        disableClearable={isEdition && !customer?.canEditAttributes}
+        sortValues={false}
+      />
       <TextInputField
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus={!isEdition}

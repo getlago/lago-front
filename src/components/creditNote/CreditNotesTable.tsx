@@ -67,6 +67,10 @@ gql`
         applicableTimezone
       }
     }
+    billingEntity {
+      name
+      code
+    }
   }
 
   fragment CreditNotesForTable on CreditNoteCollection {
@@ -148,6 +152,7 @@ const CreditNotesTable = ({
             filtersNamePrefix={CREDIT_NOTE_LIST_FILTER_PREFIX}
             availableFilters={[
               AvailableFiltersEnum.amount,
+              AvailableFiltersEnum.billingEntityIds,
               AvailableFiltersEnum.creditNoteCreditStatus,
               AvailableFiltersEnum.currency,
               AvailableFiltersEnum.customerExternalId,
@@ -269,6 +274,15 @@ const CreditNotesTable = ({
               key: 'totalAmountCents',
               title: translate('text_1727078012568v9460bmnh8a'),
               content: (creditNote) => <CreditNoteBadge creditNote={creditNote} />,
+            },
+            {
+              key: 'billingEntity.name',
+              title: translate('text_17436114971570doqrwuwhf0'),
+              content: ({ billingEntity }) => (
+                <Typography variant="body" noWrap>
+                  {billingEntity?.name || billingEntity?.code || '-'}
+                </Typography>
+              ),
             },
             {
               key: 'number',

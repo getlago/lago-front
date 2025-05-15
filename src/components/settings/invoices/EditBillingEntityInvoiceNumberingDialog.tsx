@@ -6,63 +6,66 @@ import { object, string } from 'yup'
 import { Button, Chip, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { RadioGroupField, TextInput, TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
-import { getInvoiceNumberPreview } from '~/core/utils/invoiceNumberPreview'
+import { getBillingEntityNumberPreview } from '~/core/utils/billingEntityNumberPreview'
 import {
-  DocumentNumberingEnum,
-  useUpdateOrganizationInvoiceNumberingMutation,
+  BillingEntityDocumentNumberingEnum,
+  useUpdateBillingEntityInvoiceNumberingMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 const DynamicPrefixTranslationLookup = {
-  [DocumentNumberingEnum.PerCustomer]: 'text_6566f920a1d6c35693d6cce0',
-  [DocumentNumberingEnum.PerOrganization]: 'YYYYMM',
+  [BillingEntityDocumentNumberingEnum.PerCustomer]: 'text_6566f920a1d6c35693d6cce0',
+  [BillingEntityDocumentNumberingEnum.PerBillingEntity]: 'YYYYMM',
 }
 
 gql`
-  fragment EditOrganizationInvoiceNumberingDialog on CurrentOrganization {
+  fragment EditBillingEntityInvoiceNumberingDialog on BillingEntity {
     id
     documentNumbering
     documentNumberPrefix
   }
 
-  mutation updateOrganizationInvoiceNumbering($input: UpdateOrganizationInput!) {
-    updateOrganization(input: $input) {
+  mutation updateBillingEntityInvoiceNumbering($input: UpdateBillingEntityInput!) {
+    updateBillingEntity(input: $input) {
       id
-      ...EditOrganizationInvoiceNumberingDialog
+      ...EditBillingEntityInvoiceNumberingDialog
     }
   }
 `
 
-export type EditOrganizationInvoiceNumberingDialogRef = DialogRef
+export type EditBillingEntityInvoiceNumberingDialogRef = DialogRef
 
-interface EditOrganizationInvoiceNumberingDialogProps {
-  documentNumbering?: DocumentNumberingEnum
+interface EditBillingEntityInvoiceNumberingDialogProps {
+  id: string
+  documentNumbering?: BillingEntityDocumentNumberingEnum
   documentNumberPrefix?: string
 }
 
-export const EditOrganizationInvoiceNumberingDialog = forwardRef<
+export const EditBillingEntityInvoiceNumberingDialog = forwardRef<
   DialogRef,
-  EditOrganizationInvoiceNumberingDialogProps
+  EditBillingEntityInvoiceNumberingDialogProps
 >(
   (
-    { documentNumbering, documentNumberPrefix }: EditOrganizationInvoiceNumberingDialogProps,
+    { id, documentNumbering, documentNumberPrefix }: EditBillingEntityInvoiceNumberingDialogProps,
     ref,
   ) => {
     const { translate } = useInternationalization()
-    const [updateOrganizationInvoiceNumbering] = useUpdateOrganizationInvoiceNumberingMutation({
+    const [updateBillingEntityInvoiceNumbering] = useUpdateBillingEntityInvoiceNumberingMutation({
       onCompleted(res) {
-        if (res?.updateOrganization) {
+        if (res?.updateBillingEntity) {
           addToast({
             severity: 'success',
             translateKey: 'text_6566f920a1d6c35693d6ce0f',
           })
         }
       },
+      refetchQueries: ['getBillingEntitySettings'],
     })
 
-    // Type is manually written here as errors type are not correctly read from UpdateOrganizationInput
-    const formikProps = useFormik<EditOrganizationInvoiceNumberingDialogProps>({
+    // Type is manually written here as errors type are not correctly read from UpdateBillingEntityInput
+    const formikProps = useFormik<EditBillingEntityInvoiceNumberingDialogProps>({
       initialValues: {
+        id,
         documentNumbering,
         documentNumberPrefix,
       },
@@ -73,7 +76,7 @@ export const EditOrganizationInvoiceNumberingDialog = forwardRef<
       enableReinitialize: true,
       validateOnMount: true,
       onSubmit: async (values) => {
-        await updateOrganizationInvoiceNumbering({
+        await updateBillingEntityInvoiceNumbering({
           variables: {
             input: {
               ...values,
@@ -102,7 +105,7 @@ export const EditOrganizationInvoiceNumberingDialog = forwardRef<
                 closeDialog()
               }}
             >
-              {translate('text_6566f920a1d6c35693d6cc8c')}
+              {translate('text_17432414198706rdwf76ek3u')}
             </Button>
           </>
         )}
@@ -111,8 +114,8 @@ export const EditOrganizationInvoiceNumberingDialog = forwardRef<
           <div className="flex items-center gap-3 rounded-xl border border-grey-300 p-3">
             <Chip label={translate('text_6566f920a1d6c35693d6cc9e')} />
             <Typography variant="body" color="grey700">
-              {getInvoiceNumberPreview(
-                formikProps.values.documentNumbering as DocumentNumberingEnum,
+              {getBillingEntityNumberPreview(
+                formikProps.values.documentNumbering as BillingEntityDocumentNumberingEnum,
                 formikProps.values.documentNumberPrefix || '',
               )}
             </Typography>
@@ -125,11 +128,11 @@ export const EditOrganizationInvoiceNumberingDialog = forwardRef<
             options={[
               {
                 label: translate('text_6566f920a1d6c35693d6ccb8'),
-                value: DocumentNumberingEnum.PerCustomer,
+                value: BillingEntityDocumentNumberingEnum.PerCustomer,
               },
               {
                 label: translate('text_6566f920a1d6c35693d6ccc0'),
-                value: DocumentNumberingEnum.PerOrganization,
+                value: BillingEntityDocumentNumberingEnum.PerBillingEntity,
               },
             ]}
           />
@@ -153,7 +156,7 @@ export const EditOrganizationInvoiceNumberingDialog = forwardRef<
               label={translate('text_6566f920a1d6c35693d6ccd8')}
               value={translate(
                 DynamicPrefixTranslationLookup[
-                  formikProps.values.documentNumbering as DocumentNumberingEnum
+                  formikProps.values.documentNumbering as BillingEntityDocumentNumberingEnum
                 ],
               )}
             />
@@ -168,4 +171,4 @@ export const EditOrganizationInvoiceNumberingDialog = forwardRef<
   },
 )
 
-EditOrganizationInvoiceNumberingDialog.displayName = 'forwardRef'
+EditBillingEntityInvoiceNumberingDialog.displayName = 'forwardRef'

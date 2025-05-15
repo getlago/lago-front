@@ -12,10 +12,21 @@ const IntegrationsContainer: FC<PropsWithChildren<{ className?: string }>> = ({
   return <div className={tw('container flex max-w-168 flex-col gap-8', className)}>{children}</div>
 }
 
-const IntegrationsHeadline: FC<PropsWithChildren<{ label: string }>> = ({ label, children }) => {
+const IntegrationsHeadline: FC<PropsWithChildren<{ label: string; description?: string }>> = ({
+  label,
+  description,
+  children,
+}) => {
   return (
     <div className={tw('flex h-18 w-full flex-row items-center justify-between')}>
-      <Typography variant="subhead">{label}</Typography>
+      <div>
+        <Typography variant="subhead">{label}</Typography>
+
+        {description && (
+          <Typography className="mt-2 text-sm text-grey-600">{description}</Typography>
+        )}
+      </div>
+
       {children}
     </div>
   )
