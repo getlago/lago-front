@@ -35,6 +35,7 @@ import { InvoicePaymentList } from '~/components/invoices/InvoicePaymentList'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, envGlobalVar, LagoGQLError } from '~/core/apolloClient'
+import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import {
   CustomerDetailsTabsOptions,
@@ -245,21 +246,21 @@ const getErrorMessageFromErrorDetails = (
 
   if (errorCode === ErrorCodesEnum.TaxError) {
     if (errorDetails === LagoApiError.CurrencyCodeNotSupported) {
-      return 'text_17238318811308wqpult4i7r'
+      return LocalTaxProviderErrorsEnum.CurrencyCodeNotSupported
     }
 
     if (
       errorDetails === LagoApiError.CustomerAddressCouldNotResolve ||
       errorDetails === LagoApiError.CustomerAddressCountryNotSupported
     ) {
-      return 'text_1723831881130x4cfh6qr6o8'
+      return LocalTaxProviderErrorsEnum.CustomerAddressError
     }
 
     if (errorDetails === LagoApiError.ProductExternalIdUnknown) {
-      return 'text_1723831881130g8hv6qzqe57'
+      return LocalTaxProviderErrorsEnum.ProductExternalIdUnknown
     }
 
-    return 'text_17238318811307ghoc4v7mt9'
+    return LocalTaxProviderErrorsEnum.GenericErrorMessage
   }
 }
 
