@@ -4,10 +4,6 @@ import { generatePath, useParams } from 'react-router-dom'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
-import {
-  VoidCreditNoteDialog,
-  VoidCreditNoteDialogRef,
-} from '~/components/customers/creditNotes/VoidCreditNoteDialog'
 import { Button, ButtonLink, Tooltip, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
@@ -53,7 +49,6 @@ export const InvoiceCreditNoteList = () => {
   const { invoiceId, customerId } = useParams()
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
-  const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { data, loading, error, fetchMore, variables } = useGetInvoiceCreditNotesQuery({
     variables: { invoiceId: invoiceId as string, limit: 20 },
@@ -146,7 +141,7 @@ export const InvoiceCreditNoteList = () => {
           />
         )}
       </>
-      <VoidCreditNoteDialog ref={voidCreditNoteDialogRef} />
+
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </div>
   )
