@@ -103,7 +103,7 @@ const SideNav = () => {
   }, [pathname, contentRef, state?.disableScrollTop])
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-full">
       <Button
         className="absolute left-4 top-4 z-drawer md:hidden"
         onClick={(e) => {
@@ -329,7 +329,7 @@ const SideNav = () => {
                 ]}
               />
             </div>
-            <div className="mt-auto flex w-full flex-col gap-1 *:text-left">
+            <div className="mt-auto flex w-full flex-col gap-1 pt-12 *:text-left">
               <VerticalMenu
                 loading={currentUserLoading}
                 loadingComponent={
