@@ -39,8 +39,8 @@ gql`
     ...XeroForCreateDialogDialog
   }
 
-  query getXeroIntegrationsList($limit: Int, $type: IntegrationTypeEnum) {
-    integrations(limit: $limit, type: $type) {
+  query getXeroIntegrationsList($limit: Int, $types: [IntegrationTypeEnum!]) {
+    integrations(limit: $limit, types: $types) {
       collection {
         ... on XeroIntegration {
           id
@@ -62,7 +62,7 @@ const XeroIntegrations = () => {
   const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
   const deleteDialogRef = useRef<DeleteXeroIntegrationDialogRef>(null)
   const { data, loading } = useGetXeroIntegrationsListQuery({
-    variables: { limit: 1000, type: IntegrationTypeEnum.Xero },
+    variables: { limit: 1000, types: [IntegrationTypeEnum.Xero] },
   })
   const connections = data?.integrations?.collection as XeroIntegrationsFragment[] | undefined
   const deleteDialogCallback =

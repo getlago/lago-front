@@ -40,7 +40,7 @@ gql`
   query getSalesforceIntegrationsDetails(
     $id: ID!
     $limit: Int
-    $integrationsType: IntegrationTypeEnum!
+    $integrationsType: [IntegrationTypeEnum!]
   ) {
     integration(id: $id) {
       ... on SalesforceIntegration {
@@ -49,7 +49,7 @@ gql`
       }
     }
 
-    integrations(limit: $limit, type: $integrationsType) {
+    integrations(limit: $limit, types: $integrationsType) {
       collection {
         ... on SalesforceIntegration {
           id
@@ -74,7 +74,7 @@ const SalesforceIntegrationDetails = () => {
     variables: {
       id: integrationId as string,
       limit: PROVIDER_CONNECTION_LIMIT,
-      integrationsType: IntegrationTypeEnum.Salesforce,
+      integrationsType: [IntegrationTypeEnum.Salesforce],
     },
     skip: !integrationId,
   })

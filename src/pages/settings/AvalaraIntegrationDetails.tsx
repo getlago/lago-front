@@ -60,7 +60,7 @@ gql`
   query getAvalaraIntegrationsDetails(
     $id: ID!
     $limit: Int
-    $integrationsType: IntegrationTypeEnum!
+    $integrationsType: [IntegrationTypeEnum!]
   ) {
     integration(id: $id) {
       ... on AvalaraIntegration {
@@ -69,7 +69,7 @@ gql`
       }
     }
 
-    integrations(limit: $limit, type: $integrationsType) {
+    integrations(limit: $limit, types: $integrationsType) {
       collection {
         ... on AvalaraIntegration {
           id
@@ -93,7 +93,7 @@ const AvalaraIntegrationDetails = () => {
     variables: {
       id: integrationId as string,
       limit: PROVIDER_CONNECTION_LIMIT,
-      integrationsType: IntegrationTypeEnum.Avalara,
+      integrationsType: [IntegrationTypeEnum.Avalara],
     },
     skip: !integrationId,
   })

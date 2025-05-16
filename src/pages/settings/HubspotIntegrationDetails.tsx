@@ -42,7 +42,7 @@ gql`
   query getHubspotIntegrationsDetails(
     $id: ID!
     $limit: Int
-    $integrationsType: IntegrationTypeEnum!
+    $integrationsType: [IntegrationTypeEnum!]
   ) {
     integration(id: $id) {
       ... on HubspotIntegration {
@@ -51,7 +51,7 @@ gql`
       }
     }
 
-    integrations(limit: $limit, type: $integrationsType) {
+    integrations(limit: $limit, types: $integrationsType) {
       collection {
         ... on HubspotIntegration {
           id
@@ -76,7 +76,7 @@ const HubspotIntegrationDetails = () => {
     variables: {
       id: integrationId as string,
       limit: PROVIDER_CONNECTION_LIMIT,
-      integrationsType: IntegrationTypeEnum.Hubspot,
+      integrationsType: [IntegrationTypeEnum.Hubspot],
     },
     skip: !integrationId,
   })

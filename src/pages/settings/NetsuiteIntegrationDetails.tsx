@@ -62,7 +62,7 @@ gql`
   query getNetsuiteIntegrationsDetails(
     $id: ID!
     $limit: Int
-    $integrationsType: IntegrationTypeEnum!
+    $integrationsType: [IntegrationTypeEnum!]
   ) {
     integration(id: $id) {
       ... on NetsuiteIntegration {
@@ -71,7 +71,7 @@ gql`
       }
     }
 
-    integrations(limit: $limit, type: $integrationsType) {
+    integrations(limit: $limit, types: $integrationsType) {
       collection {
         ... on NetsuiteIntegration {
           id
@@ -96,7 +96,7 @@ const NetsuiteIntegrationDetails = () => {
     variables: {
       id: integrationId as string,
       limit: PROVIDER_CONNECTION_LIMIT,
-      integrationsType: IntegrationTypeEnum.Netsuite,
+      integrationsType: [IntegrationTypeEnum.Netsuite],
     },
     skip: !integrationId,
   })

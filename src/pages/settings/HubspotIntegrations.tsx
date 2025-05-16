@@ -39,8 +39,8 @@ gql`
     ...HubspotForCreateDialog
   }
 
-  query getHubspotIntegrationsList($limit: Int, $type: IntegrationTypeEnum) {
-    integrations(limit: $limit, type: $type) {
+  query getHubspotIntegrationsList($limit: Int, $types: [IntegrationTypeEnum!]) {
+    integrations(limit: $limit, types: $types) {
       collection {
         ... on HubspotIntegration {
           id
@@ -62,7 +62,7 @@ const HubspotIntegrations = () => {
   const deleteDialogRef = useRef<DeleteHubspotIntegrationDialogRef>(null)
 
   const { data, loading } = useGetHubspotIntegrationsListQuery({
-    variables: { limit: 1000, type: IntegrationTypeEnum.Hubspot },
+    variables: { limit: 1000, types: [IntegrationTypeEnum.Hubspot] },
   })
 
   const connections = data?.integrations?.collection as HubspotIntegrationsFragment[] | undefined
