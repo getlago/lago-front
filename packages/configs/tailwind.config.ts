@@ -190,6 +190,7 @@ const config: Config = {
         tooltip: '2400',
         toast: '2200',
         dialog: '2000',
+        console: '1900',
         popper: '1800',
         drawer: '1600',
         sideNav: '1500',
