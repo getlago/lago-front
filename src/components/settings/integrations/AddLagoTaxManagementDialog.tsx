@@ -285,24 +285,23 @@ export const AddLagoTaxManagementDialog = forwardRef<
         ))}
       </div>
 
-      <div>
-        <Button
-          variant="quaternary"
-          size="medium"
-          startIcon="plus"
-          disabled={!canCreateBillingEntity}
-          className={tw({
-            'mt-6': formikProps.values.billingEntities?.length > 0,
-            'mb-6': true,
-          })}
-          onClick={() => createEmptyBillingEntity()}
-        >
-          {translate('text_1746629562868pknl1wo22fa')}
-        </Button>
-      </div>
+      <Button
+        fitContent
+        variant="quaternary"
+        size="medium"
+        startIcon="plus"
+        disabled={!canCreateBillingEntity}
+        className={tw({
+          'mt-6': formikProps.values.billingEntities?.length > 0,
+          'mb-6': true,
+        })}
+        onClick={() => createEmptyBillingEntity()}
+      >
+        {translate('text_1746629562868pknl1wo22fa')}
+      </Button>
 
       {hasTaxProvider && (
-        <Alert type="info">
+        <Alert type="info" className="mb-6">
           <Typography variant="body" color="grey700">
             {translate('text_66ba65e562cbc500f04c7dbb')}
           </Typography>

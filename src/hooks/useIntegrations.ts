@@ -23,7 +23,7 @@ export const useIntegrations: UseIntegrations = () => {
   const { data, loading } = useGetTaxProviderPresenceQuery({
     variables: {
       limit: 1,
-      integrationsType: [IntegrationTypeEnum.Anrok],
+      integrationsType: [IntegrationTypeEnum.Anrok, IntegrationTypeEnum.Avalara],
     },
     // In case the user removes their tax provider connection, should not rely on cache at all
     fetchPolicy: 'network-only',
