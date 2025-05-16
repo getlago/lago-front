@@ -55,6 +55,7 @@ gql`
         externalId
         subscriptionAt
         endingAt
+        terminatedAt
         plan {
           id
           amountCurrency
@@ -88,6 +89,7 @@ type AnnotatedSubscription = {
   name: Subscription['name']
   startedAt: Subscription['startedAt']
   endingAt?: Subscription['endingAt']
+  terminatedAt?: Subscription['terminatedAt']
   status?: Subscription['status']
   frequency: Plan['interval']
   statusType: {
@@ -116,6 +118,7 @@ const annotateSubscriptions = (
       startedAt,
       subscriptionAt,
       endingAt,
+      terminatedAt,
       customer,
       nextSubscription,
     } = subscription || {}
@@ -129,6 +132,7 @@ const annotateSubscriptions = (
       status,
       startedAt: startedAt || subscriptionAt,
       endingAt: endingAt,
+      terminatedAt,
       frequency: plan.interval,
       startDate: startedAt || subscriptionAt,
       statusType: subscriptionStatusMapping(status),
@@ -356,11 +360,11 @@ export const CustomerSubscriptionsList = ({ customerTimezone }: CustomerSubscrip
               {
                 key: 'endingAt',
                 title: translate('text_65201c5a175a4b0238abf2a0'),
-                content: ({ endingAt }) =>
-                  endingAt ? (
+                content: ({ endingAt, status, terminatedAt }) =>
+                  endingAt || terminatedAt ? (
                     <TimezoneDate
                       typographyClassName="text-nowrap text-base font-normal text-grey-600"
-                      date={endingAt}
+                      date={status === StatusTypeEnum.Terminated ? terminatedAt : endingAt}
                       customerTimezone={customerTimezone}
                     />
                   ) : (

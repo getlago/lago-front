@@ -10,6 +10,7 @@ import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS } from '~/core/router'
 import {
   NextSubscriptionTypeEnum,
+  StatusTypeEnum,
   SubscriptionForSubscriptionInformationsFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -22,6 +23,7 @@ gql`
     status
     subscriptionAt
     endingAt
+    terminatedAt
     nextSubscriptionAt
     nextSubscriptionType
     nextPlan {
@@ -43,6 +45,22 @@ gql`
     }
   }
 `
+
+const SubscriptionEndOrTerminatedAt = ({
+  subscription,
+}: {
+  subscription?: SubscriptionForSubscriptionInformationsFragment | null
+}) => {
+  if (subscription?.status === StatusTypeEnum.Terminated) {
+    return DateTime.fromISO(subscription?.terminatedAt).toFormat('LLL. dd, yyyy')
+  }
+
+  if (subscription?.endingAt) {
+    return DateTime.fromISO(subscription?.endingAt).toFormat('LLL. dd, yyyy')
+  }
+
+  return '-'
+}
 
 export const SubscriptionInformations = ({
   subscription,
@@ -105,9 +123,7 @@ export const SubscriptionInformations = ({
             },
             {
               label: translate('text_65201c5a175a4b0238abf2a0'),
-              value: !!subscription?.endingAt
-                ? DateTime.fromISO(subscription?.endingAt).toFormat('LLL. dd, yyyy')
-                : '-',
+              value: <SubscriptionEndOrTerminatedAt subscription={subscription} />,
             },
             !!subscription?.plan?.parent?.id && {
               label: translate('text_65201c5a175a4b0238abf2a2'),
