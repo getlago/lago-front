@@ -42,8 +42,8 @@ gql`
     ...NetsuiteForCreateDialogDialog
   }
 
-  query getNetsuiteIntegrationsList($limit: Int, $type: IntegrationTypeEnum) {
-    integrations(limit: $limit, type: $type) {
+  query getNetsuiteIntegrationsList($limit: Int, $types: [IntegrationTypeEnum!]) {
+    integrations(limit: $limit, types: $types) {
       collection {
         ... on NetsuiteIntegration {
           id
@@ -65,7 +65,7 @@ const NetsuiteIntegrations = () => {
   const addNetsuiteDialogRef = useRef<AddNetsuiteDialogRef>(null)
   const deleteDialogRef = useRef<DeleteNetsuiteIntegrationDialogRef>(null)
   const { data, loading } = useGetNetsuiteIntegrationsListQuery({
-    variables: { limit: 1000, type: IntegrationTypeEnum.Netsuite },
+    variables: { limit: 1000, types: [IntegrationTypeEnum.Netsuite] },
   })
   const connections = data?.integrations?.collection as NetsuiteIntegrationsFragment[] | undefined
   const deleteDialogCallback =

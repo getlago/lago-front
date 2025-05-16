@@ -41,8 +41,8 @@ gql`
     ...DeleteSalesforceIntegrationDialog
   }
 
-  query getSalesforceIntegrationsList($limit: Int, $type: IntegrationTypeEnum) {
-    integrations(limit: $limit, type: $type) {
+  query getSalesforceIntegrationsList($limit: Int, $types: [IntegrationTypeEnum!]) {
+    integrations(limit: $limit, types: $types) {
       collection {
         ... on SalesforceIntegration {
           id
@@ -65,7 +65,7 @@ const SalesforceIntegrations = () => {
   const deleteSalesforceDialogRef = useRef<DeleteSalesforceIntegrationDialogRef>(null)
 
   const { data, loading } = useGetSalesforceIntegrationsListQuery({
-    variables: { limit: 1000, type: IntegrationTypeEnum.Salesforce },
+    variables: { limit: 1000, types: [IntegrationTypeEnum.Salesforce] },
   })
 
   const connections = data?.integrations?.collection as SalesforceIntegrationsFragment[] | undefined

@@ -47,7 +47,7 @@ gql`
   query getXeroIntegrationsSettings(
     $id: ID!
     $limit: Int
-    $integrationsType: IntegrationTypeEnum!
+    $integrationsType: [IntegrationTypeEnum!]
   ) {
     integration(id: $id) {
       ... on XeroIntegration {
@@ -58,7 +58,7 @@ gql`
       }
     }
 
-    integrations(limit: $limit, type: $integrationsType) {
+    integrations(limit: $limit, types: $integrationsType) {
       collection {
         ... on XeroIntegration {
           id
@@ -104,7 +104,7 @@ const XeroIntegrationSettings = () => {
     variables: {
       id: integrationId as string,
       limit: PROVIDER_CONNECTION_LIMIT,
-      integrationsType: IntegrationTypeEnum.Xero,
+      integrationsType: [IntegrationTypeEnum.Xero],
     },
     skip: !integrationId,
   })

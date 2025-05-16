@@ -62,7 +62,7 @@ gql`
   query getAnrokIntegrationsDetails(
     $id: ID!
     $limit: Int
-    $integrationsType: IntegrationTypeEnum!
+    $integrationsType: [IntegrationTypeEnum!]
   ) {
     integration(id: $id) {
       ... on AnrokIntegration {
@@ -71,7 +71,7 @@ gql`
       }
     }
 
-    integrations(limit: $limit, type: $integrationsType) {
+    integrations(limit: $limit, types: $integrationsType) {
       collection {
         ... on AnrokIntegration {
           id
@@ -96,7 +96,7 @@ const AnrokIntegrationDetails = () => {
     variables: {
       id: integrationId as string,
       limit: PROVIDER_CONNECTION_LIMIT,
-      integrationsType: IntegrationTypeEnum.Anrok,
+      integrationsType: [IntegrationTypeEnum.Anrok],
     },
     skip: !integrationId,
   })

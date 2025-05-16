@@ -43,8 +43,8 @@ gql`
     ...AddAvalaraIntegrationDialog
   }
 
-  query getAvalaraIntegrationsList($limit: Int, $type: IntegrationTypeEnum) {
-    integrations(limit: $limit, type: $type) {
+  query getAvalaraIntegrationsList($limit: Int, $types: [IntegrationTypeEnum!]) {
+    integrations(limit: $limit, types: $types) {
       collection {
         ... on AvalaraIntegration {
           id
@@ -66,7 +66,7 @@ const AvalaraIntegrations = () => {
   const addAvalaraDialogRef = useRef<AddAvalaraDialogRef>(null)
   const deleteDialogRef = useRef<DeleteAvalaraIntegrationDialogRef>(null)
   const { data, loading } = useGetAvalaraIntegrationsListQuery({
-    variables: { limit: 1000, type: IntegrationTypeEnum.Avalara },
+    variables: { limit: 1000, types: [IntegrationTypeEnum.Avalara] },
   })
   const connections = data?.integrations?.collection as AvalaraIntegrationsFragment[] | undefined
   const deleteDialogCallback =

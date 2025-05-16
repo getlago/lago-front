@@ -42,8 +42,8 @@ gql`
     ...AddAnrokIntegrationDialog
   }
 
-  query getAnrokIntegrationsList($limit: Int, $type: IntegrationTypeEnum) {
-    integrations(limit: $limit, type: $type) {
+  query getAnrokIntegrationsList($limit: Int, $types: [IntegrationTypeEnum!]) {
+    integrations(limit: $limit, types: $types) {
       collection {
         ... on AnrokIntegration {
           id
@@ -65,7 +65,7 @@ const AnrokIntegrations = () => {
   const addAnrokDialogRef = useRef<AddAnrokDialogRef>(null)
   const deleteDialogRef = useRef<DeleteAnrokIntegrationDialogRef>(null)
   const { data, loading } = useGetAnrokIntegrationsListQuery({
-    variables: { limit: 1000, type: IntegrationTypeEnum.Anrok },
+    variables: { limit: 1000, types: [IntegrationTypeEnum.Anrok] },
   })
   const connections = data?.integrations?.collection as AnrokIntegrationsFragment[] | undefined
   const deleteDialogCallback =

@@ -5474,6 +5474,7 @@ export type QueryBillableMetricsArgs = {
   aggregationTypes?: InputMaybe<Array<AggregationTypeEnum>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
+  planId?: InputMaybe<Scalars['ID']['input']>;
   recurring?: InputMaybe<Scalars['Boolean']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
 };
@@ -5797,7 +5798,7 @@ export type QueryIntegrationSubsidiariesArgs = {
 export type QueryIntegrationsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  type?: InputMaybe<IntegrationTypeEnum>;
+  types?: InputMaybe<Array<IntegrationTypeEnum>>;
 };
 
 
@@ -9125,7 +9126,7 @@ export type NetsuiteIntegrationSettingsFragment = { __typename?: 'NetsuiteIntegr
 export type GetNetsuiteIntegrationsSettingsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
-  integrationsType: IntegrationTypeEnum;
+  integrationsType?: InputMaybe<Array<IntegrationTypeEnum> | IntegrationTypeEnum>;
 }>;
 
 
@@ -9244,7 +9245,7 @@ export type XeroIntegrationSettingsFragment = { __typename?: 'XeroIntegration', 
 export type GetXeroIntegrationsSettingsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
-  integrationsType: IntegrationTypeEnum;
+  integrationsType?: InputMaybe<Array<IntegrationTypeEnum> | IntegrationTypeEnum>;
 }>;
 
 
@@ -9794,7 +9795,7 @@ export type UpdateBillingEntityEmailSettingMutation = { __typename?: 'Mutation',
 
 export type GetTaxProviderPresenceQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
-  integrationsType?: InputMaybe<IntegrationTypeEnum>;
+  integrationsType?: InputMaybe<Array<IntegrationTypeEnum> | IntegrationTypeEnum>;
 }>;
 
 
@@ -10445,7 +10446,7 @@ export type AnrokIntegrationDetailsFragment = { __typename?: 'AnrokIntegration',
 export type GetAnrokIntegrationsDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
-  integrationsType: IntegrationTypeEnum;
+  integrationsType?: InputMaybe<Array<IntegrationTypeEnum> | IntegrationTypeEnum>;
 }>;
 
 
@@ -10455,7 +10456,7 @@ export type AnrokIntegrationsFragment = { __typename?: 'AnrokIntegration', id: s
 
 export type GetAnrokIntegrationsListQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
-  type?: InputMaybe<IntegrationTypeEnum>;
+  types?: InputMaybe<Array<IntegrationTypeEnum> | IntegrationTypeEnum>;
 }>;
 
 
@@ -10482,7 +10483,7 @@ export type AvalaraIntegrationDetailsFragment = { __typename?: 'AvalaraIntegrati
 export type GetAvalaraIntegrationsDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
-  integrationsType: IntegrationTypeEnum;
+  integrationsType?: InputMaybe<Array<IntegrationTypeEnum> | IntegrationTypeEnum>;
 }>;
 
 
@@ -10492,7 +10493,7 @@ export type AvalaraIntegrationsFragment = { __typename?: 'AvalaraIntegration', i
 
 export type GetAvalaraIntegrationsListQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
-  type?: InputMaybe<IntegrationTypeEnum>;
+  types?: InputMaybe<Array<IntegrationTypeEnum> | IntegrationTypeEnum>;
 }>;
 
 
@@ -10625,7 +10626,7 @@ export type HubspotIntegrationDetailsFragment = { __typename?: 'HubspotIntegrati
 export type GetHubspotIntegrationsDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
-  integrationsType: IntegrationTypeEnum;
+  integrationsType?: InputMaybe<Array<IntegrationTypeEnum> | IntegrationTypeEnum>;
 }>;
 
 
@@ -10635,7 +10636,7 @@ export type HubspotIntegrationsFragment = { __typename?: 'HubspotIntegration', i
 
 export type GetHubspotIntegrationsListQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
-  type?: InputMaybe<IntegrationTypeEnum>;
+  types?: InputMaybe<Array<IntegrationTypeEnum> | IntegrationTypeEnum>;
 }>;
 
 
@@ -10704,7 +10705,7 @@ export type NetsuiteIntegrationDetailsFragment = { __typename?: 'NetsuiteIntegra
 export type GetNetsuiteIntegrationsDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
-  integrationsType: IntegrationTypeEnum;
+  integrationsType?: InputMaybe<Array<IntegrationTypeEnum> | IntegrationTypeEnum>;
 }>;
 
 
@@ -10714,7 +10715,7 @@ export type NetsuiteIntegrationsFragment = { __typename?: 'NetsuiteIntegration',
 
 export type GetNetsuiteIntegrationsListQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
-  type?: InputMaybe<IntegrationTypeEnum>;
+  types?: InputMaybe<Array<IntegrationTypeEnum> | IntegrationTypeEnum>;
 }>;
 
 
@@ -10725,7 +10726,7 @@ export type SalesforceIntegrationDetailsFragment = { __typename?: 'SalesforceInt
 export type GetSalesforceIntegrationsDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
-  integrationsType: IntegrationTypeEnum;
+  integrationsType?: InputMaybe<Array<IntegrationTypeEnum> | IntegrationTypeEnum>;
 }>;
 
 
@@ -10735,7 +10736,7 @@ export type SalesforceIntegrationsFragment = { __typename?: 'SalesforceIntegrati
 
 export type GetSalesforceIntegrationsListQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
-  type?: InputMaybe<IntegrationTypeEnum>;
+  types?: InputMaybe<Array<IntegrationTypeEnum> | IntegrationTypeEnum>;
 }>;
 
 
@@ -10777,7 +10778,7 @@ export type XeroIntegrationDetailsFragment = { __typename?: 'XeroIntegration', i
 export type GetXeroIntegrationsDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
-  integrationsType: IntegrationTypeEnum;
+  integrationsType?: InputMaybe<Array<IntegrationTypeEnum> | IntegrationTypeEnum>;
 }>;
 
 
@@ -10787,7 +10788,7 @@ export type XeroIntegrationsFragment = { __typename?: 'XeroIntegration', id: str
 
 export type GetXeroIntegrationsListQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
-  type?: InputMaybe<IntegrationTypeEnum>;
+  types?: InputMaybe<Array<IntegrationTypeEnum> | IntegrationTypeEnum>;
 }>;
 
 
@@ -21671,7 +21672,7 @@ export type DeleteNetsuiteIntegrationMappingMutationHookResult = ReturnType<type
 export type DeleteNetsuiteIntegrationMappingMutationResult = Apollo.MutationResult<DeleteNetsuiteIntegrationMappingMutation>;
 export type DeleteNetsuiteIntegrationMappingMutationOptions = Apollo.BaseMutationOptions<DeleteNetsuiteIntegrationMappingMutation, DeleteNetsuiteIntegrationMappingMutationVariables>;
 export const GetNetsuiteIntegrationsSettingsDocument = gql`
-    query getNetsuiteIntegrationsSettings($id: ID!, $limit: Int, $integrationsType: IntegrationTypeEnum!) {
+    query getNetsuiteIntegrationsSettings($id: ID!, $limit: Int, $integrationsType: [IntegrationTypeEnum!]) {
   integration(id: $id) {
     ... on NetsuiteIntegration {
       id
@@ -21680,7 +21681,7 @@ export const GetNetsuiteIntegrationsSettingsDocument = gql`
       ...NetsuiteForCreateDialogDialog
     }
   }
-  integrations(limit: $limit, type: $integrationsType) {
+  integrations(limit: $limit, types: $integrationsType) {
     collection {
       ... on NetsuiteIntegration {
         id
@@ -22197,7 +22198,7 @@ export type DeleteXeroIntegrationMappingMutationHookResult = ReturnType<typeof u
 export type DeleteXeroIntegrationMappingMutationResult = Apollo.MutationResult<DeleteXeroIntegrationMappingMutation>;
 export type DeleteXeroIntegrationMappingMutationOptions = Apollo.BaseMutationOptions<DeleteXeroIntegrationMappingMutation, DeleteXeroIntegrationMappingMutationVariables>;
 export const GetXeroIntegrationsSettingsDocument = gql`
-    query getXeroIntegrationsSettings($id: ID!, $limit: Int, $integrationsType: IntegrationTypeEnum!) {
+    query getXeroIntegrationsSettings($id: ID!, $limit: Int, $integrationsType: [IntegrationTypeEnum!]) {
   integration(id: $id) {
     ... on XeroIntegration {
       id
@@ -22206,7 +22207,7 @@ export const GetXeroIntegrationsSettingsDocument = gql`
       ...XeroForCreateDialogDialog
     }
   }
-  integrations(limit: $limit, type: $integrationsType) {
+  integrations(limit: $limit, types: $integrationsType) {
     collection {
       ... on XeroIntegration {
         id
@@ -24747,8 +24748,8 @@ export type UpdateBillingEntityEmailSettingMutationHookResult = ReturnType<typeo
 export type UpdateBillingEntityEmailSettingMutationResult = Apollo.MutationResult<UpdateBillingEntityEmailSettingMutation>;
 export type UpdateBillingEntityEmailSettingMutationOptions = Apollo.BaseMutationOptions<UpdateBillingEntityEmailSettingMutation, UpdateBillingEntityEmailSettingMutationVariables>;
 export const GetTaxProviderPresenceDocument = gql`
-    query getTaxProviderPresence($limit: Int, $integrationsType: IntegrationTypeEnum) {
-  integrations(limit: $limit, type: $integrationsType) {
+    query getTaxProviderPresence($limit: Int, $integrationsType: [IntegrationTypeEnum!]) {
+  integrations(limit: $limit, types: $integrationsType) {
     collection {
       ... on AnrokIntegration {
         id
@@ -28189,14 +28190,14 @@ export type GetAdyenIntegrationsListLazyQueryHookResult = ReturnType<typeof useG
 export type GetAdyenIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetAdyenIntegrationsListSuspenseQuery>;
 export type GetAdyenIntegrationsListQueryResult = Apollo.QueryResult<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>;
 export const GetAnrokIntegrationsDetailsDocument = gql`
-    query getAnrokIntegrationsDetails($id: ID!, $limit: Int, $integrationsType: IntegrationTypeEnum!) {
+    query getAnrokIntegrationsDetails($id: ID!, $limit: Int, $integrationsType: [IntegrationTypeEnum!]) {
   integration(id: $id) {
     ... on AnrokIntegration {
       id
       ...AnrokIntegrationDetails
     }
   }
-  integrations(limit: $limit, type: $integrationsType) {
+  integrations(limit: $limit, types: $integrationsType) {
     collection {
       ... on AnrokIntegration {
         id
@@ -28241,8 +28242,8 @@ export type GetAnrokIntegrationsDetailsLazyQueryHookResult = ReturnType<typeof u
 export type GetAnrokIntegrationsDetailsSuspenseQueryHookResult = ReturnType<typeof useGetAnrokIntegrationsDetailsSuspenseQuery>;
 export type GetAnrokIntegrationsDetailsQueryResult = Apollo.QueryResult<GetAnrokIntegrationsDetailsQuery, GetAnrokIntegrationsDetailsQueryVariables>;
 export const GetAnrokIntegrationsListDocument = gql`
-    query getAnrokIntegrationsList($limit: Int, $type: IntegrationTypeEnum) {
-  integrations(limit: $limit, type: $type) {
+    query getAnrokIntegrationsList($limit: Int, $types: [IntegrationTypeEnum!]) {
+  integrations(limit: $limit, types: $types) {
     collection {
       ... on AnrokIntegration {
         id
@@ -28270,7 +28271,7 @@ ${DeleteAnrokIntegrationDialogFragmentDoc}`;
  * const { data, loading, error } = useGetAnrokIntegrationsListQuery({
  *   variables: {
  *      limit: // value for 'limit'
- *      type: // value for 'type'
+ *      types: // value for 'types'
  *   },
  * });
  */
@@ -28384,14 +28385,14 @@ export type GetOktaIntegrationLazyQueryHookResult = ReturnType<typeof useGetOkta
 export type GetOktaIntegrationSuspenseQueryHookResult = ReturnType<typeof useGetOktaIntegrationSuspenseQuery>;
 export type GetOktaIntegrationQueryResult = Apollo.QueryResult<GetOktaIntegrationQuery, GetOktaIntegrationQueryVariables>;
 export const GetAvalaraIntegrationsDetailsDocument = gql`
-    query getAvalaraIntegrationsDetails($id: ID!, $limit: Int, $integrationsType: IntegrationTypeEnum!) {
+    query getAvalaraIntegrationsDetails($id: ID!, $limit: Int, $integrationsType: [IntegrationTypeEnum!]) {
   integration(id: $id) {
     ... on AvalaraIntegration {
       id
       ...AvalaraIntegrationDetails
     }
   }
-  integrations(limit: $limit, type: $integrationsType) {
+  integrations(limit: $limit, types: $integrationsType) {
     collection {
       ... on AvalaraIntegration {
         id
@@ -28436,8 +28437,8 @@ export type GetAvalaraIntegrationsDetailsLazyQueryHookResult = ReturnType<typeof
 export type GetAvalaraIntegrationsDetailsSuspenseQueryHookResult = ReturnType<typeof useGetAvalaraIntegrationsDetailsSuspenseQuery>;
 export type GetAvalaraIntegrationsDetailsQueryResult = Apollo.QueryResult<GetAvalaraIntegrationsDetailsQuery, GetAvalaraIntegrationsDetailsQueryVariables>;
 export const GetAvalaraIntegrationsListDocument = gql`
-    query getAvalaraIntegrationsList($limit: Int, $type: IntegrationTypeEnum) {
-  integrations(limit: $limit, type: $type) {
+    query getAvalaraIntegrationsList($limit: Int, $types: [IntegrationTypeEnum!]) {
+  integrations(limit: $limit, types: $types) {
     collection {
       ... on AvalaraIntegration {
         id
@@ -28465,7 +28466,7 @@ ${DeleteAvalaraIntegrationDialogFragmentDoc}`;
  * const { data, loading, error } = useGetAvalaraIntegrationsListQuery({
  *   variables: {
  *      limit: // value for 'limit'
- *      type: // value for 'type'
+ *      types: // value for 'types'
  *   },
  * });
  */
@@ -29127,14 +29128,14 @@ export type GetGocardlessIntegrationsListLazyQueryHookResult = ReturnType<typeof
 export type GetGocardlessIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetGocardlessIntegrationsListSuspenseQuery>;
 export type GetGocardlessIntegrationsListQueryResult = Apollo.QueryResult<GetGocardlessIntegrationsListQuery, GetGocardlessIntegrationsListQueryVariables>;
 export const GetHubspotIntegrationsDetailsDocument = gql`
-    query getHubspotIntegrationsDetails($id: ID!, $limit: Int, $integrationsType: IntegrationTypeEnum!) {
+    query getHubspotIntegrationsDetails($id: ID!, $limit: Int, $integrationsType: [IntegrationTypeEnum!]) {
   integration(id: $id) {
     ... on HubspotIntegration {
       id
       ...HubspotIntegrationDetails
     }
   }
-  integrations(limit: $limit, type: $integrationsType) {
+  integrations(limit: $limit, types: $integrationsType) {
     collection {
       ... on HubspotIntegration {
         id
@@ -29179,8 +29180,8 @@ export type GetHubspotIntegrationsDetailsLazyQueryHookResult = ReturnType<typeof
 export type GetHubspotIntegrationsDetailsSuspenseQueryHookResult = ReturnType<typeof useGetHubspotIntegrationsDetailsSuspenseQuery>;
 export type GetHubspotIntegrationsDetailsQueryResult = Apollo.QueryResult<GetHubspotIntegrationsDetailsQuery, GetHubspotIntegrationsDetailsQueryVariables>;
 export const GetHubspotIntegrationsListDocument = gql`
-    query getHubspotIntegrationsList($limit: Int, $type: IntegrationTypeEnum) {
-  integrations(limit: $limit, type: $type) {
+    query getHubspotIntegrationsList($limit: Int, $types: [IntegrationTypeEnum!]) {
+  integrations(limit: $limit, types: $types) {
     collection {
       ... on HubspotIntegration {
         id
@@ -29206,7 +29207,7 @@ ${HubspotForCreateDialogFragmentDoc}`;
  * const { data, loading, error } = useGetHubspotIntegrationsListQuery({
  *   variables: {
  *      limit: // value for 'limit'
- *      type: // value for 'type'
+ *      types: // value for 'types'
  *   },
  * });
  */
@@ -29596,14 +29597,14 @@ export type GetMoneyhashIntegrationsListLazyQueryHookResult = ReturnType<typeof 
 export type GetMoneyhashIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetMoneyhashIntegrationsListSuspenseQuery>;
 export type GetMoneyhashIntegrationsListQueryResult = Apollo.QueryResult<GetMoneyhashIntegrationsListQuery, GetMoneyhashIntegrationsListQueryVariables>;
 export const GetNetsuiteIntegrationsDetailsDocument = gql`
-    query getNetsuiteIntegrationsDetails($id: ID!, $limit: Int, $integrationsType: IntegrationTypeEnum!) {
+    query getNetsuiteIntegrationsDetails($id: ID!, $limit: Int, $integrationsType: [IntegrationTypeEnum!]) {
   integration(id: $id) {
     ... on NetsuiteIntegration {
       id
       ...NetsuiteIntegrationDetails
     }
   }
-  integrations(limit: $limit, type: $integrationsType) {
+  integrations(limit: $limit, types: $integrationsType) {
     collection {
       ... on NetsuiteIntegration {
         id
@@ -29648,8 +29649,8 @@ export type GetNetsuiteIntegrationsDetailsLazyQueryHookResult = ReturnType<typeo
 export type GetNetsuiteIntegrationsDetailsSuspenseQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsDetailsSuspenseQuery>;
 export type GetNetsuiteIntegrationsDetailsQueryResult = Apollo.QueryResult<GetNetsuiteIntegrationsDetailsQuery, GetNetsuiteIntegrationsDetailsQueryVariables>;
 export const GetNetsuiteIntegrationsListDocument = gql`
-    query getNetsuiteIntegrationsList($limit: Int, $type: IntegrationTypeEnum) {
-  integrations(limit: $limit, type: $type) {
+    query getNetsuiteIntegrationsList($limit: Int, $types: [IntegrationTypeEnum!]) {
+  integrations(limit: $limit, types: $types) {
     collection {
       ... on NetsuiteIntegration {
         id
@@ -29677,7 +29678,7 @@ ${DeleteNetsuiteIntegrationDialogFragmentDoc}`;
  * const { data, loading, error } = useGetNetsuiteIntegrationsListQuery({
  *   variables: {
  *      limit: // value for 'limit'
- *      type: // value for 'type'
+ *      types: // value for 'types'
  *   },
  * });
  */
@@ -29698,14 +29699,14 @@ export type GetNetsuiteIntegrationsListLazyQueryHookResult = ReturnType<typeof u
 export type GetNetsuiteIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsListSuspenseQuery>;
 export type GetNetsuiteIntegrationsListQueryResult = Apollo.QueryResult<GetNetsuiteIntegrationsListQuery, GetNetsuiteIntegrationsListQueryVariables>;
 export const GetSalesforceIntegrationsDetailsDocument = gql`
-    query getSalesforceIntegrationsDetails($id: ID!, $limit: Int, $integrationsType: IntegrationTypeEnum!) {
+    query getSalesforceIntegrationsDetails($id: ID!, $limit: Int, $integrationsType: [IntegrationTypeEnum!]) {
   integration(id: $id) {
     ... on SalesforceIntegration {
       id
       ...SalesforceIntegrationDetails
     }
   }
-  integrations(limit: $limit, type: $integrationsType) {
+  integrations(limit: $limit, types: $integrationsType) {
     collection {
       ... on SalesforceIntegration {
         id
@@ -29750,8 +29751,8 @@ export type GetSalesforceIntegrationsDetailsLazyQueryHookResult = ReturnType<typ
 export type GetSalesforceIntegrationsDetailsSuspenseQueryHookResult = ReturnType<typeof useGetSalesforceIntegrationsDetailsSuspenseQuery>;
 export type GetSalesforceIntegrationsDetailsQueryResult = Apollo.QueryResult<GetSalesforceIntegrationsDetailsQuery, GetSalesforceIntegrationsDetailsQueryVariables>;
 export const GetSalesforceIntegrationsListDocument = gql`
-    query getSalesforceIntegrationsList($limit: Int, $type: IntegrationTypeEnum) {
-  integrations(limit: $limit, type: $type) {
+    query getSalesforceIntegrationsList($limit: Int, $types: [IntegrationTypeEnum!]) {
+  integrations(limit: $limit, types: $types) {
     collection {
       ... on SalesforceIntegration {
         id
@@ -29777,7 +29778,7 @@ ${SalesforceForCreateDialogFragmentDoc}`;
  * const { data, loading, error } = useGetSalesforceIntegrationsListQuery({
  *   variables: {
  *      limit: // value for 'limit'
- *      type: // value for 'type'
+ *      types: // value for 'types'
  *   },
  * });
  */
@@ -29954,14 +29955,14 @@ export type GetTaxesSettingsInformationsLazyQueryHookResult = ReturnType<typeof 
 export type GetTaxesSettingsInformationsSuspenseQueryHookResult = ReturnType<typeof useGetTaxesSettingsInformationsSuspenseQuery>;
 export type GetTaxesSettingsInformationsQueryResult = Apollo.QueryResult<GetTaxesSettingsInformationsQuery, GetTaxesSettingsInformationsQueryVariables>;
 export const GetXeroIntegrationsDetailsDocument = gql`
-    query getXeroIntegrationsDetails($id: ID!, $limit: Int, $integrationsType: IntegrationTypeEnum!) {
+    query getXeroIntegrationsDetails($id: ID!, $limit: Int, $integrationsType: [IntegrationTypeEnum!]) {
   integration(id: $id) {
     ... on XeroIntegration {
       id
       ...XeroIntegrationDetails
     }
   }
-  integrations(limit: $limit, type: $integrationsType) {
+  integrations(limit: $limit, types: $integrationsType) {
     collection {
       ... on XeroIntegration {
         id
@@ -30006,8 +30007,8 @@ export type GetXeroIntegrationsDetailsLazyQueryHookResult = ReturnType<typeof us
 export type GetXeroIntegrationsDetailsSuspenseQueryHookResult = ReturnType<typeof useGetXeroIntegrationsDetailsSuspenseQuery>;
 export type GetXeroIntegrationsDetailsQueryResult = Apollo.QueryResult<GetXeroIntegrationsDetailsQuery, GetXeroIntegrationsDetailsQueryVariables>;
 export const GetXeroIntegrationsListDocument = gql`
-    query getXeroIntegrationsList($limit: Int, $type: IntegrationTypeEnum) {
-  integrations(limit: $limit, type: $type) {
+    query getXeroIntegrationsList($limit: Int, $types: [IntegrationTypeEnum!]) {
+  integrations(limit: $limit, types: $types) {
     collection {
       ... on XeroIntegration {
         id
@@ -30035,7 +30036,7 @@ ${DeleteXeroIntegrationDialogFragmentDoc}`;
  * const { data, loading, error } = useGetXeroIntegrationsListQuery({
  *   variables: {
  *      limit: // value for 'limit'
- *      type: // value for 'type'
+ *      types: // value for 'types'
  *   },
  * });
  */
