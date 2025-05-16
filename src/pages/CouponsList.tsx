@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Avatar } from 'lago-design-system'
+import { Avatar, tw } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
@@ -120,6 +120,7 @@ const CouponsList = () => {
             default: 16,
             md: 48,
           }}
+          containerClassName={tw('h-[calc(100%-theme(space.nav))]')}
           rowSize={72}
           isLoading={isLoading}
           hasError={!!error}
