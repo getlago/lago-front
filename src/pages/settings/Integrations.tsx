@@ -80,7 +80,6 @@ import {
   TAX_MANAGEMENT_INTEGRATION_ROUTE,
   XERO_INTEGRATION_ROUTE,
 } from '~/core/router'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   PremiumIntegrationTypeEnum,
   useGetBillingEntitiesQuery,
@@ -338,40 +337,38 @@ const Integrations = () => {
                           }
                         }}
                       />
-                      {isFeatureFlagActive(FeatureFlags.FTR_AVALARA_INTEGRATION) && (
-                        <Selector
-                          fullWidth
-                          title={translate('text_1744293609277s53zn6jcoq4')}
-                          subtitle={translate('text_6668821d94e4da4dfd8b3840')}
-                          endIcon={getEndIcon({
-                            showSparkles: !hasAccessToAvalaraPremiumIntegration,
-                            showConnectedBadge: hasAvalaraIntegration,
-                          })}
-                          icon={
-                            <Avatar size="big" variant="connector-full">
-                              {<Avalara />}
-                            </Avatar>
+                      <Selector
+                        fullWidth
+                        title={translate('text_1744293609277s53zn6jcoq4')}
+                        subtitle={translate('text_6668821d94e4da4dfd8b3840')}
+                        endIcon={getEndIcon({
+                          showSparkles: !hasAccessToAvalaraPremiumIntegration,
+                          showConnectedBadge: hasAvalaraIntegration,
+                        })}
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            {<Avalara />}
+                          </Avatar>
+                        }
+                        onClick={() => {
+                          if (!hasAccessToAvalaraPremiumIntegration) {
+                            premiumWarningDialogRef.current?.openDialog({
+                              title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                              description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                              mailtoSubject: translate('text_1744296980972iaigqgcpb8t'),
+                              mailtoBody: translate('text_1744296980972op5ch5zpl78'),
+                            })
+                          } else if (hasAvalaraIntegration) {
+                            navigate(
+                              generatePath(AVALARA_INTEGRATION_ROUTE, {
+                                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                              }),
+                            )
+                          } else {
+                            addAvalaraDialogRef.current?.openDialog()
                           }
-                          onClick={() => {
-                            if (!hasAccessToAvalaraPremiumIntegration) {
-                              premiumWarningDialogRef.current?.openDialog({
-                                title: translate('text_661ff6e56ef7e1b7c542b1ea'),
-                                description: translate('text_661ff6e56ef7e1b7c542b1f6'),
-                                mailtoSubject: translate('text_1744296980972iaigqgcpb8t'),
-                                mailtoBody: translate('text_1744296980972op5ch5zpl78'),
-                              })
-                            } else if (hasAvalaraIntegration) {
-                              navigate(
-                                generatePath(AVALARA_INTEGRATION_ROUTE, {
-                                  integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-                                }),
-                              )
-                            } else {
-                              addAvalaraDialogRef.current?.openDialog()
-                            }
-                          }}
-                        />
-                      )}
+                        }}
+                      />
                       <Selector
                         title={translate('text_63e26d8308d03687188221a5')}
                         subtitle={translate('text_63e26d8308d03687188221a6')}
