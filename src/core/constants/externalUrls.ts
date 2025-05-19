@@ -120,3 +120,18 @@ export const buildStripePaymentUrl = (stripePaymentId: string) => {
 export const buildGoCardlessPaymentUrl = (goCardlessPaymentId: string) => {
   return `https://manage.gocardless.com/payments/${goCardlessPaymentId}`
 }
+export const buildAvalaraObjectId = ({
+  accountId,
+  companyId,
+  objectId,
+  isSandbox,
+}: {
+  accountId: string | null | undefined
+  companyId: string
+  objectId: string
+  isSandbox: boolean
+}) => {
+  const sandboxDomain = isSandbox ? 'sandbox.' : ''
+
+  return `https://${sandboxDomain}admin.avalara.com/cup/a/${accountId}/c/${companyId}/transactions/${objectId}`
+}
