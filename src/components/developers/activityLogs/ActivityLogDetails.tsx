@@ -10,6 +10,7 @@ import {
   TabManagedBy,
   Typography,
 } from '~/components/designSystem'
+import { getActivityDescription } from '~/components/developers/activityLogs/utils'
 import { useGetApiKeyForActivityLogQuery, useGetSingleActivityLogQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -67,7 +68,17 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
     activitySource,
     activityObject,
     activityObjectChanges,
+    externalSubscriptionId,
+    externalCustomerId,
   } = data?.activityLog ?? {}
+
+  const [activityTypeTranslation, parameters] = activityType
+    ? getActivityDescription(activityType, {
+        activityObject,
+        externalSubscriptionId: externalSubscriptionId ?? undefined,
+        externalCustomerId: externalCustomerId ?? undefined,
+      })
+    : ['', {}]
 
   return (
     <>
@@ -124,7 +135,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
               {translate('text_6388b923e514213fed58331c')}
             </Typography>
             <Typography className="overflow-wrap-anywhere flex min-w-0 max-w-full" color="grey700">
-              {'desc'}
+              {translate(activityTypeTranslation, parameters)}
             </Typography>
 
             <Typography className="pt-1" variant="caption">
