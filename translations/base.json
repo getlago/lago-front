@@ -3145,5 +3145,11 @@
   "text_1748440972215htw8rqfn3tu": "Copy metric ID",
   "text_1748440972215btigjp0mowx": "Delete metric",
   "text_1748441335808ev2ygtkq66n": "Metric ID copied to clipboard",
-  "text_1748447578763m2i8k8djc4r": "Duplicate metric"
+  "text_1748447578763m2i8k8djc4r": "Duplicate metric",
+  "text_1747408519913t2tehiclc5m": "Avalara invoice url",
+  "text_1747408519913t2tehiclc5q": "Avalara credit note url",
+  "text_17476431340829ugsayepaod": "Invoice not synced to Avalara",
+  "text_1747643192782icyo9o1yjgy": "Sync voided invoice to Avalara",
+  "text_17476469985998lthq87gwat": "Sync credit note to Avalara",
+  "text_17476469985998lthq87gwaq": "Sync invoice to Avalara"
 }
