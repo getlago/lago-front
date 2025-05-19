@@ -2,6 +2,7 @@ import { FC, RefObject } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { InfiniteScroll, Table, Typography } from '~/components/designSystem'
+import { getActivityDescription } from '~/components/developers/activityLogs/utils'
 import { ACTIVITY_LOG_ROUTE } from '~/components/developers/DevtoolsRouter'
 import { ListSectionRef } from '~/components/developers/LogsLayout'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
@@ -69,14 +70,25 @@ export const ActivityLogTable: FC<ActivityLogTableProps> = ({
           {
             title: translate('text_6388b923e514213fed58331c'),
             key: 'activityType',
-            content: ({ activityType }) => {
+            maxSpace: true,
+            content: ({
+              activityType,
+              activityObject,
+              externalCustomerId,
+              externalSubscriptionId,
+            }) => {
+              const [activityTypeTranslation, parameters] = getActivityDescription(activityType, {
+                activityObject,
+                externalCustomerId: externalCustomerId ?? undefined,
+                externalSubscriptionId: externalSubscriptionId ?? undefined,
+              })
+
               return (
                 <Typography color="grey700" variant="bodyHl" noWrap>
-                  {activityType}
+                  {translate(activityTypeTranslation, parameters)}
                 </Typography>
               )
             },
-            maxSpace: true,
           },
           {
             title: translate('text_664cb90097bfa800e6efa3f5'),

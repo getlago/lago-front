@@ -8294,7 +8294,7 @@ export type GetApiKeyForActivityLogQueryVariables = Exact<{
 
 export type GetApiKeyForActivityLogQuery = { __typename?: 'Query', apiKey: { __typename?: 'ApiKey', id: string, value: string } };
 
-export type ActivityItemFragment = { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any };
+export type ActivityItemFragment = { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, externalCustomerId?: string | null, externalSubscriptionId?: string | null, loggedAt: any };
 
 export type ActivityLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -8302,7 +8302,7 @@ export type ActivityLogsQueryVariables = Exact<{
 }>;
 
 
-export type ActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+export type ActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, externalCustomerId?: string | null, externalSubscriptionId?: string | null, loggedAt: any }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
 
 export type ApiKeyRevealedForApiKeysListFragment = { __typename?: 'ApiKey', id: string, value: string };
 
@@ -11564,6 +11564,8 @@ export const ActivityItemFragmentDoc = gql`
   activityId
   activityType
   activityObject
+  externalCustomerId
+  externalSubscriptionId
   loggedAt
 }
     `;

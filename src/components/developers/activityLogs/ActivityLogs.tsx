@@ -19,6 +19,8 @@ gql`
     activityId
     activityType
     activityObject
+    externalCustomerId
+    externalSubscriptionId
     loggedAt
   }
 
