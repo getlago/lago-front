@@ -8306,6 +8306,32 @@ export type GetPlansForFiltersItemPlanCodeQueryVariables = Exact<{
 
 export type GetPlansForFiltersItemPlanCodeQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Plan', id: string, code: string, deletedAt?: any | null }> } };
 
+export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, apiKeyId?: string | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null };
+
+export type GetSingleActivityLogQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetSingleActivityLogQuery = { __typename?: 'Query', activityLog?: { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, apiKeyId?: string | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null } | null };
+
+export type GetApiKeyForActivityLogQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetApiKeyForActivityLogQuery = { __typename?: 'Query', apiKey: { __typename?: 'ApiKey', id: string, value: string } };
+
+export type ActivityItemFragment = { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, externalCustomerId?: string | null, externalSubscriptionId?: string | null, loggedAt: any };
+
+export type ActivityLogsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type ActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, externalCustomerId?: string | null, externalSubscriptionId?: string | null, loggedAt: any }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+
 export type ApiKeyRevealedForApiKeysListFragment = { __typename?: 'ApiKey', id: string, value: string };
 
 export type GetOrganizationInfosForApiKeyQueryVariables = Exact<{ [key: string]: never; }>;
@@ -11556,6 +11582,29 @@ export const CustomerUsageForUsageDetailsFragmentDoc = gql`
       }
     }
   }
+}
+    `;
+export const ActivityLogDetailsFragmentDoc = gql`
+    fragment ActivityLogDetails on ActivityLog {
+  activityType
+  activitySource
+  activityObject
+  activityObjectChanges
+  apiKeyId
+  loggedAt
+  userEmail
+  externalSubscriptionId
+  externalCustomerId
+}
+    `;
+export const ActivityItemFragmentDoc = gql`
+    fragment ActivityItem on ActivityLog {
+  activityId
+  activityType
+  activityObject
+  externalCustomerId
+  externalSubscriptionId
+  loggedAt
 }
     `;
 export const ApiKeyRevealedForApiKeysListFragmentDoc = gql`
@@ -17935,6 +17984,135 @@ export type GetPlansForFiltersItemPlanCodeQueryHookResult = ReturnType<typeof us
 export type GetPlansForFiltersItemPlanCodeLazyQueryHookResult = ReturnType<typeof useGetPlansForFiltersItemPlanCodeLazyQuery>;
 export type GetPlansForFiltersItemPlanCodeSuspenseQueryHookResult = ReturnType<typeof useGetPlansForFiltersItemPlanCodeSuspenseQuery>;
 export type GetPlansForFiltersItemPlanCodeQueryResult = Apollo.QueryResult<GetPlansForFiltersItemPlanCodeQuery, GetPlansForFiltersItemPlanCodeQueryVariables>;
+export const GetSingleActivityLogDocument = gql`
+    query getSingleActivityLog($id: ID!) {
+  activityLog(activityId: $id) {
+    activityId
+    ...ActivityLogDetails
+  }
+}
+    ${ActivityLogDetailsFragmentDoc}`;
+
+/**
+ * __useGetSingleActivityLogQuery__
+ *
+ * To run a query within a React component, call `useGetSingleActivityLogQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSingleActivityLogQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSingleActivityLogQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetSingleActivityLogQuery(baseOptions: Apollo.QueryHookOptions<GetSingleActivityLogQuery, GetSingleActivityLogQueryVariables> & ({ variables: GetSingleActivityLogQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSingleActivityLogQuery, GetSingleActivityLogQueryVariables>(GetSingleActivityLogDocument, options);
+      }
+export function useGetSingleActivityLogLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSingleActivityLogQuery, GetSingleActivityLogQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSingleActivityLogQuery, GetSingleActivityLogQueryVariables>(GetSingleActivityLogDocument, options);
+        }
+export function useGetSingleActivityLogSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSingleActivityLogQuery, GetSingleActivityLogQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetSingleActivityLogQuery, GetSingleActivityLogQueryVariables>(GetSingleActivityLogDocument, options);
+        }
+export type GetSingleActivityLogQueryHookResult = ReturnType<typeof useGetSingleActivityLogQuery>;
+export type GetSingleActivityLogLazyQueryHookResult = ReturnType<typeof useGetSingleActivityLogLazyQuery>;
+export type GetSingleActivityLogSuspenseQueryHookResult = ReturnType<typeof useGetSingleActivityLogSuspenseQuery>;
+export type GetSingleActivityLogQueryResult = Apollo.QueryResult<GetSingleActivityLogQuery, GetSingleActivityLogQueryVariables>;
+export const GetApiKeyForActivityLogDocument = gql`
+    query getApiKeyForActivityLog($id: ID!) {
+  apiKey(id: $id) {
+    id
+    value
+  }
+}
+    `;
+
+/**
+ * __useGetApiKeyForActivityLogQuery__
+ *
+ * To run a query within a React component, call `useGetApiKeyForActivityLogQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetApiKeyForActivityLogQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetApiKeyForActivityLogQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetApiKeyForActivityLogQuery(baseOptions: Apollo.QueryHookOptions<GetApiKeyForActivityLogQuery, GetApiKeyForActivityLogQueryVariables> & ({ variables: GetApiKeyForActivityLogQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetApiKeyForActivityLogQuery, GetApiKeyForActivityLogQueryVariables>(GetApiKeyForActivityLogDocument, options);
+      }
+export function useGetApiKeyForActivityLogLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetApiKeyForActivityLogQuery, GetApiKeyForActivityLogQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetApiKeyForActivityLogQuery, GetApiKeyForActivityLogQueryVariables>(GetApiKeyForActivityLogDocument, options);
+        }
+export function useGetApiKeyForActivityLogSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetApiKeyForActivityLogQuery, GetApiKeyForActivityLogQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetApiKeyForActivityLogQuery, GetApiKeyForActivityLogQueryVariables>(GetApiKeyForActivityLogDocument, options);
+        }
+export type GetApiKeyForActivityLogQueryHookResult = ReturnType<typeof useGetApiKeyForActivityLogQuery>;
+export type GetApiKeyForActivityLogLazyQueryHookResult = ReturnType<typeof useGetApiKeyForActivityLogLazyQuery>;
+export type GetApiKeyForActivityLogSuspenseQueryHookResult = ReturnType<typeof useGetApiKeyForActivityLogSuspenseQuery>;
+export type GetApiKeyForActivityLogQueryResult = Apollo.QueryResult<GetApiKeyForActivityLogQuery, GetApiKeyForActivityLogQueryVariables>;
+export const ActivityLogsDocument = gql`
+    query activityLogs($page: Int, $limit: Int) {
+  activityLogs(page: $page, limit: $limit) {
+    collection {
+      ...ActivityItem
+    }
+    metadata {
+      currentPage
+      totalPages
+    }
+  }
+}
+    ${ActivityItemFragmentDoc}`;
+
+/**
+ * __useActivityLogsQuery__
+ *
+ * To run a query within a React component, call `useActivityLogsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useActivityLogsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useActivityLogsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useActivityLogsQuery(baseOptions?: Apollo.QueryHookOptions<ActivityLogsQuery, ActivityLogsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ActivityLogsQuery, ActivityLogsQueryVariables>(ActivityLogsDocument, options);
+      }
+export function useActivityLogsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ActivityLogsQuery, ActivityLogsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ActivityLogsQuery, ActivityLogsQueryVariables>(ActivityLogsDocument, options);
+        }
+export function useActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ActivityLogsQuery, ActivityLogsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ActivityLogsQuery, ActivityLogsQueryVariables>(ActivityLogsDocument, options);
+        }
+export type ActivityLogsQueryHookResult = ReturnType<typeof useActivityLogsQuery>;
+export type ActivityLogsLazyQueryHookResult = ReturnType<typeof useActivityLogsLazyQuery>;
+export type ActivityLogsSuspenseQueryHookResult = ReturnType<typeof useActivityLogsSuspenseQuery>;
+export type ActivityLogsQueryResult = Apollo.QueryResult<ActivityLogsQuery, ActivityLogsQueryVariables>;
 export const GetOrganizationInfosForApiKeyDocument = gql`
     query getOrganizationInfosForApiKey {
   organization {

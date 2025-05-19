@@ -5,6 +5,7 @@ export enum FeatureFlags {
   ANALYTICS_USAGE = 'analyticsUsage',
   FTR_AVALARA_INTEGRATION = 'ftrAvalaraIntegration',
   FTR_ALERTS = 'ftrAlerts',
+  FTR_ACTIVITY_LOGS = 'ftrActivityLogs',
 }
 
 const FF_KEY = 'featureFlags'

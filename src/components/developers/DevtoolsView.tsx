@@ -6,6 +6,7 @@ import { Button, NavigationTab, TabManagedBy, Tooltip } from '~/components/desig
 import { devToolsNavigationMapping, DevtoolsRouter } from '~/components/developers/DevtoolsRouter'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { DEVTOOL_TAB_PARAMS, useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -22,6 +23,7 @@ export const DevtoolsView: FC = () => {
   const { pathname } = useLocation()
   const panel = useRef<ImperativePanelHandle>(null)
   const { hasPermissions } = usePermissions()
+  const isActivityLogsEnabled = isFeatureFlagActive(FeatureFlags.FTR_ACTIVITY_LOGS)
 
   const expandPanel = () => {
     let isLocalFullscreen = false
@@ -93,7 +95,9 @@ export const DevtoolsView: FC = () => {
             name="devtools"
             managedBy={TabManagedBy.URL}
             className="sticky top-0 z-navBar bg-white px-4"
-            tabs={devToolsNavigationMapping(translate, hasPermissions)}
+            tabs={devToolsNavigationMapping(translate, hasPermissions, {
+              isActivityLogsEnabled,
+            })}
           >
             <div className="sticky right-0 ml-auto flex items-center gap-3 bg-white shadow-b">
               <Button
