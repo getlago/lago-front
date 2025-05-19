@@ -1200,18 +1200,36 @@ const CreateInvoice = () => {
                     const { data: taxProviderResultData, errors } = taxProviderResult
 
                     if (!!errors?.length) {
-                      if (hasDefinedGQLError('CurrencyCodeNotSupported', errors)) {
+                      if (
+                        // Anrok
+                        hasDefinedGQLError('CurrencyCodeNotSupported', errors) ||
+                        // Avalara
+                        hasDefinedGQLError('InvalidEnumValue', errors)
+                      ) {
                         setTaxProviderTaxesErrorMessage(
                           LocalTaxProviderErrorsEnum.CurrencyCodeNotSupported,
                         )
                       } else if (
+                        // Anrok
                         hasDefinedGQLError('CustomerAddressCountryNotSupported', errors) ||
-                        hasDefinedGQLError('CustomerAddressCouldNotResolve', errors)
+                        hasDefinedGQLError('CustomerAddressCouldNotResolve', errors) ||
+                        // Avalara
+                        hasDefinedGQLError('MissingAddress', errors) ||
+                        hasDefinedGQLError('NotEnoughAddressesInfo', errors) ||
+                        hasDefinedGQLError('InvalidAddress', errors) ||
+                        hasDefinedGQLError('InvalidPostalCode', errors) ||
+                        hasDefinedGQLError('AddressLocationNotFound', errors)
                       ) {
                         setTaxProviderTaxesErrorMessage(
                           LocalTaxProviderErrorsEnum.CustomerAddressError,
                         )
-                      } else if (hasDefinedGQLError('ProductExternalIdUnknown', errors)) {
+                      } else if (
+                        // Anrok
+                        hasDefinedGQLError('ProductExternalIdUnknown', errors) ||
+                        // Avalara
+                        hasDefinedGQLError('TaxCodeAssociatedWithItemCodeNotFound', errors) ||
+                        hasDefinedGQLError('EntityNotFoundError', errors)
+                      ) {
                         setTaxProviderTaxesErrorMessage(
                           LocalTaxProviderErrorsEnum.ProductExternalIdUnknown,
                         )
