@@ -258,18 +258,36 @@ const getErrorMessageFromErrorDetails = (
   const [{ errorCode, errorDetails }] = errors
 
   if (errorCode === ErrorCodesEnum.TaxError) {
-    if (errorDetails === LagoApiError.CurrencyCodeNotSupported) {
+    if (
+      // Anrok
+      errorDetails === LagoApiError.CurrencyCodeNotSupported ||
+      // Avalara
+      errorDetails === LagoApiError.InvalidEnumValue
+    ) {
       return LocalTaxProviderErrorsEnum.CurrencyCodeNotSupported
     }
 
     if (
+      // Anrok
       errorDetails === LagoApiError.CustomerAddressCouldNotResolve ||
-      errorDetails === LagoApiError.CustomerAddressCountryNotSupported
+      errorDetails === LagoApiError.CustomerAddressCountryNotSupported ||
+      // Avalara
+      errorDetails === LagoApiError.MissingAddress ||
+      errorDetails === LagoApiError.NotEnoughAddressesInfo ||
+      errorDetails === LagoApiError.InvalidAddress ||
+      errorDetails === LagoApiError.InvalidPostalCode ||
+      errorDetails === LagoApiError.AddressLocationNotFound
     ) {
       return LocalTaxProviderErrorsEnum.CustomerAddressError
     }
 
-    if (errorDetails === LagoApiError.ProductExternalIdUnknown) {
+    if (
+      // Anrok
+      errorDetails === LagoApiError.ProductExternalIdUnknown ||
+      // Avalara
+      errorDetails === LagoApiError.TaxCodeAssociatedWithItemCodeNotFound ||
+      errorDetails === LagoApiError.EntityNotFoundError
+    ) {
       return LocalTaxProviderErrorsEnum.ProductExternalIdUnknown
     }
 
