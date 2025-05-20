@@ -45,6 +45,7 @@ export type ActivityLog = {
   activityObjectChanges?: Maybe<Scalars['JSON']['output']>;
   activitySource: ActivitySourceEnum;
   activityType: ActivityTypeEnum;
+  apiKeyId?: Maybe<Scalars['ID']['output']>;
   createdAt: Scalars['ISO8601DateTime']['output'];
   externalCustomerId?: Maybe<Scalars['String']['output']>;
   externalSubscriptionId?: Maybe<Scalars['String']['output']>;
@@ -3554,6 +3555,7 @@ export type Invoice = {
   subTotalExcludingTaxesAmountCents: Scalars['BigInt']['output'];
   subTotalIncludingTaxesAmountCents: Scalars['BigInt']['output'];
   subscriptions?: Maybe<Array<Subscription>>;
+  taxProviderId?: Maybe<Scalars['String']['output']>;
   taxProviderVoidable: Scalars['Boolean']['output'];
   taxStatus?: Maybe<InvoiceTaxStatusTypeEnum>;
   taxesAmountCents: Scalars['BigInt']['output'];
@@ -7718,13 +7720,14 @@ export type GetUsageBillableMetricQueryVariables = Exact<{
 }>;
 
 
-export type GetUsageBillableMetricQuery = { __typename?: 'Query', dataApiUsages: { __typename?: 'DataApiUsageCollection', collection: Array<{ __typename?: 'DataApiUsage', amountCents: any, amountCurrency: CurrencyEnum, endOfPeriodDt: any, startOfPeriodDt: any }> } };
+export type GetUsageBillableMetricQuery = { __typename?: 'Query', dataApiUsages: { __typename?: 'DataApiUsageCollection', collection: Array<{ __typename?: 'DataApiUsage', amountCents: any, amountCurrency: CurrencyEnum, endOfPeriodDt: any, startOfPeriodDt: any, units: number }> } };
 
 export type GetUsageBreakdownQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
   timeGranularity?: InputMaybe<TimeGranularityEnum>;
   fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  isBillableMetricRecurring?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -14936,6 +14939,7 @@ export const GetUsageBillableMetricDocument = gql`
       amountCurrency
       endOfPeriodDt
       startOfPeriodDt
+      units
     }
   }
 }
@@ -14977,12 +14981,13 @@ export type GetUsageBillableMetricLazyQueryHookResult = ReturnType<typeof useGet
 export type GetUsageBillableMetricSuspenseQueryHookResult = ReturnType<typeof useGetUsageBillableMetricSuspenseQuery>;
 export type GetUsageBillableMetricQueryResult = Apollo.QueryResult<GetUsageBillableMetricQuery, GetUsageBillableMetricQueryVariables>;
 export const GetUsageBreakdownDocument = gql`
-    query getUsageBreakdown($currency: CurrencyEnum, $timeGranularity: TimeGranularityEnum, $fromDate: ISO8601Date, $toDate: ISO8601Date) {
+    query getUsageBreakdown($currency: CurrencyEnum, $timeGranularity: TimeGranularityEnum, $fromDate: ISO8601Date, $toDate: ISO8601Date, $isBillableMetricRecurring: Boolean) {
   dataApiUsages(
     currency: $currency
     timeGranularity: $timeGranularity
     fromDate: $fromDate
     toDate: $toDate
+    isBillableMetricRecurring: $isBillableMetricRecurring
   ) {
     collection {
       startOfPeriodDt
@@ -15012,6 +15017,7 @@ export const GetUsageBreakdownDocument = gql`
  *      timeGranularity: // value for 'timeGranularity'
  *      fromDate: // value for 'fromDate'
  *      toDate: // value for 'toDate'
+ *      isBillableMetricRecurring: // value for 'isBillableMetricRecurring'
  *   },
  * });
  */
