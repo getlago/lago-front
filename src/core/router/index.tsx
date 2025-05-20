@@ -1,6 +1,5 @@
 import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
-import UsageBillableMetric from '~/pages/analytics/UsageBillableMetric'
 
 import { authRoutes } from './AuthRoutes'
 import { customerPortalRoutes } from './CustomerPortalRoutes'
@@ -10,13 +9,6 @@ import { objectCreationRoutes, objectDetailsRoutes, objectListRoutes } from './O
 import { settingRoutes } from './SettingRoutes'
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
-
-export * from './types'
-export * from './AuthRoutes'
-export * from './CustomerRoutes'
-export * from './DevelopperRoutes'
-export * from './ObjectsRoutes'
-export * from './SettingRoutes'
 
 const { appEnv } = envGlobalVar()
 
@@ -28,6 +20,7 @@ const Home = lazyLoad(() => import('~/pages/Home'))
 const Error404 = lazyLoad(() => import('~/pages/Error404'))
 const Forbidden = lazyLoad(() => import('~/pages/Forbidden'))
 const Analytic = lazyLoad(() => import('~/pages/Analytics'))
+const UsageBillableMetric = lazyLoad(() => import('~/pages/analytics/UsageBillableMetric'))
 
 // Route Available only on dev mode
 const DesignSystem = lazyLoad(() => import('~/pages/__devOnly/DesignSystem'))
@@ -101,3 +94,10 @@ export const routes: CustomRouteObject[] = [
   ...objectCreationRoutes,
   ...customerPortalRoutes,
 ]
+
+export * from './types'
+export * from './AuthRoutes'
+export * from './CustomerRoutes'
+export * from './DevelopperRoutes'
+export * from './ObjectsRoutes'
+export * from './SettingRoutes'
