@@ -100,6 +100,14 @@ export const bigNumberShortenNotationFormater = (
   return `${getCurrencySymbol(currency)}${formatedAmount}`
 }
 
+export const bigNumberShortenNotation = (amount: number) => {
+  const formatted = bigNumberShortenNotationFormater(amount, {
+    currency: CurrencyEnum.Usd,
+  })
+
+  return formatted.replace('$', '')
+}
+
 export const intlFormatOrdinalNumber = (number: number | string) => {
   const pluralRule = new Intl.PluralRules('en-US', {
     type: 'ordinal',
