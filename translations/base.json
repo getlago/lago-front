@@ -3067,5 +3067,11 @@
   "text_1746631350478bwa1swfpwkw": "Total usage amount",
   "text_1746780648463scppfjbhd1b": "Metric",
   "text_1746780648463n39xfvr772k": "Search and select a billable metric",
-  "text_1746785137190vu5wwlsmzmz": "View alerts"
+  "text_1746785137190vu5wwlsmzmz": "View alerts",
+  "text_1747408519913t2tehiclc5m": "Avalara invoice url",
+  "text_1747408519913t2tehiclc5q": "Avalara credit note url",
+  "text_17476431340829ugsayepaod": "Invoice not synced to Avalara",
+  "text_1747643192782icyo9o1yjgy": "Sync voided invoice to Avalara",
+  "text_17476469985998lthq87gwat": "Sync credit note to Avalara",
+  "text_17476469985998lthq87gwaq": "Sync invoice to Avalara"
 }
