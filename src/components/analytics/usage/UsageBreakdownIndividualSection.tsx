@@ -1,12 +1,9 @@
 import { Button } from 'lago-design-system'
 
+import { UsageBreakdownType } from '~/components/analytics/usage/types'
 import UsageBreakdownBillableMetrics from '~/components/analytics/usage/UsageBreakdownBillableMetrics'
 import { useUsageAnalyticsBreakdown } from '~/components/analytics/usage/useUsageAnalyticsBreakdown'
-import {
-  AvailableFiltersEnum,
-  AvailableQuickFilters,
-  Filters,
-} from '~/components/designSystem/Filters'
+import { AvailableFiltersEnum, Filters } from '~/components/designSystem/Filters'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -14,14 +11,16 @@ type UsageBreakdownIndividualSectionProps = {
   premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
   availableFilters: AvailableFiltersEnum[]
   filtersPrefix: string
-  isRecurring?: boolean
+  isBillableMetricRecurring?: boolean
+  breakdownType: UsageBreakdownType
 }
 
 const UsageBreakdownIndividualSection = ({
   premiumWarningDialogRef,
   availableFilters,
   filtersPrefix,
-  isRecurring,
+  isBillableMetricRecurring,
+  breakdownType,
 }: UsageBreakdownIndividualSectionProps) => {
   const { translate } = useInternationalization()
 
@@ -33,10 +32,13 @@ const UsageBreakdownIndividualSection = ({
     hasAccessToAnalyticsDashboardsFeature,
     selectedCurrency,
     isLoading,
+    valueKey,
+    displayFormat,
   } = useUsageAnalyticsBreakdown({
     availableFilters,
     filtersPrefix,
-    isRecurring,
+    isBillableMetricRecurring,
+    breakdownType,
   })
 
   return (
@@ -49,7 +51,6 @@ const UsageBreakdownIndividualSection = ({
             date: getDefaultStaticDateFilter(),
           }}
           availableFilters={availableFilters}
-          quickFiltersType={AvailableQuickFilters.unitsAmount}
           buttonOpener={({ onClick }) => (
             <Button
               startIcon="filter"
@@ -75,14 +76,18 @@ const UsageBreakdownIndividualSection = ({
         </Filters.Provider>
       </div>
 
-      <UsageBreakdownBillableMetrics
-        data={data}
-        defaultStaticDatePeriod={getDefaultStaticDateFilter()}
-        defaultStaticTimeGranularity={getDefaultStaticTimeGranularityFilter()}
-        selectedCurrency={selectedCurrency}
-        filtersPrefix={filtersPrefix}
-        loading={isLoading}
-      />
+      {data && (
+        <UsageBreakdownBillableMetrics
+          data={data}
+          defaultStaticDatePeriod={getDefaultStaticDateFilter()}
+          defaultStaticTimeGranularity={getDefaultStaticTimeGranularityFilter()}
+          selectedCurrency={selectedCurrency}
+          filtersPrefix={filtersPrefix}
+          loading={isLoading}
+          valueKey={valueKey}
+          displayFormat={displayFormat}
+        />
+      )}
     </>
   )
 }

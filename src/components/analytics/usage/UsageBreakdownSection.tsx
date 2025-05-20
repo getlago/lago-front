@@ -1,5 +1,7 @@
-import { Typography } from 'lago-design-system'
+import { Button, Typography } from 'lago-design-system'
+import { useState } from 'react'
 
+import { UsageBreakdownType } from '~/components/analytics/usage/types'
 import UsageBreakdownIndividualSection from '~/components/analytics/usage/UsageBreakdownIndividualSection'
 import { NavigationTab, TabManagedBy } from '~/components/designSystem'
 import {
@@ -17,20 +19,34 @@ type UsageBreakdownSectionProps = {
   premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
 }
 
-export enum UsageBreakdownType {
-  Units = 'units',
-  Amount = 'amount',
+const TRANSLATIONS_MAP: Record<UsageBreakdownType, string> = {
+  [UsageBreakdownType.Units]: 'text_17465414264637hzft31ck6c',
+  [UsageBreakdownType.Amount]: 'text_1746541426463wcwfuryd12g',
 }
 
 const UsageBreakdownSection = ({ premiumWarningDialogRef }: UsageBreakdownSectionProps) => {
   const { translate } = useInternationalization()
 
+  const [breakdownType, setBreakdownType] = useState<UsageBreakdownType>(UsageBreakdownType.Units)
+
   return (
     <section className="flex flex-col">
-      <div className="mb-4 flex flex-col gap-2">
+      <div className="mb-4 flex justify-between gap-2">
         <Typography variant="subhead" color="grey700">
           {translate('text_1746541426463uvvcg8inufk')}
         </Typography>
+
+        <div className="flex gap-1">
+          {[UsageBreakdownType.Units, UsageBreakdownType.Amount].map((_breakdownType, index) => (
+            <Button
+              key={`usage-breakdown-section-${index}`}
+              variant={_breakdownType === breakdownType ? 'secondary' : 'quaternary'}
+              onClick={() => setBreakdownType(_breakdownType)}
+            >
+              {translate(TRANSLATIONS_MAP[_breakdownType])}
+            </Button>
+          ))}
+        </div>
       </div>
 
       <NavigationTab
@@ -42,6 +58,7 @@ const UsageBreakdownSection = ({ premiumWarningDialogRef }: UsageBreakdownSectio
               <UsageBreakdownIndividualSection
                 availableFilters={UsageBreakdownMeteredAvailableFilters}
                 filtersPrefix={ANALYTICS_USAGE_BREAKDOWN_METERED_FILTER_PREFIX}
+                breakdownType={breakdownType}
                 premiumWarningDialogRef={premiumWarningDialogRef}
               />
             ),
@@ -53,7 +70,8 @@ const UsageBreakdownSection = ({ premiumWarningDialogRef }: UsageBreakdownSectio
                 availableFilters={UsageBreakdownRecurringAvailableFilters}
                 filtersPrefix={ANALYTICS_USAGE_BREAKDOWN_RECURRING_FILTER_PREFIX}
                 premiumWarningDialogRef={premiumWarningDialogRef}
-                isRecurring={true}
+                breakdownType={breakdownType}
+                isBillableMetricRecurring={true}
               />
             ),
           },

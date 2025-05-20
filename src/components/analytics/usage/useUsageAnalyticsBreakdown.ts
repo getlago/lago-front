@@ -3,11 +3,13 @@ import { DateTime } from 'luxon'
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import { UsageBreakdownType } from '~/components/analytics/usage/types'
 import {
   AvailableFiltersEnum,
   formatFiltersForQuery,
   getFilterValue,
 } from '~/components/designSystem/Filters'
+import { bigNumberShortenNotation } from '~/core/formats/intlFormatNumber'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
   CurrencyEnum,
@@ -16,6 +18,7 @@ import {
   TimezoneEnum,
   useGetUsageBreakdownQuery,
 } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
@@ -24,12 +27,14 @@ gql`
     $timeGranularity: TimeGranularityEnum
     $fromDate: ISO8601Date
     $toDate: ISO8601Date
+    $isBillableMetricRecurring: Boolean
   ) {
     dataApiUsages(
       currency: $currency
       timeGranularity: $timeGranularity
       fromDate: $fromDate
       toDate: $toDate
+      isBillableMetricRecurring: $isBillableMetricRecurring
     ) {
       collection {
         startOfPeriodDt
@@ -58,16 +63,36 @@ const getFilterByKey = (
 type UseUsageAnalyticsBreakdownProps = {
   availableFilters: AvailableFiltersEnum[]
   filtersPrefix: string
-  isRecurring?: boolean
+  isBillableMetricRecurring?: boolean
+  breakdownType: UsageBreakdownType
 }
 
 export const useUsageAnalyticsBreakdown = ({
   availableFilters,
   filtersPrefix,
-  isRecurring,
+  isBillableMetricRecurring,
+  breakdownType,
 }: UseUsageAnalyticsBreakdownProps) => {
+  const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
   const { organization, hasOrganizationPremiumAddon } = useOrganizationInfos()
+
+  const ACCESSORS: Record<
+    UsageBreakdownType,
+    {
+      valueKey: 'units' | 'amountCents'
+      displayFormat?: (value: string | number, currency: CurrencyEnum) => string
+    }
+  > = {
+    [UsageBreakdownType.Amount]: {
+      valueKey: 'amountCents',
+    },
+    [UsageBreakdownType.Units]: {
+      valueKey: 'units',
+      displayFormat: (value) =>
+        `${bigNumberShortenNotation(Number(value))} ${translate('text_17476657511358tgyvof5x1u', undefined, Number(value) || 0)}`,
+    },
+  }
 
   const hasAccessToAnalyticsDashboardsFeature = hasOrganizationPremiumAddon(
     PremiumIntegrationTypeEnum.AnalyticsDashboards,
@@ -85,7 +110,7 @@ export const useUsageAnalyticsBreakdown = ({
     return `${now.minus({ month: 12 }).startOf('day').toISO()},${now.endOf('day').toISO()}`
   }, [hasAccessToAnalyticsDashboardsFeature])
 
-  const getDefaultStaticTimeGranularityFilter = useCallback((): string => {
+  const getDefaultStaticTimeGranularityFilter = useCallback((): TimeGranularityEnum => {
     return TimeGranularityEnum.Weekly
   }, [])
 
@@ -107,9 +132,9 @@ export const useUsageAnalyticsBreakdown = ({
     return {
       ...filters,
       timeGranularity: getDefaultStaticTimeGranularityFilter(),
-      ...(isRecurring
+      ...(isBillableMetricRecurring
         ? {
-            isRecurring: true,
+            isBillableMetricRecurring: true,
           }
         : {}),
     }
@@ -121,7 +146,7 @@ export const useUsageAnalyticsBreakdown = ({
     getDefaultStaticTimeGranularityFilter,
     availableFilters,
     filtersPrefix,
-    isRecurring,
+    isBillableMetricRecurring,
   ])
 
   const {
@@ -149,6 +174,8 @@ export const useUsageAnalyticsBreakdown = ({
     return defaultCurrency
   }, [searchParams, defaultCurrency, filtersPrefix])
 
+  const accessor = ACCESSORS[breakdownType]
+
   return {
     data: usageData?.dataApiUsages?.collection,
     defaultCurrency,
@@ -159,5 +186,7 @@ export const useUsageAnalyticsBreakdown = ({
     isLoading: usageLoading,
     getDefaultStaticDateFilter,
     getDefaultStaticTimeGranularityFilter,
+    valueKey: accessor.valueKey,
+    displayFormat: accessor.displayFormat,
   }
 }

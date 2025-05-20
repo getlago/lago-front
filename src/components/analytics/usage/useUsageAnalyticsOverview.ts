@@ -7,7 +7,10 @@ import {
   formattedUsageDataForAreaChartLoadingFixture,
   formattedUsageDataLoadingFixture,
 } from '~/components/analytics/usage/fixture'
-import { formatUsageData, formatUsageDataForAreaChart } from '~/components/analytics/usage/utils'
+import {
+  formatAggregatedUsageData,
+  formatUsageDataForAreaChart,
+} from '~/components/analytics/usage/utils'
 import {
   AvailableFiltersEnum,
   formatFiltersForUsageOverviewQuery,
@@ -127,7 +130,8 @@ export const useUsageAnalyticsOverview = () => {
   }, [searchParams, defaultCurrency])
 
   const { formattedDataForAreaChart, totalAmountCents } = useMemo(() => {
-    const sum = (arr: Array<any>) => arr.reduce((p, c) => p + Number(c.amountCents), 0) // stefan
+    const sum = (arr: Array<{ amountCents: number }>) =>
+      arr.reduce((p, c) => p + Number(c.amountCents), 0)
 
     const collection = usageData?.dataApiUsagesAggregatedAmounts?.collection
 
@@ -138,7 +142,7 @@ export const useUsageAnalyticsOverview = () => {
       }
     }
 
-    const localFormattedUsageData = formatUsageData({
+    const localFormattedUsageData = formatAggregatedUsageData({
       searchParams,
       data: usageData?.dataApiUsagesAggregatedAmounts?.collection,
       defaultStaticDatePeriod: getDefaultStaticDateFilter(),

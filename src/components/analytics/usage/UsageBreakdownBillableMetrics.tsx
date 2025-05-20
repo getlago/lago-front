@@ -10,17 +10,19 @@ import StackedBarChart from '~/components/designSystem/graphs/StackedBarChart'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { ANALYTIC_USAGE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { CurrencyEnum, TimeGranularityEnum } from '~/generated/graphql'
+import { CurrencyEnum, DataApiUsage, TimeGranularityEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 
 type UsageBreakdownBillableMetricsProps = {
-  data: any //stefan
+  data: DataApiUsage[]
   defaultStaticDatePeriod: string
   defaultStaticTimeGranularity: TimeGranularityEnum
   selectedCurrency: CurrencyEnum
   filtersPrefix: string
   loading: boolean
+  valueKey: 'units' | 'amountCents'
+  displayFormat?: (value: string | number, currency: CurrencyEnum) => string
 }
 
 const UsageBreakdownBillableMetrics = ({
@@ -30,6 +32,8 @@ const UsageBreakdownBillableMetrics = ({
   selectedCurrency,
   filtersPrefix,
   loading,
+  valueKey,
+  displayFormat,
 }: UsageBreakdownBillableMetricsProps) => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
@@ -43,9 +47,9 @@ const UsageBreakdownBillableMetrics = ({
     }
 
     const groups = _groupBy(data, (item) => item.billableMetricCode)
-    const _totals = {}
+    const _totals: Record<string, number> = {}
 
-    Object.keys(groups).map((key) => {
+    Object.keys(groups).forEach((key) => {
       const formatted = formatUsageData({
         searchParams,
         data: groups[key],
@@ -54,9 +58,9 @@ const UsageBreakdownBillableMetrics = ({
         filtersPrefix,
       })
 
-      groups[key] = formatted
+      groups[key] = formatted as DataApiUsage[]
 
-      _totals[key] = formatted.reduce((p, c) => p + Number(c.amountCents), 0) || 0
+      _totals[key] = formatted.reduce((p, c) => p + Number(c[valueKey]), 0) || 0
 
       return groups
     })
@@ -65,7 +69,14 @@ const UsageBreakdownBillableMetrics = ({
       grouped: groups,
       totals: _totals,
     }
-  }, [data, defaultStaticDatePeriod, defaultStaticTimeGranularity, filtersPrefix, searchParams])
+  }, [
+    data,
+    defaultStaticDatePeriod,
+    defaultStaticTimeGranularity,
+    filtersPrefix,
+    searchParams,
+    valueKey,
+  ])
 
   return (
     <div className="mt-6 grid grid-cols-2 gap-6">
@@ -85,9 +96,10 @@ const UsageBreakdownBillableMetrics = ({
             </Link>
 
             <Typography className="text-sm text-grey-700">
-              {intlFormatNumber(deserializeAmount(totals[key], selectedCurrency), {
-                currency: selectedCurrency,
-              })}
+              {displayFormat?.(totals[key], selectedCurrency) ||
+                intlFormatNumber(deserializeAmount(totals[key], selectedCurrency), {
+                  currency: selectedCurrency,
+                })}
             </Typography>
           </div>
 
@@ -96,6 +108,7 @@ const UsageBreakdownBillableMetrics = ({
               margin={{
                 right: 32,
               }}
+              customFormatter={displayFormat}
               xAxisDataKey="startOfPeriodDt"
               xAxisTickAttributes={['startOfPeriodDt', 'endOfPeriodDt']}
               currency={selectedCurrency}
@@ -106,9 +119,9 @@ const UsageBreakdownBillableMetrics = ({
                 {
                   tooltipIndex: 0,
                   barIndex: 0,
-                  dataKey: 'amountCents',
+                  dataKey: valueKey as keyof DataApiUsage,
                   colorHex: theme.palette.primary[500],
-                  tooltipLabel: translate('Amount'),
+                  tooltipLabel: translate('text_1746541426463wcwfuryd12g'),
                 },
               ]}
             />

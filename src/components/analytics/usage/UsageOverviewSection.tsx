@@ -1,4 +1,4 @@
-import { Button, GenericPlaceholder, Typography } from 'lago-design-system'
+import { Button, GenericPlaceholder, Icon, Tooltip, Typography } from 'lago-design-system'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { useUsageAnalyticsOverview } from '~/components/analytics/usage/useUsageAnalyticsOverview'
@@ -36,40 +36,48 @@ const UsageOverviewSection = ({ premiumWarningDialogRef }: UsageOverviewSectionP
 
   return (
     <section className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4">
-        <Filters.Provider
-          filtersNamePrefix={ANALYTICS_USAGE_OVERVIEW_FILTER_PREFIX}
-          staticFilters={{
-            currency: defaultCurrency,
-            date: getDefaultStaticDateFilter(),
-          }}
-          staticQuickFilters={{
-            timeGranularity: getDefaultStaticTimeGranularityFilter(),
-          }}
-          availableFilters={UsageOverviewAvailableFilters}
-          quickFiltersType={AvailableQuickFilters.timeGranularity}
-          buttonOpener={({ onClick }) => (
-            <Button
-              startIcon="filter"
-              endIcon={!hasAccessToAnalyticsDashboardsFeature ? 'sparkles' : undefined}
-              size="small"
-              variant="quaternary"
-              onClick={(e) => {
-                if (!hasAccessToAnalyticsDashboardsFeature) {
-                  e.stopPropagation()
-                  premiumWarningDialogRef.current?.openDialog()
-                } else {
-                  onClick()
-                }
-              }}
-            >
-              {translate('text_66ab42d4ece7e6b7078993ad')}
-            </Button>
-          )}
-        >
-          <div className="flex items-center justify-between">
-            <Typography variant="subhead" color="grey700">
-              {translate('text_1746541426463b1mm6097u0e')}
+      <Filters.Provider
+        filtersNamePrefix={ANALYTICS_USAGE_OVERVIEW_FILTER_PREFIX}
+        staticFilters={{
+          currency: defaultCurrency,
+          date: getDefaultStaticDateFilter(),
+        }}
+        staticQuickFilters={{
+          timeGranularity: getDefaultStaticTimeGranularityFilter(),
+        }}
+        availableFilters={UsageOverviewAvailableFilters}
+        quickFiltersType={AvailableQuickFilters.timeGranularity}
+        buttonOpener={({ onClick }) => (
+          <Button
+            startIcon="filter"
+            endIcon={!hasAccessToAnalyticsDashboardsFeature ? 'sparkles' : undefined}
+            size="small"
+            variant="quaternary"
+            onClick={(e) => {
+              if (!hasAccessToAnalyticsDashboardsFeature) {
+                e.stopPropagation()
+                premiumWarningDialogRef.current?.openDialog()
+              } else {
+                onClick()
+              }
+            }}
+          >
+            {translate('text_66ab42d4ece7e6b7078993ad')}
+          </Button>
+        )}
+      >
+        <div className="flex flex-col gap-12">
+          <div className="flex justify-between">
+            <Typography className="flex items-center gap-2" variant="headline" color="grey700">
+              {translate('text_17465414264635ktqocy7leo')}
+
+              <Tooltip
+                placement="top-start"
+                title={translate('text_17465414264635ktqocy7leo')}
+                className="flex"
+              >
+                <Icon name="info-circle" className="text-grey-600" />
+              </Tooltip>
             </Typography>
 
             <div className="flex items-center gap-1">
@@ -77,11 +85,19 @@ const UsageOverviewSection = ({ premiumWarningDialogRef }: UsageOverviewSectionP
             </div>
           </div>
 
-          <div className="flex w-full flex-col gap-3">
-            <Filters.Component />
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <Typography variant="subhead" color="grey700">
+                {translate('text_1746541426463b1mm6097u0e')}
+              </Typography>
+            </div>
+
+            <div className="flex w-full flex-col gap-3">
+              <Filters.Component />
+            </div>
           </div>
-        </Filters.Provider>
-      </div>
+        </div>
+      </Filters.Provider>
 
       <div className="flex flex-col gap-1">
         <Typography variant="headline" color="grey700">

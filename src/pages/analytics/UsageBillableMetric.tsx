@@ -1,48 +1,43 @@
-import { Button, tw } from 'lago-design-system'
-import random from 'lodash/random'
-import { useEffect, useRef } from 'react'
-import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Button, GenericPlaceholder, tw } from 'lago-design-system'
+import { useRef, useState } from 'react'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
+import { UsageBreakdownType } from '~/components/analytics/usage/types'
 import { useUsageAnalyticsBillableMetric } from '~/components/analytics/usage/useUsageAnalyticsBillableMetric'
-import { HorizontalDataTable, NavigationTab, Typography } from '~/components/designSystem'
+import { HorizontalDataTable, Typography } from '~/components/designSystem'
 import {
   AvailableQuickFilters,
   Filters,
   UsageBillableMetricAvailableFilters,
-  UsageBreakdownMeteredAvailableFilters,
 } from '~/components/designSystem/Filters'
 import StackedBarChart from '~/components/designSystem/graphs/StackedBarChart'
 import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/graphs/utils'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import {
-  ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX,
-  ANALYTICS_USAGE_BREAKDOWN_METERED_FILTER_PREFIX,
-} from '~/core/constants/filters'
+import { ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX } from '~/core/constants/filters'
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE } from '~/core/router'
+import { ANALYTIC_TABS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, TimeGranularityEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import Mrr from '~/pages/analytics/Mrr'
-import PrepaidCredits from '~/pages/analytics/PrepaidCredits'
-import RevenueStreams from '~/pages/analytics/RevenueStreams'
-import Usage from '~/pages/analytics/Usage'
+import ErrorImage from '~/public/images/maneki/error.svg'
 import { theme } from '~/styles'
-import { PageHeader } from '~/styles'
 
-const RowLabel = ({ label, color }: { label: string; color: string }) => (
-  <div className="flex items-center gap-2">
-    <div className="size-3 rounded-full" style={{ backgroundColor: color }} />
+const TRANSLATIONS_MAP: Record<UsageBreakdownType, string> = {
+  [UsageBreakdownType.Units]: 'text_17465414264637hzft31ck6c',
+  [UsageBreakdownType.Amount]: 'text_1746541426463wcwfuryd12g',
+}
 
-    <Typography className="font-medium text-grey-700">{label}</Typography>
-  </div>
-)
+type AmountCellProps = {
+  value: number
+  currency: CurrencyEnum
+  displayFormat?: (value: string | number, currency: CurrencyEnum) => string
+}
 
-const AmountCell = ({ value, currency }: { value: number; currency: CurrencyEnum }) => {
+const AmountCell = ({ value, currency, displayFormat }: AmountCellProps) => {
   return (
     <Typography
       variant="body"
@@ -52,10 +47,11 @@ const AmountCell = ({ value, currency }: { value: number; currency: CurrencyEnum
         'text-red-600': value < 0,
       })}
     >
-      {intlFormatNumber(deserializeAmount(value, currency), {
-        currencyDisplay: 'symbol',
-        currency,
-      })}
+      {displayFormat?.(value, currency) ||
+        intlFormatNumber(deserializeAmount(value, currency), {
+          currencyDisplay: 'symbol',
+          currency,
+        })}
     </Typography>
   )
 }
@@ -67,18 +63,213 @@ const UsageBillableMetric = () => {
 
   const { billableMetricCode } = useParams()
 
+  const [breakdownType, setBreakdownType] = useState<UsageBreakdownType>(UsageBreakdownType.Units)
+
   const {
     selectedCurrency,
     defaultCurrency,
     hasError,
     isLoading,
-    totalAmountCents,
+    total,
     getDefaultStaticDateFilter,
     getDefaultStaticTimeGranularityFilter,
     hasAccessToAnalyticsDashboardsFeature,
     timeGranularity,
-    data: xData,
-  } = useUsageAnalyticsBillableMetric()
+    data,
+    valueKey,
+    displayFormat,
+  } = useUsageAnalyticsBillableMetric({
+    breakdownType,
+  })
+
+  if (hasError) {
+    return (
+      <GenericPlaceholder
+        className="pt-12"
+        title={translate('text_634812d6f16b31ce5cbf4126')}
+        subtitle={translate('text_634812d6f16b31ce5cbf4128')}
+        buttonTitle={translate('text_634812d6f16b31ce5cbf412a')}
+        buttonVariant="primary"
+        buttonAction={() => location.reload()}
+        image={<ErrorImage width="136" height="104" />}
+      />
+    )
+  }
+
+  return (
+    <>
+      <PageBannerHeaderWithBurgerMenu>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="quaternary"
+            icon="arrow-left"
+            onClick={() => {
+              navigate(
+                generatePath(ANALYTIC_TABS_ROUTE, {
+                  tab: NewAnalyticsTabsOptionsEnum.usage,
+                }),
+              )
+            }}
+          />
+
+          <Typography variant="bodyHl" color="grey700">
+            {billableMetricCode}
+          </Typography>
+        </div>
+      </PageBannerHeaderWithBurgerMenu>
+
+      <FullscreenPage.Wrapper>
+        <div className="flex flex-col gap-6">
+          <Filters.Provider
+            filtersNamePrefix={ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX}
+            staticFilters={{
+              currency: defaultCurrency,
+              date: getDefaultStaticDateFilter(),
+            }}
+            staticQuickFilters={{
+              timeGranularity: getDefaultStaticTimeGranularityFilter(),
+            }}
+            availableFilters={UsageBillableMetricAvailableFilters}
+            quickFiltersType={AvailableQuickFilters.timeGranularity}
+            buttonOpener={({ onClick }) => (
+              <Button
+                startIcon="filter"
+                endIcon={!hasAccessToAnalyticsDashboardsFeature ? 'sparkles' : undefined}
+                size="small"
+                variant="quaternary"
+                onClick={(e) => {
+                  if (!hasAccessToAnalyticsDashboardsFeature) {
+                    e.stopPropagation()
+                    premiumWarningDialogRef.current?.openDialog()
+                  } else {
+                    onClick()
+                  }
+                }}
+              >
+                {translate('text_66ab42d4ece7e6b7078993ad')}
+              </Button>
+            )}
+          >
+            <div className="flex items-start justify-between">
+              <Typography className="text-lg font-semibold text-grey-700">
+                {billableMetricCode}
+              </Typography>
+
+              <div className="flex justify-end">
+                <div className="flex gap-4">
+                  <Filters.QuickFilters />
+
+                  <div className="h-full w-1 bg-grey-300"></div>
+
+                  <div className="flex gap-1">
+                    {[UsageBreakdownType.Units, UsageBreakdownType.Amount].map(
+                      (_breakdownType, index) => (
+                        <Button
+                          key={`usage-breakdown-section-${index}`}
+                          variant={_breakdownType === breakdownType ? 'secondary' : 'quaternary'}
+                          onClick={() => setBreakdownType(_breakdownType)}
+                          size="small"
+                        >
+                          {translate(TRANSLATIONS_MAP[_breakdownType])}
+                        </Button>
+                      ),
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <Filters.Component />
+          </Filters.Provider>
+
+          <div>
+            <Typography className="mb-2" variant="headline" color="grey700">
+              {displayFormat?.(total, selectedCurrency) ||
+                intlFormatNumber(deserializeAmount(total || 0, selectedCurrency), {
+                  currencyDisplay: 'symbol',
+                  currency: selectedCurrency,
+                })}
+            </Typography>
+
+            <AnalyticsStateProvider>
+              <div className="flex flex-col gap-6">
+                <StackedBarChart
+                  margin={{
+                    right: 32,
+                  }}
+                  xAxisDataKey="startOfPeriodDt"
+                  xAxisTickAttributes={['startOfPeriodDt', 'endOfPeriodDt']}
+                  currency={selectedCurrency}
+                  data={data}
+                  loading={isLoading}
+                  timeGranularity={timeGranularity}
+                  bars={[
+                    {
+                      tooltipIndex: 0,
+                      barIndex: 0,
+                      dataKey: valueKey,
+                      colorHex: theme.palette.primary[500],
+                      tooltipLabel: translate('text_1746541426463wcwfuryd12g'),
+                    },
+                  ]}
+                  customFormatter={displayFormat}
+                />
+
+                <HorizontalDataTable
+                  leftColumnWidth={190}
+                  columnWidth={timeGranularity === TimeGranularityEnum.Monthly ? 180 : 228}
+                  data={data}
+                  loading={isLoading}
+                  rows={[
+                    {
+                      key: 'startOfPeriodDt',
+                      type: 'header',
+                      label: translate('text_1739268382272qnne2h7slna'),
+                      content: (item) => {
+                        return (
+                          <Typography variant="captionHl">
+                            {getItemDateFormatedByTimeGranularity({ item, timeGranularity })}
+                          </Typography>
+                        )
+                      },
+                    },
+                    {
+                      key: 'amountCents',
+                      type: 'data',
+                      label: billableMetricCode,
+                      content: (item) => (
+                        <AmountCell
+                          value={item[valueKey]}
+                          currency={selectedCurrency}
+                          displayFormat={displayFormat}
+                        />
+                      ),
+                    },
+                  ]}
+                />
+              </div>
+            </AnalyticsStateProvider>
+          </div>
+        </div>
+      </FullscreenPage.Wrapper>
+
+      <PremiumWarningDialog ref={premiumWarningDialogRef} />
+    </>
+  )
+}
+
+export default UsageBillableMetric
+
+/*
+TODO: The logic below will be used to display billable metric filters when they will be available from the backend
+
+const RowLabel = ({ label, color }: { label: string; color: string }) => (
+  <div className="flex items-center gap-2">
+    <div className="size-3 rounded-full" style={{ backgroundColor: color }} />
+
+    <Typography className="font-medium text-grey-700">{label}</Typography>
+  </div>
+)
 
   const FAKE_FILTERS = [
     { key: 'storageUS', values: ['eminem'], __typename: 'BillableMetricFilter' },
@@ -135,133 +326,4 @@ const UsageBillableMetric = () => {
     ),
   }))
 
-  return (
-    <>
-      <PageBannerHeaderWithBurgerMenu>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="quaternary"
-            icon="arrow-left"
-            onClick={() => {
-              navigate(
-                generatePath(ANALYTIC_TABS_ROUTE, {
-                  tab: NewAnalyticsTabsOptionsEnum.usage,
-                }),
-              )
-            }}
-          />
-
-          <Typography variant="bodyHl" color="grey700">
-            {billableMetricCode}
-          </Typography>
-        </div>
-      </PageBannerHeaderWithBurgerMenu>
-
-      <FullscreenPage.Wrapper>
-        <div className="flex flex-col gap-6">
-          <div>
-            <Typography className="text-lg font-semibold text-grey-700">
-              {billableMetricCode}
-            </Typography>
-
-            <div className="flex flex-col">
-              <Filters.Provider
-                filtersNamePrefix={ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX}
-                staticFilters={{
-                  currency: defaultCurrency,
-                  date: getDefaultStaticDateFilter(),
-                }}
-                staticQuickFilters={{
-                  timeGranularity: getDefaultStaticTimeGranularityFilter(),
-                }}
-                availableFilters={UsageBillableMetricAvailableFilters}
-                quickFiltersType={AvailableQuickFilters.timeGranularity}
-                buttonOpener={({ onClick }) => (
-                  <Button
-                    startIcon="filter"
-                    endIcon={!hasAccessToAnalyticsDashboardsFeature ? 'sparkles' : undefined}
-                    size="small"
-                    variant="quaternary"
-                    onClick={(e) => {
-                      if (!hasAccessToAnalyticsDashboardsFeature) {
-                        e.stopPropagation()
-                        premiumWarningDialogRef.current?.openDialog()
-                      } else {
-                        onClick()
-                      }
-                    }}
-                  >
-                    {translate('text_66ab42d4ece7e6b7078993ad')}
-                  </Button>
-                )}
-              >
-                <div className="flex items-center justify-between">
-                  <Typography variant="subhead" color="grey700">
-                    {translate('text_1746541426463b1mm6097u0e')}
-                  </Typography>
-
-                  <div className="flex items-center gap-1">
-                    <Filters.QuickFilters />
-                  </div>
-                </div>
-
-                <div className="flex w-full flex-col gap-3">
-                  <Filters.Component />
-                </div>
-              </Filters.Provider>
-            </div>
-          </div>
-
-          <div>
-            <Typography className="mb-2" variant="headline" color="grey700">
-              {intlFormatNumber(deserializeAmount(totalAmountCents || 0, selectedCurrency), {
-                currencyDisplay: 'symbol',
-                currency: selectedCurrency,
-              })}
-            </Typography>
-
-            <AnalyticsStateProvider>
-              <div className="flex flex-col gap-6">
-                <StackedBarChart
-                  xAxisDataKey="startOfPeriodDt"
-                  xAxisTickAttributes={['startOfPeriodDt', 'endOfPeriodDt']}
-                  currency={selectedCurrency}
-                  data={data}
-                  loading={isLoading}
-                  timeGranularity={timeGranularity}
-                  bars={bars}
-                />
-
-                <HorizontalDataTable
-                  leftColumnWidth={190}
-                  columnWidth={timeGranularity === TimeGranularityEnum.Monthly ? 180 : 228}
-                  data={data}
-                  loading={isLoading}
-                  rows={[
-                    {
-                      key: 'startOfPeriodDt',
-                      type: 'header',
-                      label: translate('text_1739268382272qnne2h7slna'),
-                      content: (item) => {
-                        return (
-                          <Typography variant="captionHl">
-                            {getItemDateFormatedByTimeGranularity({ item, timeGranularity })}
-                          </Typography>
-                        )
-                      },
-                    },
-                    ...rows,
-                  ]}
-                />
-              </div>
-            </AnalyticsStateProvider>
-          </div>
-        </div>
-      </FullscreenPage.Wrapper>
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
-    </>
-  )
-}
-
-export default UsageBillableMetric
+*/

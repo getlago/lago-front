@@ -3,15 +3,10 @@ import { DateTime } from 'luxon'
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import {
-  formattedUsageDataForAreaChartLoadingFixture,
-  formattedUsageDataForBreakdownBarChartLoadingFixture,
-  formattedUsageDataLoadingFixture,
-} from '~/components/analytics/usage/fixture'
-import {
-  formatUsageBillableMetricData,
-  formatUsageDataForAreaChart,
-} from '~/components/analytics/usage/utils'
+import { formattedUsageDataLoadingFixture } from '~/components/analytics/usage/fixture'
+import { UsageBreakdownType } from '~/components/analytics/usage/types'
+import { useUsageAnalyticsBreakdown } from '~/components/analytics/usage/useUsageAnalyticsBreakdown'
+import { formatUsageBillableMetricData } from '~/components/analytics/usage/utils'
 import {
   AvailableFiltersEnum,
   formatFiltersForUsageBillableMetricQuery,
@@ -21,6 +16,7 @@ import { ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX } from '~/core/constants/
 import { getTimezoneConfig } from '~/core/timezone'
 import {
   CurrencyEnum,
+  DataApiUsage,
   PremiumIntegrationTypeEnum,
   TimeGranularityEnum,
   TimezoneEnum,
@@ -46,6 +42,7 @@ gql`
         amountCurrency
         endOfPeriodDt
         startOfPeriodDt
+        units
       }
     }
   }
@@ -59,7 +56,13 @@ const getFilterByKey = (key: AvailableFiltersEnum, searchParams: URLSearchParams
   })
 }
 
-export const useUsageAnalyticsBillableMetric = () => {
+type UseUsageAnalyticsBillableMetricProps = {
+  breakdownType: UsageBreakdownType
+}
+
+export const useUsageAnalyticsBillableMetric = ({
+  breakdownType,
+}: UseUsageAnalyticsBillableMetricProps) => {
   const [searchParams] = useSearchParams()
   const { organization, hasOrganizationPremiumAddon } = useOrganizationInfos()
 
@@ -130,27 +133,35 @@ export const useUsageAnalyticsBillableMetric = () => {
     return defaultCurrency
   }, [searchParams, defaultCurrency])
 
-  const { formattedUsageData, totalAmountCents } = useMemo(() => {
-    const sum = (arr: Array<any>) => arr.reduce((p, c) => p + Number(c.amountCents), 0) // stefan
+  const { valueKey, displayFormat } = useUsageAnalyticsBreakdown({
+    availableFilters: [],
+    filtersPrefix: '',
+    breakdownType,
+  })
+
+  const { formattedUsageData, total } = useMemo(() => {
+    const sum = (arr: Array<{ amountCents: number; units: number }>) =>
+      arr.reduce((p, c) => p + Number(c[valueKey as 'amountCents' | 'units']), 0)
 
     const collection = usageData?.dataApiUsages?.collection
 
     if (!collection && !!usageLoading) {
       return {
-        totalAmountCents: sum(formattedUsageDataLoadingFixture),
+        total: sum(formattedUsageDataLoadingFixture),
       }
     }
 
     const localFormattedUsageData = formatUsageBillableMetricData({
       searchParams,
-      data: collection,
+      data: collection as DataApiUsage[],
       defaultStaticDatePeriod: getDefaultStaticDateFilter(),
       defaultStaticTimeGranularity: getDefaultStaticTimeGranularityFilter(),
+      filtersPrefix: ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX,
     })
 
     return {
       formattedUsageData: localFormattedUsageData,
-      totalAmountCents: sum(localFormattedUsageData),
+      total: sum(localFormattedUsageData),
     }
   }, [
     getDefaultStaticDateFilter,
@@ -158,6 +169,7 @@ export const useUsageAnalyticsBillableMetric = () => {
     usageData?.dataApiUsages?.collection,
     usageLoading,
     searchParams,
+    valueKey,
   ])
 
   return {
@@ -170,6 +182,8 @@ export const useUsageAnalyticsBillableMetric = () => {
     isLoading: usageLoading,
     getDefaultStaticDateFilter,
     getDefaultStaticTimeGranularityFilter,
-    totalAmountCents,
+    total,
+    valueKey,
+    displayFormat,
   }
 }
