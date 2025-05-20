@@ -3,7 +3,7 @@ import { Fragment } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { CodeSnippet } from '~/components/CodeSnippet'
-import { Alert, Skeleton, Typography } from '~/components/designSystem'
+import { Alert, Button, Skeleton, Typography } from '~/components/designSystem'
 import { TimezoneDate } from '~/components/TimezoneDate'
 import { useGetSingleEventQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -33,7 +33,7 @@ gql`
   }
 `
 
-export const EventDetails = () => {
+export const EventDetails = ({ goBack }: { goBack: () => void }) => {
   const { eventId } = useParams<{ eventId: string }>()
   const { translate } = useInternationalization()
 
@@ -84,10 +84,17 @@ export const EventDetails = () => {
       {!loading && (
         <div className="flex flex-col gap-12 p-4">
           <div className="grid grid-cols-[140px,_1fr] items-baseline gap-3 pb-12 shadow-b">
-            <div className="col-span-2">
+            <div className="col-span-2 flex items-center justify-between">
               <Typography variant="subhead" color="grey700">
                 {translate('text_63ebba5f5160e26242c48bd2')}
               </Typography>
+              <Button
+                icon="close"
+                variant="quaternary"
+                size="small"
+                onClick={() => goBack()}
+                className="md:hidden"
+              />
             </div>
 
             {!matchBillableMetric && (

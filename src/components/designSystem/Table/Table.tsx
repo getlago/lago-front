@@ -117,7 +117,7 @@ const TableRow = ({
         className,
       )}
       sx={{
-        '&:hover:not(:active), &:focus:not(:active), &:hover:not(:active) .lago-table-action-cell, &:focus:not(:active) .lago-table-action-cell':
+        '&:hover:not(:active), &:focus:not(:active), &:hover:not(:active) .lago-table-action-cell, &:focus:not(:active) .lago-table-action-cell, &[data-state="selected"]':
           {
             backgroundColor: isClickable ? theme.palette.grey[100] : undefined,
           },

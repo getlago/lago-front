@@ -41,7 +41,7 @@ gql`
   }
 `
 
-export const WebhookLogDetails = () => {
+export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
   const { logId } = useParams<{ webhookId: string; logId: string }>()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
   const { translate } = useInternationalization()
@@ -106,10 +106,17 @@ export const WebhookLogDetails = () => {
       {!loading && (
         <div className="flex flex-col gap-12 p-4">
           <div className="grid grid-cols-[140px,_1fr] items-baseline gap-3 pb-12 shadow-b">
-            <div className="col-span-2">
+            <div className="col-span-2 flex items-center justify-between">
               <Typography variant="subhead" color="grey700">
                 {translate('text_174662372967481i3t20hzfv')}
               </Typography>
+              <Button
+                icon="close"
+                variant="quaternary"
+                size="small"
+                onClick={() => goBack()}
+                className="md:hidden"
+              />
             </div>
 
             <Typography className="pt-1" variant="caption">
