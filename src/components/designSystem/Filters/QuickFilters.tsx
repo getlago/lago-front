@@ -1,6 +1,5 @@
 import { CustomerAccountTypeQuickFilter } from '~/components/designSystem/Filters/CustomerAccountTypeQuickFilter'
 import { TimeGranularitySelector } from '~/components/designSystem/Filters/TimeGranularitySelector'
-import { UnitsAmountQuickFilter } from '~/components/designSystem/Filters/UnitsAmountQuickFilter'
 
 import { InvoiceStatusQuickFilter } from './InvoiceStatusQuickFilter'
 import { AvailableQuickFilters } from './types'
@@ -22,8 +21,6 @@ export const QuickFilters = () => {
       {quickFiltersType === AvailableQuickFilters.timeGranularity ? (
         <TimeGranularitySelector />
       ) : null}
-
-      {quickFiltersType === AvailableQuickFilters.unitsAmount ? <UnitsAmountQuickFilter /> : null}
     </div>
   )
 }

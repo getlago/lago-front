@@ -340,7 +340,10 @@ export const formatFiltersForUsageBreakdownRecurringQuery = (searchParams: URLSe
 export const formatFiltersForUsageBillableMetricQuery = (searchParams: URLSearchParams) => {
   return formatFiltersForQuery({
     searchParams,
-    availableFilters: UsageBillableMetricAvailableFilters,
+    availableFilters: [
+      ...UsageBillableMetricAvailableFilters,
+      AvailableFiltersEnum.timeGranularity,
+    ],
     filtersNamePrefix: ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX,
   })
 }
