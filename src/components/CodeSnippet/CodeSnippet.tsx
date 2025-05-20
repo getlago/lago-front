@@ -6,7 +6,7 @@ import 'prismjs/components/prism-ruby'
 import 'prismjs/plugins/line-numbers/prism-line-numbers'
 import { memo, useEffect, useRef } from 'react'
 
-import { Button, Typography } from '~/components/designSystem'
+import { Button, Tooltip, Typography } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -65,7 +65,9 @@ export const CodeSnippet = memo(
       >
         {canCopy && variant === 'minimal' && (
           <div className="flex items-center justify-end bg-grey-200 p-2">
-            <Button variant="quaternary" icon="duplicate" size="small" onClick={handleCopy} />
+            <Tooltip title={translate('text_623b42ff8ee4e000ba87d0c6')} placement="top-end">
+              <Button variant="quaternary" icon="duplicate" size="small" onClick={handleCopy} />
+            </Tooltip>
           </div>
         )}
 
@@ -85,6 +87,7 @@ export const CodeSnippet = memo(
                 'line-numbers',
                 'pb-30',
                 displayHead ? 'h-[calc(100%-theme(space.nav))]' : 'h-full',
+                variant === 'minimal' && '!m-0',
               )}
             >
               <code

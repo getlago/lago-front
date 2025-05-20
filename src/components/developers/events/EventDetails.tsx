@@ -134,20 +134,24 @@ export const EventDetails = () => {
               {translate('text_1730132579304cmiwba11ha6')}
             </Typography>
             <TimezoneDate
+              className="overflow-wrap-anywhere flex min-w-0 max-w-full"
               date={receivedAt}
               customerTimezone={customerTimezone}
               mainTimezone="utc0"
               mainDateFormat="LLL. dd, yyyy HH:mm:ss 'UTC'"
+              position="top-start"
             />
 
             <Typography className="pt-1" variant="caption">
               {translate('text_6298bd525e359200d5ea018f')}
             </Typography>
             <TimezoneDate
+              className="overflow-wrap-anywhere flex min-w-0 max-w-full"
               date={timestamp}
               customerTimezone={customerTimezone}
               mainTimezone="utc0"
               mainDateFormat="LLL. dd, yyyy HH:mm:ss 'UTC'"
+              position="top-start"
             />
 
             {!!ipAddress && (

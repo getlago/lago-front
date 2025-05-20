@@ -120,7 +120,7 @@ export const WebhookLogs = () => {
 
   return (
     <div>
-      <div className="p-4 shadow-b">
+      <div className="flex flex-col items-start gap-2 p-4 shadow-b">
         <Button variant="inline" startIcon="arrow-left" onClick={() => navigate(WEBHOOKS_ROUTE)}>
           {translate('text_1746622271766rvabvdcmo7v')}
         </Button>
@@ -149,13 +149,15 @@ export const WebhookLogs = () => {
                     placeholder={translate('text_1746622271766lr6wf4y0ppn')}
                   />
 
-                  <Filters.Provider
-                    filtersNamePrefix={WEBHOOK_LOGS_FILTER_PREFIX}
-                    availableFilters={[AvailableFiltersEnum.webhookStatus]}
-                    displayInDialog
-                  >
-                    <Filters.Component />
-                  </Filters.Provider>
+                  <div>
+                    <Filters.Provider
+                      filtersNamePrefix={WEBHOOK_LOGS_FILTER_PREFIX}
+                      availableFilters={[AvailableFiltersEnum.webhookStatus]}
+                      displayInDialog
+                    >
+                      <Filters.Component />
+                    </Filters.Provider>
+                  </div>
 
                   <div className="h-8 w-px shadow-r" />
 
@@ -166,14 +168,14 @@ export const WebhookLogs = () => {
                       variant="quaternary"
                       onClick={async () => await refetch()}
                     >
-                      {translate('text_1746622271766igknqtl9xg8')}
+                      {translate('text_1738748043939zqoqzz350yj')}
                     </Button>
                   </div>
                 </section>
                 <section
                   className="flex min-h-20 flex-row overflow-hidden"
-                  // 216px is the height of the headers (52px+92px+72px)
-                  style={{ height: shouldDisplayLogDetails ? `calc(${size}vh - 216px)` : '100%' }}
+                  // 222px is the height of the headers (52px+96px+72px+2px of borders)
+                  style={{ height: shouldDisplayLogDetails ? `calc(${size}vh - 222px)` : '100%' }}
                 >
                   <div
                     className={tw(

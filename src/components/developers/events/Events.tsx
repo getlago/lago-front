@@ -71,7 +71,7 @@ export const Events = () => {
           loading={loading}
           onClick={async () => await refetch()}
         >
-          {translate('text_1746622271766igknqtl9xg8')}
+          {translate('text_1738748043939zqoqzz350yj')}
         </Button>
       </div>
 

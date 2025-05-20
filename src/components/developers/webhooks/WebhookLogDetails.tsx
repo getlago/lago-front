@@ -184,7 +184,7 @@ export const WebhookLogDetails = () => {
                 variant="minimal"
                 language="json"
                 code={response}
-                canCopy={false}
+                canCopy
                 displayHead={false}
               />
             </div>

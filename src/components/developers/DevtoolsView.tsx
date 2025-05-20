@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom'
 
 import { Button, NavigationTab, TabManagedBy, Tooltip } from '~/components/designSystem'
 import { devToolsNavigationMapping, DevtoolsRouter } from '~/components/developers/DevtoolsRouter'
+import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { DEVTOOL_TAB_PARAMS, useDeveloperTool } from '~/hooks/useDeveloperTool'
@@ -50,6 +51,10 @@ export const DevtoolsView: FC = () => {
 
     url.searchParams.set(DEVTOOL_TAB_PARAMS, encodedPathname)
     copyToClipboard(url.toString())
+    addToast({
+      severity: 'info',
+      translateKey: 'text_1747726772472cm6yllhi7eh',
+    })
   }
 
   if (!isOpen) return null
@@ -57,7 +62,7 @@ export const DevtoolsView: FC = () => {
   return (
     <>
       <PanelResizeHandle
-        className="z-[calc(theme(zIndex.console)+1)] h-0"
+        className="relative z-[calc(theme(zIndex.console)+1)] h-0 before:absolute before:-top-px before:left-0 before:h-[2px] before:w-full before:bg-grey-300 before:opacity-0 before:transition-opacity data-[resize-handle-state=hover]:before:opacity-100 data-[resize-handle-state=pointer]:before:opacity-100"
         hitAreaMargins={{
           coarse: 15,
           fine: 10,
@@ -90,7 +95,7 @@ export const DevtoolsView: FC = () => {
             className="sticky top-0 z-navBar bg-white px-4"
             tabs={devToolsNavigationMapping(translate, hasPermissions)}
           >
-            <div className="ml-auto flex items-center gap-3">
+            <div className="sticky right-0 ml-auto flex items-center gap-3 bg-white shadow-b">
               <Button
                 startIcon="link"
                 size="small"
