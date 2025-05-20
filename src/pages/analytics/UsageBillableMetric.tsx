@@ -79,6 +79,7 @@ const UsageBillableMetric = () => {
     valueKey,
     displayFormat,
   } = useUsageAnalyticsBillableMetric({
+    billableMetricCode: billableMetricCode as string,
     breakdownType,
   })
 

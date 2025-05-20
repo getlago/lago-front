@@ -30,12 +30,14 @@ gql`
     $timeGranularity: TimeGranularityEnum
     $fromDate: ISO8601Date
     $toDate: ISO8601Date
+    $billableMetricCode: String
   ) {
     dataApiUsages(
       currency: $currency
       timeGranularity: $timeGranularity
       fromDate: $fromDate
       toDate: $toDate
+      billableMetricCode: $billableMetricCode
     ) {
       collection {
         amountCents
@@ -57,10 +59,12 @@ const getFilterByKey = (key: AvailableFiltersEnum, searchParams: URLSearchParams
 }
 
 type UseUsageAnalyticsBillableMetricProps = {
+  billableMetricCode: string
   breakdownType: UsageBreakdownType
 }
 
 export const useUsageAnalyticsBillableMetric = ({
+  billableMetricCode,
   breakdownType,
 }: UseUsageAnalyticsBillableMetricProps) => {
   const [searchParams] = useSearchParams()
@@ -116,7 +120,9 @@ export const useUsageAnalyticsBillableMetric = ({
     notifyOnNetworkStatusChange: true,
     variables: {
       ...filtersForUsageBillableMetricQuery,
+      billableMetricCode,
     },
+    skip: !billableMetricCode,
   })
 
   const timeGranularity = getFilterByKey(
