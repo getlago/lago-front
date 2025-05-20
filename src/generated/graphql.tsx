@@ -7717,6 +7717,7 @@ export type GetUsageBillableMetricQueryVariables = Exact<{
   timeGranularity?: InputMaybe<TimeGranularityEnum>;
   fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  billableMetricCode?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -14927,12 +14928,13 @@ export type GetRevenueStreamsLazyQueryHookResult = ReturnType<typeof useGetReven
 export type GetRevenueStreamsSuspenseQueryHookResult = ReturnType<typeof useGetRevenueStreamsSuspenseQuery>;
 export type GetRevenueStreamsQueryResult = Apollo.QueryResult<GetRevenueStreamsQuery, GetRevenueStreamsQueryVariables>;
 export const GetUsageBillableMetricDocument = gql`
-    query getUsageBillableMetric($currency: CurrencyEnum, $timeGranularity: TimeGranularityEnum, $fromDate: ISO8601Date, $toDate: ISO8601Date) {
+    query getUsageBillableMetric($currency: CurrencyEnum, $timeGranularity: TimeGranularityEnum, $fromDate: ISO8601Date, $toDate: ISO8601Date, $billableMetricCode: String) {
   dataApiUsages(
     currency: $currency
     timeGranularity: $timeGranularity
     fromDate: $fromDate
     toDate: $toDate
+    billableMetricCode: $billableMetricCode
   ) {
     collection {
       amountCents
@@ -14961,6 +14963,7 @@ export const GetUsageBillableMetricDocument = gql`
  *      timeGranularity: // value for 'timeGranularity'
  *      fromDate: // value for 'fromDate'
  *      toDate: // value for 'toDate'
+ *      billableMetricCode: // value for 'billableMetricCode'
  *   },
  * });
  */
