@@ -12,13 +12,11 @@ export const statusWebhookMapping = (status?: WebhookStatusEnum | null): StatusP
       return {
         type: StatusType.danger,
         label: 'failed',
-        endIcon: 'close',
       }
     case WebhookStatusEnum.Succeeded:
       return {
         type: StatusType.success,
         label: 'delivered',
-        endIcon: 'checkmark',
       }
     default:
       return {

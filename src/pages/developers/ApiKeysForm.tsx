@@ -1,14 +1,14 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { useRef } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useEffect, useRef } from 'react'
+import { NavigateOptions, useParams } from 'react-router-dom'
 
 import { Alert, Button, Icon, Skeleton, Table, Typography } from '~/components/designSystem'
 import { Checkbox, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast } from '~/core/apolloClient'
-import { API_KEYS_ROUTE } from '~/core/router'
+import { HOME_ROUTE } from '~/core/router'
 import { formatDateToTZ } from '~/core/timezone'
 import {
   ApiKeysPermissionsEnum,
@@ -21,12 +21,14 @@ import {
   useUpdateApiKeyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 export const STATE_KEY_ID_TO_REVEAL = 'keyIdToReveal'
 
-const resourseTypeTranslationKeys: Record<ApiKeysPermissionsEnum, string> = {
+const resourceTypeTranslationKeys: Record<ApiKeysPermissionsEnum, string> = {
   [ApiKeysPermissionsEnum.AddOn]: 'text_1732894820485oyybtfh5rgv',
   [ApiKeysPermissionsEnum.Analytic]: 'text_6553885df387fd0097fd7384',
   [ApiKeysPermissionsEnum.AppliedCoupon]: 'text_17328948204857eb1ecwe5me',
@@ -100,11 +102,18 @@ const transformApiPermissionsForForm = (
 }
 
 const ApiKeysForm = () => {
-  const navigate = useNavigate()
+  const devtool = useDeveloperTool()
   const { apiKeyId = '' } = useParams()
   const { translate } = useInternationalization()
+  const { goBack } = useLocationHistory()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
+
+  useEffect(() => {
+    if (devtool.isOpen) {
+      devtool.close()
+    }
+  }, [devtool])
 
   const hasAccessToApiPermissionsPremiumAddOn = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.ApiPermissions,
@@ -119,11 +128,16 @@ const ApiKeysForm = () => {
     nextFetchPolicy: 'no-cache',
   })
 
+  const onClose = (state?: NavigateOptions['state']) => {
+    goBack(HOME_ROUTE, { state })
+    devtool.open()
+  }
+
   const [createApiKey] = useCreateApiKeyMutation({
     onCompleted({ createApiKey: createApiKeyResult }) {
       if (!!createApiKeyResult?.id) {
-        navigate(API_KEYS_ROUTE, {
-          state: { [STATE_KEY_ID_TO_REVEAL]: createApiKeyResult.id },
+        onClose({
+          [STATE_KEY_ID_TO_REVEAL]: createApiKeyResult.id,
         })
         addToast({
           severity: 'success',
@@ -132,11 +146,12 @@ const ApiKeysForm = () => {
       }
     },
   })
-  const [updadeApiKey] = useUpdateApiKeyMutation({
+
+  const [updateApiKey] = useUpdateApiKeyMutation({
     onCompleted({ updateApiKey: updateApiKeyResult }) {
       if (!!updateApiKeyResult?.id) {
-        navigate(API_KEYS_ROUTE, {
-          state: { [STATE_KEY_ID_TO_REVEAL]: updateApiKeyResult.id },
+        onClose({
+          [STATE_KEY_ID_TO_REVEAL]: updateApiKeyResult.id,
         })
         addToast({
           severity: 'success',
@@ -172,7 +187,7 @@ const ApiKeysForm = () => {
         : undefined
 
       if (isEdition) {
-        await updadeApiKey({
+        await updateApiKey({
           variables: {
             input: {
               id: apiKeyId,
@@ -204,7 +219,7 @@ const ApiKeysForm = () => {
                   isEdition ? 'text_1732286530467umtldbwri1j' : 'text_17322865304672acg4wvc0s0',
                 )}
               </Typography>
-              <Button variant="quaternary" icon="close" onClick={() => navigate(API_KEYS_ROUTE)} />
+              <Button variant="quaternary" icon="close" onClick={() => onClose()} />
             </>
           )}
         </CenteredPage.Header>
@@ -311,7 +326,7 @@ const ApiKeysForm = () => {
                         ),
                         content: ({ id }) => (
                           <Typography variant="body" color="grey700">
-                            {translate(resourseTypeTranslationKeys[id])}
+                            {translate(resourceTypeTranslationKeys[id])}
                           </Typography>
                         ),
                       },
@@ -442,7 +457,7 @@ const ApiKeysForm = () => {
         </CenteredPage.Container>
 
         <CenteredPage.StickyFooter>
-          <Button variant="quaternary" onClick={() => navigate(API_KEYS_ROUTE)}>
+          <Button variant="quaternary" onClick={() => onClose()}>
             {translate('text_6411e6b530cb47007488b027')}
           </Button>
           <Button

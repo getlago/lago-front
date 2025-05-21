@@ -1,6 +1,6 @@
 .code-snippet pre {
   position: relative;
-  margin: 0 theme(space.3) theme(space.4) 0;
+  margin: 0 theme(space.4) theme(space.4) 0;
   display: flex;
   flex-direction: column;
   border-radius: theme(borderRadius.xl);

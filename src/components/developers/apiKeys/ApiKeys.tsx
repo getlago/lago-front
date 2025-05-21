@@ -1,23 +1,30 @@
 import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 import { useEffect, useRef, useState } from 'react'
-import { generatePath, useLocation, useNavigate } from 'react-router-dom'
+import { generatePath, useLocation } from 'react-router-dom'
 
-import { ActionItem, Button, Icon, Table, Tooltip, Typography } from '~/components/designSystem'
+import {
+  ActionItem,
+  Button,
+  Icon,
+  Skeleton,
+  Table,
+  Tooltip,
+  Typography,
+} from '~/components/designSystem'
 import {
   DeleteApiKeyDialog,
   DeleteApiKeyDialogRef,
-} from '~/components/developers/DeleteApiKeyDialog'
+} from '~/components/developers/apiKeys/DeleteApiKeyDialog'
 import {
   RotateApiKeyDialog,
   RotateApiKeyDialogRef,
-} from '~/components/developers/RotateApiKeyDialog'
+} from '~/components/developers/apiKeys/RotateApiKeyDialog'
 import {
   SettingsListItem,
   SettingsListItemHeader,
   SettingsListItemLoadingSkeleton,
   SettingsListWrapper,
-  SettingsPaddedContainer,
   SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
@@ -37,9 +44,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
+import { STATE_KEY_ID_TO_REVEAL } from '~/pages/developers/ApiKeysForm'
 import { tw } from '~/styles/utils'
-
-import { STATE_KEY_ID_TO_REVEAL } from './ApiKeysForm'
 
 gql`
   fragment ApiKeyRevealedForApiKeysList on ApiKey {
@@ -86,8 +92,7 @@ gql`
   ${ApiKeyForDeleteApiKeyDialogFragmentDoc}
 `
 
-const ApiKeys = () => {
-  const navigate = useNavigate()
+export const ApiKeys = () => {
   const { hasPermissions } = usePermissions()
   const { isPremium } = useCurrentUser()
   const { state } = useLocation()
@@ -105,7 +110,7 @@ const ApiKeys = () => {
     variables: { page: 1, limit: 20 },
     notifyOnNetworkStatusChange: true,
   })
-  const [getApiKeyValue] = useGetApiKeyValueLazyQuery({
+  const [getApiKeyValue, { loading: revealKeyLoading }] = useGetApiKeyValueLazyQuery({
     fetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: true,
   })
@@ -134,7 +139,7 @@ const ApiKeys = () => {
 
   return (
     <>
-      <SettingsPaddedContainer>
+      <div className="flex flex-col gap-12 p-4">
         <SettingsPageHeaderContainer>
           <Typography variant="headline">{translate('text_637f813d31381b1ed90ab2f6')}</Typography>
           <Typography variant="body" color="grey600">
@@ -147,13 +152,14 @@ const ApiKeys = () => {
             <SettingsListItemLoadingSkeleton count={2} />
           ) : (
             <>
-              <SettingsListItem className="[box-shadow:none]">
+              <SettingsListItem className="pb-0 [box-shadow:none]">
                 <SettingsListItemHeader
                   label={translate('text_636df520279a9e1b3c68cc75')}
                   sublabel={translate('text_637f813d31381b1ed90ab332')}
                 />
 
                 <Table
+                  tableInDialog
                   name="organization-id"
                   isLoading={organizationLoading}
                   containerSize={{ default: 0 }}
@@ -269,12 +275,14 @@ const ApiKeys = () => {
                   action={
                     hasPermissions(['developersKeysManage']) ? (
                       <Button
-                        variant="quaternary"
+                        variant="inline"
+                        startIcon="plus"
                         endIcon={showPremiumAddApiKeyState ? 'sparkles' : undefined}
-                        onClick={() =>
-                          showPremiumAddApiKeyState
-                            ? premiumWarningDialogRef.current?.openDialog()
-                            : navigate(CREATE_API_KEYS_ROUTE)
+                        onClick={
+                          () =>
+                            showPremiumAddApiKeyState
+                              ? premiumWarningDialogRef.current?.openDialog()
+                              : (window.location.href = CREATE_API_KEYS_ROUTE) // This route exists in the BrowserRouter and we're currently in MemoryRouter so we need to hard reload the page
                         }
                       >
                         {translate('text_1732286530467q437l0kqrwg')}
@@ -284,6 +292,7 @@ const ApiKeys = () => {
                 />
 
                 <Table
+                  tableInDialog
                   name="api-keys"
                   isLoading={apiKeysLoading}
                   containerSize={{ default: 0 }}
@@ -322,6 +331,10 @@ const ApiKeys = () => {
                       maxSpace: true,
                       content: ({ id, value }) => {
                         const apiKeyValue = shownApiKeysMap.get(id)
+
+                        if (revealKeyLoading) {
+                          return <Skeleton variant="text" textVariant="body" className="w-40" />
+                        }
 
                         return (
                           <div className="flex items-center gap-2 py-3">
@@ -492,7 +505,10 @@ const ApiKeys = () => {
                         disabled: apiKeysLoading,
                         title: translate('text_1732286530467nu5f8jeg0ov'),
                         onAction: () => {
-                          navigate(generatePath(UPDATE_API_KEYS_ROUTE, { apiKeyId: id }))
+                          const path = generatePath(UPDATE_API_KEYS_ROUTE, { apiKeyId: id })
+
+                          // This route exists in the BrowserRouter and we're currently in MemoryRouter so we need to hard reload the page
+                          window.location.href = path
                         },
                       },
 
@@ -513,7 +529,7 @@ const ApiKeys = () => {
             </>
           )}
         </SettingsListWrapper>
-      </SettingsPaddedContainer>
+      </div>
 
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <RotateApiKeyDialog
@@ -524,5 +540,3 @@ const ApiKeys = () => {
     </>
   )
 }
-
-export default ApiKeys

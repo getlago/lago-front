@@ -1,4 +1,4 @@
-import { Icon, Tooltip, Typography, TypographyProps } from '~/components/designSystem'
+import { Icon, Tooltip, TooltipProps, Typography, TypographyProps } from '~/components/designSystem'
 import { formatDateToTZ, getTimezoneConfig } from '~/core/timezone'
 import { TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -19,6 +19,7 @@ interface TimezoneDateProps {
   mainTypographyProps?: Pick<TypographyProps, 'variant' | 'color' | 'className'>
   className?: string
   typographyClassName?: string
+  position?: TooltipProps['placement']
 }
 
 export const TimezoneDate = ({
@@ -27,6 +28,7 @@ export const TimezoneDate = ({
   mainTimezone = MainTimezoneEnum.organization,
   customerTimezone,
   mainTypographyProps,
+  position = 'top-end',
   typographyClassName,
   className,
 }: TimezoneDateProps) => {
@@ -69,7 +71,7 @@ export const TimezoneDate = ({
           </div>
         </div>
       }
-      placement="top-end"
+      placement={position}
     >
       <Typography
         className={tw('w-max border-b-2 border-dotted border-grey-400', typographyClassName)}

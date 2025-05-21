@@ -3,7 +3,7 @@ import { forwardRef, ReactNode, useState } from 'react'
 
 import { tw } from '~/lib'
 
-interface TooltipProps
+export interface TooltipProps
   extends Pick<
     MuiTooltipProps,
     'placement' | 'title' | 'onClose' | 'disableHoverListener' | 'PopperProps'

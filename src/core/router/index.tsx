@@ -4,7 +4,6 @@ import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { authRoutes } from './AuthRoutes'
 import { customerPortalRoutes } from './CustomerPortalRoutes'
 import { customerObjectCreationRoutes, customerRoutes } from './CustomerRoutes'
-import { developperRoutes } from './DevelopperRoutes'
 import { objectCreationRoutes, objectDetailsRoutes, objectListRoutes } from './ObjectsRoutes'
 import { settingRoutes } from './SettingRoutes'
 import { CustomRouteObject } from './types'
@@ -76,7 +75,6 @@ export const routes: CustomRouteObject[] = [
         permissions: ['analyticsView', 'dataApiView'],
       },
       ...customerRoutes,
-      ...developperRoutes,
       ...objectListRoutes,
       ...objectDetailsRoutes,
       ...([AppEnvEnum.qa, AppEnvEnum.development].includes(appEnv)
@@ -95,9 +93,8 @@ export const routes: CustomRouteObject[] = [
   ...customerPortalRoutes,
 ]
 
-export * from './types'
 export * from './AuthRoutes'
 export * from './CustomerRoutes'
-export * from './DevelopperRoutes'
 export * from './ObjectsRoutes'
 export * from './SettingRoutes'
+export * from './types'
