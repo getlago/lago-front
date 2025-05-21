@@ -9,7 +9,8 @@ import {
   formatFiltersForQuery,
   getFilterValue,
 } from '~/components/designSystem/Filters'
-import { bigNumberShortenNotation } from '~/core/formats/intlFormatNumber'
+import { bigNumberShortenNotation, intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
   CurrencyEnum,
@@ -65,6 +66,7 @@ type UseUsageAnalyticsBreakdownProps = {
   filtersPrefix: string
   isBillableMetricRecurring?: boolean
   breakdownType: UsageBreakdownType
+  overridenTimeGranularity?: TimeGranularityEnum
 }
 
 export const useUsageAnalyticsBreakdown = ({
@@ -72,6 +74,7 @@ export const useUsageAnalyticsBreakdown = ({
   filtersPrefix,
   isBillableMetricRecurring,
   breakdownType,
+  overridenTimeGranularity,
 }: UseUsageAnalyticsBreakdownProps) => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
@@ -86,6 +89,10 @@ export const useUsageAnalyticsBreakdown = ({
   > = {
     [UsageBreakdownType.Amount]: {
       valueKey: 'amountCents',
+      displayFormat: (value) =>
+        intlFormatNumber(deserializeAmount(value, selectedCurrency), {
+          currency: selectedCurrency,
+        }),
     },
     [UsageBreakdownType.Units]: {
       valueKey: 'units',
@@ -131,7 +138,7 @@ export const useUsageAnalyticsBreakdown = ({
 
     return {
       ...filters,
-      timeGranularity: getDefaultStaticTimeGranularityFilter(),
+      timeGranularity: overridenTimeGranularity || getDefaultStaticTimeGranularityFilter(),
       isBillableMetricRecurring,
     }
   }, [
@@ -143,6 +150,7 @@ export const useUsageAnalyticsBreakdown = ({
     availableFilters,
     filtersPrefix,
     isBillableMetricRecurring,
+    overridenTimeGranularity,
   ])
 
   const {

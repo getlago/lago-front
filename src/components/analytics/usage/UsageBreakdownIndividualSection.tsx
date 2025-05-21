@@ -1,10 +1,17 @@
 import { Button } from 'lago-design-system'
+import { useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 import { UsageBreakdownType } from '~/components/analytics/usage/types'
 import UsageBreakdownBillableMetrics from '~/components/analytics/usage/UsageBreakdownBillableMetrics'
 import { useUsageAnalyticsBreakdown } from '~/components/analytics/usage/useUsageAnalyticsBreakdown'
-import { AvailableFiltersEnum, Filters } from '~/components/designSystem/Filters'
+import {
+  AvailableFiltersEnum,
+  Filters,
+  formatFiltersForUsageOverviewQuery,
+} from '~/components/designSystem/Filters'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { TimeGranularityEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 type UsageBreakdownIndividualSectionProps = {
@@ -23,6 +30,13 @@ const UsageBreakdownIndividualSection = ({
   breakdownType,
 }: UsageBreakdownIndividualSectionProps) => {
   const { translate } = useInternationalization()
+  const [searchParams] = useSearchParams()
+
+  const timeGranularity = useMemo(() => {
+    const filters = formatFiltersForUsageOverviewQuery(searchParams)
+
+    return filters?.timeGranularity as TimeGranularityEnum
+  }, [searchParams])
 
   const {
     data,
@@ -40,6 +54,7 @@ const UsageBreakdownIndividualSection = ({
     filtersPrefix,
     isBillableMetricRecurring,
     breakdownType,
+    overridenTimeGranularity: timeGranularity,
   })
 
   return (
@@ -80,7 +95,7 @@ const UsageBreakdownIndividualSection = ({
       <UsageBreakdownBillableMetrics
         data={data}
         defaultStaticDatePeriod={getDefaultStaticDateFilter()}
-        defaultStaticTimeGranularity={getDefaultStaticTimeGranularityFilter()}
+        defaultStaticTimeGranularity={timeGranularity || getDefaultStaticTimeGranularityFilter()}
         selectedCurrency={selectedCurrency}
         filtersPrefix={filtersPrefix}
         loading={isLoading}
