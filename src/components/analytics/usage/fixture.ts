@@ -1,0 +1,111 @@
+export const formattedUsageDataForAreaChartLoadingFixture = []
+
+export const formattedUsageDataForBreakdownBarChartLoadingFixture = []
+
+export const ANALYTICS_USAGE_OVERVIEW_MOCK_DATA = [
+  {
+    organizationId: '1s3eb132-1e25-40d1-13b8-4ee117b55732',
+    startOfPeriodDt: '2025-04-07',
+    endOfPeriodDt: '2025-04-13',
+    amountCurrency: 'USD',
+    amountCents: 8763441,
+  },
+  {
+    organizationId: '1s3eb132-1e25-40d1-13b8-4ee117b55732',
+    startOfPeriodDt: '2025-04-14',
+    endOfPeriodDt: '2025-04-20',
+    amountCurrency: 'USD',
+    amountCents: 3257623,
+  },
+  {
+    organizationId: '1s3eb132-1e25-40d1-13b8-4ee117b55732',
+    startOfPeriodDt: '2025-04-21',
+    endOfPeriodDt: '2025-04-27',
+    amountCurrency: 'USD',
+    amountCents: 1716118,
+  },
+]
+
+export const ANALYTICS_USAGE_BREAKDOWN_MOCK_DATA = [
+  {
+    organizationId: '1s3eb132-1e25-40d1-13b8-4ee117b55732',
+    startOfPeriodDt: '2025-04-07',
+    endOfPeriodDt: '2025-04-13',
+    amountCurrency: 'USD',
+    amountCents: 3123123,
+    billableMetricCode: 'api_tokens',
+    units: 1716927094,
+  },
+  {
+    organizationId: '1s3eb132-1e25-40d1-13b8-4ee117b55732',
+    startOfPeriodDt: '2025-04-14',
+    endOfPeriodDt: '2025-04-20',
+    amountCurrency: 'USD',
+    amountCents: 2573991,
+    billableMetricCode: 'api_tokens',
+    units: 52667994850,
+  },
+  {
+    organizationId: '1s3eb132-1e25-40d1-13b8-4ee117b55732',
+    startOfPeriodDt: '2025-04-21',
+    endOfPeriodDt: '2025-04-27',
+    amountCurrency: 'USD',
+    amountCents: 9722309,
+    billableMetricCode: 'api_tokens',
+    units: 11619787379,
+  },
+  {
+    organizationId: '1s3eb132-1e25-40d1-13b8-4ee117b55732',
+    startOfPeriodDt: '2025-04-21',
+    endOfPeriodDt: '2025-04-27',
+    amountCurrency: 'USD',
+    amountCents: 9722309,
+    billableMetricCode: 'storage_tokens',
+    units: 11619787379,
+  },
+  {
+    organizationId: '1s3eb132-1e25-40d1-13b8-4ee117b55732',
+    startOfPeriodDt: '2025-04-21',
+    endOfPeriodDt: '2025-04-27',
+    amountCurrency: 'USD',
+    amountCents: 9722309,
+    billableMetricCode: 'storage_tokens',
+    units: 11619787379,
+  },
+  {
+    organizationId: '1s3eb132-1e25-40d1-13b8-4ee117b55732',
+    startOfPeriodDt: '2025-04-21',
+    endOfPeriodDt: '2025-04-27',
+    amountCurrency: 'USD',
+    amountCents: 9722309,
+    billableMetricCode: 'storage_tokens',
+    units: 11619787379,
+  },
+  {
+    organizationId: '1s3eb132-1e25-40d1-13b8-4ee117b55732',
+    startOfPeriodDt: '2025-04-21',
+    endOfPeriodDt: '2025-04-27',
+    amountCurrency: 'USD',
+    amountCents: 9722309,
+    billableMetricCode: 'db_tokens',
+    units: 11619787379,
+  },
+  {
+    organizationId: '1s3eb132-1e25-40d1-13b8-4ee117b55732',
+    startOfPeriodDt: '2025-04-21',
+    endOfPeriodDt: '2025-04-27',
+    amountCurrency: 'USD',
+    amountCents: 9722309,
+    billableMetricCode: 'db_tokens',
+    units: 11619787379,
+  },
+  {
+    organizationId: '1s3eb132-1e25-40d1-13b8-4ee117b55732',
+    startOfPeriodDt: '2025-04-21',
+    endOfPeriodDt: '2025-04-27',
+    amountCurrency: 'USD',
+    amountCents: 9722309,
+    billableMetricCode: 'db_tokens',
+    units: 11619787379,
+  },
+]

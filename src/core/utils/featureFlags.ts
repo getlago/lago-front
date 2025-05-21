@@ -2,6 +2,7 @@
 export enum FeatureFlags {
   FTR_ENABLED = 'ftr_enabled',
   ANALYTICS_PREPAID_CREDITS = 'analyticsPrepaidCredits',
+  ANALYTICS_USAGE = 'analyticsUsage',
   FTR_AVALARA_INTEGRATION = 'ftrAvalaraIntegration',
   FTR_ALERTS = 'ftrAlerts',
 }

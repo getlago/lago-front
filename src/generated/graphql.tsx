@@ -45,6 +45,7 @@ export type ActivityLog = {
   activityObjectChanges?: Maybe<Scalars['JSON']['output']>;
   activitySource: ActivitySourceEnum;
   activityType: ActivityTypeEnum;
+  apiKeyId?: Maybe<Scalars['ID']['output']>;
   createdAt: Scalars['ISO8601DateTime']['output'];
   externalCustomerId?: Maybe<Scalars['String']['output']>;
   externalSubscriptionId?: Maybe<Scalars['String']['output']>;
@@ -115,6 +116,8 @@ export enum ActivityTypeEnum {
   InvoiceFailed = 'invoice_failed',
   /** invoice.generated */
   InvoiceGenerated = 'invoice_generated',
+  /** invoice.one_off_created */
+  InvoiceOneOffCreated = 'invoice_one_off_created',
   /** invoice.paid_credit_added */
   InvoicePaidCreditAdded = 'invoice_paid_credit_added',
   /** invoice.payment_failure */
@@ -3552,6 +3555,7 @@ export type Invoice = {
   subTotalExcludingTaxesAmountCents: Scalars['BigInt']['output'];
   subTotalIncludingTaxesAmountCents: Scalars['BigInt']['output'];
   subscriptions?: Maybe<Array<Subscription>>;
+  taxProviderId?: Maybe<Scalars['String']['output']>;
   taxProviderVoidable: Scalars['Boolean']['output'];
   taxStatus?: Maybe<InvoiceTaxStatusTypeEnum>;
   taxesAmountCents: Scalars['BigInt']['output'];
@@ -7707,6 +7711,38 @@ export type GetRevenueStreamsQueryVariables = Exact<{
 
 
 export type GetRevenueStreamsQuery = { __typename?: 'Query', dataApiRevenueStreams: { __typename?: 'DataApiRevenueStreamCollection', collection: Array<{ __typename?: 'DataApiRevenueStream', commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any }> } };
+
+export type GetUsageBillableMetricQueryVariables = Exact<{
+  currency?: InputMaybe<CurrencyEnum>;
+  timeGranularity?: InputMaybe<TimeGranularityEnum>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  billableMetricCode?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetUsageBillableMetricQuery = { __typename?: 'Query', dataApiUsages: { __typename?: 'DataApiUsageCollection', collection: Array<{ __typename?: 'DataApiUsage', amountCents: any, amountCurrency: CurrencyEnum, endOfPeriodDt: any, startOfPeriodDt: any, units: number }> } };
+
+export type GetUsageBreakdownQueryVariables = Exact<{
+  currency?: InputMaybe<CurrencyEnum>;
+  timeGranularity?: InputMaybe<TimeGranularityEnum>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  isBillableMetricRecurring?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type GetUsageBreakdownQuery = { __typename?: 'Query', dataApiUsages: { __typename?: 'DataApiUsageCollection', collection: Array<{ __typename?: 'DataApiUsage', startOfPeriodDt: any, endOfPeriodDt: any, amountCurrency: CurrencyEnum, amountCents: any, billableMetricCode: string, units: number }> } };
+
+export type GetUsageOverviewQueryVariables = Exact<{
+  currency?: InputMaybe<CurrencyEnum>;
+  timeGranularity?: InputMaybe<TimeGranularityEnum>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+}>;
+
+
+export type GetUsageOverviewQuery = { __typename?: 'Query', dataApiUsagesAggregatedAmounts: { __typename?: 'DataApiUsageAggregatedAmountCollection', collection: Array<{ __typename?: 'DataApiUsageAggregatedAmount', amountCents: any, amountCurrency: CurrencyEnum, endOfPeriodDt: any, startOfPeriodDt: any }> } };
 
 export type GetGoogleAuthUrlQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -14891,6 +14927,172 @@ export type GetRevenueStreamsQueryHookResult = ReturnType<typeof useGetRevenueSt
 export type GetRevenueStreamsLazyQueryHookResult = ReturnType<typeof useGetRevenueStreamsLazyQuery>;
 export type GetRevenueStreamsSuspenseQueryHookResult = ReturnType<typeof useGetRevenueStreamsSuspenseQuery>;
 export type GetRevenueStreamsQueryResult = Apollo.QueryResult<GetRevenueStreamsQuery, GetRevenueStreamsQueryVariables>;
+export const GetUsageBillableMetricDocument = gql`
+    query getUsageBillableMetric($currency: CurrencyEnum, $timeGranularity: TimeGranularityEnum, $fromDate: ISO8601Date, $toDate: ISO8601Date, $billableMetricCode: String) {
+  dataApiUsages(
+    currency: $currency
+    timeGranularity: $timeGranularity
+    fromDate: $fromDate
+    toDate: $toDate
+    billableMetricCode: $billableMetricCode
+  ) {
+    collection {
+      amountCents
+      amountCurrency
+      endOfPeriodDt
+      startOfPeriodDt
+      units
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetUsageBillableMetricQuery__
+ *
+ * To run a query within a React component, call `useGetUsageBillableMetricQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUsageBillableMetricQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUsageBillableMetricQuery({
+ *   variables: {
+ *      currency: // value for 'currency'
+ *      timeGranularity: // value for 'timeGranularity'
+ *      fromDate: // value for 'fromDate'
+ *      toDate: // value for 'toDate'
+ *      billableMetricCode: // value for 'billableMetricCode'
+ *   },
+ * });
+ */
+export function useGetUsageBillableMetricQuery(baseOptions?: Apollo.QueryHookOptions<GetUsageBillableMetricQuery, GetUsageBillableMetricQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetUsageBillableMetricQuery, GetUsageBillableMetricQueryVariables>(GetUsageBillableMetricDocument, options);
+      }
+export function useGetUsageBillableMetricLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetUsageBillableMetricQuery, GetUsageBillableMetricQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetUsageBillableMetricQuery, GetUsageBillableMetricQueryVariables>(GetUsageBillableMetricDocument, options);
+        }
+export function useGetUsageBillableMetricSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetUsageBillableMetricQuery, GetUsageBillableMetricQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetUsageBillableMetricQuery, GetUsageBillableMetricQueryVariables>(GetUsageBillableMetricDocument, options);
+        }
+export type GetUsageBillableMetricQueryHookResult = ReturnType<typeof useGetUsageBillableMetricQuery>;
+export type GetUsageBillableMetricLazyQueryHookResult = ReturnType<typeof useGetUsageBillableMetricLazyQuery>;
+export type GetUsageBillableMetricSuspenseQueryHookResult = ReturnType<typeof useGetUsageBillableMetricSuspenseQuery>;
+export type GetUsageBillableMetricQueryResult = Apollo.QueryResult<GetUsageBillableMetricQuery, GetUsageBillableMetricQueryVariables>;
+export const GetUsageBreakdownDocument = gql`
+    query getUsageBreakdown($currency: CurrencyEnum, $timeGranularity: TimeGranularityEnum, $fromDate: ISO8601Date, $toDate: ISO8601Date, $isBillableMetricRecurring: Boolean) {
+  dataApiUsages(
+    currency: $currency
+    timeGranularity: $timeGranularity
+    fromDate: $fromDate
+    toDate: $toDate
+    isBillableMetricRecurring: $isBillableMetricRecurring
+  ) {
+    collection {
+      startOfPeriodDt
+      endOfPeriodDt
+      amountCurrency
+      amountCents
+      billableMetricCode
+      units
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetUsageBreakdownQuery__
+ *
+ * To run a query within a React component, call `useGetUsageBreakdownQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUsageBreakdownQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUsageBreakdownQuery({
+ *   variables: {
+ *      currency: // value for 'currency'
+ *      timeGranularity: // value for 'timeGranularity'
+ *      fromDate: // value for 'fromDate'
+ *      toDate: // value for 'toDate'
+ *      isBillableMetricRecurring: // value for 'isBillableMetricRecurring'
+ *   },
+ * });
+ */
+export function useGetUsageBreakdownQuery(baseOptions?: Apollo.QueryHookOptions<GetUsageBreakdownQuery, GetUsageBreakdownQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetUsageBreakdownQuery, GetUsageBreakdownQueryVariables>(GetUsageBreakdownDocument, options);
+      }
+export function useGetUsageBreakdownLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetUsageBreakdownQuery, GetUsageBreakdownQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetUsageBreakdownQuery, GetUsageBreakdownQueryVariables>(GetUsageBreakdownDocument, options);
+        }
+export function useGetUsageBreakdownSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetUsageBreakdownQuery, GetUsageBreakdownQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetUsageBreakdownQuery, GetUsageBreakdownQueryVariables>(GetUsageBreakdownDocument, options);
+        }
+export type GetUsageBreakdownQueryHookResult = ReturnType<typeof useGetUsageBreakdownQuery>;
+export type GetUsageBreakdownLazyQueryHookResult = ReturnType<typeof useGetUsageBreakdownLazyQuery>;
+export type GetUsageBreakdownSuspenseQueryHookResult = ReturnType<typeof useGetUsageBreakdownSuspenseQuery>;
+export type GetUsageBreakdownQueryResult = Apollo.QueryResult<GetUsageBreakdownQuery, GetUsageBreakdownQueryVariables>;
+export const GetUsageOverviewDocument = gql`
+    query getUsageOverview($currency: CurrencyEnum, $timeGranularity: TimeGranularityEnum, $fromDate: ISO8601Date, $toDate: ISO8601Date) {
+  dataApiUsagesAggregatedAmounts(
+    currency: $currency
+    timeGranularity: $timeGranularity
+    fromDate: $fromDate
+    toDate: $toDate
+  ) {
+    collection {
+      amountCents
+      amountCurrency
+      endOfPeriodDt
+      startOfPeriodDt
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetUsageOverviewQuery__
+ *
+ * To run a query within a React component, call `useGetUsageOverviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUsageOverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUsageOverviewQuery({
+ *   variables: {
+ *      currency: // value for 'currency'
+ *      timeGranularity: // value for 'timeGranularity'
+ *      fromDate: // value for 'fromDate'
+ *      toDate: // value for 'toDate'
+ *   },
+ * });
+ */
+export function useGetUsageOverviewQuery(baseOptions?: Apollo.QueryHookOptions<GetUsageOverviewQuery, GetUsageOverviewQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetUsageOverviewQuery, GetUsageOverviewQueryVariables>(GetUsageOverviewDocument, options);
+      }
+export function useGetUsageOverviewLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetUsageOverviewQuery, GetUsageOverviewQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetUsageOverviewQuery, GetUsageOverviewQueryVariables>(GetUsageOverviewDocument, options);
+        }
+export function useGetUsageOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetUsageOverviewQuery, GetUsageOverviewQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetUsageOverviewQuery, GetUsageOverviewQueryVariables>(GetUsageOverviewDocument, options);
+        }
+export type GetUsageOverviewQueryHookResult = ReturnType<typeof useGetUsageOverviewQuery>;
+export type GetUsageOverviewLazyQueryHookResult = ReturnType<typeof useGetUsageOverviewLazyQuery>;
+export type GetUsageOverviewSuspenseQueryHookResult = ReturnType<typeof useGetUsageOverviewSuspenseQuery>;
+export type GetUsageOverviewQueryResult = Apollo.QueryResult<GetUsageOverviewQuery, GetUsageOverviewQueryVariables>;
 export const GetGoogleAuthUrlDocument = gql`
     query getGoogleAuthUrl {
   googleAuthUrl {

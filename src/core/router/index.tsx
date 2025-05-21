@@ -10,13 +10,6 @@ import { settingRoutes } from './SettingRoutes'
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
 
-export * from './types'
-export * from './AuthRoutes'
-export * from './CustomerRoutes'
-export * from './DevelopperRoutes'
-export * from './ObjectsRoutes'
-export * from './SettingRoutes'
-
 const { appEnv } = envGlobalVar()
 
 // ----------- Layouts -----------
@@ -27,6 +20,7 @@ const Home = lazyLoad(() => import('~/pages/Home'))
 const Error404 = lazyLoad(() => import('~/pages/Error404'))
 const Forbidden = lazyLoad(() => import('~/pages/Forbidden'))
 const Analytic = lazyLoad(() => import('~/pages/Analytics'))
+const UsageBillableMetric = lazyLoad(() => import('~/pages/analytics/UsageBillableMetric'))
 
 // Route Available only on dev mode
 const DesignSystem = lazyLoad(() => import('~/pages/__devOnly/DesignSystem'))
@@ -35,6 +29,7 @@ export const HOME_ROUTE = '/'
 export const FORBIDDEN_ROUTE = '/forbidden'
 export const ANALYTIC_ROUTE = '/analytics'
 export const ANALYTIC_TABS_ROUTE = '/analytics/:tab'
+export const ANALYTIC_USAGE_BILLABLE_METRIC_ROUTE = '/analytics/usage/:billableMetricCode'
 export const ERROR_404_ROUTE = '/404'
 
 // Route Available only on dev mode
@@ -74,6 +69,12 @@ export const routes: CustomRouteObject[] = [
         // Maybe analyticsView will be removed in the future
         permissions: ['analyticsView', 'dataApiView'],
       },
+      {
+        path: ANALYTIC_USAGE_BILLABLE_METRIC_ROUTE,
+        private: true,
+        element: <UsageBillableMetric />,
+        permissions: ['analyticsView', 'dataApiView'],
+      },
       ...customerRoutes,
       ...developperRoutes,
       ...objectListRoutes,
@@ -93,3 +94,10 @@ export const routes: CustomRouteObject[] = [
   ...objectCreationRoutes,
   ...customerPortalRoutes,
 ]
+
+export * from './types'
+export * from './AuthRoutes'
+export * from './CustomerRoutes'
+export * from './DevelopperRoutes'
+export * from './ObjectsRoutes'
+export * from './SettingRoutes'

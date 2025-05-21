@@ -77,6 +77,13 @@ type StackedBarChartProps<T> = {
   xAxisDataKey: DotNestedKeys<T>
   xAxisTickAttributes?: [DotNestedKeys<T>, DotNestedKeys<T>]
   timeGranularity: TimeGranularityEnum
+  customFormatter?: (value: string | number, currency: CurrencyEnum) => string
+  margin?: {
+    top?: number
+    right?: number
+    bottom?: number
+    left?: number
+  }
 }
 
 const LOADING_TICK_SIZE = 32
@@ -88,6 +95,7 @@ type CustomTooltipProps<T> = {
   payload: Payload<ValueType & { payload: T }, NameType>[] | undefined
   bars: Array<StackedBarChartBar<T>>
   timeGranularity: TimeGranularityEnum
+  customFormatter?: (value: string | number, currency: CurrencyEnum) => string
 }
 
 const CustomTooltip = <T,>({
@@ -96,6 +104,7 @@ const CustomTooltip = <T,>({
   currency,
   bars,
   timeGranularity,
+  customFormatter,
 }: CustomTooltipProps<T>) => {
   if (!active || !payload?.length) return null
 
@@ -125,7 +134,9 @@ const CustomTooltip = <T,>({
                 </Typography>
               </div>
               <Typography variant="caption" color="white" noWrap>
-                {toAmountCents(labelValues[bar.dataKey || '0'], currency)}
+                {customFormatter
+                  ? customFormatter(labelValues[bar.dataKey || '0'], currency)
+                  : toAmountCents(labelValues[bar.dataKey || '0'], currency)}
               </Typography>
             </div>
           ))}
@@ -143,6 +154,8 @@ const StackedBarChart = <T extends DataItem>({
   xAxisDataKey,
   xAxisTickAttributes,
   timeGranularity,
+  margin,
+  customFormatter,
 }: StackedBarChartProps<T>) => {
   const { setClickedDataIndex, setHoverDataIndex, hoverDataIndex, handleMouseLeave } =
     useAnalyticsState()
@@ -205,10 +218,10 @@ const StackedBarChart = <T extends DataItem>({
           width={500}
           height={300}
           margin={{
-            top: 1,
-            left: 1,
-            right: 12,
-            bottom: -2,
+            top: margin?.top ?? 1,
+            left: margin?.left ?? 1,
+            right: margin?.right ?? 12,
+            bottom: margin?.bottom ?? -2,
           }}
           data={localData}
           stackOffset="sign"
@@ -327,12 +340,11 @@ const StackedBarChart = <T extends DataItem>({
 
               const isNegative = payload.value < 0
 
-              const formatted = bigNumberShortenNotationFormater(
-                isNegative ? -payload.value : payload.value,
-                {
-                  currency,
-                },
-              )
+              const formatted = customFormatter
+                ? customFormatter(payload.value, currency)
+                : bigNumberShortenNotationFormater(isNegative ? -payload.value : payload.value, {
+                    currency,
+                  })
 
               if (loading) {
                 return (
@@ -382,6 +394,10 @@ const StackedBarChart = <T extends DataItem>({
 
               if (typeof yZero !== 'number') return null
 
+              const hasZeroTick = yZero >= yAxis.y && yZero <= yAxis.y + yAxis.height
+
+              if (hasZeroTick) return null
+
               if (loading) {
                 return (
                   <g>
@@ -404,7 +420,11 @@ const StackedBarChart = <T extends DataItem>({
                       letterSpacing: '-0.16px',
                     }}
                   >
-                    {bigNumberShortenNotationFormater(deserializeAmount(0, currency), { currency })}
+                    {customFormatter
+                      ? customFormatter('0', currency)
+                      : bigNumberShortenNotationFormater(deserializeAmount(0, currency), {
+                          currency,
+                        })}
                   </text>
                 </g>
               )
@@ -436,6 +456,7 @@ const StackedBarChart = <T extends DataItem>({
                       payload={payload as unknown as CustomTooltipProps<T>['payload']}
                       timeGranularity={timeGranularity}
                       includeHidden={!!includeHidden}
+                      customFormatter={customFormatter}
                     />
                   )}
                 </div>

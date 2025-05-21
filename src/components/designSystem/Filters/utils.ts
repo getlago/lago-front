@@ -4,6 +4,11 @@ import {
 } from '~/components/graphs/MonthSelectorDropdown'
 import {
   ANALYTICS_INVOICES_FILTER_PREFIX,
+  ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX,
+  ANALYTICS_USAGE_BREAKDOWN_FILTER_PREFIX,
+  ANALYTICS_USAGE_BREAKDOWN_METERED_FILTER_PREFIX,
+  ANALYTICS_USAGE_BREAKDOWN_RECURRING_FILTER_PREFIX,
+  ANALYTICS_USAGE_OVERVIEW_FILTER_PREFIX,
   CREDIT_NOTE_LIST_FILTER_PREFIX,
   CUSTOMER_LIST_FILTER_PREFIX,
   INVOICE_LIST_FILTER_PREFIX,
@@ -37,6 +42,11 @@ import {
   RevenueStreamsAvailablePopperFilters,
   RevenueStreamsCustomersAvailableFilters,
   RevenueStreamsPlansAvailableFilters,
+  UsageBillableMetricAvailableFilters,
+  UsageBreakdownAvailableFilters,
+  UsageBreakdownMeteredAvailableFilters,
+  UsageBreakdownRecurringAvailableFilters,
+  UsageOverviewAvailableFilters,
 } from './types'
 
 const keyWithPrefix = (key: string, prefix?: string) => (prefix ? `${prefix}_${key}` : key)
@@ -114,7 +124,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
 }
 
-const formatFiltersForQuery = ({
+export const formatFiltersForQuery = ({
   searchParams,
   keyMap,
   availableFilters,
@@ -293,6 +303,49 @@ export const formatFiltersForWebhookLogsQuery = (searchParams: URLSearchParams) 
   }
 
   return undefined
+}
+
+export const formatFiltersForUsageOverviewQuery = (searchParams: URLSearchParams) => {
+  return formatFiltersForQuery({
+    searchParams,
+    availableFilters: [...UsageOverviewAvailableFilters, AvailableFiltersEnum.timeGranularity],
+    filtersNamePrefix: ANALYTICS_USAGE_OVERVIEW_FILTER_PREFIX,
+  })
+}
+
+export const formatFiltersForUsageBreakdownQuery = (searchParams: URLSearchParams) => {
+  return formatFiltersForQuery({
+    searchParams,
+    availableFilters: UsageBreakdownAvailableFilters,
+    filtersNamePrefix: ANALYTICS_USAGE_BREAKDOWN_FILTER_PREFIX,
+  })
+}
+
+export const formatFiltersForUsageBreakdownMeteredQuery = (searchParams: URLSearchParams) => {
+  return formatFiltersForQuery({
+    searchParams,
+    availableFilters: UsageBreakdownMeteredAvailableFilters,
+    filtersNamePrefix: ANALYTICS_USAGE_BREAKDOWN_METERED_FILTER_PREFIX,
+  })
+}
+
+export const formatFiltersForUsageBreakdownRecurringQuery = (searchParams: URLSearchParams) => {
+  return formatFiltersForQuery({
+    searchParams,
+    availableFilters: UsageBreakdownRecurringAvailableFilters,
+    filtersNamePrefix: ANALYTICS_USAGE_BREAKDOWN_RECURRING_FILTER_PREFIX,
+  })
+}
+
+export const formatFiltersForUsageBillableMetricQuery = (searchParams: URLSearchParams) => {
+  return formatFiltersForQuery({
+    searchParams,
+    availableFilters: [
+      ...UsageBillableMetricAvailableFilters,
+      AvailableFiltersEnum.timeGranularity,
+    ],
+    filtersNamePrefix: ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX,
+  })
 }
 
 export const AMOUNT_INTERVALS_TRANSLATION_MAP = {
