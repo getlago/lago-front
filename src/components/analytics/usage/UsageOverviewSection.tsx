@@ -73,7 +73,7 @@ const UsageOverviewSection = ({ premiumWarningDialogRef }: UsageOverviewSectionP
 
               <Tooltip
                 placement="top-start"
-                title={translate('text_17465414264635ktqocy7leo')}
+                title={translate('text_1747817451282js22pfg16gg')}
                 className="flex"
               >
                 <Icon name="info-circle" className="text-grey-600" />
