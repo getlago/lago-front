@@ -1,4 +1,4 @@
-import { Icon, Typography } from 'lago-design-system'
+import { GenericPlaceholder, Icon, Skeleton, Typography } from 'lago-design-system'
 import _groupBy from 'lodash/groupBy'
 import { useMemo } from 'react'
 import { generatePath, Link } from 'react-router-dom'
@@ -12,10 +12,12 @@ import { ANALYTIC_USAGE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, DataApiUsage, TimeGranularityEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import EmptyImage from '~/public/images/maneki/empty.svg'
+import ErrorImage from '~/public/images/maneki/error.svg'
 import { theme } from '~/styles'
 
 type UsageBreakdownBillableMetricsProps = {
-  data: DataApiUsage[]
+  data?: DataApiUsage[]
   defaultStaticDatePeriod: string
   defaultStaticTimeGranularity: TimeGranularityEnum
   selectedCurrency: CurrencyEnum
@@ -23,6 +25,7 @@ type UsageBreakdownBillableMetricsProps = {
   loading: boolean
   valueKey: 'units' | 'amountCents'
   displayFormat?: (value: string | number, currency: CurrencyEnum) => string
+  hasError: boolean
 }
 
 const UsageBreakdownBillableMetrics = ({
@@ -34,6 +37,7 @@ const UsageBreakdownBillableMetrics = ({
   loading,
   valueKey,
   displayFormat,
+  hasError,
 }: UsageBreakdownBillableMetricsProps) => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
@@ -77,6 +81,49 @@ const UsageBreakdownBillableMetrics = ({
     searchParams,
     valueKey,
   ])
+
+  if (hasError) {
+    return (
+      <GenericPlaceholder
+        className="pt-12"
+        title={translate('text_634812d6f16b31ce5cbf4126')}
+        subtitle={translate('text_634812d6f16b31ce5cbf4128')}
+        buttonTitle={translate('text_634812d6f16b31ce5cbf412a')}
+        buttonVariant="primary"
+        buttonAction={() => location.reload()}
+        image={<ErrorImage width="136" height="104" />}
+      />
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="mt-6 grid grid-cols-2 gap-6">
+        {[0, 1, 2, 3].map((i) => (
+          <div
+            className="flex flex-col gap-2"
+            key={`usage-breakdown-billable-metrics-loading-${i}`}
+          >
+            <Skeleton variant="text" className="w-20" />
+            <Skeleton variant="text" className="w-40" />
+            <Skeleton variant="text" className="w-40" />
+            <Skeleton variant="text" className="w-40" />
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  if (!loading && !data?.length) {
+    return (
+      <GenericPlaceholder
+        className="pt-12"
+        title={translate('text_1747819375043rmg1hu54ul7')}
+        subtitle={translate('text_1747820933511hc5y0fv9pae')}
+        image={<EmptyImage width="136" height="104" />}
+      />
+    )
+  }
 
   return (
     <div className="mt-6 grid grid-cols-2 gap-6">

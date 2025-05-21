@@ -3075,5 +3075,9 @@
   "text_1746541426463hwo4t13lp09": "Recurring",
   "text_17465414264637hzft31ck6c": "Units",
   "text_1746541426463wcwfuryd12g": "Amount",
-  "text_17476657511358tgyvof5x1u": "units|unit|units"
+  "text_17476657511358tgyvof5x1u": "units|unit|units",
+  "text_1747817451282js22pfg16gg": "This reflects the consumption of your usage-based components, whether they are metered or recurring.",
+  "text_1747819375043rmg1hu54ul7": "There are no billable metrics",
+  "text_1747820933511hc5y0fv9pae": "Please create subscriptions with charges for customers to populate the data."
 }
+
