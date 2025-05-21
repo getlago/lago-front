@@ -151,7 +151,7 @@ const UsageBillableMetric = () => {
               </Button>
             )}
           >
-            <div className="flex items-start justify-between">
+            <div className="flex items-center justify-between">
               <Typography className="text-lg font-semibold text-grey-700">
                 {billableMetricCode}
               </Typography>
@@ -214,6 +214,7 @@ const UsageBillableMetric = () => {
                     },
                   ]}
                   customFormatter={displayFormat}
+                  inlineTooltip={true}
                 />
 
                 <HorizontalDataTable

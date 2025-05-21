@@ -11,7 +11,7 @@ type UsageBreakdownIndividualSectionProps = {
   premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
   availableFilters: AvailableFiltersEnum[]
   filtersPrefix: string
-  isBillableMetricRecurring?: boolean
+  isBillableMetricRecurring: boolean
   breakdownType: UsageBreakdownType
 }
 
@@ -32,6 +32,7 @@ const UsageBreakdownIndividualSection = ({
     hasAccessToAnalyticsDashboardsFeature,
     selectedCurrency,
     isLoading,
+    hasError,
     valueKey,
     displayFormat,
   } = useUsageAnalyticsBreakdown({
@@ -76,18 +77,17 @@ const UsageBreakdownIndividualSection = ({
         </Filters.Provider>
       </div>
 
-      {data && (
-        <UsageBreakdownBillableMetrics
-          data={data}
-          defaultStaticDatePeriod={getDefaultStaticDateFilter()}
-          defaultStaticTimeGranularity={getDefaultStaticTimeGranularityFilter()}
-          selectedCurrency={selectedCurrency}
-          filtersPrefix={filtersPrefix}
-          loading={isLoading}
-          valueKey={valueKey}
-          displayFormat={displayFormat}
-        />
-      )}
+      <UsageBreakdownBillableMetrics
+        data={data}
+        defaultStaticDatePeriod={getDefaultStaticDateFilter()}
+        defaultStaticTimeGranularity={getDefaultStaticTimeGranularityFilter()}
+        selectedCurrency={selectedCurrency}
+        filtersPrefix={filtersPrefix}
+        loading={isLoading}
+        valueKey={valueKey}
+        displayFormat={displayFormat}
+        hasError={hasError}
+      />
     </>
   )
 }

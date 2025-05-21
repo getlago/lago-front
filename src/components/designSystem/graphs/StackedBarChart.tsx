@@ -1,3 +1,4 @@
+import { tw } from 'lago-design-system'
 import debounce from 'lodash/debounce'
 import { useCallback, useMemo } from 'react'
 import {
@@ -84,6 +85,7 @@ type StackedBarChartProps<T> = {
     bottom?: number
     left?: number
   }
+  inlineTooltip?: boolean
 }
 
 const LOADING_TICK_SIZE = 32
@@ -96,6 +98,7 @@ type CustomTooltipProps<T> = {
   bars: Array<StackedBarChartBar<T>>
   timeGranularity: TimeGranularityEnum
   customFormatter?: (value: string | number, currency: CurrencyEnum) => string
+  inlineTooltip?: boolean
 }
 
 const CustomTooltip = <T,>({
@@ -105,10 +108,31 @@ const CustomTooltip = <T,>({
   bars,
   timeGranularity,
   customFormatter,
+  inlineTooltip,
 }: CustomTooltipProps<T>) => {
   if (!active || !payload?.length) return null
 
   const labelValues = payload[0].payload
+
+  if (inlineTooltip) {
+    const date = getItemDateFormatedByTimeGranularity({
+      item: {
+        startOfPeriodDt: labelValues.startOfPeriodDt,
+        endOfPeriodDt: labelValues.endOfPeriodDt,
+      },
+      timeGranularity,
+    })
+
+    const value = customFormatter
+      ? customFormatter(labelValues[bars[0].dataKey || '0'], currency)
+      : toAmountCents(labelValues[bars[0].dataKey || '0'], currency)
+
+    return (
+      <Typography className="w-fit rounded-xl bg-grey-700" variant="caption" color="white">
+        {`${date}: ${value}`}
+      </Typography>
+    )
+  }
 
   return (
     <>
@@ -156,6 +180,7 @@ const StackedBarChart = <T extends DataItem>({
   timeGranularity,
   margin,
   customFormatter,
+  inlineTooltip,
 }: StackedBarChartProps<T>) => {
   const { setClickedDataIndex, setHoverDataIndex, hoverDataIndex, handleMouseLeave } =
     useAnalyticsState()
@@ -447,7 +472,11 @@ const StackedBarChart = <T extends DataItem>({
               offset={0}
               position={{ y: yTooltipPosition }}
               content={({ active, payload, includeHidden }) => (
-                <div className="min-w-90 rounded-xl bg-grey-700 px-4 py-3">
+                <div
+                  className={tw('rounded-xl bg-grey-700 px-4 py-3', {
+                    'min-w-90': !inlineTooltip,
+                  })}
+                >
                   {!!payload && (
                     <CustomTooltip
                       active={active || false}
@@ -457,6 +486,7 @@ const StackedBarChart = <T extends DataItem>({
                       timeGranularity={timeGranularity}
                       includeHidden={!!includeHidden}
                       customFormatter={customFormatter}
+                      inlineTooltip={inlineTooltip}
                     />
                   )}
                 </div>
