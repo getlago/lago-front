@@ -9,7 +9,8 @@ import {
   formatFiltersForQuery,
   getFilterValue,
 } from '~/components/designSystem/Filters'
-import { bigNumberShortenNotation } from '~/core/formats/intlFormatNumber'
+import { bigNumberShortenNotation, intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
   CurrencyEnum,
@@ -86,6 +87,10 @@ export const useUsageAnalyticsBreakdown = ({
   > = {
     [UsageBreakdownType.Amount]: {
       valueKey: 'amountCents',
+      displayFormat: (value) =>
+        intlFormatNumber(deserializeAmount(value, selectedCurrency), {
+          currency: selectedCurrency,
+        }),
     },
     [UsageBreakdownType.Units]: {
       valueKey: 'units',
