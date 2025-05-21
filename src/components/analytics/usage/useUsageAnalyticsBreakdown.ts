@@ -132,11 +132,7 @@ export const useUsageAnalyticsBreakdown = ({
     return {
       ...filters,
       timeGranularity: getDefaultStaticTimeGranularityFilter(),
-      ...(isBillableMetricRecurring
-        ? {
-            isBillableMetricRecurring: true,
-          }
-        : {}),
+      isBillableMetricRecurring,
     }
   }, [
     hasAccessToAnalyticsDashboardsFeature,

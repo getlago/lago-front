@@ -11,7 +11,7 @@ type UsageBreakdownIndividualSectionProps = {
   premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
   availableFilters: AvailableFiltersEnum[]
   filtersPrefix: string
-  isBillableMetricRecurring?: boolean
+  isBillableMetricRecurring: boolean
   breakdownType: UsageBreakdownType
 }
 

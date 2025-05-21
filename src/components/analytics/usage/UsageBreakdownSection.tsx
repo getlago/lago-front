@@ -31,7 +31,7 @@ const UsageBreakdownSection = ({ premiumWarningDialogRef }: UsageBreakdownSectio
 
   return (
     <section className="flex flex-col">
-      <div className="mb-4 flex justify-between gap-2">
+      <div className="mb-4 flex items-center justify-between">
         <Typography variant="subhead" color="grey700">
           {translate('text_1746541426463uvvcg8inufk')}
         </Typography>
@@ -42,6 +42,7 @@ const UsageBreakdownSection = ({ premiumWarningDialogRef }: UsageBreakdownSectio
               key={`usage-breakdown-section-${index}`}
               variant={_breakdownType === breakdownType ? 'secondary' : 'quaternary'}
               onClick={() => setBreakdownType(_breakdownType)}
+              size="small"
             >
               {translate(TRANSLATIONS_MAP[_breakdownType])}
             </Button>
@@ -60,6 +61,7 @@ const UsageBreakdownSection = ({ premiumWarningDialogRef }: UsageBreakdownSectio
                 filtersPrefix={ANALYTICS_USAGE_BREAKDOWN_METERED_FILTER_PREFIX}
                 breakdownType={breakdownType}
                 premiumWarningDialogRef={premiumWarningDialogRef}
+                isBillableMetricRecurring={false}
               />
             ),
           },
