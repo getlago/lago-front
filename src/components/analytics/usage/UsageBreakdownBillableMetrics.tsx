@@ -115,6 +115,7 @@ const UsageBreakdownBillableMetrics = ({
               data={grouped[key]}
               loading={loading}
               timeGranularity={defaultStaticTimeGranularity}
+              inlineTooltip={true}
               bars={[
                 {
                   tooltipIndex: 0,
