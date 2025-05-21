@@ -66,6 +66,7 @@ type UseUsageAnalyticsBreakdownProps = {
   filtersPrefix: string
   isBillableMetricRecurring?: boolean
   breakdownType: UsageBreakdownType
+  overridenTimeGranularity?: TimeGranularityEnum
 }
 
 export const useUsageAnalyticsBreakdown = ({
@@ -73,6 +74,7 @@ export const useUsageAnalyticsBreakdown = ({
   filtersPrefix,
   isBillableMetricRecurring,
   breakdownType,
+  overridenTimeGranularity,
 }: UseUsageAnalyticsBreakdownProps) => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
@@ -136,7 +138,7 @@ export const useUsageAnalyticsBreakdown = ({
 
     return {
       ...filters,
-      timeGranularity: getDefaultStaticTimeGranularityFilter(),
+      timeGranularity: overridenTimeGranularity || getDefaultStaticTimeGranularityFilter(),
       isBillableMetricRecurring,
     }
   }, [
@@ -148,6 +150,7 @@ export const useUsageAnalyticsBreakdown = ({
     availableFilters,
     filtersPrefix,
     isBillableMetricRecurring,
+    overridenTimeGranularity,
   ])
 
   const {
