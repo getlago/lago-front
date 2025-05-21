@@ -119,7 +119,7 @@ const UsageBreakdownBillableMetrics = ({
                 {
                   tooltipIndex: 0,
                   barIndex: 0,
-                  dataKey: valueKey as keyof DataApiUsage,
+                  dataKey: valueKey,
                   colorHex: theme.palette.primary[500],
                   tooltipLabel: translate('text_1746541426463wcwfuryd12g'),
                 },
