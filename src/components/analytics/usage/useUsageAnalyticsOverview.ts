@@ -3,10 +3,7 @@ import { DateTime } from 'luxon'
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import {
-  formattedUsageDataForAreaChartLoadingFixture,
-  formattedUsageDataLoadingFixture,
-} from '~/components/analytics/usage/fixture'
+import { formattedUsageDataForAreaChartLoadingFixture } from '~/components/analytics/usage/fixture'
 import {
   formatAggregatedUsageData,
   formatUsageDataForAreaChart,
@@ -138,7 +135,7 @@ export const useUsageAnalyticsOverview = () => {
     if (!collection && !!usageLoading) {
       return {
         formattedDataForAreaChart: formattedUsageDataForAreaChartLoadingFixture,
-        totalAmountCents: sum(formattedUsageDataLoadingFixture),
+        totalAmountCents: 0,
       }
     }
 

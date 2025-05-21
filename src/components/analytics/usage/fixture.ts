@@ -1,5 +1,3 @@
-export const formattedUsageDataLoadingFixture = []
-
 export const formattedUsageDataForAreaChartLoadingFixture = []
 
 export const formattedUsageDataForBreakdownBarChartLoadingFixture = []

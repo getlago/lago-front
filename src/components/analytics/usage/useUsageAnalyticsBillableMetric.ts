@@ -3,7 +3,6 @@ import { DateTime } from 'luxon'
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { formattedUsageDataLoadingFixture } from '~/components/analytics/usage/fixture'
 import { UsageBreakdownType } from '~/components/analytics/usage/types'
 import { useUsageAnalyticsBreakdown } from '~/components/analytics/usage/useUsageAnalyticsBreakdown'
 import { formatUsageBillableMetricData } from '~/components/analytics/usage/utils'
@@ -153,7 +152,7 @@ export const useUsageAnalyticsBillableMetric = ({
 
     if (!collection && !!usageLoading) {
       return {
-        total: sum(formattedUsageDataLoadingFixture),
+        total: 0,
       }
     }
 
