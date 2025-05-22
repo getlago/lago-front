@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { Button, Typography } from '~/components/designSystem'
@@ -8,7 +8,7 @@ import { EventDetails } from '~/components/developers/events/EventDetails'
 import { EventTable } from '~/components/developers/events/EventTable'
 import { ListSectionRef, LogsLayout } from '~/components/developers/LogsLayout'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
-import { useEventsQuery } from '~/generated/graphql'
+import { EventItemFragment, useEventsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 
@@ -46,16 +46,25 @@ export const Events = () => {
 
   const { data, loading, refetch } = getEventsResult
 
+  const navigateToFirstEvent = useCallback(
+    (eventCollection?: EventItemFragment[]) => {
+      if (eventCollection?.length) {
+        const firstEvent = eventCollection[0]
+
+        if (firstEvent && getCurrentBreakpoint() !== 'sm') {
+          navigate(generatePath(EVENT_LOG_ROUTE, { eventId: firstEvent.id }), {
+            replace: true,
+          })
+        }
+      }
+    },
+    [navigate],
+  )
+
   // If no eventId is provided in params, navigate to the first event
   useEffect(() => {
     if (!eventId) {
-      const firstEvent = data?.events?.collection[0]
-
-      if (firstEvent && getCurrentBreakpoint() !== 'sm') {
-        navigate(generatePath(EVENT_LOG_ROUTE, { eventId: firstEvent.id }), {
-          replace: true,
-        })
-      }
+      navigateToFirstEvent(data?.events?.collection)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.events?.collection, eventId])
@@ -81,7 +90,11 @@ export const Events = () => {
           size="small"
           startIcon="reload"
           loading={loading}
-          onClick={async () => await refetch()}
+          onClick={async () => {
+            const result = await refetch()
+
+            navigateToFirstEvent(result.data?.events?.collection)
+          }}
         >
           {translate('text_1738748043939zqoqzz350yj')}
         </Button>

@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import {
@@ -21,7 +21,11 @@ import { WebhookLogTable } from '~/components/developers/webhooks/WebhookLogTabl
 import { SearchInput } from '~/components/SearchInput'
 import { WEBHOOK_LOGS_FILTER_PREFIX } from '~/core/constants/filters'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
-import { useGetWebhookInformationsQuery, useGetWebhookLogLazyQuery } from '~/generated/graphql'
+import {
+  useGetWebhookInformationsQuery,
+  useGetWebhookLogLazyQuery,
+  WebhookLogFragment,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
@@ -104,16 +108,25 @@ export const WebhookLogs = () => {
     loading,
   )
 
+  const navigateToFirstLog = useCallback(
+    (logCollection?: WebhookLogFragment[]) => {
+      if (logCollection?.length) {
+        const firstLog = logCollection[0]
+
+        if (firstLog && getCurrentBreakpoint() !== 'sm') {
+          navigate(generatePath(WEBHOOK_LOGS_ROUTE, { webhookId, logId: firstLog.id }), {
+            replace: true,
+          })
+        }
+      }
+    },
+    [navigate, webhookId],
+  )
+
   // If no logId is provided in params, navigate to the first log
   useEffect(() => {
     if (!logId) {
-      const firstLog = data?.webhooks.collection[0]
-
-      if (firstLog && getCurrentBreakpoint() !== 'sm') {
-        navigate(generatePath(WEBHOOK_LOGS_ROUTE, { webhookId, logId: firstLog.id }), {
-          replace: true,
-        })
-      }
+      navigateToFirstLog(data?.webhooks?.collection)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, logId])
@@ -174,7 +187,11 @@ export const WebhookLogs = () => {
                     startIcon="reload"
                     size="small"
                     variant="quaternary"
-                    onClick={async () => await refetch()}
+                    onClick={async () => {
+                      const result = await refetch()
+
+                      navigateToFirstLog(result.data?.webhooks?.collection)
+                    }}
                   >
                     {translate('text_1738748043939zqoqzz350yj')}
                   </Button>
