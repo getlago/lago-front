@@ -3152,5 +3152,9 @@
   "text_17476469985998lthq87gwaq": "Sync invoice to Avalara",
   "text_1748266296790rrag2rqt68c": "Please refer to the product code as defined in the <a rel=\"noopener noreferrer external\" target=\"_blank\" href=\"{{href}}\">Avalara documentation</a>.",
   "text_1747986312361n5x5h0ditd4": "Search or select a billing entity",
-  "text_1747986368158jgf5jdvfsey": "Billing entity"
+  "text_1747986368158jgf5jdvfsey": "Billing entity",
+  "text_1747917472538el8fg31n3i8": "Create alert",
+  "text_1747921119080dk04aab1ecy": "When usage reaches",
+  "text_1747921154885jqsl0c9xhro": "Type a threshold code",
+  "text_1748334091887k4p2p41jdou": "Threshold code"
 }
