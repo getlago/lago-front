@@ -1,17 +1,7 @@
-/*
-if (refundable == 0)
-  display only creditable
-
-if (refundable amount > 0)
-  display both
-  creditable amount = creditable - refundable
-
-The combined amount cannt exceed - creditable amount (creditable - refundable)
-*/
 import { InputAdornment } from '@mui/material'
 import { getIn, useFormik } from 'formik'
 import { Alert, Button, GenericPlaceholder, Typography } from 'lago-design-system'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { array, object, string, ValidationError } from 'yup'
 
 import { CreditTypeEnum, PayBackErrorEnum } from '~/components/creditNote/types'
@@ -32,6 +22,7 @@ import {
   InvoicePaymentStatusTypeEnum,
   useGetInvoiceDetailsQuery,
   useVoidInvoiceMutation,
+  VoidInvoiceInput,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
@@ -57,6 +48,7 @@ const CustomerInvoiceVoid = () => {
   const { goBack } = useLocationHistory()
   const { customerId, invoiceId } = useParams()
   const { timezone } = useOrganizationInfos()
+  const navigate = useNavigate()
 
   const { data, loading, error } = useGetInvoiceDetailsQuery({
     variables: { id: invoiceId as string },
@@ -65,11 +57,19 @@ const CustomerInvoiceVoid = () => {
 
   const [voidInvoice] = useVoidInvoiceMutation({
     onCompleted(voidedData) {
-      if (voidedData?.voidInvoice) {
+      if (voidedData?.voidInvoice && customerId && invoiceId) {
         addToast({
           message: translate('text_65269b43d4d2b15dd929a254'),
           severity: 'success',
         })
+
+        navigate(
+          generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+            customerId,
+            invoiceId,
+            tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+          }),
+        )
       }
     },
     update(cache, { data: invoiceData }) {
@@ -112,17 +112,17 @@ const CustomerInvoiceVoid = () => {
 
   const onSubmit = async (values: CustomerInvoiceVoidForm) => {
     if (invoiceId) {
-      const input =
+      const input: VoidInvoiceInput =
         values.handle === HandleEnum.VoidOnly
           ? {
               id: invoiceId as string,
-              generate_credit_note: false,
+              generateCreditNote: false,
             }
           : {
               id: invoiceId as string,
-              generate_credit_note: true,
-              refund_amount: values.payBack[0].value ?? 0,
-              credit_amount: values.payBack[1].value ?? 0,
+              generateCreditNote: true,
+              refundAmount: values.payBack[0].value ?? 0,
+              creditAmount: values.payBack[1].value ?? 0,
             }
 
       await voidInvoice({
