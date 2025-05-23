@@ -3180,5 +3180,20 @@
   "text_1748441354191rj96qhw3twa": "Charges fees",
   "text_1748441354191cnp0tm4ubf0": "Commitment fees",
   "text_17484418620700x4nxxdfenm": "Selecting all items works the same as selecting none — we recommend leaving everything unselected.",
-  "text_1748442650797pz30j2eeiv4": "Add an object limitation"
+  "text_1748442650797pz30j2eeiv4": "Add an object limitation",
+  "text_1747902518581z70x872zret": "Voiding an invoice is irreversible. Please verify all details before proceeding.",
+  "text_1747902518582f4ekodb3ren": "Void the invoice {{invoiceNumber}}",
+  "text_1747902518582t5nxesgz7dd": "Voiding this invoice is a final action — Lago will treat it as no longer valid.",
+  "text_1747903819929atyvhuolvwe": "If applicable, any coupons, prepaid credits, or credit notes applied to the invoice will be returned to the customer.",
+  "text_1747902518582byw3i46x61k": "What should we do with the paid amount?",
+  "text_1747902518582701lwmkfqfb": "Select how you want to handle this amount.",
+  "text_1747902518582w3ktz6anw68": "Void only — do not issue a credit note",
+  "text_1747902518582u0fpqsnmest": "Generate a credit note",
+  "text_1747908642632nja67p9ig0e": "Once voided, the invoice can’t be used to issue a credit note. The remaining amount that is not refunded or credited will automatically be voided.",
+  "text_1747908642632e4crd7uy2dp": "Refund customer (max. {{max}})",
+  "text_1747908642632dgxu0zy119d": "Credit back on customer wallet (max. {{max}})",
+  "text_17479086426328lc2pqelu30": "This amount will automatically be voided",
+  "text_174790864263278xhv5s8l9k": "Refund amount cannot exceed {{max}}",
+  "text_17479114962319ks0rk1nvla": "Credit amount cannot exceed {{max}}",
+  "text_1747911423385xh4lo4ephnl": "The combined amount can’t exceed {{max}}"
 }
