@@ -58,7 +58,7 @@ export const usePermissionsInvoiceActions = () => {
     )
   }
 
-  const canVoid = (invoice: Pick<Invoice, 'status' | 'paymentStatus'>): boolean => {
+  const canVoid = (invoice: Pick<Invoice, 'status'>): boolean => {
     return invoice.status === InvoiceStatusTypeEnum.Finalized && hasPermissions(['invoicesVoid'])
   }
 
