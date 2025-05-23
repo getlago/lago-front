@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Button, ButtonLink, Icon, Typography } from 'lago-design-system'
-import { useMemo, useRef } from 'react'
+import { useCallback, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { Table } from '~/components/designSystem/Table'
@@ -8,12 +8,17 @@ import {
   DeleteAlertDialog,
   DeleteAlertDialogRef,
 } from '~/components/subscriptions/alerts/DeleteAlertDialog'
-import { CREATE_ALERT_PLAN_SUBSCRIPTION_ROUTE } from '~/core/router/ObjectsRoutes'
+import {
+  CREATE_ALERT_PLAN_SUBSCRIPTION_ROUTE,
+  UPDATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE,
+  UPDATE_ALERT_PLAN_SUBSCRIPTION_ROUTE,
+} from '~/core/router/ObjectsRoutes'
 import { CREATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE } from '~/core/router/ObjectsRoutes'
+import { intlFormatDateTime } from '~/core/timezone/utils'
+import { DateFormat } from '~/core/timezone/utils'
 import { useGetAlertsOfSubscriptionQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
@@ -37,13 +42,30 @@ export const SubscriptionAlertsList = ({
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
   const navigate = useNavigate()
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
   const { translate } = useInternationalization()
   const deleteAlertDialogRef = useRef<DeleteAlertDialogRef>(null)
+  const canCreateOrUpdateAlert = hasPermissions(['subscriptionsCreate', 'subscriptionsUpdate'])
 
-  const canCreateOrUpdateAlert = useMemo(() => {
-    return hasPermissions(['subscriptionsCreate', 'subscriptionsUpdate'])
-  }, [hasPermissions])
+  const getEditAlertUrl = useCallback(
+    (alertId: string) => {
+      if (!!customerId) {
+        return generatePath(UPDATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE, {
+          customerId,
+          subscriptionId,
+          alertId,
+        })
+      } else if (!!planId) {
+        return generatePath(UPDATE_ALERT_PLAN_SUBSCRIPTION_ROUTE, {
+          planId,
+          subscriptionId,
+          alertId,
+        })
+      }
+
+      return ''
+    },
+    [customerId, planId, subscriptionId],
+  )
 
   const {
     data: alertsData,
@@ -168,24 +190,32 @@ export const SubscriptionAlertsList = ({
                   },
                   {
                     key: 'createdAt',
-                    minWidth: 150,
+                    minWidth: 140,
                     title: translate('text_62442e40cea25600b0b6d858'),
-                    content: ({ createdAt }) => (
-                      <Typography color="grey700" variant="body">
-                        {/* TODO: make sure the format is correct  */}
-                        {formatTimeOrgaTZ(createdAt, 'EEE dd LLL, yyyy HH:mm:ss')}
-                      </Typography>
-                    ),
+                    content: ({ createdAt }) => {
+                      return (
+                        <Typography color="grey600" variant="body">
+                          {
+                            intlFormatDateTime(createdAt, {
+                              formatDate: DateFormat.DATE_FULL,
+                            }).date
+                          }
+                        </Typography>
+                      )
+                    },
                   },
                 ]}
                 actionColumnTooltip={() => translate('text_6256de3bba111e00b3bfa51b')}
+                onRowActionLink={({ id }) => {
+                  return getEditAlertUrl(id)
+                }}
                 actionColumn={({ id }) => {
                   return [
                     {
                       title: translate('text_1746546924392wfvshvfrjos'),
                       startIcon: 'pen',
                       onAction: () => {
-                        // TODO:
+                        navigate(getEditAlertUrl(id))
                       },
                     },
                     {
