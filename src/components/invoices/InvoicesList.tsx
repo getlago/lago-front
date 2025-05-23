@@ -42,6 +42,7 @@ import {
   CREATE_INVOICE_PAYMENT_ROUTE,
   CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
+  CUSTOMER_INVOICE_VOID_ROUTE,
   INVOICE_SETTINGS_ROUTE,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -317,13 +318,13 @@ const InvoicesList = ({
                   ? {
                       startIcon: 'stop',
                       title: translate('text_65269b43d4d2b15dd929a259'),
-                      disabled: !invoice.voidable,
-                      onAction: (item) =>
-                        voidInvoiceDialogRef?.current?.openDialog({ invoice: item }),
-                      ...(!invoice.voidable &&
-                        !isPartiallyPaid && {
-                          tooltip: translate('text_65269c2e471133226211fdd0'),
-                        }),
+                      onAction: () =>
+                        navigate(
+                          generatePath(CUSTOMER_INVOICE_VOID_ROUTE, {
+                            customerId: invoice?.customer?.id,
+                            invoiceId: invoice.id,
+                          }),
+                        ),
                     }
                   : null,
               ]

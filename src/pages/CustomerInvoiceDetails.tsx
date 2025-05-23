@@ -50,6 +50,7 @@ import {
   CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
   CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
+  CUSTOMER_INVOICE_VOID_ROUTE,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -475,7 +476,6 @@ const CustomerInvoiceDetails = () => {
     taxStatus,
     creditableAmountCents,
     refundableAmountCents,
-    voidable,
     errorDetails,
     taxProviderVoidable,
     associatedActiveWalletPresent,
@@ -913,27 +913,23 @@ const CustomerInvoiceDetails = () => {
                     </Button>
                   )}
                   {actions.canVoid({ status, paymentStatus }) && (
-                    <Tooltip
-                      title={!isPartiallyPaid && translate('text_65269c2e471133226211fdd0')}
-                      {...(!!data?.invoice?.paymentDisputeLostAt && {
-                        title: translate('text_66178d027e220e00dff9f67d'),
-                      })}
-                      placement="bottom-end"
-                      disableHoverListener={voidable}
+                    <Button
+                      className="w-full"
+                      variant="quaternary"
+                      align="left"
+                      onClick={() => {
+                        if (customerId && invoiceId) {
+                          navigate(
+                            generatePath(CUSTOMER_INVOICE_VOID_ROUTE, {
+                              customerId,
+                              invoiceId,
+                            }),
+                          )
+                        }
+                      }}
                     >
-                      <Button
-                        className="w-full"
-                        variant="quaternary"
-                        align="left"
-                        disabled={!voidable}
-                        onClick={() => {
-                          voidInvoiceDialogRef?.current?.openDialog({ invoice: data?.invoice })
-                          closePopper()
-                        }}
-                      >
-                        {translate('text_65269b43d4d2b15dd929a259')}
-                      </Button>
-                    </Tooltip>
+                      {translate('text_65269b43d4d2b15dd929a259')}
+                    </Button>
                   )}
                   {actions.canSyncTaxIntegration({ taxProviderVoidable }) && (
                     <Button
