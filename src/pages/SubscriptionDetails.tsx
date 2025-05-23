@@ -34,8 +34,6 @@ import {
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { isFeatureFlagActive } from '~/core/utils/featureFlags'
-import { FeatureFlags } from '~/core/utils/featureFlags'
 import { StatusTypeEnum, useGetSubscriptionForDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -73,7 +71,6 @@ const SubscriptionDetails = () => {
   const { planId = '', customerId = '', subscriptionId = '' } = useParams()
   const { translate } = useInternationalization()
   const terminateSubscriptionDialogRef = useRef<TerminateCustomerSubscriptionDialogRef>(null)
-  const hasAccessToAlerts = isFeatureFlagActive(FeatureFlags.FTR_ALERTS)
   const { data: subscriptionResult, loading: isSubscriptionLoading } =
     useGetSubscriptionForDetailsQuery({
       variables: { subscriptionId: subscriptionId as string },
@@ -178,7 +175,7 @@ const SubscriptionDetails = () => {
                     </Button>
                   </>
                 )}
-                {hasAccessToAlerts && canCreateOrUpdateAlert && (
+                {canCreateOrUpdateAlert && (
                   <ButtonLink
                     type="button"
                     buttonProps={{
@@ -330,41 +327,37 @@ const SubscriptionDetails = () => {
                 },
               ]
             : []),
-          ...(hasAccessToAlerts
-            ? [
-                {
-                  title: translate('text_17465238490269pahbvl3s2m'),
-                  link: !!customerId
-                    ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                        customerId,
-                        subscriptionId: subscriptionId as string,
-                        tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
-                      })
-                    : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
-                        planId: planId || '',
-                        subscriptionId: subscriptionId as string,
-                        tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
-                      }),
-                  match: [
-                    generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                      customerId: customerId || '',
-                      subscriptionId: subscriptionId as string,
-                      tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
-                    }),
-                    generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
-                      planId: planId || '',
-                      subscriptionId: subscriptionId as string,
-                      tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
-                    }),
-                  ],
-                  component: (
-                    <div className="px-12 pb-20">
-                      <SubscriptionAlertsList subscriptionExternalId={subscription?.externalId} />
-                    </div>
-                  ),
-                },
-              ]
-            : []),
+          {
+            title: translate('text_17465238490269pahbvl3s2m'),
+            link: !!customerId
+              ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                  customerId,
+                  subscriptionId: subscriptionId as string,
+                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
+                })
+              : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                  planId: planId || '',
+                  subscriptionId: subscriptionId as string,
+                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
+                }),
+            match: [
+              generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                customerId: customerId || '',
+                subscriptionId: subscriptionId as string,
+                tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
+              }),
+              generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                planId: planId || '',
+                subscriptionId: subscriptionId as string,
+                tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
+              }),
+            ],
+            component: (
+              <div className="px-12 pb-20">
+                <SubscriptionAlertsList subscriptionExternalId={subscription?.externalId} />
+              </div>
+            ),
+          },
         ]}
       />
 
