@@ -5,6 +5,7 @@ import { FiltersItemActivityTypes } from '~/components/designSystem/Filters/filt
 import { FiltersItemAmount } from '~/components/designSystem/Filters/filtersElements/FiltersItemAmount'
 import { FiltersItemApiKeyIds } from '~/components/designSystem/Filters/filtersElements/FiltersItemApiKeyIds'
 import { FiltersItemBillingEntity } from '~/components/designSystem/Filters/filtersElements/FiltersItemBillingEntity'
+import { FiltersItemBillingEntityCode } from '~/components/designSystem/Filters/filtersElements/FiltersItemBillingEntityCode'
 import { FiltersItemCountry } from '~/components/designSystem/Filters/filtersElements/FiltersItemCountry'
 import { FiltersItemCreditNoteCreditStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemCreditNoteCreditStatus'
 import { FiltersItemCreditNoteReason } from '~/components/designSystem/Filters/filtersElements/FiltersItemCreditNoteReason'
@@ -59,6 +60,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.amount]: <FiltersItemAmount {...props} />,
     [AvailableFiltersEnum.apiKeyIds]: <FiltersItemApiKeyIds {...props} />,
     [AvailableFiltersEnum.billingEntityIds]: <FiltersItemBillingEntity {...props} />,
+    [AvailableFiltersEnum.billingEntityCode]: <FiltersItemBillingEntityCode {...props} />,
     [AvailableFiltersEnum.country]: <FiltersItemCountry {...props} />,
     [AvailableFiltersEnum.creditNoteCreditStatus]: <FiltersItemCreditNoteCreditStatus {...props} />,
     [AvailableFiltersEnum.creditNoteReason]: <FiltersItemCreditNoteReason {...props} />,
