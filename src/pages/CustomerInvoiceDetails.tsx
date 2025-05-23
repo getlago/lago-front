@@ -912,7 +912,7 @@ const CustomerInvoiceDetails = () => {
                       {translate('text_66141e30699a0631f0b2ec71')}
                     </Button>
                   )}
-                  {actions.canVoid({ status, paymentStatus }) && (
+                  {actions.canVoid({ status }) && (
                     <Button
                       className="w-full"
                       variant="quaternary"
