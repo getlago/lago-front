@@ -39,8 +39,8 @@ const GRAPH_COLORS = [
 ]
 
 gql`
-  query getInvoiceCollections($currency: CurrencyEnum!) {
-    invoiceCollections(currency: $currency) {
+  query getInvoiceCollections($currency: CurrencyEnum!, $billingEntityCode: String) {
+    invoiceCollections(currency: $currency, billingEntityCode: $billingEntityCode) {
       collection {
         paymentStatus
         invoicesCount

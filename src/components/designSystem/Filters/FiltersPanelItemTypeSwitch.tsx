@@ -1,6 +1,7 @@
 import { Typography } from '~/components/designSystem'
 import { FiltersItemAmount } from '~/components/designSystem/Filters/filtersElements/FiltersItemAmount'
 import { FiltersItemBillingEntity } from '~/components/designSystem/Filters/filtersElements/FiltersItemBillingEntity'
+import { FiltersItemBillingEntityCode } from '~/components/designSystem/Filters/filtersElements/FiltersItemBillingEntityCode'
 import { FiltersItemCountry } from '~/components/designSystem/Filters/filtersElements/FiltersItemCountry'
 import { FiltersItemCreditNoteCreditStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemCreditNoteCreditStatus'
 import { FiltersItemCreditNoteReason } from '~/components/designSystem/Filters/filtersElements/FiltersItemCreditNoteReason'
@@ -115,6 +116,9 @@ export const FiltersPanelItemTypeSwitch = ({
     ),
     [AvailableFiltersEnum.billingEntityIds]: (
       <FiltersItemBillingEntity value={value} setFilterValue={setFilterValue} />
+    ),
+    [AvailableFiltersEnum.billingEntityCode]: (
+      <FiltersItemBillingEntityCode value={value} setFilterValue={setFilterValue} />
     ),
   }
 

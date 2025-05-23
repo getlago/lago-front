@@ -30,12 +30,14 @@ gql`
     $timeGranularity: TimeGranularityEnum
     $fromDate: ISO8601Date
     $toDate: ISO8601Date
+    $billingEntityCode: String
   ) {
     dataApiUsagesAggregatedAmounts(
       currency: $currency
       timeGranularity: $timeGranularity
       fromDate: $fromDate
       toDate: $toDate
+      billingEntityCode: $billingEntityCode
     ) {
       collection {
         amountCents
