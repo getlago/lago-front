@@ -210,6 +210,10 @@ export const SubscriptionAlertsList = ({
                   return getEditAlertUrl(id)
                 }}
                 actionColumn={({ id }) => {
+                  if (!canCreateOrUpdateAlert) {
+                    return []
+                  }
+
                   return [
                     {
                       title: translate('text_1746546924392wfvshvfrjos'),
