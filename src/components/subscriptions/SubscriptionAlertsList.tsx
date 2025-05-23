@@ -187,6 +187,10 @@ export const SubscriptionAlertsList = ({
                 ]}
                 actionColumnTooltip={() => translate('text_6256de3bba111e00b3bfa51b')}
                 actionColumn={({ id }) => {
+                  if (!canCreateOrUpdateAlert) {
+                    return []
+                  }
+
                   return [
                     {
                       title: translate('text_1746546924392wfvshvfrjos'),
