@@ -41,6 +41,7 @@ export enum AvailableFiltersEnum {
   period = 'period',
   webhookStatus = 'webhookStatus',
   billingEntityIds = 'billingEntityIds',
+  billingEntityCode = 'billingEntityCode',
 }
 
 export const CreditNoteAvailableFilters = [
@@ -79,6 +80,7 @@ export const RevenueStreamsAvailablePopperFilters = [
   AvailableFiltersEnum.customerExternalId,
   AvailableFiltersEnum.planCode,
   AvailableFiltersEnum.subscriptionExternalId,
+  AvailableFiltersEnum.billingEntityCode,
 ]
 
 export const CustomerAvailableFilters = [
@@ -94,6 +96,7 @@ export const MrrOverviewAvailableFilters = [
   AvailableFiltersEnum.currency,
   AvailableFiltersEnum.customerType,
   AvailableFiltersEnum.customerExternalId,
+  AvailableFiltersEnum.billingEntityCode,
 ]
 export const MrrBreakdownPlansAvailableFilters = [AvailableFiltersEnum.currency]
 export const PrepaidCreditsOverviewAvailableFilters = [
@@ -102,11 +105,13 @@ export const PrepaidCreditsOverviewAvailableFilters = [
   AvailableFiltersEnum.currency,
   AvailableFiltersEnum.customerAccountType,
   AvailableFiltersEnum.customerExternalId,
+  AvailableFiltersEnum.billingEntityCode,
 ]
 
 export const AnalyticsInvoicesAvailableFilters = [
   AvailableFiltersEnum.currency,
   AvailableFiltersEnum.period,
+  AvailableFiltersEnum.billingEntityCode,
 ]
 
 export const UsageOverviewAvailableFilters = [
@@ -117,6 +122,7 @@ export const UsageOverviewAvailableFilters = [
   AvailableFiltersEnum.customerExternalId,
   AvailableFiltersEnum.planCode,
   AvailableFiltersEnum.subscriptionExternalId,
+  AvailableFiltersEnum.billingEntityCode,
 ]
 
 export const UsageBreakdownAvailableFilters = [
@@ -185,6 +191,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.period]: 'text_1746532851931rt2nl6vdlnh',
   [AvailableFiltersEnum.webhookStatus]: 'text_63ac86d797f728a87b2f9fa7',
   [AvailableFiltersEnum.billingEntityIds]: 'text_17436114971570doqrwuwhf0',
+  [AvailableFiltersEnum.billingEntityCode]: 'text_1747986368158jgf5jdvfsey',
 }
 
 export type FiltersFormValues = {

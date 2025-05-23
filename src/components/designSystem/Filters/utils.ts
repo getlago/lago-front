@@ -122,6 +122,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.webhookStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.billingEntityIds]: (value: string) =>
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
+  [AvailableFiltersEnum.billingEntityCode]: (value: string) => value,
 }
 
 export const formatFiltersForQuery = ({
@@ -399,6 +400,8 @@ export const formatActiveFilterValueDisplay = (
           (v) => v.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0],
         )
         .join(', ')
+    case AvailableFiltersEnum.billingEntityCode:
+      return value
     default:
       return value
         .split(',')
