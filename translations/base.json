@@ -3125,5 +3125,9 @@
   "text_1747404806714mghtx7cickp": "Payment for wallet transaction {{transactionId}} failed",
   "text_1747404806714etwdmgd36ni": "Wallet transaction {{transactionId}} was updated",
   "text_1747404806714x0expgzlcnt": "Prepaid credits wallet {{walletId}} was updated",
-  "text_1748270946222tj9ehmsu4f7": "Show deleted metrics"
+  "text_1748270946222tj9ehmsu4f7": "Show deleted metrics",
+  "text_1747917472538el8fg31n3i8": "Create alert",
+  "text_1747921119080dk04aab1ecy": "When usage reaches",
+  "text_1747921154885jqsl0c9xhro": "Type a threshold code",
+  "text_1748334091887k4p2p41jdou": "Threshold code"
 }
