@@ -99,6 +99,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
     value.split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.billingEntityIds]: (value: string) =>
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
+  [AvailableFiltersEnum.billingEntityCode]: (value: string) => value,
   [AvailableFiltersEnum.country]: (value: string) => value,
   [AvailableFiltersEnum.creditNoteCreditStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.creditNoteReason]: (value: string) => (value as string).split(','),
@@ -140,9 +141,6 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.period]: (value: string) => value,
   [AvailableFiltersEnum.userEmails]: (value: string) => value.split(',').map((v) => v.trim()),
   [AvailableFiltersEnum.webhookStatus]: (value: string) => (value as string).split(','),
-  [AvailableFiltersEnum.billingEntityIds]: (value: string) =>
-    (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
-  [AvailableFiltersEnum.billingEntityCode]: (value: string) => value,
 }
 
 export const FiltersItemDates = [
