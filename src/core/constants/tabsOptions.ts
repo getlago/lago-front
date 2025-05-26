@@ -3,15 +3,17 @@ export enum BillableMetricDetailsTabsOptionsEnum {
 }
 
 export enum CustomerInvoiceDetailsTabsOptionsEnum {
+  activityLogs = 'activityLogs',
+  creditNotes = 'credit-notes',
   overview = 'overview',
   payments = 'payments',
-  creditNotes = 'credit-notes',
 }
 
 export enum CustomerSubscriptionDetailsTabsOptionsEnum {
+  alerts = 'alerts',
+  activityLogs = 'activityLogs',
   overview = 'overview',
   usage = 'usage',
-  alerts = 'alerts',
 }
 
 export enum IntegrationsTabsOptionsEnum {
@@ -39,12 +41,13 @@ export enum InvoiceListTabEnum {
 }
 
 export enum CustomerDetailsTabsOptions {
+  activityLogs = 'activityLogs',
   creditNotes = 'creditNotes',
-  overview = 'overview',
-  wallet = 'wallet',
+  information = 'information',
   invoices = 'invoices',
+  overview = 'overview',
   payments = 'payments',
   settings = 'settings',
   usage = 'usage',
-  information = 'information',
+  wallet = 'wallet',
 }

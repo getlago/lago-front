@@ -15,6 +15,7 @@ import {
   Skeleton,
   Typography,
 } from '~/components/designSystem'
+import { SubscriptionActivityLogs } from '~/components/subscriptions/SubscriptionActivityLogs'
 import { SubscriptionAlertsList } from '~/components/subscriptions/SubscriptionAlertsList'
 import { SubscriptionDetailsOverview } from '~/components/subscriptions/SubscriptionDetailsOverview'
 import { SubscriptionUsageTabContent } from '~/components/subscriptions/SubscriptionUsageTabContent'
@@ -34,8 +35,7 @@ import {
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { isFeatureFlagActive } from '~/core/utils/featureFlags'
-import { FeatureFlags } from '~/core/utils/featureFlags'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { StatusTypeEnum, useGetSubscriptionForDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -365,6 +365,15 @@ const SubscriptionDetails = () => {
                 },
               ]
             : []),
+          {
+            title: translate('text_1747314141347qq6rasuxisl'),
+            link: generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+              customerId,
+              subscriptionId: subscriptionId as string,
+              tab: CustomerSubscriptionDetailsTabsOptionsEnum.activityLogs,
+            }),
+            component: <SubscriptionActivityLogs subscriptionId={subscriptionId} />,
+          },
         ]}
       />
 

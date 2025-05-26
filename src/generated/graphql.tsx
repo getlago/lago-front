@@ -2254,6 +2254,7 @@ export type Customer = {
   accountType: CustomerAccountTypeEnum;
   /** Number of active subscriptions per customer */
   activeSubscriptionsCount: Scalars['Int']['output'];
+  activityLogs?: Maybe<Array<ActivityLog>>;
   addressLine1?: Maybe<Scalars['String']['output']>;
   addressLine2?: Maybe<Scalars['String']['output']>;
   anrokCustomer?: Maybe<AnrokCustomer>;
@@ -3523,6 +3524,7 @@ export enum InviteStatusTypeEnum {
 /** Invoice */
 export type Invoice = {
   __typename?: 'Invoice';
+  activityLogs?: Maybe<Array<ActivityLog>>;
   allChargesHaveFees: Scalars['Boolean']['output'];
   appliedTaxes?: Maybe<Array<InvoiceAppliedTax>>;
   associatedActiveWalletPresent: Scalars['Boolean']['output'];
@@ -6385,6 +6387,7 @@ export type StripeProvider = {
 
 export type Subscription = {
   __typename?: 'Subscription';
+  activityLogs?: Maybe<Array<ActivityLog>>;
   billingTime?: Maybe<BillingTimeEnum>;
   canceledAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   createdAt: Scalars['ISO8601DateTime']['output'];
@@ -8010,6 +8013,13 @@ export type AddCouponMutationVariables = Exact<{
 
 export type AddCouponMutation = { __typename?: 'Mutation', createAppliedCoupon?: { __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } } | null };
 
+export type CustomerActivityLogsQueryVariables = Exact<{
+  customerId: Scalars['ID']['input'];
+}>;
+
+
+export type CustomerActivityLogsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', activityLogs?: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }> | null } | null };
+
 export type GetCustomerCreditNotesQueryVariables = Exact<{
   customerId: Scalars['ID']['input'];
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -8604,6 +8614,13 @@ export type FinalizeInvoiceMutationVariables = Exact<{
 
 
 export type FinalizeInvoiceMutation = { __typename?: 'Mutation', finalizeInvoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, integrationHubspotSyncable: boolean, associatedActiveWalletPresent: boolean, issuingDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, allChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, totalPaidAmountCents: any, couponsAmountCents: any, creditNotesAmountCents: any, totalDueAmountCents: any, prepaidCreditAmountCents: any, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', name?: string | null, displayName: string, id: string, applicableTimezone: TimezoneEnum, accountType: CustomerAccountTypeEnum, currency?: CurrencyEnum | null, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, deletedAt?: any | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, hubspotCustomer?: { __typename?: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, salesforceCustomer?: { __typename?: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, externalAccountId?: string | null } | null }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, description?: string | null, feeType: FeeTypesEnum, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, units: number, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, billingEntity: { __typename?: 'BillingEntity', name: string, code: string }, creditNotes?: Array<{ __typename?: 'CreditNote', id: string, couponsAdjustmentAmountCents: any, number: string, subTotalExcludingTaxesAmountCents: any, currency: CurrencyEnum, totalAmountCents: any, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }> }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, acceptNewChargeFees: boolean, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null } }, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, description?: string | null, feeType: FeeTypesEnum, itemName: string, preciseUnitAmount: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, succeededAt?: any | null, currency: CurrencyEnum, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, interval: PlanInterval } } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, invoice: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null } | null };
+
+export type InvoiceActivityLogsQueryVariables = Exact<{
+  invoiceId: Scalars['ID']['input'];
+}>;
+
+
+export type InvoiceActivityLogsQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', activityLogs?: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }> | null } | null };
 
 export type GetInvoiceCreditNotesQueryVariables = Exact<{
   invoiceId: Scalars['ID']['input'];
@@ -9724,6 +9741,13 @@ export type RevokeMembershipMutationVariables = Exact<{
 export type RevokeMembershipMutation = { __typename?: 'Mutation', revokeMembership?: { __typename?: 'Membership', id: string } | null };
 
 export type InviteForRolePickerFieldFragment = { __typename?: 'Invite', id: string, role: MembershipRole };
+
+export type GetSubscriptionActivityLogsQueryVariables = Exact<{
+  subscriptionId: Scalars['ID']['input'];
+}>;
+
+
+export type GetSubscriptionActivityLogsQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', activityLogs?: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }> | null } | null };
 
 export type GetAlertsOfSubscriptionQueryVariables = Exact<{
   subscriptionExternalId: Scalars['String']['input'];
@@ -16397,6 +16421,48 @@ export function useAddCouponMutation(baseOptions?: Apollo.MutationHookOptions<Ad
 export type AddCouponMutationHookResult = ReturnType<typeof useAddCouponMutation>;
 export type AddCouponMutationResult = Apollo.MutationResult<AddCouponMutation>;
 export type AddCouponMutationOptions = Apollo.BaseMutationOptions<AddCouponMutation, AddCouponMutationVariables>;
+export const CustomerActivityLogsDocument = gql`
+    query CustomerActivityLogs($customerId: ID!) {
+  customer(id: $customerId) {
+    activityLogs {
+      ...ActivityLogsTableData
+    }
+  }
+}
+    ${ActivityLogsTableDataFragmentDoc}`;
+
+/**
+ * __useCustomerActivityLogsQuery__
+ *
+ * To run a query within a React component, call `useCustomerActivityLogsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCustomerActivityLogsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCustomerActivityLogsQuery({
+ *   variables: {
+ *      customerId: // value for 'customerId'
+ *   },
+ * });
+ */
+export function useCustomerActivityLogsQuery(baseOptions: Apollo.QueryHookOptions<CustomerActivityLogsQuery, CustomerActivityLogsQueryVariables> & ({ variables: CustomerActivityLogsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CustomerActivityLogsQuery, CustomerActivityLogsQueryVariables>(CustomerActivityLogsDocument, options);
+      }
+export function useCustomerActivityLogsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CustomerActivityLogsQuery, CustomerActivityLogsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CustomerActivityLogsQuery, CustomerActivityLogsQueryVariables>(CustomerActivityLogsDocument, options);
+        }
+export function useCustomerActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerActivityLogsQuery, CustomerActivityLogsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<CustomerActivityLogsQuery, CustomerActivityLogsQueryVariables>(CustomerActivityLogsDocument, options);
+        }
+export type CustomerActivityLogsQueryHookResult = ReturnType<typeof useCustomerActivityLogsQuery>;
+export type CustomerActivityLogsLazyQueryHookResult = ReturnType<typeof useCustomerActivityLogsLazyQuery>;
+export type CustomerActivityLogsSuspenseQueryHookResult = ReturnType<typeof useCustomerActivityLogsSuspenseQuery>;
+export type CustomerActivityLogsQueryResult = Apollo.QueryResult<CustomerActivityLogsQuery, CustomerActivityLogsQueryVariables>;
 export const GetCustomerCreditNotesDocument = gql`
     query getCustomerCreditNotes($customerId: ID!, $page: Int, $limit: Int, $searchTerm: String) {
   creditNotes(
@@ -19424,6 +19490,48 @@ export function useFinalizeInvoiceMutation(baseOptions?: Apollo.MutationHookOpti
 export type FinalizeInvoiceMutationHookResult = ReturnType<typeof useFinalizeInvoiceMutation>;
 export type FinalizeInvoiceMutationResult = Apollo.MutationResult<FinalizeInvoiceMutation>;
 export type FinalizeInvoiceMutationOptions = Apollo.BaseMutationOptions<FinalizeInvoiceMutation, FinalizeInvoiceMutationVariables>;
+export const InvoiceActivityLogsDocument = gql`
+    query InvoiceActivityLogs($invoiceId: ID!) {
+  invoice(id: $invoiceId) {
+    activityLogs {
+      ...ActivityLogsTableData
+    }
+  }
+}
+    ${ActivityLogsTableDataFragmentDoc}`;
+
+/**
+ * __useInvoiceActivityLogsQuery__
+ *
+ * To run a query within a React component, call `useInvoiceActivityLogsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useInvoiceActivityLogsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useInvoiceActivityLogsQuery({
+ *   variables: {
+ *      invoiceId: // value for 'invoiceId'
+ *   },
+ * });
+ */
+export function useInvoiceActivityLogsQuery(baseOptions: Apollo.QueryHookOptions<InvoiceActivityLogsQuery, InvoiceActivityLogsQueryVariables> & ({ variables: InvoiceActivityLogsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<InvoiceActivityLogsQuery, InvoiceActivityLogsQueryVariables>(InvoiceActivityLogsDocument, options);
+      }
+export function useInvoiceActivityLogsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<InvoiceActivityLogsQuery, InvoiceActivityLogsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<InvoiceActivityLogsQuery, InvoiceActivityLogsQueryVariables>(InvoiceActivityLogsDocument, options);
+        }
+export function useInvoiceActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<InvoiceActivityLogsQuery, InvoiceActivityLogsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<InvoiceActivityLogsQuery, InvoiceActivityLogsQueryVariables>(InvoiceActivityLogsDocument, options);
+        }
+export type InvoiceActivityLogsQueryHookResult = ReturnType<typeof useInvoiceActivityLogsQuery>;
+export type InvoiceActivityLogsLazyQueryHookResult = ReturnType<typeof useInvoiceActivityLogsLazyQuery>;
+export type InvoiceActivityLogsSuspenseQueryHookResult = ReturnType<typeof useInvoiceActivityLogsSuspenseQuery>;
+export type InvoiceActivityLogsQueryResult = Apollo.QueryResult<InvoiceActivityLogsQuery, InvoiceActivityLogsQueryVariables>;
 export const GetInvoiceCreditNotesDocument = gql`
     query getInvoiceCreditNotes($invoiceId: ID!, $page: Int, $limit: Int) {
   invoiceCreditNotes(invoiceId: $invoiceId, page: $page, limit: $limit) {
@@ -24125,6 +24233,48 @@ export function useRevokeMembershipMutation(baseOptions?: Apollo.MutationHookOpt
 export type RevokeMembershipMutationHookResult = ReturnType<typeof useRevokeMembershipMutation>;
 export type RevokeMembershipMutationResult = Apollo.MutationResult<RevokeMembershipMutation>;
 export type RevokeMembershipMutationOptions = Apollo.BaseMutationOptions<RevokeMembershipMutation, RevokeMembershipMutationVariables>;
+export const GetSubscriptionActivityLogsDocument = gql`
+    query getSubscriptionActivityLogs($subscriptionId: ID!) {
+  subscription(id: $subscriptionId) {
+    activityLogs {
+      ...ActivityLogsTableData
+    }
+  }
+}
+    ${ActivityLogsTableDataFragmentDoc}`;
+
+/**
+ * __useGetSubscriptionActivityLogsQuery__
+ *
+ * To run a query within a React component, call `useGetSubscriptionActivityLogsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubscriptionActivityLogsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSubscriptionActivityLogsQuery({
+ *   variables: {
+ *      subscriptionId: // value for 'subscriptionId'
+ *   },
+ * });
+ */
+export function useGetSubscriptionActivityLogsQuery(baseOptions: Apollo.QueryHookOptions<GetSubscriptionActivityLogsQuery, GetSubscriptionActivityLogsQueryVariables> & ({ variables: GetSubscriptionActivityLogsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSubscriptionActivityLogsQuery, GetSubscriptionActivityLogsQueryVariables>(GetSubscriptionActivityLogsDocument, options);
+      }
+export function useGetSubscriptionActivityLogsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSubscriptionActivityLogsQuery, GetSubscriptionActivityLogsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSubscriptionActivityLogsQuery, GetSubscriptionActivityLogsQueryVariables>(GetSubscriptionActivityLogsDocument, options);
+        }
+export function useGetSubscriptionActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionActivityLogsQuery, GetSubscriptionActivityLogsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetSubscriptionActivityLogsQuery, GetSubscriptionActivityLogsQueryVariables>(GetSubscriptionActivityLogsDocument, options);
+        }
+export type GetSubscriptionActivityLogsQueryHookResult = ReturnType<typeof useGetSubscriptionActivityLogsQuery>;
+export type GetSubscriptionActivityLogsLazyQueryHookResult = ReturnType<typeof useGetSubscriptionActivityLogsLazyQuery>;
+export type GetSubscriptionActivityLogsSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionActivityLogsSuspenseQuery>;
+export type GetSubscriptionActivityLogsQueryResult = Apollo.QueryResult<GetSubscriptionActivityLogsQuery, GetSubscriptionActivityLogsQueryVariables>;
 export const GetAlertsOfSubscriptionDocument = gql`
     query getAlertsOfSubscription($subscriptionExternalId: String!, $limit: Int, $page: Int) {
   alerts(
