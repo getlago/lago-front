@@ -25,8 +25,8 @@ gql`
     customerTimezone
   }
 
-  query getSingleEvent($id: ID!) {
-    event(id: $id) {
+  query getSingleEvent($transactionId: ID!) {
+    event(transactionId: $transactionId) {
       id
       ...EventDetails
     }
@@ -38,7 +38,7 @@ export const EventDetails = ({ goBack }: { goBack: () => void }) => {
   const { translate } = useInternationalization()
 
   const { data, loading } = useGetSingleEventQuery({
-    variables: { id: eventId || '' },
+    variables: { transactionId: eventId || '' },
     skip: !eventId,
   })
 

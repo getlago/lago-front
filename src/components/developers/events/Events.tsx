@@ -15,6 +15,7 @@ import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 gql`
   fragment EventItem on Event {
     id
+    transactionId
     code
     receivedAt
   }
@@ -52,7 +53,7 @@ export const Events = () => {
         const firstEvent = eventCollection[0]
 
         if (firstEvent && getCurrentBreakpoint() !== 'sm') {
-          navigate(generatePath(EVENT_LOG_ROUTE, { eventId: firstEvent.id }), {
+          navigate(generatePath(EVENT_LOG_ROUTE, { eventId: firstEvent.transactionId as string }), {
             replace: true,
           })
         }
