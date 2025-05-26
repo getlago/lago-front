@@ -3151,5 +3151,6 @@
   "text_17476431340829ugsayepaod": "Invoice not synced to Avalara",
   "text_1747643192782icyo9o1yjgy": "Sync voided invoice to Avalara",
   "text_17476469985998lthq87gwat": "Sync credit note to Avalara",
-  "text_17476469985998lthq87gwaq": "Sync invoice to Avalara"
+  "text_17476469985998lthq87gwaq": "Sync invoice to Avalara",
+  "text_1748266296790rrag2rqt68c": "Please refer to the product code as defined in the <a rel=\"noopener noreferrer external\" target=\"_blank\" href=\"{{href}}\">Avalara documentation</a>."
 }

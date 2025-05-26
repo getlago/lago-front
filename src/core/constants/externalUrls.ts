@@ -16,6 +16,7 @@ export const ADYEN_SUCCESS_LINK_SPEC_URL =
 export const ROLE_ACCESS_LEVEL_DOC_URL = 'https://getlago.com/docs/guide/security/rbac'
 export const PROGRESSIVE_BILLING_DOC_URL =
   'https://getlago.com/docs/guide/plans/progressive-billing'
+export const AVALARA_TAX_CODE_DOCUMENTATION_URL = 'https://taxcode.avatax.avalara.com/'
 export const buildNetsuiteCustomerUrl = (
   connectionAccountId?: string | null,
   netsuiteCustomerId?: string | null,
