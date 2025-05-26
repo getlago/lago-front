@@ -21,13 +21,14 @@ import {
   AmountInputField,
   Checkbox,
   ComboBoxField,
-  DatePickerField,
+  DatePicker,
   TextInputField,
 } from '~/components/form'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { COUPON_DETAILS_ROUTE, COUPONS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { endOfDayIso } from '~/core/utils/dateUtils'
 import {
   BillableMetricsForCouponsFragment,
   CouponExpiration,
@@ -454,13 +455,19 @@ const CreateCoupon = () => {
                         <Typography variant="body" color="grey700" className="shrink-0">
                           {translate('text_632d68358f1fedc68eed3eb1')}
                         </Typography>
-                        <DatePickerField
-                          className="flex-1"
+                        <DatePicker
                           disablePast
+                          className="flex-1"
                           name="expirationAt"
                           placement="top-end"
                           placeholder={translate('text_632d68358f1fedc68eed3ea5')}
-                          formikProps={formikProps}
+                          onChange={(expirationAt) => {
+                            formikProps.setFieldValue(
+                              'expirationAt',
+                              endOfDayIso(expirationAt as string),
+                            )
+                          }}
+                          value={formikProps.values.expirationAt || ''}
                         />
                       </div>
                     )}
