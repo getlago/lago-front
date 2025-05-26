@@ -41,13 +41,13 @@ export const EventTable: FC<EventTableProps> = ({ getEventsResult, logListRef })
         data={data?.events?.collection || []}
         hasError={!!error}
         isLoading={loading}
-        onRowActionLink={({ id }) => {
+        onRowActionLink={({ transactionId }) => {
           if (getCurrentBreakpoint() === 'sm') {
             logListRef.current?.updateView('forward')
           }
 
           return generatePath(EVENT_LOG_ROUTE, {
-            eventId: id,
+            eventId: transactionId as string,
           })
         }}
         columns={[
