@@ -472,11 +472,7 @@ const CreditNoteDetails = () => {
                       closePopper()
                     }}
                   >
-                    {translate(
-                      !!data?.creditNote?.customer?.avalaraCustomer?.id
-                        ? 'text_17476469985998lthq87gwat'
-                        : 'text_17270681462632d46dh3r1vu',
-                    )}
+                    {translate('text_17270681462632d46dh3r1vu')}
                   </Button>
                 )}
               </MenuPopper>
@@ -1129,7 +1125,7 @@ const CreditNoteDetails = () => {
                                     }}
                                   >
                                     <Typography variant="body" className="text-blue">
-                                      {translate('text_17476469985998lthq87gwat')}
+                                      {translate('text_17270681462632d46dh3r1vu')}
                                     </Typography>
                                   </Link>
                                 </div>

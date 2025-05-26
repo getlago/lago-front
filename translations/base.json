@@ -2293,8 +2293,8 @@
   "text_1727271456219tl2bt8qdevm": "Enter a NetSuite Tax Type ID",
   "text_1727271456220dvb59po0x1g": "NetSuite Tax Code ID",
   "text_1727271456220u56zdq1mfrn": "Enter a NetSuite Tax Code ID",
-  "text_17270681462632d46dh3r1vu": "Sync credit note to Anrok",
-  "text_1727068146263ztoat7i901x": "Credit note not synced to Anrok",
+  "text_17270681462632d46dh3r1vu": "Sync to tax provider",
+  "text_1727068146263ztoat7i901x": "Credit note not synced to tax provider",
   "text_1727068146263345gopo39sm": "Anrok credit note url",
   "text_1727068261852148l97frl5q": "Credit note synced successfully",
   "text_1727078012568v9460bmnh8a": "Type",
@@ -3150,7 +3150,6 @@
   "text_1747408519913t2tehiclc5q": "Avalara credit note url",
   "text_17476431340829ugsayepaod": "Invoice not synced to Avalara",
   "text_1747643192782icyo9o1yjgy": "Sync voided invoice to Avalara",
-  "text_17476469985998lthq87gwat": "Sync credit note to Avalara",
   "text_17476469985998lthq87gwaq": "Sync invoice to Avalara",
   "text_1748266296790rrag2rqt68c": "Please refer to the product code as defined in the <a rel=\"noopener noreferrer external\" target=\"_blank\" href=\"{{href}}\">Avalara documentation</a>."
 }
