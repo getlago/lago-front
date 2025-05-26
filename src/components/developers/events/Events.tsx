@@ -53,6 +53,7 @@ export const Events = () => {
         const firstEvent = eventCollection[0]
 
         if (firstEvent && getCurrentBreakpoint() !== 'sm') {
+          // We need to use the transactionId as the id because the eventId is not always available (for Clickhouse events)
           navigate(generatePath(EVENT_LOG_ROUTE, { eventId: firstEvent.transactionId as string }), {
             replace: true,
           })

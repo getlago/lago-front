@@ -1,4 +1,4 @@
-import { FC, RefObject } from 'react'
+import { FC, RefObject, useMemo } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { InfiniteScroll, Table, Typography } from '~/components/designSystem'
@@ -20,6 +20,16 @@ export const EventTable: FC<EventTableProps> = ({ getEventsResult, logListRef })
 
   const { data, error, loading, fetchMore, refetch } = getEventsResult
 
+  const events = useMemo(
+    () =>
+      data?.events?.collection.map((event) => ({
+        ...event,
+        // We need to use the transactionId as the id because the eventId is not always available (for Clickhouse events)
+        id: event.transactionId as string,
+      })) || [],
+    [data?.events?.collection],
+  )
+
   return (
     <InfiniteScroll
       mode="element"
@@ -38,12 +48,7 @@ export const EventTable: FC<EventTableProps> = ({ getEventsResult, logListRef })
         containerClassName="h-auto"
         containerSize={16}
         rowSize={48}
-        data={
-          data?.events?.collection.map((event) => ({
-            ...event,
-            id: event.transactionId as string,
-          })) || []
-        }
+        data={events}
         hasError={!!error}
         isLoading={loading}
         onRowActionLink={({ transactionId }) => {
