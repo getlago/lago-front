@@ -13,7 +13,7 @@ import { paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
   CurrencyEnum,
@@ -121,8 +121,8 @@ const CustomerInvoiceVoid = () => {
           : {
               id: invoiceId as string,
               generateCreditNote: true,
-              refundAmount: values.payBack[0].value ?? 0,
-              creditAmount: values.payBack[1].value ?? 0,
+              refundAmount: serializeAmount(values.payBack[0].value ?? 0, currency),
+              creditAmount: serializeAmount(values.payBack[1].value ?? 0, currency),
             }
 
       await voidInvoice({
