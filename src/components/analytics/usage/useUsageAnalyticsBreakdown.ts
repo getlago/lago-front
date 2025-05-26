@@ -29,6 +29,7 @@ gql`
     $fromDate: ISO8601Date
     $toDate: ISO8601Date
     $isBillableMetricRecurring: Boolean
+    $isBillableMetricDeleted: Boolean
   ) {
     dataApiUsages(
       currency: $currency
@@ -36,6 +37,7 @@ gql`
       fromDate: $fromDate
       toDate: $toDate
       isBillableMetricRecurring: $isBillableMetricRecurring
+      isBillableMetricDeleted: $isBillableMetricDeleted
     ) {
       collection {
         startOfPeriodDt
@@ -67,6 +69,7 @@ type UseUsageAnalyticsBreakdownProps = {
   isBillableMetricRecurring?: boolean
   breakdownType: UsageBreakdownType
   overridenTimeGranularity?: TimeGranularityEnum
+  isBillableMetricDeleted: boolean
 }
 
 export const useUsageAnalyticsBreakdown = ({
@@ -75,6 +78,7 @@ export const useUsageAnalyticsBreakdown = ({
   isBillableMetricRecurring,
   breakdownType,
   overridenTimeGranularity,
+  isBillableMetricDeleted,
 }: UseUsageAnalyticsBreakdownProps) => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
@@ -140,6 +144,7 @@ export const useUsageAnalyticsBreakdown = ({
       ...filters,
       timeGranularity: overridenTimeGranularity || getDefaultStaticTimeGranularityFilter(),
       isBillableMetricRecurring,
+      isBillableMetricDeleted,
     }
   }, [
     hasAccessToAnalyticsDashboardsFeature,
