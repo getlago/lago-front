@@ -129,14 +129,15 @@ export const WebhookLogs = () => {
       navigateToFirstLog(data?.webhooks?.collection)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, logId])
+  }, [data?.webhooks.collection, logId])
 
   // The table should highlight the selected row when the logId is provided in params
   useLayoutEffect(() => {
-    if (logId) {
-      logListRef.current?.setActiveRow(logId)
+    if (logId && logListRef.current) {
+      logListRef.current.setActiveRow(logId)
     }
-  }, [logId])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [logId, logListRef.current])
 
   const shouldDisplayLogDetails = !!logId && !!data?.webhooks.collection.length
 

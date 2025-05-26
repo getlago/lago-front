@@ -38,7 +38,12 @@ export const EventTable: FC<EventTableProps> = ({ getEventsResult, logListRef })
         containerClassName="h-auto"
         containerSize={16}
         rowSize={48}
-        data={data?.events?.collection || []}
+        data={
+          data?.events?.collection.map((event) => ({
+            ...event,
+            id: event.transactionId as string,
+          })) || []
+        }
         hasError={!!error}
         isLoading={loading}
         onRowActionLink={({ transactionId }) => {
