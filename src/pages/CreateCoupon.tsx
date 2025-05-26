@@ -28,6 +28,7 @@ import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { COUPON_DETAILS_ROUTE, COUPONS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { endOfDayIso } from '~/core/utils/dateUtils'
 import {
   BillableMetricsForCouponsFragment,
   CouponExpiration,
@@ -463,11 +464,7 @@ const CreateCoupon = () => {
                           onChange={(expirationAt) => {
                             formikProps.setFieldValue(
                               'expirationAt',
-                              expirationAt
-                                ? DateTime.fromISO(expirationAt as string)
-                                    .endOf('day')
-                                    .toISO()
-                                : '',
+                              endOfDayIso(expirationAt as string),
                             )
                           }}
                           value={formikProps.values.expirationAt || ''}
