@@ -3125,5 +3125,12 @@
   "text_1747404806714mghtx7cickp": "Payment for wallet transaction {{transactionId}} failed",
   "text_1747404806714etwdmgd36ni": "Wallet transaction {{transactionId}} was updated",
   "text_1747404806714x0expgzlcnt": "Prepaid credits wallet {{walletId}} was updated",
-  "text_1748270946222tj9ehmsu4f7": "Show deleted metrics"
+  "text_1748270946222tj9ehmsu4f7": "Show deleted metrics",
+  "text_1747666154074cdsfaq5c4bz": "Log date",
+  "text_1747666154075d10admbnf16": "Activity ID",
+  "text_1747666154075y3lcupj1zdd": "Resource ID",
+  "text_1747666154075d7ame7sqkxa": "Activity type",
+  "text_1747666154075g4ceq9ii0xm": "Source",
+  "text_1747666154075t42hri31gvz": "User",
+  "text_1748341883774iypsrgem3hr": "Credit note"
 }

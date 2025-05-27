@@ -1,8 +1,10 @@
+import { formatActivityType } from '~/components/activityLogs/utils'
 import {
   PeriodScopeTranslationLookup,
   TPeriodScopeTranslationLookupValue,
 } from '~/components/graphs/MonthSelectorDropdown'
 import {
+  ACTIVITY_LOG_FILTER_PREFIX,
   ANALYTICS_INVOICES_FILTER_PREFIX,
   ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX,
   ANALYTICS_USAGE_BREAKDOWN_FILTER_PREFIX,
@@ -23,6 +25,7 @@ import {
 import { INVOICES_ROUTE } from '~/core/router'
 import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import {
+  ActivityTypeEnum,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   WebhookStatusEnum,
@@ -30,6 +33,7 @@ import {
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 import {
+  ActivityLogsAvailableFilters,
   AmountFilterInterval,
   AnalyticsInvoicesAvailableFilters,
   AvailableFiltersEnum,
@@ -87,7 +91,14 @@ export const parseAmountValue = (value: string) => {
 }
 
 export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
+  [AvailableFiltersEnum.activityIds]: (value: string) => value.split(',').map((v) => v.trim()),
+  [AvailableFiltersEnum.activitySources]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.activityTypes]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.amount]: parseAmountValue,
+  [AvailableFiltersEnum.apiKeyIds]: (value: string) =>
+    value.split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
+  [AvailableFiltersEnum.billingEntityIds]: (value: string) =>
+    (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.country]: (value: string) => value,
   [AvailableFiltersEnum.creditNoteCreditStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.creditNoteReason]: (value: string) => (value as string).split(','),
@@ -108,21 +119,34 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
       issuingDateTo: (value as string).split(',')[1],
     }
   },
+  [AvailableFiltersEnum.loggedDate]: (value: string) => {
+    return {
+      fromDate: (value as string).split(',')[0],
+      toDate: (value as string).split(',')[1],
+    }
+  },
   [AvailableFiltersEnum.partiallyPaid]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentDisputeLost]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentOverdue]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.planCode]: (value: string) => value,
+  [AvailableFiltersEnum.resourceIds]: (value: string) => value.split(',').map((v) => v.trim()),
+  [AvailableFiltersEnum.resourceTypes]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.selfBilled]: (value: string) => value === 'true',
   [AvailableFiltersEnum.status]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.subscriptionExternalId]: (value: string) =>
     (value as string).split(filterDataInlineSeparator)[0],
   [AvailableFiltersEnum.timeGranularity]: (value: string) => value,
   [AvailableFiltersEnum.period]: (value: string) => value,
+  [AvailableFiltersEnum.userEmails]: (value: string) => value.split(',').map((v) => v.trim()),
   [AvailableFiltersEnum.webhookStatus]: (value: string) => (value as string).split(','),
-  [AvailableFiltersEnum.billingEntityIds]: (value: string) =>
-    (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
 }
+
+export const FiltersItemDates = [
+  AvailableFiltersEnum.date,
+  AvailableFiltersEnum.issuingDate,
+  AvailableFiltersEnum.loggedDate,
+]
 
 export const formatFiltersForQuery = ({
   searchParams,
@@ -348,6 +372,25 @@ export const formatFiltersForUsageBillableMetricQuery = (searchParams: URLSearch
   })
 }
 
+export const formatFiltersForActivityLogsQuery = (searchParams: URLSearchParams) => {
+  const formatted = formatFiltersForQuery({
+    searchParams,
+    availableFilters: ActivityLogsAvailableFilters,
+    filtersNamePrefix: ACTIVITY_LOG_FILTER_PREFIX,
+  })
+
+  if (formatted.customerExternalId) {
+    formatted.externalCustomerId = formatted.customerExternalId
+    delete formatted.customerExternalId
+  }
+  if (formatted.subscriptionExternalId) {
+    formatted.externalSubscriptionId = formatted.subscriptionExternalId
+    delete formatted.subscriptionExternalId
+  }
+
+  return formatted
+}
+
 export const AMOUNT_INTERVALS_TRANSLATION_MAP = {
   [AmountFilterInterval.isBetween]: 'text_1734774653389kvylgxjiltu',
   [AmountFilterInterval.isEqualTo]: 'text_1734774653389pt3rhh3lspa',
@@ -378,10 +421,16 @@ export const formatActiveFilterValueDisplay = (
   }
 
   switch (key) {
+    case AvailableFiltersEnum.activityTypes:
+      return value
+        .split(',')
+        .map((v) => formatActivityType(v as ActivityTypeEnum))
+        .join(', ')
     case AvailableFiltersEnum.customerExternalId:
       return value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0]
     case AvailableFiltersEnum.date:
     case AvailableFiltersEnum.issuingDate:
+    case AvailableFiltersEnum.loggedDate:
       return value
         .split(',')
         .map((v) => {
@@ -392,6 +441,7 @@ export const formatActiveFilterValueDisplay = (
       return (
         translate?.(PeriodScopeTranslationLookup[value as TPeriodScopeTranslationLookupValue]) || ''
       )
+    case AvailableFiltersEnum.apiKeyIds:
     case AvailableFiltersEnum.billingEntityIds:
       return value
         .split(',')
@@ -399,6 +449,8 @@ export const formatActiveFilterValueDisplay = (
           (v) => v.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0],
         )
         .join(', ')
+    case AvailableFiltersEnum.userEmails:
+      return value.toLocaleLowerCase()
     default:
       return value
         .split(',')

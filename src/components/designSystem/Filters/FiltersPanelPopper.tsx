@@ -5,6 +5,7 @@ import { useMemo, useRef } from 'react'
 import { array, lazy, object, string } from 'yup'
 
 import { Button, Popper, Tooltip, Typography } from '~/components/designSystem'
+import { FiltersItemDates } from '~/components/designSystem/Filters/utils'
 import { ComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -49,9 +50,7 @@ export const FiltersPanelPopper = () => {
             filterType: string().required(''),
             value: string().when('filterType', {
               is: (filterType: AvailableFiltersEnum) =>
-                !!filterType &&
-                (filterType === AvailableFiltersEnum.issuingDate ||
-                  filterType === AvailableFiltersEnum.date),
+                !!filterType && FiltersItemDates.includes(filterType),
               then: (schema) => schema.matches(/\w+,\w+/, '').required(''),
               otherwise: (schema) => schema.required(''),
             }),
