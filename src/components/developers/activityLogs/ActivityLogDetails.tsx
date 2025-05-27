@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { Fragment } from 'react'
 import { useParams } from 'react-router-dom'
 
+import { getActivityDescription } from '~/components/activityLogs/utils'
 import { CodeSnippet } from '~/components/CodeSnippet'
 import {
   Button,
@@ -10,7 +11,6 @@ import {
   TabManagedBy,
   Typography,
 } from '~/components/designSystem'
-import { getActivityDescription } from '~/components/developers/activityLogs/utils'
 import { useGetApiKeyForActivityLogQuery, useGetSingleActivityLogQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -79,6 +79,9 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
         externalCustomerId: externalCustomerId ?? undefined,
       })
     : ['', {}]
+
+  const objectChanges = activityObjectChanges ?? {}
+  const newObject = activityObject ?? {}
 
   return (
     <>
@@ -181,8 +184,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
             )}
           </div>
 
-          {(Object.keys(activityObjectChanges).length > 0 ||
-            Object.keys(activityObject).length > 0) && (
+          {(Object.keys(objectChanges).length > 0 || Object.keys(newObject).length > 0) && (
             <div className="flex flex-col gap-4 pb-12">
               <Typography variant="subhead" color="grey700">
                 {translate('text_1746623729674wq0tach0cop')}
@@ -194,12 +196,12 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
                 tabs={[
                   {
                     title: translate('text_1747352070255d4ehqskdfn3'),
-                    hidden: Object.keys(activityObjectChanges).length === 0,
+                    hidden: Object.keys(objectChanges).length === 0,
                     component: (
                       <CodeSnippet
                         variant="minimal"
                         language="json"
-                        code={JSON.stringify(activityObjectChanges, null, 2)}
+                        code={JSON.stringify(objectChanges, null, 2)}
                         displayHead={false}
                         canCopy
                       />
@@ -207,12 +209,12 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
                   },
                   {
                     title: translate('text_1747352070255f5ai2kw7zka'),
-                    hidden: Object.keys(activityObject).length === 0,
+                    hidden: Object.keys(newObject).length === 0,
                     component: (
                       <CodeSnippet
                         variant="minimal"
                         language="json"
-                        code={JSON.stringify(activityObject, null, 2)}
+                        code={JSON.stringify(newObject, null, 2)}
                         displayHead={false}
                         canCopy
                       />

@@ -2,7 +2,7 @@ import { gql, QueryResult } from '@apollo/client'
 import { FC, useMemo } from 'react'
 
 import { getActivityDescription } from '~/components/activityLogs/utils'
-import { Table, TableContainerSize, Typography } from '~/components/designSystem'
+import { Table, TableProps, Typography } from '~/components/designSystem'
 import { ActivityLogsTableDataFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -18,11 +18,11 @@ gql`
   }
 `
 
-interface ActivityLogsTableProps {
-  data: ActivityLogsTableDataFragment[]
-  hasError: boolean
-  isLoading: boolean
-  containerSize?: TableContainerSize
+interface ActivityLogsTableProps
+  extends Pick<
+    TableProps<ActivityLogsTableDataFragment>,
+    'data' | 'hasError' | 'isLoading' | 'containerSize' | 'onRowActionLink'
+  > {
   refetch: QueryResult['refetch']
 }
 
@@ -32,6 +32,7 @@ export const ActivityLogsTable: FC<ActivityLogsTableProps> = ({
   isLoading,
   containerSize = 16,
   refetch,
+  onRowActionLink,
 }) => {
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
@@ -52,6 +53,7 @@ export const ActivityLogsTable: FC<ActivityLogsTableProps> = ({
       data={logs}
       hasError={hasError}
       isLoading={isLoading}
+      onRowActionLink={onRowActionLink}
       columns={[
         {
           title: translate('text_6560809c38fb9de88d8a52fb'),

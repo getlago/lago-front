@@ -1,14 +1,12 @@
 import { FC, RefObject } from 'react'
 import { generatePath } from 'react-router-dom'
 
-import { InfiniteScroll, Table, Typography } from '~/components/designSystem'
-import { getActivityDescription } from '~/components/developers/activityLogs/utils'
+import { ActivityLogsTable as Table } from '~/components/activityLogs/ActivityLogsTable'
+import { InfiniteScroll } from '~/components/designSystem'
 import { ACTIVITY_LOG_ROUTE } from '~/components/developers/DevtoolsRouter'
 import { ListSectionRef } from '~/components/developers/LogsLayout'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
 import { ActivityLogsQueryResult } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 interface ActivityLogTableProps {
   getActivityLogsResult: ActivityLogsQueryResult
@@ -19,9 +17,6 @@ export const ActivityLogTable: FC<ActivityLogTableProps> = ({
   getActivityLogsResult,
   logListRef,
 }) => {
-  const { translate } = useInternationalization()
-  const { formatTimeOrgaTZ } = useOrganizationInfos()
-
   const { data, error, loading, fetchMore, refetch } = getActivityLogsResult
 
   return (
@@ -38,77 +33,18 @@ export const ActivityLogTable: FC<ActivityLogTableProps> = ({
       }}
     >
       <Table
-        name="activity-logs"
-        containerClassName="h-auto"
-        containerSize={16}
-        rowSize={48}
-        data={(data?.activityLogs?.collection ?? []).map((log) => ({
-          ...log,
-          id: log.activityId,
-        }))}
+        data={data?.activityLogs?.collection ?? []}
         hasError={!!error}
         isLoading={loading}
-        onRowActionLink={({ id }) => {
+        refetch={refetch}
+        onRowActionLink={({ activityId }) => {
           if (getCurrentBreakpoint() === 'sm') {
             logListRef.current?.updateView('forward')
           }
 
           return generatePath(ACTIVITY_LOG_ROUTE, {
-            logId: id,
+            logId: activityId,
           })
-        }}
-        columns={[
-          {
-            title: translate('text_6560809c38fb9de88d8a52fb'),
-            key: 'activityType',
-            content: ({ activityType }) => (
-              <Typography color="grey600" variant="captionCode">
-                {activityType}
-              </Typography>
-            ),
-          },
-          {
-            title: translate('text_6388b923e514213fed58331c'),
-            key: 'activityType',
-            maxSpace: true,
-            content: ({
-              activityType,
-              activityObject,
-              externalCustomerId,
-              externalSubscriptionId,
-            }) => {
-              const [activityTypeTranslation, parameters] = getActivityDescription(activityType, {
-                activityObject,
-                externalCustomerId: externalCustomerId ?? undefined,
-                externalSubscriptionId: externalSubscriptionId ?? undefined,
-              })
-
-              return (
-                <Typography color="grey700" variant="bodyHl" noWrap>
-                  {translate(activityTypeTranslation, parameters)}
-                </Typography>
-              )
-            },
-          },
-          {
-            title: translate('text_664cb90097bfa800e6efa3f5'),
-            key: 'loggedAt',
-            content: ({ loggedAt }) => (
-              <Typography noWrap>{formatTimeOrgaTZ(loggedAt, 'LLL dd, hh:mm:ss a')}</Typography>
-            ),
-          },
-        ]}
-        placeholder={{
-          emptyState: {
-            title: translate('text_1747314141347sfeoozf86o7'),
-            subtitle: translate('text_1747314141347gs3g2lpln2h'),
-          },
-          errorState: {
-            title: translate('text_1747058197364dm3no1jnete'),
-            subtitle: translate('text_63e27c56dfe64b846474ef3b'),
-            buttonTitle: translate('text_63e27c56dfe64b846474ef3c'),
-            buttonAction: () => refetch(),
-          },
         }}
       />
     </InfiniteScroll>
