@@ -92,6 +92,7 @@ export const parseAmountValue = (value: string) => {
 
 export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.activityIds]: (value: string) => value.split(',').map((v) => v.trim()),
+  [AvailableFiltersEnum.activitySources]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.activityTypes]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.amount]: parseAmountValue,
   [AvailableFiltersEnum.apiKeyIds]: (value: string) =>
