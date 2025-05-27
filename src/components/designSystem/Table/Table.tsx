@@ -67,7 +67,7 @@ export type ActionItem<T> = {
 export type TableContainerSize = 0 | 4 | 16 | 48
 type RowSize = 48 | 72
 
-interface TableProps<T> {
+export interface TableProps<T> {
   name: string
   data: T[]
   columns: Array<TableColumn<T> | null>
