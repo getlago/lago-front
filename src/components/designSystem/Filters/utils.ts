@@ -372,11 +372,22 @@ export const formatFiltersForUsageBillableMetricQuery = (searchParams: URLSearch
 }
 
 export const formatFiltersForActivityLogsQuery = (searchParams: URLSearchParams) => {
-  return formatFiltersForQuery({
+  const formatted = formatFiltersForQuery({
     searchParams,
     availableFilters: ActivityLogsAvailableFilters,
     filtersNamePrefix: ACTIVITY_LOG_FILTER_PREFIX,
   })
+
+  if (formatted.customerExternalId) {
+    formatted.externalCustomerId = formatted.customerExternalId
+    delete formatted.customerExternalId
+  }
+  if (formatted.subscriptionExternalId) {
+    formatted.externalSubscriptionId = formatted.subscriptionExternalId
+    delete formatted.subscriptionExternalId
+  }
+
+  return formatted
 }
 
 export const AMOUNT_INTERVALS_TRANSLATION_MAP = {

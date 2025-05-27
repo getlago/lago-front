@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import { useMemo } from 'react'
 
+import { useFilters } from '~/components/designSystem/Filters/useFilters'
 import { ComboBox } from '~/components/form'
 import { useGetCustomersForFilterItemCustomerLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -31,6 +32,8 @@ type FiltersItemCustomerProps = {
 
 export const FiltersItemCustomer = ({ value, setFilterValue }: FiltersItemCustomerProps) => {
   const { translate } = useInternationalization()
+  const { displayInDialog } = useFilters()
+
   const [getCustomers, { data, loading }] = useGetCustomersForFilterItemCustomerLazyQuery({
     variables: { page: 1, limit: 10 },
   })
@@ -52,6 +55,9 @@ export const FiltersItemCustomer = ({ value, setFilterValue }: FiltersItemCustom
 
   return (
     <ComboBox
+      PopperProps={{
+        displayInDialog,
+      }}
       disableClearable
       searchQuery={getCustomers}
       loading={loading}

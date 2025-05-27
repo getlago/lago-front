@@ -174,6 +174,8 @@ export const ActivityLogsAvailableFilters = [
   AvailableFiltersEnum.resourceIds,
   AvailableFiltersEnum.activityTypes,
   AvailableFiltersEnum.activitySources,
+  AvailableFiltersEnum.customerExternalId,
+  AvailableFiltersEnum.subscriptionExternalId,
 ]
 
 const translationMap: Record<AvailableFiltersEnum, string> = {
