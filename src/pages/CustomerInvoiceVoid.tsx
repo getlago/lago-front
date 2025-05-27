@@ -19,7 +19,6 @@ import {
   CurrencyEnum,
   InvoiceForVoidInvoiceDialogFragment,
   InvoiceForVoidInvoiceDialogFragmentDoc,
-  InvoicePaymentStatusTypeEnum,
   useGetInvoiceDetailsQuery,
   useVoidInvoiceMutation,
   VoidInvoiceInput,
@@ -102,11 +101,10 @@ const CustomerInvoiceVoid = () => {
   const currencySymbol = getCurrencySymbol(currency)
 
   const amountIsZero = Number(invoice?.totalAmountCents) === 0
-  const isPending = invoice?.paymentStatus === InvoicePaymentStatusTypeEnum.Pending
 
   const maxRefundable = deserializeAmount(invoice?.refundableAmountCents, currency)
   const maxCreditable = deserializeAmount(invoice?.creditableAmountCents, currency)
-  const maxTotal = maxCreditable + maxRefundable
+  const maxTotal = deserializeAmount(invoice?.totalAmountCents, currency)
 
   const canGenerateCreditNote = !amountIsZero && (maxRefundable > 0 || maxCreditable > 0)
 
@@ -369,7 +367,7 @@ const CustomerInvoiceVoid = () => {
 
                 {formikProps.values.handle === HandleEnum.GenerateCreditNote && (
                   <div className="flex flex-col gap-4">
-                    {!isPending && maxRefundable > 0 && (
+                    {maxRefundable > 0 && (
                       <div className="flex items-center justify-between">
                         <Typography className="font-medium text-grey-700">
                           {translate('text_1747908642632e4crd7uy2dp', {
