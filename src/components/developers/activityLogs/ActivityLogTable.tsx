@@ -1,5 +1,5 @@
 import { FC, RefObject } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { ActivityLogsTable as Table } from '~/components/activityLogs/ActivityLogsTable'
 import { InfiniteScroll } from '~/components/designSystem'
@@ -17,6 +17,7 @@ export const ActivityLogTable: FC<ActivityLogTableProps> = ({
   getActivityLogsResult,
   logListRef,
 }) => {
+  const [searchParams] = useSearchParams()
   const { data, error, loading, fetchMore, refetch } = getActivityLogsResult
 
   return (
@@ -42,9 +43,12 @@ export const ActivityLogTable: FC<ActivityLogTableProps> = ({
             logListRef.current?.updateView('forward')
           }
 
-          return generatePath(ACTIVITY_LOG_ROUTE, {
+          const path = generatePath(ACTIVITY_LOG_ROUTE, {
             logId: activityId,
           })
+          const search = searchParams ? `?${searchParams.toString()}` : ''
+
+          return `${path}${search}`
         }}
       />
     </InfiniteScroll>

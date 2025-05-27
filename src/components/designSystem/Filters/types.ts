@@ -159,6 +159,8 @@ export const UsageBillableMetricAvailableFilters = [
   AvailableFiltersEnum.subscriptionExternalId,
 ]
 
+export const ActivityLogsAvailableFilters = []
+
 const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.amount]: 'text_17346988752182hpzppdqk9t',
   [AvailableFiltersEnum.country]: 'text_62ab2d0396dd6b0361614da0',

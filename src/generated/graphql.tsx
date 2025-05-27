@@ -8327,6 +8327,17 @@ export type ActivityItemFragment = { __typename?: 'ActivityLog', activityId: str
 export type ActivityLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
+  activityIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  activitySources?: InputMaybe<Array<ActivitySourceEnum> | ActivitySourceEnum>;
+  activityTypes?: InputMaybe<Array<ActivityTypeEnum> | ActivityTypeEnum>;
+  apiKeyIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  resourceIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  resourceTypes?: InputMaybe<Array<ResourceTypeEnum> | ResourceTypeEnum>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  userEmails?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
 }>;
 
 
@@ -18067,8 +18078,22 @@ export type GetApiKeyForActivityLogLazyQueryHookResult = ReturnType<typeof useGe
 export type GetApiKeyForActivityLogSuspenseQueryHookResult = ReturnType<typeof useGetApiKeyForActivityLogSuspenseQuery>;
 export type GetApiKeyForActivityLogQueryResult = Apollo.QueryResult<GetApiKeyForActivityLogQuery, GetApiKeyForActivityLogQueryVariables>;
 export const ActivityLogsDocument = gql`
-    query activityLogs($page: Int, $limit: Int) {
-  activityLogs(page: $page, limit: $limit) {
+    query activityLogs($page: Int, $limit: Int, $activityIds: [String!], $activitySources: [ActivitySourceEnum!], $activityTypes: [ActivityTypeEnum!], $apiKeyIds: [String!], $externalCustomerId: String, $externalSubscriptionId: String, $fromDate: ISO8601Date, $resourceIds: [String!], $resourceTypes: [ResourceTypeEnum!], $toDate: ISO8601Date, $userEmails: [String!]) {
+  activityLogs(
+    page: $page
+    limit: $limit
+    activityIds: $activityIds
+    activitySources: $activitySources
+    activityTypes: $activityTypes
+    apiKeyIds: $apiKeyIds
+    externalCustomerId: $externalCustomerId
+    externalSubscriptionId: $externalSubscriptionId
+    fromDate: $fromDate
+    resourceIds: $resourceIds
+    resourceTypes: $resourceTypes
+    toDate: $toDate
+    userEmails: $userEmails
+  ) {
     collection {
       ...ActivityItem
     }
@@ -18094,6 +18119,17 @@ export const ActivityLogsDocument = gql`
  *   variables: {
  *      page: // value for 'page'
  *      limit: // value for 'limit'
+ *      activityIds: // value for 'activityIds'
+ *      activitySources: // value for 'activitySources'
+ *      activityTypes: // value for 'activityTypes'
+ *      apiKeyIds: // value for 'apiKeyIds'
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *      externalSubscriptionId: // value for 'externalSubscriptionId'
+ *      fromDate: // value for 'fromDate'
+ *      resourceIds: // value for 'resourceIds'
+ *      resourceTypes: // value for 'resourceTypes'
+ *      toDate: // value for 'toDate'
+ *      userEmails: // value for 'userEmails'
  *   },
  * });
  */

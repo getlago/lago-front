@@ -3,6 +3,7 @@ import {
   TPeriodScopeTranslationLookupValue,
 } from '~/components/graphs/MonthSelectorDropdown'
 import {
+  ACTIVITY_LOG_FILTER_PREFIX,
   ANALYTICS_INVOICES_FILTER_PREFIX,
   ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX,
   ANALYTICS_USAGE_BREAKDOWN_FILTER_PREFIX,
@@ -30,6 +31,7 @@ import {
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 import {
+  ActivityLogsAvailableFilters,
   AmountFilterInterval,
   AnalyticsInvoicesAvailableFilters,
   AvailableFiltersEnum,
@@ -345,6 +347,14 @@ export const formatFiltersForUsageBillableMetricQuery = (searchParams: URLSearch
       AvailableFiltersEnum.timeGranularity,
     ],
     filtersNamePrefix: ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX,
+  })
+}
+
+export const formatFiltersForActivityLogsQuery = (searchParams: URLSearchParams) => {
+  return formatFiltersForQuery({
+    searchParams,
+    availableFilters: ActivityLogsAvailableFilters,
+    filtersNamePrefix: ACTIVITY_LOG_FILTER_PREFIX,
   })
 }
 
