@@ -4,7 +4,6 @@ export enum FeatureFlags {
   ANALYTICS_PREPAID_CREDITS = 'analyticsPrepaidCredits',
   ANALYTICS_USAGE = 'analyticsUsage',
   FTR_AVALARA_INTEGRATION = 'ftrAvalaraIntegration',
-  FTR_ALERTS = 'ftrAlerts',
 }
 
 const FF_KEY = 'featureFlags'
