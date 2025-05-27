@@ -1,3 +1,4 @@
+import { formatActivityType } from '~/components/activityLogs/utils'
 import {
   PeriodScopeTranslationLookup,
   TPeriodScopeTranslationLookupValue,
@@ -24,6 +25,7 @@ import {
 import { INVOICES_ROUTE } from '~/core/router'
 import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import {
+  ActivityTypeEnum,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   WebhookStatusEnum,
@@ -90,6 +92,7 @@ export const parseAmountValue = (value: string) => {
 
 export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.activityIds]: (value: string) => value.split(',').map((v) => v.trim()),
+  [AvailableFiltersEnum.activityTypes]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.amount]: parseAmountValue,
   [AvailableFiltersEnum.apiKeyIds]: (value: string) =>
     value.split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
@@ -404,6 +407,11 @@ export const formatActiveFilterValueDisplay = (
   }
 
   switch (key) {
+    case AvailableFiltersEnum.activityTypes:
+      return value
+        .split(',')
+        .map((v) => formatActivityType(v as ActivityTypeEnum))
+        .join(', ')
     case AvailableFiltersEnum.customerExternalId:
       return value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0]
     case AvailableFiltersEnum.date:
