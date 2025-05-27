@@ -4,7 +4,6 @@ import { generatePath, useLocation, useNavigate } from 'react-router-dom'
 import { NavigationTab, Typography } from '~/components/designSystem'
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE } from '~/core/router'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Invoices from '~/pages/analytics/Invoices'
 import Mrr from '~/pages/analytics/Mrr'
@@ -17,7 +16,6 @@ const NewAnalytics = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { pathname } = useLocation()
-  const hasAccessToUsage = isFeatureFlagActive(FeatureFlags.ANALYTICS_USAGE)
 
   // Redirect to revenue-streams when URL is exactly /analytics
   // Cause we support old and new analytics routes, this is needed
@@ -64,17 +62,13 @@ const NewAnalytics = () => {
             }),
             component: <Mrr />,
           },
-          ...(hasAccessToUsage
-            ? [
-                {
-                  title: translate('text_17465414264635ktqocy7leo'),
-                  link: generatePath(ANALYTIC_TABS_ROUTE, {
-                    tab: NewAnalyticsTabsOptionsEnum.usage,
-                  }),
-                  component: <Usage />,
-                },
-              ]
-            : []),
+          {
+            title: translate('text_17465414264635ktqocy7leo'),
+            link: generatePath(ANALYTIC_TABS_ROUTE, {
+              tab: NewAnalyticsTabsOptionsEnum.usage,
+            }),
+            component: <Usage />,
+          },
           {
             title: translate('text_1744192691931osnm4ckcvzj'),
             link: generatePath(ANALYTIC_TABS_ROUTE, {
