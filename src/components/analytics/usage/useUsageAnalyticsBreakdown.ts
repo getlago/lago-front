@@ -44,6 +44,7 @@ gql`
         amountCents
         billableMetricCode
         units
+        isBillableMetricDeleted
       }
     }
   }
@@ -182,12 +183,16 @@ export const useUsageAnalyticsBreakdown = ({
 
   const accessor = ACCESSORS[breakdownType]
 
+  const collection = usageData?.dataApiUsages?.collection
+
   const data = useMemo(
-    () =>
-      usageData?.dataApiUsages?.collection.filter(
-        (item) => showDeletedBillableMetrics || !item.isBillableMetricDeleted,
-      ),
-    [usageData?.dataApiUsages?.collection, showDeletedBillableMetrics],
+    () => collection?.filter((item) => showDeletedBillableMetrics || !item.isBillableMetricDeleted),
+    [collection, showDeletedBillableMetrics],
+  )
+
+  const hasDeletedBillableMetrics = useMemo(
+    () => !!collection?.find((item) => item.isBillableMetricDeleted),
+    [collection],
   )
 
   return {
@@ -202,5 +207,6 @@ export const useUsageAnalyticsBreakdown = ({
     getDefaultStaticTimeGranularityFilter,
     valueKey: accessor.valueKey,
     displayFormat: accessor.displayFormat,
+    hasDeletedBillableMetrics,
   }
 }

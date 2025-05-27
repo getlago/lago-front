@@ -142,6 +142,7 @@ export const useUsageAnalyticsBillableMetric = ({
     availableFilters: [],
     filtersPrefix: '',
     breakdownType,
+    showDeletedBillableMetrics: true,
   })
 
   const { formattedUsageData, total } = useMemo(() => {

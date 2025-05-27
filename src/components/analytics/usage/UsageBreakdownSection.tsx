@@ -28,7 +28,6 @@ const UsageBreakdownSection = ({ premiumWarningDialogRef }: UsageBreakdownSectio
   const { translate } = useInternationalization()
 
   const [breakdownType, setBreakdownType] = useState<UsageBreakdownType>(UsageBreakdownType.Units)
-  const [showDeletedBillableMetrics, setShowDeletedBillableMetrics] = useState<boolean>(false)
 
   return (
     <section className="flex flex-col">
@@ -63,7 +62,6 @@ const UsageBreakdownSection = ({ premiumWarningDialogRef }: UsageBreakdownSectio
                 breakdownType={breakdownType}
                 premiumWarningDialogRef={premiumWarningDialogRef}
                 isBillableMetricRecurring={false}
-                showDeletedBillableMetrics={showDeletedBillableMetrics}
               />
             ),
           },
@@ -76,24 +74,11 @@ const UsageBreakdownSection = ({ premiumWarningDialogRef }: UsageBreakdownSectio
                 premiumWarningDialogRef={premiumWarningDialogRef}
                 breakdownType={breakdownType}
                 isBillableMetricRecurring={true}
-                showDeletedBillableMetrics={showDeletedBillableMetrics}
               />
             ),
           },
         ]}
       />
-
-      <div className="mt-6 flex">
-        <Button
-          startIcon="eye"
-          variant={showDeletedBillableMetrics ? 'secondary' : 'quaternary'}
-          onClick={() => {
-            setShowDeletedBillableMetrics(!showDeletedBillableMetrics)
-          }}
-        >
-          {translate('text_1748270946222tj9ehmsu4f7')}
-        </Button>
-      </div>
     </section>
   )
 }

@@ -1,5 +1,5 @@
 import { Button } from 'lago-design-system'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { UsageBreakdownType } from '~/components/analytics/usage/types'
@@ -20,7 +20,6 @@ type UsageBreakdownIndividualSectionProps = {
   filtersPrefix: string
   isBillableMetricRecurring: boolean
   breakdownType: UsageBreakdownType
-  showDeletedBillableMetrics: boolean
 }
 
 const UsageBreakdownIndividualSection = ({
@@ -29,10 +28,10 @@ const UsageBreakdownIndividualSection = ({
   filtersPrefix,
   isBillableMetricRecurring,
   breakdownType,
-  showDeletedBillableMetrics,
 }: UsageBreakdownIndividualSectionProps) => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
+  const [showDeletedBillableMetrics, setShowDeletedBillableMetrics] = useState<boolean>(false)
 
   const timeGranularity = useMemo(() => {
     const filters = formatFiltersForUsageOverviewQuery(searchParams)
@@ -51,6 +50,7 @@ const UsageBreakdownIndividualSection = ({
     hasError,
     valueKey,
     displayFormat,
+    hasDeletedBillableMetrics,
   } = useUsageAnalyticsBreakdown({
     availableFilters,
     filtersPrefix,
@@ -106,6 +106,20 @@ const UsageBreakdownIndividualSection = ({
         displayFormat={displayFormat}
         hasError={hasError}
       />
+
+      {hasDeletedBillableMetrics && (
+        <div className="mt-6 flex">
+          <Button
+            startIcon="eye"
+            variant={showDeletedBillableMetrics ? 'secondary' : 'quaternary'}
+            onClick={() => {
+              setShowDeletedBillableMetrics(!showDeletedBillableMetrics)
+            }}
+          >
+            {translate('text_1748270946222tj9ehmsu4f7')}
+          </Button>
+        </div>
+      )}
     </>
   )
 }
