@@ -1,4 +1,5 @@
 import { Typography } from '~/components/designSystem'
+import { FiltersItemActivityIds } from '~/components/designSystem/Filters/filtersElements/FiltersItemActivityIds'
 import { FiltersItemAmount } from '~/components/designSystem/Filters/filtersElements/FiltersItemAmount'
 import { FiltersItemApiKeyIds } from '~/components/designSystem/Filters/filtersElements/FiltersItemApiKeyIds'
 import { FiltersItemBillingEntity } from '~/components/designSystem/Filters/filtersElements/FiltersItemBillingEntity'
@@ -47,6 +48,7 @@ export const FiltersPanelItemTypeSwitch = ({
   }
 
   const filterTypeMap: Record<AvailableFiltersEnum, React.ReactNode> = {
+    [AvailableFiltersEnum.activityIds]: <FiltersItemActivityIds {...props} />,
     [AvailableFiltersEnum.amount]: <FiltersItemAmount {...props} />,
     [AvailableFiltersEnum.apiKeyIds]: <FiltersItemApiKeyIds {...props} />,
     [AvailableFiltersEnum.billingEntityIds]: <FiltersItemBillingEntity {...props} />,

@@ -16,6 +16,7 @@ export enum AmountFilterInterval {
 }
 
 export enum AvailableFiltersEnum {
+  activityIds = 'activityIds',
   amount = 'amount',
   apiKeyIds = 'apiKeyIds',
   billingEntityIds = 'billingEntityIds',
@@ -164,9 +165,11 @@ export const UsageBillableMetricAvailableFilters = [
 export const ActivityLogsAvailableFilters = [
   AvailableFiltersEnum.loggedDate,
   AvailableFiltersEnum.apiKeyIds,
+  AvailableFiltersEnum.activityIds,
 ]
 
 const translationMap: Record<AvailableFiltersEnum, string> = {
+  [AvailableFiltersEnum.activityIds]: 'text_1747666154075d10admbnf16',
   [AvailableFiltersEnum.amount]: 'text_17346988752182hpzppdqk9t',
   [AvailableFiltersEnum.apiKeyIds]: 'text_645d071272418a14c1c76aa4',
   [AvailableFiltersEnum.billingEntityIds]: 'text_17436114971570doqrwuwhf0',
