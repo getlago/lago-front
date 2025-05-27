@@ -29,6 +29,7 @@ import { FiltersItemResourceTypes } from '~/components/designSystem/Filters/filt
 import { FiltersItemSelfBilled } from '~/components/designSystem/Filters/filtersElements/FiltersItemSelfBilled'
 import { FiltersItemStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemStatus'
 import { FiltersItemSubscription } from '~/components/designSystem/Filters/filtersElements/FiltersItemSubscription'
+import { FiltersItemUserEmails } from '~/components/designSystem/Filters/filtersElements/FiltersItemUserEmails'
 import { FiltersItemWebhookStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemWebhookStatus'
 import { FiltersItemDates } from '~/components/designSystem/Filters/utils'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -83,6 +84,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.selfBilled]: <FiltersItemSelfBilled {...props} />,
     [AvailableFiltersEnum.status]: <FiltersItemStatus {...props} />,
     [AvailableFiltersEnum.subscriptionExternalId]: <FiltersItemSubscription {...props} />,
+    [AvailableFiltersEnum.userEmails]: <FiltersItemUserEmails {...props} />,
     [AvailableFiltersEnum.webhookStatus]: <FiltersItemWebhookStatus {...props} />,
   }
 

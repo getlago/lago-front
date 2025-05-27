@@ -47,6 +47,7 @@ export enum AvailableFiltersEnum {
   subscriptionExternalId = 'subscriptionExternalId',
   timeGranularity = 'timeGranularity',
   period = 'period',
+  userEmails = 'userEmails',
   webhookStatus = 'webhookStatus',
 }
 
@@ -176,6 +177,7 @@ export const ActivityLogsAvailableFilters = [
   AvailableFiltersEnum.activitySources,
   AvailableFiltersEnum.customerExternalId,
   AvailableFiltersEnum.subscriptionExternalId,
+  AvailableFiltersEnum.userEmails,
 ]
 
 const translationMap: Record<AvailableFiltersEnum, string> = {
@@ -210,6 +212,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.subscriptionExternalId]: 'text_1741008626283x4p1zwj11zi',
   [AvailableFiltersEnum.timeGranularity]: '', // Used in quick filters only
   [AvailableFiltersEnum.period]: 'text_1746532851931rt2nl6vdlnh',
+  [AvailableFiltersEnum.userEmails]: 'text_1747666154075t42hri31gvz',
   [AvailableFiltersEnum.webhookStatus]: 'text_63ac86d797f728a87b2f9fa7',
 }
 

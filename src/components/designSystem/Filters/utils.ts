@@ -138,6 +138,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
     (value as string).split(filterDataInlineSeparator)[0],
   [AvailableFiltersEnum.timeGranularity]: (value: string) => value,
   [AvailableFiltersEnum.period]: (value: string) => value,
+  [AvailableFiltersEnum.userEmails]: (value: string) => value.split(',').map((v) => v.trim()),
   [AvailableFiltersEnum.webhookStatus]: (value: string) => (value as string).split(','),
 }
 
@@ -448,6 +449,8 @@ export const formatActiveFilterValueDisplay = (
           (v) => v.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0],
         )
         .join(', ')
+    case AvailableFiltersEnum.userEmails:
+      return value.toLocaleLowerCase()
     default:
       return value
         .split(',')
