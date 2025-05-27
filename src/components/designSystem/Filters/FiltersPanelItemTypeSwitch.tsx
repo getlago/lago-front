@@ -23,6 +23,7 @@ import { FiltersItemPaymentOverdue } from '~/components/designSystem/Filters/fil
 import { FiltersItemPaymentStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemPaymentStatus'
 import { FiltersItemPeriod } from '~/components/designSystem/Filters/filtersElements/FiltersItemPeriod'
 import { FiltersItemPlanCode } from '~/components/designSystem/Filters/filtersElements/FiltersItemPlanCode'
+import { FiltersItemResourceIds } from '~/components/designSystem/Filters/filtersElements/FiltersItemResourceIds'
 import { FiltersItemResourceTypes } from '~/components/designSystem/Filters/filtersElements/FiltersItemResourceTypes'
 import { FiltersItemSelfBilled } from '~/components/designSystem/Filters/filtersElements/FiltersItemSelfBilled'
 import { FiltersItemStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemStatus'
@@ -75,6 +76,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.paymentStatus]: <FiltersItemPaymentStatus {...props} />,
     [AvailableFiltersEnum.period]: <FiltersItemPeriod {...props} />,
     [AvailableFiltersEnum.planCode]: <FiltersItemPlanCode {...props} />,
+    [AvailableFiltersEnum.resourceIds]: <FiltersItemResourceIds {...props} />,
     [AvailableFiltersEnum.resourceTypes]: <FiltersItemResourceTypes {...props} />,
     [AvailableFiltersEnum.selfBilled]: <FiltersItemSelfBilled {...props} />,
     [AvailableFiltersEnum.status]: <FiltersItemStatus {...props} />,

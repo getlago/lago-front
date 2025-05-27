@@ -39,6 +39,7 @@ export enum AvailableFiltersEnum {
   paymentOverdue = 'paymentOverdue',
   paymentStatus = 'paymentStatus',
   planCode = 'planCode',
+  resourceIds = 'resourceIds',
   resourceTypes = 'resourceTypes',
   selfBilled = 'selfBilled',
   status = 'status',
@@ -169,6 +170,7 @@ export const ActivityLogsAvailableFilters = [
   AvailableFiltersEnum.apiKeyIds,
   AvailableFiltersEnum.activityIds,
   AvailableFiltersEnum.resourceTypes,
+  AvailableFiltersEnum.resourceIds,
   AvailableFiltersEnum.activityTypes,
 ]
 
@@ -196,6 +198,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.paymentOverdue]: 'text_666c5b12fea4aa1e1b26bf55',
   [AvailableFiltersEnum.paymentStatus]: 'text_63eba8c65a6c8043feee2a0f',
   [AvailableFiltersEnum.planCode]: 'text_642d5eb2783a2ad10d670320',
+  [AvailableFiltersEnum.resourceIds]: 'text_1747666154075y3lcupj1zdd',
   [AvailableFiltersEnum.resourceTypes]: 'text_1732895022171f9vnwh5gm3q',
   [AvailableFiltersEnum.selfBilled]: 'text_1738595318403vcyh77pwiew',
   [AvailableFiltersEnum.status]: 'text_63ac86d797f728a87b2f9fa7',
