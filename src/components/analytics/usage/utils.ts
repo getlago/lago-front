@@ -84,6 +84,7 @@ export const formatUsageData = ({
       units: 0,
       amountCurrency: CurrencyEnum.Usd,
       billableMetricCode: '',
+      isBillableMetricDeleted: false,
     }
 
     return emptyData
@@ -244,6 +245,7 @@ export const formatUsageBillableMetricData = ({
       units: 0,
       amountCurrency: CurrencyEnum.Usd,
       billableMetricCode: '',
+      isBillableMetricDeleted: false,
     }
 
     return emptyData

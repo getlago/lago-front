@@ -3117,5 +3117,6 @@
   "text_1747404806714tl9vk3y3mzw": "Wallet {{walletId}} recorded a new transaction {{transactionId}}",
   "text_1747404806714mghtx7cickp": "Payment for wallet transaction {{transactionId}} failed",
   "text_1747404806714etwdmgd36ni": "Wallet transaction {{transactionId}} was updated",
-  "text_1747404806714x0expgzlcnt": "Prepaid credits wallet {{walletId}} was updated"
+  "text_1747404806714x0expgzlcnt": "Prepaid credits wallet {{walletId}} was updated",
+  "text_1748270946222tj9ehmsu4f7": "Show deleted metrics"
 }

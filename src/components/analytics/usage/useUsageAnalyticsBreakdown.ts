@@ -44,6 +44,7 @@ gql`
         amountCents
         billableMetricCode
         units
+        isBillableMetricDeleted
       }
     }
   }
@@ -67,6 +68,7 @@ type UseUsageAnalyticsBreakdownProps = {
   isBillableMetricRecurring?: boolean
   breakdownType: UsageBreakdownType
   overridenTimeGranularity?: TimeGranularityEnum
+  showDeletedBillableMetrics: boolean
 }
 
 export const useUsageAnalyticsBreakdown = ({
@@ -75,6 +77,7 @@ export const useUsageAnalyticsBreakdown = ({
   isBillableMetricRecurring,
   breakdownType,
   overridenTimeGranularity,
+  showDeletedBillableMetrics,
 }: UseUsageAnalyticsBreakdownProps) => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
@@ -180,8 +183,20 @@ export const useUsageAnalyticsBreakdown = ({
 
   const accessor = ACCESSORS[breakdownType]
 
+  const collection = usageData?.dataApiUsages?.collection
+
+  const data = useMemo(
+    () => collection?.filter((item) => showDeletedBillableMetrics || !item.isBillableMetricDeleted),
+    [collection, showDeletedBillableMetrics],
+  )
+
+  const hasDeletedBillableMetrics = useMemo(
+    () => !!collection?.find((item) => item.isBillableMetricDeleted),
+    [collection],
+  )
+
   return {
-    data: usageData?.dataApiUsages?.collection,
+    data,
     defaultCurrency,
     hasAccessToAnalyticsDashboardsFeature,
     selectedCurrency,
@@ -192,5 +207,6 @@ export const useUsageAnalyticsBreakdown = ({
     getDefaultStaticTimeGranularityFilter,
     valueKey: accessor.valueKey,
     displayFormat: accessor.displayFormat,
+    hasDeletedBillableMetrics,
   }
 }

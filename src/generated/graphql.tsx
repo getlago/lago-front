@@ -2642,6 +2642,7 @@ export type DataApiUsage = {
   amountCurrency: CurrencyEnum;
   billableMetricCode: Scalars['String']['output'];
   endOfPeriodDt: Scalars['ISO8601Date']['output'];
+  isBillableMetricDeleted: Scalars['Boolean']['output'];
   startOfPeriodDt: Scalars['ISO8601Date']['output'];
   units: Scalars['Float']['output'];
 };
@@ -7761,7 +7762,7 @@ export type GetUsageBreakdownQueryVariables = Exact<{
 }>;
 
 
-export type GetUsageBreakdownQuery = { __typename?: 'Query', dataApiUsages: { __typename?: 'DataApiUsageCollection', collection: Array<{ __typename?: 'DataApiUsage', startOfPeriodDt: any, endOfPeriodDt: any, amountCurrency: CurrencyEnum, amountCents: any, billableMetricCode: string, units: number }> } };
+export type GetUsageBreakdownQuery = { __typename?: 'Query', dataApiUsages: { __typename?: 'DataApiUsageCollection', collection: Array<{ __typename?: 'DataApiUsage', startOfPeriodDt: any, endOfPeriodDt: any, amountCurrency: CurrencyEnum, amountCents: any, billableMetricCode: string, units: number, isBillableMetricDeleted: boolean }> } };
 
 export type GetUsageOverviewQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
@@ -15019,6 +15020,7 @@ export const GetUsageBreakdownDocument = gql`
       amountCents
       billableMetricCode
       units
+      isBillableMetricDeleted
     }
   }
 }
