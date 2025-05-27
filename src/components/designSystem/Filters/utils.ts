@@ -124,7 +124,19 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.webhookStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.billingEntityIds]: (value: string) =>
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
+  [AvailableFiltersEnum.loggedDate]: (value: string) => {
+    return {
+      fromDate: (value as string).split(',')[0],
+      toDate: (value as string).split(',')[1],
+    }
+  },
 }
+
+export const FiltersItemDates = [
+  AvailableFiltersEnum.date,
+  AvailableFiltersEnum.issuingDate,
+  AvailableFiltersEnum.loggedDate,
+]
 
 export const formatFiltersForQuery = ({
   searchParams,
@@ -392,6 +404,7 @@ export const formatActiveFilterValueDisplay = (
       return value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0]
     case AvailableFiltersEnum.date:
     case AvailableFiltersEnum.issuingDate:
+    case AvailableFiltersEnum.loggedDate:
       return value
         .split(',')
         .map((v) => {

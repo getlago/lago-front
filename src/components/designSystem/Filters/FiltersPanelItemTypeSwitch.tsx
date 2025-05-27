@@ -13,6 +13,7 @@ import { FiltersItemDate } from '~/components/designSystem/Filters/filtersElemen
 import { FiltersItemInvoiceNumber } from '~/components/designSystem/Filters/filtersElements/FiltersItemInvoiceNumber'
 import { FiltersItemInvoiceType } from '~/components/designSystem/Filters/filtersElements/FiltersItemInvoiceType'
 import { FiltersItemIssuingDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemIssuingDate'
+import { FiltersItemLoggedDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemLoggedDate'
 import { FiltersItemPartiallyPaid } from '~/components/designSystem/Filters/filtersElements/FiltersItemPartiallyPaid'
 import { FiltersItemPaymentDisputeLost } from '~/components/designSystem/Filters/filtersElements/FiltersItemPaymentDisputeLost'
 import { FiltersItemPaymentOverdue } from '~/components/designSystem/Filters/filtersElements/FiltersItemPaymentOverdue'
@@ -23,6 +24,7 @@ import { FiltersItemSelfBilled } from '~/components/designSystem/Filters/filters
 import { FiltersItemStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemStatus'
 import { FiltersItemSubscription } from '~/components/designSystem/Filters/filtersElements/FiltersItemSubscription'
 import { FiltersItemWebhookStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemWebhookStatus'
+import { FiltersItemDates } from '~/components/designSystem/Filters/utils'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { AvailableFiltersEnum, FiltersFormValues } from './types'
@@ -116,12 +118,14 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.billingEntityIds]: (
       <FiltersItemBillingEntity value={value} setFilterValue={setFilterValue} />
     ),
+    [AvailableFiltersEnum.loggedDate]: (
+      <FiltersItemLoggedDate value={value} setFilterValue={setFilterValue} />
+    ),
   }
 
   return (
     <>
-      {filterType === AvailableFiltersEnum.issuingDate ||
-      filterType === AvailableFiltersEnum.date ? (
+      {FiltersItemDates.includes(filterType) ? (
         <Typography variant="body" color="grey700">
           {translate('text_66ab42d4ece7e6b7078993e2')}
         </Typography>

@@ -41,6 +41,7 @@ export enum AvailableFiltersEnum {
   period = 'period',
   webhookStatus = 'webhookStatus',
   billingEntityIds = 'billingEntityIds',
+  loggedDate = 'loggedDate',
 }
 
 export const CreditNoteAvailableFilters = [
@@ -187,6 +188,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.period]: 'text_1746532851931rt2nl6vdlnh',
   [AvailableFiltersEnum.webhookStatus]: 'text_63ac86d797f728a87b2f9fa7',
   [AvailableFiltersEnum.billingEntityIds]: 'text_17436114971570doqrwuwhf0',
+  [AvailableFiltersEnum.loggedDate]: 'text_1747666154074cdsfaq5c4bz',
 }
 
 export type FiltersFormValues = {
