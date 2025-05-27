@@ -127,61 +127,37 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
               />
             </div>
 
-            <Typography className="pt-1" variant="caption">
-              {translate('text_6560809c38fb9de88d8a52fb')}
-            </Typography>
-            <Typography className="overflow-wrap-anywhere flex min-w-0 max-w-full" color="grey700">
-              {activityType}
-            </Typography>
-
-            <Typography className="pt-1" variant="caption">
-              {translate('text_6388b923e514213fed58331c')}
-            </Typography>
-            <Typography className="overflow-wrap-anywhere flex min-w-0 max-w-full" color="grey700">
-              {translate(activityTypeTranslation, parameters)}
-            </Typography>
-
-            <Typography className="pt-1" variant="caption">
-              {translate('text_1747352070254nf3uobwaiwg')}
-            </Typography>
-            <Typography className="overflow-wrap-anywhere flex min-w-0 max-w-full" color="grey700">
-              {activityId}
-            </Typography>
-
-            <Typography className="pt-1" variant="caption">
-              {translate('text_17473520702542eqnulj06zc')}
-            </Typography>
-            <Typography className="overflow-wrap-anywhere flex min-w-0 max-w-full" color="grey700">
-              {formatTimeOrgaTZ(loggedAt, 'LLL dd, hh:mm:ss a')}
-            </Typography>
-
-            <Typography className="pt-1" variant="caption">
-              {translate('text_174735207025406tp34gdzxb')}
-            </Typography>
-            <Typography className="overflow-wrap-anywhere flex min-w-0 max-w-full" color="grey700">
-              {userEmail}
-            </Typography>
-
-            <Typography className="pt-1" variant="caption">
-              {translate('text_1747352070254xmjaw609ifs')}
-            </Typography>
-            <Typography className="overflow-wrap-anywhere flex min-w-0 max-w-full" color="grey700">
-              {activitySource}
-            </Typography>
-
-            {apiKeyData?.apiKey.value && (
-              <>
-                <Typography className="pt-1" variant="caption">
-                  {translate('text_645d071272418a14c1c76aa4')}
-                </Typography>
-                <Typography
-                  className="overflow-wrap-anywhere flex min-w-0 max-w-full"
-                  color="grey700"
-                >
-                  {apiKeyData?.apiKey.value}
-                </Typography>
-              </>
-            )}
+            {[
+              [translate('text_6560809c38fb9de88d8a52fb'), activityType],
+              [
+                translate('text_6388b923e514213fed58331c'),
+                translate(activityTypeTranslation, parameters),
+              ],
+              [translate('text_1747352070254nf3uobwaiwg'), activityId],
+              [
+                translate('text_17473520702542eqnulj06zc'),
+                formatTimeOrgaTZ(loggedAt, 'LLL dd, hh:mm:ss a'),
+              ],
+              [translate('text_174735207025406tp34gdzxb'), userEmail],
+              [translate('text_1747352070254xmjaw609ifs'), activitySource],
+              apiKeyData?.apiKey.value
+                ? [translate('text_645d071272418a14c1c76aa4'), apiKeyData?.apiKey.value]
+                : [],
+            ]
+              .filter(([label, value]) => !!label && !!value)
+              .map(([label, value]) => (
+                <>
+                  <Typography key={label} className="pt-1" variant="caption">
+                    {label}
+                  </Typography>
+                  <Typography
+                    className="overflow-wrap-anywhere flex min-w-0 max-w-full"
+                    color="grey700"
+                  >
+                    {value}
+                  </Typography>
+                </>
+              ))}
           </div>
 
           {(Object.keys(objectChanges).length > 0 || Object.keys(newObject).length > 0) && (
