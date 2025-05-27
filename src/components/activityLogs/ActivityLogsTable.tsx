@@ -1,7 +1,7 @@
 import { gql, QueryResult } from '@apollo/client'
 import { FC, useMemo } from 'react'
 
-import { getActivityDescription } from '~/components/activityLogs/utils'
+import { formatActivityType, getActivityDescription } from '~/components/activityLogs/utils'
 import { Table, TableProps, Typography } from '~/components/designSystem'
 import { ActivityLogsTableDataFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -60,7 +60,7 @@ export const ActivityLogsTable: FC<ActivityLogsTableProps> = ({
           key: 'activityType',
           content: ({ activityType }) => (
             <Typography color="grey600" variant="captionCode">
-              {activityType}
+              {formatActivityType(activityType)}
             </Typography>
           ),
         },
