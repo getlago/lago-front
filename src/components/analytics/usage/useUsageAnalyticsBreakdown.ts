@@ -29,7 +29,6 @@ gql`
     $fromDate: ISO8601Date
     $toDate: ISO8601Date
     $isBillableMetricRecurring: Boolean
-    $isBillableMetricDeleted: Boolean
   ) {
     dataApiUsages(
       currency: $currency
@@ -37,7 +36,6 @@ gql`
       fromDate: $fromDate
       toDate: $toDate
       isBillableMetricRecurring: $isBillableMetricRecurring
-      isBillableMetricDeleted: $isBillableMetricDeleted
     ) {
       collection {
         startOfPeriodDt
@@ -69,7 +67,7 @@ type UseUsageAnalyticsBreakdownProps = {
   isBillableMetricRecurring?: boolean
   breakdownType: UsageBreakdownType
   overridenTimeGranularity?: TimeGranularityEnum
-  isBillableMetricDeleted: boolean
+  showDeletedBillableMetrics: boolean
 }
 
 export const useUsageAnalyticsBreakdown = ({
@@ -78,7 +76,7 @@ export const useUsageAnalyticsBreakdown = ({
   isBillableMetricRecurring,
   breakdownType,
   overridenTimeGranularity,
-  isBillableMetricDeleted,
+  showDeletedBillableMetrics,
 }: UseUsageAnalyticsBreakdownProps) => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
@@ -144,7 +142,6 @@ export const useUsageAnalyticsBreakdown = ({
       ...filters,
       timeGranularity: overridenTimeGranularity || getDefaultStaticTimeGranularityFilter(),
       isBillableMetricRecurring,
-      isBillableMetricDeleted,
     }
   }, [
     hasAccessToAnalyticsDashboardsFeature,
@@ -185,8 +182,16 @@ export const useUsageAnalyticsBreakdown = ({
 
   const accessor = ACCESSORS[breakdownType]
 
+  const data = useMemo(
+    () =>
+      usageData?.dataApiUsages?.collection.filter(
+        (item) => showDeletedBillableMetrics || !item.isBillableMetricDeleted,
+      ),
+    [usageData?.dataApiUsages?.collection, showDeletedBillableMetrics],
+  )
+
   return {
-    data: usageData?.dataApiUsages?.collection,
+    data,
     defaultCurrency,
     hasAccessToAnalyticsDashboardsFeature,
     selectedCurrency,

@@ -2642,6 +2642,7 @@ export type DataApiUsage = {
   amountCurrency: CurrencyEnum;
   billableMetricCode: Scalars['String']['output'];
   endOfPeriodDt: Scalars['ISO8601Date']['output'];
+  isBillableMetricDeleted: Scalars['Boolean']['output'];
   startOfPeriodDt: Scalars['ISO8601Date']['output'];
   units: Scalars['Float']['output'];
 };

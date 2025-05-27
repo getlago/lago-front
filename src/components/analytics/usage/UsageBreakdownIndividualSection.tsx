@@ -20,7 +20,7 @@ type UsageBreakdownIndividualSectionProps = {
   filtersPrefix: string
   isBillableMetricRecurring: boolean
   breakdownType: UsageBreakdownType
-  isBillableMetricDeleted: boolean
+  showDeletedBillableMetrics: boolean
 }
 
 const UsageBreakdownIndividualSection = ({
@@ -29,7 +29,7 @@ const UsageBreakdownIndividualSection = ({
   filtersPrefix,
   isBillableMetricRecurring,
   breakdownType,
-  isBillableMetricDeleted,
+  showDeletedBillableMetrics,
 }: UsageBreakdownIndividualSectionProps) => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
@@ -55,7 +55,7 @@ const UsageBreakdownIndividualSection = ({
     availableFilters,
     filtersPrefix,
     isBillableMetricRecurring,
-    isBillableMetricDeleted,
+    showDeletedBillableMetrics,
     breakdownType,
     overridenTimeGranularity: timeGranularity,
   })

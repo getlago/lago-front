@@ -3074,7 +3074,6 @@
   "text_1747058197364ivug6k5e2nc": "Events received",
   "text_1747058197364eeqig77mkmq": "Event code",
   "text_1747058197364dm3no1jnete": "Oops! Something went wrong.",
-<<<<<<< HEAD
   "text_1747726772472cm6yllhi7eh": "Page link copied to clipboard",
   "text_1747314141347sfeoozf86o7": "There are no activity logs",
   "text_1747314141347gs3g2lpln2h": "Activity logs provide detailed records of all actions. However, there are currently no logs available for this organization.",
@@ -3119,6 +3118,5 @@
   "text_1747404806714mghtx7cickp": "Payment for wallet transaction {{transactionId}} failed",
   "text_1747404806714etwdmgd36ni": "Wallet transaction {{transactionId}} was updated",
   "text_1747404806714x0expgzlcnt": "Prepaid credits wallet {{walletId}} was updated",
-  "text_1747726772472cm6yllhi7eh": "Page link copied to clipboard",
   "text_1748270946222tj9ehmsu4f7": "Show deleted metrics"
 }
