@@ -126,6 +126,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.paymentOverdue]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.planCode]: (value: string) => value,
+  [AvailableFiltersEnum.resourceTypes]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.selfBilled]: (value: string) => value === 'true',
   [AvailableFiltersEnum.status]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.subscriptionExternalId]: (value: string) =>
