@@ -90,6 +90,10 @@ export const parseAmountValue = (value: string) => {
 
 export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.amount]: parseAmountValue,
+  [AvailableFiltersEnum.apiKeyIds]: (value: string) =>
+    value.split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
+  [AvailableFiltersEnum.billingEntityIds]: (value: string) =>
+    (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.country]: (value: string) => value,
   [AvailableFiltersEnum.creditNoteCreditStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.creditNoteReason]: (value: string) => (value as string).split(','),
@@ -110,6 +114,12 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
       issuingDateTo: (value as string).split(',')[1],
     }
   },
+  [AvailableFiltersEnum.loggedDate]: (value: string) => {
+    return {
+      fromDate: (value as string).split(',')[0],
+      toDate: (value as string).split(',')[1],
+    }
+  },
   [AvailableFiltersEnum.partiallyPaid]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentDisputeLost]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentOverdue]: (value: string) => value === 'true',
@@ -122,14 +132,6 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.timeGranularity]: (value: string) => value,
   [AvailableFiltersEnum.period]: (value: string) => value,
   [AvailableFiltersEnum.webhookStatus]: (value: string) => (value as string).split(','),
-  [AvailableFiltersEnum.billingEntityIds]: (value: string) =>
-    (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
-  [AvailableFiltersEnum.loggedDate]: (value: string) => {
-    return {
-      fromDate: (value as string).split(',')[0],
-      toDate: (value as string).split(',')[1],
-    }
-  },
 }
 
 export const FiltersItemDates = [
@@ -415,6 +417,7 @@ export const formatActiveFilterValueDisplay = (
       return (
         translate?.(PeriodScopeTranslationLookup[value as TPeriodScopeTranslationLookupValue]) || ''
       )
+    case AvailableFiltersEnum.apiKeyIds:
     case AvailableFiltersEnum.billingEntityIds:
       return value
         .split(',')

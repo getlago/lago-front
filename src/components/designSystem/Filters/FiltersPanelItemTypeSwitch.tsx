@@ -1,5 +1,6 @@
 import { Typography } from '~/components/designSystem'
 import { FiltersItemAmount } from '~/components/designSystem/Filters/filtersElements/FiltersItemAmount'
+import { FiltersItemApiKeyIds } from '~/components/designSystem/Filters/filtersElements/FiltersItemApiKeyIds'
 import { FiltersItemBillingEntity } from '~/components/designSystem/Filters/filtersElements/FiltersItemBillingEntity'
 import { FiltersItemCountry } from '~/components/designSystem/Filters/filtersElements/FiltersItemCountry'
 import { FiltersItemCreditNoteCreditStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemCreditNoteCreditStatus'
@@ -37,8 +38,7 @@ type FiltersPanelItemTypeSwitchProps = {
 
 export const FiltersPanelItemTypeSwitch = ({
   filterType,
-  value,
-  setFilterValue,
+  ...props
 }: FiltersPanelItemTypeSwitchProps) => {
   const { translate } = useInternationalization()
 
@@ -47,80 +47,33 @@ export const FiltersPanelItemTypeSwitch = ({
   }
 
   const filterTypeMap: Record<AvailableFiltersEnum, React.ReactNode> = {
-    [AvailableFiltersEnum.amount]: (
-      <FiltersItemAmount value={value} setFilterValue={setFilterValue} />
-    ),
-    [AvailableFiltersEnum.country]: (
-      <FiltersItemCountry value={value} setFilterValue={setFilterValue} />
-    ),
-    [AvailableFiltersEnum.creditNoteCreditStatus]: (
-      <FiltersItemCreditNoteCreditStatus value={value} setFilterValue={setFilterValue} />
-    ),
-    [AvailableFiltersEnum.creditNoteReason]: (
-      <FiltersItemCreditNoteReason value={value} setFilterValue={setFilterValue} />
-    ),
-    [AvailableFiltersEnum.creditNoteRefundStatus]: (
-      <FiltersItemCreditNoteRefundStatus value={value} setFilterValue={setFilterValue} />
-    ),
-    [AvailableFiltersEnum.currency]: (
-      <FiltersItemCurrency value={value} setFilterValue={setFilterValue} />
-    ),
-    [AvailableFiltersEnum.customerType]: (
-      <FiltersItemCustomerType value={value} setFilterValue={setFilterValue} />
-    ),
-    [AvailableFiltersEnum.customerAccountType]: (
-      <FiltersItemCustomerAccountType value={value} setFilterValue={setFilterValue} />
-    ),
+    [AvailableFiltersEnum.amount]: <FiltersItemAmount {...props} />,
+    [AvailableFiltersEnum.apiKeyIds]: <FiltersItemApiKeyIds {...props} />,
+    [AvailableFiltersEnum.billingEntityIds]: <FiltersItemBillingEntity {...props} />,
+    [AvailableFiltersEnum.country]: <FiltersItemCountry {...props} />,
+    [AvailableFiltersEnum.creditNoteCreditStatus]: <FiltersItemCreditNoteCreditStatus {...props} />,
+    [AvailableFiltersEnum.creditNoteReason]: <FiltersItemCreditNoteReason {...props} />,
+    [AvailableFiltersEnum.creditNoteRefundStatus]: <FiltersItemCreditNoteRefundStatus {...props} />,
+    [AvailableFiltersEnum.currency]: <FiltersItemCurrency {...props} />,
+    [AvailableFiltersEnum.customerType]: <FiltersItemCustomerType {...props} />,
+    [AvailableFiltersEnum.customerAccountType]: <FiltersItemCustomerAccountType {...props} />,
     [AvailableFiltersEnum.timeGranularity]: null, // Used in quick filters only
-    [AvailableFiltersEnum.customerExternalId]: (
-      <FiltersItemCustomer value={value} setFilterValue={setFilterValue} />
-    ),
-    [AvailableFiltersEnum.date]: <FiltersItemDate value={value} setFilterValue={setFilterValue} />,
-    [AvailableFiltersEnum.invoiceNumber]: (
-      <FiltersItemInvoiceNumber value={value} setFilterValue={setFilterValue} />
-    ),
-    [AvailableFiltersEnum.invoiceType]: (
-      <FiltersItemInvoiceType value={value} setFilterValue={setFilterValue} />
-    ),
-    [AvailableFiltersEnum.issuingDate]: (
-      <FiltersItemIssuingDate value={value} setFilterValue={setFilterValue} />
-    ),
-    [AvailableFiltersEnum.partiallyPaid]: (
-      <FiltersItemPartiallyPaid value={value} setFilterValue={setFilterValue} />
-    ),
-    [AvailableFiltersEnum.paymentDisputeLost]: (
-      <FiltersItemPaymentDisputeLost value={value} setFilterValue={setFilterValue} />
-    ),
-    [AvailableFiltersEnum.paymentOverdue]: (
-      <FiltersItemPaymentOverdue value={value} setFilterValue={setFilterValue} />
-    ),
-    [AvailableFiltersEnum.paymentStatus]: (
-      <FiltersItemPaymentStatus value={value} setFilterValue={setFilterValue} />
-    ),
-    [AvailableFiltersEnum.planCode]: (
-      <FiltersItemPlanCode value={value} setFilterValue={setFilterValue} />
-    ),
-    [AvailableFiltersEnum.selfBilled]: (
-      <FiltersItemSelfBilled value={value} setFilterValue={setFilterValue} />
-    ),
-    [AvailableFiltersEnum.status]: (
-      <FiltersItemStatus value={value} setFilterValue={setFilterValue} />
-    ),
-    [AvailableFiltersEnum.subscriptionExternalId]: (
-      <FiltersItemSubscription value={value} setFilterValue={setFilterValue} />
-    ),
-    [AvailableFiltersEnum.period]: (
-      <FiltersItemPeriod value={value} setFilterValue={setFilterValue} />
-    ),
-    [AvailableFiltersEnum.webhookStatus]: (
-      <FiltersItemWebhookStatus value={value} setFilterValue={setFilterValue} />
-    ),
-    [AvailableFiltersEnum.billingEntityIds]: (
-      <FiltersItemBillingEntity value={value} setFilterValue={setFilterValue} />
-    ),
-    [AvailableFiltersEnum.loggedDate]: (
-      <FiltersItemLoggedDate value={value} setFilterValue={setFilterValue} />
-    ),
+    [AvailableFiltersEnum.customerExternalId]: <FiltersItemCustomer {...props} />,
+    [AvailableFiltersEnum.date]: <FiltersItemDate {...props} />,
+    [AvailableFiltersEnum.invoiceNumber]: <FiltersItemInvoiceNumber {...props} />,
+    [AvailableFiltersEnum.invoiceType]: <FiltersItemInvoiceType {...props} />,
+    [AvailableFiltersEnum.issuingDate]: <FiltersItemIssuingDate {...props} />,
+    [AvailableFiltersEnum.loggedDate]: <FiltersItemLoggedDate {...props} />,
+    [AvailableFiltersEnum.partiallyPaid]: <FiltersItemPartiallyPaid {...props} />,
+    [AvailableFiltersEnum.paymentDisputeLost]: <FiltersItemPaymentDisputeLost {...props} />,
+    [AvailableFiltersEnum.paymentOverdue]: <FiltersItemPaymentOverdue {...props} />,
+    [AvailableFiltersEnum.paymentStatus]: <FiltersItemPaymentStatus {...props} />,
+    [AvailableFiltersEnum.planCode]: <FiltersItemPlanCode {...props} />,
+    [AvailableFiltersEnum.selfBilled]: <FiltersItemSelfBilled {...props} />,
+    [AvailableFiltersEnum.status]: <FiltersItemStatus {...props} />,
+    [AvailableFiltersEnum.subscriptionExternalId]: <FiltersItemSubscription {...props} />,
+    [AvailableFiltersEnum.period]: <FiltersItemPeriod {...props} />,
+    [AvailableFiltersEnum.webhookStatus]: <FiltersItemWebhookStatus {...props} />,
   }
 
   return (

@@ -17,6 +17,8 @@ export enum AmountFilterInterval {
 
 export enum AvailableFiltersEnum {
   amount = 'amount',
+  apiKeyIds = 'apiKeyIds',
+  billingEntityIds = 'billingEntityIds',
   country = 'country',
   creditNoteCreditStatus = 'creditNoteCreditStatus',
   creditNoteReason = 'creditNoteReason',
@@ -29,6 +31,7 @@ export enum AvailableFiltersEnum {
   invoiceNumber = 'invoiceNumber',
   invoiceType = 'invoiceType',
   issuingDate = 'issuingDate',
+  loggedDate = 'loggedDate',
   partiallyPaid = 'partiallyPaid',
   paymentDisputeLost = 'paymentDisputeLost',
   paymentOverdue = 'paymentOverdue',
@@ -40,8 +43,6 @@ export enum AvailableFiltersEnum {
   timeGranularity = 'timeGranularity',
   period = 'period',
   webhookStatus = 'webhookStatus',
-  billingEntityIds = 'billingEntityIds',
-  loggedDate = 'loggedDate',
 }
 
 export const CreditNoteAvailableFilters = [
@@ -160,10 +161,15 @@ export const UsageBillableMetricAvailableFilters = [
   AvailableFiltersEnum.subscriptionExternalId,
 ]
 
-export const ActivityLogsAvailableFilters = []
+export const ActivityLogsAvailableFilters = [
+  AvailableFiltersEnum.loggedDate,
+  AvailableFiltersEnum.apiKeyIds,
+]
 
 const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.amount]: 'text_17346988752182hpzppdqk9t',
+  [AvailableFiltersEnum.apiKeyIds]: 'text_645d071272418a14c1c76aa4',
+  [AvailableFiltersEnum.billingEntityIds]: 'text_17436114971570doqrwuwhf0',
   [AvailableFiltersEnum.country]: 'text_62ab2d0396dd6b0361614da0',
   [AvailableFiltersEnum.creditNoteCreditStatus]: 'text_173470389114473bzrbyh6va',
   [AvailableFiltersEnum.creditNoteReason]: 'text_1734703891144ptrs5sty2bg',
@@ -176,6 +182,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.invoiceNumber]: 'text_1734698875218fbxzci2g2s2',
   [AvailableFiltersEnum.invoiceType]: 'text_632d68358f1fedc68eed3e5a',
   [AvailableFiltersEnum.issuingDate]: 'text_6419c64eace749372fc72b39',
+  [AvailableFiltersEnum.loggedDate]: 'text_1747666154074cdsfaq5c4bz',
   [AvailableFiltersEnum.partiallyPaid]: 'text_1738071221799vib0l2z1bxe',
   [AvailableFiltersEnum.paymentDisputeLost]: 'text_66141e30699a0631f0b2ed32',
   [AvailableFiltersEnum.paymentOverdue]: 'text_666c5b12fea4aa1e1b26bf55',
@@ -187,8 +194,6 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.timeGranularity]: '', // Used in quick filters only
   [AvailableFiltersEnum.period]: 'text_1746532851931rt2nl6vdlnh',
   [AvailableFiltersEnum.webhookStatus]: 'text_63ac86d797f728a87b2f9fa7',
-  [AvailableFiltersEnum.billingEntityIds]: 'text_17436114971570doqrwuwhf0',
-  [AvailableFiltersEnum.loggedDate]: 'text_1747666154074cdsfaq5c4bz',
 }
 
 export type FiltersFormValues = {

@@ -8279,6 +8279,11 @@ export type GetCustomerSubscriptionForUsageQuery = { __typename?: 'Query', custo
 
 export type CustomerUsageForUsageDetailsFragment = { __typename?: 'CustomerUsage', fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null }, billableMetric: { __typename?: 'BillableMetric', name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', id: string, amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null }> | null }> }> };
 
+export type GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetApiKeyIdsForFilterItemApiKeyIdsQuery = { __typename?: 'Query', apiKeys: { __typename?: 'SanitizedApiKeyCollection', collection: Array<{ __typename?: 'SanitizedApiKey', id: string, value: string }> } };
+
 export type GetCustomersForFilterItemCustomerQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -17840,6 +17845,48 @@ export type GetCustomerSubscriptionForUsageQueryHookResult = ReturnType<typeof u
 export type GetCustomerSubscriptionForUsageLazyQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionForUsageLazyQuery>;
 export type GetCustomerSubscriptionForUsageSuspenseQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionForUsageSuspenseQuery>;
 export type GetCustomerSubscriptionForUsageQueryResult = Apollo.QueryResult<GetCustomerSubscriptionForUsageQuery, GetCustomerSubscriptionForUsageQueryVariables>;
+export const GetApiKeyIdsForFilterItemApiKeyIdsDocument = gql`
+    query getApiKeyIdsForFilterItemApiKeyIds {
+  apiKeys {
+    collection {
+      id
+      value
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetApiKeyIdsForFilterItemApiKeyIdsQuery__
+ *
+ * To run a query within a React component, call `useGetApiKeyIdsForFilterItemApiKeyIdsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetApiKeyIdsForFilterItemApiKeyIdsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetApiKeyIdsForFilterItemApiKeyIdsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetApiKeyIdsForFilterItemApiKeyIdsQuery(baseOptions?: Apollo.QueryHookOptions<GetApiKeyIdsForFilterItemApiKeyIdsQuery, GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetApiKeyIdsForFilterItemApiKeyIdsQuery, GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables>(GetApiKeyIdsForFilterItemApiKeyIdsDocument, options);
+      }
+export function useGetApiKeyIdsForFilterItemApiKeyIdsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetApiKeyIdsForFilterItemApiKeyIdsQuery, GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetApiKeyIdsForFilterItemApiKeyIdsQuery, GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables>(GetApiKeyIdsForFilterItemApiKeyIdsDocument, options);
+        }
+export function useGetApiKeyIdsForFilterItemApiKeyIdsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetApiKeyIdsForFilterItemApiKeyIdsQuery, GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetApiKeyIdsForFilterItemApiKeyIdsQuery, GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables>(GetApiKeyIdsForFilterItemApiKeyIdsDocument, options);
+        }
+export type GetApiKeyIdsForFilterItemApiKeyIdsQueryHookResult = ReturnType<typeof useGetApiKeyIdsForFilterItemApiKeyIdsQuery>;
+export type GetApiKeyIdsForFilterItemApiKeyIdsLazyQueryHookResult = ReturnType<typeof useGetApiKeyIdsForFilterItemApiKeyIdsLazyQuery>;
+export type GetApiKeyIdsForFilterItemApiKeyIdsSuspenseQueryHookResult = ReturnType<typeof useGetApiKeyIdsForFilterItemApiKeyIdsSuspenseQuery>;
+export type GetApiKeyIdsForFilterItemApiKeyIdsQueryResult = Apollo.QueryResult<GetApiKeyIdsForFilterItemApiKeyIdsQuery, GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables>;
 export const GetCustomersForFilterItemCustomerDocument = gql`
     query getCustomersForFilterItemCustomer($page: Int, $limit: Int, $searchTerm: String) {
   customers(
