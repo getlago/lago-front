@@ -46,7 +46,9 @@ export const ActivityLogTable: FC<ActivityLogTableProps> = ({
           const path = generatePath(ACTIVITY_LOG_ROUTE, {
             logId: activityId,
           })
-          const search = searchParams ? `?${searchParams.toString()}` : ''
+
+          const query = searchParams.toString()
+          const search = query ? `?${query}` : ''
 
           return `${path}${search}`
         }}

@@ -95,7 +95,8 @@ export const ActivityLogs = () => {
 
         if (firstLog && getCurrentBreakpoint() !== 'sm') {
           const path = generatePath(ACTIVITY_LOG_ROUTE, { logId: firstLog.activityId })
-          const search = currentSearchParams ? `?${currentSearchParams.toString()}` : ''
+          const query = currentSearchParams?.toString()
+          const search = query ? `?${query}` : ''
 
           navigate(`${path}${search}`, {
             replace: true,
