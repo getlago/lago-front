@@ -183,3 +183,35 @@ export function getActivityDescription(
 
   return [activityTypeTranslations[activityType], parameters]
 }
+
+export function formatActivityType(activityType: ActivityTypeEnum) {
+  const str = String(activityType)
+  // List of known action suffixes
+  const actions = [
+    'payment_status_updated',
+    'paid_credit_added',
+    'refund_failure',
+    'payment_failure',
+    'payment_overdue',
+    'one_off_created',
+    'terminated',
+    'generated',
+    'created',
+    'deleted',
+    'updated',
+    'drafted',
+    'failed',
+    'voided',
+    'recorded',
+    'started',
+  ]
+
+  for (const action of actions) {
+    const suffix = `_${action}`
+
+    if (str.endsWith(suffix)) {
+      return `${str.slice(0, -suffix.length)}.${action}`
+    }
+  }
+  return str
+}
