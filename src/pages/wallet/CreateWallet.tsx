@@ -191,6 +191,7 @@ const CreateWallet = () => {
       expirationAt: wallet?.expirationAt || undefined,
       grantedCredits: '',
       name: wallet?.name || '',
+      appliesTo: wallet?.appliesTo || undefined,
       paidCredits: '',
       rateAmount: intlFormatNumber(wallet?.rateAmount ?? 1, {
         currency,
@@ -332,11 +333,7 @@ const CreateWallet = () => {
                   ? 'text_62d9430e8b9fe36851cddd09'
                   : 'text_6560809c38fb9de88d8a505e',
               )}
-              description={translate(
-                formType === FORM_TYPE_ENUM.edition
-                  ? 'text_6657c2b9cf6b9200aa3d1c89'
-                  : 'text_62d18855b22699e5cf55f873',
-              )}
+              description={translate('text_1748422458559917eelhobh5')}
             />
 
             <SettingsSection
@@ -357,26 +354,26 @@ const CreateWallet = () => {
             />
           </CenteredPage.Container>
         )}
-      </CenteredPage.Wrapper>
 
-      <CenteredPage.StickyFooter>
-        <Button size="large" variant="quaternary" onClick={onAbort}>
-          {translate('text_62e79671d23ae6ff149de968')}
-        </Button>
-        <Button
-          size="large"
-          variant="primary"
-          disabled={!formikProps.isValid || !formikProps.dirty}
-          onClick={() => formikProps.handleSubmit()}
-          data-test="submit-wallet"
-        >
-          {translate(
-            formType === FORM_TYPE_ENUM.edition
-              ? 'text_62e161ceb87c201025388aa2'
-              : 'text_6560809c38fb9de88d8a505e',
-          )}
-        </Button>
-      </CenteredPage.StickyFooter>
+        <CenteredPage.StickyFooter>
+          <Button size="large" variant="quaternary" onClick={onAbort}>
+            {translate('text_62e79671d23ae6ff149de968')}
+          </Button>
+          <Button
+            size="large"
+            variant="primary"
+            disabled={!formikProps.isValid || !formikProps.dirty}
+            onClick={formikProps.submitForm}
+            data-test="submit-wallet"
+          >
+            {translate(
+              formType === FORM_TYPE_ENUM.edition
+                ? 'text_62e161ceb87c201025388aa2'
+                : 'text_6560809c38fb9de88d8a505e',
+            )}
+          </Button>
+        </CenteredPage.StickyFooter>
+      </CenteredPage.Wrapper>
 
       <WarningDialog
         ref={warningDialogRef}
