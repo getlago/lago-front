@@ -31,6 +31,10 @@ import {
 } from '~/components/form'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import {
+  formatAggregationType,
+  formatRoundingFunction,
+} from '~/core/formats/formatBillableMetricsItems'
 import { BILLABLE_METRICS_ROUTE } from '~/core/router'
 import {
   AggregationTypeEnum,
@@ -68,24 +72,6 @@ gql`
 enum AggregateOnTab {
   UniqueField,
   CustomExpression,
-}
-
-const TRANSLATIONS_MAP_ROUNDING_FUNCTION: Record<
-  RoundingFunctionEnum,
-  { label: string; description: string }
-> = {
-  [RoundingFunctionEnum.Round]: {
-    label: 'text_1730554642648p1mngqwys8n',
-    description: 'text_1730554642648qe9wjveh3fv',
-  },
-  [RoundingFunctionEnum.Floor]: {
-    label: 'text_1730554642648f6pn2krp9sh',
-    description: 'text_173055464264830liis0ojbc',
-  },
-  [RoundingFunctionEnum.Ceil]: {
-    label: 'text_17305546426481bes2lelpqf',
-    description: 'text_1730554642648grbu07mq6u3',
-  },
 }
 
 const CreateBillableMetric = () => {
@@ -413,43 +399,57 @@ const CreateBillableMetric = () => {
                         ...(!formikProps.values?.recurring
                           ? [
                               {
-                                label: translate('text_623c4a8c599213014cacc9de'),
+                                label: translate(
+                                  formatAggregationType(AggregationTypeEnum.CountAgg)?.label || '',
+                                ),
                                 value: AggregationTypeEnum.CountAgg,
                               },
                             ]
                           : []),
 
                         {
-                          label: translate('text_62694d9181be8d00a33f20f0'),
+                          label: translate(
+                            formatAggregationType(AggregationTypeEnum.UniqueCountAgg)?.label || '',
+                          ),
                           value: AggregationTypeEnum.UniqueCountAgg,
                         },
                         ...(!formikProps.values?.recurring
                           ? [
                               {
-                                label: translate('text_64f8823d75521b6faaee8549'),
+                                label: translate(
+                                  formatAggregationType(AggregationTypeEnum.LatestAgg)?.label || '',
+                                ),
                                 value: AggregationTypeEnum.LatestAgg,
                               },
                               {
-                                label: translate('text_62694d9181be8d00a33f20f8'),
+                                label: translate(
+                                  formatAggregationType(AggregationTypeEnum.MaxAgg)?.label || '',
+                                ),
                                 value: AggregationTypeEnum.MaxAgg,
                               },
                             ]
                           : []),
 
                         {
-                          label: translate('text_62694d9181be8d00a33f2100'),
+                          label: translate(
+                            formatAggregationType(AggregationTypeEnum.SumAgg)?.label || '',
+                          ),
                           value: AggregationTypeEnum.SumAgg,
                         },
                         {
                           labelNode: (
                             <div className="flex items-center gap-2">
                               <Typography variant="body" color="grey700">
-                                {translate('text_650062226a33c46e82050486')}
+                                {translate(
+                                  formatAggregationType(AggregationTypeEnum.WeightedSumAgg)
+                                    ?.label || '',
+                                )}
                               </Typography>
                             </div>
                           ),
-
-                          label: translate('text_650062226a33c46e82050486'),
+                          label: translate(
+                            formatAggregationType(AggregationTypeEnum.WeightedSumAgg)?.label || '',
+                          ),
                           value: AggregationTypeEnum.WeightedSumAgg,
                         },
 
@@ -457,31 +457,21 @@ const CreateBillableMetric = () => {
                         formikProps.values?.aggregationType === AggregationTypeEnum.CustomAgg
                           ? [
                               {
-                                label: translate('text_663dea5702b60301d8d06504'),
+                                label: translate(
+                                  formatAggregationType(AggregationTypeEnum.CustomAgg)?.label || '',
+                                ),
                                 value: AggregationTypeEnum.CustomAgg,
                               },
                             ]
                           : []),
                       ]}
                       helperText={
-                        formikProps.values?.aggregationType === AggregationTypeEnum.CountAgg
-                          ? translate('text_6241cc759211e600ea57f4f1')
-                          : formikProps.values?.aggregationType ===
-                              AggregationTypeEnum.UniqueCountAgg
-                            ? translate('text_62694d9181be8d00a33f20f6')
-                            : formikProps.values?.aggregationType === AggregationTypeEnum.LatestAgg
-                              ? translate('text_64f8823d75521b6faaee854b')
-                              : formikProps.values?.aggregationType === AggregationTypeEnum.MaxAgg
-                                ? translate('text_62694d9181be8d00a33f20f2')
-                                : formikProps.values?.aggregationType === AggregationTypeEnum.SumAgg
-                                  ? translate('text_62694d9181be8d00a33f20ec')
-                                  : formikProps.values?.aggregationType ===
-                                      AggregationTypeEnum.WeightedSumAgg
-                                    ? translate('text_650062226a33c46e82050488')
-                                    : formikProps.values?.aggregationType ===
-                                        AggregationTypeEnum.CustomAgg
-                                      ? translate('text_663dea5702b60301d8d0650c')
-                                      : undefined
+                        formikProps.values?.aggregationType
+                          ? translate(
+                              formatAggregationType(formikProps.values.aggregationType)
+                                ?.helperText || '',
+                            )
+                          : undefined
                       }
                     />
 
@@ -602,21 +592,15 @@ const CreateBillableMetric = () => {
                                 </Typography>
                               }
                               placeholder={translate('text_1730554642648npqmnqnsynd')}
-                              data={Object.values(RoundingFunctionEnum)
-                                .filter(
-                                  (roundingFunction) =>
-                                    !!TRANSLATIONS_MAP_ROUNDING_FUNCTION[roundingFunction],
-                                )
-                                .map((roundingFunction) => ({
-                                  label: translate(
-                                    TRANSLATIONS_MAP_ROUNDING_FUNCTION[roundingFunction].label,
-                                  ),
-                                  description: translate(
-                                    TRANSLATIONS_MAP_ROUNDING_FUNCTION[roundingFunction]
-                                      .description,
-                                  ),
-                                  value: roundingFunction,
-                                }))}
+                              data={Object.values(RoundingFunctionEnum).map((roundingFunction) => ({
+                                label: translate(
+                                  formatRoundingFunction(roundingFunction)?.label || '',
+                                ),
+                                description: translate(
+                                  formatRoundingFunction(roundingFunction)?.helperText || '',
+                                ),
+                                value: roundingFunction,
+                              }))}
                             />
 
                             {formikProps.values.roundingFunction && (
@@ -655,8 +639,8 @@ const CreateBillableMetric = () => {
                       <Typography className="text-sm font-normal text-grey-600">
                         {formikProps.values.roundingFunction &&
                           translate(
-                            TRANSLATIONS_MAP_ROUNDING_FUNCTION[formikProps.values.roundingFunction]
-                              .description,
+                            formatRoundingFunction(formikProps.values.roundingFunction)
+                              ?.helperText || '',
                           )}
                       </Typography>
                     </div>
