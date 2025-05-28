@@ -6,7 +6,7 @@ import { ChargeTable } from '~/components/designSystem'
 import { AmountInput, Switch, TextInput } from '~/components/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, ThresholdInput } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 
 export const isThresholdValueValid = (
   index: number,
@@ -16,11 +16,64 @@ export const isThresholdValueValid = (
   return index > 0 && value !== '' && Number(value) <= Number(previousThreshold[index - 1]?.value)
 }
 
+const ValueInput = ({
+  currency,
+  onChange,
+  shouldDisplayError = false,
+  shouldHandleUnits = false,
+  translate,
+  value,
+}: {
+  currency: CurrencyEnum
+  onChange: (value: string) => void
+  value: string
+  shouldDisplayError?: boolean
+  shouldHandleUnits?: boolean
+  translate: TranslateFunc
+}) => {
+  if (shouldHandleUnits) {
+    return (
+      <TextInput
+        variant="outlined"
+        beforeChangeFormatter={['positiveNumber', 'int']}
+        error={shouldDisplayError}
+        value={value}
+        onChange={onChange}
+        placeholder="0"
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              {translate('text_6282085b4f283b0102655884')}
+            </InputAdornment>
+          ),
+        }}
+      />
+    )
+  }
+
+  return (
+    <AmountInput
+      variant="outlined"
+      error={shouldDisplayError}
+      beforeChangeFormatter={['positiveNumber']}
+      currency={currency}
+      value={value}
+      onChange={onChange}
+      InputProps={{
+        startAdornment: (
+          <InputAdornment position="start">{getCurrencySymbol(currency)}</InputAdornment>
+        ),
+      }}
+    />
+  )
+}
+
 const AlertThresholds = ({
   thresholds,
   setThresholds,
   setThresholdValue,
   currency,
+  shouldHandleUnits,
 }: {
   thresholds: ThresholdInput[]
   setThresholds: (thresholds: ThresholdInput[]) => void
@@ -34,6 +87,7 @@ const AlertThresholds = ({
     newValue: unknown
   }) => void
   currency: CurrencyEnum
+  shouldHandleUnits: boolean
 }) => {
   const { translate } = useInternationalization()
 
@@ -136,12 +190,8 @@ const AlertThresholds = ({
                       })}
                       disableHoverListener={!shouldDisplayError}
                     >
-                      <AmountInput
-                        variant="outlined"
-                        error={shouldDisplayError}
-                        beforeChangeFormatter={['positiveNumber']}
+                      <ValueInput
                         currency={currency}
-                        value={row.value}
                         onChange={(value) => {
                           setThresholdValue({
                             index: i,
@@ -149,13 +199,10 @@ const AlertThresholds = ({
                             newValue: String(value) || undefined,
                           })
                         }}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              {getCurrencySymbol(currency)}
-                            </InputAdornment>
-                          ),
-                        }}
+                        shouldDisplayError={shouldDisplayError}
+                        shouldHandleUnits={shouldHandleUnits}
+                        translate={translate}
+                        value={row.value}
                       />
                     </Tooltip>
                   )
@@ -213,11 +260,8 @@ const AlertThresholds = ({
               {
                 size: 250,
                 content: (row) => (
-                  <AmountInput
-                    variant="outlined"
-                    beforeChangeFormatter={['positiveNumber']}
+                  <ValueInput
                     currency={currency}
-                    value={row.value}
                     onChange={(value) => {
                       setThresholdValue({
                         index: recurringIndex,
@@ -225,13 +269,9 @@ const AlertThresholds = ({
                         newValue: String(value) || undefined,
                       })
                     }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          {getCurrencySymbol(currency)}
-                        </InputAdornment>
-                      ),
-                    }}
+                    shouldHandleUnits={shouldHandleUnits}
+                    translate={translate}
+                    value={row.value}
                   />
                 ),
               },

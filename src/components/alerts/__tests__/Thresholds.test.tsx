@@ -41,6 +41,7 @@ const renderComponent = async (thresholds: ThresholdInput[], props = {}) => {
   const combinedProps = {
     ...defaultProps,
     thresholds,
+    shouldHandleUnits: false,
     ...props,
   }
 
