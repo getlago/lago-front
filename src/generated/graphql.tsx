@@ -7779,6 +7779,15 @@ export type GetGoogleAuthUrlQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetGoogleAuthUrlQuery = { __typename?: 'Query', googleAuthUrl: { __typename?: 'AuthUrl', url: string } };
 
+export type BillableMetricDetailsFragment = { __typename?: 'BillableMetric', name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, recurring: boolean, expression?: string | null, weightedInterval?: WeightedIntervalEnum | null, roundingFunction?: RoundingFunctionEnum | null, roundingPrecision?: number | null, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> }> | null };
+
+export type GetBillableMetricForDetailsOverviewQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetBillableMetricForDetailsOverviewQuery = { __typename?: 'Query', billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, recurring: boolean, expression?: string | null, weightedInterval?: WeightedIntervalEnum | null, roundingFunction?: RoundingFunctionEnum | null, roundingPrecision?: number | null, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> }> | null } | null };
+
 export type DeleteBillableMetricDialogFragment = { __typename?: 'BillableMetric', id: string, name: string, hasDraftInvoices: boolean, hasActiveSubscriptions: boolean };
 
 export type GetBillableMetricToDeleteQueryVariables = Exact<{
@@ -10167,6 +10176,13 @@ export type UpdateSubscriptionAlertMutationVariables = Exact<{
 
 export type UpdateSubscriptionAlertMutation = { __typename?: 'Mutation', updateSubscriptionAlert?: { __typename?: 'Alert', id: string } | null };
 
+export type GetBillableMetricForHeaderDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetBillableMetricForHeaderDetailsQuery = { __typename?: 'Query', billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, hasDraftInvoices: boolean, hasActiveSubscriptions: boolean } | null };
+
 export type BillableMetricItemFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any };
 
 export type BillableMetricsQueryVariables = Exact<{
@@ -11158,6 +11174,25 @@ export const RevenueStreamDataForOverviewSectionFragmentDoc = gql`
   startOfPeriodDt
   subscriptionFeeAmountCents
   usageBasedFeeAmountCents
+}
+    `;
+export const BillableMetricDetailsFragmentDoc = gql`
+    fragment BillableMetricDetails on BillableMetric {
+  name
+  code
+  description
+  aggregationType
+  fieldName
+  recurring
+  expression
+  weightedInterval
+  roundingFunction
+  roundingPrecision
+  filters {
+    id
+    key
+    values
+  }
 }
     `;
 export const DeleteBillableMetricDialogFragmentDoc = gql`
@@ -15219,6 +15254,47 @@ export type GetGoogleAuthUrlQueryHookResult = ReturnType<typeof useGetGoogleAuth
 export type GetGoogleAuthUrlLazyQueryHookResult = ReturnType<typeof useGetGoogleAuthUrlLazyQuery>;
 export type GetGoogleAuthUrlSuspenseQueryHookResult = ReturnType<typeof useGetGoogleAuthUrlSuspenseQuery>;
 export type GetGoogleAuthUrlQueryResult = Apollo.QueryResult<GetGoogleAuthUrlQuery, GetGoogleAuthUrlQueryVariables>;
+export const GetBillableMetricForDetailsOverviewDocument = gql`
+    query getBillableMetricForDetailsOverview($id: ID!) {
+  billableMetric(id: $id) {
+    id
+    ...BillableMetricDetails
+  }
+}
+    ${BillableMetricDetailsFragmentDoc}`;
+
+/**
+ * __useGetBillableMetricForDetailsOverviewQuery__
+ *
+ * To run a query within a React component, call `useGetBillableMetricForDetailsOverviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBillableMetricForDetailsOverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBillableMetricForDetailsOverviewQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetBillableMetricForDetailsOverviewQuery(baseOptions: Apollo.QueryHookOptions<GetBillableMetricForDetailsOverviewQuery, GetBillableMetricForDetailsOverviewQueryVariables> & ({ variables: GetBillableMetricForDetailsOverviewQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetBillableMetricForDetailsOverviewQuery, GetBillableMetricForDetailsOverviewQueryVariables>(GetBillableMetricForDetailsOverviewDocument, options);
+      }
+export function useGetBillableMetricForDetailsOverviewLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetBillableMetricForDetailsOverviewQuery, GetBillableMetricForDetailsOverviewQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetBillableMetricForDetailsOverviewQuery, GetBillableMetricForDetailsOverviewQueryVariables>(GetBillableMetricForDetailsOverviewDocument, options);
+        }
+export function useGetBillableMetricForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricForDetailsOverviewQuery, GetBillableMetricForDetailsOverviewQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetBillableMetricForDetailsOverviewQuery, GetBillableMetricForDetailsOverviewQueryVariables>(GetBillableMetricForDetailsOverviewDocument, options);
+        }
+export type GetBillableMetricForDetailsOverviewQueryHookResult = ReturnType<typeof useGetBillableMetricForDetailsOverviewQuery>;
+export type GetBillableMetricForDetailsOverviewLazyQueryHookResult = ReturnType<typeof useGetBillableMetricForDetailsOverviewLazyQuery>;
+export type GetBillableMetricForDetailsOverviewSuspenseQueryHookResult = ReturnType<typeof useGetBillableMetricForDetailsOverviewSuspenseQuery>;
+export type GetBillableMetricForDetailsOverviewQueryResult = Apollo.QueryResult<GetBillableMetricForDetailsOverviewQuery, GetBillableMetricForDetailsOverviewQueryVariables>;
 export const GetBillableMetricToDeleteDocument = gql`
     query getBillableMetricToDelete($id: ID!) {
   billableMetric(id: $id) {
@@ -26302,6 +26378,49 @@ export function useUpdateSubscriptionAlertMutation(baseOptions?: Apollo.Mutation
 export type UpdateSubscriptionAlertMutationHookResult = ReturnType<typeof useUpdateSubscriptionAlertMutation>;
 export type UpdateSubscriptionAlertMutationResult = Apollo.MutationResult<UpdateSubscriptionAlertMutation>;
 export type UpdateSubscriptionAlertMutationOptions = Apollo.BaseMutationOptions<UpdateSubscriptionAlertMutation, UpdateSubscriptionAlertMutationVariables>;
+export const GetBillableMetricForHeaderDetailsDocument = gql`
+    query getBillableMetricForHeaderDetails($id: ID!) {
+  billableMetric(id: $id) {
+    id
+    name
+    code
+    ...DeleteBillableMetricDialog
+  }
+}
+    ${DeleteBillableMetricDialogFragmentDoc}`;
+
+/**
+ * __useGetBillableMetricForHeaderDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetBillableMetricForHeaderDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBillableMetricForHeaderDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBillableMetricForHeaderDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetBillableMetricForHeaderDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetBillableMetricForHeaderDetailsQuery, GetBillableMetricForHeaderDetailsQueryVariables> & ({ variables: GetBillableMetricForHeaderDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetBillableMetricForHeaderDetailsQuery, GetBillableMetricForHeaderDetailsQueryVariables>(GetBillableMetricForHeaderDetailsDocument, options);
+      }
+export function useGetBillableMetricForHeaderDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetBillableMetricForHeaderDetailsQuery, GetBillableMetricForHeaderDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetBillableMetricForHeaderDetailsQuery, GetBillableMetricForHeaderDetailsQueryVariables>(GetBillableMetricForHeaderDetailsDocument, options);
+        }
+export function useGetBillableMetricForHeaderDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricForHeaderDetailsQuery, GetBillableMetricForHeaderDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetBillableMetricForHeaderDetailsQuery, GetBillableMetricForHeaderDetailsQueryVariables>(GetBillableMetricForHeaderDetailsDocument, options);
+        }
+export type GetBillableMetricForHeaderDetailsQueryHookResult = ReturnType<typeof useGetBillableMetricForHeaderDetailsQuery>;
+export type GetBillableMetricForHeaderDetailsLazyQueryHookResult = ReturnType<typeof useGetBillableMetricForHeaderDetailsLazyQuery>;
+export type GetBillableMetricForHeaderDetailsSuspenseQueryHookResult = ReturnType<typeof useGetBillableMetricForHeaderDetailsSuspenseQuery>;
+export type GetBillableMetricForHeaderDetailsQueryResult = Apollo.QueryResult<GetBillableMetricForHeaderDetailsQuery, GetBillableMetricForHeaderDetailsQueryVariables>;
 export const BillableMetricsDocument = gql`
     query billableMetrics($page: Int, $limit: Int, $searchTerm: String) {
   billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {

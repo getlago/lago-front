@@ -9,7 +9,12 @@ import {
 } from '~/components/billableMetrics/DeleteBillableMetricDialog'
 import { ButtonLink, Icon, InfiniteScroll, Table, Typography } from '~/components/designSystem'
 import { SearchInput } from '~/components/SearchInput'
-import { CREATE_BILLABLE_METRIC_ROUTE, UPDATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
+import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import {
+  BILLABLE_METRIC_DETAILS_ROUTE,
+  CREATE_BILLABLE_METRIC_ROUTE,
+  UPDATE_BILLABLE_METRIC_ROUTE,
+} from '~/core/router'
 import { useBillableMetricsLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
@@ -96,7 +101,10 @@ const BillableMetricsList = () => {
           isLoading={isLoading}
           hasError={!!error}
           onRowActionLink={({ id }) =>
-            generatePath(UPDATE_BILLABLE_METRIC_ROUTE, { billableMetricId: id })
+            generatePath(BILLABLE_METRIC_DETAILS_ROUTE, {
+              billableMetricId: id,
+              tab: BillableMetricDetailsTabsOptionsEnum.overview,
+            })
           }
           columns={[
             {

@@ -30,6 +30,7 @@ const PlanDetails = lazyLoad(() => import('~/pages/PlanDetails'))
 const AddOnDetails = lazyLoad(() => import('~/pages/AddOnDetails'))
 const CouponDetails = lazyLoad(() => import('~/pages/CouponDetails'))
 const PaymentDetails = lazyLoad(() => import('~/pages/PaymentDetails'))
+const BillableMetricDetails = lazyLoad(() => import('~/pages/BillableMetricDetails'))
 
 // ----------- Routes -----------
 // Lists
@@ -97,6 +98,7 @@ export const ADD_ON_DETAILS_ROUTE = '/add-on/:addOnId'
 export const COUPON_DETAILS_ROUTE = '/coupon/:couponId'
 export const PAYMENT_DETAILS_ROUTE = '/payment/:paymentId'
 export const CUSTOMER_PAYMENT_DETAILS_ROUTE = '/customer/:customerId/payment/:paymentId'
+export const BILLABLE_METRIC_DETAILS_ROUTE = '/billable-metric/:billableMetricId/:tab'
 
 export const objectListRoutes: CustomRouteObject[] = [
   {
@@ -247,5 +249,11 @@ export const objectDetailsRoutes: CustomRouteObject[] = [
     private: true,
     element: <PaymentDetails />,
     permissions: ['paymentsView'],
+  },
+  {
+    path: [BILLABLE_METRIC_DETAILS_ROUTE],
+    private: true,
+    element: <BillableMetricDetails />,
+    permissions: ['billableMetricsView'],
   },
 ]
