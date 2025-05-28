@@ -724,6 +724,11 @@ export const theme = createTheme({
                 color: palette.error[700],
               },
             },
+
+            '&.Mui-disabled': {
+              backgroundColor: 'transparent',
+              color: palette.grey[400],
+            },
           },
         },
         outlined: {
