@@ -564,7 +564,6 @@
   "text_62d175066d2dbf1d50bc9384": "Wallet",
   "text_62d175066d2dbf1d50bc9386": "No wallets are available. Please create one to add prepaid credits.",
   "text_62d175066d2dbf1d50bc93a5": "Add wallet & credits",
-  "text_62d18855b22699e5cf55f873": "Applying credit to this customer generates an invoice. The plan’s usage will be subtracted from the credit bought.",
   "text_62d18855b22699e5cf55f875": "Wallet name (optional)",
   "text_62d18855b22699e5cf55f877": "Type a wallet name",
   "text_62d18855b22699e5cf55f879": "Credit",
@@ -794,7 +793,6 @@
   "text_6657c29c84ad4500ad764ed8": "Search and select a top-up method",
   "text_6657c29c84ad4500ad764ee1": "Trigger",
   "text_6657c29c84ad4500ad764ee2": "Search and select a trigger type",
-  "text_6657c2b9cf6b9200aa3d1c89": "Edit the customer's wallet. Once the expiration date has been reached, any remaining credit will be automatically voided.",
   "text_6657c34670561c0127132da4": "Target top-up",
   "text_6657c34670561c0127132da5": "Target ongoing balance",
   "text_6657cdd8cea6bf010e1ce128": "Fixed top-up",
@@ -3172,5 +3170,15 @@
   "text_17494778224951pa9u6uvz3t": "View logs",
   "text_17494781024812be7fqhzqxs": "Logs reflecting this coupon’s activity.",
   "text_1749561986883tqfllead7o3": "A payment request of {{amount}} was created",
-  "text_17495622741665lrk6dp6czk": "Payment request"
+  "text_17495622741665lrk6dp6czk": "Payment request",
+  "text_1748422458559917eelhobh5": "A wallet is an object for free or prepaid credits, enabling users to prepay for their usage.",
+  "text_1748422458559n8iqcz37i2z": "Define an expiration date",
+  "text_17484224585596yw31vih46t": "By default, the wallet stays active until you set an expiration date or terminate it manually.",
+  "text_17484224585599hnm61rdb6d": "Limit wallet credits to specific object",
+  "text_17484378349895wl4yqkmqj9": "By default, wallet credits apply to all items on subscription invoices.",
+  "text_17484381918689r63e54hrh1": "Search and select an object",
+  "text_1748441354191rj96qhw3twa": "Charges fees",
+  "text_1748441354191cnp0tm4ubf0": "Commitment fees",
+  "text_17484418620700x4nxxdfenm": "Selecting all items works the same as selecting none — we recommend leaving everything unselected.",
+  "text_1748442650797pz30j2eeiv4": "Add an object limitation"
 }

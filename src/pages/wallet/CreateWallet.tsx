@@ -43,6 +43,9 @@ gql`
     name
     rateAmount
     invoiceRequiresSuccessfulPayment
+    appliesTo {
+      feeTypes
+    }
     recurringTransactionRules {
       lagoId
       method

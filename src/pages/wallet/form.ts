@@ -17,6 +17,11 @@ export const walletFormErrorCodes = {
 export const walletFormSchema = (formType: keyof typeof FORM_TYPE_ENUM) => {
   return object().shape({
     name: string(),
+    appliesTo: object()
+      .shape({
+        feeTypes: array().of(string()).nullable(),
+      })
+      .nullable(),
     expirationAt: string()
       .test({
         test: function (value, { path }) {
