@@ -3,7 +3,7 @@ import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
 import _omit from 'lodash/omit'
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useMatch, useNavigate } from 'react-router-dom'
 import { array, bool, number, object, string } from 'yup'
 
 import { BillableMetricCodeSnippet } from '~/components/billableMetrics/BillableMetricCodeSnippet'
@@ -35,7 +35,7 @@ import {
   formatAggregationType,
   formatRoundingFunction,
 } from '~/core/formats/formatBillableMetricsItems'
-import { BILLABLE_METRICS_ROUTE } from '~/core/router'
+import { BILLABLE_METRICS_ROUTE, DUPLICATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import {
   AggregationTypeEnum,
   CreateBillableMetricInput,
@@ -75,9 +75,13 @@ enum AggregateOnTab {
 }
 
 const CreateBillableMetric = () => {
+  const isDuplicate = !!useMatch(DUPLICATE_BILLABLE_METRIC_ROUTE)
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const { isEdition, loading, billableMetric, errorCode, onSave } = useCreateEditBillableMetric()
+
+  const { isEdition, loading, billableMetric, errorCode, onSave } = useCreateEditBillableMetric({
+    isDuplicate,
+  })
 
   const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
   const customExpressionDrawerRef = useRef<CustomExpressionDrawerRef>(null)
@@ -90,8 +94,8 @@ const CreateBillableMetric = () => {
     }
   >({
     initialValues: {
-      name: billableMetric?.name || '',
-      code: billableMetric?.code || '',
+      name: isDuplicate ? '' : billableMetric?.name || '',
+      code: isDuplicate ? '' : billableMetric?.code || '',
       description: billableMetric?.description || '',
       expression: billableMetric?.expression || '',
       // @ts-ignore

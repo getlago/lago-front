@@ -50,7 +50,11 @@ type UseCreateEditBillableMetricReturn = {
   onSave: (value: CreateBillableMetricInput | UpdateBillableMetricInput) => Promise<void>
 }
 
-export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricReturn = () => {
+export const useCreateEditBillableMetric: ({
+  isDuplicate,
+}: {
+  isDuplicate?: boolean
+}) => UseCreateEditBillableMetricReturn = ({ isDuplicate }) => {
   const navigate = useNavigate()
   const { billableMetricId } = useParams()
   const { data, loading, error } = useGetSingleBillableMetricQuery({
@@ -110,13 +114,15 @@ export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricRetur
     }
   }
 
+  const isEdition = !!billableMetricId && !isDuplicate
+
   return useMemo(
     () => ({
       loading,
-      isEdition: !!billableMetricId,
+      isEdition,
       errorCode,
       billableMetric: !data?.billableMetric ? undefined : data?.billableMetric,
-      onSave: !!billableMetricId
+      onSave: isEdition
         ? async (values) => {
             await update({
               variables: {
@@ -137,6 +143,6 @@ export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricRetur
             })
           },
     }),
-    [loading, billableMetricId, errorCode, data?.billableMetric, update, create],
+    [isEdition, loading, billableMetricId, errorCode, data?.billableMetric, update, create],
   )
 }

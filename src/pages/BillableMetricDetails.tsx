@@ -15,6 +15,7 @@ import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptio
 import {
     BILLABLE_METRIC_DETAILS_ROUTE,
     BILLABLE_METRICS_ROUTE,
+    DUPLICATE_BILLABLE_METRIC_ROUTE,
     UPDATE_BILLABLE_METRIC_ROUTE,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -112,6 +113,19 @@ const BillableMetricDetails = () => {
                   }}
                 >
                   {translate('text_1748440972215htw8rqfn3tu')}
+                </Button>
+                <Button
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    navigate(
+                      generatePath(DUPLICATE_BILLABLE_METRIC_ROUTE, {
+                        billableMetricId: billableMetricId as string,
+                      }),
+                    )
+                  }}
+                >
+                  {translate('text_1748447578763m2i8k8djc4r')}
                 </Button>
                 <Button
                   variant="quaternary"

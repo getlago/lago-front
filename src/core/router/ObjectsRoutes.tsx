@@ -50,6 +50,7 @@ export const UPDATE_API_KEYS_ROUTE = `/api-keys/:apiKeyId/edit`
 
 export const CREATE_BILLABLE_METRIC_ROUTE = '/create/billable-metrics'
 export const UPDATE_BILLABLE_METRIC_ROUTE = '/update/billable-metric/:billableMetricId'
+export const DUPLICATE_BILLABLE_METRIC_ROUTE = '/duplicate/billable-metric/:billableMetricId'
 
 export const CREATE_PLAN_ROUTE = '/create/plans'
 export const UPDATE_PLAN_ROUTE = '/update/plan/:planId'
@@ -98,6 +99,7 @@ export const ADD_ON_DETAILS_ROUTE = '/add-on/:addOnId'
 export const COUPON_DETAILS_ROUTE = '/coupon/:couponId'
 export const PAYMENT_DETAILS_ROUTE = '/payment/:paymentId'
 export const CUSTOMER_PAYMENT_DETAILS_ROUTE = '/customer/:customerId/payment/:paymentId'
+
 export const BILLABLE_METRIC_DETAILS_ROUTE = '/billable-metric/:billableMetricId/:tab'
 
 export const objectListRoutes: CustomRouteObject[] = [
@@ -159,7 +161,11 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     permissions: ['couponsCreate', 'couponsUpdate'],
   },
   {
-    path: [CREATE_BILLABLE_METRIC_ROUTE, UPDATE_BILLABLE_METRIC_ROUTE],
+    path: [
+      CREATE_BILLABLE_METRIC_ROUTE,
+      UPDATE_BILLABLE_METRIC_ROUTE,
+      DUPLICATE_BILLABLE_METRIC_ROUTE,
+    ],
     private: true,
     element: <CreateBillableMetric />,
     permissions: ['billableMetricsCreate', 'billableMetricsUpdate'],
