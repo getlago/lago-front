@@ -1,10 +1,11 @@
 import { gql } from '@apollo/client'
 import { useEffect, useMemo } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
-import { BILLABLE_METRICS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
+import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { BILLABLE_METRIC_DETAILS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
 import {
   AggregationTypeEnum,
   BillableMetricItemFragmentDoc,
@@ -70,7 +71,12 @@ export const useCreateEditBillableMetric: ({
           severity: 'success',
           translateKey: 'text_633336532bdf72cb62dc0696',
         })
-        navigate(BILLABLE_METRICS_ROUTE)
+        navigate(
+          generatePath(BILLABLE_METRIC_DETAILS_ROUTE, {
+            billableMetricId: createBillableMetric.id,
+            tab: BillableMetricDetailsTabsOptionsEnum.overview,
+          }),
+        )
       }
     },
   })
@@ -82,7 +88,12 @@ export const useCreateEditBillableMetric: ({
           severity: 'success',
           translateKey: 'text_62583bbb86abcf01654f697d',
         })
-        navigate(BILLABLE_METRICS_ROUTE)
+        navigate(
+          generatePath(BILLABLE_METRIC_DETAILS_ROUTE, {
+            billableMetricId: updateBillableMetric.id,
+            tab: BillableMetricDetailsTabsOptionsEnum.overview,
+          }),
+        )
       }
     },
   })

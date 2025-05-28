@@ -85,7 +85,7 @@ const CreateBillableMetric = () => {
 
   const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
   const customExpressionDrawerRef = useRef<CustomExpressionDrawerRef>(null)
-  const canBeEdited = !billableMetric?.hasSubscriptions && !billableMetric?.hasPlans
+  const canBeEdited = !isDuplicate && !billableMetric?.hasSubscriptions && !billableMetric?.hasPlans
 
   const formikProps = useFormik<
     CreateBillableMetricInput & {
@@ -596,15 +596,17 @@ const CreateBillableMetric = () => {
                                 </Typography>
                               }
                               placeholder={translate('text_1730554642648npqmnqnsynd')}
-                              data={Object.values(RoundingFunctionEnum).map((roundingFunction) => ({
-                                label: translate(
-                                  formatRoundingFunction(roundingFunction)?.label || '',
-                                ),
-                                description: translate(
-                                  formatRoundingFunction(roundingFunction)?.helperText || '',
-                                ),
-                                value: roundingFunction,
-                              }))}
+                              data={Object.values(RoundingFunctionEnum)
+                                .filter((r) => formatRoundingFunction(r))
+                                .map((roundingFunction) => ({
+                                  label: translate(
+                                    formatRoundingFunction(roundingFunction)?.label || '',
+                                  ),
+                                  description: translate(
+                                    formatRoundingFunction(roundingFunction)?.helperText || '',
+                                  ),
+                                  value: roundingFunction,
+                                }))}
                             />
 
                             {formikProps.values.roundingFunction && (

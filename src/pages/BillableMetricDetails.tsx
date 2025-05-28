@@ -5,18 +5,18 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { BillableMetricDetailsOverview } from '~/components/billableMetrics/BillableMetricDetailsOverview'
 import {
-    DeleteBillableMetricDialog,
-    DeleteBillableMetricDialogRef,
+  DeleteBillableMetricDialog,
+  DeleteBillableMetricDialogRef,
 } from '~/components/billableMetrics/DeleteBillableMetricDialog'
 import { NavigationTab } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { addToast } from '~/core/apolloClient'
 import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
-    BILLABLE_METRIC_DETAILS_ROUTE,
-    BILLABLE_METRICS_ROUTE,
-    DUPLICATE_BILLABLE_METRIC_ROUTE,
-    UPDATE_BILLABLE_METRIC_ROUTE,
+  BILLABLE_METRIC_DETAILS_ROUTE,
+  BILLABLE_METRICS_ROUTE,
+  DUPLICATE_BILLABLE_METRIC_ROUTE,
+  UPDATE_BILLABLE_METRIC_ROUTE,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { useGetBillableMetricForHeaderDetailsQuery } from '~/generated/graphql'
@@ -75,7 +75,6 @@ const BillableMetricDetails = () => {
               {billableMetric?.name}
             </Typography>
           )}
-          <Typography variant="bodyHl" color="textSecondary" noWrap></Typography>
         </PageHeader.Group>
 
         {shouldShowActions && (
