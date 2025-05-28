@@ -6,7 +6,7 @@ import { array, boolean, number, object, string } from 'yup'
 
 import AlertThresholds, { isThresholdValueValid } from '~/components/alerts/Thresholds'
 import { Button, Typography } from '~/components/designSystem'
-import { ComboBoxField, ComboboxItem, TextInputField } from '~/components/form'
+import { ComboBox, ComboBoxField, ComboboxItem, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -32,10 +32,13 @@ import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 const sortAndFormatThresholds = (
   thresholds: AlertThreshold[],
   currency: CurrencyEnum,
+  shouldHandleUnits: boolean,
 ): AlertThreshold[] => {
   const formattedThresholds = thresholds.map((threshold) => ({
     ...threshold,
-    value: String(deserializeAmount(threshold.value, currency)),
+    value: shouldHandleUnits
+      ? threshold.value.split('.')[0]
+      : String(deserializeAmount(threshold.value, currency)),
   }))
 
   const recurringThreshold = formattedThresholds.find((threshold) => threshold.recurring)
@@ -220,7 +223,11 @@ const AlertForm = () => {
       // Note: we need to sort the thresholds by value and recuring last.
       // We don't really know how the backend will return the thresholds as we don't check the order if they are saved via API
       thresholds: !!existingAlert?.thresholds?.length
-        ? sortAndFormatThresholds(existingAlert?.thresholds, currency)
+        ? sortAndFormatThresholds(
+            existingAlert?.thresholds,
+            currency,
+            existingAlert?.alertType === AlertTypeEnum.BillableMetricUsageUnits,
+          )
         : [
             {
               code: '',
@@ -249,7 +256,10 @@ const AlertForm = () => {
     onSubmit: async ({ billableMetricId, alertType, thresholds, ...values }) => {
       const formattedThresholds = thresholds?.map((threshold) => ({
         ...threshold,
-        value: String(serializeAmount(threshold.value, currency)),
+        value:
+          alertType === AlertTypeEnum.BillableMetricUsageUnits
+            ? threshold.value.split('.')[0]
+            : String(serializeAmount(threshold.value, currency)),
       }))
 
       // Edition
@@ -296,7 +306,9 @@ const AlertForm = () => {
   const showThresholdTable = useMemo(
     () =>
       formikProps.values.alertType === AlertTypeEnum.UsageAmount ||
-      (formikProps.values.alertType === AlertTypeEnum.BillableMetricUsageAmount &&
+      formikProps.values.alertType === AlertTypeEnum.LifetimeUsageAmount ||
+      ((formikProps.values.alertType === AlertTypeEnum.BillableMetricUsageUnits ||
+        formikProps.values.alertType === AlertTypeEnum.BillableMetricUsageAmount) &&
         !!formikProps.values.billableMetricId),
     [formikProps.values.alertType, formikProps.values.billableMetricId],
   )
@@ -306,7 +318,8 @@ const AlertForm = () => {
       const { id, code, name } = item
 
       const hasAlertOnBillableMetric = existingAlertsData?.alerts.collection.some(
-        (alert) => alert.billableMetricId === id,
+        (alert) =>
+          alert.billableMetricId === id && alert.alertType === formikProps.values.alertType,
       )
 
       return {
@@ -328,9 +341,10 @@ const AlertForm = () => {
   }, [
     subscriptionBillableMetricsData?.billableMetrics?.collection,
     existingAlertsData?.alerts.collection,
+    formikProps.values.alertType,
   ])
 
-  const { hasUsageAmountAlert } = useMemo(() => {
+  const { hasUsageAmountAlert, hasLifetimeUsageAmountAlert } = useMemo(() => {
     if (!existingAlertsData?.alerts.collection.length) {
       return { hasUsageAmountAlert: false }
     }
@@ -339,8 +353,13 @@ const AlertForm = () => {
       (alert) => alert.alertType === AlertTypeEnum.UsageAmount,
     )
 
+    const localHasLifetimeUsageAmountAlert = existingAlertsData?.alerts.collection.some(
+      (alert) => alert.alertType === AlertTypeEnum.LifetimeUsageAmount,
+    )
+
     return {
       hasUsageAmountAlert: localHasUsageAmountAlert,
+      hasLifetimeUsageAmountAlert: localHasLifetimeUsageAmountAlert,
     }
   }, [existingAlertsData?.alerts.collection])
 
@@ -438,13 +457,23 @@ const AlertForm = () => {
                     </Typography>
                   </div>
                   <div className="flex flex-col gap-6 *:flex-1">
-                    <ComboBoxField
+                    <ComboBox
                       name="alertType"
                       label={translate('text_1746631350478jqk347d5dy4')}
                       placeholder={translate('text_1746631350478bwa1swfpwky')}
                       disabled={isEdition}
                       disableClearable={isEdition}
+                      value={formikProps.values.alertType}
                       data={[
+                        {
+                          label: translate('text_1748418710304kqjnk1owpeq'),
+                          value: AlertTypeEnum.LifetimeUsageAmount,
+                          disabled: hasLifetimeUsageAmountAlert,
+                        },
+                        {
+                          label: translate('text_1748358376584w0qzazvifco'),
+                          value: AlertTypeEnum.BillableMetricUsageUnits,
+                        },
                         {
                           label: translate('text_1746631350478l8lfdopffh1'),
                           value: AlertTypeEnum.BillableMetricUsageAmount,
@@ -455,10 +484,20 @@ const AlertForm = () => {
                           disabled: hasUsageAmountAlert,
                         },
                       ]}
-                      formikProps={formikProps}
+                      onChange={(value) => {
+                        const newFormikValues = {
+                          ...formikProps.values,
+                          alertType: value as AlertTypeEnum,
+                          // Reset billableMetricId when alertType is changed
+                          billableMetricId: '',
+                        }
+
+                        formikProps.setValues(newFormikValues)
+                      }}
                     />
 
-                    {formikProps.values.alertType === AlertTypeEnum.BillableMetricUsageAmount && (
+                    {(formikProps.values.alertType === AlertTypeEnum.BillableMetricUsageAmount ||
+                      formikProps.values.alertType === AlertTypeEnum.BillableMetricUsageUnits) && (
                       <>
                         <ComboBoxField
                           name="billableMetricId"
@@ -477,6 +516,9 @@ const AlertForm = () => {
                         setThresholds={setThresholds}
                         setThresholdValue={setThresholdValue}
                         currency={currency}
+                        shouldHandleUnits={
+                          formikProps.values.alertType === AlertTypeEnum.BillableMetricUsageUnits
+                        }
                       />
                     )}
                   </div>
