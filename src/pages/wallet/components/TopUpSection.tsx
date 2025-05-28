@@ -195,7 +195,7 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
         {!isRecurringTopUpEnabled ? (
           <Box>
             <Button
-              variant="quaternary"
+              variant="inline"
               startIcon="plus"
               endIcon={isPremium ? undefined : 'sparkles'}
               onClick={() => {
