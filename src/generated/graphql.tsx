@@ -467,6 +467,7 @@ export type AvalaraIntegration = {
 /** Base billable metric */
 export type BillableMetric = {
   __typename?: 'BillableMetric';
+  activityLogs?: Maybe<Array<ActivityLog>>;
   aggregationType: AggregationTypeEnum;
   code: Scalars['String']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
@@ -1262,6 +1263,7 @@ export enum CountryCode {
 
 export type Coupon = {
   __typename?: 'Coupon';
+  activityLogs?: Maybe<Array<ActivityLog>>;
   amountCents?: Maybe<Scalars['BigInt']['output']>;
   amountCurrency?: Maybe<CurrencyEnum>;
   appliedCouponsCount: Scalars['Int']['output'];
@@ -1783,6 +1785,7 @@ export type CreateXeroIntegrationInput = {
 /** CreditNote */
 export type CreditNote = {
   __typename?: 'CreditNote';
+  activityLogs?: Maybe<Array<ActivityLog>>;
   appliedTaxes?: Maybe<Array<CreditNoteAppliedTax>>;
   balanceAmountCents: Scalars['BigInt']['output'];
   billingEntity: BillingEntity;
@@ -2254,6 +2257,7 @@ export type Customer = {
   accountType: CustomerAccountTypeEnum;
   /** Number of active subscriptions per customer */
   activeSubscriptionsCount: Scalars['Int']['output'];
+  activityLogs?: Maybe<Array<ActivityLog>>;
   addressLine1?: Maybe<Scalars['String']['output']>;
   addressLine2?: Maybe<Scalars['String']['output']>;
   anrokCustomer?: Maybe<AnrokCustomer>;
@@ -3523,6 +3527,7 @@ export enum InviteStatusTypeEnum {
 /** Invoice */
 export type Invoice = {
   __typename?: 'Invoice';
+  activityLogs?: Maybe<Array<ActivityLog>>;
   allChargesHaveFees: Scalars['Boolean']['output'];
   appliedTaxes?: Maybe<Array<InvoiceAppliedTax>>;
   associatedActiveWalletPresent: Scalars['Boolean']['output'];
@@ -5180,6 +5185,7 @@ export type Permissions = {
 export type Plan = {
   __typename?: 'Plan';
   activeSubscriptionsCount: Scalars['Int']['output'];
+  activityLogs?: Maybe<Array<ActivityLog>>;
   amountCents: Scalars['BigInt']['output'];
   amountCurrency: CurrencyEnum;
   billChargesMonthly?: Maybe<Scalars['Boolean']['output']>;
@@ -5720,6 +5726,7 @@ export type QueryCustomersArgs = {
 
 
 export type QueryDataApiMrrsArgs = {
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   customerCountry?: InputMaybe<CountryCode>;
   customerType?: InputMaybe<CustomerTypeEnum>;
@@ -5740,6 +5747,7 @@ export type QueryDataApiMrrsPlansArgs = {
 
 
 export type QueryDataApiPrepaidCreditsArgs = {
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   customerCountry?: InputMaybe<CountryCode>;
   customerType?: InputMaybe<CustomerTypeEnum>;
@@ -5753,6 +5761,7 @@ export type QueryDataApiPrepaidCreditsArgs = {
 
 
 export type QueryDataApiRevenueStreamsArgs = {
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   customerCountry?: InputMaybe<CountryCode>;
   customerType?: InputMaybe<CustomerTypeEnum>;
@@ -5783,6 +5792,7 @@ export type QueryDataApiRevenueStreamsPlansArgs = {
 
 export type QueryDataApiUsagesArgs = {
   billableMetricCode?: InputMaybe<Scalars['String']['input']>;
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   customerCountry?: InputMaybe<CountryCode>;
   customerType?: InputMaybe<CustomerTypeEnum>;
@@ -5797,6 +5807,7 @@ export type QueryDataApiUsagesArgs = {
 
 
 export type QueryDataApiUsagesAggregatedAmountsArgs = {
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   customerCountry?: InputMaybe<CountryCode>;
   customerType?: InputMaybe<CustomerTypeEnum>;
@@ -5812,6 +5823,7 @@ export type QueryDataApiUsagesAggregatedAmountsArgs = {
 
 export type QueryDataApiUsagesInvoicedArgs = {
   billableMetricCode?: InputMaybe<Scalars['String']['input']>;
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   customerCountry?: InputMaybe<CountryCode>;
   customerType?: InputMaybe<CustomerTypeEnum>;
@@ -5996,6 +6008,7 @@ export type QueryMrrsArgs = {
 
 
 export type QueryOverdueBalancesArgs = {
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
   billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   expireCache?: InputMaybe<Scalars['Boolean']['input']>;
@@ -6385,6 +6398,7 @@ export type StripeProvider = {
 
 export type Subscription = {
   __typename?: 'Subscription';
+  activityLogs?: Maybe<Array<ActivityLog>>;
   billingTime?: Maybe<BillingTimeEnum>;
   canceledAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   createdAt: Scalars['ISO8601DateTime']['output'];
@@ -7468,6 +7482,7 @@ export type VolumeRangeInput = {
 /** Wallet */
 export type Wallet = {
   __typename?: 'Wallet';
+  activityLogs?: Maybe<Array<ActivityLog>>;
   appliesTo?: Maybe<WalletAppliesTo>;
   balanceCents: Scalars['BigInt']['output'];
   consumedAmountCents: Scalars['BigInt']['output'];
@@ -8338,14 +8353,14 @@ export type GetPlansForFiltersItemPlanCodeQueryVariables = Exact<{
 
 export type GetPlansForFiltersItemPlanCodeQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Plan', id: string, code: string, deletedAt?: any | null }> } };
 
-export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, apiKeyId?: string | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null };
+export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, apiKeyId?: string | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, resource?: { __typename?: 'BillableMetric', bmId: string } | { __typename?: 'BillingEntity', entityId: string } | { __typename?: 'Coupon', couponId: string } | { __typename?: 'CreditNote', creditNoteId: string } | { __typename?: 'Customer', customerExternalId: string } | { __typename?: 'Invoice', invoiceId: string } | { __typename?: 'Plan', planId: string } | { __typename?: 'Subscription', subscriptionExternalId: string } | { __typename?: 'Wallet', walletId: string } | null };
 
 export type GetSingleActivityLogQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetSingleActivityLogQuery = { __typename?: 'Query', activityLog?: { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, apiKeyId?: string | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null } | null };
+export type GetSingleActivityLogQuery = { __typename?: 'Query', activityLog?: { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, apiKeyId?: string | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, resource?: { __typename?: 'BillableMetric', bmId: string } | { __typename?: 'BillingEntity', entityId: string } | { __typename?: 'Coupon', couponId: string } | { __typename?: 'CreditNote', creditNoteId: string } | { __typename?: 'Customer', customerExternalId: string } | { __typename?: 'Invoice', invoiceId: string } | { __typename?: 'Plan', planId: string } | { __typename?: 'Subscription', subscriptionExternalId: string } | { __typename?: 'Wallet', walletId: string } | null } | null };
 
 export type GetApiKeyForActivityLogQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -11662,6 +11677,35 @@ export const ActivityLogDetailsFragmentDoc = gql`
   activityObject
   activityObjectChanges
   apiKeyId
+  resource {
+    ... on BillableMetric {
+      bmId: id
+    }
+    ... on BillingEntity {
+      entityId: id
+    }
+    ... on Coupon {
+      couponId: id
+    }
+    ... on CreditNote {
+      creditNoteId: id
+    }
+    ... on Customer {
+      customerExternalId: externalId
+    }
+    ... on Invoice {
+      invoiceId: id
+    }
+    ... on Plan {
+      planId: id
+    }
+    ... on Subscription {
+      subscriptionExternalId: id
+    }
+    ... on Wallet {
+      walletId: id
+    }
+  }
   loggedAt
   userEmail
   externalSubscriptionId

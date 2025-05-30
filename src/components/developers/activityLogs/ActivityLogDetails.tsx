@@ -2,7 +2,11 @@ import { gql } from '@apollo/client'
 import { Fragment } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { getActivityDescription } from '~/components/activityLogs/utils'
+import {
+  formatActivityType,
+  formatResourceObject,
+  getActivityDescription,
+} from '~/components/activityLogs/utils'
 import { CodeSnippet } from '~/components/CodeSnippet'
 import {
   Button,
@@ -22,6 +26,35 @@ gql`
     activityObject
     activityObjectChanges
     apiKeyId
+    resource {
+      ... on BillableMetric {
+        bmId: id
+      }
+      ... on BillingEntity {
+        entityId: id
+      }
+      ... on Coupon {
+        couponId: id
+      }
+      ... on CreditNote {
+        creditNoteId: id
+      }
+      ... on Customer {
+        customerExternalId: externalId
+      }
+      ... on Invoice {
+        invoiceId: id
+      }
+      ... on Plan {
+        planId: id
+      }
+      ... on Subscription {
+        subscriptionExternalId: id
+      }
+      ... on Wallet {
+        walletId: id
+      }
+    }
     loggedAt
     userEmail
     externalSubscriptionId
@@ -63,6 +96,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
   const {
     activityId,
     activityType,
+    resource,
     loggedAt,
     userEmail,
     activitySource,
@@ -128,12 +162,17 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
             </div>
 
             {[
-              [translate('text_6560809c38fb9de88d8a52fb'), activityType],
+              activityType
+                ? [translate('text_6560809c38fb9de88d8a52fb'), formatActivityType(activityType)]
+                : [],
               [
                 translate('text_6388b923e514213fed58331c'),
                 translate(activityTypeTranslation, parameters),
               ],
-              [translate('text_1747352070254nf3uobwaiwg'), activityId],
+              [translate('text_1747666154075d10admbnf16'), activityId],
+              resource
+                ? [translate('text_1747666154075y3lcupj1zdd'), formatResourceObject(resource)]
+                : [],
               [
                 translate('text_17473520702542eqnulj06zc'),
                 formatTimeOrgaTZ(loggedAt, 'LLL dd, hh:mm:ss a'),

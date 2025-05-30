@@ -65,16 +65,12 @@ export function getActivityDescription(
   let parameters = {}
   let amount = 0
   let currency = CurrencyEnum.Usd
-  const formattedAmount = intlFormatNumber(deserializeAmount(amount, currency), {
-    style: 'currency',
-    currency,
-  })
 
   switch (activityType) {
     case ActivityTypeEnum.AppliedCouponCreated:
     case ActivityTypeEnum.AppliedCouponDeleted:
       parameters = {
-        couponCode: activityObject.code,
+        couponCode: activityObject.coupon_code,
         externalCustomerId: externalCustomerId,
       }
       break
@@ -107,7 +103,10 @@ export function getActivityDescription(
 
       parameters = {
         creditNoteNumber: activityObject.number,
-        totalAmount: formattedAmount,
+        totalAmount: intlFormatNumber(deserializeAmount(amount, currency), {
+          style: 'currency',
+          currency,
+        }),
       }
       break
     case ActivityTypeEnum.CustomerCreated:
@@ -132,7 +131,10 @@ export function getActivityDescription(
 
       parameters = {
         invoiceNumber: activityObject.number,
-        totalAmount: formattedAmount,
+        totalAmount: intlFormatNumber(deserializeAmount(amount, currency), {
+          style: 'currency',
+          currency,
+        }),
       }
       break
     case ActivityTypeEnum.PaymentReceiptCreated:
@@ -143,11 +145,13 @@ export function getActivityDescription(
       break
     case ActivityTypeEnum.PaymentRecorded:
       currency = activityObject.currency as CurrencyEnum
-      amount = Number(activityObject.total_amount_cents) || 0
+      amount = Number(activityObject.amount_cents) || 0
 
       parameters = {
-        invoiceNumber: activityObject.invoice_number,
-        amount: formattedAmount,
+        amount: intlFormatNumber(deserializeAmount(amount, currency), {
+          style: 'currency',
+          currency,
+        }),
       }
       break
     case ActivityTypeEnum.PlanCreated:
@@ -167,14 +171,15 @@ export function getActivityDescription(
     case ActivityTypeEnum.WalletCreated:
     case ActivityTypeEnum.WalletUpdated:
       parameters = {
-        walletId: activityObject.id,
+        walletId: activityObject.lago_wallet_id,
       }
       break
     case ActivityTypeEnum.WalletTransactionCreated:
     case ActivityTypeEnum.WalletTransactionPaymentFailure:
     case ActivityTypeEnum.WalletTransactionUpdated:
       parameters = {
-        transactionId: activityObject.id,
+        walletId: activityObject.lago_wallet_id,
+        transactionId: activityObject.lago_id,
       }
       break
     default:
@@ -214,4 +219,29 @@ export function formatActivityType(activityType: ActivityTypeEnum) {
     }
   }
   return str
+}
+
+export function formatResourceObject(resource: Record<string, unknown>): string | null {
+  switch (resource.__typename) {
+    case 'BillableMetric':
+      return resource.bmId as string
+    case 'BillingEntity':
+      return resource.entityId as string
+    case 'Coupon':
+      return resource.couponId as string
+    case 'CreditNote':
+      return resource.creditNoteId as string
+    case 'Customer':
+      return resource.customerExternalId as string
+    case 'Invoice':
+      return resource.invoiceId as string
+    case 'Plan':
+      return resource.planId as string
+    case 'Subscription':
+      return resource.subscriptionExternalId as string
+    case 'Wallet':
+      return resource.walletId as string
+    default:
+      return null
+  }
 }
