@@ -41,8 +41,9 @@ import {
   LocalTaxProviderErrorsEnum,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
 } from '~/core/constants/form'
+import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
+import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   AddOnForInvoiceEditTaxDialogFragmentDoc,
@@ -231,7 +232,7 @@ const CreateInvoice = () => {
 
   const [createInvoice] = useCreateInvoiceMutation({
     onCompleted({ createInvoice: createInvoiceResult }) {
-      if (!!createInvoiceResult) {
+      if (!!createInvoiceResult?.id) {
         addToast({
           severity: 'success',
           translateKey: 'text_6453819268763979024ad144',
@@ -243,7 +244,13 @@ const CreateInvoice = () => {
             invoiceId: createInvoiceResult.id,
           })
         } else {
-          navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId as string }))
+          navigate(
+            generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+              customerId: customerId as string,
+              invoiceId: createInvoiceResult.id,
+              tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+            }),
+          )
         }
       }
     },
