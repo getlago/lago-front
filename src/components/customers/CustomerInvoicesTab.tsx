@@ -119,7 +119,6 @@ export const CustomerInvoicesTab = ({
             isLoading
             customerTimezone={customerTimezone}
             customerId={customerId}
-            context="finalized"
           />
         </div>
       )}
@@ -186,7 +185,6 @@ export const CustomerInvoicesTab = ({
             hasError={!!errorFinalized}
             customerTimezone={customerTimezone}
             customerId={customerId}
-            context="finalized"
             invoiceData={dataFinalized?.customerInvoices}
             fetchMore={fetchMoreFinalized}
           />

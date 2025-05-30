@@ -23,7 +23,7 @@ import {
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
+import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
@@ -130,7 +130,6 @@ interface CustomerInvoicesListProps {
   invoiceData?: InvoiceForInvoiceListFragment
   customerTimezone?: TimezoneEnum
   customerId: string
-  context?: 'finalized' | 'draft'
   fetchMore?: (options: FetchMoreQueryOptions<{ page: number }>) => Promise<unknown>
 }
 
@@ -140,7 +139,6 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   invoiceData,
   customerTimezone = TimezoneEnum.TzUtc,
   customerId,
-  context = 'draft',
   fetchMore,
 }) => {
   const navigate = useNavigate()
@@ -209,69 +207,40 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
             },
           }}
           columns={[
-            context === 'finalized'
-              ? {
-                  key: 'paymentStatus',
-                  minWidth: 120,
-                  title: translate('text_63b5d225b075850e0fe489f4'),
-                  content: ({
-                    status,
-                    paymentStatus,
-                    paymentDisputeLostAt,
-                    totalAmountCents,
-                    totalPaidAmountCents,
-                  }) => {
-                    if (status !== InvoiceStatusTypeEnum.Finalized) {
-                      return null
-                    }
+            {
+              key: 'status',
+              title: translate('text_63ac86d797f728a87b2f9fa7'),
+              minWidth: 80,
+              content: ({ status, errorDetails, taxProviderVoidable }) => {
+                const showWarningIcon =
+                  (!!errorDetails?.length && status !== InvoiceStatusTypeEnum.Failed) ||
+                  taxProviderVoidable
 
-                    let content: { tooltipTitle?: string; statusEndIcon?: IconName } = {
-                      tooltipTitle: undefined,
-                      statusEndIcon: undefined,
-                    }
-
-                    const isPartiallyPaid =
-                      Number(totalPaidAmountCents) > 0 &&
-                      Number(totalAmountCents) - Number(totalPaidAmountCents) > 0
-
-                    if (isPartiallyPaid) {
-                      content = {
-                        tooltipTitle: translate('text_1738071221799vib0l2z1bxe'),
-                        statusEndIcon: 'partially-filled',
-                      }
-                    } else if (!!paymentDisputeLostAt) {
-                      content = {
-                        tooltipTitle: translate('text_172416478461328edo4vwz05'),
-                        statusEndIcon: 'warning-unfilled',
-                      }
-                    }
-
-                    return (
-                      <Tooltip placement="top" title={content.tooltipTitle}>
-                        <Status
-                          {...paymentStatusMapping({
-                            status,
-                            paymentStatus,
-                            totalPaidAmountCents,
-                            totalAmountCents,
-                          })}
-                          endIcon={content.statusEndIcon}
-                        />
-                      </Tooltip>
-                    )
-                  },
-                }
-              : null,
+                return (
+                  <Tooltip
+                    placement="top-start"
+                    disableHoverListener={!showWarningIcon}
+                    title={translate('text_1724674592260h33v56rycaw')}
+                  >
+                    <Status
+                      {...invoiceStatusMapping({ status })}
+                      endIcon={showWarningIcon ? 'warning-unfilled' : undefined}
+                    />
+                  </Tooltip>
+                )
+              },
+            },
             {
               key: 'number',
               minWidth: 160,
+              maxSpace: true,
               title: translate('text_63ac86d797f728a87b2f9fad'),
               content: (invoice) => invoice.number || '-',
             },
             {
               key: 'totalAmountCents',
-              maxSpace: true,
               textAlign: 'right',
+              maxSpace: true,
               minWidth: 160,
               title: translate('text_63ac86d797f728a87b2f9fb9'),
               content: (invoice) => {
@@ -288,6 +257,57 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                   <Typography variant="bodyHl" color="textSecondary" noWrap>
                     {intlFormatNumber(amount, { currency })}
                   </Typography>
+                )
+              },
+            },
+            {
+              key: 'paymentStatus',
+              minWidth: 120,
+              title: translate('text_63b5d225b075850e0fe489f4'),
+              content: ({
+                status,
+                paymentStatus,
+                paymentDisputeLostAt,
+                totalAmountCents,
+                totalPaidAmountCents,
+              }) => {
+                if (status !== InvoiceStatusTypeEnum.Finalized) {
+                  return null
+                }
+
+                let content: { tooltipTitle?: string; statusEndIcon?: IconName } = {
+                  tooltipTitle: undefined,
+                  statusEndIcon: undefined,
+                }
+
+                const isPartiallyPaid =
+                  Number(totalPaidAmountCents) > 0 &&
+                  Number(totalAmountCents) - Number(totalPaidAmountCents) > 0
+
+                if (isPartiallyPaid) {
+                  content = {
+                    tooltipTitle: translate('text_1738071221799vib0l2z1bxe'),
+                    statusEndIcon: 'partially-filled',
+                  }
+                } else if (!!paymentDisputeLostAt) {
+                  content = {
+                    tooltipTitle: translate('text_172416478461328edo4vwz05'),
+                    statusEndIcon: 'warning-unfilled',
+                  }
+                }
+
+                return (
+                  <Tooltip placement="top" title={content.tooltipTitle}>
+                    <Status
+                      {...paymentStatusMapping({
+                        status,
+                        paymentStatus,
+                        totalPaidAmountCents,
+                        totalAmountCents,
+                      })}
+                      endIcon={content.statusEndIcon}
+                    />
+                  </Tooltip>
                 )
               },
             },
