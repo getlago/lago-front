@@ -16,6 +16,7 @@ export const ADYEN_SUCCESS_LINK_SPEC_URL =
 export const ROLE_ACCESS_LEVEL_DOC_URL = 'https://getlago.com/docs/guide/security/rbac'
 export const PROGRESSIVE_BILLING_DOC_URL =
   'https://getlago.com/docs/guide/plans/progressive-billing'
+export const AVALARA_TAX_CODE_DOCUMENTATION_URL = 'https://taxcode.avatax.avalara.com/'
 export const buildNetsuiteCustomerUrl = (
   connectionAccountId?: string | null,
   netsuiteCustomerId?: string | null,
@@ -119,4 +120,19 @@ export const buildStripePaymentUrl = (stripePaymentId: string) => {
 
 export const buildGoCardlessPaymentUrl = (goCardlessPaymentId: string) => {
   return `https://manage.gocardless.com/payments/${goCardlessPaymentId}`
+}
+export const buildAvalaraObjectId = ({
+  accountId,
+  companyId,
+  objectId,
+  isSandbox,
+}: {
+  accountId: string | null | undefined
+  companyId: string
+  objectId: string
+  isSandbox: boolean
+}) => {
+  const sandboxDomain = isSandbox ? 'sandbox.' : ''
+
+  return `https://${sandboxDomain}admin.avalara.com/cup/a/${accountId}/c/${companyId}/transactions/${objectId}`
 }

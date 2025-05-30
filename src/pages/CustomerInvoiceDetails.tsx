@@ -56,6 +56,8 @@ import { handleDownloadFile } from '~/core/utils/downloadFiles'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
   AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc,
+  AvalaraIntegration,
+  AvalaraIntegrationInfosForInvoiceOverviewFragmentDoc,
   CurrencyEnum,
   ErrorCodesEnum,
   HubspotIntegration,
@@ -122,6 +124,10 @@ gql`
     customer {
       name
       displayName
+      avalaraCustomer {
+        id
+        integrationId
+      }
       netsuiteCustomer {
         id
         integrationId
@@ -174,6 +180,12 @@ gql`
           __typename
           id
           ...SalesforceIntegrationInfosForInvoiceOverview
+        }
+
+        ... on AvalaraIntegration {
+          __typename
+          id
+          ...AvalaraIntegrationInfosForInvoiceOverview
         }
       }
     }
@@ -233,6 +245,7 @@ gql`
   ${NetsuiteIntegrationInfosForInvoiceOverviewFragmentDoc}
   ${HubspotIntegrationInfosForInvoiceOverviewFragmentDoc}
   ${SalesforceIntegrationInfosForInvoiceOverviewFragmentDoc}
+  ${AvalaraIntegrationInfosForInvoiceOverviewFragmentDoc}
 `
 
 const getErrorMessageFromErrorDetails = (
@@ -245,18 +258,36 @@ const getErrorMessageFromErrorDetails = (
   const [{ errorCode, errorDetails }] = errors
 
   if (errorCode === ErrorCodesEnum.TaxError) {
-    if (errorDetails === LagoApiError.CurrencyCodeNotSupported) {
+    if (
+      // Anrok
+      errorDetails === LagoApiError.CurrencyCodeNotSupported ||
+      // Avalara
+      errorDetails === LagoApiError.InvalidEnumValue
+    ) {
       return LocalTaxProviderErrorsEnum.CurrencyCodeNotSupported
     }
 
     if (
+      // Anrok
       errorDetails === LagoApiError.CustomerAddressCouldNotResolve ||
-      errorDetails === LagoApiError.CustomerAddressCountryNotSupported
+      errorDetails === LagoApiError.CustomerAddressCountryNotSupported ||
+      // Avalara
+      errorDetails === LagoApiError.MissingAddress ||
+      errorDetails === LagoApiError.NotEnoughAddressesInfo ||
+      errorDetails === LagoApiError.InvalidAddress ||
+      errorDetails === LagoApiError.InvalidPostalCode ||
+      errorDetails === LagoApiError.AddressLocationNotFound
     ) {
       return LocalTaxProviderErrorsEnum.CustomerAddressError
     }
 
-    if (errorDetails === LagoApiError.ProductExternalIdUnknown) {
+    if (
+      // Anrok
+      errorDetails === LagoApiError.ProductExternalIdUnknown ||
+      // Avalara
+      errorDetails === LagoApiError.TaxCodeAssociatedWithItemCodeNotFound ||
+      errorDetails === LagoApiError.EntityNotFoundError
+    ) {
       return LocalTaxProviderErrorsEnum.ProductExternalIdUnknown
     }
 
@@ -395,7 +426,8 @@ const CustomerInvoiceDetails = () => {
       !data?.invoice?.customer?.netsuiteCustomer?.integrationId &&
       !data?.invoice?.customer?.xeroCustomer?.integrationId &&
       !data?.invoice?.customer?.hubspotCustomer?.integrationId &&
-      !data?.invoice?.customer?.salesforceCustomer?.integrationId,
+      !data?.invoice?.customer?.salesforceCustomer?.integrationId &&
+      !data?.invoice?.customer?.avalaraCustomer?.integrationId,
   })
 
   const allNetsuiteIntegrations = integrationsData?.integrations?.collection.filter(
@@ -410,6 +442,10 @@ const CustomerInvoiceDetails = () => {
     (i) => i.__typename === 'SalesforceIntegration',
   ) as SalesforceIntegration[] | undefined
 
+  const allAvalaraIntegration = integrationsData?.integrations?.collection.filter(
+    (i) => i.__typename === 'AvalaraIntegration',
+  ) as AvalaraIntegration[] | undefined
+
   const connectedNetsuiteIntegration = allNetsuiteIntegrations?.find(
     (integration) => integration?.id === data?.invoice?.customer?.netsuiteCustomer?.integrationId,
   ) as NetsuiteIntegration
@@ -421,6 +457,10 @@ const CustomerInvoiceDetails = () => {
   const connectedSalesforceIntegration = allSalesforceIntegration?.find(
     (integration) => integration?.id === data?.invoice?.customer?.salesforceCustomer?.integrationId,
   ) as SalesforceIntegration
+
+  const connectedAvalaraIntegration = allAvalaraIntegration?.find(
+    (integration) => integration?.id === data?.invoice?.customer?.avalaraCustomer?.integrationId,
+  ) as AvalaraIntegration
 
   const {
     invoiceType,
@@ -517,6 +557,7 @@ const CustomerInvoiceDetails = () => {
             connectedNetsuiteIntegration={connectedNetsuiteIntegration}
             connectedHubspotIntegration={connectedHubspotIntegration}
             connectedSalesforceIntegration={connectedSalesforceIntegration}
+            connectedAvalaraIntegration={connectedAvalaraIntegration}
             goToPreviousRoute={goToPreviousRoute}
             syncHubspotIntegrationInvoice={syncHubspotIntegrationInvoice}
             syncSalesforceIntegrationInvoice={syncSalesforceIntegrationInvoice}
@@ -591,6 +632,7 @@ const CustomerInvoiceDetails = () => {
     connectedNetsuiteIntegration,
     connectedHubspotIntegration,
     connectedSalesforceIntegration,
+    connectedAvalaraIntegration,
     goToPreviousRoute,
     syncHubspotIntegrationInvoice,
     syncSalesforceIntegrationInvoice,
@@ -879,7 +921,11 @@ const CustomerInvoiceDetails = () => {
                         closePopper()
                       }}
                     >
-                      {translate('text_1724702284063xef0c9kyhyl')}
+                      {translate(
+                        !!data?.invoice?.customer?.avalaraCustomer
+                          ? 'text_17476469985998lthq87gwaq'
+                          : 'text_1724702284063xef0c9kyhyl',
+                      )}
                     </Button>
                   )}
                 </MenuPopper>

@@ -25,9 +25,11 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import {
   buildAnrokCreditNoteUrl,
+  buildAvalaraObjectId,
   buildNetsuiteCreditNoteUrl,
   buildXeroCreditNoteUrl,
 } from '~/core/constants/externalUrls'
+import { AppEnvEnum } from '~/core/constants/globalTypes'
 import {
   CustomerDetailsTabsOptions,
   CustomerInvoiceDetailsTabsOptionsEnum,
@@ -50,6 +52,7 @@ import { formatDateToTZ } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { handleDownloadFile } from '~/core/utils/downloadFiles'
 import {
+  AvalaraIntegration,
   CreditNote,
   CreditNoteCreditStatusEnum,
   CreditNoteItem,
@@ -71,7 +74,7 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader, theme } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
 
-const { disablePdfGeneration } = envGlobalVar()
+const { disablePdfGeneration, appEnv } = envGlobalVar()
 
 gql`
   query getCreditNote($id: ID!) {
@@ -100,6 +103,10 @@ gql`
         displayName
         deletedAt
         applicableTimezone
+        avalaraCustomer {
+          id
+          integrationId
+        }
         netsuiteCustomer {
           id
           integrationId
@@ -183,6 +190,12 @@ gql`
           id
           accountId
           name
+        }
+        ... on AvalaraIntegration {
+          __typename
+          id
+          accountId
+          companyId
         }
       }
     }
@@ -296,17 +309,26 @@ const CreditNoteDetails = () => {
     skip:
       !data?.creditNote?.customer?.netsuiteCustomer?.integrationId &&
       !data?.creditNote?.customer?.xeroCustomer?.integrationId &&
-      !data?.creditNote?.customer?.anrokCustomer?.integrationId,
+      !data?.creditNote?.customer?.anrokCustomer?.integrationId &&
+      !data?.creditNote?.customer?.avalaraCustomer?.id,
   })
 
   const allNetsuiteIntegrations = integrationsData?.integrations?.collection.filter(
     (i) => i.__typename === 'NetsuiteIntegration',
   ) as NetsuiteIntegration[] | undefined
 
+  const allAvalaraIntegrations = integrationsData?.integrations?.collection.filter(
+    (i) => i.__typename === 'AvalaraIntegration',
+  ) as AvalaraIntegration[] | undefined
+
   const connectedNetsuiteIntegration = allNetsuiteIntegrations?.find(
     (integration) =>
       integration?.id === data?.creditNote?.customer?.netsuiteCustomer?.integrationId,
   ) as NetsuiteIntegration
+
+  const connectedAvalaraIntegration = allAvalaraIntegrations?.find(
+    (integration) => integration?.id === data?.creditNote?.customer?.avalaraCustomer?.integrationId,
+  ) as AvalaraIntegration
 
   const creditNote = data?.creditNote
   const billingEntity = data?.creditNote?.billingEntity
@@ -951,6 +973,7 @@ const CreditNoteDetails = () => {
               </TableSection>
 
               {(connectedNetsuiteIntegration ||
+                connectedAvalaraIntegration ||
                 data?.creditNote?.customer?.xeroCustomer?.integrationId ||
                 data?.creditNote?.taxProviderId ||
                 data?.creditNote?.taxProviderSyncable) &&
@@ -972,7 +995,10 @@ const CreditNoteDetails = () => {
                               creditNote?.externalIntegrationId,
                             )}
                           >
-                            <Typography variant="body" className="text-blue">
+                            <Typography
+                              variant="body"
+                              className="flex items-center gap-1 text-blue"
+                            >
                               {creditNote?.externalIntegrationId} <Icon name="outside" />
                             </Typography>
                           </Link>
@@ -1013,7 +1039,10 @@ const CreditNoteDetails = () => {
                                   data?.creditNote?.taxProviderId,
                                 )}
                               >
-                                <Typography variant="caption" className="text-blue">
+                                <Typography
+                                  variant="body"
+                                  className="flex items-center gap-1 text-blue"
+                                >
                                   {data?.creditNote?.taxProviderId} <Icon name="outside" />
                                 </Typography>
                               </Link>
@@ -1027,10 +1056,10 @@ const CreditNoteDetails = () => {
                             value={
                               <div className="flex items-center gap-2">
                                 <Icon name="warning-filled" color="warning" />
-                                <Typography variant="caption">
+                                <Typography variant="body">
                                   {translate('text_1727068146263ztoat7i901x')}
                                 </Typography>
-                                <Typography variant="caption">•</Typography>
+                                <Typography variant="body">•</Typography>
                                 <Link
                                   className="w-fit line-break-anywhere visited:text-blue hover:no-underline"
                                   to="#"
@@ -1038,7 +1067,7 @@ const CreditNoteDetails = () => {
                                     await retryTaxSync()
                                   }}
                                 >
-                                  <Typography variant="caption" className="text-blue">
+                                  <Typography variant="body" className="text-blue">
                                     {translate('text_17270681462632d46dh3r1vu')}
                                   </Typography>
                                 </Link>
@@ -1048,6 +1077,63 @@ const CreditNoteDetails = () => {
                         )}
                       </div>
                     )}
+
+                    {!!data?.creditNote?.customer?.avalaraCustomer?.id &&
+                      !!connectedAvalaraIntegration && (
+                        <div>
+                          {!!data?.creditNote?.taxProviderId && (
+                            <DetailsPage.OverviewLine
+                              title={translate('text_1747408519913t2tehiclc5q')}
+                              value={
+                                <Link
+                                  className="w-fit line-break-anywhere visited:text-blue hover:no-underline"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  to={buildAvalaraObjectId({
+                                    accountId: connectedAvalaraIntegration?.accountId,
+                                    companyId: connectedAvalaraIntegration.companyId || '',
+                                    objectId: data?.creditNote?.taxProviderId,
+                                    isSandbox: appEnv !== AppEnvEnum.production,
+                                  })}
+                                >
+                                  <Typography
+                                    variant="body"
+                                    className="flex items-center gap-1 text-blue"
+                                  >
+                                    {data?.creditNote?.taxProviderId} <Icon name="outside" />
+                                  </Typography>
+                                </Link>
+                              }
+                            />
+                          )}
+
+                          {!!data?.creditNote?.taxProviderSyncable && (
+                            <DetailsPage.OverviewLine
+                              title={translate('text_1747408519913t2tehiclc5q')}
+                              value={
+                                <div className="flex items-center gap-2">
+                                  <Icon name="warning-filled" color="warning" />
+                                  <Typography variant="body">
+                                    {translate('text_1727068146263ztoat7i901x')}
+                                  </Typography>
+                                  <Typography variant="body">•</Typography>
+                                  <Link
+                                    className="w-fit line-break-anywhere visited:text-blue hover:no-underline"
+                                    to="#"
+                                    onClick={async () => {
+                                      await retryTaxSync()
+                                    }}
+                                  >
+                                    <Typography variant="body" className="text-blue">
+                                      {translate('text_17270681462632d46dh3r1vu')}
+                                    </Typography>
+                                  </Link>
+                                </div>
+                              }
+                            />
+                          )}
+                        </div>
+                      )}
                   </Stack>
                 )}
             </div>

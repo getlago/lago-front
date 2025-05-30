@@ -47,12 +47,16 @@ export const typeDefs = gql`
     customerAddressCountryNotSupported
     customerAddressCouldNotResolve
     productExternalIdUnknown
-    accountingTimeZoneNotSetForSeller
-    accountingTimeZoneNotSupported
-    customerIdNotFound
-    externalServiceError
-    taxDateTooFarInFuture
-    taxDateTooFarInPast
+
+    # Avalara errors
+    InvalidEnumValue
+    MissingAddress
+    NotEnoughAddressesInfo
+    InvalidAddress
+    InvalidPostalCode
+    AddressLocationNotFound
+    TaxCodeAssociatedWithItemCodeNotFound
+    EntityNotFoundError
   }
 
   enum ApiKeysPermissionsEnum {

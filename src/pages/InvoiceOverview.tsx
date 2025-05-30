@@ -24,14 +24,17 @@ import { Metadatas } from '~/components/invoices/Metadatas'
 import { envGlobalVar } from '~/core/apolloClient'
 import {
   buildAnrokInvoiceUrl,
+  buildAvalaraObjectId,
   buildHubspotInvoiceUrl,
   buildNetsuiteInvoiceUrl,
   buildSalesforceUrl,
   buildXeroInvoiceUrl,
 } from '~/core/constants/externalUrls'
+import { AppEnvEnum } from '~/core/constants/globalTypes'
 import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
 import { formatDateToTZ } from '~/core/timezone'
 import {
+  AvalaraIntegrationInfosForInvoiceOverviewFragment,
   CreditNote,
   CreditNoteItem,
   Customer,
@@ -54,7 +57,7 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { SectionHeader } from '~/styles/customer'
 import { tw } from '~/styles/utils'
 
-const { disablePdfGeneration } = envGlobalVar()
+const { disablePdfGeneration, appEnv } = envGlobalVar()
 
 gql`
   fragment InvoiceDetailsForInvoiceOverview on Invoice {
@@ -64,6 +67,7 @@ gql`
     taxStatus
     issuingDate
     externalIntegrationId
+    taxProviderId
     taxProviderVoidable
     integrationHubspotSyncable
     externalHubspotIntegrationId
@@ -79,6 +83,10 @@ gql`
       anrokCustomer {
         id
         externalAccountId
+      }
+      avalaraCustomer {
+        id
+        externalCustomerId
       }
       netsuiteCustomer {
         externalCustomerId
@@ -116,6 +124,12 @@ gql`
     name
     instanceId
   }
+
+  fragment AvalaraIntegrationInfosForInvoiceOverview on AvalaraIntegration {
+    id
+    accountId
+    companyId
+  }
 `
 
 interface InvoiceOverviewProps {
@@ -134,6 +148,7 @@ interface InvoiceOverviewProps {
   connectedNetsuiteIntegration: NetsuiteIntegrationInfosForInvoiceOverviewFragment | undefined
   connectedHubspotIntegration: HubspotIntegrationInfosForInvoiceOverviewFragment | undefined
   connectedSalesforceIntegration: SalesforceIntegrationInfosForInvoiceOverviewFragment | undefined
+  connectedAvalaraIntegration: AvalaraIntegrationInfosForInvoiceOverviewFragment | undefined
   goToPreviousRoute?: () => void
   syncHubspotIntegrationInvoice: SyncHubspotIntegrationInvoiceMutationFn
   syncSalesforceIntegrationInvoice: SyncSalesforceInvoiceMutationFn
@@ -143,7 +158,7 @@ interface InvoiceOverviewProps {
 
 const InlineLink = ({ children, ...props }: LinkProps) => {
   return (
-    <Link className="w-fit line-break-anywhere hover:underline" {...props}>
+    <Link className="!w-fit line-break-anywhere hover:underline" {...props}>
       {children}
     </Link>
   )
@@ -174,6 +189,7 @@ const InvoiceOverview = memo(
     connectedNetsuiteIntegration,
     connectedHubspotIntegration,
     connectedSalesforceIntegration,
+    connectedAvalaraIntegration,
     goToPreviousRoute,
     syncHubspotIntegrationInvoice,
     syncSalesforceIntegrationInvoice,
@@ -209,27 +225,37 @@ const InvoiceOverview = memo(
         />
       )
     }
+    const isInvoiceFinalizedOrVoided =
+      invoice?.status === InvoiceStatusTypeEnum.Finalized ||
+      invoice?.status === InvoiceStatusTypeEnum.Voided
 
     const showXeroSection =
-      !!invoice?.customer?.xeroCustomer?.externalCustomerId && !!invoice?.externalIntegrationId
+      !!customer?.xeroCustomer?.externalCustomerId && !!invoice?.externalIntegrationId
 
     const showNetsuiteSection =
       !!connectedNetsuiteIntegration?.accountId && !!invoice?.externalIntegrationId
 
-    const showAnrokReSyncButton = invoice?.taxProviderVoidable
-    const showAnrokLink =
-      (invoice?.status === InvoiceStatusTypeEnum.Finalized ||
-        invoice?.status === InvoiceStatusTypeEnum.Voided) &&
-      !!invoice?.customer?.anrokCustomer?.externalAccountId
-    const showAnrokSection = (showAnrokReSyncButton || showAnrokLink) && !!invoice?.fees?.length
+    const showTaxProviderReSyncButton = invoice?.taxProviderVoidable
+    const showAnrokLink = isInvoiceFinalizedOrVoided && !!customer?.anrokCustomer?.externalAccountId
+    const showAnrokSection =
+      (showTaxProviderReSyncButton || showAnrokLink) && !!invoice?.fees?.length
+
+    const showAvalaraLink =
+      isInvoiceFinalizedOrVoided &&
+      !!customer?.avalaraCustomer?.externalCustomerId &&
+      !!connectedAvalaraIntegration?.companyId &&
+      !!connectedAvalaraIntegration?.accountId &&
+      !!invoice?.taxProviderId
+
+    const showAvalaraSection =
+      (showAvalaraLink || showTaxProviderReSyncButton) && !!invoice?.fees?.length
 
     const showHubspotReSyncButton = invoice?.integrationHubspotSyncable
     const showHubspotLink =
-      !!invoice?.customer?.hubspotCustomer?.externalCustomerId &&
+      !!customer?.hubspotCustomer?.externalCustomerId &&
       !!invoice?.externalHubspotIntegrationId &&
       !!connectedHubspotIntegration?.portalId &&
-      (invoice?.status === InvoiceStatusTypeEnum.Finalized ||
-        invoice?.status === InvoiceStatusTypeEnum.Voided)
+      isInvoiceFinalizedOrVoided
     const showHubspotSection = showHubspotLink || showHubspotReSyncButton
 
     const showSalesforceReSyncButton = invoice?.integrationSalesforceSyncable
@@ -237,12 +263,12 @@ const InvoiceOverview = memo(
       customer?.salesforceCustomer?.externalCustomerId &&
       connectedSalesforceIntegration?.instanceId &&
       !!invoice.externalSalesforceIntegrationId &&
-      (invoice?.status === InvoiceStatusTypeEnum.Finalized ||
-        invoice?.status === InvoiceStatusTypeEnum.Voided)
+      isInvoiceFinalizedOrVoided
 
     const showSalesforceSection = showSalesforceLink || showSalesforceReSyncButton
 
     const showExternalAppsSection =
+      showAvalaraSection ||
       showXeroSection ||
       showNetsuiteSection ||
       showAnrokSection ||
@@ -447,7 +473,7 @@ const InvoiceOverview = memo(
                           target="_blank"
                           rel="noopener noreferrer"
                           to={buildAnrokInvoiceUrl(
-                            invoice?.customer?.anrokCustomer?.externalAccountId,
+                            customer?.anrokCustomer?.externalAccountId,
                             invoice?.id,
                           )}
                         >
@@ -475,6 +501,57 @@ const InvoiceOverview = memo(
                           >
                             <Typography variant="body" color="info600">
                               {translate('text_1724774217640gd4bmfl8ne3')}
+                            </Typography>
+                          </InlineLink>
+                          {loadingRetryTaxProviderVoiding && (
+                            <Icon name="processing" color="info" size="small" animation="spin" />
+                          )}
+                        </Stack>
+                      )}
+                    </InfoLine>
+                  )}
+
+                  {showAvalaraSection && (
+                    <InfoLine>
+                      <Typography variant="caption" color="grey600" noWrap>
+                        {translate('text_1747408519913t2tehiclc5m')}
+                      </Typography>
+
+                      {showAvalaraLink ? (
+                        <InlineLink
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          to={buildAvalaraObjectId({
+                            companyId: connectedAvalaraIntegration?.companyId || '',
+                            accountId: connectedAvalaraIntegration?.accountId,
+                            objectId: String(invoice?.taxProviderId || ''),
+                            isSandbox: appEnv !== AppEnvEnum.production,
+                          })}
+                        >
+                          <Typography
+                            className="flex items-center gap-1"
+                            variant="body"
+                            color="info600"
+                          >
+                            {invoice?.taxProviderId} <Icon name="outside" />
+                          </Typography>
+                        </InlineLink>
+                      ) : (
+                        <Stack direction="row" alignItems="center" gap={2}>
+                          <Icon name="warning-filled" color="warning" />
+                          <Typography variant="body" color="grey600" noWrap>
+                            {translate('text_17476431340829ugsayepaod')}
+                          </Typography>
+                          <span>•</span>
+                          <InlineLink
+                            to={'#'}
+                            onClick={(e) => {
+                              e.preventDefault()
+                              retryTaxProviderVoiding()
+                            }}
+                          >
+                            <Typography variant="body" color="info600">
+                              {translate('text_1747643192782icyo9o1yjgy')}
                             </Typography>
                           </InlineLink>
                           {loadingRetryTaxProviderVoiding && (

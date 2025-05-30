@@ -3,10 +3,11 @@ import { useFormik } from 'formik'
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { object } from 'yup'
 
-import { Button, Dialog } from '~/components/designSystem'
+import { Button, Dialog, Typography } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
+import { AVALARA_TAX_CODE_DOCUMENTATION_URL } from '~/core/constants/externalUrls'
 import {
   MappableTypeEnum,
   MappingTypeEnum,
@@ -418,12 +419,22 @@ export const AvalaraIntegrationMapItemDialog = forwardRef<AvalaraIntegrationMapI
             formikProps={formikProps}
           />
 
-          <TextInputField
-            label={translate('text_17454160106136tkffv4p4c3')}
-            placeholder={translate('text_1745415984416mjvvaj4ahgp')}
-            name="externalId"
-            formikProps={formikProps}
-          />
+          <div className="flex flex-col gap-1">
+            <TextInputField
+              label={translate('text_17454160106136tkffv4p4c3')}
+              placeholder={translate('text_1745415984416mjvvaj4ahgp')}
+              name="externalId"
+              formikProps={formikProps}
+            />
+
+            <Typography
+              variant="caption"
+              color="grey600"
+              html={translate('text_1748266296790rrag2rqt68c', {
+                href: AVALARA_TAX_CODE_DOCUMENTATION_URL,
+              })}
+            />
+          </div>
         </div>
       </Dialog>
     )
