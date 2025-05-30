@@ -1091,7 +1091,7 @@ const CreditNoteDetails = () => {
                                   rel="noopener noreferrer"
                                   to={buildAvalaraObjectId({
                                     accountId: connectedAvalaraIntegration?.accountId,
-                                    companyId: connectedAvalaraIntegration.companyId,
+                                    companyId: connectedAvalaraIntegration.companyId || '',
                                     objectId: data?.creditNote?.taxProviderId,
                                     isSandbox: appEnv !== AppEnvEnum.production,
                                   })}

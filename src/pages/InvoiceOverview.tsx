@@ -522,7 +522,7 @@ const InvoiceOverview = memo(
                           target="_blank"
                           rel="noopener noreferrer"
                           to={buildAvalaraObjectId({
-                            companyId: connectedAvalaraIntegration?.companyId,
+                            companyId: connectedAvalaraIntegration?.companyId || '',
                             accountId: connectedAvalaraIntegration?.accountId,
                             objectId: String(invoice?.taxProviderId || ''),
                             isSandbox: appEnv !== AppEnvEnum.production,
