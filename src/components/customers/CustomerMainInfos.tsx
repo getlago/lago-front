@@ -219,7 +219,7 @@ interface CustomerMainInfosProps {
 }
 
 const InfoSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <div className="pt-12 shadow-t first:pt-0 first:shadow-none">
+  <div>
     <Typography className="mb-4 text-base font-medium text-grey-700">{title}</Typography>
 
     {children}
@@ -401,6 +401,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
   return (
     <div>
       <PageSectionTitle
+        className="mb-12"
         title={translate('text_6250304370f0f700a8fdc27d')}
         subtitle={translate('text_1737059551511f5acxkfz7p4')}
         action={{
@@ -409,7 +410,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
         }}
       />
 
-      <div className="flex flex-col gap-12" data-id="customer-info-list">
+      <div className="flex flex-col gap-6" data-id="customer-info-list">
         <InfoSection title={translate('text_1737892224509yezgypqk5vp')}>
           {billingEntity && (
             <InfoBlock>
