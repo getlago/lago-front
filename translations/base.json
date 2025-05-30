@@ -3132,5 +3132,18 @@
   "text_1747666154075d7ame7sqkxa": "Activity type",
   "text_1747666154075g4ceq9ii0xm": "Source",
   "text_1747666154075t42hri31gvz": "User",
-  "text_1748341883774iypsrgem3hr": "Credit note"
+  "text_1748341883774iypsrgem3hr": "Credit note",
+  "text_1748363241713k6n9cgzat7q": "Billable metric settings",
+  "text_1748363241714mwu6t0uhwe4": "Billable metric aggregation",
+  "text_1748363241714ew3a4g1sawr": "How events are measured?",
+  "text_17483632417149hokjqyfoaw": "Rules to aggregate the events received.",
+  "text_1748363241714nk5s8jj4787": "Rounding rules",
+  "text_1748363241714c3jndcn96k9": "Custom rounding rules to adjust the aggregated total units.",
+  "text_1748363241714y66l16bjag2": "Precision",
+  "text_1748363241714znmroohfgg7": "Filters events based on their properties to apply specific pricing within plans.",
+  "text_1748440972215b2bo0i27zg4": "Edit metric",
+  "text_1748440972215htw8rqfn3tu": "Copy metric ID",
+  "text_1748440972215btigjp0mowx": "Delete metric",
+  "text_1748441335808ev2ygtkq66n": "Metric ID copied to clipboard",
+  "text_1748447578763m2i8k8djc4r": "Duplicate metric"
 }

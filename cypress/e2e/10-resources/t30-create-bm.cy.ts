@@ -21,7 +21,7 @@ describe('Create billable metrics', () => {
     cy.get('input[name="fieldName"]').should('not.exist')
     cy.get('[data-test="submit"]').should('not.be.disabled')
     cy.get('[data-test="submit"]').click()
-    cy.url().should('be.equal', Cypress.config().baseUrl + '/billable-metrics')
+    cy.url().should('include', '/billable-metric/')
     cy.contains(bmName).should('exist')
   })
 
@@ -45,7 +45,7 @@ describe('Create billable metrics', () => {
     cy.get('[data-test="button-selector-true"]').click()
     cy.get('[data-test="submit"]').should('not.be.disabled')
     cy.get('[data-test="submit"]').click()
-    cy.url().should('be.equal', Cypress.config().baseUrl + '/billable-metrics')
+    cy.url().should('include', '/billable-metric/')
     cy.contains(bmName).should('exist')
   })
 
@@ -68,7 +68,7 @@ describe('Create billable metrics', () => {
     cy.get('input[name="fieldName"]').type('whatever')
     cy.get('[data-test="submit"]').should('not.be.disabled')
     cy.get('[data-test="submit"]').click()
-    cy.url().should('be.equal', Cypress.config().baseUrl + '/billable-metrics')
+    cy.url().should('include', '/billable-metric/')
     cy.contains(bmName).should('exist')
   })
 
@@ -91,7 +91,7 @@ describe('Create billable metrics', () => {
     cy.get('input[name="fieldName"]').type('whatever')
     cy.get('[data-test="submit"]').should('not.be.disabled')
     cy.get('[data-test="submit"]').click()
-    cy.url().should('be.equal', Cypress.config().baseUrl + '/billable-metrics')
+    cy.url().should('include', '/billable-metric/')
     cy.contains(bmName).should('exist')
   })
 
@@ -113,7 +113,7 @@ describe('Create billable metrics', () => {
     cy.get('input[name="fieldName"]').should('not.exist')
     cy.get('[data-test="submit"]').should('not.be.disabled')
     cy.get('[data-test="submit"]').click()
-    cy.url().should('be.equal', Cypress.config().baseUrl + '/billable-metrics')
+    cy.url().should('include', '/billable-metric/')
     cy.contains(bmName).should('exist')
   })
 
@@ -137,7 +137,7 @@ describe('Create billable metrics', () => {
     cy.get('input[name="fieldName"]').type('whatever')
     cy.get('[data-test="submit"]').should('not.be.disabled')
     cy.get('[data-test="submit"]').click()
-    cy.url().should('be.equal', Cypress.config().baseUrl + '/billable-metrics')
+    cy.url().should('include', '/billable-metric/')
     cy.contains(bmName).should('exist')
   })
 })

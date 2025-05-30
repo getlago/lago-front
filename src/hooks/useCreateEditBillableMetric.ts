@@ -1,10 +1,11 @@
 import { gql } from '@apollo/client'
 import { useEffect, useMemo } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
-import { BILLABLE_METRICS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
+import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { BILLABLE_METRIC_DETAILS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
 import {
   AggregationTypeEnum,
   BillableMetricItemFragmentDoc,
@@ -50,7 +51,11 @@ type UseCreateEditBillableMetricReturn = {
   onSave: (value: CreateBillableMetricInput | UpdateBillableMetricInput) => Promise<void>
 }
 
-export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricReturn = () => {
+export const useCreateEditBillableMetric: ({
+  isDuplicate,
+}: {
+  isDuplicate?: boolean
+}) => UseCreateEditBillableMetricReturn = ({ isDuplicate }) => {
   const navigate = useNavigate()
   const { billableMetricId } = useParams()
   const { data, loading, error } = useGetSingleBillableMetricQuery({
@@ -66,7 +71,12 @@ export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricRetur
           severity: 'success',
           translateKey: 'text_633336532bdf72cb62dc0696',
         })
-        navigate(BILLABLE_METRICS_ROUTE)
+        navigate(
+          generatePath(BILLABLE_METRIC_DETAILS_ROUTE, {
+            billableMetricId: createBillableMetric.id,
+            tab: BillableMetricDetailsTabsOptionsEnum.overview,
+          }),
+        )
       }
     },
   })
@@ -78,7 +88,12 @@ export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricRetur
           severity: 'success',
           translateKey: 'text_62583bbb86abcf01654f697d',
         })
-        navigate(BILLABLE_METRICS_ROUTE)
+        navigate(
+          generatePath(BILLABLE_METRIC_DETAILS_ROUTE, {
+            billableMetricId: updateBillableMetric.id,
+            tab: BillableMetricDetailsTabsOptionsEnum.overview,
+          }),
+        )
       }
     },
   })
@@ -110,13 +125,15 @@ export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricRetur
     }
   }
 
+  const isEdition = !!billableMetricId && !isDuplicate
+
   return useMemo(
     () => ({
       loading,
-      isEdition: !!billableMetricId,
+      isEdition,
       errorCode,
       billableMetric: !data?.billableMetric ? undefined : data?.billableMetric,
-      onSave: !!billableMetricId
+      onSave: isEdition
         ? async (values) => {
             await update({
               variables: {
@@ -137,6 +154,6 @@ export const useCreateEditBillableMetric: () => UseCreateEditBillableMetricRetur
             })
           },
     }),
-    [loading, billableMetricId, errorCode, data?.billableMetric, update, create],
+    [isEdition, loading, billableMetricId, errorCode, data?.billableMetric, update, create],
   )
 }
