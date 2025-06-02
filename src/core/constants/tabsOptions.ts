@@ -11,9 +11,10 @@ export enum CustomerInvoiceDetailsTabsOptionsEnum {
 }
 
 export enum CustomerSubscriptionDetailsTabsOptionsEnum {
+  activityLogs = 'activity-logs',
+  alerts = 'alerts',
   overview = 'overview',
   usage = 'usage',
-  alerts = 'alerts',
 }
 
 export enum IntegrationsTabsOptionsEnum {
