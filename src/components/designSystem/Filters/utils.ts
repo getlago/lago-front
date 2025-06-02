@@ -555,6 +555,21 @@ export const getFilterValue = ({
   return searchParams.get(keyWithPrefix(key, prefix))
 }
 
+export const setFilterValue = ({
+  key,
+  value,
+  searchParams,
+  prefix,
+}: {
+  key: AvailableFiltersEnum
+  value: string
+  searchParams: URLSearchParams
+  prefix?: string
+}): URLSearchParams => {
+  searchParams.set(keyWithPrefix(key, prefix), value)
+  return searchParams
+}
+
 export const buildUrlForInvoicesWithFilters = (searchParams: URLSearchParams) => {
   const searchParamsWithPrefix: Record<string, string> = {}
 

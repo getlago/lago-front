@@ -1,3 +1,8 @@
+import { generatePath } from 'react-router-dom'
+
+import { AvailableFiltersEnum, setFilterValue } from '~/components/designSystem/Filters'
+import { ACTIVITY_LOG_ROUTE } from '~/components/developers/DevtoolsRouter'
+import { ACTIVITY_LOG_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { ActivityTypeEnum, CurrencyEnum } from '~/generated/graphql'
@@ -243,4 +248,22 @@ export const resourceTypeTranslations: Record<string, string> = {
   Plan: 'text_63d3a658c6d84a5843032145',
   Subscription: 'text_1728472697691k6k2e9m5ibb',
   Wallet: 'text_62d175066d2dbf1d50bc9384',
+}
+
+export function buildLinkToActivityLog(activityId: string): string {
+  const searchParams = new URLSearchParams()
+  const path = generatePath(ACTIVITY_LOG_ROUTE, { logId: activityId })
+
+  setFilterValue({
+    searchParams,
+    prefix: ACTIVITY_LOG_FILTER_PREFIX,
+    key: AvailableFiltersEnum.activityIds,
+    value: activityId,
+  })
+
+  if (searchParams.size > 0) {
+    return `${path}?${searchParams.toString()}`
+  }
+
+  return path
 }
