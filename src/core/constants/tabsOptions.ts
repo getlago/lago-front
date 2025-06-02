@@ -23,6 +23,7 @@ export enum IntegrationsTabsOptionsEnum {
 }
 
 export enum PlanDetailsTabsOptionsEnum {
+  activityLogs = 'activity-logs',
   overview = 'overview',
   subscriptions = 'subscriptions',
 }
