@@ -13,7 +13,11 @@ import { paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
-import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
+import {
+  deserializeAmount,
+  getCurrencyPrecision,
+  serializeAmount,
+} from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
   CurrencyEnum,
@@ -129,6 +133,8 @@ const CustomerInvoiceVoid = () => {
     }
   }
 
+  const currencyPrecision = getCurrencyPrecision(currency)
+
   const formikProps = useFormik<CustomerInvoiceVoidForm>({
     initialValues: {
       handle: HandleEnum.VoidOnly,
@@ -139,7 +145,10 @@ const CustomerInvoiceVoid = () => {
         },
         {
           type: CreditTypeEnum.credit,
-          value: maxCreditable > 0 ? maxCreditable - maxRefundable : undefined,
+          value:
+            maxCreditable > 0
+              ? Number((maxCreditable - maxRefundable).toFixed(currencyPrecision))
+              : undefined,
         },
       ],
     },
