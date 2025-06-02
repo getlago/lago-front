@@ -19,6 +19,7 @@ export interface SwitchProps {
   subLabel?: string
   labelPosition?: LabelPosition
   onChange?: (value: boolean, e: MouseEvent<HTMLDivElement>) => Promise<unknown> | void
+  className?: string
 }
 
 const switchVariants = cva(
@@ -72,6 +73,7 @@ export const Switch = ({
   checked,
   labelPosition = LabelPositionEnum.right,
   onChange,
+  className,
   ...props
 }: SwitchProps) => {
   const inputRef = useRef<HTMLInputElement>(null)
@@ -91,11 +93,16 @@ export const Switch = ({
   return (
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events
     <div
-      className={tw('h-[initial] p-0', 'flex items-center', {
-        'flex-row-reverse': labelPosition === LabelPositionEnum.left,
-        'flex-row': labelPosition === LabelPositionEnum.right,
-        'cursor-text': disabled,
-      })}
+      className={tw(
+        'h-[initial] p-0',
+        'flex items-center',
+        {
+          'flex-row-reverse': labelPosition === LabelPositionEnum.left,
+          'flex-row': labelPosition === LabelPositionEnum.right,
+          'cursor-text': disabled,
+        },
+        className,
+      )}
       onClick={
         disabled
           ? undefined

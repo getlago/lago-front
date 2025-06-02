@@ -308,10 +308,10 @@ export type AlertThreshold = {
 };
 
 export enum AlertTypeEnum {
-  BillableMetricUsageAmount = 'billable_metric_usage_amount',
-  BillableMetricUsageUnits = 'billable_metric_usage_units',
-  LifetimeUsageAmount = 'lifetime_usage_amount',
-  UsageAmount = 'usage_amount'
+  BillableMetricCurrentUsageAmount = 'billable_metric_current_usage_amount',
+  BillableMetricCurrentUsageUnits = 'billable_metric_current_usage_units',
+  CurrentUsageAmount = 'current_usage_amount',
+  LifetimeUsageAmount = 'lifetime_usage_amount'
 }
 
 export type AnrokCustomer = {
@@ -10182,7 +10182,7 @@ export type GetSubscriptionInfosQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionInfosQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, externalId: string } | null };
+export type GetSubscriptionInfosQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, externalId: string, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum } } | null };
 
 export type GetSubscriptionAlertToEditQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -10190,6 +10190,24 @@ export type GetSubscriptionAlertToEditQueryVariables = Exact<{
 
 
 export type GetSubscriptionAlertToEditQuery = { __typename?: 'Query', alert?: { __typename?: 'Alert', id: string, alertType: AlertTypeEnum, code: string, name?: string | null, billableMetric?: { __typename?: 'BillableMetric', id: string, code: string, name: string } | null, thresholds?: Array<{ __typename?: 'AlertThreshold', code?: string | null, recurring: boolean, value: string }> | null } | null };
+
+export type GetExistingAlertsOfSubscriptionQueryVariables = Exact<{
+  subscriptionExternalId: Scalars['String']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetExistingAlertsOfSubscriptionQuery = { __typename?: 'Query', alerts: { __typename?: 'AlertCollection', collection: Array<{ __typename?: 'Alert', id: string, alertType: AlertTypeEnum, billableMetricId?: string | null }> } };
+
+export type GetSubscriptionBillableMetricsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  planId?: InputMaybe<Scalars['ID']['input']>;
+}>;
+
+
+export type GetSubscriptionBillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> } };
 
 export type CreateSubscriptionAlertMutationVariables = Exact<{
   input: CreateSubscriptionAlertInput;
@@ -26325,6 +26343,10 @@ export const GetSubscriptionInfosDocument = gql`
   subscription(id: $id) {
     id
     externalId
+    plan {
+      id
+      amountCurrency
+    }
   }
 }
     `;
@@ -26414,6 +26436,103 @@ export type GetSubscriptionAlertToEditQueryHookResult = ReturnType<typeof useGet
 export type GetSubscriptionAlertToEditLazyQueryHookResult = ReturnType<typeof useGetSubscriptionAlertToEditLazyQuery>;
 export type GetSubscriptionAlertToEditSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionAlertToEditSuspenseQuery>;
 export type GetSubscriptionAlertToEditQueryResult = Apollo.QueryResult<GetSubscriptionAlertToEditQuery, GetSubscriptionAlertToEditQueryVariables>;
+export const GetExistingAlertsOfSubscriptionDocument = gql`
+    query getExistingAlertsOfSubscription($subscriptionExternalId: String!, $limit: Int) {
+  alerts(subscriptionExternalId: $subscriptionExternalId, limit: $limit) {
+    collection {
+      id
+      alertType
+      billableMetricId
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetExistingAlertsOfSubscriptionQuery__
+ *
+ * To run a query within a React component, call `useGetExistingAlertsOfSubscriptionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetExistingAlertsOfSubscriptionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetExistingAlertsOfSubscriptionQuery({
+ *   variables: {
+ *      subscriptionExternalId: // value for 'subscriptionExternalId'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetExistingAlertsOfSubscriptionQuery(baseOptions: Apollo.QueryHookOptions<GetExistingAlertsOfSubscriptionQuery, GetExistingAlertsOfSubscriptionQueryVariables> & ({ variables: GetExistingAlertsOfSubscriptionQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetExistingAlertsOfSubscriptionQuery, GetExistingAlertsOfSubscriptionQueryVariables>(GetExistingAlertsOfSubscriptionDocument, options);
+      }
+export function useGetExistingAlertsOfSubscriptionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetExistingAlertsOfSubscriptionQuery, GetExistingAlertsOfSubscriptionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetExistingAlertsOfSubscriptionQuery, GetExistingAlertsOfSubscriptionQueryVariables>(GetExistingAlertsOfSubscriptionDocument, options);
+        }
+export function useGetExistingAlertsOfSubscriptionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetExistingAlertsOfSubscriptionQuery, GetExistingAlertsOfSubscriptionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetExistingAlertsOfSubscriptionQuery, GetExistingAlertsOfSubscriptionQueryVariables>(GetExistingAlertsOfSubscriptionDocument, options);
+        }
+export type GetExistingAlertsOfSubscriptionQueryHookResult = ReturnType<typeof useGetExistingAlertsOfSubscriptionQuery>;
+export type GetExistingAlertsOfSubscriptionLazyQueryHookResult = ReturnType<typeof useGetExistingAlertsOfSubscriptionLazyQuery>;
+export type GetExistingAlertsOfSubscriptionSuspenseQueryHookResult = ReturnType<typeof useGetExistingAlertsOfSubscriptionSuspenseQuery>;
+export type GetExistingAlertsOfSubscriptionQueryResult = Apollo.QueryResult<GetExistingAlertsOfSubscriptionQuery, GetExistingAlertsOfSubscriptionQueryVariables>;
+export const GetSubscriptionBillableMetricsDocument = gql`
+    query getSubscriptionBillableMetrics($page: Int, $limit: Int, $searchTerm: String, $planId: ID) {
+  billableMetrics(
+    page: $page
+    limit: $limit
+    searchTerm: $searchTerm
+    planId: $planId
+  ) {
+    collection {
+      id
+      code
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetSubscriptionBillableMetricsQuery__
+ *
+ * To run a query within a React component, call `useGetSubscriptionBillableMetricsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubscriptionBillableMetricsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSubscriptionBillableMetricsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *      planId: // value for 'planId'
+ *   },
+ * });
+ */
+export function useGetSubscriptionBillableMetricsQuery(baseOptions?: Apollo.QueryHookOptions<GetSubscriptionBillableMetricsQuery, GetSubscriptionBillableMetricsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSubscriptionBillableMetricsQuery, GetSubscriptionBillableMetricsQueryVariables>(GetSubscriptionBillableMetricsDocument, options);
+      }
+export function useGetSubscriptionBillableMetricsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSubscriptionBillableMetricsQuery, GetSubscriptionBillableMetricsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSubscriptionBillableMetricsQuery, GetSubscriptionBillableMetricsQueryVariables>(GetSubscriptionBillableMetricsDocument, options);
+        }
+export function useGetSubscriptionBillableMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionBillableMetricsQuery, GetSubscriptionBillableMetricsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetSubscriptionBillableMetricsQuery, GetSubscriptionBillableMetricsQueryVariables>(GetSubscriptionBillableMetricsDocument, options);
+        }
+export type GetSubscriptionBillableMetricsQueryHookResult = ReturnType<typeof useGetSubscriptionBillableMetricsQuery>;
+export type GetSubscriptionBillableMetricsLazyQueryHookResult = ReturnType<typeof useGetSubscriptionBillableMetricsLazyQuery>;
+export type GetSubscriptionBillableMetricsSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionBillableMetricsSuspenseQuery>;
+export type GetSubscriptionBillableMetricsQueryResult = Apollo.QueryResult<GetSubscriptionBillableMetricsQuery, GetSubscriptionBillableMetricsQueryVariables>;
 export const CreateSubscriptionAlertDocument = gql`
     mutation createSubscriptionAlert($input: CreateSubscriptionAlertInput!) {
   createSubscriptionAlert(input: $input) {
