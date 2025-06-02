@@ -4,6 +4,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { COUPON_DETAILS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
@@ -158,7 +159,12 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
           severity: 'success',
           translateKey: 'text_633336532bdf72cb62dc0690',
         })
-        navigate(generatePath(COUPON_DETAILS_ROUTE, { couponId: createCoupon.id }))
+        navigate(
+          generatePath(COUPON_DETAILS_ROUTE, {
+            couponId: createCoupon.id,
+            tab: CouponDetailsTabsOptionsEnum.overview,
+          }),
+        )
       }
     },
   })
@@ -170,7 +176,12 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
           severity: 'success',
           translateKey: 'text_6287a9bdac160c00b2e0fc81',
         })
-        navigate(generatePath(COUPON_DETAILS_ROUTE, { couponId: updateCoupon.id }))
+        navigate(
+          generatePath(COUPON_DETAILS_ROUTE, {
+            couponId: updateCoupon.id,
+            tab: CouponDetailsTabsOptionsEnum.overview,
+          }),
+        )
       }
     },
   })

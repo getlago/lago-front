@@ -19,6 +19,7 @@ import {
 } from '~/components/designSystem'
 import { SearchInput } from '~/components/SearchInput'
 import { couponStatusMapping } from '~/core/constants/statusCouponMapping'
+import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { COUPON_DETAILS_ROUTE, CREATE_COUPON_ROUTE, UPDATE_COUPON_ROUTE } from '~/core/router'
 import {
   CouponCaptionFragmentDoc,
@@ -124,7 +125,12 @@ const CouponsList = () => {
           rowSize={72}
           isLoading={isLoading}
           hasError={!!error}
-          onRowActionLink={({ id }) => generatePath(COUPON_DETAILS_ROUTE, { couponId: id })}
+          onRowActionLink={({ id }) =>
+            generatePath(COUPON_DETAILS_ROUTE, {
+              couponId: id,
+              tab: CouponDetailsTabsOptionsEnum.overview,
+            })
+          }
           rowDataTestId={(addOn) => `${addOn.name}`}
           columns={[
             {

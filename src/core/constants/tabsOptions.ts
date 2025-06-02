@@ -2,6 +2,10 @@ export enum BillableMetricDetailsTabsOptionsEnum {
   overview = 'overview',
 }
 
+export enum CouponDetailsTabsOptionsEnum {
+  overview = 'overview',
+}
+
 export enum CreditNoteDetailsTabsOptionsEnum {
   externalSync = 'external-sync',
   overview = 'overview',
