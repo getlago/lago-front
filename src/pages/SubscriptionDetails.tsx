@@ -15,6 +15,7 @@ import {
   Skeleton,
   Typography,
 } from '~/components/designSystem'
+import { SubscriptionActivityLogs } from '~/components/subscriptions/SubscriptionActivityLogs'
 import { SubscriptionAlertsList } from '~/components/subscriptions/SubscriptionAlertsList'
 import { SubscriptionDetailsOverview } from '~/components/subscriptions/SubscriptionDetailsOverview'
 import { SubscriptionUsageTabContent } from '~/components/subscriptions/SubscriptionUsageTabContent'
@@ -358,6 +359,36 @@ const SubscriptionDetails = () => {
                 <SubscriptionAlertsList subscriptionExternalId={subscription?.externalId} />
               </div>
             ),
+          },
+          {
+            title: translate('text_1747314141347qq6rasuxisl'),
+            link: !!customerId
+              ? generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                  customerId,
+                  subscriptionId: subscriptionId as string,
+                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.activityLogs,
+                })
+              : generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                  planId: planId || '',
+                  subscriptionId: subscriptionId as string,
+                  tab: CustomerSubscriptionDetailsTabsOptionsEnum.activityLogs,
+                }),
+            match: [
+              generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                customerId: customerId || '',
+                subscriptionId: subscriptionId as string,
+                tab: CustomerSubscriptionDetailsTabsOptionsEnum.activityLogs,
+              }),
+              generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+                planId: planId || '',
+                subscriptionId: subscriptionId as string,
+                tab: CustomerSubscriptionDetailsTabsOptionsEnum.activityLogs,
+              }),
+            ],
+            component: (
+              <SubscriptionActivityLogs externalSubscriptionId={subscription?.externalId || ''} />
+            ),
+            hidden: !subscription?.externalId,
           },
         ]}
       />

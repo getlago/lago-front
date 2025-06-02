@@ -9820,6 +9820,15 @@ export type RevokeMembershipMutation = { __typename?: 'Mutation', revokeMembersh
 
 export type InviteForRolePickerFieldFragment = { __typename?: 'Invite', id: string, role: MembershipRole };
 
+export type SubscriptionActivityLogsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type SubscriptionActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+
 export type GetAlertsOfSubscriptionQueryVariables = Exact<{
   subscriptionExternalId: Scalars['String']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -24710,6 +24719,58 @@ export function useRevokeMembershipMutation(baseOptions?: Apollo.MutationHookOpt
 export type RevokeMembershipMutationHookResult = ReturnType<typeof useRevokeMembershipMutation>;
 export type RevokeMembershipMutationResult = Apollo.MutationResult<RevokeMembershipMutation>;
 export type RevokeMembershipMutationOptions = Apollo.BaseMutationOptions<RevokeMembershipMutation, RevokeMembershipMutationVariables>;
+export const SubscriptionActivityLogsDocument = gql`
+    query SubscriptionActivityLogs($page: Int, $limit: Int, $externalSubscriptionId: String) {
+  activityLogs(
+    page: $page
+    limit: $limit
+    externalSubscriptionId: $externalSubscriptionId
+  ) {
+    collection {
+      ...ActivityLogsTableData
+    }
+    metadata {
+      currentPage
+      totalPages
+    }
+  }
+}
+    ${ActivityLogsTableDataFragmentDoc}`;
+
+/**
+ * __useSubscriptionActivityLogsQuery__
+ *
+ * To run a query within a React component, call `useSubscriptionActivityLogsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSubscriptionActivityLogsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSubscriptionActivityLogsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      externalSubscriptionId: // value for 'externalSubscriptionId'
+ *   },
+ * });
+ */
+export function useSubscriptionActivityLogsQuery(baseOptions?: Apollo.QueryHookOptions<SubscriptionActivityLogsQuery, SubscriptionActivityLogsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SubscriptionActivityLogsQuery, SubscriptionActivityLogsQueryVariables>(SubscriptionActivityLogsDocument, options);
+      }
+export function useSubscriptionActivityLogsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SubscriptionActivityLogsQuery, SubscriptionActivityLogsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SubscriptionActivityLogsQuery, SubscriptionActivityLogsQueryVariables>(SubscriptionActivityLogsDocument, options);
+        }
+export function useSubscriptionActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SubscriptionActivityLogsQuery, SubscriptionActivityLogsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<SubscriptionActivityLogsQuery, SubscriptionActivityLogsQueryVariables>(SubscriptionActivityLogsDocument, options);
+        }
+export type SubscriptionActivityLogsQueryHookResult = ReturnType<typeof useSubscriptionActivityLogsQuery>;
+export type SubscriptionActivityLogsLazyQueryHookResult = ReturnType<typeof useSubscriptionActivityLogsLazyQuery>;
+export type SubscriptionActivityLogsSuspenseQueryHookResult = ReturnType<typeof useSubscriptionActivityLogsSuspenseQuery>;
+export type SubscriptionActivityLogsQueryResult = Apollo.QueryResult<SubscriptionActivityLogsQuery, SubscriptionActivityLogsQueryVariables>;
 export const GetAlertsOfSubscriptionDocument = gql`
     query getAlertsOfSubscription($subscriptionExternalId: String!, $limit: Int, $page: Int) {
   alerts(
