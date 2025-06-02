@@ -45,7 +45,7 @@ export type ActivityLog = {
   activityObjectChanges?: Maybe<Scalars['JSON']['output']>;
   activitySource: ActivitySourceEnum;
   activityType: ActivityTypeEnum;
-  apiKeyId?: Maybe<Scalars['ID']['output']>;
+  apiKey?: Maybe<SanitizedApiKey>;
   createdAt: Scalars['ISO8601DateTime']['output'];
   externalCustomerId?: Maybe<Scalars['String']['output']>;
   externalSubscriptionId?: Maybe<Scalars['String']['output']>;
@@ -8350,21 +8350,14 @@ export type GetPlansForFiltersItemPlanCodeQueryVariables = Exact<{
 
 export type GetPlansForFiltersItemPlanCodeQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Plan', id: string, code: string, deletedAt?: any | null }> } };
 
-export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, apiKeyId?: string | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, resource?: { __typename?: 'BillableMetric', id: string } | { __typename?: 'BillingEntity', id: string } | { __typename?: 'Coupon', id: string } | { __typename?: 'CreditNote', id: string } | { __typename?: 'Customer', externalId: string } | { __typename?: 'Invoice', id: string } | { __typename?: 'Plan', id: string } | { __typename?: 'Subscription', externalId: string } | { __typename?: 'Wallet', id: string } | null };
+export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, apiKey?: { __typename?: 'SanitizedApiKey', value: string, name?: string | null } | null, resource?: { __typename?: 'BillableMetric', id: string } | { __typename?: 'BillingEntity', id: string } | { __typename?: 'Coupon', id: string } | { __typename?: 'CreditNote', id: string } | { __typename?: 'Customer', externalId: string } | { __typename?: 'Invoice', id: string } | { __typename?: 'Plan', id: string } | { __typename?: 'Subscription', externalId: string } | { __typename?: 'Wallet', id: string } | null };
 
 export type GetSingleActivityLogQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetSingleActivityLogQuery = { __typename?: 'Query', activityLog?: { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, apiKeyId?: string | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, resource?: { __typename?: 'BillableMetric', id: string } | { __typename?: 'BillingEntity', id: string } | { __typename?: 'Coupon', id: string } | { __typename?: 'CreditNote', id: string } | { __typename?: 'Customer', externalId: string } | { __typename?: 'Invoice', id: string } | { __typename?: 'Plan', id: string } | { __typename?: 'Subscription', externalId: string } | { __typename?: 'Wallet', id: string } | null } | null };
-
-export type GetApiKeyForActivityLogQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type GetApiKeyForActivityLogQuery = { __typename?: 'Query', apiKey: { __typename?: 'ApiKey', id: string, value: string } };
+export type GetSingleActivityLogQuery = { __typename?: 'Query', activityLog?: { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, apiKey?: { __typename?: 'SanitizedApiKey', value: string, name?: string | null } | null, resource?: { __typename?: 'BillableMetric', id: string } | { __typename?: 'BillingEntity', id: string } | { __typename?: 'Coupon', id: string } | { __typename?: 'CreditNote', id: string } | { __typename?: 'Customer', externalId: string } | { __typename?: 'Invoice', id: string } | { __typename?: 'Plan', id: string } | { __typename?: 'Subscription', externalId: string } | { __typename?: 'Wallet', id: string } | null } | null };
 
 export type ActivityItemFragment = { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, externalCustomerId?: string | null, externalSubscriptionId?: string | null, loggedAt: any };
 
@@ -11709,7 +11702,10 @@ export const ActivityLogDetailsFragmentDoc = gql`
   activitySource
   activityObject
   activityObjectChanges
-  apiKeyId
+  apiKey {
+    value
+    name
+  }
   resource {
     ... on BillableMetric {
       id
@@ -18280,47 +18276,6 @@ export type GetSingleActivityLogQueryHookResult = ReturnType<typeof useGetSingle
 export type GetSingleActivityLogLazyQueryHookResult = ReturnType<typeof useGetSingleActivityLogLazyQuery>;
 export type GetSingleActivityLogSuspenseQueryHookResult = ReturnType<typeof useGetSingleActivityLogSuspenseQuery>;
 export type GetSingleActivityLogQueryResult = Apollo.QueryResult<GetSingleActivityLogQuery, GetSingleActivityLogQueryVariables>;
-export const GetApiKeyForActivityLogDocument = gql`
-    query getApiKeyForActivityLog($id: ID!) {
-  apiKey(id: $id) {
-    id
-    value
-  }
-}
-    `;
-
-/**
- * __useGetApiKeyForActivityLogQuery__
- *
- * To run a query within a React component, call `useGetApiKeyForActivityLogQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetApiKeyForActivityLogQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetApiKeyForActivityLogQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useGetApiKeyForActivityLogQuery(baseOptions: Apollo.QueryHookOptions<GetApiKeyForActivityLogQuery, GetApiKeyForActivityLogQueryVariables> & ({ variables: GetApiKeyForActivityLogQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetApiKeyForActivityLogQuery, GetApiKeyForActivityLogQueryVariables>(GetApiKeyForActivityLogDocument, options);
-      }
-export function useGetApiKeyForActivityLogLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetApiKeyForActivityLogQuery, GetApiKeyForActivityLogQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetApiKeyForActivityLogQuery, GetApiKeyForActivityLogQueryVariables>(GetApiKeyForActivityLogDocument, options);
-        }
-export function useGetApiKeyForActivityLogSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetApiKeyForActivityLogQuery, GetApiKeyForActivityLogQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetApiKeyForActivityLogQuery, GetApiKeyForActivityLogQueryVariables>(GetApiKeyForActivityLogDocument, options);
-        }
-export type GetApiKeyForActivityLogQueryHookResult = ReturnType<typeof useGetApiKeyForActivityLogQuery>;
-export type GetApiKeyForActivityLogLazyQueryHookResult = ReturnType<typeof useGetApiKeyForActivityLogLazyQuery>;
-export type GetApiKeyForActivityLogSuspenseQueryHookResult = ReturnType<typeof useGetApiKeyForActivityLogSuspenseQuery>;
-export type GetApiKeyForActivityLogQueryResult = Apollo.QueryResult<GetApiKeyForActivityLogQuery, GetApiKeyForActivityLogQueryVariables>;
 export const ActivityLogsDocument = gql`
     query activityLogs($page: Int, $limit: Int, $activityIds: [String!], $activitySources: [ActivitySourceEnum!], $activityTypes: [ActivityTypeEnum!], $apiKeyIds: [String!], $externalCustomerId: String, $externalSubscriptionId: String, $fromDate: ISO8601Date, $resourceIds: [String!], $resourceTypes: [ResourceTypeEnum!], $toDate: ISO8601Date, $userEmails: [String!]) {
   activityLogs(

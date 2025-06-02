@@ -15,7 +15,7 @@ import {
   TabManagedBy,
   Typography,
 } from '~/components/designSystem'
-import { useGetApiKeyForActivityLogQuery, useGetSingleActivityLogQuery } from '~/generated/graphql'
+import { useGetSingleActivityLogQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
@@ -25,7 +25,10 @@ gql`
     activitySource
     activityObject
     activityObjectChanges
-    apiKeyId
+    apiKey {
+      value
+      name
+    }
     resource {
       ... on BillableMetric {
         id
@@ -67,13 +70,6 @@ gql`
       ...ActivityLogDetails
     }
   }
-
-  query getApiKeyForActivityLog($id: ID!) {
-    apiKey(id: $id) {
-      id
-      value
-    }
-  }
 `
 
 export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
@@ -81,17 +77,10 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
 
-  const { data, loading: activityLogLoading } = useGetSingleActivityLogQuery({
+  const { data, loading } = useGetSingleActivityLogQuery({
     variables: { id: logId || '' },
     skip: !logId,
   })
-
-  const { data: apiKeyData, loading: apiKeyLoading } = useGetApiKeyForActivityLogQuery({
-    variables: { id: data?.activityLog?.apiKeyId || '' },
-    skip: !data?.activityLog?.apiKeyId,
-  })
-
-  const loading = activityLogLoading || apiKeyLoading
 
   const {
     activityId,
@@ -104,6 +93,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
     activityObjectChanges,
     externalSubscriptionId,
     externalCustomerId,
+    apiKey,
   } = data?.activityLog ?? {}
 
   const [activityTypeTranslation, parameters] = activityType
@@ -179,9 +169,10 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
               ],
               [translate('text_174735207025406tp34gdzxb'), userEmail],
               [translate('text_1747352070254xmjaw609ifs'), activitySource],
-              apiKeyData?.apiKey.value
-                ? [translate('text_645d071272418a14c1c76aa4'), apiKeyData?.apiKey.value]
-                : [],
+              [
+                translate('text_645d071272418a14c1c76aa4'),
+                apiKey?.name ? `${apiKey.name} - ${apiKey?.value}` : apiKey?.value,
+              ],
             ]
               .filter(([label, value]) => !!label && !!value)
               .map(([label, value]) => (
