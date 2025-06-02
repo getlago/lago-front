@@ -259,6 +259,7 @@ const SubscriptionDetails = () => {
 
       <NavigationTab
         className="px-12"
+        loading={isSubscriptionLoading}
         tabs={[
           {
             title: translate('text_628cf761cbe6820138b8f2e4'),
