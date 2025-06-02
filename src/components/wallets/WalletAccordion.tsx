@@ -4,6 +4,7 @@ import { DateTime } from 'luxon'
 import { FC, PropsWithChildren, RefObject, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
+import { buildLinkToActivityLog } from '~/components/activityLogs/utils'
 import {
   Accordion,
   Button,
@@ -17,6 +18,7 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
+import { AvailableFiltersEnum } from '~/components/designSystem/Filters'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { TimezoneDate } from '~/components/TimezoneDate'
 import {
@@ -41,6 +43,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper } from '~/styles'
@@ -121,6 +124,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
   const { formatTimeOrgaTZ } = useOrganizationInfos()
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
+  const { setUrl, open } = useDeveloperTool()
 
   const terminateCustomerWalletDialogRef = useRef<TerminateCustomerWalletDialogRef>(null)
   const voidWalletDialogRef = useRef<VoidWalletDialogRef>(null)
@@ -242,35 +246,56 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
                         </Button>
                       )}
                       {hasPermissions(['walletsTerminate']) && (
-                        <>
-                          <Button
-                            startIcon="minus"
-                            variant="quaternary"
-                            align="left"
-                            fullWidth
-                            disabled={creditsBalance <= 0}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              voidWalletDialogRef.current?.openDialog()
-                              closePopper()
-                            }}
-                          >
-                            {translate('text_63720bd734e1344aea75b7e9')}
-                          </Button>
-                          <Button
-                            startIcon="trash"
-                            variant="quaternary"
-                            align="left"
-                            fullWidth
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              terminateCustomerWalletDialogRef?.current?.openDialog()
-                              closePopper()
-                            }}
-                          >
-                            {translate('text_62d9430e8b9fe36851cddd17')}
-                          </Button>
-                        </>
+                        <Button
+                          startIcon="minus"
+                          variant="quaternary"
+                          align="left"
+                          fullWidth
+                          disabled={creditsBalance <= 0}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            voidWalletDialogRef.current?.openDialog()
+                            closePopper()
+                          }}
+                        >
+                          {translate('text_63720bd734e1344aea75b7e9')}
+                        </Button>
+                      )}
+                      {hasPermissions(['developersManage']) && (
+                        <Button
+                          startIcon="pulse"
+                          variant="quaternary"
+                          align="left"
+                          fullWidth
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            const url = buildLinkToActivityLog(
+                              wallet.id,
+                              AvailableFiltersEnum.resourceIds,
+                            )
+
+                            setUrl(url)
+                            open()
+                            closePopper()
+                          }}
+                        >
+                          {translate('text_17494778224951pa9u6uvz3t')}
+                        </Button>
+                      )}
+                      {hasPermissions(['walletsTerminate']) && (
+                        <Button
+                          startIcon="trash"
+                          variant="quaternary"
+                          align="left"
+                          fullWidth
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            terminateCustomerWalletDialogRef?.current?.openDialog()
+                            closePopper()
+                          }}
+                        >
+                          {translate('text_62d9430e8b9fe36851cddd17')}
+                        </Button>
                       )}
                     </MenuPopper>
                   )}

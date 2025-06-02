@@ -250,14 +250,14 @@ export const resourceTypeTranslations: Record<string, string> = {
   Wallet: 'text_62d175066d2dbf1d50bc9384',
 }
 
-export function buildLinkToActivityLog(activityId: string): string {
+export function buildLinkToActivityLog(activityId: string, filter?: AvailableFiltersEnum): string {
   const searchParams = new URLSearchParams()
   const path = generatePath(ACTIVITY_LOG_ROUTE, { logId: activityId })
 
   setFilterValue({
     searchParams,
     prefix: ACTIVITY_LOG_FILTER_PREFIX,
-    key: AvailableFiltersEnum.activityIds,
+    key: filter ?? AvailableFiltersEnum.activityIds,
     value: activityId,
   })
 
