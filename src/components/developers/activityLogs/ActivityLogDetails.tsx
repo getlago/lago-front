@@ -176,7 +176,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
             ]
               .filter(([label, value]) => !!label && !!value)
               .map(([label, value]) => (
-                <>
+                <Fragment key={label}>
                   <Typography key={label} className="pt-1" variant="caption">
                     {label}
                   </Typography>
@@ -186,7 +186,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
                   >
                     {value}
                   </Typography>
-                </>
+                </Fragment>
               ))}
           </div>
 
