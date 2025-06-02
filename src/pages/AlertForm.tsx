@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
+import { Chip } from 'lago-design-system'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { array, boolean, number, object, string } from 'yup'
@@ -393,11 +394,14 @@ const AlertForm = () => {
     <>
       <CenteredPage.Wrapper>
         <CenteredPage.Header>
-          <Typography variant="bodyHl" color="textSecondary" noWrap>
-            {translate(
-              isEdition ? 'text_1746623860224seuc6r7gdlc' : 'text_1746623860224049f02r3xcf',
-            )}
-          </Typography>
+          <div className="flex gap-2">
+            <Typography variant="bodyHl" color="textSecondary" noWrap>
+              {translate(
+                isEdition ? 'text_1746623860224seuc6r7gdlc' : 'text_1746623860224049f02r3xcf',
+              )}
+            </Typography>
+            <Chip size="small" label={translate('text_65d8d71a640c5400917f8a13')} />
+          </div>
           <Button
             variant="quaternary"
             icon="close"
