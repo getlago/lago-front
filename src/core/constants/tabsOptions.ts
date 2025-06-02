@@ -49,12 +49,13 @@ export enum InvoiceListTabEnum {
 }
 
 export enum CustomerDetailsTabsOptions {
+  activityLogs = 'activity-logs',
   creditNotes = 'creditNotes',
-  overview = 'overview',
-  wallet = 'wallet',
+  information = 'information',
   invoices = 'invoices',
+  overview = 'overview',
   payments = 'payments',
   settings = 'settings',
   usage = 'usage',
-  information = 'information',
+  wallet = 'wallet',
 }

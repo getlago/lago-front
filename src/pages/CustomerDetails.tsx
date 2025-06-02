@@ -7,6 +7,7 @@ import {
   AddCouponToCustomerDialog,
   AddCouponToCustomerDialogRef,
 } from '~/components/customers/AddCouponToCustomerDialog'
+import { CustomerActivityLogs } from '~/components/customers/CustomerActivityLogs'
 import { CustomerCreditNotesList } from '~/components/customers/CustomerCreditNotesList'
 import { CustomerInvoicesTab } from '~/components/customers/CustomerInvoicesTab'
 import { CustomerMainInfos } from '~/components/customers/CustomerMainInfos'
@@ -471,6 +472,15 @@ const CustomerDetails = () => {
                       }),
                       component: <CustomerSettings customerId={customerId as string} />,
                       hidden: !hasPermissions(['customerSettingsView']),
+                    },
+                    {
+                      title: translate('text_1747314141347qq6rasuxisl'),
+                      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                        customerId: customerId as string,
+                        tab: CustomerDetailsTabsOptions.activityLogs,
+                      }),
+                      component: <CustomerActivityLogs externalCustomerId={externalId || ''} />,
+                      hidden: !externalId,
                     },
                   ]}
                   loading={
