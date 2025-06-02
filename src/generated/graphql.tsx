@@ -8038,6 +8038,13 @@ export type AddCouponMutationVariables = Exact<{
 
 export type AddCouponMutation = { __typename?: 'Mutation', createAppliedCoupon?: { __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string } } | null };
 
+export type CustomerActivityLogsQueryVariables = Exact<{
+  customerId: Scalars['ID']['input'];
+}>;
+
+
+export type CustomerActivityLogsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', activityLogs?: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }> | null } | null };
+
 export type GetCustomerCreditNotesQueryVariables = Exact<{
   customerId: Scalars['ID']['input'];
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -16536,6 +16543,48 @@ export function useAddCouponMutation(baseOptions?: Apollo.MutationHookOptions<Ad
 export type AddCouponMutationHookResult = ReturnType<typeof useAddCouponMutation>;
 export type AddCouponMutationResult = Apollo.MutationResult<AddCouponMutation>;
 export type AddCouponMutationOptions = Apollo.BaseMutationOptions<AddCouponMutation, AddCouponMutationVariables>;
+export const CustomerActivityLogsDocument = gql`
+    query CustomerActivityLogs($customerId: ID!) {
+  customer(id: $customerId) {
+    activityLogs {
+      ...ActivityLogsTableData
+    }
+  }
+}
+    ${ActivityLogsTableDataFragmentDoc}`;
+
+/**
+ * __useCustomerActivityLogsQuery__
+ *
+ * To run a query within a React component, call `useCustomerActivityLogsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCustomerActivityLogsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCustomerActivityLogsQuery({
+ *   variables: {
+ *      customerId: // value for 'customerId'
+ *   },
+ * });
+ */
+export function useCustomerActivityLogsQuery(baseOptions: Apollo.QueryHookOptions<CustomerActivityLogsQuery, CustomerActivityLogsQueryVariables> & ({ variables: CustomerActivityLogsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CustomerActivityLogsQuery, CustomerActivityLogsQueryVariables>(CustomerActivityLogsDocument, options);
+      }
+export function useCustomerActivityLogsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CustomerActivityLogsQuery, CustomerActivityLogsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CustomerActivityLogsQuery, CustomerActivityLogsQueryVariables>(CustomerActivityLogsDocument, options);
+        }
+export function useCustomerActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerActivityLogsQuery, CustomerActivityLogsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<CustomerActivityLogsQuery, CustomerActivityLogsQueryVariables>(CustomerActivityLogsDocument, options);
+        }
+export type CustomerActivityLogsQueryHookResult = ReturnType<typeof useCustomerActivityLogsQuery>;
+export type CustomerActivityLogsLazyQueryHookResult = ReturnType<typeof useCustomerActivityLogsLazyQuery>;
+export type CustomerActivityLogsSuspenseQueryHookResult = ReturnType<typeof useCustomerActivityLogsSuspenseQuery>;
+export type CustomerActivityLogsQueryResult = Apollo.QueryResult<CustomerActivityLogsQuery, CustomerActivityLogsQueryVariables>;
 export const GetCustomerCreditNotesDocument = gql`
     query getCustomerCreditNotes($customerId: ID!, $page: Int, $limit: Int, $searchTerm: String) {
   creditNotes(
