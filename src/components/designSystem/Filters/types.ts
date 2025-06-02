@@ -119,6 +119,7 @@ export const PrepaidCreditsOverviewAvailableFilters = [
 export const AnalyticsInvoicesAvailableFilters = [
   AvailableFiltersEnum.currency,
   AvailableFiltersEnum.period,
+  AvailableFiltersEnum.billingEntityCode,
 ]
 
 export const UsageOverviewAvailableFilters = [
