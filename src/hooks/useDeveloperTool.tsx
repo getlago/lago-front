@@ -7,32 +7,31 @@ const DeveloperToolContext = createContext<DeveloperToolContextType | undefined>
 
 export const DEVTOOL_TAB_PARAMS = 'devtool-tab'
 
-export enum ConsoleTabs {
-  API_KEYS = 'api-keys',
-  WEBHOOKS = 'webhooks',
-  EVENTS = 'events',
-}
-
 export interface DeveloperToolContextType {
   isOpen: boolean
   size: number
+  url: string
   open: () => void
   close: () => void
   setSize: (size: number) => void
+  setUrl: (url: string) => void
 }
 
 export function DeveloperToolProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false)
   const [size, setSize] = useState(0)
+  const [url, setUrl] = useState('')
 
   return (
     <DeveloperToolContext.Provider
       value={{
         isOpen,
         size,
+        url,
         open: () => setIsOpen(true),
         close: () => setIsOpen(false),
         setSize,
+        setUrl,
       }}
     >
       {children}
