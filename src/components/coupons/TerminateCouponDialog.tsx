@@ -5,8 +5,7 @@ import { DialogRef, Typography } from '~/components/designSystem'
 import { WarningDialog } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import {
-  CouponDetailsFragmentDoc,
-  CouponItemFragmentDoc,
+  GetCouponForDetailsOverviewDocument,
   TerminateCouponFragment,
   useTerminateCouponMutation,
 } from '~/generated/graphql'
@@ -21,13 +20,8 @@ gql`
   mutation terminateCoupon($input: TerminateCouponInput!) {
     terminateCoupon(input: $input) {
       id
-      ...CouponDetails
-      ...CouponItem
     }
   }
-
-  ${CouponDetailsFragmentDoc}
-  ${CouponItemFragmentDoc}
 `
 
 export interface TerminateCouponDialogRef {
@@ -41,6 +35,11 @@ export const TerminateCouponDialog = forwardRef<TerminateCouponDialogRef>((_, re
   const [coupon, setCoupon] = useState<TerminateCouponFragment | undefined>(undefined)
 
   const [deleteCoupon] = useTerminateCouponMutation({
+    variables: {
+      input: {
+        id: coupon?.id || '',
+      },
+    },
     onCompleted(data) {
       if (data && data.terminateCoupon) {
         addToast({
@@ -49,6 +48,10 @@ export const TerminateCouponDialog = forwardRef<TerminateCouponDialogRef>((_, re
         })
       }
     },
+    refetchQueries: [
+      'coupons',
+      { query: GetCouponForDetailsOverviewDocument, variables: { id: coupon?.id } },
+    ],
   })
 
   useImperativeHandle(ref, () => ({
@@ -62,16 +65,9 @@ export const TerminateCouponDialog = forwardRef<TerminateCouponDialogRef>((_, re
   return (
     <WarningDialog
       ref={dialogRef}
-      title={translate('text_628b432fd8f2bc0105b973ec', {
-        couponName: coupon?.name,
-      })}
+      title={translate('text_628b432fd8f2bc0105b973ec', { couponName: coupon?.name })}
       description={<Typography html={translate('text_628b432fd8f2bc0105b973f4')} />}
-      onContinue={async () =>
-        await deleteCoupon({
-          variables: { input: { id: coupon?.id || '' } },
-          refetchQueries: ['coupons'],
-        })
-      }
+      onContinue={async () => await deleteCoupon()}
       continueText={translate('text_628b432fd8f2bc0105b97404')}
     />
   )
