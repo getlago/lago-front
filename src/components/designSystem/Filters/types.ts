@@ -22,6 +22,7 @@ export enum AvailableFiltersEnum {
   amount = 'amount',
   apiKeyIds = 'apiKeyIds',
   billingEntityIds = 'billingEntityIds',
+  billingEntityCode = 'billingEntityCode',
   country = 'country',
   creditNoteCreditStatus = 'creditNoteCreditStatus',
   creditNoteReason = 'creditNoteReason',
@@ -87,6 +88,7 @@ export const RevenueStreamsAvailablePopperFilters = [
   AvailableFiltersEnum.customerExternalId,
   AvailableFiltersEnum.planCode,
   AvailableFiltersEnum.subscriptionExternalId,
+  AvailableFiltersEnum.billingEntityCode,
 ]
 
 export const CustomerAvailableFilters = [
@@ -102,6 +104,7 @@ export const MrrOverviewAvailableFilters = [
   AvailableFiltersEnum.currency,
   AvailableFiltersEnum.customerType,
   AvailableFiltersEnum.customerExternalId,
+  AvailableFiltersEnum.billingEntityCode,
 ]
 export const MrrBreakdownPlansAvailableFilters = [AvailableFiltersEnum.currency]
 export const PrepaidCreditsOverviewAvailableFilters = [
@@ -110,11 +113,13 @@ export const PrepaidCreditsOverviewAvailableFilters = [
   AvailableFiltersEnum.currency,
   AvailableFiltersEnum.customerAccountType,
   AvailableFiltersEnum.customerExternalId,
+  AvailableFiltersEnum.billingEntityCode,
 ]
 
 export const AnalyticsInvoicesAvailableFilters = [
   AvailableFiltersEnum.currency,
   AvailableFiltersEnum.period,
+  AvailableFiltersEnum.billingEntityCode,
 ]
 
 export const UsageOverviewAvailableFilters = [
@@ -125,6 +130,7 @@ export const UsageOverviewAvailableFilters = [
   AvailableFiltersEnum.customerExternalId,
   AvailableFiltersEnum.planCode,
   AvailableFiltersEnum.subscriptionExternalId,
+  AvailableFiltersEnum.billingEntityCode,
 ]
 
 export const UsageBreakdownAvailableFilters = [
@@ -187,6 +193,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.amount]: 'text_17346988752182hpzppdqk9t',
   [AvailableFiltersEnum.apiKeyIds]: 'text_645d071272418a14c1c76aa4',
   [AvailableFiltersEnum.billingEntityIds]: 'text_17436114971570doqrwuwhf0',
+  [AvailableFiltersEnum.billingEntityCode]: 'text_1747986368158jgf5jdvfsey',
   [AvailableFiltersEnum.country]: 'text_62ab2d0396dd6b0361614da0',
   [AvailableFiltersEnum.creditNoteCreditStatus]: 'text_173470389114473bzrbyh6va',
   [AvailableFiltersEnum.creditNoteReason]: 'text_1734703891144ptrs5sty2bg',

@@ -34,6 +34,7 @@ gql`
     $planCode: String
     $timeGranularity: TimeGranularityEnum
     $toDate: ISO8601Date
+    $billingEntityCode: String
   ) {
     dataApiRevenueStreams(
       currency: $currency
@@ -45,6 +46,7 @@ gql`
       planCode: $planCode
       timeGranularity: $timeGranularity
       toDate: $toDate
+      billingEntityCode: $billingEntityCode
     ) {
       collection {
         ...RevenueStreamDataForOverviewSection

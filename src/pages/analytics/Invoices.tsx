@@ -1,13 +1,8 @@
 import { gql } from '@apollo/client'
 import { Button, Icon, Skeleton, Tooltip, Typography } from 'lago-design-system'
-import { DateTime } from 'luxon'
 import { useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
-import {
-  getAllDataForInvoicesDisplay,
-  getDatesFromPeriod,
-} from '~/components/analytics/invoices/utils'
 import {
   AnalyticsInvoicesAvailableFilters,
   buildUrlForInvoicesWithFilters,
@@ -28,11 +23,12 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
-  GetInvoiceCollectionsQuery,
+  GetInvoiceCollectionsForAnalyticsQuery,
+  GetOverdueQuery,
   InvoicePaymentStatusTypeEnum,
   PremiumIntegrationTypeEnum,
-  useGetInvoiceCollectionsQuery,
-  useGetOverdueQuery,
+  useGetInvoiceCollectionsForAnalyticsQuery,
+  useGetOverdueForAnalyticsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -52,8 +48,30 @@ gql`
     }
   }
 
-  query getOverdue($currency: CurrencyEnum!, $externalCustomerId: String, $months: Int!) {
-    overdueBalances(currency: $currency, externalCustomerId: $externalCustomerId, months: $months) {
+  query getInvoiceCollectionsForAnalytics($currency: CurrencyEnum!, $billingEntityCode: String) {
+    invoiceCollections(currency: $currency, billingEntityCode: $billingEntityCode) {
+      collection {
+        paymentStatus
+        invoicesCount
+        amountCents
+        currency
+        month
+      }
+    }
+  }
+
+  query getOverdueForAnalytics(
+    $currency: CurrencyEnum!
+    $externalCustomerId: String
+    $months: Int!
+    $billingEntityCode: String
+  ) {
+    overdueBalances(
+      currency: $currency
+      externalCustomerId: $externalCustomerId
+      months: $months
+      billingEntityCode: $billingEntityCode
+    ) {
       collection {
         amountCents
         currency
@@ -65,7 +83,7 @@ gql`
 `
 
 export type TInvoiceCollectionsDataResult =
-  GetInvoiceCollectionsQuery['invoiceCollections']['collection']
+  GetInvoiceCollectionsForAnalyticsQuery['invoiceCollections']['collection']
 
 const GRAPH_COLORS = [
   theme.palette.success[400],
@@ -73,12 +91,78 @@ const GRAPH_COLORS = [
   theme.palette.grey[300],
 ]
 
-const LINE_DATA_ALL_KEY_NAME = 'all'
-
 const INVOICE_PAYMENT_STATUS_TRANSLATION_MAP = {
   [InvoicePaymentStatusTypeEnum.Succeeded]: 'text_6553885df387fd0097fd73a3',
   [InvoicePaymentStatusTypeEnum.Failed]: 'text_6553885df387fd0097fd73a5',
   [InvoicePaymentStatusTypeEnum.Pending]: 'text_6553885df387fd0097fd73a7',
+}
+
+const computeBalances = ({
+  invoiceCollections,
+  overdueBalances,
+  currency,
+}: {
+  invoiceCollections?: GetInvoiceCollectionsForAnalyticsQuery['invoiceCollections']['collection']
+  overdueBalances?: GetOverdueQuery['overdueBalances']['collection']
+  currency: CurrencyEnum
+}) => {
+  const sumAndLength = (
+    arr: { amountCents: string; currency?: CurrencyEnum | null; invoicesCount?: number }[],
+  ) => {
+    const amount = arr?.reduce((p, c) => {
+      return p + (c.currency === currency ? deserializeAmount(c.amountCents, c.currency) : 0)
+    }, 0)
+
+    const count = arr?.reduce((p, c) => {
+      return p + Number(c.invoicesCount || 1)
+    }, 0)
+
+    return {
+      amount,
+      count,
+    }
+  }
+
+  const filteredInvoices =
+    invoiceCollections?.filter((invoice) => invoice.currency === currency) || []
+
+  const outstandingInvoices = filteredInvoices?.filter(
+    (invoice) =>
+      invoice.paymentStatus &&
+      [InvoicePaymentStatusTypeEnum.Pending, InvoicePaymentStatusTypeEnum.Failed].includes(
+        invoice.paymentStatus,
+      ),
+  )
+
+  const totalInvoices = sumAndLength(filteredInvoices)
+  const totalOutstanding = sumAndLength(outstandingInvoices)
+  const totalOverdue = sumAndLength(overdueBalances || [])
+  const totalSucceeded = sumAndLength(
+    filteredInvoices.filter(
+      (invoice) => invoice.paymentStatus === InvoicePaymentStatusTypeEnum.Succeeded,
+    ),
+  )
+  const totalFailed = sumAndLength(
+    filteredInvoices.filter(
+      (invoice) => invoice.paymentStatus === InvoicePaymentStatusTypeEnum.Failed,
+    ),
+  )
+  const totalPending = sumAndLength(
+    filteredInvoices.filter(
+      (invoice) => invoice.paymentStatus === InvoicePaymentStatusTypeEnum.Pending,
+    ),
+  )
+
+  return {
+    totalInvoices,
+    totalOutstanding,
+    totalOverdue: totalOverdue.amount,
+    totalPerStatus: {
+      [InvoicePaymentStatusTypeEnum.Succeeded]: totalSucceeded,
+      [InvoicePaymentStatusTypeEnum.Failed]: totalFailed,
+      [InvoicePaymentStatusTypeEnum.Pending]: totalPending,
+    },
+  }
 }
 
 const Invoices = () => {
@@ -107,14 +191,19 @@ const Invoices = () => {
   }, [hasAccessToAnalyticsDashboardsFeature, searchParams, defaultCurrency, defaultPeriod])
 
   const currency = filtersForAnalyticsInvoicesQuery.currency as CurrencyEnum
-  const period = filtersForAnalyticsInvoicesQuery.period as TPeriodScopeTranslationLookupValue
+  const period = {
+    ['year']: 12,
+    ['quarter']: 3,
+    ['month']: 1,
+  }[(filtersForAnalyticsInvoicesQuery.period as TPeriodScopeTranslationLookupValue) || 'year']
 
   const {
     data: invoiceCollectionsData,
     loading: invoiceCollectionsLoading,
     error: invoiceCollectionsError,
-  } = useGetInvoiceCollectionsQuery({
+  } = useGetInvoiceCollectionsForAnalyticsQuery({
     variables: {
+      ...filtersForAnalyticsInvoicesQuery,
       currency,
     },
     skip: !currency,
@@ -124,58 +213,41 @@ const Invoices = () => {
     data: overdueQueryData,
     loading: overdueQueryLoading,
     error: overdueQueryError,
-  } = useGetOverdueQuery({
-    variables: { currency, months: 12 },
+  } = useGetOverdueForAnalyticsQuery({
+    variables: {
+      currency,
+      months: period,
+      ...(filtersForAnalyticsInvoicesQuery?.billingEntityCode
+        ? {
+            billingEntityCode: filtersForAnalyticsInvoicesQuery?.billingEntityCode as string,
+          }
+        : {}),
+    },
     skip: !currency,
   })
-
-  const { barGraphData, lineData, totalAmount } = useMemo(() => {
-    return getAllDataForInvoicesDisplay({
-      data: invoiceCollectionsData?.invoiceCollections.collection,
-      currency,
-      period,
-    })
-  }, [currency, invoiceCollectionsData?.invoiceCollections.collection, period])
-
-  const { month } = getDatesFromPeriod(period)
-
-  const overdueData = overdueQueryData?.overdueBalances.collection.reduce<{
-    amountCents: number
-    invoiceCount: number
-  }>(
-    (acc, item) => {
-      const itemMonth = DateTime.fromISO(item.month as string).month
-
-      if (period === AnalyticsPeriodScopeEnum.Month && itemMonth !== month) {
-        return acc
-      }
-
-      const formattedAmountCents = deserializeAmount(item.amountCents, item.currency)
-
-      return {
-        amountCents: acc.amountCents + formattedAmountCents,
-        invoiceCount: acc.invoiceCount + item.lagoInvoiceIds.length,
-      }
-    },
-    {
-      amountCents: 0,
-      invoiceCount: 0,
-    },
-  )
 
   const error = invoiceCollectionsError || overdueQueryError
   const loading = invoiceCollectionsLoading || overdueQueryLoading
 
-  const balances: Array<[string, number]> = [
-    ['text_1746524463326xwlgt1hv5se', deserializeAmount(totalAmount, currency)],
-    ['text_1746524463326uzhfmw9wa51', overdueData?.amountCents || 0],
-    [
-      'text_17465244633260sz1d0bnp8v',
-      deserializeAmount(
-        lineData.get(InvoicePaymentStatusTypeEnum.Pending)?.amountCents || 0,
-        currency,
-      ),
-    ],
+  const { totalInvoices, totalOutstanding, totalOverdue, totalPerStatus } = computeBalances({
+    invoiceCollections: invoiceCollectionsData?.invoiceCollections.collection,
+    overdueBalances: overdueQueryData?.overdueBalances.collection,
+    currency,
+  })
+
+  const barData = [
+    Object.fromEntries(
+      Object.keys(totalPerStatus || {}).map((key) => [
+        key,
+        totalPerStatus[key as keyof typeof totalPerStatus].amount || 1,
+      ]),
+    ),
+  ]
+
+  const balancesDisplay: Array<[string, number]> = [
+    ['text_1746524463326xwlgt1hv5se', totalInvoices.amount],
+    ['text_1746524463326uzhfmw9wa51', totalOutstanding.amount],
+    ['text_17465244633260sz1d0bnp8v', totalOverdue],
   ]
 
   return (
@@ -244,7 +316,7 @@ const Invoices = () => {
             </Typography>
 
             <div className="flex w-full">
-              {balances.map(([label, amount], index) => (
+              {balancesDisplay.map(([label, amount], index) => (
                 <div className="flex flex-1 flex-col gap-1" key={`pages-analytics-${index}`}>
                   <Typography className="text-2xl font-semibold text-grey-700">
                     {intlFormatNumber(amount, {
@@ -282,7 +354,7 @@ const Invoices = () => {
               {!loading && (
                 <>
                   <InlineBarsChart
-                    data={barGraphData}
+                    data={barData}
                     colors={GRAPH_COLORS}
                     hoveredBarId={hoveredBarId}
                     lineHeight={24}
@@ -328,19 +400,13 @@ const Invoices = () => {
 
                                 <Typography className="font-medium text-grey-700">
                                   {translate(INVOICE_PAYMENT_STATUS_TRANSLATION_MAP[status], {
-                                    count: lineData.get(status)?.invoicesCount,
+                                    count: totalPerStatus[status].count,
                                   })}
                                 </Typography>
                               </div>
 
                               <Typography className="text-grey-600">
-                                {intlFormatNumber(
-                                  deserializeAmount(
-                                    lineData.get(status)?.amountCents || 0,
-                                    currency,
-                                  ),
-                                  { currency },
-                                )}
+                                {intlFormatNumber(totalPerStatus[status].amount, { currency })}
                               </Typography>
                             </div>
                           </Link>
@@ -354,15 +420,9 @@ const Invoices = () => {
                       </Typography>
 
                       <Typography className="text-grey-700">
-                        {intlFormatNumber(
-                          deserializeAmount(
-                            lineData.get(LINE_DATA_ALL_KEY_NAME)?.amountCents || 0,
-                            currency,
-                          ),
-                          {
-                            currency,
-                          },
-                        )}
+                        {intlFormatNumber(totalInvoices.amount, {
+                          currency,
+                        })}
                       </Typography>
                     </div>
                   </div>

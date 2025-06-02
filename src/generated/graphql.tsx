@@ -467,7 +467,6 @@ export type AvalaraIntegration = {
 /** Base billable metric */
 export type BillableMetric = {
   __typename?: 'BillableMetric';
-  activityLogs?: Maybe<Array<ActivityLog>>;
   aggregationType: AggregationTypeEnum;
   code: Scalars['String']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
@@ -1263,7 +1262,6 @@ export enum CountryCode {
 
 export type Coupon = {
   __typename?: 'Coupon';
-  activityLogs?: Maybe<Array<ActivityLog>>;
   amountCents?: Maybe<Scalars['BigInt']['output']>;
   amountCurrency?: Maybe<CurrencyEnum>;
   appliedCouponsCount: Scalars['Int']['output'];
@@ -1785,7 +1783,6 @@ export type CreateXeroIntegrationInput = {
 /** CreditNote */
 export type CreditNote = {
   __typename?: 'CreditNote';
-  activityLogs?: Maybe<Array<ActivityLog>>;
   appliedTaxes?: Maybe<Array<CreditNoteAppliedTax>>;
   balanceAmountCents: Scalars['BigInt']['output'];
   billingEntity: BillingEntity;
@@ -2257,7 +2254,6 @@ export type Customer = {
   accountType: CustomerAccountTypeEnum;
   /** Number of active subscriptions per customer */
   activeSubscriptionsCount: Scalars['Int']['output'];
-  activityLogs?: Maybe<Array<ActivityLog>>;
   addressLine1?: Maybe<Scalars['String']['output']>;
   addressLine2?: Maybe<Scalars['String']['output']>;
   anrokCustomer?: Maybe<AnrokCustomer>;
@@ -3527,7 +3523,6 @@ export enum InviteStatusTypeEnum {
 /** Invoice */
 export type Invoice = {
   __typename?: 'Invoice';
-  activityLogs?: Maybe<Array<ActivityLog>>;
   allChargesHaveFees: Scalars['Boolean']['output'];
   appliedTaxes?: Maybe<Array<InvoiceAppliedTax>>;
   associatedActiveWalletPresent: Scalars['Boolean']['output'];
@@ -5185,7 +5180,6 @@ export type Permissions = {
 export type Plan = {
   __typename?: 'Plan';
   activeSubscriptionsCount: Scalars['Int']['output'];
-  activityLogs?: Maybe<Array<ActivityLog>>;
   amountCents: Scalars['BigInt']['output'];
   amountCurrency: CurrencyEnum;
   billChargesMonthly?: Maybe<Scalars['Boolean']['output']>;
@@ -6398,7 +6392,6 @@ export type StripeProvider = {
 
 export type Subscription = {
   __typename?: 'Subscription';
-  activityLogs?: Maybe<Array<ActivityLog>>;
   billingTime?: Maybe<BillingTimeEnum>;
   canceledAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   createdAt: Scalars['ISO8601DateTime']['output'];
@@ -7482,7 +7475,6 @@ export type VolumeRangeInput = {
 /** Wallet */
 export type Wallet = {
   __typename?: 'Wallet';
-  activityLogs?: Maybe<Array<ActivityLog>>;
   appliesTo?: Maybe<WalletAppliesTo>;
   balanceCents: Scalars['BigInt']['output'];
   consumedAmountCents: Scalars['BigInt']['output'];
@@ -7718,6 +7710,7 @@ export type GetMrrsQueryVariables = Exact<{
   planCode?: InputMaybe<Scalars['String']['input']>;
   timeGranularity?: InputMaybe<TimeGranularityEnum>;
   toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -7735,6 +7728,7 @@ export type GetPrepaidCreditsQueryVariables = Exact<{
   planCode?: InputMaybe<Scalars['String']['input']>;
   timeGranularity?: InputMaybe<TimeGranularityEnum>;
   toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -7770,6 +7764,7 @@ export type GetRevenueStreamsQueryVariables = Exact<{
   planCode?: InputMaybe<Scalars['String']['input']>;
   timeGranularity?: InputMaybe<TimeGranularityEnum>;
   toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -7802,6 +7797,7 @@ export type GetUsageOverviewQueryVariables = Exact<{
   timeGranularity?: InputMaybe<TimeGranularityEnum>;
   fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -10658,6 +10654,24 @@ export type GetSubscriptionForDetailsQueryVariables = Exact<{
 
 
 export type GetSubscriptionForDetailsQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, externalId: string, plan: { __typename?: 'Plan', id: string, name: string, code: string, parent?: { __typename?: 'Plan', id: string, name: string, code: string } | null }, customer: { __typename?: 'Customer', id: string } } | null };
+
+export type GetInvoiceCollectionsForAnalyticsQueryVariables = Exact<{
+  currency: CurrencyEnum;
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetInvoiceCollectionsForAnalyticsQuery = { __typename?: 'Query', invoiceCollections: { __typename?: 'FinalizedInvoiceCollectionCollection', collection: Array<{ __typename?: 'FinalizedInvoiceCollection', paymentStatus?: InvoicePaymentStatusTypeEnum | null, invoicesCount: any, amountCents: any, currency?: CurrencyEnum | null, month: any }> } };
+
+export type GetOverdueForAnalyticsQueryVariables = Exact<{
+  currency: CurrencyEnum;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  months: Scalars['Int']['input'];
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetOverdueForAnalyticsQuery = { __typename?: 'Query', overdueBalances: { __typename?: 'OverdueBalanceCollection', collection: Array<{ __typename?: 'OverdueBalance', amountCents: any, currency: CurrencyEnum, month: any, lagoInvoiceIds: Array<string> }> } };
 
 export type CreatePasswordResetMutationVariables = Exact<{
   input: CreatePasswordResetInput;
@@ -14841,7 +14855,7 @@ export type GetMrrPlanBreakdownLazyQueryHookResult = ReturnType<typeof useGetMrr
 export type GetMrrPlanBreakdownSuspenseQueryHookResult = ReturnType<typeof useGetMrrPlanBreakdownSuspenseQuery>;
 export type GetMrrPlanBreakdownQueryResult = Apollo.QueryResult<GetMrrPlanBreakdownQuery, GetMrrPlanBreakdownQueryVariables>;
 export const GetMrrsDocument = gql`
-    query getMrrs($currency: CurrencyEnum, $customerCountry: CountryCode, $customerType: CustomerTypeEnum, $externalCustomerId: String, $fromDate: ISO8601Date, $planCode: String, $timeGranularity: TimeGranularityEnum, $toDate: ISO8601Date) {
+    query getMrrs($currency: CurrencyEnum, $customerCountry: CountryCode, $customerType: CustomerTypeEnum, $externalCustomerId: String, $fromDate: ISO8601Date, $planCode: String, $timeGranularity: TimeGranularityEnum, $toDate: ISO8601Date, $billingEntityCode: String) {
   dataApiMrrs(
     currency: $currency
     customerCountry: $customerCountry
@@ -14851,6 +14865,7 @@ export const GetMrrsDocument = gql`
     planCode: $planCode
     timeGranularity: $timeGranularity
     toDate: $toDate
+    billingEntityCode: $billingEntityCode
   ) {
     collection {
       ...MrrDataForOverviewSection
@@ -14879,6 +14894,7 @@ export const GetMrrsDocument = gql`
  *      planCode: // value for 'planCode'
  *      timeGranularity: // value for 'timeGranularity'
  *      toDate: // value for 'toDate'
+ *      billingEntityCode: // value for 'billingEntityCode'
  *   },
  * });
  */
@@ -14899,7 +14915,7 @@ export type GetMrrsLazyQueryHookResult = ReturnType<typeof useGetMrrsLazyQuery>;
 export type GetMrrsSuspenseQueryHookResult = ReturnType<typeof useGetMrrsSuspenseQuery>;
 export type GetMrrsQueryResult = Apollo.QueryResult<GetMrrsQuery, GetMrrsQueryVariables>;
 export const GetPrepaidCreditsDocument = gql`
-    query getPrepaidCredits($currency: CurrencyEnum, $customerCountry: CountryCode, $customerType: CustomerTypeEnum, $externalCustomerId: String, $externalSubscriptionId: String, $fromDate: ISO8601Date, $planCode: String, $timeGranularity: TimeGranularityEnum, $toDate: ISO8601Date) {
+    query getPrepaidCredits($currency: CurrencyEnum, $customerCountry: CountryCode, $customerType: CustomerTypeEnum, $externalCustomerId: String, $externalSubscriptionId: String, $fromDate: ISO8601Date, $planCode: String, $timeGranularity: TimeGranularityEnum, $toDate: ISO8601Date, $billingEntityCode: String) {
   dataApiPrepaidCredits(
     currency: $currency
     customerCountry: $customerCountry
@@ -14910,6 +14926,7 @@ export const GetPrepaidCreditsDocument = gql`
     planCode: $planCode
     timeGranularity: $timeGranularity
     toDate: $toDate
+    billingEntityCode: $billingEntityCode
   ) {
     collection {
       ...PrepaidCreditsDataForOverviewSection
@@ -14939,6 +14956,7 @@ export const GetPrepaidCreditsDocument = gql`
  *      planCode: // value for 'planCode'
  *      timeGranularity: // value for 'timeGranularity'
  *      toDate: // value for 'toDate'
+ *      billingEntityCode: // value for 'billingEntityCode'
  *   },
  * });
  */
@@ -15069,7 +15087,7 @@ export type GetRevenueStreamsPlanBreakdownLazyQueryHookResult = ReturnType<typeo
 export type GetRevenueStreamsPlanBreakdownSuspenseQueryHookResult = ReturnType<typeof useGetRevenueStreamsPlanBreakdownSuspenseQuery>;
 export type GetRevenueStreamsPlanBreakdownQueryResult = Apollo.QueryResult<GetRevenueStreamsPlanBreakdownQuery, GetRevenueStreamsPlanBreakdownQueryVariables>;
 export const GetRevenueStreamsDocument = gql`
-    query getRevenueStreams($currency: CurrencyEnum, $customerCountry: CountryCode, $customerType: CustomerTypeEnum, $externalCustomerId: String, $externalSubscriptionId: String, $fromDate: ISO8601Date, $planCode: String, $timeGranularity: TimeGranularityEnum, $toDate: ISO8601Date) {
+    query getRevenueStreams($currency: CurrencyEnum, $customerCountry: CountryCode, $customerType: CustomerTypeEnum, $externalCustomerId: String, $externalSubscriptionId: String, $fromDate: ISO8601Date, $planCode: String, $timeGranularity: TimeGranularityEnum, $toDate: ISO8601Date, $billingEntityCode: String) {
   dataApiRevenueStreams(
     currency: $currency
     customerCountry: $customerCountry
@@ -15080,6 +15098,7 @@ export const GetRevenueStreamsDocument = gql`
     planCode: $planCode
     timeGranularity: $timeGranularity
     toDate: $toDate
+    billingEntityCode: $billingEntityCode
   ) {
     collection {
       ...RevenueStreamDataForOverviewSection
@@ -15109,6 +15128,7 @@ export const GetRevenueStreamsDocument = gql`
  *      planCode: // value for 'planCode'
  *      timeGranularity: // value for 'timeGranularity'
  *      toDate: // value for 'toDate'
+ *      billingEntityCode: // value for 'billingEntityCode'
  *   },
  * });
  */
@@ -15243,12 +15263,13 @@ export type GetUsageBreakdownLazyQueryHookResult = ReturnType<typeof useGetUsage
 export type GetUsageBreakdownSuspenseQueryHookResult = ReturnType<typeof useGetUsageBreakdownSuspenseQuery>;
 export type GetUsageBreakdownQueryResult = Apollo.QueryResult<GetUsageBreakdownQuery, GetUsageBreakdownQueryVariables>;
 export const GetUsageOverviewDocument = gql`
-    query getUsageOverview($currency: CurrencyEnum, $timeGranularity: TimeGranularityEnum, $fromDate: ISO8601Date, $toDate: ISO8601Date) {
+    query getUsageOverview($currency: CurrencyEnum, $timeGranularity: TimeGranularityEnum, $fromDate: ISO8601Date, $toDate: ISO8601Date, $billingEntityCode: String) {
   dataApiUsagesAggregatedAmounts(
     currency: $currency
     timeGranularity: $timeGranularity
     fromDate: $fromDate
     toDate: $toDate
+    billingEntityCode: $billingEntityCode
   ) {
     collection {
       amountCents
@@ -15276,6 +15297,7 @@ export const GetUsageOverviewDocument = gql`
  *      timeGranularity: // value for 'timeGranularity'
  *      fromDate: // value for 'fromDate'
  *      toDate: // value for 'toDate'
+ *      billingEntityCode: // value for 'billingEntityCode'
  *   },
  * });
  */
@@ -28811,6 +28833,106 @@ export type GetSubscriptionForDetailsQueryHookResult = ReturnType<typeof useGetS
 export type GetSubscriptionForDetailsLazyQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsLazyQuery>;
 export type GetSubscriptionForDetailsSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsSuspenseQuery>;
 export type GetSubscriptionForDetailsQueryResult = Apollo.QueryResult<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables>;
+export const GetInvoiceCollectionsForAnalyticsDocument = gql`
+    query getInvoiceCollectionsForAnalytics($currency: CurrencyEnum!, $billingEntityCode: String) {
+  invoiceCollections(currency: $currency, billingEntityCode: $billingEntityCode) {
+    collection {
+      paymentStatus
+      invoicesCount
+      amountCents
+      currency
+      month
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetInvoiceCollectionsForAnalyticsQuery__
+ *
+ * To run a query within a React component, call `useGetInvoiceCollectionsForAnalyticsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetInvoiceCollectionsForAnalyticsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetInvoiceCollectionsForAnalyticsQuery({
+ *   variables: {
+ *      currency: // value for 'currency'
+ *      billingEntityCode: // value for 'billingEntityCode'
+ *   },
+ * });
+ */
+export function useGetInvoiceCollectionsForAnalyticsQuery(baseOptions: Apollo.QueryHookOptions<GetInvoiceCollectionsForAnalyticsQuery, GetInvoiceCollectionsForAnalyticsQueryVariables> & ({ variables: GetInvoiceCollectionsForAnalyticsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetInvoiceCollectionsForAnalyticsQuery, GetInvoiceCollectionsForAnalyticsQueryVariables>(GetInvoiceCollectionsForAnalyticsDocument, options);
+      }
+export function useGetInvoiceCollectionsForAnalyticsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetInvoiceCollectionsForAnalyticsQuery, GetInvoiceCollectionsForAnalyticsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetInvoiceCollectionsForAnalyticsQuery, GetInvoiceCollectionsForAnalyticsQueryVariables>(GetInvoiceCollectionsForAnalyticsDocument, options);
+        }
+export function useGetInvoiceCollectionsForAnalyticsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceCollectionsForAnalyticsQuery, GetInvoiceCollectionsForAnalyticsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetInvoiceCollectionsForAnalyticsQuery, GetInvoiceCollectionsForAnalyticsQueryVariables>(GetInvoiceCollectionsForAnalyticsDocument, options);
+        }
+export type GetInvoiceCollectionsForAnalyticsQueryHookResult = ReturnType<typeof useGetInvoiceCollectionsForAnalyticsQuery>;
+export type GetInvoiceCollectionsForAnalyticsLazyQueryHookResult = ReturnType<typeof useGetInvoiceCollectionsForAnalyticsLazyQuery>;
+export type GetInvoiceCollectionsForAnalyticsSuspenseQueryHookResult = ReturnType<typeof useGetInvoiceCollectionsForAnalyticsSuspenseQuery>;
+export type GetInvoiceCollectionsForAnalyticsQueryResult = Apollo.QueryResult<GetInvoiceCollectionsForAnalyticsQuery, GetInvoiceCollectionsForAnalyticsQueryVariables>;
+export const GetOverdueForAnalyticsDocument = gql`
+    query getOverdueForAnalytics($currency: CurrencyEnum!, $externalCustomerId: String, $months: Int!, $billingEntityCode: String) {
+  overdueBalances(
+    currency: $currency
+    externalCustomerId: $externalCustomerId
+    months: $months
+    billingEntityCode: $billingEntityCode
+  ) {
+    collection {
+      amountCents
+      currency
+      month
+      lagoInvoiceIds
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetOverdueForAnalyticsQuery__
+ *
+ * To run a query within a React component, call `useGetOverdueForAnalyticsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOverdueForAnalyticsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOverdueForAnalyticsQuery({
+ *   variables: {
+ *      currency: // value for 'currency'
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *      months: // value for 'months'
+ *      billingEntityCode: // value for 'billingEntityCode'
+ *   },
+ * });
+ */
+export function useGetOverdueForAnalyticsQuery(baseOptions: Apollo.QueryHookOptions<GetOverdueForAnalyticsQuery, GetOverdueForAnalyticsQueryVariables> & ({ variables: GetOverdueForAnalyticsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetOverdueForAnalyticsQuery, GetOverdueForAnalyticsQueryVariables>(GetOverdueForAnalyticsDocument, options);
+      }
+export function useGetOverdueForAnalyticsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOverdueForAnalyticsQuery, GetOverdueForAnalyticsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetOverdueForAnalyticsQuery, GetOverdueForAnalyticsQueryVariables>(GetOverdueForAnalyticsDocument, options);
+        }
+export function useGetOverdueForAnalyticsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOverdueForAnalyticsQuery, GetOverdueForAnalyticsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetOverdueForAnalyticsQuery, GetOverdueForAnalyticsQueryVariables>(GetOverdueForAnalyticsDocument, options);
+        }
+export type GetOverdueForAnalyticsQueryHookResult = ReturnType<typeof useGetOverdueForAnalyticsQuery>;
+export type GetOverdueForAnalyticsLazyQueryHookResult = ReturnType<typeof useGetOverdueForAnalyticsLazyQuery>;
+export type GetOverdueForAnalyticsSuspenseQueryHookResult = ReturnType<typeof useGetOverdueForAnalyticsSuspenseQuery>;
+export type GetOverdueForAnalyticsQueryResult = Apollo.QueryResult<GetOverdueForAnalyticsQuery, GetOverdueForAnalyticsQueryVariables>;
 export const CreatePasswordResetDocument = gql`
     mutation createPasswordReset($input: CreatePasswordResetInput!) {
   createPasswordReset(input: $input) {
