@@ -1,8 +1,9 @@
+import { Button, Tooltip } from 'lago-design-system'
 import { FC, useRef, useState } from 'react'
 import { ImperativePanelHandle, Panel, PanelResizeHandle } from 'react-resizable-panels'
 import { useLocation } from 'react-router-dom'
 
-import { Button, NavigationTab, TabManagedBy, Tooltip } from '~/components/designSystem'
+import { NavigationTab, TabManagedBy } from '~/components/designSystem'
 import { devToolsNavigationMapping, DevtoolsRouter } from '~/components/developers/DevtoolsRouter'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -99,32 +100,30 @@ export const DevtoolsView: FC = () => {
               isActivityLogsEnabled,
             })}
           >
-            <div className="sticky right-0 ml-auto flex items-center gap-3 bg-white shadow-b">
+            <Button
+              startIcon="link"
+              size="small"
+              variant="quaternary"
+              onClick={() => copyInspectorLink()}
+            >
+              {translate('text_17460208605597iyd249v26z')}
+            </Button>
+            <Tooltip
+              title={translate(
+                isFullscreen ? 'text_1746019984781u1ftea09d0b' : 'text_1746019984781hsxx9jjjska',
+              )}
+              placement="top"
+            >
               <Button
-                startIcon="link"
                 size="small"
+                icon={isFullscreen ? 'resize-reduce' : 'resize-expand'}
                 variant="quaternary"
-                onClick={() => copyInspectorLink()}
-              >
-                {translate('text_17460208605597iyd249v26z')}
-              </Button>
-              <Tooltip
-                title={translate(
-                  isFullscreen ? 'text_1746019984781u1ftea09d0b' : 'text_1746019984781hsxx9jjjska',
-                )}
-                placement="top"
-              >
-                <Button
-                  size="small"
-                  icon={isFullscreen ? 'resize-reduce' : 'resize-expand'}
-                  variant="quaternary"
-                  onClick={expandPanel}
-                />
-              </Tooltip>
-              <Tooltip title={translate('text_62f50d26c989ab03196884ae')} placement="top">
-                <Button size="small" icon="close" variant="quaternary" onClick={closePanel} />
-              </Tooltip>
-            </div>
+                onClick={expandPanel}
+              />
+            </Tooltip>
+            <Tooltip title={translate('text_62f50d26c989ab03196884ae')} placement="top">
+              <Button size="small" icon="close" variant="quaternary" onClick={closePanel} />
+            </Tooltip>
           </NavigationTab>
           <DevtoolsRouter />
         </div>
