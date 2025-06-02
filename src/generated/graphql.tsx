@@ -7818,6 +7818,13 @@ export type GetGoogleAuthUrlQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetGoogleAuthUrlQuery = { __typename?: 'Query', googleAuthUrl: { __typename?: 'AuthUrl', url: string } };
 
+export type BillableMetricActivityLogsQueryVariables = Exact<{
+  billableMetricId: Scalars['ID']['input'];
+}>;
+
+
+export type BillableMetricActivityLogsQuery = { __typename?: 'Query', billableMetric?: { __typename?: 'BillableMetric', activityLogs?: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }> | null } | null };
+
 export type BillableMetricDetailsFragment = { __typename?: 'BillableMetric', name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, recurring: boolean, expression?: string | null, weightedInterval?: WeightedIntervalEnum | null, roundingFunction?: RoundingFunctionEnum | null, roundingPrecision?: number | null, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> }> | null };
 
 export type GetBillableMetricForDetailsOverviewQueryVariables = Exact<{
@@ -15380,6 +15387,48 @@ export type GetGoogleAuthUrlQueryHookResult = ReturnType<typeof useGetGoogleAuth
 export type GetGoogleAuthUrlLazyQueryHookResult = ReturnType<typeof useGetGoogleAuthUrlLazyQuery>;
 export type GetGoogleAuthUrlSuspenseQueryHookResult = ReturnType<typeof useGetGoogleAuthUrlSuspenseQuery>;
 export type GetGoogleAuthUrlQueryResult = Apollo.QueryResult<GetGoogleAuthUrlQuery, GetGoogleAuthUrlQueryVariables>;
+export const BillableMetricActivityLogsDocument = gql`
+    query BillableMetricActivityLogs($billableMetricId: ID!) {
+  billableMetric(id: $billableMetricId) {
+    activityLogs {
+      ...ActivityLogsTableData
+    }
+  }
+}
+    ${ActivityLogsTableDataFragmentDoc}`;
+
+/**
+ * __useBillableMetricActivityLogsQuery__
+ *
+ * To run a query within a React component, call `useBillableMetricActivityLogsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBillableMetricActivityLogsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBillableMetricActivityLogsQuery({
+ *   variables: {
+ *      billableMetricId: // value for 'billableMetricId'
+ *   },
+ * });
+ */
+export function useBillableMetricActivityLogsQuery(baseOptions: Apollo.QueryHookOptions<BillableMetricActivityLogsQuery, BillableMetricActivityLogsQueryVariables> & ({ variables: BillableMetricActivityLogsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<BillableMetricActivityLogsQuery, BillableMetricActivityLogsQueryVariables>(BillableMetricActivityLogsDocument, options);
+      }
+export function useBillableMetricActivityLogsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<BillableMetricActivityLogsQuery, BillableMetricActivityLogsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<BillableMetricActivityLogsQuery, BillableMetricActivityLogsQueryVariables>(BillableMetricActivityLogsDocument, options);
+        }
+export function useBillableMetricActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<BillableMetricActivityLogsQuery, BillableMetricActivityLogsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<BillableMetricActivityLogsQuery, BillableMetricActivityLogsQueryVariables>(BillableMetricActivityLogsDocument, options);
+        }
+export type BillableMetricActivityLogsQueryHookResult = ReturnType<typeof useBillableMetricActivityLogsQuery>;
+export type BillableMetricActivityLogsLazyQueryHookResult = ReturnType<typeof useBillableMetricActivityLogsLazyQuery>;
+export type BillableMetricActivityLogsSuspenseQueryHookResult = ReturnType<typeof useBillableMetricActivityLogsSuspenseQuery>;
+export type BillableMetricActivityLogsQueryResult = Apollo.QueryResult<BillableMetricActivityLogsQuery, BillableMetricActivityLogsQueryVariables>;
 export const GetBillableMetricForDetailsOverviewDocument = gql`
     query getBillableMetricForDetailsOverview($id: ID!) {
   billableMetric(id: $id) {

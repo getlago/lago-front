@@ -1,4 +1,5 @@
 export enum BillableMetricDetailsTabsOptionsEnum {
+  activityLogs = 'activity-logs',
   overview = 'overview',
 }
 
