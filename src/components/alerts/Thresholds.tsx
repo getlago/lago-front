@@ -172,7 +172,11 @@ const AlertThresholds = ({
                 size: 250,
                 title: (
                   <Typography className="px-4" variant="captionHl">
-                    {translate('text_1724179887723eh12a0kqbdw')}
+                    {translate(
+                      shouldHandleUnits
+                        ? 'text_1748858070139kmh56doz3la'
+                        : 'text_1748858044483q61vd2npre7',
+                    )}
                   </Typography>
                 ),
                 content: (row, i) => {

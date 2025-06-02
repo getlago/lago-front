@@ -3043,8 +3043,8 @@
   "text_1746631350477wjvnr6ty57q": "Select the alert type and define threshold triggers to receive webhook notifications.",
   "text_1746631350478jqk347d5dy4": "Alert type",
   "text_1746631350478bwa1swfpwky": "Select an alert type",
-  "text_1746631350478l8lfdopffh1": "Specific metric usage amount",
-  "text_1746631350478bwa1swfpwkw": "Total usage amount",
+  "text_1746631350478l8lfdopffh1": "Billable metric current usage amount",
+  "text_1746631350478bwa1swfpwkw": "Current usage amount",
   "text_1746780648463scppfjbhd1b": "Metric",
   "text_1746780648463n39xfvr772k": "Search and select a billable metric",
   "text_1746785137190vu5wwlsmzmz": "View alerts",
@@ -3157,6 +3157,8 @@
   "text_1747921119080dk04aab1ecy": "When usage reaches",
   "text_1747921154885jqsl0c9xhro": "Type a threshold code",
   "text_1748334091887k4p2p41jdou": "Threshold code",
-  "text_1748358376584w0qzazvifco": "Specific metric usage units",
-  "text_1748418710304kqjnk1owpeq": "Lifetime usage amount"
+  "text_1748358376584w0qzazvifco": "Billable metric current usage units",
+  "text_1748418710304kqjnk1owpeq": "Lifetime usage amount",
+  "text_1748858044483q61vd2npre7": "Amount threshold",
+  "text_1748858070139kmh56doz3la": "Units threshold"
 }

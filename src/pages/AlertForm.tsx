@@ -156,7 +156,7 @@ const AlertForm = () => {
       },
       skip:
         !subscriptionData?.subscription?.plan?.id ||
-        (isEdition && alertData?.alert?.alertType === AlertTypeEnum.UsageAmount),
+        (isEdition && alertData?.alert?.alertType === AlertTypeEnum.CurrentUsageAmount),
     })
 
   const isLoading =
@@ -227,7 +227,7 @@ const AlertForm = () => {
         ? sortAndFormatThresholds(
             existingAlert?.thresholds,
             currency,
-            existingAlert?.alertType === AlertTypeEnum.BillableMetricUsageUnits,
+            existingAlert?.alertType === AlertTypeEnum.BillableMetricCurrentUsageUnits,
           )
         : [
             {
@@ -258,7 +258,7 @@ const AlertForm = () => {
       const formattedThresholds = thresholds?.map((threshold) => ({
         ...threshold,
         value:
-          alertType === AlertTypeEnum.BillableMetricUsageUnits
+          alertType === AlertTypeEnum.BillableMetricCurrentUsageUnits
             ? threshold.value.split('.')[0]
             : String(serializeAmount(threshold.value, currency)),
       }))
@@ -306,10 +306,10 @@ const AlertForm = () => {
 
   const showThresholdTable = useMemo(
     () =>
-      formikProps.values.alertType === AlertTypeEnum.UsageAmount ||
+      formikProps.values.alertType === AlertTypeEnum.CurrentUsageAmount ||
       formikProps.values.alertType === AlertTypeEnum.LifetimeUsageAmount ||
-      ((formikProps.values.alertType === AlertTypeEnum.BillableMetricUsageUnits ||
-        formikProps.values.alertType === AlertTypeEnum.BillableMetricUsageAmount) &&
+      ((formikProps.values.alertType === AlertTypeEnum.BillableMetricCurrentUsageUnits ||
+        formikProps.values.alertType === AlertTypeEnum.BillableMetricCurrentUsageAmount) &&
         !!formikProps.values.billableMetricId),
     [formikProps.values.alertType, formikProps.values.billableMetricId],
   )
@@ -351,7 +351,7 @@ const AlertForm = () => {
     }
 
     const localHasUsageAmountAlert = existingAlertsData?.alerts.collection.some(
-      (alert) => alert.alertType === AlertTypeEnum.UsageAmount,
+      (alert) => alert.alertType === AlertTypeEnum.CurrentUsageAmount,
     )
 
     const localHasLifetimeUsageAmountAlert = existingAlertsData?.alerts.collection.some(
@@ -476,15 +476,15 @@ const AlertForm = () => {
                         },
                         {
                           label: translate('text_1748358376584w0qzazvifco'),
-                          value: AlertTypeEnum.BillableMetricUsageUnits,
+                          value: AlertTypeEnum.BillableMetricCurrentUsageUnits,
                         },
                         {
                           label: translate('text_1746631350478l8lfdopffh1'),
-                          value: AlertTypeEnum.BillableMetricUsageAmount,
+                          value: AlertTypeEnum.BillableMetricCurrentUsageAmount,
                         },
                         {
                           label: translate('text_1746631350478bwa1swfpwkw'),
-                          value: AlertTypeEnum.UsageAmount,
+                          value: AlertTypeEnum.CurrentUsageAmount,
                           disabled: hasUsageAmountAlert,
                         },
                       ]}
@@ -500,8 +500,10 @@ const AlertForm = () => {
                       }}
                     />
 
-                    {(formikProps.values.alertType === AlertTypeEnum.BillableMetricUsageAmount ||
-                      formikProps.values.alertType === AlertTypeEnum.BillableMetricUsageUnits) && (
+                    {(formikProps.values.alertType ===
+                      AlertTypeEnum.BillableMetricCurrentUsageAmount ||
+                      formikProps.values.alertType ===
+                        AlertTypeEnum.BillableMetricCurrentUsageUnits) && (
                       <>
                         <ComboBoxField
                           name="billableMetricId"
@@ -521,7 +523,8 @@ const AlertForm = () => {
                         setThresholdValue={setThresholdValue}
                         currency={currency}
                         shouldHandleUnits={
-                          formikProps.values.alertType === AlertTypeEnum.BillableMetricUsageUnits
+                          formikProps.values.alertType ===
+                          AlertTypeEnum.BillableMetricCurrentUsageUnits
                         }
                       />
                     )}
