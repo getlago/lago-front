@@ -6,6 +6,7 @@ import {
   formatActivityType,
   formatResourceObject,
   getActivityDescription,
+  resourceTypeTranslations,
 } from '~/components/activityLogs/utils'
 import { CodeSnippet } from '~/components/CodeSnippet'
 import {
@@ -160,9 +161,18 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
                 translate(activityTypeTranslation, parameters),
               ],
               [translate('text_1747666154075d10admbnf16'), activityId],
-              resource
-                ? [translate('text_1747666154075y3lcupj1zdd'), formatResourceObject(resource)]
-                : [],
+              [
+                translate('text_1732895022171f9vnwh5gm3q'),
+                !!resource?.__typename
+                  ? translate(resourceTypeTranslations[resource?.__typename])
+                  : '-',
+              ],
+              [
+                translate('text_1747666154075y3lcupj1zdd'),
+                resource ? formatResourceObject(resource) : '-',
+              ],
+              [translate('text_1748873734056eva3rfvpkoi'), externalCustomerId ?? '-'],
+              [translate('text_1748873758144pfwdvafs9pv'), externalSubscriptionId ?? '-'],
               [
                 translate('text_17473520702542eqnulj06zc'),
                 formatTimeOrgaTZ(loggedAt, 'LLL dd, hh:mm:ss a'),

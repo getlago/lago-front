@@ -3160,5 +3160,7 @@
   "text_1748358376584w0qzazvifco": "Billable metric current usage units",
   "text_1748418710304kqjnk1owpeq": "Lifetime usage amount",
   "text_1748858044483q61vd2npre7": "Amount threshold",
-  "text_1748858070139kmh56doz3la": "Units threshold"
+  "text_1748858070139kmh56doz3la": "Units threshold",
+  "text_1748873734056eva3rfvpkoi": "Customer ext. ID",
+  "text_1748873758144pfwdvafs9pv": "Subscription ext. ID"
 }
