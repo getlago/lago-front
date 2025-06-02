@@ -3164,5 +3164,6 @@
   "text_1748873734056eva3rfvpkoi": "Customer ext. ID",
   "text_1748873758144pfwdvafs9pv": "Subscription ext. ID",
   "text_1748269135971fmdsm6bs8ig": "Logs reflecting this billable metric’s activity.",
-  "text_17488655909682qx92pqwbzv": "Logs reflecting this customer’s activity."
+  "text_17488655909682qx92pqwbzv": "Logs reflecting this customer’s activity.",
+  "text_17488660976163zo6rqtqwyf": "Logs reflecting this invoice’s activity."
 }

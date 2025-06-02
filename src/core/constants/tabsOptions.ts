@@ -4,9 +4,10 @@ export enum BillableMetricDetailsTabsOptionsEnum {
 }
 
 export enum CustomerInvoiceDetailsTabsOptionsEnum {
+  activityLogs = 'activity-logs',
+  creditNotes = 'credit-notes',
   overview = 'overview',
   payments = 'payments',
-  creditNotes = 'credit-notes',
 }
 
 export enum CustomerSubscriptionDetailsTabsOptionsEnum {
