@@ -211,7 +211,7 @@ export const WebhookLogs = () => {
                   }
                   shouldDisplayRightSide={shouldDisplayLogDetails}
                   sectionHeight={
-                    shouldDisplayLogDetails ? `calc(${Math.floor(size)}vh - 224px)` : '100%' // 224px is the height of the headers (52px+96px+72px+4px of borders)
+                    shouldDisplayLogDetails ? `calc(${Math.floor(size)}vh - 222px)` : '100%' // 222px is the height of the headers (52px+96px+72px+2px of borders)
                   }
                 />
               </div>
