@@ -8867,6 +8867,16 @@ export type StandardChargeFragment = { __typename?: 'Properties', amount?: strin
 
 export type VolumeRangesFragment = { __typename?: 'Properties', volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null };
 
+export type PlanDetailsActivityLogsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceTypes?: InputMaybe<Array<ResourceTypeEnum> | ResourceTypeEnum>;
+  resourceIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+export type PlanDetailsActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+
 export type GetPlanForDetailsOverviewSectionQueryVariables = Exact<{
   plan: Scalars['ID']['input'];
 }>;
@@ -20546,6 +20556,60 @@ export type GetTaxesForPlanQueryHookResult = ReturnType<typeof useGetTaxesForPla
 export type GetTaxesForPlanLazyQueryHookResult = ReturnType<typeof useGetTaxesForPlanLazyQuery>;
 export type GetTaxesForPlanSuspenseQueryHookResult = ReturnType<typeof useGetTaxesForPlanSuspenseQuery>;
 export type GetTaxesForPlanQueryResult = Apollo.QueryResult<GetTaxesForPlanQuery, GetTaxesForPlanQueryVariables>;
+export const PlanDetailsActivityLogsDocument = gql`
+    query PlanDetailsActivityLogs($page: Int, $limit: Int, $resourceTypes: [ResourceTypeEnum!], $resourceIds: [String!]) {
+  activityLogs(
+    page: $page
+    limit: $limit
+    resourceTypes: $resourceTypes
+    resourceIds: $resourceIds
+  ) {
+    collection {
+      ...ActivityLogsTableData
+    }
+    metadata {
+      currentPage
+      totalPages
+    }
+  }
+}
+    ${ActivityLogsTableDataFragmentDoc}`;
+
+/**
+ * __usePlanDetailsActivityLogsQuery__
+ *
+ * To run a query within a React component, call `usePlanDetailsActivityLogsQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePlanDetailsActivityLogsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePlanDetailsActivityLogsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      resourceTypes: // value for 'resourceTypes'
+ *      resourceIds: // value for 'resourceIds'
+ *   },
+ * });
+ */
+export function usePlanDetailsActivityLogsQuery(baseOptions?: Apollo.QueryHookOptions<PlanDetailsActivityLogsQuery, PlanDetailsActivityLogsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PlanDetailsActivityLogsQuery, PlanDetailsActivityLogsQueryVariables>(PlanDetailsActivityLogsDocument, options);
+      }
+export function usePlanDetailsActivityLogsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PlanDetailsActivityLogsQuery, PlanDetailsActivityLogsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PlanDetailsActivityLogsQuery, PlanDetailsActivityLogsQueryVariables>(PlanDetailsActivityLogsDocument, options);
+        }
+export function usePlanDetailsActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PlanDetailsActivityLogsQuery, PlanDetailsActivityLogsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PlanDetailsActivityLogsQuery, PlanDetailsActivityLogsQueryVariables>(PlanDetailsActivityLogsDocument, options);
+        }
+export type PlanDetailsActivityLogsQueryHookResult = ReturnType<typeof usePlanDetailsActivityLogsQuery>;
+export type PlanDetailsActivityLogsLazyQueryHookResult = ReturnType<typeof usePlanDetailsActivityLogsLazyQuery>;
+export type PlanDetailsActivityLogsSuspenseQueryHookResult = ReturnType<typeof usePlanDetailsActivityLogsSuspenseQuery>;
+export type PlanDetailsActivityLogsQueryResult = Apollo.QueryResult<PlanDetailsActivityLogsQuery, PlanDetailsActivityLogsQueryVariables>;
 export const GetPlanForDetailsOverviewSectionDocument = gql`
     query getPlanForDetailsOverviewSection($plan: ID!) {
   plan(id: $plan) {
