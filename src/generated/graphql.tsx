@@ -8353,14 +8353,14 @@ export type GetPlansForFiltersItemPlanCodeQueryVariables = Exact<{
 
 export type GetPlansForFiltersItemPlanCodeQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Plan', id: string, code: string, deletedAt?: any | null }> } };
 
-export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, apiKeyId?: string | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, resource?: { __typename?: 'BillableMetric', bmId: string } | { __typename?: 'BillingEntity', entityId: string } | { __typename?: 'Coupon', couponId: string } | { __typename?: 'CreditNote', creditNoteId: string } | { __typename?: 'Customer', customerExternalId: string } | { __typename?: 'Invoice', invoiceId: string } | { __typename?: 'Plan', planId: string } | { __typename?: 'Subscription', subscriptionExternalId: string } | { __typename?: 'Wallet', walletId: string } | null };
+export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, apiKeyId?: string | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, resource?: { __typename?: 'BillableMetric', id: string } | { __typename?: 'BillingEntity', id: string } | { __typename?: 'Coupon', id: string } | { __typename?: 'CreditNote', id: string } | { __typename?: 'Customer', externalId: string } | { __typename?: 'Invoice', id: string } | { __typename?: 'Plan', id: string } | { __typename?: 'Subscription', externalId: string } | { __typename?: 'Wallet', id: string } | null };
 
 export type GetSingleActivityLogQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetSingleActivityLogQuery = { __typename?: 'Query', activityLog?: { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, apiKeyId?: string | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, resource?: { __typename?: 'BillableMetric', bmId: string } | { __typename?: 'BillingEntity', entityId: string } | { __typename?: 'Coupon', couponId: string } | { __typename?: 'CreditNote', creditNoteId: string } | { __typename?: 'Customer', customerExternalId: string } | { __typename?: 'Invoice', invoiceId: string } | { __typename?: 'Plan', planId: string } | { __typename?: 'Subscription', subscriptionExternalId: string } | { __typename?: 'Wallet', walletId: string } | null } | null };
+export type GetSingleActivityLogQuery = { __typename?: 'Query', activityLog?: { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, apiKeyId?: string | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, resource?: { __typename?: 'BillableMetric', id: string } | { __typename?: 'BillingEntity', id: string } | { __typename?: 'Coupon', id: string } | { __typename?: 'CreditNote', id: string } | { __typename?: 'Customer', externalId: string } | { __typename?: 'Invoice', id: string } | { __typename?: 'Plan', id: string } | { __typename?: 'Subscription', externalId: string } | { __typename?: 'Wallet', id: string } | null } | null };
 
 export type GetApiKeyForActivityLogQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -11679,31 +11679,31 @@ export const ActivityLogDetailsFragmentDoc = gql`
   apiKeyId
   resource {
     ... on BillableMetric {
-      bmId: id
+      id
     }
     ... on BillingEntity {
-      entityId: id
+      id
     }
     ... on Coupon {
-      couponId: id
+      id
     }
     ... on CreditNote {
-      creditNoteId: id
+      id
     }
     ... on Customer {
-      customerExternalId: externalId
+      externalId
     }
     ... on Invoice {
-      invoiceId: id
+      id
     }
     ... on Plan {
-      planId: id
+      id
     }
     ... on Subscription {
-      subscriptionExternalId: id
+      externalId
     }
     ... on Wallet {
-      walletId: id
+      id
     }
   }
   loggedAt

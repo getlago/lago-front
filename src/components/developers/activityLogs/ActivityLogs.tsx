@@ -170,7 +170,7 @@ export const ActivityLogs = () => {
         rightSide={<ActivityLogDetails goBack={() => logListRef.current?.updateView('backward')} />}
         shouldDisplayRightSide={shouldDisplayLogDetails}
         sectionHeight={
-          shouldDisplayLogDetails ? `calc(${Math.floor(size)}vh - 182px)` : '100%' // 182px is the height of the headers (52px+64px+64px+2px of borders)
+          shouldDisplayLogDetails ? `calc(${size}vh - 182px)` : '100%' // 182px is the height of the headers (52px+64px+64px+2px of borders)
         }
       />
     </div>

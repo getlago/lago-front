@@ -222,26 +222,13 @@ export function formatActivityType(activityType: ActivityTypeEnum) {
 }
 
 export function formatResourceObject(resource: Record<string, unknown>): string | null {
+  if (!resource) return null
+
   switch (resource.__typename) {
-    case 'BillableMetric':
-      return resource.bmId as string
-    case 'BillingEntity':
-      return resource.entityId as string
-    case 'Coupon':
-      return resource.couponId as string
-    case 'CreditNote':
-      return resource.creditNoteId as string
     case 'Customer':
-      return resource.customerExternalId as string
-    case 'Invoice':
-      return resource.invoiceId as string
-    case 'Plan':
-      return resource.planId as string
     case 'Subscription':
-      return resource.subscriptionExternalId as string
-    case 'Wallet':
-      return resource.walletId as string
+      return resource.externalId as string
     default:
-      return null
+      return resource.id as string
   }
 }

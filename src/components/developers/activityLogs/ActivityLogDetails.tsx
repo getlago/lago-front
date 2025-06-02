@@ -28,31 +28,31 @@ gql`
     apiKeyId
     resource {
       ... on BillableMetric {
-        bmId: id
+        id
       }
       ... on BillingEntity {
-        entityId: id
+        id
       }
       ... on Coupon {
-        couponId: id
+        id
       }
       ... on CreditNote {
-        creditNoteId: id
+        id
       }
       ... on Customer {
-        customerExternalId: externalId
+        externalId
       }
       ... on Invoice {
-        invoiceId: id
+        id
       }
       ... on Plan {
-        planId: id
+        id
       }
       ... on Subscription {
-        subscriptionExternalId: id
+        externalId
       }
       ... on Wallet {
-        walletId: id
+        id
       }
     }
     loggedAt
