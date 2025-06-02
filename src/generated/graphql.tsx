@@ -8533,6 +8533,13 @@ export type GetGrossRevenuesQueryVariables = Exact<{
 
 export type GetGrossRevenuesQuery = { __typename?: 'Query', grossRevenues: { __typename?: 'GrossRevenueCollection', collection: Array<{ __typename?: 'GrossRevenue', amountCents?: any | null, currency?: CurrencyEnum | null, month: any }> } };
 
+export type GetInvoiceCollectionsQueryVariables = Exact<{
+  currency: CurrencyEnum;
+}>;
+
+
+export type GetInvoiceCollectionsQuery = { __typename?: 'Query', invoiceCollections: { __typename?: 'FinalizedInvoiceCollectionCollection', collection: Array<{ __typename?: 'FinalizedInvoiceCollection', paymentStatus?: InvoicePaymentStatusTypeEnum | null, invoicesCount: any, amountCents: any, currency?: CurrencyEnum | null, month: any }> } };
+
 export type GetMrrQueryVariables = Exact<{
   currency: CurrencyEnum;
 }>;
@@ -10647,13 +10654,6 @@ export type GetSubscriptionForDetailsQueryVariables = Exact<{
 
 
 export type GetSubscriptionForDetailsQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, externalId: string, plan: { __typename?: 'Plan', id: string, name: string, code: string, parent?: { __typename?: 'Plan', id: string, name: string, code: string } | null }, customer: { __typename?: 'Customer', id: string } } | null };
-
-export type GetInvoiceCollectionsQueryVariables = Exact<{
-  currency: CurrencyEnum;
-}>;
-
-
-export type GetInvoiceCollectionsQuery = { __typename?: 'Query', invoiceCollections: { __typename?: 'FinalizedInvoiceCollectionCollection', collection: Array<{ __typename?: 'FinalizedInvoiceCollection', paymentStatus?: InvoicePaymentStatusTypeEnum | null, invoicesCount: any, amountCents: any, currency?: CurrencyEnum | null, month: any }> } };
 
 export type GetInvoiceCollectionsForAnalyticsQueryVariables = Exact<{
   currency: CurrencyEnum;
@@ -19074,6 +19074,52 @@ export type GetGrossRevenuesQueryHookResult = ReturnType<typeof useGetGrossReven
 export type GetGrossRevenuesLazyQueryHookResult = ReturnType<typeof useGetGrossRevenuesLazyQuery>;
 export type GetGrossRevenuesSuspenseQueryHookResult = ReturnType<typeof useGetGrossRevenuesSuspenseQuery>;
 export type GetGrossRevenuesQueryResult = Apollo.QueryResult<GetGrossRevenuesQuery, GetGrossRevenuesQueryVariables>;
+export const GetInvoiceCollectionsDocument = gql`
+    query getInvoiceCollections($currency: CurrencyEnum!) {
+  invoiceCollections(currency: $currency) {
+    collection {
+      paymentStatus
+      invoicesCount
+      amountCents
+      currency
+      month
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetInvoiceCollectionsQuery__
+ *
+ * To run a query within a React component, call `useGetInvoiceCollectionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetInvoiceCollectionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetInvoiceCollectionsQuery({
+ *   variables: {
+ *      currency: // value for 'currency'
+ *   },
+ * });
+ */
+export function useGetInvoiceCollectionsQuery(baseOptions: Apollo.QueryHookOptions<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables> & ({ variables: GetInvoiceCollectionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>(GetInvoiceCollectionsDocument, options);
+      }
+export function useGetInvoiceCollectionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>(GetInvoiceCollectionsDocument, options);
+        }
+export function useGetInvoiceCollectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>(GetInvoiceCollectionsDocument, options);
+        }
+export type GetInvoiceCollectionsQueryHookResult = ReturnType<typeof useGetInvoiceCollectionsQuery>;
+export type GetInvoiceCollectionsLazyQueryHookResult = ReturnType<typeof useGetInvoiceCollectionsLazyQuery>;
+export type GetInvoiceCollectionsSuspenseQueryHookResult = ReturnType<typeof useGetInvoiceCollectionsSuspenseQuery>;
+export type GetInvoiceCollectionsQueryResult = Apollo.QueryResult<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>;
 export const GetMrrDocument = gql`
     query getMrr($currency: CurrencyEnum!) {
   mrrs(currency: $currency) {
@@ -28787,52 +28833,6 @@ export type GetSubscriptionForDetailsQueryHookResult = ReturnType<typeof useGetS
 export type GetSubscriptionForDetailsLazyQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsLazyQuery>;
 export type GetSubscriptionForDetailsSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsSuspenseQuery>;
 export type GetSubscriptionForDetailsQueryResult = Apollo.QueryResult<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables>;
-export const GetInvoiceCollectionsDocument = gql`
-    query getInvoiceCollections($currency: CurrencyEnum!) {
-  invoiceCollections(currency: $currency) {
-    collection {
-      paymentStatus
-      invoicesCount
-      amountCents
-      currency
-      month
-    }
-  }
-}
-    `;
-
-/**
- * __useGetInvoiceCollectionsQuery__
- *
- * To run a query within a React component, call `useGetInvoiceCollectionsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetInvoiceCollectionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetInvoiceCollectionsQuery({
- *   variables: {
- *      currency: // value for 'currency'
- *   },
- * });
- */
-export function useGetInvoiceCollectionsQuery(baseOptions: Apollo.QueryHookOptions<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables> & ({ variables: GetInvoiceCollectionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>(GetInvoiceCollectionsDocument, options);
-      }
-export function useGetInvoiceCollectionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>(GetInvoiceCollectionsDocument, options);
-        }
-export function useGetInvoiceCollectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>(GetInvoiceCollectionsDocument, options);
-        }
-export type GetInvoiceCollectionsQueryHookResult = ReturnType<typeof useGetInvoiceCollectionsQuery>;
-export type GetInvoiceCollectionsLazyQueryHookResult = ReturnType<typeof useGetInvoiceCollectionsLazyQuery>;
-export type GetInvoiceCollectionsSuspenseQueryHookResult = ReturnType<typeof useGetInvoiceCollectionsSuspenseQuery>;
-export type GetInvoiceCollectionsQueryResult = Apollo.QueryResult<GetInvoiceCollectionsQuery, GetInvoiceCollectionsQueryVariables>;
 export const GetInvoiceCollectionsForAnalyticsDocument = gql`
     query getInvoiceCollectionsForAnalytics($currency: CurrencyEnum!, $billingEntityCode: String) {
   invoiceCollections(currency: $currency, billingEntityCode: $billingEntityCode) {

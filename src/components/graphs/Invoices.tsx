@@ -1,3 +1,4 @@
+import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -36,6 +37,20 @@ const GRAPH_COLORS = [
   theme.palette.secondary[400],
   theme.palette.grey[300],
 ]
+
+gql`
+  query getInvoiceCollections($currency: CurrencyEnum!) {
+    invoiceCollections(currency: $currency) {
+      collection {
+        paymentStatus
+        invoicesCount
+        amountCents
+        currency
+        month
+      }
+    }
+  }
+`
 
 export type TInvoiceCollectionsDataResult =
   GetInvoiceCollectionsQuery['invoiceCollections']['collection']

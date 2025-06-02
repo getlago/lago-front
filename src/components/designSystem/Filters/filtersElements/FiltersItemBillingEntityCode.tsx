@@ -4,7 +4,7 @@ import { ComboBox } from '~/components/form'
 import { useGetBillingEntitiesQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { filterDataInlineSeparator, FiltersFormValues } from '../types'
+import { FiltersFormValues } from '../types'
 
 type FiltersItemBillingEntityCodeProps = {
   value: FiltersFormValues['filters'][0]['value']
