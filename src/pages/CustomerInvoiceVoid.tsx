@@ -100,13 +100,11 @@ const CustomerInvoiceVoid = () => {
   const currency = invoice?.currency || CurrencyEnum.Usd
   const currencySymbol = getCurrencySymbol(currency)
 
-  const amountIsZero = Number(invoice?.totalAmountCents) === 0
-
   const maxRefundable = deserializeAmount(invoice?.refundableAmountCents, currency)
   const maxCreditable = deserializeAmount(invoice?.creditableAmountCents, currency)
-  const maxTotal = deserializeAmount(invoice?.totalAmountCents, currency)
+  const maxTotal = maxCreditable
 
-  const canGenerateCreditNote = !amountIsZero && (maxRefundable > 0 || maxCreditable > 0)
+  const canGenerateCreditNote = maxRefundable > 0 || maxCreditable > 0
 
   const onSubmit = async (values: CustomerInvoiceVoidForm) => {
     if (invoiceId) {
