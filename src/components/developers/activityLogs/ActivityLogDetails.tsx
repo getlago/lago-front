@@ -117,7 +117,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
         {loading ? (
           <Skeleton variant="text" textVariant="bodyHl" className="w-30" />
         ) : (
-          'Description'
+          translate(activityTypeTranslation, parameters)
         )}
       </Typography>
 
