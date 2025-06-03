@@ -349,6 +349,7 @@ export type ApiKey = {
 
 export enum ApiKeysPermissionsEnum {
   AddOn = 'add_on',
+  Alert = 'alert',
   Analytic = 'analytic',
   AppliedCoupon = 'applied_coupon',
   BillableMetric = 'billable_metric',
