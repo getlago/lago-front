@@ -28,8 +28,39 @@ import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 export const STATE_KEY_ID_TO_REVEAL = 'keyIdToReveal'
 
+const READ_PERMISSION = 'read'
+const WRITE_PERMISSION = 'write'
+
+const canOnlyRead = (permission: ApiKeysPermissionsEnum) =>
+  permission === ApiKeysPermissionsEnum.Analytic ||
+  permission === ApiKeysPermissionsEnum.CustomerUsage
+
+const isDefaultUnchecked = (permission: ApiKeysPermissionsEnum) =>
+  permission === ApiKeysPermissionsEnum.Alert
+
+const DEFAULT_PERMISSIONS: Record<ApiKeysPermissionsEnum, string[]> = Object.values(
+  ApiKeysPermissionsEnum,
+).reduce(
+  (acc, permission) => {
+    let defaultValue: string[] = [READ_PERMISSION, WRITE_PERMISSION] // Default: both read and write
+
+    if (isDefaultUnchecked(permission)) {
+      defaultValue = [] // Keep empty array to have the permission uncheked on creation
+    } else if (canOnlyRead(permission)) {
+      defaultValue = [READ_PERMISSION] // Read-only permissions
+    }
+
+    return {
+      ...acc,
+      [permission]: defaultValue,
+    }
+  },
+  {} as Record<ApiKeysPermissionsEnum, string[]>,
+)
+
 const resourceTypeTranslationKeys: Record<ApiKeysPermissionsEnum, string> = {
   [ApiKeysPermissionsEnum.AddOn]: 'text_1732894820485oyybtfh5rgv',
+  [ApiKeysPermissionsEnum.Alert]: 'text_17465238490269pahbvl3s2m',
   [ApiKeysPermissionsEnum.Analytic]: 'text_6553885df387fd0097fd7384',
   [ApiKeysPermissionsEnum.AppliedCoupon]: 'text_17328948204857eb1ecwe5me',
   [ApiKeysPermissionsEnum.BillableMetric]: 'text_623b497ad05b960101be3438',
@@ -89,9 +120,9 @@ const transformApiPermissionsForForm = (
 ): ApiKeyPermissions[] => {
   return Object.values(ApiKeysPermissionsEnum).map((permission) => {
     const permissionKey = permission
-    const permissionValue = permissions?.[permissionKey]
-    const hasPermissionRead = !permissionValue ? true : permissionValue?.includes('read')
-    const hasPermissionWrite = !permissionValue ? true : permissionValue?.includes('write')
+    const permissionValue = permissions?.[permissionKey] || []
+    const hasPermissionRead = permissionValue?.includes(READ_PERMISSION)
+    const hasPermissionWrite = permissionValue?.includes(WRITE_PERMISSION)
 
     return {
       id: permissionKey,
@@ -171,7 +202,7 @@ const ApiKeysForm = () => {
   >({
     initialValues: {
       name: apiKey?.name || '',
-      permissions: transformApiPermissionsForForm(apiKey?.permissions),
+      permissions: transformApiPermissionsForForm(apiKey?.permissions || DEFAULT_PERMISSIONS),
     },
     validateOnMount: true,
     enableReinitialize: true,
@@ -180,7 +211,9 @@ const ApiKeysForm = () => {
         ? permissions.reduce(
             (acc, { id, canRead, canWrite }) => ({
               ...acc,
-              [id]: [canRead ? 'read' : '', canWrite ? 'write' : ''].filter(Boolean),
+              [id]: [canRead ? READ_PERMISSION : '', canWrite ? WRITE_PERMISSION : ''].filter(
+                Boolean,
+              ),
             }),
             {},
           )
@@ -430,11 +463,7 @@ const ApiKeysForm = () => {
                           />
                         ),
                         content: ({ id, canWrite }) => {
-                          if (
-                            id === ApiKeysPermissionsEnum.Analytic ||
-                            id === ApiKeysPermissionsEnum.CustomerUsage
-                          )
-                            return null
+                          if (canOnlyRead(id)) return null
 
                           return (
                             <Checkbox
