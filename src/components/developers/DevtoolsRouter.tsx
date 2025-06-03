@@ -4,17 +4,19 @@ import { ActivityLogs, ApiKeys, Events, WebhookLogs, Webhooks } from '~/componen
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 
-export const API_KEYS_ROUTE = '/devtool'
+export const DEVTOOL_ROUTE = '/devtool'
 
-export const WEBHOOKS_ROUTE = '/webhooks'
-export const WEBHOOK_ROUTE = '/webhooks/:webhookId'
-export const WEBHOOK_LOGS_ROUTE = '/webhooks/:webhookId/logs/:logId'
+export const API_KEYS_ROUTE = `${DEVTOOL_ROUTE}`
 
-export const EVENTS_ROUTE = '/events'
-export const EVENT_LOG_ROUTE = '/events/:eventId'
+export const WEBHOOKS_ROUTE = `${DEVTOOL_ROUTE}/webhooks`
+export const WEBHOOK_ROUTE = `${DEVTOOL_ROUTE}/webhooks/:webhookId`
+export const WEBHOOK_LOGS_ROUTE = `${DEVTOOL_ROUTE}/webhooks/:webhookId/logs/:logId`
 
-export const ACTIVITY_ROUTE = '/activity-logs'
-export const ACTIVITY_LOG_ROUTE = '/activity-logs/:logId'
+export const EVENTS_ROUTE = `${DEVTOOL_ROUTE}/events`
+export const EVENT_LOG_ROUTE = `${DEVTOOL_ROUTE}/events/:eventId`
+
+export const ACTIVITY_ROUTE = `${DEVTOOL_ROUTE}/activity-logs`
+export const ACTIVITY_LOG_ROUTE = `${DEVTOOL_ROUTE}/activity-logs/:logId`
 
 export const DevtoolsRouter = () => {
   const routes = useRoutes([
