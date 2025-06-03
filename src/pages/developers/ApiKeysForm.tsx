@@ -28,19 +28,26 @@ import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 export const STATE_KEY_ID_TO_REVEAL = 'keyIdToReveal'
 
+const READ_PERMISSION = 'read'
+const WRITE_PERMISSION = 'write'
+
+const canOnlyRead = (permission: ApiKeysPermissionsEnum) =>
+  permission === ApiKeysPermissionsEnum.Analytic ||
+  permission === ApiKeysPermissionsEnum.CustomerUsage
+
+const isDefaultUnchecked = (permission: ApiKeysPermissionsEnum) =>
+  permission === ApiKeysPermissionsEnum.Alert
+
 const DEFAULT_PERMISSIONS: Record<ApiKeysPermissionsEnum, string[]> = Object.values(
   ApiKeysPermissionsEnum,
 ).reduce(
   (acc, permission) => {
-    let defaultValue: string[] = ['read', 'write'] // Default: both read and write
+    let defaultValue: string[] = [READ_PERMISSION, WRITE_PERMISSION] // Default: both read and write
 
-    if (permission === ApiKeysPermissionsEnum.Alert) {
+    if (isDefaultUnchecked(permission)) {
       defaultValue = [] // Keep empty array to have the permission uncheked on creation
-    } else if (
-      permission === ApiKeysPermissionsEnum.Analytic ||
-      permission === ApiKeysPermissionsEnum.CustomerUsage
-    ) {
-      defaultValue = ['read'] // Read-only permissions
+    } else if (canOnlyRead(permission)) {
+      defaultValue = [READ_PERMISSION] // Read-only permissions
     }
 
     return {
@@ -114,8 +121,8 @@ const transformApiPermissionsForForm = (
   return Object.values(ApiKeysPermissionsEnum).map((permission) => {
     const permissionKey = permission
     const permissionValue = permissions?.[permissionKey] || []
-    const hasPermissionRead = permissionValue?.includes('read')
-    const hasPermissionWrite = permissionValue?.includes('write')
+    const hasPermissionRead = permissionValue?.includes(READ_PERMISSION)
+    const hasPermissionWrite = permissionValue?.includes(WRITE_PERMISSION)
 
     return {
       id: permissionKey,
@@ -204,7 +211,9 @@ const ApiKeysForm = () => {
         ? permissions.reduce(
             (acc, { id, canRead, canWrite }) => ({
               ...acc,
-              [id]: [canRead ? 'read' : '', canWrite ? 'write' : ''].filter(Boolean),
+              [id]: [canRead ? READ_PERMISSION : '', canWrite ? WRITE_PERMISSION : ''].filter(
+                Boolean,
+              ),
             }),
             {},
           )
@@ -454,11 +463,7 @@ const ApiKeysForm = () => {
                           />
                         ),
                         content: ({ id, canWrite }) => {
-                          if (
-                            id === ApiKeysPermissionsEnum.Analytic ||
-                            id === ApiKeysPermissionsEnum.CustomerUsage
-                          )
-                            return null
+                          if (canOnlyRead(id)) return null
 
                           return (
                             <Checkbox
