@@ -95,8 +95,8 @@ const AreaChart = memo(
         <ResponsiveContainer width="100%" height={height}>
           <RechartAreaChart
             margin={{
-              top: 1,
-              left: 1,
+              top: 3,
+              left: 3,
               right: getCurrencySymbol(currency).length > 1 ? 12 : 2,
               bottom: -2,
             }}
