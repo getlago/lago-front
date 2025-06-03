@@ -3,6 +3,7 @@ import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import CreditNoteBadge from '~/components/creditNote/CreditNoteBadge'
+import { CreditNoteDetailsExternalSync } from '~/components/creditNote/CreditNoteDetailsExternalSync'
 import { CreditNoteDetailsOverview } from '~/components/creditNote/CreditNoteDetailsOverview'
 import {
   VoidCreditNoteDialog,
@@ -445,6 +446,37 @@ const CreditNoteDetails = () => {
                 component: (
                   <DetailsPage.Container className="max-w-none">
                     <CreditNoteDetailsOverview />
+                  </DetailsPage.Container>
+                ),
+              },
+              {
+                title: translate('text_17489570558986035g3zp16t'),
+                link: generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE, {
+                  customerId: customerId as string,
+                  invoiceId: invoiceId as string,
+                  creditNoteId: creditNoteId as string,
+                  tab: CreditNoteDetailsTabsOptionsEnum.externalSync,
+                }),
+                match: [
+                  generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
+                    customerId: customerId as string,
+                    invoiceId: invoiceId as string,
+                    creditNoteId: creditNoteId as string,
+                  }),
+                  generatePath(CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE, {
+                    customerId: customerId as string,
+                    creditNoteId: creditNoteId as string,
+                  }),
+                  generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE, {
+                    customerId: customerId as string,
+                    invoiceId: invoiceId as string,
+                    creditNoteId: creditNoteId as string,
+                    tab: CreditNoteDetailsTabsOptionsEnum.externalSync,
+                  }),
+                ],
+                component: (
+                  <DetailsPage.Container className="max-w-none">
+                    <CreditNoteDetailsExternalSync />
                   </DetailsPage.Container>
                 ),
               },

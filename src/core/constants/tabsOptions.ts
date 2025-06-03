@@ -3,6 +3,7 @@ export enum BillableMetricDetailsTabsOptionsEnum {
 }
 
 export enum CreditNoteDetailsTabsOptionsEnum {
+  externalSync = 'external-sync',
   overview = 'overview',
 }
 
