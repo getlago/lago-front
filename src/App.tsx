@@ -7,6 +7,7 @@ import { Panel, PanelGroup } from 'react-resizable-panels'
 import { BrowserRouter, MemoryRouter } from 'react-router-dom'
 
 import { ToastContainer } from '~/components/designSystem/Toasts'
+import { DEVTOOL_ROUTE } from '~/components/developers/DevtoolsRouter'
 import { DevtoolsView } from '~/components/developers/DevtoolsView'
 import { ErrorBoundary } from '~/components/ErrorBoundary'
 import { RouteWrapper } from '~/components/RouteWrapper'
@@ -56,7 +57,7 @@ const App = () => {
                       </BrowserRouter>
                     </div>
                   </Panel>
-                  <MemoryRouter initialEntries={['/devtool']}>
+                  <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
                     <DevtoolsView />
                   </MemoryRouter>
                 </PanelGroup>

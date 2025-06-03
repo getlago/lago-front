@@ -3,9 +3,11 @@ import type { RouteObject } from 'react-router-dom'
 import { useLocation, useRoutes } from 'react-router-dom'
 
 import { Icon } from '~/components/designSystem'
+import { DEVTOOL_ROUTE } from '~/components/developers/DevtoolsRouter'
 import { CustomRouteObject, routes } from '~/core/router'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { DEVTOOL_TAB_PARAMS } from '~/hooks/useDeveloperTool'
 
 interface PageWrapperProps {
   routeConfig: CustomRouteObject
@@ -19,6 +21,23 @@ const PageWrapper = ({ children, routeConfig }: PageWrapperProps) => {
   useEffect(() => {
     onRouteEnter(routeConfig, location)
   }, [location, routeConfig, onRouteEnter])
+
+  // Redirect to '/' and open devtools if path starts with DEVTOOL_ROUTE
+  useEffect(() => {
+    if (location.pathname.startsWith(DEVTOOL_ROUTE)) {
+      // Set the devtool param in the URL for the homepage
+      const url = new URL(window.location.href)
+
+      url.pathname = '/'
+      url.searchParams.set(DEVTOOL_TAB_PARAMS, encodeURIComponent(location.pathname))
+      window.location.replace(url.toString())
+    }
+  }, [location])
+
+  if (location.pathname.startsWith(DEVTOOL_ROUTE)) {
+    // Prevent rendering anything while redirecting
+    return null
+  }
 
   return <>{children}</>
 }

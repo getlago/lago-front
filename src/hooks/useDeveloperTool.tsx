@@ -5,7 +5,6 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 const DeveloperToolContext = createContext<DeveloperToolContextType | undefined>(undefined)
 
-export const DEVTOOL_STORAGE_KEY = 'devtoolIsOpen'
 export const DEVTOOL_TAB_PARAMS = 'devtool-tab'
 
 export enum ConsoleTabs {
@@ -46,9 +45,6 @@ export function useDeveloperTool(): DeveloperToolContextType {
   const { currentUser } = useCurrentUser()
 
   const navigate = useNavigate()
-  const [isMounted, setIsMounted] = useState(false)
-
-  const lsItem = localStorage.getItem(DEVTOOL_STORAGE_KEY)
 
   // We can copy/paste the URL of the devtools in the browser and it will open the devtools with the correct tab
   const checkParamsFromUrl = () => {
@@ -70,34 +66,10 @@ export function useDeveloperTool(): DeveloperToolContextType {
     window.history.replaceState({}, '', url)
   }
 
-  // If we have previously opened the devtools, we open it again in the same tab
-  const checkLocalStorage = () => {
-    if (lsItem !== null) {
-      lsItem === 'true' && context?.open()
-    }
-  }
-
-  // On mounted, check the params from the URL and the local storage
   useEffect(() => {
+    // On mounted, check the params from the URL
     checkParamsFromUrl()
-    checkLocalStorage()
-
-    setIsMounted(true)
   }, [])
-
-  // After the component is mounted, save the state of the devtools in the local storage
-  useEffect(() => {
-    if (isMounted) {
-      localStorage.setItem(DEVTOOL_STORAGE_KEY, String(context?.isOpen))
-    }
-  }, [context?.isOpen, isMounted])
-
-  // After the component is mounted, close the devtools if the local storage is empty
-  useEffect(() => {
-    if (isMounted) {
-      lsItem === null && context?.close()
-    }
-  }, [context, isMounted, lsItem])
 
   // Throw an error if the hook is used outside of the provider
   if (!context) {
