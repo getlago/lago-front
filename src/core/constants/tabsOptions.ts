@@ -2,6 +2,10 @@ export enum BillableMetricDetailsTabsOptionsEnum {
   overview = 'overview',
 }
 
+export enum CreditNoteDetailsTabsOptionsEnum {
+  overview = 'overview',
+}
+
 export enum CustomerInvoiceDetailsTabsOptionsEnum {
   overview = 'overview',
   payments = 'payments',
