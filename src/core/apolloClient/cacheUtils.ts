@@ -5,7 +5,6 @@ import {
   ORGANIZATION_LS_KEY_ID,
 } from '~/core/constants/localStorageKeys'
 import { CurrentUserFragment } from '~/generated/graphql'
-import { DEVTOOL_STORAGE_KEY } from '~/hooks/useDeveloperTool'
 
 import {
   resetLocationHistoryVar,
@@ -90,9 +89,6 @@ export const switchCurrentOrganization = async (
 
   // We should not be redirected to any route on orga switch, but rather bring to home (prevent )
   removeItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
-
-  // Close the devtools
-  removeItemFromLS(DEVTOOL_STORAGE_KEY)
 
   // Set the new organization id in local storage
   setItemFromLS(ORGANIZATION_LS_KEY_ID, organizationId)
