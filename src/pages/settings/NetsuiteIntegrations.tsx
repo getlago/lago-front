@@ -138,7 +138,7 @@ const NetsuiteIntegrations = () => {
                   <Popper
                     PopperProps={{ placement: 'bottom-end' }}
                     opener={({ isOpen }) => (
-                      <PopperOpener className="right-0">
+                      <PopperOpener className="right-0 md:right-0">
                         <Tooltip
                           placement="top-end"
                           disableHoverListener={isOpen}

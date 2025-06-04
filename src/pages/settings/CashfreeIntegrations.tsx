@@ -151,7 +151,7 @@ const CashfreeIntegrations = () => {
                       PopperProps={{ placement: 'bottom-end' }}
                       opener={({ isOpen }) => (
                         // right-0 used to align the popper to the right
-                        <PopperOpener className="right-0">
+                        <PopperOpener className="right-0 md:right-0">
                           <Tooltip
                             placement="top-end"
                             disableHoverListener={isOpen}
