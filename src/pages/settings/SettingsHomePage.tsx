@@ -31,6 +31,7 @@ const SettingsHomePage = () => {
       generatePath(BILLING_ENTITY_ROUTE, {
         billingEntityCode: defaultBillingEntity.code,
       }),
+      { replace: true },
     )
   }, [billingEntitiesData, navigate])
 
