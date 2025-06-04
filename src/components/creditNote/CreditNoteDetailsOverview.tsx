@@ -4,9 +4,13 @@ import { FC, Fragment } from 'react'
 import { generatePath, Link, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { Status, StatusProps, StatusType } from '~/components/designSystem'
+import { Status } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { envGlobalVar } from '~/core/apolloClient'
+import {
+  creditNoteCreditStatusMapping,
+  creditNoteRefundStatusMapping,
+} from '~/core/constants/statusCreditNoteMapping'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
 import {
@@ -19,9 +23,7 @@ import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/r
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
 import {
-  CreditNoteCreditStatusEnum,
   CreditNoteItem,
-  CreditNoteRefundStatusEnum,
   CurrencyEnum,
   DownloadCreditNoteMutation,
   DownloadCreditNoteMutationVariables,
@@ -35,46 +37,6 @@ import { theme } from '~/styles'
 import { SectionHeader } from '~/styles/customer'
 
 const { disablePdfGeneration } = envGlobalVar()
-
-const creditedMapStatus = (type?: CreditNoteCreditStatusEnum | null | undefined): StatusProps => {
-  switch (type) {
-    case CreditNoteCreditStatusEnum.Consumed:
-      return {
-        type: StatusType.danger,
-        label: 'consumed',
-      }
-    case CreditNoteCreditStatusEnum.Voided:
-      return {
-        type: StatusType.danger,
-        label: 'voided',
-      }
-    default:
-      return {
-        type: StatusType.success,
-        label: 'available',
-      }
-  }
-}
-
-const consumedMapStatus = (type?: CreditNoteRefundStatusEnum | null | undefined): StatusProps => {
-  switch (type) {
-    case CreditNoteRefundStatusEnum.Succeeded:
-      return {
-        type: StatusType.success,
-        label: 'refunded',
-      }
-    case CreditNoteRefundStatusEnum.Failed:
-      return {
-        type: StatusType.warning,
-        label: 'failed',
-      }
-    default:
-      return {
-        type: StatusType.default,
-        label: 'pending',
-      }
-  }
-}
 
 gql`
   fragment CreditNoteItemForDetailsOverview on CreditNoteItem {
@@ -186,19 +148,16 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
   })
 
   const creditNote = data?.creditNote
-  const billingEntity = data?.creditNote?.billingEntity
-  const creditedFormattedStatus = creditedMapStatus(creditNote?.creditStatus)
-  const consumedFormattedStatus = consumedMapStatus(creditNote?.refundStatus)
   const isRefunded = creditNote?.refundAmountCents > 0
-  const status = isRefunded ? consumedFormattedStatus : creditedFormattedStatus
-
-  const groupedData = formatCreditNotesItems(creditNote?.items as CreditNoteItem[])
-
-  const customerName = creditNote?.customer?.displayName
-
-  const isPrepaidCreditsInvoice = data?.creditNote?.invoice?.invoiceType === InvoiceTypeEnum.Credit
+  const isPrepaidCreditsInvoice = creditNote?.invoice?.invoiceType === InvoiceTypeEnum.Credit
 
   const hasError = (!!error || !creditNote) && !loading
+
+  const status = isRefunded
+    ? creditNoteRefundStatusMapping(creditNote?.refundStatus)
+    : creditNoteCreditStatusMapping(creditNote?.creditStatus)
+
+  const groupedData = formatCreditNotesItems(creditNote?.items as CreditNoteItem[])
 
   return (
     <div>
@@ -219,7 +178,7 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
         )}
       </SectionHeader>
 
-      {billingEntity && (
+      {creditNote?.billingEntity && (
         <div className="box-border flex items-center gap-2 py-6 shadow-b">
           <div className="min-w-[140px]">
             <Typography className="text-sm text-grey-600">
@@ -258,7 +217,7 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
                         </Link>
                       )}
                     >
-                      {customerName}
+                      {creditNote?.customer?.displayName}
                     </ConditionalWrapper>
                   }
                 />

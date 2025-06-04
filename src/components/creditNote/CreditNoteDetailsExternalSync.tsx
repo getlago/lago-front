@@ -11,6 +11,7 @@ import {
   buildXeroCreditNoteUrl,
 } from '~/core/constants/externalUrls'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
+import { getConnectedIntegration } from '~/core/utils/integrations'
 import {
   AnrokIntegration,
   AvalaraIntegration,
@@ -83,18 +84,6 @@ gql`
     }
   }
 `
-
-// Helper to get the connected integration by typename and ID
-function getConnectedIntegration<T extends { id?: string; __typename?: string }>(
-  collection: { __typename?: string }[] | undefined,
-  typename: string,
-  integrationId: string | undefined,
-): T | undefined {
-  if (!collection || typeof integrationId !== 'string') return undefined
-  return collection
-    .filter((i) => i.__typename === typename)
-    .find((i) => (i as T).id === integrationId) as T | undefined
-}
 
 const OverviewLine: FC<
   | { title: string; link: string; id: string; onClick?: never; label?: never; warning?: never }
@@ -171,25 +160,25 @@ export const CreditNoteDetailsExternalSync: FC<CreditNoteDetailsExternalSyncProp
   const connectedNetsuiteIntegration = getConnectedIntegration<NetsuiteIntegration>(
     integrationsData?.integrations?.collection,
     'NetsuiteIntegration',
-    customer?.netsuiteCustomer?.integrationId ?? undefined,
+    customer?.netsuiteCustomer?.integrationId,
   )
 
   const connectedAnrokIntegration = getConnectedIntegration<AnrokIntegration>(
     integrationsData?.integrations?.collection,
     'AnrokIntegration',
-    customer?.anrokCustomer?.integrationId ?? undefined,
+    customer?.anrokCustomer?.integrationId,
   )
 
   const connectedXeroIntegration = getConnectedIntegration<XeroIntegration>(
     integrationsData?.integrations?.collection,
     'XeroIntegration',
-    customer?.xeroCustomer?.integrationId ?? undefined,
+    customer?.xeroCustomer?.integrationId,
   )
 
   const connectedAvalaraIntegration = getConnectedIntegration<AvalaraIntegration>(
     integrationsData?.integrations?.collection,
     'AvalaraIntegration',
-    customer?.avalaraCustomer?.integrationId ?? undefined,
+    customer?.avalaraCustomer?.integrationId,
   )
 
   const hasIntegration = {
