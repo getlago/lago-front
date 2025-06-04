@@ -10226,33 +10226,33 @@ export type UpdateBillableMetricMutationVariables = Exact<{
 
 export type UpdateBillableMetricMutation = { __typename?: 'Mutation', updateBillableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any } | null };
 
-export type BillingEntityItemFragment = { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean };
+export type BillingEntityItemFragment = { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null };
 
 export type GetBillingEntitiesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetBillingEntitiesQuery = { __typename?: 'Query', billingEntities: { __typename?: 'BillingEntityCollection', collection: Array<{ __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean }> } };
+export type GetBillingEntitiesQuery = { __typename?: 'Query', billingEntities: { __typename?: 'BillingEntityCollection', collection: Array<{ __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null }> } };
 
 export type GetBillingEntityQueryVariables = Exact<{
   code: Scalars['String']['input'];
 }>;
 
 
-export type GetBillingEntityQuery = { __typename?: 'Query', billingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean } | null };
+export type GetBillingEntityQuery = { __typename?: 'Query', billingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null } | null };
 
 export type CreateBillingEntityMutationVariables = Exact<{
   input: CreateBillingEntityInput;
 }>;
 
 
-export type CreateBillingEntityMutation = { __typename?: 'Mutation', createBillingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean } | null };
+export type CreateBillingEntityMutation = { __typename?: 'Mutation', createBillingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null } | null };
 
 export type UpdateBillingEntityMutationVariables = Exact<{
   input: UpdateBillingEntityInput;
 }>;
 
 
-export type UpdateBillingEntityMutation = { __typename?: 'Mutation', updateBillingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean } | null };
+export type UpdateBillingEntityMutation = { __typename?: 'Mutation', updateBillingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null } | null };
 
 export type EditCouponFragment = { __typename?: 'Coupon', id: string, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, appliedCouponsCount: number, code?: string | null, couponType: CouponTypeEnum, description?: string | null, expiration: CouponExpiration, expirationAt?: any | null, frequency: CouponFrequency, frequencyDuration?: number | null, limitedBillableMetrics: boolean, limitedPlans: boolean, name: string, percentageRate?: number | null, reusable: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null };
 
@@ -11121,6 +11121,20 @@ export type UpdateBillingEntityTimezoneMutationVariables = Exact<{
 
 
 export type UpdateBillingEntityTimezoneMutation = { __typename?: 'Mutation', updateBillingEntity?: { __typename?: 'BillingEntity', id: string, timezone?: TimezoneEnum | null } | null };
+
+export type ApplyBillingEntityInvoiceCustomSectionMutationVariables = Exact<{
+  input: UpdateBillingEntityInput;
+}>;
+
+
+export type ApplyBillingEntityInvoiceCustomSectionMutation = { __typename?: 'Mutation', updateBillingEntity?: { __typename?: 'BillingEntity', id: string } | null };
+
+export type RemoveBillingEntityInvoiceCustomSectionMutationVariables = Exact<{
+  input: UpdateBillingEntityInput;
+}>;
+
+
+export type RemoveBillingEntityInvoiceCustomSectionMutation = { __typename?: 'Mutation', updateBillingEntity?: { __typename?: 'BillingEntity', id: string } | null };
 
 export type TaxItemForApplyTaxFragment = { __typename?: 'Tax', id: string, code: string, name: string };
 
@@ -13289,6 +13303,10 @@ export const BillingEntityItemFragmentDoc = gql`
   isDefault
   defaultCurrency
   euTaxManagement
+  selectedInvoiceCustomSections {
+    id
+    name
+  }
 }
     `;
 export const PlansForCouponsFragmentDoc = gql`
@@ -31006,6 +31024,72 @@ export function useUpdateBillingEntityTimezoneMutation(baseOptions?: Apollo.Muta
 export type UpdateBillingEntityTimezoneMutationHookResult = ReturnType<typeof useUpdateBillingEntityTimezoneMutation>;
 export type UpdateBillingEntityTimezoneMutationResult = Apollo.MutationResult<UpdateBillingEntityTimezoneMutation>;
 export type UpdateBillingEntityTimezoneMutationOptions = Apollo.BaseMutationOptions<UpdateBillingEntityTimezoneMutation, UpdateBillingEntityTimezoneMutationVariables>;
+export const ApplyBillingEntityInvoiceCustomSectionDocument = gql`
+    mutation applyBillingEntityInvoiceCustomSection($input: UpdateBillingEntityInput!) {
+  updateBillingEntity(input: $input) {
+    id
+  }
+}
+    `;
+export type ApplyBillingEntityInvoiceCustomSectionMutationFn = Apollo.MutationFunction<ApplyBillingEntityInvoiceCustomSectionMutation, ApplyBillingEntityInvoiceCustomSectionMutationVariables>;
+
+/**
+ * __useApplyBillingEntityInvoiceCustomSectionMutation__
+ *
+ * To run a mutation, you first call `useApplyBillingEntityInvoiceCustomSectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useApplyBillingEntityInvoiceCustomSectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [applyBillingEntityInvoiceCustomSectionMutation, { data, loading, error }] = useApplyBillingEntityInvoiceCustomSectionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useApplyBillingEntityInvoiceCustomSectionMutation(baseOptions?: Apollo.MutationHookOptions<ApplyBillingEntityInvoiceCustomSectionMutation, ApplyBillingEntityInvoiceCustomSectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ApplyBillingEntityInvoiceCustomSectionMutation, ApplyBillingEntityInvoiceCustomSectionMutationVariables>(ApplyBillingEntityInvoiceCustomSectionDocument, options);
+      }
+export type ApplyBillingEntityInvoiceCustomSectionMutationHookResult = ReturnType<typeof useApplyBillingEntityInvoiceCustomSectionMutation>;
+export type ApplyBillingEntityInvoiceCustomSectionMutationResult = Apollo.MutationResult<ApplyBillingEntityInvoiceCustomSectionMutation>;
+export type ApplyBillingEntityInvoiceCustomSectionMutationOptions = Apollo.BaseMutationOptions<ApplyBillingEntityInvoiceCustomSectionMutation, ApplyBillingEntityInvoiceCustomSectionMutationVariables>;
+export const RemoveBillingEntityInvoiceCustomSectionDocument = gql`
+    mutation removeBillingEntityInvoiceCustomSection($input: UpdateBillingEntityInput!) {
+  updateBillingEntity(input: $input) {
+    id
+  }
+}
+    `;
+export type RemoveBillingEntityInvoiceCustomSectionMutationFn = Apollo.MutationFunction<RemoveBillingEntityInvoiceCustomSectionMutation, RemoveBillingEntityInvoiceCustomSectionMutationVariables>;
+
+/**
+ * __useRemoveBillingEntityInvoiceCustomSectionMutation__
+ *
+ * To run a mutation, you first call `useRemoveBillingEntityInvoiceCustomSectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveBillingEntityInvoiceCustomSectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeBillingEntityInvoiceCustomSectionMutation, { data, loading, error }] = useRemoveBillingEntityInvoiceCustomSectionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useRemoveBillingEntityInvoiceCustomSectionMutation(baseOptions?: Apollo.MutationHookOptions<RemoveBillingEntityInvoiceCustomSectionMutation, RemoveBillingEntityInvoiceCustomSectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveBillingEntityInvoiceCustomSectionMutation, RemoveBillingEntityInvoiceCustomSectionMutationVariables>(RemoveBillingEntityInvoiceCustomSectionDocument, options);
+      }
+export type RemoveBillingEntityInvoiceCustomSectionMutationHookResult = ReturnType<typeof useRemoveBillingEntityInvoiceCustomSectionMutation>;
+export type RemoveBillingEntityInvoiceCustomSectionMutationResult = Apollo.MutationResult<RemoveBillingEntityInvoiceCustomSectionMutation>;
+export type RemoveBillingEntityInvoiceCustomSectionMutationOptions = Apollo.BaseMutationOptions<RemoveBillingEntityInvoiceCustomSectionMutation, RemoveBillingEntityInvoiceCustomSectionMutationVariables>;
 export const GetTaxesForApplyTaxDocument = gql`
     query getTaxesForApplyTax($limit: Int, $page: Int, $searchTerm: String) {
   taxes(limit: $limit, page: $page, order: "name", searchTerm: $searchTerm) {
