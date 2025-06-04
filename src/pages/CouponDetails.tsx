@@ -18,7 +18,7 @@ import {
   Typography,
 } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { COUPON_DETAILS_ROUTE, COUPONS_ROUTE, UPDATE_COUPON_ROUTE } from '~/core/router'
 import {
   CouponStatusEnum,
@@ -189,7 +189,7 @@ const CouponDetails = () => {
             title: translate('text_628cf761cbe6820138b8f2e4'),
             link: generatePath(COUPON_DETAILS_ROUTE, {
               couponId: couponId as string,
-              tab: BillableMetricDetailsTabsOptionsEnum.overview,
+              tab: CouponDetailsTabsOptionsEnum.overview,
             }),
             component: (
               <DetailsPage.Container>
