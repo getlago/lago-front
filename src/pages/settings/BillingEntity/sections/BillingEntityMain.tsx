@@ -6,6 +6,7 @@ import {
   // BILLING_ENTITY_DUNNING_CAMPAIGNS_ROUTE,
   BILLING_ENTITY_EMAIL_SCENARIOS_ROUTE,
   BILLING_ENTITY_GENERAL_ROUTE,
+  BILLING_ENTITY_INVOICE_CUSTOM_SECTIONS_ROUTE,
   BILLING_ENTITY_INVOICE_SETTINGS_ROUTE,
   BILLING_ENTITY_TAXES_SETTINGS_ROUTE,
 } from '~/core/router'
@@ -26,7 +27,7 @@ type SettingsListItem = {
 
 const SETTINGS_LIST_ITEMS: SettingsListItem[] = [
   {
-    id: '1',
+    id: 'be-general',
     label: 'text_1742230191029o8hfgeebxl5',
     sublabel: 'text_17423672025283pz1d5alfnr',
     actionLabel: 'text_1742367266660i30uftbnwn5',
@@ -34,7 +35,7 @@ const SETTINGS_LIST_ITEMS: SettingsListItem[] = [
     icon: 'target',
   },
   {
-    id: '2',
+    id: 'be-email-scenarios',
     label: 'text_1742367202528mfhsv0f4fxq',
     sublabel: 'text_1742367202528ecx7ncm3ad2',
     actionLabel: 'text_1742367266660wav3un4ypug',
@@ -53,7 +54,7 @@ const SETTINGS_LIST_ITEMS: SettingsListItem[] = [
   },
   */
   {
-    id: '4',
+    id: 'be-invoice-settings',
     label: 'text_17423672025282dl7iozy1ru',
     sublabel: 'text_1742367202529pqbhrh9q8ju',
     actionLabel: 'text_1742367266660hztqo2bfrsh',
@@ -61,7 +62,15 @@ const SETTINGS_LIST_ITEMS: SettingsListItem[] = [
     icon: 'document',
   },
   {
-    id: '5',
+    id: 'be-invoice-custom-sections',
+    label: 'text_1749024634192ov41w9fp6r2',
+    sublabel: 'text_17490246341929tjtb5ocz7l',
+    actionLabel: 'text_17490246341928pjk45tv8vy',
+    path: () => BILLING_ENTITY_INVOICE_CUSTOM_SECTIONS_ROUTE,
+    icon: 'document',
+  },
+  {
+    id: 'be-taxes',
     label: 'text_1742367202529opm80ylmp75',
     sublabel: 'text_174236720252957g5kmpz7vg',
     actionLabel: 'text_1742367266660hv5m1bt63nw',

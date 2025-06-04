@@ -14,6 +14,7 @@ export enum BillingEntityTab {
   EMAIL_SCENARIOS_CONFIG,
   DUNNING_CAMPAIGNS,
   INVOICE_SETTINGS,
+  INVOICE_CUSTOM_SECTIONS,
   TAXES,
 }
 
@@ -23,6 +24,7 @@ export const BILLING_ENTITY_SETTINGS_TABS_LABELS: Record<BillingEntityTab, strin
   [BillingEntityTab.EMAIL_SCENARIOS_CONFIG]: 'text_1742367202528mfhsv0f4fxq',
   [BillingEntityTab.DUNNING_CAMPAIGNS]: 'text_1742367202528ti8wj2iwa96',
   [BillingEntityTab.INVOICE_SETTINGS]: 'text_17423672025282dl7iozy1ru',
+  [BillingEntityTab.INVOICE_CUSTOM_SECTIONS]: 'text_1749024634192ov41w9fp6r2',
   [BillingEntityTab.TAXES]: 'text_1742367202529opm80ylmp75',
 }
 

@@ -8,6 +8,7 @@ import BillingEntityEmailScenarios from '~/pages/settings/BillingEntity/sections
 import BillingEntityEmailScenariosConfig from '~/pages/settings/BillingEntity/sections/BillingEntityEmailScenariosConfig'
 import BillingEntityInvoiceSettings from '~/pages/settings/BillingEntity/sections/BillingEntityInvoiceSettings'
 import BillingEntityGeneral from '~/pages/settings/BillingEntity/sections/general/BillingEntityGeneral'
+import BillingEntityInvoiceCustomSections from '~/pages/settings/BillingEntity/sections/invoice-custom-sections/BillingEntityInvoiceCustomSections'
 import BillingEntityTaxesSettings from '~/pages/settings/BillingEntity/sections/taxes/BillingEntityTaxesSettings'
 import InvoiceSections from '~/pages/settings/Invoices/InvoiceSections'
 import SettingsHomePage from '~/pages/settings/SettingsHomePage'
@@ -119,6 +120,7 @@ export const BILLING_ENTITY_EMAIL_SCENARIOS_CONFIG_ROUTE = `${BILLING_ENTITY_BAS
 export const BILLING_ENTITY_DUNNINGS_SETTINGS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/dunnings`
 export const BILLING_ENTITY_DUNNING_CAMPAIGNS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/dunning-campaigns`
 export const BILLING_ENTITY_INVOICE_SETTINGS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/invoice-settings`
+export const BILLING_ENTITY_INVOICE_CUSTOM_SECTIONS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/invoice-custom-sections`
 export const BILLING_ENTITY_TAXES_SETTINGS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/taxes`
 
 /**
@@ -364,6 +366,12 @@ export const settingRoutes: CustomRouteObject[] = [
         path: BILLING_ENTITY_INVOICE_SETTINGS_ROUTE,
         private: true,
         element: <BillingEntityInvoiceSettings />,
+        permissions: ['billingEntitiesInvoicesView'],
+      },
+      {
+        path: BILLING_ENTITY_INVOICE_CUSTOM_SECTIONS_ROUTE,
+        private: true,
+        element: <BillingEntityInvoiceCustomSections />,
         permissions: ['billingEntitiesInvoicesView'],
       },
       {
