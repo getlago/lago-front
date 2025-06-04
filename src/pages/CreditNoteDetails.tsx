@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import CreditNoteBadge from '~/components/creditNote/CreditNoteBadge'
@@ -33,8 +33,9 @@ import { handleDownloadFile } from '~/core/utils/downloadFiles'
 import {
   CreditNote,
   CurrencyEnum,
+  CustomerForCreditNoteDetailsExternalSyncFragmentDoc,
   useDownloadCreditNoteMutation,
-  useGetCreditNoteQuery,
+  useGetCreditNoteForDetailsQuery,
   useRetryTaxReportingMutation,
   useSyncIntegrationCreditNoteMutation,
 } from '~/generated/graphql'
@@ -47,126 +48,17 @@ import { MenuPopper, PageHeader } from '~/styles'
 const { disablePdfGeneration } = envGlobalVar()
 
 gql`
-  query getCreditNote($id: ID!) {
+  query getCreditNoteForDetails($id: ID!) {
     creditNote(id: $id) {
       id
-      balanceAmountCents
-      canBeVoided
-      couponsAdjustmentAmountCents
-      createdAt
-      creditAmountCents
-      creditStatus
-      currency
       number
-      refundAmountCents
-      refundedAt
-      refundStatus
-      subTotalExcludingTaxesAmountCents
+      canBeVoided
       totalAmountCents
+      currency
       integrationSyncable
       taxProviderSyncable
-      taxProviderId
-      externalIntegrationId
       customer {
-        id
-        name
-        displayName
-        deletedAt
-        applicableTimezone
-        avalaraCustomer {
-          id
-          integrationId
-        }
-        netsuiteCustomer {
-          id
-          integrationId
-        }
-        xeroCustomer {
-          id
-          integrationId
-        }
-        anrokCustomer {
-          id
-          integrationId
-          externalAccountId
-        }
-      }
-      invoice {
-        id
-        invoiceType
-        number
-      }
-      appliedTaxes {
-        id
-        amountCents
-        baseAmountCents
-        taxRate
-        taxName
-      }
-      items {
-        amountCents
-        amountCurrency
-        fee {
-          id
-          amountCents
-          eventsCount
-          units
-          feeType
-          itemName
-          groupedBy
-          invoiceName
-          appliedTaxes {
-            id
-            taxRate
-          }
-          trueUpParentFee {
-            id
-          }
-          charge {
-            id
-            billableMetric {
-              id
-              name
-              aggregationType
-            }
-          }
-          subscription {
-            id
-            name
-            plan {
-              id
-              name
-              invoiceDisplayName
-            }
-          }
-          chargeFilter {
-            invoiceDisplayName
-            values
-          }
-        }
-      }
-      billingEntity {
-        name
-        code
-      }
-    }
-  }
-
-  query integrationsListForCreditNoteDetails($limit: Int) {
-    integrations(limit: $limit) {
-      collection {
-        ... on NetsuiteIntegration {
-          __typename
-          id
-          accountId
-          name
-        }
-        ... on AvalaraIntegration {
-          __typename
-          id
-          accountId
-          companyId
-        }
+        ...CustomerForCreditNoteDetailsExternalSync
       }
     }
   }
@@ -189,6 +81,8 @@ gql`
       id
     }
   }
+
+  ${CustomerForCreditNoteDetailsExternalSyncFragmentDoc}
 `
 
 const CreditNoteDetails = () => {
@@ -197,6 +91,18 @@ const CreditNoteDetails = () => {
   const { hasPermissions } = usePermissions()
   const { customerId, invoiceId, creditNoteId } = useParams()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
+
+  const { data, loading, error } = useGetCreditNoteForDetailsQuery({
+    variables: { id: creditNoteId as string },
+    skip: !creditNoteId || !customerId,
+  })
+
+  const [downloadCreditNote, { loading: loadingCreditNoteDownload }] =
+    useDownloadCreditNoteMutation({
+      onCompleted({ downloadCreditNote: downloadCreditNoteData }) {
+        handleDownloadFile(downloadCreditNoteData?.fileUrl)
+      },
+    })
 
   const [syncIntegrationCreditNote, { loading: loadingSyncIntegrationCreditNote }] =
     useSyncIntegrationCreditNoteMutation({
@@ -213,13 +119,6 @@ const CreditNoteDetails = () => {
       },
     })
 
-  const [downloadCreditNote, { loading: loadingCreditNoteDownload }] =
-    useDownloadCreditNoteMutation({
-      onCompleted({ downloadCreditNote: downloadCreditNoteData }) {
-        handleDownloadFile(downloadCreditNoteData?.fileUrl)
-      },
-    })
-
   const [retryTaxReporting] = useRetryTaxReportingMutation({
     onCompleted() {
       addToast({
@@ -227,12 +126,12 @@ const CreditNoteDetails = () => {
         translateKey: 'text_1727068261852148l97frl5q',
       })
     },
+    variables: {
+      input: {
+        id: data?.creditNote?.id as string,
+      },
+    },
     refetchQueries: ['getCreditNote'],
-  })
-
-  const { data, loading, error } = useGetCreditNoteQuery({
-    variables: { id: creditNoteId as string },
-    skip: !creditNoteId || !customerId,
   })
 
   const creditNote = data?.creditNote
@@ -240,39 +139,46 @@ const CreditNoteDetails = () => {
 
   const retryTaxSync = async () => {
     if (!data?.creditNote?.id) return
-
-    await retryTaxReporting({
-      variables: {
-        input: {
-          id: data.creditNote.id,
-        },
-      },
-    })
+    await retryTaxReporting()
   }
+
+  const onGoBack = () => {
+    goBack(
+      !!invoiceId
+        ? generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+            customerId: customerId as string,
+            invoiceId,
+            tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+          })
+        : generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+            customerId: customerId as string,
+            tab: CustomerDetailsTabsOptions.creditNotes,
+          }),
+      { exclude: [CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE] },
+    )
+  }
+
+  const canShowExternalSyncTab =
+    !!creditNote?.customer.anrokCustomer ||
+    !!creditNote?.customer.netsuiteCustomer ||
+    !!creditNote?.customer.xeroCustomer ||
+    !!creditNote?.customer.avalaraCustomer
+
+  const actions = useMemo(() => {
+    return {
+      canDownload: hasPermissions(['creditNotesView']) && !disablePdfGeneration,
+      canVoid: hasPermissions(['creditNotesVoid']) && creditNote?.canBeVoided,
+      canCopy: true,
+      canSync: !!creditNote?.integrationSyncable,
+      canRetryTaxSync: !!creditNote?.taxProviderSyncable,
+    }
+  }, [creditNote, hasPermissions])
 
   return (
     <>
       <PageHeader.Wrapper withSide>
         <PageHeader.Group>
-          <Button
-            icon="arrow-left"
-            variant="quaternary"
-            onClick={() =>
-              goBack(
-                !!invoiceId
-                  ? generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                      customerId: customerId as string,
-                      invoiceId,
-                      tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-                    })
-                  : generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                      customerId: customerId as string,
-                      tab: CustomerDetailsTabsOptions.creditNotes,
-                    }),
-                { exclude: [CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE] },
-              )
-            }
-          />
+          <Button icon="arrow-left" variant="quaternary" onClick={onGoBack} />
           {loading ? (
             <Skeleton variant="text" className="w-30" />
           ) : (
@@ -291,7 +197,7 @@ const CreditNoteDetails = () => {
           >
             {({ closePopper }) => (
               <MenuPopper>
-                {hasPermissions(['creditNotesView']) && !disablePdfGeneration && (
+                {actions.canDownload && (
                   <Button
                     variant="quaternary"
                     align="left"
@@ -306,37 +212,42 @@ const CreditNoteDetails = () => {
                     {translate('text_637655cb50f04bf1c8379cea')}
                   </Button>
                 )}
-                {creditNote?.canBeVoided && hasPermissions(['creditNotesVoid']) && (
+                {actions.canVoid && (
                   <Button
                     variant="quaternary"
                     align="left"
                     onClick={async () => {
+                      if (!creditNote?.id) return
+
                       voidCreditNoteDialogRef.current?.openDialog({
                         id: creditNote?.id,
                         totalAmountCents: creditNote?.totalAmountCents,
                         currency: creditNote?.currency,
                       })
+
                       closePopper()
                     }}
                   >
                     {translate('text_637655cb50f04bf1c8379cec')}
                   </Button>
                 )}
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    copyToClipboard(creditNote?.id || '')
-                    addToast({
-                      severity: 'info',
-                      translateKey: 'text_63766b1c4eeb35667c48f26d',
-                    })
-                    closePopper()
-                  }}
-                >
-                  {translate('text_637655cb50f04bf1c8379cee')}
-                </Button>
-                {!!data?.creditNote?.integrationSyncable && (
+                {actions.canCopy && (
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    onClick={() => {
+                      copyToClipboard(creditNote?.id || '')
+                      addToast({
+                        severity: 'info',
+                        translateKey: 'text_63766b1c4eeb35667c48f26d',
+                      })
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_637655cb50f04bf1c8379cee')}
+                  </Button>
+                )}
+                {actions.canSync && (
                   <Button
                     variant="quaternary"
                     align="left"
@@ -348,14 +259,13 @@ const CreditNoteDetails = () => {
                     }}
                   >
                     {translate(
-                      !!data.creditNote.customer.netsuiteCustomer
+                      !!creditNote?.customer.netsuiteCustomer
                         ? 'text_665d742ee9853200e3a6be7f'
                         : 'text_66911d4b4b3c3e005c62ab49',
                     )}
                   </Button>
                 )}
-
-                {!!data?.creditNote?.taxProviderSyncable && (
+                {actions.canRetryTaxSync && (
                   <Button
                     variant="quaternary"
                     align="left"
@@ -397,7 +307,6 @@ const CreditNoteDetails = () => {
                 <Typography variant="headline" color="grey700">
                   {creditNote?.number}
                 </Typography>
-
                 <CreditNoteBadge creditNote={creditNote as CreditNote} />
               </div>
             }
@@ -445,7 +354,10 @@ const CreditNoteDetails = () => {
                 ],
                 component: (
                   <DetailsPage.Container className="max-w-none">
-                    <CreditNoteDetailsOverview />
+                    <CreditNoteDetailsOverview
+                      loadingCreditNoteDownload={loadingCreditNoteDownload}
+                      downloadCreditNote={downloadCreditNote}
+                    />
                   </DetailsPage.Container>
                 ),
               },
@@ -476,9 +388,10 @@ const CreditNoteDetails = () => {
                 ],
                 component: (
                   <DetailsPage.Container className="max-w-none">
-                    <CreditNoteDetailsExternalSync />
+                    <CreditNoteDetailsExternalSync retryTaxSync={retryTaxSync} />
                   </DetailsPage.Container>
                 ),
+                hidden: !canShowExternalSyncTab,
               },
             ]}
           />

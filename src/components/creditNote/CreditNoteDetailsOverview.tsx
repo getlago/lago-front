@@ -1,5 +1,6 @@
+import { gql, MutationFunction } from '@apollo/client'
 import { Button, ConditionalWrapper, Typography } from 'lago-design-system'
-import { Fragment } from 'react'
+import { FC, Fragment } from 'react'
 import { generatePath, Link, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -17,16 +18,16 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
-import { handleDownloadFile } from '~/core/utils/downloadFiles'
 import {
   CreditNoteCreditStatusEnum,
   CreditNoteItem,
   CreditNoteRefundStatusEnum,
   CurrencyEnum,
+  DownloadCreditNoteMutation,
+  DownloadCreditNoteMutationVariables,
   FeeTypesEnum,
   InvoiceTypeEnum,
-  useDownloadCreditNoteMutation,
-  useGetCreditNoteQuery,
+  useGetCreditNoteForDetailsOverviewQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -75,22 +76,114 @@ const consumedMapStatus = (type?: CreditNoteRefundStatusEnum | null | undefined)
   }
 }
 
-export const CreditNoteDetailsOverview = () => {
+gql`
+  fragment CreditNoteItemForDetailsOverview on CreditNoteItem {
+    amountCents
+    amountCurrency
+    fee {
+      id
+      amountCents
+      eventsCount
+      units
+      feeType
+      itemName
+      groupedBy
+      invoiceName
+      appliedTaxes {
+        id
+        taxRate
+      }
+      trueUpParentFee {
+        id
+      }
+      charge {
+        id
+        billableMetric {
+          id
+          name
+          aggregationType
+        }
+      }
+      subscription {
+        id
+        name
+        plan {
+          id
+          name
+          invoiceDisplayName
+        }
+      }
+      chargeFilter {
+        invoiceDisplayName
+        values
+      }
+    }
+  }
+
+  query getCreditNoteForDetailsOverview($id: ID!) {
+    creditNote(id: $id) {
+      id
+      createdAt
+      balanceAmountCents
+      currency
+      creditStatus
+      refundStatus
+      refundAmountCents
+      couponsAdjustmentAmountCents
+      subTotalExcludingTaxesAmountCents
+      creditAmountCents
+      totalAmountCents
+      refundedAt
+      billingEntity {
+        name
+        code
+      }
+      items {
+        ...CreditNoteItemForDetailsOverview
+      }
+      customer {
+        id
+        name
+        displayName
+        deletedAt
+        applicableTimezone
+      }
+      invoice {
+        id
+        invoiceType
+        number
+      }
+      appliedTaxes {
+        id
+        amountCents
+        baseAmountCents
+        taxRate
+        taxName
+      }
+    }
+  }
+`
+
+interface CreditNoteDetailsOverviewProps {
+  loadingCreditNoteDownload: boolean
+  downloadCreditNote: MutationFunction<
+    DownloadCreditNoteMutation,
+    DownloadCreditNoteMutationVariables
+  >
+}
+
+export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
+  loadingCreditNoteDownload,
+  downloadCreditNote,
+}) => {
   const { customerId, creditNoteId } = useParams()
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
 
-  const { data, loading, error } = useGetCreditNoteQuery({
+  const { data, loading, error } = useGetCreditNoteForDetailsOverviewQuery({
     variables: { id: creditNoteId as string },
     skip: !creditNoteId || !customerId,
   })
-
-  const [downloadCreditNote, { loading: loadingCreditNoteDownload }] =
-    useDownloadCreditNoteMutation({
-      onCompleted({ downloadCreditNote: downloadCreditNoteData }) {
-        handleDownloadFile(downloadCreditNoteData?.fileUrl)
-      },
-    })
 
   const creditNote = data?.creditNote
   const billingEntity = data?.creditNote?.billingEntity
