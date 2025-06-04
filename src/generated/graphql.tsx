@@ -308,10 +308,10 @@ export type AlertThreshold = {
 };
 
 export enum AlertTypeEnum {
-  BillableMetricUsageAmount = 'billable_metric_usage_amount',
-  BillableMetricUsageUnits = 'billable_metric_usage_units',
-  LifetimeUsageAmount = 'lifetime_usage_amount',
-  UsageAmount = 'usage_amount'
+  BillableMetricCurrentUsageAmount = 'billable_metric_current_usage_amount',
+  BillableMetricCurrentUsageUnits = 'billable_metric_current_usage_units',
+  CurrentUsageAmount = 'current_usage_amount',
+  LifetimeUsageAmount = 'lifetime_usage_amount'
 }
 
 export type AnrokCustomer = {
