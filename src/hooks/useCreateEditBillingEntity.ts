@@ -43,6 +43,10 @@ gql`
     isDefault
     defaultCurrency
     euTaxManagement
+    selectedInvoiceCustomSections {
+      id
+      name
+    }
   }
 
   query getBillingEntities {
