@@ -308,10 +308,10 @@ export type AlertThreshold = {
 };
 
 export enum AlertTypeEnum {
-  BillableMetricCurrentUsageAmount = 'billable_metric_current_usage_amount',
-  BillableMetricCurrentUsageUnits = 'billable_metric_current_usage_units',
-  CurrentUsageAmount = 'current_usage_amount',
-  LifetimeUsageAmount = 'lifetime_usage_amount'
+  BillableMetricUsageAmount = 'billable_metric_usage_amount',
+  BillableMetricUsageUnits = 'billable_metric_usage_units',
+  LifetimeUsageAmount = 'lifetime_usage_amount',
+  UsageAmount = 'usage_amount'
 }
 
 export type AnrokCustomer = {
@@ -348,6 +348,7 @@ export type ApiKey = {
 };
 
 export enum ApiKeysPermissionsEnum {
+  ActivityLog = 'activity_log',
   AddOn = 'add_on',
   Alert = 'alert',
   Analytic = 'analytic',
@@ -468,6 +469,7 @@ export type AvalaraIntegration = {
 /** Base billable metric */
 export type BillableMetric = {
   __typename?: 'BillableMetric';
+  activityLogs?: Maybe<Array<ActivityLog>>;
   aggregationType: AggregationTypeEnum;
   code: Scalars['String']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
@@ -1263,6 +1265,7 @@ export enum CountryCode {
 
 export type Coupon = {
   __typename?: 'Coupon';
+  activityLogs?: Maybe<Array<ActivityLog>>;
   amountCents?: Maybe<Scalars['BigInt']['output']>;
   amountCurrency?: Maybe<CurrencyEnum>;
   appliedCouponsCount: Scalars['Int']['output'];
@@ -1784,6 +1787,7 @@ export type CreateXeroIntegrationInput = {
 /** CreditNote */
 export type CreditNote = {
   __typename?: 'CreditNote';
+  activityLogs?: Maybe<Array<ActivityLog>>;
   appliedTaxes?: Maybe<Array<CreditNoteAppliedTax>>;
   balanceAmountCents: Scalars['BigInt']['output'];
   billingEntity: BillingEntity;
@@ -2255,6 +2259,7 @@ export type Customer = {
   accountType: CustomerAccountTypeEnum;
   /** Number of active subscriptions per customer */
   activeSubscriptionsCount: Scalars['Int']['output'];
+  activityLogs?: Maybe<Array<ActivityLog>>;
   addressLine1?: Maybe<Scalars['String']['output']>;
   addressLine2?: Maybe<Scalars['String']['output']>;
   anrokCustomer?: Maybe<AnrokCustomer>;
@@ -3524,6 +3529,7 @@ export enum InviteStatusTypeEnum {
 /** Invoice */
 export type Invoice = {
   __typename?: 'Invoice';
+  activityLogs?: Maybe<Array<ActivityLog>>;
   allChargesHaveFees: Scalars['Boolean']['output'];
   appliedTaxes?: Maybe<Array<InvoiceAppliedTax>>;
   associatedActiveWalletPresent: Scalars['Boolean']['output'];
@@ -5181,6 +5187,7 @@ export type Permissions = {
 export type Plan = {
   __typename?: 'Plan';
   activeSubscriptionsCount: Scalars['Int']['output'];
+  activityLogs?: Maybe<Array<ActivityLog>>;
   amountCents: Scalars['BigInt']['output'];
   amountCurrency: CurrencyEnum;
   billChargesMonthly?: Maybe<Scalars['Boolean']['output']>;
@@ -6393,6 +6400,7 @@ export type StripeProvider = {
 
 export type Subscription = {
   __typename?: 'Subscription';
+  activityLogs?: Maybe<Array<ActivityLog>>;
   billingTime?: Maybe<BillingTimeEnum>;
   canceledAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   createdAt: Scalars['ISO8601DateTime']['output'];
@@ -7476,6 +7484,7 @@ export type VolumeRangeInput = {
 /** Wallet */
 export type Wallet = {
   __typename?: 'Wallet';
+  activityLogs?: Maybe<Array<ActivityLog>>;
   appliesTo?: Maybe<WalletAppliesTo>;
   balanceCents: Scalars['BigInt']['output'];
   consumedAmountCents: Scalars['BigInt']['output'];

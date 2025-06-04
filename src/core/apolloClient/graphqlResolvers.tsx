@@ -60,7 +60,7 @@ export const typeDefs = gql`
   }
 
   enum ApiKeysPermissionsEnum {
-    # activity_log # Need to add the corresponding translation in src/pages/developers/ApiKeysForm.tsx
+    activity_log
     add_on
     alert
     analytic

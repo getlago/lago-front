@@ -32,6 +32,7 @@ const READ_PERMISSION = 'read'
 const WRITE_PERMISSION = 'write'
 
 const canOnlyRead = (permission: ApiKeysPermissionsEnum) =>
+  permission === ApiKeysPermissionsEnum.ActivityLog ||
   permission === ApiKeysPermissionsEnum.Analytic ||
   permission === ApiKeysPermissionsEnum.CustomerUsage
 
@@ -58,7 +59,9 @@ const DEFAULT_PERMISSIONS: Record<ApiKeysPermissionsEnum, string[]> = Object.val
   {} as Record<ApiKeysPermissionsEnum, string[]>,
 )
 
+// ApiKeysPermissionsEnum can be updated in: src/core/apolloClient/graphqlResolvers.tsx:62
 const resourceTypeTranslationKeys: Record<ApiKeysPermissionsEnum, string> = {
+  [ApiKeysPermissionsEnum.ActivityLog]: 'text_1747314141347qq6rasuxisl',
   [ApiKeysPermissionsEnum.AddOn]: 'text_1732894820485oyybtfh5rgv',
   [ApiKeysPermissionsEnum.Alert]: 'text_17465238490269pahbvl3s2m',
   [ApiKeysPermissionsEnum.Analytic]: 'text_6553885df387fd0097fd7384',
