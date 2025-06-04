@@ -171,7 +171,7 @@ export function getActivityDescription(
     case ActivityTypeEnum.WalletCreated:
     case ActivityTypeEnum.WalletUpdated:
       parameters = {
-        walletId: activityObject.lago_wallet_id,
+        walletId: activityObject.lago_id,
       }
       break
     case ActivityTypeEnum.WalletTransactionCreated:
