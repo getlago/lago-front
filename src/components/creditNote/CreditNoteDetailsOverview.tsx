@@ -39,6 +39,7 @@ gql`
       creditStatus
       refundStatus
       refundedAt
+      refundAmountCents
       billingEntity {
         name
         code

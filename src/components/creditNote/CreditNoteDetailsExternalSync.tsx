@@ -185,11 +185,11 @@ export const CreditNoteDetailsExternalSync: FC<CreditNoteDetailsExternalSyncProp
     netsuite:
       !!connectedNetsuiteIntegration &&
       !!customer?.netsuiteCustomer?.integrationId &&
-      creditNote?.externalIntegrationId,
+      !!creditNote?.externalIntegrationId,
     xero:
       !!connectedXeroIntegration &&
       !!customer?.xeroCustomer?.integrationId &&
-      creditNote?.externalIntegrationId,
+      !!creditNote?.externalIntegrationId,
     anrok:
       !!connectedAnrokIntegration &&
       !!customer?.anrokCustomer?.integrationId &&

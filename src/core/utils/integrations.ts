@@ -7,7 +7,7 @@ export function getConnectedIntegration<T extends Integration>(
   integrationId: string | undefined | null,
 ): T | undefined {
   if (!collection || typeof integrationId !== 'string') return undefined
-  return collection
-    .filter((i) => i.__typename === typename)
-    .find((i) => (i as T).id === integrationId) as T | undefined
+  return collection.find((i) => i.__typename === typename && (i as T).id === integrationId) as
+    | T
+    | undefined
 }
