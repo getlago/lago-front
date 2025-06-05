@@ -68,9 +68,15 @@ export const usePermissionsInvoiceActions = () => {
     )
   }
 
-  const canIssueCreditNote = (invoice: Pick<Invoice, 'status'>): boolean => {
+  const canIssueCreditNote = (invoice: Pick<Invoice, 'status' | 'taxStatus'>): boolean => {
     return (
-      ![InvoiceStatusTypeEnum.Draft, InvoiceStatusTypeEnum.Voided].includes(invoice.status) &&
+      ![
+        InvoiceStatusTypeEnum.Draft,
+        InvoiceStatusTypeEnum.Failed,
+        InvoiceStatusTypeEnum.Pending,
+        InvoiceStatusTypeEnum.Voided,
+      ].includes(invoice.status) &&
+      invoice.taxStatus !== InvoiceTaxStatusTypeEnum.Pending &&
       hasPermissions(['creditNotesCreate'])
     )
   }
