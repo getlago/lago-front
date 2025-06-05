@@ -57,6 +57,8 @@ gql`
       currency
       integrationSyncable
       taxProviderSyncable
+      externalIntegrationId
+      taxProviderId
       customer {
         ...CustomerForCreditNoteDetailsExternalSync
       }
@@ -158,11 +160,19 @@ const CreditNoteDetails = () => {
     )
   }
 
-  const canShowExternalSyncTab =
-    !!creditNote?.customer.anrokCustomer ||
-    !!creditNote?.customer.netsuiteCustomer ||
-    !!creditNote?.customer.xeroCustomer ||
-    !!creditNote?.customer.avalaraCustomer
+  const hasIntegration = {
+    netsuite:
+      !!creditNote?.customer.netsuiteCustomer?.integrationId && creditNote?.externalIntegrationId,
+    xero: !!creditNote?.customer.xeroCustomer?.integrationId && creditNote?.externalIntegrationId,
+    anrok:
+      !!creditNote?.customer.anrokCustomer?.integrationId &&
+      (!!creditNote?.taxProviderId || !!creditNote?.taxProviderSyncable),
+    avalara:
+      !!creditNote?.customer.avalaraCustomer?.id &&
+      (!!creditNote?.taxProviderId || !!creditNote?.taxProviderSyncable),
+  }
+
+  const canShowExternalSyncTab = Object.values(hasIntegration).some((value) => value)
 
   const actions = useMemo(() => {
     return {
