@@ -577,7 +577,7 @@ export const Table = <T extends DataItem>({
                             popperGroupName={`${TABLE_ID}-action-cell`}
                             PopperProps={{ placement: 'bottom-end' }}
                             opener={({ isOpen }) => (
-                              <PopperOpener className="relative right-0 top-0 h-full">
+                              <PopperOpener className="relative right-0 top-0 h-full md:right-0">
                                 <Tooltip
                                   className="right-0"
                                   placement="top-end"

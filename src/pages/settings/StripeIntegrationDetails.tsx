@@ -270,7 +270,7 @@ const StripeIntegrationDetails = () => {
                       className="relative"
                       PopperProps={{ placement: 'bottom-end' }}
                       opener={({ isOpen }) => (
-                        <PopperOpener className="-top-4 right-0">
+                        <PopperOpener className="-top-4 right-0 md:right-0">
                           <Tooltip
                             placement="top-end"
                             disableHoverListener={isOpen}

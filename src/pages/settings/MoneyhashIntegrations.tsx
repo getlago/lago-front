@@ -1,18 +1,16 @@
 import { gql } from '@apollo/client'
-import { Avatar } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import {
   Button,
   ButtonLink,
-  Chip,
-  Icon,
   Popper,
   Skeleton,
   Tooltip,
   Typography,
 } from '~/components/designSystem'
+import { IntegrationsPage } from '~/components/layouts/Integrations'
 import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
@@ -38,7 +36,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import Moneyhash from '~/public/images/moneyhash.svg'
-import { ItemContainer, ListItemLink, MenuPopper, PageHeader, PopperOpener } from '~/styles'
+import { MenuPopper, PageHeader, PopperOpener } from '~/styles'
 
 gql`
   fragment MoneyhashIntegrations on MoneyhashProvider {
@@ -118,145 +116,98 @@ const MoneyhashIntegrations = () => {
           </Button>
         )}
       </PageHeader.Wrapper>
-      <div className="flex items-center px-4 py-8 md:px-12">
-        {loading ? (
-          <>
-            <Skeleton variant="connectorAvatar" size="large" className="mr-4" />
-            <div>
-              <Skeleton variant="text" className="mb-5 w-50" />
-              <Skeleton variant="text" className="w-34" />
-            </div>
-          </>
-        ) : (
-          <>
-            <Avatar className="mr-4" variant="connector-full" size="large">
-              <Moneyhash />
-            </Avatar>
-            <div>
-              <div className="flex items-center gap-2">
-                <Typography variant="headline">
-                  {translate('text_1733427981129n3wxjui0bex')}
-                </Typography>
-                <Chip label={translate('text_62b1edddbf5f461ab971270d')} />
-              </div>
-              <Typography>{translate('text_62b1edddbf5f461ab971271f')}</Typography>
-            </div>
-          </>
-        )}
-      </div>
-      <div className="flex max-w-168 flex-col gap-8 px-4 md:px-12">
+
+      <IntegrationsPage.Header
+        isLoading={loading}
+        integrationLogo={<Moneyhash />}
+        integrationName={translate('text_1733427981129n3wxjui0bex')}
+        integrationChip={translate('text_62b1edddbf5f461ab971270d')}
+        integrationDescription={translate('text_62b1edddbf5f461ab971271f')}
+      />
+
+      <IntegrationsPage.Container>
         <section>
-          <div className="flex h-nav w-full items-center">
-            <Typography variant="subhead">{translate('text_65846763e6140b469140e239')}</Typography>
-          </div>
+          <IntegrationsPage.Headline label={translate('text_65846763e6140b469140e239')} />
 
-          <>
-            {loading ? (
-              <>
-                {[1, 2].map((i) => (
-                  <div
-                    className="flex h-nav items-center gap-3 shadow-b"
-                    key={`item-skeleton-item-${i}`}
-                  >
-                    <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
-                    <Skeleton variant="text" className="w-60" />
-                  </div>
-                ))}
-              </>
-            ) : (
-              <>
-                {connections?.map((connection, index) => {
-                  return (
-                    <ItemContainer key={`moneyhash-connection-${index}`}>
-                      <ListItemLink
-                        className="p-0"
-                        tabIndex={0}
-                        to={generatePath(MONEYHASH_INTEGRATION_DETAILS_ROUTE, {
-                          integrationId: connection.id,
-                          integrationGroup: IntegrationsTabsOptionsEnum.Community,
-                        })}
-                      >
-                        <div className="flex items-center gap-3">
-                          <Avatar variant="connector" size="big">
-                            <Icon name="plug" color="dark" />
-                          </Avatar>
-                          <div>
-                            <Typography variant="body" color="grey700">
-                              {connection.name}
-                            </Typography>
-                            <Typography variant="caption" color="grey600">
-                              {connection.code}
-                            </Typography>
-                          </div>
-                        </div>
-                      </ListItemLink>
-                      {(canEditIntegration || canDeleteIntegration) && (
-                        <Popper
-                          PopperProps={{ placement: 'bottom-end' }}
-                          opener={({ isOpen }) => (
-                            <PopperOpener className="right-0">
-                              <Tooltip
-                                placement="top-end"
-                                disableHoverListener={isOpen}
-                                title={translate('text_626162c62f790600f850b7b6')}
-                              >
-                                <Button
-                                  icon="dots-horizontal"
-                                  variant="quaternary"
-                                  data-test="plan-item-options"
-                                />
-                              </Tooltip>
-                            </PopperOpener>
-                          )}
-                        >
-                          {({ closePopper }) => (
-                            <MenuPopper>
-                              {canEditIntegration && (
-                                <Button
-                                  startIcon="pen"
-                                  variant="quaternary"
-                                  align="left"
-                                  onClick={() => {
-                                    addMoneyhashDialogRef.current?.openDialog({
-                                      provider: connection,
-                                      deleteModalRef: deleteDialogRef,
-                                      deleteDialogCallback,
-                                    })
-                                    closePopper()
-                                  }}
-                                >
-                                  {translate('text_65845f35d7d69c3ab4793dac')}
-                                </Button>
-                              )}
+          {loading &&
+            [1, 2].map((i) => <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />)}
 
-                              {canDeleteIntegration && (
-                                <Button
-                                  startIcon="trash"
-                                  variant="quaternary"
-                                  align="left"
-                                  onClick={() => {
-                                    deleteDialogRef.current?.openDialog({
-                                      provider: connection,
-                                      callback: deleteDialogCallback,
-                                    })
-                                    closePopper()
-                                  }}
-                                >
-                                  {translate('text_645d071272418a14c1c76a81')}
-                                </Button>
-                              )}
-                            </MenuPopper>
-                          )}
-                        </Popper>
+          {!loading &&
+            connections?.map((connection, index) => {
+              return (
+                <IntegrationsPage.ListItem
+                  key={`moneyhash-connection-${index}`}
+                  to={generatePath(MONEYHASH_INTEGRATION_DETAILS_ROUTE, {
+                    integrationId: connection.id,
+                    integrationGroup: IntegrationsTabsOptionsEnum.Community,
+                  })}
+                  label={connection.name}
+                  subLabel={connection.code}
+                >
+                  {(canEditIntegration || canDeleteIntegration) && (
+                    <Popper
+                      PopperProps={{ placement: 'bottom-end' }}
+                      opener={({ isOpen }) => (
+                        <PopperOpener className="right-0 md:right-0">
+                          <Tooltip
+                            placement="top-end"
+                            disableHoverListener={isOpen}
+                            title={translate('text_626162c62f790600f850b7b6')}
+                          >
+                            <Button
+                              icon="dots-horizontal"
+                              variant="quaternary"
+                              data-test="plan-item-options"
+                            />
+                          </Tooltip>
+                        </PopperOpener>
                       )}
-                    </ItemContainer>
-                  )
-                })}
-              </>
-            )}
-          </>
+                    >
+                      {({ closePopper }) => (
+                        <MenuPopper>
+                          {canEditIntegration && (
+                            <Button
+                              startIcon="pen"
+                              variant="quaternary"
+                              align="left"
+                              onClick={() => {
+                                addMoneyhashDialogRef.current?.openDialog({
+                                  provider: connection,
+                                  deleteModalRef: deleteDialogRef,
+                                  deleteDialogCallback,
+                                })
+                                closePopper()
+                              }}
+                            >
+                              {translate('text_65845f35d7d69c3ab4793dac')}
+                            </Button>
+                          )}
+
+                          {canDeleteIntegration && (
+                            <Button
+                              startIcon="trash"
+                              variant="quaternary"
+                              align="left"
+                              onClick={() => {
+                                deleteDialogRef.current?.openDialog({
+                                  provider: connection,
+                                  callback: deleteDialogCallback,
+                                })
+                                closePopper()
+                              }}
+                            >
+                              {translate('text_645d071272418a14c1c76a81')}
+                            </Button>
+                          )}
+                        </MenuPopper>
+                      )}
+                    </Popper>
+                  )}
+                </IntegrationsPage.ListItem>
+              )
+            })}
         </section>
-      </div>
+      </IntegrationsPage.Container>
       <AddMoneyhashDialog ref={addMoneyhashDialogRef} />
       <DeleteMoneyhashIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
