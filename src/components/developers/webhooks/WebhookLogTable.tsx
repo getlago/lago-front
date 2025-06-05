@@ -30,7 +30,6 @@ export const WebhookLogTable: FC<WebhookLogTableProps> = ({
 
   return (
     <InfiniteScroll
-      mode="element"
       onBottom={async () => {
         const { currentPage = 0, totalPages = 0 } = data?.webhooks?.metadata || {}
 

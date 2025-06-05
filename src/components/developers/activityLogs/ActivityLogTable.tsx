@@ -22,7 +22,6 @@ export const ActivityLogTable: FC<ActivityLogTableProps> = ({
 
   return (
     <InfiniteScroll
-      mode="element"
       onBottom={async () => {
         const { currentPage = 0, totalPages = 0 } = data?.activityLogs?.metadata || {}
 

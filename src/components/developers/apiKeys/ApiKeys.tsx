@@ -42,6 +42,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { STATE_KEY_ID_TO_REVEAL } from '~/pages/developers/ApiKeysForm'
@@ -98,6 +99,8 @@ export const ApiKeys = () => {
   const { state } = useLocation()
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const { close } = useDeveloperTool()
+
   const rotateApiKeyDialogRef = useRef<RotateApiKeyDialogRef>(null)
   const deleteApiKeyDialogRef = useRef<DeleteApiKeyDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
@@ -278,12 +281,16 @@ export const ApiKeys = () => {
                         variant="inline"
                         startIcon="plus"
                         endIcon={showPremiumAddApiKeyState ? 'sparkles' : undefined}
-                        onClick={
-                          () =>
-                            showPremiumAddApiKeyState
-                              ? premiumWarningDialogRef.current?.openDialog()
-                              : (window.location.href = CREATE_API_KEYS_ROUTE) // This route exists in the BrowserRouter and we're currently in MemoryRouter so we need to hard reload the page
-                        }
+                        onClick={() => {
+                          if (showPremiumAddApiKeyState) {
+                            premiumWarningDialogRef.current?.openDialog()
+                          } else {
+                            close()
+
+                            // This route exists in the BrowserRouter and we're currently in MemoryRouter so we need to hard reload the page
+                            window.location.href = CREATE_API_KEYS_ROUTE
+                          }
+                        }}
                       >
                         {translate('text_1732286530467q437l0kqrwg')}
                       </Button>

@@ -32,7 +32,6 @@ export const EventTable: FC<EventTableProps> = ({ getEventsResult, logListRef })
 
   return (
     <InfiniteScroll
-      mode="element"
       onBottom={async () => {
         const { currentPage = 0, totalPages = 0 } = data?.events?.metadata || {}
 

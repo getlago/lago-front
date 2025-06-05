@@ -3069,7 +3069,7 @@
   "text_1746622271766rmi2hgoq1sb": "Event type",
   "text_1746622271766lr6wf4y0ppn": "Search event ID",
   "text_174662372967481i3t20hzfv": "Event details",
-  "text_1746623729674wq0tach0cop": "Event payload",
+  "text_1746623729674wq0tach0cop": "Activity payload",
   "text_1746623729674lo13y0oatk9": "Event response",
   "text_1747058197364ivug6k5e2nc": "Events received",
   "text_1747058197364eeqig77mkmq": "Event code",
@@ -3160,5 +3160,7 @@
   "text_1748358376584w0qzazvifco": "Billable metric current usage units",
   "text_1748418710304kqjnk1owpeq": "Lifetime usage amount",
   "text_1748858044483q61vd2npre7": "Amount threshold",
-  "text_1748858070139kmh56doz3la": "Units threshold"
+  "text_1748858070139kmh56doz3la": "Units threshold",
+  "text_1748873734056eva3rfvpkoi": "Customer ext. ID",
+  "text_1748873758144pfwdvafs9pv": "Subscription ext. ID"
 }

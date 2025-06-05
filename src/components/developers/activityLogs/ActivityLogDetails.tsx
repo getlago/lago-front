@@ -6,6 +6,7 @@ import {
   formatActivityType,
   formatResourceObject,
   getActivityDescription,
+  resourceTypeTranslations,
 } from '~/components/activityLogs/utils'
 import { CodeSnippet } from '~/components/CodeSnippet'
 import {
@@ -15,7 +16,7 @@ import {
   TabManagedBy,
   Typography,
 } from '~/components/designSystem'
-import { useGetApiKeyForActivityLogQuery, useGetSingleActivityLogQuery } from '~/generated/graphql'
+import { useGetSingleActivityLogQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
@@ -25,7 +26,10 @@ gql`
     activitySource
     activityObject
     activityObjectChanges
-    apiKeyId
+    apiKey {
+      value
+      name
+    }
     resource {
       ... on BillableMetric {
         id
@@ -67,13 +71,6 @@ gql`
       ...ActivityLogDetails
     }
   }
-
-  query getApiKeyForActivityLog($id: ID!) {
-    apiKey(id: $id) {
-      id
-      value
-    }
-  }
 `
 
 export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
@@ -81,17 +78,10 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
 
-  const { data, loading: activityLogLoading } = useGetSingleActivityLogQuery({
+  const { data, loading } = useGetSingleActivityLogQuery({
     variables: { id: logId || '' },
     skip: !logId,
   })
-
-  const { data: apiKeyData, loading: apiKeyLoading } = useGetApiKeyForActivityLogQuery({
-    variables: { id: data?.activityLog?.apiKeyId || '' },
-    skip: !data?.activityLog?.apiKeyId,
-  })
-
-  const loading = activityLogLoading || apiKeyLoading
 
   const {
     activityId,
@@ -104,6 +94,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
     activityObjectChanges,
     externalSubscriptionId,
     externalCustomerId,
+    apiKey,
   } = data?.activityLog ?? {}
 
   const [activityTypeTranslation, parameters] = activityType
@@ -127,7 +118,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
         {loading ? (
           <Skeleton variant="text" textVariant="bodyHl" className="w-30" />
         ) : (
-          'Description'
+          translate(activityTypeTranslation, parameters)
         )}
       </Typography>
 
@@ -170,22 +161,32 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
                 translate(activityTypeTranslation, parameters),
               ],
               [translate('text_1747666154075d10admbnf16'), activityId],
-              resource
-                ? [translate('text_1747666154075y3lcupj1zdd'), formatResourceObject(resource)]
-                : [],
+              [
+                translate('text_1732895022171f9vnwh5gm3q'),
+                !!resource?.__typename
+                  ? translate(resourceTypeTranslations[resource?.__typename])
+                  : '-',
+              ],
+              [
+                translate('text_1747666154075y3lcupj1zdd'),
+                resource ? formatResourceObject(resource) : '-',
+              ],
+              [translate('text_1748873734056eva3rfvpkoi'), externalCustomerId ?? '-'],
+              [translate('text_1748873758144pfwdvafs9pv'), externalSubscriptionId ?? '-'],
               [
                 translate('text_17473520702542eqnulj06zc'),
                 formatTimeOrgaTZ(loggedAt, 'LLL dd, hh:mm:ss a'),
               ],
               [translate('text_174735207025406tp34gdzxb'), userEmail],
               [translate('text_1747352070254xmjaw609ifs'), activitySource],
-              apiKeyData?.apiKey.value
-                ? [translate('text_645d071272418a14c1c76aa4'), apiKeyData?.apiKey.value]
-                : [],
+              [
+                translate('text_645d071272418a14c1c76aa4'),
+                apiKey?.name ? `${apiKey.name} - ${apiKey?.value}` : apiKey?.value,
+              ],
             ]
               .filter(([label, value]) => !!label && !!value)
               .map(([label, value]) => (
-                <>
+                <Fragment key={label}>
                   <Typography key={label} className="pt-1" variant="caption">
                     {label}
                   </Typography>
@@ -195,7 +196,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
                   >
                     {value}
                   </Typography>
-                </>
+                </Fragment>
               ))}
           </div>
 

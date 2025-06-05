@@ -116,70 +116,73 @@ export const NavigationTab = ({
 
   return (
     <>
-      <Tabs
-        className={tw(
-          'min-h-0 items-center overflow-visible shadow-b',
-          {
+      <div className={tw('flex flex-row shadow-b', className)}>
+        <Tabs
+          className={tw('min-h-0 flex-1 items-center overflow-visible', {
             'min-h-13': nonHiddenTabs.length > 1,
-          },
-          className,
-        )}
-        variant="scrollable"
-        role="navigation"
-        scrollButtons={false}
-        aria-label={name}
-        onChange={handleChange}
-        value={value}
-      >
-        {nonHiddenTabs.length >= 2
-          ? nonHiddenTabs.map((tab, tabIndex) => {
-              if (loading) {
+          })}
+          variant="scrollable"
+          role="navigation"
+          scrollButtons={false}
+          aria-label={name}
+          onChange={handleChange}
+          value={value}
+        >
+          {nonHiddenTabs.length >= 2
+            ? nonHiddenTabs.map((tab, tabIndex) => {
+                if (loading) {
+                  return (
+                    <Skeleton
+                      key={`loding-tab-${tabIndex}`}
+                      className={tw('mr-0 h-3 w-20', {
+                        'mr-2': tabIndex !== nonHiddenTabs.length - 1,
+                      })}
+                      variant="text"
+                    />
+                  )
+                }
+
                 return (
-                  <Skeleton
-                    key={`loding-tab-${tabIndex}`}
-                    className={tw('mr-0 h-3 w-20', {
-                      'mr-2': tabIndex !== nonHiddenTabs.length - 1,
-                    })}
-                    variant="text"
+                  <Tab
+                    key={`tab-${tabIndex}`}
+                    disableFocusRipple
+                    disableRipple
+                    role="tab"
+                    className="relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700"
+                    disabled={loading || tab.disabled}
+                    icon={!!tab.icon ? <Icon name={tab.icon} /> : undefined}
+                    iconPosition="start"
+                    label={<Typography variant="captionHl">{tab.title}</Typography>}
+                    value={tabIndex}
+                    onClick={() => {
+                      const onClickActionLookup: Record<TabManagedBy, () => void> = {
+                        [TabManagedBy.URL]: () => {
+                          if (!!tab.link && !matchPath(tab.link, pathname)) {
+                            navigate(tab.link)
+                          }
+                        },
+                        [TabManagedBy.INDEX]: () => {
+                          if (tabIndex !== value) {
+                            setValue(tabIndex)
+                          }
+                        },
+                      }
+
+                      onClickActionLookup[managedBy]()
+                    }}
+                    {...a11yProps(tabIndex)}
                   />
                 )
-              }
+              })
+            : null}
+        </Tabs>
+        {children && (
+          <div className="flex flex-row flex-nowrap items-center justify-end gap-3 bg-white pl-4 shadow-b">
+            {children}
+          </div>
+        )}
+      </div>
 
-              return (
-                <Tab
-                  key={`tab-${tabIndex}`}
-                  disableFocusRipple
-                  disableRipple
-                  role="tab"
-                  className="relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700"
-                  disabled={loading || tab.disabled}
-                  icon={!!tab.icon ? <Icon name={tab.icon} /> : undefined}
-                  iconPosition="start"
-                  label={<Typography variant="captionHl">{tab.title}</Typography>}
-                  value={tabIndex}
-                  onClick={() => {
-                    const onClickActionLookup: Record<TabManagedBy, () => void> = {
-                      [TabManagedBy.URL]: () => {
-                        if (!!tab.link && !matchPath(tab.link, pathname)) {
-                          navigate(tab.link)
-                        }
-                      },
-                      [TabManagedBy.INDEX]: () => {
-                        if (tabIndex !== value) {
-                          setValue(tabIndex)
-                        }
-                      },
-                    }
-
-                    onClickActionLookup[managedBy]()
-                  }}
-                  {...a11yProps(tabIndex)}
-                />
-              )
-            })
-          : null}
-        {children}
-      </Tabs>
       {value !== null &&
         nonHiddenTabs.map((tab, index) => {
           return (
