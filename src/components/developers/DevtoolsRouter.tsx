@@ -44,11 +44,6 @@ export const DevtoolsRouter = () => {
 export const devToolsNavigationMapping = (
   translate: ReturnType<typeof useInternationalization>['translate'],
   hasPermissions: ReturnType<typeof usePermissions>['hasPermissions'],
-  {
-    isActivityLogsEnabled,
-  }: {
-    isActivityLogsEnabled: boolean
-  },
 ) => {
   const tabs = [
     {
@@ -68,16 +63,13 @@ export const devToolsNavigationMapping = (
       match: [EVENTS_ROUTE, EVENT_LOG_ROUTE],
       hidden: !hasPermissions(['developersManage']),
     },
-  ]
-
-  if (isActivityLogsEnabled) {
-    tabs.push({
+    {
       title: translate('text_1747314141347qq6rasuxisl'),
       link: ACTIVITY_ROUTE,
       match: [ACTIVITY_ROUTE, ACTIVITY_LOG_ROUTE],
       hidden: !hasPermissions(['developersManage']),
-    })
-  }
+    },
+  ]
 
   return tabs
 }
