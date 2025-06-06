@@ -3190,7 +3190,6 @@
   "text_1747908642632nja67p9ig0e": "Once voided, the invoice can’t be used to issue a credit note. The remaining amount that is not refunded or credited will automatically be voided.",
   "text_1747908642632e4crd7uy2dp": "Refund customer (max. {{max}})",
   "text_1747908642632dgxu0zy119d": "Credit back on customer wallet (max. {{max}})",
-  "text_17479086426328lc2pqelu30": "This amount will automatically be voided",
   "text_174790864263278xhv5s8l9k": "Refund amount cannot exceed {{max}}",
   "text_17479114962319ks0rk1nvla": "Credit amount cannot exceed {{max}}",
   "text_1747911423385xh4lo4ephnl": "The combined amount can’t exceed {{max}}"

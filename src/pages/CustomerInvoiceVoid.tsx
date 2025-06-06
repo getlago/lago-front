@@ -410,17 +410,11 @@ const CustomerInvoiceVoid = () => {
 
                     {maxCreditable > 0 && (
                       <div className="flex items-center justify-between">
-                        <div className="flex flex-col">
-                          <Typography className="font-medium text-grey-700">
-                            {translate('text_1747908642632dgxu0zy119d', {
-                              max: intlFormatNumber(maxCreditable, { currency }),
-                            })}
-                          </Typography>
-
-                          <Typography className="text-sm text-grey-600">
-                            {translate('text_17479086426328lc2pqelu30')}
-                          </Typography>
-                        </div>
+                        <Typography className="font-medium text-grey-700">
+                          {translate('text_1747908642632dgxu0zy119d', {
+                            max: intlFormatNumber(maxCreditable, { currency }),
+                          })}
+                        </Typography>
 
                         <AmountInputField
                           name="payBack.1.value"
