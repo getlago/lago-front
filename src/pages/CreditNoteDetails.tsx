@@ -1,69 +1,41 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
-import React, { useRef } from 'react'
-import { generatePath, Link, useParams } from 'react-router-dom'
-import styled from 'styled-components'
+import { useMemo, useRef } from 'react'
+import { generatePath, useParams } from 'react-router-dom'
 
-import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import CreditNoteBadge from '~/components/creditNote/CreditNoteBadge'
+import { CreditNoteDetailsExternalSync } from '~/components/creditNote/CreditNoteDetailsExternalSync'
+import { CreditNoteDetailsOverview } from '~/components/creditNote/CreditNoteDetailsOverview'
 import {
   VoidCreditNoteDialog,
   VoidCreditNoteDialogRef,
 } from '~/components/customers/creditNotes/VoidCreditNoteDialog'
-import {
-  Button,
-  Icon,
-  Popper,
-  Skeleton,
-  Status,
-  StatusProps,
-  StatusType,
-  Typography,
-} from '~/components/designSystem'
+import { Button, NavigationTab, Popper, Skeleton, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import {
-  buildAnrokCreditNoteUrl,
-  buildAvalaraObjectId,
-  buildNetsuiteCreditNoteUrl,
-  buildXeroCreditNoteUrl,
-} from '~/core/constants/externalUrls'
-import { AppEnvEnum } from '~/core/constants/globalTypes'
-import {
+  CreditNoteDetailsTabsOptionsEnum,
   CustomerDetailsTabsOptions,
   CustomerInvoiceDetailsTabsOptionsEnum,
 } from '~/core/constants/tabsOptions'
-import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
-import {
-  composeChargeFilterDisplayName,
-  composeGroupedByDisplayName,
-  composeMultipleValuesWithSepator,
-} from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
-  CUSTOMER_DETAILS_ROUTE,
+  CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
   CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
+  CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
+  CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { handleDownloadFile } from '~/core/utils/downloadFiles'
 import {
-  AvalaraIntegration,
   CreditNote,
-  CreditNoteCreditStatusEnum,
-  CreditNoteItem,
-  CreditNoteRefundStatusEnum,
   CurrencyEnum,
-  FeeTypesEnum,
-  InvoiceTypeEnum,
-  NetsuiteIntegration,
+  CustomerForCreditNoteDetailsExternalSyncFragmentDoc,
   useDownloadCreditNoteMutation,
-  useGetCreditNoteQuery,
-  useIntegrationsListForCreditNoteDetailsQuery,
+  useGetCreditNoteForDetailsQuery,
   useRetryTaxReportingMutation,
   useSyncIntegrationCreditNoteMutation,
 } from '~/generated/graphql'
@@ -71,132 +43,24 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { MenuPopper, PageHeader, theme } from '~/styles'
-import { SectionHeader } from '~/styles/customer'
+import { MenuPopper, PageHeader } from '~/styles'
 
-const { disablePdfGeneration, appEnv } = envGlobalVar()
+const { disablePdfGeneration } = envGlobalVar()
 
 gql`
-  query getCreditNote($id: ID!) {
+  query getCreditNoteForDetails($id: ID!) {
     creditNote(id: $id) {
       id
-      balanceAmountCents
-      canBeVoided
-      couponsAdjustmentAmountCents
-      createdAt
-      creditAmountCents
-      creditStatus
-      currency
       number
-      refundAmountCents
-      refundedAt
-      refundStatus
-      subTotalExcludingTaxesAmountCents
+      canBeVoided
       totalAmountCents
+      currency
       integrationSyncable
       taxProviderSyncable
-      taxProviderId
       externalIntegrationId
+      taxProviderId
       customer {
-        id
-        name
-        displayName
-        deletedAt
-        applicableTimezone
-        avalaraCustomer {
-          id
-          integrationId
-        }
-        netsuiteCustomer {
-          id
-          integrationId
-        }
-        xeroCustomer {
-          id
-          integrationId
-        }
-        anrokCustomer {
-          id
-          integrationId
-          externalAccountId
-        }
-      }
-      invoice {
-        id
-        invoiceType
-        number
-      }
-      appliedTaxes {
-        id
-        amountCents
-        baseAmountCents
-        taxRate
-        taxName
-      }
-      items {
-        amountCents
-        amountCurrency
-        fee {
-          id
-          amountCents
-          eventsCount
-          units
-          feeType
-          itemName
-          groupedBy
-          invoiceName
-          appliedTaxes {
-            id
-            taxRate
-          }
-          trueUpParentFee {
-            id
-          }
-          charge {
-            id
-            billableMetric {
-              id
-              name
-              aggregationType
-            }
-          }
-          subscription {
-            id
-            name
-            plan {
-              id
-              name
-              invoiceDisplayName
-            }
-          }
-          chargeFilter {
-            invoiceDisplayName
-            values
-          }
-        }
-      }
-      billingEntity {
-        name
-        code
-      }
-    }
-  }
-
-  query integrationsListForCreditNoteDetails($limit: Int) {
-    integrations(limit: $limit) {
-      collection {
-        ... on NetsuiteIntegration {
-          __typename
-          id
-          accountId
-          name
-        }
-        ... on AvalaraIntegration {
-          __typename
-          id
-          accountId
-          companyId
-        }
+        ...CustomerForCreditNoteDetailsExternalSync
       }
     }
   }
@@ -219,47 +83,9 @@ gql`
       id
     }
   }
+
+  ${CustomerForCreditNoteDetailsExternalSyncFragmentDoc}
 `
-
-const creditedMapStatus = (type?: CreditNoteCreditStatusEnum | null | undefined): StatusProps => {
-  switch (type) {
-    case CreditNoteCreditStatusEnum.Consumed:
-      return {
-        type: StatusType.danger,
-        label: 'consumed',
-      }
-    case CreditNoteCreditStatusEnum.Voided:
-      return {
-        type: StatusType.danger,
-        label: 'voided',
-      }
-    default:
-      return {
-        type: StatusType.success,
-        label: 'available',
-      }
-  }
-}
-
-const consumedMapStatus = (type?: CreditNoteRefundStatusEnum | null | undefined): StatusProps => {
-  switch (type) {
-    case CreditNoteRefundStatusEnum.Succeeded:
-      return {
-        type: StatusType.success,
-        label: 'refunded',
-      }
-    case CreditNoteRefundStatusEnum.Failed:
-      return {
-        type: StatusType.warning,
-        label: 'failed',
-      }
-    default:
-      return {
-        type: StatusType.default,
-        label: 'pending',
-      }
-  }
-}
 
 const CreditNoteDetails = () => {
   const { translate } = useInternationalization()
@@ -267,6 +93,18 @@ const CreditNoteDetails = () => {
   const { hasPermissions } = usePermissions()
   const { customerId, invoiceId, creditNoteId } = useParams()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
+
+  const { data, loading, error } = useGetCreditNoteForDetailsQuery({
+    variables: { id: creditNoteId as string },
+    skip: !creditNoteId || !customerId,
+  })
+
+  const [downloadCreditNote, { loading: loadingCreditNoteDownload }] =
+    useDownloadCreditNoteMutation({
+      onCompleted({ downloadCreditNote: downloadCreditNoteData }) {
+        handleDownloadFile(downloadCreditNoteData?.fileUrl)
+      },
+    })
 
   const [syncIntegrationCreditNote, { loading: loadingSyncIntegrationCreditNote }] =
     useSyncIntegrationCreditNoteMutation({
@@ -283,13 +121,6 @@ const CreditNoteDetails = () => {
       },
     })
 
-  const [downloadCreditNote, { loading: loadingCreditNoteDownload }] =
-    useDownloadCreditNoteMutation({
-      onCompleted({ downloadCreditNote: downloadCreditNoteData }) {
-        handleDownloadFile(downloadCreditNoteData?.fileUrl)
-      },
-    })
-
   const [retryTaxReporting] = useRetryTaxReportingMutation({
     onCompleted() {
       addToast({
@@ -297,88 +128,67 @@ const CreditNoteDetails = () => {
         translateKey: 'text_1727068261852148l97frl5q',
       })
     },
+    variables: {
+      input: {
+        id: data?.creditNote?.id as string,
+      },
+    },
     refetchQueries: ['getCreditNote'],
   })
 
-  const { data, loading, error } = useGetCreditNoteQuery({
-    variables: { id: creditNoteId as string },
-    skip: !creditNoteId || !customerId,
-  })
-  const { data: integrationsData } = useIntegrationsListForCreditNoteDetailsQuery({
-    variables: { limit: 1000 },
-    skip:
-      !data?.creditNote?.customer?.netsuiteCustomer?.integrationId &&
-      !data?.creditNote?.customer?.xeroCustomer?.integrationId &&
-      !data?.creditNote?.customer?.anrokCustomer?.integrationId &&
-      !data?.creditNote?.customer?.avalaraCustomer?.id,
-  })
-
-  const allNetsuiteIntegrations = integrationsData?.integrations?.collection.filter(
-    (i) => i.__typename === 'NetsuiteIntegration',
-  ) as NetsuiteIntegration[] | undefined
-
-  const allAvalaraIntegrations = integrationsData?.integrations?.collection.filter(
-    (i) => i.__typename === 'AvalaraIntegration',
-  ) as AvalaraIntegration[] | undefined
-
-  const connectedNetsuiteIntegration = allNetsuiteIntegrations?.find(
-    (integration) =>
-      integration?.id === data?.creditNote?.customer?.netsuiteCustomer?.integrationId,
-  ) as NetsuiteIntegration
-
-  const connectedAvalaraIntegration = allAvalaraIntegrations?.find(
-    (integration) => integration?.id === data?.creditNote?.customer?.avalaraCustomer?.integrationId,
-  ) as AvalaraIntegration
-
   const creditNote = data?.creditNote
-  const billingEntity = data?.creditNote?.billingEntity
-  const creditedFormattedStatus = creditedMapStatus(creditNote?.creditStatus)
-  const consumedFormattedStatus = consumedMapStatus(creditNote?.refundStatus)
-  const isRefunded = creditNote?.refundAmountCents > 0
-  const status = isRefunded ? consumedFormattedStatus : creditedFormattedStatus
   const hasError = (!!error || !creditNote) && !loading
-
-  const groupedData = formatCreditNotesItems(creditNote?.items as CreditNoteItem[])
-
-  const customerName = creditNote?.customer?.displayName
-
-  const isPrepaidCreditsInvoice = data?.creditNote?.invoice?.invoiceType === InvoiceTypeEnum.Credit
 
   const retryTaxSync = async () => {
     if (!data?.creditNote?.id) return
-
-    await retryTaxReporting({
-      variables: {
-        input: {
-          id: data.creditNote.id,
-        },
-      },
-    })
+    await retryTaxReporting()
   }
+
+  const onGoBack = () => {
+    goBack(
+      !!invoiceId
+        ? generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+            customerId: customerId as string,
+            invoiceId,
+            tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+          })
+        : generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+            customerId: customerId as string,
+            tab: CustomerDetailsTabsOptions.creditNotes,
+          }),
+      { exclude: [CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE] },
+    )
+  }
+
+  const hasIntegration = {
+    netsuite:
+      !!creditNote?.customer.netsuiteCustomer?.integrationId && creditNote?.externalIntegrationId,
+    xero: !!creditNote?.customer.xeroCustomer?.integrationId && creditNote?.externalIntegrationId,
+    anrok:
+      !!creditNote?.customer.anrokCustomer?.integrationId &&
+      (!!creditNote?.taxProviderId || !!creditNote?.taxProviderSyncable),
+    avalara:
+      !!creditNote?.customer.avalaraCustomer?.id &&
+      (!!creditNote?.taxProviderId || !!creditNote?.taxProviderSyncable),
+  }
+
+  const canShowExternalSyncTab = Object.values(hasIntegration).some((value) => value)
+
+  const actions = useMemo(() => {
+    return {
+      canDownload: hasPermissions(['creditNotesView']) && !disablePdfGeneration,
+      canVoid: hasPermissions(['creditNotesVoid']) && creditNote?.canBeVoided,
+      canCopy: true,
+      canSync: !!creditNote?.integrationSyncable,
+      canRetryTaxSync: !!creditNote?.taxProviderSyncable,
+    }
+  }, [creditNote, hasPermissions])
 
   return (
     <>
       <PageHeader.Wrapper withSide>
         <PageHeader.Group>
-          <Button
-            icon="arrow-left"
-            variant="quaternary"
-            onClick={() =>
-              goBack(
-                !!invoiceId
-                  ? generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                      customerId: customerId as string,
-                      invoiceId,
-                      tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-                    })
-                  : generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                      customerId: customerId as string,
-                      tab: CustomerDetailsTabsOptions.creditNotes,
-                    }),
-                { exclude: [CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE] },
-              )
-            }
-          />
+          <Button icon="arrow-left" variant="quaternary" onClick={onGoBack} />
           {loading ? (
             <Skeleton variant="text" className="w-30" />
           ) : (
@@ -397,7 +207,7 @@ const CreditNoteDetails = () => {
           >
             {({ closePopper }) => (
               <MenuPopper>
-                {hasPermissions(['creditNotesView']) && !disablePdfGeneration && (
+                {actions.canDownload && (
                   <Button
                     variant="quaternary"
                     align="left"
@@ -412,37 +222,42 @@ const CreditNoteDetails = () => {
                     {translate('text_637655cb50f04bf1c8379cea')}
                   </Button>
                 )}
-                {creditNote?.canBeVoided && hasPermissions(['creditNotesVoid']) && (
+                {actions.canVoid && (
                   <Button
                     variant="quaternary"
                     align="left"
                     onClick={async () => {
+                      if (!creditNote?.id) return
+
                       voidCreditNoteDialogRef.current?.openDialog({
                         id: creditNote?.id,
                         totalAmountCents: creditNote?.totalAmountCents,
                         currency: creditNote?.currency,
                       })
+
                       closePopper()
                     }}
                   >
                     {translate('text_637655cb50f04bf1c8379cec')}
                   </Button>
                 )}
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    copyToClipboard(creditNote?.id || '')
-                    addToast({
-                      severity: 'info',
-                      translateKey: 'text_63766b1c4eeb35667c48f26d',
-                    })
-                    closePopper()
-                  }}
-                >
-                  {translate('text_637655cb50f04bf1c8379cee')}
-                </Button>
-                {!!data?.creditNote?.integrationSyncable && (
+                {actions.canCopy && (
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    onClick={() => {
+                      copyToClipboard(creditNote?.id || '')
+                      addToast({
+                        severity: 'info',
+                        translateKey: 'text_63766b1c4eeb35667c48f26d',
+                      })
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_637655cb50f04bf1c8379cee')}
+                  </Button>
+                )}
+                {actions.canSync && (
                   <Button
                     variant="quaternary"
                     align="left"
@@ -454,14 +269,13 @@ const CreditNoteDetails = () => {
                     }}
                   >
                     {translate(
-                      !!data.creditNote.customer.netsuiteCustomer
+                      !!creditNote?.customer.netsuiteCustomer
                         ? 'text_665d742ee9853200e3a6be7f'
                         : 'text_66911d4b4b3c3e005c62ab49',
                     )}
                   </Button>
                 )}
-
-                {!!data?.creditNote?.taxProviderSyncable && (
+                {actions.canRetryTaxSync && (
                   <Button
                     variant="quaternary"
                     align="left"
@@ -503,7 +317,6 @@ const CreditNoteDetails = () => {
                 <Typography variant="headline" color="grey700">
                   {creditNote?.number}
                 </Typography>
-
                 <CreditNoteBadge creditNote={creditNote as CreditNote} />
               </div>
             }
@@ -521,623 +334,77 @@ const CreditNoteDetails = () => {
             })} • ${creditNote?.id}`}
           />
 
-          <DetailsPage.Container className="max-w-none">
-            <div>
-              <SectionHeader variant="subhead">
-                {translate('text_637655cb50f04bf1c8379cfa')}
-                {!hasError &&
-                  !loading &&
-                  hasPermissions(['creditNotesView']) &&
-                  !disablePdfGeneration && (
-                    <Button
-                      variant="quaternary"
-                      disabled={loadingCreditNoteDownload}
-                      onClick={async () => {
-                        await downloadCreditNote({
-                          variables: { input: { id: creditNoteId || '' } },
-                        })
-                      }}
-                    >
-                      {translate('text_637655cb50f04bf1c8379cf8')}
-                    </Button>
-                  )}
-              </SectionHeader>
-
-              {billingEntity && (
-                <div className="box-border flex items-center gap-2 py-6 shadow-b">
-                  <div className="min-w-[140px]">
-                    <Typography className="text-sm text-grey-600">
-                      {translate('text_1743611497157teaa1zu8l24')}
-                    </Typography>
-                  </div>
-
-                  <Typography className="text-grey-700">
-                    {billingEntity.name || billingEntity.code}
-                  </Typography>
-                </div>
-              )}
-
-              <DetailsPage.Overview
-                isLoading={loading}
-                leftColumn={
-                  <>
-                    {creditNote?.customer?.name && (
-                      <>
-                        <DetailsPage.OverviewLine
-                          title={translate('text_637655cb50f04bf1c8379cfe')}
-                          value={
-                            <ConditionalWrapper
-                              condition={
-                                !!creditNote?.customer.deletedAt &&
-                                hasPermissions(['customersView'])
-                              }
-                              validWrapper={(children) => <>{children}</>}
-                              invalidWrapper={(children) => (
-                                <Link
-                                  className="visited:text-blue"
-                                  to={generatePath(CUSTOMER_DETAILS_ROUTE, {
-                                    customerId: creditNote?.customer?.id,
-                                  })}
-                                >
-                                  {children}
-                                </Link>
-                              )}
-                            >
-                              {customerName}
-                            </ConditionalWrapper>
-                          }
-                        />
-                        {creditNote?.invoice?.number && (
-                          <DetailsPage.OverviewLine
-                            title={translate('text_637655cb50f04bf1c8379d02')}
-                            value={
-                              <Link
-                                className="visited:text-blue"
-                                to={generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                                  customerId: creditNote?.customer?.id,
-                                  invoiceId: creditNote?.invoice.id,
-                                  tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-                                })}
-                              >
-                                {creditNote?.invoice?.number}
-                              </Link>
-                            }
-                          />
-                        )}
-                      </>
-                    )}
-                    {creditNote?.createdAt && (
-                      <DetailsPage.OverviewLine
-                        title={translate('text_637655cb50f04bf1c8379d06')}
-                        value={formatDateToTZ(
-                          creditNote?.createdAt,
-                          creditNote?.customer.applicableTimezone,
-                        )}
-                      />
-                    )}
-                  </>
-                }
-                rightColumn={
-                  <>
-                    {!isRefunded && (
-                      <DetailsPage.OverviewLine
-                        title={translate('text_637655cb50f04bf1c8379d0a')}
-                        value={intlFormatNumber(
-                          deserializeAmount(
-                            creditNote?.balanceAmountCents || 0,
-                            creditNote?.currency || CurrencyEnum.Usd,
-                          ),
-                          {
-                            currencyDisplay: 'symbol',
-                            currency: creditNote?.currency || CurrencyEnum.Usd,
-                          },
-                        )}
-                      />
-                    )}
-                    <DetailsPage.OverviewLine
-                      title={
-                        isRefunded
-                          ? translate('text_637656ef3d876b0269edc79f')
-                          : translate('text_637655cb50f04bf1c8379d0e')
-                      }
-                      value={
-                        <Status
-                          {...status}
-                          labelVariables={{
-                            date: formatDateToTZ(
-                              creditNote?.refundedAt,
-                              creditNote?.customer.applicableTimezone,
-                            ),
-                          }}
-                        />
-                      }
+          <NavigationTab
+            className="mx-12"
+            tabs={[
+              {
+                title: translate('text_637655cb50f04bf1c8379cfa'),
+                link: generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE, {
+                  customerId: customerId as string,
+                  invoiceId: invoiceId as string,
+                  creditNoteId: creditNoteId as string,
+                  tab: CreditNoteDetailsTabsOptionsEnum.overview,
+                }),
+                match: [
+                  generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
+                    customerId: customerId as string,
+                    invoiceId: invoiceId as string,
+                    creditNoteId: creditNoteId as string,
+                  }),
+                  generatePath(CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE, {
+                    customerId: customerId as string,
+                    creditNoteId: creditNoteId as string,
+                  }),
+                  generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE, {
+                    customerId: customerId as string,
+                    invoiceId: invoiceId as string,
+                    creditNoteId: creditNoteId as string,
+                    tab: CreditNoteDetailsTabsOptionsEnum.overview,
+                  }),
+                ],
+                component: (
+                  <DetailsPage.Container className="max-w-none">
+                    <CreditNoteDetailsOverview
+                      loadingCreditNoteDownload={loadingCreditNoteDownload}
+                      downloadCreditNote={downloadCreditNote}
                     />
-                  </>
-                }
-              />
-
-              <TableSection>
-                {groupedData.map((groupSubscriptionItem, i) => {
-                  const subscription =
-                    groupSubscriptionItem[0] && groupSubscriptionItem[0][0]
-                      ? groupSubscriptionItem[0][0].fee.subscription
-                      : undefined
-                  const invoiceDisplayName = !!subscription
-                    ? subscription?.name ||
-                      subscription.plan.invoiceDisplayName ||
-                      subscription?.plan?.name
-                    : translate('text_6388b923e514213fed58331c')
-
-                  return (
-                    <React.Fragment key={`groupSubscriptionItem-${i}`}>
-                      {/* eslint-disable-next-line tailwindcss/no-custom-classname */}
-                      <table className="main-table">
-                        <thead>
-                          <tr>
-                            <th>
-                              <Typography variant="captionHl" color="grey600">
-                                {invoiceDisplayName}
-                              </Typography>
-                            </th>
-                            {!isPrepaidCreditsInvoice && (
-                              <th>
-                                <Typography variant="captionHl" color="grey600">
-                                  {translate('text_636bedf292786b19d3398f06')}
-                                </Typography>
-                              </th>
-                            )}
-                            <th>
-                              <Typography variant="captionHl" color="grey600">
-                                {translate('text_637655cb50f04bf1c8379d12')}
-                              </Typography>
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {groupSubscriptionItem.map((charge, j) => {
-                            return charge.map((item, k) => {
-                              return (
-                                <React.Fragment key={`groupSubscriptionItem-${i}-list-item-${k}`}>
-                                  <tr key={`groupSubscriptionItem-${i}-charge-${j}-item-${k}`}>
-                                    <td>
-                                      {isPrepaidCreditsInvoice ? (
-                                        <Typography variant="bodyHl" color="grey700">
-                                          {translate('text_1729262241097k3cnpci6p5j')}
-                                        </Typography>
-                                      ) : (
-                                        <Typography variant="bodyHl" color="grey700">
-                                          {item?.fee?.feeType === FeeTypesEnum.AddOn
-                                            ? translate('text_6388baa2e514213fed583611', {
-                                                name: item.fee.invoiceName || item?.fee?.itemName,
-                                              })
-                                            : item?.fee?.feeType === FeeTypesEnum.Commitment
-                                              ? item.fee.invoiceName ||
-                                                'Minimum commitment - True up'
-                                              : composeMultipleValuesWithSepator([
-                                                  item.fee?.invoiceName ||
-                                                    item?.fee?.charge?.billableMetric.name ||
-                                                    invoiceDisplayName,
-                                                  composeGroupedByDisplayName(item?.fee?.groupedBy),
-                                                  composeChargeFilterDisplayName(
-                                                    item.fee.chargeFilter,
-                                                  ),
-                                                  item?.fee?.trueUpParentFee?.id
-                                                    ? ` - ${translate('text_64463aaa34904c00a23be4f7')}`
-                                                    : '',
-                                                ])}
-                                        </Typography>
-                                      )}
-                                    </td>
-                                    {!isPrepaidCreditsInvoice && (
-                                      <td>
-                                        <Typography variant="body" color="grey700">
-                                          {item.fee.appliedTaxes?.length
-                                            ? item.fee.appliedTaxes?.map((appliedTaxe) => (
-                                                <Typography
-                                                  key={`fee-${item.fee.id}-applied-taxe-${appliedTaxe.id}`}
-                                                  variant="body"
-                                                  color="grey700"
-                                                >
-                                                  {intlFormatNumber(
-                                                    appliedTaxe.taxRate / 100 || 0,
-                                                    {
-                                                      style: 'percent',
-                                                    },
-                                                  )}
-                                                </Typography>
-                                              ))
-                                            : '0%'}
-                                        </Typography>
-                                      </td>
-                                    )}
-                                    <td>
-                                      <Typography variant="body" color="success600">
-                                        -
-                                        {intlFormatNumber(
-                                          deserializeAmount(
-                                            item.amountCents || 0,
-                                            item.amountCurrency,
-                                          ),
-                                          {
-                                            currencyDisplay: 'symbol',
-                                            currency: item.amountCurrency,
-                                          },
-                                        )}
-                                      </Typography>
-                                    </td>
-                                  </tr>
-                                </React.Fragment>
-                              )
-                            })
-                          })}
-                        </tbody>
-                      </table>
-                    </React.Fragment>
-                  )
-                })}
-                {!loading && (
-                  <table>
-                    <tfoot>
-                      {Number(creditNote?.couponsAdjustmentAmountCents || 0) > 0 && (
-                        <tr>
-                          <td></td>
-                          <td>
-                            <Typography variant="bodyHl" color="grey600">
-                              {translate('text_644b9f17623605a945cafdbb')}
-                            </Typography>
-                          </td>
-                          <td>
-                            <Typography variant="body" color="grey700">
-                              {intlFormatNumber(
-                                deserializeAmount(
-                                  creditNote?.couponsAdjustmentAmountCents || 0,
-                                  creditNote?.currency || CurrencyEnum.Usd,
-                                ),
-                                {
-                                  currencyDisplay: 'symbol',
-                                  currency: creditNote?.currency || CurrencyEnum.Usd,
-                                },
-                              )}
-                            </Typography>
-                          </td>
-                        </tr>
-                      )}
-                      {!isPrepaidCreditsInvoice && (
-                        <tr>
-                          <td></td>
-                          <td>
-                            <Typography variant="bodyHl" color="grey600">
-                              {translate('text_637655cb50f04bf1c8379d20')}
-                            </Typography>
-                          </td>
-                          <td>
-                            <Typography variant="body" color="success600">
-                              -
-                              {intlFormatNumber(
-                                deserializeAmount(
-                                  creditNote?.subTotalExcludingTaxesAmountCents || 0,
-                                  creditNote?.currency || CurrencyEnum.Usd,
-                                ),
-                                {
-                                  currencyDisplay: 'symbol',
-                                  currency: creditNote?.currency || CurrencyEnum.Usd,
-                                },
-                              )}
-                            </Typography>
-                          </td>
-                        </tr>
-                      )}
-                      {!!creditNote?.appliedTaxes?.length ? (
-                        <>
-                          {creditNote?.appliedTaxes.map((appliedTax) => (
-                            <tr key={`creditNote-${creditNote.id}-applied-tax-${appliedTax.id}`}>
-                              <td></td>
-                              <td>
-                                <Typography variant="bodyHl" color="grey600">
-                                  {translate('text_64c013a424ce2f00dffb7f4d', {
-                                    name: appliedTax.taxName,
-                                    rate: intlFormatNumber(appliedTax.taxRate / 100 || 0, {
-                                      style: 'percent',
-                                    }),
-                                    amount: intlFormatNumber(
-                                      deserializeAmount(
-                                        appliedTax.baseAmountCents || 0,
-                                        creditNote?.currency || CurrencyEnum.Usd,
-                                      ),
-                                      {
-                                        currencyDisplay: 'symbol',
-                                        currency: creditNote?.currency || CurrencyEnum.Usd,
-                                      },
-                                    ),
-                                  })}
-                                </Typography>
-                              </td>
-                              <td>
-                                <Typography variant="body" color="success600">
-                                  -
-                                  {intlFormatNumber(
-                                    deserializeAmount(
-                                      appliedTax.amountCents || 0,
-                                      creditNote?.currency || CurrencyEnum.Usd,
-                                    ),
-                                    {
-                                      currencyDisplay: 'symbol',
-                                      currency: creditNote?.currency || CurrencyEnum.Usd,
-                                    },
-                                  )}
-                                </Typography>
-                              </td>
-                            </tr>
-                          ))}
-                        </>
-                      ) : (
-                        <>
-                          {!isPrepaidCreditsInvoice && (
-                            <tr>
-                              <td></td>
-                              <td>
-                                <Typography variant="bodyHl" color="grey600">
-                                  {`${translate('text_637655cb50f04bf1c8379d24')} (0%)`}
-                                </Typography>
-                              </td>
-                              <td>
-                                <Typography variant="body" color="success600">
-                                  -
-                                  {intlFormatNumber(0, {
-                                    currencyDisplay: 'symbol',
-                                    currency: creditNote?.currency || CurrencyEnum.Usd,
-                                  })}
-                                </Typography>
-                              </td>
-                            </tr>
-                          )}
-                        </>
-                      )}
-
-                      {Number(creditNote?.creditAmountCents || 0) > 0 && (
-                        <tr>
-                          <td></td>
-                          <td>
-                            <Typography variant="bodyHl" color="grey700">
-                              {translate('text_637655cb50f04bf1c8379d28')}
-                            </Typography>
-                          </td>
-                          <td>
-                            <Typography variant="body" color="success600">
-                              -
-                              {intlFormatNumber(
-                                deserializeAmount(
-                                  creditNote?.creditAmountCents || 0,
-                                  creditNote?.currency || CurrencyEnum.Usd,
-                                ),
-                                {
-                                  currencyDisplay: 'symbol',
-                                  currency: creditNote?.currency || CurrencyEnum.Usd,
-                                },
-                              )}
-                            </Typography>
-                          </td>
-                        </tr>
-                      )}
-                      {Number(creditNote?.refundAmountCents || 0) > 0 && (
-                        <tr>
-                          <td></td>
-                          <td>
-                            <Typography variant="bodyHl" color="grey700">
-                              {translate('text_637de077dca2f885da839287')}
-                            </Typography>
-                          </td>
-                          <td>
-                            <Typography variant="body" color="success600">
-                              -
-                              {intlFormatNumber(
-                                deserializeAmount(
-                                  creditNote?.refundAmountCents || 0,
-                                  creditNote?.currency || CurrencyEnum.Usd,
-                                ),
-                                {
-                                  currencyDisplay: 'symbol',
-                                  currency: creditNote?.currency || CurrencyEnum.Usd,
-                                },
-                              )}
-                            </Typography>
-                          </td>
-                        </tr>
-                      )}
-                      <tr>
-                        <td></td>
-                        <td>
-                          <Typography variant="bodyHl" color="grey700">
-                            {translate('text_637655cb50f04bf1c8379d2c')}
-                          </Typography>
-                        </td>
-                        <td>
-                          <Typography variant="body" color="success600">
-                            -
-                            {intlFormatNumber(
-                              deserializeAmount(
-                                creditNote?.totalAmountCents || 0,
-                                creditNote?.currency || CurrencyEnum.Usd,
-                              ),
-                              {
-                                currencyDisplay: 'symbol',
-                                currency: creditNote?.currency || CurrencyEnum.Usd,
-                              },
-                            )}
-                          </Typography>
-                        </td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                )}
-              </TableSection>
-
-              {(connectedNetsuiteIntegration ||
-                connectedAvalaraIntegration ||
-                data?.creditNote?.customer?.xeroCustomer?.integrationId ||
-                data?.creditNote?.taxProviderId ||
-                data?.creditNote?.taxProviderSyncable) &&
-                creditNote?.id && (
-                  <Stack marginTop={8} gap={6}>
-                    <SectionHeader variant="subhead">
-                      {translate('text_6650b36fc702a4014c878996')}
-                    </SectionHeader>
-                    {!!connectedNetsuiteIntegration && creditNote?.externalIntegrationId && (
-                      <DetailsPage.OverviewLine
-                        title={translate('text_6684044e95fa220048a145a7')}
-                        value={
-                          <Link
-                            className="w-fit line-break-anywhere visited:text-blue hover:no-underline"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            to={buildNetsuiteCreditNoteUrl(
-                              connectedNetsuiteIntegration?.accountId,
-                              creditNote?.externalIntegrationId,
-                            )}
-                          >
-                            <Typography
-                              variant="body"
-                              className="flex items-center gap-1 text-blue"
-                            >
-                              {creditNote?.externalIntegrationId} <Icon name="outside" />
-                            </Typography>
-                          </Link>
-                        }
-                      />
-                    )}
-                    {!!data?.creditNote?.customer?.xeroCustomer?.integrationId &&
-                      creditNote?.externalIntegrationId && (
-                        <DetailsPage.OverviewLine
-                          title={translate('text_66911ce41415f40090d053ce')}
-                          value={
-                            <Link
-                              className="w-fit line-break-anywhere visited:text-blue hover:no-underline"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              to={buildXeroCreditNoteUrl(creditNote?.externalIntegrationId)}
-                            >
-                              <Typography variant="body" className="text-blue">
-                                {creditNote?.externalIntegrationId} <Icon name="outside" />
-                              </Typography>
-                            </Link>
-                          }
-                        />
-                      )}
-
-                    {!!data?.creditNote?.customer?.anrokCustomer?.integrationId && (
-                      <div>
-                        {!!data?.creditNote?.taxProviderId && (
-                          <DetailsPage.OverviewLine
-                            title={translate('text_1727068146263345gopo39sm')}
-                            value={
-                              <Link
-                                className="w-fit line-break-anywhere visited:text-blue hover:no-underline"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                to={buildAnrokCreditNoteUrl(
-                                  data?.creditNote?.customer?.anrokCustomer?.externalAccountId,
-                                  data?.creditNote?.taxProviderId,
-                                )}
-                              >
-                                <Typography
-                                  variant="body"
-                                  className="flex items-center gap-1 text-blue"
-                                >
-                                  {data?.creditNote?.taxProviderId} <Icon name="outside" />
-                                </Typography>
-                              </Link>
-                            }
-                          />
-                        )}
-
-                        {!!data?.creditNote?.taxProviderSyncable && (
-                          <DetailsPage.OverviewLine
-                            title={translate('text_1727068146263345gopo39sm')}
-                            value={
-                              <div className="flex items-center gap-2">
-                                <Icon name="warning-filled" color="warning" />
-                                <Typography variant="body">
-                                  {translate('text_1727068146263ztoat7i901x')}
-                                </Typography>
-                                <Typography variant="body">•</Typography>
-                                <Link
-                                  className="w-fit line-break-anywhere visited:text-blue hover:no-underline"
-                                  to="#"
-                                  onClick={async () => {
-                                    await retryTaxSync()
-                                  }}
-                                >
-                                  <Typography variant="body" className="text-blue">
-                                    {translate('text_17270681462632d46dh3r1vu')}
-                                  </Typography>
-                                </Link>
-                              </div>
-                            }
-                          />
-                        )}
-                      </div>
-                    )}
-
-                    {!!data?.creditNote?.customer?.avalaraCustomer?.id &&
-                      !!connectedAvalaraIntegration && (
-                        <div>
-                          {!!data?.creditNote?.taxProviderId && (
-                            <DetailsPage.OverviewLine
-                              title={translate('text_1747408519913t2tehiclc5q')}
-                              value={
-                                <Link
-                                  className="w-fit line-break-anywhere visited:text-blue hover:no-underline"
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  to={buildAvalaraObjectId({
-                                    accountId: connectedAvalaraIntegration?.accountId,
-                                    companyId: connectedAvalaraIntegration.companyId || '',
-                                    objectId: data?.creditNote?.taxProviderId,
-                                    isSandbox: appEnv !== AppEnvEnum.production,
-                                  })}
-                                >
-                                  <Typography
-                                    variant="body"
-                                    className="flex items-center gap-1 text-blue"
-                                  >
-                                    {data?.creditNote?.taxProviderId} <Icon name="outside" />
-                                  </Typography>
-                                </Link>
-                              }
-                            />
-                          )}
-
-                          {!!data?.creditNote?.taxProviderSyncable && (
-                            <DetailsPage.OverviewLine
-                              title={translate('text_1747408519913t2tehiclc5q')}
-                              value={
-                                <div className="flex items-center gap-2">
-                                  <Icon name="warning-filled" color="warning" />
-                                  <Typography variant="body">
-                                    {translate('text_1727068146263ztoat7i901x')}
-                                  </Typography>
-                                  <Typography variant="body">•</Typography>
-                                  <Link
-                                    className="w-fit line-break-anywhere visited:text-blue hover:no-underline"
-                                    to="#"
-                                    onClick={async () => {
-                                      await retryTaxSync()
-                                    }}
-                                  >
-                                    <Typography variant="body" className="text-blue">
-                                      {translate('text_17270681462632d46dh3r1vu')}
-                                    </Typography>
-                                  </Link>
-                                </div>
-                              }
-                            />
-                          )}
-                        </div>
-                      )}
-                  </Stack>
-                )}
-            </div>
-          </DetailsPage.Container>
+                  </DetailsPage.Container>
+                ),
+              },
+              {
+                title: translate('text_17489570558986035g3zp16t'),
+                link: generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE, {
+                  customerId: customerId as string,
+                  invoiceId: invoiceId as string,
+                  creditNoteId: creditNoteId as string,
+                  tab: CreditNoteDetailsTabsOptionsEnum.externalSync,
+                }),
+                match: [
+                  generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
+                    customerId: customerId as string,
+                    invoiceId: invoiceId as string,
+                    creditNoteId: creditNoteId as string,
+                  }),
+                  generatePath(CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE, {
+                    customerId: customerId as string,
+                    creditNoteId: creditNoteId as string,
+                  }),
+                  generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE, {
+                    customerId: customerId as string,
+                    invoiceId: invoiceId as string,
+                    creditNoteId: creditNoteId as string,
+                    tab: CreditNoteDetailsTabsOptionsEnum.externalSync,
+                  }),
+                ],
+                component: (
+                  <DetailsPage.Container className="max-w-none">
+                    <CreditNoteDetailsExternalSync retryTaxSync={retryTaxSync} />
+                  </DetailsPage.Container>
+                ),
+                hidden: !canShowExternalSyncTab,
+              },
+            ]}
+          />
         </>
       )}
 
@@ -1147,74 +414,3 @@ const CreditNoteDetails = () => {
 }
 
 export default CreditNoteDetails
-
-const TableSection = styled.section`
-  .main-table:not(:first-child) {
-    margin-top: ${theme.spacing(10)};
-  }
-
-  > table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-
-    > thead > tr > th,
-    > tbody > tr > td {
-      overflow: hidden;
-      line-break: anywhere;
-      text-align: right;
-
-      &:nth-child(1) {
-        width: 70%;
-        text-align: left;
-      }
-      &:nth-child(2) {
-        width: 10%;
-      }
-      &:nth-child(3) {
-        width: 20%;
-      }
-
-      &:not(:last-child) {
-        padding-right: ${theme.spacing(3)};
-      }
-    }
-
-    > thead > tr > th {
-      position: sticky;
-      top: 72px;
-      background-color: ${theme.palette.common.white};
-      z-index: 1;
-      padding: ${theme.spacing(8)} 0 ${theme.spacing(3)} 0;
-      box-sizing: border-box;
-      box-shadow: ${theme.shadows[7]};
-    }
-
-    > tbody > tr > td {
-      vertical-align: top;
-      min-height: 44px;
-      padding: ${theme.spacing(3)} 0;
-      box-shadow: ${theme.shadows[7]};
-    }
-
-    > tfoot > tr > td {
-      text-align: right;
-      padding: ${theme.spacing(3)} 0;
-
-      &:nth-child(1) {
-        width: 50%;
-      }
-      &:nth-child(2) {
-        width: 35%;
-        box-shadow: ${theme.shadows[7]};
-        text-align: left;
-      }
-      &:nth-child(3) {
-        width: 15%;
-        box-shadow: ${theme.shadows[7]};
-        /* Allow huge amount to be displayed on 2 lines */
-        line-break: anywhere;
-      }
-    }
-  }
-`

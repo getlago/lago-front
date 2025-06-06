@@ -5290,6 +5290,7 @@ export type Properties = {
   packageSize?: Maybe<Scalars['BigInt']['output']>;
   perTransactionMaxAmount?: Maybe<Scalars['String']['output']>;
   perTransactionMinAmount?: Maybe<Scalars['String']['output']>;
+  pricingGroupKeys?: Maybe<Array<Scalars['String']['output']>>;
   rate?: Maybe<Scalars['String']['output']>;
   volumeRanges?: Maybe<Array<VolumeRange>>;
 };
@@ -5307,6 +5308,7 @@ export type PropertiesInput = {
   packageSize?: InputMaybe<Scalars['BigInt']['input']>;
   perTransactionMaxAmount?: InputMaybe<Scalars['String']['input']>;
   perTransactionMinAmount?: InputMaybe<Scalars['String']['input']>;
+  pricingGroupKeys?: InputMaybe<Array<Scalars['String']['input']>>;
   rate?: InputMaybe<Scalars['String']['input']>;
   volumeRanges?: InputMaybe<Array<VolumeRangeInput>>;
 };
@@ -7894,6 +7896,31 @@ export type TerminateCouponMutationVariables = Exact<{
 
 export type TerminateCouponMutation = { __typename?: 'Mutation', terminateCoupon?: { __typename?: 'Coupon', id: string, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, percentageRate?: number | null, code?: string | null, expirationAt?: any | null, name: string, frequency: CouponFrequency, reusable: boolean, couponType: CouponTypeEnum, status: CouponStatusEnum, customersCount: number, expiration: CouponExpiration, frequencyDuration?: number | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null } | null };
 
+export type CustomerForCreditNoteDetailsExternalSyncFragment = { __typename?: 'Customer', anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, integrationId?: string | null, externalAccountId?: string | null } | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string, integrationId?: string | null } | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null } | null };
+
+export type GetCreditNoteForDetailsExternalSyncQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetCreditNoteForDetailsExternalSyncQuery = { __typename?: 'Query', creditNote?: { __typename?: 'CreditNote', id: string, taxProviderId?: string | null, taxProviderSyncable: boolean, externalIntegrationId?: string | null, customer: { __typename?: 'Customer', anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, integrationId?: string | null, externalAccountId?: string | null } | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string, integrationId?: string | null } | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null } | null } } | null };
+
+export type GetIntegrationsListForCreditNoteDetailsExternalSyncQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetIntegrationsListForCreditNoteDetailsExternalSyncQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename: 'AnrokIntegration', id: string } | { __typename: 'AvalaraIntegration', id: string, accountId?: string | null, companyId?: string | null } | { __typename?: 'HubspotIntegration' } | { __typename: 'NetsuiteIntegration', id: string, accountId?: string | null, name: string } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename: 'XeroIntegration', id: string }> } | null };
+
+export type GetCreditNoteForDetailsOverviewQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetCreditNoteForDetailsOverviewQuery = { __typename?: 'Query', creditNote?: { __typename?: 'CreditNote', id: string, createdAt: any, balanceAmountCents: any, currency: CurrencyEnum, creditStatus?: CreditNoteCreditStatusEnum | null, refundStatus?: CreditNoteRefundStatusEnum | null, refundedAt?: any | null, refundAmountCents: any, couponsAdjustmentAmountCents: any, subTotalExcludingTaxesAmountCents: any, creditAmountCents: any, totalAmountCents: any, billingEntity: { __typename?: 'BillingEntity', name: string, code: string }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, deletedAt?: any | null, applicableTimezone: TimezoneEnum }, invoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string } | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, itemName: string, groupedBy: any, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }>, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null } | null };
+
+export type CreditNoteDetailsForOverviewTableFragment = { __typename?: 'CreditNote', id: string, couponsAdjustmentAmountCents: any, currency: CurrencyEnum, subTotalExcludingTaxesAmountCents: any, creditAmountCents: any, refundAmountCents: any, totalAmountCents: any, invoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string } | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, itemName: string, groupedBy: any, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }>, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null };
+
 export type InvoiceForCreditNoteFormCalculationFragment = { __typename?: 'Invoice', id: string, couponsAmountCents: any, paymentStatus: InvoicePaymentStatusTypeEnum, creditableAmountCents: any, refundableAmountCents: any, feesAmountCents: any, currency?: CurrencyEnum | null, versionNumber: number, paymentDisputeLostAt?: any | null, totalPaidAmountCents: any, fees?: Array<{ __typename?: 'Fee', id: string, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxName: string, taxRate: number }> | null }> | null };
 
 export type CreditNoteEstimateQueryVariables = Exact<{
@@ -10361,19 +10388,12 @@ export type GetSubscriptionForCreateSubscriptionQueryVariables = Exact<{
 
 export type GetSubscriptionForCreateSubscriptionQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, billingTime?: BillingTimeEnum | null, periodEndDate?: any | null, status?: StatusTypeEnum | null, startedAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval, parent?: { __typename?: 'Plan', id: string } | null } } | null };
 
-export type GetCreditNoteQueryVariables = Exact<{
+export type GetCreditNoteForDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCreditNoteQuery = { __typename?: 'Query', creditNote?: { __typename?: 'CreditNote', id: string, balanceAmountCents: any, canBeVoided: boolean, couponsAdjustmentAmountCents: any, createdAt: any, creditAmountCents: any, creditStatus?: CreditNoteCreditStatusEnum | null, currency: CurrencyEnum, number: string, refundAmountCents: any, refundedAt?: any | null, refundStatus?: CreditNoteRefundStatusEnum | null, subTotalExcludingTaxesAmountCents: any, totalAmountCents: any, integrationSyncable: boolean, taxProviderSyncable: boolean, taxProviderId?: string | null, externalIntegrationId?: string | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, deletedAt?: any | null, applicableTimezone: TimezoneEnum, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string, integrationId?: string | null } | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, integrationId?: string | null, externalAccountId?: string | null } | null }, invoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string } | null, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, itemName: string, groupedBy: any, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }>, billingEntity: { __typename?: 'BillingEntity', name: string, code: string } } | null };
-
-export type IntegrationsListForCreditNoteDetailsQueryVariables = Exact<{
-  limit?: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-export type IntegrationsListForCreditNoteDetailsQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename: 'AvalaraIntegration', id: string, accountId?: string | null, companyId?: string | null } | { __typename?: 'HubspotIntegration' } | { __typename: 'NetsuiteIntegration', id: string, accountId?: string | null, name: string } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
+export type GetCreditNoteForDetailsQuery = { __typename?: 'Query', creditNote?: { __typename?: 'CreditNote', id: string, number: string, canBeVoided: boolean, totalAmountCents: any, currency: CurrencyEnum, integrationSyncable: boolean, taxProviderSyncable: boolean, externalIntegrationId?: string | null, taxProviderId?: string | null, customer: { __typename?: 'Customer', anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, integrationId?: string | null, externalAccountId?: string | null } | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string, integrationId?: string | null } | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null } | null } } | null };
 
 export type SyncIntegrationCreditNoteMutationVariables = Exact<{
   input: SyncIntegrationCreditNoteInput;
@@ -11295,6 +11315,92 @@ export const TerminateCouponFragmentDoc = gql`
     fragment TerminateCoupon on Coupon {
   id
   name
+}
+    `;
+export const CustomerForCreditNoteDetailsExternalSyncFragmentDoc = gql`
+    fragment CustomerForCreditNoteDetailsExternalSync on Customer {
+  anrokCustomer {
+    id
+    integrationId
+    externalAccountId
+  }
+  avalaraCustomer {
+    id
+    integrationId
+  }
+  netsuiteCustomer {
+    id
+    integrationId
+  }
+  xeroCustomer {
+    id
+    integrationId
+  }
+}
+    `;
+export const CreditNoteDetailsForOverviewTableFragmentDoc = gql`
+    fragment CreditNoteDetailsForOverviewTable on CreditNote {
+  id
+  invoice {
+    id
+    invoiceType
+    number
+  }
+  items {
+    amountCents
+    amountCurrency
+    fee {
+      id
+      amountCents
+      eventsCount
+      units
+      feeType
+      itemName
+      groupedBy
+      invoiceName
+      appliedTaxes {
+        id
+        taxRate
+      }
+      trueUpParentFee {
+        id
+      }
+      charge {
+        id
+        billableMetric {
+          id
+          name
+          aggregationType
+        }
+      }
+      subscription {
+        id
+        name
+        plan {
+          id
+          name
+          invoiceDisplayName
+        }
+      }
+      chargeFilter {
+        invoiceDisplayName
+        values
+      }
+    }
+  }
+  couponsAdjustmentAmountCents
+  currency
+  subTotalExcludingTaxesAmountCents
+  appliedTaxes {
+    id
+    amountCents
+    baseAmountCents
+    taxRate
+    taxName
+  }
+  creditAmountCents
+  refundAmountCents
+  totalAmountCents
 }
     `;
 export const CreditNoteTableItemFragmentDoc = gql`
@@ -15691,6 +15797,172 @@ export function useTerminateCouponMutation(baseOptions?: Apollo.MutationHookOpti
 export type TerminateCouponMutationHookResult = ReturnType<typeof useTerminateCouponMutation>;
 export type TerminateCouponMutationResult = Apollo.MutationResult<TerminateCouponMutation>;
 export type TerminateCouponMutationOptions = Apollo.BaseMutationOptions<TerminateCouponMutation, TerminateCouponMutationVariables>;
+export const GetCreditNoteForDetailsExternalSyncDocument = gql`
+    query getCreditNoteForDetailsExternalSync($id: ID!) {
+  creditNote(id: $id) {
+    id
+    taxProviderId
+    taxProviderSyncable
+    externalIntegrationId
+    customer {
+      ...CustomerForCreditNoteDetailsExternalSync
+    }
+  }
+}
+    ${CustomerForCreditNoteDetailsExternalSyncFragmentDoc}`;
+
+/**
+ * __useGetCreditNoteForDetailsExternalSyncQuery__
+ *
+ * To run a query within a React component, call `useGetCreditNoteForDetailsExternalSyncQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCreditNoteForDetailsExternalSyncQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCreditNoteForDetailsExternalSyncQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetCreditNoteForDetailsExternalSyncQuery(baseOptions: Apollo.QueryHookOptions<GetCreditNoteForDetailsExternalSyncQuery, GetCreditNoteForDetailsExternalSyncQueryVariables> & ({ variables: GetCreditNoteForDetailsExternalSyncQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCreditNoteForDetailsExternalSyncQuery, GetCreditNoteForDetailsExternalSyncQueryVariables>(GetCreditNoteForDetailsExternalSyncDocument, options);
+      }
+export function useGetCreditNoteForDetailsExternalSyncLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCreditNoteForDetailsExternalSyncQuery, GetCreditNoteForDetailsExternalSyncQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCreditNoteForDetailsExternalSyncQuery, GetCreditNoteForDetailsExternalSyncQueryVariables>(GetCreditNoteForDetailsExternalSyncDocument, options);
+        }
+export function useGetCreditNoteForDetailsExternalSyncSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCreditNoteForDetailsExternalSyncQuery, GetCreditNoteForDetailsExternalSyncQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCreditNoteForDetailsExternalSyncQuery, GetCreditNoteForDetailsExternalSyncQueryVariables>(GetCreditNoteForDetailsExternalSyncDocument, options);
+        }
+export type GetCreditNoteForDetailsExternalSyncQueryHookResult = ReturnType<typeof useGetCreditNoteForDetailsExternalSyncQuery>;
+export type GetCreditNoteForDetailsExternalSyncLazyQueryHookResult = ReturnType<typeof useGetCreditNoteForDetailsExternalSyncLazyQuery>;
+export type GetCreditNoteForDetailsExternalSyncSuspenseQueryHookResult = ReturnType<typeof useGetCreditNoteForDetailsExternalSyncSuspenseQuery>;
+export type GetCreditNoteForDetailsExternalSyncQueryResult = Apollo.QueryResult<GetCreditNoteForDetailsExternalSyncQuery, GetCreditNoteForDetailsExternalSyncQueryVariables>;
+export const GetIntegrationsListForCreditNoteDetailsExternalSyncDocument = gql`
+    query getIntegrationsListForCreditNoteDetailsExternalSync($limit: Int) {
+  integrations(limit: $limit) {
+    collection {
+      ... on AnrokIntegration {
+        __typename
+        id
+      }
+      ... on AvalaraIntegration {
+        __typename
+        id
+        accountId
+        companyId
+      }
+      ... on NetsuiteIntegration {
+        __typename
+        id
+        accountId
+        name
+      }
+      ... on XeroIntegration {
+        __typename
+        id
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetIntegrationsListForCreditNoteDetailsExternalSyncQuery__
+ *
+ * To run a query within a React component, call `useGetIntegrationsListForCreditNoteDetailsExternalSyncQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetIntegrationsListForCreditNoteDetailsExternalSyncQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetIntegrationsListForCreditNoteDetailsExternalSyncQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetIntegrationsListForCreditNoteDetailsExternalSyncQuery(baseOptions?: Apollo.QueryHookOptions<GetIntegrationsListForCreditNoteDetailsExternalSyncQuery, GetIntegrationsListForCreditNoteDetailsExternalSyncQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetIntegrationsListForCreditNoteDetailsExternalSyncQuery, GetIntegrationsListForCreditNoteDetailsExternalSyncQueryVariables>(GetIntegrationsListForCreditNoteDetailsExternalSyncDocument, options);
+      }
+export function useGetIntegrationsListForCreditNoteDetailsExternalSyncLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetIntegrationsListForCreditNoteDetailsExternalSyncQuery, GetIntegrationsListForCreditNoteDetailsExternalSyncQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetIntegrationsListForCreditNoteDetailsExternalSyncQuery, GetIntegrationsListForCreditNoteDetailsExternalSyncQueryVariables>(GetIntegrationsListForCreditNoteDetailsExternalSyncDocument, options);
+        }
+export function useGetIntegrationsListForCreditNoteDetailsExternalSyncSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetIntegrationsListForCreditNoteDetailsExternalSyncQuery, GetIntegrationsListForCreditNoteDetailsExternalSyncQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetIntegrationsListForCreditNoteDetailsExternalSyncQuery, GetIntegrationsListForCreditNoteDetailsExternalSyncQueryVariables>(GetIntegrationsListForCreditNoteDetailsExternalSyncDocument, options);
+        }
+export type GetIntegrationsListForCreditNoteDetailsExternalSyncQueryHookResult = ReturnType<typeof useGetIntegrationsListForCreditNoteDetailsExternalSyncQuery>;
+export type GetIntegrationsListForCreditNoteDetailsExternalSyncLazyQueryHookResult = ReturnType<typeof useGetIntegrationsListForCreditNoteDetailsExternalSyncLazyQuery>;
+export type GetIntegrationsListForCreditNoteDetailsExternalSyncSuspenseQueryHookResult = ReturnType<typeof useGetIntegrationsListForCreditNoteDetailsExternalSyncSuspenseQuery>;
+export type GetIntegrationsListForCreditNoteDetailsExternalSyncQueryResult = Apollo.QueryResult<GetIntegrationsListForCreditNoteDetailsExternalSyncQuery, GetIntegrationsListForCreditNoteDetailsExternalSyncQueryVariables>;
+export const GetCreditNoteForDetailsOverviewDocument = gql`
+    query getCreditNoteForDetailsOverview($id: ID!) {
+  creditNote(id: $id) {
+    id
+    createdAt
+    balanceAmountCents
+    currency
+    creditStatus
+    refundStatus
+    refundedAt
+    refundAmountCents
+    billingEntity {
+      name
+      code
+    }
+    customer {
+      id
+      name
+      displayName
+      deletedAt
+      applicableTimezone
+    }
+    ...CreditNoteDetailsForOverviewTable
+  }
+}
+    ${CreditNoteDetailsForOverviewTableFragmentDoc}`;
+
+/**
+ * __useGetCreditNoteForDetailsOverviewQuery__
+ *
+ * To run a query within a React component, call `useGetCreditNoteForDetailsOverviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCreditNoteForDetailsOverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCreditNoteForDetailsOverviewQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetCreditNoteForDetailsOverviewQuery(baseOptions: Apollo.QueryHookOptions<GetCreditNoteForDetailsOverviewQuery, GetCreditNoteForDetailsOverviewQueryVariables> & ({ variables: GetCreditNoteForDetailsOverviewQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCreditNoteForDetailsOverviewQuery, GetCreditNoteForDetailsOverviewQueryVariables>(GetCreditNoteForDetailsOverviewDocument, options);
+      }
+export function useGetCreditNoteForDetailsOverviewLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCreditNoteForDetailsOverviewQuery, GetCreditNoteForDetailsOverviewQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCreditNoteForDetailsOverviewQuery, GetCreditNoteForDetailsOverviewQueryVariables>(GetCreditNoteForDetailsOverviewDocument, options);
+        }
+export function useGetCreditNoteForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCreditNoteForDetailsOverviewQuery, GetCreditNoteForDetailsOverviewQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCreditNoteForDetailsOverviewQuery, GetCreditNoteForDetailsOverviewQueryVariables>(GetCreditNoteForDetailsOverviewDocument, options);
+        }
+export type GetCreditNoteForDetailsOverviewQueryHookResult = ReturnType<typeof useGetCreditNoteForDetailsOverviewQuery>;
+export type GetCreditNoteForDetailsOverviewLazyQueryHookResult = ReturnType<typeof useGetCreditNoteForDetailsOverviewLazyQuery>;
+export type GetCreditNoteForDetailsOverviewSuspenseQueryHookResult = ReturnType<typeof useGetCreditNoteForDetailsOverviewSuspenseQuery>;
+export type GetCreditNoteForDetailsOverviewQueryResult = Apollo.QueryResult<GetCreditNoteForDetailsOverviewQuery, GetCreditNoteForDetailsOverviewQueryVariables>;
 export const CreditNoteEstimateDocument = gql`
     query creditNoteEstimate($invoiceId: ID!, $items: [CreditNoteItemInput!]!) {
   creditNoteEstimate(invoiceId: $invoiceId, items: $items) {
@@ -27277,198 +27549,57 @@ export type GetSubscriptionForCreateSubscriptionQueryHookResult = ReturnType<typ
 export type GetSubscriptionForCreateSubscriptionLazyQueryHookResult = ReturnType<typeof useGetSubscriptionForCreateSubscriptionLazyQuery>;
 export type GetSubscriptionForCreateSubscriptionSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionForCreateSubscriptionSuspenseQuery>;
 export type GetSubscriptionForCreateSubscriptionQueryResult = Apollo.QueryResult<GetSubscriptionForCreateSubscriptionQuery, GetSubscriptionForCreateSubscriptionQueryVariables>;
-export const GetCreditNoteDocument = gql`
-    query getCreditNote($id: ID!) {
+export const GetCreditNoteForDetailsDocument = gql`
+    query getCreditNoteForDetails($id: ID!) {
   creditNote(id: $id) {
     id
-    balanceAmountCents
-    canBeVoided
-    couponsAdjustmentAmountCents
-    createdAt
-    creditAmountCents
-    creditStatus
-    currency
     number
-    refundAmountCents
-    refundedAt
-    refundStatus
-    subTotalExcludingTaxesAmountCents
+    canBeVoided
     totalAmountCents
+    currency
     integrationSyncable
     taxProviderSyncable
-    taxProviderId
     externalIntegrationId
+    taxProviderId
     customer {
-      id
-      name
-      displayName
-      deletedAt
-      applicableTimezone
-      avalaraCustomer {
-        id
-        integrationId
-      }
-      netsuiteCustomer {
-        id
-        integrationId
-      }
-      xeroCustomer {
-        id
-        integrationId
-      }
-      anrokCustomer {
-        id
-        integrationId
-        externalAccountId
-      }
-    }
-    invoice {
-      id
-      invoiceType
-      number
-    }
-    appliedTaxes {
-      id
-      amountCents
-      baseAmountCents
-      taxRate
-      taxName
-    }
-    items {
-      amountCents
-      amountCurrency
-      fee {
-        id
-        amountCents
-        eventsCount
-        units
-        feeType
-        itemName
-        groupedBy
-        invoiceName
-        appliedTaxes {
-          id
-          taxRate
-        }
-        trueUpParentFee {
-          id
-        }
-        charge {
-          id
-          billableMetric {
-            id
-            name
-            aggregationType
-          }
-        }
-        subscription {
-          id
-          name
-          plan {
-            id
-            name
-            invoiceDisplayName
-          }
-        }
-        chargeFilter {
-          invoiceDisplayName
-          values
-        }
-      }
-    }
-    billingEntity {
-      name
-      code
+      ...CustomerForCreditNoteDetailsExternalSync
     }
   }
 }
-    `;
+    ${CustomerForCreditNoteDetailsExternalSyncFragmentDoc}`;
 
 /**
- * __useGetCreditNoteQuery__
+ * __useGetCreditNoteForDetailsQuery__
  *
- * To run a query within a React component, call `useGetCreditNoteQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCreditNoteQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetCreditNoteForDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCreditNoteForDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetCreditNoteQuery({
+ * const { data, loading, error } = useGetCreditNoteForDetailsQuery({
  *   variables: {
  *      id: // value for 'id'
  *   },
  * });
  */
-export function useGetCreditNoteQuery(baseOptions: Apollo.QueryHookOptions<GetCreditNoteQuery, GetCreditNoteQueryVariables> & ({ variables: GetCreditNoteQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function useGetCreditNoteForDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetCreditNoteForDetailsQuery, GetCreditNoteForDetailsQueryVariables> & ({ variables: GetCreditNoteForDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetCreditNoteQuery, GetCreditNoteQueryVariables>(GetCreditNoteDocument, options);
+        return Apollo.useQuery<GetCreditNoteForDetailsQuery, GetCreditNoteForDetailsQueryVariables>(GetCreditNoteForDetailsDocument, options);
       }
-export function useGetCreditNoteLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCreditNoteQuery, GetCreditNoteQueryVariables>) {
+export function useGetCreditNoteForDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCreditNoteForDetailsQuery, GetCreditNoteForDetailsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetCreditNoteQuery, GetCreditNoteQueryVariables>(GetCreditNoteDocument, options);
+          return Apollo.useLazyQuery<GetCreditNoteForDetailsQuery, GetCreditNoteForDetailsQueryVariables>(GetCreditNoteForDetailsDocument, options);
         }
-export function useGetCreditNoteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCreditNoteQuery, GetCreditNoteQueryVariables>) {
+export function useGetCreditNoteForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCreditNoteForDetailsQuery, GetCreditNoteForDetailsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetCreditNoteQuery, GetCreditNoteQueryVariables>(GetCreditNoteDocument, options);
+          return Apollo.useSuspenseQuery<GetCreditNoteForDetailsQuery, GetCreditNoteForDetailsQueryVariables>(GetCreditNoteForDetailsDocument, options);
         }
-export type GetCreditNoteQueryHookResult = ReturnType<typeof useGetCreditNoteQuery>;
-export type GetCreditNoteLazyQueryHookResult = ReturnType<typeof useGetCreditNoteLazyQuery>;
-export type GetCreditNoteSuspenseQueryHookResult = ReturnType<typeof useGetCreditNoteSuspenseQuery>;
-export type GetCreditNoteQueryResult = Apollo.QueryResult<GetCreditNoteQuery, GetCreditNoteQueryVariables>;
-export const IntegrationsListForCreditNoteDetailsDocument = gql`
-    query integrationsListForCreditNoteDetails($limit: Int) {
-  integrations(limit: $limit) {
-    collection {
-      ... on NetsuiteIntegration {
-        __typename
-        id
-        accountId
-        name
-      }
-      ... on AvalaraIntegration {
-        __typename
-        id
-        accountId
-        companyId
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __useIntegrationsListForCreditNoteDetailsQuery__
- *
- * To run a query within a React component, call `useIntegrationsListForCreditNoteDetailsQuery` and pass it any options that fit your needs.
- * When your component renders, `useIntegrationsListForCreditNoteDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useIntegrationsListForCreditNoteDetailsQuery({
- *   variables: {
- *      limit: // value for 'limit'
- *   },
- * });
- */
-export function useIntegrationsListForCreditNoteDetailsQuery(baseOptions?: Apollo.QueryHookOptions<IntegrationsListForCreditNoteDetailsQuery, IntegrationsListForCreditNoteDetailsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<IntegrationsListForCreditNoteDetailsQuery, IntegrationsListForCreditNoteDetailsQueryVariables>(IntegrationsListForCreditNoteDetailsDocument, options);
-      }
-export function useIntegrationsListForCreditNoteDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<IntegrationsListForCreditNoteDetailsQuery, IntegrationsListForCreditNoteDetailsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<IntegrationsListForCreditNoteDetailsQuery, IntegrationsListForCreditNoteDetailsQueryVariables>(IntegrationsListForCreditNoteDetailsDocument, options);
-        }
-export function useIntegrationsListForCreditNoteDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<IntegrationsListForCreditNoteDetailsQuery, IntegrationsListForCreditNoteDetailsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<IntegrationsListForCreditNoteDetailsQuery, IntegrationsListForCreditNoteDetailsQueryVariables>(IntegrationsListForCreditNoteDetailsDocument, options);
-        }
-export type IntegrationsListForCreditNoteDetailsQueryHookResult = ReturnType<typeof useIntegrationsListForCreditNoteDetailsQuery>;
-export type IntegrationsListForCreditNoteDetailsLazyQueryHookResult = ReturnType<typeof useIntegrationsListForCreditNoteDetailsLazyQuery>;
-export type IntegrationsListForCreditNoteDetailsSuspenseQueryHookResult = ReturnType<typeof useIntegrationsListForCreditNoteDetailsSuspenseQuery>;
-export type IntegrationsListForCreditNoteDetailsQueryResult = Apollo.QueryResult<IntegrationsListForCreditNoteDetailsQuery, IntegrationsListForCreditNoteDetailsQueryVariables>;
+export type GetCreditNoteForDetailsQueryHookResult = ReturnType<typeof useGetCreditNoteForDetailsQuery>;
+export type GetCreditNoteForDetailsLazyQueryHookResult = ReturnType<typeof useGetCreditNoteForDetailsLazyQuery>;
+export type GetCreditNoteForDetailsSuspenseQueryHookResult = ReturnType<typeof useGetCreditNoteForDetailsSuspenseQuery>;
+export type GetCreditNoteForDetailsQueryResult = Apollo.QueryResult<GetCreditNoteForDetailsQuery, GetCreditNoteForDetailsQueryVariables>;
 export const SyncIntegrationCreditNoteDocument = gql`
     mutation syncIntegrationCreditNote($input: SyncIntegrationCreditNoteInput!) {
   syncIntegrationCreditNote(input: $input) {

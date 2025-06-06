@@ -27,6 +27,7 @@ export const CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE = `${CUSTOMER_DETAILS_ROUTE}
 export const CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/credit-notes/:creditNoteId`
 export const CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/credit-notes/:creditNoteId`
 export const CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/create/credit-notes`
+export const CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE = `${CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE}/:tab`
 
 export const customerRoutes: CustomRouteObject[] = [
   {
@@ -54,7 +55,11 @@ export const customerRoutes: CustomRouteObject[] = [
     permissions: ['invoicesView'],
   },
   {
-    path: [CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE],
+    path: [
+      CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
+      CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE,
+      CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE,
+    ],
     private: true,
     element: <CreditNoteDetails />,
     permissions: ['creditNotesView'],
