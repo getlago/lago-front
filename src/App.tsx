@@ -15,7 +15,7 @@ import { UserIdentifier } from '~/components/UserIdentifier'
 import { envGlobalVar, initializeApolloClient, initializeTranslations } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { initializeYup } from '~/formValidation/initializeYup'
-import { DeveloperToolProvider } from '~/hooks/useDeveloperTool'
+import { DeveloperToolProvider, DEVTOOL_AUTO_SAVE_ID } from '~/hooks/useDeveloperTool'
 import { theme } from '~/styles'
 
 const App = () => {
@@ -49,7 +49,7 @@ const App = () => {
           <DesignSystemProvider>
             <ErrorBoundary>
               <DeveloperToolProvider>
-                <PanelGroup direction="vertical" autoSaveId="devtools">
+                <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
                   <Panel id="app-panel" order={1}>
                     <div className="h-full overflow-auto">
                       <BrowserRouter basename="/">
