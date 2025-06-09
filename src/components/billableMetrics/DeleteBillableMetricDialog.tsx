@@ -59,7 +59,10 @@ export const DeleteBillableMetricDialog = forwardRef<DeleteBillableMetricDialogR
           severity: 'success',
         })
 
-        localData?.callback && localData.callback()
+        if (localData?.callback) {
+          localData.callback()
+          setLocalData(undefined)
+        }
       }
     },
     refetchQueries: ['billableMetrics'],
