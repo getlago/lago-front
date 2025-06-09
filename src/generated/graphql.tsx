@@ -7897,6 +7897,16 @@ export type CouponCaptionFragment = { __typename?: 'Coupon', id: string, amountC
 
 export type AppliedCouponCaptionFragment = { __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null };
 
+export type CouponDetailsActivityLogsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceTypes?: InputMaybe<Array<ResourceTypeEnum> | ResourceTypeEnum>;
+  resourceIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+export type CouponDetailsActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+
 export type CouponDetailsForOverviewFragment = { __typename?: 'Coupon', name: string, code?: string | null, couponType: CouponTypeEnum, amountCurrency?: CurrencyEnum | null, status: CouponStatusEnum, frequency: CouponFrequency, reusable: boolean, expirationAt?: any | null, amountCents?: any | null, percentageRate?: number | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null };
 
 export type GetCouponForDetailsOverviewQueryVariables = Exact<{
@@ -15837,6 +15847,60 @@ export type GetPlansForCouponsQueryHookResult = ReturnType<typeof useGetPlansFor
 export type GetPlansForCouponsLazyQueryHookResult = ReturnType<typeof useGetPlansForCouponsLazyQuery>;
 export type GetPlansForCouponsSuspenseQueryHookResult = ReturnType<typeof useGetPlansForCouponsSuspenseQuery>;
 export type GetPlansForCouponsQueryResult = Apollo.QueryResult<GetPlansForCouponsQuery, GetPlansForCouponsQueryVariables>;
+export const CouponDetailsActivityLogsDocument = gql`
+    query CouponDetailsActivityLogs($page: Int, $limit: Int, $resourceTypes: [ResourceTypeEnum!], $resourceIds: [String!]) {
+  activityLogs(
+    page: $page
+    limit: $limit
+    resourceTypes: $resourceTypes
+    resourceIds: $resourceIds
+  ) {
+    collection {
+      ...ActivityLogsTableData
+    }
+    metadata {
+      currentPage
+      totalPages
+    }
+  }
+}
+    ${ActivityLogsTableDataFragmentDoc}`;
+
+/**
+ * __useCouponDetailsActivityLogsQuery__
+ *
+ * To run a query within a React component, call `useCouponDetailsActivityLogsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCouponDetailsActivityLogsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCouponDetailsActivityLogsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      resourceTypes: // value for 'resourceTypes'
+ *      resourceIds: // value for 'resourceIds'
+ *   },
+ * });
+ */
+export function useCouponDetailsActivityLogsQuery(baseOptions?: Apollo.QueryHookOptions<CouponDetailsActivityLogsQuery, CouponDetailsActivityLogsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CouponDetailsActivityLogsQuery, CouponDetailsActivityLogsQueryVariables>(CouponDetailsActivityLogsDocument, options);
+      }
+export function useCouponDetailsActivityLogsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CouponDetailsActivityLogsQuery, CouponDetailsActivityLogsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CouponDetailsActivityLogsQuery, CouponDetailsActivityLogsQueryVariables>(CouponDetailsActivityLogsDocument, options);
+        }
+export function useCouponDetailsActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CouponDetailsActivityLogsQuery, CouponDetailsActivityLogsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<CouponDetailsActivityLogsQuery, CouponDetailsActivityLogsQueryVariables>(CouponDetailsActivityLogsDocument, options);
+        }
+export type CouponDetailsActivityLogsQueryHookResult = ReturnType<typeof useCouponDetailsActivityLogsQuery>;
+export type CouponDetailsActivityLogsLazyQueryHookResult = ReturnType<typeof useCouponDetailsActivityLogsLazyQuery>;
+export type CouponDetailsActivityLogsSuspenseQueryHookResult = ReturnType<typeof useCouponDetailsActivityLogsSuspenseQuery>;
+export type CouponDetailsActivityLogsQueryResult = Apollo.QueryResult<CouponDetailsActivityLogsQuery, CouponDetailsActivityLogsQueryVariables>;
 export const GetCouponForDetailsOverviewDocument = gql`
     query getCouponForDetailsOverview($id: ID!) {
   coupon(id: $id) {

@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
+import { CouponDetailsActivityLogs } from '~/components/coupons/CouponDetailsActivityLogs'
 import { CouponDetailsOverview } from '~/components/coupons/CouponDetailsOverview'
 import { DeleteCouponDialog, DeleteCouponDialogRef } from '~/components/coupons/DeleteCouponDialog'
 import {
@@ -194,6 +195,18 @@ const CouponDetails = () => {
             component: (
               <DetailsPage.Container>
                 <CouponDetailsOverview />
+              </DetailsPage.Container>
+            ),
+          },
+          {
+            title: translate('text_1747314141347qq6rasuxisl'),
+            link: generatePath(COUPON_DETAILS_ROUTE, {
+              couponId: couponId as string,
+              tab: CouponDetailsTabsOptionsEnum.activityLogs,
+            }),
+            component: (
+              <DetailsPage.Container className="max-w-none">
+                <CouponDetailsActivityLogs couponId={couponId as string} />
               </DetailsPage.Container>
             ),
           },

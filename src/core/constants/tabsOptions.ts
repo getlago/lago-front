@@ -4,6 +4,7 @@ export enum BillableMetricDetailsTabsOptionsEnum {
 }
 
 export enum CouponDetailsTabsOptionsEnum {
+  activityLogs = 'activity-logs',
   overview = 'overview',
 }
 
