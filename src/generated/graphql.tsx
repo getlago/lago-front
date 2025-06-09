@@ -7931,6 +7931,16 @@ export type TerminateCouponMutationVariables = Exact<{
 
 export type TerminateCouponMutation = { __typename?: 'Mutation', terminateCoupon?: { __typename?: 'Coupon', id: string } | null };
 
+export type CreditNoteDetailsActivityLogsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceTypes?: InputMaybe<Array<ResourceTypeEnum> | ResourceTypeEnum>;
+  resourceIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+export type CreditNoteDetailsActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+
 export type CustomerForCreditNoteDetailsExternalSyncFragment = { __typename?: 'Customer', anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, integrationId?: string | null, externalAccountId?: string | null } | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string, integrationId?: string | null } | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null } | null };
 
 export type GetCreditNoteForDetailsExternalSyncQueryVariables = Exact<{
@@ -15974,6 +15984,60 @@ export function useTerminateCouponMutation(baseOptions?: Apollo.MutationHookOpti
 export type TerminateCouponMutationHookResult = ReturnType<typeof useTerminateCouponMutation>;
 export type TerminateCouponMutationResult = Apollo.MutationResult<TerminateCouponMutation>;
 export type TerminateCouponMutationOptions = Apollo.BaseMutationOptions<TerminateCouponMutation, TerminateCouponMutationVariables>;
+export const CreditNoteDetailsActivityLogsDocument = gql`
+    query CreditNoteDetailsActivityLogs($page: Int, $limit: Int, $resourceTypes: [ResourceTypeEnum!], $resourceIds: [String!]) {
+  activityLogs(
+    page: $page
+    limit: $limit
+    resourceTypes: $resourceTypes
+    resourceIds: $resourceIds
+  ) {
+    collection {
+      ...ActivityLogsTableData
+    }
+    metadata {
+      currentPage
+      totalPages
+    }
+  }
+}
+    ${ActivityLogsTableDataFragmentDoc}`;
+
+/**
+ * __useCreditNoteDetailsActivityLogsQuery__
+ *
+ * To run a query within a React component, call `useCreditNoteDetailsActivityLogsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCreditNoteDetailsActivityLogsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCreditNoteDetailsActivityLogsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      resourceTypes: // value for 'resourceTypes'
+ *      resourceIds: // value for 'resourceIds'
+ *   },
+ * });
+ */
+export function useCreditNoteDetailsActivityLogsQuery(baseOptions?: Apollo.QueryHookOptions<CreditNoteDetailsActivityLogsQuery, CreditNoteDetailsActivityLogsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CreditNoteDetailsActivityLogsQuery, CreditNoteDetailsActivityLogsQueryVariables>(CreditNoteDetailsActivityLogsDocument, options);
+      }
+export function useCreditNoteDetailsActivityLogsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CreditNoteDetailsActivityLogsQuery, CreditNoteDetailsActivityLogsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CreditNoteDetailsActivityLogsQuery, CreditNoteDetailsActivityLogsQueryVariables>(CreditNoteDetailsActivityLogsDocument, options);
+        }
+export function useCreditNoteDetailsActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CreditNoteDetailsActivityLogsQuery, CreditNoteDetailsActivityLogsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<CreditNoteDetailsActivityLogsQuery, CreditNoteDetailsActivityLogsQueryVariables>(CreditNoteDetailsActivityLogsDocument, options);
+        }
+export type CreditNoteDetailsActivityLogsQueryHookResult = ReturnType<typeof useCreditNoteDetailsActivityLogsQuery>;
+export type CreditNoteDetailsActivityLogsLazyQueryHookResult = ReturnType<typeof useCreditNoteDetailsActivityLogsLazyQuery>;
+export type CreditNoteDetailsActivityLogsSuspenseQueryHookResult = ReturnType<typeof useCreditNoteDetailsActivityLogsSuspenseQuery>;
+export type CreditNoteDetailsActivityLogsQueryResult = Apollo.QueryResult<CreditNoteDetailsActivityLogsQuery, CreditNoteDetailsActivityLogsQueryVariables>;
 export const GetCreditNoteForDetailsExternalSyncDocument = gql`
     query getCreditNoteForDetailsExternalSync($id: ID!) {
   creditNote(id: $id) {

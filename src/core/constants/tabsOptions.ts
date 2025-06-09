@@ -8,6 +8,7 @@ export enum CouponDetailsTabsOptionsEnum {
 }
 
 export enum CreditNoteDetailsTabsOptionsEnum {
+  activityLogs = 'activity-logs',
   externalSync = 'external-sync',
   overview = 'overview',
 }
