@@ -1,26 +1,31 @@
 export enum BillableMetricDetailsTabsOptionsEnum {
+  activityLogs = 'activity-logs',
   overview = 'overview',
 }
 
 export enum CouponDetailsTabsOptionsEnum {
+  activityLogs = 'activity-logs',
   overview = 'overview',
 }
 
 export enum CreditNoteDetailsTabsOptionsEnum {
+  activityLogs = 'activity-logs',
   externalSync = 'external-sync',
   overview = 'overview',
 }
 
 export enum CustomerInvoiceDetailsTabsOptionsEnum {
+  activityLogs = 'activity-logs',
+  creditNotes = 'credit-notes',
   overview = 'overview',
   payments = 'payments',
-  creditNotes = 'credit-notes',
 }
 
 export enum CustomerSubscriptionDetailsTabsOptionsEnum {
+  activityLogs = 'activity-logs',
+  alerts = 'alerts',
   overview = 'overview',
   usage = 'usage',
-  alerts = 'alerts',
 }
 
 export enum IntegrationsTabsOptionsEnum {
@@ -29,6 +34,7 @@ export enum IntegrationsTabsOptionsEnum {
 }
 
 export enum PlanDetailsTabsOptionsEnum {
+  activityLogs = 'activity-logs',
   overview = 'overview',
   subscriptions = 'subscriptions',
 }
@@ -48,12 +54,13 @@ export enum InvoiceListTabEnum {
 }
 
 export enum CustomerDetailsTabsOptions {
+  activityLogs = 'activity-logs',
   creditNotes = 'creditNotes',
-  overview = 'overview',
-  wallet = 'wallet',
+  information = 'information',
   invoices = 'invoices',
+  overview = 'overview',
   payments = 'payments',
   settings = 'settings',
   usage = 'usage',
-  information = 'information',
+  wallet = 'wallet',
 }

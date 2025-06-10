@@ -20,7 +20,7 @@ export const cache = new InMemoryCache({
     Query: {
       fields: {
         activityLogs: {
-          keyArgs: false,
+          keyArgs: ['externalCustomerId', 'externalSubscriptionId', 'resourceTypes', 'resourceIds'],
           merge: mergePaginatedCollection,
         },
         billableMetrics: {

@@ -30,6 +30,7 @@ import {
   FinalizeInvoiceDialog,
   FinalizeInvoiceDialogRef,
 } from '~/components/invoices/FinalizeInvoiceDialog'
+import { InvoiceActivityLogs } from '~/components/invoices/InvoiceActivityLogs'
 import { InvoiceCreditNoteList } from '~/components/invoices/InvoiceCreditNoteList'
 import { InvoicePaymentList } from '~/components/invoices/InvoicePaymentList'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
@@ -614,6 +615,27 @@ const CustomerInvoiceDetails = () => {
         component: <InvoiceCreditNoteList />,
       })
     }
+
+    tabs.push({
+      title: translate('text_1747314141347qq6rasuxisl'),
+      link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+        customerId: customerId as string,
+        invoiceId: invoiceId as string,
+        tab: CustomerInvoiceDetailsTabsOptionsEnum.activityLogs,
+      }),
+      match: [
+        generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+          customerId: customerId as string,
+          invoiceId: invoiceId as string,
+          tab: CustomerInvoiceDetailsTabsOptionsEnum.activityLogs,
+        }),
+      ],
+      component: (
+        <div className="pt-8">
+          <InvoiceActivityLogs invoiceId={invoiceId as string} />
+        </div>
+      ),
+    })
 
     return tabs
   }, [

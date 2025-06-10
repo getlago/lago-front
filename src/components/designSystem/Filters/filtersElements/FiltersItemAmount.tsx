@@ -6,8 +6,8 @@ import {
   AMOUNT_INTERVALS_TRANSLATION_MAP,
   AmountFilterInterval,
   FiltersFormValues,
-  parseAmountValue,
-} from '~/components/designSystem/Filters'
+} from '~/components/designSystem/Filters/types'
+import { parseAmountValue } from '~/components/designSystem/Filters/utils'
 import { ComboBoxField, TextInputField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 

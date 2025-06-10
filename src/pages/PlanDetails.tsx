@@ -5,6 +5,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { Button, NavigationTab, Popper, Skeleton, Typography } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
+import { PlanDetailsActivityLogs } from '~/components/plans/details/PlanDetailsActivityLogs'
 import { PlanDetailsOverview } from '~/components/plans/details/PlanDetailsOverview'
 import PlanSubscriptionList from '~/components/plans/details/PlanSubscriptionList'
 import { updateDuplicatePlanVar } from '~/core/apolloClient'
@@ -201,6 +202,14 @@ const PlanDetails = () => {
                 <PlanSubscriptionList planCode={plan?.code} />
               </DetailsPage.Container>
             ),
+          },
+          {
+            title: translate('text_1747314141347qq6rasuxisl'),
+            link: generatePath(PLAN_DETAILS_ROUTE, {
+              planId: planId as string,
+              tab: PlanDetailsTabsOptionsEnum.activityLogs,
+            }),
+            component: <PlanDetailsActivityLogs planId={planId as string} />,
           },
         ]}
       />

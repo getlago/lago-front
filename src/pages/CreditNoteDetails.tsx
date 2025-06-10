@@ -3,6 +3,7 @@ import { useMemo, useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import CreditNoteBadge from '~/components/creditNote/CreditNoteBadge'
+import { CreditNoteDetailsActivityLogs } from '~/components/creditNote/CreditNoteDetailsActivityLogs'
 import { CreditNoteDetailsExternalSync } from '~/components/creditNote/CreditNoteDetailsExternalSync'
 import { CreditNoteDetailsOverview } from '~/components/creditNote/CreditNoteDetailsOverview'
 import {
@@ -402,6 +403,38 @@ const CreditNoteDetails = () => {
                   </DetailsPage.Container>
                 ),
                 hidden: !canShowExternalSyncTab,
+              },
+              {
+                title: translate('text_1747314141347qq6rasuxisl'),
+                link: generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE, {
+                  customerId: customerId as string,
+                  invoiceId: invoiceId as string,
+                  creditNoteId: creditNoteId as string,
+                  tab: CreditNoteDetailsTabsOptionsEnum.activityLogs,
+                }),
+                match: [
+                  generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
+                    customerId: customerId as string,
+                    invoiceId: invoiceId as string,
+                    creditNoteId: creditNoteId as string,
+                  }),
+                  generatePath(CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE, {
+                    customerId: customerId as string,
+                    creditNoteId: creditNoteId as string,
+                  }),
+                  generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE, {
+                    customerId: customerId as string,
+                    invoiceId: invoiceId as string,
+                    creditNoteId: creditNoteId as string,
+                    tab: CreditNoteDetailsTabsOptionsEnum.activityLogs,
+                  }),
+                ],
+                component: (
+                  <DetailsPage.Container className="max-w-none">
+                    <CreditNoteDetailsActivityLogs creditNoteId={creditNoteId as string} />
+                  </DetailsPage.Container>
+                ),
+                hidden: !creditNoteId,
               },
             ]}
           />

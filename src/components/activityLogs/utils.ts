@@ -1,9 +1,21 @@
+import { generatePath } from 'react-router-dom'
+
+import { AvailableFiltersEnum, setFilterValue } from '~/components/designSystem/Filters'
+import { ACTIVITY_LOG_ROUTE } from '~/components/developers/DevtoolsRouter'
+import { ACTIVITY_LOG_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { ActivityTypeEnum, CurrencyEnum } from '~/generated/graphql'
 
+// This function is used to check if all activity types are handled
 const exhaustiveCheck = (value: never): never => {
-  throw new Error(`Unhandled activity type: ${value}`)
+  try {
+    throw new Error(`Unhandled activity type: ${value}`)
+  } catch {
+    // Do nothing to avoid breaking on runtime
+  }
+
+  return value
 }
 
 const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
@@ -36,6 +48,7 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.InvoiceVoided]: 'text_174740465663220m8nkwjqjq',
   [ActivityTypeEnum.PaymentReceiptCreated]: 'text_1747404656632xnc93fx6cw8',
   [ActivityTypeEnum.PaymentReceiptGenerated]: 'text_1747404806714bdtx6o45wx8',
+  [ActivityTypeEnum.PaymentRequestCreated]: 'text_1749561986883tqfllead7o3',
   [ActivityTypeEnum.PaymentRecorded]: 'text_1747404806714jl31k553sr3',
   [ActivityTypeEnum.PlanCreated]: 'text_17474046566311qv73xswmnm',
   [ActivityTypeEnum.PlanDeleted]: 'text_1747404656631vh02b35uq80',
@@ -143,6 +156,18 @@ export function getActivityDescription(
         receiptNumber: activityObject.number,
       }
       break
+    case ActivityTypeEnum.PaymentRequestCreated:
+      currency = activityObject.currency as CurrencyEnum
+      amount = Number(activityObject.amount_cents) || 0
+
+      parameters = {
+        amount: intlFormatNumber(deserializeAmount(amount, currency), {
+          style: 'currency',
+          currency,
+        }),
+      }
+
+      break
     case ActivityTypeEnum.PaymentRecorded:
       currency = activityObject.currency as CurrencyEnum
       amount = Number(activityObject.amount_cents) || 0
@@ -224,13 +249,7 @@ export function formatActivityType(activityType: ActivityTypeEnum) {
 export function formatResourceObject(resource: Record<string, unknown>): string | null {
   if (!resource) return null
 
-  switch (resource.__typename) {
-    case 'Customer':
-    case 'Subscription':
-      return resource.externalId as string
-    default:
-      return resource.id as string
-  }
+  return resource.id as string
 }
 
 export const resourceTypeTranslations: Record<string, string> = {
@@ -241,6 +260,25 @@ export const resourceTypeTranslations: Record<string, string> = {
   Customer: 'text_65201c5a175a4b0238abf29a',
   Invoice: 'text_63fcc3218d35b9377840f5b3',
   Plan: 'text_63d3a658c6d84a5843032145',
+  PaymentRequest: 'text_17495622741665lrk6dp6czk',
   Subscription: 'text_1728472697691k6k2e9m5ibb',
   Wallet: 'text_62d175066d2dbf1d50bc9384',
+}
+
+export function buildLinkToActivityLog(activityId: string, filter?: AvailableFiltersEnum): string {
+  const searchParams = new URLSearchParams()
+  const path = generatePath(ACTIVITY_LOG_ROUTE, { logId: activityId })
+
+  setFilterValue({
+    searchParams,
+    prefix: ACTIVITY_LOG_FILTER_PREFIX,
+    key: filter ?? AvailableFiltersEnum.activityIds,
+    value: activityId,
+  })
+
+  if (searchParams.size > 0) {
+    return `${path}?${searchParams.toString()}`
+  }
+
+  return path
 }

@@ -1,7 +1,7 @@
 import { Button, Tooltip } from 'lago-design-system'
-import { FC, useRef, useState } from 'react'
+import { FC, useEffect, useRef, useState } from 'react'
 import { ImperativePanelHandle, Panel, PanelResizeHandle } from 'react-resizable-panels'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { NavigationTab, TabManagedBy } from '~/components/designSystem'
 import { devToolsNavigationMapping, DevtoolsRouter } from '~/components/developers/DevtoolsRouter'
@@ -17,12 +17,14 @@ const DEFAULT_RESIZABLE_HEIGHT = 40
 const FULLSCREEN = 100
 
 export const DevtoolsView: FC = () => {
-  const { isOpen, close, setSize } = useDeveloperTool()
+  const { isOpen, close, setSize, url, setUrl } = useDeveloperTool()
   const [isFullscreen, setIsFullscreen] = useState(false)
   const { translate } = useInternationalization()
   const { pathname } = useLocation()
   const panel = useRef<ImperativePanelHandle>(null)
   const { hasPermissions } = usePermissions()
+
+  const navigate = useNavigate()
 
   const expandPanel = () => {
     let isLocalFullscreen = false
@@ -47,16 +49,28 @@ export const DevtoolsView: FC = () => {
   }
 
   const copyInspectorLink = () => {
-    const url = new URL(window.location.href)
+    const windowUrl = new URL(window.location.href)
     const encodedPathname = encodeURIComponent(pathname)
 
-    url.searchParams.set(DEVTOOL_TAB_PARAMS, encodedPathname)
-    copyToClipboard(url.toString())
+    windowUrl.searchParams.set(DEVTOOL_TAB_PARAMS, encodedPathname)
+    copyToClipboard(windowUrl.toString())
     addToast({
       severity: 'info',
       translateKey: 'text_1747726772472cm6yllhi7eh',
     })
   }
+
+  // The following effect listens for changes to the devtools URL intent (set via setUrl in the context).
+  // It must be placed here (inside DevtoolsView) because useNavigate must be called within the MemoryRouter context
+  // that wraps the devtools panel.
+  // Placing this logic in the useDeveloperTool hook would use the wrong router context (the main app's BrowserRouter),
+  // causing navigation to happen in the wrong place or throw errors.
+  useEffect(() => {
+    if (url) {
+      navigate(url)
+      setUrl('')
+    }
+  }, [url, navigate, setUrl])
 
   if (!isOpen) return null
 

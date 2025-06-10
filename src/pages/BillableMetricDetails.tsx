@@ -3,6 +3,7 @@ import { Button, Popper, Skeleton, Typography } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
+import { BillableMetricDetailsActivityLogs } from '~/components/billableMetrics/BillableMetricDetailsActivityLogs'
 import { BillableMetricDetailsOverview } from '~/components/billableMetrics/BillableMetricDetailsOverview'
 import {
   DeleteBillableMetricDialog,
@@ -169,6 +170,18 @@ const BillableMetricDetails = () => {
               <DetailsPage.Container>
                 <BillableMetricDetailsOverview />
               </DetailsPage.Container>
+            ),
+          },
+          {
+            title: translate('text_1747314141347qq6rasuxisl'),
+            link: generatePath(BILLABLE_METRIC_DETAILS_ROUTE, {
+              billableMetricId: billableMetricId as string,
+              tab: BillableMetricDetailsTabsOptionsEnum.activityLogs,
+            }),
+            component: (
+              <div className="px-12 py-8">
+                <BillableMetricDetailsActivityLogs billableMetricId={billableMetricId as string} />
+              </div>
             ),
           },
         ]}
