@@ -14,6 +14,7 @@ gql`
       addonsView
       analyticsView
       analyticsOverdueBalancesView
+      auditLogsView
       billableMetricsCreate
       billableMetricsDelete
       billableMetricsUpdate

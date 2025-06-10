@@ -10,7 +10,9 @@ import {
   useInvoiceActivityLogsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
+import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
   query CreditNoteDetailsActivityLogs(
@@ -47,6 +49,10 @@ export const CreditNoteDetailsActivityLogs = ({
 }: CreditNoteDetailsActivityLogsProps) => {
   const { translate } = useInternationalization()
   const { open, setUrl } = useDeveloperTool()
+  const { isPremium } = useCurrentUser()
+  const { hasPermissions } = usePermissions()
+
+  const canViewLogs = isPremium && hasPermissions(['auditLogsView'])
 
   const { data, loading, error, refetch, fetchMore } = useInvoiceActivityLogsQuery({
     variables: {
@@ -54,6 +60,7 @@ export const CreditNoteDetailsActivityLogs = ({
       resourceIds: [creditNoteId],
       limit: 20,
     },
+    skip: !canViewLogs,
   })
 
   return (

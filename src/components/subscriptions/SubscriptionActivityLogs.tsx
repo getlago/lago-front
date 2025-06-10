@@ -10,7 +10,9 @@ import {
   useSubscriptionActivityLogsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
+import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
   query SubscriptionActivityLogs($page: Int, $limit: Int, $externalSubscriptionId: String) {
@@ -37,12 +39,17 @@ export const SubscriptionActivityLogs: FC<SubscriptionActivityLogsProps> = ({
 }) => {
   const { translate } = useInternationalization()
   const { open, setUrl } = useDeveloperTool()
+  const { isPremium } = useCurrentUser()
+  const { hasPermissions } = usePermissions()
+
+  const canViewLogs = isPremium && hasPermissions(['auditLogsView'])
 
   const { data, loading, error, refetch, fetchMore } = useSubscriptionActivityLogsQuery({
     variables: {
       externalSubscriptionId: externalSubscriptionId,
       limit: 20,
     },
+    skip: !canViewLogs,
   })
 
   return (

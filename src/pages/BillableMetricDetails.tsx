@@ -23,6 +23,7 @@ import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { useGetBillableMetricForHeaderDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper, PageHeader } from '~/styles'
 
@@ -42,6 +43,7 @@ const BillableMetricDetails = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { billableMetricId } = useParams()
+  const { isPremium } = useCurrentUser()
 
   const deleteBillableMetricDialogRef = useRef<DeleteBillableMetricDialogRef>(null)
 
@@ -183,6 +185,7 @@ const BillableMetricDetails = () => {
                 <BillableMetricDetailsActivityLogs billableMetricId={billableMetricId as string} />
               </div>
             ),
+            hidden: !isPremium || !hasPermissions(['auditLogsView']),
           },
         ]}
       />

@@ -44,6 +44,7 @@ export const DevtoolsRouter = () => {
 export const devToolsNavigationMapping = (
   translate: ReturnType<typeof useInternationalization>['translate'],
   hasPermissions: ReturnType<typeof usePermissions>['hasPermissions'],
+  isPremium: boolean,
 ) => {
   const tabs = [
     {
@@ -67,7 +68,7 @@ export const devToolsNavigationMapping = (
       title: translate('text_1747314141347qq6rasuxisl'),
       link: ACTIVITY_ROUTE,
       match: [ACTIVITY_ROUTE, ACTIVITY_LOG_ROUTE],
-      hidden: !hasPermissions(['developersManage']),
+      hidden: !isPremium || !hasPermissions(['developersManage', 'auditLogsView']),
     },
   ]
 

@@ -10,7 +10,9 @@ import {
   usePlanDetailsActivityLogsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
+import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
   query PlanDetailsActivityLogs(
@@ -45,6 +47,10 @@ interface PlanDetailsActivityLogsProps {
 export const PlanDetailsActivityLogs = ({ planId }: PlanDetailsActivityLogsProps) => {
   const { translate } = useInternationalization()
   const { open, setUrl } = useDeveloperTool()
+  const { isPremium } = useCurrentUser()
+  const { hasPermissions } = usePermissions()
+
+  const canViewLogs = isPremium && hasPermissions(['auditLogsView'])
 
   const { data, loading, error, refetch, fetchMore } = usePlanDetailsActivityLogsQuery({
     variables: {
@@ -52,6 +58,7 @@ export const PlanDetailsActivityLogs = ({ planId }: PlanDetailsActivityLogsProps
       resourceIds: [planId],
       limit: 20,
     },
+    skip: !canViewLogs,
   })
 
   return (

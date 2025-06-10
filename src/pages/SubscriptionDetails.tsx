@@ -388,7 +388,7 @@ const SubscriptionDetails = () => {
             component: (
               <SubscriptionActivityLogs externalSubscriptionId={subscription?.externalId || ''} />
             ),
-            hidden: !subscription?.externalId,
+            hidden: !subscription?.externalId || !isPremium || !hasPermissions(['auditLogsView']),
           },
         ]}
       />

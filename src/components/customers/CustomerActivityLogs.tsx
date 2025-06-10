@@ -6,7 +6,9 @@ import { InfiniteScroll } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { ActivityLogsTableDataFragmentDoc, useCustomerActivityLogsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
+import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
   query CustomerActivityLogs($page: Int, $limit: Int, $externalCustomerId: String) {
@@ -31,12 +33,17 @@ interface CustomerActivityLogsProps {
 export const CustomerActivityLogs = ({ externalCustomerId }: CustomerActivityLogsProps) => {
   const { translate } = useInternationalization()
   const { open, setUrl } = useDeveloperTool()
+  const { isPremium } = useCurrentUser()
+  const { hasPermissions } = usePermissions()
+
+  const canViewLogs = isPremium && hasPermissions(['auditLogsView'])
 
   const { data, loading, error, refetch, fetchMore } = useCustomerActivityLogsQuery({
     variables: {
       externalCustomerId: externalCustomerId,
       limit: 20,
     },
+    skip: !canViewLogs,
   })
 
   return (

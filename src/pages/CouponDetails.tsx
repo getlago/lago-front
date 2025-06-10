@@ -28,6 +28,7 @@ import {
   useGetCouponForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper, PageHeader } from '~/styles'
 
@@ -60,6 +61,7 @@ const CouponDetails = () => {
   const { hasPermissions } = usePermissions()
   const { translate } = useInternationalization()
   const { couponId } = useParams()
+  const { isPremium } = useCurrentUser()
 
   const deleteDialogRef = useRef<DeleteCouponDialogRef>(null)
   const terminateDialogRef = useRef<TerminateCouponDialogRef>(null)
@@ -212,6 +214,7 @@ const CouponDetails = () => {
                 <CouponDetailsActivityLogs couponId={couponId as string} />
               </DetailsPage.Container>
             ),
+            hidden: !isPremium || !hasPermissions(['auditLogsView']),
           },
         ]}
       />

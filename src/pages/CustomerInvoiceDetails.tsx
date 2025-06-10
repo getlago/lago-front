@@ -616,26 +616,28 @@ const CustomerInvoiceDetails = () => {
       })
     }
 
-    tabs.push({
-      title: translate('text_1747314141347qq6rasuxisl'),
-      link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-        customerId: customerId as string,
-        invoiceId: invoiceId as string,
-        tab: CustomerInvoiceDetailsTabsOptionsEnum.activityLogs,
-      }),
-      match: [
-        generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+    if (isPremium && hasPermissions(['auditLogsView'])) {
+      tabs.push({
+        title: translate('text_1747314141347qq6rasuxisl'),
+        link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
           customerId: customerId as string,
           invoiceId: invoiceId as string,
           tab: CustomerInvoiceDetailsTabsOptionsEnum.activityLogs,
         }),
-      ],
-      component: (
-        <div className="pt-8">
-          <InvoiceActivityLogs invoiceId={invoiceId as string} />
-        </div>
-      ),
-    })
+        match: [
+          generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+            customerId: customerId as string,
+            invoiceId: invoiceId as string,
+            tab: CustomerInvoiceDetailsTabsOptionsEnum.activityLogs,
+          }),
+        ],
+        component: (
+          <div className="pt-8">
+            <InvoiceActivityLogs invoiceId={invoiceId as string} />
+          </div>
+        ),
+      })
+    }
 
     return tabs
   }, [
