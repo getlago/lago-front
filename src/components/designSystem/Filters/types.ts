@@ -15,6 +15,13 @@ export enum AmountFilterInterval {
   isAtLeast = 'isAtLeast',
 }
 
+export const AMOUNT_INTERVALS_TRANSLATION_MAP = {
+  [AmountFilterInterval.isBetween]: 'text_1734774653389kvylgxjiltu',
+  [AmountFilterInterval.isEqualTo]: 'text_1734774653389pt3rhh3lspa',
+  [AmountFilterInterval.isUpTo]: 'text_1734792781750cot2uyp6f1x',
+  [AmountFilterInterval.isAtLeast]: 'text_17347927817503hromltntvm',
+}
+
 export enum AvailableFiltersEnum {
   activityIds = 'activityIds',
   activitySources = 'activitySources',
