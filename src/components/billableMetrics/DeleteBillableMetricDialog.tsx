@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef } from 'react'
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { DialogRef, Skeleton } from '~/components/designSystem'
 import { WarningDialog } from '~/components/WarningDialog'
@@ -31,14 +31,20 @@ gql`
   }
 `
 
+type DeleteBillableMetricDialogProps = {
+  billableMetricId: string
+  callback?: () => void
+}
+
 export interface DeleteBillableMetricDialogRef {
-  openDialog: (billableMetricId: string) => unknown
+  openDialog: (props: DeleteBillableMetricDialogProps) => unknown
   closeDialog: () => unknown
 }
 
 export const DeleteBillableMetricDialog = forwardRef<DeleteBillableMetricDialogRef>((_, ref) => {
-  const dialogRef = useRef<DialogRef>(null)
   const { translate } = useInternationalization()
+  const dialogRef = useRef<DialogRef>(null)
+  const [localData, setLocalData] = useState<DeleteBillableMetricDialogProps | undefined>(undefined)
   const [getBillableMetricToDelete, { data, loading }] = useGetBillableMetricToDeleteLazyQuery()
 
   const billableMetric = data?.billableMetric
@@ -52,14 +58,24 @@ export const DeleteBillableMetricDialog = forwardRef<DeleteBillableMetricDialogR
           message: translate('text_6256f9f1184d3301290c7299'),
           severity: 'success',
         })
+
+        if (localData?.callback) {
+          localData.callback()
+          setLocalData(undefined)
+        }
       }
     },
     refetchQueries: ['billableMetrics'],
   })
 
   useImperativeHandle(ref, () => ({
-    openDialog: (billableMetricId) => {
-      getBillableMetricToDelete({ variables: { id: billableMetricId } })
+    openDialog: (args) => {
+      setLocalData(args)
+      getBillableMetricToDelete({
+        variables: {
+          id: args.billableMetricId,
+        },
+      })
       dialogRef.current?.openDialog()
     },
     closeDialog: () => dialogRef.current?.closeDialog(),

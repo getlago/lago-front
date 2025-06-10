@@ -130,7 +130,12 @@ const BillableMetricDetails = () => {
                   variant="quaternary"
                   align="left"
                   onClick={() => {
-                    deleteBillableMetricDialogRef.current?.openDialog(billableMetricId as string)
+                    deleteBillableMetricDialogRef.current?.openDialog({
+                      billableMetricId: billableMetricId as string,
+                      callback: () => {
+                        navigate(generatePath(BILLABLE_METRICS_ROUTE))
+                      },
+                    })
                     closePopper()
                   }}
                 >
