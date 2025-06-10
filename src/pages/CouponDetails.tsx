@@ -116,6 +116,7 @@ const CouponDetails = () => {
                   disableHoverListener={coupon?.status !== CouponStatusEnum.Terminated}
                 >
                   <Button
+                    fullWidth
                     data-test="coupon-details-edit"
                     variant="quaternary"
                     align="left"
@@ -135,6 +136,7 @@ const CouponDetails = () => {
                       disableHoverListener={coupon?.status !== CouponStatusEnum.Terminated}
                     >
                       <Button
+                        fullWidth
                         variant="quaternary"
                         align="left"
                         disabled={coupon?.status === CouponStatusEnum.Terminated}
@@ -147,6 +149,7 @@ const CouponDetails = () => {
                       </Button>
                     </Tooltip>
                     <Button
+                      fullWidth
                       data-test="coupon-details-delete"
                       variant="quaternary"
                       align="left"
