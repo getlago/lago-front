@@ -30,6 +30,8 @@ gql`
       value
       name
     }
+    # If adding a new resource type with other fields than id,
+    # consider updating the formatResourceObject function
     resource {
       ... on BillableMetric {
         id
@@ -44,7 +46,7 @@ gql`
         id
       }
       ... on Customer {
-        externalId
+        id
       }
       ... on Invoice {
         id
@@ -53,7 +55,7 @@ gql`
         id
       }
       ... on Subscription {
-        externalId
+        id
       }
       ... on Wallet {
         id

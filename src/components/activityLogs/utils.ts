@@ -229,13 +229,7 @@ export function formatActivityType(activityType: ActivityTypeEnum) {
 export function formatResourceObject(resource: Record<string, unknown>): string | null {
   if (!resource) return null
 
-  switch (resource.__typename) {
-    case 'Customer':
-    case 'Subscription':
-      return resource.externalId as string
-    default:
-      return resource.id as string
-  }
+  return resource.id as string
 }
 
 export const resourceTypeTranslations: Record<string, string> = {

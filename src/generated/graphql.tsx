@@ -65,7 +65,7 @@ export type ActivityLogCollection = {
 };
 
 /** Activity log resource */
-export type ActivityLogResourceObject = BillableMetric | BillingEntity | Coupon | CreditNote | Customer | Invoice | Plan | Subscription | Wallet;
+export type ActivityLogResourceObject = BillableMetric | BillingEntity | Coupon | CreditNote | Customer | Invoice | PaymentRequest | Plan | Subscription | Wallet;
 
 /** Activity Logs source enums */
 export enum ActivitySourceEnum {
@@ -6278,6 +6278,8 @@ export enum ResourceTypeEnum {
   Customer = 'customer',
   /** Invoice */
   Invoice = 'invoice',
+  /** PaymentRequest */
+  PaymentRequest = 'payment_request',
   /** Plan */
   Plan = 'plan',
   /** Subscription */
@@ -8450,14 +8452,14 @@ export type GetPlansForFiltersItemPlanCodeQueryVariables = Exact<{
 
 export type GetPlansForFiltersItemPlanCodeQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Plan', id: string, code: string, deletedAt?: any | null }> } };
 
-export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, apiKey?: { __typename?: 'SanitizedApiKey', value: string, name?: string | null } | null, resource?: { __typename?: 'BillableMetric', id: string } | { __typename?: 'BillingEntity', id: string } | { __typename?: 'Coupon', id: string } | { __typename?: 'CreditNote', id: string } | { __typename?: 'Customer', externalId: string } | { __typename?: 'Invoice', id: string } | { __typename?: 'Plan', id: string } | { __typename?: 'Subscription', externalId: string } | { __typename?: 'Wallet', id: string } | null };
+export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, apiKey?: { __typename?: 'SanitizedApiKey', value: string, name?: string | null } | null, resource?: { __typename?: 'BillableMetric', id: string } | { __typename?: 'BillingEntity', id: string } | { __typename?: 'Coupon', id: string } | { __typename?: 'CreditNote', id: string } | { __typename?: 'Customer', id: string } | { __typename?: 'Invoice', id: string } | { __typename?: 'PaymentRequest' } | { __typename?: 'Plan', id: string } | { __typename?: 'Subscription', id: string } | { __typename?: 'Wallet', id: string } | null };
 
 export type GetSingleActivityLogQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetSingleActivityLogQuery = { __typename?: 'Query', activityLog?: { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, apiKey?: { __typename?: 'SanitizedApiKey', value: string, name?: string | null } | null, resource?: { __typename?: 'BillableMetric', id: string } | { __typename?: 'BillingEntity', id: string } | { __typename?: 'Coupon', id: string } | { __typename?: 'CreditNote', id: string } | { __typename?: 'Customer', externalId: string } | { __typename?: 'Invoice', id: string } | { __typename?: 'Plan', id: string } | { __typename?: 'Subscription', externalId: string } | { __typename?: 'Wallet', id: string } | null } | null };
+export type GetSingleActivityLogQuery = { __typename?: 'Query', activityLog?: { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, apiKey?: { __typename?: 'SanitizedApiKey', value: string, name?: string | null } | null, resource?: { __typename?: 'BillableMetric', id: string } | { __typename?: 'BillingEntity', id: string } | { __typename?: 'Coupon', id: string } | { __typename?: 'CreditNote', id: string } | { __typename?: 'Customer', id: string } | { __typename?: 'Invoice', id: string } | { __typename?: 'PaymentRequest' } | { __typename?: 'Plan', id: string } | { __typename?: 'Subscription', id: string } | { __typename?: 'Wallet', id: string } | null } | null };
 
 export type ActivityItemFragment = { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, externalCustomerId?: string | null, externalSubscriptionId?: string | null, loggedAt: any };
 
@@ -11951,7 +11953,7 @@ export const ActivityLogDetailsFragmentDoc = gql`
       id
     }
     ... on Customer {
-      externalId
+      id
     }
     ... on Invoice {
       id
@@ -11960,7 +11962,7 @@ export const ActivityLogDetailsFragmentDoc = gql`
       id
     }
     ... on Subscription {
-      externalId
+      id
     }
     ... on Wallet {
       id
