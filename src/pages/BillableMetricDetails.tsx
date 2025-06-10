@@ -22,7 +22,6 @@ import {
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { useGetBillableMetricForHeaderDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper, PageHeader } from '~/styles'
@@ -38,7 +37,6 @@ gql`
 `
 
 const BillableMetricDetails = () => {
-  const { goBack } = useLocationHistory()
   const { hasPermissions } = usePermissions()
   const { translate } = useInternationalization()
   const navigate = useNavigate()
@@ -69,7 +67,7 @@ const BillableMetricDetails = () => {
           <Button
             icon="arrow-left"
             variant="quaternary"
-            onClick={() => goBack(generatePath(BILLABLE_METRICS_ROUTE))}
+            onClick={() => navigate(generatePath(BILLABLE_METRICS_ROUTE))}
           />
           {loading && !billableMetric ? (
             <Skeleton variant="text" className="w-50" />
