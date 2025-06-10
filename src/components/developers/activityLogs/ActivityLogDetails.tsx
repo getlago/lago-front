@@ -54,6 +54,9 @@ gql`
       ... on Plan {
         id
       }
+      ... on PaymentRequest {
+        id
+      }
       ... on Subscription {
         id
       }
