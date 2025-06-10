@@ -26,6 +26,7 @@ import {
 } from '~/components/form'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { COUPON_DETAILS_ROUTE, COUPONS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { endOfDayIso } from '~/core/utils/dateUtils'
@@ -161,6 +162,7 @@ const CreateCoupon = () => {
       navigate(
         generatePath(COUPON_DETAILS_ROUTE, {
           couponId: coupon.id,
+          tab: CouponDetailsTabsOptionsEnum.overview,
         }),
       )
     } else {

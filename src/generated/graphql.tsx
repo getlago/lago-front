@@ -7871,6 +7871,15 @@ export type CouponCaptionFragment = { __typename?: 'Coupon', id: string, amountC
 
 export type AppliedCouponCaptionFragment = { __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null };
 
+export type CouponDetailsForOverviewFragment = { __typename?: 'Coupon', name: string, code?: string | null, couponType: CouponTypeEnum, amountCurrency?: CurrencyEnum | null, status: CouponStatusEnum, frequency: CouponFrequency, reusable: boolean, expirationAt?: any | null, amountCents?: any | null, percentageRate?: number | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null };
+
+export type GetCouponForDetailsOverviewQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetCouponForDetailsOverviewQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, name: string, code?: string | null, couponType: CouponTypeEnum, amountCurrency?: CurrencyEnum | null, status: CouponStatusEnum, frequency: CouponFrequency, reusable: boolean, expirationAt?: any | null, amountCents?: any | null, percentageRate?: number | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null } | null };
+
 export type DeleteCouponFragment = { __typename?: 'Coupon', id: string, name: string, appliedCouponsCount: number };
 
 export type GetCouponToDeleteQueryVariables = Exact<{
@@ -7894,7 +7903,7 @@ export type TerminateCouponMutationVariables = Exact<{
 }>;
 
 
-export type TerminateCouponMutation = { __typename?: 'Mutation', terminateCoupon?: { __typename?: 'Coupon', id: string, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, percentageRate?: number | null, code?: string | null, expirationAt?: any | null, name: string, frequency: CouponFrequency, reusable: boolean, couponType: CouponTypeEnum, status: CouponStatusEnum, customersCount: number, expiration: CouponExpiration, frequencyDuration?: number | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null } | null };
+export type TerminateCouponMutation = { __typename?: 'Mutation', terminateCoupon?: { __typename?: 'Coupon', id: string } | null };
 
 export type CustomerForCreditNoteDetailsExternalSyncFragment = { __typename?: 'Customer', anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, integrationId?: string | null, externalAccountId?: string | null } | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string, integrationId?: string | null } | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null } | null };
 
@@ -10271,14 +10280,14 @@ export type BillableMetricsQueryVariables = Exact<{
 
 export type BillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any }> } };
 
-export type CouponDetailsFragment = { __typename?: 'Coupon', amountCents?: any | null, amountCurrency?: CurrencyEnum | null, percentageRate?: number | null, code?: string | null, expirationAt?: any | null, name: string, frequency: CouponFrequency, reusable: boolean, couponType: CouponTypeEnum, status: CouponStatusEnum, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null };
+export type CouponDetailsForHeaderFragment = { __typename?: 'Coupon', name: string, status: CouponStatusEnum, couponType: CouponTypeEnum, percentageRate?: number | null, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, frequency: CouponFrequency };
 
 export type GetCouponForDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCouponForDetailsQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, percentageRate?: number | null, code?: string | null, expirationAt?: any | null, name: string, frequency: CouponFrequency, reusable: boolean, couponType: CouponTypeEnum, status: CouponStatusEnum, appliedCouponsCount: number, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null } | null };
+export type GetCouponForDetailsQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, name: string, status: CouponStatusEnum, couponType: CouponTypeEnum, percentageRate?: number | null, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, frequency: CouponFrequency, appliedCouponsCount: number } | null };
 
 export type CouponItemFragment = { __typename?: 'Coupon', id: string, name: string, customersCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null };
 
@@ -11302,6 +11311,29 @@ export const CouponCaptionFragmentDoc = gql`
   percentageRate
   frequency
   frequencyDuration
+}
+    `;
+export const CouponDetailsForOverviewFragmentDoc = gql`
+    fragment CouponDetailsForOverview on Coupon {
+  name
+  code
+  couponType
+  amountCurrency
+  status
+  frequency
+  reusable
+  expirationAt
+  amountCents
+  amountCurrency
+  percentageRate
+  billableMetrics {
+    id
+    name
+  }
+  plans {
+    id
+    name
+  }
 }
     `;
 export const DeleteCouponFragmentDoc = gql`
@@ -13211,26 +13243,15 @@ export const BillableMetricItemFragmentDoc = gql`
   createdAt
 }
     `;
-export const CouponDetailsFragmentDoc = gql`
-    fragment CouponDetails on Coupon {
+export const CouponDetailsForHeaderFragmentDoc = gql`
+    fragment CouponDetailsForHeader on Coupon {
+  name
+  status
+  couponType
+  percentageRate
   amountCents
   amountCurrency
-  percentageRate
-  code
-  expirationAt
-  name
   frequency
-  reusable
-  couponType
-  status
-  billableMetrics {
-    id
-    name
-  }
-  plans {
-    id
-    name
-  }
 }
     `;
 export const CouponItemFragmentDoc = gql`
@@ -15688,6 +15709,47 @@ export type GetPlansForCouponsQueryHookResult = ReturnType<typeof useGetPlansFor
 export type GetPlansForCouponsLazyQueryHookResult = ReturnType<typeof useGetPlansForCouponsLazyQuery>;
 export type GetPlansForCouponsSuspenseQueryHookResult = ReturnType<typeof useGetPlansForCouponsSuspenseQuery>;
 export type GetPlansForCouponsQueryResult = Apollo.QueryResult<GetPlansForCouponsQuery, GetPlansForCouponsQueryVariables>;
+export const GetCouponForDetailsOverviewDocument = gql`
+    query getCouponForDetailsOverview($id: ID!) {
+  coupon(id: $id) {
+    id
+    ...CouponDetailsForOverview
+  }
+}
+    ${CouponDetailsForOverviewFragmentDoc}`;
+
+/**
+ * __useGetCouponForDetailsOverviewQuery__
+ *
+ * To run a query within a React component, call `useGetCouponForDetailsOverviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCouponForDetailsOverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCouponForDetailsOverviewQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetCouponForDetailsOverviewQuery(baseOptions: Apollo.QueryHookOptions<GetCouponForDetailsOverviewQuery, GetCouponForDetailsOverviewQueryVariables> & ({ variables: GetCouponForDetailsOverviewQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCouponForDetailsOverviewQuery, GetCouponForDetailsOverviewQueryVariables>(GetCouponForDetailsOverviewDocument, options);
+      }
+export function useGetCouponForDetailsOverviewLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCouponForDetailsOverviewQuery, GetCouponForDetailsOverviewQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCouponForDetailsOverviewQuery, GetCouponForDetailsOverviewQueryVariables>(GetCouponForDetailsOverviewDocument, options);
+        }
+export function useGetCouponForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCouponForDetailsOverviewQuery, GetCouponForDetailsOverviewQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCouponForDetailsOverviewQuery, GetCouponForDetailsOverviewQueryVariables>(GetCouponForDetailsOverviewDocument, options);
+        }
+export type GetCouponForDetailsOverviewQueryHookResult = ReturnType<typeof useGetCouponForDetailsOverviewQuery>;
+export type GetCouponForDetailsOverviewLazyQueryHookResult = ReturnType<typeof useGetCouponForDetailsOverviewLazyQuery>;
+export type GetCouponForDetailsOverviewSuspenseQueryHookResult = ReturnType<typeof useGetCouponForDetailsOverviewSuspenseQuery>;
+export type GetCouponForDetailsOverviewQueryResult = Apollo.QueryResult<GetCouponForDetailsOverviewQuery, GetCouponForDetailsOverviewQueryVariables>;
 export const GetCouponToDeleteDocument = gql`
     query getCouponToDelete($id: ID!) {
   coupon(id: $id) {
@@ -15765,12 +15827,9 @@ export const TerminateCouponDocument = gql`
     mutation terminateCoupon($input: TerminateCouponInput!) {
   terminateCoupon(input: $input) {
     id
-    ...CouponDetails
-    ...CouponItem
   }
 }
-    ${CouponDetailsFragmentDoc}
-${CouponItemFragmentDoc}`;
+    `;
 export type TerminateCouponMutationFn = Apollo.MutationFunction<TerminateCouponMutation, TerminateCouponMutationVariables>;
 
 /**
@@ -26930,12 +26989,12 @@ export const GetCouponForDetailsDocument = gql`
     query getCouponForDetails($id: ID!) {
   coupon(id: $id) {
     id
-    ...CouponDetails
+    ...CouponDetailsForHeader
     ...DeleteCoupon
     ...TerminateCoupon
   }
 }
-    ${CouponDetailsFragmentDoc}
+    ${CouponDetailsForHeaderFragmentDoc}
 ${DeleteCouponFragmentDoc}
 ${TerminateCouponFragmentDoc}`;
 

@@ -96,7 +96,7 @@ export const PLAN_DETAILS_ROUTE = '/plan/:planId/:tab'
 export const CUSTOMER_SUBSCRIPTION_PLAN_DETAILS =
   '/customer/:customerId/subscription/:subscriptionId/plan/:planId/:tab'
 export const ADD_ON_DETAILS_ROUTE = '/add-on/:addOnId'
-export const COUPON_DETAILS_ROUTE = '/coupon/:couponId'
+export const COUPON_DETAILS_ROUTE = '/coupon/:couponId/:tab'
 export const PAYMENT_DETAILS_ROUTE = '/payment/:paymentId'
 export const CUSTOMER_PAYMENT_DETAILS_ROUTE = '/customer/:customerId/payment/:paymentId'
 
