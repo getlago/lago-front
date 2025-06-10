@@ -566,7 +566,10 @@ const CustomerInvoiceDetails = () => {
           />
         ),
       },
-      {
+    ]
+
+    if (status === InvoiceStatusTypeEnum.Pending || status === InvoiceStatusTypeEnum.Finalized) {
+      tabs.push({
         title: translate('text_6672ebb8b1b50be550eccbed'),
         link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
           customerId: customerId as string,
@@ -583,8 +586,8 @@ const CustomerInvoiceDetails = () => {
         component: (
           <InvoicePaymentList invoiceTotalDueAmount={data?.invoice?.totalDueAmountCents} />
         ),
-      },
-    ]
+      })
+    }
 
     if (
       ![
