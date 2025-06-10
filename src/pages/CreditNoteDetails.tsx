@@ -42,6 +42,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
@@ -94,6 +95,7 @@ const CreditNoteDetails = () => {
   const { hasPermissions } = usePermissions()
   const { customerId, invoiceId, creditNoteId } = useParams()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
+  const { isPremium } = useCurrentUser()
 
   const { data, loading, error } = useGetCreditNoteForDetailsQuery({
     variables: { id: creditNoteId as string },
@@ -434,7 +436,7 @@ const CreditNoteDetails = () => {
                     <CreditNoteDetailsActivityLogs creditNoteId={creditNoteId as string} />
                   </DetailsPage.Container>
                 ),
-                hidden: !creditNoteId,
+                hidden: !creditNoteId || !isPremium || !hasPermissions(['analyticsView']),
               },
             ]}
           />

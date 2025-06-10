@@ -10,7 +10,9 @@ import {
   useInvoiceActivityLogsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
+import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
   query InvoiceActivityLogs(
@@ -45,6 +47,10 @@ interface InvoiceActivityLogsProps {
 export const InvoiceActivityLogs = ({ invoiceId }: InvoiceActivityLogsProps) => {
   const { translate } = useInternationalization()
   const { open, setUrl } = useDeveloperTool()
+  const { isPremium } = useCurrentUser()
+  const { hasPermissions } = usePermissions()
+
+  const canViewLogs = isPremium && hasPermissions(['analyticsView'])
 
   const { data, loading, error, refetch, fetchMore } = useInvoiceActivityLogsQuery({
     variables: {
@@ -52,6 +58,7 @@ export const InvoiceActivityLogs = ({ invoiceId }: InvoiceActivityLogsProps) => 
       resourceIds: [invoiceId],
       limit: 20,
     },
+    skip: !canViewLogs,
   })
 
   return (

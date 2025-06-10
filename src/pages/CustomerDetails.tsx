@@ -52,6 +52,7 @@ import {
   useGetCustomerQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
@@ -100,7 +101,9 @@ const CustomerDetails = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const navigate = useNavigate()
+  const { isPremium } = useCurrentUser()
   const { customerId, tab } = useParams()
+
   const { data, loading, error } = useGetCustomerQuery({
     variables: { id: customerId as string },
     skip: !customerId,
@@ -480,7 +483,7 @@ const CustomerDetails = () => {
                         tab: CustomerDetailsTabsOptions.activityLogs,
                       }),
                       component: <CustomerActivityLogs externalCustomerId={externalId || ''} />,
-                      hidden: !externalId,
+                      hidden: !externalId || !isPremium || !hasPermissions(['analyticsView']),
                     },
                   ]}
                   loading={

@@ -10,7 +10,9 @@ import {
   useBillableMetricActivityLogsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
+import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
   query BillableMetricActivityLogs(
@@ -47,6 +49,10 @@ export const BillableMetricDetailsActivityLogs = ({
 }: BillableMetricDetailsActivityLogsProps) => {
   const { translate } = useInternationalization()
   const { open, setUrl } = useDeveloperTool()
+  const { hasPermissions } = usePermissions()
+  const { isPremium } = useCurrentUser()
+
+  const canViewLogs = isPremium && hasPermissions(['analyticsView'])
 
   const { data, loading, error, refetch, fetchMore } = useBillableMetricActivityLogsQuery({
     variables: {
@@ -54,6 +60,7 @@ export const BillableMetricDetailsActivityLogs = ({
       resourceIds: [billableMetricId],
       limit: 20,
     },
+    skip: !canViewLogs,
   })
 
   return (

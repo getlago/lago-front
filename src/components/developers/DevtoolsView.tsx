@@ -8,6 +8,7 @@ import { devToolsNavigationMapping, DevtoolsRouter } from '~/components/develope
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { DEVTOOL_TAB_PARAMS, useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { usePermissions } from '~/hooks/usePermissions'
 
@@ -23,6 +24,7 @@ export const DevtoolsView: FC = () => {
   const { pathname } = useLocation()
   const panel = useRef<ImperativePanelHandle>(null)
   const { hasPermissions } = usePermissions()
+  const { isPremium } = useCurrentUser()
 
   const navigate = useNavigate()
 
@@ -108,7 +110,7 @@ export const DevtoolsView: FC = () => {
             name="devtools"
             managedBy={TabManagedBy.URL}
             className="sticky top-0 z-navBar bg-white px-4"
-            tabs={devToolsNavigationMapping(translate, hasPermissions)}
+            tabs={devToolsNavigationMapping(translate, hasPermissions, isPremium)}
           >
             <Button
               startIcon="link"

@@ -24,6 +24,7 @@ import {
   useGetPlanForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper, PageHeader } from '~/styles'
 
@@ -48,6 +49,8 @@ const PlanDetails = () => {
   const { hasPermissions } = usePermissions()
   const { customerId, planId, subscriptionId } = useParams()
   const { translate } = useInternationalization()
+  const { isPremium } = useCurrentUser()
+
   const deletePlanDialogRef = useRef<DeletePlanDialogRef>(null)
   const { data: planResult, loading: isPlanLoading } = useGetPlanForDetailsQuery({
     variables: { planId: planId as string },
@@ -210,6 +213,7 @@ const PlanDetails = () => {
               tab: PlanDetailsTabsOptionsEnum.activityLogs,
             }),
             component: <PlanDetailsActivityLogs planId={planId as string} />,
+            hidden: !isPremium || !hasPermissions(['analyticsView']),
           },
         ]}
       />
