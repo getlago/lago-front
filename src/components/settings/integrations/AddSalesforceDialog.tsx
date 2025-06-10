@@ -220,7 +220,7 @@ export const AddSalesforceDialog = forwardRef<AddSalesforceDialogRef>((_, ref) =
     >
       <div className="mb-8 flex w-full flex-col gap-8">
         {!!showGlobalError && (
-          <Alert type="danger">{translate('text_62b31e1f6a5b8b1b745ece48')}</Alert>
+          <Alert type="danger">{translate('text_1749562792335fy21gc3sxn0')}</Alert>
         )}
         <div className="flex w-full flex-row items-start gap-6 *:flex-1">
           <TextInputField

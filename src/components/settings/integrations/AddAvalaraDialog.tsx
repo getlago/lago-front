@@ -5,7 +5,7 @@ import { forwardRef, RefObject, useId, useImperativeHandle, useRef, useState } f
 import { generatePath, useNavigate } from 'react-router-dom'
 import { object, string } from 'yup'
 
-import { Button, Dialog, DialogRef } from '~/components/designSystem'
+import { Alert, Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -72,6 +72,7 @@ export const AddAvalaraDialog = forwardRef<AddAvalaraDialogRef>((_, ref) => {
   const dialogRef = useRef<DialogRef>(null)
   const { translate } = useInternationalization()
   const [localData, setLocalData] = useState<AddAvalaraDialogProps | undefined>(undefined)
+  const [showGlobalError, setShowGlobalError] = useState(false)
   const avalaraIntegration = localData?.integration
   const isEdition = !!avalaraIntegration
 
@@ -125,6 +126,7 @@ export const AddAvalaraDialog = forwardRef<AddAvalaraDialogRef>((_, ref) => {
       name: string().required(''),
     }),
     onSubmit: async ({ ...values }, formikBag) => {
+      setShowGlobalError(false)
       let res
 
       if (isEdition) {
@@ -138,7 +140,7 @@ export const AddAvalaraDialog = forwardRef<AddAvalaraDialogRef>((_, ref) => {
           context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
         })
       } else {
-        const Nango = (await import('@nangohq/frontend')).default
+        const { default: Nango, AuthError } = await import('@nangohq/frontend')
         const connectionId = `avalara-${componentId.replaceAll(':', '')}-${Date.now()}`
         const nango = new Nango({ publicKey: nangoPublicKey })
 
@@ -160,6 +162,8 @@ export const AddAvalaraDialog = forwardRef<AddAvalaraDialogRef>((_, ref) => {
             },
           })
         } catch (error) {
+          if (error instanceof AuthError) return setShowGlobalError(true)
+
           captureException(error, {
             tags: {
               integration: 'avalara',
@@ -188,6 +192,7 @@ export const AddAvalaraDialog = forwardRef<AddAvalaraDialogRef>((_, ref) => {
 
   useImperativeHandle(ref, () => ({
     openDialog: (data) => {
+      setShowGlobalError(false)
       setLocalData(data)
       dialogRef.current?.openDialog()
     },
@@ -244,6 +249,10 @@ export const AddAvalaraDialog = forwardRef<AddAvalaraDialogRef>((_, ref) => {
       )}
     >
       <div className="mb-8 flex flex-col gap-6">
+        {!!showGlobalError && (
+          <Alert type="danger">{translate('text_1749562792335fy21gc3sxn0')}</Alert>
+        )}
+
         <div className="flex flex-row items-start gap-6">
           <TextInputField
             className="flex-1"

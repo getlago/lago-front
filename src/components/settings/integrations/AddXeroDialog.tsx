@@ -241,7 +241,7 @@ export const AddXeroDialog = forwardRef<AddXeroDialogRef>((_, ref) => {
     >
       <Stack spacing={8} marginBottom={8}>
         {!!showGlobalError && (
-          <Alert type="danger">{translate('text_62b31e1f6a5b8b1b745ece48')}</Alert>
+          <Alert type="danger">{translate('text_1749562792335fy21gc3sxn0')}</Alert>
         )}
 
         <Stack spacing={6}>
