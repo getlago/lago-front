@@ -616,7 +616,7 @@ const CustomerInvoiceDetails = () => {
       })
     }
 
-    if (isPremium && hasPermissions(['analyticsView'])) {
+    if (isPremium && hasPermissions(['auditLogsView'])) {
       tabs.push({
         title: translate('text_1747314141347qq6rasuxisl'),
         link: generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {

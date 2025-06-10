@@ -213,7 +213,7 @@ const PlanDetails = () => {
               tab: PlanDetailsTabsOptionsEnum.activityLogs,
             }),
             component: <PlanDetailsActivityLogs planId={planId as string} />,
-            hidden: !isPremium || !hasPermissions(['analyticsView']),
+            hidden: !isPremium || !hasPermissions(['auditLogsView']),
           },
         ]}
       />

@@ -52,7 +52,7 @@ export const BillableMetricDetailsActivityLogs = ({
   const { hasPermissions } = usePermissions()
   const { isPremium } = useCurrentUser()
 
-  const canViewLogs = isPremium && hasPermissions(['analyticsView'])
+  const canViewLogs = isPremium && hasPermissions(['auditLogsView'])
 
   const { data, loading, error, refetch, fetchMore } = useBillableMetricActivityLogsQuery({
     variables: {

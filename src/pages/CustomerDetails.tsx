@@ -483,7 +483,7 @@ const CustomerDetails = () => {
                         tab: CustomerDetailsTabsOptions.activityLogs,
                       }),
                       component: <CustomerActivityLogs externalCustomerId={externalId || ''} />,
-                      hidden: !externalId || !isPremium || !hasPermissions(['analyticsView']),
+                      hidden: !externalId || !isPremium || !hasPermissions(['auditLogsView']),
                     },
                   ]}
                   loading={

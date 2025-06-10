@@ -436,7 +436,7 @@ const CreditNoteDetails = () => {
                     <CreditNoteDetailsActivityLogs creditNoteId={creditNoteId as string} />
                   </DetailsPage.Container>
                 ),
-                hidden: !creditNoteId || !isPremium || !hasPermissions(['analyticsView']),
+                hidden: !creditNoteId || !isPremium || !hasPermissions(['auditLogsView']),
               },
             ]}
           />

@@ -185,7 +185,7 @@ const BillableMetricDetails = () => {
                 <BillableMetricDetailsActivityLogs billableMetricId={billableMetricId as string} />
               </div>
             ),
-            hidden: !isPremium || !hasPermissions(['analyticsView']),
+            hidden: !isPremium || !hasPermissions(['auditLogsView']),
           },
         ]}
       />

@@ -214,7 +214,7 @@ const CouponDetails = () => {
                 <CouponDetailsActivityLogs couponId={couponId as string} />
               </DetailsPage.Container>
             ),
-            hidden: !isPremium || !hasPermissions(['analyticsView']),
+            hidden: !isPremium || !hasPermissions(['auditLogsView']),
           },
         ]}
       />

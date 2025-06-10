@@ -261,7 +261,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
                           {translate('text_63720bd734e1344aea75b7e9')}
                         </Button>
                       )}
-                      {isPremium && hasPermissions(['analyticsView']) && (
+                      {isPremium && hasPermissions(['auditLogsView']) && (
                         <Button
                           startIcon="pulse"
                           variant="quaternary"

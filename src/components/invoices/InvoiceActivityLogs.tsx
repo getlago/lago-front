@@ -50,7 +50,7 @@ export const InvoiceActivityLogs = ({ invoiceId }: InvoiceActivityLogsProps) => 
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
 
-  const canViewLogs = isPremium && hasPermissions(['analyticsView'])
+  const canViewLogs = isPremium && hasPermissions(['auditLogsView'])
 
   const { data, loading, error, refetch, fetchMore } = useInvoiceActivityLogsQuery({
     variables: {
