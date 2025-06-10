@@ -21,6 +21,7 @@ import {
   ADD_ONS_ROUTE,
   ANALYTIC_ROUTE,
   ANALYTIC_TABS_ROUTE,
+  BILLABLE_METRIC_DETAILS_ROUTE,
   BILLABLE_METRICS_ROUTE,
   COUPON_DETAILS_ROUTE,
   COUPONS_ROUTE,
@@ -274,7 +275,7 @@ const SideNav = () => {
                     icon: 'pulse',
                     link: BILLABLE_METRICS_ROUTE,
                     canBeClickedOnActive: true,
-                    match: [BILLABLE_METRICS_ROUTE],
+                    match: [BILLABLE_METRICS_ROUTE, BILLABLE_METRIC_DETAILS_ROUTE],
                     hidden: !hasPermissions(['billableMetricsView']),
                   },
                   {
