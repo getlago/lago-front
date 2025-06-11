@@ -18,7 +18,7 @@ export const PlanDetailsChargeWrapperSwitch = ({
 }) => {
   const componentId = useId()
   const { translate } = useInternationalization()
-  const groupedBy = Object.values(values?.groupedBy || {}).filter((value) => value)
+  const pricingGroupKeys = Object.values(values?.pricingGroupKeys || {}).filter((value) => value)
 
   return (
     <div>
@@ -37,12 +37,12 @@ export const PlanDetailsChargeWrapperSwitch = ({
               ],
             ]}
           />
-          {groupedBy.length > 0 && (
+          {pricingGroupKeys.length > 0 && (
             <DetailsPage.InfoGridItem
               label={translate('text_65ba6d45e780c1ff8acb20ce')}
               value={
                 <div className="mt-1 flex flex-wrap gap-2">
-                  {groupedBy.map((group, groupIndex) => (
+                  {pricingGroupKeys.map((group, groupIndex) => (
                     <Chip key={`${componentId}-${groupIndex}`} label={group} />
                   ))}
                 </div>
@@ -239,12 +239,12 @@ export const PlanDetailsChargeWrapperSwitch = ({
         <div className="flex flex-col gap-4">
           <Alert type="info">{translate('text_17277706303454rxgscdqklx')}</Alert>
 
-          {groupedBy.length > 0 && (
+          {pricingGroupKeys.length > 0 && (
             <DetailsPage.InfoGridItem
               label={translate('text_65ba6d45e780c1ff8acb20ce')}
               value={
                 <div className="mt-1 flex flex-wrap gap-2">
-                  {groupedBy.map((group, groupIndex) => (
+                  {pricingGroupKeys.map((group, groupIndex) => (
                     <Chip key={`${componentId}-${groupIndex}`} label={group} />
                   ))}
                 </div>
