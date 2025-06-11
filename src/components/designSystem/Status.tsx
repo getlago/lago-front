@@ -24,6 +24,7 @@ type StatusLabelSuccess =
   | 'available'
   | 'refunded'
   | 'delivered'
+  | number
 type StatusLabelWarning = 'failed'
 type StatusLabelOutline = 'draft'
 type StatusLabelDefault = 'downgrade' | 'scheduled' | 'pending' | 'toPay' | 'processing' | 'n/a'
@@ -37,6 +38,7 @@ type StatusLabelDanger =
   | 'overdue'
   | 'canceled'
   | 'failed'
+  | number
 
 type StatusLabelDisabled = 'voided'
 
@@ -178,7 +180,7 @@ export const Status: FC<StatusProps> = ({
       data-test="status"
     >
       <Typography variant="captionHl" color={config.color} noWrap>
-        {translate(statusLabel, labelVariables ?? {})}
+        {typeof label === 'number' ? label : translate(statusLabel, labelVariables ?? {})}
       </Typography>
       {endIcon && <Icon name={endIcon} size="medium" color={config.iconColor} />}
     </div>

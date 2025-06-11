@@ -3244,5 +3244,18 @@
   "text_1750663218391z2s6w2of7xp": "This campaign will no longer be applied to the entity, and no further attempts will be made for customers inheriting the entity’s dunning behavior. Do you want to proceed?",
   "text_175066321839172gm0lkz8eu": "Remove",
   "text_1750663218391vbamspkjr5g": "Dunning campaign successfully removed",
-  "text_1750663218391y478pxbkhkw": "Name"
+  "text_1750663218391y478pxbkhkw": "Name",
+  "text_1749644023729atl2vw7ad3z": "API logs",
+  "text_1749819996843c2c5f1j8e0n": "Endpoint",
+  "text_174981999903061p5t158es0": "Request ID",
+  "text_1749819999030wkju3ix3cb9": "API version",
+  "text_1749819999030rydiujmrsfq": "Origin",
+  "text_1749819999030dyt6hu7nspj": "Client",
+  "text_174981999903024ai3h557wm": "HTTP status code",
+  "text_1749819999030bazlbkouub6": "There is no API logs",
+  "text_1749819999030hztj7r8w5rg": "API logs provide detailed records of user actions, system events, and API interactions. However, there are currently no logs available for this organization.",
+  "text_1749819999030uz8ddys1puu": "API endpoint",
+  "text_1749819999031vobdu7h2c7c": "HTTP Method",
+  "text_17498224925954a8mk0enwdj": "Response body",
+  "text_1749822492595ayr96w7ez17": "Request body"
 }
