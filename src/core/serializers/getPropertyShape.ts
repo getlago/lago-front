@@ -4,7 +4,7 @@ import { Properties } from '~/generated/graphql'
 const getPropertyShape = (properties: Properties | undefined): LocalPropertiesInput => {
   return {
     amount: properties?.amount || undefined,
-    groupedBy: !!properties?.groupedBy ? properties?.groupedBy.join(',') : '',
+    pricingGroupKeys: !!properties?.pricingGroupKeys ? properties?.pricingGroupKeys.join(',') : '',
     packageSize:
       properties?.packageSize === null || properties?.packageSize === undefined
         ? 10

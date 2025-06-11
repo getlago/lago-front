@@ -15,9 +15,9 @@ type LocalCommitmentInput = Omit<CommitmentInput, 'taxCodes'> & {
   taxes?: TaxForPlanAndChargesInPlanFormFragment[] | null
 }
 
-export type LocalPropertiesInput = Omit<PropertiesInput, 'groupedBy'> & {
+export type LocalPropertiesInput = Omit<PropertiesInput, 'pricingGroupKeys'> & {
   // NOTE: this is used for display purpose but will be replaced by string[] on save
-  groupedBy?: string | null
+  pricingGroupKeys?: string | null
 }
 
 export type LocalChargeFilterInput = Omit<ChargeFilterInput, 'properties' | 'values'> & {

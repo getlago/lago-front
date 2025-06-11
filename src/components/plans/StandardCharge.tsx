@@ -14,7 +14,7 @@ import { LocalChargeFilterInput, LocalPropertiesInput, PlanFormInput } from './t
 gql`
   fragment StandardCharge on Properties {
     amount
-    groupedBy
+    pricingGroupKeys
   }
 `
 
@@ -40,8 +40,8 @@ export const StandardCharge = memo(
   }: StandardChargeProps) => {
     const { translate } = useInternationalization()
 
-    const [shouldDisplayGroupedBy, setShouldDisplayGroupedBy] = useState<boolean>(
-      !!initialValuePointer?.groupedBy,
+    const [shouldDisplayPricingGroupKeys, setShouldDisplayPricingGroupKeys] = useState<boolean>(
+      !!initialValuePointer?.pricingGroupKeys,
     )
     const handleUpdate = useCallback(
       (name: string, value: string) => {
@@ -52,8 +52,8 @@ export const StandardCharge = memo(
     )
 
     useEffect(() => {
-      setShouldDisplayGroupedBy(!!initialValuePointer?.groupedBy)
-    }, [initialValuePointer?.groupedBy])
+      setShouldDisplayPricingGroupKeys(!!initialValuePointer?.pricingGroupKeys)
+    }, [initialValuePointer?.pricingGroupKeys])
 
     return (
       <div className="flex flex-col gap-6">
@@ -78,16 +78,16 @@ export const StandardCharge = memo(
             </Typography>
             <Typography variant="caption">{translate('text_6661fc17337de3591e29e425')}</Typography>
           </div>
-          {shouldDisplayGroupedBy || !!valuePointer?.groupedBy ? (
+          {shouldDisplayPricingGroupKeys || !!valuePointer?.pricingGroupKeys ? (
             <div className="flex gap-3">
               <TextInput
                 className="flex-1"
-                name={`${propertyCursor}.groupedBy`}
+                name={`${propertyCursor}.pricingGroupKeys`}
                 placeholder={translate('text_65ba6d45e780c1ff8acb206f')}
                 helperText={translate('text_65ba6d45e780c1ff8acb2073')}
                 disabled={disabled}
-                value={valuePointer?.groupedBy as unknown as string}
-                onChange={(value) => handleUpdate(`${propertyCursor}.groupedBy`, value)}
+                value={valuePointer?.pricingGroupKeys as unknown as string}
+                onChange={(value) => handleUpdate(`${propertyCursor}.pricingGroupKeys`, value)}
               />
 
               <Tooltip
@@ -99,9 +99,9 @@ export const StandardCharge = memo(
                   icon="trash"
                   variant="quaternary"
                   onClick={() => {
-                    // NOTE: that should be removed once the new multiple combobox is implemented and used to define the groupedBy
-                    handleUpdate(`${propertyCursor}.groupedBy`, '')
-                    setShouldDisplayGroupedBy(false)
+                    // NOTE: that should be removed once the new multiple combobox is implemented and used to define the pricingGroupKeys
+                    handleUpdate(`${propertyCursor}.pricingGroupKeys`, '')
+                    setShouldDisplayPricingGroupKeys(false)
                   }}
                 />
               </Tooltip>
@@ -111,7 +111,7 @@ export const StandardCharge = memo(
               fitContent
               startIcon="plus"
               variant="quaternary"
-              onClick={() => setShouldDisplayGroupedBy(true)}
+              onClick={() => setShouldDisplayPricingGroupKeys(true)}
             >
               {translate('text_6661fc17337de3591e29e427')}
             </Button>
