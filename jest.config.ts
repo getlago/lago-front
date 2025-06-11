@@ -70,5 +70,6 @@ export default {
     NANGO_PUBLIC_KEY: '',
     SENTRY_DSN: 'https://sentry.io/',
     LAGO_DISABLE_PDF_GENERATION: 'false',
+    NGINX_CSP_FRAME_ANCESTORS_HEADER: '*.localhost',
   },
 } satisfies Config

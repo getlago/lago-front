@@ -14,6 +14,7 @@ declare var LAGO_DISABLE_SIGNUP: string
 declare var NANGO_PUBLIC_KEY: string
 declare var SENTRY_DSN: string
 declare var LAGO_DISABLE_PDF_GENERATION: string
+declare var NGINX_CSP_FRAME_ANCESTORS_HEADER: string
 
 declare module '*.svg' {
   const content: any

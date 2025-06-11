@@ -11,6 +11,7 @@ lago_disable_signup_value=$(echo $LAGO_DISABLE_SIGNUP)
 nango_public_key=$(echo $NANGO_PUBLIC_KEY)
 sentry_dsn_value=$(echo $SENTRY_DSN)
 lago_disable_pdf_generation=$(echo $LAGO_DISABLE_PDF_GENERATION)
+lago_nginx_csp_frame_ancestors_header=$(echo $NGINX_CSP_FRAME_ANCESTORS_HEADER)
 
 echo "window.API_URL = \"$api_url_value\"" >> ./env-config.js
 echo "window.LAGO_DOMAIN = \"$domain_value\"" >> ./env-config.js
@@ -20,3 +21,4 @@ echo "window.LAGO_DISABLE_SIGNUP = \"$lago_disable_signup_value\"" >> ./env-conf
 echo "window.NANGO_PUBLIC_KEY = \"$nango_public_key\"" >> ./env-config.js
 echo "window.SENTRY_DSN = \"$sentry_dsn_value\"" >> ./env-config.js
 echo "window.LAGO_DISABLE_PDF_GENERATION = \"$lago_disable_pdf_generation\"" >> ./env-config.js
+echo "window.NGINX_CSP_FRAME_ANCESTORS_HEADER = \"$lago_nginx_csp_frame_ancestors_header\"" >> ./env-config.js
