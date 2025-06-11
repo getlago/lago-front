@@ -209,7 +209,7 @@ const CustomerRequestOverduePayment: FC = () => {
 
       <main className="height-minus-nav-footer overflow-auto md:height-minus-nav md:flex md:overflow-auto">
         <section className="bg-white md:height-minus-nav-footer md:shrink md:grow md:basis-1/2 md:overflow-auto">
-          {hasDunningIntegration && <FreemiumAlert />}
+          {!hasDunningIntegration && <FreemiumAlert />}
           <div className="px-4 py-12 md:px-12">
             <RequestPaymentForm
               invoicesLoading={loading}
