@@ -1,10 +1,9 @@
-import { LocalPropertiesInput } from '~/components/plans/types'
-import { Properties } from '~/generated/graphql'
+import { Properties, PropertiesInput } from '~/generated/graphql'
 
-const getPropertyShape = (properties: Properties | undefined): LocalPropertiesInput => {
+const getPropertyShape = (properties: Properties | undefined): PropertiesInput => {
   return {
     amount: properties?.amount || undefined,
-    pricingGroupKeys: !!properties?.pricingGroupKeys ? properties?.pricingGroupKeys.join(',') : '',
+    pricingGroupKeys: !!properties?.pricingGroupKeys?.length ? properties?.pricingGroupKeys : [],
     packageSize:
       properties?.packageSize === null || properties?.packageSize === undefined
         ? 10

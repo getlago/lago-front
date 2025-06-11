@@ -1,14 +1,11 @@
 import { gql } from '@apollo/client'
 import { FormikProps } from 'formik'
-import { memo, useCallback, useEffect, useState } from 'react'
+import { memo, useCallback, useState } from 'react'
 
-import { Alert, Button, Tooltip, Typography } from '~/components/designSystem'
-import { TextInput } from '~/components/form'
-import {
-  LocalChargeFilterInput,
-  LocalPropertiesInput,
-  PlanFormInput,
-} from '~/components/plans/types'
+import { Alert, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
+import { MultipleComboBox } from '~/components/form'
+import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
+import { PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
@@ -20,37 +17,25 @@ gql`
 type DynamicChargeProps = {
   chargeIndex: number
   formikProps: FormikProps<PlanFormInput>
-  initialValuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
   propertyCursor: string
-  valuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
+  valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
   disabled?: boolean
 }
 
 export const DynamicCharge = memo(
-  ({
-    chargeIndex,
-    disabled,
-    formikProps,
-    initialValuePointer,
-    propertyCursor,
-    valuePointer,
-  }: DynamicChargeProps) => {
+  ({ chargeIndex, disabled, formikProps, propertyCursor, valuePointer }: DynamicChargeProps) => {
     const { translate } = useInternationalization()
 
-    const [shouldDisplayPricingGroupKeys, setShouldDisplayPricingGroupKeys] = useState<boolean>(
-      !!initialValuePointer?.pricingGroupKeys,
-    )
+    const [shouldDisplayPricingGroupKeys, setShouldDisplayPricingGroupKeys] =
+      useState<boolean>(false)
+
     const handleUpdate = useCallback(
-      (name: string, value: string) => {
+      (name: string, value: string | string[]) => {
         formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [chargeIndex],
     )
-
-    useEffect(() => {
-      setShouldDisplayPricingGroupKeys(!!initialValuePointer?.pricingGroupKeys)
-    }, [initialValuePointer?.pricingGroupKeys])
 
     return (
       <div className="flex flex-col gap-6">
@@ -63,45 +48,69 @@ export const DynamicCharge = memo(
             </Typography>
             <Typography variant="caption">{translate('text_6661fc17337de3591e29e425')}</Typography>
           </div>
-          {shouldDisplayPricingGroupKeys || !!valuePointer?.pricingGroupKeys ? (
-            <div className="flex w-full gap-3">
-              {/* NOTE: should be a single line textarea */}
-              <TextInput
-                className="flex-1"
-                name={`${propertyCursor}.pricingGroupKeys`}
-                placeholder={translate('text_65ba6d45e780c1ff8acb206f')}
-                helperText={translate('text_65ba6d45e780c1ff8acb2073')}
-                disabled={disabled}
-                value={valuePointer?.pricingGroupKeys as unknown as string}
-                onChange={(value) => handleUpdate(`${propertyCursor}.pricingGroupKeys`, value)}
-              />
+          <div className="flex w-full gap-3">
+            {!!valuePointer?.pricingGroupKeys?.length && (
+              <div className="flex flex-wrap gap-2">
+                {valuePointer?.pricingGroupKeys?.map((groupKey, groupKeyIndex) => (
+                  <Chip
+                    key={`pricing-groupe-key-chip-${groupKey}-${groupKeyIndex}`}
+                    label={groupKey}
+                    onDelete={() => {
+                      const newPricingGroupKeys = valuePointer?.pricingGroupKeys?.filter(
+                        (_, index) => index !== groupKeyIndex,
+                      )
 
-              <Tooltip
-                className="mt-1 h-fit"
-                placement="top-end"
-                title={translate('text_63aa085d28b8510cd46443ff')}
-              >
-                <Button
-                  align="left"
-                  icon="trash"
-                  variant="quaternary"
-                  onClick={() => {
-                    // NOTE: that should be removed once the new multiple combobox is implemented and used to define the pricingGroupKeys
-                    handleUpdate(`${propertyCursor}.pricingGroupKeys`, '')
-                    setShouldDisplayPricingGroupKeys(false)
+                      handleUpdate(`${propertyCursor}.pricingGroupKeys`, newPricingGroupKeys || [])
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+
+            {shouldDisplayPricingGroupKeys ? (
+              <div className="flex gap-3">
+                <MultipleComboBox
+                  freeSolo
+                  hideTags
+                  disableClearable
+                  showOptionsOnlyWhenTyping
+                  className="flex-1"
+                  data={[]}
+                  disabled={disabled}
+                  onChange={(newValue) => {
+                    const transformedValue = newValue?.map((item) => item.value) || undefined
+
+                    handleUpdate(`${propertyCursor}.pricingGroupKeys`, transformedValue)
                   }}
+                  value={(valuePointer?.pricingGroupKeys || []).map((key) => ({ value: key }))}
+                  placeholder={translate('text_65ba6d45e780c1ff8acb206f')}
                 />
-              </Tooltip>
-            </div>
-          ) : (
-            <Button
-              startIcon="plus"
-              variant="quaternary"
-              onClick={() => setShouldDisplayPricingGroupKeys(true)}
-            >
-              {translate('text_6661fc17337de3591e29e427')}
-            </Button>
-          )}
+
+                <Tooltip
+                  className="mt-1 h-fit"
+                  placement="top-end"
+                  title={translate('text_63aa085d28b8510cd46443ff')}
+                >
+                  <Button
+                    align="left"
+                    icon="trash"
+                    variant="quaternary"
+                    onClick={() => {
+                      setShouldDisplayPricingGroupKeys(false)
+                    }}
+                  />
+                </Tooltip>
+              </div>
+            ) : (
+              <Button
+                startIcon="plus"
+                variant="quaternary"
+                onClick={() => setShouldDisplayPricingGroupKeys(true)}
+              >
+                {translate('text_6661fc17337de3591e29e427')}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     )

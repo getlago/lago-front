@@ -494,7 +494,7 @@ describe('serializePlanInput()', () => {
               recurring: false,
               aggregationType: AggregationTypeEnum.CountAgg,
             },
-            properties: { pricingGroupKeys: 'one,two' },
+            properties: { pricingGroupKeys: ['one', 'two'] },
             taxCodes: [],
           },
         ],
