@@ -19,7 +19,7 @@ describe('Core > format', () => {
             subscription: {
               id: '242ccf63-d347-4148-8a94-eea2f353d657',
               name: null,
-              // @ts-ignore
+              // @ts-expect-error we're setting only the required fields for the test
               plan: {
                 id: 'ffb6a9ba-97a2-4681-b875-49cf7f1ce6ac',
                 name: 'Standard Plan',
@@ -76,7 +76,7 @@ describe('Core > format', () => {
             subscription: {
               id: '242ccf63-d347-4148-8a94-eea2f353d657',
               name: null,
-              // @ts-ignore
+              // @ts-expect-error we're setting only the required fields for the test
               plan: {
                 id: 'ffb6a9ba-97a2-4681-b875-49cf7f1ce6ac',
                 name: 'Standard Plan',
@@ -99,7 +99,7 @@ describe('Core > format', () => {
             subscription: {
               id: '242ccf63-d347-4148-8a94-eea2f353d658',
               name: null,
-              // @ts-ignore
+              // @ts-expect-error we're setting only the required fields for the test
               plan: {
                 id: 'ffb6a9ba-97a2-4681-b875-49cf7f1ce6ad',
                 name: 'Other Plan',
@@ -182,7 +182,7 @@ describe('Core > format', () => {
             subscription: {
               id: '242ccf63-d347-4148-8a94-eea2f353d657',
               name: null,
-              // @ts-ignore
+              // @ts-expect-error we're setting only the required fields for the test
               plan: {
                 id: 'ffb6a9ba-97a2-4681-b875-49cf7f1ce6ac',
                 name: 'Standard Plan',
@@ -205,7 +205,7 @@ describe('Core > format', () => {
             subscription: {
               id: '242ccf63-d347-4148-8a94-eea2f353d657',
               name: null,
-              // @ts-ignore
+              // @ts-expect-error we're setting only the required fields for the test
               plan: {
                 id: 'ffb6a9ba-97a2-4681-b875-49cf7f1ce6ac',
                 name: 'Other Plan',
@@ -284,7 +284,7 @@ describe('Core > format', () => {
             subscription: {
               id: '242ccf63-d347-4148-8a94-eea2f353d657',
               name: null,
-              // @ts-ignore
+              // @ts-expect-error we're setting only the required fields for the test
               plan: {
                 id: 'ffb6a9ba-97a2-4681-b875-49cf7f1ce6ac',
                 name: 'Standard Plan',
@@ -310,7 +310,7 @@ describe('Core > format', () => {
             subscription: {
               id: '242ccf63-d347-4148-8a94-eea2f353d657',
               name: null,
-              // @ts-ignore
+              // @ts-expect-error we're setting only the required fields for the test
               plan: {
                 id: 'ffb6a9ba-97a2-4681-b875-49cf7f1ce6ac',
                 name: 'Other Plan',
@@ -394,14 +394,14 @@ describe('Core > format', () => {
             eventsCount: null,
             units: 1,
             feeType: FeeTypesEnum.Subscription,
-            // @ts-ignore
+            // @ts-expect-error we're setting only the required fields for the test
             charge: {
               id: '1234',
             },
             subscription: {
               id: '242ccf63-d347-4148-8a94-eea2f353d657',
               name: null,
-              // @ts-ignore
+              // @ts-expect-error we're setting only the required fields for the test
               plan: {
                 id: 'ffb6a9ba-97a2-4681-b875-49cf7f1ce6ac',
                 name: 'Standard Plan',
@@ -420,12 +420,12 @@ describe('Core > format', () => {
             eventsCount: null,
             units: 1,
             feeType: FeeTypesEnum.Subscription,
-            // @ts-ignore
+            // @ts-expect-error we're setting only the required fields for the test
             charge: { id: '5678' },
             subscription: {
               id: '242ccf63-d347-4148-8a94-eea2f353d657',
               name: null,
-              // @ts-ignore
+              // @ts-expect-error we're setting only the required fields for the test
               plan: {
                 id: 'ffb6a9ba-97a2-4681-b875-49cf7f1ce6ac',
                 name: 'Other Plan',

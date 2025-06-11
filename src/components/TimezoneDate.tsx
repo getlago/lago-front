@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import { Icon, Tooltip, TooltipProps, Typography, TypographyProps } from '~/components/designSystem'
 import { formatDateToTZ, getTimezoneConfig } from '~/core/timezone'
 import { TimezoneEnum } from '~/generated/graphql'
@@ -35,6 +37,12 @@ export const TimezoneDate = ({
   const { translate } = useInternationalization()
   const { timezone, timezoneConfig, formatTimeOrgaTZ } = useOrganizationInfos()
   const formattedCustomerTZ = getTimezoneConfig(customerTimezone || timezone)
+
+  const displayTimezone = useMemo(() => {
+    if (mainTimezone === MainTimezoneEnum.organization) return timezone
+    if (mainTimezone === MainTimezoneEnum.customer) return customerTimezone
+    return TimezoneEnum.TzUtc
+  }, [mainTimezone, customerTimezone, timezone])
 
   return (
     <Tooltip
@@ -79,15 +87,7 @@ export const TimezoneDate = ({
         {...mainTypographyProps}
         noWrap
       >
-        {formatDateToTZ(
-          date,
-          mainTimezone === MainTimezoneEnum.organization
-            ? timezone
-            : mainTimezone === MainTimezoneEnum.customer
-              ? customerTimezone
-              : TimezoneEnum.TzUtc,
-          mainDateFormat,
-        )}
+        {formatDateToTZ(date, displayTimezone, mainDateFormat)}
       </Typography>
     </Tooltip>
   )

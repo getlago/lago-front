@@ -24,7 +24,7 @@ const CreateTaxRate = () => {
       code: tax?.code || '',
       description: tax?.description || '',
       name: tax?.name || '',
-      // @ts-ignore
+      // @ts-expect-error rate is a number but we want to allow empty string to ease input reset and form dirty behaviour
       rate: isNaN(Number(tax?.rate)) ? '' : String(tax?.rate),
     },
     validationSchema: object().shape({

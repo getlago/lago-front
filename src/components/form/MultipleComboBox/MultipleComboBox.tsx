@@ -1,6 +1,6 @@
 import { Autocomplete, createFilterOptions } from '@mui/material'
 import _sortBy from 'lodash/sortBy'
-import { useMemo, useState } from 'react'
+import { HTMLAttributes, JSXElementConstructor, useMemo, useState } from 'react'
 
 import { Chip, Icon } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -209,11 +209,10 @@ export const MultipleComboBox = ({
         return filtered
       }}
       ListboxComponent={
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        MultipleComboBoxList as any
+        MultipleComboBoxList as unknown as JSXElementConstructor<HTMLAttributes<HTMLElement>>
       }
       ListboxProps={
-        // @ts-ignore
+        // @ts-expect-error we're using props from MultipleComboBoxList which are not reccognized by the Autocomplete MUI component
         { value, renderGroupHeader, virtualized }
       }
       PopperComponent={MultipleComboBoxPopperFactory(PopperProps)}
@@ -222,11 +221,13 @@ export const MultipleComboBox = ({
         const optionForString =
           typeof option === 'string' ? data.find(({ value: val }) => val === option) : null
 
-        return typeof option === 'string'
-          ? optionForString
-            ? optionForString.label || optionForString.value
-            : option
-          : option.label || option.value
+        if (typeof option === 'string') {
+          if (optionForString) {
+            return optionForString.label || optionForString.value
+          }
+          return option
+        }
+        return option.label || option.value
       }}
     />
   )

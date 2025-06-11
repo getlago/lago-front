@@ -82,24 +82,28 @@ export const DeleteCouponDialog = forwardRef<DeleteCouponDialogRef>((_, ref) => 
           })
         )
       }
-      description={
-        couponLoading ? (
-          <>
-            <Skeleton className="mb-4 w-full" variant="text" />
-            <Skeleton className="w-full" variant="text" />
-          </>
-        ) : !!coupon?.appliedCouponsCount ? (
-          <Typography
-            html={translate(
-              'text_17364422965884zgujkr1l7j',
-              { appliedCouponsCount: coupon.appliedCouponsCount },
-              coupon.appliedCouponsCount,
-            )}
-          />
-        ) : (
-          <Typography html={translate('text_628b432fd8f2bc0105b973f6')} />
-        )
-      }
+      description={(() => {
+        if (couponLoading) {
+          return (
+            <>
+              <Skeleton className="mb-4 w-full" variant="text" />
+              <Skeleton className="w-full" variant="text" />
+            </>
+          )
+        }
+        if (!!coupon?.appliedCouponsCount) {
+          return (
+            <Typography
+              html={translate(
+                'text_17364422965884zgujkr1l7j',
+                { appliedCouponsCount: coupon.appliedCouponsCount },
+                coupon.appliedCouponsCount,
+              )}
+            />
+          )
+        }
+        return <Typography html={translate('text_628b432fd8f2bc0105b973f6')} />
+      })()}
       disableOnContinue={couponLoading}
       onContinue={async () =>
         await deleteCoupon({

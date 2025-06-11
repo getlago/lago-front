@@ -98,7 +98,7 @@ const CreateBillableMetric = () => {
       code: isDuplicate ? '' : billableMetric?.code || '',
       description: billableMetric?.description || '',
       expression: billableMetric?.expression || '',
-      // @ts-ignore
+      // @ts-expect-error aggregationType is set to empty string so reset does not mark the form as dirty
       aggregationType: billableMetric?.aggregationType || '',
       fieldName: billableMetric?.fieldName || undefined,
       recurring: billableMetric?.recurring || false,
