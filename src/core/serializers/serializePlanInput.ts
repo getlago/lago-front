@@ -44,9 +44,8 @@ const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnu
     ...properties,
     ...([ChargeModelEnum.Standard, ChargeModelEnum.Dynamic].includes(chargeModel)
       ? {
-          pricingGroupKeys: !!properties?.pricingGroupKeys
-            ? // @ts-expect-error EDIT: pricingGroupKeys is a string at this stage. need to send string[] to BE
-              properties?.pricingGroupKeys.split(',')
+          pricingGroupKeys: !!properties?.pricingGroupKeys?.length
+            ? properties?.pricingGroupKeys
             : undefined,
         }
       : { pricingGroupKeys: undefined }),

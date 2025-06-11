@@ -7,11 +7,11 @@ import { Alert, Button, ChargeTable, Tooltip, Typography } from '~/components/de
 import { AmountInput, TextInput } from '~/components/form'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum } from '~/generated/graphql'
+import { CurrencyEnum, PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useGraduatedChargeForm } from '~/hooks/plans/useGraduatedChargeForm'
 
-import { LocalChargeFilterInput, LocalPropertiesInput, PlanFormInput } from './types'
+import { LocalChargeFilterInput, PlanFormInput } from './types'
 
 gql`
   fragment GraduatedCharge on Properties {
@@ -30,7 +30,7 @@ interface GraduatedChargeTableProps {
   disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
-  valuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
+  valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }
 
 const DisabledAmountCell = ({ amount, currency }: { amount?: string; currency: CurrencyEnum }) => (

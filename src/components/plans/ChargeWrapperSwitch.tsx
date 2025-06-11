@@ -8,23 +8,18 @@ import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 import { GraduatedPercentageChargeTable } from '~/components/plans/GraduatedPercentageChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
 import { StandardCharge } from '~/components/plans/StandardCharge'
-import {
-  LocalChargeFilterInput,
-  LocalPropertiesInput,
-  PlanFormInput,
-} from '~/components/plans/types'
+import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
 import { VolumeChargeTable } from '~/components/plans/VolumeChargeTable'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { ChargeModelEnum, CurrencyEnum } from '~/generated/graphql'
+import { ChargeModelEnum, CurrencyEnum, PropertiesInput } from '~/generated/graphql'
 
 interface ChargeWrapperSwitchProps {
   currency: CurrencyEnum
   formikProps: FormikProps<PlanFormInput>
   chargeIndex: number
   filterIndex?: number
-  initialValuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
   propertyCursor: string
-  valuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
+  valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
   disabled?: boolean
   premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
 }
@@ -36,7 +31,6 @@ export const ChargeWrapperSwitch = memo(
     formikProps,
     chargeIndex,
     filterIndex,
-    initialValuePointer,
     premiumWarningDialogRef,
     propertyCursor,
     valuePointer,
@@ -53,7 +47,6 @@ export const ChargeWrapperSwitch = memo(
             formikProps={formikProps}
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}
-            initialValuePointer={initialValuePointer}
           />
         ) : localCharge.chargeModel === ChargeModelEnum.Package ? (
           <PackageCharge
@@ -115,7 +108,6 @@ export const ChargeWrapperSwitch = memo(
             chargeIndex={chargeIndex}
             disabled={disabled}
             formikProps={formikProps}
-            initialValuePointer={initialValuePointer}
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}
           />
