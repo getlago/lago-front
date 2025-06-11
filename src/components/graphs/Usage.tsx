@@ -238,9 +238,12 @@ const Usage = ({
 
                   <div>
                     {[...Array(3)].map((_, index) => (
-                      <div key={`usage-skeleton-${index}`} className="flex h-10 items-center gap-2">
-                        <Skeleton className="shadow-b" variant="circular" size="tiny" />
-                        <Skeleton className="w-[32%] shadow-b" variant="text" />
+                      <div
+                        key={`usage-skeleton-${index}`}
+                        className="flex h-10 items-center gap-2 shadow-b"
+                      >
+                        <Skeleton variant="circular" size="tiny" />
+                        <Skeleton className="w-[32%]" variant="text" />
                         <Skeleton className="ml-auto w-[32%]" variant="text" />
                       </div>
                     ))}
