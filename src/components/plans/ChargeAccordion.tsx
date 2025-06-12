@@ -559,7 +559,6 @@ export const ChargeAccordion = memo(
                       propertyCursor="properties"
                       premiumWarningDialogRef={premiumWarningDialogRef}
                       valuePointer={localCharge?.properties}
-                      initialValuePointer={initialLocalCharge?.properties}
                     />
                   </ConditionalWrapper>
                 )}
@@ -695,7 +694,6 @@ export const ChargeAccordion = memo(
                             propertyCursor={`filters.${filterIndex}.properties`}
                             premiumWarningDialogRef={premiumWarningDialogRef}
                             valuePointer={filter.properties}
-                            initialValuePointer={initialLocalCharge?.properties}
                           />
                         </div>
                       </Accordion>

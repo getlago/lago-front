@@ -8,9 +8,10 @@ import {
   EditCustomChargeDrawer,
   EditCustomChargeDrawerRef,
 } from '~/components/plans/EditCustomChargeDrawer'
+import { PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { LocalChargeFilterInput, LocalPropertiesInput, PlanFormInput } from './types'
+import { LocalChargeFilterInput, PlanFormInput } from './types'
 
 gql`
   fragment CustomCharge on Properties {
@@ -22,7 +23,7 @@ interface CustomChargeProps {
   chargeIndex: number
   formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
-  valuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
+  valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
   disabled?: boolean
 }
 
@@ -31,7 +32,7 @@ export const CustomCharge = memo(
     const { translate } = useInternationalization()
     const drawerRef = useRef<EditCustomChargeDrawerRef>(null)
 
-    const propertyInput: keyof LocalPropertiesInput = 'customProperties'
+    const propertyInput: keyof PropertiesInput = 'customProperties'
     const inputId = `charges.${chargeIndex}.${propertyCursor}.${propertyInput}`
 
     const handleUpdate = useCallback(

@@ -1,13 +1,9 @@
 import { FormikProps } from 'formik'
 import { useEffect, useMemo } from 'react'
 
-import {
-  LocalChargeFilterInput,
-  LocalPropertiesInput,
-  PlanFormInput,
-} from '~/components/plans/types'
+import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
-import { GraduatedRangeInput } from '~/generated/graphql'
+import { GraduatedRangeInput, PropertiesInput } from '~/generated/graphql'
 
 type RangeType = GraduatedRangeInput & { disabledDelete: boolean }
 type InfoCalculationRow = {
@@ -29,7 +25,7 @@ type UseGraduatedChargeForm = ({
   disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
-  valuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
+  valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }) => {
   handleUpdate: (rangeIndex: number, fieldName: string, value?: number | string) => void
   addRange: () => void

@@ -2,13 +2,9 @@ import Decimal from 'decimal.js'
 import { FormikProps } from 'formik'
 import { useEffect, useMemo } from 'react'
 
-import {
-  LocalChargeFilterInput,
-  LocalPropertiesInput,
-  PlanFormInput,
-} from '~/components/plans/types'
+import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
-import { VolumeRangeInput } from '~/generated/graphql'
+import { PropertiesInput, VolumeRangeInput } from '~/generated/graphql'
 
 export const DEFAULT_VOLUME_CHARGES = [
   {
@@ -44,7 +40,7 @@ type UseVolumeChargeForm = ({
   disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
-  valuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
+  valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }) => {
   handleUpdate: (rangeIndex: number, fieldName: string, value?: number | string) => void
   addRange: () => void

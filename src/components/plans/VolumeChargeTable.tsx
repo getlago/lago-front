@@ -6,11 +6,11 @@ import { memo, useState } from 'react'
 import { Alert, Button, ChargeTable, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum } from '~/generated/graphql'
+import { CurrencyEnum, PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useVolumeChargeForm } from '~/hooks/plans/useVolumeChargeForm'
 
-import { LocalChargeFilterInput, LocalPropertiesInput, PlanFormInput } from './types'
+import { LocalChargeFilterInput, PlanFormInput } from './types'
 
 gql`
   fragment VolumeRanges on Properties {
@@ -29,7 +29,7 @@ interface VolumeChargeTableProps {
   disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
-  valuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
+  valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }
 
 const DisabledAmountCell = ({ amount, currency }: { amount?: string; currency: CurrencyEnum }) => (

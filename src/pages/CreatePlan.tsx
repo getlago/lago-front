@@ -283,6 +283,7 @@ const CreatePlan = () => {
               <SectionFooterWrapper>
                 <Button
                   disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
+                  loading={formikProps.isSubmitting}
                   size="large"
                   onClick={() => {
                     if (plan?.hasOverriddenPlans && isEdition) {
