@@ -44,18 +44,25 @@ gql`
       }
       ... on BillingEntity {
         id
+        code
       }
       ... on Coupon {
         id
       }
       ... on CreditNote {
         id
+        customer {
+          id
+        }
       }
       ... on Customer {
         id
       }
       ... on Invoice {
         id
+        customer {
+          id
+        }
       }
       ... on Plan {
         id
@@ -68,6 +75,9 @@ gql`
       }
       ... on Wallet {
         id
+        walletCustomer: customer {
+          id
+        }
       }
     }
     loggedAt
@@ -202,7 +212,12 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
               ],
               [
                 translate('text_1747666154075y3lcupj1zdd'),
-                resource ? formatResourceObject(resource) : '-',
+                resource
+                  ? formatResourceObject(resource, {
+                      resourceType: resource.__typename,
+                      activityType,
+                    })
+                  : '-',
               ],
               [
                 translate('text_1748873734056eva3rfvpkoi'),
