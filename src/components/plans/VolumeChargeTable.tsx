@@ -5,6 +5,7 @@ import { memo, useState } from 'react'
 
 import { Alert, Button, ChargeTable, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
+import PricingGroupKeys from '~/components/plans/PricingGroupKeys'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -200,38 +201,49 @@ export const VolumeChargeTable = memo(
           />
         </div>
 
-        <Alert type="info">
-          <Typography variant="bodyHl" color="textSecondary">
-            {translate('text_6304e74aab6dbc18d615f412', {
-              lastRowFirstUnit: infosCalculation.lastRowFirstUnit,
-              value: intlFormatNumber(infosCalculation.value, {
-                currencyDisplay: 'symbol',
-                maximumFractionDigits: 15,
-                currency,
-              }),
-            })}
-          </Typography>
-          <Typography variant="body" color="textSecondary">
-            {translate('text_6304e74aab6dbc18d615f416', {
-              lastRowFirstUnit: infosCalculation.lastRowFirstUnit,
-              lastRowPerUnit: intlFormatNumber(infosCalculation.lastRowPerUnit, {
-                currencyDisplay: 'symbol',
-                maximumFractionDigits: 15,
-                currency,
-              }),
-              lastRowFlatFee: intlFormatNumber(infosCalculation.lastRowFlatFee, {
-                currencyDisplay: 'symbol',
-                maximumFractionDigits: 15,
-                currency,
-              }),
-              value: intlFormatNumber(infosCalculation.value, {
-                currencyDisplay: 'symbol',
-                maximumFractionDigits: 15,
-                currency,
-              }),
-            })}
-          </Typography>
-        </Alert>
+        <div className="flex flex-col gap-6">
+          <Alert type="info">
+            <Typography variant="bodyHl" color="textSecondary">
+              {translate('text_6304e74aab6dbc18d615f412', {
+                lastRowFirstUnit: infosCalculation.lastRowFirstUnit,
+                value: intlFormatNumber(infosCalculation.value, {
+                  currencyDisplay: 'symbol',
+                  maximumFractionDigits: 15,
+                  currency,
+                }),
+              })}
+            </Typography>
+            <Typography variant="body" color="textSecondary">
+              {translate('text_6304e74aab6dbc18d615f416', {
+                lastRowFirstUnit: infosCalculation.lastRowFirstUnit,
+                lastRowPerUnit: intlFormatNumber(infosCalculation.lastRowPerUnit, {
+                  currencyDisplay: 'symbol',
+                  maximumFractionDigits: 15,
+                  currency,
+                }),
+                lastRowFlatFee: intlFormatNumber(infosCalculation.lastRowFlatFee, {
+                  currencyDisplay: 'symbol',
+                  maximumFractionDigits: 15,
+                  currency,
+                }),
+                value: intlFormatNumber(infosCalculation.value, {
+                  currencyDisplay: 'symbol',
+                  maximumFractionDigits: 15,
+                  currency,
+                }),
+              })}
+            </Typography>
+          </Alert>
+
+          <PricingGroupKeys
+            disabled={disabled}
+            handleUpdate={(name, value) => {
+              formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
+            }}
+            propertyCursor={propertyCursor}
+            valuePointer={valuePointer}
+          />
+        </div>
       </div>
     )
   },
