@@ -24,9 +24,9 @@ Cypress.Commands.add('login', (email = userEmail, password = userPassword) => {
 })
 
 // https://docs.cypress.io/api/cypress-api/custom-commands#Overwrite-type-command
-// @ts-ignore
+// @ts-expect-error custom command
 Cypress.Commands.overwrite('type', (originalFn, element, text, options) => {
-  // @ts-ignore
+  // @ts-expect-error custom options
   return originalFn(element, text, { ...options, delay: 0 })
 })
 

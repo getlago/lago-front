@@ -1,6 +1,6 @@
 import { Autocomplete, createFilterOptions } from '@mui/material'
 import _sortBy from 'lodash/sortBy'
-import { useEffect, useMemo, useRef } from 'react'
+import { HTMLAttributes, JSXElementConstructor, useEffect, useMemo, useRef } from 'react'
 
 import { Skeleton } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -188,11 +188,10 @@ export const ComboBox = ({
         return filtered
       }}
       ListboxComponent={
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ComboboxList as any
+        ComboboxList as unknown as JSXElementConstructor<HTMLAttributes<HTMLElement>>
       }
       ListboxProps={
-        // @ts-ignore
+        // @ts-expect-error we're using props from ComboboxList which are not reccognized by the Autocomplete MUI component
         { value, renderGroupHeader, virtualized }
       }
       PopperComponent={ComboBoxPopperFactory(PopperProps)}
@@ -201,11 +200,13 @@ export const ComboBox = ({
         const optionForString =
           typeof option === 'string' ? data.find(({ value: val }) => val === option) : null
 
-        return typeof option === 'string'
-          ? optionForString
-            ? optionForString.label || optionForString.value
-            : option
-          : option.label || option.value
+        if (typeof option === 'string') {
+          if (optionForString) {
+            return optionForString.label || optionForString.value
+          }
+          return option
+        }
+        return option.label || option.value
       }}
     />
   )

@@ -110,7 +110,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
           </Link>
         )}
       >
-        {/* @ts-ignore */}
+        {/* @ts-expect-error Props spreading conflicts with ButtonProps interface */}
         <Button
           onClick={onClick}
           disabled={disabled}

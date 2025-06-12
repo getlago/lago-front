@@ -73,10 +73,10 @@ export const ChargePercentage = memo(
 
     const hasMinAmountError =
       typeof filterIndex === 'number'
-        ? // @ts-ignore
+        ? // @ts-expect-error we're using props from chargeErrors which are not reccognized by the Formik component
           chargeErrors?.[chargeIndex]?.filters?.[filterIndex]?.properties
             ?.perTransactionMinAmount === MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR
-        : // @ts-ignore
+        : // @ts-expect-error we're using props from chargeErrors which are not reccognized by the Formik component
           chargeErrors?.[chargeIndex]?.properties?.perTransactionMinAmount ===
           MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR
 
