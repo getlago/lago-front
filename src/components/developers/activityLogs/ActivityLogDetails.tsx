@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Fragment } from 'react'
-import { useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import {
   formatActivityType,
@@ -16,7 +16,13 @@ import {
   TabManagedBy,
   Typography,
 } from '~/components/designSystem'
-import { useGetSingleActivityLogQuery } from '~/generated/graphql'
+import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
+import {
+  useGetCustomerIdForActivityLogDetailsQuery,
+  useGetSingleActivityLogQuery,
+  useGetSubscriptionIdForActivityLogDetailsQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
@@ -76,6 +82,18 @@ gql`
       ...ActivityLogDetails
     }
   }
+
+  query getCustomerIdForActivityLogDetails($externalId: ID) {
+    customer(externalId: $externalId) {
+      id
+    }
+  }
+
+  query getSubscriptionIdForActivityLogDetails($externalId: ID) {
+    subscription(externalId: $externalId) {
+      id
+    }
+  }
 `
 
 export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
@@ -101,6 +119,16 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
     externalCustomerId,
     apiKey,
   } = data?.activityLog ?? {}
+
+  const { data: customerData } = useGetCustomerIdForActivityLogDetailsQuery({
+    variables: { externalId: externalCustomerId },
+    skip: !externalCustomerId,
+  })
+
+  const { data: subscriptionData } = useGetSubscriptionIdForActivityLogDetailsQuery({
+    variables: { externalId: externalSubscriptionId },
+    skip: !externalSubscriptionId,
+  })
 
   const [activityTypeTranslation, parameters] = activityType
     ? getActivityDescription(activityType, {
@@ -176,8 +204,38 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
                 translate('text_1747666154075y3lcupj1zdd'),
                 resource ? formatResourceObject(resource) : '-',
               ],
-              [translate('text_1748873734056eva3rfvpkoi'), externalCustomerId ?? '-'],
-              [translate('text_1748873758144pfwdvafs9pv'), externalSubscriptionId ?? '-'],
+              [
+                translate('text_1748873734056eva3rfvpkoi'),
+                customerData?.customer?.id ? (
+                  <a
+                    className="visited:text-blue"
+                    href={generatePath(CUSTOMER_DETAILS_ROUTE, {
+                      customerId: customerData.customer.id,
+                    })}
+                  >
+                    {externalCustomerId}
+                  </a>
+                ) : (
+                  (externalCustomerId ?? '-')
+                ),
+              ],
+              [
+                translate('text_1748873758144pfwdvafs9pv'),
+                subscriptionData?.subscription?.id && customerData?.customer?.id ? (
+                  <a
+                    className="visited:text-blue"
+                    href={generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                      tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+                      customerId: customerData?.customer?.id ?? '',
+                      subscriptionId: subscriptionData?.subscription?.id ?? '',
+                    })}
+                  >
+                    {externalSubscriptionId}
+                  </a>
+                ) : (
+                  (externalSubscriptionId ?? '-')
+                ),
+              ],
               [
                 translate('text_17473520702542eqnulj06zc'),
                 formatTimeOrgaTZ(loggedAt, 'LLL dd, hh:mm:ss a'),
@@ -191,8 +249,8 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
             ]
               .filter(([label, value]) => !!label && !!value)
               .map(([label, value]) => (
-                <Fragment key={label}>
-                  <Typography key={label} className="pt-1" variant="caption">
+                <Fragment key={label as string}>
+                  <Typography key={label as string} className="pt-1" variant="caption">
                     {label}
                   </Typography>
                   <Typography
