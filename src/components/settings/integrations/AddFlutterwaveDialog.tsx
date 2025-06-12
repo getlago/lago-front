@@ -3,7 +3,7 @@ import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
-import { TextInputField } from '~/components/form'
+import { SwitchField, TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -14,6 +14,7 @@ interface FlutterwaveProvider {
   publicKey: string
   secretKey: string
   encryptionKey: string
+  production: boolean
 }
 
 interface AddFlutterwavePaymentProviderInput {
@@ -22,6 +23,7 @@ interface AddFlutterwavePaymentProviderInput {
   publicKey: string
   secretKey: string
   encryptionKey: string
+  production: boolean
 }
 
 type TAddFlutterwaveDialogProps = Partial<{
@@ -48,6 +50,7 @@ export const AddFlutterwaveDialog = forwardRef<AddFlutterwaveDialogRef>((_, ref)
       publicKey: flutterwaveProvider?.publicKey || '',
       secretKey: flutterwaveProvider?.secretKey || '',
       encryptionKey: flutterwaveProvider?.encryptionKey || '',
+      production: flutterwaveProvider?.production || false,
     },
     validationSchema: object().shape({
       name: string().required(''),
@@ -141,6 +144,11 @@ export const AddFlutterwaveDialog = forwardRef<AddFlutterwaveDialogRef>((_, ref)
           name="encryptionKey"
           label={translate('text_17497253313741h3qgmvlmie')}
           placeholder={translate('text_1749725331374u9ahlz73aq1')}
+          formikProps={formikProps}
+        />
+        <SwitchField
+          name="production"
+          label={translate('text_1749731835360j494r9wkd0k')}
           formikProps={formikProps}
         />
       </div>
