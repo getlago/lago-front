@@ -25,7 +25,7 @@ const PricingGroupKeys = ({
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <Typography variant="captionHl" color="textSecondary">
-          {translate('text_65ba6d45e780c1ff8acb20e0')}
+          {translate('text_65ba6d45e780c1ff8acb20ce')}
         </Typography>
         <Typography variant="caption">{translate('text_6661fc17337de3591e29e425')}</Typography>
       </div>
