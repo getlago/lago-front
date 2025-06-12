@@ -1,8 +1,7 @@
 import Decimal from 'decimal.js'
-import { FormikProps } from 'formik'
 import { useEffect, useMemo } from 'react'
 
-import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
+import { LocalChargeFilterInput, TSetFieldValue } from '~/components/plans/types'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
 import { PropertiesInput, VolumeRangeInput } from '~/generated/graphql'
 
@@ -32,13 +31,13 @@ type InfoCalculationRow = {
 type UseVolumeChargeForm = ({
   chargeIndex,
   disabled,
-  formikProps,
   propertyCursor,
   valuePointer,
+  setFieldValue,
 }: {
   chargeIndex: number
   disabled?: boolean
-  formikProps: FormikProps<PlanFormInput>
+  setFieldValue: TSetFieldValue
   propertyCursor: string
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }) => {
@@ -52,9 +51,9 @@ type UseVolumeChargeForm = ({
 export const useVolumeChargeForm: UseVolumeChargeForm = ({
   chargeIndex,
   disabled,
-  formikProps,
   propertyCursor,
   valuePointer,
+  setFieldValue,
 }) => {
   const formikIdentifier = `charges.${chargeIndex}.${propertyCursor}.volumeRanges`
   const volumeRanges = useMemo(() => valuePointer?.volumeRanges || [], [valuePointer])
@@ -62,7 +61,7 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
   useEffect(() => {
     if (!volumeRanges.length) {
       // if no existing charge, initialize it with 2 pre-filled lines
-      formikProps.setFieldValue(formikIdentifier, DEFAULT_VOLUME_CHARGES)
+      setFieldValue(formikIdentifier, DEFAULT_VOLUME_CHARGES)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formikIdentifier])
@@ -117,14 +116,11 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
         return acc
       }, [])
 
-      formikProps.setFieldValue(
-        `charges.${chargeIndex}.${propertyCursor}.volumeRanges`,
-        newVolumeRanges,
-      )
+      setFieldValue(`charges.${chargeIndex}.${propertyCursor}.volumeRanges`, newVolumeRanges)
     },
     handleUpdate: (rangeIndex, fieldName, value) => {
       if (fieldName !== 'toValue') {
-        formikProps.setFieldValue(`${formikIdentifier}.${rangeIndex}.${fieldName}`, value)
+        setFieldValue(`${formikIdentifier}.${rangeIndex}.${fieldName}`, value)
       } else {
         const newVolumeRanges = volumeRanges.reduce<VolumeRangeInput[]>((acc, range, i) => {
           if (rangeIndex === i) {
@@ -151,7 +147,7 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
           return acc
         }, [])
 
-        formikProps.setFieldValue(formikIdentifier, newVolumeRanges)
+        setFieldValue(formikIdentifier, newVolumeRanges)
       }
     },
     deleteRange: (rangeIndex) => {
@@ -172,7 +168,7 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
       // Last row needs to has toValue null
       newVolumeRanges[newVolumeRanges.length - 1].toValue = null
 
-      formikProps.setFieldValue(formikIdentifier, newVolumeRanges)
+      setFieldValue(formikIdentifier, newVolumeRanges)
     },
   }
 }

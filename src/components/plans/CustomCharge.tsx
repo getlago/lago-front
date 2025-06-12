@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
-import { FormikProps } from 'formik'
+import { FormikErrors } from 'formik'
 import _get from 'lodash/get'
-import { memo, useCallback, useRef } from 'react'
+import { memo, useRef } from 'react'
 
 import { JsonEditor } from '~/components/form'
 import {
@@ -11,7 +11,7 @@ import {
 import { PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { LocalChargeFilterInput, PlanFormInput } from './types'
+import { LocalChargeFilterInput, PlanFormInput, THandleUpdate } from './types'
 
 gql`
   fragment CustomCharge on Properties {
@@ -21,45 +21,47 @@ gql`
 
 interface CustomChargeProps {
   chargeIndex: number
-  formikProps: FormikProps<PlanFormInput>
+  handleUpdate: THandleUpdate
+  formikErrors: FormikErrors<PlanFormInput>
   propertyCursor: string
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
   disabled?: boolean
 }
 
 export const CustomCharge = memo(
-  ({ chargeIndex, disabled, formikProps, propertyCursor, valuePointer }: CustomChargeProps) => {
+  ({
+    chargeIndex,
+    disabled,
+    handleUpdate,
+    propertyCursor,
+    valuePointer,
+    formikErrors,
+  }: CustomChargeProps) => {
     const { translate } = useInternationalization()
     const drawerRef = useRef<EditCustomChargeDrawerRef>(null)
 
-    const propertyInput: keyof PropertiesInput = 'customProperties'
-    const inputId = `charges.${chargeIndex}.${propertyCursor}.${propertyInput}`
-
-    const handleUpdate = useCallback(
-      (value: string) => {
-        formikProps.setFieldValue(inputId, value)
-      },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [chargeIndex],
-    )
+    const propertyName: keyof PropertiesInput = 'customProperties'
 
     return (
       <>
         <div className="flex flex-col gap-6">
           <JsonEditor
-            name={`${propertyCursor}.${propertyInput}`}
+            name={`${propertyCursor}.${propertyName}`}
             label={translate('text_663dea5702b60301d8d06502')}
             value={valuePointer?.customProperties}
             disabled={disabled}
-            error={_get(formikProps.errors, inputId)}
+            error={_get(formikErrors, `charges.${chargeIndex}.${propertyCursor}.${propertyName}`)}
             onExpand={() =>
               drawerRef.current?.openDrawer({
-                customProperties: _get(formikProps.values, inputId),
+                customProperties: valuePointer?.[propertyName],
               })
             }
           />
         </div>
-        <EditCustomChargeDrawer ref={drawerRef} onSubmit={(value) => handleUpdate(value)} />
+        <EditCustomChargeDrawer
+          ref={drawerRef}
+          onSubmit={(value) => handleUpdate(`${propertyCursor}.${propertyName}`, value)}
+        />
       </>
     )
   },

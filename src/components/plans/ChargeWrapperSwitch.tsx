@@ -1,5 +1,5 @@
-import { FormikProps } from 'formik'
-import { memo, RefObject } from 'react'
+import { FormikErrors } from 'formik'
+import { memo, RefObject, useCallback } from 'react'
 
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
 import { CustomCharge } from '~/components/plans/CustomCharge'
@@ -8,43 +8,60 @@ import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 import { GraduatedPercentageChargeTable } from '~/components/plans/GraduatedPercentageChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
 import { StandardCharge } from '~/components/plans/StandardCharge'
-import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
+import {
+  LocalChargeFilterInput,
+  LocalChargeInput,
+  PlanFormInput,
+  TChargeErrors,
+  THandleUpdate,
+  TSetFieldValue,
+} from '~/components/plans/types'
 import { VolumeChargeTable } from '~/components/plans/VolumeChargeTable'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { ChargeModelEnum, CurrencyEnum, PropertiesInput } from '~/generated/graphql'
 
 interface ChargeWrapperSwitchProps {
-  currency: CurrencyEnum
-  formikProps: FormikProps<PlanFormInput>
+  chargeErrors: TChargeErrors
   chargeIndex: number
-  filterIndex?: number
-  propertyCursor: string
-  valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
+  currency: CurrencyEnum
   disabled?: boolean
+  filterIndex?: number
+  formikErrors: FormikErrors<PlanFormInput>
+  localCharge: LocalChargeInput
   premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
+  propertyCursor: string
+  setFieldValue: TSetFieldValue
+  valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }
 
 export const ChargeWrapperSwitch = memo(
   ({
+    chargeIndex,
     currency,
     disabled,
-    formikProps,
-    chargeIndex,
     filterIndex,
+    formikErrors,
+    localCharge,
     premiumWarningDialogRef,
     propertyCursor,
+    setFieldValue,
     valuePointer,
   }: ChargeWrapperSwitchProps) => {
-    const localCharge = formikProps.values.charges[chargeIndex]
+    const handleUpdate: THandleUpdate = useCallback(
+      (name, value) => {
+        setFieldValue(`charges.${chargeIndex}.${name}`, value)
+      },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [chargeIndex],
+    )
 
     return (
       <div className="m-4">
         {localCharge.chargeModel === ChargeModelEnum.Standard && (
           <StandardCharge
-            chargeIndex={chargeIndex}
             currency={currency}
             disabled={disabled}
-            formikProps={formikProps}
+            handleUpdate={handleUpdate}
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}
           />
@@ -54,7 +71,8 @@ export const ChargeWrapperSwitch = memo(
             chargeIndex={chargeIndex}
             currency={currency}
             disabled={disabled}
-            formikProps={formikProps}
+            formikErrors={formikErrors}
+            handleUpdate={handleUpdate}
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}
           />
@@ -64,8 +82,8 @@ export const ChargeWrapperSwitch = memo(
             chargeIndex={chargeIndex}
             currency={currency}
             disabled={disabled}
-            formikProps={formikProps}
             propertyCursor={propertyCursor}
+            setFieldValue={setFieldValue}
             valuePointer={valuePointer}
           />
         )}
@@ -74,7 +92,7 @@ export const ChargeWrapperSwitch = memo(
             chargeIndex={chargeIndex}
             currency={currency}
             disabled={disabled}
-            formikProps={formikProps}
+            setFieldValue={setFieldValue}
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}
           />
@@ -82,13 +100,14 @@ export const ChargeWrapperSwitch = memo(
         {localCharge.chargeModel === ChargeModelEnum.Percentage && (
           <ChargePercentage
             chargeIndex={chargeIndex}
-            filterIndex={filterIndex}
             currency={currency}
             disabled={disabled}
-            formikProps={formikProps}
+            filterIndex={filterIndex}
+            formikErrors={formikErrors}
+            handleUpdate={handleUpdate}
+            premiumWarningDialogRef={premiumWarningDialogRef}
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}
-            premiumWarningDialogRef={premiumWarningDialogRef}
           />
         )}
         {localCharge.chargeModel === ChargeModelEnum.Volume && (
@@ -96,7 +115,7 @@ export const ChargeWrapperSwitch = memo(
             chargeIndex={chargeIndex}
             currency={currency}
             disabled={disabled}
-            formikProps={formikProps}
+            setFieldValue={setFieldValue}
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}
           />
@@ -105,16 +124,16 @@ export const ChargeWrapperSwitch = memo(
           <CustomCharge
             disabled={disabled}
             chargeIndex={chargeIndex}
-            formikProps={formikProps}
+            handleUpdate={handleUpdate}
+            formikErrors={formikErrors}
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}
           />
         )}
         {localCharge.chargeModel === ChargeModelEnum.Dynamic && (
           <DynamicCharge
-            chargeIndex={chargeIndex}
             disabled={disabled}
-            formikProps={formikProps}
+            handleUpdate={handleUpdate}
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}
           />

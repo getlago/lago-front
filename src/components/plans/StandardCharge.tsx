@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
-import { FormikProps } from 'formik'
-import { memo, useCallback } from 'react'
+import { memo } from 'react'
 
 import { AmountInput } from '~/components/form'
 import PricingGroupKeys from '~/components/plans/PricingGroupKeys'
@@ -10,7 +9,7 @@ import { CurrencyEnum } from '~/generated/graphql'
 import { PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { LocalChargeFilterInput, PlanFormInput } from './types'
+import { LocalChargeFilterInput, THandleUpdate } from './types'
 
 gql`
   fragment StandardCharge on Properties {
@@ -20,32 +19,16 @@ gql`
 `
 
 interface StandardChargeProps {
-  chargeIndex: number
   currency: CurrencyEnum
-  formikProps: FormikProps<PlanFormInput>
+  disabled?: boolean
+  handleUpdate: THandleUpdate
   propertyCursor: string
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
-  disabled?: boolean
 }
 
 export const StandardCharge = memo(
-  ({
-    chargeIndex,
-    currency,
-    disabled,
-    formikProps,
-    propertyCursor,
-    valuePointer,
-  }: StandardChargeProps) => {
+  ({ currency, disabled, handleUpdate, propertyCursor, valuePointer }: StandardChargeProps) => {
     const { translate } = useInternationalization()
-
-    const handleUpdate = useCallback(
-      (name: string, value: string | string[]) => {
-        formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
-      },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [chargeIndex],
-    )
 
     return (
       <div className="flex flex-col gap-6">
