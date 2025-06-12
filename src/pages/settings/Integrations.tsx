@@ -30,6 +30,10 @@ import {
   AddCashfreeDialogRef,
 } from '~/components/settings/integrations/AddCashfreeDialog'
 import {
+  AddFlutterwaveDialog,
+  AddFlutterwaveDialogRef,
+} from '~/components/settings/integrations/AddFlutterwaveDialog'
+import {
   AddGocardlessDialog,
   AddGocardlessDialogRef,
 } from '~/components/settings/integrations/AddGocardlessDialog'
@@ -70,6 +74,7 @@ import {
   ANROK_INTEGRATION_ROUTE,
   AVALARA_INTEGRATION_ROUTE,
   CASHFREE_INTEGRATION_ROUTE,
+  FLUTTERWAVE_INTEGRATION_ROUTE,
   GOCARDLESS_INTEGRATION_ROUTE,
   HUBSPOT_INTEGRATION_ROUTE,
   INTEGRATIONS_ROUTE,
@@ -93,6 +98,7 @@ import Airbyte from '~/public/images/airbyte.svg'
 import Anrok from '~/public/images/anrok.svg'
 import Avalara from '~/public/images/avalara.svg'
 import Cashfree from '~/public/images/cashfree.svg'
+import Flutterwave from '~/public/images/flutterwave.svg'
 import GoCardless from '~/public/images/gocardless.svg'
 import HightTouch from '~/public/images/hightouch.svg'
 import Hubspot from '~/public/images/hubspot.svg'
@@ -122,6 +128,10 @@ gql`
         }
 
         ... on AdyenProvider {
+          id
+        }
+
+        ... on CashfreeProvider {
           id
         }
       }
@@ -171,6 +181,7 @@ const Integrations = () => {
   const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
   const addHubspotDialogRef = useRef<AddHubspotDialogRef>(null)
   const addMoneyhashDialogRef = useRef<AddMoneyhashDialogRef>(null)
+  const addFlutterwaveDialogRef = useRef<AddFlutterwaveDialogRef>(null)
 
   const { data, loading } = useIntegrationsSettingQuery({
     variables: { limit: 1000 },
@@ -198,6 +209,7 @@ const Integrations = () => {
   const hasMoneyhashIntegration = data?.paymentProviders?.collection?.some(
     (provider) => provider?.__typename === 'MoneyhashProvider',
   )
+  const hasFlutterwaveIntegration = false // TODO: Update when backend support is ready
   const hasTaxManagement = !!hasBillingEntitiesWithTaxManagement
   const hasAccessToAvalaraPremiumIntegration = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.Avalara,
@@ -687,6 +699,29 @@ const Integrations = () => {
                         }}
                         fullWidth
                       />
+                      <Selector
+                        title={translate('text_1749724395108m0swrna0zt4')}
+                        subtitle={translate('text_634ea0ecc6147de10ddb6631')}
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            <Flutterwave />
+                          </Avatar>
+                        }
+                        endIcon={getEndIcon({
+                          showConnectedBadge: hasFlutterwaveIntegration,
+                        })}
+                        onClick={() => {
+                          if (hasFlutterwaveIntegration) {
+                            navigate(FLUTTERWAVE_INTEGRATION_ROUTE)
+                          } else {
+                            const element = document.activeElement as HTMLElement
+
+                            element.blur && element.blur()
+                            addFlutterwaveDialogRef.current?.openDialog()
+                          }
+                        }}
+                        fullWidth
+                      />
                     </SettingsListItem>
                   )}
                 </SettingsListWrapper>
@@ -709,6 +744,7 @@ const Integrations = () => {
       <AddXeroDialog ref={addXeroDialogRef} />
       <AddHubspotDialog ref={addHubspotDialogRef} />
       <AddSalesforceDialog ref={addSalesforceDialogRef} />
+      <AddFlutterwaveDialog ref={addFlutterwaveDialogRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )

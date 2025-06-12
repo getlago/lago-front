@@ -3174,5 +3174,16 @@
   "text_17494778224951pa9u6uvz3t": "View logs",
   "text_17494781024812be7fqhzqxs": "Logs reflecting this coupon’s activity.",
   "text_1749561986883tqfllead7o3": "A payment request of {{amount}} was created",
-  "text_17495622741665lrk6dp6czk": "Payment request"
+  "text_17495622741665lrk6dp6czk": "Payment request",
+  "text_1749724395108m0swrna0zt4": "Flutterwave",
+  "text_1749725287668wpbctffw2gv": "Public key",
+  "text_17497252876688ai900wowoc": "Secret key",
+  "text_17497253313741h3qgmvlmie": "Encryption key",
+  "text_1749725331374936azbwqk89": "Enter your Flutterwave public key",
+  "text_1749725331374uzvwfxs7m82": "Enter your Flutterwave secret key", 
+  "text_1749725331374u9ahlz73aq1": "Enter your Flutterwave encryption key",
+  "text_1749725331374vcsmw7mp5gt": "Flutterwave integration coming soon",
+  "text_1749725331374i3p14ewcpn5": "Edit Flutterwave",
+  "text_174972533137460li1pvmw34": "Connect with Flutterwave to collect payments from your customers",
+  "text_1749725331374clf07sez01f": "Connect Flutterwave"
 }
