@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
-import { FormikProps } from 'formik'
 import { memo, useState } from 'react'
 
 import { Alert, Button, ChargeTable, Tooltip, Typography } from '~/components/designSystem'
@@ -11,7 +10,7 @@ import { CurrencyEnum, PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useVolumeChargeForm } from '~/hooks/plans/useVolumeChargeForm'
 
-import { LocalChargeFilterInput, PlanFormInput } from './types'
+import { LocalChargeFilterInput, TSetFieldValue } from './types'
 
 gql`
   fragment VolumeRanges on Properties {
@@ -28,7 +27,7 @@ interface VolumeChargeTableProps {
   chargeIndex: number
   currency: CurrencyEnum
   disabled?: boolean
-  formikProps: FormikProps<PlanFormInput>
+  setFieldValue: TSetFieldValue
   propertyCursor: string
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }
@@ -47,7 +46,7 @@ export const VolumeChargeTable = memo(
     chargeIndex,
     currency,
     disabled,
-    formikProps,
+    setFieldValue,
     propertyCursor,
     valuePointer,
   }: VolumeChargeTableProps) => {
@@ -57,7 +56,7 @@ export const VolumeChargeTable = memo(
       useVolumeChargeForm({
         chargeIndex,
         disabled,
-        formikProps,
+        setFieldValue,
         propertyCursor,
         valuePointer,
       })
@@ -238,7 +237,7 @@ export const VolumeChargeTable = memo(
           <PricingGroupKeys
             disabled={disabled}
             handleUpdate={(name, value) => {
-              formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
+              setFieldValue(`charges.${chargeIndex}.${name}`, value)
             }}
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}

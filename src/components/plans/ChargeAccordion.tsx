@@ -55,7 +55,7 @@ import { buildChargeFilterAddFilterButtonId, ChargeFilter } from './ChargeFilter
 import { ChargeOptionsAccordion } from './ChargeOptionsAccordion'
 import { ChargeWrapperSwitch } from './ChargeWrapperSwitch'
 import { RemoveChargeWarningDialogRef } from './RemoveChargeWarningDialog'
-import { LocalChargeInput, PlanFormInput } from './types'
+import { LocalChargeInput, PlanFormInput, TChargeErrors, TSetFieldValue } from './types'
 
 const buildChargeDefaultPropertyId = (chargeIndex: number) =>
   `charge-${chargeIndex}-default-property-accordion`
@@ -164,6 +164,10 @@ interface ChargeAccordionProps {
   id: string
   index: number
   isUsedInSubscription?: boolean
+  formikCharge: LocalChargeInput
+  formikInitialCharges: LocalChargeInput[]
+  setFieldValue: TSetFieldValue
+  chargeErrors: TChargeErrors
   premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
   editInvoiceDisplayNameRef: RefObject<EditInvoiceDisplayNameRef>
   removeChargeWarningDialogRef?: RefObject<RemoveChargeWarningDialogRef>
@@ -180,9 +184,13 @@ export const ChargeAccordion = memo(
     premiumWarningDialogRef,
     editInvoiceDisplayNameRef,
     isUsedInSubscription,
+    formikInitialCharges,
     isInitiallyOpen,
     isInSubscriptionForm,
+    formikCharge,
     formikProps,
+    setFieldValue,
+    chargeErrors,
     id,
     index,
     subscriptionFormType,
@@ -195,7 +203,6 @@ export const ChargeAccordion = memo(
       getIsPayInAdvanceOptionDisabled,
       getIsProRatedOptionDisabled,
     } = useChargeForm()
-    const chargeErrors = formikProps?.errors?.charges
 
     const {
       chargeModelComboboxData,
@@ -206,7 +213,6 @@ export const ChargeAccordion = memo(
       isProratedOptionDisabled,
       localCharge,
     } = useMemo(() => {
-      const formikCharge = formikProps.values.charges[index]
       const localChargeModelComboboxData = getChargeModelComboboxData({
         isPremium,
         aggregationType: formikCharge.billableMetric.aggregationType,
@@ -231,15 +237,15 @@ export const ChargeAccordion = memo(
           typeof chargeErrors[index] === 'object' &&
           typeof chargeErrors[index].properties === 'object',
         hasErrorInCharges: Boolean(chargeErrors && chargeErrors[index]),
-        initialLocalCharge: formikProps.initialValues.charges[index],
+        initialLocalCharge: formikInitialCharges[index],
         isPayInAdvanceOptionDisabled: localIsPayInAdvanceOptionDisabled,
         isProratedOptionDisabled: localIsProratedOptionDisabled,
         localCharge: formikCharge,
       }
     }, [
       chargeErrors,
-      formikProps.initialValues.charges,
-      formikProps.values.charges,
+      formikCharge,
+      formikInitialCharges,
       getChargeModelComboboxData,
       getIsPayInAdvanceOptionDisabled,
       getIsProRatedOptionDisabled,
@@ -294,7 +300,7 @@ export const ChargeAccordion = memo(
           }
         }
 
-        formikProps.setFieldValue(`charges.${index}`, currentChargeValues)
+        setFieldValue(`charges.${index}`, currentChargeValues)
       },
 
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -373,10 +379,7 @@ export const ChargeAccordion = memo(
                       editInvoiceDisplayNameRef.current?.openDialog({
                         invoiceDisplayName: localCharge.invoiceDisplayName,
                         callback: (invoiceDisplayName: string) => {
-                          formikProps.setFieldValue(
-                            `charges.${index}.invoiceDisplayName`,
-                            invoiceDisplayName,
-                          )
+                          setFieldValue(`charges.${index}.invoiceDisplayName`, invoiceDisplayName)
                         },
                       })
                     }}
@@ -435,7 +438,7 @@ export const ChargeAccordion = memo(
                         const charges = [...formikProps.values.charges]
 
                         charges.splice(index, 1)
-                        formikProps.setFieldValue('charges', charges)
+                        setFieldValue('charges', charges)
                       }
 
                       if (actionType !== 'duplicate' && isUsedInSubscription) {
@@ -553,11 +556,14 @@ export const ChargeAccordion = memo(
                     }}
                   >
                     <ChargeWrapperSwitch
-                      currency={currency}
-                      formikProps={formikProps}
+                      chargeErrors={chargeErrors}
                       chargeIndex={index}
-                      propertyCursor="properties"
+                      currency={currency}
+                      formikErrors={formikProps.errors}
+                      localCharge={localCharge}
                       premiumWarningDialogRef={premiumWarningDialogRef}
+                      propertyCursor="properties"
+                      setFieldValue={formikProps.setFieldValue}
                       valuePointer={localCharge?.properties}
                     />
                   </ConditionalWrapper>
@@ -610,7 +616,7 @@ export const ChargeAccordion = memo(
                                     editInvoiceDisplayNameRef.current?.openDialog({
                                       invoiceDisplayName: filter.invoiceDisplayName,
                                       callback: (invoiceDisplayName: string) => {
-                                        formikProps.setFieldValue(
+                                        setFieldValue(
                                           `charges.${index}.filters.${filterIndex}.invoiceDisplayName`,
                                           invoiceDisplayName,
                                         )
@@ -667,7 +673,7 @@ export const ChargeAccordion = memo(
                             filterIndex={filterIndex}
                             billableMetricFilters={localCharge.billableMetric?.filters || []}
                             setFilterValues={(values) => {
-                              formikProps.setFieldValue(
+                              setFieldValue(
                                 `charges.${index}.filters.${filterIndex}.values`,
                                 values,
                               )
@@ -679,7 +685,7 @@ export const ChargeAccordion = memo(
 
                               newValuesArray.splice(valueIndex, 1)
 
-                              formikProps.setFieldValue(
+                              setFieldValue(
                                 `charges.${index}.filters.${filterIndex}.values`,
                                 newValuesArray,
                               )
@@ -687,12 +693,15 @@ export const ChargeAccordion = memo(
                           />
 
                           <ChargeWrapperSwitch
-                            currency={currency}
-                            formikProps={formikProps}
+                            chargeErrors={chargeErrors}
                             chargeIndex={index}
+                            currency={currency}
                             filterIndex={filterIndex}
-                            propertyCursor={`filters.${filterIndex}.properties`}
+                            formikErrors={formikProps.errors}
+                            localCharge={localCharge}
                             premiumWarningDialogRef={premiumWarningDialogRef}
+                            propertyCursor={`filters.${filterIndex}.properties`}
+                            setFieldValue={formikProps.setFieldValue}
                             valuePointer={filter.properties}
                           />
                         </div>
@@ -710,7 +719,7 @@ export const ChargeAccordion = memo(
                   variant="quaternary"
                   startIcon="plus"
                   onClick={() => {
-                    formikProps.setFieldValue(`charges.${index}.filters`, [
+                    setFieldValue(`charges.${index}.filters`, [
                       ...(localCharge.filters || []),
                       {
                         invoiceDisplayName: '',
@@ -743,7 +752,7 @@ export const ChargeAccordion = memo(
                   variant="quaternary"
                   startIcon="plus"
                   onClick={() => {
-                    formikProps.setFieldValue(`charges.${index}.properties`, getPropertyShape({}))
+                    setFieldValue(`charges.${index}.properties`, getPropertyShape({}))
 
                     setTimeout(() => {
                       const element = document.querySelector(
@@ -799,7 +808,7 @@ export const ChargeAccordion = memo(
                     invoiceable,
                   }
 
-                  formikProps.setFieldValue(`charges.${index}`, currentChargeValues)
+                  setFieldValue(`charges.${index}`, currentChargeValues)
                 }}
               />
             )}
@@ -880,7 +889,7 @@ export const ChargeAccordion = memo(
                         variant="quaternary"
                         disabled={disabled}
                         onClick={() => {
-                          formikProps.setFieldValue(`charges.${index}.minAmountCents`, undefined)
+                          setFieldValue(`charges.${index}.minAmountCents`, undefined)
                           setShowSpendingMinimum(false)
                         }}
                       />
@@ -914,7 +923,7 @@ export const ChargeAccordion = memo(
                         const newTaxedArray =
                           localCharge.taxes?.filter((tax) => tax.id !== localTaxId) || []
 
-                        formikProps.setFieldValue(`charges.${index}.taxes`, newTaxedArray)
+                        setFieldValue(`charges.${index}.taxes`, newTaxedArray)
                       }}
                     />
                   ))}

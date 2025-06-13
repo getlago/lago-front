@@ -1,7 +1,6 @@
-import { FormikProps } from 'formik'
 import { useEffect, useMemo } from 'react'
 
-import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
+import { LocalChargeFilterInput, TSetFieldValue } from '~/components/plans/types'
 import { GraduatedPercentageRangeInput, PropertiesInput } from '~/generated/graphql'
 
 type RangeType = GraduatedPercentageRangeInput & { disabledDelete: boolean }
@@ -12,15 +11,15 @@ type InfoCalculationRow = {
 }
 
 type useGraduatedPercentageChargeForm = ({
-  formikProps,
   chargeIndex,
   disabled,
   propertyCursor,
   valuePointer,
+  setFieldValue,
 }: {
   chargeIndex: number
   disabled?: boolean
-  formikProps: FormikProps<PlanFormInput>
+  setFieldValue: TSetFieldValue
   propertyCursor: string
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }) => {
@@ -49,7 +48,7 @@ export const DEFAULT_GRADUATED_PERCENTAGE_CHARGES = [
 export const useGraduatedPercentageChargeForm: useGraduatedPercentageChargeForm = ({
   chargeIndex,
   disabled,
-  formikProps,
+  setFieldValue,
   propertyCursor,
   valuePointer,
 }) => {
@@ -62,7 +61,7 @@ export const useGraduatedPercentageChargeForm: useGraduatedPercentageChargeForm 
   useEffect(() => {
     if (!graduatedPercentageRanges.length) {
       // if no existing charge, initialize it with 2 pre-filled lines
-      formikProps.setFieldValue(formikIdentifier, DEFAULT_GRADUATED_PERCENTAGE_CHARGES)
+      setFieldValue(formikIdentifier, DEFAULT_GRADUATED_PERCENTAGE_CHARGES)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formikIdentifier])
@@ -130,14 +129,14 @@ export const useGraduatedPercentageChargeForm: useGraduatedPercentageChargeForm 
         return acc
       }, [])
 
-      formikProps.setFieldValue(
+      setFieldValue(
         `charges.${chargeIndex}.${propertyCursor}.graduatedPercentageRanges`,
         newgraduatedPercentageRanges,
       )
     },
     handleUpdate: (rangeIndex, fieldName, value) => {
       if (fieldName !== 'toValue') {
-        formikProps.setFieldValue(
+        setFieldValue(
           `${formikIdentifier}.${rangeIndex}.${fieldName}`,
           value !== '' ? Number(value) : value,
         )
@@ -169,7 +168,7 @@ export const useGraduatedPercentageChargeForm: useGraduatedPercentageChargeForm 
           return acc
         }, [])
 
-        formikProps.setFieldValue(formikIdentifier, newgraduatedPercentageRanges)
+        setFieldValue(formikIdentifier, newgraduatedPercentageRanges)
       }
     },
     deleteRange: (rangeIndex) => {
@@ -192,7 +191,7 @@ export const useGraduatedPercentageChargeForm: useGraduatedPercentageChargeForm 
       // Last row needs to has toValue equal to null (infinite)
       newgraduatedPercentageRanges[newgraduatedPercentageRanges.length - 1].toValue = null
 
-      formikProps.setFieldValue(formikIdentifier, newgraduatedPercentageRanges)
+      setFieldValue(formikIdentifier, newgraduatedPercentageRanges)
     },
   }
 }

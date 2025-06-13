@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
-import { FormikProps } from 'formik'
+import { FormikErrors } from 'formik'
 import _get from 'lodash/get'
-import { memo, useCallback } from 'react'
+import { memo } from 'react'
 
 import { Alert, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
@@ -11,7 +11,7 @@ import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNu
 import { CurrencyEnum, PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { LocalChargeFilterInput, PlanFormInput } from './types'
+import { LocalChargeFilterInput, PlanFormInput, THandleUpdate } from './types'
 
 gql`
   fragment PackageCharge on Properties {
@@ -25,7 +25,8 @@ interface PackageChargeProps {
   chargeIndex: number
   currency: CurrencyEnum
   disabled?: boolean
-  formikProps: FormikProps<PlanFormInput>
+  formikErrors: FormikErrors<PlanFormInput>
+  handleUpdate: THandleUpdate
   propertyCursor: string
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }
@@ -35,18 +36,12 @@ export const PackageCharge = memo(
     chargeIndex,
     currency,
     disabled,
-    formikProps,
+    formikErrors,
+    handleUpdate,
     propertyCursor,
     valuePointer,
   }: PackageChargeProps) => {
     const { translate } = useInternationalization()
-    const handleUpdate = useCallback(
-      (name: string, value: string | string[]) => {
-        formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
-      },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [chargeIndex],
-    )
 
     const serializedPackageCharge = Number(valuePointer?.packageSize || 0)
     const serializedFreeUnits = Number(valuePointer?.freeUnits || 0)
@@ -70,7 +65,7 @@ export const PackageCharge = memo(
         <TextInput
           name={`${propertyCursor}.packageSize`}
           beforeChangeFormatter={['positiveNumber', 'int']}
-          error={_get(formikProps.errors, `charges.${chargeIndex}.properties.packageSize`)}
+          error={_get(formikErrors, `charges.${chargeIndex}.properties.packageSize`)}
           disabled={disabled}
           value={serializedPackageCharge}
           onChange={(value) => handleUpdate(`${propertyCursor}.packageSize`, value)}

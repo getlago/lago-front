@@ -1,3 +1,5 @@
+import { FormikErrors, FormikHelpers } from 'formik'
+
 import {
   BillableMetricForPlanFragment,
   ChargeFilterInput,
@@ -44,3 +46,7 @@ export type PlanFormInput = Omit<
   recurringUsageThreshold?: LocalUsageThresholdInput
   cascadeUpdates?: boolean
 }
+
+export type THandleUpdate = (name: string, value: string | string[] | undefined) => void
+export type TSetFieldValue = FormikHelpers<PlanFormInput>['setFieldValue']
+export type TChargeErrors = string | string[] | FormikErrors<LocalChargeInput>[] | undefined

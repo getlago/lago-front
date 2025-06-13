@@ -1,7 +1,6 @@
-import { FormikProps } from 'formik'
 import { useEffect, useMemo } from 'react'
 
-import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
+import { LocalChargeFilterInput, TSetFieldValue } from '~/components/plans/types'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
 import { GraduatedRangeInput, PropertiesInput } from '~/generated/graphql'
 
@@ -15,16 +14,16 @@ type InfoCalculationRow = {
 }
 
 type UseGraduatedChargeForm = ({
-  formikProps,
   chargeIndex,
   disabled,
   propertyCursor,
   valuePointer,
+  setFieldValue,
 }: {
   chargeIndex: number
   disabled?: boolean
-  formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
+  setFieldValue: TSetFieldValue
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }) => {
   handleUpdate: (rangeIndex: number, fieldName: string, value?: number | string | string[]) => void
@@ -52,9 +51,9 @@ export const DEFAULT_GRADUATED_CHARGES = [
 export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
   chargeIndex,
   disabled,
-  formikProps,
   propertyCursor,
   valuePointer,
+  setFieldValue,
 }) => {
   const formikIdentifier = `charges.${chargeIndex}.${propertyCursor}.graduatedRanges`
   const graduatedRanges = useMemo(() => valuePointer?.graduatedRanges || [], [valuePointer])
@@ -62,7 +61,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
   useEffect(() => {
     if (!graduatedRanges.length) {
       // if no existing charge, initialize it with 2 pre-filled lines
-      formikProps.setFieldValue(formikIdentifier, DEFAULT_GRADUATED_CHARGES)
+      setFieldValue(formikIdentifier, DEFAULT_GRADUATED_CHARGES)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formikIdentifier])
@@ -154,14 +153,11 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
         [],
       )
 
-      formikProps.setFieldValue(
-        `charges.${chargeIndex}.${propertyCursor}.graduatedRanges`,
-        newGraduatedRanges,
-      )
+      setFieldValue(`charges.${chargeIndex}.${propertyCursor}.graduatedRanges`, newGraduatedRanges)
     },
     handleUpdate: (rangeIndex, fieldName, value) => {
       if (fieldName !== 'toValue') {
-        formikProps.setFieldValue(`${formikIdentifier}.${rangeIndex}.${fieldName}`, value)
+        setFieldValue(`${formikIdentifier}.${rangeIndex}.${fieldName}`, value)
       } else {
         const newGraduatedRanges = graduatedRanges.reduce<GraduatedRangeInput[]>(
           (acc, range, i) => {
@@ -191,7 +187,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
           [],
         )
 
-        formikProps.setFieldValue(formikIdentifier, newGraduatedRanges)
+        setFieldValue(formikIdentifier, newGraduatedRanges)
       }
     },
     deleteRange: (rangeIndex) => {
@@ -212,7 +208,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
       // Last row needs to has toValue null
       newGraduatedRanges[newGraduatedRanges.length - 1].toValue = null
 
-      formikProps.setFieldValue(formikIdentifier, newGraduatedRanges)
+      setFieldValue(formikIdentifier, newGraduatedRanges)
     },
   }
 }

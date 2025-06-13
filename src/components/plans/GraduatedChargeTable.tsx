@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
-import { FormikProps } from 'formik'
 import { memo, useState } from 'react'
 
 import { Alert, Button, ChargeTable, Tooltip, Typography } from '~/components/designSystem'
@@ -12,7 +11,7 @@ import { CurrencyEnum, PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useGraduatedChargeForm } from '~/hooks/plans/useGraduatedChargeForm'
 
-import { LocalChargeFilterInput, PlanFormInput } from './types'
+import { LocalChargeFilterInput, TSetFieldValue } from './types'
 
 gql`
   fragment GraduatedCharge on Properties {
@@ -29,9 +28,9 @@ interface GraduatedChargeTableProps {
   chargeIndex: number
   currency: CurrencyEnum
   disabled?: boolean
-  formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
+  setFieldValue: TSetFieldValue
 }
 
 const DisabledAmountCell = ({ amount, currency }: { amount?: string; currency: CurrencyEnum }) => (
@@ -48,9 +47,9 @@ export const GraduatedChargeTable = memo(
     chargeIndex,
     currency,
     disabled,
-    formikProps,
     propertyCursor,
     valuePointer,
+    setFieldValue,
   }: GraduatedChargeTableProps) => {
     const { translate } = useInternationalization()
     const [errorIndex, setErrorIndex] = useState<number | undefined>()
@@ -58,9 +57,9 @@ export const GraduatedChargeTable = memo(
       useGraduatedChargeForm({
         chargeIndex,
         disabled,
-        formikProps,
         propertyCursor,
         valuePointer,
+        setFieldValue,
       })
 
     return (
@@ -301,7 +300,7 @@ export const GraduatedChargeTable = memo(
           <PricingGroupKeys
             disabled={disabled}
             handleUpdate={(name, value) => {
-              formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
+              setFieldValue(`charges.${chargeIndex}.${name}`, value)
             }}
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}

@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
-import { FormikProps } from 'formik'
 import { memo, useState } from 'react'
 
 import { Alert, Button, ChargeTable, Icon, Tooltip, Typography } from '~/components/designSystem'
@@ -11,7 +10,7 @@ import { CurrencyEnum, PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useGraduatedPercentageChargeForm } from '~/hooks/plans/useGraduatedPercentageChargeForm'
 
-import { LocalChargeFilterInput, PlanFormInput } from './types'
+import { LocalChargeFilterInput, TSetFieldValue } from './types'
 
 gql`
   fragment GraduatedPercentageCharge on Properties {
@@ -28,7 +27,7 @@ interface GraduatedPercentageChargeTableProps {
   chargeIndex: number
   currency: CurrencyEnum
   disabled?: boolean
-  formikProps: FormikProps<PlanFormInput>
+  setFieldValue: TSetFieldValue
   propertyCursor: string
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }
@@ -47,7 +46,7 @@ export const GraduatedPercentageChargeTable = memo(
     chargeIndex,
     currency,
     disabled,
-    formikProps,
+    setFieldValue,
     propertyCursor,
     valuePointer,
   }: GraduatedPercentageChargeTableProps) => {
@@ -57,7 +56,7 @@ export const GraduatedPercentageChargeTable = memo(
       useGraduatedPercentageChargeForm({
         chargeIndex,
         disabled,
-        formikProps,
+        setFieldValue,
         propertyCursor,
         valuePointer,
       })
