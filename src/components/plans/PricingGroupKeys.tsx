@@ -1,7 +1,11 @@
-import { Button, Chip, Tooltip, Typography } from 'lago-design-system'
-import { useState } from 'react'
+import { Button, Chip, Tooltip, tw, Typography } from 'lago-design-system'
+import { useId, useMemo, useState } from 'react'
 
 import { MultipleComboBox } from '~/components/form'
+import {
+  MUI_INPUT_BASE_ROOT_CLASSNAME,
+  SEARCH_PRICING_GROUP_KEY_INPUT_CLASSNAME,
+} from '~/core/constants/form'
 import { PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -17,7 +21,15 @@ const PricingGroupKeys = ({
   propertyCursor,
   valuePointer,
 }: PricingGroupKeysProps) => {
+  const componentId = useId()
   const { translate } = useInternationalization()
+
+  const currentSearchClassName = useMemo(() => {
+    // Replace all colons with dashes to make the class name valid for querySelector
+    const usableComponentId = componentId.replace(/:/g, '-')
+
+    return `${SEARCH_PRICING_GROUP_KEY_INPUT_CLASSNAME}-${usableComponentId}`
+  }, [componentId])
 
   const [shouldDisplayPricingGroupKeys, setShouldDisplayPricingGroupKeys] = useState<boolean>(false)
 
@@ -55,7 +67,7 @@ const PricingGroupKeys = ({
               hideTags
               disableClearable
               showOptionsOnlyWhenTyping
-              className="flex-1"
+              className={tw('flex-1', currentSearchClassName)}
               data={[]}
               disabled={disabled}
               onChange={(newValue) => {
@@ -86,7 +98,20 @@ const PricingGroupKeys = ({
             fitContent
             startIcon="plus"
             variant="quaternary"
-            onClick={() => setShouldDisplayPricingGroupKeys(true)}
+            onClick={() => {
+              setShouldDisplayPricingGroupKeys(true)
+
+              setTimeout(() => {
+                const element = document.querySelector(
+                  `.${currentSearchClassName} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+                ) as HTMLElement
+
+                if (!element) return
+
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                element.click()
+              }, 0)
+            }}
           >
             {translate('text_6661fc17337de3591e29e427')}
           </Button>
