@@ -1,9 +1,8 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
-import { Button, Typography } from '~/components/designSystem'
-import { IntegrationsPage } from '~/components/layouts/Integrations'
+import { Button, ButtonLink, Skeleton, Typography } from '~/components/designSystem'
 import {
   AddFlutterwaveDialog,
   AddFlutterwaveDialogRef,
@@ -14,11 +13,15 @@ import {
 } from '~/components/settings/integrations/DeleteFlutterwaveIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE } from '~/core/router'
-import { ProviderTypeEnum } from '~/generated/graphql'
+import {
+  DeleteFlutterwaveIntegrationDialogFragmentDoc,
+  ProviderTypeEnum,
+  useGetFlutterwaveIntegrationsListQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import Flutterwave from '~/public/images/flutterwave.svg'
-import { MenuPopper, PageHeader, PopperOpener } from '~/styles'
+import { PageHeader } from '~/styles'
 
 gql`
   fragment FlutterwaveIntegrations on FlutterwaveProvider {
@@ -33,78 +36,81 @@ gql`
         ... on FlutterwaveProvider {
           id
           ...FlutterwaveIntegrations
+          ...DeleteFlutterwaveIntegrationDialog
         }
       }
     }
   }
 
-  ${AddFlutterwaveProviderDialogFragmentDoc}
   ${DeleteFlutterwaveIntegrationDialogFragmentDoc}
 `
 
 const FlutterwaveIntegrations = () => {
   const { translate } = useInternationalization()
-  const navigate = useNavigate()
   const addDialogRef = useRef<AddFlutterwaveDialogRef>(null)
   const deleteDialogRef = useRef<DeleteFlutterwaveIntegrationDialogRef>(null)
   const { hasPermissions } = usePermissions()
 
-  const { data, loading } = useGetFlutterwaveIntegrationsListQuery({
+  const { loading } = useGetFlutterwaveIntegrationsListQuery({
     variables: { limit: 1000, type: ProviderTypeEnum.Flutterwave },
   })
-  const connections = data?.paymentProviders?.collection as FlutterwaveProvider[] | undefined
-  const deleteDialogCallback = () => {
-    refetch()
-  }
+
+  const canCreateIntegration = hasPermissions(['organizationIntegrationsCreate'])
 
   return (
-    <IntegrationsPage
-      title={translate('text_1749724395108m0swrna0zt4')}
-      icon={<Flutterwave />}
-      onClickBack={() =>
-        navigate(
-          generatePath(INTEGRATIONS_ROUTE, {
-            integrationGroup: IntegrationsTabsOptionsEnum.Community,
-          }),
-        )
-      }
-    >
-      <PageHeader $withSide>
-        <div className="flex flex-col gap-1">
-          <Typography variant="headline">{translate('text_1749724395108m0swrna0zt4')}</Typography>
-          <Typography>{translate('text_1749725287667detsc3i7jv5')}</Typography>
-        </div>
-        <div className="flex">
+    <>
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
+          <ButtonLink
+            to={generatePath(INTEGRATIONS_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Community,
+            })}
+            type="button"
+            buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
+          />
+          <div className="flex items-center gap-3">
+            <div className="flex size-12 items-center justify-center rounded-xl bg-grey-100">
+              <Flutterwave />
+            </div>
+            <div>
+              <Typography variant="headline">
+                {translate('text_1749724395108m0swrna0zt4')}
+              </Typography>
+              <Typography>{translate('text_174972533137460li1pvmw34')}</Typography>
+            </div>
+          </div>
+        </PageHeader.Group>
+        <PageHeader.Group>
           <Button
             variant="primary"
-            disabled={!hasPermissions(['organizationIntegrationsUpdate'])}
+            disabled={!canCreateIntegration}
             onClick={() => addDialogRef.current?.openDialog()}
           >
             {translate('text_1749725331374clf07sez01f')}
           </Button>
-        </div>
-      </PageHeader>
+        </PageHeader.Group>
+      </PageHeader.Wrapper>
 
-      <div className="flex flex-col items-center justify-center p-12">
-        {loading ? (
-          <Skeleton variant="text" height={12} width={240} />
-        ) : (
-          <>
-            <Typography variant="subhead" className="mb-4">
-              {connections?.length
-                ? translate('text_integration_connected')
-                : translate('text_1749725331374vcsmw7mp5gt')}
-            </Typography>
-            <Typography color="grey600" className="text-center max-w-md">
-              {translate('text_174972533137460li1pvmw34')}
-            </Typography>
-          </>
-        )}
+      <div className="container">
+        <div className="flex flex-col items-center justify-center p-12">
+          {loading ? (
+            <Skeleton variant="text" />
+          ) : (
+            <>
+              <Typography variant="subhead" className="mb-4">
+                {translate('text_1749725331374vcsmw7mp5gt')}
+              </Typography>
+              <Typography color="grey600" className="max-w-md text-center">
+                {translate('text_174972533137460li1pvmw34')}
+              </Typography>
+            </>
+          )}
+        </div>
       </div>
 
       <AddFlutterwaveDialog ref={addDialogRef} />
       <DeleteFlutterwaveIntegrationDialog ref={deleteDialogRef} />
-    </IntegrationsPage>
+    </>
   )
 }
 

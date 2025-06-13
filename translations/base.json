@@ -3190,5 +3190,8 @@
   "text_1749799070145vfvz9sq757a": "{{name}} will be deleted",
   "text_1749799070145zdncdpo3g37": "Are you sure you want to delete this Flutterwave integration?",
   "text_1749799070145czycjo9guoq": "Delete integration",
-  "text_1749799070145axw96s27789": "Flutterwave integration deleted successfully"
+  "text_1749799070145axw96s27789": "Flutterwave integration deleted successfully",
+  "text_1749803444837pl1ketrhm8a": "Flutterwave integration created successfully",
+  "text_174980344483769h5q79g4ap": "Flutterwave integration updated successfully",
+  "text_1749803444837ts4dvq2egx4": "Unable to connect to Flutterware API"
 }
