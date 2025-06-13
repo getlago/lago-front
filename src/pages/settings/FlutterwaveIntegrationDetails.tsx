@@ -24,10 +24,10 @@ import {
   DeleteFlutterwaveIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteFlutterwaveIntegrationDialog'
 import { INTEGRATIONS_ROUTE } from '~/core/router'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   DeleteFlutterwaveIntegrationMutation,
   FlutterwaveIntegrationDetailsFragment,
-  IntegrationsTabsOptionsEnum,
   useDeleteFlutterwaveIntegrationMutation,
   useFlutterwaveIntegrationDetailsQuery,
 } from '~/generated/graphql'
