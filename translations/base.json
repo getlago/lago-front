@@ -3194,5 +3194,8 @@
   "text_1749803444837pl1ketrhm8a": "Flutterwave integration created successfully",
   "text_174980344483769h5q79g4ap": "Flutterwave integration updated successfully",
   "text_1749803444837ts4dvq2egx4": "Unable to connect to Flutterware API",
-  "text_17498039535197vam0ybv9qz": "Accept payments from your customers via Flutterwave"
+  "text_17498039535197vam0ybv9qz": "Accept payments from your customers via Flutterwave",
+  "text_1749810819766o5vvoel5hk2": "No",
+  "text_1749810819766n2va061j0gj": "Add the following Webhook URL in the Webhooks section of your Flutterwave dashboard.",
+  "text_1749810967524701e3wcc9kg": "Yes"
 }
