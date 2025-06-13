@@ -209,7 +209,9 @@ const Integrations = () => {
   const hasMoneyhashIntegration = data?.paymentProviders?.collection?.some(
     (provider) => provider?.__typename === 'MoneyhashProvider',
   )
-  const hasFlutterwaveIntegration = false // TODO: Update when backend support is ready
+  const hasFlutterwaveIntegration = data?.paymentProviders?.collection?.some(
+    (provider) => provider?.__typename === 'FlutterwaveProvider',
+  )
   const hasTaxManagement = !!hasBillingEntitiesWithTaxManagement
   const hasAccessToAvalaraPremiumIntegration = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.Avalara,
