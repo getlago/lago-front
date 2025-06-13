@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Avatar } from 'lago-design-system'
 import { DateTime } from 'luxon'
-import { FC, PropsWithChildren, RefObject, useRef } from 'react'
+import { FC, PropsWithChildren, RefObject, useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { buildLinkToActivityLog } from '~/components/activityLogs/utils'
@@ -32,6 +32,7 @@ import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CREATE_WALLET_TOP_UP_ROUTE, EDIT_WALLET_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { DateFormat, intlFormatDateTime, TimeFormat } from '~/core/timezone/utils'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   TimezoneEnum,
@@ -61,6 +62,7 @@ gql`
     expirationAt
     lastBalanceSyncAt
     lastConsumedCreditAt
+    lastOngoingBalanceSyncAt
     name
     rateAmount
     status
@@ -112,6 +114,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
     expirationAt,
     lastBalanceSyncAt,
     lastConsumedCreditAt,
+    lastOngoingBalanceSyncAt,
     name,
     rateAmount,
     status,
@@ -135,6 +138,29 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
     String(creditsOngoingBalance).split('.')
   const { translate } = useInternationalization()
   const isWalletActive = status === WalletStatusEnum.Active
+
+  const { formattedLastOngoingBalanceSyncAt, formattedLastBalanceSyncAt } = useMemo(() => {
+    const dateConfig = {
+      timezone: TimezoneEnum.TzUtc,
+      formatDate: DateFormat.DATE_MED,
+      formatTime: TimeFormat.TIME_24_WITH_SECONDS,
+    }
+
+    const localFormattedLastOngoingBalanceSyncAt = intlFormatDateTime(
+      lastOngoingBalanceSyncAt || DateTime.now(),
+      dateConfig,
+    )
+
+    const localFormattedLastBalanceSyncAt = intlFormatDateTime(
+      lastBalanceSyncAt || DateTime.now(),
+      dateConfig,
+    )
+
+    return {
+      formattedLastOngoingBalanceSyncAt: `${localFormattedLastOngoingBalanceSyncAt.date} ${localFormattedLastOngoingBalanceSyncAt.time} ${localFormattedLastOngoingBalanceSyncAt.timezone}`,
+      formattedLastBalanceSyncAt: `${localFormattedLastBalanceSyncAt.date} ${localFormattedLastBalanceSyncAt.time} ${localFormattedLastBalanceSyncAt.timezone}`,
+    }
+  }, [lastOngoingBalanceSyncAt, lastBalanceSyncAt])
 
   return (
     <>
@@ -340,7 +366,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
                     className="flex h-5 items-end"
                     placement="bottom-start"
                     title={translate('text_65ae73ebe3a66bec2b91d741', {
-                      date: formatTimeOrgaTZ(lastBalanceSyncAt || DateTime.now()),
+                      date: formattedLastBalanceSyncAt,
                     })}
                   >
                     <Icon name="info-circle" />
@@ -388,7 +414,9 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
                     <Tooltip
                       className="flex h-5 items-end"
                       placement="bottom-start"
-                      title={translate('text_65ae73ebe3a66bec2b91d749')}
+                      title={translate('text_65ae73ebe3a66bec2b91d749', {
+                        date: formattedLastOngoingBalanceSyncAt,
+                      })}
                     >
                       <Icon name="info-circle" />
                     </Tooltip>
