@@ -5,6 +5,7 @@ import { memo, useState } from 'react'
 
 import { Alert, Button, ChargeTable, Icon, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
+import PricingGroupKeys from '~/components/plans/PricingGroupKeys'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -211,28 +212,47 @@ export const GraduatedPercentageChargeTable = memo(
           />
         </div>
 
-        <Alert type="info">
-          <>
-            {infosCalculation.map((calculation, i) => {
-              if (i === 0) {
-                // When only one tier
-                return infosCalculation.length === 1 ? (
+        <div className="flex flex-col gap-6">
+          <Alert type="info">
+            <>
+              {infosCalculation.map((calculation, i) => {
+                if (i === 0) {
+                  // When only one tier
+                  return infosCalculation.length === 1 ? (
+                    <Typography key={`calculation-alert-${i}`} color="textSecondary">
+                      {translate('text_64de5dd470cdf80100c15fdb', {
+                        rate: intlFormatNumber(calculation.rate / 100, {
+                          maximumFractionDigits: 15,
+                          style: 'percent',
+                        }),
+                        flatAmount: intlFormatNumber(calculation.flatAmount, {
+                          currencyDisplay: 'symbol',
+                          maximumFractionDigits: 15,
+                          currency,
+                        }),
+                      })}
+                    </Typography>
+                  ) : (
+                    <Typography key={`calculation-alert-${i}`} color="textSecondary">
+                      {translate('text_64de472563e2da6b31737e6f', {
+                        units: calculation.units,
+                        rate: intlFormatNumber(calculation.rate / 100, {
+                          maximumFractionDigits: 15,
+                          style: 'percent',
+                        }),
+                        flatAmount: intlFormatNumber(calculation.flatAmount, {
+                          currencyDisplay: 'symbol',
+                          maximumFractionDigits: 15,
+                          currency,
+                        }),
+                      })}
+                    </Typography>
+                  )
+                }
+
+                return (
                   <Typography key={`calculation-alert-${i}`} color="textSecondary">
-                    {translate('text_64de5dd470cdf80100c15fdb', {
-                      rate: intlFormatNumber(calculation.rate / 100, {
-                        maximumFractionDigits: 15,
-                        style: 'percent',
-                      }),
-                      flatAmount: intlFormatNumber(calculation.flatAmount, {
-                        currencyDisplay: 'symbol',
-                        maximumFractionDigits: 15,
-                        currency,
-                      }),
-                    })}
-                  </Typography>
-                ) : (
-                  <Typography key={`calculation-alert-${i}`} color="textSecondary">
-                    {translate('text_64de472563e2da6b31737e6f', {
+                    {translate('text_64de472563e2da6b31737e75', {
                       units: calculation.units,
                       rate: intlFormatNumber(calculation.rate / 100, {
                         maximumFractionDigits: 15,
@@ -246,27 +266,19 @@ export const GraduatedPercentageChargeTable = memo(
                     })}
                   </Typography>
                 )
-              }
+              })}
+            </>
+          </Alert>
 
-              return (
-                <Typography key={`calculation-alert-${i}`} color="textSecondary">
-                  {translate('text_64de472563e2da6b31737e75', {
-                    units: calculation.units,
-                    rate: intlFormatNumber(calculation.rate / 100, {
-                      maximumFractionDigits: 15,
-                      style: 'percent',
-                    }),
-                    flatAmount: intlFormatNumber(calculation.flatAmount, {
-                      currencyDisplay: 'symbol',
-                      maximumFractionDigits: 15,
-                      currency,
-                    }),
-                  })}
-                </Typography>
-              )
-            })}
-          </>
-        </Alert>
+          <PricingGroupKeys
+            disabled={disabled}
+            handleUpdate={(name, value) => {
+              formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
+            }}
+            propertyCursor={propertyCursor}
+            valuePointer={valuePointer}
+          />
+        </div>
       </div>
     )
   },

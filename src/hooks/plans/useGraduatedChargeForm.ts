@@ -27,7 +27,7 @@ type UseGraduatedChargeForm = ({
   propertyCursor: string
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }) => {
-  handleUpdate: (rangeIndex: number, fieldName: string, value?: number | string) => void
+  handleUpdate: (rangeIndex: number, fieldName: string, value?: number | string | string[]) => void
   addRange: () => void
   deleteRange: (rangeIndex: number) => void
   tableDatas: RangeType[]
