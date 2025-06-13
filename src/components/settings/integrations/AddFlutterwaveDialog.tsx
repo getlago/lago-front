@@ -8,7 +8,7 @@ import { SwitchField, TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import {
   AddFlutterwavePaymentProviderInput,
-  FlutterwaveIntegrationDetailsFragmentDoc,
+  FlutterwaveIntegrationDetailsFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -24,23 +24,11 @@ gql`
     encryptionKey
     production
   }
-  
-  ${FlutterwaveIntegrationDetailsFragmentDoc}
 `
-
-interface FlutterwaveProvider {
-  id: string
-  name: string
-  code: string
-  publicKey: string
-  secretKey: string
-  encryptionKey: string
-  production: boolean
-}
 
 type TAddFlutterwaveDialogProps = Partial<{
   deleteModalRef: RefObject<DeleteFlutterwaveIntegrationDialogRef>
-  provider: FlutterwaveProvider
+  provider: FlutterwaveIntegrationDetailsFragment
   deleteDialogCallback: () => void
 }>
 
