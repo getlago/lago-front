@@ -3186,5 +3186,9 @@
   "text_1749725331374i3p14ewcpn5": "Edit Flutterwave",
   "text_174972533137460li1pvmw34": "Connect with Flutterwave to collect payments from your customers",
   "text_1749725331374clf07sez01f": "Connect Flutterwave",
-  "text_1749731835360j494r9wkd0k": "Use production environment"
+  "text_1749731835360j494r9wkd0k": "Use production environment",
+  "text_1749799070145vfvz9sq757a": "{{name}} will be deleted",
+  "text_1749799070145zdncdpo3g37": "Are you sure you want to delete this Flutterwave integration?",
+  "text_1749799070145czycjo9guoq": "Delete integration",
+  "text_1749799070145axw96s27789": "Flutterwave integration deleted successfully"
 }

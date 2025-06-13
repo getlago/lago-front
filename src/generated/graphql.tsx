@@ -9502,6 +9502,15 @@ export type DeleteCashfreeMutationVariables = Exact<{
 
 export type DeleteCashfreeMutation = { __typename?: 'Mutation', destroyPaymentProvider?: { __typename?: 'DestroyPaymentProviderPayload', id?: string | null } | null };
 
+export type DeleteFlutterwaveIntegrationDialogFragment = { __typename?: 'FlutterwaveProvider', id: string, name: string };
+
+export type DeleteFlutterwaveIntegrationMutationVariables = Exact<{
+  input: DestroyPaymentProviderInput;
+}>;
+
+
+export type DeleteFlutterwaveIntegrationMutation = { __typename?: 'Mutation', destroyPaymentProvider?: { __typename?: 'DestroyPaymentProviderPayload', id?: string | null } | null };
+
 export type DeleteGocardlessIntegrationDialogFragment = { __typename?: 'GocardlessProvider', id: string, name: string };
 
 export type DeleteGocardlessMutationVariables = Exact<{
@@ -11357,6 +11366,27 @@ export type GetWalletForTopUpQueryVariables = Exact<{
 
 export type GetWalletForTopUpQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean } | null };
 
+export type FlutterwaveIntegrationDetailsFragment = { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, publicKey?: any | null, secretKey?: any | null, encryptionKey?: any | null, production?: boolean | null };
+
+export type FlutterwaveIntegrationDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<ProviderTypeEnum>;
+}>;
+
+
+export type FlutterwaveIntegrationDetailsQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, publicKey?: any | null, secretKey?: any | null, encryptionKey?: any | null, production?: boolean | null } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider', id: string } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' }> } | null };
+
+export type FlutterwaveIntegrationsFragment = { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string };
+
+export type GetFlutterwaveIntegrationsListQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<ProviderTypeEnum>;
+}>;
+
+
+export type GetFlutterwaveIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' }> } | null };
+
 export const ActivityLogsTableDataFragmentDoc = gql`
     fragment ActivityLogsTableData on ActivityLog {
   activityId
@@ -12549,6 +12579,12 @@ export const DeleteAdyenIntegrationDialogFragmentDoc = gql`
     `;
 export const DeleteCashfreeIntegrationDialogFragmentDoc = gql`
     fragment DeleteCashfreeIntegrationDialog on CashfreeProvider {
+  id
+  name
+}
+    `;
+export const DeleteFlutterwaveIntegrationDialogFragmentDoc = gql`
+    fragment DeleteFlutterwaveIntegrationDialog on FlutterwaveProvider {
   id
   name
 }
@@ -15011,6 +15047,24 @@ export const WalletForTopUpFragmentDoc = gql`
   currency
   rateAmount
   invoiceRequiresSuccessfulPayment
+}
+    `;
+export const FlutterwaveIntegrationDetailsFragmentDoc = gql`
+    fragment FlutterwaveIntegrationDetails on FlutterwaveProvider {
+  id
+  name
+  code
+  publicKey
+  secretKey
+  encryptionKey
+  production
+}
+    `;
+export const FlutterwaveIntegrationsFragmentDoc = gql`
+    fragment FlutterwaveIntegrations on FlutterwaveProvider {
+  id
+  name
+  code
 }
     `;
 export const UserIdentifierDocument = gql`
@@ -23274,6 +23328,39 @@ export function useDeleteCashfreeMutation(baseOptions?: Apollo.MutationHookOptio
 export type DeleteCashfreeMutationHookResult = ReturnType<typeof useDeleteCashfreeMutation>;
 export type DeleteCashfreeMutationResult = Apollo.MutationResult<DeleteCashfreeMutation>;
 export type DeleteCashfreeMutationOptions = Apollo.BaseMutationOptions<DeleteCashfreeMutation, DeleteCashfreeMutationVariables>;
+export const DeleteFlutterwaveIntegrationDocument = gql`
+    mutation deleteFlutterwaveIntegration($input: DestroyPaymentProviderInput!) {
+  destroyPaymentProvider(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteFlutterwaveIntegrationMutationFn = Apollo.MutationFunction<DeleteFlutterwaveIntegrationMutation, DeleteFlutterwaveIntegrationMutationVariables>;
+
+/**
+ * __useDeleteFlutterwaveIntegrationMutation__
+ *
+ * To run a mutation, you first call `useDeleteFlutterwaveIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteFlutterwaveIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteFlutterwaveIntegrationMutation, { data, loading, error }] = useDeleteFlutterwaveIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteFlutterwaveIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<DeleteFlutterwaveIntegrationMutation, DeleteFlutterwaveIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteFlutterwaveIntegrationMutation, DeleteFlutterwaveIntegrationMutationVariables>(DeleteFlutterwaveIntegrationDocument, options);
+      }
+export type DeleteFlutterwaveIntegrationMutationHookResult = ReturnType<typeof useDeleteFlutterwaveIntegrationMutation>;
+export type DeleteFlutterwaveIntegrationMutationResult = Apollo.MutationResult<DeleteFlutterwaveIntegrationMutation>;
+export type DeleteFlutterwaveIntegrationMutationOptions = Apollo.BaseMutationOptions<DeleteFlutterwaveIntegrationMutation, DeleteFlutterwaveIntegrationMutationVariables>;
 export const DeleteGocardlessDocument = gql`
     mutation deleteGocardless($input: DestroyPaymentProviderInput!) {
   destroyPaymentProvider(input: $input) {
@@ -32343,3 +32430,103 @@ export type GetWalletForTopUpQueryHookResult = ReturnType<typeof useGetWalletFor
 export type GetWalletForTopUpLazyQueryHookResult = ReturnType<typeof useGetWalletForTopUpLazyQuery>;
 export type GetWalletForTopUpSuspenseQueryHookResult = ReturnType<typeof useGetWalletForTopUpSuspenseQuery>;
 export type GetWalletForTopUpQueryResult = Apollo.QueryResult<GetWalletForTopUpQuery, GetWalletForTopUpQueryVariables>;
+export const FlutterwaveIntegrationDetailsDocument = gql`
+    query flutterwaveIntegrationDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
+  paymentProvider(id: $id) {
+    ... on FlutterwaveProvider {
+      id
+      ...FlutterwaveIntegrationDetails
+      ...DeleteFlutterwaveIntegrationDialog
+    }
+  }
+  paymentProviders(limit: $limit, type: $type) {
+    collection {
+      ... on FlutterwaveProvider {
+        id
+      }
+    }
+  }
+}
+    ${FlutterwaveIntegrationDetailsFragmentDoc}
+${DeleteFlutterwaveIntegrationDialogFragmentDoc}`;
+
+/**
+ * __useFlutterwaveIntegrationDetailsQuery__
+ *
+ * To run a query within a React component, call `useFlutterwaveIntegrationDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFlutterwaveIntegrationDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFlutterwaveIntegrationDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      limit: // value for 'limit'
+ *      type: // value for 'type'
+ *   },
+ * });
+ */
+export function useFlutterwaveIntegrationDetailsQuery(baseOptions: Apollo.QueryHookOptions<FlutterwaveIntegrationDetailsQuery, FlutterwaveIntegrationDetailsQueryVariables> & ({ variables: FlutterwaveIntegrationDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<FlutterwaveIntegrationDetailsQuery, FlutterwaveIntegrationDetailsQueryVariables>(FlutterwaveIntegrationDetailsDocument, options);
+      }
+export function useFlutterwaveIntegrationDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FlutterwaveIntegrationDetailsQuery, FlutterwaveIntegrationDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<FlutterwaveIntegrationDetailsQuery, FlutterwaveIntegrationDetailsQueryVariables>(FlutterwaveIntegrationDetailsDocument, options);
+        }
+export function useFlutterwaveIntegrationDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<FlutterwaveIntegrationDetailsQuery, FlutterwaveIntegrationDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<FlutterwaveIntegrationDetailsQuery, FlutterwaveIntegrationDetailsQueryVariables>(FlutterwaveIntegrationDetailsDocument, options);
+        }
+export type FlutterwaveIntegrationDetailsQueryHookResult = ReturnType<typeof useFlutterwaveIntegrationDetailsQuery>;
+export type FlutterwaveIntegrationDetailsLazyQueryHookResult = ReturnType<typeof useFlutterwaveIntegrationDetailsLazyQuery>;
+export type FlutterwaveIntegrationDetailsSuspenseQueryHookResult = ReturnType<typeof useFlutterwaveIntegrationDetailsSuspenseQuery>;
+export type FlutterwaveIntegrationDetailsQueryResult = Apollo.QueryResult<FlutterwaveIntegrationDetailsQuery, FlutterwaveIntegrationDetailsQueryVariables>;
+export const GetFlutterwaveIntegrationsListDocument = gql`
+    query getFlutterwaveIntegrationsList($limit: Int, $type: ProviderTypeEnum) {
+  paymentProviders(limit: $limit, type: $type) {
+    collection {
+      ... on FlutterwaveProvider {
+        id
+        ...FlutterwaveIntegrations
+      }
+    }
+  }
+}
+    ${FlutterwaveIntegrationsFragmentDoc}`;
+
+/**
+ * __useGetFlutterwaveIntegrationsListQuery__
+ *
+ * To run a query within a React component, call `useGetFlutterwaveIntegrationsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetFlutterwaveIntegrationsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetFlutterwaveIntegrationsListQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      type: // value for 'type'
+ *   },
+ * });
+ */
+export function useGetFlutterwaveIntegrationsListQuery(baseOptions?: Apollo.QueryHookOptions<GetFlutterwaveIntegrationsListQuery, GetFlutterwaveIntegrationsListQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetFlutterwaveIntegrationsListQuery, GetFlutterwaveIntegrationsListQueryVariables>(GetFlutterwaveIntegrationsListDocument, options);
+      }
+export function useGetFlutterwaveIntegrationsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetFlutterwaveIntegrationsListQuery, GetFlutterwaveIntegrationsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetFlutterwaveIntegrationsListQuery, GetFlutterwaveIntegrationsListQueryVariables>(GetFlutterwaveIntegrationsListDocument, options);
+        }
+export function useGetFlutterwaveIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetFlutterwaveIntegrationsListQuery, GetFlutterwaveIntegrationsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetFlutterwaveIntegrationsListQuery, GetFlutterwaveIntegrationsListQueryVariables>(GetFlutterwaveIntegrationsListDocument, options);
+        }
+export type GetFlutterwaveIntegrationsListQueryHookResult = ReturnType<typeof useGetFlutterwaveIntegrationsListQuery>;
+export type GetFlutterwaveIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetFlutterwaveIntegrationsListLazyQuery>;
+export type GetFlutterwaveIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetFlutterwaveIntegrationsListSuspenseQuery>;
+export type GetFlutterwaveIntegrationsListQueryResult = Apollo.QueryResult<GetFlutterwaveIntegrationsListQuery, GetFlutterwaveIntegrationsListQueryVariables>;
