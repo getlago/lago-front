@@ -23,7 +23,7 @@ gql`
 
 type TDeleteFlutterwaveIntegrationDialogProps = {
   provider: DeleteFlutterwaveIntegrationDialogFragment | null
-  callback?: Function
+  callback?: () => void
 }
 
 export interface DeleteFlutterwaveIntegrationDialogRef {
@@ -36,9 +36,9 @@ export const DeleteFlutterwaveIntegrationDialog = forwardRef<DeleteFlutterwaveIn
     const { translate } = useInternationalization()
 
     const dialogRef = useRef<WarningDialogRef>(null)
-    const [localData, setLocalData] = useState<TDeleteFlutterwaveIntegrationDialogProps | undefined>(
-      undefined,
-    )
+    const [localData, setLocalData] = useState<
+      TDeleteFlutterwaveIntegrationDialogProps | undefined
+    >(undefined)
     const flutterwaveProvider = localData?.provider
 
     const [deleteFlutterwave] = useDeleteFlutterwaveIntegrationMutation({
@@ -52,6 +52,9 @@ export const DeleteFlutterwaveIntegrationDialog = forwardRef<DeleteFlutterwaveIn
           })
         }
       },
+      update(cache) {
+        cache.evict({ id: `FlutterwaveProvider:${flutterwaveProvider?.id}` })
+      },
     })
 
     useImperativeHandle(ref, () => ({
@@ -64,17 +67,18 @@ export const DeleteFlutterwaveIntegrationDialog = forwardRef<DeleteFlutterwaveIn
 
     return (
       <WarningDialog
+        mode="danger"
         ref={dialogRef}
         title={translate('text_1749799070145vfvz9sq757a', {
           name: flutterwaveProvider?.name,
         })}
         description={translate('text_1749799070145zdncdpo3g37')}
-        onConfirm={async () =>
+        onContinue={async () =>
           await deleteFlutterwave({
             variables: { input: { id: flutterwaveProvider?.id as string } },
           })
         }
-        confirmText={translate('text_1749799070145czycjo9guoq')}
+        continueText={translate('text_1749799070145czycjo9guoq')}
       />
     )
   },
