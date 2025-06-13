@@ -54,6 +54,9 @@ gql`
         customer {
           id
         }
+        invoice {
+          id
+        }
       }
       ... on Customer {
         id

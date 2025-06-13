@@ -15,8 +15,8 @@ import {
   BILLABLE_METRIC_DETAILS_ROUTE,
   BILLING_ENTITY_ROUTE,
   COUPON_DETAILS_ROUTE,
-  CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
+  CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
   PLAN_DETAILS_ROUTE,
 } from '~/core/router'
@@ -307,10 +307,13 @@ export function formatResourceObject(
         })
         break
       case 'CreditNote':
-        link = generatePath(CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE, {
-          customerId: (resource as CreditNote).customer?.id,
-          creditNoteId: resource.id,
-        })
+        if ((resource as CreditNote).customer?.id && (resource as CreditNote).invoice?.id) {
+          link = generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
+            customerId: (resource as CreditNote).customer?.id,
+            invoiceId: (resource as CreditNote).invoice?.id as string | null,
+            creditNoteId: resource.id,
+          })
+        }
         break
       case 'Invoice':
         link = generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
