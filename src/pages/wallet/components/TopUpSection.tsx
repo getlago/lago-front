@@ -510,7 +510,7 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
                 <Button
                   className="self-start"
                   startIcon="plus"
-                  variant="quaternary"
+                  variant="inline"
                   onClick={() =>
                     formikProps.setFieldValue('recurringTransactionRules.0.expirationAt', '')
                   }
@@ -622,7 +622,7 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
               <Button
                 className="self-start"
                 startIcon="plus"
-                variant="quaternary"
+                variant="inline"
                 onClick={() => {
                   const metadatas = [
                     ...(recurringTransactionRules?.transactionMetadata || []),
