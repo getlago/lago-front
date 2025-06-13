@@ -54,6 +54,10 @@ const MoneyhashIntegrations = lazyLoad(() => import('~/pages/settings/MoneyhashI
 const MoneyhashIntegrationDetails = lazyLoad(
   () => import('~/pages/settings/MoneyhashIntegrationDetails'),
 )
+const FlutterwaveIntegrations = lazyLoad(() => import('~/pages/settings/FlutterwaveIntegrations'))
+const FlutterwaveIntegrationDetails = lazyLoad(
+  () => import('~/pages/settings/FlutterwaveIntegrationDetails'),
+)
 const GocardlessIntegrationOauthCallback = lazyLoad(
   () => import('~/pages/settings/GocardlessIntegrationOauthCallback'),
 )
@@ -291,6 +295,18 @@ export const settingRoutes: CustomRouteObject[] = [
         path: MONEYHASH_INTEGRATION_ROUTE,
         private: true,
         element: <MoneyhashIntegrations />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: FLUTTERWAVE_INTEGRATION_DETAILS_ROUTE,
+        private: true,
+        element: <FlutterwaveIntegrationDetails />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: FLUTTERWAVE_INTEGRATION_ROUTE,
+        private: true,
+        element: <FlutterwaveIntegrations />,
         permissions: ['organizationIntegrationsView'],
       },
       {
