@@ -48,16 +48,18 @@ gql`
     production
   }
 
-  query flutterwaveIntegrationDetails($id: ID!, $limit: Int, $type: IntegrationTypeEnum) {
+  query flutterwaveIntegrationDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
     paymentProvider(id: $id) {
       ... on FlutterwaveProvider {
+        id
         ...FlutterwaveIntegrationDetails
+        ...DeleteFlutterwaveIntegrationDialog
       }
     }
 
-    integrations(limit: $limit, type: $type) {
+    paymentProviders(limit: $limit, type: $type) {
       collection {
-        ... on FlutterwaveIntegration {
+        ... on FlutterwaveProvider {
           id
         }
       }
@@ -137,7 +139,7 @@ const FlutterwaveIntegrationDetails = () => {
             {translate('text_65845f35d7d69c3ab4793dac')}
           </Button>
           <Button
-            variant="danger"
+            variant="quaternary"
             disabled={loading}
             onClick={() => {
               deleteDialogRef.current?.openDialog({
@@ -240,7 +242,7 @@ const FlutterwaveIntegrationDetails = () => {
                             </Typography>
                             <div className="flex items-center gap-2">
                               <Icon
-                                name={flutterwavePaymentProvider?.production ? 'check' : 'close'}
+                                name={flutterwavePaymentProvider?.production ? 'checkmark' : 'close-circle'}
                                 color={flutterwavePaymentProvider?.production ? 'success' : 'error'}
                               />
                               <Typography variant="body">
