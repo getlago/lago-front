@@ -132,6 +132,7 @@ const FlutterwaveIntegrationDetails = () => {
             onClick={() => {
               addFlutterwaveDialogRef.current?.openDialog({
                 provider: flutterwavePaymentProvider,
+                deleteModalRef: deleteDialogRef,
                 deleteDialogCallback,
               })
             }}
@@ -185,7 +186,7 @@ const FlutterwaveIntegrationDetails = () => {
                       {[0, 1, 2].map((i) => (
                         <div key={`item-skeleton-item-${i}`} className="flex h-18 items-center">
                           <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
-                          <Skeleton variant="text" height={12} width={240} />
+                          <Skeleton variant="text" />
                         </div>
                       ))}
                     </>
@@ -242,14 +243,15 @@ const FlutterwaveIntegrationDetails = () => {
                             </Typography>
                             <div className="flex items-center gap-2">
                               <Icon
-                                name={flutterwavePaymentProvider?.production ? 'checkmark' : 'close-circle'}
+                                name={
+                                  flutterwavePaymentProvider?.production ? 'checkmark' : 'close'
+                                }
                                 color={flutterwavePaymentProvider?.production ? 'success' : 'error'}
                               />
                               <Typography variant="body">
-                                {flutterwavePaymentProvider?.production 
-                                  ? translate('text_634ea0ecc6147de10ddb6631') 
-                                  : translate('text_634ea0ecc6147de10ddb6632')
-                                }
+                                {flutterwavePaymentProvider?.production
+                                  ? translate('text_634ea0ecc6147de10ddb6631')
+                                  : translate('text_634ea0ecc6147de10ddb6632')}
                               </Typography>
                             </div>
                           </div>

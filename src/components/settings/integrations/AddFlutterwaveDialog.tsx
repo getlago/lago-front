@@ -1,11 +1,32 @@
+import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
 import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { SwitchField, TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
+import {
+  AddFlutterwavePaymentProviderInput,
+  FlutterwaveIntegrationDetailsFragmentDoc,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+import { DeleteFlutterwaveIntegrationDialogRef } from './DeleteFlutterwaveIntegrationDialog'
+
+gql`
+  fragment AddFlutterwaveProviderDialog on FlutterwaveProvider {
+    id
+    name
+    code
+    publicKey
+    secretKey
+    encryptionKey
+    production
+  }
+  
+  ${FlutterwaveIntegrationDetailsFragmentDoc}
+`
 
 interface FlutterwaveProvider {
   id: string
@@ -17,16 +38,8 @@ interface FlutterwaveProvider {
   production: boolean
 }
 
-interface AddFlutterwavePaymentProviderInput {
-  name: string
-  code: string
-  publicKey: string
-  secretKey: string
-  encryptionKey: string
-  production: boolean
-}
-
 type TAddFlutterwaveDialogProps = Partial<{
+  deleteModalRef: RefObject<DeleteFlutterwaveIntegrationDialogRef>
   provider: FlutterwaveProvider
   deleteDialogCallback: () => void
 }>
@@ -63,8 +76,12 @@ export const AddFlutterwaveDialog = forwardRef<AddFlutterwaveDialogRef>((_, ref)
       // TODO: Implement actual API call when backend support is ready
       // eslint-disable-next-line no-console
       console.log('Flutterwave integration values:', values)
+      
+      // Show appropriate toast message based on operation
       addToast({
-        message: translate('text_1749725331374vcsmw7mp5gt'),
+        message: translate(
+          isEdition ? 'text_174980344483769h5q79g4ap' : 'text_1749803444837pl1ketrhm8a',
+        ),
         severity: 'info',
       })
 
@@ -92,6 +109,21 @@ export const AddFlutterwaveDialog = forwardRef<AddFlutterwaveDialogRef>((_, ref)
       onClose={formikProps.resetForm}
       actions={({ closeDialog }) => (
         <div className="flex w-full items-center gap-3">
+          {isEdition && (
+            <Button
+              danger
+              variant="quaternary"
+              onClick={() => {
+                closeDialog()
+                localData?.deleteModalRef?.current?.openDialog({
+                  provider: flutterwaveProvider,
+                  callback: localData?.deleteDialogCallback,
+                })
+              }}
+            >
+              {translate('text_65845f35d7d69c3ab4793dad')}
+            </Button>
+          )}
           <div className="ml-auto flex items-center gap-3">
             <Button variant="quaternary" onClick={closeDialog}>
               {translate('text_63eba8c65a6c8043feee2a14')}
