@@ -1,14 +1,21 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
+import { generatePath, useNavigate } from 'react-router-dom'
 import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { SwitchField, TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { FLUTTERWAVE_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   AddFlutterwavePaymentProviderInput,
   FlutterwaveIntegrationDetailsFragment,
+  LagoApiError,
+  useAddFlutterwavePaymentProviderMutation,
+  useGetProviderByCodeForFlutterwaveLazyQuery,
+  useUpdateFlutterwavePaymentProviderMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -23,6 +30,43 @@ gql`
     secretKey
     encryptionKey
     production
+  }
+
+  query getProviderByCodeForFlutterwave($code: String) {
+    paymentProvider(code: $code) {
+      ... on FlutterwaveProvider {
+        id
+      }
+      ... on CashfreeProvider {
+        id
+      }
+      ... on GocardlessProvider {
+        id
+      }
+      ... on AdyenProvider {
+        id
+      }
+      ... on StripeProvider {
+        id
+      }
+      ... on MoneyhashProvider {
+        id
+      }
+    }
+  }
+
+  mutation addFlutterwavePaymentProvider($input: AddFlutterwavePaymentProviderInput!) {
+    addFlutterwavePaymentProvider(input: $input) {
+      id
+      ...AddFlutterwaveProviderDialog
+    }
+  }
+
+  mutation updateFlutterwavePaymentProvider($input: UpdateFlutterwavePaymentProviderInput!) {
+    updateFlutterwavePaymentProvider(input: $input) {
+      id
+      ...AddFlutterwaveProviderDialog
+    }
   }
 `
 
@@ -39,10 +83,45 @@ export interface AddFlutterwaveDialogRef {
 
 export const AddFlutterwaveDialog = forwardRef<AddFlutterwaveDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
+  const navigate = useNavigate()
   const dialogRef = useRef<DialogRef>(null)
   const [localData, setLocalData] = useState<TAddFlutterwaveDialogProps | undefined>(undefined)
   const flutterwaveProvider = localData?.provider
   const isEdition = !!flutterwaveProvider
+  const [addFlutterwaveProvider] = useAddFlutterwavePaymentProviderMutation({
+    onCompleted(data) {
+      if (data?.addFlutterwavePaymentProvider) {
+        addToast({
+          severity: 'success',
+          translateKey: 'text_1749803444837pl1ketrhm8a',
+        })
+        navigate(
+          generatePath(FLUTTERWAVE_INTEGRATION_DETAILS_ROUTE, {
+            integrationId: data.addFlutterwavePaymentProvider.id,
+            integrationGroup: IntegrationsTabsOptionsEnum.Community,
+          }),
+        )
+      }
+    },
+  })
+  const [updateFlutterwaveProvider] = useUpdateFlutterwavePaymentProviderMutation({
+    onCompleted(data) {
+      if (data?.updateFlutterwavePaymentProvider) {
+        addToast({
+          severity: 'success',
+          translateKey: 'text_174980344483769h5q79g4ap',
+        })
+      }
+    },
+    onError() {
+      // Handle update errors - typically just display generic error since sensitive fields are not updated
+      addToast({
+        severity: 'danger',
+        translateKey: 'text_629728388c4d2300e2d380d5',
+      })
+    },
+  })
+  const [getProviderByCode] = useGetProviderByCodeForFlutterwaveLazyQuery()
 
   const formikProps = useFormik<AddFlutterwavePaymentProviderInput>({
     initialValues: {
@@ -60,18 +139,51 @@ export const AddFlutterwaveDialog = forwardRef<AddFlutterwaveDialogRef>((_, ref)
       secretKey: string().required(''),
       encryptionKey: string().required(''),
     }),
-    onSubmit: async (values) => {
-      // TODO: Implement actual API call when backend support is ready
-      // eslint-disable-next-line no-console
-      console.log('Flutterwave integration values:', values)
-      
-      // Show appropriate toast message based on operation
-      addToast({
-        message: translate(
-          isEdition ? 'text_174980344483769h5q79g4ap' : 'text_1749803444837pl1ketrhm8a',
-        ),
-        severity: 'info',
+    onSubmit: async (values, formikBag) => {
+      const { name, code, publicKey, secretKey, encryptionKey, production } = values
+
+      // Check if code already exists
+      const res = await getProviderByCode({
+        context: { silentErrorCodes: [LagoApiError.NotFound] },
+        variables: {
+          code,
+        },
       })
+      const isNotAllowedToMutate =
+        (!!res.data?.paymentProvider?.id && !isEdition) ||
+        (isEdition &&
+          !!res.data?.paymentProvider?.id &&
+          res.data?.paymentProvider?.id !== flutterwaveProvider?.id)
+
+      if (isNotAllowedToMutate) {
+        formikBag.setFieldError('code', translate('text_632a2d437e341dcc76817556'))
+        return
+      }
+
+      if (isEdition) {
+        await updateFlutterwaveProvider({
+          variables: {
+            input: {
+              id: flutterwaveProvider?.id || '',
+              name,
+              code,
+            },
+          },
+        })
+      } else {
+        await addFlutterwaveProvider({
+          variables: {
+            input: {
+              name,
+              code,
+              publicKey,
+              secretKey,
+              encryptionKey,
+              production,
+            },
+          },
+        })
+      }
 
       dialogRef.current?.closeDialog()
     },
@@ -150,24 +262,28 @@ export const AddFlutterwaveDialog = forwardRef<AddFlutterwaveDialogRef>((_, ref)
         </div>
         <TextInputField
           name="publicKey"
+          disabled={isEdition}
           label={translate('text_1749725287668wpbctffw2gv')}
           placeholder={translate('text_1749725331374936azbwqk89')}
           formikProps={formikProps}
         />
         <TextInputField
           name="secretKey"
+          disabled={isEdition}
           label={translate('text_17497252876688ai900wowoc')}
           placeholder={translate('text_1749725331374uzvwfxs7m82')}
           formikProps={formikProps}
         />
         <TextInputField
           name="encryptionKey"
+          disabled={isEdition}
           label={translate('text_17497253313741h3qgmvlmie')}
           placeholder={translate('text_1749725331374u9ahlz73aq1')}
           formikProps={formikProps}
         />
         <SwitchField
           name="production"
+          disabled={isEdition}
           label={translate('text_1749731835360j494r9wkd0k')}
           formikProps={formikProps}
         />

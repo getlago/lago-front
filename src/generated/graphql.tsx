@@ -9140,6 +9140,29 @@ export type UpdateMoneyhashPaymentProviderMutationVariables = Exact<{
 
 export type UpdateMoneyhashPaymentProviderMutation = { __typename?: 'Mutation', updateMoneyhashPaymentProvider?: { __typename?: 'MoneyhashProvider', id: string, flowId?: string | null } | null };
 
+export type AddFlutterwaveProviderDialogFragment = { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, publicKey?: any | null, secretKey?: any | null, encryptionKey?: any | null, production?: boolean | null };
+
+export type GetProviderByCodeForFlutterwaveQueryVariables = Exact<{
+  code?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetProviderByCodeForFlutterwaveQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider', id: string } | { __typename?: 'CashfreeProvider', id: string } | { __typename?: 'FlutterwaveProvider', id: string } | { __typename?: 'GocardlessProvider', id: string } | { __typename?: 'MoneyhashProvider', id: string } | { __typename?: 'StripeProvider', id: string } | null };
+
+export type AddFlutterwavePaymentProviderMutationVariables = Exact<{
+  input: AddFlutterwavePaymentProviderInput;
+}>;
+
+
+export type AddFlutterwavePaymentProviderMutation = { __typename?: 'Mutation', addFlutterwavePaymentProvider?: { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, publicKey?: any | null, secretKey?: any | null, encryptionKey?: any | null, production?: boolean | null } | null };
+
+export type UpdateFlutterwavePaymentProviderMutationVariables = Exact<{
+  input: UpdateFlutterwavePaymentProviderInput;
+}>;
+
+
+export type UpdateFlutterwavePaymentProviderMutation = { __typename?: 'Mutation', updateFlutterwavePaymentProvider?: { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, publicKey?: any | null, secretKey?: any | null, encryptionKey?: any | null, production?: boolean | null } | null };
+
 export type AddGocardlessProviderDialogFragment = { __typename?: 'GocardlessProvider', id: string, name: string, code: string };
 
 export type GetProviderByCodeForGocardlessQueryVariables = Exact<{
@@ -10191,6 +10214,10 @@ export type XeroIntegrationDetailsFragment = { __typename?: 'XeroIntegration', i
 export type XeroIntegrationsFragment = { __typename?: 'XeroIntegration', id: string, name: string, code: string, connectionId: string, hasMappingsConfigured?: boolean | null, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null };
 
 export type WalletForTopUpFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean };
+
+export type FlutterwaveIntegrationDetailsFragment = { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, publicKey?: any | null, secretKey?: any | null, encryptionKey?: any | null, production?: boolean | null };
+
+export type FlutterwaveIntegrationsFragment = { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string };
 
 export type CreateSubscriptionMutationVariables = Exact<{
   input: CreateSubscriptionInput;
@@ -11366,8 +11393,6 @@ export type GetWalletForTopUpQueryVariables = Exact<{
 
 export type GetWalletForTopUpQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean } | null };
 
-export type FlutterwaveIntegrationDetailsFragment = { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, publicKey?: any | null, secretKey?: any | null, encryptionKey?: any | null, production?: boolean | null };
-
 export type FlutterwaveIntegrationDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -11376,8 +11401,6 @@ export type FlutterwaveIntegrationDetailsQueryVariables = Exact<{
 
 
 export type FlutterwaveIntegrationDetailsQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, publicKey?: any | null, secretKey?: any | null, encryptionKey?: any | null, production?: boolean | null } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider', id: string } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' }> } | null };
-
-export type FlutterwaveIntegrationsFragment = { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string };
 
 export type GetFlutterwaveIntegrationsListQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -12394,6 +12417,17 @@ export const MoneyhashForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
   id
   flowId
   successRedirectUrl
+}
+    `;
+export const AddFlutterwaveProviderDialogFragmentDoc = gql`
+    fragment AddFlutterwaveProviderDialog on FlutterwaveProvider {
+  id
+  name
+  code
+  publicKey
+  secretKey
+  encryptionKey
+  production
 }
     `;
 export const AddGocardlessProviderDialogFragmentDoc = gql`
@@ -21724,6 +21758,131 @@ export function useUpdateMoneyhashPaymentProviderMutation(baseOptions?: Apollo.M
 export type UpdateMoneyhashPaymentProviderMutationHookResult = ReturnType<typeof useUpdateMoneyhashPaymentProviderMutation>;
 export type UpdateMoneyhashPaymentProviderMutationResult = Apollo.MutationResult<UpdateMoneyhashPaymentProviderMutation>;
 export type UpdateMoneyhashPaymentProviderMutationOptions = Apollo.BaseMutationOptions<UpdateMoneyhashPaymentProviderMutation, UpdateMoneyhashPaymentProviderMutationVariables>;
+export const GetProviderByCodeForFlutterwaveDocument = gql`
+    query getProviderByCodeForFlutterwave($code: String) {
+  paymentProvider(code: $code) {
+    ... on FlutterwaveProvider {
+      id
+    }
+    ... on CashfreeProvider {
+      id
+    }
+    ... on GocardlessProvider {
+      id
+    }
+    ... on AdyenProvider {
+      id
+    }
+    ... on StripeProvider {
+      id
+    }
+    ... on MoneyhashProvider {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetProviderByCodeForFlutterwaveQuery__
+ *
+ * To run a query within a React component, call `useGetProviderByCodeForFlutterwaveQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProviderByCodeForFlutterwaveQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProviderByCodeForFlutterwaveQuery({
+ *   variables: {
+ *      code: // value for 'code'
+ *   },
+ * });
+ */
+export function useGetProviderByCodeForFlutterwaveQuery(baseOptions?: Apollo.QueryHookOptions<GetProviderByCodeForFlutterwaveQuery, GetProviderByCodeForFlutterwaveQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProviderByCodeForFlutterwaveQuery, GetProviderByCodeForFlutterwaveQueryVariables>(GetProviderByCodeForFlutterwaveDocument, options);
+      }
+export function useGetProviderByCodeForFlutterwaveLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProviderByCodeForFlutterwaveQuery, GetProviderByCodeForFlutterwaveQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProviderByCodeForFlutterwaveQuery, GetProviderByCodeForFlutterwaveQueryVariables>(GetProviderByCodeForFlutterwaveDocument, options);
+        }
+export function useGetProviderByCodeForFlutterwaveSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProviderByCodeForFlutterwaveQuery, GetProviderByCodeForFlutterwaveQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProviderByCodeForFlutterwaveQuery, GetProviderByCodeForFlutterwaveQueryVariables>(GetProviderByCodeForFlutterwaveDocument, options);
+        }
+export type GetProviderByCodeForFlutterwaveQueryHookResult = ReturnType<typeof useGetProviderByCodeForFlutterwaveQuery>;
+export type GetProviderByCodeForFlutterwaveLazyQueryHookResult = ReturnType<typeof useGetProviderByCodeForFlutterwaveLazyQuery>;
+export type GetProviderByCodeForFlutterwaveSuspenseQueryHookResult = ReturnType<typeof useGetProviderByCodeForFlutterwaveSuspenseQuery>;
+export type GetProviderByCodeForFlutterwaveQueryResult = Apollo.QueryResult<GetProviderByCodeForFlutterwaveQuery, GetProviderByCodeForFlutterwaveQueryVariables>;
+export const AddFlutterwavePaymentProviderDocument = gql`
+    mutation addFlutterwavePaymentProvider($input: AddFlutterwavePaymentProviderInput!) {
+  addFlutterwavePaymentProvider(input: $input) {
+    id
+    ...AddFlutterwaveProviderDialog
+  }
+}
+    ${AddFlutterwaveProviderDialogFragmentDoc}`;
+export type AddFlutterwavePaymentProviderMutationFn = Apollo.MutationFunction<AddFlutterwavePaymentProviderMutation, AddFlutterwavePaymentProviderMutationVariables>;
+
+/**
+ * __useAddFlutterwavePaymentProviderMutation__
+ *
+ * To run a mutation, you first call `useAddFlutterwavePaymentProviderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddFlutterwavePaymentProviderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addFlutterwavePaymentProviderMutation, { data, loading, error }] = useAddFlutterwavePaymentProviderMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddFlutterwavePaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<AddFlutterwavePaymentProviderMutation, AddFlutterwavePaymentProviderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddFlutterwavePaymentProviderMutation, AddFlutterwavePaymentProviderMutationVariables>(AddFlutterwavePaymentProviderDocument, options);
+      }
+export type AddFlutterwavePaymentProviderMutationHookResult = ReturnType<typeof useAddFlutterwavePaymentProviderMutation>;
+export type AddFlutterwavePaymentProviderMutationResult = Apollo.MutationResult<AddFlutterwavePaymentProviderMutation>;
+export type AddFlutterwavePaymentProviderMutationOptions = Apollo.BaseMutationOptions<AddFlutterwavePaymentProviderMutation, AddFlutterwavePaymentProviderMutationVariables>;
+export const UpdateFlutterwavePaymentProviderDocument = gql`
+    mutation updateFlutterwavePaymentProvider($input: UpdateFlutterwavePaymentProviderInput!) {
+  updateFlutterwavePaymentProvider(input: $input) {
+    id
+    ...AddFlutterwaveProviderDialog
+  }
+}
+    ${AddFlutterwaveProviderDialogFragmentDoc}`;
+export type UpdateFlutterwavePaymentProviderMutationFn = Apollo.MutationFunction<UpdateFlutterwavePaymentProviderMutation, UpdateFlutterwavePaymentProviderMutationVariables>;
+
+/**
+ * __useUpdateFlutterwavePaymentProviderMutation__
+ *
+ * To run a mutation, you first call `useUpdateFlutterwavePaymentProviderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateFlutterwavePaymentProviderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateFlutterwavePaymentProviderMutation, { data, loading, error }] = useUpdateFlutterwavePaymentProviderMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateFlutterwavePaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateFlutterwavePaymentProviderMutation, UpdateFlutterwavePaymentProviderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateFlutterwavePaymentProviderMutation, UpdateFlutterwavePaymentProviderMutationVariables>(UpdateFlutterwavePaymentProviderDocument, options);
+      }
+export type UpdateFlutterwavePaymentProviderMutationHookResult = ReturnType<typeof useUpdateFlutterwavePaymentProviderMutation>;
+export type UpdateFlutterwavePaymentProviderMutationResult = Apollo.MutationResult<UpdateFlutterwavePaymentProviderMutation>;
+export type UpdateFlutterwavePaymentProviderMutationOptions = Apollo.BaseMutationOptions<UpdateFlutterwavePaymentProviderMutation, UpdateFlutterwavePaymentProviderMutationVariables>;
 export const GetProviderByCodeForGocardlessDocument = gql`
     query getProviderByCodeForGocardless($code: String) {
   paymentProvider(code: $code) {
