@@ -3,7 +3,6 @@ import { useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import {
-  Alert,
   Button,
   ButtonLink,
   Icon,
@@ -192,8 +191,6 @@ const FlutterwaveIntegrationDetails = () => {
       />
 
       <div className="mb-12 flex max-w-[672px] flex-col gap-8 px-4 py-0 md:px-12">
-        <Alert type="warning">{translate('text_1749725331374vcsmw7mp5gt')}</Alert>
-
         <section>
           <div className="flex h-18 w-full items-center justify-between">
             <Typography className="flex h-18 w-full items-center" variant="subhead">
@@ -257,8 +254,8 @@ const FlutterwaveIntegrationDetails = () => {
                 label={translate('text_1749731835360j494r9wkd0k')}
                 value={
                   flutterwavePaymentProvider.production
-                    ? translate('text_634ea0ecc6147de10ddb6631')
-                    : translate('text_634ea0ecc6147de10ddb6632')
+                    ? translate('text_1749810967524701e3wcc9kg')
+                    : translate('text_1749810819766o5vvoel5hk2')
                 }
               />
               <IntegrationsPage.DetailsItem
@@ -285,7 +282,7 @@ const FlutterwaveIntegrationDetails = () => {
               <Typography
                 className="mt-3"
                 variant="caption"
-                html={translate('text_1727623232636ys8hnp8a3su')}
+                html={translate('text_1749810819766n2va061j0gj')}
               />
             </>
           )}
