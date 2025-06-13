@@ -76,7 +76,7 @@ const FlutterwaveIntegrations = () => {
               <Typography variant="headline">
                 {translate('text_1749724395108m0swrna0zt4')}
               </Typography>
-              <Typography>{translate('text_174972533137460li1pvmw34')}</Typography>
+              <Typography>{translate('text_17498039535197vam0ybv9qz')}</Typography>
             </div>
           </div>
         </PageHeader.Group>

@@ -1,20 +1,18 @@
 import { gql } from '@apollo/client'
-import { Stack } from '@mui/material'
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import {
-  Avatar,
+  Alert,
   Button,
-  Chip,
+  ButtonLink,
   Icon,
+  Popper,
   Skeleton,
-  Tab,
-  Tabs,
+  Tooltip,
   Typography,
 } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { IntegrationsPage } from '~/components/layouts/Integrations'
 import {
   AddFlutterwaveDialog,
   AddFlutterwaveDialogRef,
@@ -23,17 +21,20 @@ import {
   DeleteFlutterwaveIntegrationDialog,
   DeleteFlutterwaveIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteFlutterwaveIntegrationDialog'
-import { INTEGRATIONS_ROUTE } from '~/core/router'
+import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { FLUTTERWAVE_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
-  DeleteFlutterwaveIntegrationMutation,
   FlutterwaveIntegrationDetailsFragment,
-  useDeleteFlutterwaveIntegrationMutation,
+  ProviderTypeEnum,
   useFlutterwaveIntegrationDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import ErrorImage from '~/public/images/maneki/error.svg'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 import Flutterwave from '~/public/images/flutterwave.svg'
+import { MenuPopper, PageHeader } from '~/styles'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -53,7 +54,6 @@ gql`
       ... on FlutterwaveProvider {
         id
         ...FlutterwaveIntegrationDetails
-        ...DeleteFlutterwaveIntegrationDialog
       }
     }
 
@@ -65,210 +65,235 @@ gql`
       }
     }
   }
-
-  mutation deleteFlutterwaveIntegration($input: DestroyPaymentProviderInput!) {
-    destroyPaymentProvider(input: $input) {
-      id
-    }
-  }
 `
 
 const FlutterwaveIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId } = useParams()
-  const { translate } = useInternationalization()
-  const addFlutterwaveDialogRef = useRef<AddFlutterwaveDialogRef>(null)
+  const { hasPermissions } = usePermissions()
+  const addDialogRef = useRef<AddFlutterwaveDialogRef>(null)
   const deleteDialogRef = useRef<DeleteFlutterwaveIntegrationDialogRef>(null)
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
-
+  const { apiUrl } = envGlobalVar()
+  const { organization } = useOrganizationInfos()
+  const currentOrganizationId = organization?.id || ''
+  const { translate } = useInternationalization()
   const { data, loading } = useFlutterwaveIntegrationDetailsQuery({
     variables: {
       id: integrationId as string,
       limit: PROVIDER_CONNECTION_LIMIT,
+      type: ProviderTypeEnum.Flutterwave,
     },
     skip: !integrationId,
   })
-
-  const [deleteFlutterwaveIntegration] = useDeleteFlutterwaveIntegrationMutation({
-    onCompleted(data: DeleteFlutterwaveIntegrationMutation) {
-      if (data && data.destroyPaymentProvider) {
-        navigate(
-          generatePath(INTEGRATIONS_ROUTE, {
-            integrationGroup: IntegrationsTabsOptionsEnum.Community,
-          }),
-        )
-      }
-    },
-  })
-
   const flutterwavePaymentProvider = data?.paymentProvider as FlutterwaveIntegrationDetailsFragment
   const deleteDialogCallback = () => {
-    deleteFlutterwaveIntegration({
-      variables: {
-        input: {
-          id: integrationId as string,
-        },
-      },
-    })
+    if ((data?.paymentProviders?.collection.length || 0) >= PROVIDER_CONNECTION_LIMIT) {
+      navigate(
+        generatePath(FLUTTERWAVE_INTEGRATION_ROUTE, {
+          integrationGroup: IntegrationsTabsOptionsEnum.Community,
+        }),
+      )
+    } else {
+      navigate(
+        generatePath(INTEGRATIONS_ROUTE, {
+          integrationGroup: IntegrationsTabsOptionsEnum.Community,
+        }),
+      )
+    }
   }
+
+  const canEditIntegration = hasPermissions(['organizationIntegrationsUpdate'])
+  const canDeleteIntegration = hasPermissions(['organizationIntegrationsDelete'])
+
+  const webhookUrl = useMemo(
+    () =>
+      `${apiUrl}/webhooks/flutterwave/${currentOrganizationId}?code=${flutterwavePaymentProvider?.code}`,
+    [apiUrl, currentOrganizationId, flutterwavePaymentProvider?.code],
+  )
 
   if (!integrationId) return null
 
   return (
     <div>
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <Typography variant="bodyHl" color="textSecondary" className="mb-1">
-            {translate('text_1749724395108m0swrna0zt4')}
-          </Typography>
-          <Typography variant="headline">
-            {flutterwavePaymentProvider?.name || translate('text_1749724395108m0swrna0zt4')}
-          </Typography>
-        </div>
-        <div className="flex items-center gap-4">
-          <Button
-            variant="quaternary"
-            disabled={loading}
-            onClick={() => {
-              addFlutterwaveDialogRef.current?.openDialog({
-                provider: flutterwavePaymentProvider,
-                deleteModalRef: deleteDialogRef,
-                deleteDialogCallback,
-              })
-            }}
+      <PageHeader.Wrapper withSide>
+        <PageHeader.Group>
+          <ButtonLink
+            to={generatePath(FLUTTERWAVE_INTEGRATION_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Community,
+            })}
+            type="button"
+            buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
+          />
+          {loading ? (
+            <Skeleton variant="text" className="w-30" />
+          ) : (
+            <Typography variant="bodyHl" color="textSecondary">
+              {flutterwavePaymentProvider?.name}
+            </Typography>
+          )}
+        </PageHeader.Group>
+        {(canEditIntegration || canDeleteIntegration) && (
+          <Popper
+            PopperProps={{ placement: 'bottom-end' }}
+            opener={
+              <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
+            }
           >
-            {translate('text_65845f35d7d69c3ab4793dac')}
-          </Button>
-          <Button
-            variant="quaternary"
-            disabled={loading}
-            onClick={() => {
-              deleteDialogRef.current?.openDialog({
-                provider: flutterwavePaymentProvider,
-                callback: deleteDialogCallback,
-              })
-            }}
-          >
-            {translate('text_645d071272418a14c1c76a81')}
-          </Button>
-        </div>
+            {({ closePopper }) => (
+              <MenuPopper>
+                {canEditIntegration && (
+                  <>
+                    <Button
+                      variant="quaternary"
+                      fullWidth
+                      align="left"
+                      onClick={() => {
+                        addDialogRef.current?.openDialog({
+                          provider: flutterwavePaymentProvider,
+                          deleteModalRef: deleteDialogRef,
+                          deleteDialogCallback,
+                        })
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_65845f35d7d69c3ab4793dac')}
+                    </Button>
+                  </>
+                )}
+
+                {canDeleteIntegration && (
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    fullWidth
+                    onClick={() => {
+                      deleteDialogRef.current?.openDialog({
+                        provider: flutterwavePaymentProvider,
+                        callback: deleteDialogCallback,
+                      })
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_65845f35d7d69c3ab4793dad')}
+                  </Button>
+                )}
+              </MenuPopper>
+            )}
+          </Popper>
+        )}
+      </PageHeader.Wrapper>
+
+      <IntegrationsPage.Header
+        isLoading={loading}
+        integrationLogo={<Flutterwave />}
+        integrationName={flutterwavePaymentProvider?.name}
+        integrationChip={translate('text_634ea0ecc6147de10ddb662d')}
+        integrationDescription={translate('text_17498039535197vam0ybv9qz')}
+      />
+
+      <div className="mb-12 flex max-w-[672px] flex-col gap-8 px-4 py-0 md:px-12">
+        <Alert type="warning">{translate('text_1749725331374vcsmw7mp5gt')}</Alert>
+
+        <section>
+          <div className="flex h-18 w-full items-center justify-between">
+            <Typography className="flex h-18 w-full items-center" variant="subhead">
+              {translate('text_664c732c264d7eed1c74fdc5')}
+            </Typography>
+
+            {canEditIntegration && (
+              <Button
+                variant="quaternary"
+                align="left"
+                onClick={() => {
+                  addDialogRef.current?.openDialog({
+                    provider: flutterwavePaymentProvider,
+                    deleteModalRef: deleteDialogRef,
+                    deleteDialogCallback,
+                  })
+                }}
+              >
+                {translate('text_62b1edddbf5f461ab9712787')}
+              </Button>
+            )}
+          </div>
+          {loading && (
+            <>
+              {[0, 1, 2].map((i) => (
+                <IntegrationsPage.ItemSkeleton key={`item-skeleton-${i}`} />
+              ))}
+              <div style={{ height: 24 }} />
+              <Skeleton className="mb-4 w-60" variant="text" />
+            </>
+          )}
+          {!loading && (
+            <>
+              <IntegrationsPage.DetailsItem
+                icon="text"
+                label={translate('text_626162c62f790600f850b76a')}
+                value={flutterwavePaymentProvider.name}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="id"
+                label={translate('text_62876e85e32e0300e1803127')}
+                value={flutterwavePaymentProvider.code}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="key"
+                label={translate('text_1749725287668wpbctffw2gv')}
+                value={flutterwavePaymentProvider.publicKey ?? undefined}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="key"
+                label={translate('text_17497252876688ai900wowoc')}
+                value={flutterwavePaymentProvider.secretKey ?? undefined}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="key"
+                label={translate('text_17497253313741h3qgmvlmie')}
+                value={flutterwavePaymentProvider.encryptionKey ?? undefined}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="settings"
+                label={translate('text_1749731835360j494r9wkd0k')}
+                value={
+                  flutterwavePaymentProvider.production
+                    ? translate('text_634ea0ecc6147de10ddb6631')
+                    : translate('text_634ea0ecc6147de10ddb6632')
+                }
+              />
+              <IntegrationsPage.DetailsItem
+                icon="link"
+                label={translate('text_6271200984178801ba8bdf22')}
+                value={webhookUrl}
+              >
+                <Tooltip title={translate('text_1727623127072q52kj0u3xql')} placement="top-end">
+                  <Button
+                    variant="quaternary"
+                    onClick={() => {
+                      copyToClipboard(webhookUrl as string)
+                      addToast({
+                        severity: 'info',
+                        translateKey: 'text_1727623090069kyp9o88hpqe',
+                      })
+                    }}
+                  >
+                    <Icon name="duplicate" />
+                  </Button>
+                </Tooltip>
+              </IntegrationsPage.DetailsItem>
+
+              <Typography
+                className="mt-3"
+                variant="caption"
+                html={translate('text_1727623232636ys8hnp8a3su')}
+              />
+            </>
+          )}
+        </section>
       </div>
 
-      <div className="mb-8 flex items-center gap-3 rounded-xl border border-solid border-grey-300 bg-grey-100 p-4">
-        <Avatar variant="connector">
-          <Flutterwave />
-        </Avatar>
-        <div>
-          <Typography variant="caption" color="grey600">
-            {translate('text_62b1edddbf5f461ab971276d')}
-          </Typography>
-          <Typography variant="body" color="grey700">
-            {flutterwavePaymentProvider?.name}
-          </Typography>
-        </div>
-        <div className="ml-auto">
-          <Chip label={translate('text_62b1edddbf5f461ab97127ad')} />
-        </div>
-      </div>
-
-      <div>
-        <Tabs
-          tabs={[
-            {
-              title: translate('text_62b1edddbf5f461ab971277f'),
-              link: generatePath(INTEGRATIONS_ROUTE, {
-                integrationGroup: IntegrationsTabsOptionsEnum.Community,
-              }),
-              component: (
-                <div className="container">
-                  {loading ? (
-                    <>
-                      {[0, 1, 2].map((i) => (
-                        <div key={`item-skeleton-item-${i}`} className="flex h-18 items-center">
-                          <Skeleton variant="connectorAvatar" size="big" className="mr-4" />
-                          <Skeleton variant="text" />
-                        </div>
-                      ))}
-                    </>
-                  ) : (
-                    <div>
-                      <div className="mb-8">
-                        <Typography variant="subhead" className="mb-4">
-                          {translate('text_634ea0ecc6147de10ddb6625')}
-                        </Typography>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Typography variant="caption" color="grey600">
-                              {translate('text_6584550dc4cec7adf861504d')}
-                            </Typography>
-                            <Typography variant="body">
-                              {flutterwavePaymentProvider?.name}
-                            </Typography>
-                          </div>
-                          <div>
-                            <Typography variant="caption" color="grey600">
-                              {translate('text_6584550dc4cec7adf8615051')}
-                            </Typography>
-                            <Typography variant="body">
-                              {flutterwavePaymentProvider?.code}
-                            </Typography>
-                          </div>
-                          <div>
-                            <Typography variant="caption" color="grey600">
-                              {translate('text_1749725287668wpbctffw2gv')}
-                            </Typography>
-                            <Typography variant="body">
-                              {flutterwavePaymentProvider?.publicKey ? '••••••••••••' : '-'}
-                            </Typography>
-                          </div>
-                          <div>
-                            <Typography variant="caption" color="grey600">
-                              {translate('text_17497252876688ai900wowoc')}
-                            </Typography>
-                            <Typography variant="body">
-                              {flutterwavePaymentProvider?.secretKey ? '••••••••••••' : '-'}
-                            </Typography>
-                          </div>
-                          <div>
-                            <Typography variant="caption" color="grey600">
-                              {translate('text_17497253313741h3qgmvlmie')}
-                            </Typography>
-                            <Typography variant="body">
-                              {flutterwavePaymentProvider?.encryptionKey ? '••••••••••••' : '-'}
-                            </Typography>
-                          </div>
-                          <div>
-                            <Typography variant="caption" color="grey600">
-                              {translate('text_1749731835360j494r9wkd0k')}
-                            </Typography>
-                            <div className="flex items-center gap-2">
-                              <Icon
-                                name={
-                                  flutterwavePaymentProvider?.production ? 'checkmark' : 'close'
-                                }
-                                color={flutterwavePaymentProvider?.production ? 'success' : 'error'}
-                              />
-                              <Typography variant="body">
-                                {flutterwavePaymentProvider?.production
-                                  ? translate('text_634ea0ecc6147de10ddb6631')
-                                  : translate('text_634ea0ecc6147de10ddb6632')}
-                              </Typography>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ),
-            },
-          ]}
-        />
-      </div>
-
-      <AddFlutterwaveDialog ref={addFlutterwaveDialogRef} />
+      <AddFlutterwaveDialog ref={addDialogRef} />
       <DeleteFlutterwaveIntegrationDialog ref={deleteDialogRef} />
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </div>
   )
 }
