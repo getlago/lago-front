@@ -3176,9 +3176,7 @@
   "text_1749561986883tqfllead7o3": "A payment request of {{amount}} was created",
   "text_17495622741665lrk6dp6czk": "Payment request",
   "text_1749724395108m0swrna0zt4": "Flutterwave",
-  "text_1749725287668wpbctffw2gv": "Public key",
   "text_17497252876688ai900wowoc": "Secret key",
-  "text_17497253313741h3qgmvlmie": "Encryption key",
   "text_1749725331374936azbwqk89": "Enter your Flutterwave public key",
   "text_1749725331374uzvwfxs7m82": "Enter your Flutterwave secret key",
   "text_1749725331374u9ahlz73aq1": "Enter your Flutterwave encryption key",
@@ -3193,9 +3191,8 @@
   "text_1749799070145axw96s27789": "Flutterwave integration deleted successfully",
   "text_1749803444837pl1ketrhm8a": "Flutterwave integration created successfully",
   "text_174980344483769h5q79g4ap": "Flutterwave integration updated successfully",
-  "text_1749803444837ts4dvq2egx4": "Unable to connect to Flutterware API",
+  "text_1749803444837ts4dvq2egx4": "Unable to connect to Flutterwave API",
   "text_17498039535197vam0ybv9qz": "Accept payments from your customers via Flutterwave",
-  "text_1749810819766o5vvoel5hk2": "No",
   "text_1749810819766n2va061j0gj": "Add the following Webhook URL in the Webhooks section of your Flutterwave dashboard.",
-  "text_1749810967524701e3wcc9kg": "Yes"
+  "text_174987818899252mkql029wz": "Webhook secret"
 }

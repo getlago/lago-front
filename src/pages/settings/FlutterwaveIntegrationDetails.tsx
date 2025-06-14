@@ -42,10 +42,8 @@ gql`
     id
     name
     code
-    publicKey
     secretKey
-    encryptionKey
-    production
+    webhookSecret
   }
 
   query flutterwaveIntegrationDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
@@ -236,28 +234,31 @@ const FlutterwaveIntegrationDetails = () => {
               />
               <IntegrationsPage.DetailsItem
                 icon="key"
-                label={translate('text_1749725287668wpbctffw2gv')}
-                value={flutterwavePaymentProvider.publicKey ?? undefined}
-              />
-              <IntegrationsPage.DetailsItem
-                icon="key"
                 label={translate('text_17497252876688ai900wowoc')}
                 value={flutterwavePaymentProvider.secretKey ?? undefined}
               />
               <IntegrationsPage.DetailsItem
                 icon="key"
-                label={translate('text_17497253313741h3qgmvlmie')}
-                value={flutterwavePaymentProvider.encryptionKey ?? undefined}
-              />
-              <IntegrationsPage.DetailsItem
-                icon="settings"
-                label={translate('text_1749731835360j494r9wkd0k')}
-                value={
-                  flutterwavePaymentProvider.production
-                    ? translate('text_1749810967524701e3wcc9kg')
-                    : translate('text_1749810819766o5vvoel5hk2')
-                }
-              />
+                label={translate('text_174987818899252mkql029wz')}
+                value={flutterwavePaymentProvider.webhookSecret ?? undefined}
+              >
+                {flutterwavePaymentProvider.webhookSecret && (
+                  <Tooltip title={translate('text_1727623127072q52kj0u3xql')} placement="top-end">
+                    <Button
+                      variant="quaternary"
+                      onClick={() => {
+                        copyToClipboard(flutterwavePaymentProvider.webhookSecret as string)
+                        addToast({
+                          severity: 'info',
+                          translateKey: 'text_1727623090069kyp9o88hpqe',
+                        })
+                      }}
+                    >
+                      <Icon name="duplicate" />
+                    </Button>
+                  </Tooltip>
+                )}
+              </IntegrationsPage.DetailsItem>
               <IntegrationsPage.DetailsItem
                 icon="link"
                 label={translate('text_6271200984178801ba8bdf22')}
