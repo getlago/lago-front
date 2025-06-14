@@ -119,7 +119,10 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
 
   const isSyncWithProviderSupported = useMemo(() => {
     if (!formikProps.values.paymentProvider) return false
-    const unsupportedPaymentProviders: ProviderTypeEnum[] = [ProviderTypeEnum.Cashfree]
+    const unsupportedPaymentProviders: ProviderTypeEnum[] = [
+      ProviderTypeEnum.Cashfree,
+      ProviderTypeEnum.Flutterwave,
+    ]
 
     return !unsupportedPaymentProviders.includes(formikProps.values.paymentProvider)
   }, [formikProps.values.paymentProvider])
