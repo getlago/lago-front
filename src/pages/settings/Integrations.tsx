@@ -111,56 +111,56 @@ import Segment from '~/public/images/segment.svg'
 import Stripe from '~/public/images/stripe.svg'
 import Xero from '~/public/images/xero.svg'
 
-// gql`
-//   query integrationsSetting($limit: Int) {
-//     paymentProviders(limit: $limit) {
-//       collection {
-//         ... on MoneyhashProvider {
-//           id
-//         }
+gql`
+  query integrationsSetting($limit: Int) {
+    paymentProviders(limit: $limit) {
+      collection {
+        ... on MoneyhashProvider {
+          id
+        }
 
-//         ... on StripeProvider {
-//           id
-//         }
+        ... on StripeProvider {
+          id
+        }
 
-//         ... on GocardlessProvider {
-//           id
-//         }
+        ... on GocardlessProvider {
+          id
+        }
 
-//         ... on AdyenProvider {
-//           id
-//         }
+        ... on AdyenProvider {
+          id
+        }
 
-//         ... on CashfreeProvider {
-//           id
-//         }
-//       }
-//     }
+        ... on CashfreeProvider {
+          id
+        }
+      }
+    }
 
-//     integrations(limit: $limit) {
-//       collection {
-//         ... on AnrokIntegration {
-//           id
-//         }
-//         ... on AvalaraIntegration {
-//           id
-//         }
-//         ... on NetsuiteIntegration {
-//           id
-//         }
-//         ... on XeroIntegration {
-//           id
-//         }
-//         ... on HubspotIntegration {
-//           id
-//         }
-//         ... on SalesforceIntegration {
-//           id
-//         }
-//       }
-//     }
-//   }
-// `
+    integrations(limit: $limit) {
+      collection {
+        ... on AnrokIntegration {
+          id
+        }
+        ... on AvalaraIntegration {
+          id
+        }
+        ... on NetsuiteIntegration {
+          id
+        }
+        ... on XeroIntegration {
+          id
+        }
+        ... on HubspotIntegration {
+          id
+        }
+        ... on SalesforceIntegration {
+          id
+        }
+      }
+    }
+  }
+`
 
 const Integrations = () => {
   const { translate } = useInternationalization()
