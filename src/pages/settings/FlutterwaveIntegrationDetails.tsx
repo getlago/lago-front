@@ -3,6 +3,7 @@ import { useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import {
+  Alert,
   Button,
   ButtonLink,
   Icon,
@@ -83,6 +84,7 @@ const FlutterwaveIntegrationDetails = () => {
     skip: !integrationId,
   })
   const flutterwavePaymentProvider = data?.paymentProvider as FlutterwaveIntegrationDetailsFragment
+
   const deleteDialogCallback = () => {
     if ((data?.paymentProviders?.collection.length || 0) >= PROVIDER_CONNECTION_LIMIT) {
       navigate(
@@ -184,11 +186,13 @@ const FlutterwaveIntegrationDetails = () => {
         isLoading={loading}
         integrationLogo={<Flutterwave />}
         integrationName={flutterwavePaymentProvider?.name}
-        integrationChip={translate('text_634ea0ecc6147de10ddb662d')}
+        integrationChip={translate('text_1749724395108m0swrna0zt4')}
         integrationDescription={translate('text_17498039535197vam0ybv9qz')}
       />
 
       <div className="mb-12 flex max-w-[672px] flex-col gap-8 px-4 py-0 md:px-12">
+        <Alert type="warning">{translate('text_1733303404277q80b216p5zr')}</Alert>
+
         <section>
           <div className="flex h-18 w-full items-center justify-between">
             <Typography className="flex h-18 w-full items-center" variant="subhead">

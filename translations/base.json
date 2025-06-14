@@ -3180,7 +3180,7 @@
   "text_1749725331374936azbwqk89": "Enter your Flutterwave public key",
   "text_1749725331374uzvwfxs7m82": "Enter your Flutterwave secret key",
   "text_1749725331374u9ahlz73aq1": "Enter your Flutterwave encryption key",
-  "text_1749725331374vcsmw7mp5gt": "Flutterwave integration coming soon",
+  "text_1749725331374vcsmw7mp5gt": "Flutterwave integration",
   "text_1749725331374i3p14ewcpn5": "Edit Flutterwave",
   "text_174972533137460li1pvmw34": "Connect with Flutterwave to collect payments from your customers",
   "text_1749725331374clf07sez01f": "Connect Flutterwave",
@@ -3193,6 +3193,6 @@
   "text_174980344483769h5q79g4ap": "Flutterwave integration updated successfully",
   "text_1749803444837ts4dvq2egx4": "Unable to connect to Flutterwave API",
   "text_17498039535197vam0ybv9qz": "Accept payments from your customers via Flutterwave",
-  "text_1749810819766n2va061j0gj": "Add the following Webhook URL in the Webhooks section of your Flutterwave dashboard.",
+  "text_1749810819766n2va061j0gj": "Add the following Webhook URL and secret in the Webhooks section of your Flutterwave dashboard.",
   "text_174987818899252mkql029wz": "Webhook secret"
 }
