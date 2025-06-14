@@ -5,7 +5,7 @@ import { generatePath, useNavigate } from 'react-router-dom'
 import { object, string } from 'yup'
 
 import { Button, Dialog, DialogRef } from '~/components/designSystem'
-import { SwitchField, TextInputField } from '~/components/form'
+import { TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { FLUTTERWAVE_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
@@ -26,10 +26,8 @@ gql`
     id
     name
     code
-    publicKey
     secretKey
-    encryptionKey
-    production
+    webhookSecret
   }
 
   query getProviderByCodeForFlutterwave($code: String) {
@@ -127,20 +125,15 @@ export const AddFlutterwaveDialog = forwardRef<AddFlutterwaveDialogRef>((_, ref)
     initialValues: {
       name: flutterwaveProvider?.name || '',
       code: flutterwaveProvider?.code || '',
-      publicKey: flutterwaveProvider?.publicKey || '',
       secretKey: flutterwaveProvider?.secretKey || '',
-      encryptionKey: flutterwaveProvider?.encryptionKey || '',
-      production: flutterwaveProvider?.production || false,
     },
     validationSchema: object().shape({
       name: string().required(''),
       code: string().required(''),
-      publicKey: string().required(''),
       secretKey: string().required(''),
-      encryptionKey: string().required(''),
     }),
     onSubmit: async (values, formikBag) => {
-      const { name, code, publicKey, secretKey, encryptionKey, production } = values
+      const { name, code, secretKey } = values
 
       // Check if code already exists
       const res = await getProviderByCode({
@@ -176,10 +169,7 @@ export const AddFlutterwaveDialog = forwardRef<AddFlutterwaveDialogRef>((_, ref)
             input: {
               name,
               code,
-              publicKey,
               secretKey,
-              encryptionKey,
-              production,
             },
           },
         })
@@ -261,30 +251,10 @@ export const AddFlutterwaveDialog = forwardRef<AddFlutterwaveDialogRef>((_, ref)
           />
         </div>
         <TextInputField
-          name="publicKey"
-          disabled={isEdition}
-          label={translate('text_1749725287668wpbctffw2gv')}
-          placeholder={translate('text_1749725331374936azbwqk89')}
-          formikProps={formikProps}
-        />
-        <TextInputField
           name="secretKey"
           disabled={isEdition}
           label={translate('text_17497252876688ai900wowoc')}
           placeholder={translate('text_1749725331374uzvwfxs7m82')}
-          formikProps={formikProps}
-        />
-        <TextInputField
-          name="encryptionKey"
-          disabled={isEdition}
-          label={translate('text_17497253313741h3qgmvlmie')}
-          placeholder={translate('text_1749725331374u9ahlz73aq1')}
-          formikProps={formikProps}
-        />
-        <SwitchField
-          name="production"
-          disabled={isEdition}
-          label={translate('text_1749731835360j494r9wkd0k')}
           formikProps={formikProps}
         />
       </div>
