@@ -141,7 +141,10 @@ const CreateCustomer = () => {
             return false
           }
 
-          if (from?.[1].value.paymentProvider !== ProviderTypeEnum.Cashfree) {
+          if (
+            from?.[1].value.paymentProvider !== ProviderTypeEnum.Cashfree &&
+            from?.[1].value.paymentProvider !== ProviderTypeEnum.Flutterwave
+          ) {
             // if syncWithProvider is false, providerCustomerId is required
             if (!value?.syncWithProvider && !value?.providerCustomerId) {
               return false
