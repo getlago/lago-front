@@ -37,7 +37,7 @@ const providers: Record<ProviderTypeEnum, { icon: JSX.Element; label: string }> 
   },
   [ProviderTypeEnum.Flutterwave]: {
     icon: <Flutterwave />,
-    label: 'text_1749725331374clf07sez01f',
+    label: 'text_1749724395108m0swrna0zt4',
   },
   [ProviderTypeEnum.Moneyhash]: {
     icon: <Moneyhash />,
