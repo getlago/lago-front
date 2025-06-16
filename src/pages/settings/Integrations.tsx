@@ -134,6 +134,10 @@ gql`
         ... on CashfreeProvider {
           id
         }
+
+        ... on FlutterwaveProvider {
+          id
+        }
       }
     }
 
