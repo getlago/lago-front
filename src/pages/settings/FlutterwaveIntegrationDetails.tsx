@@ -14,6 +14,10 @@ import {
 } from '~/components/designSystem'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import {
+  AddEditDeleteSuccessRedirectUrlDialog,
+  AddEditDeleteSuccessRedirectUrlDialogRef,
+} from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
+import {
   AddFlutterwaveDialog,
   AddFlutterwaveDialogRef,
 } from '~/components/settings/integrations/AddFlutterwaveDialog'
@@ -34,7 +38,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import Flutterwave from '~/public/images/flutterwave.svg'
-import { MenuPopper, PageHeader } from '~/styles'
+import { MenuPopper, PageHeader, PopperOpener } from '~/styles'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -45,6 +49,7 @@ gql`
     code
     secretKey
     webhookSecret
+    successRedirectUrl
   }
 
   query flutterwaveIntegrationDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
@@ -71,6 +76,7 @@ const FlutterwaveIntegrationDetails = () => {
   const { hasPermissions } = usePermissions()
   const addDialogRef = useRef<AddFlutterwaveDialogRef>(null)
   const deleteDialogRef = useRef<DeleteFlutterwaveIntegrationDialogRef>(null)
+  const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { apiUrl } = envGlobalVar()
   const { organization } = useOrganizationInfos()
   const currentOrganizationId = organization?.id || ''
@@ -265,6 +271,11 @@ const FlutterwaveIntegrationDetails = () => {
               </IntegrationsPage.DetailsItem>
               <IntegrationsPage.DetailsItem
                 icon="link"
+                label={translate('text_65367cb78324b77fcb6af21c')}
+                value={flutterwavePaymentProvider.successRedirectUrl || '-'}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="link"
                 label={translate('text_6271200984178801ba8bdf22')}
                 value={webhookUrl}
               >
@@ -292,10 +303,107 @@ const FlutterwaveIntegrationDetails = () => {
             </>
           )}
         </section>
+
+        <section>
+          <IntegrationsPage.Headline label={translate('text_65367cb78324b77fcb6af21c')}>
+            {canEditIntegration && (
+              <Button
+                variant="quaternary"
+                disabled={!!flutterwavePaymentProvider?.successRedirectUrl}
+                onClick={() => {
+                  successRedirectUrlDialogRef.current?.openDialog({
+                    mode: 'Add',
+                    type: 'Flutterwave',
+                    provider: flutterwavePaymentProvider,
+                  })
+                }}
+              >
+                {translate('text_65367cb78324b77fcb6af20e')}
+              </Button>
+            )}
+          </IntegrationsPage.Headline>
+
+          {loading && <IntegrationsPage.ItemSkeleton />}
+          {!loading && !flutterwavePaymentProvider?.successRedirectUrl && (
+            <Typography variant="caption" color="grey600">
+              {translate('text_65367cb78324b77fcb6af226', {
+                connectionName: translate('text_1749724395108m0swrna0zt4'),
+              })}
+            </Typography>
+          )}
+          {!loading && flutterwavePaymentProvider?.successRedirectUrl && (
+            <IntegrationsPage.DetailsItem
+              icon="globe"
+              label={translate('text_65367cb78324b77fcb6af1c6')}
+              value={flutterwavePaymentProvider?.successRedirectUrl}
+            >
+              {(canEditIntegration || canDeleteIntegration) && (
+                <Popper
+                  className="relative h-full"
+                  PopperProps={{ placement: 'bottom-end' }}
+                  opener={({ isOpen }) => (
+                    <PopperOpener className="-top-4 right-0 md:right-0">
+                      <Tooltip
+                        placement="top-end"
+                        disableHoverListener={isOpen}
+                        title={translate('text_629728388c4d2300e2d3810d')}
+                      >
+                        <Button icon="dots-horizontal" variant="quaternary" />
+                      </Tooltip>
+                    </PopperOpener>
+                  )}
+                >
+                  {({ closePopper }) => (
+                    <MenuPopper>
+                      {canEditIntegration && (
+                        <Button
+                          startIcon="pen"
+                          variant="quaternary"
+                          fullWidth
+                          align="left"
+                          onClick={() => {
+                            successRedirectUrlDialogRef.current?.openDialog({
+                              mode: 'Edit',
+                              type: 'Flutterwave',
+                              provider: flutterwavePaymentProvider,
+                            })
+                            closePopper()
+                          }}
+                        >
+                          {translate('text_65367cb78324b77fcb6af24d')}
+                        </Button>
+                      )}
+
+                      {canDeleteIntegration && (
+                        <Button
+                          startIcon="trash"
+                          variant="quaternary"
+                          align="left"
+                          fullWidth
+                          onClick={() => {
+                            successRedirectUrlDialogRef.current?.openDialog({
+                              mode: 'Delete',
+                              type: 'Flutterwave',
+                              provider: flutterwavePaymentProvider,
+                            })
+                            closePopper()
+                          }}
+                        >
+                          {translate('text_65367cb78324b77fcb6af243')}
+                        </Button>
+                      )}
+                    </MenuPopper>
+                  )}
+                </Popper>
+              )}
+            </IntegrationsPage.DetailsItem>
+          )}
+        </section>
       </div>
 
       <AddFlutterwaveDialog ref={addDialogRef} />
       <DeleteFlutterwaveIntegrationDialog ref={deleteDialogRef} />
+      <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </div>
   )
 }

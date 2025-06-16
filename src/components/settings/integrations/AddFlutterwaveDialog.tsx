@@ -28,6 +28,7 @@ gql`
     code
     secretKey
     webhookSecret
+    successRedirectUrl
   }
 
   query getProviderByCodeForFlutterwave($code: String) {
@@ -126,14 +127,16 @@ export const AddFlutterwaveDialog = forwardRef<AddFlutterwaveDialogRef>((_, ref)
       name: flutterwaveProvider?.name || '',
       code: flutterwaveProvider?.code || '',
       secretKey: flutterwaveProvider?.secretKey || '',
+      successRedirectUrl: flutterwaveProvider?.successRedirectUrl || '',
     },
     validationSchema: object().shape({
       name: string().required(''),
       code: string().required(''),
       secretKey: string().required(''),
+      successRedirectUrl: string(),
     }),
     onSubmit: async (values, formikBag) => {
-      const { name, code, secretKey } = values
+      const { name, code, secretKey, successRedirectUrl } = values
 
       // Check if code already exists
       const res = await getProviderByCode({
@@ -160,6 +163,7 @@ export const AddFlutterwaveDialog = forwardRef<AddFlutterwaveDialogRef>((_, ref)
               id: flutterwaveProvider?.id || '',
               name,
               code,
+              successRedirectUrl: successRedirectUrl || undefined,
             },
           },
         })
@@ -170,6 +174,7 @@ export const AddFlutterwaveDialog = forwardRef<AddFlutterwaveDialogRef>((_, ref)
               name,
               code,
               secretKey,
+              successRedirectUrl: successRedirectUrl || undefined,
             },
           },
         })
@@ -256,6 +261,12 @@ export const AddFlutterwaveDialog = forwardRef<AddFlutterwaveDialogRef>((_, ref)
           label={translate('text_17497252876688ai900wowoc')}
           placeholder={translate('text_1749725331374uzvwfxs7m82')}
           formikProps={formikProps}
+        />
+        <TextInputField
+          formikProps={formikProps}
+          name="successRedirectUrl"
+          label={translate('text_65367cb78324b77fcb6af21c')}
+          placeholder={translate('text_1733303818769298k0fvsgcz')}
         />
       </div>
     </Dialog>
