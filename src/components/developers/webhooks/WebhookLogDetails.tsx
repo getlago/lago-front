@@ -197,18 +197,20 @@ export const WebhookLogDetails = ({ goBack }: { goBack: () => void }) => {
             </div>
           )}
 
-          <div className="flex flex-col gap-4 pb-12">
-            <Typography variant="subhead" color="grey700">
-              {translate('text_1746623729674wq0tach0cop')}
-            </Typography>
-            <CodeSnippet
-              variant="minimal"
-              language="json"
-              code={JSON.stringify(JSON.parse(payload || ''), null, 2)}
-              canCopy
-              displayHead={false}
-            />
-          </div>
+          {Object.keys(payload ?? {}).length > 0 && (
+            <div className="flex flex-col gap-4 pb-12">
+              <Typography variant="subhead" color="grey700">
+                {translate('text_1746623729674wq0tach0cop')}
+              </Typography>
+              <CodeSnippet
+                variant="minimal"
+                language="json"
+                code={JSON.stringify(JSON.parse(payload || ''), null, 2)}
+                canCopy
+                displayHead={false}
+              />
+            </div>
+          )}
         </div>
       )}
     </>
