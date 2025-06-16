@@ -8503,14 +8503,28 @@ export type GetPlansForFiltersItemPlanCodeQueryVariables = Exact<{
 
 export type GetPlansForFiltersItemPlanCodeQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Plan', id: string, code: string, deletedAt?: any | null }> } };
 
-export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, apiKey?: { __typename?: 'SanitizedApiKey', value: string, name?: string | null } | null, resource?: { __typename?: 'BillableMetric', id: string } | { __typename?: 'BillingEntity', id: string } | { __typename?: 'Coupon', id: string } | { __typename?: 'CreditNote', id: string } | { __typename?: 'Customer', id: string } | { __typename?: 'Invoice', id: string } | { __typename?: 'PaymentRequest', id: string } | { __typename?: 'Plan', id: string } | { __typename?: 'Subscription', id: string } | { __typename?: 'Wallet', id: string } | null };
+export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, apiKey?: { __typename?: 'SanitizedApiKey', value: string, name?: string | null } | null, resource?: { __typename?: 'BillableMetric', id: string } | { __typename?: 'BillingEntity', id: string, code: string } | { __typename?: 'Coupon', id: string } | { __typename?: 'CreditNote', id: string, customer: { __typename?: 'Customer', id: string }, invoice?: { __typename?: 'Invoice', id: string } | null } | { __typename?: 'Customer', id: string } | { __typename?: 'Invoice', id: string, customer: { __typename?: 'Customer', id: string } } | { __typename?: 'PaymentRequest', id: string } | { __typename?: 'Plan', id: string } | { __typename?: 'Subscription', id: string } | { __typename?: 'Wallet', id: string, walletCustomer?: { __typename?: 'Customer', id: string } | null } | null };
 
 export type GetSingleActivityLogQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetSingleActivityLogQuery = { __typename?: 'Query', activityLog?: { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, apiKey?: { __typename?: 'SanitizedApiKey', value: string, name?: string | null } | null, resource?: { __typename?: 'BillableMetric', id: string } | { __typename?: 'BillingEntity', id: string } | { __typename?: 'Coupon', id: string } | { __typename?: 'CreditNote', id: string } | { __typename?: 'Customer', id: string } | { __typename?: 'Invoice', id: string } | { __typename?: 'PaymentRequest', id: string } | { __typename?: 'Plan', id: string } | { __typename?: 'Subscription', id: string } | { __typename?: 'Wallet', id: string } | null } | null };
+export type GetSingleActivityLogQuery = { __typename?: 'Query', activityLog?: { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, apiKey?: { __typename?: 'SanitizedApiKey', value: string, name?: string | null } | null, resource?: { __typename?: 'BillableMetric', id: string } | { __typename?: 'BillingEntity', id: string, code: string } | { __typename?: 'Coupon', id: string } | { __typename?: 'CreditNote', id: string, customer: { __typename?: 'Customer', id: string }, invoice?: { __typename?: 'Invoice', id: string } | null } | { __typename?: 'Customer', id: string } | { __typename?: 'Invoice', id: string, customer: { __typename?: 'Customer', id: string } } | { __typename?: 'PaymentRequest', id: string } | { __typename?: 'Plan', id: string } | { __typename?: 'Subscription', id: string } | { __typename?: 'Wallet', id: string, walletCustomer?: { __typename?: 'Customer', id: string } | null } | null } | null };
+
+export type GetCustomerIdForActivityLogDetailsQueryVariables = Exact<{
+  externalId?: InputMaybe<Scalars['ID']['input']>;
+}>;
+
+
+export type GetCustomerIdForActivityLogDetailsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string } | null };
+
+export type GetSubscriptionIdForActivityLogDetailsQueryVariables = Exact<{
+  externalId?: InputMaybe<Scalars['ID']['input']>;
+}>;
+
+
+export type GetSubscriptionIdForActivityLogDetailsQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string } | null };
 
 export type ActivityItemFragment = { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, externalCustomerId?: string | null, externalSubscriptionId?: string | null, loggedAt: any };
 
@@ -10027,7 +10041,7 @@ export type DeleteTaxMutationVariables = Exact<{
 
 export type DeleteTaxMutation = { __typename?: 'Mutation', destroyTax?: { __typename?: 'DestroyTaxPayload', id?: string | null } | null };
 
-export type CustomerWalletFragment = { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null };
+export type CustomerWalletFragment = { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null };
 
 export type GetCustomerWalletListQueryVariables = Exact<{
   customerId: Scalars['ID']['input'];
@@ -10036,14 +10050,14 @@ export type GetCustomerWalletListQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerWalletListQuery = { __typename?: 'Query', wallets: { __typename?: 'WalletCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null }> } };
+export type GetCustomerWalletListQuery = { __typename?: 'Query', wallets: { __typename?: 'WalletCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null }> } };
 
 export type TerminateCustomerWalletMutationVariables = Exact<{
   input: TerminateCustomerWalletInput;
 }>;
 
 
-export type TerminateCustomerWalletMutation = { __typename?: 'Mutation', terminateCustomerWallet?: { __typename?: 'Wallet', id: string, status: WalletStatusEnum, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, name?: string | null, rateAmount: number, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, customer?: { __typename?: 'Customer', id: string, hasActiveWallet: boolean } | null } | null };
+export type TerminateCustomerWalletMutation = { __typename?: 'Mutation', terminateCustomerWallet?: { __typename?: 'Wallet', id: string, status: WalletStatusEnum, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, customer?: { __typename?: 'Customer', id: string, hasActiveWallet: boolean } | null } | null };
 
 export type CreateCustomerWalletTransactionMutationVariables = Exact<{
   input: CreateCustomerWalletTransactionInput;
@@ -10054,7 +10068,7 @@ export type CreateCustomerWalletTransactionMutation = { __typename?: 'Mutation',
 
 export type WalletForVoidTransactionFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: number, creditsBalance: number };
 
-export type WalletAccordionFragment = { __typename?: 'Wallet', id: string, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number };
+export type WalletAccordionFragment = { __typename?: 'Wallet', id: string, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number };
 
 export type WalletTransactionDetailsFragment = { __typename?: 'WalletTransaction', id: string, amount: string, createdAt: any, transactionType: WalletTransactionTransactionTypeEnum, creditAmount: string, settledAt?: any | null, failedAt?: any | null, status: WalletTransactionStatusEnum, transactionStatus: WalletTransactionTransactionStatusEnum, invoiceRequiresSuccessfulPayment: boolean, metadata?: Array<{ __typename?: 'WalletTransactionMetadataObject', key: string, value: string }> | null, invoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, customer: { __typename?: 'Customer', id: string }, payments?: Array<{ __typename?: 'Payment', id: string, providerPaymentId?: string | null, paymentProviderType?: ProviderTypeEnum | null, payablePaymentStatus?: PayablePaymentStatusEnum | null }> | null } | null };
 
@@ -12058,18 +12072,28 @@ export const ActivityLogDetailsFragmentDoc = gql`
     }
     ... on BillingEntity {
       id
+      code
     }
     ... on Coupon {
       id
     }
     ... on CreditNote {
       id
+      customer {
+        id
+      }
+      invoice {
+        id
+      }
     }
     ... on Customer {
       id
     }
     ... on Invoice {
       id
+      customer {
+        id
+      }
     }
     ... on Plan {
       id
@@ -12082,6 +12106,9 @@ export const ActivityLogDetailsFragmentDoc = gql`
     }
     ... on Wallet {
       id
+      walletCustomer: customer {
+        id
+      }
     }
   }
   loggedAt
@@ -12996,6 +13023,7 @@ export const WalletAccordionFragmentDoc = gql`
   expirationAt
   lastBalanceSyncAt
   lastConsumedCreditAt
+  lastOngoingBalanceSyncAt
   name
   rateAmount
   status
@@ -19078,6 +19106,86 @@ export type GetSingleActivityLogQueryHookResult = ReturnType<typeof useGetSingle
 export type GetSingleActivityLogLazyQueryHookResult = ReturnType<typeof useGetSingleActivityLogLazyQuery>;
 export type GetSingleActivityLogSuspenseQueryHookResult = ReturnType<typeof useGetSingleActivityLogSuspenseQuery>;
 export type GetSingleActivityLogQueryResult = Apollo.QueryResult<GetSingleActivityLogQuery, GetSingleActivityLogQueryVariables>;
+export const GetCustomerIdForActivityLogDetailsDocument = gql`
+    query getCustomerIdForActivityLogDetails($externalId: ID) {
+  customer(externalId: $externalId) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useGetCustomerIdForActivityLogDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetCustomerIdForActivityLogDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerIdForActivityLogDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomerIdForActivityLogDetailsQuery({
+ *   variables: {
+ *      externalId: // value for 'externalId'
+ *   },
+ * });
+ */
+export function useGetCustomerIdForActivityLogDetailsQuery(baseOptions?: Apollo.QueryHookOptions<GetCustomerIdForActivityLogDetailsQuery, GetCustomerIdForActivityLogDetailsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCustomerIdForActivityLogDetailsQuery, GetCustomerIdForActivityLogDetailsQueryVariables>(GetCustomerIdForActivityLogDetailsDocument, options);
+      }
+export function useGetCustomerIdForActivityLogDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerIdForActivityLogDetailsQuery, GetCustomerIdForActivityLogDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCustomerIdForActivityLogDetailsQuery, GetCustomerIdForActivityLogDetailsQueryVariables>(GetCustomerIdForActivityLogDetailsDocument, options);
+        }
+export function useGetCustomerIdForActivityLogDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerIdForActivityLogDetailsQuery, GetCustomerIdForActivityLogDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCustomerIdForActivityLogDetailsQuery, GetCustomerIdForActivityLogDetailsQueryVariables>(GetCustomerIdForActivityLogDetailsDocument, options);
+        }
+export type GetCustomerIdForActivityLogDetailsQueryHookResult = ReturnType<typeof useGetCustomerIdForActivityLogDetailsQuery>;
+export type GetCustomerIdForActivityLogDetailsLazyQueryHookResult = ReturnType<typeof useGetCustomerIdForActivityLogDetailsLazyQuery>;
+export type GetCustomerIdForActivityLogDetailsSuspenseQueryHookResult = ReturnType<typeof useGetCustomerIdForActivityLogDetailsSuspenseQuery>;
+export type GetCustomerIdForActivityLogDetailsQueryResult = Apollo.QueryResult<GetCustomerIdForActivityLogDetailsQuery, GetCustomerIdForActivityLogDetailsQueryVariables>;
+export const GetSubscriptionIdForActivityLogDetailsDocument = gql`
+    query getSubscriptionIdForActivityLogDetails($externalId: ID) {
+  subscription(externalId: $externalId) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useGetSubscriptionIdForActivityLogDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetSubscriptionIdForActivityLogDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubscriptionIdForActivityLogDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSubscriptionIdForActivityLogDetailsQuery({
+ *   variables: {
+ *      externalId: // value for 'externalId'
+ *   },
+ * });
+ */
+export function useGetSubscriptionIdForActivityLogDetailsQuery(baseOptions?: Apollo.QueryHookOptions<GetSubscriptionIdForActivityLogDetailsQuery, GetSubscriptionIdForActivityLogDetailsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSubscriptionIdForActivityLogDetailsQuery, GetSubscriptionIdForActivityLogDetailsQueryVariables>(GetSubscriptionIdForActivityLogDetailsDocument, options);
+      }
+export function useGetSubscriptionIdForActivityLogDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSubscriptionIdForActivityLogDetailsQuery, GetSubscriptionIdForActivityLogDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSubscriptionIdForActivityLogDetailsQuery, GetSubscriptionIdForActivityLogDetailsQueryVariables>(GetSubscriptionIdForActivityLogDetailsDocument, options);
+        }
+export function useGetSubscriptionIdForActivityLogDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionIdForActivityLogDetailsQuery, GetSubscriptionIdForActivityLogDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetSubscriptionIdForActivityLogDetailsQuery, GetSubscriptionIdForActivityLogDetailsQueryVariables>(GetSubscriptionIdForActivityLogDetailsDocument, options);
+        }
+export type GetSubscriptionIdForActivityLogDetailsQueryHookResult = ReturnType<typeof useGetSubscriptionIdForActivityLogDetailsQuery>;
+export type GetSubscriptionIdForActivityLogDetailsLazyQueryHookResult = ReturnType<typeof useGetSubscriptionIdForActivityLogDetailsLazyQuery>;
+export type GetSubscriptionIdForActivityLogDetailsSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionIdForActivityLogDetailsSuspenseQuery>;
+export type GetSubscriptionIdForActivityLogDetailsQueryResult = Apollo.QueryResult<GetSubscriptionIdForActivityLogDetailsQuery, GetSubscriptionIdForActivityLogDetailsQueryVariables>;
 export const ActivityLogsDocument = gql`
     query activityLogs($page: Int, $limit: Int, $activityIds: [String!], $activitySources: [ActivitySourceEnum!], $activityTypes: [ActivityTypeEnum!], $apiKeyIds: [String!], $externalCustomerId: String, $externalSubscriptionId: String, $fromDate: ISO8601Date, $resourceIds: [String!], $resourceTypes: [ResourceTypeEnum!], $toDate: ISO8601Date, $userEmails: [String!]) {
   activityLogs(

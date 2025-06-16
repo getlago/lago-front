@@ -27,11 +27,11 @@ const defineNewBeforeChangeFormatter = (
   currency: CurrencyEnum,
 ) => {
   const newBeforeChangeFormatter: ValueFormatterType[] = [
-    beforeChangeFormatter
-      ? typeof beforeChangeFormatter === 'string'
-        ? beforeChangeFormatter
-        : [beforeChangeFormatter].flat()
-      : [],
+    (() => {
+      if (!beforeChangeFormatter) return []
+      if (typeof beforeChangeFormatter === 'string') return beforeChangeFormatter
+      return [beforeChangeFormatter].flat()
+    })(),
   ].flat()
 
   if (beforeChangeFormatter?.includes('chargeDecimal')) {

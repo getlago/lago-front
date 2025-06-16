@@ -255,6 +255,7 @@ const StackedBarChart = <T extends DataItem>({
             () =>
               debounce((event) => {
                 const index = event?.activeTooltipIndex
+
                 if (typeof index === 'number') handleHoverUpdate(index)
               }, 16),
             [handleHoverUpdate],
@@ -407,7 +408,7 @@ const StackedBarChart = <T extends DataItem>({
           />
 
           <Customized
-            // @ts-ignore
+            // @ts-expect-error Recharts component prop types are not fully compatible
             component={({ yAxisMap }) => {
               const yAxis = yAxisMap[Object.keys(yAxisMap)[0]]
 
@@ -497,7 +498,7 @@ const StackedBarChart = <T extends DataItem>({
           {typeof localHoverDataIndex === 'number' && (
             <>
               <Customized
-                // @ts-ignore
+                // @ts-expect-error Recharts xAxisMap and yAxisMap prop typing is incomplete
                 component={({ xAxisMap, yAxisMap }) => {
                   const xAxis = xAxisMap[Object.keys(xAxisMap)[0]]
                   const yAxis = yAxisMap[Object.keys(yAxisMap)[0]]

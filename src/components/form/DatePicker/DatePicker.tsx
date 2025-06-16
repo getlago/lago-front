@@ -205,8 +205,7 @@ export const DatePicker = ({
                     name: 'offset',
                     enabled: true,
                     options: {
-                      // @ts-ignore
-                      offset: ({ reference }) => {
+                      offset: ({ reference }: { reference: { width: number } }) => {
                         // Re-calculate picker position if placed on the left.
                         // Removes the input width and twice the picker icon "box" (24*2)
                         if (placement.includes('left')) {
