@@ -28,10 +28,13 @@ const TableSection: FC<{ children: React.ReactNode }> = ({ children }) => {
   )
 
   const tableBodyClasses = tw(
-    '[&>table>tbody>tr>td:not(:first-child)]:text-right [&>table>tbody>tr>td]:min-h-11 [&>table>tbody>tr>td]:overflow-hidden [&>table>tbody>tr>td]:py-3 [&>table>tbody>tr>td]:align-top [&>table>tbody>tr>td]:shadow-b [&>table>tbody>tr>td]:line-break-anywhere',
+    '[&>table>tbody>tr>td:not(:first-child)]:text-right [&>table>tbody>tr>td:not(:last-child)]:pr-3 [&>table>tbody>tr>td]:min-h-11 [&>table>tbody>tr>td]:overflow-hidden [&>table>tbody>tr>td]:py-3 [&>table>tbody>tr>td]:align-top [&>table>tbody>tr>td]:shadow-b [&>table>tbody>tr>td]:line-break-anywhere',
   )
 
-  const tableFootClasses = tw('[&>table>tfoot>tr>td]:py-3 [&>table>tfoot>tr>td]:text-right')
+  const tableFootClasses = tw(
+    '[&>table>tfoot>tr>td:nth-child(2)]:text-left [&>table>tfoot>tr>td:nth-child(2)]:shadow-b [&>table>tfoot>tr>td:nth-child(3)]:shadow-b [&>table>tfoot>tr>td]:py-3 [&>table>tfoot>tr>td]:text-right',
+    '[&>table>tfoot>tr>td:nth-child(1)]:w-[50%] [&>table>tfoot>tr>td:nth-child(2)]:w-[40%] [&>table>tfoot>tr>td:nth-child(3)]:w-[10%]',
+  )
 
   return (
     <section
