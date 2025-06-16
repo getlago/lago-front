@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { Typography } from 'lago-design-system'
 import { FC, Fragment } from 'react'
-import styled from 'styled-components'
 
 import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
 import {
@@ -19,7 +18,35 @@ import {
   InvoiceTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
+
+const TableSection: FC<{ children: React.ReactNode }> = ({ children }) => {
+  const tableHeadClasses = tw(
+    '[&>table>thead>tr>th]:sticky [&>table>thead>tr>th]:top-18 [&>table>thead>tr>th]:z-10 [&>table>thead>tr>th]:box-border [&>table>thead>tr>th]:overflow-hidden [&>table>thead>tr>th]:bg-white [&>table>thead>tr>th]:py-8 [&>table>thead>tr>th]:pb-3 [&>table>thead>tr>th]:text-right [&>table>thead>tr>th]:shadow-b [&>table>thead>tr>th]:line-break-anywhere',
+    '[&>table>thead>tr>th:not(:last-child)]:pr-3',
+    '[&>table>thead>tr>th:nth-child(1)]:w-[70%] [&>table>thead>tr>th:nth-child(1)]:text-left [&>table>thead>tr>th:nth-child(2)]:w-[10%] [&>table>thead>tr>th:nth-child(3)]:w-1/5',
+  )
+
+  const tableBodyClasses = tw(
+    '[&>table>tbody>tr>td:not(:first-child)]:text-right [&>table>tbody>tr>td]:min-h-11 [&>table>tbody>tr>td]:overflow-hidden [&>table>tbody>tr>td]:py-3 [&>table>tbody>tr>td]:align-top [&>table>tbody>tr>td]:shadow-b [&>table>tbody>tr>td]:line-break-anywhere',
+  )
+
+  const tableFootClasses = tw('[&>table>tfoot>tr>td]:py-3 [&>table>tfoot>tr>td]:text-right')
+
+  return (
+    <section
+      className={tw(
+        '[&>table]:w-full [&>table]:table-fixed [&>table]:border-collapse',
+        '[&>.main-table:not(:first-child)]:mt-10',
+        tableHeadClasses,
+        tableBodyClasses,
+        tableFootClasses,
+      )}
+    >
+      {children}
+    </section>
+  )
+}
 
 gql`
   fragment CreditNoteDetailsForOverviewTable on CreditNote {
@@ -408,74 +435,3 @@ export const CreditNoteDetailsOverviewTable: FC<CreditNoteDetailsOverviewTablePr
     </TableSection>
   )
 }
-
-const TableSection = styled.section`
-  .main-table:not(:first-child) {
-    margin-top: ${theme.spacing(10)};
-  }
-
-  > table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-
-    > thead > tr > th,
-    > tbody > tr > td {
-      overflow: hidden;
-      line-break: anywhere;
-      text-align: right;
-
-      &:nth-child(1) {
-        width: 70%;
-        text-align: left;
-      }
-      &:nth-child(2) {
-        width: 10%;
-      }
-      &:nth-child(3) {
-        width: 20%;
-      }
-
-      &:not(:last-child) {
-        padding-right: ${theme.spacing(3)};
-      }
-    }
-
-    > thead > tr > th {
-      position: sticky;
-      top: 72px;
-      background-color: ${theme.palette.common.white};
-      z-index: 1;
-      padding: ${theme.spacing(8)} 0 ${theme.spacing(3)} 0;
-      box-sizing: border-box;
-      box-shadow: ${theme.shadows[7]};
-    }
-
-    > tbody > tr > td {
-      vertical-align: top;
-      min-height: 44px;
-      padding: ${theme.spacing(3)} 0;
-      box-shadow: ${theme.shadows[7]};
-    }
-
-    > tfoot > tr > td {
-      text-align: right;
-      padding: ${theme.spacing(3)} 0;
-
-      &:nth-child(1) {
-        width: 50%;
-      }
-      &:nth-child(2) {
-        width: 35%;
-        box-shadow: ${theme.shadows[7]};
-        text-align: left;
-      }
-      &:nth-child(3) {
-        width: 15%;
-        box-shadow: ${theme.shadows[7]};
-        /* Allow huge amount to be displayed on 2 lines */
-        line-break: anywhere;
-      }
-    }
-  }
-`
