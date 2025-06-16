@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
 import React, { memo } from 'react'
 import { generatePath } from 'react-router-dom'
-import styled from 'styled-components'
 
+import { CreditNoteTableSection } from '~/components/creditNote/CreditNoteDetailsOverviewTable'
 import { Typography } from '~/components/designSystem'
 import {
   composeChargeFilterDisplayName,
@@ -20,7 +20,6 @@ import {
   InvoiceTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
 gql`
   fragment InvoiceForCreditNotesTable on Invoice {
@@ -105,7 +104,7 @@ export const InvoiceCreditNotesTable = memo(
     const isPrepaidCreditsInvoice = invoiceType === InvoiceTypeEnum.Credit
 
     return (
-      <Wrapper>
+      <CreditNoteTableSection>
         {formatedCreditNotes.map((formatedCreditNote, i) => {
           const creditNote = formatedCreditNote.creditNote
 
@@ -122,7 +121,8 @@ export const InvoiceCreditNotesTable = memo(
 
                 return (
                   <React.Fragment key={`formatedCreditNote-${i}-subscriptionItem-${j}`}>
-                    <table>
+                    {/* eslint-disable-next-line tailwindcss/no-custom-classname */}
+                    <table className="main-table">
                       <thead>
                         <tr>
                           <th>
@@ -394,81 +394,9 @@ export const InvoiceCreditNotesTable = memo(
             </React.Fragment>
           )
         })}
-      </Wrapper>
+      </CreditNoteTableSection>
     )
   },
 )
 
 InvoiceCreditNotesTable.displayName = 'InvoiceCreditNotesTable'
-
-const Wrapper = styled.section`
-  > table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-
-    > thead > tr > th,
-    > tbody > tr > td {
-      overflow: hidden;
-      text-align: right;
-
-      &:not(:first-child) {
-        line-break: anywhere;
-      }
-
-      &:not(:last-child) {
-        padding-right: ${theme.spacing(8)};
-        box-sizing: border-box;
-      }
-
-      &:nth-child(1) {
-        width: 75%;
-        text-align: left;
-      }
-      &:nth-child(2) {
-        width: 10%;
-      }
-      &:nth-child(3) {
-        width: 15%;
-      }
-    }
-
-    > thead > tr > th {
-      position: sticky;
-      top: 72px;
-      background-color: ${theme.palette.common.white};
-      padding: ${theme.spacing(8)} 0 ${theme.spacing(3)} 0;
-      box-sizing: border-box;
-      box-shadow: ${theme.shadows[7]};
-    }
-
-    > tbody > tr > td {
-      vertical-align: top;
-      min-height: 44px;
-      padding: ${theme.spacing(3)} 0;
-      box-sizing: border-box;
-      box-shadow: ${theme.shadows[7]};
-    }
-
-    > tfoot > tr > td {
-      text-align: right;
-      padding: ${theme.spacing(3)} 0;
-      box-sizing: border-box;
-
-      &:nth-child(1) {
-        width: 50%;
-      }
-      &:nth-child(2) {
-        width: 35%;
-        text-align: left;
-        box-shadow: ${theme.shadows[7]};
-      }
-      &:nth-child(3) {
-        width: 15%;
-        box-shadow: ${theme.shadows[7]};
-        /* Allow huge amount to be displayed on 2 lines */
-        line-break: anywhere;
-      }
-    }
-  }
-`
