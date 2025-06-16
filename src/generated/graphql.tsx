@@ -5709,7 +5709,8 @@ export type QueryCreditNotesArgs = {
 
 
 export type QueryCustomerArgs = {
-  id: Scalars['ID']['input'];
+  externalId?: InputMaybe<Scalars['ID']['input']>;
+  id?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -6126,7 +6127,8 @@ export type QueryPlansArgs = {
 
 
 export type QuerySubscriptionArgs = {
-  id: Scalars['ID']['input'];
+  externalId?: InputMaybe<Scalars['ID']['input']>;
+  id?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -7568,6 +7570,7 @@ export type Wallet = {
   invoiceRequiresSuccessfulPayment: Scalars['Boolean']['output'];
   lastBalanceSyncAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   lastConsumedCreditAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  lastOngoingBalanceSyncAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   ongoingBalanceCents: Scalars['BigInt']['output'];
   ongoingUsageBalanceCents: Scalars['BigInt']['output'];
@@ -9094,6 +9097,8 @@ export type AdyenForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'Ad
 
 export type CashfreeForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'CashfreeProvider', id: string, successRedirectUrl?: string | null };
 
+export type FlutterwaveForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'FlutterwaveProvider', id: string, successRedirectUrl?: string | null };
+
 export type GocardlessForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'GocardlessProvider', id: string, successRedirectUrl?: string | null };
 
 export type StripeForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'StripeProvider', id: string, successRedirectUrl?: string | null };
@@ -9113,6 +9118,13 @@ export type UpdateCashfreePaymentProviderMutationVariables = Exact<{
 
 
 export type UpdateCashfreePaymentProviderMutation = { __typename?: 'Mutation', updateCashfreePaymentProvider?: { __typename?: 'CashfreeProvider', id: string, successRedirectUrl?: string | null } | null };
+
+export type UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationVariables = Exact<{
+  input: UpdateFlutterwavePaymentProviderInput;
+}>;
+
+
+export type UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation = { __typename?: 'Mutation', updateFlutterwavePaymentProvider?: { __typename?: 'FlutterwaveProvider', id: string, successRedirectUrl?: string | null } | null };
 
 export type UpdateGocardlessPaymentProviderMutationVariables = Exact<{
   input: UpdateGocardlessPaymentProviderInput;
@@ -9135,7 +9147,7 @@ export type UpdateMoneyhashPaymentProviderMutationVariables = Exact<{
 
 export type UpdateMoneyhashPaymentProviderMutation = { __typename?: 'Mutation', updateMoneyhashPaymentProvider?: { __typename?: 'MoneyhashProvider', id: string, flowId?: string | null } | null };
 
-export type AddFlutterwaveProviderDialogFragment = { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, secretKey?: any | null, webhookSecret?: string | null };
+export type AddFlutterwaveProviderDialogFragment = { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, secretKey?: any | null, webhookSecret?: string | null, successRedirectUrl?: string | null };
 
 export type GetProviderByCodeForFlutterwaveQueryVariables = Exact<{
   code?: InputMaybe<Scalars['String']['input']>;
@@ -9149,14 +9161,14 @@ export type AddFlutterwavePaymentProviderMutationVariables = Exact<{
 }>;
 
 
-export type AddFlutterwavePaymentProviderMutation = { __typename?: 'Mutation', addFlutterwavePaymentProvider?: { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, secretKey?: any | null, webhookSecret?: string | null } | null };
+export type AddFlutterwavePaymentProviderMutation = { __typename?: 'Mutation', addFlutterwavePaymentProvider?: { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, secretKey?: any | null, webhookSecret?: string | null, successRedirectUrl?: string | null } | null };
 
 export type UpdateFlutterwavePaymentProviderMutationVariables = Exact<{
   input: UpdateFlutterwavePaymentProviderInput;
 }>;
 
 
-export type UpdateFlutterwavePaymentProviderMutation = { __typename?: 'Mutation', updateFlutterwavePaymentProvider?: { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, secretKey?: any | null, webhookSecret?: string | null } | null };
+export type UpdateFlutterwavePaymentProviderMutation = { __typename?: 'Mutation', updateFlutterwavePaymentProvider?: { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, secretKey?: any | null, webhookSecret?: string | null, successRedirectUrl?: string | null } | null };
 
 export type AddGocardlessProviderDialogFragment = { __typename?: 'GocardlessProvider', id: string, name: string, code: string };
 
@@ -11142,7 +11154,7 @@ export type UpdateDunningCampaignStatusMutationVariables = Exact<{
 
 export type UpdateDunningCampaignStatusMutation = { __typename?: 'Mutation', updateDunningCampaign?: { __typename?: 'DunningCampaign', id: string, appliedToOrganization: boolean } | null };
 
-export type FlutterwaveIntegrationDetailsFragment = { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, secretKey?: any | null, webhookSecret?: string | null };
+export type FlutterwaveIntegrationDetailsFragment = { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, secretKey?: any | null, webhookSecret?: string | null, successRedirectUrl?: string | null };
 
 export type FlutterwaveIntegrationDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -11151,7 +11163,7 @@ export type FlutterwaveIntegrationDetailsQueryVariables = Exact<{
 }>;
 
 
-export type FlutterwaveIntegrationDetailsQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, secretKey?: any | null, webhookSecret?: string | null } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider', id: string } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' }> } | null };
+export type FlutterwaveIntegrationDetailsQuery = { __typename?: 'Query', paymentProvider?: { __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, secretKey?: any | null, webhookSecret?: string | null, successRedirectUrl?: string | null } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' } | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<{ __typename?: 'AdyenProvider' } | { __typename?: 'CashfreeProvider' } | { __typename?: 'FlutterwaveProvider', id: string } | { __typename?: 'GocardlessProvider' } | { __typename?: 'MoneyhashProvider' } | { __typename?: 'StripeProvider' }> } | null };
 
 export type FlutterwaveIntegrationsFragment = { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string };
 
@@ -12395,6 +12407,12 @@ export const CashfreeForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
   successRedirectUrl
 }
     `;
+export const FlutterwaveForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
+    fragment FlutterwaveForCreateAndEditSuccessRedirectUrl on FlutterwaveProvider {
+  id
+  successRedirectUrl
+}
+    `;
 export const GocardlessForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
     fragment gocardlessForCreateAndEditSuccessRedirectUrl on GocardlessProvider {
   id
@@ -12421,6 +12439,7 @@ export const AddFlutterwaveProviderDialogFragmentDoc = gql`
   code
   secretKey
   webhookSecret
+  successRedirectUrl
 }
     `;
 export const AddGocardlessProviderDialogFragmentDoc = gql`
@@ -14794,6 +14813,7 @@ export const FlutterwaveIntegrationDetailsFragmentDoc = gql`
   code
   secretKey
   webhookSecret
+  successRedirectUrl
 }
     `;
 export const FlutterwaveIntegrationsFragmentDoc = gql`
@@ -21653,6 +21673,40 @@ export function useUpdateCashfreePaymentProviderMutation(baseOptions?: Apollo.Mu
 export type UpdateCashfreePaymentProviderMutationHookResult = ReturnType<typeof useUpdateCashfreePaymentProviderMutation>;
 export type UpdateCashfreePaymentProviderMutationResult = Apollo.MutationResult<UpdateCashfreePaymentProviderMutation>;
 export type UpdateCashfreePaymentProviderMutationOptions = Apollo.BaseMutationOptions<UpdateCashfreePaymentProviderMutation, UpdateCashfreePaymentProviderMutationVariables>;
+export const UpdateFlutterwavePaymentProviderSuccessRedirectUrlDocument = gql`
+    mutation updateFlutterwavePaymentProviderSuccessRedirectUrl($input: UpdateFlutterwavePaymentProviderInput!) {
+  updateFlutterwavePaymentProvider(input: $input) {
+    id
+    successRedirectUrl
+  }
+}
+    `;
+export type UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationFn = Apollo.MutationFunction<UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation, UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationVariables>;
+
+/**
+ * __useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation__
+ *
+ * To run a mutation, you first call `useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateFlutterwavePaymentProviderSuccessRedirectUrlMutation, { data, loading, error }] = useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation(baseOptions?: Apollo.MutationHookOptions<UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation, UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation, UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationVariables>(UpdateFlutterwavePaymentProviderSuccessRedirectUrlDocument, options);
+      }
+export type UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationHookResult = ReturnType<typeof useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation>;
+export type UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationResult = Apollo.MutationResult<UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation>;
+export type UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationOptions = Apollo.BaseMutationOptions<UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation, UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationVariables>;
 export const UpdateGocardlessPaymentProviderDocument = gql`
     mutation updateGocardlessPaymentProvider($input: UpdateGocardlessPaymentProviderInput!) {
   updateGocardlessPaymentProvider(input: $input) {
