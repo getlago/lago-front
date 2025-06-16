@@ -10,16 +10,19 @@ import { ADYEN_SUCCESS_LINK_SPEC_URL } from '~/core/constants/externalUrls'
 import {
   AdyenForCreateAndEditSuccessRedirectUrlFragment,
   CashfreeForCreateAndEditSuccessRedirectUrlFragment,
+  FlutterwaveForCreateAndEditSuccessRedirectUrlFragment,
   GocardlessForCreateAndEditSuccessRedirectUrlFragment,
   MoneyhashForCreateAndEditSuccessRedirectUrlFragment,
   StripeForCreateAndEditSuccessRedirectUrlFragment,
   UpdateAdyenPaymentProviderInput,
   UpdateCashfreePaymentProviderInput,
+  UpdateFlutterwavePaymentProviderInput,
   UpdateGocardlessPaymentProviderInput,
   UpdateMoneyhashPaymentProviderInput,
   UpdateStripePaymentProviderInput,
   useUpdateAdyenPaymentProviderMutation,
   useUpdateCashfreePaymentProviderMutation,
+  useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation,
   useUpdateGocardlessPaymentProviderMutation,
   useUpdateMoneyhashPaymentProviderMutation,
   useUpdateStripePaymentProviderMutation,
@@ -33,6 +36,11 @@ gql`
   }
 
   fragment CashfreeForCreateAndEditSuccessRedirectUrl on CashfreeProvider {
+    id
+    successRedirectUrl
+  }
+
+  fragment FlutterwaveForCreateAndEditSuccessRedirectUrl on FlutterwaveProvider {
     id
     successRedirectUrl
   }
@@ -62,6 +70,15 @@ gql`
 
   mutation updateCashfreePaymentProvider($input: UpdateCashfreePaymentProviderInput!) {
     updateCashfreePaymentProvider(input: $input) {
+      id
+      successRedirectUrl
+    }
+  }
+
+  mutation updateFlutterwavePaymentProviderSuccessRedirectUrl(
+    $input: UpdateFlutterwavePaymentProviderInput!
+  ) {
+    updateFlutterwavePaymentProvider(input: $input) {
       id
       successRedirectUrl
     }
@@ -100,6 +117,7 @@ const AddEditDeleteSuccessRedirectUrlDialogProviderType = {
   Stripe: 'Stripe',
   GoCardless: 'GoCardless',
   Cashfree: 'Cashfree',
+  Flutterwave: 'Flutterwave',
   Moneyhash: 'Moneyhash',
 } as const
 
@@ -109,6 +127,7 @@ type LocalProviderType = {
   provider?:
     | AdyenForCreateAndEditSuccessRedirectUrlFragment
     | CashfreeForCreateAndEditSuccessRedirectUrlFragment
+    | FlutterwaveForCreateAndEditSuccessRedirectUrlFragment
     | GocardlessForCreateAndEditSuccessRedirectUrlFragment
     | StripeForCreateAndEditSuccessRedirectUrlFragment
     | MoneyhashForCreateAndEditSuccessRedirectUrlFragment
@@ -125,13 +144,28 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
     const { translate } = useInternationalization()
     const dialogRef = useRef<DialogRef>(null)
     const [localData, setLocalData] = useState<LocalProviderType | undefined>(undefined)
-    const successToastMessage = translate(
-      localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Delete
-        ? 'text_65367cb78324b77fcb6af2c1'
-        : localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Add
-          ? 'text_65367cb78324b77fcb6af261'
-          : 'text_65367cb78324b77fcb6af28f',
-    )
+
+    const getSuccessToastMessage = () => {
+      if (localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Delete) {
+        return 'text_65367cb78324b77fcb6af2c1'
+      }
+      if (localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Add) {
+        return 'text_65367cb78324b77fcb6af261'
+      }
+      return 'text_65367cb78324b77fcb6af28f'
+    }
+
+    const getButtonText = () => {
+      if (localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Delete) {
+        return 'text_65367cb78324b77fcb6af255'
+      }
+      if (localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Edit) {
+        return 'text_65367cb78324b77fcb6af249'
+      }
+      return 'text_65367cb78324b77fcb6af1ec'
+    }
+
+    const successToastMessage = translate(getSuccessToastMessage())
     const [updateAdyenProvider] = useUpdateAdyenPaymentProviderMutation({
       onCompleted(data) {
         if (data && data.updateAdyenPaymentProvider) {
@@ -153,6 +187,18 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
         }
       },
     })
+
+    const [updateFlutterwaveProvider] =
+      useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation({
+        onCompleted(data) {
+          if (data && data.updateFlutterwavePaymentProvider) {
+            addToast({
+              message: successToastMessage,
+              severity: 'success',
+            })
+          }
+        },
+      })
 
     const [updateGocardlessProvider] = useUpdateGocardlessPaymentProviderMutation({
       onCompleted(data) {
@@ -190,6 +236,7 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
     const formikProps = useFormik<
       | UpdateAdyenPaymentProviderInput
       | UpdateCashfreePaymentProviderInput
+      | UpdateFlutterwavePaymentProviderInput
       | UpdateGocardlessPaymentProviderInput
       | UpdateStripePaymentProviderInput
       | UpdateMoneyhashPaymentProviderInput
@@ -209,6 +256,8 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
           [AddEditDeleteSuccessRedirectUrlDialogProviderType.Stripe]: updateStripeProvider,
           [AddEditDeleteSuccessRedirectUrlDialogProviderType.GoCardless]: updateGocardlessProvider,
           [AddEditDeleteSuccessRedirectUrlDialogProviderType.Cashfree]: updateCashfreeProvider,
+          [AddEditDeleteSuccessRedirectUrlDialogProviderType.Flutterwave]:
+            updateFlutterwaveProvider,
           [AddEditDeleteSuccessRedirectUrlDialogProviderType.Moneyhash]: updateMoneyhashProvider,
         }
 
@@ -264,16 +313,20 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
       closeDialog: () => dialogRef.current?.closeDialog(),
     }))
 
+    const getDialogTitle = () => {
+      if (localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Delete) {
+        return 'text_65367cb78324b77fcb6af200'
+      }
+      if (localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Edit) {
+        return 'text_65367cb78324b77fcb6af216'
+      }
+      return 'text_65367cb78324b77fcb6af1b4'
+    }
+
     return (
       <Dialog
         ref={dialogRef}
-        title={translate(
-          localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Delete
-            ? 'text_65367cb78324b77fcb6af200'
-            : localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Edit
-              ? 'text_65367cb78324b77fcb6af216'
-              : 'text_65367cb78324b77fcb6af1b4',
-        )}
+        title={translate(getDialogTitle())}
         description={translate(
           localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Delete
             ? 'text_65367cb78324b77fcb6af218'
@@ -302,13 +355,7 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
                 await formikProps.submitForm()
               }}
             >
-              {translate(
-                localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Delete
-                  ? 'text_65367cb78324b77fcb6af255'
-                  : localData?.mode === AddEditDeleteSuccessRedirectUrlDialogMode.Edit
-                    ? 'text_65367cb78324b77fcb6af249'
-                    : 'text_65367cb78324b77fcb6af1ec',
-              )}
+              {translate(getButtonText())}
             </Button>
           </>
         )}

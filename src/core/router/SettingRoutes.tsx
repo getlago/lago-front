@@ -54,6 +54,10 @@ const MoneyhashIntegrations = lazyLoad(() => import('~/pages/settings/MoneyhashI
 const MoneyhashIntegrationDetails = lazyLoad(
   () => import('~/pages/settings/MoneyhashIntegrationDetails'),
 )
+const FlutterwaveIntegrations = lazyLoad(() => import('~/pages/settings/FlutterwaveIntegrations'))
+const FlutterwaveIntegrationDetails = lazyLoad(
+  () => import('~/pages/settings/FlutterwaveIntegrationDetails'),
+)
 const GocardlessIntegrationOauthCallback = lazyLoad(
   () => import('~/pages/settings/GocardlessIntegrationOauthCallback'),
 )
@@ -98,6 +102,8 @@ export const CASHFREE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/cashfree`
 export const CASHFREE_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/cashfree/:integrationId`
 export const MONEYHASH_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/moneyhash`
 export const MONEYHASH_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/moneyhash/:integrationId`
+export const FLUTTERWAVE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/flutterwave`
+export const FLUTTERWAVE_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/flutterwave/:integrationId`
 export const GOCARDLESS_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/gocardless`
 export const GOCARDLESS_INTEGRATION_OAUTH_CALLBACK_ROUTE = `${ROOT_INTEGRATIONS_ROUTE}/gocardless/callback`
 export const GOCARDLESS_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/gocardless/:integrationId`
@@ -289,6 +295,18 @@ export const settingRoutes: CustomRouteObject[] = [
         path: MONEYHASH_INTEGRATION_ROUTE,
         private: true,
         element: <MoneyhashIntegrations />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: FLUTTERWAVE_INTEGRATION_DETAILS_ROUTE,
+        private: true,
+        element: <FlutterwaveIntegrationDetails />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: FLUTTERWAVE_INTEGRATION_ROUTE,
+        private: true,
+        element: <FlutterwaveIntegrations />,
         permissions: ['organizationIntegrationsView'],
       },
       {
