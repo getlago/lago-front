@@ -248,6 +248,11 @@ const FlutterwaveIntegrationDetails = () => {
                 value={flutterwavePaymentProvider.secretKey ?? undefined}
               />
               <IntegrationsPage.DetailsItem
+                icon="link"
+                label={translate('text_65367cb78324b77fcb6af21c')}
+                value={flutterwavePaymentProvider.successRedirectUrl || '-'}
+              />
+              <IntegrationsPage.DetailsItem
                 icon="key"
                 label={translate('text_174987818899252mkql029wz')}
                 value={flutterwavePaymentProvider.webhookSecret ?? undefined}
@@ -269,11 +274,6 @@ const FlutterwaveIntegrationDetails = () => {
                   </Tooltip>
                 )}
               </IntegrationsPage.DetailsItem>
-              <IntegrationsPage.DetailsItem
-                icon="link"
-                label={translate('text_65367cb78324b77fcb6af21c')}
-                value={flutterwavePaymentProvider.successRedirectUrl || '-'}
-              />
               <IntegrationsPage.DetailsItem
                 icon="link"
                 label={translate('text_6271200984178801ba8bdf22')}
