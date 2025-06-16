@@ -20,7 +20,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'
 
-const TableSection: FC<{ children: React.ReactNode }> = ({ children }) => {
+export const CreditNoteTableSection: FC<{ children: React.ReactNode }> = ({ children }) => {
   const tableHeadClasses = tw(
     '[&>table>thead>tr>th]:sticky [&>table>thead>tr>th]:top-18 [&>table>thead>tr>th]:z-10 [&>table>thead>tr>th]:box-border [&>table>thead>tr>th]:overflow-hidden [&>table>thead>tr>th]:bg-white [&>table>thead>tr>th]:py-8 [&>table>thead>tr>th]:pb-3 [&>table>thead>tr>th]:text-right [&>table>thead>tr>th]:shadow-b [&>table>thead>tr>th]:line-break-anywhere',
     '[&>table>thead>tr>th:not(:last-child)]:pr-3',
@@ -28,10 +28,13 @@ const TableSection: FC<{ children: React.ReactNode }> = ({ children }) => {
   )
 
   const tableBodyClasses = tw(
-    '[&>table>tbody>tr>td:not(:first-child)]:text-right [&>table>tbody>tr>td]:min-h-11 [&>table>tbody>tr>td]:overflow-hidden [&>table>tbody>tr>td]:py-3 [&>table>tbody>tr>td]:align-top [&>table>tbody>tr>td]:shadow-b [&>table>tbody>tr>td]:line-break-anywhere',
+    '[&>table>tbody>tr>td:not(:first-child)]:text-right [&>table>tbody>tr>td:not(:last-child)]:pr-3 [&>table>tbody>tr>td]:min-h-11 [&>table>tbody>tr>td]:overflow-hidden [&>table>tbody>tr>td]:py-3 [&>table>tbody>tr>td]:align-top [&>table>tbody>tr>td]:shadow-b [&>table>tbody>tr>td]:line-break-anywhere',
   )
 
-  const tableFootClasses = tw('[&>table>tfoot>tr>td]:py-3 [&>table>tfoot>tr>td]:text-right')
+  const tableFootClasses = tw(
+    '[&>table>tfoot>tr>td:nth-child(2)]:text-left [&>table>tfoot>tr>td:nth-child(2)]:shadow-b [&>table>tfoot>tr>td:nth-child(3)]:shadow-b [&>table>tfoot>tr>td]:py-3 [&>table>tfoot>tr>td]:text-right',
+    '[&>table>tfoot>tr>td:nth-child(1)]:w-[50%] [&>table>tfoot>tr>td:nth-child(2)]:w-[40%] [&>table>tfoot>tr>td:nth-child(3)]:w-[10%]',
+  )
 
   return (
     <section
@@ -129,7 +132,7 @@ export const CreditNoteDetailsOverviewTable: FC<CreditNoteDetailsOverviewTablePr
   const groupedData = formatCreditNotesItems(creditNote?.items as CreditNoteItem[])
 
   return (
-    <TableSection>
+    <CreditNoteTableSection>
       {groupedData.map((groupSubscriptionItem, i) => {
         const subscription =
           groupSubscriptionItem[0] && groupSubscriptionItem[0][0]
@@ -432,6 +435,6 @@ export const CreditNoteDetailsOverviewTable: FC<CreditNoteDetailsOverviewTablePr
           </tfoot>
         </table>
       )}
-    </TableSection>
+    </CreditNoteTableSection>
   )
 }
