@@ -39,6 +39,9 @@ gql`
       ... on GocardlessProvider {
         id
       }
+      ... on FlutterwaveProvider {
+        id
+      }
       ... on CashfreeProvider {
         id
       }
