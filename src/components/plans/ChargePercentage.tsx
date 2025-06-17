@@ -6,6 +6,7 @@ import { memo, RefObject, useCallback } from 'react'
 
 import { Alert, Button, Popper, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
+import PricingGroupKeys from '~/components/plans/PricingGroupKeys'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -76,7 +77,7 @@ export const ChargePercentage = memo(
           MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR
 
     const handleUpdate = useCallback(
-      (name: string, value: string | number) => {
+      (name: string, value: string | string[]) => {
         formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -567,6 +568,13 @@ export const ChargePercentage = memo(
             </Typography>
           )}
         </Alert>
+
+        <PricingGroupKeys
+          disabled={disabled}
+          handleUpdate={handleUpdate}
+          propertyCursor={propertyCursor}
+          valuePointer={valuePointer}
+        />
       </div>
     )
   },

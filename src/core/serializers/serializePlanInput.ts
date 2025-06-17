@@ -42,7 +42,7 @@ const serializeFilters = (
 const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnum) => {
   return {
     ...properties,
-    ...([ChargeModelEnum.Standard, ChargeModelEnum.Dynamic].includes(chargeModel)
+    ...(![ChargeModelEnum.Custom].includes(chargeModel)
       ? {
           pricingGroupKeys: !!properties?.pricingGroupKeys?.length
             ? properties?.pricingGroupKeys
