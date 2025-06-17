@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { Icon } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
@@ -6,7 +7,6 @@ import {
   Alert,
   Button,
   ButtonLink,
-  Icon,
   Popper,
   Skeleton,
   Tooltip,
@@ -201,7 +201,7 @@ const FlutterwaveIntegrationDetails = () => {
 
         <section>
           <div className="flex h-18 w-full items-center justify-between">
-            <Typography className="flex h-18 w-full items-center" variant="subhead">
+            <Typography className="flex h-18 w-full items-center" variant="subhead1">
               {translate('text_664c732c264d7eed1c74fdc5')}
             </Typography>
 
@@ -248,11 +248,6 @@ const FlutterwaveIntegrationDetails = () => {
                 value={flutterwavePaymentProvider.secretKey ?? undefined}
               />
               <IntegrationsPage.DetailsItem
-                icon="link"
-                label={translate('text_65367cb78324b77fcb6af21c')}
-                value={flutterwavePaymentProvider.successRedirectUrl || '-'}
-              />
-              <IntegrationsPage.DetailsItem
                 icon="key"
                 label={translate('text_174987818899252mkql029wz')}
                 value={flutterwavePaymentProvider.webhookSecret ?? undefined}
@@ -265,7 +260,7 @@ const FlutterwaveIntegrationDetails = () => {
                         copyToClipboard(flutterwavePaymentProvider.webhookSecret as string)
                         addToast({
                           severity: 'info',
-                          translateKey: 'text_1727623090069kyp9o88hpqe',
+                          translateKey: 'text_1727623090069kyp9o88hpqf',
                         })
                       }}
                     >

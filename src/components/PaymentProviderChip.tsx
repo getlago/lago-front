@@ -62,7 +62,7 @@ export const PaymentProviderChip: FC<PaymentProviderChipProps> = ({
 
   return (
     <div className={tw('flex flex-nowrap items-center gap-2', className)}>
-      <Avatar variant="connector" size="small">
+      <Avatar className="bg-white" variant="connector" size="small">
         {paymentProvider === 'manual' || paymentProvider === 'manual_long' ? (
           <Icon name="receipt" color="dark" size="small" />
         ) : (
