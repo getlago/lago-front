@@ -248,11 +248,6 @@ const FlutterwaveIntegrationDetails = () => {
                 value={flutterwavePaymentProvider.secretKey ?? undefined}
               />
               <IntegrationsPage.DetailsItem
-                icon="link"
-                label={translate('text_65367cb78324b77fcb6af21c')}
-                value={flutterwavePaymentProvider.successRedirectUrl || '-'}
-              />
-              <IntegrationsPage.DetailsItem
                 icon="key"
                 label={translate('text_174987818899252mkql029wz')}
                 value={flutterwavePaymentProvider.webhookSecret ?? undefined}
@@ -265,7 +260,7 @@ const FlutterwaveIntegrationDetails = () => {
                         copyToClipboard(flutterwavePaymentProvider.webhookSecret as string)
                         addToast({
                           severity: 'info',
-                          translateKey: 'text_1727623090069kyp9o88hpqe',
+                          translateKey: 'text_1727623090069kyp9o88hpqf',
                         })
                       }}
                     >
