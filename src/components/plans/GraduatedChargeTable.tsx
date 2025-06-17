@@ -5,13 +5,14 @@ import { memo, useState } from 'react'
 
 import { Alert, Button, ChargeTable, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
+import PricingGroupKeys from '~/components/plans/PricingGroupKeys'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum } from '~/generated/graphql'
+import { CurrencyEnum, PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useGraduatedChargeForm } from '~/hooks/plans/useGraduatedChargeForm'
 
-import { LocalChargeFilterInput, LocalPropertiesInput, PlanFormInput } from './types'
+import { LocalChargeFilterInput, PlanFormInput } from './types'
 
 gql`
   fragment GraduatedCharge on Properties {
@@ -30,7 +31,7 @@ interface GraduatedChargeTableProps {
   disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
-  valuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
+  valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }
 
 const DisabledAmountCell = ({ amount, currency }: { amount?: string; currency: CurrencyEnum }) => (
@@ -203,94 +204,109 @@ export const GraduatedChargeTable = memo(
           />
         </div>
 
-        <Alert type="info">
-          <>
-            {infosCalculation.map((calculation, i) => {
-              if (i === 0) {
-                return (
-                  <Typography variant="bodyHl" key={`calculation-alert-${i}`} color="textSecondary">
-                    {translate('text_627b69c9fe95530136833956', {
-                      lastRowUnit: calculation.firstUnit,
-                      value: intlFormatNumber(calculation.total, {
-                        currencyDisplay: 'symbol',
-                        maximumFractionDigits: 15,
-                        currency,
-                      }),
-                    })}
-                  </Typography>
-                )
-              }
-              if (i === 1) {
-                return infosCalculation.length === 2 ? (
-                  <Typography key={`calculation-alert-${i}`} color="textSecondary">
-                    {translate('text_64cac576a11db000acb130b2', {
-                      tier1LastUnit: ONE_TIER_EXAMPLE_UNITS,
-                      tier1PerUnit: intlFormatNumber(calculation.perUnit, {
-                        currencyDisplay: 'symbol',
-                        maximumFractionDigits: 15,
-                        currency,
-                      }),
-                      tier1FlatFee: intlFormatNumber(calculation.flatFee, {
-                        currencyDisplay: 'symbol',
-                        maximumFractionDigits: 15,
-                        currency,
-                      }),
-                      totalTier1: intlFormatNumber(calculation.total, {
-                        currencyDisplay: 'symbol',
-                        maximumFractionDigits: 15,
-                        currency,
-                      }),
-                    })}
-                  </Typography>
-                ) : (
-                  <Typography key={`calculation-alert-${i}`} color="textSecondary">
-                    {translate('text_627b69c9fe95530136833958', {
-                      tier1LastUnit: calculation.units,
-                      tier1PerUnit: intlFormatNumber(calculation.perUnit, {
-                        currencyDisplay: 'symbol',
-                        maximumFractionDigits: 15,
-                        currency,
-                      }),
-                      tier1FlatFee: intlFormatNumber(calculation.flatFee, {
-                        currencyDisplay: 'symbol',
-                        maximumFractionDigits: 15,
-                        currency,
-                      }),
-                      totalTier1: intlFormatNumber(calculation.total, {
-                        currencyDisplay: 'symbol',
-                        maximumFractionDigits: 15,
-                        currency,
-                      }),
-                    })}
-                  </Typography>
-                )
-              }
+        <div className="flex flex-col gap-6">
+          <Alert type="info">
+            <>
+              {infosCalculation.map((calculation, i) => {
+                if (i === 0) {
+                  return (
+                    <Typography
+                      variant="bodyHl"
+                      key={`calculation-alert-${i}`}
+                      color="textSecondary"
+                    >
+                      {translate('text_627b69c9fe95530136833956', {
+                        lastRowUnit: calculation.firstUnit,
+                        value: intlFormatNumber(calculation.total, {
+                          currencyDisplay: 'symbol',
+                          maximumFractionDigits: 15,
+                          currency,
+                        }),
+                      })}
+                    </Typography>
+                  )
+                }
+                if (i === 1) {
+                  return infosCalculation.length === 2 ? (
+                    <Typography key={`calculation-alert-${i}`} color="textSecondary">
+                      {translate('text_64cac576a11db000acb130b2', {
+                        tier1LastUnit: ONE_TIER_EXAMPLE_UNITS,
+                        tier1PerUnit: intlFormatNumber(calculation.perUnit, {
+                          currencyDisplay: 'symbol',
+                          maximumFractionDigits: 15,
+                          currency,
+                        }),
+                        tier1FlatFee: intlFormatNumber(calculation.flatFee, {
+                          currencyDisplay: 'symbol',
+                          maximumFractionDigits: 15,
+                          currency,
+                        }),
+                        totalTier1: intlFormatNumber(calculation.total, {
+                          currencyDisplay: 'symbol',
+                          maximumFractionDigits: 15,
+                          currency,
+                        }),
+                      })}
+                    </Typography>
+                  ) : (
+                    <Typography key={`calculation-alert-${i}`} color="textSecondary">
+                      {translate('text_627b69c9fe95530136833958', {
+                        tier1LastUnit: calculation.units,
+                        tier1PerUnit: intlFormatNumber(calculation.perUnit, {
+                          currencyDisplay: 'symbol',
+                          maximumFractionDigits: 15,
+                          currency,
+                        }),
+                        tier1FlatFee: intlFormatNumber(calculation.flatFee, {
+                          currencyDisplay: 'symbol',
+                          maximumFractionDigits: 15,
+                          currency,
+                        }),
+                        totalTier1: intlFormatNumber(calculation.total, {
+                          currencyDisplay: 'symbol',
+                          maximumFractionDigits: 15,
+                          currency,
+                        }),
+                      })}
+                    </Typography>
+                  )
+                }
 
-              return (
-                <Typography key={`calculation-alert-${i}`} color="textSecondary">
-                  {translate('text_627b69c9fe9553013683395a', {
-                    unitCount: calculation.units,
-                    tierPerUnit: intlFormatNumber(calculation.perUnit, {
-                      currencyDisplay: 'symbol',
-                      maximumFractionDigits: 15,
-                      currency,
-                    }),
-                    tierFlatFee: intlFormatNumber(calculation.flatFee, {
-                      currencyDisplay: 'symbol',
-                      maximumFractionDigits: 15,
-                      currency,
-                    }),
-                    totalTier: intlFormatNumber(calculation.total, {
-                      currencyDisplay: 'symbol',
-                      maximumFractionDigits: 15,
-                      currency,
-                    }),
-                  })}
-                </Typography>
-              )
-            })}
-          </>
-        </Alert>
+                return (
+                  <Typography key={`calculation-alert-${i}`} color="textSecondary">
+                    {translate('text_627b69c9fe9553013683395a', {
+                      unitCount: calculation.units,
+                      tierPerUnit: intlFormatNumber(calculation.perUnit, {
+                        currencyDisplay: 'symbol',
+                        maximumFractionDigits: 15,
+                        currency,
+                      }),
+                      tierFlatFee: intlFormatNumber(calculation.flatFee, {
+                        currencyDisplay: 'symbol',
+                        maximumFractionDigits: 15,
+                        currency,
+                      }),
+                      totalTier: intlFormatNumber(calculation.total, {
+                        currencyDisplay: 'symbol',
+                        maximumFractionDigits: 15,
+                        currency,
+                      }),
+                    })}
+                  </Typography>
+                )
+              })}
+            </>
+          </Alert>
+
+          <PricingGroupKeys
+            disabled={disabled}
+            handleUpdate={(name, value) => {
+              formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
+            }}
+            propertyCursor={propertyCursor}
+            valuePointer={valuePointer}
+          />
+        </div>
       </div>
     )
   },

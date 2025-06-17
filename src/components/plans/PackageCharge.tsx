@@ -6,11 +6,12 @@ import { memo, useCallback } from 'react'
 
 import { Alert, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
+import PricingGroupKeys from '~/components/plans/PricingGroupKeys'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum } from '~/generated/graphql'
+import { CurrencyEnum, PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { LocalChargeFilterInput, LocalPropertiesInput, PlanFormInput } from './types'
+import { LocalChargeFilterInput, PlanFormInput } from './types'
 
 gql`
   fragment PackageCharge on Properties {
@@ -26,7 +27,7 @@ interface PackageChargeProps {
   disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
-  valuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
+  valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }
 
 export const PackageCharge = memo(
@@ -40,7 +41,7 @@ export const PackageCharge = memo(
   }: PackageChargeProps) => {
     const { translate } = useInternationalization()
     const handleUpdate = useCallback(
-      (name: string, value: string) => {
+      (name: string, value: string | string[]) => {
         formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -160,6 +161,13 @@ export const PackageCharge = memo(
             </>
           )}
         </Alert>
+
+        <PricingGroupKeys
+          disabled={disabled}
+          handleUpdate={handleUpdate}
+          propertyCursor={propertyCursor}
+          valuePointer={valuePointer}
+        />
       </div>
     )
   },

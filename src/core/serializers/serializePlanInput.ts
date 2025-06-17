@@ -17,7 +17,7 @@ const serializeFilters = (
 
   return filters.map(({ values, properties, invoiceDisplayName, ...filterProps }) => {
     const allValuesAsJson = values.map((value) => JSON.parse(value))
-    const groupedBy = allValuesAsJson.reduce(
+    const pricingGroupKeys = allValuesAsJson.reduce(
       (acc, cur) => {
         const [key, value] = Object.entries(cur)[0]
 
@@ -34,7 +34,7 @@ const serializeFilters = (
       ...filterProps,
       invoiceDisplayName: invoiceDisplayName || null,
       properties: serializeProperties(properties as Properties, chargeModel),
-      values: groupedBy,
+      values: pricingGroupKeys,
     }
   })
 }
@@ -42,10 +42,13 @@ const serializeFilters = (
 const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnum) => {
   return {
     ...properties,
-    ...([ChargeModelEnum.Standard, ChargeModelEnum.Dynamic].includes(chargeModel)
-      ? // @ts-expect-error EDIT: groupedBy is a string at this stage. need to send string[] to BE
-        { groupedBy: !!properties?.groupedBy ? properties?.groupedBy.split(',') : undefined }
-      : { groupedBy: undefined }),
+    ...(![ChargeModelEnum.Custom].includes(chargeModel)
+      ? {
+          pricingGroupKeys: !!properties?.pricingGroupKeys?.length
+            ? properties?.pricingGroupKeys
+            : undefined,
+        }
+      : { pricingGroupKeys: undefined }),
     ...([ChargeModelEnum.Package, ChargeModelEnum.Standard].includes(chargeModel)
       ? { amount: !!properties?.amount ? String(properties?.amount) : undefined }
       : {}),

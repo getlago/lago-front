@@ -1,108 +1,49 @@
 import { gql } from '@apollo/client'
 import { FormikProps } from 'formik'
-import { memo, useCallback, useEffect, useState } from 'react'
+import { memo, useCallback } from 'react'
 
-import { Alert, Button, Tooltip, Typography } from '~/components/designSystem'
-import { TextInput } from '~/components/form'
-import {
-  LocalChargeFilterInput,
-  LocalPropertiesInput,
-  PlanFormInput,
-} from '~/components/plans/types'
+import { Alert } from '~/components/designSystem'
+import PricingGroupKeys from '~/components/plans/PricingGroupKeys'
+import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
+import { PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   fragment DynamicCharge on Properties {
-    groupedBy
+    pricingGroupKeys
   }
 `
 
 type DynamicChargeProps = {
   chargeIndex: number
   formikProps: FormikProps<PlanFormInput>
-  initialValuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
   propertyCursor: string
-  valuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
+  valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
   disabled?: boolean
 }
 
 export const DynamicCharge = memo(
-  ({
-    chargeIndex,
-    disabled,
-    formikProps,
-    initialValuePointer,
-    propertyCursor,
-    valuePointer,
-  }: DynamicChargeProps) => {
+  ({ chargeIndex, disabled, formikProps, propertyCursor, valuePointer }: DynamicChargeProps) => {
     const { translate } = useInternationalization()
 
-    const [shouldDisplayGroupedBy, setShouldDisplayGroupedBy] = useState<boolean>(
-      !!initialValuePointer?.groupedBy,
-    )
     const handleUpdate = useCallback(
-      (name: string, value: string) => {
+      (name: string, value: string | string[]) => {
         formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [chargeIndex],
     )
 
-    useEffect(() => {
-      setShouldDisplayGroupedBy(!!initialValuePointer?.groupedBy)
-    }, [initialValuePointer?.groupedBy])
-
     return (
       <div className="flex flex-col gap-6">
         <Alert type="info">{translate('text_17277706303454rxgscdqklx')}</Alert>
 
-        <div className="flex flex-col items-start gap-3">
-          <div className="flex flex-col gap-1">
-            <Typography variant="captionHl" color="textSecondary">
-              {translate('text_65ba6d45e780c1ff8acb20e0')}
-            </Typography>
-            <Typography variant="caption">{translate('text_6661fc17337de3591e29e425')}</Typography>
-          </div>
-          {shouldDisplayGroupedBy || !!valuePointer?.groupedBy ? (
-            <div className="flex w-full gap-3">
-              {/* NOTE: should be a single line textarea */}
-              <TextInput
-                className="flex-1"
-                name={`${propertyCursor}.groupedBy`}
-                placeholder={translate('text_65ba6d45e780c1ff8acb206f')}
-                helperText={translate('text_65ba6d45e780c1ff8acb2073')}
-                disabled={disabled}
-                value={valuePointer?.groupedBy as unknown as string}
-                onChange={(value) => handleUpdate(`${propertyCursor}.groupedBy`, value)}
-              />
-
-              <Tooltip
-                className="mt-1 h-fit"
-                placement="top-end"
-                title={translate('text_63aa085d28b8510cd46443ff')}
-              >
-                <Button
-                  align="left"
-                  icon="trash"
-                  variant="quaternary"
-                  onClick={() => {
-                    // NOTE: that should be removed once the new multiple combobox is implemented and used to define the groupedBy
-                    handleUpdate(`${propertyCursor}.groupedBy`, '')
-                    setShouldDisplayGroupedBy(false)
-                  }}
-                />
-              </Tooltip>
-            </div>
-          ) : (
-            <Button
-              startIcon="plus"
-              variant="quaternary"
-              onClick={() => setShouldDisplayGroupedBy(true)}
-            >
-              {translate('text_6661fc17337de3591e29e427')}
-            </Button>
-          )}
-        </div>
+        <PricingGroupKeys
+          disabled={disabled}
+          handleUpdate={handleUpdate}
+          propertyCursor={propertyCursor}
+          valuePointer={valuePointer}
+        />
       </div>
     )
   },

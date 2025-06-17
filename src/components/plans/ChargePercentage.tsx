@@ -6,20 +6,16 @@ import { memo, RefObject, useCallback } from 'react'
 
 import { Alert, Button, Popper, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
+import PricingGroupKeys from '~/components/plans/PricingGroupKeys'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum } from '~/generated/graphql'
+import { CurrencyEnum, PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { MenuPopper } from '~/styles'
 
-import {
-  LocalChargeFilterInput,
-  LocalChargeInput,
-  LocalPropertiesInput,
-  PlanFormInput,
-} from './types'
+import { LocalChargeFilterInput, LocalChargeInput, PlanFormInput } from './types'
 
 gql`
   fragment PercentageCharge on Properties {
@@ -39,7 +35,7 @@ interface ChargePercentageProps {
   currency: CurrencyEnum
   formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
-  valuePointer: LocalPropertiesInput | LocalChargeFilterInput['properties'] | undefined
+  valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
   premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
 }
 
@@ -81,7 +77,7 @@ export const ChargePercentage = memo(
           MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR
 
     const handleUpdate = useCallback(
-      (name: string, value: string | number) => {
+      (name: string, value: string | string[]) => {
         formikProps.setFieldValue(`charges.${chargeIndex}.${name}`, value)
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -572,6 +568,13 @@ export const ChargePercentage = memo(
             </Typography>
           )}
         </Alert>
+
+        <PricingGroupKeys
+          disabled={disabled}
+          handleUpdate={handleUpdate}
+          propertyCursor={propertyCursor}
+          valuePointer={valuePointer}
+        />
       </div>
     )
   },
