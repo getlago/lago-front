@@ -133,7 +133,7 @@ export const AddFlutterwaveDialog = forwardRef<AddFlutterwaveDialogRef>((_, ref)
       name: string().required(''),
       code: string().required(''),
       secretKey: string().required(''),
-      successRedirectUrl: string(),
+      successRedirectUrl: string().url(''),
     }),
     onSubmit: async (values, formikBag) => {
       const { name, code, secretKey, successRedirectUrl } = values

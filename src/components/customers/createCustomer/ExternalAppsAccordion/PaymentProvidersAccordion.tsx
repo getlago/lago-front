@@ -156,7 +156,7 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
             loading={loading}
             avatar={
               formikProps.values.paymentProvider && (
-                <Avatar size="big" variant="connector-full">
+                <Avatar size="big" variant="connector-full" className="bg-white">
                   {avatarMapping[formikProps.values.paymentProvider]}
                 </Avatar>
               )
@@ -193,13 +193,15 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
               PopperProps={{ displayInDialog: true }}
               value={formikProps.values.paymentProviderCode as string}
               onChange={(value) => {
-                formikProps.setFieldValue('paymentProviderCode', value)
                 const selectedProvider = connectedPaymentProvidersData.find(
                   (provider) => provider.value === value,
                 )?.group
 
-                // Set paymentProvider depending on selected value
-                formikProps.setFieldValue('paymentProvider', selectedProvider as ProviderTypeEnum)
+                formikProps.setValues({
+                  ...formikProps.values,
+                  paymentProviderCode: value,
+                  paymentProvider: selectedProvider as ProviderTypeEnum,
+                })
               }}
             />
 

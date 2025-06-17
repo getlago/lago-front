@@ -145,8 +145,9 @@ const CreateCustomer = () => {
           }
 
           if (
-            from?.[1].value.paymentProvider !== ProviderTypeEnum.Cashfree &&
-            from?.[1].value.paymentProvider !== ProviderTypeEnum.Flutterwave
+            ![ProviderTypeEnum.Cashfree, ProviderTypeEnum.Flutterwave].includes(
+              from?.[1].value.paymentProvider,
+            )
           ) {
             // if syncWithProvider is false, providerCustomerId is required
             if (!value?.syncWithProvider && !value?.providerCustomerId) {
@@ -353,6 +354,7 @@ const CreateCustomer = () => {
         <Button
           size="large"
           variant="primary"
+          loading={formikProps.isSubmitting}
           disabled={!formikProps.isValid || !formikProps.dirty}
           onClick={formikProps.submitForm}
           data-test="submit-customer"
