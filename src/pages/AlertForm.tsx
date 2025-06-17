@@ -7,13 +7,14 @@ import { array, boolean, number, object, string } from 'yup'
 
 import AlertThresholds, { isThresholdValueValid } from '~/components/alerts/Thresholds'
 import { Button, Typography } from '~/components/designSystem'
-import { ComboBox, ComboBoxField, ComboboxItem, TextInputField } from '~/components/form'
+import { ComboBox, ComboBoxField, ComboboxItem, TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, PLAN_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
+import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import {
   AlertThreshold,
   AlertTypeEnum,
@@ -435,11 +436,14 @@ const AlertForm = () => {
                     </Typography>
                   </div>
                   <div className="flex gap-6 *:flex-1">
-                    <TextInputField
+                    <TextInput
                       name="name"
                       label={translate('text_1732286530467zstzwbegfiq')}
                       placeholder={translate('text_62876e85e32e0300e1803121')}
-                      formikProps={formikProps}
+                      value={formikProps.values.name || ''}
+                      onChange={(name) => {
+                        updateNameAndMaybeCode({ name, formikProps })
+                      }}
                     />
                     <TextInputField
                       name="code"

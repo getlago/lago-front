@@ -8,6 +8,7 @@ import {
   ComboBox,
   ComboBoxField,
   ComboboxItem,
+  TextInput,
   TextInputField,
 } from '~/components/form'
 import {
@@ -18,6 +19,7 @@ import {
   SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME,
 } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import { CurrencyEnum, PlanInterval, useGetTaxesForPlanLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -132,13 +134,13 @@ export const PlanSettingsSection = memo(
     return (
       <Card>
         <div className="flex flex-col gap-8">
-          <TextInputField
-            name="name"
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus={!isInSubscriptionForm}
+          <TextInput
             label={translate('text_629728388c4d2300e2d38091')}
             placeholder={translate('text_624453d52e945301380e499c')}
-            formikProps={formikProps}
+            value={formikProps.values.name}
+            onChange={(name) => {
+              updateNameAndMaybeCode({ name, formikProps })
+            }}
           />
 
           {shouldDisplayDescription ? (

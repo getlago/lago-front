@@ -206,6 +206,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
           ref={ref}
           value={localValue}
           name={name}
+          id={name}
           type={password && !isVisible ? 'password' : type !== 'number' ? type : 'text'}
           onChange={handleChange}
           variant="outlined"

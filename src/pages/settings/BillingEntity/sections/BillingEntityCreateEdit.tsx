@@ -3,12 +3,13 @@ import { useEffect, useRef, useState } from 'react'
 import { object, string } from 'yup'
 
 import { Button, Typography } from '~/components/designSystem'
-import { ComboBoxField, TextInputField } from '~/components/form'
+import { ComboBoxField, TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { LogoPicker } from '~/components/LogoPicker'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
+import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import { CreateBillingEntityInput, UpdateBillingEntityInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import useCreateEditBillingEntity from '~/hooks/useCreateEditBillingEntity'
@@ -107,13 +108,16 @@ const BillingEntityCreateEdit = () => {
                     </Typography>
                   </div>
                   <div className="flex items-start gap-6 *:flex-1">
-                    <TextInputField
-                      name="name"
-                      formikProps={formikProps}
-                      label={translate('text_6419c64eace749372fc72b0f')}
-                      placeholder={translate('text_6584550dc4cec7adf861504f')}
+                    <TextInput
                       // eslint-disable-next-line jsx-a11y/no-autofocus
                       autoFocus
+                      name="name"
+                      value={formikProps.values.name || ''}
+                      onChange={(name) => {
+                        updateNameAndMaybeCode({ name, formikProps })
+                      }}
+                      label={translate('text_6419c64eace749372fc72b0f')}
+                      placeholder={translate('text_6584550dc4cec7adf861504f')}
                     />
 
                     <TextInputField
