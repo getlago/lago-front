@@ -414,7 +414,7 @@ export const InvoiceWrapper = styled.section<{
       }
 
       &:not(:last-child) {
-        padding-right: ${theme.spacing(8)};
+        padding-right: ${theme.spacing(3)};
         box-sizing: border-box;
       }
 
@@ -500,14 +500,14 @@ export const InvoiceWrapper = styled.section<{
 
       &.has-details td {
         min-height: 24px;
-        padding: ${theme.spacing(3)} ${theme.spacing(8)} ${theme.spacing(1)} 0;
+        padding: ${theme.spacing(3)} ${theme.spacing(3)} ${theme.spacing(1)} 0;
         box-shadow: none;
       }
 
       &.details-line td {
         vertical-align: top;
         min-height: 24px;
-        padding: ${theme.spacing(1)} ${theme.spacing(8)} ${theme.spacing(1)} ${theme.spacing(4)};
+        padding: ${theme.spacing(1)} ${theme.spacing(3)} ${theme.spacing(1)} ${theme.spacing(4)};
         box-sizing: border-box;
         box-shadow: initial;
 
@@ -518,7 +518,7 @@ export const InvoiceWrapper = styled.section<{
 
       &.subtotal td {
         box-shadow: ${theme.shadows[7]};
-        padding: ${theme.spacing(1)} ${theme.spacing(8)} ${theme.spacing(3)} ${theme.spacing(4)};
+        padding: ${theme.spacing(1)} ${theme.spacing(3)} ${theme.spacing(3)} ${theme.spacing(4)};
         &:last-child {
           padding-right: 0;
         }

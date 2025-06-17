@@ -346,11 +346,11 @@ const MainMinimumContent: FC<PropsWithChildren> = ({ children }) => (
 )
 
 const SectionFooter: FC<PropsWithChildren> = ({ children }) => (
-  <div className="sticky bottom-0 z-navBar -mx-4 mt-20 h-20 w-full !max-w-none border-t border-solid border-grey-200 bg-white px-4 py-0 md:-mx-12 md:w-auto md:px-12">
+  <div className="sticky bottom-0 z-navBar -mx-4 mt-20 h-20 !max-w-none border-t border-solid border-grey-200 bg-white px-4 py-0 md:-mx-12 md:px-12">
     {children}
   </div>
 )
 
 const SectionFooterWrapper: FC<PropsWithChildren> = ({ children }) => (
-  <div className="flex h-full max-w-[720px] items-center justify-end">{children}</div>
+  <div className="flex h-full items-center justify-end">{children}</div>
 )
