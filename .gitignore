@@ -8,3 +8,4 @@ cypress/downloads
 .pnpm-store/
 node-jiti/
 v8-compile-cache*
+.idea/
