@@ -412,6 +412,20 @@ export type AppliedCoupon = {
   terminatedAt: Scalars['ISO8601DateTime']['output'];
 };
 
+export type AppliedPricingUnit = {
+  __typename?: 'AppliedPricingUnit';
+  conversionRate: Scalars['Float']['output'];
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  id: Scalars['ID']['output'];
+  pricingUnit: PricingUnit;
+  updatedAt: Scalars['ISO8601DateTime']['output'];
+};
+
+export type AppliedPricingUnitInput = {
+  code: Scalars['String']['input'];
+  conversionRate: Scalars['Float']['input'];
+};
+
 export type AppliedTax = {
   amountCents: Scalars['BigInt']['output'];
   amountCurrency: CurrencyEnum;
@@ -632,6 +646,7 @@ export type CashfreeProvider = {
 
 export type Charge = {
   __typename?: 'Charge';
+  appliedPricingUnit?: Maybe<AppliedPricingUnit>;
   billableMetric: BillableMetric;
   chargeModel: ChargeModelEnum;
   createdAt: Scalars['ISO8601DateTime']['output'];
@@ -676,6 +691,7 @@ export type ChargeFilterUsage = {
 };
 
 export type ChargeInput = {
+  appliedPricingUnit?: InputMaybe<AppliedPricingUnitInput>;
   billableMetricId: Scalars['ID']['input'];
   chargeModel: ChargeModelEnum;
   filters?: InputMaybe<Array<ChargeFilterInput>>;
@@ -3175,6 +3191,7 @@ export type Fee = InvoiceItem & {
   itemName: Scalars['String']['output'];
   itemType: Scalars['String']['output'];
   preciseUnitAmount: Scalars['Float']['output'];
+  pricingUnitUsage?: Maybe<PricingUnitUsage>;
   subscription?: Maybe<Subscription>;
   succeededAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   taxesAmountCents: Scalars['BigInt']['output'];
@@ -5372,6 +5389,19 @@ export type PricingUnitCollection = {
   collection: Array<PricingUnit>;
   /** Pagination Metadata for navigating the Pagination */
   metadata: CollectionMetadata;
+};
+
+export type PricingUnitUsage = {
+  __typename?: 'PricingUnitUsage';
+  amountCents: Scalars['BigInt']['output'];
+  conversionRate: Scalars['Float']['output'];
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  id: Scalars['ID']['output'];
+  preciseAmountCents: Scalars['Float']['output'];
+  pricingUnit: PricingUnit;
+  shortName: Scalars['String']['output'];
+  unitAmountCents: Scalars['BigInt']['output'];
+  updatedAt: Scalars['ISO8601DateTime']['output'];
 };
 
 export type Properties = {
