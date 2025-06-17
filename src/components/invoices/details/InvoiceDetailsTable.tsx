@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
+import { tw } from 'lago-design-system'
 import { DateTime } from 'luxon'
-import { memo, RefObject } from 'react'
-import styled, { css } from 'styled-components'
+import { FC, memo, ReactNode, RefObject } from 'react'
 
 import { Button } from '~/components/designSystem'
 import { DeleteAdjustedFeeDialogRef } from '~/components/invoices/details/DeleteAdjustedFeeDialog'
@@ -31,7 +31,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { theme } from '~/styles'
 
 gql`
   fragment FeeForInvoiceDetailsTable on Fee {
@@ -150,6 +149,68 @@ interface InvoiceDetailsTableProps {
   deleteAdjustedFeeDialogRef: RefObject<DeleteAdjustedFeeDialogRef>
 }
 
+export const InvoiceTableSection: FC<{
+  children: ReactNode
+  isDraftInvoice?: boolean
+  canHaveUnitPrice?: boolean
+  className?: string
+}> = ({ children, isDraftInvoice, canHaveUnitPrice, className }) => {
+  const tableHeadClasses = tw(
+    '[&_table>thead>tr>th]:sticky [&_table>thead>tr>th]:top-18 [&_table>thead>tr>th]:z-10 [&_table>thead>tr>th]:bg-white [&_table>thead>tr>th]:pb-3 [&_table>thead>tr>th]:pt-8 [&_table>thead>tr>th]:shadow-b',
+    '[&_table>thead>tr>th:not(:first-child)]:line-break-anywhere [&_table>thead>tr>th:not(:last-child)]:pr-3 [&_table>thead>tr>th:nth-child(1)]:text-left [&_table>thead>tr>th]:overflow-hidden [&_table>thead>tr>th]:text-right',
+  )
+
+  const tableBodyClasses = tw(
+    '[&_table>tbody>tr>td:not(:first-child)]:line-break-anywhere [&_table>tbody>tr>td:not(:last-child)]:pr-3 [&_table>tbody>tr>td:nth-child(1)]:text-left',
+    '[&_table>tbody>tr>td]:min-h-11 [&_table>tbody>tr>td]:overflow-hidden [&_table>tbody>tr>td]:py-3 [&_table>tbody>tr>td]:text-right [&_table>tbody>tr>td]:align-top [&_table>tbody>tr>td]:shadow-b',
+    '[&_table>tbody>tr.has-details>td]:min-h-6 [&_table>tbody>tr.has-details>td]:pb-1 [&_table>tbody>tr.has-details>td]:pl-0 [&_table>tbody>tr.has-details>td]:pr-3 [&_table>tbody>tr.has-details>td]:pt-3 [&_table>tbody>tr.has-details>td]:shadow-none',
+    '[&_table>tbody>tr.details-line>td:last-child]:pr-0 [&_table>tbody>tr.details-line>td]:min-h-6 [&_table>tbody>tr.details-line>td]:py-1 [&_table>tbody>tr.details-line>td]:pl-4 [&_table>tbody>tr.details-line>td]:pr-3 [&_table>tbody>tr.details-line>td]:align-top [&_table>tbody>tr.details-line>td]:shadow-none',
+    '[&_table>tbody>tr.subtotal>td:last-child]:pr-0 [&_table>tbody>tr.subtotal>td]:pb-3 [&_table>tbody>tr.subtotal>td]:pl-4 [&_table>tbody>tr.subtotal>td]:pr-3 [&_table>tbody>tr.subtotal>td]:pt-1 [&_table>tbody>tr.subtotal>td]:shadow-b',
+    '[&_table>tbody>tr.line-collapse>td]:!p-0 [&_table>tbody>tr.line-collapse>td_.collapse-header]:block [&_table>tbody>tr.line-collapse>td_.collapse-header]:w-full [&_table>tbody>tr.line-collapse>td_.collapse-header]:py-3 [&_table>tbody>tr.line-collapse>td_.collapse-header]:shadow-b',
+  )
+
+  const tableFootClasses = tw(
+    '[&_table>tfoot>tr>td]:px-0 [&_table>tfoot>tr>td]:py-3 [&_table>tfoot>tr>td]:text-right',
+    '[&_table>tfoot>tr>td:nth-child(2)]:text-left [&_table>tfoot>tr>td:nth-child(2)]:shadow-b [&_table>tfoot>tr>td:nth-child(3)]:shadow-b [&_table>tfoot>tr>td:nth-child(3)]:line-break-anywhere',
+    '[&_table>tfoot>tr>td:nth-child(1)]:w-[50%] [&_table>tfoot>tr>td:nth-child(2)]:w-[35%] [&_table>tfoot>tr>td:nth-child(3)]:w-[15%]',
+  )
+
+  let tableStructureClasses: string
+
+  if (isDraftInvoice) {
+    tableStructureClasses = tw(
+      '[&_table>thead>tr>th:nth-child(1)]:w-[45%] [&_table>thead>tr>th:nth-child(2)]:w-[15%] [&_table>thead>tr>th:nth-child(3)]:w-[15%] [&_table>thead>tr>th:nth-child(4)]:w-[10%] [&_table>thead>tr>th:nth-child(5)]:w-[15%] [&_table>thead>tr>th:nth-child(6)]:w-6 [&_table>thead>tr>th:nth-child(6)]:overflow-visible',
+      '[&_table>tbody>tr>td:nth-child(1)]:w-[45%] [&_table>tbody>tr>td:nth-child(2)]:w-[15%] [&_table>tbody>tr>td:nth-child(3)]:w-[15%] [&_table>tbody>tr>td:nth-child(4)]:w-[10%] [&_table>tbody>tr>td:nth-child(5)]:w-[15%] [&_table>tbody>tr>td:nth-child(6)]:w-6 [&_table>tbody>tr>td:nth-child(6)]:overflow-visible',
+      '[&_table>tbody>tr>td:last-child]:size-6 [&_table>tbody>tr>td:last-child]:overflow-visible [&_table>tbody>tr>td:last-child]:pr-0 [&_table>tbody>tr>td:last-child]:pt-[10px] [&_table>tbody>tr>td:nth-last-child(2)]:!pr-3',
+    )
+  } else if (canHaveUnitPrice) {
+    tableStructureClasses = tw(
+      '[&_table>thead>tr>th:nth-child(1)]:w-[45%] [&_table>thead>tr>th:nth-child(2)]:w-[15%] [&_table>thead>tr>th:nth-child(3)]:w-[15%] [&_table>thead>tr>th:nth-child(4)]:w-[10%] [&_table>thead>tr>th:nth-child(5)]:w-[15%]',
+      '[&_table>tbody>tr>td:nth-child(1)]:w-[45%] [&_table>tbody>tr>td:nth-child(2)]:w-[15%] [&_table>tbody>tr>td:nth-child(3)]:w-[15%] [&_table>tbody>tr>td:nth-child(4)]:w-[10%] [&_table>tbody>tr>td:nth-child(5)]:w-[15%]',
+    )
+  } else {
+    tableStructureClasses = tw(
+      '[&_table>thead>tr>th:nth-child(1)]:w-[50%] [&_table>thead>tr>th:nth-child(2)]:w-[20%] [&_table>thead>tr>th:nth-child(3)]:w-[10%] [&_table>thead>tr>th:nth-child(4)]:w-[20%]',
+      '[&_table>tbody>tr>td:nth-child(1)]:w-[50%] [&_table>tbody>tr>td:nth-child(2)]:w-[20%] [&_table>tbody>tr>td:nth-child(3)]:w-[10%] [&_table>tbody>tr>td:nth-child(4)]:w-[20%]',
+    )
+  }
+
+  return (
+    <section
+      className={tw(
+        '[&_table]:w-full [&_table]:table-fixed [&_table]:border-collapse',
+        tableHeadClasses,
+        tableBodyClasses,
+        tableFootClasses,
+        tableStructureClasses,
+        className,
+      )}
+    >
+      {children}
+    </section>
+  )
+}
+
 export const InvoiceDetailsTable = memo(
   ({
     customer,
@@ -182,7 +243,7 @@ export const InvoiceDetailsTable = memo(
       ].includes(invoice.invoiceType)
     ) {
       return (
-        <InvoiceWrapper $isDraftInvoice={isDraftInvoice} $canHaveUnitPrice={canHaveUnitPrice}>
+        <InvoiceTableSection isDraftInvoice={isDraftInvoice} canHaveUnitPrice={canHaveUnitPrice}>
           <table>
             <InvoiceDetailsTableHeader
               canHaveUnitPrice={canHaveUnitPrice}
@@ -222,7 +283,7 @@ export const InvoiceDetailsTable = memo(
               hasTaxProviderError={hasTaxProviderError}
             />
           </table>
-        </InvoiceWrapper>
+        </InvoiceTableSection>
       )
     }
 
@@ -245,10 +306,10 @@ export const InvoiceDetailsTable = memo(
           {Object.entries(newFormattedInvoiceItemsMap.subscriptions).map(
             ([subscriptionId, subscription]) => {
               return (
-                <InvoiceWrapper
+                <InvoiceTableSection
                   key={`subscription-placeholder-for-${subscriptionId}`}
-                  $canHaveUnitPrice={canHaveUnitPrice}
-                  $isDraftInvoice={false}
+                  canHaveUnitPrice={canHaveUnitPrice}
+                  isDraftInvoice={false}
                 >
                   <table>
                     <InvoiceDetailsTableHeader
@@ -292,7 +353,7 @@ export const InvoiceDetailsTable = memo(
                       hasTaxProviderError={hasTaxProviderError}
                     />
                   </table>
-                </InvoiceWrapper>
+                </InvoiceTableSection>
               )
             },
           )}
@@ -304,8 +365,8 @@ export const InvoiceDetailsTable = memo(
      * Other fees
      *************/
     return (
-      <InvoiceWrapper $isDraftInvoice={isDraftInvoice} $canHaveUnitPrice={canHaveUnitPrice}>
-        <MultipleSubscriptionWrapper>
+      <InvoiceTableSection isDraftInvoice={isDraftInvoice} canHaveUnitPrice={canHaveUnitPrice}>
+        <div className="[&>table:not(:nth-last-child(2))]:mb-8">
           {Object.entries(newFormattedInvoiceItemsMap.subscriptions).map(
             ([subscriptionId, subscription], subscriptionIndex) => {
               const feesComponentsToRender = [
@@ -387,205 +448,10 @@ export const InvoiceDetailsTable = memo(
               hasTaxProviderError={hasTaxProviderError}
             />
           </table>
-        </MultipleSubscriptionWrapper>
-      </InvoiceWrapper>
+        </div>
+      </InvoiceTableSection>
     )
   },
 )
 
 InvoiceDetailsTable.displayName = 'InvoiceDetailsTable'
-
-export const InvoiceWrapper = styled.section<{
-  $isDraftInvoice?: boolean
-  $canHaveUnitPrice?: boolean
-}>`
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-
-    thead tr th,
-    tbody tr td {
-      overflow: hidden;
-      text-align: right;
-
-      &:not(:first-child) {
-        line-break: anywhere;
-      }
-
-      &:not(:last-child) {
-        padding-right: ${theme.spacing(3)};
-        box-sizing: border-box;
-      }
-
-      ${({ $isDraftInvoice, $canHaveUnitPrice }) =>
-        $isDraftInvoice
-          ? css`
-              &:nth-child(1) {
-                width: 45%;
-                text-align: left;
-              }
-              &:nth-child(2) {
-                width: 15%;
-              }
-              &:nth-child(3) {
-                width: 15%;
-              }
-              &:nth-child(4) {
-                width: 10%;
-              }
-              &:nth-child(5) {
-                width: 15%;
-              }
-              /* Action button */
-              &:nth-child(6) {
-                overflow: visible;
-                width: 24px;
-              }
-            `
-          : $canHaveUnitPrice
-            ? css`
-                &:nth-child(1) {
-                  width: 45%;
-                  text-align: left;
-                }
-                &:nth-child(2) {
-                  width: 15%;
-                }
-                &:nth-child(3) {
-                  width: 15%;
-                }
-                &:nth-child(4) {
-                  width: 10%;
-                }
-                &:nth-child(5) {
-                  width: 15%;
-                }
-              `
-            : css`
-                &:nth-child(1) {
-                  width: 50%;
-                  text-align: left;
-                }
-                &:nth-child(2) {
-                  width: 20%;
-                }
-                &:nth-child(3) {
-                  width: 10%;
-                }
-                &:nth-child(4) {
-                  width: 20%;
-                }
-              `};
-    }
-
-    thead tr th {
-      position: sticky;
-      top: 72px;
-      background-color: ${theme.palette.common.white};
-      z-index: 1;
-      padding: ${theme.spacing(8)} 0 ${theme.spacing(3)} 0;
-      box-sizing: border-box;
-      box-shadow: ${theme.shadows[7]};
-    }
-
-    tbody tr {
-      td {
-        vertical-align: top;
-        min-height: 44px;
-        padding: ${theme.spacing(3)} 0;
-        box-sizing: border-box;
-        box-shadow: ${theme.shadows[7]};
-      }
-
-      &.has-details td {
-        min-height: 24px;
-        padding: ${theme.spacing(3)} ${theme.spacing(3)} ${theme.spacing(1)} 0;
-        box-shadow: none;
-      }
-
-      &.details-line td {
-        vertical-align: top;
-        min-height: 24px;
-        padding: ${theme.spacing(1)} ${theme.spacing(3)} ${theme.spacing(1)} ${theme.spacing(4)};
-        box-sizing: border-box;
-        box-shadow: initial;
-
-        &:last-child {
-          padding-right: 0;
-        }
-      }
-
-      &.subtotal td {
-        box-shadow: ${theme.shadows[7]};
-        padding: ${theme.spacing(1)} ${theme.spacing(3)} ${theme.spacing(3)} ${theme.spacing(4)};
-        &:last-child {
-          padding-right: 0;
-        }
-      }
-    }
-
-    tfoot tr td {
-      text-align: right;
-      padding: ${theme.spacing(3)} 0;
-      box-sizing: border-box;
-
-      &:nth-child(1) {
-        width: 50%;
-      }
-      &:nth-child(2) {
-        width: 35%;
-        text-align: left;
-        box-shadow: ${theme.shadows[7]};
-      }
-      &:nth-child(3) {
-        width: 15%;
-        box-shadow: ${theme.shadows[7]};
-        /* Allow huge amount to be displayed on 2 lines */
-        line-break: anywhere;
-      }
-    }
-
-    /* Action button */
-    ${({ $isDraftInvoice }) =>
-      $isDraftInvoice &&
-      css`
-        tbody {
-          tr td {
-            &:nth-last-child(2) {
-              padding-right: ${theme.spacing(3)} !important;
-            }
-
-            &:last-child {
-              overflow: visible;
-              height: 24px;
-              width: 24px;
-              padding-top: 10px;
-              /* Need to keep the pr0 to make sure popper is alligned with button's position */
-              padding-right: 0;
-            }
-          }
-        }
-      `}
-
-    /* Collapsable table */
-    tr.line-collapse {
-      > td {
-        padding: 0 !important;
-      }
-
-      .collapse-header {
-        display: block;
-        width: 100%;
-        padding: ${theme.spacing(3)} 0;
-        box-shadow: ${theme.shadows[7]};
-      }
-    }
-  }
-`
-
-const MultipleSubscriptionWrapper = styled.div`
-  > table:not(:nth-last-child(2)) {
-    margin-bottom: ${theme.spacing(8)};
-  }
-`

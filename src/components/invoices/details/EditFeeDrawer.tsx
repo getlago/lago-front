@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { useFormik } from 'formik'
+import { tw } from 'lago-design-system'
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
-import styled from 'styled-components'
 import { number, object, string } from 'yup'
 
 import { Alert, Button, Drawer, DrawerRef, Skeleton, Typography } from '~/components/designSystem'
@@ -20,9 +20,8 @@ import {
   useGetInvoiceDetailsForCreateFeeDrawerQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { theme } from '~/styles'
 
-import { InvoiceWrapper } from './InvoiceDetailsTable'
+import { InvoiceTableSection } from './InvoiceDetailsTable'
 import { InvoiceDetailsTableBodyLine } from './InvoiceDetailsTableBodyLine'
 import {
   getChargesComboboxDataFromInvoiceSubscription,
@@ -363,7 +362,13 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
                         title={translate('text_65a6b4e2cb38d9b70ec53c35')}
                         description={translate('text_1737556835239q7202lhbdhk')}
                       />
-                      <LocalInvoiceWrapper>
+                      <InvoiceTableSection
+                        className={tw(
+                          '[&_table>thead>tr>th:nth-child(1)]:w-[45%] [&_table>thead>tr>th:nth-child(1)]:text-left [&_table>thead>tr>th:nth-child(2)]:w-[15%] [&_table>thead>tr>th:nth-child(3)]:w-[20%] [&_table>thead>tr>th:nth-child(4)]:w-[20%]',
+                          '[&_table>tbody>tr>td:nth-child(1)]:w-[45%] [&_table>tbody>tr>td:nth-child(1)]:text-left [&_table>tbody>tr>td:nth-child(2)]:w-[15%] [&_table>tbody>tr>td:nth-child(3)]:w-[20%] [&_table>tbody>tr>td:nth-child(4)]:w-[20%]',
+                          '[&_table>tbody>tr:last-child>td]:pb-0 [&_table>tbody>tr:last-child>td]:shadow-none [&_table>tbody>tr>td:not(:last-child)]:pr-3 [&_table>thead>tr>th]:pt-0',
+                        )}
+                      >
                         <table>
                           <thead>
                             <tr>
@@ -401,7 +406,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
                             />
                           </tbody>
                         </table>
-                      </LocalInvoiceWrapper>
+                      </InvoiceTableSection>
                     </DrawerLayout.Section>
                   </>
                 )}
@@ -557,39 +562,3 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
 })
 
 EditFeeDrawer.displayName = 'EditFeeDrawer'
-
-const LocalInvoiceWrapper = styled(InvoiceWrapper)`
-  table {
-    thead tr th,
-    tbody tr td {
-      &:nth-child(1) {
-        width: 45%;
-        text-align: left;
-      }
-      &:nth-child(2) {
-        width: 15%;
-      }
-      &:nth-child(3) {
-        width: 20%;
-      }
-      &:nth-child(4) {
-        width: 20%;
-      }
-    }
-
-    thead tr th {
-      padding-top: 0;
-    }
-
-    tbody tr {
-      td:not(:last-child) {
-        padding-right: ${theme.spacing(3)};
-      }
-
-      &:last-child td {
-        padding-bottom: 0;
-        box-shadow: none;
-      }
-    }
-  }
-`

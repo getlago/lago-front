@@ -12,7 +12,7 @@ import {
 import { EditFeeDrawer, EditFeeDrawerRef } from '~/components/invoices/details/EditFeeDrawer'
 import {
   InvoiceDetailsTable,
-  InvoiceWrapper,
+  InvoiceTableSection,
 } from '~/components/invoices/details/InvoiceDetailsTable'
 import {
   FinalizeInvoiceDialog,
@@ -349,10 +349,10 @@ const InvoiceOverview = memo(
                   </div>
                 ))}
               </div>
-              <InvoiceWrapper
+              <InvoiceTableSection
                 className="[&_table_tbody_tr_td]:py-5"
-                $isDraftInvoice={false}
-                $canHaveUnitPrice={true}
+                isDraftInvoice={false}
+                canHaveUnitPrice={true}
               >
                 <table>
                   <tbody>
@@ -390,7 +390,7 @@ const InvoiceOverview = memo(
                     ))}
                   </tfoot>
                 </table>
-              </InvoiceWrapper>
+              </InvoiceTableSection>
             </>
           ) : (
             <>
