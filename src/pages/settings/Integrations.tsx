@@ -709,7 +709,7 @@ const Integrations = () => {
                         title={translate('text_1749724395108m0swrna0zt4')}
                         subtitle={translate('text_634ea0ecc6147de10ddb6631')}
                         icon={
-                          <Avatar size="big" variant="connector-full">
+                          <Avatar size="big" variant="connector-full" className="bg-white">
                             <Flutterwave />
                           </Avatar>
                         }
