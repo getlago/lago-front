@@ -258,11 +258,11 @@ const CreateCoupon = () => {
                   </Typography>
 
                   <TextInput
+                    // eslint-disable-next-line jsx-a11y/no-autofocus
+                    autoFocus
                     name="name"
                     label={translate('text_62876e85e32e0300e180311b')}
                     placeholder={translate('text_62876e85e32e0300e1803121')}
-                    // eslint-disable-next-line jsx-a11y/no-autofocus
-                    autoFocus
                     value={formikProps.values.name}
                     onChange={(name) => {
                       updateNameAndMaybeCode({ name, formikProps })

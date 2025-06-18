@@ -5,5 +5,7 @@ export const userEmail = 'user-e2e-tests@lago.com'
 export const userPassword = 'P@ssw0rdd'
 
 // Form variable
-export const TAX_TWENTY_CODE = 'twenty'
-export const TAX_TEN_CODE = 'ten'
+export const TAX_TWENTY_NAME = 'Twenty tax'
+export const TAX_TWENTY_CODE = 'twenty_tax'
+export const TAX_TEN_NAME = 'Ten tax'
+export const TAX_TEN_CODE = 'ten_tax'

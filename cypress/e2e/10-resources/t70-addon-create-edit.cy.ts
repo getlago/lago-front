@@ -3,7 +3,9 @@ describe('Add On', () => {
     cy.login()
   })
 
-  const addOnName = `AddOn-${Math.round(Math.random() * 10000)}`
+  const randomId = Math.round(Math.random() * 10000)
+  const addOnName = `AddOn ${randomId}`
+  const addOnCode = `addon_${randomId}`
   const description =
     'Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus aliquam at dolor consectetur tempore quis molestiae cumque voluptatem deserunt similique blanditiis aperiam, distinctio nam, asperiores enim officiis culpa aut. Molestias?'
 
@@ -16,7 +18,7 @@ describe('Add On', () => {
     // Basic form infos
     cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('input[name="name"]').type(addOnName)
-    cy.get('input[name="code"]').type(addOnName)
+    cy.get('input[name="code"]').should('have.value', addOnCode)
     cy.get('input[name="amountCents"]').type('30')
     cy.get('[data-test="submit"]').should('be.enabled')
     cy.get('[data-test="show-description"]').click()

@@ -13,11 +13,12 @@ describe('Create plan', () => {
   it('should be able to create a simple plan', () => {
     const randomId = Math.round(Math.random() * 1000)
     const planName = `plan ${randomId}`
+    const planCode = `plan_${randomId}`
 
     cy.get('[data-test="create-plan"]').click({ force: true })
     cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
     cy.get('input[name="name"]').type(planName)
-    cy.get('input[name="code"]').type(planName)
+    cy.get('input[name="code"]').should('have.value', planCode)
     cy.get('[data-test="show-description"]').click({ force: true })
     cy.get('textarea[name="description"]').type('I am a description')
     cy.get('input[name="amountCents"]').type('30000')
@@ -31,7 +32,7 @@ describe('Create plan', () => {
     cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
     cy.get('input[name="name"]').type(planWithChargesName)
     cy.get('[data-test="submit"]').should('be.disabled')
-    cy.get('input[name="code"]').type(planWithChargesName)
+    cy.get('input[name="code"]').clear().type(planWithChargesName)
     cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('[data-test="show-description"]').click({ force: true })
     cy.get('textarea[name="description"]').type('I am a description')
@@ -147,12 +148,13 @@ describe('Create plan', () => {
     it('should be able to edit percentage charge without data loss', () => {
       const randomId = Math.round(Math.random() * 1000)
       const planName = `plan ${randomId}`
+      const planCode = `plan_${randomId}`
 
       // Default plan data
       cy.get('[data-test="create-plan"]').click({ force: true })
       cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
       cy.get('input[name="name"]').type(planName)
-      cy.get('input[name="code"]').type(planName)
+      cy.get('input[name="code"]').should('have.value', planCode)
       cy.get('[data-test="show-description"]').click({ force: true })
       cy.get('textarea[name="description"]').type('I am a description')
       cy.get('input[name="amountCents"]').type('30000')

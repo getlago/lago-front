@@ -135,6 +135,7 @@ export const PlanSettingsSection = memo(
       <Card>
         <div className="flex flex-col gap-8">
           <TextInput
+            name="name"
             label={translate('text_629728388c4d2300e2d38091')}
             placeholder={translate('text_624453d52e945301380e499c')}
             value={formikProps.values.name}
