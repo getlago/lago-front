@@ -20,6 +20,7 @@ import {
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
 import {
+  LagoApiError,
   useGetCustomerIdForActivityLogDetailsQuery,
   useGetSingleActivityLogQuery,
   useGetSubscriptionIdForActivityLogDetailsQuery,
@@ -137,11 +138,17 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
   const { data: customerData } = useGetCustomerIdForActivityLogDetailsQuery({
     variables: { externalId: externalCustomerId },
     skip: !externalCustomerId || !activityType || isDeletedActivityType(activityType),
+    context: {
+      silentErrorCodes: [LagoApiError.NotFound],
+    },
   })
 
   const { data: subscriptionData } = useGetSubscriptionIdForActivityLogDetailsQuery({
     variables: { externalId: externalSubscriptionId },
     skip: !externalSubscriptionId || !activityType || isDeletedActivityType(activityType),
+    context: {
+      silentErrorCodes: [LagoApiError.NotFound],
+    },
   })
 
   const [activityTypeTranslation, parameters] = activityType
