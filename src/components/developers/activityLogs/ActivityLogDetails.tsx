@@ -6,6 +6,7 @@ import {
   formatActivityType,
   formatResourceObject,
   getActivityDescription,
+  isDeletedActivityType,
   resourceTypeTranslations,
 } from '~/components/activityLogs/utils'
 import { CodeSnippet } from '~/components/CodeSnippet'
@@ -135,12 +136,12 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
 
   const { data: customerData } = useGetCustomerIdForActivityLogDetailsQuery({
     variables: { externalId: externalCustomerId },
-    skip: !externalCustomerId,
+    skip: !externalCustomerId || !activityType || isDeletedActivityType(activityType),
   })
 
   const { data: subscriptionData } = useGetSubscriptionIdForActivityLogDetailsQuery({
     variables: { externalId: externalSubscriptionId },
-    skip: !externalSubscriptionId,
+    skip: !externalSubscriptionId || !activityType || isDeletedActivityType(activityType),
   })
 
   const [activityTypeTranslation, parameters] = activityType
