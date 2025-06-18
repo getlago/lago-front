@@ -11,6 +11,8 @@ const CustomerRequestOverduePayment = lazyLoad(
   () => import('~/pages/CustomerRequestOverduePayment/index'),
 )
 
+const CustomerInvoiceVoid = lazyLoad(() => import(`~/pages/CustomerInvoiceVoid`))
+
 // Credit note related
 const CreateCreditNote = lazyLoad(() => import('~/pages/CreateCreditNote'))
 const CreditNoteDetails = lazyLoad(() => import('~/pages/CreditNoteDetails'))
@@ -22,6 +24,7 @@ export const CUSTOMER_DETAILS_TAB_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/:tab`
 export const CUSTOMER_DRAFT_INVOICES_LIST_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/draft-invoices`
 export const CUSTOMER_INVOICE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/:tab`
 export const CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/request-overdue-payment`
+export const CUSTOMER_INVOICE_VOID_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/void/:invoiceId`
 
 // Credit note related
 export const CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/credit-notes/:creditNoteId`
@@ -63,6 +66,12 @@ export const customerRoutes: CustomRouteObject[] = [
     private: true,
     element: <CreditNoteDetails />,
     permissions: ['creditNotesView'],
+  },
+  {
+    path: [CUSTOMER_INVOICE_VOID_ROUTE],
+    private: true,
+    element: <CustomerInvoiceVoid />,
+    permissions: ['invoicesVoid'],
   },
 ]
 
