@@ -271,6 +271,10 @@ export function formatActivityType(activityType: ActivityTypeEnum) {
   return str
 }
 
+export function isDeletedActivityType(activityType: ActivityTypeEnum) {
+  return activityType.endsWith('deleted')
+}
+
 export function formatResourceObject(
   resource: ActivityLogDetailsFragment['resource'],
   {
@@ -286,7 +290,7 @@ export function formatResourceObject(
   let link = null
 
   // Deleted resources are not linkable
-  if (!activityType?.endsWith('deleted')) {
+  if (activityType && !isDeletedActivityType(activityType)) {
     // Generate link to resource details page for those which are linkable
     switch (resourceType) {
       case 'BillableMetric':
