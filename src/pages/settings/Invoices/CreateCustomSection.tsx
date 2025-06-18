@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { boolean, object, string } from 'yup'
 
 import { Button, Tooltip, Typography } from '~/components/designSystem'
-import { SwitchField, TextInputField } from '~/components/form'
+import { SwitchField, TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
   DefaultCustomSectionDialog,
@@ -17,6 +17,7 @@ import {
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { INVOICE_SETTINGS_ROUTE } from '~/core/router'
+import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import { CreateInvoiceCustomSectionInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditInvoiceCustomSection } from '~/hooks/useCreateEditInvoiceCustomSection'
@@ -130,11 +131,14 @@ const CreateInvoiceCustomSection = () => {
                     </Typography>
                   </div>
                   <div className="flex items-start gap-6 *:flex-1">
-                    <TextInputField
+                    <TextInput
                       // eslint-disable-next-line jsx-a11y/no-autofocus
                       autoFocus
                       name="name"
-                      formikProps={formikProps}
+                      value={formikProps.values.name}
+                      onChange={(name) => {
+                        updateNameAndMaybeCode({ name, formikProps })
+                      }}
                       label={translate('text_6419c64eace749372fc72b0f')}
                       placeholder={translate('text_6584550dc4cec7adf861504f')}
                     />

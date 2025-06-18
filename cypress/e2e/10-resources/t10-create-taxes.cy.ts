@@ -1,4 +1,9 @@
-import { TAX_TEN_CODE, TAX_TWENTY_CODE } from '../../support/reusableConstants'
+import {
+  TAX_TEN_CODE,
+  TAX_TEN_NAME,
+  TAX_TWENTY_CODE,
+  TAX_TWENTY_NAME,
+} from '../../support/reusableConstants'
 
 describe.skip('Create taxes', () => {
   beforeEach(() => {
@@ -15,16 +20,16 @@ describe.skip('Create taxes', () => {
     // Create tax 10%
     cy.get('[data-test="create-tax-button"]').click()
     cy.url().should('include', '/create/tax')
-    cy.get('input[name="name"]').type(TAX_TEN_CODE)
-    cy.get('input[name="code"]').type(TAX_TEN_CODE)
+    cy.get('input[name="name"]').type(TAX_TEN_NAME)
+    cy.get('input[name="code"]').should('have.value', TAX_TEN_CODE)
     cy.get('input[name="rate"]').type('10')
     cy.get('[data-test="submit"]').click()
 
     // Create tax 20%
     cy.get('[data-test="create-tax-button"]').click()
     cy.url().should('include', '/create/tax')
-    cy.get('input[name="name"]').type(TAX_TWENTY_CODE)
-    cy.get('input[name="code"]').type(TAX_TWENTY_CODE)
+    cy.get('input[name="name"]').type(TAX_TWENTY_NAME)
+    cy.get('input[name="code"]').should('have.value', TAX_TWENTY_CODE)
     cy.get('input[name="rate"]').type('20')
     cy.get('[data-test="submit"]').click()
 

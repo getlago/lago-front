@@ -12,6 +12,7 @@ import {
   ComboBox,
   ComboBoxField,
   ComboboxItem,
+  TextInput,
   TextInputField,
 } from '~/components/form'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
@@ -23,6 +24,7 @@ import {
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { ADD_ON_DETAILS_ROUTE, ADD_ONS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import {
   CurrencyEnum,
   TaxOnAddOnEditCreateFragmentDoc,
@@ -198,14 +200,17 @@ const CreateAddOn = () => {
                   </Typography>
 
                   <div className="flex flex-wrap gap-3">
-                    <TextInputField
+                    <TextInput
                       className="min-w-[110px] flex-1"
                       name="name"
                       label={translate('text_629728388c4d2300e2d38091')}
                       placeholder={translate('text_629728388c4d2300e2d380a5')}
                       // eslint-disable-next-line jsx-a11y/no-autofocus
                       autoFocus
-                      formikProps={formikProps}
+                      value={formikProps.values.name}
+                      onChange={(name) => {
+                        updateNameAndMaybeCode({ name, formikProps })
+                      }}
                     />
                     <TextInputField
                       className="min-w-[110px] flex-1"

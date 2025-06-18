@@ -22,6 +22,7 @@ import {
   Checkbox,
   ComboBoxField,
   DatePicker,
+  TextInput,
   TextInputField,
 } from '~/components/form'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
@@ -30,6 +31,7 @@ import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { COUPON_DETAILS_ROUTE, COUPONS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { endOfDayIso } from '~/core/utils/dateUtils'
+import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import {
   BillableMetricsForCouponsFragment,
   CouponExpiration,
@@ -255,13 +257,16 @@ const CreateCoupon = () => {
                     {translate('text_62876e85e32e0300e1803115')}
                   </Typography>
 
-                  <TextInputField
+                  <TextInput
+                    // eslint-disable-next-line jsx-a11y/no-autofocus
+                    autoFocus
                     name="name"
                     label={translate('text_62876e85e32e0300e180311b')}
                     placeholder={translate('text_62876e85e32e0300e1803121')}
-                    // eslint-disable-next-line jsx-a11y/no-autofocus
-                    autoFocus
-                    formikProps={formikProps}
+                    value={formikProps.values.name}
+                    onChange={(name) => {
+                      updateNameAndMaybeCode({ name, formikProps })
+                    }}
                   />
                   <TextInputField
                     name="code"

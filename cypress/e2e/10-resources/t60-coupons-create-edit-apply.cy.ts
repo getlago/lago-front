@@ -1,6 +1,8 @@
 import { customerName } from '../../support/reusableConstants'
 
-const couponName = `Coupon-${Math.round(Math.random() * 10000)}`
+const randomId = Math.round(Math.random() * 10000)
+const couponName = `Coupon ${randomId}`
+const couponCode = `coupon_${randomId}`
 
 describe('Coupons', () => {
   beforeEach(() => {
@@ -12,7 +14,7 @@ describe('Coupons', () => {
     cy.get(`[data-test="add-coupon"]`).click()
     cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('input[name="name"]').type(couponName)
-    cy.get('input[name="code"]').type(couponName)
+    cy.get('input[name="code"]').should('have.value', couponCode)
     cy.get('input[name="amountCents"]').type('30')
     cy.get('[data-test="submit"]').should('be.enabled')
 

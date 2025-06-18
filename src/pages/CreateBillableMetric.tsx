@@ -27,6 +27,7 @@ import {
   ComboBoxField,
   JsonEditorField,
   MultipleComboBox,
+  TextInput,
   TextInputField,
 } from '~/components/form'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
@@ -36,6 +37,7 @@ import {
   formatRoundingFunction,
 } from '~/core/formats/formatBillableMetricsItems'
 import { BILLABLE_METRICS_ROUTE, DUPLICATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
+import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import {
   AggregationTypeEnum,
   CreateBillableMetricInput,
@@ -286,13 +288,16 @@ const CreateBillableMetric = () => {
                   </Typography>
 
                   <div className="flex flex-wrap gap-3 *:flex-1">
-                    <TextInputField
+                    <TextInput
                       name="name"
                       label={translate('text_623b42ff8ee4e000ba87d0be')}
                       placeholder={translate('text_6241cc759211e600ea57f4c7')}
                       // eslint-disable-next-line jsx-a11y/no-autofocus
                       autoFocus
-                      formikProps={formikProps}
+                      value={formikProps.values.name}
+                      onChange={(name) => {
+                        updateNameAndMaybeCode({ name, formikProps })
+                      }}
                     />
                     <TextInputField
                       name="code"

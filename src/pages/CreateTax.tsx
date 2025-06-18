@@ -4,11 +4,12 @@ import { useEffect, useRef, useState } from 'react'
 import { number, object, string } from 'yup'
 
 import { Button, Card, Skeleton, Tooltip, Typography } from '~/components/designSystem'
-import { TextInputField } from '~/components/form'
+import { TextInput, TextInputField } from '~/components/form'
 import { TaxCodeSnippet } from '~/components/taxes/TaxCodeSnippet'
 import { TaxFormInput } from '~/components/taxes/types'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditTax } from '~/hooks/useCreateEditTax'
 import { PageHeader } from '~/styles'
@@ -113,14 +114,17 @@ const CreateTaxRate = () => {
                   </Typography>
 
                   <div className="flex gap-3">
-                    <TextInputField
+                    <TextInput
                       className="flex-1"
                       name="name"
                       label={translate('text_645bb193927b375079d28ab1')}
                       placeholder={translate('text_645bb193927b375079d28ace')}
                       // eslint-disable-next-line jsx-a11y/no-autofocus
                       autoFocus
-                      formikProps={formikProps}
+                      value={formikProps.values.name || ''}
+                      onChange={(name) => {
+                        updateNameAndMaybeCode({ name, formikProps })
+                      }}
                     />
                     <TextInputField
                       className="flex-1"
