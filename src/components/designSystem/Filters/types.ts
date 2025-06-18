@@ -27,7 +27,9 @@ export enum AvailableFiltersEnum {
   activitySources = 'activitySources',
   activityTypes = 'activityTypes',
   amount = 'amount',
+  apiEndpoint = 'apiEndpoint',
   apiKeyIds = 'apiKeyIds',
+  apiLogsStatus = 'apiLogsStatus',
   billingEntityIds = 'billingEntityIds',
   billingEntityCode = 'billingEntityCode',
   country = 'country',
@@ -39,6 +41,7 @@ export enum AvailableFiltersEnum {
   customerAccountType = 'accountType',
   customerExternalId = 'customerExternalId',
   date = 'date',
+  httpMethod = 'httpMethod',
   invoiceNumber = 'invoiceNumber',
   invoiceType = 'invoiceType',
   issuingDate = 'issuingDate',
@@ -193,12 +196,22 @@ export const ActivityLogsAvailableFilters = [
   AvailableFiltersEnum.userEmails,
 ]
 
+export const ApiLogsAvailableFilters = [
+  AvailableFiltersEnum.loggedDate,
+  AvailableFiltersEnum.apiKeyIds,
+  AvailableFiltersEnum.apiEndpoint,
+  AvailableFiltersEnum.httpMethod,
+  AvailableFiltersEnum.apiLogsStatus,
+]
+
 const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.activityIds]: 'text_1747666154075d10admbnf16',
   [AvailableFiltersEnum.activitySources]: 'text_1747666154075g4ceq9ii0xm',
   [AvailableFiltersEnum.activityTypes]: 'text_1747666154075d7ame7sqkxa',
   [AvailableFiltersEnum.amount]: 'text_17346988752182hpzppdqk9t',
+  [AvailableFiltersEnum.apiEndpoint]: 'text_1749819999030uz8ddys1puu',
   [AvailableFiltersEnum.apiKeyIds]: 'text_645d071272418a14c1c76aa4',
+  [AvailableFiltersEnum.apiLogsStatus]: 'text_63ac86d797f728a87b2f9fa7',
   [AvailableFiltersEnum.billingEntityIds]: 'text_17436114971570doqrwuwhf0',
   [AvailableFiltersEnum.billingEntityCode]: 'text_1747986368158jgf5jdvfsey',
   [AvailableFiltersEnum.country]: 'text_62ab2d0396dd6b0361614da0',
@@ -210,6 +223,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.customerAccountType]: 'text_1744108096469xz5cnvtoixf',
   [AvailableFiltersEnum.customerExternalId]: 'text_65201c5a175a4b0238abf29a',
   [AvailableFiltersEnum.date]: 'text_664cb90097bfa800e6efa3f5',
+  [AvailableFiltersEnum.httpMethod]: 'text_1749819999031vobdu7h2c7c',
   [AvailableFiltersEnum.invoiceNumber]: 'text_1734698875218fbxzci2g2s2',
   [AvailableFiltersEnum.invoiceType]: 'text_632d68358f1fedc68eed3e5a',
   [AvailableFiltersEnum.issuingDate]: 'text_6419c64eace749372fc72b39',

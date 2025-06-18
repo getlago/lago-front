@@ -5304,6 +5304,7 @@ export type Properties = {
   freeUnitsPerTotalAggregation?: Maybe<Scalars['String']['output']>;
   graduatedPercentageRanges?: Maybe<Array<GraduatedPercentageRange>>;
   graduatedRanges?: Maybe<Array<GraduatedRange>>;
+  groupedBy?: Maybe<Array<Scalars['String']['output']>>;
   packageSize?: Maybe<Scalars['BigInt']['output']>;
   perTransactionMaxAmount?: Maybe<Scalars['String']['output']>;
   perTransactionMinAmount?: Maybe<Scalars['String']['output']>;
@@ -5321,6 +5322,7 @@ export type PropertiesInput = {
   freeUnitsPerTotalAggregation?: InputMaybe<Scalars['String']['input']>;
   graduatedPercentageRanges?: InputMaybe<Array<GraduatedPercentageRangeInput>>;
   graduatedRanges?: InputMaybe<Array<GraduatedRangeInput>>;
+  groupedBy?: InputMaybe<Array<Scalars['String']['input']>>;
   packageSize?: InputMaybe<Scalars['BigInt']['input']>;
   perTransactionMaxAmount?: InputMaybe<Scalars['String']['input']>;
   perTransactionMinAmount?: InputMaybe<Scalars['String']['input']>;

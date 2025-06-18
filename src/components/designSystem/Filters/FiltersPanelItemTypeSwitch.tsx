@@ -3,7 +3,9 @@ import { FiltersItemActivityIds } from '~/components/designSystem/Filters/filter
 import { FiltersItemActivitySources } from '~/components/designSystem/Filters/filtersElements/FiltersItemActivitySources'
 import { FiltersItemActivityTypes } from '~/components/designSystem/Filters/filtersElements/FiltersItemActivityTypes'
 import { FiltersItemAmount } from '~/components/designSystem/Filters/filtersElements/FiltersItemAmount'
+import { FiltersItemApiEndpoint } from '~/components/designSystem/Filters/filtersElements/FiltersItemApiEndpoint'
 import { FiltersItemApiKeyIds } from '~/components/designSystem/Filters/filtersElements/FiltersItemApiKeyIds'
+import { FiltersItemApiLogsStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemApiLogsStatus'
 import { FiltersItemBillingEntity } from '~/components/designSystem/Filters/filtersElements/FiltersItemBillingEntity'
 import { FiltersItemBillingEntityCode } from '~/components/designSystem/Filters/filtersElements/FiltersItemBillingEntityCode'
 import { FiltersItemCountry } from '~/components/designSystem/Filters/filtersElements/FiltersItemCountry'
@@ -15,6 +17,7 @@ import { FiltersItemCustomer } from '~/components/designSystem/Filters/filtersEl
 import { FiltersItemCustomerAccountType } from '~/components/designSystem/Filters/filtersElements/FiltersItemCustomerAccountType'
 import { FiltersItemCustomerType } from '~/components/designSystem/Filters/filtersElements/FiltersItemCustomerType'
 import { FiltersItemDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemDate'
+import { FiltersItemHttpMethod } from '~/components/designSystem/Filters/filtersElements/FiltersItemHttpMethod'
 import { FiltersItemInvoiceNumber } from '~/components/designSystem/Filters/filtersElements/FiltersItemInvoiceNumber'
 import { FiltersItemInvoiceType } from '~/components/designSystem/Filters/filtersElements/FiltersItemInvoiceType'
 import { FiltersItemIssuingDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemIssuingDate'
@@ -58,7 +61,9 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.activitySources]: <FiltersItemActivitySources {...props} />,
     [AvailableFiltersEnum.activityTypes]: <FiltersItemActivityTypes {...props} />,
     [AvailableFiltersEnum.amount]: <FiltersItemAmount {...props} />,
+    [AvailableFiltersEnum.apiEndpoint]: <FiltersItemApiEndpoint {...props} />,
     [AvailableFiltersEnum.apiKeyIds]: <FiltersItemApiKeyIds {...props} />,
+    [AvailableFiltersEnum.apiLogsStatus]: <FiltersItemApiLogsStatus {...props} />,
     [AvailableFiltersEnum.billingEntityIds]: <FiltersItemBillingEntity {...props} />,
     [AvailableFiltersEnum.billingEntityCode]: <FiltersItemBillingEntityCode {...props} />,
     [AvailableFiltersEnum.country]: <FiltersItemCountry {...props} />,
@@ -71,6 +76,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.timeGranularity]: null, // Used in quick filters only
     [AvailableFiltersEnum.customerExternalId]: <FiltersItemCustomer {...props} />,
     [AvailableFiltersEnum.date]: <FiltersItemDate {...props} />,
+    [AvailableFiltersEnum.httpMethod]: <FiltersItemHttpMethod {...props} />,
     [AvailableFiltersEnum.invoiceNumber]: <FiltersItemInvoiceNumber {...props} />,
     [AvailableFiltersEnum.invoiceType]: <FiltersItemInvoiceType {...props} />,
     [AvailableFiltersEnum.issuingDate]: <FiltersItemIssuingDate {...props} />,

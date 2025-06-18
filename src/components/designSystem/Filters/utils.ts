@@ -96,8 +96,10 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.activitySources]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.activityTypes]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.amount]: parseAmountValue,
+  [AvailableFiltersEnum.apiEndpoint]: (value: string) => value.split(',').map((v) => v.trim()),
   [AvailableFiltersEnum.apiKeyIds]: (value: string) =>
     value.split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
+  [AvailableFiltersEnum.apiLogsStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.billingEntityIds]: (value: string) =>
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.billingEntityCode]: (value: string) => value,
@@ -113,6 +115,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.date]: (value: string) => {
     return { fromDate: (value as string).split(',')[0], toDate: (value as string).split(',')[1] }
   },
+  [AvailableFiltersEnum.httpMethod]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.invoiceNumber]: (value: string) => value,
   [AvailableFiltersEnum.invoiceType]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.issuingDate]: (value: string) => {
