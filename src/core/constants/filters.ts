@@ -22,4 +22,6 @@ export const PREPAID_CREDITS_OVERVIEW_FILTER_PREFIX = 'pc'
 
 export const WEBHOOK_LOGS_FILTER_PREFIX = 'dw'
 
-export const ACTIVITY_LOG_FILTER_PREFIX = 'al'
+export const ACTIVITY_LOG_FILTER_PREFIX = 'actl'
+
+export const API_LOGS_FILTER_PREFIX = 'apil'

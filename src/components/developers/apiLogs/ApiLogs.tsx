@@ -2,9 +2,11 @@ import { Button, Typography } from 'lago-design-system'
 import { useRef } from 'react'
 import { useParams } from 'react-router-dom'
 
+import { ApiLogsAvailableFilters, Filters } from '~/components/designSystem/Filters'
 import { ApiLogDetails } from '~/components/developers/apiLogs/ApiLogDetails'
 import { ApiLogsTable } from '~/components/developers/apiLogs/ApiLogsTable'
 import { ListSectionRef, LogsLayout } from '~/components/developers/LogsLayout'
+import { API_LOGS_FILTER_PREFIX } from '~/core/constants/filters'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 
@@ -25,13 +27,13 @@ export const ApiLogs = () => {
 
       <LogsLayout.CTASection>
         <div>
-          {/* <Filters.Provider
+          <Filters.Provider
             displayInDialog
-            filtersNamePrefix={ACTIVITY_LOG_FILTER_PREFIX}
-            availableFilters={ActivityLogsAvailableFilters}
+            filtersNamePrefix={API_LOGS_FILTER_PREFIX}
+            availableFilters={ApiLogsAvailableFilters}
           >
             <Filters.Component />
-          </Filters.Provider> */}
+          </Filters.Provider>
         </div>
 
         <div className="h-8 w-px shadow-r" />

@@ -11,6 +11,7 @@ import {
   ANALYTICS_USAGE_BREAKDOWN_METERED_FILTER_PREFIX,
   ANALYTICS_USAGE_BREAKDOWN_RECURRING_FILTER_PREFIX,
   ANALYTICS_USAGE_OVERVIEW_FILTER_PREFIX,
+  API_LOGS_FILTER_PREFIX,
   CREDIT_NOTE_LIST_FILTER_PREFIX,
   CUSTOMER_LIST_FILTER_PREFIX,
   INVOICE_LIST_FILTER_PREFIX,
@@ -37,6 +38,7 @@ import {
   AMOUNT_INTERVALS_TRANSLATION_MAP,
   AmountFilterInterval,
   AnalyticsInvoicesAvailableFilters,
+  ApiLogsAvailableFilters,
   AvailableFiltersEnum,
   CreditNoteAvailableFilters,
   CustomerAvailableFilters,
@@ -113,6 +115,8 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.date]: (value: string) => {
     return { fromDate: (value as string).split(',')[0], toDate: (value as string).split(',')[1] }
   },
+  [AvailableFiltersEnum.httpMethods]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.httpStatuses]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.invoiceNumber]: (value: string) => value,
   [AvailableFiltersEnum.invoiceType]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.issuingDate]: (value: string) => {
@@ -132,6 +136,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.paymentOverdue]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.planCode]: (value: string) => value,
+  [AvailableFiltersEnum.requestPaths]: (value: string) => value.split(',').map((v) => v.trim()),
   [AvailableFiltersEnum.resourceIds]: (value: string) => value.split(',').map((v) => v.trim()),
   [AvailableFiltersEnum.resourceTypes]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.selfBilled]: (value: string) => value === 'true',
@@ -391,6 +396,14 @@ export const formatFiltersForActivityLogsQuery = (searchParams: URLSearchParams)
   }
 
   return formatted
+}
+
+export const formatFiltersForApiLogsQuery = (searchParams: URLSearchParams) => {
+  return formatFiltersForQuery({
+    searchParams,
+    availableFilters: ApiLogsAvailableFilters,
+    filtersNamePrefix: API_LOGS_FILTER_PREFIX,
+  })
 }
 
 export const formatActiveFilterValueDisplay = (
