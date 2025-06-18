@@ -1,10 +1,11 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
+import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { object, string } from 'yup'
 
-import { Button, Dialog, DialogRef, Icon, Typography } from '~/components/designSystem'
+import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { RadioField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { formatDateToTZ } from '~/core/timezone/utils'

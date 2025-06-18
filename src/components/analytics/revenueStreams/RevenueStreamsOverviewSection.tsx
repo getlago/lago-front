@@ -1,8 +1,9 @@
 import { gql } from '@apollo/client'
+import { Icon } from 'lago-design-system'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { useRevenueAnalyticsOverview } from '~/components/analytics/revenueStreams/useRevenueAnalyticsOverview'
-import { Button, HorizontalDataTable, Icon, Typography } from '~/components/designSystem'
+import { Button, HorizontalDataTable, Typography } from '~/components/designSystem'
 import {
   AvailableQuickFilters,
   Filters,

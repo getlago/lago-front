@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Avatar } from 'lago-design-system'
+import { Avatar, Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { FC, PropsWithChildren, RefObject, useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
@@ -9,7 +9,6 @@ import {
   Accordion,
   Button,
   Card,
-  Icon,
   Popper,
   Skeleton,
   Status,

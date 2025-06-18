@@ -1,5 +1,7 @@
+import { Icon } from 'lago-design-system'
+
 import { CREDIT_NOTE_TYPE_TRANSLATIONS_MAP, creditNoteType } from '~/components/creditNote/utils'
-import { Icon, Tooltip, Typography } from '~/components/designSystem'
+import { Tooltip, Typography } from '~/components/designSystem'
 import { CreditNote, CreditNoteTableItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 

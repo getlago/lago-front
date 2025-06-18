@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { Icon, IconName } from 'lago-design-system'
 import { forwardRef, MouseEvent, ReactNode, useEffect, useRef, useState } from 'react'
 
-import { Icon, IconName, Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem'
 import { tw } from '~/styles/utils'
 
 export interface TabButtonProps {

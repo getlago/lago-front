@@ -1,7 +1,7 @@
 /* eslint-disable no-alert */
 import { Box, InputAdornment, Stack } from '@mui/material'
 import { useFormik } from 'formik'
-import { Accordion, Avatar, AvatarBadge, Button, Icon } from 'lago-design-system'
+import { Accordion, Avatar, AvatarBadge, Button, Icon, IconName } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, Link } from 'react-router-dom'
 import { boolean, number, object, string } from 'yup'
@@ -9,7 +9,6 @@ import { boolean, number, object, string } from 'yup'
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import {
   Alert,
-  ALL_ICONS,
   ButtonLink,
   ChargeTable,
   Chip,
@@ -17,7 +16,6 @@ import {
   DialogRef,
   Drawer,
   HorizontalDataTable,
-  IconName,
   NavigationTab,
   Popper,
   Selector,
@@ -68,7 +66,6 @@ const LINK_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'link
 const DISPLAY_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'display' })
 const BUTTON_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'button' })
 const TYPOGRAPHY_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'typography' })
-const ICONS_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'icons' })
 const AVATAR_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'avatar' })
 const SKELETON_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'skeleton' })
 const TABLE_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'table' })
@@ -1106,53 +1103,6 @@ const DesignSystem = () => {
                   <Avatar variant="company" identifier="AF" />
                   <Avatar variant="company" identifier="AG" />
                   <Avatar variant="company" identifier="AH" />
-                </Block>
-              </Container>
-            ),
-          },
-          {
-            title: 'Icons',
-            link: ICONS_TAB_URL,
-            component: (
-              <Container>
-                <Typography className="mb-4" variant="headline">
-                  Icons
-                </Typography>
-                <Block>
-                  {Object.keys(ALL_ICONS).map((iconName, i) => (
-                    <Icon key={`icon-${i}`} name={iconName as IconName} />
-                  ))}
-                </Block>
-                <Typography className="mb-4" variant="headline">
-                  Colors
-                </Typography>
-                <Block>
-                  <Icon name="plug" color="success" />
-                  <Icon name="plug" color="error" />
-                  <Icon name="plug" color="warning" />
-                  <Icon name="plug" color="info" />
-                  <Icon name="plug" color="light" />
-                  <Icon name="plug" color="dark" />
-                  <Icon name="plug" color="skeleton" />
-                  <Icon name="plug" color="disabled" />
-                  <Icon name="plug" color="input" />
-                  <Icon name="plug" color="primary" />
-                </Block>
-                <Typography className="mb-4" variant="headline">
-                  Animation
-                </Typography>
-                <Block>
-                  <Icon name="processing" animation="spin" />
-                  <Icon name="star-filled" animation="pulse" />
-                </Block>
-
-                <Typography className="mb-4" variant="headline">
-                  Size
-                </Typography>
-                <Block>
-                  <Icon name="puzzle" size="small" />
-                  <Icon name="puzzle" size="medium" />
-                  <Icon name="puzzle" size="large" />
                 </Block>
               </Container>
             ),

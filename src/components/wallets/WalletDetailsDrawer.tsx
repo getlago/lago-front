@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Avatar, AvatarBadge } from 'lago-design-system'
+import { Avatar, AvatarBadge, Icon } from 'lago-design-system'
 import {
   FC,
   forwardRef,
@@ -17,7 +17,6 @@ import {
   Button,
   Drawer,
   DrawerRef,
-  Icon,
   Skeleton,
   Status,
   Typography,

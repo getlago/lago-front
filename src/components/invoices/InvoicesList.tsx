@@ -1,10 +1,10 @@
 import { ApolloError, LazyQueryHookOptions } from '@apollo/client'
+import { IconName } from 'lago-design-system'
 import { useEffect, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import {
-  IconName,
   InfiniteScroll,
   Status,
   StatusType,

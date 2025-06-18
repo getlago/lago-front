@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Avatar, ButtonLink } from 'lago-design-system'
+import { Avatar, ButtonLink, Icon } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
@@ -7,14 +7,7 @@ import {
   TerminateCustomerSubscriptionDialog,
   TerminateCustomerSubscriptionDialogRef,
 } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
-import {
-  Button,
-  Icon,
-  NavigationTab,
-  Popper,
-  Skeleton,
-  Typography,
-} from '~/components/designSystem'
+import { Button, NavigationTab, Popper, Skeleton, Typography } from '~/components/designSystem'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { SubscriptionActivityLogs } from '~/components/subscriptions/SubscriptionActivityLogs'
 import { SubscriptionAlertsList } from '~/components/subscriptions/SubscriptionAlertsList'

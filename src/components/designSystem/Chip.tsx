@@ -1,9 +1,9 @@
 import { ChipOwnProps, Chip as MuiChip } from '@mui/material'
+import { Icon, IconName } from 'lago-design-system'
 
 import { tw } from '~/styles/utils'
 
 import { Button } from './Button'
-import { Icon, IconName } from './Icon'
 import { Tooltip } from './Tooltip'
 import { Typography, TypographyColor, TypographyProps } from './Typography'
 

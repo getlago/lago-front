@@ -1,17 +1,9 @@
 import { gql } from '@apollo/client'
-import { Avatar } from 'lago-design-system'
+import { Avatar, Icon } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import {
-  Button,
-  Chip,
-  Icon,
-  ShowMoreText,
-  Table,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Button, Chip, ShowMoreText, Table, Tooltip, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import {
   SettingsListItem,
