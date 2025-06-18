@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { Icon } from 'lago-design-system'
 import { memo, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 
@@ -7,7 +8,7 @@ import {
   AddCouponToCustomerDialog,
   AddCouponToCustomerDialogRef,
 } from '~/components/customers/AddCouponToCustomerDialog'
-import { Button, Icon, Table, Tooltip, Typography } from '~/components/designSystem'
+import { Button, Table, Tooltip, Typography } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'

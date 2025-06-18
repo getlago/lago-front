@@ -1,7 +1,7 @@
 import { Stack } from '@mui/material'
-import { Avatar } from 'lago-design-system'
+import { Avatar, Icon, IconName } from 'lago-design-system'
 
-import { Icon, IconName, Skeleton, Typography } from '~/components/designSystem'
+import { Skeleton, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 

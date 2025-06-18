@@ -1,3 +1,4 @@
+import { IconName } from 'lago-design-system'
 import { forwardRef, MouseEvent, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -5,7 +6,6 @@ import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { tw } from '~/styles/utils'
 
 import { Button, ButtonProps } from './Button'
-import { IconName } from './Icon'
 
 enum ButtonLinkTypeEnum {
   tab = 'tab',

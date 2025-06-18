@@ -1,8 +1,9 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
+import { Icon } from 'lago-design-system'
 import { useRef } from 'react'
 
-import { Button, Icon, Typography } from '~/components/designSystem'
+import { Button, Typography } from '~/components/designSystem'
 import { Radio } from '~/components/form'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { ROLE_ACCESS_LEVEL_DOC_URL } from '~/core/constants/externalUrls'

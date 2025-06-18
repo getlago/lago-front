@@ -1,10 +1,10 @@
 import { FetchMoreQueryOptions, gql } from '@apollo/client'
+import { IconName } from 'lago-design-system'
 import { FC, useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import {
-  IconName,
   InfiniteScroll,
   Status,
   StatusType,

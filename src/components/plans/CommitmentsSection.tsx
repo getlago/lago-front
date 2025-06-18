@@ -1,9 +1,10 @@
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { FormikProps } from 'formik'
+import { Icon } from 'lago-design-system'
 import { RefObject, useEffect, useMemo, useState } from 'react'
 
-import { Accordion, Button, Chip, Icon, Tooltip, Typography } from '~/components/designSystem'
+import { Accordion, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInputField, ComboBox, ComboboxItem } from '~/components/form'
 import { EditInvoiceDisplayNameRef } from '~/components/invoices/EditInvoiceDisplayName'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'

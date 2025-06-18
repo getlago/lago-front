@@ -1,10 +1,11 @@
 import { Box, InputAdornment, Stack } from '@mui/material'
 import { FormikProps, getIn } from 'formik'
+import { Icon } from 'lago-design-system'
 import { get } from 'lodash'
 import { DateTime } from 'luxon'
 import { FC, RefObject, useMemo, useState } from 'react'
 
-import { Accordion, Alert, Button, Icon, Tooltip, Typography } from '~/components/designSystem'
+import { Accordion, Alert, Button, Tooltip, Typography } from '~/components/designSystem'
 import {
   AmountInputField,
   ComboBox,

@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useMediaQuery } from '@mui/material'
 import { useFormik } from 'formik'
-import { Avatar } from 'lago-design-system'
+import { Avatar, Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
@@ -18,7 +18,6 @@ import {
   Alert,
   Button,
   Card,
-  Icon,
   Selector,
   Skeleton,
   Tooltip,

@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { Icon } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
@@ -6,7 +7,6 @@ import {
   Alert,
   Button,
   ButtonLink,
-  Icon,
   Popper,
   Skeleton,
   Tooltip,

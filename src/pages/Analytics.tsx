@@ -1,4 +1,5 @@
-import { Icon } from '~/components/designSystem'
+import { Icon } from 'lago-design-system'
+
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import NewAnalytics from '~/pages/analytics/NewAnalytics'

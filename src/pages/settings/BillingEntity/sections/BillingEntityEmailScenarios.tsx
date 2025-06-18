@@ -1,8 +1,8 @@
-import { Avatar } from 'lago-design-system'
+import { Avatar, Icon } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import { Button, Icon, Table, TableColumn, Tooltip, Typography } from '~/components/designSystem'
+import { Button, Table, TableColumn, Tooltip, Typography } from '~/components/designSystem'
 import { Switch } from '~/components/form'
 import {
   SettingsListItem,

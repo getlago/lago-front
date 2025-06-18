@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
+import { Icon } from 'lago-design-system'
 import { useEffect } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { GoogleAuthModeEnum } from '~/components/auth/GoogleAuthButton'
-import { Icon } from '~/components/designSystem'
 import { LagoGQLError, onLogIn } from '~/core/apolloClient'
 import { INVITATION_ROUTE_FORM, LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
 import {

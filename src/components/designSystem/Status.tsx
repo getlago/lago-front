@@ -1,10 +1,10 @@
+import { Icon, IconColor, IconName } from 'lago-design-system'
 import { FC } from 'react'
 
 import { Locale, TranslateData } from '~/core/translations'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { tw } from '~/styles/utils'
 
-import { Icon, IconColor, IconName } from './Icon'
 import { Typography, TypographyColor } from './Typography'
 
 export enum StatusType {

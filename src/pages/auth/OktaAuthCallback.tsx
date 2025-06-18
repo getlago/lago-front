@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
+import { Icon } from 'lago-design-system'
 import { useEffect } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
-import { Icon } from '~/components/designSystem'
 import { hasDefinedGQLError, LagoGQLError, onLogIn } from '~/core/apolloClient'
 import { INVITATION_ROUTE_FORM, LOGIN_OKTA, LOGIN_ROUTE } from '~/core/router'
 import { CurrentUserFragmentDoc, LagoApiError, useOktaLoginUserMutation } from '~/generated/graphql'

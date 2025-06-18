@@ -1,5 +1,6 @@
 import { Typography } from '@mui/material'
 import { useFormik } from 'formik'
+import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { mixed, object, string } from 'yup'
@@ -9,7 +10,7 @@ import {
   wrappedEvaluateExpression,
   wrappedParseExpression,
 } from '~/components/billableMetrics/utils'
-import { Button, Chip, Drawer, DrawerRef, Icon } from '~/components/designSystem'
+import { Button, Chip, Drawer, DrawerRef } from '~/components/designSystem'
 import { JsonEditorField } from '~/components/form/JsonEditor'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 

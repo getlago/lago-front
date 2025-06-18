@@ -1,4 +1,6 @@
-import { IconName, StatusProps, StatusType } from '~/components/designSystem'
+import { IconName } from 'lago-design-system'
+
+import { StatusProps, StatusType } from '~/components/designSystem'
 import {
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,

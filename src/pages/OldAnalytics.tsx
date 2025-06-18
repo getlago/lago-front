@@ -1,7 +1,8 @@
+import { Icon } from 'lago-design-system'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
-import { Button, Icon, Popper, Typography } from '~/components/designSystem'
+import { Button, Popper, Typography } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
 import Gross from '~/components/graphs/Gross'
 import Invoices from '~/components/graphs/Invoices'

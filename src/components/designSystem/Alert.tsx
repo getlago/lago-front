@@ -1,10 +1,10 @@
 import { cva } from 'class-variance-authority'
+import { Icon, IconColor, IconName } from 'lago-design-system'
 import { ReactNode } from 'react'
 
 import { tw } from '~/styles/utils'
 
 import { Button, ButtonProps as TButtonProps } from './Button'
-import { Icon, IconColor, IconName } from './Icon'
 import { Typography } from './Typography'
 
 type AlertType = 'info' | 'success' | 'danger' | 'warning'

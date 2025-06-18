@@ -1,6 +1,7 @@
+import { Icon } from 'lago-design-system'
 import { FC, useState } from 'react'
 
-import { Button, Icon, Typography } from '~/components/designSystem'
+import { Button, Typography } from '~/components/designSystem'
 import { Radio } from '~/components/form'
 import { LocalChargeInput } from '~/components/plans/types'
 import { RegroupPaidFeesEnum } from '~/generated/graphql'

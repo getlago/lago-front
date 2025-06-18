@@ -1,8 +1,9 @@
 import { gql } from '@apollo/client'
+import { Icon } from 'lago-design-system'
 import { useEffect } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
-import { ButtonLink, Icon, Skeleton, Typography } from '~/components/designSystem'
+import { ButtonLink, Skeleton, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { addToast } from '~/core/apolloClient'

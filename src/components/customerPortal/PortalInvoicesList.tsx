@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { useEffect } from 'react'
 
@@ -8,7 +9,6 @@ import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import {
   Button,
-  Icon,
   Status,
   StatusProps,
   StatusType,
