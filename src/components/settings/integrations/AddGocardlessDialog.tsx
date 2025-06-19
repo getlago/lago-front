@@ -38,6 +38,9 @@ gql`
       ... on CashfreeProvider {
         id
       }
+      ... on FlutterwaveProvider {
+        id
+      }
       ... on AdyenProvider {
         id
       }

@@ -8,31 +8,32 @@ import { Button, Dialog, DialogRef } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { MONEYHASH_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
+import { FLUTTERWAVE_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
-  AddMoneyhashPaymentProviderInput,
-  AddMoneyhashProviderDialogFragment,
+  AddFlutterwavePaymentProviderInput,
+  FlutterwaveIntegrationDetailsFragment,
   LagoApiError,
-  MoneyhashIntegrationDetailsFragmentDoc,
-  useAddMoneyhashApiKeyMutation,
-  useGetProviderByCodeForMoneyhashLazyQuery,
-  useUpdateMoneyhashApiKeyMutation,
+  useAddFlutterwavePaymentProviderMutation,
+  useGetProviderByCodeForFlutterwaveLazyQuery,
+  useUpdateFlutterwavePaymentProviderMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { DeleteMoneyhashIntegrationDialogRef } from './DeleteMoneyhashIntegrationDialog'
+import { DeleteFlutterwaveIntegrationDialogRef } from './DeleteFlutterwaveIntegrationDialog'
 
 gql`
-  fragment AddMoneyhashProviderDialog on MoneyhashProvider {
+  fragment AddFlutterwaveProviderDialog on FlutterwaveProvider {
     id
     name
     code
-    apiKey
-    flowId
+    secretKey
+    webhookSecret
+    successRedirectUrl
   }
-  query getProviderByCodeForMoneyhash($code: String) {
+
+  query getProviderByCodeForFlutterwave($code: String) {
     paymentProvider(code: $code) {
-      ... on AdyenProvider {
+      ... on FlutterwaveProvider {
         id
       }
       ... on CashfreeProvider {
@@ -41,7 +42,7 @@ gql`
       ... on GocardlessProvider {
         id
       }
-      ... on FlutterwaveProvider {
+      ... on AdyenProvider {
         id
       }
       ... on StripeProvider {
@@ -52,98 +53,103 @@ gql`
       }
     }
   }
-  mutation addMoneyhashApiKey($input: AddMoneyhashPaymentProviderInput!) {
-    addMoneyhashPaymentProvider(input: $input) {
+
+  mutation addFlutterwavePaymentProvider($input: AddFlutterwavePaymentProviderInput!) {
+    addFlutterwavePaymentProvider(input: $input) {
       id
-      ...AddMoneyhashProviderDialog
-      ...MoneyhashIntegrationDetails
+      ...AddFlutterwaveProviderDialog
     }
   }
-  mutation updateMoneyhashApiKey($input: UpdateMoneyhashPaymentProviderInput!) {
-    updateMoneyhashPaymentProvider(input: $input) {
+
+  mutation updateFlutterwavePaymentProvider($input: UpdateFlutterwavePaymentProviderInput!) {
+    updateFlutterwavePaymentProvider(input: $input) {
       id
-      ...AddMoneyhashProviderDialog
-      ...MoneyhashIntegrationDetails
+      ...AddFlutterwaveProviderDialog
     }
   }
-  ${MoneyhashIntegrationDetailsFragmentDoc}
 `
 
-type TAddMoneyhashDialogProps = Partial<{
-  deleteModalRef: RefObject<DeleteMoneyhashIntegrationDialogRef>
-  provider: AddMoneyhashProviderDialogFragment
-  deleteDialogCallback: Function
+type TAddFlutterwaveDialogProps = Partial<{
+  deleteModalRef: RefObject<DeleteFlutterwaveIntegrationDialogRef>
+  provider: FlutterwaveIntegrationDetailsFragment
+  deleteDialogCallback: () => void
 }>
 
-export interface AddMoneyhashDialogRef {
-  openDialog: (props?: TAddMoneyhashDialogProps) => unknown
+export interface AddFlutterwaveDialogRef {
+  openDialog: (props?: TAddFlutterwaveDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-export const AddMoneyhashDialog = forwardRef<AddMoneyhashDialogRef>((_, ref) => {
+export const AddFlutterwaveDialog = forwardRef<AddFlutterwaveDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const dialogRef = useRef<DialogRef>(null)
-  const [localData, setLocalData] = useState<TAddMoneyhashDialogProps | undefined>(undefined)
-  const moneyhashProvider = localData?.provider
-  const isEdition = !!moneyhashProvider
-
-  const [addApiKey] = useAddMoneyhashApiKeyMutation({
-    onCompleted({ addMoneyhashPaymentProvider }) {
-      if (addMoneyhashPaymentProvider?.id) {
+  const [localData, setLocalData] = useState<TAddFlutterwaveDialogProps | undefined>(undefined)
+  const flutterwaveProvider = localData?.provider
+  const isEdition = !!flutterwaveProvider
+  const [addFlutterwaveProvider] = useAddFlutterwavePaymentProviderMutation({
+    onCompleted(data) {
+      if (data?.addFlutterwavePaymentProvider) {
+        addToast({
+          severity: 'success',
+          translateKey: 'text_1749803444837pl1ketrhm8a',
+        })
         navigate(
-          generatePath(MONEYHASH_INTEGRATION_DETAILS_ROUTE, {
-            integrationId: addMoneyhashPaymentProvider.id,
+          generatePath(FLUTTERWAVE_INTEGRATION_DETAILS_ROUTE, {
+            integrationId: data.addFlutterwavePaymentProvider.id,
             integrationGroup: IntegrationsTabsOptionsEnum.Community,
           }),
         )
-        addToast({
-          message: translate('text_1733730115018i122xlyi662'),
-          severity: 'success',
-        })
       }
     },
   })
-
-  const [updateApiKey] = useUpdateMoneyhashApiKeyMutation({
-    onCompleted({ updateMoneyhashPaymentProvider }) {
-      if (updateMoneyhashPaymentProvider?.id) {
+  const [updateFlutterwaveProvider] = useUpdateFlutterwavePaymentProviderMutation({
+    onCompleted(data) {
+      if (data?.updateFlutterwavePaymentProvider) {
         addToast({
-          message: translate('text_17337300102103wt4s6yz2gh'),
           severity: 'success',
+          translateKey: 'text_174980344483769h5q79g4ap',
         })
       }
     },
+    onError() {
+      // Handle update errors - typically just display generic error since sensitive fields are not updated
+      addToast({
+        severity: 'danger',
+        translateKey: 'text_629728388c4d2300e2d380d5',
+      })
+    },
   })
+  const [getProviderByCode] = useGetProviderByCodeForFlutterwaveLazyQuery()
 
-  const [getMoneyhashProviderByCode] = useGetProviderByCodeForMoneyhashLazyQuery()
-
-  const formikProps = useFormik<AddMoneyhashPaymentProviderInput>({
+  const formikProps = useFormik<AddFlutterwavePaymentProviderInput>({
     initialValues: {
-      name: moneyhashProvider?.name || '',
-      code: moneyhashProvider?.code || '',
-      apiKey: moneyhashProvider?.apiKey || '',
-      flowId: moneyhashProvider?.flowId || '',
+      name: flutterwaveProvider?.name || '',
+      code: flutterwaveProvider?.code || '',
+      secretKey: flutterwaveProvider?.secretKey || '',
+      successRedirectUrl: flutterwaveProvider?.successRedirectUrl || '',
     },
     validationSchema: object().shape({
       name: string().required(''),
       code: string().required(''),
-      apiKey: string().required(''),
-      flowId: string().required(''),
+      secretKey: string().required(''),
+      successRedirectUrl: string().url(''),
     }),
-    onSubmit: async ({ apiKey, flowId, ...values }, formikBag) => {
-      const res = await getMoneyhashProviderByCode({
+    onSubmit: async (values, formikBag) => {
+      const { name, code, secretKey, successRedirectUrl } = values
+
+      // Check if code already exists
+      const res = await getProviderByCode({
         context: { silentErrorCodes: [LagoApiError.NotFound] },
         variables: {
-          code: values.code,
+          code,
         },
       })
-
       const isNotAllowedToMutate =
         (!!res.data?.paymentProvider?.id && !isEdition) ||
         (isEdition &&
           !!res.data?.paymentProvider?.id &&
-          res.data?.paymentProvider?.id !== moneyhashProvider?.id)
+          res.data?.paymentProvider?.id !== flutterwaveProvider?.id)
 
       if (isNotAllowedToMutate) {
         formikBag.setFieldError('code', translate('text_632a2d437e341dcc76817556'))
@@ -151,22 +157,24 @@ export const AddMoneyhashDialog = forwardRef<AddMoneyhashDialogRef>((_, ref) => 
       }
 
       if (isEdition) {
-        await updateApiKey({
+        await updateFlutterwaveProvider({
           variables: {
             input: {
-              ...values,
-              id: moneyhashProvider?.id,
-              flowId,
+              id: flutterwaveProvider?.id || '',
+              name,
+              code,
+              successRedirectUrl: successRedirectUrl || undefined,
             },
           },
         })
       } else {
-        await addApiKey({
+        await addFlutterwaveProvider({
           variables: {
             input: {
-              ...values,
-              apiKey,
-              flowId,
+              name,
+              code,
+              secretKey,
+              successRedirectUrl: successRedirectUrl || undefined,
             },
           },
         })
@@ -190,14 +198,9 @@ export const AddMoneyhashDialog = forwardRef<AddMoneyhashDialogRef>((_, ref) => 
     <Dialog
       ref={dialogRef}
       title={translate(
-        isEdition ? 'text_658461066530343fe1808cd9' : 'text_1733489819311q0nzqi3u7wz',
-        {
-          name: moneyhashProvider?.name,
-        },
+        isEdition ? 'text_1749725331374i3p14ewcpn5' : 'text_1749725331374clf07sez01f',
       )}
-      description={translate(
-        isEdition ? 'text_17337299668343fncntgiyhf' : 'text_1733491430992msh3b2v8nlx',
-      )}
+      description={translate('text_174972533137460li1pvmw34')}
       onClose={formikProps.resetForm}
       actions={({ closeDialog }) => (
         <div className="flex w-full items-center gap-3">
@@ -208,8 +211,8 @@ export const AddMoneyhashDialog = forwardRef<AddMoneyhashDialogRef>((_, ref) => 
               onClick={() => {
                 closeDialog()
                 localData?.deleteModalRef?.current?.openDialog({
-                  provider: moneyhashProvider,
-                  callback: localData.deleteDialogCallback,
+                  provider: flutterwaveProvider,
+                  callback: localData?.deleteDialogCallback,
                 })
               }}
             >
@@ -226,7 +229,7 @@ export const AddMoneyhashDialog = forwardRef<AddMoneyhashDialogRef>((_, ref) => 
               onClick={formikProps.submitForm}
             >
               {translate(
-                isEdition ? 'text_1733729938415dtehv31k9in' : 'text_1733489819311q0nzqi3u7wz',
+                isEdition ? 'text_65845f35d7d69c3ab4793dac' : 'text_1749725331374clf07sez01f',
               )}
             </Button>
           </div>
@@ -253,21 +256,21 @@ export const AddMoneyhashDialog = forwardRef<AddMoneyhashDialogRef>((_, ref) => 
           />
         </div>
         <TextInputField
-          name="apiKey"
+          name="secretKey"
           disabled={isEdition}
-          label={translate('text_645d071272418a14c1c76a77')}
-          placeholder={translate('text_645d071272418a14c1c76a83')}
+          label={translate('text_17497252876688ai900wowoc')}
+          placeholder={translate('text_1749725331374uzvwfxs7m82')}
           formikProps={formikProps}
         />
         <TextInputField
-          name="flowId"
-          label={translate('text_1737453888927uw38sepj7xy')}
-          placeholder={translate('text_1737453902655bnm8uycr7o7')}
           formikProps={formikProps}
+          name="successRedirectUrl"
+          label={translate('text_65367cb78324b77fcb6af21c')}
+          placeholder={translate('text_1733303818769298k0fvsgcz')}
         />
       </div>
     </Dialog>
   )
 })
 
-AddMoneyhashDialog.displayName = 'AddMoneyhashDialog'
+AddFlutterwaveDialog.displayName = 'AddFlutterwaveDialog'
