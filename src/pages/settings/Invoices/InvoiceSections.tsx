@@ -2,13 +2,11 @@ import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import { Button, Chip, Table, Typography } from '~/components/designSystem'
-import { GenericPlaceholder } from '~/components/GenericPlaceholder'
+import { Button, Chip, InfiniteScroll, Table, Typography } from '~/components/designSystem'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
   SettingsListItem,
   SettingsListItemHeader,
-  SettingsListItemLoadingSkeleton,
   SettingsListWrapper,
   SettingsPaddedContainer,
   SettingsPageHeaderContainer,
@@ -22,10 +20,17 @@ import {
   DeleteCustomSectionDialogRef,
 } from '~/components/settings/invoices/DeleteCustomSectionDialog'
 import { addToast } from '~/core/apolloClient'
-import { CREATE_INVOICE_CUSTOM_SECTION, EDIT_INVOICE_CUSTOM_SECTION } from '~/core/router'
+import {
+  CREATE_INVOICE_CUSTOM_SECTION,
+  CREATE_PRICING_UNIT,
+  EDIT_INVOICE_CUSTOM_SECTION,
+  EDIT_PRICING_UNIT,
+} from '~/core/router'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   DeleteCustomSectionFragmentDoc,
   useGetOrganizationSettingsInvoiceSectionsQuery,
+  useGetOrganizationSettingsPricingUnitsQuery,
   useUpdateInvoiceCustomSectionMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -49,6 +54,18 @@ gql`
       }
     }
   }
+
+  query getOrganizationSettingsPricingUnits($limit: Int, $page: Int) {
+    pricingUnits(limit: $limit, page: $page) {
+      collection {
+        id
+        name
+        shortName
+      }
+      metadata {
+        currentPage
+        totalPages
+      }
     }
   }
 
@@ -70,6 +87,9 @@ const InvoiceSections = () => {
   const deleteCustomSectionDialogRef = useRef<DeleteCustomSectionDialogRef>(null)
 
   const canEditInvoiceSettings = hasPermissions(['organizationInvoicesUpdate'])
+  const canEditOrCreatePricingUnits = hasPermissions(['pricingUnitsCreate', 'pricingUnitsUpdate'])
+  const canViewPricingUnits =
+    hasPermissions(['pricingUnitsView']) && isFeatureFlagActive(FeatureFlags.PRICING_UNITS)
 
   const {
     data: invoiceCustomSectionsData,
@@ -82,6 +102,19 @@ const InvoiceSections = () => {
     },
   })
 
+  const {
+    data: pricingUnitsData,
+    error: pricingUnitsError,
+    loading: pricingUnitsLoading,
+    fetchMore: pricingUnitsFetchMore,
+  } = useGetOrganizationSettingsPricingUnitsQuery({
+    variables: {
+      limit: 100,
+    },
+    skip: !canViewPricingUnits,
+  })
+
+  const hasPricingUnits = !!pricingUnitsData?.pricingUnits?.collection?.length
   const hasCustomSections = !!invoiceCustomSectionsData?.invoiceCustomSections?.collection?.length
 
   const [updateCustomSection] = useUpdateInvoiceCustomSectionMutation({
@@ -109,122 +142,98 @@ const InvoiceSections = () => {
     <>
       <PageBannerHeaderWithBurgerMenu>
         <Typography variant="bodyHl" color="grey700">
-          {translate('text_17422301910287loq9tstmnk')}
+          {translate('text_63ac86d797f728a87b2f9f85')}
         </Typography>
       </PageBannerHeaderWithBurgerMenu>
 
       <SettingsPaddedContainer>
         <SettingsPageHeaderContainer>
-          <Typography variant="headline">{translate('text_17422301910287loq9tstmnk')}</Typography>
+          <Typography variant="headline">{translate('text_63ac86d797f728a87b2f9f85')}</Typography>
           <Typography>{translate('text_1732553358445p7rg0i0dzws')}</Typography>
         </SettingsPageHeaderContainer>
 
         <SettingsListWrapper>
-          {!!loading && <SettingsListItemLoadingSkeleton count={6} />}
+          {canViewPricingUnits && (
+            <SettingsListItem className={tw({ 'shadow-inherit': hasPricingUnits })}>
+              <SettingsListItemHeader
+                label={translate('text_17502505476284yyq70yy6mx')}
+                sublabel={translate('text_1750250547628xsddx47vasu')}
+                action={
+                  <Button
+                    variant="quaternary"
+                    disabled={!canEditOrCreatePricingUnits}
+                    onClick={() => navigate(CREATE_PRICING_UNIT)}
+                  >
+                    {translate('text_1742230191029lznwj3y41nb')}
+                  </Button>
+                }
+              />
 
-          {!loading && (
-            <>
-              {/* Custom section */}
-              <SettingsListItem className={tw({ 'shadow-inherit': hasCustomSections })}>
-                <SettingsListItemHeader
-                  label={translate('text_174223019102916wv632jh62')}
-                  sublabel={translate('text_17422301910293sbjvqbbq2i')}
-                  action={
-                    <Button
-                      variant="quaternary"
-                      disabled={!canEditInvoiceSettings}
-                      onClick={() => navigate(CREATE_INVOICE_CUSTOM_SECTION)}
-                    >
-                      {translate('text_1742230191029lznwj3y41nb')}
-                    </Button>
-                  }
-                />
+              {hasPricingUnits && (
+                <InfiniteScroll
+                  onBottom={() => {
+                    const { currentPage = 0, totalPages = 0 } =
+                      pricingUnitsData?.pricingUnits?.metadata || {}
 
-                {hasCustomSections && (
+                    currentPage < totalPages &&
+                      !pricingUnitsLoading &&
+                      pricingUnitsFetchMore?.({
+                        variables: { page: currentPage + 1 },
+                      })
+                  }}
+                >
                   <Table
-                    name="invoice-custom-section"
+                    name="pricing-units"
                     containerSize={{ default: 0 }}
-                    data={data.invoiceCustomSections?.collection || []}
+                    data={pricingUnitsData?.pricingUnits?.collection || []}
+                    isLoading={pricingUnitsLoading}
+                    hasError={!!pricingUnitsError}
                     columns={[
                       {
+                        key: 'shortName',
+                        minWidth: 180,
+                        title: translate('text_175025054762801ioe61wdye'),
+                        content: (section) => (
+                          <Typography variant="body" color="textSecondary">
+                            {section.shortName}
+                          </Typography>
+                        ),
+                      },
+                      {
                         key: 'name',
+                        maxSpace: true,
                         title: translate('text_6419c64eace749372fc72b0f'),
                         content: (section) => (
                           <Typography variant="body" color="textSecondary">
                             {section.name}
                           </Typography>
                         ),
-                        maxSpace: true,
-                      },
-                      {
-                        key: 'selected',
-                        title: translate('text_63ac86d797f728a87b2f9fa7'),
-                        content: (section) =>
-                          section.selected && (
-                            <Chip label={translate('text_65281f686a80b400c8e2f6d1')} />
-                          ),
-                        minWidth: 96,
                       },
                     ]}
-                    actionColumnTooltip={() => translate('text_17326382475765mx3dfl4v6t')}
-                    actionColumn={(section) => [
+                    actionColumnTooltip={() => translate('text_63e51ef4985f0ebd75c212fc')}
+                    onRowActionLink={({ id }) =>
+                      generatePath(EDIT_PRICING_UNIT, {
+                        pricingUnitId: id,
+                      })
+                    }
+                    actionColumn={({ id }) => [
                       {
                         startIcon: 'pen',
-                        title: translate('text_1732638001460kne05vskb7e'),
+                        title: translate('text_63e51ef4985f0ebd75c212fc'),
                         onAction: () =>
                           navigate(
-                            generatePath(EDIT_INVOICE_CUSTOM_SECTION, { sectionId: section.id }),
+                            generatePath(EDIT_PRICING_UNIT, {
+                              pricingUnitId: id,
+                            }),
                           ),
-                      },
-                      section.selected
-                        ? {
-                            startIcon: 'star-outlined-hidden',
-                            title: translate('text_1728574726495j7n9zqj7o71'),
-                            onAction: () =>
-                              defaultCustomSectionDialogRef.current?.openDialog({
-                                type: 'removeDefault',
-                                onConfirm: () =>
-                                  updateCustomSection({
-                                    variables: {
-                                      input: {
-                                        id: section.id,
-                                        selected: false,
-                                      },
-                                    },
-                                  }),
-                              }),
-                          }
-                        : {
-                            startIcon: 'star-filled',
-                            title: translate('text_1728574726495n9jdse2hnrf'),
-                            onAction: () =>
-                              defaultCustomSectionDialogRef.current?.openDialog({
-                                type: 'setDefault',
-                                onConfirm: () =>
-                                  updateCustomSection({
-                                    variables: {
-                                      input: {
-                                        id: section.id,
-                                        selected: true,
-                                      },
-                                    },
-                                  }),
-                              }),
-                          },
-                      {
-                        startIcon: 'trash',
-                        title: translate('text_1732638001460kdzkctjfegi'),
-                        onAction: () =>
-                          deleteCustomSectionDialogRef.current?.openDialog({
-                            id: section.id,
-                          }),
                       },
                     ]}
                   />
-                )}
-              </SettingsListItem>
-            </>
+                </InfiniteScroll>
+              )}
+            </SettingsListItem>
           )}
+
           {/* Custom section */}
           <SettingsListItem className={tw({ 'shadow-inherit': hasCustomSections })}>
             <SettingsListItemHeader

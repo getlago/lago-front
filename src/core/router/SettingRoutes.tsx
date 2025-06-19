@@ -68,6 +68,7 @@ const XeroIntegrations = lazyLoad(() => import('~/pages/settings/XeroIntegration
 const XeroIntegrationDetails = lazyLoad(() => import('~/pages/settings/XeroIntegrationDetails'))
 const DunningsSettings = lazyLoad(() => import('~/pages/settings/Dunnings/Dunnings'))
 const CreateDunning = lazyLoad(() => import('~/pages/settings/Dunnings/CreateDunning'))
+const CreatePricingUnit = lazyLoad(() => import('~/pages/settings/Invoices/CreatePricingUnit'))
 
 // ----------- Routes -----------
 export const SETTINGS_ROUTE = '/settings'
@@ -129,6 +130,8 @@ export const CREATE_DUNNING_ROUTE = `${SETTINGS_ROUTE}/dunnings/create`
 export const UPDATE_DUNNING_ROUTE = `${SETTINGS_ROUTE}/dunnings/:campaignId/edit`
 export const CREATE_INVOICE_CUSTOM_SECTION = `${INVOICE_SETTINGS_ROUTE}/custom-section/create`
 export const EDIT_INVOICE_CUSTOM_SECTION = `${INVOICE_SETTINGS_ROUTE}/custom-section/:sectionId/edit`
+export const CREATE_PRICING_UNIT = `${INVOICE_SETTINGS_ROUTE}/pricing-unit/create`
+export const EDIT_PRICING_UNIT = `${INVOICE_SETTINGS_ROUTE}/pricing-unit/:pricingUnitId/edit`
 
 export const settingRoutes: CustomRouteObject[] = [
   {
@@ -388,5 +391,11 @@ export const settingRoutes: CustomRouteObject[] = [
     private: true,
     element: <BillingEntityCreateEdit />,
     permissions: ['billingEntitiesCreate', 'billingEntitiesUpdate'],
+  },
+  {
+    path: [CREATE_PRICING_UNIT, EDIT_PRICING_UNIT],
+    private: true,
+    element: <CreatePricingUnit />,
+    permissions: ['pricingUnitsCreate', 'pricingUnitsUpdate'],
   },
 ]
