@@ -15,6 +15,7 @@ import {
   Skeleton,
   Typography,
 } from '~/components/designSystem'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { SubscriptionActivityLogs } from '~/components/subscriptions/SubscriptionActivityLogs'
 import { SubscriptionAlertsList } from '~/components/subscriptions/SubscriptionAlertsList'
 import { SubscriptionDetailsOverview } from '~/components/subscriptions/SubscriptionDetailsOverview'
@@ -288,9 +289,9 @@ const SubscriptionDetails = () => {
               }),
             ],
             component: (
-              <div className="max-w-2xl px-12 pb-20">
+              <DetailsPage.Container>
                 <SubscriptionDetailsOverview />
-              </div>
+              </DetailsPage.Container>
             ),
           },
           ...(subscription?.status !== StatusTypeEnum.Canceled &&
@@ -322,9 +323,9 @@ const SubscriptionDetails = () => {
                     }),
                   ],
                   component: (
-                    <div className="max-w-2xl px-12 pb-20">
+                    <DetailsPage.Container>
                       <SubscriptionUsageTabContent />
-                    </div>
+                    </DetailsPage.Container>
                   ),
                 },
               ]
@@ -355,9 +356,9 @@ const SubscriptionDetails = () => {
               }),
             ],
             component: (
-              <div className="px-12 pb-20">
+              <DetailsPage.Container>
                 <SubscriptionAlertsList subscriptionExternalId={subscription?.externalId} />
-              </div>
+              </DetailsPage.Container>
             ),
           },
           {
@@ -386,7 +387,9 @@ const SubscriptionDetails = () => {
               }),
             ],
             component: (
-              <SubscriptionActivityLogs externalSubscriptionId={subscription?.externalId || ''} />
+              <DetailsPage.Container>
+                <SubscriptionActivityLogs externalSubscriptionId={subscription?.externalId || ''} />
+              </DetailsPage.Container>
             ),
             hidden: !subscription?.externalId || !isPremium || !hasPermissions(['auditLogsView']),
           },
