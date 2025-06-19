@@ -175,11 +175,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       }
     }
 
-    const renderIcon = (name: IconName, isIconLoading: boolean) => {
-      if (isIconLoading) return <Icon animation="spin" name="processing" />
-      return <Icon name={name} />
-    }
-
     return (
       <MuiButton
         className={tw(
@@ -203,12 +198,32 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         disableRipple
         disabled={disabled}
         ref={ref}
-        endIcon={endIcon && renderIcon(endIcon, localLoading && !icon && !startIcon)}
-        startIcon={startIcon && renderIcon(startIcon, localLoading && !icon && !!startIcon)}
+        endIcon={
+          localLoading && !icon && !startIcon ? (
+            <Icon animation="spin" name="processing" />
+          ) : (
+            endIcon && <Icon name={endIcon} />
+          )
+        }
+        startIcon={
+          localLoading && !icon && !!startIcon ? (
+            <Icon animation="spin" name="processing" />
+          ) : (
+            startIcon && <Icon name={startIcon} />
+          )
+        }
         {...mapProperties(variant, !!inheritColor)}
         {...props}
       >
-        {icon ? renderIcon(icon, localLoading) : children}
+        {icon ? (
+          localLoading ? (
+            <Icon animation="spin" name="processing" />
+          ) : (
+            <Icon name={icon} />
+          )
+        ) : (
+          children
+        )}
       </MuiButton>
     )
   },
