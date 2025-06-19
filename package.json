@@ -51,7 +51,6 @@
     "@parcel/watcher": "^2.3.0",
     "@svgr/core": "^8.1.0",
     "@svgr/plugin-svgo": "^8.1.0",
-    "@swc/plugin-styled-components": "^6.0.2",
     "@testing-library/dom": "^10.0.0",
     "@testing-library/jest-dom": "6.4.8",
     "@testing-library/react": "16.0.0",
@@ -109,7 +108,6 @@
     "@apollo/client": "3.11.4",
     "@mui/material": "5.14.18",
     "@mui/styled-engine": "6.1.9",
-    "@mui/styled-engine-sc": "6.1.9",
     "@mui/x-date-pickers": "6.20.0",
     "@nangohq/frontend": "0.58.4",
     "@sentry/react": "9.11.0",
@@ -136,14 +134,10 @@
     "react-router-dom": "6.15.0",
     "recharts": "^2.15.1",
     "sanitize-html": "2.12.1",
-    "styled-components": "^6.1.13",
     "yup": "1.2.0"
   },
   "engines": {
     "node": ">=20"
-  },
-  "alias": {
-    "@mui/styled-engine": "@mui/styled-engine-sc"
   },
   "pnpm": {
     "overrides": {

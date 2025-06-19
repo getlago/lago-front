@@ -26,10 +26,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
-      react({
-        plugins: [['@swc/plugin-styled-components', { displayName: true }]],
-      }),
-
+      react(),
       wasm(),
       topLevelAwait(),
 
@@ -75,7 +72,6 @@ export default defineConfig(({ mode }) => {
       alias: {
         '~': resolve(__dirname, 'src'),
         lodash: 'lodash-es',
-        '@mui/styled-engine': resolve(__dirname, 'node_modules/@mui/styled-engine-sc'),
       },
     },
     server: {
