@@ -3,9 +3,10 @@ import {
   TextField as MuiTextField,
   TextFieldProps as MuiTextFieldProps,
 } from '@mui/material'
+import { Icon } from 'lago-design-system'
 import { ChangeEvent, forwardRef, ReactNode, useCallback, useEffect, useState } from 'react'
 
-import { Button, Icon, Tooltip, Typography } from '~/components/designSystem'
+import { Button, Tooltip, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { tw } from '~/styles/utils'

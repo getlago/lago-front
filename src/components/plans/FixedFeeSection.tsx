@@ -1,9 +1,10 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { FormikProps } from 'formik'
+import { Icon } from 'lago-design-system'
 import { memo, RefObject, useEffect, useState } from 'react'
 
-import { Accordion, Button, Card, Chip, Icon, Tooltip, Typography } from '~/components/designSystem'
+import { Accordion, Button, Card, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInputField, RadioGroupField, TextInputField } from '~/components/form'
 import { EditInvoiceDisplayNameRef } from '~/components/invoices/EditInvoiceDisplayName'
 import { FORM_TYPE_ENUM, getIntervalTranslationKey } from '~/core/constants/form'

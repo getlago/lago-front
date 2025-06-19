@@ -1,4 +1,6 @@
-import { Icon, Typography } from '~/components/designSystem'
+import { Icon } from 'lago-design-system'
+
+import { Typography } from '~/components/designSystem'
 import { BasicComboBoxData } from '~/components/form'
 import { AggregationTypeEnum, ChargeModelEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

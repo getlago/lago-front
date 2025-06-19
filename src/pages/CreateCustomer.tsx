@@ -1,4 +1,5 @@
 import { useFormik } from 'formik'
+import { Icon } from 'lago-design-system'
 import { RefObject, useCallback, useMemo, useRef } from 'react'
 import { array, object, ref, string } from 'yup'
 
@@ -9,7 +10,7 @@ import {
   LocalCustomerMetadata,
   MetadataAccordion,
 } from '~/components/customers/createCustomer/MetadataAccordion'
-import { Button, DrawerRef, Icon, Typography } from '~/components/designSystem'
+import { Button, DrawerRef, Typography } from '~/components/designSystem'
 import { SwitchField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'

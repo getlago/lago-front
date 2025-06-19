@@ -1,5 +1,6 @@
 import { Box, InputAdornment, Stack } from '@mui/material'
 import { FormikProps } from 'formik'
+import { Icon } from 'lago-design-system'
 import { FC, useEffect, useState } from 'react'
 
 import {
@@ -8,7 +9,6 @@ import {
   Button,
   ButtonLink,
   ChargeTable,
-  Icon,
   Tooltip,
   Typography,
 } from '~/components/designSystem'

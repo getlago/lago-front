@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { Avatar } from 'lago-design-system'
+import { Avatar, Icon } from 'lago-design-system'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { array, object, Schema, string } from 'yup'
@@ -15,7 +15,6 @@ import {
   Alert,
   Button,
   Card,
-  Icon,
   Skeleton,
   Status,
   StatusType,

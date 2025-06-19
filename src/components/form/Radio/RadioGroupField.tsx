@@ -1,8 +1,9 @@
 import { Stack } from '@mui/material'
 import { FormikProps } from 'formik'
+import { Icon } from 'lago-design-system'
 import { FC } from 'react'
 
-import { Icon, Tooltip, Typography } from '~/components/designSystem'
+import { Tooltip, Typography } from '~/components/designSystem'
 import { tw } from '~/styles/utils'
 
 import { RadioProps } from './Radio'

@@ -1,9 +1,10 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { FormikProps } from 'formik'
+import { Icon } from 'lago-design-system'
 import { memo, useState } from 'react'
 
-import { Alert, Button, ChargeTable, Icon, Tooltip, Typography } from '~/components/designSystem'
+import { Alert, Button, ChargeTable, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInput, TextInput } from '~/components/form'
 import PricingGroupKeys from '~/components/plans/PricingGroupKeys'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
