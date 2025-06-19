@@ -156,7 +156,7 @@ const CreateInvoiceCustomSection = () => {
                         className="flex-1"
                         name="description"
                         label={translate('text_623b42ff8ee4e000ba87d0c8')}
-                        placeholder={translate('text_1728584028187uqs16ra27ef')}
+                        placeholder={translate('text_1750257831368ae3rtaclhjy')}
                         rows="3"
                         multiline
                         formikProps={formikProps}

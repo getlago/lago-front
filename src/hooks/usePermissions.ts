@@ -83,6 +83,9 @@ gql`
       plansDelete
       plansUpdate
       plansView
+      pricingUnitsCreate
+      pricingUnitsUpdate
+      pricingUnitsView
       subscriptionsCreate
       subscriptionsUpdate
       subscriptionsView

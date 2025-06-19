@@ -13,9 +13,11 @@ import {
   BILLING_ENTITY_UPDATE_ROUTE,
   CREATE_DUNNING_ROUTE,
   CREATE_INVOICE_CUSTOM_SECTION,
+  CREATE_PRICING_UNIT,
   CREATE_TAX_ROUTE,
   DUNNINGS_SETTINGS_ROUTE,
   EDIT_INVOICE_CUSTOM_SECTION,
+  EDIT_PRICING_UNIT,
   FULL_INTEGRATIONS_ROUTE,
   FULL_INTEGRATIONS_ROUTE_ID,
   HOME_ROUTE,
@@ -60,7 +62,7 @@ const generateTabs = ({
     hidden: !hasPermissions(['organizationMembersView']),
   },
   {
-    title: translate('text_1742230191028qkwly181six'),
+    title: translate('text_63ac86d797f728a87b2f9f85'),
     link: INVOICE_SETTINGS_ROUTE,
     hidden: !hasPermissions(['organizationInvoicesView']),
   },
@@ -129,6 +131,8 @@ const Settings = () => {
       EDIT_INVOICE_CUSTOM_SECTION,
       BILLING_ENTITY_CREATE_ROUTE,
       BILLING_ENTITY_UPDATE_ROUTE,
+      CREATE_PRICING_UNIT,
+      EDIT_PRICING_UNIT,
     ],
   )
 
