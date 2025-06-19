@@ -161,7 +161,7 @@ const PlanDetails = () => {
       />
 
       <NavigationTab
-        className="px-12"
+        className="px-4 md:px-12"
         loading={isPlanLoading}
         tabs={[
           {
