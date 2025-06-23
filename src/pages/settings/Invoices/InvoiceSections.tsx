@@ -12,10 +12,6 @@ import {
   SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
 import {
-  DefaultCustomSectionDialog,
-  DefaultCustomSectionDialogRef,
-} from '~/components/settings/invoices/DefaultCustomSectionDialog'
-import {
   DeleteCustomSectionDialog,
   DeleteCustomSectionDialogRef,
 } from '~/components/settings/invoices/DeleteCustomSectionDialog'
@@ -83,7 +79,6 @@ const InvoiceSections = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const navigate = useNavigate()
-  const defaultCustomSectionDialogRef = useRef<DefaultCustomSectionDialogRef>(null)
   const deleteCustomSectionDialogRef = useRef<DeleteCustomSectionDialogRef>(null)
 
   const canEditInvoiceSettings = hasPermissions(['organizationInvoicesUpdate'])
@@ -227,6 +222,14 @@ const InvoiceSections = () => {
                             }),
                           ),
                       },
+                      {
+                        startIcon: 'trash',
+                        title: translate('text_1732638001460kdzkctjfegi'),
+                        onAction: () =>
+                          deleteCustomSectionDialogRef.current?.openDialog({
+                            id,
+                          }),
+                      },
                     ]}
                   />
                 </InfiniteScroll>
@@ -302,41 +305,6 @@ const InvoiceSections = () => {
                           generatePath(EDIT_INVOICE_CUSTOM_SECTION, { sectionId: section.id }),
                         ),
                     },
-                    section.selected
-                      ? {
-                          startIcon: 'star-outlined-hidden',
-                          title: translate('text_1728574726495j7n9zqj7o71'),
-                          onAction: () =>
-                            defaultCustomSectionDialogRef.current?.openDialog({
-                              type: 'removeDefault',
-                              onConfirm: () =>
-                                updateCustomSection({
-                                  variables: {
-                                    input: {
-                                      id: section.id,
-                                      selected: false,
-                                    },
-                                  },
-                                }),
-                            }),
-                        }
-                      : {
-                          startIcon: 'star-filled',
-                          title: translate('text_1728574726495n9jdse2hnrf'),
-                          onAction: () =>
-                            defaultCustomSectionDialogRef.current?.openDialog({
-                              type: 'setDefault',
-                              onConfirm: () =>
-                                updateCustomSection({
-                                  variables: {
-                                    input: {
-                                      id: section.id,
-                                      selected: true,
-                                    },
-                                  },
-                                }),
-                            }),
-                        },
                     {
                       startIcon: 'trash',
                       title: translate('text_1732638001460kdzkctjfegi'),
@@ -353,7 +321,6 @@ const InvoiceSections = () => {
         </SettingsListWrapper>
       </SettingsPaddedContainer>
 
-      <DefaultCustomSectionDialog ref={defaultCustomSectionDialogRef} />
       <DeleteCustomSectionDialog ref={deleteCustomSectionDialogRef} />
     </>
   )
