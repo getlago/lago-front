@@ -222,14 +222,6 @@ const InvoiceSections = () => {
                             }),
                           ),
                       },
-                      {
-                        startIcon: 'trash',
-                        title: translate('text_1732638001460kdzkctjfegi'),
-                        onAction: () =>
-                          deleteCustomSectionDialogRef.current?.openDialog({
-                            id,
-                          }),
-                      },
                     ]}
                   />
                 </InfiniteScroll>
