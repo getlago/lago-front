@@ -1,47 +1,63 @@
+import { gql } from '@apollo/client'
 import { Button, Skeleton, Typography } from 'lago-design-system'
 import { Fragment } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { NavigationTab, TabManagedBy } from '~/components/designSystem'
-import { HTTPMethod } from '~/components/developers/apiLogs/mapping'
+import { useGetApiLogDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
-const fakeData = {
-  requestId: 'dfbf53fe-34c6-4721-885f-0b68300b4fee',
-  userEmail: 'mario@getlago.com',
-  status: 'succeeded',
-  httpMethod: HTTPMethod.POST,
-  httpStatus: 200,
-  path: 'api/v1/invoices',
-  origin: 'https://api.getlago.com/',
-  client: 'LagoRubySDKv1',
-  apiKey: '*************-*****fbfd',
-  apiVersion: 'v1',
-  loggedAt: '2025-03-31T12:31:44Z',
-  createdAt: '2025-03-31T12:35:00Z',
-  requestBody: {
-    customer: {
-      id: '123',
-      name: 'John Doe',
-    },
-  },
-  responseBody: {
-    customer: {
-      id: '123',
-      name: 'John Doe',
-    },
-  },
-}
-const loading = false
+gql`
+  fragment ApiLogDetails on ApiLog {
+    apiVersion
+    client
+    httpMethod
+    httpStatus
+    loggedAt
+    requestBody
+    requestId
+    requestOrigin
+    requestPath
+    requestResponse
+    apiKey {
+      name
+      value
+    }
+  }
+
+  query getApiLogDetails($requestId: ID!) {
+    apiLog(requestId: $requestId) {
+      ...ApiLogDetails
+    }
+  }
+`
 
 export const ApiLogDetails = ({ goBack }: { goBack: () => void }) => {
   const { logId } = useParams<{ logId: string }>()
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
 
-  const data = fakeData
+  const { data, loading } = useGetApiLogDetailsQuery({
+    variables: { requestId: logId || '' },
+    skip: !logId,
+  })
+
+  const {
+    apiKey,
+    apiVersion,
+    client,
+    httpMethod,
+    httpStatus,
+    loggedAt,
+    requestId,
+    requestOrigin,
+    requestPath,
+  } = data?.apiLog ?? {}
+
+  const requestBody = data?.apiLog?.requestBody ?? {}
+  const responseBody = data?.apiLog?.requestResponse ?? {}
 
   return (
     <>
@@ -50,7 +66,13 @@ export const ApiLogDetails = ({ goBack }: { goBack: () => void }) => {
         variant="bodyHl"
         color="textSecondary"
       >
-        {loading ? <Skeleton variant="text" textVariant="bodyHl" className="w-30" /> : data.path}
+        {loading ? (
+          <Skeleton variant="text" textVariant="bodyHl" className="w-30" />
+        ) : (
+          <Typography variant="bodyHl" color="textSecondary">
+            {requestPath}
+          </Typography>
+        )}
       </Typography>
 
       {loading && (
@@ -84,17 +106,23 @@ export const ApiLogDetails = ({ goBack }: { goBack: () => void }) => {
             </div>
 
             {[
-              [translate('text_1749819996843c2c5f1j8e0n'), data.path],
-              [translate('text_174981999903061p5t158es0'), data.requestId],
+              [
+                translate('text_1749819996843c2c5f1j8e0n'),
+                `${httpMethod?.toLocaleUpperCase()} ${requestPath}`,
+              ],
+              [translate('text_174981999903061p5t158es0'), requestId],
               [
                 translate('text_17473520702542eqnulj06zc'),
-                formatTimeOrgaTZ(data.createdAt, 'LLL dd, hh:mm:ss a'),
+                formatTimeOrgaTZ(loggedAt, 'LLL dd, hh:mm:ss a'),
               ],
-              [translate('text_645d071272418a14c1c76aa4'), data.apiKey],
-              [translate('text_1749819999030wkju3ix3cb9'), data.apiVersion],
-              [translate('text_1749819999030rydiujmrsfq'), data.origin],
-              [translate('text_1749819999030dyt6hu7nspj'), data.client],
-              [translate('text_174981999903024ai3h557wm'), data.httpStatus],
+              [
+                translate('text_645d071272418a14c1c76aa4'),
+                apiKey?.name ? `${apiKey.name} - ${apiKey.value}` : apiKey?.value,
+              ],
+              [translate('text_1749819999030wkju3ix3cb9'), apiVersion],
+              [translate('text_1749819999030rydiujmrsfq'), requestOrigin],
+              [translate('text_1749819999030dyt6hu7nspj'), client],
+              [translate('text_174981999903024ai3h557wm'), httpStatus],
             ]
               .filter(([label, value]) => !!label && !!value)
               .map(([label, value]) => (
@@ -112,8 +140,7 @@ export const ApiLogDetails = ({ goBack }: { goBack: () => void }) => {
               ))}
           </div>
 
-          {(Object.keys(data.requestBody).length > 0 ||
-            Object.keys(data.responseBody).length > 0) && (
+          {(Object.keys(requestBody).length > 0 || Object.keys(responseBody).length > 0) && (
             <div className="flex flex-col gap-4 pb-12">
               <Typography variant="subhead" color="grey700">
                 {translate('text_1729773655417k0y7nxt5c5j')}
@@ -125,12 +152,12 @@ export const ApiLogDetails = ({ goBack }: { goBack: () => void }) => {
                 tabs={[
                   {
                     title: translate('text_17498224925954a8mk0enwdj'),
-                    hidden: Object.keys(data.responseBody).length === 0,
+                    hidden: Object.keys(responseBody).length === 0,
                     component: (
                       <CodeSnippet
                         variant="minimal"
                         language="json"
-                        code={JSON.stringify(data.responseBody, null, 2)}
+                        code={JSON.stringify(responseBody, null, 2)}
                         displayHead={false}
                         canCopy
                       />
@@ -138,12 +165,12 @@ export const ApiLogDetails = ({ goBack }: { goBack: () => void }) => {
                   },
                   {
                     title: translate('text_1749822492595ayr96w7ez17'),
-                    hidden: Object.keys(data.requestBody).length === 0,
+                    hidden: Object.keys(requestBody).length === 0,
                     component: (
                       <CodeSnippet
                         variant="minimal"
                         language="json"
-                        code={JSON.stringify(data.requestBody, null, 2)}
+                        code={JSON.stringify(requestBody, null, 2)}
                         displayHead={false}
                         canCopy
                       />

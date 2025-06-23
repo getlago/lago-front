@@ -386,15 +386,15 @@ export type ApiLog = {
   apiKey?: Maybe<SanitizedApiKey>;
   apiVersion?: Maybe<Scalars['String']['output']>;
   client?: Maybe<Scalars['String']['output']>;
-  createdAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
-  httpMethod?: Maybe<HttpMethodEnum>;
-  httpStatus?: Maybe<Scalars['Int']['output']>;
-  loggedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  httpMethod: HttpMethodEnum;
+  httpStatus: Scalars['Int']['output'];
+  loggedAt: Scalars['ISO8601DateTime']['output'];
   requestBody?: Maybe<Scalars['JSON']['output']>;
   requestId: Scalars['ID']['output'];
   requestOrigin?: Maybe<Scalars['String']['output']>;
   requestPath?: Maybe<Scalars['String']['output']>;
-  requestResponse?: Maybe<Scalars['JSON']['output']>;
+  requestResponse: Scalars['JSON']['output'];
 };
 
 /** ApiLogCollection type */
@@ -8702,16 +8702,16 @@ export type RotateApiKeyMutationVariables = Exact<{
 
 export type RotateApiKeyMutation = { __typename?: 'Mutation', rotateApiKey?: { __typename?: 'ApiKey', id: string, value: string } | null };
 
-export type ApiLogDetailsFragment = { __typename?: 'ApiLog', apiVersion?: string | null, client?: string | null, httpMethod?: HttpMethodEnum | null, httpStatus?: number | null, loggedAt?: any | null, requestBody?: any | null, requestId: string, requestOrigin?: string | null, requestPath?: string | null, requestResponse?: any | null, apiKey?: { __typename?: 'SanitizedApiKey', name?: string | null, value: string } | null };
+export type ApiLogDetailsFragment = { __typename?: 'ApiLog', apiVersion?: string | null, client?: string | null, httpMethod: HttpMethodEnum, httpStatus: number, loggedAt: any, requestBody?: any | null, requestId: string, requestOrigin?: string | null, requestPath?: string | null, requestResponse: any, apiKey?: { __typename?: 'SanitizedApiKey', name?: string | null, value: string } | null };
 
 export type GetApiLogDetailsQueryVariables = Exact<{
   requestId: Scalars['ID']['input'];
 }>;
 
 
-export type GetApiLogDetailsQuery = { __typename?: 'Query', apiLog?: { __typename?: 'ApiLog', apiVersion?: string | null, client?: string | null, httpMethod?: HttpMethodEnum | null, httpStatus?: number | null, loggedAt?: any | null, requestBody?: any | null, requestId: string, requestOrigin?: string | null, requestPath?: string | null, requestResponse?: any | null, apiKey?: { __typename?: 'SanitizedApiKey', name?: string | null, value: string } | null } | null };
+export type GetApiLogDetailsQuery = { __typename?: 'Query', apiLog?: { __typename?: 'ApiLog', apiVersion?: string | null, client?: string | null, httpMethod: HttpMethodEnum, httpStatus: number, loggedAt: any, requestBody?: any | null, requestId: string, requestOrigin?: string | null, requestPath?: string | null, requestResponse: any, apiKey?: { __typename?: 'SanitizedApiKey', name?: string | null, value: string } | null } | null };
 
-export type ApiLogItemFragment = { __typename?: 'ApiLog', requestId: string, httpMethod?: HttpMethodEnum | null, httpStatus?: number | null, requestPath?: string | null, loggedAt?: any | null };
+export type ApiLogItemFragment = { __typename?: 'ApiLog', requestId: string, httpMethod: HttpMethodEnum, httpStatus: number, requestPath?: string | null, loggedAt: any };
 
 export type GetApiLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -8726,7 +8726,7 @@ export type GetApiLogsQueryVariables = Exact<{
 }>;
 
 
-export type GetApiLogsQuery = { __typename?: 'Query', apiLogs?: { __typename?: 'ApiLogCollection', collection: Array<{ __typename?: 'ApiLog', requestId: string, httpMethod?: HttpMethodEnum | null, httpStatus?: number | null, requestPath?: string | null, loggedAt?: any | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+export type GetApiLogsQuery = { __typename?: 'Query', apiLogs?: { __typename?: 'ApiLogCollection', collection: Array<{ __typename?: 'ApiLog', requestId: string, httpMethod: HttpMethodEnum, httpStatus: number, requestPath?: string | null, loggedAt: any }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
 
 export type EventDetailsFragment = { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum };
 

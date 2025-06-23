@@ -1,18 +1,16 @@
 import { TypographyColor } from 'lago-design-system'
 
-export enum HTTPMethod {
-  POST = 'POST',
-  PUT = 'PUT',
-  DELETE = 'DELETE',
-}
+import { HttpMethodEnum } from '~/generated/graphql'
 
-export const variantByHTTPMethod = (method: HTTPMethod): TypographyColor => {
+export const variantByHTTPMethod = (method: HttpMethodEnum): TypographyColor => {
   switch (method) {
-    case HTTPMethod.POST:
+    case HttpMethodEnum.Post:
       return 'primary600'
-    case HTTPMethod.PUT:
+    case HttpMethodEnum.Put:
       return 'warning700'
-    case HTTPMethod.DELETE:
+    case HttpMethodEnum.Delete:
       return 'danger600'
+    default:
+      return 'grey700'
   }
 }
