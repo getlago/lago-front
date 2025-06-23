@@ -31,7 +31,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '~': path.resolve(__dirname, 'src'),
-      '@mui/styled-engine': path.resolve(__dirname, 'node_modules/@mui/styled-engine-sc'),
     },
   },
   build: {
@@ -53,7 +52,6 @@ export default defineConfig({
           'react-router-dom': 'ReactRouterDOM',
           '@mui/material': 'MaterialUI',
           '@mui/styled-engine': 'MaterialUIStyledEngine',
-          '@mui/styled-engine-sc': 'MaterialUIStyledEngineSC',
           '@mui/x-date-pickers': 'MaterialUIXDatePickers',
         },
       },
@@ -63,7 +61,6 @@ export default defineConfig({
         'react-router-dom',
         '@mui/material',
         '@mui/styled-engine',
-        '@mui/styled-engine-sc',
         '@mui/x-date-pickers',
       ],
     },

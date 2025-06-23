@@ -30,7 +30,6 @@
   "peerDependencies": {
     "@mui/material": "5.14.18",
     "@mui/styled-engine": "6.1.9",
-    "@mui/styled-engine-sc": "6.1.9",
     "@mui/x-date-pickers": "6.20.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -59,8 +58,5 @@
     "typescript": "5.8.3",
     "vite": "^6.2.7",
     "vite-plugin-svgr": "^4.3.0"
-  },
-  "alias": {
-    "@mui/styled-engine": "@mui/styled-engine-sc"
   }
 }

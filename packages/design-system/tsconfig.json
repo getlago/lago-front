@@ -4,7 +4,6 @@
     "outDir": "./dist",
     "baseUrl": ".",
     "paths": {
-      "@mui/styled-engine": ["../../node_modules/@mui/styled-engine-sc"],
       "~/*": ["./src/*"],
     }
   },
