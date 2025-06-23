@@ -29,6 +29,7 @@ gql`
       billingEntitiesTaxesUpdate
       billingEntitiesEmailsView
       billingEntitiesEmailsUpdate
+      billingEntitiesDunningCampaignsUpdate
       couponsAttach
       couponsCreate
       couponsDelete
