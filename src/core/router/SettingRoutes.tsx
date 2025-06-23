@@ -7,6 +7,7 @@ import BillingEntityCreateEdit from '~/pages/settings/BillingEntity/sections/Bil
 import BillingEntityEmailScenarios from '~/pages/settings/BillingEntity/sections/BillingEntityEmailScenarios'
 import BillingEntityEmailScenariosConfig from '~/pages/settings/BillingEntity/sections/BillingEntityEmailScenariosConfig'
 import BillingEntityInvoiceSettings from '~/pages/settings/BillingEntity/sections/BillingEntityInvoiceSettings'
+import BillingEntityDunningCampaigns from '~/pages/settings/BillingEntity/sections/dunning-campaigns/BillingEntityDunningCampaigns'
 import BillingEntityGeneral from '~/pages/settings/BillingEntity/sections/general/BillingEntityGeneral'
 import BillingEntityInvoiceCustomSections from '~/pages/settings/BillingEntity/sections/invoice-custom-sections/BillingEntityInvoiceCustomSections'
 import BillingEntityTaxesSettings from '~/pages/settings/BillingEntity/sections/taxes/BillingEntityTaxesSettings'
@@ -117,7 +118,6 @@ export const BILLING_ENTITY_ROUTE = BILLING_ENTITY_BASE_WITH_CODE
 export const BILLING_ENTITY_GENERAL_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/general`
 export const BILLING_ENTITY_EMAIL_SCENARIOS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/email-scenarios`
 export const BILLING_ENTITY_EMAIL_SCENARIOS_CONFIG_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/email-scenarios/:type`
-export const BILLING_ENTITY_DUNNINGS_SETTINGS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/dunnings`
 export const BILLING_ENTITY_DUNNING_CAMPAIGNS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/dunning-campaigns`
 export const BILLING_ENTITY_INVOICE_SETTINGS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/invoice-settings`
 export const BILLING_ENTITY_INVOICE_CUSTOM_SECTIONS_ROUTE = `${BILLING_ENTITY_BASE_WITH_CODE}/invoice-custom-sections`
@@ -357,9 +357,9 @@ export const settingRoutes: CustomRouteObject[] = [
         permissions: ['billingEntitiesEmailsView'],
       },
       {
-        path: BILLING_ENTITY_DUNNINGS_SETTINGS_ROUTE,
+        path: BILLING_ENTITY_DUNNING_CAMPAIGNS_ROUTE,
         private: true,
-        element: <DunningsSettings />,
+        element: <BillingEntityDunningCampaigns />,
         permissions: ['billingEntitiesView'],
       },
       {

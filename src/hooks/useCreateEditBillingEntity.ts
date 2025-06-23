@@ -47,6 +47,11 @@ gql`
       id
       name
     }
+    appliedDunningCampaign {
+      id
+      name
+      code
+    }
   }
 
   query getBillingEntities {

@@ -3,7 +3,7 @@ import { generatePath, useNavigate } from 'react-router-dom'
 
 import { SettingsPaddedContainer, SettingsPageHeaderContainer } from '~/components/layouts/Settings'
 import {
-  // BILLING_ENTITY_DUNNING_CAMPAIGNS_ROUTE,
+  BILLING_ENTITY_DUNNING_CAMPAIGNS_ROUTE,
   BILLING_ENTITY_EMAIL_SCENARIOS_ROUTE,
   BILLING_ENTITY_GENERAL_ROUTE,
   BILLING_ENTITY_INVOICE_CUSTOM_SECTIONS_ROUTE,
@@ -42,17 +42,6 @@ const SETTINGS_LIST_ITEMS: SettingsListItem[] = [
     path: () => BILLING_ENTITY_EMAIL_SCENARIOS_ROUTE,
     icon: 'mail',
   },
-  /*
-  TODO: Will be done as part of the second release
-  {
-    id: '3',
-    label: 'text_1742367202528ti8wj2iwa96',
-    sublabel: 'text_1742367202528vgpo1ojm11b',
-    actionLabel: 'text_1742367266660e7qgs4vaf1i',
-    path: () => BILLING_ENTITY_DUNNING_CAMPAIGNS_ROUTE,
-    icon: 'push',
-  },
-  */
   {
     id: 'be-invoice-settings',
     label: 'text_17423672025282dl7iozy1ru',
@@ -68,6 +57,14 @@ const SETTINGS_LIST_ITEMS: SettingsListItem[] = [
     actionLabel: 'text_17490246341928pjk45tv8vy',
     path: () => BILLING_ENTITY_INVOICE_CUSTOM_SECTIONS_ROUTE,
     icon: 'document',
+  },
+  {
+    id: 'be-dunning-campaigns',
+    label: 'text_1742367202528ti8wj2iwa96',
+    sublabel: 'text_1742367202528vgpo1ojm11b',
+    actionLabel: 'text_1742367266660e7qgs4vaf1i',
+    path: () => BILLING_ENTITY_DUNNING_CAMPAIGNS_ROUTE,
+    icon: 'push',
   },
   {
     id: 'be-taxes',
