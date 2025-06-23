@@ -11307,7 +11307,7 @@ export type GetOrganizationSettingsInvoiceSectionsQueryVariables = Exact<{
 }>;
 
 
-export type GetOrganizationSettingsInvoiceSectionsQuery = { __typename?: 'Query', invoiceCustomSections?: { __typename?: 'InvoiceCustomSectionCollection', collection: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string, selected: boolean }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+export type GetOrganizationSettingsInvoiceSectionsQuery = { __typename?: 'Query', invoiceCustomSections?: { __typename?: 'InvoiceCustomSectionCollection', collection: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
 
 export type GetOrganizationSettingsPricingUnitsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -31958,7 +31958,6 @@ export const GetOrganizationSettingsInvoiceSectionsDocument = gql`
       id
       name
       code
-      selected
       ...DeleteCustomSection
     }
     metadata {

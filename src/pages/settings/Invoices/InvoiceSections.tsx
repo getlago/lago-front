@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import { Button, Chip, InfiniteScroll, Table, Typography } from '~/components/designSystem'
+import { Button, InfiniteScroll, Table, Typography } from '~/components/designSystem'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
   SettingsListItem,
@@ -38,7 +38,6 @@ gql`
         id
         name
         code
-        selected
 
         ...DeleteCustomSection
       }
@@ -60,13 +59,6 @@ gql`
         currentPage
         totalPages
       }
-    }
-  }
-
-  mutation updateInvoiceCustomSectionSelection($input: UpdateInvoiceCustomSectionInput!) {
-    updateInvoiceCustomSection(input: $input) {
-      id
-      selected
     }
   }
 
@@ -251,17 +243,6 @@ const InvoiceSections = () => {
                         </Typography>
                       ),
                       maxSpace: true,
-                    },
-                    {
-                      key: 'selected',
-                      title: translate('text_63ac86d797f728a87b2f9fa7'),
-                      minWidth: 96,
-                      content: (section) =>
-                        section.selected ? (
-                          <Chip label={translate('text_65281f686a80b400c8e2f6d1')} />
-                        ) : (
-                          '-'
-                        ),
                     },
                   ]}
                   actionColumnTooltip={() => translate('text_17326382475765mx3dfl4v6t')}
