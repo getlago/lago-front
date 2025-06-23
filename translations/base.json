@@ -3233,5 +3233,23 @@
   "text_17490267676055ulih3hfm6u": "Name",
   "text_1749026767605ghziw4tp647": "Remove this invoice custom section from the billing entity.",
   "text_17490267676056wp5w8xz9h5": "This custom section will no longer be applied to the entity, and no further invoices will include it unless it has been defined at the customer level. Do you want to proceed?",
-  "text_1749035464124mstmqfrzuvl": "Remove"
+  "text_1749035464124mstmqfrzuvl": "Remove",
+  "text_1750663218390k1j07z0kda6": "Dunning",
+  "text_17506632183909ttm5ngxpil": "Automatic payment retries and targeted emails to settle customers’ overdue balances.",
+  "text_1750663218390lixhj94mgbp": "Dunning campaign",
+  "text_1750663218390kr7cu0gamqt": "Apply a campaign to this billing entity, cascading to all its linked customers.",
+  "text_1750663218390oab5y7r0mai": "No campaign applied",
+  "text_1750663218390gt40sy6c76o": "Apply a campaign",
+  "text_17506632183903il25h0wuik": "Apply a dunning campaign for this entity",
+  "text_1750663218390ndvitukei2q": "Select a specific dunning campaign to apply to this entity. All customers linked to it will inherit this setting by default unless overridden.",
+  "text_1750663218390emesat7jusk": "Select or search a campaign",
+  "text_1750663218390xxlt86n0fhu": "Apply campaign",
+  "text_1750663218390rdqsn5fzioi": "No dunning campaigns created at the organization level",
+  "text_1750663218390945tme6j9he": "Dunning campaign successfully applied",
+  "text_1750663218391a7zbhnk61ce": "Remove this dunning campaign from the billing entity.",
+  "text_1750663218391z2s6w2of7xp": "This campaign will no longer be applied to the entity, and no further attempts will be made for customers inheriting the entity’s dunning behavior. Do you want to proceed?",
+  "text_175066321839172gm0lkz8eu": "Remove",
+  "text_1750663218391vbamspkjr5g": "Dunning campaign successfully removed",
+  "text_1750663218391y478pxbkhkw": "Name"
 }
+
