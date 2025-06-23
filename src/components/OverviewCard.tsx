@@ -1,6 +1,7 @@
+import { Icon } from 'lago-design-system'
 import { FC } from 'react'
 
-import { Button, Card, Icon, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { Button, Card, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 interface OverviewCardProps {

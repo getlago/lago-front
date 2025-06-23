@@ -1,7 +1,7 @@
-import { Avatar } from 'lago-design-system'
+import { Avatar, Icon } from 'lago-design-system'
 import { FC } from 'react'
 
-import { Icon, Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem'
 import { ProviderTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Adyen from '~/public/images/adyen.svg'

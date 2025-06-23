@@ -1,19 +1,11 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { FormikErrors, FormikProps } from 'formik'
-import { tw } from 'lago-design-system'
+import { Icon, tw } from 'lago-design-system'
 import { memo, MouseEvent, RefObject, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
-import {
-  Accordion,
-  Alert,
-  Button,
-  Chip,
-  Icon,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Accordion, Alert, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
 import { AmountInput, ComboBox, ComboboxItem, RadioGroupField, Switch } from '~/components/form'
 import { EditInvoiceDisplayNameRef } from '~/components/invoices/EditInvoiceDisplayName'
 import { ChargeBillingRadioGroup } from '~/components/plans/ChargeBillingRadioGroup'

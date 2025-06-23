@@ -1,9 +1,10 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
+import { Icon } from 'lago-design-system'
 import { useEffect, useRef } from 'react'
 import { NavigateOptions, useParams } from 'react-router-dom'
 
-import { Alert, Button, Icon, Skeleton, Table, Typography } from '~/components/designSystem'
+import { Alert, Button, Skeleton, Table, Typography } from '~/components/designSystem'
 import { Checkbox, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'

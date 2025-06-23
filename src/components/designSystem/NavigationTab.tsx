@@ -1,10 +1,10 @@
 import { Tab, Tabs, Typography } from '@mui/material'
+import { Icon, IconName } from 'lago-design-system'
 import { ReactNode, useEffect, useState } from 'react'
 import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 
 import { tw } from '~/styles/utils'
 
-import { Icon, IconName } from './Icon'
 import { Skeleton } from './Skeleton'
 
 export enum TabManagedBy {

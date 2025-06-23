@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Avatar, tw } from 'lago-design-system'
+import { Avatar, Icon, tw } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
@@ -7,7 +7,6 @@ import { DeleteAddOnDialog, DeleteAddOnDialogRef } from '~/components/addOns/Del
 import {
   ActionItem,
   ButtonLink,
-  Icon,
   InfiniteScroll,
   Table,
   Typography,

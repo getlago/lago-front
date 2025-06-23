@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { Icon } from 'lago-design-system'
 import { RefObject, useRef } from 'react'
 import { generatePath, NavigateFunction, useNavigate, useParams } from 'react-router-dom'
 
@@ -8,7 +9,6 @@ import {
 } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
 import {
   ActionItem,
-  Icon,
   Status,
   StatusProps,
   StatusType,

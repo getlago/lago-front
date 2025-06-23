@@ -1,8 +1,9 @@
 import { gql } from '@apollo/client'
+import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { FC } from 'react'
 
-import { Icon, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import {
   AnalyticsPeriodScopeEnum,

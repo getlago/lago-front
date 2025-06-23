@@ -1,9 +1,9 @@
+import { Icon } from 'lago-design-system'
 import { useState } from 'react'
 
 import { UseDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { tw } from '~/styles/utils'
 
-import { Icon } from './designSystem'
 import { TextInput } from './form'
 
 interface SearchInputProps {

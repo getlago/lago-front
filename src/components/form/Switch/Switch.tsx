@@ -1,7 +1,8 @@
 import { cva } from 'class-variance-authority'
+import { Icon } from 'lago-design-system'
 import { MouseEvent, useEffect, useRef, useState } from 'react'
 
-import { Icon, Typography } from '~/components/designSystem'
+import { Typography } from '~/components/designSystem'
 import { theme } from '~/styles'
 import { tw } from '~/styles/utils'
 

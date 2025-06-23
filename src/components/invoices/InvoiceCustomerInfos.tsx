@@ -1,11 +1,12 @@
 import { gql } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
+import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { memo } from 'react'
 import { generatePath, Link } from 'react-router-dom'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
-import { Icon, Status, StatusType, Typography } from '~/components/designSystem'
+import { Status, StatusType, Typography } from '~/components/designSystem'
 import { CountryCodes } from '~/core/constants/countryCodes'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'

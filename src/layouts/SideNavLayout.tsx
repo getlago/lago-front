@@ -1,18 +1,10 @@
 import { gql, useApolloClient } from '@apollo/client'
 import { ClickAwayListener, Stack } from '@mui/material'
-import { Avatar } from 'lago-design-system'
+import { Avatar, Icon, IconName } from 'lago-design-system'
 import { useEffect, useRef, useState } from 'react'
 import { Location, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
-import {
-  Button,
-  Icon,
-  IconName,
-  Popper,
-  Skeleton,
-  Typography,
-  VerticalMenu,
-} from '~/components/designSystem'
+import { Button, Popper, Skeleton, Typography, VerticalMenu } from '~/components/designSystem'
 import { envGlobalVar, logOut, switchCurrentOrganization } from '~/core/apolloClient'
 import { DOCUMENTATION_URL, FEATURE_REQUESTS_URL } from '~/core/constants/externalUrls'
 import { AppEnvEnum } from '~/core/constants/globalTypes'

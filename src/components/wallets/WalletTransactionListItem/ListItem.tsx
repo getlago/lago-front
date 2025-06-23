@@ -1,15 +1,7 @@
-import { Avatar, AvatarBadge } from 'lago-design-system'
+import { Avatar, AvatarBadge, Icon, IconName } from 'lago-design-system'
 import { FC } from 'react'
 
-import {
-  Button,
-  Icon,
-  IconName,
-  Popper,
-  Tooltip,
-  Typography,
-  TypographyColor,
-} from '~/components/designSystem'
+import { Button, Popper, Tooltip, Typography, TypographyColor } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'

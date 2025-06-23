@@ -7,10 +7,11 @@ import {
   TableCellProps,
   TableRowProps,
 } from '@mui/material'
+import { IconName } from 'lago-design-system'
 import { MouseEvent, PropsWithChildren, ReactNode, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { Button, IconName, Popper, Skeleton, Tooltip, Typography } from '~/components/designSystem'
+import { Button, Popper, Skeleton, Tooltip, Typography } from '~/components/designSystem'
 import { GenericPlaceholder, GenericPlaceholderProps } from '~/components/GenericPlaceholder'
 import { ResponsiveStyleValue, setResponsiveProperty } from '~/core/utils/responsiveProps'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

@@ -1,7 +1,8 @@
+import { Icon } from 'lago-design-system'
 import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { Button, Icon, Typography } from '~/components/designSystem'
+import { Button, Typography } from '~/components/designSystem'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { CustomerAccountTypeEnum, PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

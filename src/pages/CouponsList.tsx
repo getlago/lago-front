@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Avatar, tw } from 'lago-design-system'
+import { Avatar, Icon, tw } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
@@ -9,14 +9,7 @@ import {
   TerminateCouponDialog,
   TerminateCouponDialogRef,
 } from '~/components/coupons/TerminateCouponDialog'
-import {
-  ButtonLink,
-  Icon,
-  InfiniteScroll,
-  Status,
-  Table,
-  Typography,
-} from '~/components/designSystem'
+import { ButtonLink, InfiniteScroll, Status, Table, Typography } from '~/components/designSystem'
 import { SearchInput } from '~/components/SearchInput'
 import { couponStatusMapping } from '~/core/constants/statusCouponMapping'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'

@@ -1,17 +1,10 @@
 import { gql } from '@apollo/client'
+import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { useEffect, useRef, useState } from 'react'
 import { generatePath, useLocation } from 'react-router-dom'
 
-import {
-  ActionItem,
-  Button,
-  Icon,
-  Skeleton,
-  Table,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { ActionItem, Button, Skeleton, Table, Tooltip, Typography } from '~/components/designSystem'
 import {
   DeleteApiKeyDialog,
   DeleteApiKeyDialogRef,

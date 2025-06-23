@@ -1,8 +1,8 @@
+import { Icon } from 'lago-design-system'
 import { useRef } from 'react'
 
 import { PrepaidCreditsOverviewSection } from '~/components/analytics/prepaidCredits/PrepaidCreditsOverviewSection'
-import { Typography } from '~/components/designSystem'
-import { Icon, Tooltip } from '~/components/designSystem'
+import { Tooltip, Typography } from '~/components/designSystem'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
