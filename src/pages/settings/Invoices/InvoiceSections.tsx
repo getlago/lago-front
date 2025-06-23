@@ -15,7 +15,6 @@ import {
   DeleteCustomSectionDialog,
   DeleteCustomSectionDialogRef,
 } from '~/components/settings/invoices/DeleteCustomSectionDialog'
-import { addToast } from '~/core/apolloClient'
 import {
   CREATE_INVOICE_CUSTOM_SECTION,
   CREATE_PRICING_UNIT,
@@ -27,7 +26,6 @@ import {
   DeleteCustomSectionFragmentDoc,
   useGetOrganizationSettingsInvoiceSectionsQuery,
   useGetOrganizationSettingsPricingUnitsQuery,
-  useUpdateInvoiceCustomSectionMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -111,27 +109,6 @@ const InvoiceSections = () => {
 
   const hasPricingUnits = !!pricingUnitsData?.pricingUnits?.collection?.length
   const hasCustomSections = !!invoiceCustomSectionsData?.invoiceCustomSections?.collection?.length
-
-  const [updateCustomSection] = useUpdateInvoiceCustomSectionMutation({
-    refetchQueries: ['getOrganizationSettingsInvoiceSections'],
-    onCompleted: ({ updateInvoiceCustomSection }) => {
-      if (!updateInvoiceCustomSection) {
-        return
-      }
-
-      if (updateInvoiceCustomSection.selected) {
-        addToast({
-          severity: 'success',
-          message: translate('text_1733849149914btq7cvs7ljb'),
-        })
-      } else {
-        addToast({
-          severity: 'success',
-          message: translate('text_17338491499140e4tci0yhhe'),
-        })
-      }
-    },
-  })
 
   return (
     <>
