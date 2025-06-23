@@ -2638,8 +2638,6 @@
   "text_1732553358445diim0lbo5nl": "Define the content to be displayed on invoices. This content will appear at the end of the invoices, just before the invoice footer.",
   "text_1732553358445fhl5zibpn2l": "Content",
   "text_1732553358446t0zh79g9ruk": "Add custom section content",
-  "text_1732553889947h4iijpzflwj": "Set as default for all invoices",
-  "text_1732553889948thkn4jonnyy": "For more flexibility, override it at the customer level.",
   "text_17325538899488ftsvph8ko5": "Add custom section",
   "text_1732634307286ij3e2kb6c4v": "Set these invoice custom section details as default",
   "text_17326343072869mt7lostpsa": "This change will affect all customers who currently use the organization's invoice custom section details. This will be added and appear on their future invoices. Are you sure you want to proceed?",
@@ -3252,4 +3250,3 @@
   "text_1750663218391vbamspkjr5g": "Dunning campaign successfully removed",
   "text_1750663218391y478pxbkhkw": "Name"
 }
-
