@@ -96,6 +96,62 @@ describe('Currency tools', () => {
       expect(intlFormatNumber(0.1010101, { style: 'percent' })).toMatch('10.101%')
       expect(intlFormatNumber(0.9741111, { style: 'percent' })).toMatch('97.4111%')
     })
+
+    it('should return the amount formatted with pricing unit short name', () => {
+      const formattedWithUnit = intlFormatNumber(1500.5, {
+        pricingUnitShortName: 'pts',
+        currency: CurrencyEnum.Eur,
+      })
+
+      expect(formattedWithUnit).toBe('1,500.5 pts')
+
+      const formattedWithUnitInteger = intlFormatNumber(1000, {
+        pricingUnitShortName: 'credits',
+      })
+
+      expect(formattedWithUnitInteger).toBe('1,000 credits')
+
+      const formattedWithUnitSmallNumber = intlFormatNumber(0.25, {
+        pricingUnitShortName: 'units',
+      })
+
+      expect(formattedWithUnitSmallNumber).toBe('0.25 units')
+    })
+
+    it('should use currency formatting when pricingUnitShortName is provided but style is not currency', () => {
+      const formattedPercent = intlFormatNumber(0.1, {
+        style: 'percent',
+        pricingUnitShortName: 'pts',
+      })
+
+      expect(formattedPercent).toMatch('10.00%')
+      expect(formattedPercent).not.toMatch('pts')
+
+      const formattedDecimal = intlFormatNumber(1000, {
+        style: 'decimal',
+        pricingUnitShortName: 'units',
+      })
+
+      expect(formattedDecimal).toBe('1,000')
+      expect(formattedDecimal).not.toMatch('units')
+    })
+
+    it('should respect formatting options when using pricing unit short name', () => {
+      const formattedWithOptions = intlFormatNumber(1234.567, {
+        pricingUnitShortName: 'tokens',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
+
+      expect(formattedWithOptions).toBe('1,234.57 tokens')
+
+      const formattedWithMinFractionDigits = intlFormatNumber(1000, {
+        pricingUnitShortName: 'pts',
+        minimumFractionDigits: 3,
+      })
+
+      expect(formattedWithMinFractionDigits).toBe('1,000.000 pts')
+    })
   })
 
   describe('getCurrencySymbol', () => {
