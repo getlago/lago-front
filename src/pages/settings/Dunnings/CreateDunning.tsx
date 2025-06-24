@@ -407,15 +407,6 @@ const CreateDunning = () => {
                     </Button>
                   )}
                 </section>
-
-                <section className="not-last-child:mb-6">
-                  <SwitchField
-                    name="appliedToOrganization"
-                    formikProps={formikProps}
-                    label={translate('text_1728584028187cpxux50bk4n')}
-                    subLabel={translate('text_1728584028187qei3xba4i02')}
-                  />
-                </section>
               </div>
             </>
           )}
