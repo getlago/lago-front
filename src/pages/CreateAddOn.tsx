@@ -267,7 +267,7 @@ const CreateAddOn = () => {
                     {translate('text_629728388c4d2300e2d38117')}
                   </Typography>
 
-                  <div className="flex flex-row items-end gap-3">
+                  <div className="flex flex-row items-start gap-3">
                     <AmountInputField
                       className="flex-1"
                       name="amountCents"
@@ -277,7 +277,7 @@ const CreateAddOn = () => {
                       formikProps={formikProps}
                     />
                     <ComboBoxField
-                      className="max-w-30"
+                      className="mt-7 max-w-30"
                       name="amountCurrency"
                       data={Object.values(CurrencyEnum).map((currencyType) => ({
                         value: currencyType,
