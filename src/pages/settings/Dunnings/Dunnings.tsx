@@ -3,14 +3,7 @@ import { Avatar, Icon } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import {
-  Button,
-  ButtonLink,
-  Chip,
-  InfiniteScroll,
-  Table,
-  Typography,
-} from '~/components/designSystem'
+import { Button, ButtonLink, InfiniteScroll, Table, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {

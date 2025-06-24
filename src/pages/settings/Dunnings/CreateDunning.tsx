@@ -5,13 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { array, boolean, number, object, string } from 'yup'
 
 import { Alert, Button, Tooltip, Typography } from '~/components/designSystem'
-import {
-  AmountInputField,
-  ComboBoxField,
-  SwitchField,
-  TextInput,
-  TextInputField,
-} from '~/components/form'
+import { AmountInputField, ComboBoxField, TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
   DefaultCampaignDialog,
