@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { Button, Table, Tooltip, Typography } from '~/components/designSystem'
@@ -48,7 +48,13 @@ const BillingEntityInvoiceCustomSections = () => {
 
   const billingEntity = billingEntityData?.billingEntity
 
-  const invoiceCustomSections = billingEntity?.selectedInvoiceCustomSections
+  const invoiceCustomSections = useMemo(
+    () =>
+      [...(billingEntity?.selectedInvoiceCustomSections || [])]?.sort(
+        (a, b) => (a?.name || '').toLowerCase().localeCompare((b?.name || '').toLowerCase()) ?? 0,
+      ),
+    [billingEntity?.selectedInvoiceCustomSections],
+  )
 
   if (!!error && !loading) {
     return (
