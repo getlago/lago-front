@@ -1,4 +1,8 @@
-import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
+import {
+  LocalChargeFilterInput,
+  LocalPricingUnitType,
+  PlanFormInput,
+} from '~/components/plans/types'
 import { ChargeFilterInput, ChargeModelEnum, Properties } from '~/generated/graphql'
 
 import { serializeAmount } from './serializeAmount'
@@ -176,11 +180,19 @@ export const serializePlanInput = (values: PlanFormInput) => {
         minAmountCents,
         taxes: chargeTaxes,
         filters,
+        appliedPricingUnit,
         ...charge
       }) => {
         return {
           chargeModel,
           billableMetricId: billableMetric.id,
+          appliedPricingUnit:
+            !appliedPricingUnit || appliedPricingUnit?.type === LocalPricingUnitType.Fiat
+              ? undefined
+              : {
+                  code: appliedPricingUnit?.code,
+                  conversionRate: Number(appliedPricingUnit?.conversionRate),
+                },
           minAmountCents: !!minAmountCents
             ? Number(serializeAmount(minAmountCents, values.amountCurrency) || 0)
             : undefined,

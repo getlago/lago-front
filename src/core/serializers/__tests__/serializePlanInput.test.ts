@@ -1,3 +1,4 @@
+import { LocalPricingUnitType } from '~/components/plans/types'
 import { transformFilterObjectToString } from '~/components/plans/utils'
 import { ALL_FILTER_VALUES } from '~/core/constants/form'
 import { serializePlanInput } from '~/core/serializers/serializePlanInput'
@@ -140,6 +141,7 @@ describe('serializePlanInput()', () => {
             billableMetricId: '1234',
             minAmountCents: 10003,
             chargeModel: 'graduated',
+            appliedPricingUnit: undefined,
             filters: [],
             properties: {
               amount: '1',
@@ -223,6 +225,7 @@ describe('serializePlanInput()', () => {
             billableMetricId: '1234',
             minAmountCents: 10003,
             chargeModel: 'graduated_percentage',
+            appliedPricingUnit: undefined,
             filters: [],
             properties: {
               amount: '1',
@@ -305,6 +308,7 @@ describe('serializePlanInput()', () => {
           {
             billableMetricId: '1234',
             chargeModel: 'package',
+            appliedPricingUnit: undefined,
             filters: [],
             minAmountCents: undefined,
             properties: {
@@ -376,6 +380,7 @@ describe('serializePlanInput()', () => {
           {
             billableMetricId: '1234',
             chargeModel: 'percentage',
+            appliedPricingUnit: undefined,
             minAmountCents: undefined,
             filters: [],
             properties: {
@@ -447,6 +452,7 @@ describe('serializePlanInput()', () => {
           {
             billableMetricId: '1234',
             chargeModel: 'standard',
+            appliedPricingUnit: undefined,
             minAmountCents: undefined,
             filters: [],
             properties: {
@@ -516,6 +522,7 @@ describe('serializePlanInput()', () => {
           {
             billableMetricId: '1234',
             chargeModel: 'standard',
+            appliedPricingUnit: undefined,
             minAmountCents: undefined,
             filters: [],
             properties: {
@@ -610,6 +617,7 @@ describe('serializePlanInput()', () => {
             billableMetricId: '1234',
             chargeModel: 'standard',
             minAmountCents: undefined,
+            appliedPricingUnit: undefined,
             properties: {
               amount: undefined,
               freeUnits: undefined,
@@ -715,6 +723,7 @@ describe('serializePlanInput()', () => {
           {
             billableMetricId: '1234',
             chargeModel: 'volume',
+            appliedPricingUnit: undefined,
             minAmountCents: undefined,
             filters: [],
             properties: {
@@ -797,6 +806,7 @@ describe('serializePlanInput()', () => {
           {
             billableMetricId: '1234',
             chargeModel: 'custom',
+            appliedPricingUnit: undefined,
             minAmountCents: undefined,
             filters: [],
             properties: {
@@ -890,6 +900,155 @@ describe('serializePlanInput()', () => {
             thresholdDisplayName: null,
           },
         ],
+      })
+    })
+  })
+
+  describe('a plan with appliedPricingUnit', () => {
+    it('returns plan correctly serialized when the appliedPricingUnit is not the default currency', () => {
+      const plan = serializePlanInput({
+        amountCents: '1',
+        amountCurrency: CurrencyEnum.Eur,
+        billChargesMonthly: true,
+        charges: [
+          {
+            chargeModel: ChargeModelEnum.Standard,
+            billableMetric: {
+              id: '1234',
+              name: 'simpleBM',
+              code: 'simple-bm',
+              recurring: false,
+              aggregationType: AggregationTypeEnum.CountAgg,
+            },
+            appliedPricingUnit: {
+              code: 'CR',
+              conversionRate: '1.2',
+              type: LocalPricingUnitType.Custom,
+              shortName: 'CR',
+            },
+            properties: {},
+            taxCodes: [],
+          },
+        ],
+        code: 'my-plan',
+        interval: PlanInterval.Monthly,
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+        nonRecurringUsageThresholds: [],
+        recurringUsageThreshold: undefined,
+      })
+
+      expect(plan).toStrictEqual({
+        amountCents: 100,
+        amountCurrency: 'EUR',
+        billChargesMonthly: true,
+        charges: [
+          {
+            billableMetricId: '1234',
+            chargeModel: 'standard',
+            minAmountCents: undefined,
+            filters: [],
+            properties: {
+              amount: undefined,
+              freeUnits: undefined,
+              graduatedRanges: undefined,
+              pricingGroupKeys: undefined,
+              graduatedPercentageRanges: undefined,
+              packageSize: undefined,
+              perTransactionMinAmount: undefined,
+              perTransactionMaxAmount: undefined,
+              volumeRanges: undefined,
+              customProperties: undefined,
+            },
+            taxCodes: [],
+            appliedPricingUnit: {
+              code: 'CR',
+              conversionRate: 1.2,
+            },
+          },
+        ],
+        code: 'my-plan',
+        interval: 'monthly',
+        minimumCommitment: {},
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+        usageThresholds: [],
+      })
+    })
+
+    it('returns plan correctly serialized when the appliedPricingUnit is the default currency', () => {
+      const plan = serializePlanInput({
+        amountCents: '1',
+        amountCurrency: CurrencyEnum.Eur,
+        billChargesMonthly: true,
+        charges: [
+          {
+            chargeModel: ChargeModelEnum.Standard,
+            billableMetric: {
+              id: '1234',
+              name: 'simpleBM',
+              code: 'simple-bm',
+              recurring: false,
+              aggregationType: AggregationTypeEnum.CountAgg,
+            },
+            appliedPricingUnit: {
+              code: CurrencyEnum.Eur,
+              shortName: CurrencyEnum.Eur,
+              conversionRate: '1',
+              type: LocalPricingUnitType.Fiat,
+            },
+            properties: {},
+            taxCodes: [],
+          },
+        ],
+        code: 'my-plan',
+        interval: PlanInterval.Monthly,
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+        nonRecurringUsageThresholds: [],
+        recurringUsageThreshold: undefined,
+      })
+
+      expect(plan).toStrictEqual({
+        amountCents: 100,
+        amountCurrency: 'EUR',
+        billChargesMonthly: true,
+        charges: [
+          {
+            billableMetricId: '1234',
+            chargeModel: 'standard',
+            minAmountCents: undefined,
+            appliedPricingUnit: undefined,
+            filters: [],
+            properties: {
+              amount: undefined,
+              freeUnits: undefined,
+              graduatedRanges: undefined,
+              pricingGroupKeys: undefined,
+              graduatedPercentageRanges: undefined,
+              packageSize: undefined,
+              perTransactionMinAmount: undefined,
+              perTransactionMaxAmount: undefined,
+              volumeRanges: undefined,
+              customProperties: undefined,
+            },
+            taxCodes: [],
+          },
+        ],
+        code: 'my-plan',
+        interval: 'monthly',
+        minimumCommitment: {},
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+        usageThresholds: [],
       })
     })
   })

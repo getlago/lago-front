@@ -1,4 +1,5 @@
 import {
+  AppliedPricingUnitInput,
   BillableMetricForPlanFragment,
   ChargeFilterInput,
   ChargeInput,
@@ -15,12 +16,27 @@ type LocalCommitmentInput = Omit<CommitmentInput, 'taxCodes'> & {
   taxes?: TaxForPlanAndChargesInPlanFormFragment[] | null
 }
 
+export enum LocalPricingUnitType {
+  Custom = 'custom',
+  Fiat = 'fiat',
+}
+
+export type LocalPricingUnitInput = Omit<AppliedPricingUnitInput, 'conversionRate'> & {
+  shortName: string
+  type: LocalPricingUnitType
+  conversionRate?: string
+}
+
 export type LocalChargeFilterInput = Omit<ChargeFilterInput, 'properties' | 'values'> & {
   properties: PropertiesInput
   values: string[] // This value should be defined using transformFilterObjectToString method
 }
 
-export type LocalChargeInput = Omit<ChargeInput, 'billableMetricId' | 'filters' | 'properties'> & {
+export type LocalChargeInput = Omit<
+  ChargeInput,
+  'billableMetricId' | 'filters' | 'properties' | 'appliedPricingUnit'
+> & {
+  appliedPricingUnit?: LocalPricingUnitInput
   billableMetric: BillableMetricForPlanFragment
   id?: string
   properties?: PropertiesInput

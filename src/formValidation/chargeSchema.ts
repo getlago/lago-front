@@ -1,6 +1,6 @@
 import { array, number, object, string } from 'yup'
 
-import { LocalChargeFilterInput } from '~/components/plans/types'
+import { LocalChargeFilterInput, LocalPricingUnitType } from '~/components/plans/types'
 import { MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR } from '~/core/constants/form'
 import { BillableMetric, ChargeModelEnum, Properties } from '~/generated/graphql'
 
@@ -120,6 +120,18 @@ export const customShape = {
 export const chargeSchema = array().of(
   object().shape({
     chargeModel: string().required(''),
+    appliedPricingUnit: object()
+      .shape({
+        type: string().required(''),
+        code: string().required(''),
+        shortName: string().required(''),
+        conversionRate: string().when('type', {
+          is: LocalPricingUnitType.Custom,
+          then: (schema) => schema.required(''),
+          otherwise: (schema) => schema.optional(),
+        }),
+      })
+      .optional(),
     properties: object()
       .when('chargeModel', {
         is: (chargeModel: ChargeModelEnum) =>
