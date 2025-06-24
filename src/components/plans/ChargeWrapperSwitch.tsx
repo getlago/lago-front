@@ -14,23 +14,25 @@ import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { ChargeModelEnum, CurrencyEnum, PropertiesInput } from '~/generated/graphql'
 
 interface ChargeWrapperSwitchProps {
-  currency: CurrencyEnum
-  formikProps: FormikProps<PlanFormInput>
   chargeIndex: number
+  chargePricingUnitShortName: string | undefined
+  currency: CurrencyEnum
+  disabled?: boolean
   filterIndex?: number
+  formikProps: FormikProps<PlanFormInput>
+  premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
   propertyCursor: string
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
-  disabled?: boolean
-  premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
 }
 
 export const ChargeWrapperSwitch = memo(
   ({
+    chargeIndex,
+    chargePricingUnitShortName,
     currency,
     disabled,
-    formikProps,
-    chargeIndex,
     filterIndex,
+    formikProps,
     premiumWarningDialogRef,
     propertyCursor,
     valuePointer,
@@ -42,6 +44,7 @@ export const ChargeWrapperSwitch = memo(
         {localCharge.chargeModel === ChargeModelEnum.Standard && (
           <StandardCharge
             chargeIndex={chargeIndex}
+            chargePricingUnitShortName={chargePricingUnitShortName}
             currency={currency}
             disabled={disabled}
             formikProps={formikProps}
@@ -52,6 +55,7 @@ export const ChargeWrapperSwitch = memo(
         {localCharge.chargeModel === ChargeModelEnum.Package && (
           <PackageCharge
             chargeIndex={chargeIndex}
+            chargePricingUnitShortName={chargePricingUnitShortName}
             currency={currency}
             disabled={disabled}
             formikProps={formikProps}
@@ -62,6 +66,7 @@ export const ChargeWrapperSwitch = memo(
         {localCharge.chargeModel === ChargeModelEnum.Graduated && (
           <GraduatedChargeTable
             chargeIndex={chargeIndex}
+            chargePricingUnitShortName={chargePricingUnitShortName}
             currency={currency}
             disabled={disabled}
             formikProps={formikProps}
@@ -72,6 +77,7 @@ export const ChargeWrapperSwitch = memo(
         {localCharge.chargeModel === ChargeModelEnum.GraduatedPercentage && (
           <GraduatedPercentageChargeTable
             chargeIndex={chargeIndex}
+            chargePricingUnitShortName={chargePricingUnitShortName}
             currency={currency}
             disabled={disabled}
             formikProps={formikProps}
@@ -82,18 +88,20 @@ export const ChargeWrapperSwitch = memo(
         {localCharge.chargeModel === ChargeModelEnum.Percentage && (
           <ChargePercentage
             chargeIndex={chargeIndex}
-            filterIndex={filterIndex}
+            chargePricingUnitShortName={chargePricingUnitShortName}
             currency={currency}
             disabled={disabled}
+            filterIndex={filterIndex}
             formikProps={formikProps}
+            premiumWarningDialogRef={premiumWarningDialogRef}
             propertyCursor={propertyCursor}
             valuePointer={valuePointer}
-            premiumWarningDialogRef={premiumWarningDialogRef}
           />
         )}
         {localCharge.chargeModel === ChargeModelEnum.Volume && (
           <VolumeChargeTable
             chargeIndex={chargeIndex}
+            chargePricingUnitShortName={chargePricingUnitShortName}
             currency={currency}
             disabled={disabled}
             formikProps={formikProps}

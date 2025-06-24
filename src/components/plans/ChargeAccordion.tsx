@@ -6,7 +6,14 @@ import { memo, MouseEvent, RefObject, useCallback, useEffect, useMemo, useState 
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Accordion, Alert, Button, Chip, Tooltip, Typography } from '~/components/designSystem'
-import { AmountInput, ComboBox, ComboboxItem, RadioGroupField, Switch } from '~/components/form'
+import {
+  AmountInput,
+  ComboBox,
+  ComboboxItem,
+  RadioGroupField,
+  Switch,
+  TextInput,
+} from '~/components/form'
 import { EditInvoiceDisplayNameRef } from '~/components/invoices/EditInvoiceDisplayName'
 import { ChargeBillingRadioGroup } from '~/components/plans/ChargeBillingRadioGroup'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
@@ -41,13 +48,16 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useChargeForm } from '~/hooks/plans/useChargeForm'
+import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 import { buildChargeFilterAddFilterButtonId, ChargeFilter } from './ChargeFilter'
 import { ChargeOptionsAccordion } from './ChargeOptionsAccordion'
 import { ChargeWrapperSwitch } from './ChargeWrapperSwitch'
 import { RemoveChargeWarningDialogRef } from './RemoveChargeWarningDialog'
-import { LocalChargeInput, PlanFormInput } from './types'
+import { LocalChargeInput, LocalPricingUnitType, PlanFormInput } from './types'
+
+const CUSTOM_PRICING_UNIT_SEPARATOR = '::-::'
 
 const buildChargeDefaultPropertyId = (chargeIndex: number) =>
   `charge-${chargeIndex}-default-property-accordion`
@@ -182,6 +192,7 @@ export const ChargeAccordion = memo(
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
     const { type: actionType } = useDuplicatePlanVar()
+    const { hasAnyPricingUnitConfigured, pricingUnits } = useCustomPricingUnits()
     const {
       getChargeModelComboboxData,
       getIsPayInAdvanceOptionDisabled,
@@ -342,6 +353,66 @@ export const ChargeAccordion = memo(
       return translate('text_6661fc17337de3591e29e435')
     }, [localCharge.chargeModel, localCharge.billableMetric.aggregationType, translate])
 
+    const pricingUnitDataForCombobox = useMemo(() => {
+      const formatedPricingUnits = pricingUnits.map((pricingUnit) => ({
+        label: pricingUnit.name,
+        value: `${pricingUnit.code}${CUSTOM_PRICING_UNIT_SEPARATOR}${pricingUnit.shortName}${CUSTOM_PRICING_UNIT_SEPARATOR}${LocalPricingUnitType.Custom}`,
+        labelNode: (
+          <ComboboxItem className="flex flex-col items-start">
+            <Typography variant="body" color="grey700" noWrap>
+              {pricingUnit.name}
+            </Typography>
+            <Typography variant="caption" color="grey600" noWrap>
+              {pricingUnit.code}
+            </Typography>
+          </ComboboxItem>
+        ),
+      }))
+
+      return [
+        {
+          label: currency,
+          value: `${currency}${CUSTOM_PRICING_UNIT_SEPARATOR}${currency}${CUSTOM_PRICING_UNIT_SEPARATOR}${LocalPricingUnitType.Fiat}`,
+          labelNode: (
+            <ComboboxItem className="flex flex-col items-start">
+              <Typography variant="body" color="grey700" noWrap>
+                {currency}
+              </Typography>
+              <Typography variant="caption" color="grey600" noWrap>
+                {translate('text_1750411499858a87tkuylqms')}
+              </Typography>
+            </ComboboxItem>
+          ),
+        },
+        ...formatedPricingUnits,
+      ]
+    }, [currency, pricingUnits, translate])
+
+    const chargePricingUnitShortName = useMemo(
+      () =>
+        (localCharge.appliedPricingUnit?.type === LocalPricingUnitType.Custom &&
+          localCharge.appliedPricingUnit?.shortName) ||
+        undefined,
+      [localCharge.appliedPricingUnit],
+    )
+
+    // When plan currency changes, make sure the pricing unit is set to the new currency if it's a Fiat one
+    useEffect(() => {
+      if (
+        localCharge.appliedPricingUnit?.type === LocalPricingUnitType.Fiat &&
+        (localCharge.appliedPricingUnit?.code !== currency ||
+          localCharge.appliedPricingUnit?.shortName !== currency)
+      ) {
+        handleUpdate('appliedPricingUnit', {
+          ...localCharge.appliedPricingUnit,
+          code: currency,
+          shortName: currency,
+        })
+      }
+
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currency])
+
     return (
       <Accordion
         noContentMargin
@@ -445,6 +516,76 @@ export const ChargeAccordion = memo(
         data-test={`charge-accordion-${index}`}
       >
         <>
+          {/* Pricing unit configuration */}
+          {!!hasAnyPricingUnitConfigured && (
+            <div className="flex flex-col gap-3 p-4 shadow-b">
+              <ComboBox
+                disableClearable
+                disabled={isInSubscriptionForm || disabled}
+                name="pricingUnit"
+                label={translate('text_1750411499858etvdxpxm4vd')}
+                sortValues={false}
+                data={pricingUnitDataForCombobox}
+                value={localCharge.appliedPricingUnit?.code}
+                onChange={(value) => {
+                  const [code, shortName, type] = value.split(CUSTOM_PRICING_UNIT_SEPARATOR)
+
+                  return handleUpdate('appliedPricingUnit', {
+                    code,
+                    shortName,
+                    type,
+                    conversionRate:
+                      type === LocalPricingUnitType.Custom
+                        ? localCharge.appliedPricingUnit?.conversionRate
+                        : undefined,
+                  })
+                }}
+              />
+
+              {localCharge.appliedPricingUnit?.type === LocalPricingUnitType.Custom && (
+                <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+                  <Typography variant="captionHl" color="textSecondary">
+                    {translate('text_1750411499858qxgqjoqtr3e')}
+                  </Typography>
+
+                  <Typography variant="captionHl" color="textSecondary">
+                    {translate('text_1750411499858su5b7bbp5t9')}
+                  </Typography>
+
+                  <div className="flex items-center gap-4">
+                    <div className="flex size-12 items-center justify-center rounded-xl border border-grey-300 bg-grey-100">
+                      1
+                    </div>
+
+                    <div className="flex size-12 items-center justify-center rounded-xl border border-grey-300 bg-grey-100">
+                      =
+                    </div>
+                  </div>
+
+                  <TextInput
+                    name="conversionRate"
+                    beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
+                    value={localCharge.appliedPricingUnit?.conversionRate}
+                    placeholder={translate('text_643e592657fc1ba5ce110c80')}
+                    onChange={(value) => {
+                      handleUpdate('appliedPricingUnit', {
+                        ...localCharge.appliedPricingUnit,
+                        conversionRate: value,
+                      })
+                    }}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          {getCurrencySymbol(currency)}
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Charge main infos */}
           <div className="p-4 pb-0" data-test="charge-model-wrapper">
             {!!shouldDisplayAlreadyUsedChargeAlert && (
@@ -545,11 +686,12 @@ export const ChargeAccordion = memo(
                     }}
                   >
                     <ChargeWrapperSwitch
+                      chargeIndex={index}
+                      chargePricingUnitShortName={chargePricingUnitShortName}
                       currency={currency}
                       formikProps={formikProps}
-                      chargeIndex={index}
-                      propertyCursor="properties"
                       premiumWarningDialogRef={premiumWarningDialogRef}
+                      propertyCursor="properties"
                       valuePointer={localCharge?.properties}
                     />
                   </ConditionalWrapper>
@@ -679,12 +821,13 @@ export const ChargeAccordion = memo(
                           />
 
                           <ChargeWrapperSwitch
-                            currency={currency}
-                            formikProps={formikProps}
                             chargeIndex={index}
+                            chargePricingUnitShortName={chargePricingUnitShortName}
+                            currency={currency}
                             filterIndex={filterIndex}
-                            propertyCursor={`filters.${filterIndex}.properties`}
+                            formikProps={formikProps}
                             premiumWarningDialogRef={premiumWarningDialogRef}
+                            propertyCursor={`filters.${filterIndex}.properties`}
                             valuePointer={filter.properties}
                           />
                         </div>
@@ -758,7 +901,11 @@ export const ChargeAccordion = memo(
           )}
 
           {/* Charge options */}
-          <ChargeOptionsAccordion charge={localCharge} currency={currency}>
+          <ChargeOptionsAccordion
+            charge={localCharge}
+            currency={currency}
+            chargePricingUnitShortName={chargePricingUnitShortName}
+          >
             <RadioGroupField
               name={`charges.${index}.payInAdvance`}
               label={translate('text_6682c52081acea90520743a8')}
@@ -861,7 +1008,7 @@ export const ChargeAccordion = memo(
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">
-                            {getCurrencySymbol(currency)}
+                            {chargePricingUnitShortName || getCurrencySymbol(currency)}
                           </InputAdornment>
                         ),
                       }}

@@ -23,6 +23,7 @@ gql`
 
 interface PackageChargeProps {
   chargeIndex: number
+  chargePricingUnitShortName: string | undefined
   currency: CurrencyEnum
   disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
@@ -33,6 +34,7 @@ interface PackageChargeProps {
 export const PackageCharge = memo(
   ({
     chargeIndex,
+    chargePricingUnitShortName,
     currency,
     disabled,
     formikProps,
@@ -63,7 +65,9 @@ export const PackageCharge = memo(
           onChange={(value) => handleUpdate(`${propertyCursor}.amount`, value)}
           InputProps={{
             endAdornment: (
-              <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>
+              <InputAdornment position="end">
+                {chargePricingUnitShortName || getCurrencySymbol(currency)}
+              </InputAdornment>
             ),
           }}
         />
@@ -119,6 +123,7 @@ export const PackageCharge = memo(
                     currencyDisplay: 'symbol',
                     maximumFractionDigits: 15,
                     currency,
+                    pricingUnitShortName: chargePricingUnitShortName,
                   }),
                 })}
               </Typography>
@@ -131,6 +136,7 @@ export const PackageCharge = memo(
                       currencyDisplay: 'symbol',
                       maximumFractionDigits: 15,
                       currency,
+                      pricingUnitShortName: chargePricingUnitShortName,
                     }),
                   })}
                 </Typography>
@@ -144,6 +150,7 @@ export const PackageCharge = memo(
                     currencyDisplay: 'symbol',
                     maximumFractionDigits: 15,
                     currency,
+                    pricingUnitShortName: chargePricingUnitShortName,
                   }),
                 })}
               </Typography>
@@ -155,6 +162,7 @@ export const PackageCharge = memo(
                     currencyDisplay: 'symbol',
                     maximumFractionDigits: 15,
                     currency,
+                    pricingUnitShortName: chargePricingUnitShortName,
                   }),
                 })}
               </Typography>

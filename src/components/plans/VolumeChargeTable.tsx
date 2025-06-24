@@ -26,6 +26,7 @@ gql`
 
 interface VolumeChargeTableProps {
   chargeIndex: number
+  chargePricingUnitShortName: string | undefined
   currency: CurrencyEnum
   disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
@@ -45,6 +46,7 @@ const DisabledAmountCell = ({ amount, currency }: { amount?: string; currency: C
 export const VolumeChargeTable = memo(
   ({
     chargeIndex,
+    chargePricingUnitShortName,
     currency,
     disabled,
     formikProps,
@@ -162,7 +164,7 @@ export const VolumeChargeTable = memo(
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            {getCurrencySymbol(currency)}
+                            {chargePricingUnitShortName || getCurrencySymbol(currency)}
                           </InputAdornment>
                         ),
                       }}
@@ -190,7 +192,7 @@ export const VolumeChargeTable = memo(
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            {getCurrencySymbol(currency)}
+                            {chargePricingUnitShortName || getCurrencySymbol(currency)}
                           </InputAdornment>
                         ),
                       }}
@@ -210,6 +212,7 @@ export const VolumeChargeTable = memo(
                   currencyDisplay: 'symbol',
                   maximumFractionDigits: 15,
                   currency,
+                  pricingUnitShortName: chargePricingUnitShortName,
                 }),
               })}
             </Typography>
@@ -220,16 +223,19 @@ export const VolumeChargeTable = memo(
                   currencyDisplay: 'symbol',
                   maximumFractionDigits: 15,
                   currency,
+                  pricingUnitShortName: chargePricingUnitShortName,
                 }),
                 lastRowFlatFee: intlFormatNumber(infosCalculation.lastRowFlatFee, {
                   currencyDisplay: 'symbol',
                   maximumFractionDigits: 15,
                   currency,
+                  pricingUnitShortName: chargePricingUnitShortName,
                 }),
                 value: intlFormatNumber(infosCalculation.value, {
                   currencyDisplay: 'symbol',
                   maximumFractionDigits: 15,
                   currency,
+                  pricingUnitShortName: chargePricingUnitShortName,
                 }),
               })}
             </Typography>
