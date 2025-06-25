@@ -4,7 +4,14 @@ import { Avatar, Icon, IconName } from 'lago-design-system'
 import { useEffect, useRef, useState } from 'react'
 import { Location, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
-import { Button, Popper, Skeleton, Typography, VerticalMenu } from '~/components/designSystem'
+import {
+  Button,
+  Popper,
+  Skeleton,
+  Typography,
+  VerticalMenu,
+  VerticalMenuSectionTitle,
+} from '~/components/designSystem'
 import { envGlobalVar, logOut, switchCurrentOrganization } from '~/core/apolloClient'
 import { DOCUMENTATION_URL, FEATURE_REQUESTS_URL } from '~/core/constants/externalUrls'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
@@ -44,8 +51,12 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
+import { NavLayout } from '~/layouts/NavLayout'
 import { MenuPopper } from '~/styles/designSystem'
 import { tw } from '~/styles/utils'
+
+// 280 + 2px for the border
+const POPPER_MIN_WIDTH = 282
 
 const { appEnv } = envGlobalVar()
 
@@ -66,7 +77,23 @@ interface TabProps {
   external?: boolean
 }
 
-const SideNav = () => {
+const VerticalMenuSkeleton = ({ numberOfElements }: { numberOfElements: number }) => {
+  return (
+    <div className="mt-1 flex flex-1 flex-col gap-4">
+      {Array.from({ length: numberOfElements }).map((_, i) => (
+        <div
+          key={`skeleton-upper-nav-${i}`}
+          className="flex flex-1 flex-row items-center gap-1 pt-1"
+        >
+          <Skeleton variant="circular" size="small" />
+          <Skeleton variant="text" className="w-30" />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+const MainNavLayout = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const client = useApolloClient()
@@ -93,7 +120,7 @@ const SideNav = () => {
   }, [pathname, contentRef, state?.disableScrollTop])
 
   return (
-    <div className="flex h-full">
+    <NavLayout.NavWrapper>
       <Button
         className="absolute left-4 top-4 z-drawer md:hidden"
         onClick={(e) => {
@@ -108,16 +135,12 @@ const SideNav = () => {
           if (open) setOpen(false)
         }}
       >
-        <div
-          className={tw(
-            'absolute z-sideNav flex h-full w-60 flex-col overflow-hidden bg-white transition-[left] duration-250 shadow-r md:static md:left-auto md:z-auto',
-            open ? 'left-0' : '-left-60',
-          )}
-        >
-          <div className="mt-14 px-4 pb-2 pt-4 md:mt-0">
+        <NavLayout.Nav className={tw(open ? 'left-0' : '-left-60')}>
+          {/* Organization popper */}
+          <div className="flex h-30 items-end p-4 md:h-16">
             <Popper
               PopperProps={{ placement: 'bottom-start' }}
-              minWidth={320}
+              minWidth={POPPER_MIN_WIDTH}
               maxHeight={`calc(100vh - 64px - 16px)`}
               enableFlip={false}
               opener={
@@ -125,6 +148,7 @@ const SideNav = () => {
                   className="max-w-[calc(240px-theme(space.8))] text-left *:first:mr-2"
                   data-test="side-nav-name"
                   variant="quaternary"
+                  size="small"
                   disabled={currentOrganizationLoading}
                 >
                   {currentOrganizationLoading ? (
@@ -149,7 +173,7 @@ const SideNav = () => {
                           initials={(organization?.name ?? 'Lago')[0]}
                         />
                       )}
-                      <Typography color="textSecondary" noWrap>
+                      <Typography variant="caption" color="textSecondary" noWrap>
                         {organization?.name}
                       </Typography>
                     </>
@@ -158,15 +182,14 @@ const SideNav = () => {
               }
             >
               {({ closePopper }) => (
-                <MenuPopper className="max-w-80 overflow-hidden p-0">
-                  <Typography className="min-h-11 px-5 py-4" variant="captionHl" noWrap>
-                    {currentUser?.email}
-                  </Typography>
+                <MenuPopper className="gap-0 overflow-hidden p-0 not-last-child:shadow-b">
                   {!!organizationList?.length && (
                     <div
-                      className="flex flex-col gap-1 overflow-auto p-2 pt-0"
+                      className="flex flex-col gap-1 overflow-auto p-2"
                       style={{ maxHeight: 'calc(100vh - 80px)' }}
                     >
+                      <VerticalMenuSectionTitle title={currentUser?.email || ''} />
+
                       {organizationList
                         .sort(
                           (a, b) =>
@@ -176,6 +199,7 @@ const SideNav = () => {
                           <Button
                             key={`organization-in-side-nav-${id}`}
                             align="left"
+                            size="small"
                             variant={id === organization?.id ? 'secondary' : 'quaternary'}
                             onClick={async () => {
                               await switchCurrentOrganization(client, id)
@@ -197,28 +221,31 @@ const SideNav = () => {
                                 initials={(name ?? 'Lago')[0]}
                               />
                             )}
-                            <Typography noWrap color="inherit">
+                            <Typography variant="caption" color="inherit" noWrap>
                               {name}
                             </Typography>
                           </Button>
                         ))}
                     </div>
                   )}
-                  <div className="flex items-center justify-between p-2 shadow-t first-child:text-left">
+
+                  <div className="flex items-center justify-between p-2 first-child:text-left">
                     <Button
                       variant="quaternary"
                       align="left"
+                      size="small"
                       startIcon="logout"
                       onClick={async () => await logOut(client, true)}
                     >
                       {translate('text_623b497ad05b960101be3444')}
                     </Button>
-                    {!!loading && !error ? (
+                    {loading && !error && (
                       <div className="flex h-5 items-center justify-between py-3 pl-5 pr-2">
                         <Skeleton variant="text" className="w-12" />
                         <Skeleton variant="text" className="w-30" />
                       </div>
-                    ) : !!data && !error ? (
+                    )}
+                    {data && !error && (
                       <div className="flex h-5 items-center justify-between py-3 pl-5 pr-2">
                         <a
                           className="flex items-center gap-2 text-blue visited:text-blue"
@@ -230,29 +257,24 @@ const SideNav = () => {
                           <Icon className="hover:cursor-pointer" name="outside" size="small" />
                         </a>
                       </div>
-                    ) : undefined}
+                    )}
                   </div>
                 </MenuPopper>
               )}
             </Popper>
           </div>
-          <div className="flex flex-1 flex-col overflow-auto px-4 pb-4 pt-2">
-            <div className="flex w-full flex-col gap-1 *:text-left">
+
+          {/* Top menu entries */}
+          <NavLayout.NavSectionGroup>
+            {/* Reports */}
+            <NavLayout.NavSection>
+              <VerticalMenuSectionTitle
+                title={translate('text_1750864025932bnohjbzci3f')}
+                loading={currentUserLoading}
+              />
               <VerticalMenu
                 loading={currentUserLoading}
-                loadingComponent={
-                  <div className="flex flex-1 flex-col gap-4">
-                    {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-                      <div
-                        key={`skeleton-upper-nav-${i}`}
-                        className="flex flex-1 flex-row items-center gap-3 pt-3"
-                      >
-                        <Skeleton variant="circular" size="small" />
-                        <Skeleton variant="text" className="w-30" />
-                      </div>
-                    ))}
-                  </div>
-                }
+                loadingComponent={<VerticalMenuSkeleton numberOfElements={1} />}
                 onClick={() => setOpen(false)}
                 tabs={[
                   {
@@ -262,6 +284,21 @@ const SideNav = () => {
                     match: [ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE],
                     hidden: !hasPermissions(['analyticsView']),
                   },
+                ]}
+              />
+            </NavLayout.NavSection>
+
+            {/* Configuration */}
+            <NavLayout.NavSection>
+              <VerticalMenuSectionTitle
+                title={translate('text_1750864088654kxz304zdo2z')}
+                loading={currentUserLoading}
+              />
+              <VerticalMenu
+                loading={currentUserLoading}
+                loadingComponent={<VerticalMenuSkeleton numberOfElements={4} />}
+                onClick={() => setOpen(false)}
+                tabs={[
                   {
                     title: translate('text_623b497ad05b960101be3448'),
                     icon: 'pulse',
@@ -269,14 +306,6 @@ const SideNav = () => {
                     canBeClickedOnActive: true,
                     match: [BILLABLE_METRICS_ROUTE, BILLABLE_METRIC_DETAILS_ROUTE],
                     hidden: !hasPermissions(['billableMetricsView']),
-                  },
-                  {
-                    title: translate('text_62442e40cea25600b0b6d85a'),
-                    icon: 'board',
-                    link: PLANS_ROUTE,
-                    canBeClickedOnActive: true,
-                    match: [PLANS_ROUTE, PLAN_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS],
-                    hidden: !hasPermissions(['plansView']),
                   },
                   {
                     title: translate('text_629728388c4d2300e2d3801a'),
@@ -287,6 +316,14 @@ const SideNav = () => {
                     hidden: !hasPermissions(['addonsView']),
                   },
                   {
+                    title: translate('text_62442e40cea25600b0b6d85a'),
+                    icon: 'board',
+                    link: PLANS_ROUTE,
+                    canBeClickedOnActive: true,
+                    match: [PLANS_ROUTE, PLAN_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS],
+                    hidden: !hasPermissions(['plansView']),
+                  },
+                  {
                     title: translate('text_62865498824cc10126ab2940'),
                     icon: 'coupon',
                     link: COUPONS_ROUTE,
@@ -294,6 +331,21 @@ const SideNav = () => {
                     match: [COUPONS_ROUTE, COUPON_DETAILS_ROUTE],
                     hidden: !hasPermissions(['couponsView']),
                   },
+                ]}
+              />
+            </NavLayout.NavSection>
+
+            {/* Billing & operations */}
+            <NavLayout.NavSection>
+              <VerticalMenuSectionTitle
+                title={translate('text_1750864088654s9qo2h9fvp7')}
+                loading={currentUserLoading}
+              />
+              <VerticalMenu
+                loading={currentUserLoading}
+                loadingComponent={<VerticalMenuSkeleton numberOfElements={7} />}
+                onClick={() => setOpen(false)}
+                tabs={[
                   {
                     title: translate('text_624efab67eb2570101d117a5'),
                     icon: 'user-multiple',
@@ -318,83 +370,85 @@ const SideNav = () => {
                   },
                 ]}
               />
-            </div>
-            <div className="mt-auto flex w-full flex-col gap-1 pt-12 *:text-left">
-              <VerticalMenu
-                loading={currentUserLoading}
-                loadingComponent={
-                  <Stack flex={1} gap={4}>
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <Stack
-                        key={`skeleton-lower-nav-${i}`}
-                        flex={1}
-                        gap={3}
-                        direction={'row'}
-                        paddingTop={3}
-                      >
-                        <Skeleton variant="circular" size="small" />
-                        <Skeleton variant="text" className="w-30" />
-                      </Stack>
-                    ))}
-                  </Stack>
-                }
-                onClick={() => setOpen(false)}
-                tabs={[
-                  ...([AppEnvEnum.qa, AppEnvEnum.development].includes(appEnv)
-                    ? [
-                        {
-                          title: 'Design System',
-                          icon: 'rocket',
-                          link: ONLY_DEV_DESIGN_SYSTEM_ROUTE,
-                          match: [ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, ONLY_DEV_DESIGN_SYSTEM_ROUTE],
-                        } as TabProps,
-                      ]
-                    : []),
-                  {
-                    title: translate('text_63fdd3e4076c80ecf4136f33'),
-                    icon: 'bulb',
-                    link: FEATURE_REQUESTS_URL,
-                    external: true,
-                  },
-                  {
-                    title: translate('text_6295e58352f39200d902b01c'),
-                    icon: 'book',
-                    link: DOCUMENTATION_URL,
-                    external: true,
-                  },
-                  {
-                    title: translate('text_62728ff857d47b013204c726'),
-                    icon: 'settings',
-                    link: SETTINGS_ROUTE,
-                    canBeClickedOnActive: true,
-                    match: [
-                      EMAILS_SETTINGS_ROUTE,
-                      INTEGRATIONS_ROUTE,
-                      INVOICE_SETTINGS_ROUTE,
-                      MEMBERS_ROUTE,
-                      ORGANIZATION_INFORMATIONS_ROUTE,
-                      TAXES_SETTINGS_ROUTE,
-                    ],
-                    hidden: !hasPermissions(['organizationView']),
-                  },
-                  {
-                    title: translate('text_6271200984178801ba8bdeac'),
-                    icon: 'terminal',
-                    onAction: openInspector,
-                    canBeClickedOnActive: true,
-                    hidden: !hasPermissions(['developersManage']),
-                  },
-                ]}
-              />
-            </div>
-          </div>
-        </div>
+            </NavLayout.NavSection>
+          </NavLayout.NavSectionGroup>
+
+          {/* Bottom menu entries */}
+          <NavLayout.NavSection className="mt-auto p-4">
+            <VerticalMenu
+              loading={currentUserLoading}
+              loadingComponent={
+                <Stack flex={1} gap={4}>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <Stack
+                      key={`skeleton-lower-nav-${i}`}
+                      flex={1}
+                      gap={3}
+                      direction={'row'}
+                      paddingTop={3}
+                    >
+                      <Skeleton variant="circular" size="small" />
+                      <Skeleton variant="text" className="w-30" />
+                    </Stack>
+                  ))}
+                </Stack>
+              }
+              onClick={() => setOpen(false)}
+              tabs={[
+                ...([AppEnvEnum.qa, AppEnvEnum.development].includes(appEnv)
+                  ? [
+                      {
+                        title: 'Design System',
+                        icon: 'rocket',
+                        link: ONLY_DEV_DESIGN_SYSTEM_ROUTE,
+                        match: [ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, ONLY_DEV_DESIGN_SYSTEM_ROUTE],
+                      } as TabProps,
+                    ]
+                  : []),
+                {
+                  title: translate('text_63fdd3e4076c80ecf4136f33'),
+                  icon: 'bulb',
+                  link: FEATURE_REQUESTS_URL,
+                  external: true,
+                },
+                {
+                  title: translate('text_6295e58352f39200d902b01c'),
+                  icon: 'book',
+                  link: DOCUMENTATION_URL,
+                  external: true,
+                },
+                {
+                  title: translate('text_62728ff857d47b013204c726'),
+                  icon: 'settings',
+                  link: SETTINGS_ROUTE,
+                  canBeClickedOnActive: true,
+                  match: [
+                    EMAILS_SETTINGS_ROUTE,
+                    INTEGRATIONS_ROUTE,
+                    INVOICE_SETTINGS_ROUTE,
+                    MEMBERS_ROUTE,
+                    ORGANIZATION_INFORMATIONS_ROUTE,
+                    TAXES_SETTINGS_ROUTE,
+                  ],
+                  hidden: !hasPermissions(['organizationView']),
+                },
+                {
+                  title: translate('text_6271200984178801ba8bdeac'),
+                  icon: 'terminal',
+                  onAction: openInspector,
+                  canBeClickedOnActive: true,
+                  hidden: !hasPermissions(['developersManage']),
+                },
+              ]}
+            />
+          </NavLayout.NavSection>
+        </NavLayout.Nav>
       </ClickAwayListener>
-      <div className="flex-1 overflow-y-auto" ref={contentRef}>
+      <NavLayout.ContentWrapper ref={contentRef}>
         <Outlet />
-      </div>
-    </div>
+      </NavLayout.ContentWrapper>
+    </NavLayout.NavWrapper>
   )
 }
 
-export default SideNav
+export default MainNavLayout

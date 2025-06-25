@@ -1,4 +1,4 @@
-import { Icon } from 'lago-design-system'
+import { Icon, IconName, Skeleton } from 'lago-design-system'
 import _omit from 'lodash/omit'
 import { ReactNode } from 'react'
 import { matchPath, useLocation } from 'react-router-dom'
@@ -47,7 +47,7 @@ export const VerticalMenu = ({
 
   return (
     <div className="flex w-full flex-col overflow-visible" {...props}>
-      {!loading && tabs.length > 1 && (
+      {!loading && (
         <div className="flex w-full flex-1 flex-col gap-1 overflow-visible">
           {tabs.map((tab, i) => {
             const { link, hidden, title, beta, external, onAction, ...tabProps } = tab
@@ -57,6 +57,7 @@ export const VerticalMenu = ({
             if (link) {
               return (
                 <ButtonLink
+                  className="[&_button]:rounded-lg"
                   external={external}
                   title={title}
                   key={`${i}-${name}-${link}`}
@@ -64,11 +65,14 @@ export const VerticalMenu = ({
                   type="tab"
                   active={link === activeTab?.link}
                   onClick={!!onClick ? () => onClick(tab) : undefined}
+                  buttonProps={{
+                    size: 'small',
+                  }}
                   {..._omit(tabProps, ['component', 'match'])}
                 >
                   <div className="flex w-full flex-row items-center justify-between">
                     <div className="flex items-baseline gap-2">
-                      <Typography variant="body" color="inherit" noWrap>
+                      <Typography variant="caption" color="inherit" noWrap>
                         {title}
                       </Typography>
                       {!!beta && (
@@ -86,10 +90,11 @@ export const VerticalMenu = ({
                   variant="quaternary"
                   startIcon={tabProps.icon}
                   onClick={onAction}
+                  size="small"
                 >
                   <div className="flex w-full flex-row items-center justify-between">
                     <div className="flex items-baseline gap-2">
-                      <Typography variant="body" color="inherit" noWrap>
+                      <Typography variant="caption" color="inherit" noWrap>
                         {title}
                       </Typography>
                       {!!beta && (
@@ -115,6 +120,28 @@ export const VerticalMenu = ({
       ) : (
         activeTab?.component || children
       )}
+    </div>
+  )
+}
+
+export const VerticalMenuSectionTitle = ({
+  title,
+  icon,
+  loading,
+}: {
+  title: string
+  icon?: IconName
+  loading?: boolean
+}) => {
+  if (loading) return <Skeleton variant="text" className="mt-3 w-25" />
+
+  return (
+    <div className="flex items-center gap-2 px-3 py-1">
+      {icon && <Icon name={icon} size="small" />}
+
+      <Typography variant="noteHl" color="grey500">
+        {title}
+      </Typography>
     </div>
   )
 }

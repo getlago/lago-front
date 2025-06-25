@@ -18,7 +18,7 @@ import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
 
 // ----------- Layouts -----------
-const Settings = lazyLoad(() => import('~/layouts/Settings'))
+const Settings = lazyLoad(() => import('~/layouts/SettingsNavLayout'))
 
 // ----------- Pages -----------
 const CreateInvoiceCustomSection = lazyLoad(
