@@ -72,8 +72,6 @@ export const ApiLogs = () => {
     return formatFiltersForApiLogsQuery(searchParams)
   }, [searchParams])
 
-  console.log(filtersForApiLogsQuery)
-
   const getApiLogsResult = useGetApiLogsQuery({
     variables: { limit: 20, ...filtersForApiLogsQuery },
     notifyOnNetworkStatusChange: true,
