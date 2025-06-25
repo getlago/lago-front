@@ -85,13 +85,15 @@ export const ApiLogs = () => {
         const firstLog = logCollection[0]
 
         if (firstLog && getCurrentBreakpoint() !== 'sm') {
-          const path = generatePath(API_LOG_ROUTE, { logId: firstLog.requestId })
-          const query = currentSearchParams?.toString()
-          const search = query ? `?${query}` : ''
-
-          navigate(`${path}${search}`, {
-            replace: true,
-          })
+          navigate(
+            {
+              pathname: generatePath(API_LOG_ROUTE, { logId: firstLog.requestId }),
+              search: currentSearchParams?.toString(),
+            },
+            {
+              replace: true,
+            },
+          )
         }
       }
     },
@@ -113,7 +115,7 @@ export const ApiLogs = () => {
 
   // The table should highlight the selected row when the logId is provided in params
   useLayoutEffect(() => {
-    if (logId) {
+    if (!!logId) {
       logListRef.current?.setActiveRow(logId)
     }
   }, [logId])
@@ -153,6 +155,7 @@ export const ApiLogs = () => {
           {translate('text_1738748043939zqoqzz350yj')}
         </Button>
       </LogsLayout.CTASection>
+
       <LogsLayout.ListSection
         ref={logListRef}
         leftSide={<ApiLogsTable getApiLogsResult={getApiLogsResult} logListRef={logListRef} />}

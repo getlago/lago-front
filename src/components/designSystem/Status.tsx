@@ -180,7 +180,7 @@ export const Status: FC<StatusProps> = ({
       data-test="status"
     >
       <Typography variant="captionHl" color={config.color} noWrap>
-        {typeof label === 'number' ? label : translate(statusLabel, labelVariables ?? {})}
+        {typeof label === 'string' ? translate(statusLabel, labelVariables ?? {}) : label}
       </Typography>
       {endIcon && <Icon name={endIcon} size="medium" color={config.iconColor} />}
     </div>
