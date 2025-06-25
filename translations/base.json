@@ -2957,7 +2957,7 @@
   "text_1742367266659ihskmbc8ugz": "Archive billing entity",
   "text_1742367266660brmeya6gbcn": "To permanently archive a billing entity, please contact us and we will handle this for you.",
   "text_1742367266660b7aw6idpgux": "Settings",
-  "text_1742367266660p3a701mnvli": "Create entity",
+  "text_1742367266660p3a701mnvli": "Add an entity",
   "text_17423672666602uggxpe1r0v": "Create a billing entity",
   "text_1743077296189h6w5gkxmgwz": "Edit billing entity",
   "text_1743077296189ji809eyi90y": "A billing entity allows you to invoice a customer with customized settings and information.",
@@ -3257,5 +3257,8 @@
   "text_1749819999030uz8ddys1puu": "API endpoint",
   "text_1749819999031vobdu7h2c7c": "HTTP Method",
   "text_17498224925954a8mk0enwdj": "Response body",
-  "text_1749822492595ayr96w7ez17": "Request body"
+  "text_1749822492595ayr96w7ez17": "Request body",
+  "text_1750864025932bnohjbzci3f": "Reports",
+  "text_1750864088654kxz304zdo2z": "Configuration",
+  "text_1750864088654s9qo2h9fvp7": "Billing & operations"
 }
