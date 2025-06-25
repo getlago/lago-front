@@ -96,6 +96,14 @@ gql`
       id
       minAmountCents
       payInAdvance
+      appliedPricingUnit {
+        conversionRate
+        pricingUnit {
+          id
+          code
+          shortName
+        }
+      }
       taxes {
         ...TaxForPlanAndChargesInPlanForm
       }

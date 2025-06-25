@@ -3199,11 +3199,18 @@
   "text_17502574817266iopiux8fb8": "Edit a pricing unit",
   "text_175025748172630micceie8p": "By leaving, the changes made won’t be saved. Are you sure you want to leave?",
   "text_17502574817266uy9bvk3i8u": "Pricing unit settings",
-  "text_17502578313682gsr5pls9a3": "Define a name to easily identify it.",
-  "text_1750257831368e6n6ys36s6u": "This value will be used on invoices to display prices set in this pricing unit (e.g., USD, EUR).",
+  "text_17502578313682gsr5pls9a3": "Define the pricing units information to easily identify it.",
+  "text_1750257831368e6n6ys36s6u": "Max 3 chars, this value will be used on invoices to display prices set in this pricing unit (e.g., USD, EUR).",
   "text_1750257831368z0azd7znlhf": "Pricing units is a unique currency to price your plans in currencies other than fiat.",
   "text_1750257831368ae3rtaclhjy": "Type a description",
   "text_1750318746535n43q7vkxq1h": "Pricing units successfully edited",
   "text_1750318746536n39old34rpc": "Pricing units successfully created",
-  "text_1750319326160woun10ws3h1": "Create pricing unit"
+  "text_1750319326160woun10ws3h1": "Create pricing unit",
+  "text_1750411499858etvdxpxm4vd": "Charge currency",
+  "text_1750411499858qxgqjoqtr3e": "Pricing unit",
+  "text_1750411499858su5b7bbp5t9": "Conversion rate",
+  "text_1750411499858a87tkuylqms": "Plan’s currency",
+  "text_1750424999814th7cu8hbg7u": "Please note that once a pricing unit is created, it can’t be deleted.",
+  "text_1750424999815sw5whlu1xj0": "1 {{shortName}} = {{conversionRateAmount}}",
+  "text_1750424999815o2wik8216ht": "This value should have a maximum length of 3 characters"
 }

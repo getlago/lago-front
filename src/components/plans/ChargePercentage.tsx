@@ -29,26 +29,28 @@ gql`
 `
 
 interface ChargePercentageProps {
-  disabled?: boolean
   chargeIndex: number
-  filterIndex?: number
+  chargePricingUnitShortName: string | undefined
   currency: CurrencyEnum
+  disabled?: boolean
+  filterIndex?: number
   formikProps: FormikProps<PlanFormInput>
+  premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
   propertyCursor: string
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
-  premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
 }
 
 export const ChargePercentage = memo(
   ({
+    chargeIndex,
+    chargePricingUnitShortName,
     currency,
     disabled,
-    chargeIndex,
     filterIndex,
     formikProps,
+    premiumWarningDialogRef,
     propertyCursor,
     valuePointer,
-    premiumWarningDialogRef,
   }: ChargePercentageProps) => {
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
@@ -62,6 +64,7 @@ export const ChargePercentage = memo(
     let freeUnitsPerTotalAggregationTranslation = translate('text_6303351deffd2a0d70498677', {
       freeAmountUnits: intlFormatNumber(Number(valuePointer?.freeUnitsPerTotalAggregation) || 0, {
         currencyDisplay: 'symbol',
+        pricingUnitShortName: chargePricingUnitShortName,
         currency,
         maximumFractionDigits: 15,
       }),
@@ -124,7 +127,9 @@ export const ChargePercentage = memo(
               onChange={(value) => handleUpdate(`${propertyCursor}.fixedAmount`, value)}
               InputProps={{
                 endAdornment: (
-                  <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>
+                  <InputAdornment position="end">
+                    {chargePricingUnitShortName || getCurrencySymbol(currency)}
+                  </InputAdornment>
                 ),
               }}
               helperText={translate('text_62ff5d01a306e274d4ffcc30')}
@@ -214,7 +219,9 @@ export const ChargePercentage = memo(
               }
               InputProps={{
                 endAdornment: (
-                  <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>
+                  <InputAdornment position="end">
+                    {chargePricingUnitShortName || getCurrencySymbol(currency)}
+                  </InputAdornment>
                 ),
               }}
               data-test="free-unit-per-total-aggregation"
@@ -269,7 +276,9 @@ export const ChargePercentage = memo(
               onChange={(value) => handleUpdate(`${propertyCursor}.perTransactionMinAmount`, value)}
               InputProps={{
                 endAdornment: (
-                  <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>
+                  <InputAdornment position="end">
+                    {chargePricingUnitShortName || getCurrencySymbol(currency)}
+                  </InputAdornment>
                 ),
               }}
               data-test="per-transaction-min-amount"
@@ -311,7 +320,9 @@ export const ChargePercentage = memo(
               onChange={(value) => handleUpdate(`${propertyCursor}.perTransactionMaxAmount`, value)}
               InputProps={{
                 endAdornment: (
-                  <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>
+                  <InputAdornment position="end">
+                    {chargePricingUnitShortName || getCurrencySymbol(currency)}
+                  </InputAdornment>
                 ),
               }}
               data-test="per-transaction-max-amount"
@@ -520,9 +531,10 @@ export const ChargePercentage = memo(
             <Typography color="textSecondary">
               {translate('text_62ff5d01a306e274d4ffcc69', {
                 fixedFeeValue: intlFormatNumber(Number(valuePointer?.fixedAmount) || 0, {
-                  currencyDisplay: 'symbol',
                   currency,
+                  currencyDisplay: 'symbol',
                   maximumFractionDigits: 15,
+                  pricingUnitShortName: chargePricingUnitShortName,
                 }),
               })}
             </Typography>
@@ -533,6 +545,7 @@ export const ChargePercentage = memo(
             <Typography color="textSecondary">
               {translate('text_64e7b273b046851c46d78241', {
                 minAmount: intlFormatNumber(Number(valuePointer?.perTransactionMinAmount || 0), {
+                  pricingUnitShortName: chargePricingUnitShortName,
                   currency,
                   currencyDisplay: 'symbol',
                   minimumFractionDigits: 2,
@@ -547,6 +560,7 @@ export const ChargePercentage = memo(
                   currency,
                   currencyDisplay: 'symbol',
                   minimumFractionDigits: 2,
+                  pricingUnitShortName: chargePricingUnitShortName,
                 }),
               })}
             </Typography>
@@ -558,11 +572,13 @@ export const ChargePercentage = memo(
                   currency,
                   currencyDisplay: 'symbol',
                   minimumFractionDigits: 2,
+                  pricingUnitShortName: chargePricingUnitShortName,
                 }),
                 maxAmount: intlFormatNumber(Number(valuePointer?.perTransactionMaxAmount || 0), {
                   currency,
                   currencyDisplay: 'symbol',
                   minimumFractionDigits: 2,
+                  pricingUnitShortName: chargePricingUnitShortName,
                 }),
               })}
             </Typography>

@@ -21,6 +21,7 @@ gql`
 
 interface StandardChargeProps {
   chargeIndex: number
+  chargePricingUnitShortName: string | undefined
   currency: CurrencyEnum
   formikProps: FormikProps<PlanFormInput>
   propertyCursor: string
@@ -31,6 +32,7 @@ interface StandardChargeProps {
 export const StandardCharge = memo(
   ({
     chargeIndex,
+    chargePricingUnitShortName,
     currency,
     disabled,
     formikProps,
@@ -51,6 +53,7 @@ export const StandardCharge = memo(
       <div className="flex flex-col gap-6">
         <AmountInput
           name={`${propertyCursor}.amount`}
+          chargePricingUnitShortName={chargePricingUnitShortName}
           currency={currency}
           beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
           disabled={disabled}
@@ -59,7 +62,9 @@ export const StandardCharge = memo(
           onChange={(value) => handleUpdate(`${propertyCursor}.amount`, value)}
           InputProps={{
             endAdornment: (
-              <InputAdornment position="end">{getCurrencySymbol(currency)}</InputAdornment>
+              <InputAdornment position="end">
+                {chargePricingUnitShortName || getCurrencySymbol(currency)}
+              </InputAdornment>
             ),
           }}
         />

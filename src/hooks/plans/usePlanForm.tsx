@@ -4,7 +4,7 @@ import { useEffect, useMemo } from 'react'
 import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { array, boolean, number, object, string } from 'yup'
 
-import { LocalChargeInput, PlanFormInput } from '~/components/plans/types'
+import { LocalChargeInput, LocalPricingUnitType, PlanFormInput } from '~/components/plans/types'
 import { transformFilterObjectToString } from '~/components/plans/utils'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -41,6 +41,7 @@ import {
   useUpdatePlanMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
@@ -90,6 +91,7 @@ export const usePlanForm: ({
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
   const { planId: id } = useParams()
+  const { hasAnyPricingUnitConfigured } = useCustomPricingUnits()
   const { parentId, type: actionType } = useDuplicatePlanVar()
   const { data, loading, error } = useGetSinglePlanQuery({
     context: { silentError: LagoApiError.NotFound },
@@ -107,7 +109,7 @@ export const usePlanForm: ({
   const plan = data?.plan
   const initialCurrency =
     type === FORM_TYPE_ENUM.creation && !isUsedInSubscriptionForm
-      ? organization?.defaultCurrency
+      ? organization?.defaultCurrency || CurrencyEnum.Usd
       : plan?.amountCurrency || CurrencyEnum.Usd
   const onSave =
     type === FORM_TYPE_ENUM.edition
@@ -139,8 +141,8 @@ export const usePlanForm: ({
       payInAdvance: plan?.payInAdvance || false,
       amountCents: isNaN(plan?.amountCents)
         ? ''
-        : String(deserializeAmount(plan?.amountCents || 0, initialCurrency || CurrencyEnum.Usd)),
-      amountCurrency: initialCurrency || CurrencyEnum.Usd,
+        : String(deserializeAmount(plan?.amountCents || 0, initialCurrency)),
+      amountCurrency: initialCurrency,
       trialPeriod:
         plan?.trialPeriod === null || plan?.trialPeriod === undefined
           ? isEdition
@@ -152,10 +154,7 @@ export const usePlanForm: ({
         ? {
             ...plan?.minimumCommitment,
             amountCents: String(
-              deserializeAmount(
-                plan?.minimumCommitment.amountCents || 0,
-                initialCurrency || CurrencyEnum.Usd,
-              ),
+              deserializeAmount(plan?.minimumCommitment.amountCents || 0, initialCurrency),
             ),
           }
         : {},
@@ -165,20 +164,14 @@ export const usePlanForm: ({
               .filter(({ recurring }) => !recurring)
               .map((threshold) => ({
                 ...threshold,
-                amountCents: deserializeAmount(
-                  threshold.amountCents || 0,
-                  initialCurrency || CurrencyEnum.Usd,
-                ),
+                amountCents: deserializeAmount(threshold.amountCents || 0, initialCurrency),
               }))
               .sort((a, b) => a.amountCents - b.amountCents)
           : undefined,
       recurringUsageThreshold: plan?.usageThresholds
         ?.map((threshold) => ({
           ...threshold,
-          amountCents: deserializeAmount(
-            threshold.amountCents || 0,
-            initialCurrency || CurrencyEnum.Usd,
-          ),
+          amountCents: deserializeAmount(threshold.amountCents || 0, initialCurrency),
         }))
         .find(({ recurring }) => !!recurring),
       charges: plan?.charges
@@ -190,45 +183,59 @@ export const usePlanForm: ({
               payInAdvance,
               invoiceDisplayName,
               filters,
+              appliedPricingUnit,
               ...charge
-            }) => ({
-              // Used to not enable submit button on invoiceDisplayName reset
-              invoiceDisplayName: invoiceDisplayName || '',
-              taxes: taxes || [],
-              minAmountCents:
-                // Some plan have been saved with minAmountCents as 0 string but it makes the sub form send an override plan each time
-                // This || minAmountCents === '0' serves to prevent this to happen
-                isNaN(minAmountCents) || minAmountCents === '0'
-                  ? undefined
-                  : String(
-                      deserializeAmount(
-                        minAmountCents || 0,
-                        plan.amountCurrency || CurrencyEnum.Usd,
+            }) => {
+              return {
+                appliedPricingUnit:
+                  !hasAnyPricingUnitConfigured && !appliedPricingUnit
+                    ? undefined
+                    : {
+                        code: appliedPricingUnit?.pricingUnit?.code || initialCurrency,
+                        conversionRate: String(appliedPricingUnit?.conversionRate),
+                        shortName: appliedPricingUnit?.pricingUnit?.shortName || initialCurrency,
+                        type: !!appliedPricingUnit?.pricingUnit?.code
+                          ? LocalPricingUnitType.Custom
+                          : LocalPricingUnitType.Fiat,
+                      },
+                // Used to not enable submit button on invoiceDisplayName reset
+                invoiceDisplayName: invoiceDisplayName || '',
+                taxes: taxes || [],
+                minAmountCents:
+                  // Some plan have been saved with minAmountCents as 0 string but it makes the sub form send an override plan each time
+                  // This || minAmountCents === '0' serves to prevent this to happen
+                  isNaN(minAmountCents) || minAmountCents === '0'
+                    ? undefined
+                    : String(
+                        deserializeAmount(
+                          minAmountCents || 0,
+                          plan.amountCurrency || CurrencyEnum.Usd,
+                        ),
                       ),
-                    ),
-              payInAdvance: payInAdvance || false,
-              properties: properties ? getPropertyShape(properties) : undefined,
-              regroupPaidFees: charge.regroupPaidFees || null,
-              filters: (filters || []).map((filter) => {
-                const values = Object.entries(filter.values || {}).reduce<string[]>(
-                  (acc, [key, objectValues]) => {
-                    ;(objectValues as string[]).map((v) => {
-                      acc.push(transformFilterObjectToString(key, v))
-                    })
+                payInAdvance: payInAdvance || false,
+                properties: properties ? getPropertyShape(properties) : undefined,
+                regroupPaidFees: charge.regroupPaidFees || null,
+                filters: (filters || []).map((filter) => {
+                  const values = Object.entries(filter.values || {}).reduce<string[]>(
+                    (acc, [key, objectValues]) => {
+                      ;(objectValues as string[]).map((v) => {
+                        acc.push(transformFilterObjectToString(key, v))
+                      })
 
-                    return acc
-                  },
-                  [],
-                )
+                      return acc
+                    },
+                    [],
+                  )
 
-                return {
-                  ...filter,
-                  properties: getPropertyShape(filter.properties),
-                  values,
-                }
-              }),
-              ...charge,
-            }),
+                  return {
+                    ...filter,
+                    properties: getPropertyShape(filter.properties),
+                    values,
+                  }
+                }),
+                ...charge,
+              }
+            },
           ) as LocalChargeInput[])
         : ([] as LocalChargeInput[]),
       cascadeUpdates: undefined,

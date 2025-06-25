@@ -21,6 +21,7 @@ import {
   useGetRecurringBillableMetricsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { MenuPopper } from '~/styles'
 
 import { ChargeAccordion } from './ChargeAccordion'
@@ -28,7 +29,7 @@ import {
   RemoveChargeWarningDialog,
   RemoveChargeWarningDialogRef,
 } from './RemoveChargeWarningDialog'
-import { LocalChargeInput, PlanFormInput } from './types'
+import { LocalChargeInput, LocalPricingUnitType, PlanFormInput } from './types'
 
 const RESULT_LIMIT = 50
 
@@ -96,6 +97,7 @@ export const ChargesSection = memo(
     subscriptionFormType,
   }: ChargesSectionProps) => {
     const { translate } = useInternationalization()
+    const { hasAnyPricingUnitConfigured } = useCustomPricingUnits()
     const hasAnyCharge = !!formikProps.values.charges.length
     const [showAddMeteredCharge, setShowAddMeteredCharge] = useState(false)
     const [showAddRecurringCharge, setShowAddRecurringCharge] = useState(false)
@@ -380,6 +382,14 @@ export const ChargesSection = memo(
                         filters: !!localBillableMetrics?.filters?.length ? [] : undefined,
                         chargeModel: ChargeModelEnum.Standard,
                         amountCents: undefined,
+                        appliedPricingUnit: !hasAnyPricingUnitConfigured
+                          ? undefined
+                          : {
+                              code: formikProps.values.amountCurrency,
+                              conversionRate: undefined,
+                              shortName: formikProps.values.amountCurrency,
+                              type: LocalPricingUnitType.Fiat,
+                            },
                       } as LocalChargeInput)
 
                       formikProps.setFieldValue('charges', previousCharges)
@@ -496,6 +506,14 @@ export const ChargesSection = memo(
                           filters: !!localBillableMetrics?.filters?.length ? [] : undefined,
                           chargeModel: ChargeModelEnum.Standard,
                           amountCents: undefined,
+                          appliedPricingUnit: !hasAnyPricingUnitConfigured
+                            ? undefined
+                            : {
+                                code: formikProps.values.amountCurrency,
+                                conversionRate: undefined,
+                                shortName: formikProps.values.amountCurrency,
+                                type: LocalPricingUnitType.Fiat,
+                              },
                         },
                       ])
                       setShowAddRecurringCharge(false)

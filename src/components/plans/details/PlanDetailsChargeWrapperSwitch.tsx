@@ -4,17 +4,25 @@ import { Alert, Chip } from '~/components/designSystem'
 import { JsonEditor } from '~/components/form'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { ChargeModelEnum, CurrencyEnum, Maybe, Properties } from '~/generated/graphql'
+import {
+  AppliedPricingUnit,
+  ChargeModelEnum,
+  CurrencyEnum,
+  Maybe,
+  Properties,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 export const PlanDetailsChargeWrapperSwitch = ({
   currency,
   chargeModel,
   values,
+  chargeAppliedPricingUnit,
 }: {
   currency: CurrencyEnum
   chargeModel: ChargeModelEnum
   values?: Maybe<Properties>
+  chargeAppliedPricingUnit: Maybe<AppliedPricingUnit> | undefined
 }) => {
   const componentId = useId()
   const { translate } = useInternationalization()
@@ -29,6 +37,7 @@ export const PlanDetailsChargeWrapperSwitch = ({
           body={[
             [
               intlFormatNumber(Number(values?.amount) || 0, {
+                pricingUnitShortName: chargeAppliedPricingUnit?.pricingUnit?.shortName,
                 currency: currency,
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 15,
@@ -48,6 +57,7 @@ export const PlanDetailsChargeWrapperSwitch = ({
           body={[
             [
               intlFormatNumber(Number(values?.amount) || 0, {
+                pricingUnitShortName: chargeAppliedPricingUnit?.pricingUnit?.shortName,
                 currency: currency,
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 15,
@@ -73,11 +83,13 @@ export const PlanDetailsChargeWrapperSwitch = ({
                 value.fromValue,
                 value.toValue || '∞',
                 intlFormatNumber(Number(value.perUnitAmount) || 0, {
+                  pricingUnitShortName: chargeAppliedPricingUnit?.pricingUnit?.shortName,
                   currency: currency,
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 15,
                 }),
                 intlFormatNumber(Number(value.flatAmount) || 0, {
+                  pricingUnitShortName: chargeAppliedPricingUnit?.pricingUnit?.shortName,
                   currency: currency,
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 15,
@@ -107,6 +119,7 @@ export const PlanDetailsChargeWrapperSwitch = ({
                     maximumFractionDigits: 15,
                   }),
                   intlFormatNumber(Number(value.flatAmount) || 0, {
+                    pricingUnitShortName: chargeAppliedPricingUnit?.pricingUnit?.shortName,
                     currency: currency,
                     maximumFractionDigits: 15,
                   }),
@@ -132,10 +145,12 @@ export const PlanDetailsChargeWrapperSwitch = ({
                   maximumFractionDigits: 15,
                 }),
                 intlFormatNumber(Number(values?.fixedAmount) || 0, {
+                  pricingUnitShortName: chargeAppliedPricingUnit?.pricingUnit?.shortName,
                   currency: currency,
                 }),
                 !!values?.freeUnitsPerEvents ? values?.freeUnitsPerEvents : 0,
                 intlFormatNumber(Number(values?.freeUnitsPerTotalAggregation) || 0, {
+                  pricingUnitShortName: chargeAppliedPricingUnit?.pricingUnit?.shortName,
                   currency: currency,
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 15,
@@ -149,6 +164,7 @@ export const PlanDetailsChargeWrapperSwitch = ({
               {
                 label: translate('text_65201b8216455901fe273e01'),
                 value: intlFormatNumber(Number(values?.perTransactionMinAmount || 0), {
+                  pricingUnitShortName: chargeAppliedPricingUnit?.pricingUnit?.shortName,
                   currency: currency,
                   minimumFractionDigits: 2,
                 }),
@@ -156,6 +172,7 @@ export const PlanDetailsChargeWrapperSwitch = ({
               {
                 label: translate('text_65201b8216455901fe273e03'),
                 value: intlFormatNumber(Number(values?.perTransactionMaxAmount || 0), {
+                  pricingUnitShortName: chargeAppliedPricingUnit?.pricingUnit?.shortName,
                   currency: currency,
                   minimumFractionDigits: 2,
                 }),
@@ -179,11 +196,13 @@ export const PlanDetailsChargeWrapperSwitch = ({
                 value.fromValue,
                 value.toValue || '∞',
                 intlFormatNumber(Number(value.perUnitAmount) || 0, {
+                  pricingUnitShortName: chargeAppliedPricingUnit?.pricingUnit?.shortName,
                   currency: currency,
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 15,
                 }),
                 intlFormatNumber(Number(value.flatAmount) || 0, {
+                  pricingUnitShortName: chargeAppliedPricingUnit?.pricingUnit?.shortName,
                   currency: currency,
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 15,

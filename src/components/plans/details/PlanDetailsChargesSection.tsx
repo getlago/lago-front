@@ -66,6 +66,27 @@ export const PlanDetailsChargesSection = ({
               }
             >
               <section className="flex flex-col gap-4">
+                {!!charge.appliedPricingUnit && (
+                  <div className="p-4 shadow-b">
+                    <DetailsPage.InfoGrid
+                      grid={[
+                        {
+                          label: translate('text_1750411499858su5b7bbp5t9'),
+                          value: translate('text_1750424999815sw5whlu1xj0', {
+                            shortName: charge.appliedPricingUnit?.pricingUnit?.shortName,
+                            conversionRateAmount: intlFormatNumber(
+                              charge.appliedPricingUnit?.conversionRate,
+                              {
+                                maximumFractionDigits: 15,
+                                currency: currency,
+                              },
+                            ),
+                          }),
+                        },
+                      ]}
+                    />
+                  </div>
+                )}
                 {/* Charge main infos */}
                 <div className="px-4 pt-4">
                   <DetailsPage.InfoGrid
@@ -107,6 +128,7 @@ export const PlanDetailsChargesSection = ({
                           {
                             currencyDisplay: 'symbol',
                             currency,
+                            pricingUnitShortName: charge.appliedPricingUnit?.pricingUnit?.shortName,
                             maximumFractionDigits: 15,
                           },
                         ),
@@ -180,6 +202,28 @@ export const PlanDetailsChargesSection = ({
               }
             >
               <section className="flex flex-col gap-4">
+                {!!charge.appliedPricingUnit && (
+                  <div className="p-4 shadow-b">
+                    <DetailsPage.InfoGrid
+                      grid={[
+                        {
+                          label: translate('text_1750411499858su5b7bbp5t9'),
+                          value: translate('text_1750424999815sw5whlu1xj0', {
+                            shortName: charge.appliedPricingUnit?.pricingUnit?.shortName,
+                            conversionRateAmount: intlFormatNumber(
+                              charge.appliedPricingUnit?.conversionRate,
+                              {
+                                maximumFractionDigits: 15,
+                                currency: currency,
+                              },
+                            ),
+                          }),
+                        },
+                      ]}
+                    />
+                  </div>
+                )}
+
                 {/* Charge main infos */}
                 <div className="px-4 pt-4">
                   <DetailsPage.InfoGrid
@@ -221,6 +265,7 @@ export const PlanDetailsChargesSection = ({
                           {
                             currencyDisplay: 'symbol',
                             currency,
+                            pricingUnitShortName: charge.appliedPricingUnit?.pricingUnit?.shortName,
                             maximumFractionDigits: 15,
                           },
                         ),

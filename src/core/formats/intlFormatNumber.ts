@@ -15,6 +15,7 @@ enum AmountStyle {
 
 type FormatterOptions = {
   currency?: CurrencyEnum
+  pricingUnitShortName?: string
   currencyDisplay?: keyof typeof CurrencyDisplay
   style?: keyof typeof AmountStyle
   minimumFractionDigits?: number
@@ -28,6 +29,8 @@ export const intlFormatNumber: (amount: number, options?: FormatterOptions) => s
   options,
 ) => {
   const formattedToUnit = amount
+  const pricingUnitShortName = options?.pricingUnitShortName
+  const locale = options?.locale ?? 'en-US'
 
   const {
     currencyDisplay = CurrencyDisplay.symbol,
@@ -36,7 +39,18 @@ export const intlFormatNumber: (amount: number, options?: FormatterOptions) => s
     ...otherOptions
   } = options || {}
 
-  return Number(formattedToUnit).toLocaleString(options?.locale ?? 'en-US', {
+  // For custom pricing units, we need to format as a decimal number first and append the pricing unit short name
+  if (!!pricingUnitShortName && style === AmountStyle.currency) {
+    const formattedNumber = Number(formattedToUnit).toLocaleString(locale, {
+      style: 'decimal',
+      ...otherOptions,
+    })
+
+    return `${formattedNumber} ${pricingUnitShortName}`
+  }
+
+  // For classic currencies or other styles formatting, we can use the native toLocaleString method
+  return Number(formattedToUnit).toLocaleString(locale, {
     style,
     currencyDisplay,
     currency,

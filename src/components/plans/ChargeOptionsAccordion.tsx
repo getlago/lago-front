@@ -24,6 +24,7 @@ gql`
 interface ChargeOptionsAccordionProps {
   id?: string
   charge: LocalChargeInput
+  chargePricingUnitShortName: string | undefined
   children: ReactNode | ((args: { isOpen: boolean }) => ReactNode)
   currency: CurrencyEnum
   initiallyOpen?: boolean
@@ -33,6 +34,7 @@ interface ChargeOptionsAccordionProps {
 export const ChargeOptionsAccordion = ({
   id,
   charge,
+  chargePricingUnitShortName,
   children,
   currency,
   initiallyOpen = false,
@@ -113,6 +115,7 @@ export const ChargeOptionsAccordion = ({
                   !!Number(charge.minAmountCents)
                     ? translate('text_646e2d0cc536351b62ba6fcf', {
                         minAmountCents: intlFormatNumber(charge.minAmountCents, {
+                          pricingUnitShortName: chargePricingUnitShortName,
                           currencyDisplay: 'symbol',
                           currency,
                           maximumFractionDigits: 15,

@@ -27,6 +27,7 @@ gql`
 
 interface GraduatedPercentageChargeTableProps {
   chargeIndex: number
+  chargePricingUnitShortName: string | undefined
   currency: CurrencyEnum
   disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
@@ -34,9 +35,19 @@ interface GraduatedPercentageChargeTableProps {
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }
 
-const DisabledAmountCell = ({ amount, currency }: { amount?: string; currency: CurrencyEnum }) => (
+const DisabledAmountCell = ({
+  amount,
+  currency,
+  pricingUnitShortName,
+}: {
+  amount?: string
+  currency: CurrencyEnum
+  pricingUnitShortName?: string
+}) => (
   <div className="flex max-w-31 items-center gap-2 px-4">
-    <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
+    <Typography color="textSecondary">
+      {pricingUnitShortName || getCurrencySymbol(currency)}
+    </Typography>
     <Typography color="disabled" noWrap>
       {amount || '0.0'}
     </Typography>
@@ -46,6 +57,7 @@ const DisabledAmountCell = ({ amount, currency }: { amount?: string; currency: C
 export const GraduatedPercentageChargeTable = memo(
   ({
     chargeIndex,
+    chargePricingUnitShortName,
     currency,
     disabled,
     formikProps,
@@ -154,7 +166,16 @@ export const GraduatedPercentageChargeTable = memo(
                 size: 124,
                 content: (row, i) =>
                   disabled ? (
-                    <DisabledAmountCell amount={row.rate} currency={currency} />
+                    <Typography
+                      className="flex max-w-31 items-center gap-2 px-4"
+                      color="disabled"
+                      noWrap
+                    >
+                      {intlFormatNumber(Number(row.rate) / 100 || 0, {
+                        maximumFractionDigits: 15,
+                        style: 'percent',
+                      })}
+                    </Typography>
                   ) : (
                     <AmountInput
                       variant="outlined"
@@ -191,7 +212,11 @@ export const GraduatedPercentageChargeTable = memo(
                 size: 124,
                 content: (row, i) =>
                   disabled ? (
-                    <DisabledAmountCell amount={row.flatAmount} currency={currency} />
+                    <DisabledAmountCell
+                      amount={row.flatAmount}
+                      currency={currency}
+                      pricingUnitShortName={chargePricingUnitShortName}
+                    />
                   ) : (
                     <AmountInput
                       variant="outlined"
@@ -202,7 +227,7 @@ export const GraduatedPercentageChargeTable = memo(
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            {getCurrencySymbol(currency)}
+                            {chargePricingUnitShortName || getCurrencySymbol(currency)}
                           </InputAdornment>
                         ),
                       }}
@@ -227,6 +252,7 @@ export const GraduatedPercentageChargeTable = memo(
                           style: 'percent',
                         }),
                         flatAmount: intlFormatNumber(calculation.flatAmount, {
+                          pricingUnitShortName: chargePricingUnitShortName,
                           currencyDisplay: 'symbol',
                           maximumFractionDigits: 15,
                           currency,
@@ -242,6 +268,7 @@ export const GraduatedPercentageChargeTable = memo(
                           style: 'percent',
                         }),
                         flatAmount: intlFormatNumber(calculation.flatAmount, {
+                          pricingUnitShortName: chargePricingUnitShortName,
                           currencyDisplay: 'symbol',
                           maximumFractionDigits: 15,
                           currency,
@@ -260,6 +287,7 @@ export const GraduatedPercentageChargeTable = memo(
                         style: 'percent',
                       }),
                       flatAmount: intlFormatNumber(calculation.flatAmount, {
+                        pricingUnitShortName: chargePricingUnitShortName,
                         currencyDisplay: 'symbol',
                         maximumFractionDigits: 15,
                         currency,

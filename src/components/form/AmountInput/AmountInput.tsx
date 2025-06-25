@@ -1,4 +1,4 @@
-import { forwardRef } from 'react'
+import { forwardRef, useMemo } from 'react'
 
 import {
   TextInput,
@@ -19,13 +19,19 @@ type AmountValueFormatterType = AmountValueFormatter
 
 export interface AmountInputProps extends Omit<TextInputProps, 'beforeChangeFormatter'> {
   currency: CurrencyEnum
+  chargePricingUnitShortName?: string
   beforeChangeFormatter?: AmountValueFormatterType[] | AmountValueFormatterType
 }
 
-const defineNewBeforeChangeFormatter = (
-  beforeChangeFormatter: AmountInputProps['beforeChangeFormatter'],
-  currency: CurrencyEnum,
-) => {
+const defineNewBeforeChangeFormatter = ({
+  beforeChangeFormatter,
+  currency,
+  chargePricingUnitShortName,
+}: {
+  beforeChangeFormatter: AmountInputProps['beforeChangeFormatter']
+  currency: CurrencyEnum
+  chargePricingUnitShortName?: string
+}) => {
   const newBeforeChangeFormatter: ValueFormatterType[] = [
     (() => {
       if (!beforeChangeFormatter) return []
@@ -38,7 +44,9 @@ const defineNewBeforeChangeFormatter = (
     return beforeChangeFormatter
   }
 
-  if (getCurrencyPrecision(currency) === 0) {
+  if (!!chargePricingUnitShortName) {
+    newBeforeChangeFormatter.push('decimal')
+  } else if (getCurrencyPrecision(currency) === 0) {
     newBeforeChangeFormatter.push('int')
   } else if (getCurrencyPrecision(currency) === 3) {
     newBeforeChangeFormatter.push('triDecimal')
@@ -51,8 +59,18 @@ const defineNewBeforeChangeFormatter = (
   return newBeforeChangeFormatter
 }
 
-const definedDefaultPlaceholder = (currency: CurrencyEnum, translate: TranslateFunc) => {
-  if (getCurrencyPrecision(currency) === 0) {
+const definedDefaultPlaceholder = ({
+  currency,
+  translate,
+  chargePricingUnitShortName,
+}: {
+  currency: CurrencyEnum
+  translate: TranslateFunc
+  chargePricingUnitShortName?: string
+}) => {
+  if (!!chargePricingUnitShortName) {
+    return translate('text_63971043c9668f1ba5221bac', undefined, 1)
+  } else if (getCurrencyPrecision(currency) === 0) {
     return translate('text_63971043c9668f1ba5221bac', undefined, 0)
   } else if (getCurrencyPrecision(currency) === 3) {
     return translate('text_63971043c9668f1ba5221bac', undefined, 2)
@@ -64,10 +82,32 @@ const definedDefaultPlaceholder = (currency: CurrencyEnum, translate: TranslateF
 }
 
 export const AmountInput = forwardRef<HTMLDivElement, AmountInputProps>(
-  ({ currency, beforeChangeFormatter, placeholder, ...props }: AmountInputProps, ref) => {
+  (
+    {
+      currency,
+      beforeChangeFormatter,
+      placeholder,
+      chargePricingUnitShortName,
+      ...props
+    }: AmountInputProps,
+    ref,
+  ) => {
     const { translate } = useInternationalization()
-    const newBeforeChangeFormatter = defineNewBeforeChangeFormatter(beforeChangeFormatter, currency)
-    const newPlaceholder = placeholder ?? definedDefaultPlaceholder(currency, translate)
+    const newBeforeChangeFormatter = useMemo(
+      () =>
+        defineNewBeforeChangeFormatter({
+          beforeChangeFormatter,
+          currency,
+          chargePricingUnitShortName,
+        }),
+      [beforeChangeFormatter, currency, chargePricingUnitShortName],
+    )
+    const newPlaceholder = useMemo(
+      () =>
+        placeholder ??
+        definedDefaultPlaceholder({ currency, translate, chargePricingUnitShortName }),
+      [placeholder, currency, translate, chargePricingUnitShortName],
+    )
 
     return (
       <TextInput

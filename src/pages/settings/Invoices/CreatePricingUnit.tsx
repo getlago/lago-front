@@ -1,6 +1,13 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { Button, Tooltip, Typography, WarningDialog, WarningDialogRef } from 'lago-design-system'
+import {
+  Alert,
+  Button,
+  Tooltip,
+  Typography,
+  WarningDialog,
+  WarningDialogRef,
+} from 'lago-design-system'
 import { useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { object, string } from 'yup'
@@ -102,14 +109,13 @@ const CreatePricingUnit = () => {
       name: string().required(''),
       code: string().required(''),
       description: string(),
-      shortName: string().required(''),
+      shortName: string().required('').max(3, 'text_1750424999815o2wik8216ht'),
     }),
     enableReinitialize: true,
     validateOnMount: true,
     onSubmit: async ({ code, ...values }) => {
       let res
 
-      // TODO: handle error and specifically the already exist error for code
       if (!!pricingUnitId) {
         res = await update({
           variables: {
@@ -165,10 +171,12 @@ const CreatePricingUnit = () => {
         </CenteredPage.Header>
 
         <CenteredPage.Container>
-          {pricingUnitLoading ? (
-            <FormLoadingSkeleton id="create-pricing-unit" />
-          ) : (
+          {pricingUnitLoading && <FormLoadingSkeleton id="create-pricing-unit" />}
+
+          {!pricingUnitLoading && (
             <>
+              <Alert type="info">{translate('text_1750424999814th7cu8hbg7u')}</Alert>
+
               <div className="not-last-child:mb-1">
                 <Typography variant="headline" color="textSecondary">
                   {translate('text_17502505476284yyq70yy6mx')}

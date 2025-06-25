@@ -27,6 +27,7 @@ gql`
 
 interface GraduatedChargeTableProps {
   chargeIndex: number
+  chargePricingUnitShortName: string | undefined
   currency: CurrencyEnum
   disabled?: boolean
   formikProps: FormikProps<PlanFormInput>
@@ -34,9 +35,19 @@ interface GraduatedChargeTableProps {
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }
 
-const DisabledAmountCell = ({ amount, currency }: { amount?: string; currency: CurrencyEnum }) => (
+const DisabledAmountCell = ({
+  amount,
+  currency,
+  pricingUnitShortName,
+}: {
+  amount?: string
+  currency: CurrencyEnum
+  pricingUnitShortName?: string
+}) => (
   <div className="flex max-w-31 items-center gap-2 px-4">
-    <Typography color="textSecondary">{getCurrencySymbol(currency)}</Typography>
+    <Typography color="textSecondary">
+      {pricingUnitShortName || getCurrencySymbol(currency)}
+    </Typography>
     <Typography color="disabled" noWrap>
       {amount || '0.0'}
     </Typography>
@@ -46,6 +57,7 @@ const DisabledAmountCell = ({ amount, currency }: { amount?: string; currency: C
 export const GraduatedChargeTable = memo(
   ({
     chargeIndex,
+    chargePricingUnitShortName,
     currency,
     disabled,
     formikProps,
@@ -165,7 +177,7 @@ export const GraduatedChargeTable = memo(
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            {getCurrencySymbol(currency)}
+                            {chargePricingUnitShortName || getCurrencySymbol(currency)}
                           </InputAdornment>
                         ),
                       }}
@@ -193,7 +205,7 @@ export const GraduatedChargeTable = memo(
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            {getCurrencySymbol(currency)}
+                            {chargePricingUnitShortName || getCurrencySymbol(currency)}
                           </InputAdornment>
                         ),
                       }}
@@ -218,6 +230,7 @@ export const GraduatedChargeTable = memo(
                       {translate('text_627b69c9fe95530136833956', {
                         lastRowUnit: calculation.firstUnit,
                         value: intlFormatNumber(calculation.total, {
+                          pricingUnitShortName: chargePricingUnitShortName,
                           currencyDisplay: 'symbol',
                           maximumFractionDigits: 15,
                           currency,
@@ -232,16 +245,19 @@ export const GraduatedChargeTable = memo(
                       {translate('text_64cac576a11db000acb130b2', {
                         tier1LastUnit: ONE_TIER_EXAMPLE_UNITS,
                         tier1PerUnit: intlFormatNumber(calculation.perUnit, {
+                          pricingUnitShortName: chargePricingUnitShortName,
                           currencyDisplay: 'symbol',
                           maximumFractionDigits: 15,
                           currency,
                         }),
                         tier1FlatFee: intlFormatNumber(calculation.flatFee, {
+                          pricingUnitShortName: chargePricingUnitShortName,
                           currencyDisplay: 'symbol',
                           maximumFractionDigits: 15,
                           currency,
                         }),
                         totalTier1: intlFormatNumber(calculation.total, {
+                          pricingUnitShortName: chargePricingUnitShortName,
                           currencyDisplay: 'symbol',
                           maximumFractionDigits: 15,
                           currency,
@@ -253,16 +269,19 @@ export const GraduatedChargeTable = memo(
                       {translate('text_627b69c9fe95530136833958', {
                         tier1LastUnit: calculation.units,
                         tier1PerUnit: intlFormatNumber(calculation.perUnit, {
+                          pricingUnitShortName: chargePricingUnitShortName,
                           currencyDisplay: 'symbol',
                           maximumFractionDigits: 15,
                           currency,
                         }),
                         tier1FlatFee: intlFormatNumber(calculation.flatFee, {
+                          pricingUnitShortName: chargePricingUnitShortName,
                           currencyDisplay: 'symbol',
                           maximumFractionDigits: 15,
                           currency,
                         }),
                         totalTier1: intlFormatNumber(calculation.total, {
+                          pricingUnitShortName: chargePricingUnitShortName,
                           currencyDisplay: 'symbol',
                           maximumFractionDigits: 15,
                           currency,
@@ -277,16 +296,19 @@ export const GraduatedChargeTable = memo(
                     {translate('text_627b69c9fe9553013683395a', {
                       unitCount: calculation.units,
                       tierPerUnit: intlFormatNumber(calculation.perUnit, {
+                        pricingUnitShortName: chargePricingUnitShortName,
                         currencyDisplay: 'symbol',
                         maximumFractionDigits: 15,
                         currency,
                       }),
                       tierFlatFee: intlFormatNumber(calculation.flatFee, {
+                        pricingUnitShortName: chargePricingUnitShortName,
                         currencyDisplay: 'symbol',
                         maximumFractionDigits: 15,
                         currency,
                       }),
                       totalTier: intlFormatNumber(calculation.total, {
+                        pricingUnitShortName: chargePricingUnitShortName,
                         currencyDisplay: 'symbol',
                         maximumFractionDigits: 15,
                         currency,
