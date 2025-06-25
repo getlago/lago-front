@@ -127,11 +127,14 @@ export const chargeSchema = array().of(
         shortName: string().required(''),
         conversionRate: string().when('type', {
           is: LocalPricingUnitType.Custom,
-          then: (schema) => schema.required(''),
+          then: (schema) =>
+            schema.required('').test('conversionRate', '', (value) => Number(value || 0) > 0),
           otherwise: (schema) => schema.optional(),
         }),
       })
-      .optional(),
+      .default(undefined)
+      .nullable()
+      .notRequired(),
     properties: object()
       .when('chargeModel', {
         is: (chargeModel: ChargeModelEnum) =>

@@ -6,6 +6,7 @@ import {
   LagoApiError,
   useGetCustomPricingUnitsQuery,
 } from '~/generated/graphql'
+import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
   query getCustomPricingUnits($limit: Int, $page: Int) {
@@ -30,9 +31,13 @@ interface UseCustomPricingUnitsReturn {
 }
 
 export const useCustomPricingUnits = (): UseCustomPricingUnitsReturn => {
+  const { hasPermissions } = usePermissions()
+  const canViewPricingUnits = hasPermissions(['pricingUnitsView'])
+
   const { data } = useGetCustomPricingUnitsQuery({
     context: { silentError: LagoApiError.NotFound },
     variables: { limit: 100, page: 1 },
+    skip: !canViewPricingUnits,
   })
 
   const pricingUnits = useMemo(() => {
