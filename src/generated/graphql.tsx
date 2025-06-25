@@ -3463,7 +3463,6 @@ export type GroupedChargeUsage = {
 /** Api Logs http method enums */
 export enum HttpMethodEnum {
   Delete = 'delete',
-  Get = 'get',
   Post = 'post',
   Put = 'put'
 }
