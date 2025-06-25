@@ -10,4 +10,5 @@ export const DocumentLocales: documentLocalesType = {
   it: 'Italian',
   es: 'Spanish',
   sv: 'Swedish',
+  pt_BR: 'Portuguese (Brazil)',
 }

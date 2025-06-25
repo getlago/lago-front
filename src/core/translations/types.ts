@@ -14,5 +14,6 @@ export enum LocaleEnum {
   it = 'it', // Italian
   es = 'es', // Spanish
   sv = 'sv', // Swedish
+  pt_BR = 'pt_BR', // Brazilian Portuguese
 }
 export type Locale = keyof typeof LocaleEnum
