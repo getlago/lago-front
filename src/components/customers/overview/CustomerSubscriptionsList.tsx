@@ -92,10 +92,7 @@ type AnnotatedSubscription = {
   terminatedAt?: Subscription['terminatedAt']
   status?: Subscription['status']
   frequency: Plan['interval']
-  statusType: {
-    type: StatusType
-    label: string
-  }
+  statusType: StatusProps
   isDowngrade?: boolean
   isScheduled?: boolean
   customerId: string
@@ -152,7 +149,7 @@ const annotateSubscriptions = (
         statusType: {
           type: StatusType.default,
           label: 'pending',
-        },
+        } as StatusProps,
         isDowngrade: true,
         customerId: customer?.id,
       }
