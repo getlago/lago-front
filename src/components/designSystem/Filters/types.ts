@@ -39,6 +39,8 @@ export enum AvailableFiltersEnum {
   customerAccountType = 'accountType',
   customerExternalId = 'customerExternalId',
   date = 'date',
+  httpMethods = 'httpMethods',
+  httpStatuses = 'httpStatuses',
   invoiceNumber = 'invoiceNumber',
   invoiceType = 'invoiceType',
   issuingDate = 'issuingDate',
@@ -48,6 +50,7 @@ export enum AvailableFiltersEnum {
   paymentOverdue = 'paymentOverdue',
   paymentStatus = 'paymentStatus',
   planCode = 'planCode',
+  requestPaths = 'requestPaths',
   resourceIds = 'resourceIds',
   resourceTypes = 'resourceTypes',
   selfBilled = 'selfBilled',
@@ -193,6 +196,14 @@ export const ActivityLogsAvailableFilters = [
   AvailableFiltersEnum.userEmails,
 ]
 
+export const ApiLogsAvailableFilters = [
+  AvailableFiltersEnum.loggedDate,
+  AvailableFiltersEnum.apiKeyIds,
+  AvailableFiltersEnum.requestPaths,
+  AvailableFiltersEnum.httpMethods,
+  AvailableFiltersEnum.httpStatuses,
+]
+
 const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.activityIds]: 'text_1747666154075d10admbnf16',
   [AvailableFiltersEnum.activitySources]: 'text_1747666154075g4ceq9ii0xm',
@@ -210,6 +221,8 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.customerAccountType]: 'text_1744108096469xz5cnvtoixf',
   [AvailableFiltersEnum.customerExternalId]: 'text_65201c5a175a4b0238abf29a',
   [AvailableFiltersEnum.date]: 'text_664cb90097bfa800e6efa3f5',
+  [AvailableFiltersEnum.httpMethods]: 'text_1749819999031vobdu7h2c7c',
+  [AvailableFiltersEnum.httpStatuses]: 'text_63ac86d797f728a87b2f9fa7',
   [AvailableFiltersEnum.invoiceNumber]: 'text_1734698875218fbxzci2g2s2',
   [AvailableFiltersEnum.invoiceType]: 'text_632d68358f1fedc68eed3e5a',
   [AvailableFiltersEnum.issuingDate]: 'text_6419c64eace749372fc72b39',
@@ -219,6 +232,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.paymentOverdue]: 'text_666c5b12fea4aa1e1b26bf55',
   [AvailableFiltersEnum.paymentStatus]: 'text_63eba8c65a6c8043feee2a0f',
   [AvailableFiltersEnum.planCode]: 'text_642d5eb2783a2ad10d670320',
+  [AvailableFiltersEnum.requestPaths]: 'text_1749819999030uz8ddys1puu',
   [AvailableFiltersEnum.resourceIds]: 'text_1747666154075y3lcupj1zdd',
   [AvailableFiltersEnum.resourceTypes]: 'text_1732895022171f9vnwh5gm3q',
   [AvailableFiltersEnum.selfBilled]: 'text_1738595318403vcyh77pwiew',

@@ -18,6 +18,8 @@ export type Scalars = {
   /** Represents non-fractional signed whole numeric values. Since the value may exceed the size of a 32-bit integer, it's encoded as a string. */
   BigInt: { input: any; output: any; }
   ChargeFilterValues: { input: any; output: any; }
+  /** Api Logs HTTP status */
+  HttpStatus: { input: any; output: any; }
   /** An ISO 8601-encoded date */
   ISO8601Date: { input: any; output: any; }
   /** An ISO 8601-encoded datetime */
@@ -377,6 +379,32 @@ export enum ApiKeysPermissionsEnum {
   WebhookEndpoint = 'webhook_endpoint',
   WebhookJwtPublicKey = 'webhook_jwt_public_key'
 }
+
+/** Base api log */
+export type ApiLog = {
+  __typename?: 'ApiLog';
+  apiKey?: Maybe<SanitizedApiKey>;
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  client?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  httpMethod: HttpMethodEnum;
+  httpStatus: Scalars['Int']['output'];
+  loggedAt: Scalars['ISO8601DateTime']['output'];
+  requestBody?: Maybe<Scalars['JSON']['output']>;
+  requestId: Scalars['ID']['output'];
+  requestOrigin?: Maybe<Scalars['String']['output']>;
+  requestPath?: Maybe<Scalars['String']['output']>;
+  requestResponse: Scalars['JSON']['output'];
+};
+
+/** ApiLogCollection type */
+export type ApiLogCollection = {
+  __typename?: 'ApiLogCollection';
+  /** A collection of paginated ApiLogCollection */
+  collection: Array<ApiLog>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
 
 export type AppliedAddOn = {
   __typename?: 'AppliedAddOn';
@@ -3432,6 +3460,13 @@ export type GroupedChargeUsage = {
   units: Scalars['Float']['output'];
 };
 
+/** Api Logs http method enums */
+export enum HttpMethodEnum {
+  Delete = 'delete',
+  Post = 'post',
+  Put = 'put'
+}
+
 export type HubspotCustomer = {
   __typename?: 'HubspotCustomer';
   externalCustomerId?: Maybe<Scalars['String']['output']>;
@@ -5456,6 +5491,10 @@ export type Query = {
   apiKey: ApiKey;
   /** Query the API keys of current organization */
   apiKeys: SanitizedApiKeyCollection;
+  /** Query a single api log of an organization */
+  apiLog?: Maybe<ApiLog>;
+  /** Query api logs of an organization */
+  apiLogs?: Maybe<ApiLogCollection>;
   /** Query a single billable metric of an organization */
   billableMetric?: Maybe<BillableMetric>;
   /** Query billable metrics of an organization */
@@ -5679,6 +5718,24 @@ export type QueryApiKeyArgs = {
 export type QueryApiKeysArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryApiLogArgs = {
+  requestId: Scalars['ID']['input'];
+};
+
+
+export type QueryApiLogsArgs = {
+  apiKeyIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  httpMethods?: InputMaybe<Array<HttpMethodEnum>>;
+  httpStatuses?: InputMaybe<Array<Scalars['HttpStatus']['input']>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  requestIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  requestPaths?: InputMaybe<Array<Scalars['String']['input']>>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
 };
 
 
@@ -8643,6 +8700,32 @@ export type RotateApiKeyMutationVariables = Exact<{
 
 
 export type RotateApiKeyMutation = { __typename?: 'Mutation', rotateApiKey?: { __typename?: 'ApiKey', id: string, value: string } | null };
+
+export type ApiLogDetailsFragment = { __typename?: 'ApiLog', apiVersion?: string | null, client?: string | null, httpMethod: HttpMethodEnum, httpStatus: number, loggedAt: any, requestBody?: any | null, requestId: string, requestOrigin?: string | null, requestPath?: string | null, requestResponse: any, apiKey?: { __typename?: 'SanitizedApiKey', name?: string | null, value: string } | null };
+
+export type GetApiLogDetailsQueryVariables = Exact<{
+  requestId: Scalars['ID']['input'];
+}>;
+
+
+export type GetApiLogDetailsQuery = { __typename?: 'Query', apiLog?: { __typename?: 'ApiLog', apiVersion?: string | null, client?: string | null, httpMethod: HttpMethodEnum, httpStatus: number, loggedAt: any, requestBody?: any | null, requestId: string, requestOrigin?: string | null, requestPath?: string | null, requestResponse: any, apiKey?: { __typename?: 'SanitizedApiKey', name?: string | null, value: string } | null } | null };
+
+export type ApiLogItemFragment = { __typename?: 'ApiLog', requestId: string, httpMethod: HttpMethodEnum, httpStatus: number, requestPath?: string | null, loggedAt: any };
+
+export type GetApiLogsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  requestIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  apiKeyIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  httpMethods?: InputMaybe<Array<HttpMethodEnum> | HttpMethodEnum>;
+  httpStatuses?: InputMaybe<Array<Scalars['HttpStatus']['input']> | Scalars['HttpStatus']['input']>;
+  requestPaths?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+export type GetApiLogsQuery = { __typename?: 'Query', apiLogs?: { __typename?: 'ApiLogCollection', collection: Array<{ __typename?: 'ApiLog', requestId: string, httpMethod: HttpMethodEnum, httpStatus: number, requestPath?: string | null, loggedAt: any }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
 
 export type EventDetailsFragment = { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum };
 
@@ -12209,6 +12292,33 @@ export const ApiKeyForRotateApiKeyDialogFragmentDoc = gql`
   id
   lastUsedAt
   name
+}
+    `;
+export const ApiLogDetailsFragmentDoc = gql`
+    fragment ApiLogDetails on ApiLog {
+  apiVersion
+  client
+  httpMethod
+  httpStatus
+  loggedAt
+  requestBody
+  requestId
+  requestOrigin
+  requestPath
+  requestResponse
+  apiKey {
+    name
+    value
+  }
+}
+    `;
+export const ApiLogItemFragmentDoc = gql`
+    fragment ApiLogItem on ApiLog {
+  requestId
+  httpMethod
+  httpStatus
+  requestPath
+  loggedAt
 }
     `;
 export const EventDetailsFragmentDoc = gql`
@@ -19514,6 +19624,110 @@ export function useRotateApiKeyMutation(baseOptions?: Apollo.MutationHookOptions
 export type RotateApiKeyMutationHookResult = ReturnType<typeof useRotateApiKeyMutation>;
 export type RotateApiKeyMutationResult = Apollo.MutationResult<RotateApiKeyMutation>;
 export type RotateApiKeyMutationOptions = Apollo.BaseMutationOptions<RotateApiKeyMutation, RotateApiKeyMutationVariables>;
+export const GetApiLogDetailsDocument = gql`
+    query getApiLogDetails($requestId: ID!) {
+  apiLog(requestId: $requestId) {
+    ...ApiLogDetails
+  }
+}
+    ${ApiLogDetailsFragmentDoc}`;
+
+/**
+ * __useGetApiLogDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetApiLogDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetApiLogDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetApiLogDetailsQuery({
+ *   variables: {
+ *      requestId: // value for 'requestId'
+ *   },
+ * });
+ */
+export function useGetApiLogDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetApiLogDetailsQuery, GetApiLogDetailsQueryVariables> & ({ variables: GetApiLogDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetApiLogDetailsQuery, GetApiLogDetailsQueryVariables>(GetApiLogDetailsDocument, options);
+      }
+export function useGetApiLogDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetApiLogDetailsQuery, GetApiLogDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetApiLogDetailsQuery, GetApiLogDetailsQueryVariables>(GetApiLogDetailsDocument, options);
+        }
+export function useGetApiLogDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetApiLogDetailsQuery, GetApiLogDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetApiLogDetailsQuery, GetApiLogDetailsQueryVariables>(GetApiLogDetailsDocument, options);
+        }
+export type GetApiLogDetailsQueryHookResult = ReturnType<typeof useGetApiLogDetailsQuery>;
+export type GetApiLogDetailsLazyQueryHookResult = ReturnType<typeof useGetApiLogDetailsLazyQuery>;
+export type GetApiLogDetailsSuspenseQueryHookResult = ReturnType<typeof useGetApiLogDetailsSuspenseQuery>;
+export type GetApiLogDetailsQueryResult = Apollo.QueryResult<GetApiLogDetailsQuery, GetApiLogDetailsQueryVariables>;
+export const GetApiLogsDocument = gql`
+    query getApiLogs($page: Int, $limit: Int, $requestIds: [String!], $fromDate: ISO8601Date, $toDate: ISO8601Date, $apiKeyIds: [String!], $httpMethods: [HttpMethodEnum!], $httpStatuses: [HttpStatus!], $requestPaths: [String!]) {
+  apiLogs(
+    page: $page
+    limit: $limit
+    fromDate: $fromDate
+    toDate: $toDate
+    apiKeyIds: $apiKeyIds
+    httpMethods: $httpMethods
+    httpStatuses: $httpStatuses
+    requestIds: $requestIds
+    requestPaths: $requestPaths
+  ) {
+    collection {
+      ...ApiLogItem
+    }
+    metadata {
+      currentPage
+      totalPages
+    }
+  }
+}
+    ${ApiLogItemFragmentDoc}`;
+
+/**
+ * __useGetApiLogsQuery__
+ *
+ * To run a query within a React component, call `useGetApiLogsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetApiLogsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetApiLogsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      requestIds: // value for 'requestIds'
+ *      fromDate: // value for 'fromDate'
+ *      toDate: // value for 'toDate'
+ *      apiKeyIds: // value for 'apiKeyIds'
+ *      httpMethods: // value for 'httpMethods'
+ *      httpStatuses: // value for 'httpStatuses'
+ *      requestPaths: // value for 'requestPaths'
+ *   },
+ * });
+ */
+export function useGetApiLogsQuery(baseOptions?: Apollo.QueryHookOptions<GetApiLogsQuery, GetApiLogsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetApiLogsQuery, GetApiLogsQueryVariables>(GetApiLogsDocument, options);
+      }
+export function useGetApiLogsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetApiLogsQuery, GetApiLogsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetApiLogsQuery, GetApiLogsQueryVariables>(GetApiLogsDocument, options);
+        }
+export function useGetApiLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetApiLogsQuery, GetApiLogsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetApiLogsQuery, GetApiLogsQueryVariables>(GetApiLogsDocument, options);
+        }
+export type GetApiLogsQueryHookResult = ReturnType<typeof useGetApiLogsQuery>;
+export type GetApiLogsLazyQueryHookResult = ReturnType<typeof useGetApiLogsLazyQuery>;
+export type GetApiLogsSuspenseQueryHookResult = ReturnType<typeof useGetApiLogsSuspenseQuery>;
+export type GetApiLogsQueryResult = Apollo.QueryResult<GetApiLogsQuery, GetApiLogsQueryVariables>;
 export const GetSingleEventDocument = gql`
     query getSingleEvent($transactionId: ID!) {
   event(transactionId: $transactionId) {

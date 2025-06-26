@@ -1,6 +1,13 @@
 import { useRoutes } from 'react-router-dom'
 
-import { ActivityLogs, ApiKeys, Events, WebhookLogs, Webhooks } from '~/components/developers/views'
+import {
+  ActivityLogs,
+  ApiKeys,
+  ApiLogs,
+  Events,
+  WebhookLogs,
+  Webhooks,
+} from '~/components/developers/views'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 
@@ -14,6 +21,9 @@ export const WEBHOOK_LOGS_ROUTE = `${DEVTOOL_ROUTE}/webhooks/:webhookId/logs/:lo
 
 export const EVENTS_ROUTE = `${DEVTOOL_ROUTE}/events`
 export const EVENT_LOG_ROUTE = `${DEVTOOL_ROUTE}/events/:eventId`
+
+export const API_LOGS_ROUTE = `${DEVTOOL_ROUTE}/api-logs`
+export const API_LOG_ROUTE = `${DEVTOOL_ROUTE}/api-logs/:logId`
 
 export const ACTIVITY_ROUTE = `${DEVTOOL_ROUTE}/activity-logs`
 export const ACTIVITY_LOG_ROUTE = `${DEVTOOL_ROUTE}/activity-logs/:logId`
@@ -31,6 +41,9 @@ export const DevtoolsRouter = () => {
 
     { path: EVENTS_ROUTE, element: <Events /> },
     { path: EVENT_LOG_ROUTE, element: <Events /> },
+
+    { path: API_LOGS_ROUTE, element: <ApiLogs /> },
+    { path: API_LOG_ROUTE, element: <ApiLogs /> },
 
     { path: ACTIVITY_ROUTE, element: <ActivityLogs /> },
     { path: ACTIVITY_LOG_ROUTE, element: <ActivityLogs /> },
@@ -63,6 +76,12 @@ export const devToolsNavigationMapping = (
       link: EVENTS_ROUTE,
       match: [EVENTS_ROUTE, EVENT_LOG_ROUTE],
       hidden: !hasPermissions(['developersManage']),
+    },
+    {
+      title: translate('text_1749644023729atl2vw7ad3z'),
+      link: API_LOGS_ROUTE,
+      match: [API_LOGS_ROUTE, API_LOG_ROUTE],
+      hidden: !isPremium || !hasPermissions(['developersManage', 'auditLogsView']),
     },
     {
       title: translate('text_1747314141347qq6rasuxisl'),
