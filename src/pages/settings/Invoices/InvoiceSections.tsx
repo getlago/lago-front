@@ -154,7 +154,7 @@ const InvoiceSections = () => {
 
         <SettingsListWrapper>
           {canViewPricingUnits && (
-            <SettingsListItem className={tw({ 'shadow-inherit': hasPricingUnits })}>
+            <SettingsListItem className={tw({ 'pb-0 shadow-inherit': hasPricingUnits })}>
               <SettingsListItemHeader
                 label={translate('text_17502505476284yyq70yy6mx')}
                 sublabel={translate('text_1750250547628xsddx47vasu')}
@@ -184,7 +184,7 @@ const InvoiceSections = () => {
                 >
                   <Table
                     name="pricing-units"
-                    containerSize={{ default: 0 }}
+                    containerSize={{ default: 4 }}
                     data={pricingUnitsData?.pricingUnits?.collection || []}
                     isLoading={pricingUnitsLoading}
                     hasError={!!pricingUnitsError}
