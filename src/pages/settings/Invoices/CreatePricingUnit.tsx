@@ -219,6 +219,7 @@ const CreatePricingUnit = () => {
                   <TextInputField
                     name="shortName"
                     formikProps={formikProps}
+                    error={formikProps.errors.shortName}
                     label={translate('text_175025054762801ioe61wdye')}
                     placeholder={translate('text_1750250547628xh8057w5j8p')}
                     helperText={translate('text_1750257831368e6n6ys36s6u')}
