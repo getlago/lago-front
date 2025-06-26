@@ -3,14 +3,7 @@ import { Avatar, Icon } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
-import {
-  Button,
-  ButtonLink,
-  Chip,
-  InfiniteScroll,
-  Table,
-  Typography,
-} from '~/components/designSystem'
+import { Button, ButtonLink, InfiniteScroll, Table, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
@@ -22,20 +15,14 @@ import {
   SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
 import {
-  DefaultCampaignDialog,
-  DefaultCampaignDialogRef,
-} from '~/components/settings/dunnings/DefaultCampaignDialog'
-import {
   DeleteCampaignDialog,
   DeleteCampaignDialogRef,
 } from '~/components/settings/dunnings/DeleteCampaignDialog'
-import { addToast } from '~/core/apolloClient'
 import { CREATE_DUNNING_ROUTE, UPDATE_DUNNING_ROUTE } from '~/core/router'
 import {
   DeleteCampaignFragmentDoc,
   PremiumIntegrationTypeEnum,
   useGetDunningCampaignsQuery,
-  useUpdateDunningCampaignStatusMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -76,7 +63,6 @@ gql`
 const Dunnings = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const defaultCampaignDialogRef = useRef<DefaultCampaignDialogRef>(null)
   const deleteCampaignDialogRef = useRef<DeleteCampaignDialogRef>(null)
 
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
@@ -88,27 +74,6 @@ const Dunnings = () => {
   })
 
   const hasAccessToFeature = premiumIntegrations?.includes(PremiumIntegrationTypeEnum.AutoDunning)
-
-  const [updateStatus] = useUpdateDunningCampaignStatusMutation({
-    refetchQueries: ['getDunningCampaigns'],
-    onCompleted: ({ updateDunningCampaign }) => {
-      if (!updateDunningCampaign) {
-        return
-      }
-
-      if (updateDunningCampaign.appliedToOrganization) {
-        addToast({
-          severity: 'success',
-          message: translate('text_1728574726495p3lgzy38pah'),
-        })
-      } else {
-        addToast({
-          message: translate('text_1728574726495a0wc21wqxnm'),
-          severity: 'success',
-        })
-      }
-    },
-  })
 
   const sortedTable = useMemo(
     () =>
@@ -239,15 +204,6 @@ const Dunnings = () => {
                             </div>
                           ),
                         },
-                        {
-                          key: 'appliedToOrganization',
-                          title: translate('text_63ac86d797f728a87b2f9fa7'),
-                          content: ({ appliedToOrganization }) =>
-                            appliedToOrganization && (
-                              <Chip label={translate('text_65281f686a80b400c8e2f6d1')} />
-                            ),
-                          minWidth: 96,
-                        },
                       ]}
                       actionColumnTooltip={() => translate('text_17285747264959xu1spelnh9')}
                       actionColumn={(campaign) => {
@@ -263,45 +219,6 @@ const Dunnings = () => {
                               )
                             },
                           },
-                          campaign.appliedToOrganization
-                            ? {
-                                startIcon: 'star-outlined-hidden',
-                                title: translate('text_1728574726495j7n9zqj7o71'),
-                                onAction: () => {
-                                  defaultCampaignDialogRef.current?.openDialog({
-                                    type: 'removeDefault',
-                                    onConfirm: () => {
-                                      updateStatus({
-                                        variables: {
-                                          input: {
-                                            id: campaign.id,
-                                            appliedToOrganization: false,
-                                          },
-                                        },
-                                      })
-                                    },
-                                  })
-                                },
-                              }
-                            : {
-                                startIcon: 'star-filled',
-                                title: translate('text_1728574726495n9jdse2hnrf'),
-                                onAction: () => {
-                                  defaultCampaignDialogRef.current?.openDialog({
-                                    type: 'setDefault',
-                                    onConfirm: () => {
-                                      updateStatus({
-                                        variables: {
-                                          input: {
-                                            id: campaign.id,
-                                            appliedToOrganization: true,
-                                          },
-                                        },
-                                      })
-                                    },
-                                  })
-                                },
-                              },
                           {
                             startIcon: 'trash',
                             title: translate('text_1732187313660we30lb9kg57'),
@@ -320,7 +237,6 @@ const Dunnings = () => {
         )}
       </SettingsPaddedContainer>
 
-      <DefaultCampaignDialog ref={defaultCampaignDialogRef} />
       <DeleteCampaignDialog ref={deleteCampaignDialogRef} />
     </>
   )

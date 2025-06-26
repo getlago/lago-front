@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { boolean, object, string } from 'yup'
 
 import { Button, Tooltip, Typography } from '~/components/designSystem'
-import { SwitchField, TextInput, TextInputField } from '~/components/form'
+import { TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
   DefaultCustomSectionDialog,
@@ -223,15 +223,6 @@ const CreateInvoiceCustomSection = () => {
                   >
                     {translate('text_173255335844629sa49oljif')}
                   </Button>
-                </section>
-
-                <section className="not-last-child:mb-6">
-                  <SwitchField
-                    name="selected"
-                    formikProps={formikProps}
-                    label={translate('text_1732553889947h4iijpzflwj')}
-                    subLabel={translate('text_1732553889948thkn4jonnyy')}
-                  />
                 </section>
               </div>
             </>

@@ -5,13 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { array, boolean, number, object, string } from 'yup'
 
 import { Alert, Button, Tooltip, Typography } from '~/components/designSystem'
-import {
-  AmountInputField,
-  ComboBoxField,
-  SwitchField,
-  TextInput,
-  TextInputField,
-} from '~/components/form'
+import { AmountInputField, ComboBoxField, TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
   DefaultCampaignDialog,
@@ -406,15 +400,6 @@ const CreateDunning = () => {
                       {translate('text_1742392390147d9jizkapiou')}
                     </Button>
                   )}
-                </section>
-
-                <section className="not-last-child:mb-6">
-                  <SwitchField
-                    name="appliedToOrganization"
-                    formikProps={formikProps}
-                    label={translate('text_1728584028187cpxux50bk4n')}
-                    subLabel={translate('text_1728584028187qei3xba4i02')}
-                  />
                 </section>
               </div>
             </>
