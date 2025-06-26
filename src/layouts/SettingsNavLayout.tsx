@@ -167,7 +167,7 @@ const SettingsNavLayout = () => {
         }}
       >
         <NavLayout.Nav className={tw(open ? 'left-0' : '-left-60')}>
-          <div className="flex h-30 items-end p-4 md:h-16">
+          <div className="sticky left-0 top-0 z-sideNav flex h-30 w-60 items-end bg-white p-4 animate-shadow-bottom md:h-16">
             <Button
               variant="quaternary"
               startIcon="arrow-left"

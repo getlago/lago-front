@@ -9,7 +9,7 @@ const Nav = ({ children, className }: PropsWithChildren<{ className?: string }>)
   return (
     <nav
       className={tw(
-        'absolute z-sideNav flex h-full w-60 flex-col overflow-auto bg-white transition-[left] duration-250 shadow-r md:static md:left-auto md:z-auto',
+        'absolute z-sideNav box-content flex h-full w-60 flex-col overflow-auto border-r border-grey-300 bg-white transition-[left] duration-250 md:static md:left-auto md:z-auto',
         className,
       )}
     >
