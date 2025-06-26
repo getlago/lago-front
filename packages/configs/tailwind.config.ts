@@ -251,6 +251,36 @@ const config: Config = {
             '99%': { boxShadow: 'none' },
           },
         },
+
+        '.animate-shadow-top': {
+          '@supports (animation-timeline: scroll(block))': {
+            animationName: 'shadowTop',
+            animationDuration: '1s',
+            animationTimingFunction: 'ease-in-out',
+            animationTimeline: 'scroll(block)',
+          },
+
+          '@keyframes shadowTop': {
+            '0%': { boxShadow: `0px 1px 0px 0px ${theme('colors.grey.300')} inset` },
+            '90%': { boxShadow: `0px 1px 0px 0px ${theme('colors.grey.300')} inset` },
+            '99%': { boxShadow: 'none' },
+          },
+        },
+
+        '.animate-shadow-bottom': {
+          '@supports (animation-timeline: scroll(block))': {
+            animationName: 'shadowBottom',
+            animationDuration: '1s',
+            animationTimingFunction: 'ease-in-out',
+            animationTimeline: 'scroll(block)',
+          },
+
+          '@keyframes shadowBottom': {
+            '1%': { boxShadow: 'none' },
+            '10%': { boxShadow: `0px -1px 0px 0px ${theme('colors.grey.300')} inset` },
+            '100%': { boxShadow: `0px -1px 0px 0px ${theme('colors.grey.300')} inset` },
+          },
+        },
       })
 
       // Outline ring

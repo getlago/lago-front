@@ -4,7 +4,7 @@ import { Typography } from '~/components/designSystem'
 
 export const PageBannerHeaderWithBurgerMenu = ({ children }: PropsWithChildren) => {
   return (
-    <header className="sticky top-0 z-navBar flex min-h-18 flex-row items-center justify-between gap-2 bg-white px-17 py-4 shadow-b md:px-12">
+    <header className="sticky top-0 z-navBar flex min-h-16 flex-row items-center justify-between gap-2 bg-white px-17 py-4 shadow-b md:px-12">
       {children}
     </header>
   )
@@ -16,7 +16,7 @@ const CenteredPageWrapper = ({ children }: PropsWithChildren) => {
 
 const PageBannerHeader = ({ children }: PropsWithChildren) => {
   return (
-    <header className="sticky top-0 z-navBar flex min-h-18 flex-row items-center justify-between gap-2 bg-white p-4 shadow-b md:px-12">
+    <header className="sticky top-0 z-navBar flex min-h-16 flex-row items-center justify-between gap-2 bg-white p-4 shadow-b md:px-12">
       {children}
     </header>
   )

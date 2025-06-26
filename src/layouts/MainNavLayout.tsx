@@ -137,7 +137,7 @@ const MainNavLayout = () => {
       >
         <NavLayout.Nav className={tw(open ? 'left-0' : '-left-60')}>
           {/* Organization popper */}
-          <div className="flex h-30 items-end p-4 md:h-16">
+          <div className="sticky left-0 top-0 z-sideNav flex h-30 w-60 items-end bg-white p-4 animate-shadow-bottom md:h-16">
             <Popper
               PopperProps={{ placement: 'bottom-start' }}
               minWidth={POPPER_MIN_WIDTH}
@@ -374,7 +374,7 @@ const MainNavLayout = () => {
           </NavLayout.NavSectionGroup>
 
           {/* Bottom menu entries */}
-          <NavLayout.NavSection className="mt-auto p-4">
+          <NavLayout.NavSection className="sticky bottom-0 bg-white p-4 animate-shadow-top">
             <VerticalMenu
               loading={currentUserLoading}
               loadingComponent={
