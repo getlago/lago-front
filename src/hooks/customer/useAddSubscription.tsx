@@ -76,7 +76,10 @@ type UseAddSubscription = (args: {
 }) => UseAddSubscriptionReturn
 
 // Clean plan values (non editable fields not accepted by BE / Graph fails if they are sent)
-const cleanPlanValues = (planValues: PlanOverridesInput, formType: keyof typeof FORM_TYPE_ENUM) => {
+export const cleanPlanValues = (
+  planValues: PlanOverridesInput,
+  formType: keyof typeof FORM_TYPE_ENUM,
+) => {
   return {
     ...planValues,
     code: undefined,
@@ -88,6 +91,11 @@ const cleanPlanValues = (planValues: PlanOverridesInput, formType: keyof typeof 
     cascadeUpdates: undefined,
     charges: planValues?.charges?.map((charge) => ({
       ...charge,
+      appliedPricingUnit: charge.appliedPricingUnit
+        ? {
+            conversionRate: Number(charge.appliedPricingUnit.conversionRate),
+          }
+        : undefined,
       taxes: undefined,
       payInAdvance: undefined,
       billableMetric: undefined,
