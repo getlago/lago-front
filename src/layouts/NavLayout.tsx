@@ -5,18 +5,24 @@ const NavWrapper = ({ children }: PropsWithChildren) => {
   return <div className="flex h-screen w-screen">{children}</div>
 }
 
-const Nav = ({ children, className }: PropsWithChildren<{ className?: string }>) => {
-  return (
-    <nav
-      className={tw(
-        'absolute z-sideNav box-content flex h-full w-60 flex-col overflow-auto border-r border-grey-300 bg-white transition-[left] duration-250 md:static md:left-auto md:z-auto',
-        className,
-      )}
-    >
-      {children}
-    </nav>
-  )
-}
+// Need to accept ref cause it's used within a ClickAwayListener
+const Nav = forwardRef<HTMLElement, PropsWithChildren<{ className?: string }>>(
+  ({ children, className }, ref) => {
+    return (
+      <nav
+        ref={ref}
+        className={tw(
+          'absolute z-sideNav box-content flex h-full w-60 flex-col overflow-auto border-r border-grey-300 bg-white transition-[left] duration-250 md:static md:left-auto md:z-auto',
+          className,
+        )}
+      >
+        {children}
+      </nav>
+    )
+  },
+)
+
+Nav.displayName = 'Nav'
 
 const NavSectionGroup = ({ children }: PropsWithChildren) => {
   return <div className="flex flex-1 flex-col gap-4 px-4">{children}</div>
@@ -37,9 +43,9 @@ const ContentWrapper = forwardRef<HTMLDivElement, PropsWithChildren>(({ children
 ContentWrapper.displayName = 'ContentWrapper'
 
 export const NavLayout = {
-  NavWrapper,
   ContentWrapper,
+  Nav,
   NavSection,
   NavSectionGroup,
-  Nav,
+  NavWrapper,
 }
