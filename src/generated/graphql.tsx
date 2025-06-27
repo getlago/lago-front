@@ -444,6 +444,10 @@ export type AppliedPricingUnitInput = {
   conversionRate: Scalars['Float']['input'];
 };
 
+export type AppliedPricingUnitOverrideInput = {
+  conversionRate: Scalars['Float']['input'];
+};
+
 export type AppliedTax = {
   amountCents: Scalars['BigInt']['output'];
   amountCurrency: CurrencyEnum;
@@ -736,6 +740,7 @@ export enum ChargeModelEnum {
 }
 
 export type ChargeOverridesInput = {
+  appliedPricingUnit?: InputMaybe<AppliedPricingUnitOverrideInput>;
   billableMetricId: Scalars['ID']['input'];
   filters?: InputMaybe<Array<ChargeFilterInput>>;
   id?: InputMaybe<Scalars['ID']['input']>;
