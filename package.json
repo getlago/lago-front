@@ -134,6 +134,7 @@
     "react-router-dom": "6.15.0",
     "recharts": "^2.15.1",
     "sanitize-html": "2.12.1",
+    "uuid": "^11.1.0",
     "yup": "1.2.0"
   },
   "engines": {

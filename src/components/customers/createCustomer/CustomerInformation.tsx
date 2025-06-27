@@ -1,5 +1,7 @@
 import { FormikProps } from 'formik'
+import { Button } from 'lago-design-system'
 import { FC, useMemo } from 'react'
+import { v4 as uuidv4 } from 'uuid'
 
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { Typography } from '~/components/designSystem'
@@ -67,15 +69,29 @@ export const CustomerInformation: FC<CustomerInformationProps> = ({
         disableClearable={isEdition && !customer?.canEditAttributes}
         sortValues={false}
       />
-      <TextInputField
-        // eslint-disable-next-line jsx-a11y/no-autofocus
-        autoFocus={!isEdition}
-        name="externalId"
-        disabled={isEdition && !customer?.canEditAttributes}
-        label={translate('text_624efab67eb2570101d117ce')}
-        placeholder={translate('text_624efab67eb2570101d117d6')}
-        formikProps={formikProps}
-      />
+      <div className="flex items-start gap-2">
+        <TextInputField
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          autoFocus={!isEdition}
+          className="flex-1"
+          name="externalId"
+          disabled={isEdition && !customer?.canEditAttributes}
+          label={translate('text_624efab67eb2570101d117ce')}
+          placeholder={translate('text_624efab67eb2570101d117d6')}
+          formikProps={formikProps}
+        />
+        {!isEdition && (
+          <Button
+            className="mt-8"
+            variant="quaternary"
+            onClick={() => {
+              formikProps.setFieldValue('externalId', uuidv4())
+            }}
+          >
+            {translate('text_1751011689111g64bkbodslm')}
+          </Button>
+        )}
+      </div>
       <ComboBoxField
         name="customerType"
         label={translate('text_1726128938631ioz4orixel3')}
