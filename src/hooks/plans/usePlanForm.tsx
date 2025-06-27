@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 import { FormikProps, useFormik } from 'formik'
+import { debounce } from 'lodash'
 import { useEffect, useMemo } from 'react'
 import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { array, boolean, number, object, string } from 'yup'
@@ -43,6 +44,8 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+
+const DEBOUNCE_MS = window.Cypress ? 0 : 150
 
 gql`
   query getSinglePlan($id: ID!) {
@@ -324,10 +327,20 @@ export const usePlanForm: ({
     }),
     enableReinitialize: true,
     validateOnMount: true,
+    validateOnChange: false,
     // In subscription form, the form should be valid by default whereas in create/edit plan form, it should not
     isInitialValid: !!isUsedInSubscriptionForm,
     onSubmit: onSave,
   })
+
+  const debouncedValidate = useMemo(
+    () => debounce(formikProps.validateForm, DEBOUNCE_MS, { leading: true }),
+    [formikProps.validateForm],
+  )
+
+  useEffect(() => {
+    debouncedValidate(formikProps.values)
+  }, [formikProps.values, debouncedValidate])
 
   const [create, { error: createError }] = useCreatePlanMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },

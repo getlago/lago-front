@@ -1,6 +1,7 @@
 import { useFormik } from 'formik'
 import { Icon } from 'lago-design-system'
-import { RefObject, useCallback, useMemo, useRef } from 'react'
+import { debounce } from 'lodash'
+import { RefObject, useCallback, useEffect, useMemo, useRef } from 'react'
 import { array, object, ref, string } from 'yup'
 
 import { BillingAccordion } from '~/components/customers/createCustomer/BillingAccordion'
@@ -39,6 +40,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditCustomer } from '~/hooks/useCreateEditCustomer'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
+
+const DEBOUNCE_MS = window.Cypress ? 0 : 150
 
 const CreateCustomer = () => {
   const { translate } = useInternationalization()
@@ -242,6 +245,7 @@ const CreateCustomer = () => {
     }),
     validateOnMount: true,
     enableReinitialize: true,
+    validateOnChange: false,
     onSubmit: async ({ metadata, ...values }, formikBag) => {
       const answer = await onSave({
         ...values,
@@ -261,6 +265,15 @@ const CreateCustomer = () => {
       }
     },
   })
+
+  const debouncedValidate = useMemo(
+    () => debounce(formikProps.validateForm, DEBOUNCE_MS, { leading: true }),
+    [formikProps.validateForm],
+  )
+
+  useEffect(() => {
+    debouncedValidate(formikProps.values)
+  }, [formikProps.values, debouncedValidate])
 
   const onAbort = useCallback(() => {
     formikProps.dirty ? warningDialogRef.current?.openDialog() : onClose()
