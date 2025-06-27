@@ -53,7 +53,6 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { NavLayout } from '~/layouts/NavLayout'
 import { MenuPopper } from '~/styles/designSystem'
-import { tw } from '~/styles/utils'
 
 // 280 + 2px for the border
 const POPPER_MIN_WIDTH = 282
@@ -135,7 +134,7 @@ const MainNavLayout = () => {
           if (open) setOpen(false)
         }}
       >
-        <NavLayout.Nav className={tw(open ? 'left-0' : '-left-60')}>
+        <NavLayout.Nav isOpen={open}>
           {/* Organization popper */}
           <div className="sticky left-0 top-0 z-sideNav flex h-30 w-60 items-end bg-white p-4 animate-shadow-bottom md:h-16">
             <Popper

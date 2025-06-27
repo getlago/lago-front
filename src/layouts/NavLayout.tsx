@@ -6,13 +6,14 @@ const NavWrapper = ({ children }: PropsWithChildren) => {
 }
 
 // Need to accept ref cause it's used within a ClickAwayListener
-const Nav = forwardRef<HTMLElement, PropsWithChildren<{ className?: string }>>(
-  ({ children, className }, ref) => {
+const Nav = forwardRef<HTMLElement, PropsWithChildren<{ isOpen: boolean; className?: string }>>(
+  ({ children, className, isOpen }, ref) => {
     return (
       <nav
         ref={ref}
         className={tw(
           'absolute z-sideNav box-content flex h-full w-60 flex-col overflow-auto border-r border-grey-300 bg-white transition-[left] duration-250 md:static md:left-auto md:z-auto',
+          isOpen ? 'left-0' : '-left-60',
           className,
         )}
       >
