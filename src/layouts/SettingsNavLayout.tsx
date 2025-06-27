@@ -46,7 +46,6 @@ import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternat
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { TMembershipPermissions, usePermissions } from '~/hooks/usePermissions'
-import { tw } from '~/styles/utils'
 
 import { NavLayout } from './NavLayout'
 
@@ -166,7 +165,7 @@ const SettingsNavLayout = () => {
           if (open) setOpen(false)
         }}
       >
-        <NavLayout.Nav className={tw(open ? 'left-0' : '-left-60')}>
+        <NavLayout.Nav isOpen={open}>
           <div className="sticky left-0 top-0 z-sideNav flex h-30 w-60 items-end bg-white p-4 animate-shadow-bottom md:h-16">
             <Button
               variant="quaternary"
