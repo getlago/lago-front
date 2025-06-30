@@ -40,6 +40,7 @@ import {
   CreditNoteItem,
   Customer,
   CustomerAccountTypeEnum,
+  CustomerForInvoiceOverviewFragment,
   DownloadInvoiceItemMutationFn,
   HubspotIntegrationInfosForInvoiceOverviewFragment,
   Invoice,
@@ -77,34 +78,32 @@ gql`
     fees {
       id
     }
-    customer {
-      id
-      applicableTimezone
-      accountType
-      anrokCustomer {
-        id
-        externalAccountId
-      }
-      avalaraCustomer {
-        id
-        externalCustomerId
-      }
-      netsuiteCustomer {
-        externalCustomerId
-      }
-      xeroCustomer {
-        externalCustomerId
-      }
-      hubspotCustomer {
-        externalCustomerId
-      }
-      salesforceCustomer {
-        externalCustomerId
-      }
-    }
     billingEntity {
       name
       code
+    }
+  }
+
+  fragment CustomerForInvoiceOverview on Customer {
+    id
+    applicableTimezone
+    accountType
+    anrokCustomer {
+      id
+      externalAccountId
+    }
+    avalaraCustomer {
+      id
+      externalCustomerId
+    }
+    xeroCustomer {
+      externalCustomerId
+    }
+    hubspotCustomer {
+      externalCustomerId
+    }
+    salesforceCustomer {
+      externalCustomerId
     }
   }
 
@@ -134,6 +133,7 @@ gql`
 `
 
 interface InvoiceOverviewProps {
+  customer?: CustomerForInvoiceOverviewFragment | null
   downloadInvoice: DownloadInvoiceItemMutationFn
   hasError: boolean
   hasTaxProviderError: boolean
@@ -196,10 +196,10 @@ const InvoiceOverview = memo(
     syncSalesforceIntegrationInvoice,
     loadingSyncHubspotIntegrationInvoice,
     loadingSyncSalesforceIntegrationInvoice,
+    customer,
   }: InvoiceOverviewProps) => {
     const { translate } = useInternationalization()
     const { invoiceId } = useParams()
-    const customer = invoice?.customer
     const billingEntity = invoice?.billingEntity
     const deleteAdjustedFeeDialogRef = useRef<DeleteAdjustedFeeDialogRef>(null)
     const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)

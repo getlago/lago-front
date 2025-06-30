@@ -60,6 +60,7 @@ import {
   AvalaraIntegration,
   AvalaraIntegrationInfosForInvoiceOverviewFragmentDoc,
   CurrencyEnum,
+  CustomerForInvoiceOverviewFragmentDoc,
   ErrorCodesEnum,
   HubspotIntegration,
   HubspotIntegrationInfosForInvoiceOverviewFragmentDoc,
@@ -79,6 +80,7 @@ import {
   SalesforceIntegration,
   SalesforceIntegrationInfosForInvoiceOverviewFragmentDoc,
   useDownloadInvoiceMutation,
+  useGetInvoiceCustomerQuery,
   useGetInvoiceDetailsQuery,
   useIntegrationsListForCustomerInvoiceDetailsQuery,
   useRefreshInvoiceMutation,
@@ -123,29 +125,7 @@ gql`
       errorDetails
     }
     customer {
-      name
-      displayName
-      avalaraCustomer {
-        id
-        integrationId
-      }
-      netsuiteCustomer {
-        id
-        integrationId
-        externalCustomerId
-      }
-      xeroCustomer {
-        id
-        integrationId
-      }
-      hubspotCustomer {
-        id
-        integrationId
-      }
-      salesforceCustomer {
-        id
-        integrationId
-      }
+      id
     }
     ...InvoiceDetailsForInvoiceOverview
     ...InvoiceForCreditNotesTable
@@ -155,10 +135,44 @@ gql`
     ...InvoiceForUpdateInvoicePaymentStatus
   }
 
+  fragment CustomerForInvoiceDetails on Customer {
+    id
+    name
+    avalaraCustomer {
+      id
+      integrationId
+    }
+    netsuiteCustomer {
+      id
+      integrationId
+      externalCustomerId
+    }
+    xeroCustomer {
+      id
+      integrationId
+    }
+    hubspotCustomer {
+      id
+      integrationId
+    }
+    salesforceCustomer {
+      id
+      integrationId
+    }
+  }
+
   query getInvoiceDetails($id: ID!) {
     invoice(id: $id) {
       id
       ...AllInvoiceDetailsForCustomerInvoiceDetails
+    }
+  }
+
+  query getInvoiceCustomer($id: ID!) {
+    customer(id: $id) {
+      id
+      ...CustomerForInvoiceDetails
+      ...CustomerForInvoiceOverview
     }
   }
 
@@ -247,6 +261,7 @@ gql`
   ${HubspotIntegrationInfosForInvoiceOverviewFragmentDoc}
   ${SalesforceIntegrationInfosForInvoiceOverviewFragmentDoc}
   ${AvalaraIntegrationInfosForInvoiceOverviewFragmentDoc}
+  ${CustomerForInvoiceOverviewFragmentDoc}
 `
 
 const getErrorMessageFromErrorDetails = (
@@ -310,6 +325,18 @@ const CustomerInvoiceDetails = () => {
   const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
   const disputeInvoiceDialogRef = useRef<DisputeInvoiceDialogRef>(null)
+
+  const { data, loading, error, refetch } = useGetInvoiceDetailsQuery({
+    variables: { id: invoiceId as string },
+    skip: !invoiceId,
+  })
+
+  const { data: customerData, loading: customerLoading } = useGetInvoiceCustomerQuery({
+    variables: { id: data?.invoice?.customer?.id as string },
+    skip: !data?.invoice?.customer?.id,
+  })
+
+  const customer = customerData?.customer
 
   const [refreshInvoice, { loading: loadingRefreshInvoice }] = useRefreshInvoiceMutation({
     variables: { input: { id: invoiceId || '' } },
@@ -376,7 +403,7 @@ const CustomerInvoiceDetails = () => {
         if (syncIntegrationInvoiceResult?.invoiceId) {
           addToast({
             severity: 'success',
-            translateKey: !!data?.invoice?.customer.netsuiteCustomer
+            translateKey: !!customer?.netsuiteCustomer
               ? 'text_6655a88569eed300ee8c4d44'
               : 'text_17268445285571pwim3q27vl',
           })
@@ -416,19 +443,14 @@ const CustomerInvoiceDetails = () => {
     },
   })
 
-  const { data, loading, error, refetch } = useGetInvoiceDetailsQuery({
-    variables: { id: invoiceId as string },
-    skip: !invoiceId,
-  })
-
   const { data: integrationsData } = useIntegrationsListForCustomerInvoiceDetailsQuery({
     variables: { limit: 1000 },
     skip:
-      !data?.invoice?.customer?.netsuiteCustomer?.integrationId &&
-      !data?.invoice?.customer?.xeroCustomer?.integrationId &&
-      !data?.invoice?.customer?.hubspotCustomer?.integrationId &&
-      !data?.invoice?.customer?.salesforceCustomer?.integrationId &&
-      !data?.invoice?.customer?.avalaraCustomer?.integrationId,
+      !customer?.netsuiteCustomer?.integrationId &&
+      !customer?.xeroCustomer?.integrationId &&
+      !customer?.hubspotCustomer?.integrationId &&
+      !customer?.salesforceCustomer?.integrationId &&
+      !customer?.avalaraCustomer?.integrationId,
   })
 
   const allNetsuiteIntegrations = integrationsData?.integrations?.collection.filter(
@@ -448,19 +470,19 @@ const CustomerInvoiceDetails = () => {
   ) as AvalaraIntegration[] | undefined
 
   const connectedNetsuiteIntegration = allNetsuiteIntegrations?.find(
-    (integration) => integration?.id === data?.invoice?.customer?.netsuiteCustomer?.integrationId,
+    (integration) => integration?.id === customer?.netsuiteCustomer?.integrationId,
   ) as NetsuiteIntegration
 
   const connectedHubspotIntegration = allHubspotIntegrations?.find(
-    (integration) => integration?.id === data?.invoice?.customer?.hubspotCustomer?.integrationId,
+    (integration) => integration?.id === customer?.hubspotCustomer?.integrationId,
   ) as HubspotIntegration
 
   const connectedSalesforceIntegration = allSalesforceIntegration?.find(
-    (integration) => integration?.id === data?.invoice?.customer?.salesforceCustomer?.integrationId,
+    (integration) => integration?.id === customer?.salesforceCustomer?.integrationId,
   ) as SalesforceIntegration
 
   const connectedAvalaraIntegration = allAvalaraIntegration?.find(
-    (integration) => integration?.id === data?.invoice?.customer?.avalaraCustomer?.integrationId,
+    (integration) => integration?.id === customer?.avalaraCustomer?.integrationId,
   ) as AvalaraIntegration
 
   const {
@@ -546,7 +568,8 @@ const CustomerInvoiceDetails = () => {
             hasError={hasError}
             hasTaxProviderError={!!hasTaxProviderError}
             invoice={data?.invoice as Invoice}
-            loading={loading}
+            loading={loading || customerLoading}
+            customer={customer}
             loadingInvoiceDownload={loadingInvoiceDownload}
             loadingRefreshInvoice={loadingRefreshInvoice}
             loadingRetryInvoice={loadingRetryInvoice}
@@ -648,6 +671,7 @@ const CustomerInvoiceDetails = () => {
     hasTaxProviderError,
     data?.invoice,
     loading,
+    customerLoading,
     loadingInvoiceDownload,
     loadingRefreshInvoice,
     loadingRetryInvoice,
@@ -666,6 +690,8 @@ const CustomerInvoiceDetails = () => {
     loadingSyncSalesforceIntegrationInvoice,
     status,
     taxStatus,
+    isPremium,
+    hasPermissions,
   ])
 
   // TODO: Compare this with src/hooks/usePermissionsInvoiceActions.ts:
@@ -683,7 +709,7 @@ const CustomerInvoiceDetails = () => {
       <PageHeader.Wrapper withSide>
         <PageHeader.Group>
           <Button icon="arrow-left" variant="quaternary" onClick={() => goToPreviousRoute()} />
-          {loading ? (
+          {loading || customerLoading ? (
             <Skeleton variant="text" className="w-30" />
           ) : (
             <Typography variant="bodyHl" color="textSecondary">
@@ -691,7 +717,7 @@ const CustomerInvoiceDetails = () => {
             </Typography>
           )}
         </PageHeader.Group>
-        {!hasError && !loading && (
+        {!hasError && !loading && !customerLoading && (
           <Popper
             PopperProps={{ placement: 'bottom-end' }}
             opener={
@@ -878,7 +904,7 @@ const CustomerInvoiceDetails = () => {
                       }}
                     >
                       {translate(
-                        data?.invoice?.customer.netsuiteCustomer
+                        customer?.netsuiteCustomer
                           ? 'text_6650b36fc702a4014c8788fd'
                           : 'text_6690ef918777230093114d90',
                       )}
@@ -941,7 +967,7 @@ const CustomerInvoiceDetails = () => {
                       }}
                     >
                       {translate(
-                        !!data?.invoice?.customer?.avalaraCustomer
+                        !!customer?.avalaraCustomer
                           ? 'text_17476469985998lthq87gwaq'
                           : 'text_1724702284063xef0c9kyhyl',
                       )}
