@@ -1,3 +1,4 @@
+import { tw } from 'lago-design-system'
 import { PropsWithChildren } from 'react'
 
 import { Typography } from '~/components/designSystem'
@@ -22,9 +23,14 @@ const PageBannerHeader = ({ children }: PropsWithChildren) => {
   )
 }
 
-const CenteredContainer = ({ children }: PropsWithChildren) => {
+const CenteredContainer = ({ className, children }: PropsWithChildren & { className?: string }) => {
   return (
-    <div className="mx-auto flex w-full max-w-170 flex-1 flex-col gap-12 px-4 pb-footer pt-12 md:px-0">
+    <div
+      className={tw(
+        'mx-auto flex w-full max-w-170 flex-1 flex-col gap-12 px-4 pb-footer pt-12 md:px-0',
+        className,
+      )}
+    >
       {children}
     </div>
   )
