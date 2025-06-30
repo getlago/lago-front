@@ -1,7 +1,7 @@
 import { InputAdornment } from '@mui/material'
 import { getIn, useFormik } from 'formik'
 import { Alert, Button, GenericPlaceholder, Typography } from 'lago-design-system'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, Link, useNavigate, useParams } from 'react-router-dom'
 import { array, object, string, ValidationError } from 'yup'
 
 import { CreditTypeEnum, PayBackErrorEnum } from '~/components/creditNote/types'
@@ -12,7 +12,7 @@ import { addToast } from '~/core/apolloClient'
 import { paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
+import { CUSTOMER_INVOICE_DETAILS_ROUTE, CUSTOMER_INVOICE_REGENERATE_ROUTE } from '~/core/router'
 import {
   deserializeAmount,
   getCurrencyPrecision,
@@ -464,21 +464,38 @@ const CustomerInvoiceVoid = () => {
       )}
 
       <CenteredPage.StickyFooter>
-        <Button variant="quaternary" size="large" onClick={() => onClose()}>
-          {translate('text_6411e6b530cb47007488b027')}
-        </Button>
+        <div className="flex w-full items-center justify-between">
+          {customerId && invoiceId && (
+            <div>
+              <Link
+                to={generatePath(CUSTOMER_INVOICE_REGENERATE_ROUTE, {
+                  customerId,
+                  invoiceId,
+                })}
+              >
+                {translate('text_1750678506388eexnh1b36o4')}
+              </Link>
+            </div>
+          )}
 
-        <Button
-          variant="primary"
-          size="large"
-          danger
-          disabled={
-            formikProps.values.handle === HandleEnum.GenerateCreditNote && !formikProps.isValid
-          }
-          onClick={formikProps.submitForm}
-        >
-          {translate('text_65269b43d4d2b15dd929a259')}
-        </Button>
+          <div className="flex gap-3">
+            <Button variant="quaternary" size="large" onClick={() => onClose()}>
+              {translate('text_6411e6b530cb47007488b027')}
+            </Button>
+
+            <Button
+              variant="primary"
+              size="large"
+              danger
+              disabled={
+                formikProps.values.handle === HandleEnum.GenerateCreditNote && !formikProps.isValid
+              }
+              onClick={formikProps.submitForm}
+            >
+              {translate('text_65269b43d4d2b15dd929a259')}
+            </Button>
+          </div>
+        </div>
       </CenteredPage.StickyFooter>
     </CenteredPage.Wrapper>
   )
