@@ -49,6 +49,7 @@ import {
   CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
   CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
+  CUSTOMER_INVOICE_REGENERATE_ROUTE,
   CUSTOMER_INVOICE_VOID_ROUTE,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -995,7 +996,26 @@ const CustomerInvoiceDetails = () => {
                         }
                       }}
                     >
-                      {translate('text_65269b43d4d2b15dd929a259')}
+                      {translate('text_1750678506388d4fr5etxbhh')}
+                    </Button>
+                  )}
+                  {actions.canRegenerate({ status }) && (
+                    <Button
+                      className="w-full"
+                      variant="quaternary"
+                      align="left"
+                      onClick={() => {
+                        if (customerId && invoiceId) {
+                          navigate(
+                            generatePath(CUSTOMER_INVOICE_REGENERATE_ROUTE, {
+                              customerId,
+                              invoiceId,
+                            }),
+                          )
+                        }
+                      }}
+                    >
+                      {translate('text_1750678506388oynw9hd01l9')}
                     </Button>
                   )}
                   {actions.canSyncTaxIntegration({ taxProviderVoidable }) && (
