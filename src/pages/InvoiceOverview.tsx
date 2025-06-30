@@ -35,6 +35,7 @@ import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
 import { formatDateToTZ } from '~/core/timezone'
 import {
   AvalaraIntegrationInfosForInvoiceOverviewFragment,
+  BillingEntity,
   CreditNote,
   CreditNoteItem,
   Customer,
@@ -172,6 +173,54 @@ const InfoLine = ({ children }: { children: React.ReactNode }) => {
   )
 }
 
+export const InvoiceQuickInfo = ({
+  invoice,
+  billingEntity,
+  customer,
+}: {
+  invoice: Partial<Invoice>
+  billingEntity: Partial<BillingEntity>
+  customer: Partial<Customer>
+}) => {
+  const { translate } = useInternationalization()
+  const isDraft = invoice?.status === InvoiceStatusTypeEnum.Draft
+  const customerIsPartner = customer?.accountType === CustomerAccountTypeEnum.Partner
+
+  return (
+    <>
+      {customerIsPartner && (
+        <div className={tw(isDraft ? 'pt-3' : 'pt-6')}>
+          <Alert type="info">
+            <Typography variant="body" color="grey700">
+              {translate(
+                isDraft ? 'text_1738593143437uebmu9jwtc4' : 'text_1738605383523lme9aweoipp',
+              )}
+            </Typography>
+
+            <Typography variant="caption" color="grey600">
+              {translate('text_1738593143438173lt8105a5')}
+            </Typography>
+          </Alert>
+        </div>
+      )}
+      {billingEntity && (
+        <div className="box-border flex items-center gap-2 py-6 shadow-b">
+          <div className="min-w-[140px]">
+            <Typography className="text-sm text-grey-600">
+              {translate('text_1743611497157teaa1zu8l24')}
+            </Typography>
+          </div>
+
+          <Typography className="text-grey-700">
+            {billingEntity.name || billingEntity.code}
+          </Typography>
+        </div>
+      )}
+      <InvoiceCustomerInfos invoice={invoice} />
+    </>
+  )
+}
+
 const InvoiceOverview = memo(
   ({
     downloadInvoice,
@@ -278,7 +327,6 @@ const InvoiceOverview = memo(
     const isTaxStatusPending = invoice?.taxStatus === InvoiceTaxStatusTypeEnum.Pending
 
     const isDraft = invoice?.status === InvoiceStatusTypeEnum.Draft
-    const customerIsPartner = customer?.accountType === CustomerAccountTypeEnum.Partner
 
     return (
       <>
@@ -412,35 +460,13 @@ const InvoiceOverview = memo(
                   </Alert>
                 </div>
               )}
-              {customerIsPartner && (
-                <div className={tw(isDraft ? 'pt-3' : 'pt-6')}>
-                  <Alert type="info">
-                    <Typography variant="body" color="grey700">
-                      {translate(
-                        isDraft ? 'text_1738593143437uebmu9jwtc4' : 'text_1738605383523lme9aweoipp',
-                      )}
-                    </Typography>
 
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_1738593143438173lt8105a5')}
-                    </Typography>
-                  </Alert>
-                </div>
-              )}
-              {billingEntity && (
-                <div className="box-border flex items-center gap-2 py-6 shadow-b">
-                  <div className="min-w-[140px]">
-                    <Typography className="text-sm text-grey-600">
-                      {translate('text_1743611497157teaa1zu8l24')}
-                    </Typography>
-                  </div>
+              <InvoiceQuickInfo
+                customer={customer}
+                invoice={invoice}
+                billingEntity={billingEntity}
+              />
 
-                  <Typography className="text-grey-700">
-                    {billingEntity.name || billingEntity.code}
-                  </Typography>
-                </div>
-              )}
-              <InvoiceCustomerInfos invoice={invoice} />
               <InvoiceDetailsTable
                 customer={customer as Customer}
                 invoice={invoice as Invoice}
