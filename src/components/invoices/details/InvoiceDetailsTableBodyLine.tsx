@@ -11,6 +11,7 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   AdjustedFeeTypeEnum,
   ChargeModelEnum,
+  CreateAdjustedFeeInput,
   CurrencyEnum,
   FeeForDeleteAdjustmentFeeDialogFragmentDoc,
   FeeForEditfeeDrawerFragmentDoc,
@@ -98,6 +99,8 @@ type InvoiceDetailsTableBodyLineProps = {
   deleteAdjustedFeeDialogRef?: RefObject<DeleteAdjustedFeeDialogRef>
   succeededDate?: string
   hasTaxProviderError?: boolean
+  onAdd?: (input: CreateAdjustedFeeInput) => void
+  onDelete?: (id: string) => void
 }
 
 export const calculateIfDetailsShouldBeDisplayed = (
@@ -169,6 +172,8 @@ export const InvoiceDetailsTableBodyLine = memo(
     isDraftInvoice,
     succeededDate,
     hasTaxProviderError,
+    onAdd,
+    onDelete,
   }: InvoiceDetailsTableBodyLineProps) => {
     const { invoiceId = '' } = useParams()
     const { translate } = useInternationalization()
@@ -328,9 +333,9 @@ export const InvoiceDetailsTableBodyLine = memo(
                         align="left"
                         onClick={() => {
                           if (isAdjustedFee) {
-                            deleteAdjustedFeeDialogRef?.current?.openDialog({ fee })
+                            deleteAdjustedFeeDialogRef?.current?.openDialog({ fee, onDelete })
                           } else {
-                            editFeeDrawerRef?.current?.openDrawer({ fee, invoiceId })
+                            editFeeDrawerRef?.current?.openDrawer({ fee, invoiceId, onAdd })
                           }
                           closePopper()
                         }}
