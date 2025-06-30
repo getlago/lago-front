@@ -22,6 +22,7 @@ gql`
 
 interface DeleteAdjustedFeeDialogProps {
   fee: TExtendedRemainingFee | undefined
+  onDelete?: (id: string) => void
 }
 
 export interface DeleteAdjustedFeeDialogRef {
@@ -62,6 +63,10 @@ export const DeleteAdjustedFeeDialog = forwardRef<DeleteAdjustedFeeDialogRef>((_
       title={translate('text_65a6b4e2cb38d9b70ec54035')}
       description={<Typography>{translate('text_65a6b4e2cb38d9b70ec53c55')}</Typography>}
       onContinue={async () => {
+        if (dialogData?.onDelete) {
+          return dialogData.onDelete(dialogData?.fee?.id || '')
+        }
+
         await destroyFee({
           variables: {
             input: {
