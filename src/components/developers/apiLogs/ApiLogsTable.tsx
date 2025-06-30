@@ -1,6 +1,6 @@
 import { Typography } from 'lago-design-system'
 import { FC, RefObject, useMemo } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { InfiniteScroll, Status, StatusType, Table } from '~/components/designSystem'
 import { variantByHTTPMethod } from '~/components/developers/apiLogs/mapping'
@@ -19,6 +19,7 @@ interface ApiLogsTableProps {
 export const ApiLogsTable: FC<ApiLogsTableProps> = ({ getApiLogsResult, logListRef }) => {
   const { translate } = useInternationalization()
   const { formatTimeOrgaTZ } = useOrganizationInfos()
+  const [searchParams] = useSearchParams()
 
   const { data, error, loading, fetchMore, refetch } = getApiLogsResult
 
@@ -53,6 +54,15 @@ export const ApiLogsTable: FC<ApiLogsTableProps> = ({ getApiLogsResult, logListR
           if (getCurrentBreakpoint() === 'sm') {
             logListRef.current?.updateView('forward')
           }
+
+          const path = generatePath(API_LOG_ROUTE, {
+            logId: id,
+          })
+
+          const query = searchParams.toString()
+          const search = query ? `?${query}` : ''
+
+          return `${path}${search}`
 
           return generatePath(API_LOG_ROUTE, { logId: id as string })
         }}
