@@ -6225,6 +6225,7 @@ export type QueryPaymentsArgs = {
   invoiceId?: InputMaybe<Scalars['ID']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -6263,6 +6264,7 @@ export type QuerySubscriptionsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   planCode?: InputMaybe<Scalars['String']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Array<StatusTypeEnum>>;
 };
 
@@ -10956,16 +10958,6 @@ export type GetInvoicesListQueryVariables = Exact<{
 
 export type GetInvoicesListQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, creditableAmountCents: any, refundableAmountCents: any, associatedActiveWalletPresent: boolean, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', name: string, code: string } }> } };
 
-export type GetPaymentListQueryVariables = Exact<{
-  invoiceId?: InputMaybe<Scalars['ID']['input']>;
-  externalCustomerId?: InputMaybe<Scalars['ID']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  page?: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-export type GetPaymentListQuery = { __typename?: 'Query', payments: { __typename?: 'PaymentCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Payment', amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, id: string, payablePaymentStatus?: PayablePaymentStatusEnum | null, paymentProviderType?: ProviderTypeEnum | null, paymentType: PaymentTypeEnum, providerPaymentId?: string | null, reference?: string | null, payable: { __typename?: 'Invoice', id: string, number: string, payableType: string } | { __typename?: 'PaymentRequest', payableType: string, invoices: Array<{ __typename?: 'Invoice', id: string }> }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, paymentReceipt?: { __typename?: 'PaymentReceipt', id: string } | null }> } };
-
 export type GetCreditNotesListQueryVariables = Exact<{
   amountFrom?: InputMaybe<Scalars['Int']['input']>;
   amountTo?: InputMaybe<Scalars['Int']['input']>;
@@ -11016,6 +11008,17 @@ export type GetPaymentDetailsQueryVariables = Exact<{
 
 
 export type GetPaymentDetailsQuery = { __typename?: 'Query', payment?: { __typename?: 'Payment', id: string, amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, updatedAt?: any | null, reference?: string | null, paymentType: PaymentTypeEnum, paymentProviderType?: ProviderTypeEnum | null, payablePaymentStatus?: PayablePaymentStatusEnum | null, providerPaymentId?: string | null, customer: { __typename?: 'Customer', deletedAt?: any | null, id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, payable: { __typename?: 'Invoice', id: string, payableType: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, number: string, totalAmountCents: any, issuingDate: any, currency?: CurrencyEnum | null, paymentOverdue: boolean, totalPaidAmountCents: any, paymentDisputeLostAt?: any | null } | { __typename?: 'PaymentRequest', id: string, payableType: string, invoices: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, number: string, totalAmountCents: any, issuingDate: any, currency?: CurrencyEnum | null, paymentOverdue: boolean, totalPaidAmountCents: any, paymentDisputeLostAt?: any | null }> }, paymentReceipt?: { __typename?: 'PaymentReceipt', id: string } | null } | null };
+
+export type GetPaymentsListQueryVariables = Exact<{
+  invoiceId?: InputMaybe<Scalars['ID']['input']>;
+  externalCustomerId?: InputMaybe<Scalars['ID']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetPaymentsListQuery = { __typename?: 'Query', payments: { __typename?: 'PaymentCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Payment', amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, id: string, payablePaymentStatus?: PayablePaymentStatusEnum | null, paymentProviderType?: ProviderTypeEnum | null, paymentType: PaymentTypeEnum, providerPaymentId?: string | null, reference?: string | null, payable: { __typename?: 'Invoice', id: string, number: string, payableType: string } | { __typename?: 'PaymentRequest', payableType: string, invoices: Array<{ __typename?: 'Invoice', id: string }> }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, paymentReceipt?: { __typename?: 'PaymentReceipt', id: string } | null }> } };
 
 export type GetPlanForDetailsQueryVariables = Exact<{
   planId: Scalars['ID']['input'];
@@ -29827,61 +29830,6 @@ export type GetInvoicesListQueryHookResult = ReturnType<typeof useGetInvoicesLis
 export type GetInvoicesListLazyQueryHookResult = ReturnType<typeof useGetInvoicesListLazyQuery>;
 export type GetInvoicesListSuspenseQueryHookResult = ReturnType<typeof useGetInvoicesListSuspenseQuery>;
 export type GetInvoicesListQueryResult = Apollo.QueryResult<GetInvoicesListQuery, GetInvoicesListQueryVariables>;
-export const GetPaymentListDocument = gql`
-    query getPaymentList($invoiceId: ID, $externalCustomerId: ID, $limit: Int, $page: Int) {
-  payments(
-    invoiceId: $invoiceId
-    externalCustomerId: $externalCustomerId
-    limit: $limit
-    page: $page
-  ) {
-    metadata {
-      currentPage
-      totalPages
-      totalCount
-    }
-    collection {
-      ...PaymentForPaymentsList
-    }
-  }
-}
-    ${PaymentForPaymentsListFragmentDoc}`;
-
-/**
- * __useGetPaymentListQuery__
- *
- * To run a query within a React component, call `useGetPaymentListQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetPaymentListQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetPaymentListQuery({
- *   variables: {
- *      invoiceId: // value for 'invoiceId'
- *      externalCustomerId: // value for 'externalCustomerId'
- *      limit: // value for 'limit'
- *      page: // value for 'page'
- *   },
- * });
- */
-export function useGetPaymentListQuery(baseOptions?: Apollo.QueryHookOptions<GetPaymentListQuery, GetPaymentListQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetPaymentListQuery, GetPaymentListQueryVariables>(GetPaymentListDocument, options);
-      }
-export function useGetPaymentListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPaymentListQuery, GetPaymentListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetPaymentListQuery, GetPaymentListQueryVariables>(GetPaymentListDocument, options);
-        }
-export function useGetPaymentListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPaymentListQuery, GetPaymentListQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetPaymentListQuery, GetPaymentListQueryVariables>(GetPaymentListDocument, options);
-        }
-export type GetPaymentListQueryHookResult = ReturnType<typeof useGetPaymentListQuery>;
-export type GetPaymentListLazyQueryHookResult = ReturnType<typeof useGetPaymentListLazyQuery>;
-export type GetPaymentListSuspenseQueryHookResult = ReturnType<typeof useGetPaymentListSuspenseQuery>;
-export type GetPaymentListQueryResult = Apollo.QueryResult<GetPaymentListQuery, GetPaymentListQueryVariables>;
 export const GetCreditNotesListDocument = gql`
     query getCreditNotesList($amountFrom: Int, $amountTo: Int, $creditStatus: [CreditNoteCreditStatusEnum!], $currency: CurrencyEnum, $customerExternalId: String, $invoiceNumber: String, $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $reason: [CreditNoteReasonEnum!], $refundStatus: [CreditNoteRefundStatusEnum!], $limit: Int, $page: Int, $searchTerm: String, $selfBilled: Boolean, $billingEntityIds: [ID!]) {
   creditNotes(
@@ -30126,6 +30074,63 @@ export type GetPaymentDetailsQueryHookResult = ReturnType<typeof useGetPaymentDe
 export type GetPaymentDetailsLazyQueryHookResult = ReturnType<typeof useGetPaymentDetailsLazyQuery>;
 export type GetPaymentDetailsSuspenseQueryHookResult = ReturnType<typeof useGetPaymentDetailsSuspenseQuery>;
 export type GetPaymentDetailsQueryResult = Apollo.QueryResult<GetPaymentDetailsQuery, GetPaymentDetailsQueryVariables>;
+export const GetPaymentsListDocument = gql`
+    query getPaymentsList($invoiceId: ID, $externalCustomerId: ID, $limit: Int, $page: Int, $searchTerm: String) {
+  payments(
+    invoiceId: $invoiceId
+    externalCustomerId: $externalCustomerId
+    limit: $limit
+    page: $page
+    searchTerm: $searchTerm
+  ) {
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+    collection {
+      ...PaymentForPaymentsList
+    }
+  }
+}
+    ${PaymentForPaymentsListFragmentDoc}`;
+
+/**
+ * __useGetPaymentsListQuery__
+ *
+ * To run a query within a React component, call `useGetPaymentsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPaymentsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPaymentsListQuery({
+ *   variables: {
+ *      invoiceId: // value for 'invoiceId'
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *      limit: // value for 'limit'
+ *      page: // value for 'page'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetPaymentsListQuery(baseOptions?: Apollo.QueryHookOptions<GetPaymentsListQuery, GetPaymentsListQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPaymentsListQuery, GetPaymentsListQueryVariables>(GetPaymentsListDocument, options);
+      }
+export function useGetPaymentsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPaymentsListQuery, GetPaymentsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPaymentsListQuery, GetPaymentsListQueryVariables>(GetPaymentsListDocument, options);
+        }
+export function useGetPaymentsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPaymentsListQuery, GetPaymentsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetPaymentsListQuery, GetPaymentsListQueryVariables>(GetPaymentsListDocument, options);
+        }
+export type GetPaymentsListQueryHookResult = ReturnType<typeof useGetPaymentsListQuery>;
+export type GetPaymentsListLazyQueryHookResult = ReturnType<typeof useGetPaymentsListLazyQuery>;
+export type GetPaymentsListSuspenseQueryHookResult = ReturnType<typeof useGetPaymentsListSuspenseQuery>;
+export type GetPaymentsListQueryResult = Apollo.QueryResult<GetPaymentsListQuery, GetPaymentsListQueryVariables>;
 export const GetPlanForDetailsDocument = gql`
     query getPlanForDetails($planId: ID!) {
   plan(id: $planId) {

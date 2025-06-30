@@ -21,7 +21,10 @@ import {
   payablePaymentStatusMapping,
   paymentStatusMapping,
 } from '~/core/constants/statusInvoiceMapping'
-import { CustomerDetailsTabsOptions, InvoiceListTabEnum } from '~/core/constants/tabsOptions'
+import {
+  CustomerDetailsTabsOptions,
+  CustomerInvoiceDetailsTabsOptionsEnum,
+} from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   CREATE_INVOICE_PAYMENT_ROUTE,
@@ -29,7 +32,7 @@ import {
   CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
-  INVOICES_TAB_ROUTE,
+  PAYMENTS_ROUTE,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ, intlFormatDateTime } from '~/core/timezone'
@@ -183,9 +186,7 @@ const PaymentDetails = () => {
               customerId: customerId as string,
               tab: CustomerDetailsTabsOptions.payments,
             })
-          : generatePath(INVOICES_TAB_ROUTE, {
-              tab: InvoiceListTabEnum.payments,
-            }),
+          : generatePath(PAYMENTS_ROUTE),
         {
           exclude: [CREATE_PAYMENT_ROUTE, CREATE_INVOICE_PAYMENT_ROUTE],
         },
@@ -475,7 +476,7 @@ const PaymentDetails = () => {
               generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
                 customerId: customerId || (customer?.id as string),
                 invoiceId: id as string,
-                tab: InvoiceListTabEnum.invoices,
+                tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
               })
             }
             columns={[

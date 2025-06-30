@@ -8,6 +8,7 @@ const PlansList = lazyLoad(() => import('~/pages/PlansList'))
 const CouponsList = lazyLoad(() => import('~/pages/CouponsList'))
 const AddOnsList = lazyLoad(() => import('~/pages/AddOnsList'))
 const InvoicesPage = lazyLoad(() => import('~/pages/InvoicesPage'))
+const PaymentsPage = lazyLoad(() => import('~/pages/PaymentsPage'))
 
 // Creation
 const ApiKeysForm = lazyLoad(() => import('~/pages/developers/ApiKeysForm'))
@@ -40,6 +41,7 @@ export const COUPONS_ROUTE = '/coupons'
 export const ADD_ONS_ROUTE = '/add-ons'
 export const INVOICES_ROUTE = '/invoices'
 export const INVOICES_TAB_ROUTE = '/invoices/:tab'
+export const PAYMENTS_ROUTE = '/payments'
 
 // Creation
 export const CREATE_CUSTOMER_ROUTE = `/customer/create`
@@ -132,6 +134,12 @@ export const objectListRoutes: CustomRouteObject[] = [
     private: true,
     element: <InvoicesPage />,
     permissions: ['invoicesView', 'creditNotesView'],
+  },
+  {
+    path: [PAYMENTS_ROUTE],
+    private: true,
+    element: <PaymentsPage />,
+    permissions: ['paymentsView'],
   },
 ]
 
