@@ -219,25 +219,24 @@ const SettingsNavLayout = () => {
                     </ButtonLink>
                   ))}
 
-                <Button
-                  variant="inline"
-                  align="left"
-                  size="small"
-                  startIcon="plus"
-                  className="w-full !px-4 !py-1"
-                  endIcon={!canCreateBillingEntity ? 'sparkles' : undefined}
-                  onClick={() => {
-                    if (canCreateBillingEntity) {
-                      navigate(generatePath(BILLING_ENTITY_CREATE_ROUTE))
-                    } else {
-                      premiumWarningDialogRef.current?.openDialog()
-                    }
-                  }}
-                >
-                  <Typography variant="caption" color="inherit" noWrap>
+                <div className="px-3 py-1">
+                  <Button
+                    variant="inline"
+                    align="left"
+                    size="small"
+                    startIcon="plus"
+                    endIcon={!canCreateBillingEntity ? 'sparkles' : undefined}
+                    onClick={() => {
+                      if (canCreateBillingEntity) {
+                        navigate(generatePath(BILLING_ENTITY_CREATE_ROUTE))
+                      } else {
+                        premiumWarningDialogRef.current?.openDialog()
+                      }
+                    }}
+                  >
                     {translate('text_1742367266660p3a701mnvli')}
-                  </Typography>
-                </Button>
+                  </Button>
+                </div>
               </div>
             </NavLayout.NavSection>
 
