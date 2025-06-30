@@ -21,6 +21,9 @@ gql`
       perUnitAmount
       perUnitTotalAmount
     }
+    pricingUnitUsage {
+      shortName
+    }
   }
 `
 
@@ -52,6 +55,7 @@ export const InvoiceDetailsTableBodyLineVolume = memo(
           <td>
             <Typography variant="body" color="grey600">
               {intlFormatNumber(Number(amountDetails?.perUnitAmount) || 0, {
+                pricingUnitShortName: fee?.pricingUnitUsage?.shortName,
                 currencyDisplay: 'symbol',
                 currency,
                 maximumFractionDigits: 15,
@@ -80,6 +84,7 @@ export const InvoiceDetailsTableBodyLineVolume = memo(
           <td>
             <Typography variant="body" color="grey600">
               {intlFormatNumber(Number(amountDetails?.perUnitTotalAmount || 0), {
+                pricingUnitShortName: fee?.pricingUnitUsage?.shortName,
                 currencyDisplay: 'symbol',
                 currency,
               })}
@@ -104,6 +109,7 @@ export const InvoiceDetailsTableBodyLineVolume = memo(
               <td>
                 <Typography variant="body" color="grey600">
                   {intlFormatNumber(Number(amountDetails?.flatUnitAmount) || 0, {
+                    pricingUnitShortName: fee?.pricingUnitUsage?.shortName,
                     currencyDisplay: 'symbol',
                     currency,
                   })}
@@ -131,6 +137,7 @@ export const InvoiceDetailsTableBodyLineVolume = memo(
               <td>
                 <Typography variant="body" color="grey600">
                   {intlFormatNumber(Number(amountDetails?.flatUnitAmount || 0), {
+                    pricingUnitShortName: fee?.pricingUnitUsage?.shortName,
                     currencyDisplay: 'symbol',
                     currency,
                   })}
