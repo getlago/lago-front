@@ -3310,5 +3310,14 @@
   "text_1752158380555tozrnmtmxc1": "Your current logged in method isn’t allowed by this organization. To access it, please log out and sign in again using a different login method.",
   "text_1752158380555al7jwgd0hfk": "{{method}} login method has been disabled successfully.",
   "text_1752158380555fssagh1zpp1": "{{method}} login method has been enabled successfully.",
-  "text_17522481192202remk2eytrr": "Delete Okta connection"
+  "text_17522481192202remk2eytrr": "Delete Okta connection",
+  "text_1750678506388d4fr5etxbhh": "Void and/or regenerate",
+  "text_1750678506388oynw9hd01l9": "Regenerate invoice",
+  "text_1750678506388s7bfu2qjzhn": "Regenerate a voided invoice",
+  "text_17506785063887oto6r0hcq0": "The invoice {{invoiceNumber}} was issued on {{issuingDate}} and voided on {{voidDate}}",
+  "text_1750678506388d8u5rv893gn": "Regenerate a voided invoice to correct the initial one, these invoices will be linked together.",
+  "text_1750678506388ssxh1yacay0": "Regenerate invoice",
+  "text_1750678506388eexnh1b36o4": "Void and regenerate",
+  "text_17506785063889sphu20u9eh": "Add a new fee",
+  "text_17512809059243nam2ohm0ul": "Invoice successfully regenerated"
 }
