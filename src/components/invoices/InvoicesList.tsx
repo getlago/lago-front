@@ -42,6 +42,7 @@ import {
   CREATE_INVOICE_PAYMENT_ROUTE,
   CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
+  CUSTOMER_INVOICE_REGENERATE_ROUTE,
   CUSTOMER_INVOICE_VOID_ROUTE,
   INVOICE_SETTINGS_ROUTE,
 } from '~/core/router'
@@ -317,10 +318,24 @@ const InvoicesList = ({
                 actions.canVoid(invoice)
                   ? {
                       startIcon: 'stop',
-                      title: translate('text_65269b43d4d2b15dd929a259'),
+                      title: translate('text_1750678506388d4fr5etxbhh'),
                       onAction: () =>
                         navigate(
                           generatePath(CUSTOMER_INVOICE_VOID_ROUTE, {
+                            customerId: invoice?.customer?.id,
+                            invoiceId: invoice.id,
+                          }),
+                        ),
+                    }
+                  : null,
+
+                actions.canRegenerate(invoice)
+                  ? {
+                      startIcon: 'stop',
+                      title: translate('text_1750678506388oynw9hd01l9'),
+                      onAction: () =>
+                        navigate(
+                          generatePath(CUSTOMER_INVOICE_REGENERATE_ROUTE, {
                             customerId: invoice?.customer?.id,
                             invoiceId: invoice.id,
                           }),
