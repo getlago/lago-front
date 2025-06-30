@@ -55,16 +55,11 @@ export const ApiLogsTable: FC<ApiLogsTableProps> = ({ getApiLogsResult, logListR
             logListRef.current?.updateView('forward')
           }
 
-          const path = generatePath(API_LOG_ROUTE, {
-            logId: id,
-          })
+          const path = generatePath(API_LOG_ROUTE, { logId: id })
+          const search = searchParams.toString()
+          const fullPath = `${path}${search ? `?${search}` : ''}`
 
-          const query = searchParams.toString()
-          const search = query ? `?${query}` : ''
-
-          return `${path}${search}`
-
-          return generatePath(API_LOG_ROUTE, { logId: id as string })
+          return fullPath
         }}
         columns={[
           {
