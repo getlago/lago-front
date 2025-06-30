@@ -64,6 +64,9 @@ gql`
       chargeFilter {
         id
       }
+      pricingUnitUsage {
+        shortName
+      }
     }
   }
 
@@ -110,6 +113,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
   const [localData, setLocalData] = useState<EditFeeDrawerProps | undefined>(undefined)
   const fee = localData?.fee
   const currency = fee?.currency || CurrencyEnum.Usd
+  const pricingUnitUsage = fee?.pricingUnitUsage
 
   const { loading: invoiceLoading, data: invoiceData } =
     useGetInvoiceDetailsForCreateFeeDrawerQuery({
@@ -487,35 +491,54 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
                                     formikProps={formikProps}
                                     error={undefined}
                                     InputProps={{
-                                      startAdornment: (
-                                        <InputAdornment position="start">
-                                          {getCurrencySymbol(currency)}
+                                      endAdornment: (
+                                        <InputAdornment position="end">
+                                          {pricingUnitUsage?.shortName ||
+                                            getCurrencySymbol(currency)}
                                         </InputAdornment>
                                       ),
                                     }}
                                   />
 
-                                  <div className="text-right">
+                                  <div className="flex flex-col gap-1">
                                     <Typography
-                                      className="mb-1"
+                                      className="text-end"
                                       variant="captionHl"
                                       color="grey700"
                                     >
                                       {translate('text_65a6b4e2cb38d9b70ec53d83')}
                                     </Typography>
-                                    <Typography className="py-3" variant="body" color="grey700">
-                                      {intlFormatNumber(
-                                        Number(
-                                          Number(formikProps.values.units || 0) *
-                                            Number(formikProps.values.unitPreciseAmount || 0) || 0,
-                                        ),
-                                        {
-                                          currencyDisplay: 'symbol',
-                                          currency: currency,
-                                          maximumFractionDigits: 15,
-                                        },
+                                    <div className="flex h-12 flex-col items-end justify-center self-end">
+                                      <Typography variant="body" color="grey700">
+                                        {intlFormatNumber(
+                                          Number(
+                                            Number(formikProps.values.units || 0) *
+                                              Number(formikProps.values.unitPreciseAmount || 0) ||
+                                              0,
+                                          ),
+                                          {
+                                            currencyDisplay: 'symbol',
+                                            currency: currency,
+                                            maximumFractionDigits: 15,
+                                            pricingUnitShortName: pricingUnitUsage?.shortName,
+                                          },
+                                        )}
+                                      </Typography>
+
+                                      {!!pricingUnitUsage && (
+                                        <Typography variant="caption" color="grey600">
+                                          {intlFormatNumber(
+                                            Number(formikProps.values.units || 0) *
+                                              Number(formikProps.values.unitPreciseAmount || 0) *
+                                              Number(pricingUnitUsage?.conversionRate || 0),
+                                            {
+                                              currencyDisplay: 'symbol',
+                                              currency: currency,
+                                            },
+                                          )}
+                                        </Typography>
                                       )}
-                                    </Typography>
+                                    </div>
                                   </div>
                                 </>
                               )}

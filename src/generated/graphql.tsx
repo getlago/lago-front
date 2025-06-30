@@ -8978,7 +8978,7 @@ export type DestroyAdjustedFeeMutationVariables = Exact<{
 
 export type DestroyAdjustedFeeMutation = { __typename?: 'Mutation', destroyAdjustedFee?: { __typename?: 'DestroyAdjustedFeePayload', id?: string | null } | null };
 
-export type InvoiceSubscriptionForCreateFeeDrawerFragment = { __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, charges?: Array<{ __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string } }> | null } }, fees?: Array<{ __typename?: 'Fee', id: string, charge?: { __typename?: 'Charge', id: string, filters?: Array<{ __typename?: 'ChargeFilter', id: string, values: any }> | null } | null, chargeFilter?: { __typename?: 'ChargeFilter', id: string } | null }> | null };
+export type InvoiceSubscriptionForCreateFeeDrawerFragment = { __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, charges?: Array<{ __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string } }> | null } }, fees?: Array<{ __typename?: 'Fee', id: string, charge?: { __typename?: 'Charge', id: string, filters?: Array<{ __typename?: 'ChargeFilter', id: string, values: any }> | null } | null, chargeFilter?: { __typename?: 'ChargeFilter', id: string } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', shortName: string } | null }> | null };
 
 export type FeeForEditfeeDrawerFragment = { __typename?: 'Fee', id: string, currency: CurrencyEnum, charge?: { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, prorated: boolean } | null };
 
@@ -8987,7 +8987,7 @@ export type GetInvoiceDetailsForCreateFeeDrawerQueryVariables = Exact<{
 }>;
 
 
-export type GetInvoiceDetailsForCreateFeeDrawerQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, charges?: Array<{ __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string } }> | null } }, fees?: Array<{ __typename?: 'Fee', id: string, charge?: { __typename?: 'Charge', id: string, filters?: Array<{ __typename?: 'ChargeFilter', id: string, values: any }> | null } | null, chargeFilter?: { __typename?: 'ChargeFilter', id: string } | null }> | null }> | null } | null };
+export type GetInvoiceDetailsForCreateFeeDrawerQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, charges?: Array<{ __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string } }> | null } }, fees?: Array<{ __typename?: 'Fee', id: string, charge?: { __typename?: 'Charge', id: string, filters?: Array<{ __typename?: 'ChargeFilter', id: string, values: any }> | null } | null, chargeFilter?: { __typename?: 'ChargeFilter', id: string } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', shortName: string } | null }> | null }> | null } | null };
 
 export type CreateAdjustedFeeMutationVariables = Exact<{
   input: CreateAdjustedFeeInput;
@@ -12547,6 +12547,9 @@ export const InvoiceSubscriptionForCreateFeeDrawerFragmentDoc = gql`
     }
     chargeFilter {
       id
+    }
+    pricingUnitUsage {
+      shortName
     }
   }
 }
