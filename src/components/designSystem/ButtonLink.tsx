@@ -29,7 +29,7 @@ export interface ButtonLinkTabProps extends ButtonLinkBaseProps {
   title?: string
   active?: boolean
   canBeClickedOnActive?: boolean
-  buttonProps?: never
+  buttonProps?: Pick<ButtonProps, 'size' | 'variant'>
 }
 
 interface ButtonLinkButtonProps extends ButtonLinkBaseProps {
@@ -70,6 +70,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
             align: 'left',
             fullWidth: true,
             startIcon: icon,
+            ...buttonProps,
           }
         : buttonProps || {}
 

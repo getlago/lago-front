@@ -1,9 +1,21 @@
 import { ClickAwayListener } from '@mui/material'
-import { ButtonLink, Icon, Skeleton } from 'lago-design-system'
+import { ButtonLink, Skeleton } from 'lago-design-system'
 import { useEffect, useRef, useState } from 'react'
-import { generatePath, Location, Outlet, useLocation, useParams } from 'react-router-dom'
+import {
+  generatePath,
+  Location,
+  Outlet,
+  useLocation,
+  useNavigate,
+  useParams,
+} from 'react-router-dom'
 
-import { Button, Typography, VerticalMenu } from '~/components/designSystem'
+import {
+  Button,
+  Typography,
+  VerticalMenu,
+  VerticalMenuSectionTitle,
+} from '~/components/designSystem'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
@@ -34,7 +46,8 @@ import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternat
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { TMembershipPermissions, usePermissions } from '~/hooks/usePermissions'
-import { tw } from '~/styles/utils'
+
+import { NavLayout } from './NavLayout'
 
 const generateTabs = ({
   translate,
@@ -44,16 +57,16 @@ const generateTabs = ({
   hasPermissions: (permissionsToCheck: Array<keyof TMembershipPermissions>) => boolean
 }) => [
   {
-    title: translate('text_664c732c264d7eed1c74fd96'),
-    link: AUTHENTICATION_ROUTE,
-    hidden: !hasPermissions(['organizationIntegrationsView']),
-  },
-  {
     title: translate('text_62b1edddbf5f461ab9712733'),
     link: generatePath(INTEGRATIONS_ROUTE, {
       integrationGroup: IntegrationsTabsOptionsEnum.Lago,
     }),
     match: [FULL_INTEGRATIONS_ROUTE, FULL_INTEGRATIONS_ROUTE_ID],
+    hidden: !hasPermissions(['organizationIntegrationsView']),
+  },
+  {
+    title: translate('text_664c732c264d7eed1c74fd96'),
+    link: AUTHENTICATION_ROUTE,
     hidden: !hasPermissions(['organizationIntegrationsView']),
   },
   {
@@ -82,13 +95,13 @@ const generateTabs = ({
 
 const isEntityActive = (code: string, current: string) => code === current
 
-const Settings = () => {
+const SettingsNavLayout = () => {
   const location = useLocation()
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
   const { hasPermissions } = usePermissions()
   const { billingEntityCode } = useParams()
-
+  const navigate = useNavigate()
   const { organization: { canCreateBillingEntity } = {} } = useOrganizationInfos()
   const contentRef = useRef<HTMLDivElement>(null)
 
@@ -137,7 +150,7 @@ const Settings = () => {
   )
 
   return (
-    <div className="flex h-screen w-screen">
+    <NavLayout.NavWrapper>
       <Button
         className="absolute left-4 top-4 z-drawer md:hidden"
         icon="burger"
@@ -152,37 +165,30 @@ const Settings = () => {
           if (open) setOpen(false)
         }}
       >
-        <nav
-          className={tw(
-            'absolute z-sideNav flex h-full w-60 shrink-0 flex-col overflow-hidden bg-white transition-[left] duration-250 shadow-r md:static md:left-auto md:z-auto',
-            open ? 'left-0' : '-left-60',
-          )}
-        >
-          <div className="mt-14 px-4 pb-2 pt-4 md:mt-0">
-            <div className="mb-4 flex items-center gap-2">
-              <Button
-                variant="quaternary"
-                startIcon="arrow-left"
-                onClick={() => {
-                  goBack(HOME_ROUTE, {
-                    exclude: routesToExcludeFromBackRedirection,
-                  })
-                }}
-              >
-                <Typography className="text-nowrap text-grey-600">
-                  {translate('text_65df4fc6314ffd006ce0a537')}
-                </Typography>
-              </Button>
-            </div>
+        <NavLayout.Nav isOpen={open}>
+          <div className="sticky left-0 top-0 z-sideNav flex h-30 w-60 items-end bg-white p-4 animate-shadow-bottom md:h-16">
+            <Button
+              variant="quaternary"
+              startIcon="arrow-left"
+              size="small"
+              onClick={() => {
+                goBack(HOME_ROUTE, {
+                  exclude: routesToExcludeFromBackRedirection,
+                })
+              }}
+            >
+              <Typography variant="caption" color="grey600" noWrap>
+                {translate('text_65df4fc6314ffd006ce0a537')}
+              </Typography>
+            </Button>
+          </div>
 
-            <div>
-              <div className="mb-1 flex items-center gap-2 px-3 py-1">
-                <Icon name="company" size="small" />
-
-                <Typography className="text-sm font-medium text-grey-600">
-                  {translate('text_1742230191028y9ffl7i1dhe')}
-                </Typography>
-              </div>
+          <NavLayout.NavSectionGroup>
+            <NavLayout.NavSection>
+              <VerticalMenuSectionTitle
+                title={translate('text_1742230191028y9ffl7i1dhe')}
+                icon="company"
+              />
 
               <div className="flex flex-col gap-1">
                 {billingEntitiesLoading && <Skeleton className="w-full px-3" variant="text" />}
@@ -190,6 +196,7 @@ const Settings = () => {
                 {!billingEntitiesLoading &&
                   billingEntities?.billingEntities?.collection?.map((entity, index) => (
                     <ButtonLink
+                      className="[&_button]:rounded-lg"
                       key={`${index}-${entity.code}`}
                       title={entity.name}
                       to={generatePath(BILLING_ENTITY_ROUTE, {
@@ -198,6 +205,9 @@ const Settings = () => {
                       type="tab"
                       active={isEntityActive(entity.code, billingEntityCode || '')}
                       canBeClickedOnActive={true}
+                      buttonProps={{
+                        size: 'small',
+                      }}
                     >
                       <div className="flex w-full flex-row items-center justify-between">
                         <div className="flex items-baseline gap-2">
@@ -209,37 +219,32 @@ const Settings = () => {
                     </ButtonLink>
                   ))}
 
-                <ButtonLink
-                  title={translate('text_1742367266660p3a701mnvli')}
-                  to={canCreateBillingEntity ? generatePath(BILLING_ENTITY_CREATE_ROUTE) : '#'}
-                  type="tab"
-                  onClick={() =>
-                    !canCreateBillingEntity && premiumWarningDialogRef.current?.openDialog()
-                  }
-                >
-                  <div className="flex w-full flex-row items-center justify-between">
-                    <div className="flex items-baseline gap-2">
-                      <Icon name="plus" size="small" />
-
-                      <Typography variant="body" color="inherit" noWrap>
-                        {translate('text_1742367266660p3a701mnvli')}
-                      </Typography>
-                    </div>
-
-                    {!canCreateBillingEntity && <Icon name="sparkles" />}
-                  </div>
-                </ButtonLink>
+                <div className="px-3 py-1">
+                  <Button
+                    variant="inline"
+                    align="left"
+                    size="small"
+                    startIcon="plus"
+                    endIcon={!canCreateBillingEntity ? 'sparkles' : undefined}
+                    onClick={() => {
+                      if (canCreateBillingEntity) {
+                        navigate(generatePath(BILLING_ENTITY_CREATE_ROUTE))
+                      } else {
+                        premiumWarningDialogRef.current?.openDialog()
+                      }
+                    }}
+                  >
+                    {translate('text_1742367266660p3a701mnvli')}
+                  </Button>
+                </div>
               </div>
-            </div>
+            </NavLayout.NavSection>
 
-            <div>
-              <div className="mb-1 mt-4 flex items-center gap-2 px-3 py-1">
-                <Icon name="globe" size="small" />
-
-                <Typography className="text-sm font-medium text-grey-600">
-                  {translate('text_1742230191028ts64cxrgwdj')}
-                </Typography>
-              </div>
+            <NavLayout.NavSection>
+              <VerticalMenuSectionTitle
+                title={translate('text_1742230191028ts64cxrgwdj')}
+                icon="globe"
+              />
 
               <VerticalMenu
                 onClick={() => {
@@ -247,18 +252,18 @@ const Settings = () => {
                 }}
                 tabs={TABS_ORGANIZATION}
               />
-            </div>
-          </div>
-        </nav>
+            </NavLayout.NavSection>
+          </NavLayout.NavSectionGroup>
+        </NavLayout.Nav>
       </ClickAwayListener>
 
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
 
-      <div className="flex-1 overflow-y-auto" ref={contentRef}>
+      <NavLayout.ContentWrapper ref={contentRef}>
         <Outlet />
-      </div>
-    </div>
+      </NavLayout.ContentWrapper>
+    </NavLayout.NavWrapper>
   )
 }
 
-export default Settings
+export default SettingsNavLayout
