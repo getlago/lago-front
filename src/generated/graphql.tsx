@@ -2071,6 +2071,8 @@ export enum CurrencyEnum {
   Gbp = 'GBP',
   /** Georgian Lari */
   Gel = 'GEL',
+  /** Ghanaian Cedi */
+  Ghs = 'GHS',
   /** Gibraltar Pound */
   Gip = 'GIP',
   /** Gambian Dalasi */
