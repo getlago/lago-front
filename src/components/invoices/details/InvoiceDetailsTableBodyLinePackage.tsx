@@ -24,6 +24,10 @@ gql`
       perPackageSize
       perPackageUnitAmount
     }
+    pricingUnitUsage {
+      amountCents
+      shortName
+    }
   }
 `
 
@@ -58,6 +62,7 @@ export const InvoiceDetailsTableBodyLinePackage = memo(
             <td>
               <Typography variant="body" color="grey600">
                 {intlFormatNumber(0, {
+                  pricingUnitShortName: fee?.pricingUnitUsage?.shortName,
                   currencyDisplay: 'symbol',
                   currency,
                 })}
@@ -85,6 +90,7 @@ export const InvoiceDetailsTableBodyLinePackage = memo(
             <td>
               <Typography variant="body" color="grey600">
                 {intlFormatNumber(0, {
+                  pricingUnitShortName: fee?.pricingUnitUsage?.shortName,
                   currencyDisplay: 'symbol',
                   currency,
                 })}
@@ -111,6 +117,7 @@ export const InvoiceDetailsTableBodyLinePackage = memo(
                 perPackageUnitAmount: intlFormatNumber(
                   Number(amountDetails?.perPackageUnitAmount) || 0,
                   {
+                    pricingUnitShortName: fee?.pricingUnitUsage?.shortName,
                     currencyDisplay: 'symbol',
                     currency,
                   },
@@ -140,10 +147,17 @@ export const InvoiceDetailsTableBodyLinePackage = memo(
           )}
           <td>
             <Typography variant="body" color="grey600">
-              {intlFormatNumber(deserializeAmount(Number(fee?.amountCents || 0), currency), {
-                currencyDisplay: 'symbol',
-                currency,
-              })}
+              {intlFormatNumber(
+                deserializeAmount(
+                  Number(fee?.pricingUnitUsage?.amountCents || fee?.amountCents || 0),
+                  currency,
+                ),
+                {
+                  pricingUnitShortName: fee?.pricingUnitUsage?.shortName,
+                  currencyDisplay: 'symbol',
+                  currency,
+                },
+              )}
             </Typography>
           </td>
           {isDraftInvoice && <td>{/* Action column */}</td>}

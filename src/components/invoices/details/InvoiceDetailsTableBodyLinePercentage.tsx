@@ -29,6 +29,9 @@ gql`
       rate
       units
     }
+    pricingUnitUsage {
+      shortName
+    }
   }
 `
 
@@ -77,6 +80,7 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
             <td>
               <Typography variant="body" color="grey600">
                 {intlFormatNumber(0, {
+                  pricingUnitShortName: fee?.pricingUnitUsage?.shortName,
                   currencyDisplay: 'symbol',
                   currency,
                 })}
@@ -104,6 +108,7 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
             <td>
               <Typography variant="body" color="grey600">
                 {intlFormatNumber(0, {
+                  pricingUnitShortName: fee?.pricingUnitUsage?.shortName,
                   currencyDisplay: 'symbol',
                   currency,
                 })}
@@ -151,6 +156,7 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
           <td>
             <Typography variant="body" color="grey600">
               {intlFormatNumber(Number(perUnitTotalAmount || 0), {
+                pricingUnitShortName: fee?.pricingUnitUsage?.shortName,
                 currencyDisplay: 'symbol',
                 currency,
               })}
@@ -174,6 +180,7 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
             <td>
               <Typography variant="body" color="grey600">
                 {intlFormatNumber(Number(fixedFeeUnitAmount || 0), {
+                  pricingUnitShortName: fee?.pricingUnitUsage?.shortName,
                   currencyDisplay: 'symbol',
                   currency,
                 })}
@@ -201,6 +208,7 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
             <td>
               <Typography variant="body" color="grey600">
                 {intlFormatNumber(Number(fixedFeeTotalAmount || 0), {
+                  pricingUnitShortName: fee?.pricingUnitUsage?.shortName,
                   currencyDisplay: 'symbol',
                   currency,
                 })}
@@ -225,6 +233,7 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
             <td>
               <Typography variant="body" color="grey600">
                 {intlFormatNumber(Number(minMaxAdjustmentTotalAmount || 0), {
+                  pricingUnitShortName: fee?.pricingUnitUsage?.shortName,
                   currencyDisplay: 'symbol',
                   currency,
                 })}
@@ -252,6 +261,7 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
             <td>
               <Typography variant="body" color="grey600">
                 {intlFormatNumber(Number(minMaxAdjustmentTotalAmount || 0), {
+                  pricingUnitShortName: fee?.pricingUnitUsage?.shortName,
                   currencyDisplay: 'symbol',
                   currency,
                 })}

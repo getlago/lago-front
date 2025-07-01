@@ -26,6 +26,9 @@ gql`
         units
       }
     }
+    pricingUnitUsage {
+      shortName
+    }
   }
 `
 
@@ -104,6 +107,7 @@ export const InvoiceDetailsTableBodyLineGraduatedPercentage = memo(
             <td>
               <Typography variant="body" color="grey600">
                 {intlFormatNumber(Number(graduatedPercentageRange.perUnitTotalAmount || 0), {
+                  pricingUnitShortName: fee?.pricingUnitUsage?.shortName,
                   currencyDisplay: 'symbol',
                   currency,
                 })}
@@ -150,6 +154,7 @@ export const InvoiceDetailsTableBodyLineGraduatedPercentage = memo(
                 <td>
                   <Typography variant="body" color="grey600">
                     {intlFormatNumber(Number(graduatedPercentageRange?.flatUnitAmount) || 0, {
+                      pricingUnitShortName: fee?.pricingUnitUsage?.shortName,
                       currencyDisplay: 'symbol',
                       currency,
                     })}
@@ -177,6 +182,7 @@ export const InvoiceDetailsTableBodyLineGraduatedPercentage = memo(
                 <td>
                   <Typography variant="body" color="grey600">
                     {intlFormatNumber(Number(graduatedPercentageRange.flatUnitAmount || 0), {
+                      pricingUnitShortName: fee?.pricingUnitUsage?.shortName,
                       currencyDisplay: 'symbol',
                       currency,
                     })}

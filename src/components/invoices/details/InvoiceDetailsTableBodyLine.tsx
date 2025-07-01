@@ -1,6 +1,7 @@
 /* eslint-disable tailwindcss/no-custom-classname */
 import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
+import { tw } from 'lago-design-system'
 import { memo, RefObject, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 
@@ -42,6 +43,12 @@ gql`
     adjustedFee
     adjustedFeeType
     succeededAt
+    pricingUnitUsage {
+      amountCents
+      conversionRate
+      shortName
+      preciseAmountCents
+    }
     charge {
       id
       chargeModel
@@ -175,6 +182,7 @@ export const InvoiceDetailsTableBodyLine = memo(
     const chargeModel = fee?.charge?.chargeModel
     const isTrueUpFee = !!fee?.metadata?.isTrueUpFee && !!fee?.charge?.minAmountCents
     const isAdjustedFee = !!fee?.adjustedFee
+    const pricingUnitUsage = fee?.pricingUnitUsage
     const subLabel = useMemo(() => {
       if (!canHaveUnitPrice) return undefined
       if (fee?.description) return fee.description
@@ -227,7 +235,7 @@ export const InvoiceDetailsTableBodyLine = memo(
 
     return (
       <>
-        <tr className={shouldDisplayFeeDetail ? 'has-details' : ''}>
+        <tr className={shouldDisplayFeeDetail || !!pricingUnitUsage ? 'has-details' : ''}>
           <td colSpan={shouldDisplayFeeDetail ? 5 : 1}>
             <Stack direction="row" spacing={1} alignItems="center">
               <Typography variant="bodyHl" color="grey700">
@@ -270,12 +278,16 @@ export const InvoiceDetailsTableBodyLine = memo(
                   ) : (
                     <td>
                       <Typography variant="body" color="grey700">
-                        {intlFormatNumber(fee?.preciseUnitAmount || 0, {
-                          currencyDisplay: 'symbol',
-                          currency,
-                          minimumFractionDigits: 2,
-                          maximumSignificantDigits: 6,
-                        })}
+                        {intlFormatNumber(
+                          pricingUnitUsage?.preciseAmountCents || fee?.preciseUnitAmount || 0,
+                          {
+                            pricingUnitShortName: pricingUnitUsage?.shortName,
+                            currencyDisplay: 'symbol',
+                            currency,
+                            minimumFractionDigits: 2,
+                            maximumSignificantDigits: 6,
+                          },
+                        )}
                       </Typography>
                     </td>
                   )}
@@ -290,10 +302,17 @@ export const InvoiceDetailsTableBodyLine = memo(
               )}
               <td>
                 <Typography variant="body" color="grey700">
-                  {intlFormatNumber(deserializeAmount(fee?.amountCents || 0, currency), {
-                    currencyDisplay: 'symbol',
-                    currency,
-                  })}
+                  {intlFormatNumber(
+                    deserializeAmount(
+                      pricingUnitUsage?.amountCents || fee?.amountCents || 0,
+                      currency,
+                    ),
+                    {
+                      pricingUnitShortName: pricingUnitUsage?.shortName,
+                      currencyDisplay: 'symbol',
+                      currency,
+                    },
+                  )}
                 </Typography>
               </td>
             </>
@@ -390,7 +409,11 @@ export const InvoiceDetailsTableBodyLine = memo(
                 isDraftInvoice={isDraftInvoice}
               />
             )}
-            <tr className="details-line subtotal">
+            <tr
+              className={tw('details-line', {
+                subtotal: !pricingUnitUsage,
+              })}
+            >
               <td colSpan={hideVat && !isDraftInvoice ? 3 : 4}>
                 <Typography variant="body" color="grey700">
                   {translate('text_659e67cd63512ef532843154')}
@@ -398,15 +421,46 @@ export const InvoiceDetailsTableBodyLine = memo(
               </td>
               <td>
                 <Typography variant="body" color="grey700">
-                  {intlFormatNumber(deserializeAmount(fee?.amountCents || 0, currency), {
-                    currencyDisplay: 'symbol',
-                    currency,
-                  })}
+                  {intlFormatNumber(
+                    deserializeAmount(
+                      pricingUnitUsage?.amountCents || fee?.amountCents || 0,
+                      currency,
+                    ),
+                    {
+                      pricingUnitShortName: pricingUnitUsage?.shortName,
+                      currencyDisplay: 'symbol',
+                      currency,
+                    },
+                  )}
                 </Typography>
               </td>
               {isDraftInvoice && <td>{/* Action column */}</td>}
             </tr>
           </>
+        )}
+        {!!pricingUnitUsage && (
+          <tr className="details-line subtotal">
+            <td colSpan={hideVat && !isDraftInvoice ? 3 : 4}>
+              <Typography variant="body" color="grey700">
+                {translate('text_1751039646310obdq6n385sc', {
+                  pricingUnitShortName: pricingUnitUsage.shortName,
+                  conversionRateAmount: intlFormatNumber(pricingUnitUsage.conversionRate || 0, {
+                    style: 'decimal',
+                    maximumFractionDigits: 15,
+                  }),
+                })}
+              </Typography>
+            </td>
+            <td>
+              <Typography variant="body" color="grey700">
+                {intlFormatNumber(deserializeAmount(fee?.amountCents || 0, currency), {
+                  currencyDisplay: 'symbol',
+                  currency,
+                })}
+              </Typography>
+            </td>
+            {isDraftInvoice && <td>{/* Action column */}</td>}
+          </tr>
         )}
       </>
     )

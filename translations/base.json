@@ -3260,5 +3260,6 @@
   "text_1749822492595ayr96w7ez17": "Request body",
   "text_1750864025932bnohjbzci3f": "Reports",
   "text_1750864088654kxz304zdo2z": "Configuration",
-  "text_1750864088654s9qo2h9fvp7": "Billing & operations"
+  "text_1750864088654s9qo2h9fvp7": "Billing & operations",
+  "text_1751039646310obdq6n385sc": "Conversion rate: 1 {{pricingUnitShortName}} = ${{conversionRateAmount}}"
 }
