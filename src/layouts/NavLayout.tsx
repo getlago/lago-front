@@ -1,4 +1,4 @@
-import { tw } from 'lago-design-system'
+import { Button, tw } from 'lago-design-system'
 import { forwardRef, PropsWithChildren } from 'react'
 
 const NavWrapper = ({ children }: PropsWithChildren) => {
@@ -25,6 +25,28 @@ const Nav = forwardRef<HTMLElement, PropsWithChildren<{ isOpen: boolean; classNa
 
 Nav.displayName = 'Nav'
 
+const NavBurgerButton = ({ onClick }: { onClick: () => void }) => {
+  return (
+    <Button
+      className="absolute left-4 top-3 z-drawer md:hidden"
+      icon="burger"
+      variant="quaternary"
+      onClick={(e) => {
+        e.stopPropagation()
+        onClick()
+      }}
+    />
+  )
+}
+
+const NavStickyElementContainer = ({ children }: PropsWithChildren) => {
+  return (
+    <div className="sticky left-0 top-0 z-sideNav flex h-29 w-60 items-end bg-white p-4 animate-shadow-bottom md:h-16">
+      {children}
+    </div>
+  )
+}
+
 const NavSectionGroup = ({ children }: PropsWithChildren) => {
   return <div className="flex flex-1 flex-col gap-4 px-4">{children}</div>
 }
@@ -46,7 +68,9 @@ ContentWrapper.displayName = 'ContentWrapper'
 export const NavLayout = {
   ContentWrapper,
   Nav,
+  NavBurgerButton,
   NavSection,
   NavSectionGroup,
+  NavStickyElementContainer,
   NavWrapper,
 }

@@ -120,15 +120,7 @@ const MainNavLayout = () => {
 
   return (
     <NavLayout.NavWrapper>
-      <Button
-        className="absolute left-4 top-3 z-drawer md:hidden"
-        onClick={(e) => {
-          e.stopPropagation()
-          setOpen((prev) => !prev)
-        }}
-        icon="burger"
-        variant="quaternary"
-      />
+      <NavLayout.NavBurgerButton onClick={() => setOpen((prev) => !prev)} />
       <ClickAwayListener
         onClickAway={() => {
           if (open) setOpen(false)
@@ -136,7 +128,7 @@ const MainNavLayout = () => {
       >
         <NavLayout.Nav isOpen={open}>
           {/* Organization popper */}
-          <div className="sticky left-0 top-0 z-sideNav flex h-29 w-60 items-end bg-white p-4 animate-shadow-bottom md:h-16">
+          <NavLayout.NavStickyElementContainer>
             <Popper
               PopperProps={{ placement: 'bottom-start' }}
               minWidth={POPPER_MIN_WIDTH}
@@ -261,7 +253,7 @@ const MainNavLayout = () => {
                 </MenuPopper>
               )}
             </Popper>
-          </div>
+          </NavLayout.NavStickyElementContainer>
 
           {/* Top menu entries */}
           <NavLayout.NavSectionGroup>
