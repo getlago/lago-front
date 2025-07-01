@@ -149,6 +149,7 @@ const config: Config = {
         23: '5.75rem',
         25: '6.25rem',
         26: '6.5rem',
+        29: '7.25rem',
         30: '7.5rem',
         31: '7.75rem',
         34: '8.5rem',
