@@ -152,7 +152,7 @@ const SettingsNavLayout = () => {
   return (
     <NavLayout.NavWrapper>
       <Button
-        className="absolute left-4 top-4 z-drawer md:hidden"
+        className="absolute left-4 top-3 z-drawer md:hidden"
         icon="burger"
         variant="quaternary"
         onClick={(e) => {
@@ -166,7 +166,7 @@ const SettingsNavLayout = () => {
         }}
       >
         <NavLayout.Nav isOpen={open}>
-          <div className="sticky left-0 top-0 z-sideNav flex h-30 w-60 items-end bg-white p-4 animate-shadow-bottom md:h-16">
+          <div className="sticky left-0 top-0 z-sideNav flex h-29 w-60 items-end bg-white p-4 animate-shadow-bottom md:h-16">
             <Button
               variant="quaternary"
               startIcon="arrow-left"
