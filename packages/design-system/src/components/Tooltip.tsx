@@ -1,43 +1,20 @@
 import { Tooltip as MuiTooltip, TooltipProps as MuiTooltipProps } from '@mui/material'
-import { CSSProperties, forwardRef, ReactNode, useCallback, useState } from 'react'
+import { forwardRef, ReactNode, useCallback, useState } from 'react'
 
 import { tw } from '~/lib'
 
 export interface TooltipProps
   extends Pick<
     MuiTooltipProps,
-    | 'placement'
-    | 'title'
-    | 'onClose'
-    | 'disableHoverListener'
-    | 'PopperProps'
-    | 'arrow'
-    | 'components'
+    'placement' | 'title' | 'onClose' | 'disableHoverListener' | 'PopperProps'
   > {
   children?: ReactNode
   className?: string
   maxWidth?: string
-  tooltipClassName?: string
-  tooltipStyle?: CSSProperties
-  arrowClassName?: string
-  arrowStyle?: CSSProperties
 }
 
 export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
-  (
-    {
-      children,
-      disableHoverListener,
-      className,
-      maxWidth = '320px',
-      tooltipClassName,
-      tooltipStyle,
-      arrowClassName,
-      arrowStyle,
-      ...props
-    },
-    ref,
-  ) => {
+  ({ children, disableHoverListener, className, maxWidth = '320px', ...props }, ref) => {
     const [isOpen, setIsOpen] = useState(false)
 
     const handleOpen = useCallback(() => {
@@ -60,16 +37,8 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
         <MuiTooltip
           componentsProps={{
             tooltip: {
-              className: tw(tooltipClassName),
               style: {
                 maxWidth: maxWidth,
-                ...tooltipStyle,
-              },
-            },
-            arrow: {
-              className: tw(arrowClassName),
-              style: {
-                ...arrowStyle,
               },
             },
           }}
