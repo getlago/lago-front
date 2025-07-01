@@ -129,7 +129,7 @@ const CreateCustomer = () => {
       name: string(),
       firstname: string(),
       lastname: string(),
-      email: string().email('text_620bc4d4269a55014d493fc3'),
+      email: string().emails('text_620bc4d4269a55014d493fc3'),
       externalId: string().required(''),
       metadata: metadataSchema(),
       providerCustomer: object().test({

@@ -25,10 +25,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { EmailPreview } from '~/pages/CustomerRequestOverduePayment/components/EmailPreview'
-import {
-  serializeEmails,
-  validateEmails,
-} from '~/pages/CustomerRequestOverduePayment/validateEmails'
 import { PageHeader } from '~/styles'
 
 import { FreemiumAlert } from './components/FreemiumAlert'
@@ -129,9 +125,7 @@ const CustomerRequestOverduePayment: FC = () => {
       emails: customer?.email || '',
     },
     validationSchema: object({
-      emails: string()
-        .required('')
-        .test('valid-emails', 'text_66b258f62100490d0eb5ca8b', (value) => validateEmails(value)),
+      emails: string().required('').emails('text_66b258f62100490d0eb5ca8b'),
     }),
     validateOnMount: true,
     enableReinitialize: true,
@@ -144,7 +138,7 @@ const CustomerRequestOverduePayment: FC = () => {
         variables: {
           input: {
             externalCustomerId: customer?.externalId ?? '',
-            email: serializeEmails(values.emails),
+            email: values.emails.replaceAll(' ', ''),
             lagoInvoiceIds: invoices?.collection?.map((invoice) => invoice.id),
           },
         },
