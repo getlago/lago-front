@@ -24,6 +24,7 @@ import {
   BILLABLE_METRICS_ROUTE,
   COUPON_DETAILS_ROUTE,
   COUPONS_ROUTE,
+  CREDIT_NOTES_ROUTE,
   CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
@@ -359,7 +360,7 @@ const MainNavLayout = () => {
                     link: INVOICES_ROUTE,
                     canBeClickedOnActive: true,
                     match: [INVOICES_ROUTE, INVOICES_TAB_ROUTE],
-                    hidden: !hasPermissions(['invoicesView', 'creditNotesView']),
+                    hidden: !hasPermissions(['invoicesView']),
                   },
                   {
                     title: translate('text_6672ebb8b1b50be550eccbed'),
@@ -368,6 +369,13 @@ const MainNavLayout = () => {
                     match: [PAYMENTS_ROUTE, PAYMENT_DETAILS_ROUTE],
                     canBeClickedOnActive: true,
                     hidden: !hasPermissions(['paymentsView']),
+                  },
+                  {
+                    title: translate('text_66461ada56a84401188e8c63'),
+                    icon: 'receipt',
+                    link: CREDIT_NOTES_ROUTE,
+                    canBeClickedOnActive: true,
+                    hidden: !hasPermissions(['creditNotesView']),
                   },
                 ]}
               />
