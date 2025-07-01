@@ -35,7 +35,6 @@ import {
   INTEGRATIONS_ROUTE,
   INVOICE_SETTINGS_ROUTE,
   INVOICES_ROUTE,
-  INVOICES_TAB_ROUTE,
   MEMBERS_ROUTE,
   ONLY_DEV_DESIGN_SYSTEM_ROUTE,
   ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE,
@@ -359,7 +358,7 @@ const MainNavLayout = () => {
                     icon: 'document',
                     link: INVOICES_ROUTE,
                     canBeClickedOnActive: true,
-                    match: [INVOICES_ROUTE, INVOICES_TAB_ROUTE],
+                    match: [INVOICES_ROUTE],
                     hidden: !hasPermissions(['invoicesView']),
                   },
                   {

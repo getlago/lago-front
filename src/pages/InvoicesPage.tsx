@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
 import { useMemo, useRef } from 'react'
-import { generatePath, useParams, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 
-import { Button, NavigationTab, Typography } from '~/components/designSystem'
+import { Button, Typography } from '~/components/designSystem'
 import {
   formatFiltersForInvoiceQuery,
   isOutstandingUrlParams,
@@ -22,8 +22,6 @@ import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/Prem
 import { SearchInput } from '~/components/SearchInput'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { INVOICE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
-import { InvoiceListTabEnum } from '~/core/constants/tabsOptions'
-import { INVOICES_ROUTE, INVOICES_TAB_ROUTE } from '~/core/router'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
@@ -140,7 +138,6 @@ const InvoicesPage = () => {
   const { organization } = useOrganizationInfos()
   const [searchParams] = useSearchParams()
   const amountCurrency = organization?.defaultCurrency
-  const { tab = InvoiceListTabEnum.invoices } = useParams<{ tab?: InvoiceListTabEnum }>()
 
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
@@ -152,27 +149,20 @@ const InvoicesPage = () => {
     return formatFiltersForInvoiceQuery(searchParams)
   }, [searchParams])
 
-  const [
-    getInvoices,
+  const [getInvoices, { data, loading, error, fetchMore, variables }] = useGetInvoicesListLazyQuery(
     {
-      data: dataInvoices,
-      loading: loadingInvoices,
-      error: errorInvoices,
-      fetchMore: fetchMoreInvoices,
-      variables: variableInvoices,
+      notifyOnNetworkStatusChange: true,
+      fetchPolicy: 'network-only',
+      nextFetchPolicy: 'network-only',
+      variables: {
+        limit: 20,
+        ...formatAmountCurrency(filtersForInvoiceQuery, amountCurrency),
+      },
     },
-  ] = useGetInvoicesListLazyQuery({
-    notifyOnNetworkStatusChange: true,
-    fetchPolicy: 'network-only',
-    nextFetchPolicy: 'network-only',
-    variables: {
-      limit: 20,
-      ...formatAmountCurrency(filtersForInvoiceQuery, amountCurrency),
-    },
-  })
+  )
 
   const { debouncedSearch: invoiceDebounceSearch, isLoading: invoiceIsLoading } =
-    useDebouncedSearch(getInvoices, loadingInvoices)
+    useDebouncedSearch(getInvoices, loading)
 
   const [retryAll] = useRetryAllInvoicePaymentsMutation({
     context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },
@@ -189,7 +179,7 @@ const InvoicesPage = () => {
   const onInvoicesExport = async (values: ExportValues<InvoiceExportTypeEnum>) => {
     const filters = {
       ...formatAmountCurrency(formatFiltersForInvoiceQuery(searchParams), amountCurrency),
-      searchTerm: variableInvoices?.searchTerm,
+      searchTerm: variables?.searchTerm,
     }
 
     const res = await triggerCreateInvoicesDataExport({
@@ -215,7 +205,7 @@ const InvoicesPage = () => {
     },
   })
 
-  const invoicesTotalCount = dataInvoices?.invoices?.metadata?.totalCount
+  const invoicesTotalCount = data?.invoices?.metadata?.totalCount
 
   return (
     <>
@@ -225,26 +215,22 @@ const InvoicesPage = () => {
         </Typography>
 
         <PageHeader.Group>
-          {tab === InvoiceListTabEnum.invoices && (
-            <>
-              <SearchInput
-                onChange={invoiceDebounceSearch}
-                placeholder={translate('text_63c68131568d582a38233e84')}
-              />
-              <Button
-                variant="secondary"
-                disabled={!dataInvoices?.invoices?.metadata?.totalCount}
-                onClick={exportInvoicesDialogRef.current?.openDialog}
-              >
-                {translate('text_66b21236c939426d07ff98ca')}
-              </Button>
-            </>
-          )}
+          <SearchInput
+            onChange={invoiceDebounceSearch}
+            placeholder={translate('text_63c68131568d582a38233e84')}
+          />
+          <Button
+            variant="secondary"
+            disabled={!invoicesTotalCount}
+            onClick={exportInvoicesDialogRef.current?.openDialog}
+          >
+            {translate('text_66b21236c939426d07ff98ca')}
+          </Button>
 
           {isOutstandingUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX }) &&
             hasPermissions(['invoicesSend']) && (
               <Button
-                disabled={!dataInvoices?.invoices?.metadata?.totalCount}
+                disabled={!invoicesTotalCount}
                 onClick={async () => {
                   const { errors } = await retryAll({ variables: { input: {} } })
 
@@ -261,32 +247,16 @@ const InvoicesPage = () => {
             )}
         </PageHeader.Group>
       </PageHeader.Wrapper>
-      <NavigationTab
-        className="px-4 md:px-12"
-        tabs={[
-          {
-            title: translate('text_63ac86d797f728a87b2f9f85'),
-            link: generatePath(INVOICES_TAB_ROUTE, {
-              tab: InvoiceListTabEnum.invoices,
-            }),
-            match: [
-              INVOICES_ROUTE,
-              generatePath(INVOICES_TAB_ROUTE, { tab: InvoiceListTabEnum.invoices }),
-            ],
-            component: (
-              <InvoicesList
-                error={errorInvoices}
-                fetchMore={fetchMoreInvoices}
-                invoices={dataInvoices?.invoices?.collection}
-                isLoading={invoiceIsLoading}
-                metadata={dataInvoices?.invoices?.metadata}
-                variables={variableInvoices}
-              />
-            ),
-            hidden: !hasPermissions(['invoicesView']),
-          },
-        ]}
+
+      <InvoicesList
+        error={error}
+        fetchMore={fetchMore}
+        invoices={data?.invoices?.collection}
+        isLoading={invoiceIsLoading}
+        metadata={data?.invoices?.metadata}
+        variables={variables}
       />
+
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />

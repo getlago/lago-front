@@ -47,10 +47,6 @@ export enum NewAnalyticsTabsOptionsEnum {
   invoices = 'invoices',
 }
 
-export enum InvoiceListTabEnum {
-  invoices = 'invoices',
-}
-
 export enum CustomerDetailsTabsOptions {
   activityLogs = 'activity-logs',
   creditNotes = 'creditNotes',

@@ -41,7 +41,6 @@ export const PLANS_ROUTE = '/plans'
 export const COUPONS_ROUTE = '/coupons'
 export const ADD_ONS_ROUTE = '/add-ons'
 export const INVOICES_ROUTE = '/invoices'
-export const INVOICES_TAB_ROUTE = '/invoices/:tab'
 export const PAYMENTS_ROUTE = '/payments'
 export const CREDIT_NOTES_ROUTE = '/credit-notes'
 
@@ -132,7 +131,7 @@ export const objectListRoutes: CustomRouteObject[] = [
     permissions: ['addonsView'],
   },
   {
-    path: [INVOICES_ROUTE, INVOICES_TAB_ROUTE],
+    path: [INVOICES_ROUTE],
     private: true,
     element: <InvoicesPage />,
     permissions: ['invoicesView'],
