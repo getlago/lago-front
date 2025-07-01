@@ -297,10 +297,10 @@ const BillingEntityEmailScenariosConfig = () => {
                           ))}
 
                           <div className="mt-6 flex w-full items-center justify-between">
-                            <Typography className="text-xs font-bold text-grey-700">
+                            <Typography variant="caption" color="grey700">
                               {translateWithContextualLocal('text_6419c64eace749372fc72b3c')}
                             </Typography>
-                            <Typography className="text-xs font-bold text-grey-700">
+                            <Typography variant="caption" color="grey700">
                               {translateWithContextualLocal('text_6419c64eace749372fc72b3e')}
                             </Typography>
                           </div>

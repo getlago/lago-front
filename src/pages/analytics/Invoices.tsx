@@ -326,19 +326,21 @@ const Invoices = () => {
       {!error && (
         <>
           <div className="flex flex-col gap-6">
-            <Typography className="flex items-center gap-2 text-lg font-semibold text-grey-700">
+            <Typography variant="subhead1" color="grey700" className="flex items-center gap-2">
               {translate('text_1746526888530pbjcvaaox2c')}
             </Typography>
 
             <div className="flex w-full">
               {balancesDisplay.map(([label, amount], index) => (
                 <div className="flex flex-1 flex-col gap-1" key={`pages-analytics-${index}`}>
-                  <Typography className="text-2xl font-semibold text-grey-700">
+                  <Typography variant="headline" color="grey700">
                     {intlFormatNumber(amount, {
                       currency,
                     })}
                   </Typography>
-                  <Typography className="text-grey-600">{translate(label as string)}</Typography>
+                  <Typography variant="body" color="grey600">
+                    {translate(label as string)}
+                  </Typography>
                 </div>
               ))}
             </div>
@@ -346,7 +348,7 @@ const Invoices = () => {
 
           <ChartWrapper>
             <div className="flex flex-col gap-6">
-              <Typography className="text-lg font-semibold text-grey-700">
+              <Typography variant="subhead1" color="grey700">
                 {translate('text_1745934224037o00zwo5xesp')}
               </Typography>
 
@@ -377,11 +379,11 @@ const Invoices = () => {
 
                   <div className="mx-1">
                     <div className="flex items-center justify-between border-b border-grey-300 pb-3">
-                      <Typography className="text-sm font-medium text-grey-600">
+                      <Typography variant="bodyHl" color="grey600">
                         {translate('text_17464599455321p5nbjbsg2o')}
                       </Typography>
 
-                      <Typography className="text-sm font-medium text-grey-600">
+                      <Typography variant="bodyHl" color="grey600">
                         {translate('text_17346988752182hpzppdqk9t')}
                       </Typography>
                     </div>
@@ -413,14 +415,14 @@ const Invoices = () => {
                                   style={{ backgroundColor: GRAPH_COLORS[index] }}
                                 />
 
-                                <Typography className="font-medium text-grey-700">
+                                <Typography variant="bodyHl" color="grey700">
                                   {translate(INVOICE_PAYMENT_STATUS_TRANSLATION_MAP[status], {
                                     count: totalPerStatus[status].count,
                                   })}
                                 </Typography>
                               </div>
 
-                              <Typography className="text-grey-600">
+                              <Typography variant="body" color="grey600">
                                 {intlFormatNumber(totalPerStatus[status].amount, { currency })}
                               </Typography>
                             </div>
@@ -430,11 +432,11 @@ const Invoices = () => {
                     </div>
 
                     <div className="flex items-center justify-between border-b border-grey-300 py-3">
-                      <Typography className="font-medium text-grey-700">
+                      <Typography variant="bodyHl" color="grey700">
                         {translate('text_1746536317559r1gbassfgec')}
                       </Typography>
 
-                      <Typography className="text-grey-700">
+                      <Typography variant="body" color="grey700">
                         {intlFormatNumber(totalInvoices.amount, {
                           currency,
                         })}

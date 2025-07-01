@@ -115,7 +115,7 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
 
   return (
     <div className="flex flex-col gap-4">
-      <Typography className="text-base font-medium text-grey-700">
+      <Typography variant="subhead2" color="grey700">
         {translate('text_1728377307159eu0ihwiyrf0')}
       </Typography>
 
@@ -174,7 +174,7 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
         formikProps={formikProps}
       />
 
-      <Typography className="mt-12 text-base font-medium text-grey-700">
+      <Typography variant="subhead2" color="grey700" className="mt-12">
         {translate('text_1728377307159y9afykbx2q9')}
       </Typography>
 
@@ -216,7 +216,7 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
         PopperProps={{ displayInDialog: true }}
       />
 
-      <Typography className="mt-8 text-base font-medium text-grey-700">
+      <Typography variant="subhead2" color="grey700" className="mt-8">
         {translate('text_667d708c1359b49f5a5a8230')}
       </Typography>
 

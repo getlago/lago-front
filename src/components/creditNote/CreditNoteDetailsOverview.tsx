@@ -110,12 +110,12 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
       {creditNote?.billingEntity && (
         <div className="box-border flex items-center gap-2 py-6 shadow-b">
           <div className="min-w-[140px]">
-            <Typography className="text-sm text-grey-600">
+            <Typography variant="body" color="grey600">
               {translate('text_1743611497157teaa1zu8l24')}
             </Typography>
           </div>
 
-          <Typography className="text-grey-700">
+          <Typography variant="body" color="grey700">
             {creditNote?.billingEntity.name || creditNote?.billingEntity.code}
           </Typography>
         </div>

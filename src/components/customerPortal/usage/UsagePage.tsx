@@ -151,11 +151,11 @@ const UsagePage = () => {
             refetchUsage={() => usageRefetch()}
             noUsageOverride={
               <div className="mt-6 flex flex-col gap-3">
-                <Typography className="text-lg font-semibold text-grey-700">
+                <Typography variant="subhead1" color="grey700">
                   {translate('text_1728384061736ee3wi673knf')}
                 </Typography>
 
-                <Typography className="text-base font-normal text-grey-600">
+                <Typography variant="subhead2" color="grey600">
                   {translate('text_1728384061736kob8d52j62l')}
                 </Typography>
               </div>

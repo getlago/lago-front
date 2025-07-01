@@ -193,10 +193,7 @@ const InformationBlock = ({ billingEntity }: { billingEntity: BillingEntity }) =
               className="flex items-center gap-3"
               key={`billing-entity-information-${field.fieldKey}`}
             >
-              <Typography
-                className="flex h-7 basis-35 items-center text-sm text-grey-600"
-                variant="caption"
-              >
+              <Typography className="flex h-7 basis-35 items-center" variant="body" color="grey600">
                 {field.label}
               </Typography>
 
