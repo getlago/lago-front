@@ -63,15 +63,15 @@ export const INNER_CONTENT_WIDTH = 672
 export const BREAKPOINT_LG = 1024
 
 const typographyBody = {
-  fontSize: '16px',
+  fontSize: '14px',
   lineHeight: '24px',
   letterSpacing: '-0.16px',
   fontWeight: 400,
 }
 
 const typographyCaption = {
-  fontSize: '14px',
-  lineHeight: '24px',
+  fontSize: '12px',
+  lineHeight: '16px',
   letterSpacing: '-0.16px',
   fontWeight: 400,
 }
@@ -606,9 +606,9 @@ export const theme = createTheme({
           padding: '10px 12px',
           borderRadius: '8px',
           // Caption
-          fontSize: '14px',
+          fontSize: '12px',
           fontWeight: 400,
-          lineHeight: '24px',
+          lineHeight: '16px',
           letterSpacing: '-0.16px',
           '&.button-icon-only': {
             width: '24px',
@@ -854,12 +854,12 @@ export const theme = createTheme({
     captionCode: {
       fontFamily: 'IBM Plex Mono, monospace',
       fontWeight: 400,
-      fontSize: '14px',
-      lineHeight: '24px',
+      fontSize: '12px',
+      lineHeight: '16px',
     },
     h2: undefined,
     bodyHl: {
-      fontSize: '16px',
+      fontSize: '14px',
       lineHeight: '24px',
       letterSpacing: '-0.16px',
       fontWeight: 500,
@@ -870,8 +870,8 @@ export const theme = createTheme({
     },
     body1: undefined,
     captionHl: {
-      fontSize: '14px',
-      lineHeight: '24px',
+      fontSize: '12px',
+      lineHeight: '16px',
       letterSpacing: '-0.16px',
       fontWeight: 500,
     },
@@ -887,15 +887,15 @@ export const theme = createTheme({
       textTransform: 'none',
     },
     noteHl: {
-      fontSize: '12px',
+      fontSize: '10px',
       lineHeight: '16px',
       letterSpacing: '-0.16px',
-      fontWeight: 500,
+      fontWeight: 400,
       textTransform: 'none',
     },
     overline: undefined,
     button: {
-      fontSize: '16px',
+      fontSize: '14px',
       lineHeight: '24px',
       letterSpacing: '-0.16px',
       fontWeight: 400,
