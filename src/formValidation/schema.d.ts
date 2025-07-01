@@ -8,6 +8,7 @@ declare module 'yup' {
     TFlags extends Flags = '',
   > extends Schema<TType, TContext, TDefault, TFlags> {
     domain(message: string): this
+    emails(message: string): this
   }
 }
 
