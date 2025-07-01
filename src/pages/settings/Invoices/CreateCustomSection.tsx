@@ -123,7 +123,7 @@ const CreateInvoiceCustomSection = () => {
               <div className="flex flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b">
                 <section className="not-last-child:mb-6">
                   <div className="not-last-child:mb-2">
-                    <Typography variant="subhead">
+                    <Typography variant="subhead1">
                       {translate('text_1732553358445sjgzrnstueo')}
                     </Typography>
                     <Typography variant="caption">
@@ -190,7 +190,7 @@ const CreateInvoiceCustomSection = () => {
 
                 <section className="not-last-child:mb-6">
                   <div className="not-last-child:mb-2">
-                    <Typography variant="subhead">
+                    <Typography variant="subhead1">
                       {translate('text_1732553358445ia697d93gbj')}
                     </Typography>
                     <Typography variant="caption">

@@ -170,7 +170,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
     <section>
       <div className="flex h-10 flex-row items-start justify-between shadow-b">
         <div className="flex flex-row gap-2">
-          <Typography variant="subhead" color="grey700" noWrap>
+          <Typography variant="subhead1" color="grey700" noWrap>
             {translate('text_1725983967306cf8dwr2r4u2')}
           </Typography>
           <Tooltip placement="top-start" title={translate('text_62d7f6178ec94cd09370e4b3')}>

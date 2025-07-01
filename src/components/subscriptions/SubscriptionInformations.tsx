@@ -74,7 +74,7 @@ export const SubscriptionInformations = ({
 
   return (
     <section>
-      <DetailsPage.SectionTitle variant="subhead" noWrap>
+      <DetailsPage.SectionTitle variant="subhead1" noWrap>
         {translate('text_6335e8900c69f8ebdfef5312')}
       </DetailsPage.SectionTitle>
       <div className="flex flex-col gap-4">

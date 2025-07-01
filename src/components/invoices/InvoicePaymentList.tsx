@@ -45,7 +45,7 @@ export const InvoicePaymentList: FC<{
   return (
     <>
       <div className="flex h-18 items-center justify-between shadow-b">
-        <Typography variant="subhead">{translate('text_6672ebb8b1b50be550eccbed')}</Typography>
+        <Typography variant="subhead1">{translate('text_6672ebb8b1b50be550eccbed')}</Typography>
         {canRecordPayment && (
           <ButtonLink
             type="button"

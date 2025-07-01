@@ -36,7 +36,7 @@ export const CustomerPaymentsTab: FC<CustomerPaymentsTabProps> = ({ externalCust
           <Skeleton variant="text" className="w-56" />
         ) : (
           <div className="flex flex-1 items-center gap-4">
-            <Typography variant="subhead" color="grey700" className="flex-1">
+            <Typography variant="subhead1" color="grey700" className="flex-1">
               {translate('text_6672ebb8b1b50be550eccbed')}
             </Typography>
             {canRecordPayment && (

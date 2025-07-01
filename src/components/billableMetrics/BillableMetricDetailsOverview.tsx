@@ -55,7 +55,7 @@ export const BillableMetricDetailsOverview = () => {
   return (
     <section className="flex flex-col gap-12">
       <section>
-        <DetailsPage.SectionTitle variant="subhead" noWrap>
+        <DetailsPage.SectionTitle variant="subhead1" noWrap>
           {translate('text_1748363241713k6n9cgzat7q')}
         </DetailsPage.SectionTitle>
         <div className="flex flex-col gap-4">
@@ -82,7 +82,7 @@ export const BillableMetricDetailsOverview = () => {
         </div>
       </section>
       <div>
-        <DetailsPage.SectionTitle variant="subhead" noWrap>
+        <DetailsPage.SectionTitle variant="subhead1" noWrap>
           {translate('text_1748363241714mwu6t0uhwe4')}
         </DetailsPage.SectionTitle>
         <div className="flex flex-col gap-12">

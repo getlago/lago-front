@@ -24,7 +24,7 @@ export const PlanDetailsAdvancedSettingsSection = ({
 
   return (
     <section>
-      <DetailsPage.SectionTitle variant="subhead" noWrap>
+      <DetailsPage.SectionTitle variant="subhead1" noWrap>
         {translate('text_6661fc17337de3591e29e44d')}
       </DetailsPage.SectionTitle>
 

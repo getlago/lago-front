@@ -9,7 +9,7 @@ export const SkeletonSection = () => {
 
       <div className="flex flex-row flex-wrap gap-20">
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Connector avatar
           </Typography>
           <div className="flex flex-col gap-4">
@@ -20,7 +20,7 @@ export const SkeletonSection = () => {
         </section>
 
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             User avatar
           </Typography>
           <div className="flex flex-col gap-4">
@@ -31,7 +31,7 @@ export const SkeletonSection = () => {
         </section>
 
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Circular
           </Typography>
           <div className="flex flex-row gap-4">
@@ -41,7 +41,7 @@ export const SkeletonSection = () => {
         </section>
 
         <section className="flex-1">
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Text
           </Typography>
           <div className="flex flex-col gap-4">

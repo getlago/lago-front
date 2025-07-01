@@ -176,7 +176,7 @@ const CreateWalletTopUp = () => {
 
             <section className="flex flex-col gap-6 pb-12 shadow-b">
               <div className="flex flex-col gap-1">
-                <Typography variant="subhead">
+                <Typography variant="subhead1">
                   {translate('text_6560809c38fb9de88d8a5090')}
                 </Typography>
                 <Typography variant="caption">
@@ -212,7 +212,7 @@ const CreateWalletTopUp = () => {
 
             <section className="flex flex-col gap-6 pb-12 shadow-b">
               <div className="flex flex-col gap-1">
-                <Typography variant="subhead">
+                <Typography variant="subhead1">
                   {translate('text_6657be42151661006d2f3b89')}
                 </Typography>
                 <Typography variant="caption">
@@ -304,7 +304,7 @@ const CreateWalletTopUp = () => {
                 variant="borderless"
                 summary={
                   <div className="flex flex-col gap-2">
-                    <Typography variant="subhead">
+                    <Typography variant="subhead1">
                       {translate('text_63fcc3218d35b9377840f59b')}
                     </Typography>
                     <Typography variant="caption">

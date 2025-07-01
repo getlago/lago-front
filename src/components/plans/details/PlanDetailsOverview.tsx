@@ -39,7 +39,7 @@ export const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
   return (
     <section className="flex flex-col gap-12">
       <section>
-        <DetailsPage.SectionTitle variant="subhead" noWrap>
+        <DetailsPage.SectionTitle variant="subhead1" noWrap>
           {translate('text_642d5eb2783a2ad10d67031a')}
         </DetailsPage.SectionTitle>
         <div className="flex flex-col gap-4">
@@ -73,14 +73,14 @@ export const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
         </div>
       </section>
       <section>
-        <DetailsPage.SectionTitle variant="subhead" noWrap>
+        <DetailsPage.SectionTitle variant="subhead1" noWrap>
           {translate('text_642d5eb2783a2ad10d670332')}
         </DetailsPage.SectionTitle>
         <PlanDetailsFixedFeeAccordion plan={plan} />
       </section>
       {!!plan?.charges?.length && (
         <section>
-          <DetailsPage.SectionTitle variant="subhead" noWrap>
+          <DetailsPage.SectionTitle variant="subhead1" noWrap>
             {translate('text_6435888d7cc86500646d8977')}
           </DetailsPage.SectionTitle>
           <PlanDetailsChargesSection

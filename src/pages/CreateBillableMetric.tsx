@@ -283,7 +283,7 @@ const CreateBillableMetric = () => {
                   </Subtitle>
                 </div>
                 <Card>
-                  <Typography variant="subhead">
+                  <Typography variant="subhead1">
                     {translate('text_623b42ff8ee4e000ba87d0b8')}
                   </Typography>
 
@@ -350,7 +350,7 @@ const CreateBillableMetric = () => {
                 </Card>
                 <Card className="gap-12">
                   <Stack spacing={6}>
-                    <Typography variant="subhead">
+                    <Typography variant="subhead1">
                       {translate('text_623b42ff8ee4e000ba87d0cc')}
                     </Typography>
 

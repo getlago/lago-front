@@ -560,7 +560,7 @@ const CreateSubscription = () => {
             isResponsive && !!subscriptionFormikProps?.values?.planId && 'shadow-none',
           )}
         >
-          <Typography variant="subhead">{pageHeaderTitle}</Typography>
+          <Typography variant="subhead1">{pageHeaderTitle}</Typography>
 
           <Selector
             icon={<Avatar size="big" variant="user" identifier={customerName || ''} />}
@@ -781,7 +781,7 @@ const CreateSubscription = () => {
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2">
                         <Icon name="sparkles" />
-                        <Typography variant="subhead">
+                        <Typography variant="subhead1">
                           {translate('text_65118a52df984447c18694d0')}
                         </Typography>
                       </div>

@@ -60,7 +60,7 @@ const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
 
   return (
     <section>
-      <DetailsPage.SectionTitle variant="subhead" noWrap>
+      <DetailsPage.SectionTitle variant="subhead1" noWrap>
         {translate('text_65281f686a80b400c8e2f6be')}
       </DetailsPage.SectionTitle>
 

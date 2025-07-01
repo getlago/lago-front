@@ -124,7 +124,7 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
     <section>
       <div className="flex h-10 flex-row items-start justify-between shadow-b">
         <div className="flex flex-row items-center gap-2">
-          <Typography variant="subhead" color="grey700" noWrap>
+          <Typography variant="subhead1" color="grey700" noWrap>
             {translate('text_1726481163322ntor50xdm8k')}
           </Typography>
           <Tooltip placement="top-start" title={translate('text_1726481163322vbcsvivii5k')}>

@@ -283,7 +283,7 @@ const InvoiceOverview = memo(
 
     return (
       <>
-        <SectionHeader variant="subhead">
+        <SectionHeader variant="subhead1">
           {translate('text_634687079be251fdb43833bf')}
           <div className="flex gap-3">
             {invoice?.status === InvoiceStatusTypeEnum.Draft ? (
@@ -460,7 +460,7 @@ const InvoiceOverview = memo(
                 )}
               {showExternalAppsSection && (
                 <Stack marginTop={8} gap={6}>
-                  <SectionHeader variant="subhead">
+                  <SectionHeader variant="subhead1">
                     {translate('text_6650b36fc702a4014c878996')}
                   </SectionHeader>
 

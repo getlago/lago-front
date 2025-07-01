@@ -90,7 +90,7 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
 
   return (
     <div>
-      <SectionHeader variant="subhead">
+      <SectionHeader variant="subhead1">
         {translate('text_637655cb50f04bf1c8379cfa')}
         {!hasError && !loading && hasPermissions(['creditNotesView']) && !disablePdfGeneration && (
           <Button

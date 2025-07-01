@@ -83,7 +83,7 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
   return (
     <section className="flex flex-col gap-6 pb-12 shadow-b">
       <div className="flex flex-col gap-1">
-        <Typography variant="subhead">{translate('text_6560809c38fb9de88d8a5090')}</Typography>
+        <Typography variant="subhead1">{translate('text_6560809c38fb9de88d8a5090')}</Typography>
         <Typography variant="caption">{translate('text_1741101676181hja4m79j7qz')}</Typography>
       </div>
 

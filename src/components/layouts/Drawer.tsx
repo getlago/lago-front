@@ -34,7 +34,7 @@ const Section: FC<PropsWithChildren> = ({ children }) => {
 const SectionTitle: FC<{ title: string; description: string }> = ({ description, title }) => {
   return (
     <div className="flex flex-col gap-2">
-      <Typography variant="subhead" color="grey700">
+      <Typography variant="subhead1" color="grey700">
         {title}
       </Typography>
       <Typography variant="caption" color="grey600">
