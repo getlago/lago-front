@@ -11,7 +11,9 @@ const PageTitle = ({ title, goHome }: { title: string; goHome: () => void }) => 
         onClick={() => goHome()}
       />
 
-      <Typography className="text-lg font-semibold text-grey-700">{title}</Typography>
+      <Typography variant="subhead1" color="grey700">
+        {title}
+      </Typography>
     </div>
   )
 }

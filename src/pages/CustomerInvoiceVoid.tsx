@@ -260,13 +260,13 @@ const CustomerInvoiceVoid = () => {
             </Alert>
 
             <div className="flex flex-col gap-1">
-              <Typography className="text-2xl font-semibold text-grey-700">
+              <Typography variant="headline" color="grey700">
                 {translate('text_1747902518582f4ekodb3ren', {
                   invoiceNumber: invoice?.number,
                 })}
               </Typography>
 
-              <Typography className="text-grey-600">
+              <Typography variant="body" color="grey600">
                 {translate('text_1747902518582t5nxesgz7dd')}
                 <br />
                 {translate('text_1747903819929atyvhuolvwe')}
@@ -274,7 +274,7 @@ const CustomerInvoiceVoid = () => {
             </div>
 
             <div className="flex flex-col gap-6">
-              <Typography className="text-lg font-semibold text-grey-700">
+              <Typography variant="subhead1" color="grey700">
                 {translate('text_17374729448780zbfa44h1s3')}
               </Typography>
 
@@ -316,13 +316,13 @@ const CustomerInvoiceVoid = () => {
                     textAlign: 'right',
                     content: ({ totalAmountCents, totalPaidAmountCents }) => (
                       <>
-                        <Typography className="font-medium text-grey-700">
+                        <Typography variant="bodyHl" color="grey700">
                           {intlFormatNumber(deserializeAmount(totalAmountCents, currency), {
                             currency,
                           })}
                         </Typography>
 
-                        <Typography className="text-nowrap text-sm text-grey-600">
+                        <Typography variant="body" color="grey600" className="text-nowrap">
                           {`${translate('text_1741604005109aspaz4chd7y')}: ${intlFormatNumber(
                             deserializeAmount(totalPaidAmountCents, currency),
                             {
@@ -345,11 +345,11 @@ const CustomerInvoiceVoid = () => {
 
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-2">
-                <Typography className="text-lg font-semibold text-grey-700">
+                <Typography variant="subhead1" color="grey700">
                   {translate('text_1747902518582byw3i46x61k')}
                 </Typography>
 
-                <Typography className="text-sm text-grey-600">
+                <Typography variant="body" color="grey600">
                   {translate('text_1747902518582701lwmkfqfb')}
                 </Typography>
               </div>
@@ -376,7 +376,7 @@ const CustomerInvoiceVoid = () => {
                   <div className="flex flex-col gap-4">
                     {maxRefundable > 0 && (
                       <div className="flex items-center justify-between">
-                        <Typography className="font-medium text-grey-700">
+                        <Typography variant="bodyHl" color="grey700">
                           {translate('text_1747908642632e4crd7uy2dp', {
                             max: intlFormatNumber(maxRefundable, {
                               currency,
@@ -410,7 +410,7 @@ const CustomerInvoiceVoid = () => {
 
                     {maxCreditable > 0 && (
                       <div className="flex items-center justify-between">
-                        <Typography className="font-medium text-grey-700">
+                        <Typography variant="bodyHl" color="grey700">
                           {translate('text_1747908642632dgxu0zy119d', {
                             max: intlFormatNumber(maxCreditable, { currency }),
                           })}

@@ -105,7 +105,7 @@ export const PreviewCustomSectionDrawer = forwardRef<PreviewCustomSectionDrawerR
 
             {showPoweredBy && (
               <div className="ml-auto flex flex-row items-center gap-1">
-                <Typography className="font-email text-xs font-normal" color="grey500">
+                <Typography variant="caption" className="font-email" color="grey500">
                   {translate('text_6419c64eace749372fc72b03')}
                 </Typography>
                 <Logo height="12px" />

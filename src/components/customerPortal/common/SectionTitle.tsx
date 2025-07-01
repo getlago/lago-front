@@ -17,7 +17,9 @@ const SectionTitle = ({ className, title, action, loading }: SectionTitleProps) 
       </div>
     ) : (
       <>
-        <Typography className={'text-lg font-semibold leading-6 text-grey-700'}>{title}</Typography>
+        <Typography variant="subhead1" color="grey700">
+          {title}
+        </Typography>
 
         {action && <TextButton onClick={action.onClick} content={action.title} />}
       </>

@@ -23,7 +23,9 @@ const IntegrationsHeadline: FC<PropsWithChildren<{ label: string; description?: 
         <Typography variant="subhead1">{label}</Typography>
 
         {description && (
-          <Typography className="mt-2 text-sm text-grey-600">{description}</Typography>
+          <Typography variant="body" color="grey600" className="mt-2">
+            {description}
+          </Typography>
         )}
       </div>
 

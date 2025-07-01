@@ -115,10 +115,10 @@ const Item = ({ item, billingEntityCode }: ItemProps) => {
           <Icon size="medium" name={item.icon as IconName} color="dark" />
         </Avatar>
         <div className="grow">
-          <Typography className="text-base font-medium text-grey-700">
+          <Typography variant="subhead2" color="grey700">
             {translate(item.label)}
           </Typography>
-          <Typography className="text-sm font-normal text-grey-600">
+          <Typography variant="body" color="grey600">
             {translate(item.sublabel)}
           </Typography>
         </div>
@@ -143,7 +143,7 @@ const BillingEntityMain = ({ billingEntity }: BillingEntityMainProps) => {
         <Typography>{translate('text_1742230191029w4pfyxjda2f')}</Typography>
       </SettingsPageHeaderContainer>
 
-      <Typography className="mt-10 text-lg font-semibold text-grey-700">
+      <Typography variant="subhead1" color="grey700" className="mt-10">
         {translate('text_1742367266660b7aw6idpgux')}
       </Typography>
 
@@ -153,7 +153,7 @@ const BillingEntityMain = ({ billingEntity }: BillingEntityMainProps) => {
         ))}
       </div>
 
-      <Typography className="mt-10 text-lg font-semibold text-grey-700">
+      <Typography variant="subhead1" color="grey700" className="mt-10">
         {translate('text_1742367202529va1w02u4jex')}
       </Typography>
 

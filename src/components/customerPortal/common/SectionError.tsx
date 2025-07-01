@@ -25,12 +25,12 @@ const SectionError = ({
       </div>
 
       <div>
-        <Typography className="mb-3 text-lg font-semibold leading-6 text-grey-700">
+        <Typography variant="subhead1" color="grey700" className="mb-3">
           {customTitle || translate('text_1728385052917x4pkr4t3x3b')}
         </Typography>
 
         {!hideDescription && (
-          <Typography className="text-base font-normal leading-6 text-grey-600">
+          <Typography variant="subhead2" color="grey600">
             {customDescription || translate('text_1728385052918teqr4dhxxi6')}
           </Typography>
         )}

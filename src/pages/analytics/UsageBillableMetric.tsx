@@ -152,7 +152,7 @@ const UsageBillableMetric = () => {
             )}
           >
             <div className="flex items-center justify-between">
-              <Typography className="text-lg font-semibold text-grey-700">
+              <Typography variant="subhead1" color="grey700">
                 {billableMetricCode}
               </Typography>
 
@@ -184,7 +184,7 @@ const UsageBillableMetric = () => {
           </Filters.Provider>
 
           <div>
-            <Typography className="mb-2" variant="headline" color="grey700">
+            <Typography variant="headline" color="grey700" className="mb-2">
               {displayFormat?.(total, selectedCurrency) ||
                 intlFormatNumber(deserializeAmount(total || 0, selectedCurrency), {
                   currencyDisplay: 'symbol',
@@ -269,7 +269,7 @@ const RowLabel = ({ label, color }: { label: string; color: string }) => (
   <div className="flex items-center gap-2">
     <div className="size-3 rounded-full" style={{ backgroundColor: color }} />
 
-    <Typography className="font-medium text-grey-700">{label}</Typography>
+    <Typography variant="bodyHl" color="grey700">{label}</Typography>
   </div>
 )
 
