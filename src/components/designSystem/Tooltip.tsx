@@ -1,7 +1,6 @@
 import { Tooltip as MuiTooltip, TooltipProps as MuiTooltipProps } from '@mui/material'
-import { forwardRef, ReactNode, useState } from 'react'
-
-import { tw } from '~/styles/utils'
+import { tw } from 'lago-design-system'
+import { forwardRef, ReactNode, useCallback, useState } from 'react'
 
 export interface TooltipProps
   extends Pick<
@@ -17,12 +16,22 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
   ({ children, disableHoverListener, className, maxWidth = '320px', ...props }, ref) => {
     const [isOpen, setIsOpen] = useState(false)
 
+    const handleOpen = useCallback(() => {
+      if (!disableHoverListener) {
+        setIsOpen(true)
+      }
+    }, [disableHoverListener])
+
+    const handleClose = useCallback(() => setIsOpen(false), [])
+
     return (
       <div
         className={tw(className)}
         ref={ref}
-        onMouseEnter={() => !disableHoverListener && setIsOpen(true)}
-        onMouseLeave={() => setIsOpen(false)}
+        onMouseEnter={handleOpen}
+        onMouseLeave={handleClose}
+        onFocus={handleOpen}
+        onBlur={handleClose}
       >
         <MuiTooltip
           componentsProps={{
@@ -38,7 +47,7 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
           {...props}
         >
           {/* eslint-disable-next-line */}
-          <div onClick={() => setIsOpen(false)}>{children}</div>
+          <div onClick={handleClose}>{children}</div>
         </MuiTooltip>
       </div>
     )
