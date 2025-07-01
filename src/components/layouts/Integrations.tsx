@@ -20,7 +20,7 @@ const IntegrationsHeadline: FC<PropsWithChildren<{ label: string; description?: 
   return (
     <div className={tw('flex h-18 w-full flex-row items-center justify-between')}>
       <div>
-        <Typography variant="subhead">{label}</Typography>
+        <Typography variant="subhead1">{label}</Typography>
 
         {description && (
           <Typography className="mt-2 text-sm text-grey-600">{description}</Typography>

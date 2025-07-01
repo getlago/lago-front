@@ -177,7 +177,7 @@ const CreateDunning = () => {
               <div className="flex flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b">
                 <section className="not-last-child:mb-6">
                   <div className="not-last-child:mb-2">
-                    <Typography variant="subhead">
+                    <Typography variant="subhead1">
                       {translate('text_1728584028187on239g4adt5')}
                     </Typography>
                     <Typography variant="caption">
@@ -244,7 +244,7 @@ const CreateDunning = () => {
 
                 <section className="not-last-child:mb-6">
                   <div className="not-last-child:mb-2">
-                    <Typography variant="subhead">
+                    <Typography variant="subhead1">
                       {translate('text_1742392390147aoog6603wwy')}
                     </Typography>
                     <Typography variant="caption">
@@ -319,7 +319,7 @@ const CreateDunning = () => {
 
                 <section className="not-last-child:mb-6">
                   <div className="not-last-child:mb-2">
-                    <Typography variant="subhead">
+                    <Typography variant="subhead1">
                       {translate('text_1742392390147pcg2p300roc')}
                     </Typography>
                     <Typography variant="caption">

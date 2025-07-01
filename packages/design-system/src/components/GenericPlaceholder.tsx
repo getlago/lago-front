@@ -44,7 +44,7 @@ export const GenericPlaceholder = ({
     >
       {image}
       {title && (
-        <Typography className="mb-3" variant="subhead">
+        <Typography className="mb-3" variant="subhead1">
           {title}
         </Typography>
       )}

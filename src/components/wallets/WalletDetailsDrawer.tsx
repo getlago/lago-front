@@ -252,7 +252,7 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
               </header>
 
               <section className="flex flex-col gap-4">
-                <Skeleton variant="text" textVariant="subhead" className="w-34" />
+                <Skeleton variant="text" textVariant="subhead1" className="w-34" />
                 <div className={tw(GRID)}>
                   {[1, 2].map((i) => (
                     <Fragment key={`transaction-row-${i}`}>
@@ -333,7 +333,7 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
 
               {/* Details section */}
               <section className="flex flex-col gap-4">
-                <Typography variant="subhead">
+                <Typography variant="subhead1">
                   {translate('text_1741943835752ac5uwdgkvfj')}
                 </Typography>
                 <div className={tw(GRID)}>
@@ -384,7 +384,7 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
 
               {/* Metadata section */}
               <section className="flex flex-col gap-4">
-                <Typography variant="subhead">
+                <Typography variant="subhead1">
                   {translate('text_1737892224510vc53d10q4h5')}
                 </Typography>
                 {!!metadata?.length ? (
@@ -407,7 +407,7 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
               {/* Payment section */}
               {canHavePayment && (
                 <section className="flex flex-col gap-4">
-                  <Typography variant="subhead">
+                  <Typography variant="subhead1">
                     {translate('text_1741943835752hd6fcwsfprn')}
                   </Typography>
                   <div className="not-last-child:mb-12 not-last-child:pb-12 not-last-child:shadow-b">
@@ -483,7 +483,7 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
               {/* Invoice section */}
               {canHaveInvoice && (
                 <section className="flex flex-col gap-4">
-                  <Typography variant="subhead">
+                  <Typography variant="subhead1">
                     {translate('text_63fcc3218d35b9377840f5b3')}
                   </Typography>
                   {hasNoSuccessfulPaymentButRequiresIt ? (

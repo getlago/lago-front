@@ -92,7 +92,7 @@ export const RevenueStreamsOverviewSection = ({
           )}
         >
           <div className="flex items-center justify-between">
-            <Typography variant="subhead" color="grey700">
+            <Typography variant="subhead1" color="grey700">
               {translate('text_634687079be251fdb43833b7')}
             </Typography>
 

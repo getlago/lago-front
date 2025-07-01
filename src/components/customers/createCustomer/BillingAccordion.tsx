@@ -109,7 +109,7 @@ export const BillingAccordion: FC<BillingAccordionProps> = ({
       variant="borderless"
       summary={
         <div className="flex flex-col gap-2">
-          <Typography variant="subhead">{translate('text_632b49e2620ea4c6d96c9662')}</Typography>
+          <Typography variant="subhead1">{translate('text_632b49e2620ea4c6d96c9662')}</Typography>
           <Typography variant="caption">{translate('text_1735653854525b68ew2qbpdp')}</Typography>
         </div>
       }

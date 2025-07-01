@@ -9,7 +9,7 @@ export const ButtonsSection = () => {
 
       <div className="flex flex-col gap-6">
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             General use
           </Typography>
           <div className="mb-4 flex flex-wrap gap-4">
@@ -43,7 +43,7 @@ export const ButtonsSection = () => {
           </div>
         </section>
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Primary
           </Typography>
           <div className="mb-4 flex flex-wrap gap-4">
@@ -57,7 +57,7 @@ export const ButtonsSection = () => {
           </div>
         </section>
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Secondary
           </Typography>
           <div className="mb-4 flex flex-wrap gap-4">
@@ -80,7 +80,7 @@ export const ButtonsSection = () => {
           </div>
         </section>
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Tertiary
           </Typography>
           <div className="mb-4 flex flex-wrap gap-4">
@@ -103,7 +103,7 @@ export const ButtonsSection = () => {
           </div>
         </section>
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Quaternary
           </Typography>
           <div className="mb-4 flex flex-wrap gap-4">
@@ -129,7 +129,7 @@ export const ButtonsSection = () => {
           </div>
         </section>
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Inline
           </Typography>
           <div className="mb-4 flex flex-wrap gap-4">
@@ -155,7 +155,7 @@ export const ButtonsSection = () => {
           </div>
         </section>
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Google connect
           </Typography>
           <div className="mb-4 flex flex-wrap gap-4">

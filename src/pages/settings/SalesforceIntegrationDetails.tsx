@@ -173,7 +173,7 @@ const SalesforceIntegrationDetails = () => {
       <IntegrationsPage.Container>
         <section>
           <div className="flex h-18 w-full items-center justify-between">
-            <Typography variant="subhead">{translate('text_664c732c264d7eed1c74fdc5')}</Typography>
+            <Typography variant="subhead1">{translate('text_664c732c264d7eed1c74fdc5')}</Typography>
             <Button
               variant="quaternary"
               disabled={loading}

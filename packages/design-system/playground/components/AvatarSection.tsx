@@ -11,7 +11,7 @@ export const AvatarSection = () => {
 
       <div className="flex flex-col gap-6">
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Variants
           </Typography>
           <div className="flex flex-wrap gap-4">
@@ -45,7 +45,7 @@ export const AvatarSection = () => {
         </section>
 
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Size
           </Typography>
           <div className="flex flex-row gap-4">
@@ -95,7 +95,7 @@ export const AvatarSection = () => {
         </section>
 
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Colors
           </Typography>
           <Typography className="mb-4">

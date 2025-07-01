@@ -121,7 +121,7 @@ const Overview: FC<TGraphProps & { externalCustomerId?: string }> = ({
               })}
             </Typography>
           </div>
-          <Typography variant="subhead">
+          <Typography variant="subhead1">
             {intlFormatNumber(overdueData?.amountCents || 0, {
               currency,
             })}

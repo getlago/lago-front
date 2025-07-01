@@ -81,7 +81,7 @@ export const Metadatas = memo(() => {
   return (
     <>
       <section className="mt-8 flex flex-col gap-6">
-        <SectionHeader variant="subhead">
+        <SectionHeader variant="subhead1">
           {translate('text_6405cac5c833dcf18cad019c')}
           <Button
             variant="quaternary"
@@ -117,7 +117,7 @@ export const Metadatas = memo(() => {
         </div>
         {!!customerMetadatas.length && (
           <>
-            <SectionHeader variant="subhead">
+            <SectionHeader variant="subhead1">
               {translate('text_63fdc195ee23e51024c607b8')}
             </SectionHeader>
             <div>

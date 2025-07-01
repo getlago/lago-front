@@ -69,7 +69,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
       variant="borderless"
       summary={
         <div className="flex flex-col gap-2">
-          <Typography variant="subhead">{translate('text_66423cad72bbad009f2f5689')}</Typography>
+          <Typography variant="subhead1">{translate('text_66423cad72bbad009f2f5689')}</Typography>
           <Typography variant="caption">{translate('text_1735828930375zjo8m3yh5ra')}</Typography>
         </div>
       }

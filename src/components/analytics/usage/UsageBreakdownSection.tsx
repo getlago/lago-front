@@ -32,7 +32,7 @@ const UsageBreakdownSection = ({ premiumWarningDialogRef }: UsageBreakdownSectio
   return (
     <section className="flex flex-col">
       <div className="mb-4 flex items-center justify-between">
-        <Typography variant="subhead" color="grey700">
+        <Typography variant="subhead1" color="grey700">
           {translate('text_1746541426463uvvcg8inufk')}
         </Typography>
 
