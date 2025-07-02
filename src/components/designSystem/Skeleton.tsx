@@ -31,7 +31,7 @@ interface SkeletonGenericProps {
   variant: Extract<SkeletonVariant, 'text'>
 }
 
-const textWrapperStyles = cva('flex w-full items-center', {
+const textWrapperStyles = cva('flex w-full max-w-full items-center', {
   variants: {
     textVariant: {
       headline: 'h-8',
