@@ -1,4 +1,4 @@
-import { Invoice, InvoiceTypeEnum } from '~/generated/graphql'
+import { FeeInput, Invoice, InvoiceTypeEnum } from '~/generated/graphql'
 
 export const isOneOff = (invoice: Pick<Invoice, 'invoiceType'>) => {
   return [
@@ -11,4 +11,19 @@ export const isOneOff = (invoice: Pick<Invoice, 'invoiceType'>) => {
 
 export const isPrepaidCredit = (invoice: Pick<Invoice, 'invoiceType'>) => {
   return [InvoiceTypeEnum.Credit].includes(invoice.invoiceType)
+}
+
+export const invoiceFeesToFeeInput = (
+  invoice: Pick<Invoice, 'fees'> | undefined,
+): FeeInput[] | null | undefined => {
+  return invoice?.fees?.map((fee) => ({
+    addOnId: null,
+    description: fee.description,
+    id: fee.id,
+    invoiceDisplayName: fee.invoiceDisplayName,
+    name: fee.itemName,
+    taxCodes: fee.appliedTaxes,
+    unitAmountCents: fee.preciseUnitAmount,
+    units: fee.units,
+  }))
 }
