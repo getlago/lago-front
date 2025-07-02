@@ -40,6 +40,9 @@ gql`
           amountCurrency
           name
           interval
+          parent {
+            id
+          }
         }
         nextPlan {
           id
