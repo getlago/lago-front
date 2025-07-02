@@ -23,7 +23,10 @@ import {
   CreateCustomerWalletTransactionInput,
   CurrencyEnum,
   useCreateCustomerWalletTransactionMutation,
+  useGetCustomerWalletListQuery,
   useGetWalletForTopUpQuery,
+  useVoidInvoiceMutation,
+  WalletStatusEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -53,17 +56,30 @@ gql`
   }
 `
 
+export const CREATE_ACTIVE_WALLET_TOP_UP_ID = 'active-wallet'
+
 const CreateWalletTopUp = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { organization: { defaultCurrency } = {} } = useOrganizationInfos()
-  const { customerId = '', walletId = '' } = useParams()
+  const { customerId = '', walletId = '', voidedInvoiceId = '' } = useParams()
   const warningDialogRef = useRef<WarningDialogRef>(null)
+
+  const { data: customerWalletData } = useGetCustomerWalletListQuery({
+    variables: { customerId, page: 0, limit: 20 },
+    skip: walletId !== CREATE_ACTIVE_WALLET_TOP_UP_ID,
+  })
+
+  const list = customerWalletData?.wallets?.collection || []
+  const activeWallet = list.find((wallet) => wallet.status === WalletStatusEnum.Active)
+
+  const fetchedWalletId = walletId === CREATE_ACTIVE_WALLET_TOP_UP_ID ? activeWallet?.id : walletId
 
   const { data: { wallet } = {}, loading } = useGetWalletForTopUpQuery({
     variables: {
-      walletId,
+      walletId: fetchedWalletId as string,
     },
+    skip: !fetchedWalletId,
   })
 
   const currency = wallet?.currency || defaultCurrency || CurrencyEnum.Usd
@@ -78,6 +94,8 @@ const CreateWalletTopUp = () => {
       }
     },
   })
+
+  const [voidInvoice] = useVoidInvoiceMutation({})
 
   const formikProps = useFormik<Omit<CreateCustomerWalletTransactionInput, 'walletId'>>({
     initialValues: {
@@ -112,6 +130,17 @@ const CreateWalletTopUp = () => {
       ...rest
     }) => {
       if (!wallet) return
+
+      if (voidedInvoiceId) {
+        await voidInvoice({
+          variables: {
+            input: {
+              id: voidedInvoiceId,
+              generateCreditNote: false,
+            },
+          },
+        })
+      }
 
       await createWallet({
         variables: {
