@@ -49,26 +49,19 @@ const PaymentsPage = () => {
 
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
 
-  const [
-    getPayments,
+  const [getPayments, { data, loading, error, fetchMore, variables }] = useGetPaymentsListLazyQuery(
     {
-      data: dataPayments,
-      loading: loadingPayments,
-      error: errorPayments,
-      fetchMore: fetchMorePayments,
-      variables: variablePayments,
+      notifyOnNetworkStatusChange: true,
+      fetchPolicy: 'network-only',
+      nextFetchPolicy: 'network-only',
+      variables: {
+        limit: 20,
+      },
     },
-  ] = useGetPaymentsListLazyQuery({
-    notifyOnNetworkStatusChange: true,
-    fetchPolicy: 'network-only',
-    nextFetchPolicy: 'network-only',
-    variables: {
-      limit: 20,
-    },
-  })
+  )
 
   const { debouncedSearch: paymentsDebounceSearch, isLoading: paymentsIsLoading } =
-    useDebouncedSearch(getPayments, loadingPayments)
+    useDebouncedSearch(getPayments, loading)
 
   return (
     <>
@@ -99,12 +92,12 @@ const PaymentsPage = () => {
       </PageHeader.Wrapper>
 
       <PaymentsList
-        error={errorPayments}
-        fetchMore={fetchMorePayments}
-        payments={dataPayments?.payments?.collection}
+        error={error}
+        fetchMore={fetchMore}
+        payments={data?.payments?.collection}
         isLoading={paymentsIsLoading}
-        metadata={dataPayments?.payments?.metadata}
-        variables={variablePayments}
+        metadata={data?.payments?.metadata}
+        variables={variables}
       />
 
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
