@@ -1,9 +1,15 @@
 import { gql } from '@apollo/client'
-import { Typography } from 'lago-design-system'
+import { Icon, tw, Typography } from 'lago-design-system'
+import { generatePath } from 'react-router-dom'
 
-import { InfiniteScroll, Table } from '~/components/designSystem'
+import { InfiniteScroll, Status, StatusType } from '~/components/designSystem'
 import { SearchInput } from '~/components/SearchInput'
-import { useGetSubscriptionsListLazyQuery } from '~/generated/graphql'
+import { SubscriptionsList } from '~/components/subscriptions/SubscriptionsList'
+import { TimezoneDate } from '~/components/TimezoneDate'
+import { getIntervalTranslationKey } from '~/core/constants/form'
+import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
+import { StatusTypeEnum, Subscription, useGetSubscriptionsListLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { PageHeader } from '~/styles'
@@ -21,6 +27,12 @@ gql`
     subscriptionAt
     endingAt
     terminatedAt
+    customer {
+      id
+      name
+      displayName
+      applicableTimezone
+    }
     plan {
       id
       amountCurrency
@@ -41,8 +53,13 @@ gql`
     }
   }
 
-  query getSubscriptionsList($limit: Int, $page: Int, $searchTerm: String) {
-    subscriptions(limit: $limit, page: $page, searchTerm: $searchTerm) {
+  query getSubscriptionsList(
+    $limit: Int
+    $page: Int
+    $searchTerm: String
+    $status: [StatusTypeEnum!]
+  ) {
+    subscriptions(limit: $limit, page: $page, status: $status, searchTerm: $searchTerm) {
       collection {
         ...SubscriptionForSubscriptionsList
       }
@@ -58,14 +75,16 @@ gql`
 const SubscriptionsPage = () => {
   const { translate } = useInternationalization()
 
-  const [getSubscriptions, { data, error, loading, fetchMore, variables }] =
-    useGetSubscriptionsListLazyQuery({
-      variables: { limit: 20 },
-    })
+  const [getSubscriptions, { data, error, loading, fetchMore }] = useGetSubscriptionsListLazyQuery({
+    variables: {
+      limit: 20,
+      status: [...Object.values(StatusTypeEnum)],
+    },
+  })
 
   const { debouncedSearch, isLoading } = useDebouncedSearch(getSubscriptions, loading)
 
-  const subscriptions = data?.subscriptions.collection || []
+  const subscriptions = data?.subscriptions.collection as Subscription[]
 
   return (
     <>
@@ -80,37 +99,119 @@ const SubscriptionsPage = () => {
             placeholder={translate('text_1751378926655m4bfald61u4')}
           />
         </PageHeader.Group>
+      </PageHeader.Wrapper>
 
+      <div className="overflow-y-auto">
         <InfiniteScroll
           onBottom={() => {
             const { currentPage = 0, totalPages = 0 } = data?.subscriptions.metadata || {}
 
             currentPage < totalPages &&
               !isLoading &&
-              fetchMore({
+              fetchMore?.({
                 variables: { page: currentPage + 1 },
               })
           }}
         >
-          <Table
+          <SubscriptionsList
             name="subscriptions-list"
-            data={subscriptions}
+            isLoading={isLoading}
+            hasError={!!error}
+            subscriptions={subscriptions}
             containerSize={{
               default: 16,
               md: 48,
             }}
-            isLoading={isLoading}
-            hasError={!!error}
             columns={[
               {
                 key: 'name',
-                title: 'Name',
-                content: ({ id }) => id,
+                maxSpace: true,
+                title: translate('Name'),
+                content: ({ name, isDowngrade, isScheduled }) => (
+                  <>
+                    <div
+                      className={tw('relative flex items-center gap-3', {
+                        'pl-4': isDowngrade,
+                      })}
+                    >
+                      {isDowngrade && <Icon name="arrow-indent" />}
+                      <Typography className="text-base font-medium text-grey-700">
+                        {name}
+                      </Typography>
+                      {isDowngrade && <Status type={StatusType.default} label="downgrade" />}
+                      {isScheduled && <Status type={StatusType.default} label="scheduled" />}
+                    </div>
+                  </>
+                ),
+              },
+              {
+                key: 'statusType.type',
+                title: translate('text_62d7f6178ec94cd09370e5fb'),
+                content: ({ statusType }) => <Status {...statusType} />,
+              },
+
+              {
+                key: 'customer.name',
+                title: translate('text_65201c5a175a4b0238abf29a'),
+                maxSpace: true,
+                minWidth: 160,
+                content: ({ customer }) => (
+                  <Typography variant="body" noWrap>
+                    {customer?.displayName || '-'}
+                  </Typography>
+                ),
+              },
+
+              {
+                key: 'frequency',
+                title: translate('text_1736968618645gg26amx8djq'),
+                content: ({ frequency }) => (
+                  <Typography>{translate(getIntervalTranslationKey[frequency])}</Typography>
+                ),
+              },
+
+              {
+                key: 'startedAt',
+                title: translate('text_65201c5a175a4b0238abf29e'),
+                content: ({ startedAt, customer }) =>
+                  !!startedAt ? (
+                    <TimezoneDate
+                      typographyClassName="text-nowrap text-base font-normal text-grey-600"
+                      date={startedAt}
+                      customerTimezone={customer.applicableTimezone}
+                    />
+                  ) : (
+                    <Typography>-</Typography>
+                  ),
+              },
+              {
+                key: 'endingAt',
+                title: translate('text_65201c5a175a4b0238abf2a0'),
+                content: ({ endingAt, status, terminatedAt, customer }) =>
+                  endingAt || terminatedAt ? (
+                    <TimezoneDate
+                      typographyClassName="text-nowrap text-base font-normal text-grey-600"
+                      date={status === StatusTypeEnum.Terminated ? terminatedAt : endingAt}
+                      customerTimezone={customer.applicableTimezone}
+                    />
+                  ) : (
+                    <Typography>-</Typography>
+                  ),
               },
             ]}
+            actionColumnTooltip={() => {
+              return 'Edit, terminate'
+            }}
+            onRowActionLink={({ id, customer }) =>
+              generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                customerId: customer.id,
+                subscriptionId: id,
+                tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+              })
+            }
           />
         </InfiniteScroll>
-      </PageHeader.Wrapper>
+      </div>
     </>
   )
 }
