@@ -74,6 +74,7 @@ export const CREATE_TAX_ROUTE = '/create/tax'
 export const UPDATE_TAX_ROUTE = '/update/tax/:taxId'
 
 export const CREATE_INVOICE_ROUTE = '/customer/:customerId/create-invoice'
+export const VOID_CREATE_INVOICE_ROUTE = '/customer/:customerId/create-invoice/:voidedInvoiceId'
 
 export const CREATE_SUBSCRIPTION = '/customer/:customerId/create/subscription'
 export const UPDATE_SUBSCRIPTION = '/customer/:customerId/update/subscription/:subscriptionId'
@@ -84,6 +85,8 @@ export const CREATE_WALLET_ROUTE = '/customer/:customerId/wallet/create'
 export const EDIT_WALLET_ROUTE = '/customer/:customerId/wallet/:walletId'
 
 export const CREATE_WALLET_TOP_UP_ROUTE = '/customer/:customerId/wallet/:walletId/top-up'
+export const VOID_CREATE_WALLET_TOP_UP_ROUTE =
+  '/customer/:customerId/wallet/:walletId/top-up/:voidedInvoiceId'
 
 export const CREATE_PAYMENT_ROUTE = '/create/payment'
 export const CREATE_INVOICE_PAYMENT_ROUTE = '/invoice/:invoiceId/create/payment'
@@ -219,7 +222,7 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     permissions: ['organizationTaxesUpdate'],
   },
   {
-    path: [CREATE_INVOICE_ROUTE],
+    path: [CREATE_INVOICE_ROUTE, VOID_CREATE_INVOICE_ROUTE],
     private: true,
     element: <CreateInvoice />,
     permissions: ['invoicesCreate'],
@@ -237,7 +240,7 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     permissions: ['walletsCreate', 'walletsUpdate'],
   },
   {
-    path: [CREATE_WALLET_TOP_UP_ROUTE],
+    path: [CREATE_WALLET_TOP_UP_ROUTE, VOID_CREATE_WALLET_TOP_UP_ROUTE],
     private: true,
     element: <CreateWalletTopUp />,
     permissions: ['walletsTopUp'],
