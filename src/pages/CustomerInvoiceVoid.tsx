@@ -12,15 +12,17 @@ import { addToast } from '~/core/apolloClient'
 import { paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CUSTOMER_INVOICE_DETAILS_ROUTE, CUSTOMER_INVOICE_REGENERATE_ROUTE } from '~/core/router'
+import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import {
   deserializeAmount,
   getCurrencyPrecision,
   serializeAmount,
 } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
+import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   CurrencyEnum,
+  Invoice,
   InvoiceForVoidInvoiceDialogFragment,
   InvoiceForVoidInvoiceDialogFragmentDoc,
   useGetInvoiceDetailsQuery,
@@ -467,12 +469,7 @@ const CustomerInvoiceVoid = () => {
         <div className="flex w-full items-center justify-between">
           {customerId && invoiceId && (
             <div>
-              <Link
-                to={generatePath(CUSTOMER_INVOICE_REGENERATE_ROUTE, {
-                  customerId,
-                  invoiceId,
-                })}
-              >
+              <Link to={regeneratePath(invoice as Invoice)}>
                 {translate('text_1750678506388eexnh1b36o4')}
               </Link>
             </div>

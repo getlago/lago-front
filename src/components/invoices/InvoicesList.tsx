@@ -50,9 +50,11 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { handleDownloadFile } from '~/core/utils/downloadFiles'
+import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   CurrencyEnum,
   GetInvoicesListQuery,
+  Invoice,
   InvoiceStatusTypeEnum,
   LagoApiError,
   PremiumIntegrationTypeEnum,
@@ -333,13 +335,7 @@ const InvoicesList = ({
                   ? {
                       startIcon: 'stop',
                       title: translate('text_1750678506388oynw9hd01l9'),
-                      onAction: () =>
-                        navigate(
-                          generatePath(CUSTOMER_INVOICE_REGENERATE_ROUTE, {
-                            customerId: invoice?.customer?.id,
-                            invoiceId: invoice.id,
-                          }),
-                        ),
+                      onAction: () => navigate(regeneratePath(invoice as Invoice)),
                     }
                   : null,
               ]
