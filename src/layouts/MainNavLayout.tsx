@@ -47,6 +47,7 @@ import {
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   PLANS_ROUTE,
   SETTINGS_ROUTE,
+  SUBSCRIPTIONS_ROUTE,
   TAXES_SETTINGS_ROUTE,
 } from '~/core/router'
 import { useSideNavInfosQuery } from '~/generated/graphql'
@@ -354,6 +355,13 @@ const MainNavLayout = () => {
                       PLAN_SUBSCRIPTION_DETAILS_ROUTE,
                     ],
                     hidden: !hasPermissions(['customersView']),
+                  },
+                  {
+                    title: translate('text_6250304370f0f700a8fdc28d'),
+                    icon: 'clock',
+                    link: SUBSCRIPTIONS_ROUTE,
+                    canBeClickedOnActive: true,
+                    hidden: !hasPermissions(['subscriptionsView']),
                   },
                   {
                     title: translate('text_63ac86d797f728a87b2f9f85'),
