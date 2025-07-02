@@ -15,7 +15,7 @@ import {
   Invoice,
   PaymentRequest,
   PaymentTypeEnum,
-  useGetPaymentListQuery,
+  useGetPaymentsListQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import useDownloadPaymentReceipts from '~/hooks/paymentReceipts/useDownloadPaymentReceipts'
@@ -30,7 +30,7 @@ export const InvoicePaymentList: FC<{
   const { isPremium } = useCurrentUser()
   const { invoiceId } = useParams()
 
-  const { data, loading, error, fetchMore } = useGetPaymentListQuery({
+  const { data, loading, error, fetchMore } = useGetPaymentsListQuery({
     variables: { invoiceId: invoiceId as string, limit: 20 },
     skip: !invoiceId,
   })

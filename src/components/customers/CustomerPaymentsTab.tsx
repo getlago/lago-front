@@ -4,7 +4,7 @@ import { generatePath } from 'react-router-dom'
 import { CustomerPaymentsList } from '~/components/customers/CustomerPaymentsList'
 import { ButtonLink, Skeleton, Typography } from '~/components/designSystem'
 import { CREATE_PAYMENT_ROUTE } from '~/core/router'
-import { useGetPaymentListQuery } from '~/generated/graphql'
+import { useGetPaymentsListQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -18,7 +18,7 @@ export const CustomerPaymentsTab: FC<CustomerPaymentsTabProps> = ({ externalCust
   const { hasPermissions } = usePermissions()
   const { isPremium } = useCurrentUser()
 
-  const { data, loading, fetchMore } = useGetPaymentListQuery({
+  const { data, loading, fetchMore } = useGetPaymentsListQuery({
     variables: { externalCustomerId: externalCustomerId as string, limit: 20 },
     skip: !externalCustomerId,
   })
