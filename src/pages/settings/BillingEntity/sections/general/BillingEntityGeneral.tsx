@@ -12,6 +12,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { BillingEntityTab } from '~/pages/settings/BillingEntity/BillingEntity'
 import BillingEntityHeader from '~/pages/settings/BillingEntity/components/BillingEntityHeader'
 import InformationBlock from '~/pages/settings/BillingEntity/sections/general/InformationBlock'
+import LocaleBlock from '~/pages/settings/BillingEntity/sections/general/LocaleBlock'
 import TimezoneBlock from '~/pages/settings/BillingEntity/sections/general/TimezoneBlock'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
@@ -64,6 +65,8 @@ const BillingEntityGeneral = () => {
         {!billingEntityLoading && billingEntity && (
           <>
             <TimezoneBlock billingEntity={billingEntity as BillingEntity} />
+
+            <LocaleBlock />
 
             <InformationBlock billingEntity={billingEntity as BillingEntity} />
           </>
