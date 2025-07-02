@@ -35,6 +35,9 @@ gql`
     }
     plan {
       id
+      parent {
+        id
+      }
       amountCurrency
       name
       interval
@@ -152,12 +155,24 @@ const SubscriptionsPage = () => {
 
               {
                 key: 'customer.name',
-                title: translate('text_65201c5a175a4b0238abf29a'),
+                title: translate('text_63ac86d797f728a87b2f9fb3'),
                 maxSpace: true,
                 minWidth: 160,
                 content: ({ customer }) => (
                   <Typography variant="body" noWrap>
-                    {customer?.displayName || '-'}
+                    {customer?.displayName || customer?.name || '-'}
+                  </Typography>
+                ),
+              },
+
+              {
+                key: 'isOverriden',
+                title: translate('text_65281f686a80b400c8e2f6c4'),
+                content: ({ isOverriden }) => (
+                  <Typography>
+                    {isOverriden
+                      ? translate('text_65281f686a80b400c8e2f6dd')
+                      : translate('text_65281f686a80b400c8e2f6d1')}
                   </Typography>
                 ),
               },
@@ -199,9 +214,7 @@ const SubscriptionsPage = () => {
                   ),
               },
             ]}
-            actionColumnTooltip={() => {
-              return 'Edit, terminate'
-            }}
+            actionColumnTooltip={() => translate('text_1751462194856885bttkg6wt')}
             onRowActionLink={({ id, customer }) =>
               generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
                 customerId: customer.id,
