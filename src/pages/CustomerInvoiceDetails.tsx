@@ -55,6 +55,7 @@ import {
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { handleDownloadFile } from '~/core/utils/downloadFiles'
+import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
   AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc,
@@ -965,12 +966,7 @@ const CustomerInvoiceDetails = () => {
                       align="left"
                       onClick={() => {
                         if (customerId && invoiceId) {
-                          navigate(
-                            generatePath(CUSTOMER_INVOICE_REGENERATE_ROUTE, {
-                              customerId,
-                              invoiceId,
-                            }),
-                          )
+                          navigate(regeneratePath(data?.invoice as Invoice))
                         }
                       }}
                     >
