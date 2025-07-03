@@ -228,6 +228,7 @@ const BillingEntityEmailScenariosConfig = () => {
             <PreviewEmailLayout
               isLoading={loading}
               language={invoiceLanguage}
+              logoUrl={billingEntity?.logoUrl}
               emailObject={translateWithContextualLocal(translationsKey.subject, {
                 organization: name,
               })}

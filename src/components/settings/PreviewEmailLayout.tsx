@@ -20,7 +20,7 @@ interface PreviewEmailLayoutProps extends PropsWithChildren {
   emailFrom?: string
   emailTo?: string
   isLoading?: boolean
-  logoUrl?: string | null
+  logoUrl: string | null | undefined
   name?: string | null
 }
 
