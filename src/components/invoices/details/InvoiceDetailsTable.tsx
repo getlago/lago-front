@@ -317,19 +317,8 @@ export const InvoiceDetailsTable = memo(
                   isDraftInvoice={isDraftInvoice}
                   fee={fee as TExtendedRemainingFee}
                   hasTaxProviderError={hasTaxProviderError}
-                  onAdd={onAdd}
-                  onDelete={onDelete}
                 />
               ))}
-
-              {!!onAdd && (
-                <AddFee
-                  editFeeDrawerRef={editFeeDrawerRef}
-                  invoiceId={invoice.id}
-                  onAdd={onAdd}
-                  translate={translate}
-                />
-              )}
             </tbody>
 
             <InvoiceDetailsTableFooter
@@ -444,6 +433,8 @@ export const InvoiceDetailsTable = memo(
                   deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                   isDraftInvoice={isDraftInvoice}
                   subscription={subscription}
+                  onAdd={onAdd}
+                  onDelete={onDelete}
                 />,
                 <InvoiceFeeAdvanceDetailsTable
                   key={`sub-${subscriptionIndex}-invoice-fee-advance-details-table`}
@@ -455,6 +446,8 @@ export const InvoiceDetailsTable = memo(
                   deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                   isDraftInvoice={isDraftInvoice}
                   subscription={subscription}
+                  onAdd={onAdd}
+                  onDelete={onDelete}
                 />,
               ]
 
