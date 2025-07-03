@@ -3266,7 +3266,7 @@
   "text_1750864088654s9qo2h9fvp7": "Billing & operations",
   "text_1751039646310obdq6n385sc": "Conversion rate: 1 {{pricingUnitShortName}} = ${{conversionRateAmount}}",
   "text_1751530295201wwh8zbwv2w9": "Source",
-  "text_1751530295201vhd64062mii": "Automatic interval",
-  "text_1751530295201xyz98abc123": "Automatic threshold",
+  "text_1751530295201vhd64062mii": "Automatic (interval)",
+  "text_1751530295201xyz98abc123": "Automatic (threshold)",
   "text_1751530295201def456ghi78": "Manual"
 }
