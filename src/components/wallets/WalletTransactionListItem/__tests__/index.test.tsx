@@ -8,6 +8,7 @@ import {
 import {
   GetOrganizationInfosDocument,
   TimezoneEnum,
+  WalletTransactionSourceEnum,
   WalletTransactionStatusEnum,
   WalletTransactionTransactionStatusEnum,
   WalletTransactionTransactionTypeEnum,
@@ -59,6 +60,7 @@ async function prepare(
     creditAmount: CREDITS,
     settledAt: DateTime.local(2022, 2, 2).toISO(),
     createdAt: DateTime.local(2022, 1, 1).toISO(),
+    source: WalletTransactionSourceEnum.Manual,
     ...overriddenTransaction,
   }
 
@@ -88,7 +90,7 @@ describe('WalletTransactionListItem', () => {
 
     expect(screen.getByTitle('sync/xsmall')).toBeInTheDocument()
     expect(screen.getByTestId('caption-pending')).toBeInTheDocument()
-    expect(screen.getByText('Credits purchased')).toBeInTheDocument()
+    expect(screen.getByTestId('transaction-label')).toBeInTheDocument()
     expect(screen.getByTestId('credits')).toHaveTextContent(`+ ${CREDITS}`)
     expect(screen.getByTestId('amount')).toHaveTextContent(AMOUNT)
   })
@@ -101,7 +103,7 @@ describe('WalletTransactionListItem', () => {
 
     expect(screen.getByTitle('sync/xsmall')).toBeInTheDocument()
     expect(screen.getByTestId('caption-pending')).toBeInTheDocument()
-    expect(screen.getByText('Credits invoiced')).toBeInTheDocument()
+    expect(screen.getByTestId('transaction-label')).toBeInTheDocument()
     expect(screen.getByTestId('credits')).toHaveTextContent(`- ${CREDITS}`)
     expect(screen.getByTestId('amount')).toHaveTextContent(AMOUNT)
   })
@@ -133,7 +135,7 @@ describe('WalletTransactionListItem', () => {
     })
 
     expect(screen.getByTitle('plus/medium')).toBeInTheDocument()
-    expect(screen.getByText('Credits offered')).toBeInTheDocument()
+    expect(screen.getByTestId('transaction-label')).toBeInTheDocument()
   })
 
   it('should render voided item properly', async () => {
@@ -143,7 +145,7 @@ describe('WalletTransactionListItem', () => {
     })
 
     expect(screen.getByTitle('minus/medium')).toBeInTheDocument()
-    expect(screen.getByText('Credits voided')).toBeInTheDocument()
+    expect(screen.getByTestId('transaction-label')).toBeInTheDocument()
   })
 
   it('should render real time transaction', async () => {
@@ -153,6 +155,26 @@ describe('WalletTransactionListItem', () => {
     expect(screen.queryByTestId('caption-pending')).not.toBeInTheDocument()
     expect(screen.getByTestId('credits')).toHaveTextContent(CREDITS)
     expect(screen.getByTestId('amount')).toHaveTextContent(AMOUNT)
+  })
+
+  it('should render automatic credits purchased for interval source', async () => {
+    await prepare({
+      source: WalletTransactionSourceEnum.Interval,
+      transactionStatus: WalletTransactionTransactionStatusEnum.Purchased,
+      transactionType: WalletTransactionTransactionTypeEnum.Inbound,
+    })
+
+    expect(screen.getByTestId('transaction-label')).toBeInTheDocument()
+  })
+
+  it('should render automatic credits purchased for threshold source', async () => {
+    await prepare({
+      source: WalletTransactionSourceEnum.Threshold,
+      transactionStatus: WalletTransactionTransactionStatusEnum.Purchased,
+      transactionType: WalletTransactionTransactionTypeEnum.Inbound,
+    })
+
+    expect(screen.getByTestId('transaction-label')).toBeInTheDocument()
   })
 
   it('should render real time transaction with zero amount for non premium user', async () => {

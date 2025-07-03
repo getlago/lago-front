@@ -5656,6 +5656,8 @@ export type Query = {
   wallet?: Maybe<Wallet>;
   /** Query a single wallet transaction */
   walletTransaction?: Maybe<WalletTransaction>;
+  /** Query wallet transaction sources */
+  walletTransactionSources: Array<WalletTransactionSourceEnum>;
   /** Query wallet transactions */
   walletTransactions: WalletTransactionCollection;
   /** Query wallets */
@@ -7732,6 +7734,7 @@ export type WalletTransaction = {
   invoiceRequiresSuccessfulPayment: Scalars['Boolean']['output'];
   metadata?: Maybe<Array<WalletTransactionMetadataObject>>;
   settledAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  source: WalletTransactionSourceEnum;
   status: WalletTransactionStatusEnum;
   transactionStatus: WalletTransactionTransactionStatusEnum;
   transactionType: WalletTransactionTransactionTypeEnum;
@@ -7758,6 +7761,12 @@ export type WalletTransactionMetadataObject = {
   key: Scalars['String']['output'];
   value: Scalars['String']['output'];
 };
+
+export enum WalletTransactionSourceEnum {
+  Interval = 'interval',
+  Manual = 'manual',
+  Threshold = 'threshold'
+}
 
 export enum WalletTransactionStatusEnum {
   Failed = 'failed',
@@ -10176,14 +10185,14 @@ export type WalletForVoidTransactionFragment = { __typename?: 'Wallet', id: stri
 
 export type WalletAccordionFragment = { __typename?: 'Wallet', id: string, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number };
 
-export type WalletTransactionDetailsFragment = { __typename?: 'WalletTransaction', id: string, amount: string, createdAt: any, transactionType: WalletTransactionTransactionTypeEnum, creditAmount: string, settledAt?: any | null, failedAt?: any | null, status: WalletTransactionStatusEnum, transactionStatus: WalletTransactionTransactionStatusEnum, invoiceRequiresSuccessfulPayment: boolean, metadata?: Array<{ __typename?: 'WalletTransactionMetadataObject', key: string, value: string }> | null, invoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, customer: { __typename?: 'Customer', id: string }, payments?: Array<{ __typename?: 'Payment', id: string, providerPaymentId?: string | null, paymentProviderType?: ProviderTypeEnum | null, payablePaymentStatus?: PayablePaymentStatusEnum | null }> | null } | null };
+export type WalletTransactionDetailsFragment = { __typename?: 'WalletTransaction', id: string, amount: string, createdAt: any, transactionType: WalletTransactionTransactionTypeEnum, creditAmount: string, settledAt?: any | null, failedAt?: any | null, status: WalletTransactionStatusEnum, transactionStatus: WalletTransactionTransactionStatusEnum, source: WalletTransactionSourceEnum, invoiceRequiresSuccessfulPayment: boolean, metadata?: Array<{ __typename?: 'WalletTransactionMetadataObject', key: string, value: string }> | null, invoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, customer: { __typename?: 'Customer', id: string }, payments?: Array<{ __typename?: 'Payment', id: string, providerPaymentId?: string | null, paymentProviderType?: ProviderTypeEnum | null, payablePaymentStatus?: PayablePaymentStatusEnum | null }> | null } | null };
 
 export type GetWalletTransactionDetailsQueryVariables = Exact<{
   transactionId: Scalars['ID']['input'];
 }>;
 
 
-export type GetWalletTransactionDetailsQuery = { __typename?: 'Query', walletTransaction?: { __typename?: 'WalletTransaction', id: string, amount: string, createdAt: any, transactionType: WalletTransactionTransactionTypeEnum, creditAmount: string, settledAt?: any | null, failedAt?: any | null, status: WalletTransactionStatusEnum, transactionStatus: WalletTransactionTransactionStatusEnum, invoiceRequiresSuccessfulPayment: boolean, metadata?: Array<{ __typename?: 'WalletTransactionMetadataObject', key: string, value: string }> | null, invoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, customer: { __typename?: 'Customer', id: string }, payments?: Array<{ __typename?: 'Payment', id: string, providerPaymentId?: string | null, paymentProviderType?: ProviderTypeEnum | null, payablePaymentStatus?: PayablePaymentStatusEnum | null }> | null } | null } | null };
+export type GetWalletTransactionDetailsQuery = { __typename?: 'Query', walletTransaction?: { __typename?: 'WalletTransaction', id: string, amount: string, createdAt: any, transactionType: WalletTransactionTransactionTypeEnum, creditAmount: string, settledAt?: any | null, failedAt?: any | null, status: WalletTransactionStatusEnum, transactionStatus: WalletTransactionTransactionStatusEnum, source: WalletTransactionSourceEnum, invoiceRequiresSuccessfulPayment: boolean, metadata?: Array<{ __typename?: 'WalletTransactionMetadataObject', key: string, value: string }> | null, invoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, customer: { __typename?: 'Customer', id: string }, payments?: Array<{ __typename?: 'Payment', id: string, providerPaymentId?: string | null, paymentProviderType?: ProviderTypeEnum | null, payablePaymentStatus?: PayablePaymentStatusEnum | null }> | null } | null } | null };
 
 export type WalletInfosForTransactionsFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, status: WalletStatusEnum, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number };
 
@@ -10194,9 +10203,9 @@ export type GetWalletTransactionsQueryVariables = Exact<{
 }>;
 
 
-export type GetWalletTransactionsQuery = { __typename?: 'Query', walletTransactions: { __typename?: 'WalletTransactionCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'WalletTransaction', id: string, status: WalletTransactionStatusEnum, transactionStatus: WalletTransactionTransactionStatusEnum, transactionType: WalletTransactionTransactionTypeEnum, amount: string, creditAmount: string, settledAt?: any | null, failedAt?: any | null, createdAt: any, wallet?: { __typename?: 'Wallet', id: string, currency: CurrencyEnum } | null }> } };
+export type GetWalletTransactionsQuery = { __typename?: 'Query', walletTransactions: { __typename?: 'WalletTransactionCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'WalletTransaction', id: string, status: WalletTransactionStatusEnum, transactionStatus: WalletTransactionTransactionStatusEnum, transactionType: WalletTransactionTransactionTypeEnum, amount: string, creditAmount: string, settledAt?: any | null, failedAt?: any | null, createdAt: any, source: WalletTransactionSourceEnum, wallet?: { __typename?: 'Wallet', id: string, currency: CurrencyEnum } | null }> } };
 
-export type WalletTransactionForTransactionListItemFragment = { __typename?: 'WalletTransaction', id: string, status: WalletTransactionStatusEnum, transactionStatus: WalletTransactionTransactionStatusEnum, transactionType: WalletTransactionTransactionTypeEnum, amount: string, creditAmount: string, settledAt?: any | null, failedAt?: any | null, createdAt: any, wallet?: { __typename?: 'Wallet', id: string, currency: CurrencyEnum } | null };
+export type WalletTransactionForTransactionListItemFragment = { __typename?: 'WalletTransaction', id: string, status: WalletTransactionStatusEnum, transactionStatus: WalletTransactionTransactionStatusEnum, transactionType: WalletTransactionTransactionTypeEnum, amount: string, creditAmount: string, settledAt?: any | null, failedAt?: any | null, createdAt: any, source: WalletTransactionSourceEnum, wallet?: { __typename?: 'Wallet', id: string, currency: CurrencyEnum } | null };
 
 export type CurrentUserFragment = { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> };
 
@@ -13238,6 +13247,7 @@ export const WalletTransactionDetailsFragmentDoc = gql`
   failedAt
   status
   transactionStatus
+  source
   invoiceRequiresSuccessfulPayment
   metadata {
     key
@@ -13272,6 +13282,7 @@ export const WalletTransactionForTransactionListItemFragmentDoc = gql`
   settledAt
   failedAt
   createdAt
+  source
   wallet {
     id
     currency
