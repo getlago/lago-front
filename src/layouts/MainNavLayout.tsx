@@ -334,7 +334,7 @@ const MainNavLayout = () => {
               />
               <VerticalMenu
                 loading={currentUserLoading}
-                loadingComponent={<VerticalMenuSkeleton numberOfElements={7} />}
+                loadingComponent={<VerticalMenuSkeleton numberOfElements={2} />}
                 onClick={() => setOpen(false)}
                 tabs={[
                   {
