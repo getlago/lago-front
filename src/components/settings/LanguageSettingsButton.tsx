@@ -26,13 +26,36 @@ const mapLanguageKey = (language: LocaleEnum) => {
   }
 }
 
+const getAllLocales = (): LocaleEnum[] => {
+  return Object.keys(LocaleEnum) as LocaleEnum[]
+}
+
 interface LanguageSettingsButtonProps {
   language: LocaleEnum
   onChange: (language: LocaleEnum) => void
+  availableLocales?: LocaleEnum[]
 }
 
-export const LanguageSettingsButton: FC<LanguageSettingsButtonProps> = ({ language, onChange }) => {
+export const LanguageSettingsButton: FC<LanguageSettingsButtonProps> = ({
+  language,
+  onChange,
+  availableLocales = getAllLocales(),
+}) => {
   const { translate } = useInternationalization()
+
+  const renderLanguageButton = (locale: LocaleEnum, closePopper: () => void) => (
+    <Button
+      key={locale}
+      align="left"
+      variant={language === locale ? 'secondary' : 'quaternary'}
+      onClick={() => {
+        onChange(locale)
+        closePopper()
+      }}
+    >
+      {translate(mapLanguageKey(locale))}
+    </Button>
+  )
 
   return (
     <Popper
@@ -45,86 +68,7 @@ export const LanguageSettingsButton: FC<LanguageSettingsButtonProps> = ({ langua
     >
       {({ closePopper }) => (
         <MenuPopper>
-          <Button
-            align="left"
-            variant={language === LocaleEnum.de ? 'secondary' : 'quaternary'}
-            onClick={() => {
-              onChange(LocaleEnum.de)
-              closePopper()
-            }}
-          >
-            {translate(mapLanguageKey(LocaleEnum.de))}
-          </Button>
-          <Button
-            align="left"
-            variant={language === LocaleEnum.en ? 'secondary' : 'quaternary'}
-            onClick={() => {
-              onChange(LocaleEnum.en)
-              closePopper()
-            }}
-          >
-            {translate(mapLanguageKey(LocaleEnum.en))}
-          </Button>
-          <Button
-            align="left"
-            variant={language === LocaleEnum.es ? 'secondary' : 'quaternary'}
-            onClick={() => {
-              onChange(LocaleEnum.es)
-              closePopper()
-            }}
-          >
-            {translate(mapLanguageKey(LocaleEnum.es))}
-          </Button>
-          <Button
-            align="left"
-            variant={language === LocaleEnum.fr ? 'secondary' : 'quaternary'}
-            onClick={() => {
-              onChange(LocaleEnum.fr)
-              closePopper()
-            }}
-          >
-            {translate(mapLanguageKey(LocaleEnum.fr))}
-          </Button>
-          <Button
-            align="left"
-            variant={language === LocaleEnum.it ? 'secondary' : 'quaternary'}
-            onClick={() => {
-              onChange(LocaleEnum.it)
-              closePopper()
-            }}
-          >
-            {translate(mapLanguageKey(LocaleEnum.it))}
-          </Button>
-          <Button
-            align="left"
-            variant={language === LocaleEnum.nb ? 'secondary' : 'quaternary'}
-            onClick={() => {
-              onChange(LocaleEnum.nb)
-              closePopper()
-            }}
-          >
-            {translate(mapLanguageKey(LocaleEnum.nb))}
-          </Button>
-          <Button
-            align="left"
-            variant={language === LocaleEnum.pt_BR ? 'secondary' : 'quaternary'}
-            onClick={() => {
-              onChange(LocaleEnum.pt_BR)
-              closePopper()
-            }}
-          >
-            {translate(mapLanguageKey(LocaleEnum.pt_BR))}
-          </Button>
-          <Button
-            align="left"
-            variant={language === LocaleEnum.sv ? 'secondary' : 'quaternary'}
-            onClick={() => {
-              onChange(LocaleEnum.sv)
-              closePopper()
-            }}
-          >
-            {translate(mapLanguageKey(LocaleEnum.sv))}
-          </Button>
+          {availableLocales.map((locale) => renderLanguageButton(locale, closePopper))}
         </MenuPopper>
       )}
     </Popper>
