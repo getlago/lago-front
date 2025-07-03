@@ -767,6 +767,8 @@
   "text_6560c252c4f33631aff1ab27": "Search and select an interval",
   "text_662fc05d2cfe3a0596b29d98": "Credit voided|Credits voided",
   "text_662fc05d2cfe3a0596b29db0": "Credit offered|Credits offered",
+  "text_194a7e73e00a1b2c3d4e5f67": "Manual credits purchased",
+  "text_194a7e73e00b8c9d0e1f2a34": "Automatic credits purchased",
   "text_662fc2730f9a31fe564e9dad": "Define number of credits to void. This action will impact instantly the wallet balance.",
   "text_662fc2730f9a31fe564e9db1": "Credits to void",
   "text_662fc2730f9a31fe564e9dbd": "You will void {{credits}}.",
@@ -3262,5 +3264,9 @@
   "text_1750864025932bnohjbzci3f": "Reports",
   "text_1750864088654kxz304zdo2z": "Configuration",
   "text_1750864088654s9qo2h9fvp7": "Billing & operations",
-  "text_1751039646310obdq6n385sc": "Conversion rate: 1 {{pricingUnitShortName}} = ${{conversionRateAmount}}"
+  "text_1751039646310obdq6n385sc": "Conversion rate: 1 {{pricingUnitShortName}} = ${{conversionRateAmount}}",
+  "text_1751530295201wwh8zbwv2w9": "Source",
+  "text_1751530295201vhd64062mii": "Automatic interval",
+  "text_1751530295201xyz98abc123": "Automatic threshold",
+  "text_1751530295201def456ghi78": "Manual"
 }

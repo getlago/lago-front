@@ -5,6 +5,7 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   TimezoneEnum,
   WalletTransactionForTransactionListItemFragment,
+  WalletTransactionSourceEnum,
   WalletTransactionStatusEnum,
   WalletTransactionTransactionStatusEnum,
   WalletTransactionTransactionTypeEnum,
@@ -23,6 +24,7 @@ gql`
     settledAt
     failedAt
     createdAt
+    source
     wallet {
       id
       currency
@@ -35,6 +37,7 @@ type LocalWalletTransaction = Omit<
   'transactionStatus'
 > & {
   transactionStatus: WalletTransactionTransactionStatusEnum | undefined
+  source?: WalletTransactionSourceEnum
 }
 
 export type WalletTransactionListItemProps = {
@@ -66,6 +69,7 @@ export const WalletTransactionListItem = ({
     status,
     transactionType,
     transactionStatus,
+    source,
   } = transaction
   const isPending = status === WalletTransactionStatusEnum.Pending
   const isFailed = status === WalletTransactionStatusEnum.Failed
@@ -109,6 +113,28 @@ export const WalletTransactionListItem = ({
   }
 
   if (isInbound) {
+    const getLabelForInboundTransaction = () => {
+      if (transactionStatus === WalletTransactionTransactionStatusEnum.Granted) {
+        return translate('text_662fc05d2cfe3a0596b29db0', undefined, Number(creditAmount) || 0)
+      }
+
+      // For purchased credits, check the source
+      if (transactionStatus === WalletTransactionTransactionStatusEnum.Purchased) {
+        if (source === WalletTransactionSourceEnum.Manual) {
+          return translate('text_194a7e73e00a1b2c3d4e5f67', undefined, Number(creditAmount) || 0)
+        }
+        if (
+          source === WalletTransactionSourceEnum.Interval ||
+          source === WalletTransactionSourceEnum.Threshold
+        ) {
+          return translate('text_194a7e73e00b8c9d0e1f2a34', undefined, Number(creditAmount) || 0)
+        }
+      }
+
+      // Fallback to the original purchased text for other cases
+      return translate('text_62da6ec24a8e24e44f81289a', undefined, Number(creditAmount) || 0)
+    }
+
     return (
       <ListItem
         {...props}
@@ -116,11 +142,7 @@ export const WalletTransactionListItem = ({
         iconName="plus"
         timezone={customerTimezone}
         labelColor="grey700"
-        label={
-          transactionStatus === WalletTransactionTransactionStatusEnum.Granted
-            ? translate('text_662fc05d2cfe3a0596b29db0', undefined, Number(creditAmount) || 0)
-            : translate('text_62da6ec24a8e24e44f81289a', undefined, Number(creditAmount) || 0)
-        }
+        label={getLabelForInboundTransaction()}
         date={(isPending && settledAt) || (isFailed && failedAt) || createdAt}
         creditsColor="success600"
         credits={`${Number(creditAmount) === 0 ? '' : '+ '} ${transactionAmountTranslationKey}`}

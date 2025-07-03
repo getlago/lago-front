@@ -71,7 +71,11 @@ export const ListItem: FC<ListItemProps> = ({
             {isFailed && <AvatarBadge icon="stop" color="warning" />}
           </Avatar>
           <div className="flex flex-col justify-end">
-            <Typography variant="bodyHl" color={isPending || isFailed ? 'grey500' : labelColor}>
+            <Typography
+              variant="bodyHl"
+              color={isPending || isFailed ? 'grey500' : labelColor}
+              data-test="transaction-label"
+            >
               {label}
             </Typography>
             {date && (

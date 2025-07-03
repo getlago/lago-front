@@ -37,6 +37,7 @@ import {
   ProviderTypeEnum,
   useGetWalletTransactionDetailsLazyQuery,
   WalletInfosForTransactionsFragment,
+  WalletTransactionSourceEnum,
   WalletTransactionStatusEnum,
   WalletTransactionTransactionStatusEnum,
   WalletTransactionTransactionTypeEnum,
@@ -57,6 +58,7 @@ gql`
     failedAt
     status
     transactionStatus
+    source
     invoiceRequiresSuccessfulPayment
     metadata {
       key
@@ -104,6 +106,12 @@ interface WalletDetailsDrawerProps {
 const GRID =
   'grid grid-cols-1 gap-y-1 [&>*:nth-child(even)]:mb-3 sm:[&>*:nth-child(even)]:mb-0 sm:grid-cols-[fit-content(100%)_1fr] sm:auto-rows-[minmax(40px,1fr)] items-center sm:gap-x-8 sm:gap-y-2'
 
+const WALLET_TRANSACTION_SOURCE_TRANSLATIONS: Record<WalletTransactionSourceEnum, string> = {
+  [WalletTransactionSourceEnum.Interval]: 'text_1751530295201vhd64062mii',
+  [WalletTransactionSourceEnum.Threshold]: 'text_1751530295201xyz98abc123',
+  [WalletTransactionSourceEnum.Manual]: 'text_1751530295201def456ghi78',
+}
+
 export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDetailsDrawerProps>(
   ({ wallet }: WalletDetailsDrawerProps, ref) => {
     const drawerRef = useRef<DrawerRef>(null)
@@ -139,6 +147,7 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
       transactionStatus,
       invoiceRequiresSuccessfulPayment,
       invoice,
+      source,
     } = data?.walletTransaction || {}
 
     const formatted = useMemo(() => {
@@ -352,6 +361,10 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
                           translate('text_63e27c56dfe64b846474ef4e')}
                       </>
                     }
+                  />
+                  <DetailRow
+                    label={translate('text_1751530295201wwh8zbwv2w9')}
+                    value={source && translate(WALLET_TRANSACTION_SOURCE_TRANSLATIONS[source])}
                   />
                   <DetailRow
                     label={translate('text_1741943835752e00705sjtf8')}

@@ -38,6 +38,7 @@ import {
   WalletAccordionFragment,
   WalletInfosForTransactionsFragmentDoc,
   WalletStatusEnum,
+  WalletTransactionSourceEnum,
   WalletTransactionStatusEnum,
   WalletTransactionTransactionTypeEnum,
 } from '~/generated/graphql'
@@ -510,6 +511,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
                   status: WalletTransactionStatusEnum.Settled,
                   transactionType: WalletTransactionTransactionTypeEnum.Outbound,
                   transactionStatus: undefined,
+                  source: WalletTransactionSourceEnum.Manual,
                 }}
                 customerTimezone={customerTimezone}
                 isWalletActive={isWalletActive}
