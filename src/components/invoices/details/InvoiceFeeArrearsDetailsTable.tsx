@@ -10,6 +10,7 @@ import {
 } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
+  CreateAdjustedFeeInput,
   CurrencyEnum,
   Customer,
   FeeForDeleteAdjustmentFeeDialogFragmentDoc,
@@ -46,6 +47,8 @@ interface InvoiceFeeArrearsDetailsTableProps {
   currency: CurrencyEnum
   editFeeDrawerRef: RefObject<EditFeeDrawerRef>
   deleteAdjustedFeeDialogRef: RefObject<DeleteAdjustedFeeDialogRef>
+  onAdd?: (input: CreateAdjustedFeeInput) => void
+  onDelete?: (id: string) => void
 }
 
 export const InvoiceFeeArrearsDetailsTable = memo(
@@ -58,6 +61,8 @@ export const InvoiceFeeArrearsDetailsTable = memo(
     currency,
     editFeeDrawerRef,
     deleteAdjustedFeeDialogRef,
+    onAdd,
+    onDelete,
   }: InvoiceFeeArrearsDetailsTableProps) => {
     const { translate } = useInternationalization()
     const [areZeroFeesVisible, setAreZeroFeesVisible] = useState<boolean>(false)
@@ -96,6 +101,8 @@ export const InvoiceFeeArrearsDetailsTable = memo(
                   deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                   fee={feeInArrear}
                   isDraftInvoice={isDraftInvoice}
+                  onAdd={onAdd}
+                  onDelete={onDelete}
                 />
               )
             })}
@@ -143,6 +150,8 @@ export const InvoiceFeeArrearsDetailsTable = memo(
                                 deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                                 fee={feeInArrearZero}
                                 isDraftInvoice={isDraftInvoice}
+                                onAdd={onAdd}
+                                onDelete={onDelete}
                               />
                             )
                           },
