@@ -119,6 +119,10 @@ export const cache = new InMemoryCache({
           keyArgs: false,
           merge: mergePaginatedCollection,
         },
+        customerPortalUser: {
+          keyArgs: ['id'],
+          merge: mergePaginatedCollection,
+        },
         webhooks: {
           keyArgs: ['webhookEndpointId', 'status', 'searchTerm'],
           merge: mergePaginatedCollection,
