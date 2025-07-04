@@ -1,11 +1,18 @@
 import { gql } from '@apollo/client'
 import { Icon, tw, Typography } from 'lago-design-system'
-import { generatePath } from 'react-router-dom'
+import { useMemo } from 'react'
+import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { InfiniteScroll, Status, StatusType } from '~/components/designSystem'
+import {
+  Filters,
+  formatFiltersForSubscriptionQuery,
+  SubscriptionAvailableFilters,
+} from '~/components/designSystem/Filters'
 import { SearchInput } from '~/components/SearchInput'
 import { SubscriptionsList } from '~/components/subscriptions/SubscriptionsList'
 import { TimezoneDate } from '~/components/TimezoneDate'
+import { SUBSCRIPTION_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
@@ -77,11 +84,16 @@ gql`
 
 const SubscriptionsPage = () => {
   const { translate } = useInternationalization()
+  const [searchParams] = useSearchParams()
+
+  const filtersForSubscriptionQuery = useMemo(() => {
+    return formatFiltersForSubscriptionQuery(searchParams)
+  }, [searchParams])
 
   const [getSubscriptions, { data, error, loading, fetchMore }] = useGetSubscriptionsListLazyQuery({
     variables: {
       limit: 20,
-      status: [...Object.values(StatusTypeEnum)],
+      ...filtersForSubscriptionQuery,
     },
   })
 
@@ -103,6 +115,15 @@ const SubscriptionsPage = () => {
           />
         </PageHeader.Group>
       </PageHeader.Wrapper>
+
+      <div className="box-border flex w-full flex-col gap-3 p-4 shadow-b md:px-12 md:py-3">
+        <Filters.Provider
+          filtersNamePrefix={SUBSCRIPTION_LIST_FILTER_PREFIX}
+          availableFilters={SubscriptionAvailableFilters}
+        >
+          <Filters.Component />
+        </Filters.Provider>
+      </div>
 
       <div className="overflow-y-auto">
         <InfiniteScroll

@@ -21,6 +21,7 @@ import {
   REVENUE_STREAMS_BREAKDOWN_CUSTOMER_FILTER_PREFIX,
   REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX,
   REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX,
+  SUBSCRIPTION_LIST_FILTER_PREFIX,
   WEBHOOK_LOGS_FILTER_PREFIX,
 } from '~/core/constants/filters'
 import { INVOICES_ROUTE } from '~/core/router'
@@ -49,6 +50,7 @@ import {
   RevenueStreamsAvailablePopperFilters,
   RevenueStreamsCustomersAvailableFilters,
   RevenueStreamsPlansAvailableFilters,
+  SubscriptionAvailableFilters,
   UsageBillableMetricAvailableFilters,
   UsageBreakdownAvailableFilters,
   UsageBreakdownMeteredAvailableFilters,
@@ -229,6 +231,14 @@ export const formatFiltersForCustomerQuery = (searchParams: URLSearchParams) => 
     searchParams,
     availableFilters: CustomerAvailableFilters,
     filtersNamePrefix: CUSTOMER_LIST_FILTER_PREFIX,
+  })
+}
+
+export const formatFiltersForSubscriptionQuery = (searchParams: URLSearchParams) => {
+  return formatFiltersForQuery({
+    searchParams,
+    availableFilters: SubscriptionAvailableFilters,
+    filtersNamePrefix: SUBSCRIPTION_LIST_FILTER_PREFIX,
   })
 }
 

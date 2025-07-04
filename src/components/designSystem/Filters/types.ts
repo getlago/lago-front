@@ -204,6 +204,12 @@ export const ApiLogsAvailableFilters = [
   AvailableFiltersEnum.httpStatuses,
 ]
 
+export const SubscriptionAvailableFilters = [
+  AvailableFiltersEnum.planCode,
+  AvailableFiltersEnum.customerExternalId,
+  AvailableFiltersEnum.status,
+]
+
 const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.activityIds]: 'text_1747666154075d10admbnf16',
   [AvailableFiltersEnum.activitySources]: 'text_1747666154075g4ceq9ii0xm',
