@@ -14,7 +14,7 @@ export const ChipsSection = () => {
 
       <div className="flex flex-col gap-6">
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Variants
           </Typography>
           <div className="flex flex-col gap-4">
@@ -56,7 +56,7 @@ export const ChipsSection = () => {
         </section>
 
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Sizes
           </Typography>
           <div className="flex flex-row flex-wrap gap-4">

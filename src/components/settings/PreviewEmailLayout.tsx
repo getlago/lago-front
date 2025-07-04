@@ -110,7 +110,7 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
                     />
                   </Tooltip>
                 )}
-                <Typography variant="subhead">{name}</Typography>
+                <Typography variant="subhead1">{name}</Typography>
               </>
             )}
           </div>

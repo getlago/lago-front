@@ -9,7 +9,7 @@ export const IconsSection = () => {
 
       <div className="flex flex-col gap-6">
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             General use
           </Typography>
           <div className="flex flex-wrap gap-4">
@@ -19,7 +19,7 @@ export const IconsSection = () => {
           </div>
         </section>
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Colors
           </Typography>
           <div className="flex flex-wrap gap-4">
@@ -36,7 +36,7 @@ export const IconsSection = () => {
           </div>
         </section>
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Animation
           </Typography>
           <div className="flex flex-wrap gap-4">
@@ -45,7 +45,7 @@ export const IconsSection = () => {
           </div>
         </section>
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Size
           </Typography>
           <div className="flex flex-wrap gap-4">

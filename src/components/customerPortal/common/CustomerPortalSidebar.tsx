@@ -47,14 +47,14 @@ const CustomerPortalSidebar = ({
         )}
 
         {!isLoading && (
-          <Typography className="text-lg font-semibold text-black">
+          <Typography variant="subhead1" color="grey700">
             {translate('text_1728636271035se9pkfziyvg')}
           </Typography>
         )}
 
         {showPoweredBy && (
           <div className="flex items-center gap-1">
-            <Typography className="text-xs font-normal text-grey-600">
+            <Typography variant="caption" color="grey600">
               {translate('text_6419c64eace749372fc72b03')}
             </Typography>
 

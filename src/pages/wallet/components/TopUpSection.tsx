@@ -127,7 +127,7 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
     <>
       <section className="flex w-full flex-col gap-6 pb-12 shadow-b">
         <div className="flex flex-col gap-1">
-          <Typography variant="subhead">{translate('text_6657be42151661006d2f3b89')}</Typography>
+          <Typography variant="subhead1">{translate('text_6657be42151661006d2f3b89')}</Typography>
           <Typography variant="caption">{translate('text_6657be42151661006d2f3b8a')}</Typography>
         </div>
 
@@ -189,7 +189,7 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
       </section>
       <section className="flex w-full flex-col gap-6">
         <div className="flex flex-col gap-1">
-          <Typography variant="subhead">{translate('text_1741101674268ag60i0cc55m')}</Typography>
+          <Typography variant="subhead1">{translate('text_1741101674268ag60i0cc55m')}</Typography>
           <Typography variant="caption">{translate('text_6657be42151661006d2f3b95')}</Typography>
         </div>
 

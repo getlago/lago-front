@@ -215,7 +215,7 @@ const CreatePayment = () => {
               <div className="flex flex-col gap-12">
                 <section className={tw('not-last-child:mb-6', invoice ? 'pb-0' : 'pb-12 shadow-b')}>
                   <div className="not-last-child:mb-2">
-                    <Typography variant="subhead">
+                    <Typography variant="subhead1">
                       {translate('text_17374729448780zbfa44h1s3')}
                     </Typography>
                     <Typography variant="caption">
@@ -287,7 +287,7 @@ const CreatePayment = () => {
 
                 <section className="not-last-child:mb-6">
                   <div className="not-last-child:mb-2">
-                    <Typography variant="subhead">
+                    <Typography variant="subhead1">
                       {translate('text_1737472944878h2ejm3kxd8h')}
                     </Typography>
                     <Typography variant="caption">

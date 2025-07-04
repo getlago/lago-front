@@ -227,13 +227,13 @@ export const AddLagoTaxManagementDialog = forwardRef<
         {formikProps.values.billingEntities?.length > 0 && (
           <div className="grid grid-cols-7 gap-3">
             <div className="col-span-3">
-              <Typography className="text-sm font-medium text-grey-700">
+              <Typography variant="bodyHl" color="grey700">
                 {translate('text_1743077296189ms0shds6g53')}
               </Typography>
             </div>
 
             <div className="col-span-3">
-              <Typography className="text-sm font-medium text-grey-700">
+              <Typography variant="bodyHl" color="grey700">
                 {translate('text_62ab2d0396dd6b0361614da0')}
               </Typography>
             </div>

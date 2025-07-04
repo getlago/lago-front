@@ -46,11 +46,13 @@ gql`
 `
 
 const FieldTitle = ({ title }: { title: string }) => (
-  <Typography className="text-sm font-normal leading-6 text-grey-600">{title}</Typography>
+  <Typography variant="body" color="grey600">
+    {title}
+  </Typography>
 )
 
 const FieldContent = ({ content, children }: { content?: string; children?: React.ReactNode }) => (
-  <Typography className="break-words text-base font-normal leading-6 text-grey-700">
+  <Typography variant="subhead2" color="grey700" className="break-words">
     {content || children}
   </Typography>
 )
@@ -222,7 +224,7 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
             />
 
             {hasShippingAddress && hasBillingAddress && identicalAddresses ? (
-              <Typography className="text-base font-normal text-grey-700">
+              <Typography variant="subhead2" color="grey700">
                 <FieldTitle title={translate('text_667d708c1359b49f5a5a822a')} />
                 <FieldContent content={translate('text_1728381336070e8cj1amorap')} />
               </Typography>

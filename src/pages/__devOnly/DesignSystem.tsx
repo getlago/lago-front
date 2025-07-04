@@ -188,7 +188,7 @@ const DesignSystem = () => {
                     variant="borderless"
                     summary={
                       <div>
-                        <Typography variant="subhead" className="mb-2">
+                        <Typography variant="subhead1" className="mb-2">
                           borderless accordion
                         </Typography>
                         <Typography variant="caption">Caption</Typography>
@@ -1009,7 +1009,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="headline">
                   Avatar
                 </Typography>
-                <Typography className="mb-4" variant="subhead">
+                <Typography className="mb-4" variant="subhead1">
                   Variants
                 </Typography>
                 <Block>
@@ -1041,7 +1041,7 @@ const DesignSystem = () => {
                   </Tooltip>
                 </Block>
 
-                <Typography className="mb-4" variant="subhead">
+                <Typography className="mb-4" variant="subhead1">
                   Size
                 </Typography>
                 <Block>
@@ -1088,7 +1088,7 @@ const DesignSystem = () => {
                   </Avatar>
                 </Block>
 
-                <Typography className="mb-4" variant="subhead">
+                <Typography className="mb-4" variant="subhead1">
                   Colors
                 </Typography>
                 <Typography className="mb-4">
@@ -1117,11 +1117,11 @@ const DesignSystem = () => {
                 </Typography>
                 <Block className="mb-0">
                   <VerticalBlock className="mr-12">
-                    <Typography className="mb-4" variant="subhead">
+                    <Typography className="mb-4" variant="subhead1">
                       Variant
                     </Typography>
                     <Typography variant="headline">Headline</Typography>
-                    <Typography variant="subhead">Subhead</Typography>
+                    <Typography variant="subhead1">Subhead</Typography>
                     <Typography variant="bodyHl">BodyHl</Typography>
                     <Typography variant="body">Body</Typography>
                     <Typography variant="button">Button</Typography>
@@ -1137,7 +1137,7 @@ const DesignSystem = () => {
                     />
                   </VerticalBlock>
                   <VerticalBlock>
-                    <Typography className="mb-4" variant="subhead">
+                    <Typography className="mb-4" variant="subhead1">
                       Color
                     </Typography>
                     <Typography color="textSecondary">color textSecondary</Typography>
@@ -1163,7 +1163,7 @@ const DesignSystem = () => {
                   Button
                 </Typography>
 
-                <Typography className="mb-4" variant="subhead">
+                <Typography className="mb-4" variant="subhead1">
                   General use
                 </Typography>
                 <Block>
@@ -1196,7 +1196,7 @@ const DesignSystem = () => {
                   </Button>
                 </Block>
 
-                <Typography className="mb-4" variant="subhead">
+                <Typography className="mb-4" variant="subhead1">
                   Primary
                 </Typography>
                 <Block>
@@ -1209,7 +1209,7 @@ const DesignSystem = () => {
                   </Button>
                 </Block>
 
-                <Typography className="mb-4" variant="subhead">
+                <Typography className="mb-4" variant="subhead1">
                   Secondary
                 </Typography>
                 <Block>
@@ -1231,7 +1231,7 @@ const DesignSystem = () => {
                   </Button>
                 </Block>
 
-                <Typography className="mb-4" variant="subhead">
+                <Typography className="mb-4" variant="subhead1">
                   Tertiary
                 </Typography>
                 <Block>
@@ -1253,7 +1253,7 @@ const DesignSystem = () => {
                   </Button>
                 </Block>
 
-                <Typography className="mb-4" variant="subhead">
+                <Typography className="mb-4" variant="subhead1">
                   Quaternary
                 </Typography>
                 <Block>
@@ -1279,7 +1279,7 @@ const DesignSystem = () => {
                 </Block>
 
                 <section>
-                  <Typography className="mb-4" variant="subhead">
+                  <Typography className="mb-4" variant="subhead1">
                     Inline
                   </Typography>
                   <div className="mb-4 flex flex-wrap gap-4">
@@ -1305,7 +1305,7 @@ const DesignSystem = () => {
                   </div>
                 </section>
 
-                <Typography className="mb-4" variant="subhead">
+                <Typography className="mb-4" variant="subhead1">
                   Google connect
                 </Typography>
                 <Block>
@@ -1326,7 +1326,7 @@ const DesignSystem = () => {
                     Form
                   </Typography>
 
-                  <Typography className="mb-4" variant="subhead">
+                  <Typography className="mb-4" variant="subhead1">
                     Checkbox
                   </Typography>
 
@@ -1405,7 +1405,7 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <Typography className="mb-4" variant="subhead">
+                  <Typography className="mb-4" variant="subhead1">
                     ButtonSelector
                   </Typography>
                   <Block>
@@ -1444,7 +1444,7 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <Typography className="mb-4" variant="subhead">
+                  <Typography className="mb-4" variant="subhead1">
                     Switch
                   </Typography>
                   <Block>
@@ -1469,7 +1469,7 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <Typography className="mb-4" variant="subhead">
+                  <Typography className="mb-4" variant="subhead1">
                     Combobox
                   </Typography>
                   <Block>
@@ -1720,7 +1720,7 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <Typography className="mb-4" variant="subhead">
+                  <Typography className="mb-4" variant="subhead1">
                     Radio
                   </Typography>
                   <Block>
@@ -1754,7 +1754,7 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <Typography className="mb-4" variant="subhead">
+                  <Typography className="mb-4" variant="subhead1">
                     DatePicker
                   </Typography>
                   <Block className="min-w-[325px]">
@@ -1777,7 +1777,7 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <Typography className="mb-4" variant="subhead">
+                  <Typography className="mb-4" variant="subhead1">
                     AmountInput
                   </Typography>
                   <Block>
@@ -1803,7 +1803,7 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <Typography className="mb-4" variant="subhead">
+                  <Typography className="mb-4" variant="subhead1">
                     TextInput
                   </Typography>
                   <Block>
@@ -1884,7 +1884,7 @@ const DesignSystem = () => {
                     />
                   </Block>
 
-                  <Typography className="mb-4" variant="subhead">
+                  <Typography className="mb-4" variant="subhead1">
                     JSON Editor
                   </Typography>
                   <Block>
@@ -1921,7 +1921,7 @@ const DesignSystem = () => {
                 <Typography className="mb-4" variant="headline">
                   Links
                 </Typography>
-                <Typography className="mb-4" variant="subhead">
+                <Typography className="mb-4" variant="subhead1">
                   Link in navigation tabs with &#60;ButtonLink/&#62;
                 </Typography>
                 <Block>
@@ -1943,7 +1943,7 @@ const DesignSystem = () => {
                     Disabled
                   </ButtonLink>
                 </Block>
-                <Typography className="mb-4" variant="subhead">
+                <Typography className="mb-4" variant="subhead1">
                   Button Links with &#60;ButtonLink/&#62;
                 </Typography>
                 <Block>
@@ -1966,7 +1966,7 @@ const DesignSystem = () => {
                     With Button Props
                   </ButtonLink>
                 </Block>
-                <Typography className="mb-4" variant="subhead">
+                <Typography className="mb-4" variant="subhead1">
                   Simple links with &#60;a/&#62;
                 </Typography>
                 <Block>

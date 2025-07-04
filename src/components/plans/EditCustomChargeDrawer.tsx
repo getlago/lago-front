@@ -71,7 +71,7 @@ export const EditCustomChargeDrawer = forwardRef<
         </DrawerTitle>
 
         <Card>
-          <Typography variant="subhead">{translate('text_663dea5702b60301d8d06502')}</Typography>
+          <Typography variant="subhead1">{translate('text_663dea5702b60301d8d06502')}</Typography>
           <JsonEditor
             hideLabel
             label={translate('text_663dea5702b60301d8d06502')}

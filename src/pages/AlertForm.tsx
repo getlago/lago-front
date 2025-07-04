@@ -428,7 +428,7 @@ const AlertForm = () => {
               <div className="flex flex-col gap-12">
                 <section className="pb-12 shadow-b not-last-child:mb-6">
                   <div className="not-last-child:mb-2">
-                    <Typography variant="subhead">
+                    <Typography variant="subhead1">
                       {translate('text_1746629929876zz4937djyc8')}
                     </Typography>
                     <Typography variant="caption">
@@ -457,7 +457,7 @@ const AlertForm = () => {
 
                 <section className="not-last-child:mb-6">
                   <div className="not-last-child:mb-2">
-                    <Typography variant="subhead">
+                    <Typography variant="subhead1">
                       {translate('text_17466299298762alw9zr25tb')}
                     </Typography>
                     <Typography variant="caption">

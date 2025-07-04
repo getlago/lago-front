@@ -283,7 +283,7 @@ const InvoiceOverview = memo(
 
     return (
       <>
-        <SectionHeader variant="subhead">
+        <SectionHeader variant="subhead1">
           {translate('text_634687079be251fdb43833bf')}
           <div className="flex gap-3">
             {invoice?.status === InvoiceStatusTypeEnum.Draft ? (
@@ -431,12 +431,12 @@ const InvoiceOverview = memo(
               {billingEntity && (
                 <div className="box-border flex items-center gap-2 py-6 shadow-b">
                   <div className="min-w-[140px]">
-                    <Typography className="text-sm text-grey-600">
+                    <Typography variant="body" color="grey600">
                       {translate('text_1743611497157teaa1zu8l24')}
                     </Typography>
                   </div>
 
-                  <Typography className="text-grey-700">
+                  <Typography variant="body" color="grey700">
                     {billingEntity.name || billingEntity.code}
                   </Typography>
                 </div>
@@ -460,7 +460,7 @@ const InvoiceOverview = memo(
                 )}
               {showExternalAppsSection && (
                 <Stack marginTop={8} gap={6}>
-                  <SectionHeader variant="subhead">
+                  <SectionHeader variant="subhead1">
                     {translate('text_6650b36fc702a4014c878996')}
                   </SectionHeader>
 

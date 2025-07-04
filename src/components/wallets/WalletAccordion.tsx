@@ -375,7 +375,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
                 <DetailSummaryLine className="items-baseline">
                   <Typography
                     color={isWalletActive ? 'grey700' : 'grey600'}
-                    variant="subhead"
+                    variant="subhead1"
                     noWrap
                   >
                     {creditAmountUnit}
@@ -425,7 +425,7 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
                     <Typography
                       blur={!isPremium}
                       color={isWalletActive ? 'grey700' : 'grey600'}
-                      variant="subhead"
+                      variant="subhead1"
                       noWrap
                     >
                       {isPremium ? consumedCreditUnit : '0'}

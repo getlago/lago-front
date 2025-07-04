@@ -34,7 +34,7 @@ const CreditNoteBadge = ({
       placement="top-start"
     >
       <div className="flex items-center gap-2 rounded-lg border border-grey-400 bg-grey-100 px-2 py-1">
-        <Typography className="whitespace-nowrap text-sm font-medium text-grey-700">
+        <Typography variant="bodyHl" color="grey700" className="whitespace-nowrap">
           {label}
         </Typography>
 

@@ -136,13 +136,15 @@ const UsageBreakdownBillableMetrics = ({
               })}
             >
               <div className="flex cursor-pointer items-center gap-1">
-                <Typography className="font-medium text-grey-700">{key}</Typography>
+                <Typography variant="bodyHl" color="grey700">
+                  {key}
+                </Typography>
 
                 <Icon name="chevron-right" size="small" />
               </div>
             </Link>
 
-            <Typography className="text-sm text-grey-700">
+            <Typography variant="body" color="grey700">
               {displayFormat?.(totals[key], selectedCurrency) ||
                 intlFormatNumber(deserializeAmount(totals[key], selectedCurrency), {
                   currency: selectedCurrency,

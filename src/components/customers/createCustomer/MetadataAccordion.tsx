@@ -36,7 +36,7 @@ export const MetadataAccordion: FC<MetadataAccordionProps> = ({ formikProps }) =
       variant="borderless"
       summary={
         <div className="flex flex-col gap-2">
-          <Typography variant="subhead">{translate('text_63fcc3218d35b9377840f59b')}</Typography>
+          <Typography variant="subhead1">{translate('text_63fcc3218d35b9377840f59b')}</Typography>
           <Typography variant="caption">{translate('text_1735655045719sl0z0pooptb')}</Typography>
         </div>
       }

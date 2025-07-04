@@ -101,7 +101,7 @@ const WalletPage = () => {
             displayErrorText={false}
             beforeChangeFormatter={['positiveNumber']}
             helperText={
-              <Typography className="mt-1 text-sm font-normal text-grey-600">
+              <Typography variant="body" color="grey600" className="mt-1">
                 {translate('text_17279456600803f8on7ku8jo', {
                   credits: intlFormatNumber(
                     Number(formikProps?.values?.amount || 0) * Number(wallet?.rateAmount || 0),

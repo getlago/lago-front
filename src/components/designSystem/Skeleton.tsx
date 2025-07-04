@@ -35,7 +35,8 @@ const textWrapperStyles = cva('flex w-full max-w-full items-center', {
   variants: {
     textVariant: {
       headline: 'h-8',
-      subhead: 'h-6',
+      subhead1: 'h-6',
+      subhead2: 'h-6',
       bodyHl: 'h-6',
       body: 'h-6',
       captionHl: 'h-6',

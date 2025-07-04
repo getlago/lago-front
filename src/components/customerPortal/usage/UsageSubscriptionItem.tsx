@@ -57,13 +57,13 @@ const UsageSubscriptionItem = ({
 
   return (
     <div className="flex flex-col gap-1" key={subscription.id}>
-      <Typography className="text-base font-medium text-grey-700">
+      <Typography variant="subhead2" color="grey700">
         {itemName(subscription)}
       </Typography>
 
       {typeof subscription.plan?.amountCurrency !== 'undefined' && (
         <div className="flex gap-1">
-          <Typography className="text-base font-normal text-grey-700">
+          <Typography variant="subhead2" color="grey700">
             {translate('text_17326262367759e7w9yfbeno', {
               amount: intlFormatNumber(
                 deserializeAmount(
@@ -80,14 +80,14 @@ const UsageSubscriptionItem = ({
           </Typography>
 
           {subscription?.plan?.interval && (
-            <Typography className="text-base font-normal lowercase text-grey-700">
+            <Typography variant="subhead2" color="grey700">
               {translate(planIntervalLabel(subscription.plan.interval))}
             </Typography>
           )}
         </div>
       )}
 
-      <Typography className="text-sm font-normal leading-6 text-grey-600">
+      <Typography variant="body" color="grey600">
         {translate('text_1728377747178bfroky3hn30', {
           date: planRenewalDate({
             currentBillingPeriodEndingAt: subscription.currentBillingPeriodEndingAt,

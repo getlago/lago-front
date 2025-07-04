@@ -163,16 +163,16 @@ export const CustomExpressionDrawer = forwardRef<
     >
       <div>
         <div className="mb-12">
-          <Typography className="mb-1 text-2xl font-semibold text-grey-700">
+          <Typography variant="headline" color="grey700" className="mb-1">
             {translate('text_1729771640162lug0w6ztlyr')}
           </Typography>
 
-          <Typography className="text-base font-normal text-grey-600">
+          <Typography variant="subhead2" color="grey600">
             {translate('text_1729771640162z7ndqn1ju9h')}
           </Typography>
         </div>
 
-        <Typography className="mb-6 text-lg font-semibold text-grey-700">
+        <Typography variant="subhead1" color="grey700" className="mb-6">
           {translate('text_1729771640162c0o1estqusi')}
         </Typography>
 
@@ -188,7 +188,7 @@ export const CustomExpressionDrawer = forwardRef<
             placeholder={translate('text_1729771640162kaf49b93e20') + '\n'}
             helperText={
               <div className="mt-1">
-                <Typography className="text-sm font-normal text-grey-600">
+                <Typography variant="body" color="grey600">
                   {translate('text_1729773655417n5w5fu02lbm')}
                 </Typography>
 
@@ -210,10 +210,10 @@ export const CustomExpressionDrawer = forwardRef<
         </div>
 
         <div className="mb-6">
-          <Typography className="mb-2 text-lg font-semibold text-grey-700">
+          <Typography variant="subhead1" color="grey700" className="mb-2">
             {translate('text_1729773655417vo5dm6vqzpu')}
           </Typography>
-          <Typography className="text-sm font-normal text-grey-600">
+          <Typography variant="body" color="grey600">
             {translate('text_1729773655417khuj828ti9j')}
           </Typography>
         </div>
@@ -228,7 +228,7 @@ export const CustomExpressionDrawer = forwardRef<
         />
 
         <div className="mt-6">
-          <Typography className="mb-1 text-sm font-normal text-grey-600">
+          <Typography variant="body" color="grey600" className="mb-1">
             {translate('text_1729773655417b4y4j7oatnq')}
           </Typography>
 
@@ -236,20 +236,20 @@ export const CustomExpressionDrawer = forwardRef<
             <div className="flex items-center gap-2">
               <Icon name="warning-filled" color="warning" />
 
-              <Typography className="text-base font-normal text-grey-600">
+              <Typography variant="subhead1" color="grey600">
                 {validationResult?.error}
               </Typography>
             </div>
           )}
 
           {!validationResult?.result && !validationResult?.error && (
-            <Typography className="text-base font-normal text-grey-500">
+            <Typography variant="subhead2" color="grey500">
               {translate('text_17297736554178ifm0gd8093')}
             </Typography>
           )}
 
           {validationResult?.result && !validationResult?.error && (
-            <Typography className="text-base font-normal text-grey-700">
+            <Typography variant="subhead2" color="grey700">
               {validationResult?.result}
             </Typography>
           )}

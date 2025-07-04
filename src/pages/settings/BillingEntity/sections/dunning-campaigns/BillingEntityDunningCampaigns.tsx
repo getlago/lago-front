@@ -147,14 +147,14 @@ const BillingEntityDunningCampaigns = () => {
                 )}
 
                 {hasAccessToFeature && !appliedDunningCampaign && (
-                  <Typography className="text-grey-500">
+                  <Typography variant="body" color="grey500">
                     {translate('text_1750663218390oab5y7r0mai')}
                   </Typography>
                 )}
 
                 {hasAccessToFeature && appliedDunningCampaign && (
                   <div>
-                    <Typography className="my-2 text-sm font-medium text-grey-600">
+                    <Typography variant="bodyHl" color="grey600" className="my-2">
                       {translate('text_1750663218391y478pxbkhkw')}
                     </Typography>
 

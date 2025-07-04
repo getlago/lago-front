@@ -302,7 +302,7 @@ const PaymentDetails = () => {
 
         <div className="pb-12 shadow-b">
           <div className="mb-4 flex items-center justify-between">
-            <Typography variant="subhead">{translate('text_634687079be251fdb43833b7')}</Typography>
+            <Typography variant="subhead1">{translate('text_634687079be251fdb43833b7')}</Typography>
 
             {canDownloadPaymentReceipts && (
               <Button
@@ -460,7 +460,7 @@ const PaymentDetails = () => {
         </div>
 
         <div>
-          <Typography variant="subhead" className="mb-4">
+          <Typography variant="subhead1" className="mb-4">
             {translate('text_63ac86d797f728a87b2f9f85')}
           </Typography>
 

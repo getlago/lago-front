@@ -122,7 +122,7 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
       {!isLoading && wallet && (
         <div>
           <div className="flex flex-col gap-1">
-            <Typography className="flex h-6 items-center gap-2 text-sm font-normal text-grey-600">
+            <Typography variant="body" color="grey600" className="flex h-6 items-center gap-2">
               {translate('text_1728377307160cbszddumfkg')}
 
               {wallet?.lastBalanceSyncAt && (
@@ -141,16 +141,16 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
             </Typography>
 
             <div className="flex items-end gap-1">
-              <Typography className="text-2xl font-semibold text-grey-700">
+              <Typography variant="headline" color="grey700">
                 {unit}.{cents}
               </Typography>
 
-              <Typography className="text-sm font-medium leading-6 text-grey-700">
+              <Typography variant="bodyHl" color="grey700">
                 {translate('text_62da6ec24a8e24e44f81287a', undefined, Number(unit) || 0)}
               </Typography>
             </div>
 
-            <Typography className="text-xs font-normal text-grey-600">
+            <Typography variant="caption" color="grey600">
               {translate('text_17283773071600j3nukyme6f', {
                 credits: intlFormatNumber(deserializeAmount(balance, wallet.currency), {
                   currencyDisplay: 'narrowSymbol',
@@ -163,13 +163,13 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
 
           <div className="mt-4 grid grid-cols-2 gap-8">
             <div className="flex flex-col gap-1">
-              <Typography className="text-sm font-normal leading-6 text-grey-600">
+              <Typography variant="body" color="grey600">
                 {translate('text_1728377307160dqj0b2q59f6')}
               </Typography>
 
               {wallet?.expirationAt ? (
                 <>
-                  <Typography className="text-base font-normal text-grey-700">
+                  <Typography variant="subhead2" color="grey700">
                     {
                       intlFormatDateTime(wallet?.expirationAt, {
                         timezone: customerTimezone,
@@ -180,7 +180,7 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
                 </>
               ) : (
                 <>
-                  <Typography className="text-base font-normal text-grey-700">
+                  <Typography variant="subhead2" color="grey700">
                     {translate('text_62da6ec24a8e24e44f81288c')}
                   </Typography>
                 </>
@@ -188,12 +188,12 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
             </div>
 
             <div className="flex flex-col gap-1">
-              <Typography className="text-sm font-normal leading-6 text-grey-600">
+              <Typography variant="body" color="grey600">
                 {translate('text_1728377307160sh06zbhqebt')}
               </Typography>
 
               <div className="flex items-center">
-                <Typography className="text-grey-700">
+                <Typography variant="body" color="grey700">
                   {wallet?.consumedCredits}&nbsp;
                   {translate(
                     'text_62da6ec24a8e24e44f812884',

@@ -73,7 +73,7 @@ export const InvoiceCreditNoteList = () => {
     <div>
       {(!loading || !!creditNotes?.length) && (
         <div className="flex h-18 items-center justify-between shadow-b">
-          <Typography variant="subhead">{translate('text_636bdef6565341dcb9cfb129')}</Typography>
+          <Typography variant="subhead1">{translate('text_636bdef6565341dcb9cfb129')}</Typography>
           {data?.invoice?.status !== InvoiceStatusTypeEnum.Draft && (
             <>
               {data?.invoice?.status !== InvoiceStatusTypeEnum.Voided && (

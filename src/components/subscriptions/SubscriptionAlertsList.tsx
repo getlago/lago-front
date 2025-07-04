@@ -85,7 +85,7 @@ export const SubscriptionAlertsList = ({
       <section className="flex flex-col gap-4 pt-8">
         <div className="flex items-center justify-between gap-2">
           <div className="flex flex-col gap-2">
-            <Typography variant="subhead" color="grey700">
+            <Typography variant="subhead1" color="grey700">
               {translate('text_17465238490269pahbvl3s2m')}
             </Typography>
             <Typography variant="caption" color="grey600">
