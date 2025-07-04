@@ -8,12 +8,12 @@ type FiltersItemCustomerAccountTypeProps = {
   setFilterValue: (value: string) => void
 }
 
-enum CustomerHasTaxId {
+export enum IsCustomerTinEmptyEnum {
   True = 'true',
   False = 'false',
 }
 
-export const FiltersItemCustomerHasTaxId = ({
+export const FiltersItemIsCustomerTinEmpty = ({
   value,
   setFilterValue,
 }: FiltersItemCustomerAccountTypeProps) => {
@@ -26,11 +26,11 @@ export const FiltersItemCustomerHasTaxId = ({
       sortValues={false}
       data={[
         {
-          value: CustomerHasTaxId.True,
+          value: IsCustomerTinEmptyEnum.True,
           label: translate('text_17440181167432q7jzt9znuh'),
         },
         {
-          value: CustomerHasTaxId.False,
+          value: IsCustomerTinEmptyEnum.False,
           label: translate('text_1744018116743ntlygtcnq95'),
         },
       ]}

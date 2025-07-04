@@ -51,12 +51,12 @@ gql`
   query getInvoiceCollectionsForAnalytics(
     $currency: CurrencyEnum!
     $billingEntityCode: String
-    $customerHasTaxId: Boolean
+    $isCustomerTinEmpty: Boolean
   ) {
     invoiceCollections(
       currency: $currency
       billingEntityCode: $billingEntityCode
-      customerHasTaxId: $customerHasTaxId
+      isCustomerTinEmpty: $isCustomerTinEmpty
     ) {
       collection {
         paymentStatus
@@ -73,14 +73,14 @@ gql`
     $externalCustomerId: String
     $months: Int!
     $billingEntityCode: String
-    $customerHasTaxId: Boolean
+    $isCustomerTinEmpty: Boolean
   ) {
     overdueBalances(
       currency: $currency
       externalCustomerId: $externalCustomerId
       months: $months
       billingEntityCode: $billingEntityCode
-      customerHasTaxId: $customerHasTaxId
+      isCustomerTinEmpty: $isCustomerTinEmpty
     ) {
       collection {
         amountCents
@@ -232,9 +232,9 @@ const Invoices = () => {
             billingEntityCode: filtersForAnalyticsInvoicesQuery?.billingEntityCode as string,
           }
         : {}),
-      ...(filtersForAnalyticsInvoicesQuery?.customerHasTaxId
+      ...(filtersForAnalyticsInvoicesQuery?.isCustomerTinEmpty
         ? {
-            customerHasTaxId: filtersForAnalyticsInvoicesQuery?.customerHasTaxId,
+            isCustomerTinEmpty: filtersForAnalyticsInvoicesQuery?.isCustomerTinEmpty as boolean,
           }
         : {}),
     },

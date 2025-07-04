@@ -35,7 +35,7 @@ gql`
     $timeGranularity: TimeGranularityEnum
     $toDate: ISO8601Date
     $billingEntityCode: String
-    $customerHasTaxId: Boolean
+    $isCustomerTinEmpty: Boolean
   ) {
     dataApiPrepaidCredits(
       currency: $currency
@@ -48,7 +48,7 @@ gql`
       timeGranularity: $timeGranularity
       toDate: $toDate
       billingEntityCode: $billingEntityCode
-      customerHasTaxId: $customerHasTaxId
+      isCustomerTinEmpty: $isCustomerTinEmpty
     ) {
       collection {
         ...PrepaidCreditsDataForOverviewSection
