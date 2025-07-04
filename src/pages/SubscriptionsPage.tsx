@@ -1,11 +1,18 @@
 import { gql } from '@apollo/client'
 import { Icon, tw, Typography } from 'lago-design-system'
-import { generatePath } from 'react-router-dom'
+import { useMemo } from 'react'
+import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { InfiniteScroll, Status, StatusType } from '~/components/designSystem'
+import {
+  Filters,
+  formatFiltersForSubscriptionQuery,
+  SubscriptionAvailableFilters,
+} from '~/components/designSystem/Filters'
 import { SearchInput } from '~/components/SearchInput'
 import { SubscriptionsList } from '~/components/subscriptions/SubscriptionsList'
 import { TimezoneDate } from '~/components/TimezoneDate'
+import { SUBSCRIPTION_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
@@ -35,9 +42,7 @@ gql`
     }
     plan {
       id
-      parent {
-        id
-      }
+      isOverridden
       amountCurrency
       name
       interval
@@ -61,8 +66,19 @@ gql`
     $page: Int
     $searchTerm: String
     $status: [StatusTypeEnum!]
+    $externalCustomerId: String
+    $overriden: Boolean
+    $planCode: String
   ) {
-    subscriptions(limit: $limit, page: $page, status: $status, searchTerm: $searchTerm) {
+    subscriptions(
+      limit: $limit
+      page: $page
+      status: $status
+      searchTerm: $searchTerm
+      externalCustomerId: $externalCustomerId
+      overriden: $overriden
+      planCode: $planCode
+    ) {
       collection {
         ...SubscriptionForSubscriptionsList
       }
@@ -77,13 +93,19 @@ gql`
 
 const SubscriptionsPage = () => {
   const { translate } = useInternationalization()
+  const [searchParams] = useSearchParams()
 
-  const [getSubscriptions, { data, error, loading, fetchMore }] = useGetSubscriptionsListLazyQuery({
-    variables: {
-      limit: 20,
-      status: [...Object.values(StatusTypeEnum)],
-    },
-  })
+  const filtersForSubscriptionQuery = useMemo(() => {
+    return formatFiltersForSubscriptionQuery(searchParams)
+  }, [searchParams])
+
+  const [getSubscriptions, { data, error, loading, variables, fetchMore }] =
+    useGetSubscriptionsListLazyQuery({
+      variables: {
+        limit: 20,
+        ...filtersForSubscriptionQuery,
+      },
+    })
 
   const { debouncedSearch, isLoading } = useDebouncedSearch(getSubscriptions, loading)
 
@@ -103,6 +125,15 @@ const SubscriptionsPage = () => {
           />
         </PageHeader.Group>
       </PageHeader.Wrapper>
+
+      <div className="box-border flex w-full flex-col gap-3 p-4 shadow-b md:px-12 md:py-3">
+        <Filters.Provider
+          filtersNamePrefix={SUBSCRIPTION_LIST_FILTER_PREFIX}
+          availableFilters={SubscriptionAvailableFilters}
+        >
+          <Filters.Component />
+        </Filters.Provider>
+      </div>
 
       <div className="overflow-y-auto">
         <InfiniteScroll
@@ -129,7 +160,7 @@ const SubscriptionsPage = () => {
               {
                 key: 'name',
                 maxSpace: true,
-                title: translate('Name'),
+                title: translate('text_6419c64eace749372fc72b0f'),
                 content: ({ name, isDowngrade, isScheduled }) => (
                   <>
                     <div
@@ -222,6 +253,29 @@ const SubscriptionsPage = () => {
                 tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
               })
             }
+            placeholder={{
+              errorState: variables?.searchTerm
+                ? {
+                    title: translate('text_623b53fea66c76017eaebb6e'),
+                    subtitle: translate('text_63bab307a61c62af497e0599'),
+                  }
+                : {
+                    title: translate('text_63ac86d797f728a87b2f9fea'),
+                    subtitle: translate('text_63ac86d797f728a87b2f9ff2'),
+                    buttonTitle: translate('text_63ac86d797f728a87b2f9ffa'),
+                    buttonAction: () => location.reload(),
+                    buttonVariant: 'primary',
+                  },
+              emptyState: variables?.searchTerm
+                ? {
+                    title: translate('text_1751969008731sd4e2mssx90'),
+                    subtitle: translate('text_66ab48ea4ed9cd01084c60b8'),
+                  }
+                : {
+                    title: translate('text_1751969008731m6hlinilrky'),
+                    subtitle: translate('text_1751969070668mwxq0nou1x9'),
+                  },
+            }}
           />
         </InfiniteScroll>
       </div>

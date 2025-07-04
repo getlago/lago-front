@@ -22,6 +22,7 @@ import {
   REVENUE_STREAMS_BREAKDOWN_CUSTOMER_FILTER_PREFIX,
   REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX,
   REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX,
+  SUBSCRIPTION_LIST_FILTER_PREFIX,
   WEBHOOK_LOGS_FILTER_PREFIX,
 } from '~/core/constants/filters'
 import { INVOICES_ROUTE } from '~/core/router'
@@ -50,6 +51,7 @@ import {
   RevenueStreamsAvailablePopperFilters,
   RevenueStreamsCustomersAvailableFilters,
   RevenueStreamsPlansAvailableFilters,
+  SubscriptionAvailableFilters,
   UsageBillableMetricAvailableFilters,
   UsageBreakdownAvailableFilters,
   UsageBreakdownMeteredAvailableFilters,
@@ -134,6 +136,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
       toDate: (value as string).split(',')[1],
     }
   },
+  [AvailableFiltersEnum.overriden]: (value: string) => value === 'true',
   [AvailableFiltersEnum.partiallyPaid]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentDisputeLost]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentOverdue]: (value: string) => value === 'true',
@@ -146,6 +149,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.status]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.subscriptionExternalId]: (value: string) =>
     (value as string).split(filterDataInlineSeparator)[0],
+  [AvailableFiltersEnum.subscriptionStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.timeGranularity]: (value: string) => value,
   [AvailableFiltersEnum.period]: (value: string) => value,
   [AvailableFiltersEnum.userEmails]: (value: string) => value.split(',').map((v) => v.trim()),
@@ -232,6 +236,20 @@ export const formatFiltersForCustomerQuery = (searchParams: URLSearchParams) => 
     searchParams,
     availableFilters: CustomerAvailableFilters,
     filtersNamePrefix: CUSTOMER_LIST_FILTER_PREFIX,
+  })
+}
+
+export const formatFiltersForSubscriptionQuery = (searchParams: URLSearchParams) => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
+    [AvailableFiltersEnum.subscriptionStatus]: 'status',
+    [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
+  }
+
+  return formatFiltersForQuery({
+    keyMap,
+    searchParams,
+    availableFilters: SubscriptionAvailableFilters,
+    filtersNamePrefix: SUBSCRIPTION_LIST_FILTER_PREFIX,
   })
 }
 

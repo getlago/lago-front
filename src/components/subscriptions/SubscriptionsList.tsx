@@ -95,7 +95,7 @@ const annotateSubscriptions = (
         applicableTimezone: customerTimezone || customer?.applicableTimezone,
       },
       isScheduled: status === StatusTypeEnum.Pending,
-      isOverriden: !!plan.parent,
+      isOverriden: !!plan.isOverridden,
     }
 
     const _subDowngrade = isDowngrading &&

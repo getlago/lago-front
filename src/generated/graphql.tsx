@@ -5380,6 +5380,7 @@ export type Plan = {
   id: Scalars['ID']['output'];
   interval: PlanInterval;
   invoiceDisplayName?: Maybe<Scalars['String']['output']>;
+  isOverridden: Scalars['Boolean']['output'];
   minimumCommitment?: Maybe<Commitment>;
   name: Scalars['String']['output'];
   organization?: Maybe<Organization>;
@@ -6360,7 +6361,9 @@ export type QuerySubscriptionArgs = {
 
 
 export type QuerySubscriptionsArgs = {
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
+  overriden?: InputMaybe<Scalars['Boolean']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   planCode?: InputMaybe<Scalars['String']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
@@ -11166,17 +11169,20 @@ export type GetSubscriptionForDetailsQueryVariables = Exact<{
 
 export type GetSubscriptionForDetailsQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, externalId: string, plan: { __typename?: 'Plan', id: string, name: string, code: string, parent?: { __typename?: 'Plan', id: string, name: string, code: string } | null }, customer: { __typename?: 'Customer', id: string } } | null };
 
-export type SubscriptionForSubscriptionsListFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval, parent?: { __typename?: 'Plan', id: string } | null }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null };
+export type SubscriptionForSubscriptionsListFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null };
 
 export type GetSubscriptionsListQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Array<StatusTypeEnum> | StatusTypeEnum>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  overriden?: InputMaybe<Scalars['Boolean']['input']>;
+  planCode?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type GetSubscriptionsListQuery = { __typename?: 'Query', subscriptions: { __typename?: 'SubscriptionCollection', collection: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval, parent?: { __typename?: 'Plan', id: string } | null }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+export type GetSubscriptionsListQuery = { __typename?: 'Query', subscriptions: { __typename?: 'SubscriptionCollection', collection: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type GetInvoiceCollectionsForAnalyticsQueryVariables = Exact<{
   currency: CurrencyEnum;
@@ -15115,9 +15121,7 @@ export const SubscriptionForSubscriptionsListFragmentDoc = gql`
   }
   plan {
     id
-    parent {
-      id
-    }
+    isOverridden
     amountCurrency
     name
     interval
@@ -30469,12 +30473,15 @@ export type GetSubscriptionForDetailsLazyQueryHookResult = ReturnType<typeof use
 export type GetSubscriptionForDetailsSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsSuspenseQuery>;
 export type GetSubscriptionForDetailsQueryResult = Apollo.QueryResult<GetSubscriptionForDetailsQuery, GetSubscriptionForDetailsQueryVariables>;
 export const GetSubscriptionsListDocument = gql`
-    query getSubscriptionsList($limit: Int, $page: Int, $searchTerm: String, $status: [StatusTypeEnum!]) {
+    query getSubscriptionsList($limit: Int, $page: Int, $searchTerm: String, $status: [StatusTypeEnum!], $externalCustomerId: String, $overriden: Boolean, $planCode: String) {
   subscriptions(
     limit: $limit
     page: $page
     status: $status
     searchTerm: $searchTerm
+    externalCustomerId: $externalCustomerId
+    overriden: $overriden
+    planCode: $planCode
   ) {
     collection {
       ...SubscriptionForSubscriptionsList
@@ -30504,6 +30511,9 @@ export const GetSubscriptionsListDocument = gql`
  *      page: // value for 'page'
  *      searchTerm: // value for 'searchTerm'
  *      status: // value for 'status'
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *      overriden: // value for 'overriden'
+ *      planCode: // value for 'planCode'
  *   },
  * });
  */
