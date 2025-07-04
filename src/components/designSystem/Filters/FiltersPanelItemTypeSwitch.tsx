@@ -22,6 +22,7 @@ import { FiltersItemInvoiceType } from '~/components/designSystem/Filters/filter
 import { FiltersItemIsCustomerTinEmpty } from '~/components/designSystem/Filters/filtersElements/FiltersItemIsCustomerTinEmpty'
 import { FiltersItemIssuingDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemIssuingDate'
 import { FiltersItemLoggedDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemLoggedDate'
+import { FiltersItemOverridden } from '~/components/designSystem/Filters/filtersElements/FiltersItemOverridden'
 import { FiltersItemPartiallyPaid } from '~/components/designSystem/Filters/filtersElements/FiltersItemPartiallyPaid'
 import { FiltersItemPaymentDisputeLost } from '~/components/designSystem/Filters/filtersElements/FiltersItemPaymentDisputeLost'
 import { FiltersItemPaymentOverdue } from '~/components/designSystem/Filters/filtersElements/FiltersItemPaymentOverdue'
@@ -34,6 +35,7 @@ import { FiltersItemResourceTypes } from '~/components/designSystem/Filters/filt
 import { FiltersItemSelfBilled } from '~/components/designSystem/Filters/filtersElements/FiltersItemSelfBilled'
 import { FiltersItemStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemStatus'
 import { FiltersItemSubscription } from '~/components/designSystem/Filters/filtersElements/FiltersItemSubscription'
+import { FiltersItemSubscriptionStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemSubscriptionStatus'
 import { FiltersItemUserEmails } from '~/components/designSystem/Filters/filtersElements/FiltersItemUserEmails'
 import { FiltersItemWebhookStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemWebhookStatus'
 import { FiltersItemDates } from '~/components/designSystem/Filters/utils'
@@ -81,6 +83,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.invoiceType]: <FiltersItemInvoiceType {...props} />,
     [AvailableFiltersEnum.issuingDate]: <FiltersItemIssuingDate {...props} />,
     [AvailableFiltersEnum.loggedDate]: <FiltersItemLoggedDate {...props} />,
+    [AvailableFiltersEnum.overriden]: <FiltersItemOverridden {...props} />,
     [AvailableFiltersEnum.partiallyPaid]: <FiltersItemPartiallyPaid {...props} />,
     [AvailableFiltersEnum.paymentDisputeLost]: <FiltersItemPaymentDisputeLost {...props} />,
     [AvailableFiltersEnum.paymentOverdue]: <FiltersItemPaymentOverdue {...props} />,
@@ -92,6 +95,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.resourceTypes]: <FiltersItemResourceTypes {...props} />,
     [AvailableFiltersEnum.selfBilled]: <FiltersItemSelfBilled {...props} />,
     [AvailableFiltersEnum.status]: <FiltersItemStatus {...props} />,
+    [AvailableFiltersEnum.subscriptionStatus]: <FiltersItemSubscriptionStatus {...props} />,
     [AvailableFiltersEnum.subscriptionExternalId]: <FiltersItemSubscription {...props} />,
     [AvailableFiltersEnum.userEmails]: <FiltersItemUserEmails {...props} />,
     [AvailableFiltersEnum.webhookStatus]: <FiltersItemWebhookStatus {...props} />,
