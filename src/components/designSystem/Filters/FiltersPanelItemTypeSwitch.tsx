@@ -13,6 +13,7 @@ import { FiltersItemCreditNoteRefundStatus } from '~/components/designSystem/Fil
 import { FiltersItemCurrency } from '~/components/designSystem/Filters/filtersElements/FiltersItemCurrency'
 import { FiltersItemCustomer } from '~/components/designSystem/Filters/filtersElements/FiltersItemCustomer'
 import { FiltersItemCustomerAccountType } from '~/components/designSystem/Filters/filtersElements/FiltersItemCustomerAccountType'
+import { FiltersItemCustomerHasTaxId } from '~/components/designSystem/Filters/filtersElements/FiltersItemCustomerHasTaxId'
 import { FiltersItemCustomerType } from '~/components/designSystem/Filters/filtersElements/FiltersItemCustomerType'
 import { FiltersItemDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemDate'
 import { FiltersItemHttpMethods } from '~/components/designSystem/Filters/filtersElements/FiltersItemHttpMethods'
@@ -94,6 +95,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.subscriptionExternalId]: <FiltersItemSubscription {...props} />,
     [AvailableFiltersEnum.userEmails]: <FiltersItemUserEmails {...props} />,
     [AvailableFiltersEnum.webhookStatus]: <FiltersItemWebhookStatus {...props} />,
+    [AvailableFiltersEnum.customerHasTaxId]: <FiltersItemCustomerHasTaxId {...props} />,
   }
 
   return (

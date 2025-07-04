@@ -31,6 +31,7 @@ gql`
     $fromDate: ISO8601Date
     $toDate: ISO8601Date
     $billingEntityCode: String
+    $customerHasTaxId: Boolean
   ) {
     dataApiUsagesAggregatedAmounts(
       currency: $currency
@@ -38,6 +39,7 @@ gql`
       fromDate: $fromDate
       toDate: $toDate
       billingEntityCode: $billingEntityCode
+      customerHasTaxId: $customerHasTaxId
     ) {
       collection {
         amountCents

@@ -112,6 +112,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.customerAccountType]: (value: string) => value,
   [AvailableFiltersEnum.customerExternalId]: (value: string) =>
     (value as string).split(filterDataInlineSeparator)[0],
+  [AvailableFiltersEnum.customerHasTaxId]: (value: string) => value,
   [AvailableFiltersEnum.date]: (value: string) => {
     return { fromDate: (value as string).split(',')[0], toDate: (value as string).split(',')[1] }
   },
