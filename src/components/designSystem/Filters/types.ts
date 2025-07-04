@@ -38,6 +38,7 @@ export enum AvailableFiltersEnum {
   customerType = 'customerType',
   customerAccountType = 'accountType',
   customerExternalId = 'customerExternalId',
+  isCustomerTinEmpty = 'isCustomerTinEmpty',
   date = 'date',
   httpMethods = 'httpMethods',
   httpStatuses = 'httpStatuses',
@@ -99,6 +100,7 @@ export const RevenueStreamsAvailablePopperFilters = [
   AvailableFiltersEnum.planCode,
   AvailableFiltersEnum.subscriptionExternalId,
   AvailableFiltersEnum.billingEntityCode,
+  AvailableFiltersEnum.isCustomerTinEmpty,
 ]
 
 export const CustomerAvailableFilters = [
@@ -115,6 +117,7 @@ export const MrrOverviewAvailableFilters = [
   AvailableFiltersEnum.customerType,
   AvailableFiltersEnum.customerExternalId,
   AvailableFiltersEnum.billingEntityCode,
+  AvailableFiltersEnum.isCustomerTinEmpty,
 ]
 export const MrrBreakdownPlansAvailableFilters = [AvailableFiltersEnum.currency]
 export const PrepaidCreditsOverviewAvailableFilters = [
@@ -124,12 +127,14 @@ export const PrepaidCreditsOverviewAvailableFilters = [
   AvailableFiltersEnum.customerAccountType,
   AvailableFiltersEnum.customerExternalId,
   AvailableFiltersEnum.billingEntityCode,
+  AvailableFiltersEnum.isCustomerTinEmpty,
 ]
 
 export const AnalyticsInvoicesAvailableFilters = [
   AvailableFiltersEnum.currency,
   AvailableFiltersEnum.period,
   AvailableFiltersEnum.billingEntityCode,
+  AvailableFiltersEnum.isCustomerTinEmpty,
 ]
 
 export const UsageOverviewAvailableFilters = [
@@ -141,6 +146,7 @@ export const UsageOverviewAvailableFilters = [
   AvailableFiltersEnum.planCode,
   AvailableFiltersEnum.subscriptionExternalId,
   AvailableFiltersEnum.billingEntityCode,
+  AvailableFiltersEnum.isCustomerTinEmpty,
 ]
 
 export const UsageBreakdownAvailableFilters = [
@@ -220,6 +226,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.customerType]: 'text_1726128938631ioz4orixel3',
   [AvailableFiltersEnum.customerAccountType]: 'text_1744108096469xz5cnvtoixf',
   [AvailableFiltersEnum.customerExternalId]: 'text_65201c5a175a4b0238abf29a',
+  [AvailableFiltersEnum.isCustomerTinEmpty]: 'text_1751629285990kftdtjbv2dc',
   [AvailableFiltersEnum.date]: 'text_664cb90097bfa800e6efa3f5',
   [AvailableFiltersEnum.httpMethods]: 'text_1749819999031vobdu7h2c7c',
   [AvailableFiltersEnum.httpStatuses]: 'text_63ac86d797f728a87b2f9fa7',

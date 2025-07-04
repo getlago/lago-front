@@ -48,8 +48,16 @@ gql`
     }
   }
 
-  query getInvoiceCollectionsForAnalytics($currency: CurrencyEnum!, $billingEntityCode: String) {
-    invoiceCollections(currency: $currency, billingEntityCode: $billingEntityCode) {
+  query getInvoiceCollectionsForAnalytics(
+    $currency: CurrencyEnum!
+    $billingEntityCode: String
+    $isCustomerTinEmpty: Boolean
+  ) {
+    invoiceCollections(
+      currency: $currency
+      billingEntityCode: $billingEntityCode
+      isCustomerTinEmpty: $isCustomerTinEmpty
+    ) {
       collection {
         paymentStatus
         invoicesCount
@@ -65,12 +73,14 @@ gql`
     $externalCustomerId: String
     $months: Int!
     $billingEntityCode: String
+    $isCustomerTinEmpty: Boolean
   ) {
     overdueBalances(
       currency: $currency
       externalCustomerId: $externalCustomerId
       months: $months
       billingEntityCode: $billingEntityCode
+      isCustomerTinEmpty: $isCustomerTinEmpty
     ) {
       collection {
         amountCents
@@ -220,6 +230,11 @@ const Invoices = () => {
       ...(filtersForAnalyticsInvoicesQuery?.billingEntityCode
         ? {
             billingEntityCode: filtersForAnalyticsInvoicesQuery?.billingEntityCode as string,
+          }
+        : {}),
+      ...(filtersForAnalyticsInvoicesQuery?.isCustomerTinEmpty
+        ? {
+            isCustomerTinEmpty: filtersForAnalyticsInvoicesQuery?.isCustomerTinEmpty as boolean,
           }
         : {}),
     },
