@@ -45,8 +45,8 @@ gql`
     }
   }
 
-  query getTaxesForPlan($limit: Int, $page: Int) {
-    taxes(limit: $limit, page: $page) {
+  query getTaxesForPlan($limit: Int, $page: Int, $searchTerm: String) {
+    taxes(limit: $limit, page: $page, searchTerm: $searchTerm) {
       metadata {
         currentPage
         totalPages
