@@ -9111,6 +9111,7 @@ export type PlanForSettingsSectionFragment = { __typename?: 'Plan', id: string, 
 export type GetTaxesForPlanQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -21252,8 +21253,8 @@ export type DeletePlanMutationHookResult = ReturnType<typeof useDeletePlanMutati
 export type DeletePlanMutationResult = Apollo.MutationResult<DeletePlanMutation>;
 export type DeletePlanMutationOptions = Apollo.BaseMutationOptions<DeletePlanMutation, DeletePlanMutationVariables>;
 export const GetTaxesForPlanDocument = gql`
-    query getTaxesForPlan($limit: Int, $page: Int) {
-  taxes(limit: $limit, page: $page) {
+    query getTaxesForPlan($limit: Int, $page: Int, $searchTerm: String) {
+  taxes(limit: $limit, page: $page, searchTerm: $searchTerm) {
     metadata {
       currentPage
       totalPages
@@ -21280,6 +21281,7 @@ export const GetTaxesForPlanDocument = gql`
  *   variables: {
  *      limit: // value for 'limit'
  *      page: // value for 'page'
+ *      searchTerm: // value for 'searchTerm'
  *   },
  * });
  */
