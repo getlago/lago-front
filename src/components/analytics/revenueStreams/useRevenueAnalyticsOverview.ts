@@ -28,6 +28,7 @@ gql`
     $currency: CurrencyEnum
     $customerCountry: CountryCode
     $customerType: CustomerTypeEnum
+    $isCustomerTinEmpty: Boolean
     $externalCustomerId: String
     $externalSubscriptionId: String
     $fromDate: ISO8601Date
@@ -47,6 +48,7 @@ gql`
       timeGranularity: $timeGranularity
       toDate: $toDate
       billingEntityCode: $billingEntityCode
+      isCustomerTinEmpty: $isCustomerTinEmpty
     ) {
       collection {
         ...RevenueStreamDataForOverviewSection

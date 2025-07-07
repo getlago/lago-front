@@ -1,4 +1,5 @@
 import { formatActivityType } from '~/components/activityLogs/utils'
+import { IsCustomerTinEmptyEnum } from '~/components/designSystem/Filters/filtersElements/FiltersItemIsCustomerTinEmpty'
 import {
   PeriodScopeTranslationLookup,
   TPeriodScopeTranslationLookupValue,
@@ -112,6 +113,8 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.customerAccountType]: (value: string) => value,
   [AvailableFiltersEnum.customerExternalId]: (value: string) =>
     (value as string).split(filterDataInlineSeparator)[0],
+  [AvailableFiltersEnum.isCustomerTinEmpty]: (value: string) =>
+    value !== IsCustomerTinEmptyEnum.True,
   [AvailableFiltersEnum.date]: (value: string) => {
     return { fromDate: (value as string).split(',')[0], toDate: (value as string).split(',')[1] }
   },
@@ -436,6 +439,14 @@ export const formatActiveFilterValueDisplay = (
         .join(', ')
     case AvailableFiltersEnum.customerExternalId:
       return value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0]
+    case AvailableFiltersEnum.isCustomerTinEmpty:
+      return (
+        translate?.(
+          value === IsCustomerTinEmptyEnum.True
+            ? 'text_17440181167432q7jzt9znuh'
+            : 'text_1744018116743ntlygtcnq95',
+        ) || ''
+      )
     case AvailableFiltersEnum.date:
     case AvailableFiltersEnum.issuingDate:
     case AvailableFiltersEnum.loggedDate:

@@ -19,6 +19,7 @@ import { FiltersItemHttpMethods } from '~/components/designSystem/Filters/filter
 import { FiltersItemHttpStatuses } from '~/components/designSystem/Filters/filtersElements/FiltersItemHttpStatuses'
 import { FiltersItemInvoiceNumber } from '~/components/designSystem/Filters/filtersElements/FiltersItemInvoiceNumber'
 import { FiltersItemInvoiceType } from '~/components/designSystem/Filters/filtersElements/FiltersItemInvoiceType'
+import { FiltersItemIsCustomerTinEmpty } from '~/components/designSystem/Filters/filtersElements/FiltersItemIsCustomerTinEmpty'
 import { FiltersItemIssuingDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemIssuingDate'
 import { FiltersItemLoggedDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemLoggedDate'
 import { FiltersItemPartiallyPaid } from '~/components/designSystem/Filters/filtersElements/FiltersItemPartiallyPaid'
@@ -94,6 +95,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.subscriptionExternalId]: <FiltersItemSubscription {...props} />,
     [AvailableFiltersEnum.userEmails]: <FiltersItemUserEmails {...props} />,
     [AvailableFiltersEnum.webhookStatus]: <FiltersItemWebhookStatus {...props} />,
+    [AvailableFiltersEnum.isCustomerTinEmpty]: <FiltersItemIsCustomerTinEmpty {...props} />,
   }
 
   return (
