@@ -42,6 +42,8 @@ const Login = () => {
   useEffect(() => {
     // In case the devtools are open, close it
     closeDevTool()
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const [loginUser, { error: loginError }] = useLoginUserMutation({
