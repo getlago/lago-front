@@ -49,7 +49,6 @@ import {
   CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
   CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
-  CUSTOMER_INVOICE_REGENERATE_ROUTE,
   CUSTOMER_INVOICE_VOID_ROUTE,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -124,6 +123,7 @@ gql`
     taxProviderVoidable
     integrationHubspotSyncable
     associatedActiveWalletPresent
+    voidedAt
     errorDetails {
       errorCode
       errorDetails

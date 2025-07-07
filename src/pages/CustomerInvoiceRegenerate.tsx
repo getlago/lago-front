@@ -21,6 +21,8 @@ import {
   Invoice,
   useGetInvoiceDetailsQuery,
   useRegenerateInvoiceMutation,
+  useVoidInvoiceMutation,
+  VoidedInvoiceFeeInput,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
@@ -75,6 +77,8 @@ const CustomerInvoiceRegenerate = () => {
     },
   })
 
+  const [voidInvoice] = useVoidInvoiceMutation()
+
   const onAdd = (input: CreateAdjustedFeeInput) => {
     const existing = fees.find((f) => f.id === input.feeId)
 
@@ -114,16 +118,48 @@ const CustomerInvoiceRegenerate = () => {
   }
 
   const onSubmit = async () => {
-    if (invoiceId) {
-      await regenerateInvoice({
+    if (!invoiceId) {
+      return
+    }
+
+    if (!invoice?.voidedAt) {
+      await voidInvoice({
         variables: {
           input: {
-            voidedInvoiceId: invoiceId,
-            fees,
+            id: invoiceId,
+            generateCreditNote: false,
           },
         },
       })
     }
+
+    const feesInput = fees
+      .map((fee) => ({
+        id: fee.id || null,
+        addOnId: fee.addOn?.id,
+        chargeId: fee.charge?.id,
+        description: fee.description,
+        invoiceDisplayName: fee.invoiceDisplayName,
+        name: null, // ????
+        subscriptionId: fee.subscription?.id,
+        taxCodes: null, // ???,
+        unitAmountCents: null, // ???
+        units: fee.units,
+      }))
+      .map((fee) => {
+        const keys = Object.keys(fee).filter((key) => !!fee[key])
+
+        return Object.fromEntries(keys.map((key) => [key, fee[key]]))
+      })
+
+    await regenerateInvoice({
+      variables: {
+        input: {
+          voidedInvoiceId: invoiceId,
+          fees: feesInput,
+        },
+      },
+    })
   }
 
   const onClose = () => {
