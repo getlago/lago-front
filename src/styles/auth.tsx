@@ -6,7 +6,7 @@ import Logo from '~/public/images/logo/lago-logo.svg'
 import { tw } from './utils'
 
 export const Page: FC<PropsWithChildren> = ({ children }) => (
-  <div className="min-h-full bg-grey-100 px-4 py-20 md:p-20">{children}</div>
+  <div className="flex min-h-screen items-center justify-center bg-grey-100 p-4">{children}</div>
 )
 
 export const StyledLogo: FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -18,7 +18,7 @@ export const Card: FC<
     className?: string
   }
 > = ({ children, className, ...props }) => (
-  <div className={tw('mx-auto max-w-144 rounded-xl bg-white p-10 shadow-md', className)} {...props}>
+  <div className={tw('w-full max-w-144 rounded-xl bg-white p-10 shadow-md', className)} {...props}>
     {children}
   </div>
 )
