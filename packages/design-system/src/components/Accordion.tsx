@@ -68,15 +68,20 @@ export const Accordion = ({
         className,
       )}
       onChange={(_, expanded) => {
-        setIsOpen(expanded)
+        const selection = window.getSelection()
 
-        if (expanded && !!onOpen) onOpen()
+        if (selection?.type !== 'Range') {
+          setIsOpen(expanded)
+
+          if (expanded && !!onOpen) onOpen()
+        }
       }}
       TransitionProps={{ unmountOnExit: true, ...transitionProps }}
       {...props}
     >
       <AccordionSummary
         className={tw(
+          'select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100',
           {
             'h-23': size === AccordionSizeEnum.large,
             'h-18': size === AccordionSizeEnum.medium,
@@ -86,7 +91,6 @@ export const Accordion = ({
             'hover:bg-grey-100 active:bg-grey-200': variant === 'card',
             'h-auto focus:rounded-lg': variant === 'borderless',
           },
-          'focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100',
         )}
         sx={{
           '& .MuiAccordionSummary-content': {
