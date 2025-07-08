@@ -111,11 +111,10 @@ const SubscriptionsPage = () => {
 
   const subscriptions = data?.subscriptions.collection as Subscription[]
   const hasSearchParams =
-    !!variables?.searchTerm ||
-    !!variables?.status ||
-    !!variables?.externalCustomerId ||
-    !!variables?.overriden ||
-    !!variables?.planCode
+    !!variables &&
+    Object.keys(variables).some(
+      (key) => key !== 'page' && key !== 'limit' && !!variables[key as keyof typeof variables],
+    )
 
   return (
     <>
@@ -165,7 +164,6 @@ const SubscriptionsPage = () => {
             columns={[
               {
                 key: 'name',
-                maxSpace: true,
                 title: translate('text_6419c64eace749372fc72b0f'),
                 content: ({ name, isDowngrade, isScheduled }) => (
                   <>
@@ -175,7 +173,7 @@ const SubscriptionsPage = () => {
                       })}
                     >
                       {isDowngrade && <Icon name="arrow-indent" />}
-                      <Typography className="text-base font-medium text-grey-700">
+                      <Typography noWrap className="text-base font-medium text-grey-700">
                         {name}
                       </Typography>
                       {isDowngrade && <Status type={StatusType.default} label="downgrade" />}
