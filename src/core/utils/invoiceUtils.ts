@@ -19,7 +19,6 @@ export const invoiceFeesToFeeInput = (
   return invoice?.fees?.map((fee) => ({
     addOnId: fee?.addOn?.id as string,
     description: fee.description,
-    id: fee.id,
     invoiceDisplayName: fee.invoiceDisplayName,
     name: fee.itemName,
     unitAmountCents: fee.preciseUnitAmount,
