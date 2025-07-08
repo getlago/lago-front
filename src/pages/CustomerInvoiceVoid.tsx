@@ -19,6 +19,7 @@ import {
   serializeAmount,
 } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
+import { isPrepaidCredit } from '~/core/utils/invoiceUtils'
 import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   CurrencyEnum,
@@ -31,7 +32,9 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
@@ -59,6 +62,12 @@ const CustomerInvoiceVoid = () => {
     variables: { id: invoiceId as string },
     skip: !invoiceId,
   })
+
+  const hasActiveWallet = useCustomerHasActiveWallet({
+    customerId,
+  })
+
+  const actions = usePermissionsInvoiceActions()
 
   const [voidInvoice] = useVoidInvoiceMutation({
     onCompleted(voidedData) {
@@ -111,6 +120,9 @@ const CustomerInvoiceVoid = () => {
   const maxTotal = maxCreditable
 
   const canGenerateCreditNote = maxRefundable > 0 || maxCreditable > 0
+
+  const canRegenerate =
+    customerId && invoiceId && invoice && (isPrepaidCredit(invoice) ? hasActiveWallet : true)
 
   const onSubmit = async (values: CustomerInvoiceVoidForm) => {
     if (invoiceId) {
@@ -467,13 +479,13 @@ const CustomerInvoiceVoid = () => {
 
       <CenteredPage.StickyFooter>
         <div className="flex w-full items-center justify-between">
-          {customerId && invoiceId && invoice && (
-            <div>
+          <div>
+            {!!canRegenerate && (
               <Link to={regeneratePath(invoice as Invoice)}>
                 {translate('text_1750678506388eexnh1b36o4')}
               </Link>
-            </div>
-          )}
+            )}
+          </div>
 
           <div className="flex gap-3">
             <Button variant="quaternary" size="large" onClick={() => onClose()}>
