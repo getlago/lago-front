@@ -167,6 +167,7 @@ const CustomersList = () => {
                 key: 'displayName',
                 title: translate('text_624efab67eb2570101d117cc'),
                 minWidth: 200,
+                maxWidth: 600,
                 content: (customer) => {
                   const customerInitials = computeCustomerInitials(customer)
 
