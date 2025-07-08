@@ -45,6 +45,7 @@ export type TableColumn<T> = {
   content: (item: T) => ReactNode
   textAlign?: Align
   maxSpace?: boolean
+  maxWidth?: number
   minWidth?: number
   truncateOverflow?: boolean
   tdCellClassName?: string
@@ -213,12 +214,14 @@ const TableInnerCell = ({
   children,
   className,
   minWidth,
+  maxWidth,
   style,
   truncateOverflow,
 }: PropsWithChildren & {
   align?: Align
   className?: string
   minWidth?: number
+  maxWidth?: number
   style?: React.CSSProperties
   truncateOverflow?: boolean
 }) => {
@@ -237,6 +240,7 @@ const TableInnerCell = ({
       )}
       style={{
         minWidth: minWidth ? `${minWidth}px` : 'auto',
+        maxWidth: maxWidth ? `${maxWidth}px` : 'auto',
         ...style,
       }}
     >
@@ -264,7 +268,7 @@ const LoadingRows = <T,>({
           hasPlaceholderDisplayed={false}
           key={`${id}-loading-cell-${i}-${j}`}
         >
-          <TableInnerCell minWidth={col.minWidth} align={col.textAlign}>
+          <TableInnerCell minWidth={col.minWidth} maxWidth={col.maxWidth} align={col.textAlign}>
             <div
               style={{
                 width: !!col.minWidth ? `${col.minWidth - PADDING_SPACING_RIGHT_PX}px` : '100%',
@@ -561,8 +565,9 @@ export const Table = <T extends DataItem>({
                       tdCellClassName={column.tdCellClassName}
                     >
                       <TableInnerCell
-                        minWidth={column.minWidth}
                         align={column.textAlign}
+                        maxWidth={column.maxWidth}
+                        minWidth={column.minWidth}
                         truncateOverflow={column.truncateOverflow}
                       >
                         <Typography noWrap>{column.content(item)}</Typography>
