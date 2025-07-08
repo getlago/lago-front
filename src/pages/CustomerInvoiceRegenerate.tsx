@@ -22,7 +22,6 @@ import {
   useGetInvoiceDetailsQuery,
   useRegenerateInvoiceMutation,
   useVoidInvoiceMutation,
-  VoidedInvoiceFeeInput,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
