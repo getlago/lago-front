@@ -56,7 +56,7 @@ export const AddPlanToCouponDialog = forwardRef<DialogRef, AddPlanToCouponDialog
                 {name}
               </Typography>
               <Typography variant="caption" color="grey600" noWrap>
-                ({code})
+                {code}
               </Typography>
             </ComboboxItem>
           ),

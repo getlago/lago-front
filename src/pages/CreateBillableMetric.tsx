@@ -25,6 +25,7 @@ import {
   BasicMultipleComboBoxData,
   ButtonSelector,
   ComboBoxField,
+  ComboboxItem,
   JsonEditorField,
   MultipleComboBox,
   TextInput,
@@ -447,14 +448,14 @@ const CreateBillableMetric = () => {
                         },
                         {
                           labelNode: (
-                            <div className="flex items-center gap-2">
-                              <Typography variant="body" color="grey700">
+                            <ComboboxItem>
+                              <Typography variant="body" color="grey700" noWrap>
                                 {translate(
                                   formatAggregationType(AggregationTypeEnum.WeightedSumAgg)
                                     ?.label || '',
                                 )}
                               </Typography>
-                            </div>
+                            </ComboboxItem>
                           ),
                           label: translate(
                             formatAggregationType(AggregationTypeEnum.WeightedSumAgg)?.label || '',

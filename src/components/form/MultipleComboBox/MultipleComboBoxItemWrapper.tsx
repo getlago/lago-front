@@ -43,6 +43,7 @@ export const MultipleComboBoxItemWrapper = ({
           id={id}
           virtualized={virtualized}
           className={cx(
+            'items-start',
             {
               'cursor-auto': disabled,
             },
@@ -53,12 +54,12 @@ export const MultipleComboBoxItemWrapper = ({
           {...allProps}
         >
           {customValue ? (
-            <>
+            <ComboboxItem className="flex-row !items-center !justify-start">
               <Icon className="mr-4" color="dark" name="plus" />
               <Typography variant="body" noWrap>
                 {labelNode ?? label}
               </Typography>
-            </>
+            </ComboboxItem>
           ) : (
             <Checkbox
               disabled={disabled}
