@@ -10,9 +10,11 @@ import {
   CreateAdjustedFeeInput,
   CurrencyEnum,
   Customer,
+  Fee,
   FeeForDeleteAdjustmentFeeDialogFragmentDoc,
   FeeForEditfeeDrawerFragmentDoc,
   FeeForInvoiceDetailsTableBodyLineFragmentDoc,
+  Invoice,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -46,7 +48,7 @@ interface InvoiceFeeAdvanceDetailsTableProps {
   deleteAdjustedFeeDialogRef: RefObject<DeleteAdjustedFeeDialogRef>
   onAdd?: (input: CreateAdjustedFeeInput) => void
   onDelete?: (id: string) => void
-  fees?: any
+  fees?: Invoice['fees']
 }
 
 export const InvoiceFeeAdvanceDetailsTable = memo(
@@ -67,7 +69,7 @@ export const InvoiceFeeAdvanceDetailsTable = memo(
     const [areZeroFeesVisible, setAreZeroFeesVisible] = useState<boolean>(false)
 
     const feesInAdvance = subscription?.feesInAdvance?.filter((fee) => {
-      if (onAdd && fees?.find((f: any) => f.id === fee.id)?.adjustedFee) {
+      if (onAdd && fees?.find((f: Fee) => f.id === fee.id)?.adjustedFee) {
         return false
       }
 
@@ -75,7 +77,7 @@ export const InvoiceFeeAdvanceDetailsTable = memo(
     })
 
     const feesInAdvanceZero = subscription?.feesInAdvanceZero?.filter((fee) => {
-      if (onAdd && fees?.find((f: any) => f.id === fee.id)?.adjustedFee) {
+      if (onAdd && fees?.find((f: Fee) => f.id === fee.id)?.adjustedFee) {
         return false
       }
 

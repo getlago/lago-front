@@ -1,7 +1,7 @@
 /* eslint-disable tailwindcss/no-custom-classname */
 import { gql } from '@apollo/client'
 import { Collapse } from '@mui/material'
-import { memo, RefObject, useMemo, useState } from 'react'
+import { memo, RefObject, useState } from 'react'
 
 import { Button } from '~/components/designSystem'
 import {
@@ -13,9 +13,11 @@ import {
   CreateAdjustedFeeInput,
   CurrencyEnum,
   Customer,
+  Fee,
   FeeForDeleteAdjustmentFeeDialogFragmentDoc,
   FeeForEditfeeDrawerFragmentDoc,
   FeeForInvoiceDetailsTableBodyLineFragmentDoc,
+  Invoice,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -49,7 +51,7 @@ interface InvoiceFeeArrearsDetailsTableProps {
   deleteAdjustedFeeDialogRef: RefObject<DeleteAdjustedFeeDialogRef>
   onAdd?: (input: CreateAdjustedFeeInput) => void
   onDelete?: (id: string) => void
-  fees?: any
+  fees?: Invoice['fees']
 }
 
 export const InvoiceFeeArrearsDetailsTable = memo(
@@ -70,7 +72,7 @@ export const InvoiceFeeArrearsDetailsTable = memo(
     const [areZeroFeesVisible, setAreZeroFeesVisible] = useState<boolean>(false)
 
     const feesInArreras = subscription?.feesInArrears?.filter((fee) => {
-      if (onAdd && fees?.find((f: any) => f.id === fee.id)?.adjustedFee) {
+      if (onAdd && fees?.find((f: Fee) => f.id === fee.id)?.adjustedFee) {
         return false
       }
 
@@ -78,7 +80,7 @@ export const InvoiceFeeArrearsDetailsTable = memo(
     })
 
     const feesInArrerasZero = subscription?.feesInArrearsZero?.filter((fee) => {
-      if (onAdd && fees?.find((f: any) => f.id === fee.id)?.adjustedFee) {
+      if (onAdd && fees?.find((f: Fee) => f.id === fee.id)?.adjustedFee) {
         return false
       }
 
