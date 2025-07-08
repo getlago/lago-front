@@ -63,6 +63,7 @@ import {
   useVoidInvoiceMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
@@ -177,6 +178,7 @@ const CreateInvoice = () => {
   const { translate } = useInternationalization()
   const { customerId, voidedInvoiceId = '' } = useParams()
   const navigate = useNavigate()
+  const { goBack } = useLocationHistory()
   const { emitSalesForceEvent, isRunningInSalesForceIframe } = useSalesForceConfig()
 
   const [showAddItem, setShowAddItem] = useState(false)
@@ -191,8 +193,8 @@ const CreateInvoice = () => {
   const editInvoiceDisplayNameRef = useRef<EditInvoiceDisplayNameRef>(null)
 
   const handleClosePage = useCallback(() => {
-    navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId as string }))
-  }, [navigate, customerId])
+    goBack(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId as string }))
+  }, [goBack, customerId])
 
   const { data, loading, error } = useGetInfosForCreateInvoiceQuery({
     variables: { id: customerId as string },
