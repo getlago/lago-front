@@ -60,9 +60,7 @@ export const LogoPicker = ({ className, logoValue, onChange, logoUrl, name }: Lo
           {translate('text_62ab2d0396dd6b0361614d18')}
         </Button>
         <Typography variant="caption" color={logoUploadError ? 'danger600' : undefined}>
-          {logoUploadError
-            ? translate('text_62ab2d0396dd6b0361614d1e')
-            : translate('text_62ab2d0396dd6b0361614d20')}
+          {translate('text_62ab2d0396dd6b0361614d20')}
         </Typography>
       </div>
       <input
