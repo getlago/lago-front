@@ -19,7 +19,6 @@ import {
   CurrencyEnum,
   Customer,
   ErrorCodesEnum,
-  Fee,
   FeeForInvoiceDetailsTableBodyLineFragmentDoc,
   FeeForInvoiceFeeAdvanceDetailsTableFragmentDoc,
   FeeForInvoiceFeeArrearsDetailsTableFragmentDoc,
