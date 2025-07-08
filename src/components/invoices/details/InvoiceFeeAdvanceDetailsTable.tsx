@@ -46,6 +46,7 @@ interface InvoiceFeeAdvanceDetailsTableProps {
   deleteAdjustedFeeDialogRef: RefObject<DeleteAdjustedFeeDialogRef>
   onAdd?: (input: CreateAdjustedFeeInput) => void
   onDelete?: (id: string) => void
+  fees?: any
 }
 
 export const InvoiceFeeAdvanceDetailsTable = memo(
@@ -60,9 +61,26 @@ export const InvoiceFeeAdvanceDetailsTable = memo(
     deleteAdjustedFeeDialogRef,
     onAdd,
     onDelete,
+    fees,
   }: InvoiceFeeAdvanceDetailsTableProps) => {
     const { translate } = useInternationalization()
     const [areZeroFeesVisible, setAreZeroFeesVisible] = useState<boolean>(false)
+
+    const feesInAdvance = subscription?.feesInAdvance?.filter((fee) => {
+      if (onAdd && fees?.find((f: any) => f.id === fee.id)?.adjustedFee) {
+        return false
+      }
+
+      return true
+    })
+
+    const feesInAdvanceZero = subscription?.feesInAdvanceZero?.filter((fee) => {
+      if (onAdd && fees?.find((f: any) => f.id === fee.id)?.adjustedFee) {
+        return false
+      }
+
+      return true
+    })
 
     return (
       <>
@@ -90,7 +108,7 @@ export const InvoiceFeeAdvanceDetailsTable = memo(
                 ),
               })}
             />
-            {subscription.feesInAdvance.map((feeInAdvance) => {
+            {feesInAdvance.map((feeInAdvance) => {
               return (
                 <InvoiceDetailsTableBodyLine
                   key={`fee-in-advance-${feeInAdvance.id}`}
@@ -138,7 +156,7 @@ export const InvoiceFeeAdvanceDetailsTable = memo(
                         isDraftInvoice={isDraftInvoice}
                       />
                       <tbody>
-                        {subscription.feesInAdvanceZero.map((feeInAdvanceZero) => {
+                        {feesInAdvanceZero.map((feeInAdvanceZero) => {
                           return (
                             <InvoiceDetailsTableBodyLine
                               key={`fee-in-advance-zero-${feeInAdvanceZero.id}`}
