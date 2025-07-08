@@ -475,7 +475,7 @@ const CustomerInvoiceVoid = () => {
           disabled={
             formikProps.values.handle === HandleEnum.GenerateCreditNote && !formikProps.isValid
           }
-          onClick={() => formikProps.submitForm()}
+          onClick={formikProps.submitForm}
         >
           {translate('text_65269b43d4d2b15dd929a259')}
         </Button>

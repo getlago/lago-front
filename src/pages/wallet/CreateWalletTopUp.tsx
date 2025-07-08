@@ -424,7 +424,7 @@ const CreateWalletTopUp = () => {
             size="large"
             variant="primary"
             disabled={!formikProps.isValid || !formikProps.dirty}
-            onClick={() => formikProps.handleSubmit()}
+            onClick={formikProps.submitForm}
             data-test="submit-wallet"
           >
             {translate('text_1741103892833yi7redcuhoc')}

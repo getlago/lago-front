@@ -351,7 +351,7 @@ const CreateCustomer = () => {
           size="large"
           variant="primary"
           disabled={!formikProps.isValid || !formikProps.dirty}
-          onClick={() => formikProps.handleSubmit()}
+          onClick={formikProps.submitForm}
           data-test="submit-customer"
         >
           {isEdition
