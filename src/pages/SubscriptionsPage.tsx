@@ -110,6 +110,12 @@ const SubscriptionsPage = () => {
   const { debouncedSearch, isLoading } = useDebouncedSearch(getSubscriptions, loading)
 
   const subscriptions = data?.subscriptions.collection as Subscription[]
+  const hasSearchParams =
+    !!variables?.searchTerm ||
+    !!variables?.status ||
+    !!variables?.externalCustomerId ||
+    !!variables?.overriden ||
+    !!variables?.planCode
 
   return (
     <>
@@ -254,7 +260,7 @@ const SubscriptionsPage = () => {
               })
             }
             placeholder={{
-              errorState: variables?.searchTerm
+              errorState: hasSearchParams
                 ? {
                     title: translate('text_623b53fea66c76017eaebb6e'),
                     subtitle: translate('text_63bab307a61c62af497e0599'),
@@ -266,7 +272,7 @@ const SubscriptionsPage = () => {
                     buttonAction: () => location.reload(),
                     buttonVariant: 'primary',
                   },
-              emptyState: variables?.searchTerm
+              emptyState: hasSearchParams
                 ? {
                     title: translate('text_1751969008731sd4e2mssx90'),
                     subtitle: translate('text_66ab48ea4ed9cd01084c60b8'),
