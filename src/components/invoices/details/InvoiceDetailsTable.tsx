@@ -19,6 +19,7 @@ import {
   CurrencyEnum,
   Customer,
   ErrorCodesEnum,
+  Fee,
   FeeForInvoiceDetailsTableBodyLineFragmentDoc,
   FeeForInvoiceFeeAdvanceDetailsTableFragmentDoc,
   FeeForInvoiceFeeArrearsDetailsTableFragmentDoc,
@@ -435,6 +436,7 @@ export const InvoiceDetailsTable = memo(
                   subscription={subscription}
                   onAdd={onAdd}
                   onDelete={onDelete}
+                  fees={fees}
                 />,
                 <InvoiceFeeAdvanceDetailsTable
                   key={`sub-${subscriptionIndex}-invoice-fee-advance-details-table`}
@@ -468,11 +470,7 @@ export const InvoiceDetailsTable = memo(
                     })}
                     {onAdd &&
                       invoiceFees
-                        ?.filter(
-                          (f) =>
-                            (f as unknown as CreateAdjustedFeeInput).subscriptionId ===
-                            subscriptionId,
-                        )
+                        ?.filter((f) => !!f.adjustedFee)
                         .map((fee, i) => (
                           <InvoiceDetailsTableBodyLine
                             key={`local-added-fee-${i}`}

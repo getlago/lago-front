@@ -79,8 +79,12 @@ const CustomerInvoiceRegenerate = () => {
 
   const [voidInvoice] = useVoidInvoiceMutation()
 
+  const TEMPORARY_ID_PREFIX = 'temporary-id-fee-'
+
   const onAdd = (input: CreateAdjustedFeeInput) => {
-    const existing = fees.find((f) => f.id === input.feeId)
+    const feeId = input.feeId ? input.feeId : `${TEMPORARY_ID_PREFIX}${Math.random().toString()}`
+
+    const existing = fees.find((f) => f.id === feeId)
 
     if (existing) {
       const updated = {
@@ -93,7 +97,9 @@ const CustomerInvoiceRegenerate = () => {
         adjustedFee: true,
       }
 
-      return setFees((f) => f.map((fee) => (fee.id === input.feeId ? (updated as Fee) : fee)))
+      const newFees = fees.map((fee) => (fee.id === feeId ? (updated as Fee) : fee))
+
+      return setFees([...newFees])
     }
 
     const fee = {
@@ -135,7 +141,7 @@ const CustomerInvoiceRegenerate = () => {
 
     const feesInput = fees
       .map((fee) => ({
-        id: fee.id || null,
+        id: fee.id?.includes(TEMPORARY_ID_PREFIX) ? null : fee.id,
         addOnId: fee.addOn?.id,
         chargeId: fee.charge?.id,
         description: fee.description,
@@ -147,9 +153,9 @@ const CustomerInvoiceRegenerate = () => {
         units: fee.units,
       }))
       .map((fee) => {
-        const keys = Object.keys(fee).filter((key) => !!fee[key])
+        const keys = Object.keys(fee).filter((key) => !!fee[key as keyof typeof fee])
 
-        return Object.fromEntries(keys.map((key) => [key, fee[key]]))
+        return Object.fromEntries(keys.map((key) => [key, fee[key as keyof typeof fee]]))
       })
 
     await regenerateInvoice({
@@ -218,7 +224,7 @@ const CustomerInvoiceRegenerate = () => {
                       'LLL. dd, yyyy',
                     ),
                     voidDate: formatDateToTZ(
-                      invoice?.issuingDate,
+                      invoice?.voidedAt,
                       customer?.applicableTimezone,
                       'LLL. dd, yyyy',
                     ),
