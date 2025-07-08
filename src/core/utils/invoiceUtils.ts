@@ -17,12 +17,11 @@ export const invoiceFeesToFeeInput = (
   invoice: Pick<Invoice, 'fees'> | undefined,
 ): FeeInput[] | null | undefined => {
   return invoice?.fees?.map((fee) => ({
-    addOnId: null,
+    addOnId: fee?.addOn?.id as string,
     description: fee.description,
     id: fee.id,
     invoiceDisplayName: fee.invoiceDisplayName,
     name: fee.itemName,
-    taxCodes: fee.appliedTaxes,
     unitAmountCents: fee.preciseUnitAmount,
     units: fee.units,
   }))

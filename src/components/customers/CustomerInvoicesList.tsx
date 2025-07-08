@@ -72,6 +72,8 @@ gql`
     creditableAmountCents
     refundableAmountCents
     associatedActiveWalletPresent
+    voidedInvoiceId
+    regeneratedInvoiceId
     customer {
       id
       name
