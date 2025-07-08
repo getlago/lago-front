@@ -144,12 +144,11 @@ export const ChargesSection = memo(
           label: `${name} (${code})`,
           labelNode: (
             <ComboboxItem>
-              <Typography color="grey700" noWrap>
+              <Typography variant="body" color="grey700" noWrap>
                 {name}
               </Typography>
-              &nbsp;
-              <Typography color="textPrimary" noWrap>
-                ({code})
+              <Typography variant="caption" color="grey600" noWrap>
+                {code}
               </Typography>
             </ComboboxItem>
           ),
@@ -171,11 +170,12 @@ export const ChargesSection = memo(
           label: `${name} (${code})`,
           labelNode: (
             <ComboboxItem>
-              <Typography color="grey700" noWrap>
+              <Typography variant="body" color="grey700" noWrap>
                 {name}
               </Typography>
-              &nbsp;
-              <Typography color="textPrimary">({code})</Typography>
+              <Typography variant="caption" color="grey600" noWrap>
+                {code}
+              </Typography>
             </ComboboxItem>
           ),
           value: id,

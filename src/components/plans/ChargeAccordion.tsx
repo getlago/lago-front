@@ -319,19 +319,19 @@ export const ChargeAccordion = memo(
       const chargeTaxesIds = localCharge.taxes?.map((tax) => tax.id) || []
 
       return taxesCollection.map(({ id: taxId, name, rate }) => {
+        const formatedRate = intlFormatNumber(Number(rate) / 100 || 0, {
+          style: 'percent',
+        })
+
         return {
-          label: `${name} (${intlFormatNumber(Number(rate) / 100 || 0, {
-            style: 'percent',
-          })})`,
+          label: `${name} (${formatedRate})`,
           labelNode: (
             <ComboboxItem>
-              {name}&nbsp;
-              <Typography color="textPrimary">
-                (
-                {intlFormatNumber(Number(rate) / 100 || 0, {
-                  style: 'percent',
-                })}
-                )
+              <Typography variant="body" color="grey700" noWrap>
+                {name}
+              </Typography>
+              <Typography variant="caption" color="grey600" noWrap>
+                {formatedRate}
               </Typography>
             </ComboboxItem>
           ),
@@ -358,7 +358,7 @@ export const ChargeAccordion = memo(
         label: pricingUnit.name,
         value: `${pricingUnit.code}${CUSTOM_PRICING_UNIT_SEPARATOR}${pricingUnit.shortName}${CUSTOM_PRICING_UNIT_SEPARATOR}${LocalPricingUnitType.Custom}`,
         labelNode: (
-          <ComboboxItem className="flex flex-col items-start">
+          <ComboboxItem>
             <Typography variant="body" color="grey700" noWrap>
               {pricingUnit.name}
             </Typography>
@@ -374,7 +374,7 @@ export const ChargeAccordion = memo(
           label: currency,
           value: `${currency}${CUSTOM_PRICING_UNIT_SEPARATOR}${currency}${CUSTOM_PRICING_UNIT_SEPARATOR}${LocalPricingUnitType.Fiat}`,
           labelNode: (
-            <ComboboxItem className="flex flex-col items-start">
+            <ComboboxItem>
               <Typography variant="body" color="grey700" noWrap>
                 {currency}
               </Typography>

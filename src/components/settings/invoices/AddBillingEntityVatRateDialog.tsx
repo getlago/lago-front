@@ -70,19 +70,19 @@ export const AddBillingEntityVatRateDialog = forwardRef<
     return data?.taxes?.collection.map((taxRate) => {
       const { id, name, rate } = taxRate
 
+      const formatedRate = intlFormatNumber(Number(rate) / 100 || 0, {
+        style: 'percent',
+      })
+
       return {
-        label: `${name} - (${intlFormatNumber((rate || 0) / 100, {
-          style: 'percent',
-        })})`,
+        label: `${name} (${formatedRate})`,
         labelNode: (
           <ComboboxItem>
-            {name}&nbsp;
-            <Typography color="textPrimary">
-              (
-              {intlFormatNumber((rate || 0) / 100, {
-                style: 'percent',
-              })}
-              )
+            <Typography variant="body" color="grey700" noWrap>
+              {name}
+            </Typography>
+            <Typography variant="caption" color="grey600" noWrap>
+              {formatedRate}
             </Typography>
           </ComboboxItem>
         ),

@@ -14,8 +14,7 @@ const ExternalAppsAccordionComboboxItem: FC<{
       <Typography variant="body" color="grey700" noWrap>
         {label}
       </Typography>
-      &nbsp;
-      <Typography variant="body" color="grey600" noWrap>
+      <Typography variant="caption" color="grey600" noWrap>
         ({subLabel})
       </Typography>
     </ComboboxItem>

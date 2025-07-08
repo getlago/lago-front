@@ -53,14 +53,13 @@ export const AddBillableMetricToCouponDialog = forwardRef<
       const { id, name, code } = billableMetric
 
       return {
-        label: `${name} - (${code})`,
+        label: `${name} (${code})`,
         labelNode: (
           <ComboboxItem>
-            <Typography color="grey700" noWrap>
+            <Typography variant="body" color="grey700" noWrap>
               {name}
             </Typography>
-            &nbsp;
-            <Typography color="textPrimary" noWrap>
+            <Typography variant="caption" color="grey600" noWrap>
               ({code})
             </Typography>
           </ComboboxItem>

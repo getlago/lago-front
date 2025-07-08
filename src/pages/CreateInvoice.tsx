@@ -305,17 +305,14 @@ const CreateInvoice = () => {
         label: name,
         labelNode: (
           <ComboboxItem>
-            <Typography color="grey700" noWrap>
+            <Typography variant="body" color="grey700" noWrap>
               {name}
             </Typography>
-            &nbsp;-&nbsp;
-            <Typography color="textPrimary">
-              (
+            <Typography variant="caption" color="grey600" noWrap>
               {intlFormatNumber(deserializeAmount(amountCents, amountCurrency) || 0, {
                 currencyDisplay: 'symbol',
                 currency: amountCurrency,
               })}
-              )
             </Typography>
           </ComboboxItem>
         ),
