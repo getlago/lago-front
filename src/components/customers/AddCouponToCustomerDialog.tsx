@@ -5,7 +5,13 @@ import { number, object, string } from 'yup'
 
 import { CouponCaption } from '~/components/coupons/CouponCaption'
 import { Alert, Button, Chip, Dialog, DialogRef, Typography } from '~/components/designSystem'
-import { AmountInputField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
+import {
+  AmountInputField,
+  ComboBox,
+  ComboBoxField,
+  ComboboxItem,
+  TextInputField,
+} from '~/components/form'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 import {
@@ -267,9 +273,12 @@ export const AddCouponToCustomerDialog = forwardRef<
       return {
         label: name,
         labelNode: (
-          <div className="flex whitespace-pre">
-            {name} - <CouponCaption coupon={coupon as CouponItemFragment} variant="body" />
-          </div>
+          <ComboboxItem>
+            <Typography variant="body" color="grey700" noWrap>
+              {name}
+            </Typography>
+            <CouponCaption coupon={coupon as CouponItemFragment} variant="caption" />
+          </ComboboxItem>
         ),
         value: id,
       }

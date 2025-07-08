@@ -60,7 +60,7 @@ export const AddBillableMetricToCouponDialog = forwardRef<
               {name}
             </Typography>
             <Typography variant="caption" color="grey600" noWrap>
-              ({code})
+              {code}
             </Typography>
           </ComboboxItem>
         ),

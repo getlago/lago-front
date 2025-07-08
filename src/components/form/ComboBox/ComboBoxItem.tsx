@@ -9,7 +9,10 @@ export const ComboboxItem: FC<PropsWithChildren<{ virtualized?: boolean; classNa
   ...props
 }) => (
   <div
-    className={tw('flex cursor-pointer flex-col items-start rounded-xl', className)}
+    className={tw(
+      'flex w-full cursor-pointer flex-col !items-start !justify-center rounded-xl',
+      className,
+    )}
     style={{
       width: !!virtualized ? 'initial' : 'inherit',
     }}
