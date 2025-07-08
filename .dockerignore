@@ -1,0 +1,30 @@
+# Node modules
+node_modules
+**/node_modules
+
+# Local dev config
+.vscode
+.cursor
+.env.template
+.github
+
+# Test & mock
+__mocks__
+cypress
+
+# Git and CI-related
+.git
+.gitignore
+.github
+
+# Build
+dist
+
+# Documentation
+README.md
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+
+# Logs
+*.log
+
