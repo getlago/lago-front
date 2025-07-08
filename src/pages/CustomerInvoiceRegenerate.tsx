@@ -13,9 +13,11 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast } from '~/core/apolloClient'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
+import { serializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
 import {
   CreateAdjustedFeeInput,
+  CurrencyEnum,
   Customer,
   Fee,
   Invoice,
@@ -86,14 +88,25 @@ const CustomerInvoiceRegenerate = () => {
     const existing = fees.find((f) => f.id === feeId)
 
     if (existing) {
+      const units = input.units ?? existing.units
+      const unitPreciseAmount = input.unitPreciseAmount
+        ? Number(input.unitPreciseAmount)
+        : existing.preciseUnitAmount
+
       const updated = {
         ...existing,
-        units: input.units ?? existing.units,
-        preciseUnitAmount: input.unitPreciseAmount
-          ? Number(input.unitPreciseAmount)
-          : existing.preciseUnitAmount,
+        units,
+        preciseUnitAmount: unitPreciseAmount,
         invoiceDisplayName: input.invoiceDisplayName ?? existing.invoiceDisplayName,
         adjustedFee: true,
+        ...(units && unitPreciseAmount
+          ? {
+              amountCents: serializeAmount(
+                Number(units) * Number(unitPreciseAmount),
+                invoice.currency as CurrencyEnum,
+              ),
+            }
+          : {}),
       }
 
       const newFees = fees.map((fee) => (fee.id === feeId ? (updated as Fee) : fee))
@@ -104,9 +117,13 @@ const CustomerInvoiceRegenerate = () => {
     const fee = {
       ...input,
       adjustedFee: true,
+      preciseUnitAmount: Number(input.unitPreciseAmount || 0),
       ...(input.units && input.unitPreciseAmount
         ? {
-            amountCents: Number(input.units) * Number(input.unitPreciseAmount),
+            amountCents: serializeAmount(
+              Number(input.units) * Number(input.unitPreciseAmount),
+              invoice.currency as CurrencyEnum,
+            ),
           }
         : {}),
     }
