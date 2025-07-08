@@ -197,7 +197,9 @@ const CustomerInvoiceRegenerate = () => {
     <CenteredPage.Wrapper>
       <CenteredPage.Header>
         <Typography className="font-medium text-grey-700">
-          {translate('text_1750678506388s7bfu2qjzhn')}
+          {translate(
+            !!invoice.voidedAt ? 'text_1750678506388s7bfu2qjzhn' : 'text_17519912068281q4wys5q1g2',
+          )}
         </Typography>
 
         <Button variant="quaternary" icon="close" onClick={() => onClose()} />
@@ -215,30 +217,45 @@ const CustomerInvoiceRegenerate = () => {
             <div className="flex flex-col gap-12">
               <Alert type="info">
                 <Typography className="text-grey-700">
-                  {translate('text_17506785063887oto6r0hcq0', {
-                    invoiceNumber: invoice?.number,
-                    issuingDate: formatDateToTZ(
-                      invoice?.issuingDate,
-                      customer?.applicableTimezone,
-                      'LLL. dd, yyyy',
-                    ),
-                    voidDate: formatDateToTZ(
-                      invoice?.voidedAt,
-                      customer?.applicableTimezone,
-                      'LLL. dd, yyyy',
-                    ),
-                  })}
+                  {!!invoice?.voidedAt
+                    ? translate('text_17506785063887oto6r0hcq0', {
+                        invoiceNumber: invoice?.number,
+                        issuingDate: formatDateToTZ(
+                          invoice?.issuingDate,
+                          customer?.applicableTimezone,
+                          'LLL. dd, yyyy',
+                        ),
+                        voidDate: formatDateToTZ(
+                          invoice?.voidedAt,
+                          customer?.applicableTimezone,
+                          'LLL. dd, yyyy',
+                        ),
+                      })
+                    : translate('text_1751991206828m0rxpmddapo', {
+                        invoiceNumber: invoice?.number,
+                        issuingDate: formatDateToTZ(
+                          invoice?.issuingDate,
+                          customer?.applicableTimezone,
+                          'LLL. dd, yyyy',
+                        ),
+                      })}
                 </Typography>
               </Alert>
               <div className="flex flex-col gap-1">
                 <Typography className="text-2xl font-semibold text-grey-700">
-                  {translate('text_1750678506388s7bfu2qjzhn', {
-                    invoiceNumber: invoice?.number,
-                  })}
+                  {translate(
+                    !!invoice.voidedAt
+                      ? 'text_1750678506388s7bfu2qjzhn'
+                      : 'text_17519912068281q4wys5q1g2',
+                  )}
                 </Typography>
 
                 <Typography className="text-grey-600">
-                  {translate('text_1750678506388d8u5rv893gn')}
+                  {translate(
+                    !!invoice.voidedAt
+                      ? 'text_1750678506388d8u5rv893gn'
+                      : 'text_17519914705750hjw95snsdf',
+                  )}
                 </Typography>
               </div>
             </div>
@@ -272,7 +289,9 @@ const CustomerInvoiceRegenerate = () => {
         </Button>
 
         <Button variant="primary" size="large" onClick={() => onSubmit()}>
-          {translate('text_1750678506388ssxh1yacay0')}
+          {translate(
+            !!invoice.voidedAt ? 'text_1750678506388ssxh1yacay0' : 'text_1751991518313o0xwbo9xf0y',
+          )}
         </Button>
       </CenteredPage.StickyFooter>
 
