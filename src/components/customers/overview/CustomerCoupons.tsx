@@ -27,6 +27,7 @@ gql`
     coupon {
       id
       name
+      code
     }
   }
 
@@ -103,7 +104,7 @@ export const CustomerCoupons = memo(() => {
             columns={[
               {
                 key: 'coupon.name',
-                title: translate('text_62865498824cc10126ab2960'),
+                title: translate('text_6419c64eace749372fc72b0f'),
                 content: ({ coupon: { name } }) => (
                   <div className="flex items-center gap-3">
                     <Icon name="coupon" color="dark" />
@@ -112,6 +113,15 @@ export const CustomerCoupons = memo(() => {
                       {name}
                     </Typography>
                   </div>
+                ),
+              },
+              {
+                key: 'coupon.code',
+                title: translate('text_62876e85e32e0300e1803127'),
+                content: ({ coupon: { code } }) => (
+                  <Typography variant="bodyHl" color="grey700" noWrap>
+                    {code || ''}
+                  </Typography>
                 ),
               },
               {
