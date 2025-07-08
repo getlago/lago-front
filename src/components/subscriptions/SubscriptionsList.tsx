@@ -86,7 +86,6 @@ const annotateSubscriptions = (
       endingAt: endingAt,
       terminatedAt,
       frequency: plan.interval,
-      startDate: startedAt || subscriptionAt,
       statusType: subscriptionStatusMapping(status),
       customer: {
         id: customerId || customer?.id,

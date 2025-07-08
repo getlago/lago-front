@@ -106,6 +106,8 @@ export const CustomerSubscriptionsList = () => {
           <SubscriptionsList
             name="customer-subscriptions"
             subscriptions={subscriptions}
+            customerId={data?.customer?.id}
+            customerTimezone={data?.customer?.applicableTimezone}
             containerSize={4}
             isLoading={loading}
             onRowActionLink={({ id }) =>
