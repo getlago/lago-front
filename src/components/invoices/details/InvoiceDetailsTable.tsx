@@ -22,6 +22,7 @@ import {
   FeeForInvoiceDetailsTableBodyLineFragmentDoc,
   FeeForInvoiceFeeAdvanceDetailsTableFragmentDoc,
   FeeForInvoiceFeeArrearsDetailsTableFragmentDoc,
+  Invoice,
   InvoiceForDetailsTableFooterFragmentDoc,
   InvoiceForDetailsTableFragment,
   InvoiceStatusTypeEnum,
@@ -150,7 +151,7 @@ interface InvoiceDetailsTableProps {
   editFeeDrawerRef: RefObject<EditFeeDrawerRef>
   deleteAdjustedFeeDialogRef: RefObject<DeleteAdjustedFeeDialogRef>
   isDraftOverride?: boolean
-  fees?: InvoiceForDetailsTableFragment['fees']
+  fees?: Invoice['fees']
   onAdd?: (input: CreateAdjustedFeeInput) => void
   onDelete?: (id: string) => void
 }
