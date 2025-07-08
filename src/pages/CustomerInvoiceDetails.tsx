@@ -93,6 +93,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
@@ -348,6 +349,10 @@ const CustomerInvoiceDetails = () => {
   })
 
   const customer = customerData?.customer
+
+  const hasActiveWallet = useCustomerHasActiveWallet({
+    customerId: customer?.id,
+  })
 
   const [refreshInvoice, { loading: loadingRefreshInvoice }] = useRefreshInvoiceMutation({
     variables: { input: { id: invoiceId || '' } },
@@ -968,7 +973,10 @@ const CustomerInvoiceDetails = () => {
                       {translate('text_1750678506388d4fr5etxbhh')}
                     </Button>
                   )}
-                  {actions.canRegenerate({ status, regeneratedInvoiceId }) && (
+                  {actions.canRegenerate(
+                    { status, regeneratedInvoiceId, invoiceType },
+                    hasActiveWallet,
+                  ) && (
                     <Button
                       className="w-full"
                       variant="quaternary"

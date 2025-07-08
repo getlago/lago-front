@@ -61,6 +61,7 @@ import {
   useRetryInvoicePaymentMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -96,6 +97,10 @@ const InvoicesList = ({
   const hasAccessToRevenueShare = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.RevenueShare,
   )
+
+  const hasActiveWallet = useCustomerHasActiveWallet({
+    customerId: invoices?.[0]?.customer?.id,
+  })
 
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
@@ -330,7 +335,7 @@ const InvoicesList = ({
                     }
                   : null,
 
-                actions.canRegenerate(invoice)
+                actions.canRegenerate(invoice, hasActiveWallet)
                   ? {
                       startIcon: 'stop',
                       title: translate('text_1750678506388oynw9hd01l9'),
