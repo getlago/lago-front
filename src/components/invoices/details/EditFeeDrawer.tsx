@@ -221,10 +221,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
         formikProps.resetForm()
         formikProps.validateForm()
 
-        return localData.onAdd({
-          ...input,
-          ...(input.feeId ? {} : { feeId: `temporary-id-${Math.random().toString()}` }),
-        })
+        return localData.onAdd(input)
       }
 
       await createFee({
