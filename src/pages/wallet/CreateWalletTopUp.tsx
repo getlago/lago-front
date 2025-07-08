@@ -415,22 +415,22 @@ const CreateWalletTopUp = () => {
             </section>
           </CenteredPage.Container>
         )}
-      </CenteredPage.Wrapper>
 
-      <CenteredPage.StickyFooter>
-        <Button size="large" variant="quaternary" onClick={onAbort}>
-          {translate('text_62e79671d23ae6ff149de968')}
-        </Button>
-        <Button
-          size="large"
-          variant="primary"
-          disabled={!formikProps.isValid || !formikProps.dirty}
-          onClick={() => formikProps.handleSubmit()}
-          data-test="submit-wallet"
-        >
-          {translate('text_1741103892833yi7redcuhoc')}
-        </Button>
-      </CenteredPage.StickyFooter>
+        <CenteredPage.StickyFooter>
+          <Button size="large" variant="quaternary" onClick={onAbort}>
+            {translate('text_62e79671d23ae6ff149de968')}
+          </Button>
+          <Button
+            size="large"
+            variant="primary"
+            disabled={!formikProps.isValid || !formikProps.dirty}
+            onClick={() => formikProps.handleSubmit()}
+            data-test="submit-wallet"
+          >
+            {translate('text_1741103892833yi7redcuhoc')}
+          </Button>
+        </CenteredPage.StickyFooter>
+      </CenteredPage.Wrapper>
 
       <WarningDialog
         ref={warningDialogRef}
