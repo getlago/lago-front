@@ -29,6 +29,7 @@ import {
   WalletStatusEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
@@ -61,6 +62,8 @@ export const CREATE_ACTIVE_WALLET_TOP_UP_ID = 'active-wallet'
 const CreateWalletTopUp = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
+  const { goBack } = useLocationHistory()
+
   const { organization: { defaultCurrency } = {} } = useOrganizationInfos()
   const { customerId = '', walletId = '', voidedInvoiceId = '' } = useParams()
   const warningDialogRef = useRef<WarningDialogRef>(null)
@@ -160,6 +163,17 @@ const CreateWalletTopUp = () => {
     },
   })
 
+  const navigateBack = useCallback(
+    () =>
+      goBack(
+        generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+          customerId: customerId,
+          tab: CustomerDetailsTabsOptions.wallet,
+        }),
+      ),
+    [customerId, goBack],
+  )
+
   const navigateToCustomerWalletTab = useCallback(
     () =>
       navigate(
@@ -172,8 +186,8 @@ const CreateWalletTopUp = () => {
   )
 
   const onAbort = useCallback(() => {
-    formikProps.dirty ? warningDialogRef.current?.openDialog() : navigateToCustomerWalletTab()
-  }, [formikProps.dirty, navigateToCustomerWalletTab])
+    formikProps.dirty ? warningDialogRef.current?.openDialog() : navigateBack()
+  }, [formikProps.dirty, navigateBack])
 
   return (
     <>

@@ -467,7 +467,7 @@ const CustomerInvoiceVoid = () => {
 
       <CenteredPage.StickyFooter>
         <div className="flex w-full items-center justify-between">
-          {customerId && invoiceId && (
+          {customerId && invoiceId && invoice && (
             <div>
               <Link to={regeneratePath(invoice as Invoice)}>
                 {translate('text_1750678506388eexnh1b36o4')}
