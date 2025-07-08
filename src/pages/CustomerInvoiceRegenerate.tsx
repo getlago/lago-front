@@ -51,7 +51,7 @@ const CustomerInvoiceRegenerate = () => {
     skip: !invoiceId,
   })
 
-  const invoice = data?.invoice
+  const invoice = data?.invoice as Invoice
   const customer = invoice?.customer
   const billingEntity = invoice?.billingEntity
 
@@ -248,7 +248,7 @@ const CustomerInvoiceRegenerate = () => {
             {invoice && customer && billingEntity && (
               <InvoiceQuickInfo
                 customer={customer}
-                invoice={invoice as Partial<Invoice>}
+                invoice={invoice}
                 billingEntity={billingEntity}
               />
             )}
