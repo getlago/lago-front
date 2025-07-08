@@ -124,6 +124,8 @@ gql`
     integrationHubspotSyncable
     associatedActiveWalletPresent
     voidedAt
+    voidedInvoiceId
+    regeneratedInvoiceId
     errorDetails {
       errorCode
       errorDetails
@@ -178,6 +180,13 @@ gql`
       id
       ...CustomerForInvoiceDetails
       ...CustomerForInvoiceOverview
+    }
+  }
+
+  query getInvoiceNumber($id: ID!) {
+    invoice(id: $id) {
+      id
+      number
     }
   }
 
@@ -1000,7 +1009,7 @@ const CustomerInvoiceDetails = () => {
                       {translate('text_1750678506388d4fr5etxbhh')}
                     </Button>
                   )}
-                  {actions.canRegenerate({ status }) && (
+                  {actions.canRegenerate({ status, regeneratedInvoiceId }) && (
                     <Button
                       className="w-full"
                       variant="quaternary"
