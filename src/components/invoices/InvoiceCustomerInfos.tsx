@@ -129,7 +129,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
             <Typography variant="caption" color="grey600" noWrap>
               {translate('text_634687079be251fdb43833e3')}
             </Typography>
-            <Typography variant="body" color="grey700">
+            <Typography variant="body" color="grey700" forceBreak>
               {customer?.email.split(',').join(', ')}
             </Typography>
           </InfoLine>
