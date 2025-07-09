@@ -133,7 +133,7 @@ export const VerticalMenuSectionTitle = ({
   icon?: IconName
   loading?: boolean
 }) => {
-  if (loading) return <Skeleton variant="text" className="mt-3 w-25" />
+  if (loading) return <Skeleton variant="text" className="w-25" />
 
   return (
     <div className="flex items-center gap-2 px-3 py-1">
