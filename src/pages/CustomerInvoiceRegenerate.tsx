@@ -70,7 +70,7 @@ const CustomerInvoiceRegenerate = () => {
         navigate(
           generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
             customerId,
-            invoiceId,
+            invoiceId: regeneratedData?.regenerateFromVoided?.id || invoiceId,
             tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
           }),
         )
