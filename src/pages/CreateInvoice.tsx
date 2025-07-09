@@ -269,7 +269,7 @@ const CreateInvoice = () => {
         .of(
           object().shape({
             addOnId: string().required(''),
-            description: string(),
+            description: string().nullable(),
             units: number().min(1, 'text_645381a65b99559adf6401f0').required(''),
           }),
         )
