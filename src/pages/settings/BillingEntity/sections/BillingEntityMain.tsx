@@ -115,10 +115,10 @@ const Item = ({ item, billingEntityCode }: ItemProps) => {
           <Icon size="medium" name={item.icon as IconName} color="dark" />
         </Avatar>
         <div className="grow">
-          <Typography variant="subhead2" color="grey700">
+          <Typography variant="bodyHl" color="grey700">
             {translate(item.label)}
           </Typography>
-          <Typography variant="body" color="grey600">
+          <Typography variant="caption" color="grey600">
             {translate(item.sublabel)}
           </Typography>
         </div>
