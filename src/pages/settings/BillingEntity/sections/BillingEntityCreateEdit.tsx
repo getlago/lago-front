@@ -1,5 +1,5 @@
 import { useFormik } from 'formik'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { object, string } from 'yup'
 
 import { Button, Typography } from '~/components/designSystem'
@@ -21,8 +21,6 @@ const BillingEntityCreateEdit = () => {
   const { isEdition, errorCode, loading, onClose, onSave, billingEntity } =
     useCreateEditBillingEntity()
 
-  const [logo, setLogo] = useState<string | undefined>(undefined)
-
   const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
 
   useEffect(() => {
@@ -38,7 +36,7 @@ const BillingEntityCreateEdit = () => {
 
   type BillingEntityFormInput = CreateBillingEntityInput | UpdateBillingEntityInput
 
-  const formikProps = useFormik<BillingEntityFormInput>({
+  const formikProps = useFormik<BillingEntityFormInput & { logo: string | null | undefined }>({
     initialValues: {
       name: billingEntity?.name || '',
       code: billingEntity?.code || '',
@@ -52,6 +50,7 @@ const BillingEntityCreateEdit = () => {
       city: billingEntity?.city || '',
       state: billingEntity?.state || '',
       country: billingEntity?.country || undefined,
+      logo: undefined,
     },
     validationSchema: object().shape({
       code: string().required(''),
@@ -61,7 +60,6 @@ const BillingEntityCreateEdit = () => {
     validateOnMount: true,
     onSubmit: async (values) => {
       await onSave({
-        logo,
         ...values,
       })
     },
@@ -143,8 +141,8 @@ const BillingEntityCreateEdit = () => {
 
                   <div className="mb-8 flex flex-col gap-6">
                     <LogoPicker
-                      logoValue={logo}
-                      onChange={(value) => setLogo(value)}
+                      logoValue={formikProps.values.logo}
+                      onChange={(value) => formikProps.setFieldValue('logo', value)}
                       logoUrl={billingEntity?.logoUrl}
                       name={billingEntity?.name}
                     />
