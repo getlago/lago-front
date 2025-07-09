@@ -222,7 +222,7 @@ export const ChargesSection = memo(
         <Card className="gap-8">
           <div className="flex items-center justify-between gap-8">
             <div className="flex flex-col gap-2">
-              <Typography variant="subhead">
+              <Typography variant="subhead1">
                 {translate('text_6435888d7cc86500646d8977')}
               </Typography>
               <Typography variant="caption">

@@ -9,7 +9,7 @@ export const LinksSection = () => {
 
       <div className="flex flex-col gap-6">
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Link in navigation tabs with <code>{'<ButtonLink/>'}</code>
           </Typography>
           <div className="flex flex-wrap gap-4">
@@ -34,7 +34,7 @@ export const LinksSection = () => {
         </section>
 
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Button Links with <code>{'<ButtonLink/>'}</code>
           </Typography>
           <div className="flex flex-row gap-4">
@@ -60,7 +60,7 @@ export const LinksSection = () => {
         </section>
 
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Simple links with <code>{'<a/>'}</code>
           </Typography>
           <div className="flex flex-wrap gap-4">

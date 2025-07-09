@@ -87,7 +87,7 @@ const UsageOverviewSection = ({ premiumWarningDialogRef }: UsageOverviewSectionP
 
           <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
-              <Typography variant="subhead" color="grey700">
+              <Typography variant="subhead1" color="grey700">
                 {translate('text_1746541426463b1mm6097u0e')}
               </Typography>
             </div>

@@ -9,12 +9,12 @@ export const TypographySection = () => {
 
       <div className="flex flex-row gap-6">
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Variant
           </Typography>
           <div className="flex flex-col gap-2">
             <Typography variant="headline">Headline</Typography>
-            <Typography variant="subhead">Subhead</Typography>
+            <Typography variant="subhead1">Subhead</Typography>
             <Typography variant="bodyHl">BodyHl</Typography>
             <Typography variant="body">Body</Typography>
             <Typography variant="button">Button</Typography>
@@ -31,7 +31,7 @@ export const TypographySection = () => {
           </div>
         </section>
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Color
           </Typography>
           <div className="flex flex-col gap-2">

@@ -51,7 +51,7 @@ export const CustomerInformation: FC<CustomerInformationProps> = ({
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <Typography variant="subhead">{translate('text_6419c64eace749372fc72b07')}</Typography>
+        <Typography variant="subhead1">{translate('text_6419c64eace749372fc72b07')}</Typography>
         <Typography variant="caption">{translate('text_1735652987833k0i3l9ill5g')}</Typography>
       </div>
 

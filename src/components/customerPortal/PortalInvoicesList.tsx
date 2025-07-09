@@ -236,11 +236,11 @@ const PortalInvoicesList = () => {
 
           {!invoicesLoading && !invoicesError && (
             <>
-              <Typography className="text-sm font-normal text-grey-600">
+              <Typography variant="body" color="grey600">
                 {translate('text_6670a7222702d70114cc7957')}
               </Typography>
 
-              <Typography className="text-2xl font-semibold text-grey-700">
+              <Typography variant="headline" color="grey700">
                 {intlFormatNumber(invoices.amount, {
                   currency: invoices.currency,
                   locale: documentLocale,
@@ -256,7 +256,7 @@ const PortalInvoicesList = () => {
 
           {!overdueLoading && !overdueError && (
             <>
-              <Typography className="flex items-center gap-2 text-sm font-normal text-grey-600">
+              <Typography variant="body" color="grey600" className="flex items-center gap-2">
                 {translate('text_6670a7222702d70114cc795a')}
 
                 <Tooltip placement="top-start" title={translate('text_6670a757999f8a007789bb5d')}>
@@ -264,7 +264,7 @@ const PortalInvoicesList = () => {
                 </Tooltip>
               </Typography>
 
-              <Typography className="text-2xl font-semibold text-grey-700">
+              <Typography variant="headline" color="grey700">
                 {intlFormatNumber(overdue.amount, {
                   currency: overdue.currency,
                   locale: documentLocale,
@@ -403,7 +403,7 @@ const PortalInvoicesList = () => {
                 })
               }
             >
-              <Typography className="text-base font-medium text-grey-600">
+              <Typography variant="subhead2" color="grey600">
                 {translate('text_62da6ec24a8e24e44f8128aa')}
               </Typography>
             </Button>

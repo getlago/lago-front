@@ -82,7 +82,7 @@ export const CouponDetailsOverview = () => {
   return (
     <section className="flex flex-col gap-12">
       <section>
-        <DetailsPage.SectionTitle variant="subhead" noWrap>
+        <DetailsPage.SectionTitle variant="subhead1" noWrap>
           {translate('text_664cb90097bfa800e6efa3e4')}
         </DetailsPage.SectionTitle>
         <DetailsPage.InfoGrid
@@ -108,7 +108,7 @@ export const CouponDetailsOverview = () => {
       </section>
 
       <section>
-        <DetailsPage.SectionTitle variant="subhead" noWrap>
+        <DetailsPage.SectionTitle variant="subhead1" noWrap>
           {translate('text_62876e85e32e0300e1803137')}
         </DetailsPage.SectionTitle>
         <Card className="gap-0 p-0">
@@ -157,7 +157,7 @@ export const CouponDetailsOverview = () => {
 
       {hasLimitations && (
         <section>
-          <DetailsPage.SectionTitle variant="subhead" noWrap>
+          <DetailsPage.SectionTitle variant="subhead1" noWrap>
             {translate('text_63c83d58e697e8e9236da806')}
           </DetailsPage.SectionTitle>
           <Card className="p-4">

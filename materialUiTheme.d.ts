@@ -46,7 +46,8 @@ declare module '@mui/material/styles' {
 
   interface TypographyVariants {
     headline: React.CSSProperties
-    subhead: React.CSSProperties
+    subhead1: React.CSSProperties
+    subhead2: React.CSSProperties
     bodyHl: React.CSSProperties
     body: React.CSSProperties
     captionHl: React.CSSProperties
@@ -61,7 +62,8 @@ declare module '@mui/material/styles' {
   // allow configuration using `createTheme`
   interface TypographyVariantsOptions {
     headline: React.CSSProperties
-    subhead: React.CSSProperties
+    subhead1: React.CSSProperties
+    subhead2: React.CSSProperties
     bodyHl: React.CSSProperties
     body: React.CSSProperties
     captionHl: React.CSSProperties
@@ -99,7 +101,8 @@ declare module '@mui/material/styles/zIndex' {
 declare module '@mui/material/Typography' {
   interface TypographyPropsVariantOverrides {
     headline: true
-    subhead: true
+    subhead1: true
+    subhead2: true
     bodyHl: true
     body: true
     captionHl: true

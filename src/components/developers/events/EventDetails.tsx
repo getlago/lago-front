@@ -69,7 +69,7 @@ export const EventDetails = ({ goBack }: { goBack: () => void }) => {
 
       {loading && (
         <div className="flex flex-col gap-4 p-4">
-          <Skeleton variant="text" textVariant="subhead" className="w-40" />
+          <Skeleton variant="text" textVariant="subhead1" className="w-40" />
           <div className="grid grid-cols-[140px,_1fr] items-baseline gap-x-8 gap-y-3">
             {[...Array(3)].map((_, index) => (
               <Fragment key={index}>
@@ -85,7 +85,7 @@ export const EventDetails = ({ goBack }: { goBack: () => void }) => {
         <div className="flex flex-col gap-12 p-4">
           <div className="grid grid-cols-[140px,_1fr] items-baseline gap-3 pb-12 shadow-b">
             <div className="col-span-2 flex items-center justify-between">
-              <Typography variant="subhead" color="grey700">
+              <Typography variant="subhead1" color="grey700">
                 {translate('text_63ebba5f5160e26242c48bd2')}
               </Typography>
               <Button
@@ -191,7 +191,7 @@ export const EventDetails = ({ goBack }: { goBack: () => void }) => {
           </div>
 
           <div className="flex flex-col gap-4 pb-12">
-            <Typography variant="subhead" color="grey700">
+            <Typography variant="subhead1" color="grey700">
               {translate('text_1746623729674wq0tach0cop')}
             </Typography>
             <CodeSnippet

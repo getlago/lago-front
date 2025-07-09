@@ -139,7 +139,7 @@ const AddOnDetails = () => {
 
       <DetailsPage.Container>
         <section>
-          <DetailsPage.SectionTitle variant="subhead" noWrap>
+          <DetailsPage.SectionTitle variant="subhead1" noWrap>
             {translate('text_6627e7b9732dbfb6c472e027')}
           </DetailsPage.SectionTitle>
           <DetailsPage.InfoGrid
@@ -161,7 +161,7 @@ const AddOnDetails = () => {
         </section>
 
         <section>
-          <DetailsPage.SectionTitle variant="subhead" noWrap>
+          <DetailsPage.SectionTitle variant="subhead1" noWrap>
             {translate('text_629728388c4d2300e2d38117')}
           </DetailsPage.SectionTitle>
           <Card className="gap-0 p-0">

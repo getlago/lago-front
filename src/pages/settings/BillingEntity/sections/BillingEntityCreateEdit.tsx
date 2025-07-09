@@ -100,7 +100,7 @@ const BillingEntityCreateEdit = () => {
               <div className="flex flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b">
                 <section className="not-last-child:mb-6">
                   <div className="not-last-child:mb-2">
-                    <Typography variant="subhead">
+                    <Typography variant="subhead1">
                       {translate('text_1743077296189sv3omf8cjep')}
                     </Typography>
                     <Typography variant="caption">
@@ -133,7 +133,7 @@ const BillingEntityCreateEdit = () => {
 
                 <section className="not-last-child:mb-6">
                   <div className="not-last-child:mb-2">
-                    <Typography variant="subhead">
+                    <Typography variant="subhead1">
                       {translate('text_17430772961890sgj8ku8lmp')}
                     </Typography>
                     <Typography variant="caption">

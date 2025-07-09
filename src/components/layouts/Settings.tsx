@@ -52,7 +52,7 @@ export const SettingsListItemHeader = ({
 }) => (
   <div className="flex min-h-12 flex-row items-center justify-between gap-4">
     <div className="flex flex-col gap-2">
-      <Typography variant="subhead" color="grey700">
+      <Typography variant="subhead1" color="grey700">
         {label}
       </Typography>
 

@@ -195,7 +195,7 @@ const CreateAddOn = () => {
                 </div>
 
                 <Card>
-                  <Typography variant="subhead">
+                  <Typography variant="subhead1">
                     {translate('text_629728388c4d2300e2d38079')}
                   </Typography>
 
@@ -263,7 +263,7 @@ const CreateAddOn = () => {
                 </Card>
 
                 <Card>
-                  <Typography variant="subhead">
+                  <Typography variant="subhead1">
                     {translate('text_629728388c4d2300e2d38117')}
                   </Typography>
 

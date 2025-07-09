@@ -29,12 +29,14 @@ export const PageSectionTitle = ({
       {!loading && (
         <>
           <div className="flex flex-col gap-2">
-            <Typography className={'text-lg font-semibold leading-6 text-grey-700'}>
+            <Typography variant="subhead1" color="grey700">
               {title}
             </Typography>
 
             {subtitle && (
-              <Typography className={'text-sm font-normal text-grey-600'}>{subtitle}</Typography>
+              <Typography variant="body" color="grey600">
+                {subtitle}
+              </Typography>
             )}
           </div>
 

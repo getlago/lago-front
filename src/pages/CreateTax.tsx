@@ -109,7 +109,7 @@ const CreateTaxRate = () => {
                 </div>
 
                 <Card>
-                  <Typography variant="subhead">
+                  <Typography variant="subhead1">
                     {translate('text_645bb193927b375079d28a91')}
                   </Typography>
 

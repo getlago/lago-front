@@ -1,3 +1,5 @@
+import { Typography } from 'lago-design-system'
+
 import useCustomerPortalNavigation from '~/components/customerPortal/common/hooks/useCustomerPortalNavigation'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import PortalCustomerInfos from '~/components/customerPortal/PortalCustomerInfos'
@@ -28,7 +30,9 @@ const CustomerPortalSections = () => {
 
       {showPoweredBy && (
         <div className="my-8 flex justify-center gap-2 md:hidden">
-          <div className="text-sm text-grey-600">{translate('text_6419c64eace749372fc72b03')}</div>
+          <Typography variant="body" color="grey600">
+            {translate('text_6419c64eace749372fc72b03')}
+          </Typography>
 
           <Logo width="40px" />
         </div>

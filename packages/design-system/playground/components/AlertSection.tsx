@@ -9,7 +9,7 @@ export const AlertSection = () => {
 
       <div className="flex flex-col gap-6">
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Full width
           </Typography>
           <div className="flex flex-col gap-4">
@@ -37,7 +37,7 @@ export const AlertSection = () => {
         </section>
 
         <section>
-          <Typography className="mb-4" variant="subhead">
+          <Typography className="mb-4" variant="subhead1">
             Variants
           </Typography>
           <div className="flex flex-col gap-4">

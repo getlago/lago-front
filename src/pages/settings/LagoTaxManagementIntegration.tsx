@@ -183,11 +183,11 @@ const LagoTaxManagementIntegration = () => {
           {!loading && (
             <>
               <div className="flex items-center justify-between py-3 shadow-b">
-                <Typography className="text-sm font-medium text-grey-600">
+                <Typography variant="bodyHl" color="grey600">
                   {translate('text_17430772961896bgqutmnx7g')}
                 </Typography>
 
-                <Typography className="text-sm font-medium text-grey-600">
+                <Typography variant="bodyHl" color="grey600">
                   {translate('text_62ab2d0396dd6b0361614da0')}
                 </Typography>
               </div>
@@ -205,12 +205,12 @@ const LagoTaxManagementIntegration = () => {
                     <div className="flex items-center gap-3">
                       <Icon name="company" size="small" />
 
-                      <Typography className="text-grey-700">
+                      <Typography variant="body" color="grey700">
                         {billingEntity?.name || billingEntity?.code}
                       </Typography>
                     </div>
 
-                    <Typography className="text-grey-700">
+                    <Typography variant="body" color="grey700">
                       {billingEntity?.country && CountryCodes[billingEntity?.country]}
                     </Typography>
                   </div>

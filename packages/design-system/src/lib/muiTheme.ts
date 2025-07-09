@@ -839,8 +839,14 @@ export const theme = createTheme({
       fontWeight: 600,
     },
     h1: undefined,
-    subhead: {
+    subhead1: {
       fontSize: '18px',
+      lineHeight: '24px',
+      letterSpacing: '-0.40px',
+      fontWeight: 600,
+    },
+    subhead2: {
+      fontSize: '16px',
       lineHeight: '24px',
       letterSpacing: '-0.40px',
       fontWeight: 600,

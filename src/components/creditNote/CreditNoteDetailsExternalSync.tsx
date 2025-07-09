@@ -202,7 +202,7 @@ export const CreditNoteDetailsExternalSync: FC<CreditNoteDetailsExternalSyncProp
 
   return (
     <div>
-      <Typography variant="subhead" className="mb-6 mt-8">
+      <Typography variant="subhead1" className="mb-6 mt-8">
         {translate('text_6650b36fc702a4014c878996')}
       </Typography>
       {hasIntegration.netsuite && (

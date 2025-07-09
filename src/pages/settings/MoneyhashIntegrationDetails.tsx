@@ -192,7 +192,7 @@ const MoneyhashIntegrationDetails = () => {
       </div>
       <section className="max-w-168 px-4 md:px-12">
         <div className="relative flex h-nav items-center justify-between">
-          <Typography variant="subhead">{translate('text_645d071272418a14c1c76a9a')}</Typography>
+          <Typography variant="subhead1">{translate('text_645d071272418a14c1c76a9a')}</Typography>
 
           {canEditIntegration && (
             <Button

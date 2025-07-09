@@ -184,7 +184,7 @@ const BillingEntityEmailScenariosConfig = () => {
         </div>
 
         <Typography className="flex h-18 min-h-18 items-center justify-between px-4 first:not-last:mr-3 md:px-12">
-          <Typography variant="subhead" color="grey700" noWrap>
+          <Typography variant="subhead1" color="grey700" noWrap>
             {translate('text_6407684eaf41130074c4b2f8')}
           </Typography>
 
@@ -297,10 +297,10 @@ const BillingEntityEmailScenariosConfig = () => {
                           ))}
 
                           <div className="mt-6 flex w-full items-center justify-between">
-                            <Typography className="text-xs font-bold text-grey-700">
+                            <Typography variant="caption" color="grey700">
                               {translateWithContextualLocal('text_6419c64eace749372fc72b3c')}
                             </Typography>
-                            <Typography className="text-xs font-bold text-grey-700">
+                            <Typography variant="caption" color="grey700">
                               {translateWithContextualLocal('text_6419c64eace749372fc72b3e')}
                             </Typography>
                           </div>

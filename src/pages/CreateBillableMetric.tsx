@@ -284,7 +284,7 @@ const CreateBillableMetric = () => {
                   </Subtitle>
                 </div>
                 <Card>
-                  <Typography variant="subhead">
+                  <Typography variant="subhead1">
                     {translate('text_623b42ff8ee4e000ba87d0b8')}
                   </Typography>
 
@@ -351,7 +351,7 @@ const CreateBillableMetric = () => {
                 </Card>
                 <Card className="gap-12">
                   <Stack spacing={6}>
-                    <Typography variant="subhead">
+                    <Typography variant="subhead1">
                       {translate('text_623b42ff8ee4e000ba87d0cc')}
                     </Typography>
 
@@ -561,11 +561,11 @@ const CreateBillableMetric = () => {
                   {!(isEdition && !canBeEdited && !billableMetric?.roundingFunction) && (
                     <div>
                       <div className="mb-6">
-                        <Typography className="text-base font-medium text-grey-700">
+                        <Typography variant="subhead2" color="grey700">
                           {translate('text_1730554642648mbs3upovd2q')}
                         </Typography>
 
-                        <Typography className="text-sm font-normal leading-6 text-grey-600">
+                        <Typography variant="body" color="grey600">
                           {translate('text_1730554642648xg3fknfme8w')}
                         </Typography>
                       </div>
@@ -597,7 +597,7 @@ const CreateBillableMetric = () => {
                               virtualized={false}
                               containerClassName="w-full"
                               label={
-                                <Typography className="text-sm font-medium text-grey-700">
+                                <Typography variant="body" color="grey700">
                                   {translate('text_17305547268320wyhpbm8hh0')}
                                 </Typography>
                               }
@@ -621,7 +621,7 @@ const CreateBillableMetric = () => {
                                 type="number"
                                 disabled={isEdition && !canBeEdited}
                                 label={
-                                  <Typography className="whitespace-nowrap text-sm font-medium text-grey-700">
+                                  <Typography variant="body" color="grey700" noWrap>
                                     {translate('text_1730554726832vyn9bep4u0f')}
                                   </Typography>
                                 }
@@ -648,7 +648,7 @@ const CreateBillableMetric = () => {
                         </div>
                       )}
 
-                      <Typography className="text-sm font-normal text-grey-600">
+                      <Typography variant="body" color="grey600">
                         {formikProps.values.roundingFunction &&
                           translate(
                             formatRoundingFunction(formikProps.values.roundingFunction)

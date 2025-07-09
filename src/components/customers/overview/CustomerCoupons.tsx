@@ -109,7 +109,7 @@ export const CustomerCoupons = memo(() => {
                   <div className="flex items-center gap-3">
                     <Icon name="coupon" color="dark" />
 
-                    <Typography className="text-nowrap text-base font-medium text-grey-700">
+                    <Typography variant="subhead2" color="grey700" className="text-nowrap">
                       {name}
                     </Typography>
                   </div>
@@ -130,7 +130,8 @@ export const CustomerCoupons = memo(() => {
                 title: translate('text_632d68358f1fedc68eed3e9d'),
                 content: (coupon) => (
                   <CouponCaption
-                    className="text-nowrap text-base font-normal text-grey-600"
+                    variant="subhead2"
+                    className="text-nowrap text-grey-600"
                     coupon={coupon as unknown as CouponMixedType}
                   />
                 ),

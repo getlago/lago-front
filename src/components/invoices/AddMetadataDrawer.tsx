@@ -122,7 +122,7 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
           </DrawerTitle>
 
           <Card className="items-start">
-            <Typography variant="subhead">{translate('text_6405cac5c833dcf18cacff3e')}</Typography>
+            <Typography variant="subhead1">{translate('text_6405cac5c833dcf18cacff3e')}</Typography>
 
             {!!formikProps?.values?.metadata?.length && (
               <div>

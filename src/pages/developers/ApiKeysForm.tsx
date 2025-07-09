@@ -289,7 +289,7 @@ const ApiKeysForm = () => {
 
               <div className="flex flex-col gap-6 pb-12 shadow-b">
                 <div className="flex flex-col gap-2">
-                  <Typography variant="subhead" color="grey700">
+                  <Typography variant="subhead1" color="grey700">
                     {translate('text_1732286530467tbfarkui5o8')}
                   </Typography>
                   <Typography variant="caption" color="grey600">
@@ -309,7 +309,7 @@ const ApiKeysForm = () => {
 
               <div className="flex flex-col gap-6 pb-12">
                 <div className="flex flex-col gap-2">
-                  <Typography variant="subhead" color="grey700">
+                  <Typography variant="subhead1" color="grey700">
                     {translate('text_1732895022171i6ewlfi5gle')}
                   </Typography>
                   <Typography variant="body" color="grey600">

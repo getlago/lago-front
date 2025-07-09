@@ -186,7 +186,7 @@ const CreatePricingUnit = () => {
 
               <div className="flex flex-col gap-12">
                 <div className="not-last-child:mb-2">
-                  <Typography variant="subhead">
+                  <Typography variant="subhead1">
                     {translate('text_17502574817266uy9bvk3i8u')}
                   </Typography>
                   <Typography variant="caption">

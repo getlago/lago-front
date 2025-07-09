@@ -47,7 +47,7 @@ const ChartHeader = ({
             )}
           </div>
 
-          <Typography variant="subhead" color="grey700">
+          <Typography variant="subhead1" color="grey700">
             {amount}
           </Typography>
         </ChartWrapper>

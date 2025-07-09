@@ -200,7 +200,7 @@ const CashfreeIntegrationDetails = () => {
 
         <section>
           <div className="flex h-18 w-full items-center justify-between">
-            <Typography className="flex h-18 w-full items-center" variant="subhead">
+            <Typography className="flex h-18 w-full items-center" variant="subhead1">
               {translate('text_664c732c264d7eed1c74fdc5')}
             </Typography>
 
