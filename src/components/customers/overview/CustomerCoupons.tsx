@@ -119,7 +119,7 @@ export const CustomerCoupons = memo(() => {
                 key: 'coupon.code',
                 title: translate('text_62876e85e32e0300e1803127'),
                 content: ({ coupon: { code } }) => (
-                  <Typography variant="bodyHl" color="grey700" noWrap>
+                  <Typography variant="body" color="grey600" noWrap>
                     {code || ''}
                   </Typography>
                 ),
