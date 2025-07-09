@@ -1,15 +1,15 @@
 import { Avatar, Button, Typography } from 'lago-design-system'
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'
 
 type LogoPickerProps = {
-  logoValue?: string
+  logoValue?: string | null
   logoUrl?: string | null
   name?: string
   className?: string
-  onChange: (value?: string) => void
+  onChange: (value?: string | null) => void
 }
 
 const FILE_MAX_SIZE = 800000
@@ -37,11 +37,18 @@ export const LogoPicker = ({ className, logoValue, onChange, logoUrl, name }: Lo
     }
   }
 
+  const localLogoUrl = useMemo(() => {
+    if (logoValue === null) {
+      return null
+    }
+    return logoValue || logoUrl
+  }, [logoValue, logoUrl])
+
   return (
     <div className={tw('flex gap-4', className)}>
-      {logoValue || logoUrl ? (
+      {!!localLogoUrl ? (
         <Avatar size="large" variant="connector">
-          <img src={(logoValue || logoUrl) as string} alt={`${name}'s logo`} />
+          <img src={localLogoUrl} alt={`${name}'s logo`} />
         </Avatar>
       ) : (
         <Avatar
@@ -52,13 +59,22 @@ export const LogoPicker = ({ className, logoValue, onChange, logoUrl, name }: Lo
         />
       )}
       <div className="flex flex-col gap-2">
-        <Button
-          className="w-fit"
-          variant="secondary"
-          onClick={() => hiddenFileInputRef?.current?.click()}
-        >
-          {translate('text_62ab2d0396dd6b0361614d18')}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            className="w-fit"
+            variant="secondary"
+            onClick={() => hiddenFileInputRef?.current?.click()}
+          >
+            {translate('text_62ab2d0396dd6b0361614d18')}
+          </Button>
+          <Button
+            danger
+            icon="trash"
+            variant="secondary"
+            onClick={() => onChange(null)}
+            disabled={!localLogoUrl}
+          />
+        </div>
         <Typography variant="caption" color={logoUploadError ? 'danger600' : undefined}>
           {translate('text_62ab2d0396dd6b0361614d20')}
         </Typography>
