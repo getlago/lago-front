@@ -10838,6 +10838,13 @@ export type GetInvoiceNumberQueryVariables = Exact<{
 
 export type GetInvoiceNumberQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, number: string } | null };
 
+export type GetInvoiceStatusQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetInvoiceStatusQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } | null };
+
 export type IntegrationsListForCustomerInvoiceDetailsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
@@ -29230,6 +29237,47 @@ export type GetInvoiceNumberQueryHookResult = ReturnType<typeof useGetInvoiceNum
 export type GetInvoiceNumberLazyQueryHookResult = ReturnType<typeof useGetInvoiceNumberLazyQuery>;
 export type GetInvoiceNumberSuspenseQueryHookResult = ReturnType<typeof useGetInvoiceNumberSuspenseQuery>;
 export type GetInvoiceNumberQueryResult = Apollo.QueryResult<GetInvoiceNumberQuery, GetInvoiceNumberQueryVariables>;
+export const GetInvoiceStatusDocument = gql`
+    query getInvoiceStatus($id: ID!) {
+  invoice(id: $id) {
+    id
+    status
+  }
+}
+    `;
+
+/**
+ * __useGetInvoiceStatusQuery__
+ *
+ * To run a query within a React component, call `useGetInvoiceStatusQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetInvoiceStatusQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetInvoiceStatusQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetInvoiceStatusQuery(baseOptions: Apollo.QueryHookOptions<GetInvoiceStatusQuery, GetInvoiceStatusQueryVariables> & ({ variables: GetInvoiceStatusQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetInvoiceStatusQuery, GetInvoiceStatusQueryVariables>(GetInvoiceStatusDocument, options);
+      }
+export function useGetInvoiceStatusLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetInvoiceStatusQuery, GetInvoiceStatusQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetInvoiceStatusQuery, GetInvoiceStatusQueryVariables>(GetInvoiceStatusDocument, options);
+        }
+export function useGetInvoiceStatusSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceStatusQuery, GetInvoiceStatusQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetInvoiceStatusQuery, GetInvoiceStatusQueryVariables>(GetInvoiceStatusDocument, options);
+        }
+export type GetInvoiceStatusQueryHookResult = ReturnType<typeof useGetInvoiceStatusQuery>;
+export type GetInvoiceStatusLazyQueryHookResult = ReturnType<typeof useGetInvoiceStatusLazyQuery>;
+export type GetInvoiceStatusSuspenseQueryHookResult = ReturnType<typeof useGetInvoiceStatusSuspenseQuery>;
+export type GetInvoiceStatusQueryResult = Apollo.QueryResult<GetInvoiceStatusQuery, GetInvoiceStatusQueryVariables>;
 export const IntegrationsListForCustomerInvoiceDetailsDocument = gql`
     query integrationsListForCustomerInvoiceDetails($limit: Int) {
   integrations(limit: $limit) {
