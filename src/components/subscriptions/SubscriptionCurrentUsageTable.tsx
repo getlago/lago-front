@@ -68,9 +68,17 @@ gql`
       id
       units
       amountCents
+      pricingUnitAmountCents
       charge {
         id
         invoiceDisplayName
+        appliedPricingUnit {
+          id
+          pricingUnit {
+            id
+            shortName
+          }
+        }
       }
       billableMetric {
         id
@@ -358,15 +366,39 @@ export const SubscriptionCurrentUsageTableComponent = ({
                 title: translate('text_6419c64eace749372fc72b3e'),
                 textAlign: 'right',
                 minWidth: 100,
-                content: (row) => (
-                  <Typography variant="bodyHl" color="grey700">
-                    {intlFormatNumber(deserializeAmount(row.amountCents, currency), {
-                      currency,
-                      currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
-                      locale,
-                    })}
-                  </Typography>
-                ),
+                content: (row) => {
+                  const currencyDisplay = locale ? 'narrowSymbol' : 'symbol'
+
+                  return (
+                    <div className="flex flex-col">
+                      <Typography variant="bodyHl" color="grey700">
+                        {intlFormatNumber(
+                          deserializeAmount(
+                            row.pricingUnitAmountCents || row.amountCents,
+                            currency,
+                          ),
+                          {
+                            currency,
+                            locale,
+                            currencyDisplay,
+                            pricingUnitShortName:
+                              row.charge.appliedPricingUnit?.pricingUnit?.shortName,
+                          },
+                        )}
+                      </Typography>
+
+                      {!!row.charge.appliedPricingUnit && (
+                        <Typography variant="caption" color="grey600">
+                          {intlFormatNumber(deserializeAmount(row.amountCents, currency), {
+                            currency,
+                            locale,
+                            currencyDisplay,
+                          })}
+                        </Typography>
+                      )}
+                    </div>
+                  )
+                },
               },
             ]}
           />
