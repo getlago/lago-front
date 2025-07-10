@@ -211,7 +211,7 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
             )}
             <Button
               startIcon="plus"
-              variant="quaternary"
+              variant="inline"
               disabled={(formikProps?.values?.metadata?.length || 0) >= MAX_METADATA_COUNT}
               onClick={() =>
                 formikProps.setFieldValue('metadata', [

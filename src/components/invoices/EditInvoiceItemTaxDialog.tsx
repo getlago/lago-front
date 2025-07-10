@@ -205,7 +205,7 @@ export const EditInvoiceItemTaxDialog = forwardRef<EditInvoiceItemTaxDialogRef>(
       <Button
         className="mb-8 flex w-fit"
         startIcon="plus"
-        variant="quaternary"
+        variant="inline"
         onClick={() => {
           formikProps.setFieldValue('taxes', [...(formikProps.values.taxes || []), {}])
         }}

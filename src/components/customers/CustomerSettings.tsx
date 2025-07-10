@@ -263,7 +263,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                         {typeof customer?.billingConfiguration?.documentLocale !== 'string' ? (
                           <Button
                             disabled={loading}
-                            variant="quaternary"
+                            variant="inline"
                             endIcon={isPremium ? undefined : 'sparkles'}
                             onClick={() =>
                               isPremium
@@ -346,7 +346,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                     action={
                       <Button
                         disabled={loading}
-                        variant="quaternary"
+                        variant="inline"
                         onClick={() => editCustomerDunningCampaignDialogRef?.current?.openDialog()}
                       >
                         {translate('text_63e51ef4985f0ebd75c212fc')}
@@ -421,7 +421,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                     FinalizeZeroAmountInvoiceEnum.Inherit ? (
                       <Button
                         disabled={loading}
-                        variant="quaternary"
+                        variant="inline"
                         onClick={() =>
                           editFinalizeZeroAmountInvoiceDialogRef?.current?.openDialog()
                         }
@@ -498,7 +498,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                         {typeof customer?.invoiceGracePeriod !== 'number' ? (
                           <Button
                             disabled={loading}
-                            variant="quaternary"
+                            variant="inline"
                             endIcon={isPremium ? undefined : 'sparkles'}
                             onClick={() =>
                               isPremium
@@ -589,7 +589,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                     hasPermissions(['customersUpdate']) ? (
                       <Button
                         disabled={loading}
-                        variant="quaternary"
+                        variant="inline"
                         endIcon={isPremium ? undefined : 'sparkles'}
                         onClick={() =>
                           editCustomerInvoiceCustomSectionsDialogRef?.current?.openDialog()
@@ -655,7 +655,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                         {typeof customer?.netPaymentTerm !== 'number' ? (
                           <Button
                             disabled={loading}
-                            variant="quaternary"
+                            variant="inline"
                             onClick={() =>
                               editNetPaymentTermDialogRef?.current?.openDialog(customer)
                             }
@@ -737,12 +737,12 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                   action={
                     hasPermissions(['customerSettingsUpdateTaxRates']) ? (
                       <Button
-                        variant="quaternary"
+                        variant="inline"
                         disabled={loading}
                         onClick={() => editVATDialogRef?.current?.openDialog()}
                         data-test="add-vat-rate-button"
                       >
-                        {translate('text_62728ff857d47b013204cab3')}
+                        {translate('text_645bb193927b375079d28ad2')}
                       </Button>
                     ) : undefined
                   }

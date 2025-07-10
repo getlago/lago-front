@@ -148,7 +148,7 @@ const NetsuiteIntegrationSettings = () => {
         <section>
           <IntegrationsPage.Headline label={translate('text_661ff6e56ef7e1b7c542b232')}>
             <Button
-              variant="quaternary"
+              variant="inline"
               disabled={loading}
               onClick={() => {
                 addNetsuiteDialogRef.current?.openDialog({

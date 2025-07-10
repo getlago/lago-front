@@ -37,7 +37,7 @@ const TimezoneBlock = ({ billingEntity }: TimezoneBlockProps) => {
           <>
             {hasPermissions(['organizationUpdate']) && (
               <Button
-                variant="quaternary"
+                variant="inline"
                 endIcon={isPremium ? undefined : 'sparkles'}
                 onClick={() => {
                   isPremium

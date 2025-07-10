@@ -137,7 +137,7 @@ const AnrokIntegrationSettings = () => {
         <section>
           <IntegrationsPage.Headline label={translate('text_661ff6e56ef7e1b7c542b232')}>
             <Button
-              variant="quaternary"
+              variant="inline"
               disabled={loading}
               onClick={() => {
                 addAnrokDialogRef.current?.openDialog({
@@ -210,7 +210,7 @@ const AnrokIntegrationSettings = () => {
           </Stack>
 
           <Button
-            variant="quaternary"
+            variant="inline"
             disabled={!anrokIntegration?.failedInvoicesCount}
             onClick={async () => await retryAllInvoices({ variables: { input: {} } })}
           >

@@ -206,7 +206,7 @@ const CashfreeIntegrationDetails = () => {
 
             {canEditIntegration && (
               <Button
-                variant="quaternary"
+                variant="inline"
                 align="left"
                 onClick={() => {
                   addDialogRef.current?.openDialog({
