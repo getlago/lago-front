@@ -190,7 +190,7 @@ const AdyenIntegrationDetails = () => {
           <IntegrationsPage.Headline label={translate('text_645d071272418a14c1c76a9a')}>
             {canEditIntegration && (
               <Button
-                variant="quaternary"
+                variant="inline"
                 disabled={loading}
                 onClick={() => {
                   addAdyenDialogRef.current?.openDialog({
@@ -252,7 +252,7 @@ const AdyenIntegrationDetails = () => {
           <IntegrationsPage.Headline label={translate('text_65367cb78324b77fcb6af21c')}>
             {canEditIntegration && (
               <Button
-                variant="quaternary"
+                variant="inline"
                 disabled={!!adyenPaymentProvider?.successRedirectUrl}
                 onClick={() => {
                   successRedirectUrlDialogRef.current?.openDialog({

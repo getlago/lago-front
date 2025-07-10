@@ -170,7 +170,7 @@ const CreateTaxRate = () => {
                     <Button
                       className="self-start"
                       startIcon="plus"
-                      variant="quaternary"
+                      variant="inline"
                       onClick={() => setShouldDisplayDescription(true)}
                       data-test="show-description"
                     >

@@ -280,7 +280,7 @@ export const CommitmentsSection = ({
                     <Button
                       fitContent
                       startIcon="plus"
-                      variant="quaternary"
+                      variant="inline"
                       onClick={() => {
                         setShouldDisplayTaxesInput(true)
 
@@ -306,7 +306,7 @@ export const CommitmentsSection = ({
         </Accordion>
       ) : (
         <Button
-          variant="quaternary"
+          variant="inline"
           startIcon="plus"
           endIcon={isPremium ? undefined : 'sparkles'}
           disabled={displayMinimumCommitment}

@@ -169,7 +169,7 @@ const LagoTaxManagementIntegration = () => {
             description={translate('text_1746697495328feu6uz9q6oo')}
           >
             <Button
-              variant="quaternary"
+              variant="inline"
               onClick={() => {
                 addLagoTaxManagementDialog.current?.openDialog()
               }}
@@ -223,7 +223,7 @@ const LagoTaxManagementIntegration = () => {
           <IntegrationsPage.Headline label={translate('text_657078c28394d6b1ae1b9743')}>
             {hasPermissions(['billingEntitiesTaxesView']) && (
               <Button
-                variant="quaternary"
+                variant="inline"
                 disabled={loading}
                 onClick={() => {
                   navigate(TAXES_SETTINGS_ROUTE)

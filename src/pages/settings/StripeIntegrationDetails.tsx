@@ -189,7 +189,7 @@ const StripeIntegrationDetails = () => {
           <IntegrationsPage.Headline label={translate('text_657078c28394d6b1ae1b9725')}>
             {canEditIntegration && (
               <Button
-                variant="quaternary"
+                variant="inline"
                 disabled={loading}
                 onClick={() => {
                   addDialogRef.current?.openDialog({
@@ -235,7 +235,7 @@ const StripeIntegrationDetails = () => {
           <IntegrationsPage.Headline label={translate('text_65367cb78324b77fcb6af21c')}>
             {canEditIntegration && (
               <Button
-                variant="quaternary"
+                variant="inline"
                 disabled={!!stripePaymentProvider?.successRedirectUrl || loading}
                 onClick={() => {
                   successRedirectUrlDialogRef.current?.openDialog({

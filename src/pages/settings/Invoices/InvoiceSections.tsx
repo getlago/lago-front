@@ -124,7 +124,7 @@ const InvoiceSections = () => {
                 sublabel={translate('text_1750250547628xsddx47vasu')}
                 action={
                   <Button
-                    variant="quaternary"
+                    variant="inline"
                     disabled={!canEditOrCreatePricingUnits}
                     onClick={() => navigate(CREATE_PRICING_UNIT)}
                   >
@@ -205,7 +205,7 @@ const InvoiceSections = () => {
               sublabel={translate('text_17422301910293sbjvqbbq2i')}
               action={
                 <Button
-                  variant="quaternary"
+                  variant="inline"
                   disabled={!canEditInvoiceSettings}
                   onClick={() => navigate(CREATE_INVOICE_CUSTOM_SECTION)}
                 >

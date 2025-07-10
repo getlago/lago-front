@@ -196,7 +196,7 @@ const MoneyhashIntegrationDetails = () => {
 
           {canEditIntegration && (
             <Button
-              variant="quaternary"
+              variant="inline"
               disabled={loading}
               onClick={() => {
                 addMoneyhashDialogRef.current?.openDialog({

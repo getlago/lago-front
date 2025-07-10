@@ -839,10 +839,10 @@ export const ChargeAccordion = memo(
           )}
 
           {!!localCharge?.billableMetric?.filters?.length && (
-            <div className="mx-0 mb-4 mt-6 px-4">
+            <div className="mx-0 mb-4 mt-6 flex flex-wrap gap-4 px-4">
               {!!localCharge.billableMetric.filters?.length && (
                 <Button
-                  variant="quaternary"
+                  variant="inline"
                   startIcon="plus"
                   onClick={() => {
                     formikProps.setFieldValue(`charges.${index}.filters`, [
@@ -875,7 +875,7 @@ export const ChargeAccordion = memo(
 
               {!localCharge.properties && (
                 <Button
-                  variant="quaternary"
+                  variant="inline"
                   startIcon="plus"
                   onClick={() => {
                     formikProps.setFieldValue(`charges.${index}.properties`, getPropertyShape({}))
@@ -977,7 +977,7 @@ export const ChargeAccordion = memo(
                 {!showSpendingMinimum ? (
                   <Button
                     fitContent
-                    variant="quaternary"
+                    variant="inline"
                     startIcon="plus"
                     disabled={subscriptionFormType === FORM_TYPE_ENUM.edition || disabled}
                     endIcon={isPremium ? undefined : 'sparkles'}
@@ -1064,7 +1064,7 @@ export const ChargeAccordion = memo(
                 <Button
                   fitContent
                   startIcon="plus"
-                  variant="quaternary"
+                  variant="inline"
                   onClick={() => {
                     setShouldDisplayTaxesInput(true)
 

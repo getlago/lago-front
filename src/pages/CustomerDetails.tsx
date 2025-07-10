@@ -164,7 +164,7 @@ const CustomerDetails = () => {
           <Button
             className="shrink-0"
             startIcon="outside"
-            variant="quaternary"
+            variant="inline"
             onClick={async () => {
               await generatePortalUrl({ variables: { input: { id: customerId as string } } })
             }}

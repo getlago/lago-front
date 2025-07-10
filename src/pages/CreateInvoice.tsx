@@ -957,7 +957,7 @@ const CreateInvoice = () => {
                       </div>
                     ) : (
                       <Button
-                        variant="secondary"
+                        variant="inline"
                         startIcon="plus"
                         onClick={() => {
                           setShowAddItem(true)

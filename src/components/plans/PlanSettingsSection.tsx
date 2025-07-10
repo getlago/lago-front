@@ -174,7 +174,7 @@ export const PlanSettingsSection = memo(
             <Button
               fitContent
               startIcon="plus"
-              variant="quaternary"
+              variant="inline"
               onClick={() => setShouldDisplayDescription(true)}
               data-test="show-description"
             >
@@ -298,7 +298,7 @@ export const PlanSettingsSection = memo(
           <Button
             className="self-start"
             startIcon="plus"
-            variant="quaternary"
+            variant="inline"
             onClick={() => {
               setShouldDisplayTaxesInput(true)
               setTimeout(() => {

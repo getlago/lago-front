@@ -41,12 +41,12 @@ export const PageSectionTitle = ({
           </div>
 
           {action && (
-            <Button variant="quaternary" onClick={action.onClick} data-test={action.dataTest || ''}>
+            <Button variant="inline" onClick={action.onClick} data-test={action.dataTest || ''}>
               {action.title}
             </Button>
           )}
 
-          {customAction ? customAction : null}
+          {!!customAction && customAction}
         </>
       )}
     </div>

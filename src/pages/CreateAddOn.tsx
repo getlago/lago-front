@@ -253,7 +253,7 @@ const CreateAddOn = () => {
                     <Button
                       className="self-start"
                       startIcon="plus"
-                      variant="quaternary"
+                      variant="inline"
                       onClick={() => setShouldDisplayDescription(true)}
                       data-test="show-description"
                     >
@@ -362,7 +362,7 @@ const CreateAddOn = () => {
                     <Button
                       className="self-start"
                       startIcon="plus"
-                      variant="quaternary"
+                      variant="inline"
                       onClick={() => {
                         setShouldDisplayTaxesInput(true)
 

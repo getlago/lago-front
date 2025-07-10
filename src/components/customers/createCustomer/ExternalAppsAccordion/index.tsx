@@ -108,7 +108,7 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
           opener={
             <Button
               startIcon="plus"
-              variant="quaternary"
+              variant="inline"
               disabled={
                 showAccountingSection && showPaymentSection && showTaxSection && showCRMSection
               }

@@ -399,7 +399,7 @@ const CreateWalletTopUp = () => {
                   <Button
                     className="self-start"
                     startIcon="plus"
-                    variant="quaternary"
+                    variant="inline"
                     onClick={() =>
                       formikProps.setFieldValue('metadata', [
                         ...(formikProps.values.metadata ?? []),

@@ -412,7 +412,7 @@ export const ChargesSection = memo(
                   <Button
                     fitContent
                     startIcon="plus"
-                    variant="quaternary"
+                    variant="inline"
                     data-test="add-metered-charge"
                     onClick={() => {
                       setShowAddMeteredCharge(true)
@@ -535,7 +535,7 @@ export const ChargesSection = memo(
                   <Button
                     fitContent
                     startIcon="plus"
-                    variant="quaternary"
+                    variant="inline"
                     data-test="add-recurring-charge"
                     onClick={() => {
                       setShowAddRecurringCharge(true)

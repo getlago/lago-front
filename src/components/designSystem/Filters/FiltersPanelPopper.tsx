@@ -220,7 +220,7 @@ export const FiltersPanelPopper = () => {
                   })
                 })
               }}
-              variant="quaternary"
+              variant="inline"
             >
               {translate('text_66ab42d4ece7e6b7078993b9')}
             </Button>
