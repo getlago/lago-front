@@ -191,6 +191,13 @@ gql`
     }
   }
 
+  query getInvoiceStatus($id: ID!) {
+    invoice(id: $id) {
+      id
+      status
+    }
+  }
+
   query integrationsListForCustomerInvoiceDetails($limit: Int) {
     integrations(limit: $limit) {
       collection {
