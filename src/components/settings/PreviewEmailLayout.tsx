@@ -95,9 +95,18 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
             ) : (
               <>
                 {!!logoUrl ? (
-                  <Avatar size="medium" variant="connector">
-                    <img src={logoUrl} alt="company-logo" />
-                  </Avatar>
+                  <Button
+                    className="rounded-xl p-0"
+                    size="small"
+                    variant="quaternary"
+                    onClick={() => {
+                      updateLogoDialogRef?.current?.openDialog()
+                    }}
+                  >
+                    <Avatar size="medium" variant="connector">
+                      <img src={logoUrl} alt="company-logo" />
+                    </Avatar>
+                  </Button>
                 ) : (
                   <Tooltip title={translate('text_6411e0aa915fd500a4d92cfb')} placement="top">
                     <Button
@@ -136,7 +145,7 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
         </div>
       </div>
 
-      <UpdateBillingEntityLogoDialog ref={updateLogoDialogRef} />
+      <UpdateBillingEntityLogoDialog ref={updateLogoDialogRef} existingLogoUrl={logoUrl} />
     </>
   )
 }
