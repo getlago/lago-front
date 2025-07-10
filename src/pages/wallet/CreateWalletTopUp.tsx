@@ -22,8 +22,10 @@ import {
 import {
   CreateCustomerWalletTransactionInput,
   CurrencyEnum,
+  InvoiceStatusTypeEnum,
   useCreateCustomerWalletTransactionMutation,
   useGetCustomerWalletListQuery,
+  useGetInvoiceStatusQuery,
   useGetWalletForTopUpQuery,
   useVoidInvoiceMutation,
   WalletStatusEnum,
@@ -67,6 +69,13 @@ const CreateWalletTopUp = () => {
   const { organization: { defaultCurrency } = {} } = useOrganizationInfos()
   const { customerId = '', walletId = '', voidedInvoiceId = '' } = useParams()
   const warningDialogRef = useRef<WarningDialogRef>(null)
+
+  const { data: voidedInvoice } = useGetInvoiceStatusQuery({
+    variables: {
+      id: voidedInvoiceId as string,
+    },
+    skip: !voidedInvoiceId,
+  })
 
   const { data: customerWalletData } = useGetCustomerWalletListQuery({
     variables: { customerId, page: 0, limit: 20 },
@@ -134,7 +143,7 @@ const CreateWalletTopUp = () => {
     }) => {
       if (!wallet) return
 
-      if (voidedInvoiceId) {
+      if (voidedInvoiceId && voidedInvoice?.invoice?.status !== InvoiceStatusTypeEnum.Voided) {
         await voidInvoice({
           variables: {
             input: {
