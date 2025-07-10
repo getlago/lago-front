@@ -33,6 +33,7 @@ import {
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
+import { tw } from '~/styles/utils'
 
 gql`
   query customerForSubscriptionUsage($customerId: ID!) {
@@ -178,6 +179,8 @@ export const SubscriptionCurrentUsageTableComponent = ({
               variant="quaternary"
               icon="reload"
               size="small"
+              className={tw(usageLoading && '[&>svg]:animate-spin')}
+              disabled={usageLoading}
               onClick={async () => {
                 refetchUsage()
               }}
@@ -429,6 +432,7 @@ export const SubscriptionCurrentUsageTable = ({
     // IDs in the usage data are not stable and can change, hence having inconsistent data in the Drawer
     fetchPolicy: 'no-cache',
     nextFetchPolicy: 'no-cache',
+    notifyOnNetworkStatusChange: true,
   })
 
   return (
