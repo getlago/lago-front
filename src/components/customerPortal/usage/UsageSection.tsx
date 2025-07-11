@@ -6,11 +6,15 @@ import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import TextButton from '~/components/customerPortal/common/TextButton'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import UsageSubscriptionItem from '~/components/customerPortal/usage/UsageSubscriptionItem'
-import { SubscriptionForPortalUsageFragmentDoc, useGetPortalUsageQuery } from '~/generated/graphql'
+import {
+  StatusTypeEnum,
+  SubscriptionForPortalUsageFragmentDoc,
+  useGetPortalUsageQuery,
+} from '~/generated/graphql'
 
 gql`
-  query getPortalUsage {
-    customerPortalSubscriptions {
+  query getPortalUsage($status: [StatusTypeEnum!]) {
+    customerPortalSubscriptions(status: $status) {
       collection {
         id
         ...SubscriptionForPortalUsage
@@ -33,7 +37,11 @@ const UsageSection = ({ viewSubscription }: PortalUsageSectionProps) => {
     loading: portalUsageLoading,
     error: portalUsageError,
     refetch: portalUsageRefetch,
-  } = useGetPortalUsageQuery()
+  } = useGetPortalUsageQuery({
+    variables: {
+      status: [StatusTypeEnum.Active],
+    },
+  })
 
   const subscription = portalUsageData?.customerPortalSubscriptions?.collection
 

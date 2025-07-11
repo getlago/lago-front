@@ -29,6 +29,7 @@ import {
   CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
   CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
+  CUSTOMER_INVOICE_DETAILS_ROUTE,
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   CUSTOMER_SUBSCRIPTION_PLAN_DETAILS,
   CUSTOMERS_LIST_ROUTE,
@@ -47,6 +48,7 @@ import {
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   PLANS_ROUTE,
   SETTINGS_ROUTE,
+  SUBSCRIPTIONS_ROUTE,
   TAXES_SETTINGS_ROUTE,
 } from '~/core/router'
 import { useSideNavInfosQuery } from '~/generated/graphql'
@@ -350,17 +352,27 @@ const MainNavLayout = () => {
                       CUSTOMERS_LIST_ROUTE,
                       CUSTOMER_DETAILS_ROUTE,
                       CUSTOMER_DETAILS_TAB_ROUTE,
+                    ],
+                    hidden: !hasPermissions(['customersView']),
+                  },
+                  {
+                    title: translate('text_6250304370f0f700a8fdc28d'),
+                    icon: 'clock',
+                    link: SUBSCRIPTIONS_ROUTE,
+                    match: [
+                      SUBSCRIPTIONS_ROUTE,
                       CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
                       PLAN_SUBSCRIPTION_DETAILS_ROUTE,
                     ],
-                    hidden: !hasPermissions(['customersView']),
+                    canBeClickedOnActive: true,
+                    hidden: !hasPermissions(['subscriptionsView']),
                   },
                   {
                     title: translate('text_63ac86d797f728a87b2f9f85'),
                     icon: 'document',
                     link: INVOICES_ROUTE,
                     canBeClickedOnActive: true,
-                    match: [INVOICES_ROUTE],
+                    match: [INVOICES_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE],
                     hidden: !hasPermissions(['invoicesView']),
                   },
                   {

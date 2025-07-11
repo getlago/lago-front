@@ -14,23 +14,21 @@ import { SubscriptionAlertsList } from '~/components/subscriptions/SubscriptionA
 import { SubscriptionDetailsOverview } from '~/components/subscriptions/SubscriptionDetailsOverview'
 import { SubscriptionUsageTabContent } from '~/components/subscriptions/SubscriptionUsageTabContent'
 import { addToast } from '~/core/apolloClient'
-import {
-  CustomerSubscriptionDetailsTabsOptionsEnum,
-  PlanDetailsTabsOptionsEnum,
-} from '~/core/constants/tabsOptions'
+import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   CREATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE,
   CREATE_ALERT_PLAN_SUBSCRIPTION_ROUTE,
   CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
-  PLAN_DETAILS_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
+  SUBSCRIPTIONS_ROUTE,
   UPDATE_SUBSCRIPTION,
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { StatusTypeEnum, useGetSubscriptionForDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import { MenuPopper, PageHeader } from '~/styles'
@@ -71,6 +69,9 @@ const SubscriptionDetails = () => {
       variables: { subscriptionId: subscriptionId as string },
       skip: !subscriptionId,
     })
+
+  const { goBack } = useLocationHistory()
+
   const subscription = subscriptionResult?.subscription
 
   const canCreateOrUpdateAlert = useMemo(() => {
@@ -102,18 +103,7 @@ const SubscriptionDetails = () => {
           <Button
             icon="arrow-left"
             variant="quaternary"
-            onClick={() => {
-              if (!!customerId) {
-                navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId }))
-              } else if (!!planId && !isSubscriptionLoading && subscription) {
-                navigate(
-                  generatePath(PLAN_DETAILS_ROUTE, {
-                    planId: subscription?.plan?.parent?.id || planId,
-                    tab: PlanDetailsTabsOptionsEnum.subscriptions,
-                  }),
-                )
-              }
-            }}
+            onClick={() => goBack(generatePath(SUBSCRIPTIONS_ROUTE))}
           />
           {isSubscriptionLoading ? (
             <Skeleton variant="text" className="w-50" />
