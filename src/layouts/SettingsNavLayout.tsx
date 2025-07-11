@@ -36,6 +36,7 @@ import {
   INTEGRATIONS_ROUTE,
   INVOICE_SETTINGS_ROUTE,
   MEMBERS_ROUTE,
+  OKTA_AUTHENTICATION_ROUTE,
   settingRoutes,
   TAXES_SETTINGS_ROUTE,
   UPDATE_DUNNING_ROUTE,
@@ -67,7 +68,8 @@ const generateTabs = ({
   {
     title: translate('text_664c732c264d7eed1c74fd96'),
     link: AUTHENTICATION_ROUTE,
-    hidden: !hasPermissions(['organizationIntegrationsView']),
+    match: [OKTA_AUTHENTICATION_ROUTE],
+    hidden: !hasPermissions(['organizationIntegrationsView', 'authenticationMethodsView']),
   },
   {
     title: translate('text_63208b630aaf8df6bbfb2655'),

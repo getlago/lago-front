@@ -15,6 +15,8 @@ gql`
       analyticsView
       analyticsOverdueBalancesView
       auditLogsView
+      authenticationMethodsView
+      authenticationMethodsUpdate
       billableMetricsCreate
       billableMetricsDelete
       billableMetricsUpdate
