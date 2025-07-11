@@ -19,6 +19,7 @@ gql`
     premiumIntegrations
     canCreateBillingEntity
     authenticationMethods
+    authenticatedMethod
 
     ...OrganizationForDatePicker
   }

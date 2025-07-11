@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql, useApolloClient } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { useEffect } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
@@ -6,28 +6,19 @@ import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 import { GoogleAuthModeEnum } from '~/components/auth/GoogleAuthButton'
 import { LagoGQLError, onLogIn } from '~/core/apolloClient'
 import { INVITATION_ROUTE_FORM, LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
-import {
-  CurrentUserFragmentDoc,
-  LagoApiError,
-  useGoogleLoginUserMutation,
-} from '~/generated/graphql'
+import { LagoApiError, useGoogleLoginUserMutation } from '~/generated/graphql'
 
 gql`
   mutation googleLoginUser($input: GoogleLoginUserInput!) {
     googleLoginUser(input: $input) {
-      user {
-        id
-        ...CurrentUser
-      }
       token
     }
   }
-
-  ${CurrentUserFragmentDoc}
 `
 
 const GoogleAuthCallback = () => {
   const navigate = useNavigate()
+  const client = useApolloClient()
   const [googleLoginUser] = useGoogleLoginUserMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
   })
@@ -61,7 +52,7 @@ const GoogleAuthCallback = () => {
             }`,
           })
         } else if (!!res.data?.googleLoginUser) {
-          onLogIn(res.data?.googleLoginUser?.token, res.data?.googleLoginUser?.user)
+          await onLogIn(client, res.data?.googleLoginUser?.token)
         }
       } else if (mode === 'signup') {
         navigate({

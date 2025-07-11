@@ -22,6 +22,7 @@ gql`
         id
         name
         logoUrl
+        accessibleByCurrentSession
       }
     }
   }
