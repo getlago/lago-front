@@ -126,6 +126,7 @@ const CustomerInvoiceRegenerate = () => {
             ),
           }
         : {}),
+      appliedTaxes: invoice?.appliedTaxes,
     }
 
     return setFees((f) => [...f, fee as unknown as Fee])
@@ -155,6 +156,8 @@ const CustomerInvoiceRegenerate = () => {
       })
     }
 
+    const taxCodes = invoice?.appliedTaxes?.map((tax) => tax.taxCode).filter((code) => !!code)
+
     const feesInput = fees
       .map((fee) => ({
         id: fee.id?.includes(TEMPORARY_ID_PREFIX) ? null : fee.id,
@@ -162,10 +165,9 @@ const CustomerInvoiceRegenerate = () => {
         chargeId: fee.charge?.id,
         description: fee.description,
         invoiceDisplayName: fee.invoiceDisplayName,
-        name: null, // ????
         subscriptionId: fee.subscription?.id,
-        taxCodes: null, // ???,
-        unitAmountCents: null, // ???
+        unitAmountCents: fee.preciseUnitAmount,
+        taxCodes: (taxCodes?.length || 0) > 0 ? taxCodes : null,
         units: fee.units,
       }))
       .map((fee) => {
@@ -215,7 +217,7 @@ const CustomerInvoiceRegenerate = () => {
       <CenteredPage.Header>
         <Typography className="font-medium text-grey-700">
           {translate(
-            !!invoice.voidedAt ? 'text_1750678506388s7bfu2qjzhn' : 'text_17519912068281q4wys5q1g2',
+            !!invoice?.voidedAt ? 'text_1750678506388s7bfu2qjzhn' : 'text_17519912068281q4wys5q1g2',
           )}
         </Typography>
 
@@ -261,7 +263,7 @@ const CustomerInvoiceRegenerate = () => {
               <div className="flex flex-col gap-1">
                 <Typography className="text-2xl font-semibold text-grey-700">
                   {translate(
-                    !!invoice.voidedAt
+                    !!invoice?.voidedAt
                       ? 'text_1750678506388s7bfu2qjzhn'
                       : 'text_17519912068281q4wys5q1g2',
                   )}
@@ -269,7 +271,7 @@ const CustomerInvoiceRegenerate = () => {
 
                 <Typography className="text-grey-600">
                   {translate(
-                    !!invoice.voidedAt
+                    !!invoice?.voidedAt
                       ? 'text_1750678506388d8u5rv893gn'
                       : 'text_17519914705750hjw95snsdf',
                   )}
@@ -307,7 +309,7 @@ const CustomerInvoiceRegenerate = () => {
 
         <Button variant="primary" size="large" onClick={() => onSubmit()}>
           {translate(
-            !!invoice.voidedAt ? 'text_1750678506388ssxh1yacay0' : 'text_1751991518313o0xwbo9xf0y',
+            !!invoice?.voidedAt ? 'text_1750678506388ssxh1yacay0' : 'text_1751991518313o0xwbo9xf0y',
           )}
         </Button>
       </CenteredPage.StickyFooter>

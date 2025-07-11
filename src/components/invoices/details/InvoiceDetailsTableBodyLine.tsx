@@ -226,6 +226,7 @@ export const InvoiceDetailsTableBodyLine = memo(
         return fee.appliedTaxes.map((appliedTaxes) => (
           <Typography
             key={`fee-${fee.id}-applied-tax-${appliedTaxes.id}`}
+            className="whitespace-nowrap"
             variant="body"
             color="grey700"
           >

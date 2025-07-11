@@ -34,7 +34,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
@@ -66,8 +65,6 @@ const CustomerInvoiceVoid = () => {
   const hasActiveWallet = useCustomerHasActiveWallet({
     customerId,
   })
-
-  const actions = usePermissionsInvoiceActions()
 
   const [voidInvoice] = useVoidInvoiceMutation({
     onCompleted(voidedData) {
