@@ -17,6 +17,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Adyen from '~/public/images/adyen.svg'
 import Cashfree from '~/public/images/cashfree.svg'
+import Flutterwave from '~/public/images/flutterwave.svg'
 import GoCardless from '~/public/images/gocardless.svg'
 import Moneyhash from '~/public/images/moneyhash.svg'
 import Stripe from '~/public/images/stripe.svg'
@@ -28,6 +29,13 @@ gql`
     paymentProviders(limit: $limit) {
       collection {
         ... on CashfreeProvider {
+          __typename
+          id
+          name
+          code
+        }
+
+        ... on FlutterwaveProvider {
           __typename
           id
           name
@@ -74,6 +82,7 @@ interface PaymentProvidersAccordionProps {
 const avatarMapping: Record<ProviderTypeEnum, ReactNode> = {
   [ProviderTypeEnum.Adyen]: <Adyen />,
   [ProviderTypeEnum.Cashfree]: <Cashfree />,
+  [ProviderTypeEnum.Flutterwave]: <Flutterwave />,
   [ProviderTypeEnum.Gocardless]: <GoCardless />,
   [ProviderTypeEnum.Stripe]: <Stripe />,
   [ProviderTypeEnum.Moneyhash]: <Moneyhash />,
@@ -110,7 +119,10 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
 
   const isSyncWithProviderSupported = useMemo(() => {
     if (!formikProps.values.paymentProvider) return false
-    const unsupportedPaymentProviders: ProviderTypeEnum[] = [ProviderTypeEnum.Cashfree]
+    const unsupportedPaymentProviders: ProviderTypeEnum[] = [
+      ProviderTypeEnum.Cashfree,
+      ProviderTypeEnum.Flutterwave,
+    ]
 
     return !unsupportedPaymentProviders.includes(formikProps.values.paymentProvider)
   }, [formikProps.values.paymentProvider])
@@ -144,7 +156,7 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
             loading={loading}
             avatar={
               formikProps.values.paymentProvider && (
-                <Avatar size="big" variant="connector-full">
+                <Avatar size="big" variant="connector-full" className="bg-white">
                   {avatarMapping[formikProps.values.paymentProvider]}
                 </Avatar>
               )
@@ -181,13 +193,15 @@ export const PaymentProvidersAccordion: FC<PaymentProvidersAccordionProps> = ({
               PopperProps={{ displayInDialog: true }}
               value={formikProps.values.paymentProviderCode as string}
               onChange={(value) => {
-                formikProps.setFieldValue('paymentProviderCode', value)
                 const selectedProvider = connectedPaymentProvidersData.find(
                   (provider) => provider.value === value,
                 )?.group
 
-                // Set paymentProvider depending on selected value
-                formikProps.setFieldValue('paymentProvider', selectedProvider as ProviderTypeEnum)
+                formikProps.setValues({
+                  ...formikProps.values,
+                  paymentProviderCode: value,
+                  paymentProvider: selectedProvider as ProviderTypeEnum,
+                })
               }}
             />
 

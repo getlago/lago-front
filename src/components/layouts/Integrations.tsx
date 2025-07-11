@@ -53,7 +53,7 @@ const IntegrationsHeader: FC<{
         </>
       ) : (
         <>
-          <Avatar className="mr-4" variant="connector-full" size="large">
+          <Avatar className="mr-4 bg-white" variant="connector-full" size="large">
             {integrationLogo}
           </Avatar>
           <div className="flex flex-col gap-1">
@@ -80,7 +80,7 @@ const IntegrationListItem: FC<
         className="box-border flex min-h-18 w-full items-center shadow-b visited:text-inherit hover:bg-grey-100 hover:no-underline focus:bg-grey-100 focus:ring-0 active:bg-grey-200"
       >
         <div className="flex flex-row items-center gap-3">
-          <Avatar variant="connector" size="big">
+          <Avatar variant="connector" size="big" className="bg-white">
             <Icon name="plug" color="dark" />
           </Avatar>
           <div>
@@ -116,7 +116,7 @@ const IntegrationDetailsItem: FC<
           <Typography variant="caption" color="grey600">
             {label}
           </Typography>
-          <Typography variant="body" color="grey700">
+          <Typography className="overflow-wrap-anywhere" variant="body" color="grey700">
             {value}
           </Typography>
         </div>
