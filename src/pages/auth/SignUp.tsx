@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql, useApolloClient } from '@apollo/client'
 import { Stack } from '@mui/material'
 import _findKey from 'lodash/findKey'
 import { useEffect, useMemo, useState } from 'react'
@@ -11,12 +11,7 @@ import { TextInput } from '~/components/form'
 import { hasDefinedGQLError, onLogIn } from '~/core/apolloClient'
 import { DOCUMENTATION_ENV_VARS } from '~/core/constants/externalUrls'
 import { LOGIN_ROUTE } from '~/core/router'
-import {
-  CurrentUserFragmentDoc,
-  LagoApiError,
-  useGoogleRegisterMutation,
-  useSignupMutation,
-} from '~/generated/graphql'
+import { LagoApiError, useGoogleRegisterMutation, useSignupMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
 import { theme } from '~/styles'
@@ -27,24 +22,14 @@ gql`
   mutation signup($input: RegisterUserInput!) {
     registerUser(input: $input) {
       token
-      user {
-        id
-        ...CurrentUser
-      }
     }
   }
 
   mutation googleRegister($input: GoogleRegisterUserInput!) {
     googleRegisterUser(input: $input) {
       token
-      user {
-        id
-        ...CurrentUser
-      }
     }
   }
-
-  ${CurrentUserFragmentDoc}
 `
 
 type Fields = { email: string; password: string; organizationName: string }
@@ -69,24 +54,25 @@ const PASSWORD_VALIDATION = [
 ]
 
 const SignUp = () => {
+  const client = useApolloClient()
   const [searchParams] = useSearchParams()
   const googleCode = searchParams.get('code') || ''
   const { translate } = useInternationalization()
   const [isGoogleRegister, setIsGoogleRegister] = useState<boolean>(!!googleCode)
   const [signUp, { error: signUpError }] = useSignupMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-    onCompleted(res) {
+    onCompleted: async (res) => {
       if (!!res?.registerUser) {
-        onLogIn(res.registerUser.token, res?.registerUser?.user)
+        await onLogIn(client, res.registerUser.token)
       }
     },
   })
 
   const [googleRegister, { error: googleRegisterError }] = useGoogleRegisterMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-    onCompleted(res) {
+    onCompleted: async (res) => {
       if (!!res?.googleRegisterUser) {
-        onLogIn(res.googleRegisterUser.token, res?.googleRegisterUser?.user)
+        await onLogIn(client, res.googleRegisterUser.token)
       }
     },
   })

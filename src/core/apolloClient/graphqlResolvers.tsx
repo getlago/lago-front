@@ -13,6 +13,7 @@ export const typeDefs = gql`
     expired_jwt_token
     incorrect_login_or_password
     not_organization_member
+    login_method_not_authorized
 
     # Validation errors
     invite_email_mistmatch

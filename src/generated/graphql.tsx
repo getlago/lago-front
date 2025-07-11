@@ -2309,6 +2309,7 @@ export type CurrentOrganization = {
   adyenPaymentProviders?: Maybe<Array<AdyenProvider>>;
   apiKey?: Maybe<Scalars['String']['output']>;
   appliedDunningCampaign?: Maybe<DunningCampaign>;
+  authenticatedMethod: AuthenticationMethodsEnum;
   authenticationMethods: Array<AuthenticationMethodsEnum>;
   billingConfiguration?: Maybe<OrganizationBillingConfiguration>;
   canCreateBillingEntity: Scalars['Boolean']['output'];
@@ -8140,7 +8141,7 @@ export type XeroIntegration = {
 export type UserIdentifierQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, premium: boolean, memberships: Array<{ __typename?: 'Membership', id: string, organization: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, analyticsOverdueBalancesView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, billingEntitiesInvoicesView: boolean, billingEntitiesInvoicesUpdate: boolean, billingEntitiesTaxesView: boolean, billingEntitiesTaxesUpdate: boolean, billingEntitiesEmailsView: boolean, billingEntitiesEmailsUpdate: boolean, billingEntitiesDunningCampaignsUpdate: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, dunningCampaignsCreate: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> }, organization?: { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, canCreateBillingEntity: boolean, authenticationMethods: Array<AuthenticationMethodsEnum> } | null };
+export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, premium: boolean, memberships: Array<{ __typename?: 'Membership', id: string, organization: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, accessibleByCurrentSession: boolean }, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, analyticsOverdueBalancesView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, billingEntitiesInvoicesView: boolean, billingEntitiesInvoicesUpdate: boolean, billingEntitiesTaxesView: boolean, billingEntitiesTaxesUpdate: boolean, billingEntitiesEmailsView: boolean, billingEntitiesEmailsUpdate: boolean, billingEntitiesDunningCampaignsUpdate: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, dunningCampaignsCreate: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> }, organization?: { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, canCreateBillingEntity: boolean, authenticationMethods: Array<AuthenticationMethodsEnum>, authenticatedMethod: AuthenticationMethodsEnum } | null };
 
 export type ActivityLogsTableDataFragment = { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null };
 
@@ -10507,7 +10508,12 @@ export type GetWalletTransactionsQuery = { __typename?: 'Query', walletTransacti
 
 export type WalletTransactionForTransactionListItemFragment = { __typename?: 'WalletTransaction', id: string, status: WalletTransactionStatusEnum, transactionStatus: WalletTransactionTransactionStatusEnum, transactionType: WalletTransactionTransactionTypeEnum, amount: string, creditAmount: string, settledAt?: any | null, failedAt?: any | null, createdAt: any, source: WalletTransactionSourceEnum, wallet?: { __typename?: 'Wallet', id: string, currency: CurrencyEnum } | null };
 
-export type CurrentUserFragment = { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> };
+export type CurrentUserFragment = { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null, accessibleByCurrentSession: boolean }> };
+
+export type GetCurrentUserInfosForLoginQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetCurrentUserInfosForLoginQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null, accessibleByCurrentSession: boolean }> } };
 
 export type InvoiceSubscriptionFormatingFragment = { __typename?: 'InvoiceSubscription', fromDatetime?: any | null, toDatetime?: any | null, chargesFromDatetime?: any | null, chargesToDatetime?: any | null, inAdvanceChargesFromDatetime?: any | null, inAdvanceChargesToDatetime?: any | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval } } | null }> | null, subscription: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } }, invoice: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } };
 
@@ -10777,12 +10783,12 @@ export type UpdateTaxMutationVariables = Exact<{
 
 export type UpdateTaxMutation = { __typename?: 'Mutation', updateTax?: { __typename?: 'Tax', id: string, code: string, description?: string | null, name: string, rate: number, customersCount: number } | null };
 
-export type CurrentUserInfosFragment = { __typename?: 'User', id: string, email?: string | null, premium: boolean, memberships: Array<{ __typename?: 'Membership', id: string, organization: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, analyticsOverdueBalancesView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, billingEntitiesInvoicesView: boolean, billingEntitiesInvoicesUpdate: boolean, billingEntitiesTaxesView: boolean, billingEntitiesTaxesUpdate: boolean, billingEntitiesEmailsView: boolean, billingEntitiesEmailsUpdate: boolean, billingEntitiesDunningCampaignsUpdate: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, dunningCampaignsCreate: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> };
+export type CurrentUserInfosFragment = { __typename?: 'User', id: string, email?: string | null, premium: boolean, memberships: Array<{ __typename?: 'Membership', id: string, organization: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, accessibleByCurrentSession: boolean }, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, analyticsOverdueBalancesView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, billingEntitiesInvoicesView: boolean, billingEntitiesInvoicesUpdate: boolean, billingEntitiesTaxesView: boolean, billingEntitiesTaxesUpdate: boolean, billingEntitiesEmailsView: boolean, billingEntitiesEmailsUpdate: boolean, billingEntitiesDunningCampaignsUpdate: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, dunningCampaignsCreate: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> };
 
 export type GetCurrentUserInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetCurrentUserInfosQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, email?: string | null, premium: boolean, memberships: Array<{ __typename?: 'Membership', id: string, organization: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null }, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, analyticsOverdueBalancesView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, billingEntitiesInvoicesView: boolean, billingEntitiesInvoicesUpdate: boolean, billingEntitiesTaxesView: boolean, billingEntitiesTaxesUpdate: boolean, billingEntitiesEmailsView: boolean, billingEntitiesEmailsUpdate: boolean, billingEntitiesDunningCampaignsUpdate: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, dunningCampaignsCreate: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> } };
+export type GetCurrentUserInfosQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, email?: string | null, premium: boolean, memberships: Array<{ __typename?: 'Membership', id: string, organization: { __typename?: 'Organization', id: string, name: string, logoUrl?: string | null, accessibleByCurrentSession: boolean }, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, analyticsOverdueBalancesView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, billingEntitiesInvoicesView: boolean, billingEntitiesInvoicesUpdate: boolean, billingEntitiesTaxesView: boolean, billingEntitiesTaxesUpdate: boolean, billingEntitiesEmailsView: boolean, billingEntitiesEmailsUpdate: boolean, billingEntitiesDunningCampaignsUpdate: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, dunningCampaignsCreate: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> } };
 
 export type UpdateBillingEntityEmailSettingMutationVariables = Exact<{
   input: UpdateBillingEntityInput;
@@ -10799,12 +10805,12 @@ export type GetTaxProviderPresenceQueryVariables = Exact<{
 
 export type GetTaxProviderPresenceQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration', id: string } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration' }> } | null };
 
-export type MainOrganizationInfosFragment = { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, canCreateBillingEntity: boolean, authenticationMethods: Array<AuthenticationMethodsEnum> };
+export type MainOrganizationInfosFragment = { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, canCreateBillingEntity: boolean, authenticationMethods: Array<AuthenticationMethodsEnum>, authenticatedMethod: AuthenticationMethodsEnum };
 
 export type GetOrganizationInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetOrganizationInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, canCreateBillingEntity: boolean, authenticationMethods: Array<AuthenticationMethodsEnum> } | null };
+export type GetOrganizationInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, canCreateBillingEntity: boolean, authenticationMethods: Array<AuthenticationMethodsEnum>, authenticatedMethod: AuthenticationMethodsEnum } | null };
 
 export type MembershipPermissionsFragment = { __typename?: 'Membership', id: string, permissions: { __typename?: 'Permissions', addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, analyticsOverdueBalancesView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, billingEntitiesInvoicesView: boolean, billingEntitiesInvoicesUpdate: boolean, billingEntitiesTaxesView: boolean, billingEntitiesTaxesUpdate: boolean, billingEntitiesEmailsView: boolean, billingEntitiesEmailsUpdate: boolean, billingEntitiesDunningCampaignsUpdate: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, customerSettingsUpdateGracePeriod: boolean, customerSettingsUpdateLang: boolean, customerSettingsUpdatePaymentTerms: boolean, customerSettingsUpdateTaxRates: boolean, customerSettingsView: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, draftInvoicesUpdate: boolean, dunningCampaignsCreate: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } };
 
@@ -11215,14 +11221,14 @@ export type AcceptInviteMutationVariables = Exact<{
 }>;
 
 
-export type AcceptInviteMutation = { __typename?: 'Mutation', acceptInvite?: { __typename?: 'RegisterUser', token: string, user: { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> } } | null };
+export type AcceptInviteMutation = { __typename?: 'Mutation', acceptInvite?: { __typename?: 'RegisterUser', token: string } | null };
 
 export type GoogleAcceptInviteMutationVariables = Exact<{
   input: GoogleAcceptInviteInput;
 }>;
 
 
-export type GoogleAcceptInviteMutation = { __typename?: 'Mutation', googleAcceptInvite?: { __typename?: 'RegisterUser', token: string, user: { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> } } | null };
+export type GoogleAcceptInviteMutation = { __typename?: 'Mutation', googleAcceptInvite?: { __typename?: 'RegisterUser', token: string } | null };
 
 export type FetchOktaAuthorizeUrlMutationVariables = Exact<{
   input: OktaAuthorizeInput;
@@ -11236,7 +11242,7 @@ export type OktaAcceptInviteMutationVariables = Exact<{
 }>;
 
 
-export type OktaAcceptInviteMutation = { __typename?: 'Mutation', oktaAcceptInvite?: { __typename?: 'LoginUser', token: string, user: { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> } } | null };
+export type OktaAcceptInviteMutation = { __typename?: 'Mutation', oktaAcceptInvite?: { __typename?: 'LoginUser', token: string } | null };
 
 export type InvoiceDetailsForInvoiceOverviewFragment = { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, issuingDate: any, externalIntegrationId?: string | null, taxProviderId?: string | null, taxProviderVoidable: boolean, integrationHubspotSyncable: boolean, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, fees?: Array<{ __typename?: 'Fee', id: string }> | null, billingEntity: { __typename?: 'BillingEntity', name: string, code: string } };
 
@@ -11379,21 +11385,21 @@ export type GoogleLoginUserMutationVariables = Exact<{
 }>;
 
 
-export type GoogleLoginUserMutation = { __typename?: 'Mutation', googleLoginUser?: { __typename?: 'LoginUser', token: string, user: { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> } } | null };
+export type GoogleLoginUserMutation = { __typename?: 'Mutation', googleLoginUser?: { __typename?: 'LoginUser', token: string } | null };
 
 export type LoginUserMutationVariables = Exact<{
   input: LoginUserInput;
 }>;
 
 
-export type LoginUserMutation = { __typename?: 'Mutation', loginUser?: { __typename?: 'LoginUser', token: string, user: { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> } } | null };
+export type LoginUserMutation = { __typename?: 'Mutation', loginUser?: { __typename?: 'LoginUser', token: string } | null };
 
 export type OktaLoginUserMutationVariables = Exact<{
   input: OktaLoginInput;
 }>;
 
 
-export type OktaLoginUserMutation = { __typename?: 'Mutation', oktaLogin?: { __typename?: 'LoginUser', token: string, user: { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> } } | null };
+export type OktaLoginUserMutation = { __typename?: 'Mutation', oktaLogin?: { __typename?: 'LoginUser', token: string } | null };
 
 export type GetPasswordResetQueryVariables = Exact<{
   token: Scalars['String']['input'];
@@ -11407,21 +11413,21 @@ export type ResetPasswordMutationVariables = Exact<{
 }>;
 
 
-export type ResetPasswordMutation = { __typename?: 'Mutation', resetPassword?: { __typename?: 'LoginUser', token: string, user: { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> } } | null };
+export type ResetPasswordMutation = { __typename?: 'Mutation', resetPassword?: { __typename?: 'LoginUser', token: string } | null };
 
 export type SignupMutationVariables = Exact<{
   input: RegisterUserInput;
 }>;
 
 
-export type SignupMutation = { __typename?: 'Mutation', registerUser?: { __typename?: 'RegisterUser', token: string, user: { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> } } | null };
+export type SignupMutation = { __typename?: 'Mutation', registerUser?: { __typename?: 'RegisterUser', token: string } | null };
 
 export type GoogleRegisterMutationVariables = Exact<{
   input: GoogleRegisterUserInput;
 }>;
 
 
-export type GoogleRegisterMutation = { __typename?: 'Mutation', googleRegisterUser?: { __typename?: 'RegisterUser', token: string, user: { __typename?: 'User', id: string, organizations: Array<{ __typename?: 'Organization', id: string, name: string, timezone?: TimezoneEnum | null }> } } | null };
+export type GoogleRegisterMutation = { __typename?: 'Mutation', googleRegisterUser?: { __typename?: 'RegisterUser', token: string } | null };
 
 export type GetPortalOrgaInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -13685,6 +13691,7 @@ export const CurrentUserFragmentDoc = gql`
     id
     name
     timezone
+    accessibleByCurrentSession
   }
 }
     `;
@@ -14048,6 +14055,7 @@ export const CurrentUserInfosFragmentDoc = gql`
       id
       name
       logoUrl
+      accessibleByCurrentSession
     }
   }
 }
@@ -14068,6 +14076,7 @@ export const MainOrganizationInfosFragmentDoc = gql`
   premiumIntegrations
   canCreateBillingEntity
   authenticationMethods
+  authenticatedMethod
   ...OrganizationForDatePicker
 }
     ${OrganizationForDatePickerFragmentDoc}`;
@@ -26833,6 +26842,46 @@ export type GetWalletTransactionsQueryHookResult = ReturnType<typeof useGetWalle
 export type GetWalletTransactionsLazyQueryHookResult = ReturnType<typeof useGetWalletTransactionsLazyQuery>;
 export type GetWalletTransactionsSuspenseQueryHookResult = ReturnType<typeof useGetWalletTransactionsSuspenseQuery>;
 export type GetWalletTransactionsQueryResult = Apollo.QueryResult<GetWalletTransactionsQuery, GetWalletTransactionsQueryVariables>;
+export const GetCurrentUserInfosForLoginDocument = gql`
+    query getCurrentUserInfosForLogin {
+  currentUser {
+    id
+    ...CurrentUser
+  }
+}
+    ${CurrentUserFragmentDoc}`;
+
+/**
+ * __useGetCurrentUserInfosForLoginQuery__
+ *
+ * To run a query within a React component, call `useGetCurrentUserInfosForLoginQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCurrentUserInfosForLoginQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCurrentUserInfosForLoginQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetCurrentUserInfosForLoginQuery(baseOptions?: Apollo.QueryHookOptions<GetCurrentUserInfosForLoginQuery, GetCurrentUserInfosForLoginQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCurrentUserInfosForLoginQuery, GetCurrentUserInfosForLoginQueryVariables>(GetCurrentUserInfosForLoginDocument, options);
+      }
+export function useGetCurrentUserInfosForLoginLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCurrentUserInfosForLoginQuery, GetCurrentUserInfosForLoginQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCurrentUserInfosForLoginQuery, GetCurrentUserInfosForLoginQueryVariables>(GetCurrentUserInfosForLoginDocument, options);
+        }
+export function useGetCurrentUserInfosForLoginSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCurrentUserInfosForLoginQuery, GetCurrentUserInfosForLoginQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCurrentUserInfosForLoginQuery, GetCurrentUserInfosForLoginQueryVariables>(GetCurrentUserInfosForLoginDocument, options);
+        }
+export type GetCurrentUserInfosForLoginQueryHookResult = ReturnType<typeof useGetCurrentUserInfosForLoginQuery>;
+export type GetCurrentUserInfosForLoginLazyQueryHookResult = ReturnType<typeof useGetCurrentUserInfosForLoginLazyQuery>;
+export type GetCurrentUserInfosForLoginSuspenseQueryHookResult = ReturnType<typeof useGetCurrentUserInfosForLoginSuspenseQuery>;
+export type GetCurrentUserInfosForLoginQueryResult = Apollo.QueryResult<GetCurrentUserInfosForLoginQuery, GetCurrentUserInfosForLoginQueryVariables>;
 export const CreateSubscriptionDocument = gql`
     mutation createSubscription($input: CreateSubscriptionInput!) {
   createSubscription(input: $input) {
@@ -30367,13 +30416,9 @@ export const AcceptInviteDocument = gql`
     mutation acceptInvite($input: AcceptInviteInput!) {
   acceptInvite(input: $input) {
     token
-    user {
-      id
-      ...CurrentUser
-    }
   }
 }
-    ${CurrentUserFragmentDoc}`;
+    `;
 export type AcceptInviteMutationFn = Apollo.MutationFunction<AcceptInviteMutation, AcceptInviteMutationVariables>;
 
 /**
@@ -30404,13 +30449,9 @@ export const GoogleAcceptInviteDocument = gql`
     mutation googleAcceptInvite($input: GoogleAcceptInviteInput!) {
   googleAcceptInvite(input: $input) {
     token
-    user {
-      id
-      ...CurrentUser
-    }
   }
 }
-    ${CurrentUserFragmentDoc}`;
+    `;
 export type GoogleAcceptInviteMutationFn = Apollo.MutationFunction<GoogleAcceptInviteMutation, GoogleAcceptInviteMutationVariables>;
 
 /**
@@ -30474,13 +30515,9 @@ export const OktaAcceptInviteDocument = gql`
     mutation oktaAcceptInvite($input: OktaAcceptInviteInput!) {
   oktaAcceptInvite(input: $input) {
     token
-    user {
-      id
-      ...CurrentUser
-    }
   }
 }
-    ${CurrentUserFragmentDoc}`;
+    `;
 export type OktaAcceptInviteMutationFn = Apollo.MutationFunction<OktaAcceptInviteMutation, OktaAcceptInviteMutationVariables>;
 
 /**
@@ -31141,14 +31178,10 @@ export type CreatePasswordResetMutationOptions = Apollo.BaseMutationOptions<Crea
 export const GoogleLoginUserDocument = gql`
     mutation googleLoginUser($input: GoogleLoginUserInput!) {
   googleLoginUser(input: $input) {
-    user {
-      id
-      ...CurrentUser
-    }
     token
   }
 }
-    ${CurrentUserFragmentDoc}`;
+    `;
 export type GoogleLoginUserMutationFn = Apollo.MutationFunction<GoogleLoginUserMutation, GoogleLoginUserMutationVariables>;
 
 /**
@@ -31178,14 +31211,10 @@ export type GoogleLoginUserMutationOptions = Apollo.BaseMutationOptions<GoogleLo
 export const LoginUserDocument = gql`
     mutation loginUser($input: LoginUserInput!) {
   loginUser(input: $input) {
-    user {
-      id
-      ...CurrentUser
-    }
     token
   }
 }
-    ${CurrentUserFragmentDoc}`;
+    `;
 export type LoginUserMutationFn = Apollo.MutationFunction<LoginUserMutation, LoginUserMutationVariables>;
 
 /**
@@ -31215,14 +31244,10 @@ export type LoginUserMutationOptions = Apollo.BaseMutationOptions<LoginUserMutat
 export const OktaLoginUserDocument = gql`
     mutation oktaLoginUser($input: OktaLoginInput!) {
   oktaLogin(input: $input) {
-    user {
-      id
-      ...CurrentUser
-    }
     token
   }
 }
-    ${CurrentUserFragmentDoc}`;
+    `;
 export type OktaLoginUserMutationFn = Apollo.MutationFunction<OktaLoginUserMutation, OktaLoginUserMutationVariables>;
 
 /**
@@ -31297,13 +31322,9 @@ export const ResetPasswordDocument = gql`
     mutation resetPassword($input: ResetPasswordInput!) {
   resetPassword(input: $input) {
     token
-    user {
-      id
-      ...CurrentUser
-    }
   }
 }
-    ${CurrentUserFragmentDoc}`;
+    `;
 export type ResetPasswordMutationFn = Apollo.MutationFunction<ResetPasswordMutation, ResetPasswordMutationVariables>;
 
 /**
@@ -31334,13 +31355,9 @@ export const SignupDocument = gql`
     mutation signup($input: RegisterUserInput!) {
   registerUser(input: $input) {
     token
-    user {
-      id
-      ...CurrentUser
-    }
   }
 }
-    ${CurrentUserFragmentDoc}`;
+    `;
 export type SignupMutationFn = Apollo.MutationFunction<SignupMutation, SignupMutationVariables>;
 
 /**
@@ -31371,13 +31388,9 @@ export const GoogleRegisterDocument = gql`
     mutation googleRegister($input: GoogleRegisterUserInput!) {
   googleRegisterUser(input: $input) {
     token
-    user {
-      id
-      ...CurrentUser
-    }
   }
 }
-    ${CurrentUserFragmentDoc}`;
+    `;
 export type GoogleRegisterMutationFn = Apollo.MutationFunction<GoogleRegisterMutation, GoogleRegisterMutationVariables>;
 
 /**

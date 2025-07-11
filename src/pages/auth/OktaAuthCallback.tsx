@@ -1,28 +1,23 @@
-import { gql } from '@apollo/client'
+import { gql, useApolloClient } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { useEffect } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { hasDefinedGQLError, LagoGQLError, onLogIn } from '~/core/apolloClient'
 import { INVITATION_ROUTE_FORM, LOGIN_OKTA, LOGIN_ROUTE } from '~/core/router'
-import { CurrentUserFragmentDoc, LagoApiError, useOktaLoginUserMutation } from '~/generated/graphql'
+import { LagoApiError, useOktaLoginUserMutation } from '~/generated/graphql'
 
 gql`
   mutation oktaLoginUser($input: OktaLoginInput!) {
     oktaLogin(input: $input) {
-      user {
-        id
-        ...CurrentUser
-      }
       token
     }
   }
-
-  ${CurrentUserFragmentDoc}
 `
 
 const OktaAuthCallback = () => {
   const navigate = useNavigate()
+  const client = useApolloClient()
   const [oktaLoginUser] = useOktaLoginUserMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     fetchPolicy: 'network-only',
@@ -66,7 +61,7 @@ const OktaAuthCallback = () => {
             })
           }
         } else if (!!res.data?.oktaLogin) {
-          onLogIn(res.data?.oktaLogin?.token, res.data?.oktaLogin?.user)
+          await onLogIn(client, res.data?.oktaLogin?.token)
         }
       }
     }
