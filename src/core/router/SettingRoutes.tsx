@@ -173,13 +173,13 @@ export const settingRoutes: CustomRouteObject[] = [
         path: AUTHENTICATION_ROUTE,
         private: true,
         element: <Authentication />,
-        permissions: ['organizationIntegrationsView'],
+        permissions: ['organizationIntegrationsView', 'authenticationMethodsView'],
       },
       {
         path: OKTA_AUTHENTICATION_ROUTE,
         private: true,
         element: <OktaAuthenticationDetails />,
-        permissions: ['organizationIntegrationsView'],
+        permissions: ['organizationIntegrationsView', 'authenticationMethodsView'],
       },
       {
         path: MEMBERS_ROUTE,
