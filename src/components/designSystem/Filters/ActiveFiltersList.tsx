@@ -1,4 +1,4 @@
-import { Typography } from '@mui/material'
+import { Typography } from 'lago-design-system'
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 

@@ -124,7 +124,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
               <Button
                 className="mb-2 ml-auto"
                 startIcon="plus"
-                variant="quaternary"
+                variant="inline"
                 onClick={addNonRecurringThreshold}
               >
                 {translate('text_1724233213997l2ksi40t8q6')}
@@ -303,7 +303,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
 
       {hasPremiumIntegration && !displayProgressiveBillingAccordion && (
         <Button
-          variant="quaternary"
+          variant="inline"
           startIcon="plus"
           disabled={displayProgressiveBillingAccordion}
           onClick={() => {

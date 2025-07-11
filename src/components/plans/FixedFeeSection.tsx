@@ -214,7 +214,7 @@ export const FixedFeeSection = memo(
                   disabled={
                     subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
                   }
-                  variant="quaternary"
+                  variant="inline"
                   data-test="show-trial-period"
                   onClick={() => setShouldDisplayTrialPeriod(true)}
                 >

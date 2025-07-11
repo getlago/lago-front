@@ -97,7 +97,7 @@ const PricingGroupKeys = ({
           <Button
             fitContent
             startIcon="plus"
-            variant="quaternary"
+            variant="inline"
             onClick={() => {
               setShouldDisplayPricingGroupKeys(true)
 

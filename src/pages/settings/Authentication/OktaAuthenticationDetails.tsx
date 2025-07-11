@@ -143,7 +143,7 @@ const OktaAuthenticationDetails = () => {
         <section>
           <IntegrationsPage.Headline label={translate('text_664c732c264d7eed1c74fdc5')}>
             <Button
-              variant="quaternary"
+              variant="inline"
               disabled={loading}
               onClick={() =>
                 addOktaDialogRef.current?.openDialog({

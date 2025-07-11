@@ -226,7 +226,7 @@ const GocardlessIntegrationDetails = () => {
           <IntegrationsPage.Headline label={translate('text_637f813d31381b1ed90ab315')}>
             {canEditIntegration && (
               <Button
-                variant="quaternary"
+                variant="inline"
                 align="left"
                 onClick={() => {
                   addDialogRef.current?.openDialog({
@@ -294,7 +294,7 @@ const GocardlessIntegrationDetails = () => {
           <IntegrationsPage.Headline label={translate('text_65367cb78324b77fcb6af21c')}>
             {canEditIntegration && (
               <Button
-                variant="quaternary"
+                variant="inline"
                 disabled={!!gocardlessPaymentProvider?.successRedirectUrl}
                 onClick={() => {
                   successRedirectUrlDialogRef.current?.openDialog({

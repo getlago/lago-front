@@ -69,7 +69,7 @@ export const VolumeChargeTable = memo(
         <Button
           className="mb-2 ml-auto"
           startIcon="plus"
-          variant="quaternary"
+          variant="inline"
           onClick={addRange}
           disabled={disabled}
           data-test="add-tier"

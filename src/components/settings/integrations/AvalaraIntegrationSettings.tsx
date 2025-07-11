@@ -141,7 +141,7 @@ const AvalaraIntegrationSettings = () => {
           <IntegrationsPage.Headline label={translate('text_661ff6e56ef7e1b7c542b232')}>
             {!!avalaraIntegration && (
               <Button
-                variant="quaternary"
+                variant="inline"
                 disabled={loading}
                 onClick={() => {
                   addAvalaraDialogRef.current?.openDialog({
@@ -214,7 +214,7 @@ const AvalaraIntegrationSettings = () => {
           </div>
 
           <Button
-            variant="quaternary"
+            variant="inline"
             disabled={!avalaraIntegration?.failedInvoicesCount}
             onClick={async () => await retryAllAvalaraInvoices({ variables: { input: {} } })}
           >

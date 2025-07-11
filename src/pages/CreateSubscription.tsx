@@ -679,12 +679,12 @@ const CreateSubscription = () => {
                     )}
 
                     {(!shouldDisplaySubscriptionExternalId || !shouldDisplaySubscriptionName) && (
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-4">
                         {!shouldDisplaySubscriptionExternalId && (
                           <Button
                             startIcon="plus"
                             disabled={formType !== FORM_TYPE_ENUM.creation}
-                            variant="quaternary"
+                            variant="inline"
                             onClick={() => setShouldDisplaySubscriptionExternalId(true)}
                             data-test="show-external-id"
                           >
@@ -694,7 +694,7 @@ const CreateSubscription = () => {
                         {!shouldDisplaySubscriptionName && (
                           <Button
                             startIcon="plus"
-                            variant="quaternary"
+                            variant="inline"
                             onClick={() => setShouldDisplaySubscriptionName(true)}
                             data-test="show-name"
                           >

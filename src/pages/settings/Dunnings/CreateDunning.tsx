@@ -233,7 +233,7 @@ const CreateDunning = () => {
                   ) : (
                     <Button
                       startIcon="plus"
-                      variant="quaternary"
+                      variant="inline"
                       onClick={() => setShouldDisplayDescription(true)}
                       data-test="show-description"
                     >
@@ -303,7 +303,7 @@ const CreateDunning = () => {
                     <div>
                       <Button
                         startIcon="plus"
-                        variant="quaternary"
+                        variant="inline"
                         onClick={() =>
                           formikProps.setFieldValue('thresholds', [
                             ...formikProps.values.thresholds,
@@ -393,7 +393,7 @@ const CreateDunning = () => {
                   ) : (
                     <Button
                       startIcon="plus"
-                      variant="quaternary"
+                      variant="inline"
                       onClick={() => setShouldDisplayBCCEmails(true)}
                       data-test="show-bcc-emails"
                     >

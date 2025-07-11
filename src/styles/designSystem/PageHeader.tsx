@@ -31,7 +31,7 @@ const PageHeaderWrapper: FC<PropsWithChildren<{ withSide?: boolean; className?: 
 const PageHeaderGroup: FC<PropsWithChildren<{ className?: string }>> = ({
   children,
   className,
-}) => <div className={tw('flex items-center gap-3', className)}>{children}</div>
+}) => <div className={tw('flex items-center gap-4', className)}>{children}</div>
 
 export const PageHeader = {
   Wrapper: PageHeaderWrapper,

@@ -78,7 +78,7 @@ const Analytics = () => {
                     }, 0)
                   }
                 }}
-                variant="quaternary"
+                variant="inline"
                 endIcon={'chevron-down'}
               >
                 {selectedCurrency}

@@ -352,7 +352,7 @@ export const ChargePercentage = memo(
         <div className="flex flex-wrap gap-3">
           <Button
             startIcon="plus"
-            variant="quaternary"
+            variant="inline"
             disabled={disabled || valuePointer?.fixedAmount !== undefined}
             onClick={() =>
               formikProps.setFieldValue(`charges.${chargeIndex}.${propertyCursor}`, {
@@ -371,7 +371,7 @@ export const ChargePercentage = memo(
               <Button
                 startIcon="plus"
                 endIcon="chevron-down"
-                variant="quaternary"
+                variant="inline"
                 disabled={
                   disabled ||
                   (valuePointer?.freeUnitsPerEvents !== undefined &&
@@ -426,7 +426,7 @@ export const ChargePercentage = memo(
               <Button
                 startIcon="plus"
                 endIcon="chevron-down"
-                variant="quaternary"
+                variant="inline"
                 disabled={
                   disabled ||
                   (valuePointer?.perTransactionMinAmount !== undefined &&
