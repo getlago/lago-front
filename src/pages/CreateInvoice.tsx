@@ -45,11 +45,13 @@ import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOpti
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
+import { invoiceFeesToFeeInput } from '~/core/utils/invoiceUtils'
 import {
   AddOnForInvoiceEditTaxDialogFragmentDoc,
   CurrencyEnum,
   CustomerAccountTypeEnum,
   FetchDraftInvoiceTaxesMutation,
+  Invoice,
   LagoApiError,
   TaxInfosForCreateInvoiceFragment,
   useCreateInvoiceMutation,
@@ -57,8 +59,11 @@ import {
   useGetAddonListForInfoiceLazyQuery,
   useGetBillingEntityQuery,
   useGetInfosForCreateInvoiceQuery,
+  useGetInvoiceDetailsQuery,
+  useVoidInvoiceMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
@@ -171,8 +176,9 @@ type TaxMapType = Map<
 
 const CreateInvoice = () => {
   const { translate } = useInternationalization()
-  const { customerId } = useParams()
+  const { customerId, voidedInvoiceId = '' } = useParams()
   const navigate = useNavigate()
+  const { goBack } = useLocationHistory()
   const { emitSalesForceEvent, isRunningInSalesForceIframe } = useSalesForceConfig()
 
   const [showAddItem, setShowAddItem] = useState(false)
@@ -187,8 +193,8 @@ const CreateInvoice = () => {
   const editInvoiceDisplayNameRef = useRef<EditInvoiceDisplayNameRef>(null)
 
   const handleClosePage = useCallback(() => {
-    navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId as string }))
-  }, [navigate, customerId])
+    goBack(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId as string }))
+  }, [goBack, customerId])
 
   const { data, loading, error } = useGetInfosForCreateInvoiceQuery({
     variables: { id: customerId as string },
@@ -196,6 +202,21 @@ const CreateInvoice = () => {
     notifyOnNetworkStatusChange: true,
   })
   const { customer, taxes } = data || {}
+
+  const { data: prefillData } = useGetInvoiceDetailsQuery({
+    variables: { id: voidedInvoiceId as string },
+    skip: !voidedInvoiceId,
+  })
+
+  const prefillFees = useMemo(() => {
+    const fees = prefillData?.invoice?.fees
+
+    if (!fees) {
+      return
+    }
+
+    return invoiceFeesToFeeInput(prefillData?.invoice as Invoice)
+  }, [prefillData?.invoice])
 
   const { data: billingEntityData } = useGetBillingEntityQuery({
     variables: {
@@ -256,11 +277,13 @@ const CreateInvoice = () => {
     },
   })
 
+  const [voidInvoice] = useVoidInvoiceMutation({})
+
   const formikProps = useFormik<InvoiceFormInput>({
     initialValues: {
       customerId: customerId || '',
       currency: data?.customer?.currency || billingEntity?.defaultCurrency || CurrencyEnum.Usd,
-      fees: [],
+      fees: prefillFees || [],
     },
     validationSchema: object().shape({
       customerId: string().required(''),
@@ -278,6 +301,17 @@ const CreateInvoice = () => {
     enableReinitialize: true,
     validateOnMount: true,
     onSubmit: async ({ fees, ...values }) => {
+      if (voidedInvoiceId) {
+        await voidInvoice({
+          variables: {
+            input: {
+              id: voidedInvoiceId,
+              generateCreditNote: false,
+            },
+          },
+        })
+      }
+
       await createInvoice({
         variables: {
           input: {

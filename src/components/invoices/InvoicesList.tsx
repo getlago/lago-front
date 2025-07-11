@@ -49,9 +49,11 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { handleDownloadFile } from '~/core/utils/downloadFiles'
+import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   CurrencyEnum,
   GetInvoicesListQuery,
+  Invoice,
   InvoiceStatusTypeEnum,
   LagoApiError,
   PremiumIntegrationTypeEnum,
@@ -59,6 +61,7 @@ import {
   useRetryInvoicePaymentMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -94,6 +97,10 @@ const InvoicesList = ({
   const hasAccessToRevenueShare = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.RevenueShare,
   )
+
+  const hasActiveWallet = useCustomerHasActiveWallet({
+    customerId: invoices?.[0]?.customer?.id,
+  })
 
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
@@ -317,7 +324,7 @@ const InvoicesList = ({
                 actions.canVoid(invoice)
                   ? {
                       startIcon: 'stop',
-                      title: translate('text_65269b43d4d2b15dd929a259'),
+                      title: translate('text_1750678506388d4fr5etxbhh'),
                       onAction: () =>
                         navigate(
                           generatePath(CUSTOMER_INVOICE_VOID_ROUTE, {
@@ -325,6 +332,14 @@ const InvoicesList = ({
                             invoiceId: invoice.id,
                           }),
                         ),
+                    }
+                  : null,
+
+                actions.canRegenerate(invoice, hasActiveWallet)
+                  ? {
+                      startIcon: 'stop',
+                      title: translate('text_1750678506388oynw9hd01l9'),
+                      onAction: () => navigate(regeneratePath(invoice as Invoice)),
                     }
                   : null,
               ]
