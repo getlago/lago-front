@@ -47,7 +47,6 @@ import {
   DownloadInvoiceItemMutationFn,
   HubspotIntegrationInfosForInvoiceOverviewFragment,
   Invoice,
-  InvoiceForInvoiceInfosFragment,
   InvoiceStatusTypeEnum,
   InvoiceTaxStatusTypeEnum,
   LagoApiError,
