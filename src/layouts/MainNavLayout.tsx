@@ -39,6 +39,8 @@ import {
   ONLY_DEV_DESIGN_SYSTEM_ROUTE,
   ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE,
   ORGANIZATION_INFORMATIONS_ROUTE,
+  PAYMENT_DETAILS_ROUTE,
+  PAYMENTS_ROUTE,
   PLAN_DETAILS_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   PLANS_ROUTE,
@@ -358,6 +360,14 @@ const MainNavLayout = () => {
                     canBeClickedOnActive: true,
                     match: [INVOICES_ROUTE, INVOICES_TAB_ROUTE],
                     hidden: !hasPermissions(['invoicesView', 'creditNotesView']),
+                  },
+                  {
+                    title: translate('text_6672ebb8b1b50be550eccbed'),
+                    icon: 'coin-dollar',
+                    link: PAYMENTS_ROUTE,
+                    match: [PAYMENTS_ROUTE, PAYMENT_DETAILS_ROUTE],
+                    canBeClickedOnActive: true,
+                    hidden: !hasPermissions(['paymentsView']),
                   },
                 ]}
               />

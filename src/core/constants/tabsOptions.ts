@@ -49,7 +49,6 @@ export enum NewAnalyticsTabsOptionsEnum {
 
 export enum InvoiceListTabEnum {
   invoices = 'invoices',
-  payments = 'payments',
   creditNotes = 'creditNotes',
 }
 

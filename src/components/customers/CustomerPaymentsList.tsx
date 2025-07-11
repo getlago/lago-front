@@ -12,8 +12,8 @@ import { formatDateToTZ } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   CurrencyEnum,
-  GetPaymentListQuery,
-  GetPaymentListQueryHookResult,
+  GetPaymentsListQuery,
+  GetPaymentsListQueryHookResult,
   Invoice,
   PaymentForPaymentsListFragment,
   PaymentRequest,
@@ -25,8 +25,8 @@ import useDownloadPaymentReceipts from '~/hooks/paymentReceipts/useDownloadPayme
 interface CustomerPaymentsListProps {
   payments: PaymentForPaymentsListFragment[]
   loading: boolean
-  metadata?: GetPaymentListQuery['payments']['metadata']
-  fetchMore?: GetPaymentListQueryHookResult['fetchMore']
+  metadata?: GetPaymentsListQuery['payments']['metadata']
+  fetchMore?: GetPaymentsListQueryHookResult['fetchMore']
 }
 
 export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({

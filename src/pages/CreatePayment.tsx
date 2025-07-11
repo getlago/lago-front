@@ -12,9 +12,8 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
-import { InvoiceListTabEnum } from '~/core/constants/tabsOptions'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { INVOICES_TAB_ROUTE, PAYMENT_DETAILS_ROUTE } from '~/core/router'
+import { PAYMENT_DETAILS_ROUTE, PAYMENTS_ROUTE } from '~/core/router'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
@@ -174,11 +173,7 @@ const CreatePayment = () => {
   }, [formikProps.values.amountCents, invoice, currency])
 
   const onLeave = () => {
-    goBack(
-      generatePath(INVOICES_TAB_ROUTE, {
-        tab: InvoiceListTabEnum.payments,
-      }),
-    )
+    goBack(generatePath(PAYMENTS_ROUTE))
   }
 
   const dateTime = intlFormatDateTime(formikProps.values.createdAt, {
