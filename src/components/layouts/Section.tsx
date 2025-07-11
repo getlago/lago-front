@@ -1,6 +1,5 @@
-import { Skeleton, Typography } from '@mui/material'
+import { Button, Skeleton, Typography } from 'lago-design-system'
 
-import { Button } from '~/components/designSystem'
 import { tw } from '~/styles/utils'
 
 export const PageSectionTitle = ({
