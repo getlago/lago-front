@@ -47,7 +47,7 @@ export const ButtonSelector = ({
             {label}
           </Typography>
           {!!infoText && (
-            <Tooltip className="flex h-5 items-end" placement="bottom-start" title={infoText}>
+            <Tooltip placement="top-start" title={infoText}>
               <Icon name="info-circle" />
             </Tooltip>
           )}
