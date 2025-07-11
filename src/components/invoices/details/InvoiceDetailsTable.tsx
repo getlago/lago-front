@@ -19,6 +19,7 @@ import {
   CurrencyEnum,
   Customer,
   ErrorCodesEnum,
+  Fee,
   FeeForInvoiceDetailsTableBodyLineFragmentDoc,
   FeeForInvoiceFeeAdvanceDetailsTableFragmentDoc,
   FeeForInvoiceFeeArrearsDetailsTableFragmentDoc,
@@ -391,15 +392,6 @@ export const InvoiceDetailsTable = memo(
                         onAdd={onAdd}
                         onDelete={onDelete}
                       />
-                      {!!onAdd && (
-                        <AddFee
-                          editFeeDrawerRef={editFeeDrawerRef}
-                          invoiceId={subscription.metadata.invoiceId}
-                          invoiceSubscriptionId={subscriptionId}
-                          onAdd={onAdd}
-                          translate={translate}
-                        />
-                      )}
                     </tbody>
                     <InvoiceDetailsTableFooter
                       invoice={invoice}
@@ -532,6 +524,7 @@ export const InvoiceDetailsTable = memo(
           <table>
             <InvoiceDetailsTableFooter
               invoice={invoice}
+              invoiceFees={invoiceFees as Fee[]}
               canHaveUnitPrice={canHaveUnitPrice}
               hasTaxProviderError={hasTaxProviderError}
             />
