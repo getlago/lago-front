@@ -121,7 +121,7 @@
     "graphql": "^16.6.0",
     "lago-configs": "workspace:*",
     "lago-design-system": "workspace:*",
-    "lago-expression": "0.1.2",
+    "lago-expression": "0.1.4",
     "localforage": "1.10.0",
     "lodash": "4.17.21",
     "lodash-es": "^4.17.21",
