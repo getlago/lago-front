@@ -8387,7 +8387,9 @@ export type GetCustomerUsageForPortalQueryVariables = Exact<{
 
 export type GetCustomerUsageForPortalQuery = { __typename?: 'Query', customerPortalCustomerUsage: { __typename?: 'CustomerUsage', amountCents: any, currency: CurrencyEnum, fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', id: string, units: number, amountCents: any, pricingUnitAmountCents?: any | null, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', id: string, pricingUnit: { __typename?: 'PricingUnit', id: string, shortName: string } } | null }, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, id: string, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null }> | null }> }> } };
 
-export type GetPortalUsageQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetPortalUsageQueryVariables = Exact<{
+  status?: InputMaybe<Array<StatusTypeEnum> | StatusTypeEnum>;
+}>;
 
 
 export type GetPortalUsageQuery = { __typename?: 'Query', customerPortalSubscriptions: { __typename?: 'SubscriptionCollection', collection: Array<{ __typename?: 'Subscription', id: string, currentBillingPeriodEndingAt?: any | null, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null, code: string, amountCents: any, amountCurrency: CurrencyEnum, interval: PlanInterval }, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null }> } };
@@ -17433,8 +17435,8 @@ export type GetCustomerUsageForPortalLazyQueryHookResult = ReturnType<typeof use
 export type GetCustomerUsageForPortalSuspenseQueryHookResult = ReturnType<typeof useGetCustomerUsageForPortalSuspenseQuery>;
 export type GetCustomerUsageForPortalQueryResult = Apollo.QueryResult<GetCustomerUsageForPortalQuery, GetCustomerUsageForPortalQueryVariables>;
 export const GetPortalUsageDocument = gql`
-    query getPortalUsage {
-  customerPortalSubscriptions {
+    query getPortalUsage($status: [StatusTypeEnum!]) {
+  customerPortalSubscriptions(status: $status) {
     collection {
       id
       ...SubscriptionForPortalUsage
@@ -17455,6 +17457,7 @@ export const GetPortalUsageDocument = gql`
  * @example
  * const { data, loading, error } = useGetPortalUsageQuery({
  *   variables: {
+ *      status: // value for 'status'
  *   },
  * });
  */
