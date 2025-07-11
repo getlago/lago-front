@@ -3309,5 +3309,6 @@
   "text_17521583805554mlsol8fld6": "{{method}} is not allowed by your organization",
   "text_1752158380555tozrnmtmxcz": "You’re logged in with {{method}}, which isn’t allowed by this organization. To access it, please log out and sign in again using a different login method.",
   "text_1752158380555al7jwgd0hfk": "{{method}} login method has been disabled successfully.",
-  "text_1752158380555fssagh1zpp1": "{{method}} login method has been enabled successfully."
+  "text_1752158380555fssagh1zpp1": "{{method}} login method has been enabled successfully.",
+  "text_17522481192202remk2eytrr": "Delete Okta connection"
 }

@@ -23,6 +23,10 @@ import {
 } from '~/components/layouts/Settings'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { AddOktaDialog, AddOktaDialogRef } from '~/components/settings/authentication/AddOktaDialog'
+import {
+  DeleteOktaIntegrationDialog,
+  DeleteOktaIntegrationDialogRef,
+} from '~/components/settings/authentication/DeleteOktaIntegrationDialog'
 import { OKTA_AUTHENTICATION_ROUTE } from '~/core/router'
 import {
   AddOktaIntegrationDialogFragmentDoc,
@@ -70,6 +74,7 @@ const Authentication = () => {
 
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const addOktaDialogRef = useRef<AddOktaDialogRef>(null)
+  const deleteOktaDialogRef = useRef<DeleteOktaIntegrationDialogRef>(null)
   const updateLoginMethodDialogRef = useRef<UpdateLoginMethodDialogRef>(null)
 
   const { data: authIntegrationsData, loading: authIntegrationsLoading } =
@@ -165,7 +170,16 @@ const Authentication = () => {
           {isPopperVisible && (
             <Popper
               PopperProps={{ placement: 'bottom-end' }}
-              opener={<Button size="small" icon="dots-horizontal" variant="quaternary" />}
+              opener={({ onClick }) => (
+                <Button
+                  icon="dots-horizontal"
+                  variant="quaternary"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onClick()
+                  }}
+                />
+              )}
             >
               {({ closePopper }) => (
                 <MenuPopper>
@@ -175,7 +189,9 @@ const Authentication = () => {
                       startIcon="plus"
                       variant="quaternary"
                       align="left"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation()
+
                         updateLoginMethodDialogRef.current?.openDialog({
                           method,
                           type: 'enable',
@@ -192,7 +208,9 @@ const Authentication = () => {
                       startIcon="eye-hidden"
                       variant="quaternary"
                       align="left"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation()
+
                         updateLoginMethodDialogRef.current?.openDialog({
                           method,
                           type: 'disable',
@@ -205,21 +223,35 @@ const Authentication = () => {
                   )}
                   {method === AuthenticationMethodsEnum.Okta && oktaIntegration?.id && (
                     <>
-                      <div className="h-px w-full bg-grey-300" />
                       <Button
-                        startIcon="eye"
+                        startIcon="pen"
                         variant="quaternary"
                         align="left"
                         loading={authIntegrationsLoading}
-                        onClick={() => {
-                          navigate(
-                            generatePath(OKTA_AUTHENTICATION_ROUTE, {
-                              integrationId: oktaIntegration?.id,
-                            }),
-                          )
+                        onClick={(e) => {
+                          e.stopPropagation()
+
+                          addOktaDialogRef.current?.openDialog({
+                            integration: oktaIntegration,
+                          })
                         }}
                       >
-                        {translate('See Okta connection')}
+                        {translate('text_664c8fa719b5e7ad81c86018')}
+                      </Button>
+                      <Button
+                        startIcon="trash"
+                        variant="quaternary"
+                        align="left"
+                        loading={authIntegrationsLoading}
+                        onClick={(e) => {
+                          e.stopPropagation()
+
+                          deleteOktaDialogRef.current?.openDialog({
+                            integration: oktaIntegration,
+                          })
+                        }}
+                      >
+                        {translate('text_17522481192202remk2eytrr')}
                       </Button>
                     </>
                   )}
@@ -291,6 +323,25 @@ const Authentication = () => {
                     <Okta />
                   </Avatar>
                 }
+                onClick={() => {
+                  if (!shouldSeeOktaIntegration) {
+                    return premiumWarningDialogRef.current?.openDialog()
+                  }
+
+                  if (oktaIntegration?.id) {
+                    return navigate(
+                      generatePath(OKTA_AUTHENTICATION_ROUTE, {
+                        integrationId: oktaIntegration.id,
+                      }),
+                    )
+                  }
+
+                  return addOktaDialogRef.current?.openDialog({
+                    integration: oktaIntegration,
+                    callback: (id) =>
+                      navigate(generatePath(OKTA_AUTHENTICATION_ROUTE, { integrationId: id })),
+                  })
+                }}
                 endIcon={getEndIcon({
                   method: AuthenticationMethodsEnum.Okta,
                   type: authenticationMethods?.includes(AuthenticationMethodsEnum.Okta)
@@ -305,6 +356,7 @@ const Authentication = () => {
 
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <AddOktaDialog ref={addOktaDialogRef} />
+      <DeleteOktaIntegrationDialog ref={deleteOktaDialogRef} />
       <UpdateLoginMethodDialog ref={updateLoginMethodDialogRef} />
     </>
   )
