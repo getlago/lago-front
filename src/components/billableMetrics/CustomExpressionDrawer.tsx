@@ -1,6 +1,5 @@
-import { Typography } from '@mui/material'
 import { useFormik } from 'formik'
-import { Icon } from 'lago-design-system'
+import { Icon, Typography } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { mixed, object, string } from 'yup'
