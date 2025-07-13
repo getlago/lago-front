@@ -34,6 +34,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
@@ -56,6 +57,7 @@ const CustomerInvoiceVoid = () => {
   const { customerId, invoiceId } = useParams()
   const { timezone } = useOrganizationInfos()
   const navigate = useNavigate()
+  const actions = usePermissionsInvoiceActions()
 
   const { data, loading, error } = useGetInvoiceDetailsQuery({
     variables: { id: invoiceId as string },
@@ -118,8 +120,7 @@ const CustomerInvoiceVoid = () => {
 
   const canGenerateCreditNote = maxRefundable > 0 || maxCreditable > 0
 
-  const canRegenerate =
-    customerId && invoiceId && invoice && (isPrepaidCredit(invoice) ? hasActiveWallet : true)
+  const canRegenerate = invoice?.id && actions.canRegenerate(invoice, hasActiveWallet)
 
   const onSubmit = async (values: CustomerInvoiceVoidForm) => {
     if (invoiceId) {
