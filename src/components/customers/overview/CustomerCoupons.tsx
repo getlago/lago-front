@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { memo, useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { CouponCaption, CouponMixedType } from '~/components/coupons/CouponCaption'
 import {
@@ -12,6 +12,8 @@ import { Button, Table, Tooltip, Typography } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { WarningDialog, WarningDialogRef } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
+import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { COUPON_DETAILS_ROUTE } from '~/core/router'
 import {
   AppliedCouponCaptionFragmentDoc,
   useGetCustomerCouponsQuery,
@@ -101,6 +103,12 @@ export const CustomerCoupons = memo(() => {
             containerSize={4}
             isLoading={loading}
             rowDataTestId={(coupon) => coupon.coupon?.name}
+            onRowActionLink={(appliedCoupon) =>
+              generatePath(COUPON_DETAILS_ROUTE, {
+                couponId: appliedCoupon.coupon.id,
+                tab: CouponDetailsTabsOptionsEnum.overview,
+              })
+            }
             columns={[
               {
                 key: 'coupon.name',
