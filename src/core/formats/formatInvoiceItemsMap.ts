@@ -269,7 +269,9 @@ export const groupAndFormatFees = ({
   }
 }
 
-const _newDeepFormatFees = (feesToFormat: TExtendedRemainingFee[]): TExtendedRemainingFee[] => {
+export const _newDeepFormatFees = (
+  feesToFormat: TExtendedRemainingFee[],
+): TExtendedRemainingFee[] => {
   const feesData: TExtendedRemainingFee[] = []
 
   // Mark fees depending on their type and add a display name

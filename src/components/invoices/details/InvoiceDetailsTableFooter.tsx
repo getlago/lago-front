@@ -61,12 +61,7 @@ const computeSubtotal = (
 ) => {
   if (invoiceFees) {
     const subTotalExcludingTax = invoiceFees.reduce((p, c) => {
-      const amount = serializeAmount(
-        Number(c.units) * Number(c.preciseUnitAmount),
-        invoice.currency as CurrencyEnum,
-      )
-
-      return p + amount
+      return p + Number(c.amountCents)
     }, 0)
 
     const totalRate = invoice?.appliedTaxes?.reduce((p, c) => p + c.taxRate, 0) || 0
