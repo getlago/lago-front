@@ -12,7 +12,6 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   AdjustedFeeTypeEnum,
   ChargeModelEnum,
-  CreateAdjustedFeeInput,
   CurrencyEnum,
   FeeForDeleteAdjustmentFeeDialogFragmentDoc,
   FeeForEditfeeDrawerFragmentDoc,
@@ -24,6 +23,7 @@ import {
   FeeTypesEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { OnRegeneratedFeeAdd } from '~/pages/CustomerInvoiceRegenerate'
 import { MenuPopper, PopperOpener } from '~/styles'
 
 import { DeleteAdjustedFeeDialogRef } from './DeleteAdjustedFeeDialog'
@@ -106,7 +106,7 @@ type InvoiceDetailsTableBodyLineProps = {
   deleteAdjustedFeeDialogRef?: RefObject<DeleteAdjustedFeeDialogRef>
   succeededDate?: string
   hasTaxProviderError?: boolean
-  onAdd?: (input: CreateAdjustedFeeInput) => void
+  onAdd?: OnRegeneratedFeeAdd
   onDelete?: (id: string) => void
 }
 
