@@ -41,7 +41,7 @@ const NavBurgerButton = ({ onClick }: { onClick: () => void }) => {
 
 const NavStickyElementContainer = ({ children }: PropsWithChildren) => {
   return (
-    <div className="sticky left-0 top-0 z-sideNav flex h-29 w-60 items-end bg-white p-4 animate-shadow-bottom md:h-16">
+    <div className="sticky left-0 top-0 z-sideNav flex h-29 w-60 items-end bg-white p-4 animate-shadow-bottom md:h-nav">
       {children}
     </div>
   )

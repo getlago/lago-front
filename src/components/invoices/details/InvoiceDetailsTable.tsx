@@ -156,7 +156,7 @@ export const InvoiceTableSection: FC<{
   className?: string
 }> = ({ children, isDraftInvoice, canHaveUnitPrice, className }) => {
   const tableHeadClasses = tw(
-    '[&_table>thead>tr>th]:sticky [&_table>thead>tr>th]:top-18 [&_table>thead>tr>th]:z-10 [&_table>thead>tr>th]:bg-white [&_table>thead>tr>th]:pb-3 [&_table>thead>tr>th]:pt-8 [&_table>thead>tr>th]:shadow-b',
+    '[&_table>thead>tr>th]:sticky [&_table>thead>tr>th]:top-[theme("spacing.nav")] [&_table>thead>tr>th]:z-10 [&_table>thead>tr>th]:bg-white [&_table>thead>tr>th]:pb-3 [&_table>thead>tr>th]:pt-8 [&_table>thead>tr>th]:shadow-b',
     '[&_table>thead>tr>th:not(:first-child)]:line-break-anywhere [&_table>thead>tr>th:not(:last-child)]:pr-3 [&_table>thead>tr>th:nth-child(1)]:text-left [&_table>thead>tr>th]:overflow-hidden [&_table>thead>tr>th]:text-right',
   )
 
