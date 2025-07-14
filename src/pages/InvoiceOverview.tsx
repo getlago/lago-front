@@ -108,6 +108,7 @@ gql`
         plan {
           id
           interval
+          name
         }
       }
     }
