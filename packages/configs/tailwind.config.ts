@@ -184,7 +184,7 @@ const config: Config = {
         180: '45rem',
         192: '48rem',
         footer: '5rem',
-        nav: '4.5rem',
+        nav: '4rem',
         formMainPadding: '3rem',
       },
       zIndex: {

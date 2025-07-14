@@ -57,7 +57,7 @@ export const palette = {
 }
 
 export const ITEM_HEIGHT = 56
-export const NAV_HEIGHT = 72
+export const NAV_HEIGHT = 64
 export const HEADER_TABLE_HEIGHT = 48
 export const INNER_CONTENT_WIDTH = 672
 export const BREAKPOINT_LG = 1024
