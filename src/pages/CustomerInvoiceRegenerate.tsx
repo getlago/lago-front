@@ -16,12 +16,13 @@ import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
 import {
-  CreateAdjustedFeeInput,
   CurrencyEnum,
   Customer,
   Fee,
+  FeeAmountDetails,
   Invoice,
   useGetInvoiceDetailsQuery,
+  usePreviewAdjustedFeeMutation,
   useRegenerateInvoiceMutation,
   useVoidInvoiceMutation,
 } from '~/generated/graphql'
@@ -37,7 +38,78 @@ gql`
       id
     }
   }
+
+  mutation previewAdjustedFee($input: PreviewAdjustedFeeInput!) {
+    previewAdjustedFee(input: $input) {
+      id
+      addOn {
+        id
+      }
+      appliedTaxes {
+        id
+        amountCents
+        taxRate
+        taxName
+      }
+      amountDetails {
+        freeUnits
+        paidUnits
+        perPackageSize
+        perPackageUnitAmount
+        graduatedRanges {
+          flatUnitAmount
+          fromValue
+          perUnitAmount
+          toValue
+          units
+          perUnitTotalAmount
+        }
+        graduatedPercentageRanges {
+          flatUnitAmount
+          fromValue
+          rate
+          toValue
+          units
+          perUnitTotalAmount
+        }
+      }
+      amountCents
+      invoiceName
+      invoiceDisplayName
+      units
+      groupedBy
+      charge {
+        id
+        payInAdvance
+        minAmountCents
+        chargeModel
+        billableMetric {
+          id
+          name
+        }
+      }
+      chargeFilter {
+        invoiceDisplayName
+        values
+      }
+      subscription {
+        id
+        plan {
+          id
+          interval
+        }
+      }
+    }
+  }
 `
+
+export type OnRegeneratedFeeAdd = (input: {
+  feeId?: string | null
+  unitPreciseAmount?: string | null
+  invoiceDisplayName?: string | null
+  units?: number | null
+  amountDetails?: FeeAmountDetails | null
+}) => void
 
 const CustomerInvoiceRegenerate = () => {
   const { translate } = useInternationalization()
@@ -79,10 +151,39 @@ const CustomerInvoiceRegenerate = () => {
   })
 
   const [voidInvoice] = useVoidInvoiceMutation()
+  const [previewAdjustedFee] = usePreviewAdjustedFeeMutation()
 
   const TEMPORARY_ID_PREFIX = 'temporary-id-fee-'
 
-  const onAdd = (input: CreateAdjustedFeeInput) => {
+  const removeEmptyKeys = (obj: object) => {
+    const keys = Object.keys(obj).filter((key) => !!obj[key as keyof typeof obj])
+
+    return Object.fromEntries(keys.map((key) => [key, obj[key as keyof typeof obj]]))
+  }
+
+  const onAdd: OnRegeneratedFeeAdd = async (input) => {
+    let feeWithCalculatedRanges = null
+
+    if (input?.amountDetails?.graduatedRanges) {
+      const previewInput = {
+        feeId: input?.feeId,
+        invoiceId: invoiceId as string,
+        units: input?.units,
+        unitPreciseAmount: input?.unitPreciseAmount,
+      }
+
+      const updatedFee = await previewAdjustedFee({
+        variables: {
+          input: {
+            ...removeEmptyKeys(previewInput),
+            invoiceId: invoiceId as string,
+          },
+        },
+      })
+
+      feeWithCalculatedRanges = updatedFee?.data?.previewAdjustedFee
+    }
+
     const feeId = input.feeId ? input.feeId : `${TEMPORARY_ID_PREFIX}${Math.random().toString()}`
 
     const existing = fees.find((f) => f.id === feeId)
@@ -93,20 +194,32 @@ const CustomerInvoiceRegenerate = () => {
         ? Number(input.unitPreciseAmount)
         : existing.preciseUnitAmount
 
-      const updated = {
-        ...existing,
-        units,
-        preciseUnitAmount: unitPreciseAmount,
-        invoiceDisplayName: input.invoiceDisplayName ?? existing.invoiceDisplayName,
-        adjustedFee: true,
-        ...(units && unitPreciseAmount
-          ? {
-              amountCents: serializeAmount(
-                Number(units) * Number(unitPreciseAmount),
-                invoice.currency as CurrencyEnum,
-              ),
-            }
-          : {}),
+      let updated = {}
+
+      if (feeWithCalculatedRanges) {
+        updated = {
+          ...existing,
+          ...feeWithCalculatedRanges,
+          adjustedFee: true,
+          id: existing.id,
+        }
+      } else {
+        updated = {
+          ...existing,
+          adjustedFee: true,
+          id: existing.id,
+          units,
+          preciseUnitAmount: unitPreciseAmount,
+          invoiceDisplayName: input.invoiceDisplayName ?? existing.invoiceDisplayName,
+          ...(units && unitPreciseAmount
+            ? {
+                amountCents: serializeAmount(
+                  Number(units) * Number(unitPreciseAmount),
+                  invoice.currency as CurrencyEnum,
+                ),
+              }
+            : {}),
+        }
       }
 
       const newFees = fees.map((fee) => (fee.id === feeId ? (updated as Fee) : fee))
@@ -170,11 +283,7 @@ const CustomerInvoiceRegenerate = () => {
         taxCodes: (taxCodes?.length || 0) > 0 ? taxCodes : null,
         units: fee.units,
       }))
-      .map((fee) => {
-        const keys = Object.keys(fee).filter((key) => !!fee[key as keyof typeof fee])
-
-        return Object.fromEntries(keys.map((key) => [key, fee[key as keyof typeof fee]]))
-      })
+      .map((fee) => removeEmptyKeys(fee))
 
     await regenerateInvoice({
       variables: {

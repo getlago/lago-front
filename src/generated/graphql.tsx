@@ -4167,6 +4167,8 @@ export type Mutation = {
   oktaAcceptInvite?: Maybe<LoginUser>;
   oktaAuthorize?: Maybe<Authorize>;
   oktaLogin?: Maybe<LoginUser>;
+  /** Preview Adjusted Fee */
+  previewAdjustedFee?: Maybe<Fee>;
   /** Refresh a draft invoice */
   refreshInvoice?: Maybe<Invoice>;
   /** Regenerate an invoice from a voided invoice */
@@ -4685,6 +4687,11 @@ export type MutationOktaAuthorizeArgs = {
 
 export type MutationOktaLoginArgs = {
   input: OktaLoginInput;
+};
+
+
+export type MutationPreviewAdjustedFeeArgs = {
+  input: PreviewAdjustedFeeInput;
 };
 
 
@@ -5389,6 +5396,20 @@ export enum PremiumIntegrationTypeEnum {
   Xero = 'xero',
   ZeroAmountFees = 'zero_amount_fees'
 }
+
+/** Create Adjusted Fee Input */
+export type PreviewAdjustedFeeInput = {
+  chargeFilterId?: InputMaybe<Scalars['ID']['input']>;
+  chargeId?: InputMaybe<Scalars['ID']['input']>;
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  feeId?: InputMaybe<Scalars['ID']['input']>;
+  invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
+  invoiceId: Scalars['ID']['input'];
+  subscriptionId?: InputMaybe<Scalars['ID']['input']>;
+  unitPreciseAmount?: InputMaybe<Scalars['String']['input']>;
+  units?: InputMaybe<Scalars['Float']['input']>;
+};
 
 export type PricingUnit = {
   __typename?: 'PricingUnit';
@@ -9031,7 +9052,7 @@ export type DestroyAdjustedFeeMutationVariables = Exact<{
 
 export type DestroyAdjustedFeeMutation = { __typename?: 'Mutation', destroyAdjustedFee?: { __typename?: 'DestroyAdjustedFeePayload', id?: string | null } | null };
 
-export type InvoiceSubscriptionForCreateFeeDrawerFragment = { __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, charges?: Array<{ __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string } }> | null } }, fees?: Array<{ __typename?: 'Fee', id: string, charge?: { __typename?: 'Charge', id: string, filters?: Array<{ __typename?: 'ChargeFilter', id: string, values: any }> | null } | null, chargeFilter?: { __typename?: 'ChargeFilter', id: string } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', shortName: string } | null }> | null };
+export type InvoiceSubscriptionForCreateFeeDrawerFragment = { __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, charges?: Array<{ __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string } }> | null } }, fees?: Array<{ __typename?: 'Fee', id: string, charge?: { __typename?: 'Charge', id: string, filters?: Array<{ __typename?: 'ChargeFilter', id: string, values: any }> | null, properties?: { __typename?: 'Properties', graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null } | null } | null, chargeFilter?: { __typename?: 'ChargeFilter', id: string } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', shortName: string } | null }> | null };
 
 export type FeeForEditfeeDrawerFragment = { __typename?: 'Fee', id: string, currency: CurrencyEnum, charge?: { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, prorated: boolean } | null };
 
@@ -9040,7 +9061,7 @@ export type GetInvoiceDetailsForCreateFeeDrawerQueryVariables = Exact<{
 }>;
 
 
-export type GetInvoiceDetailsForCreateFeeDrawerQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, charges?: Array<{ __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string } }> | null } }, fees?: Array<{ __typename?: 'Fee', id: string, charge?: { __typename?: 'Charge', id: string, filters?: Array<{ __typename?: 'ChargeFilter', id: string, values: any }> | null } | null, chargeFilter?: { __typename?: 'ChargeFilter', id: string } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', shortName: string } | null }> | null }> | null } | null };
+export type GetInvoiceDetailsForCreateFeeDrawerQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', subscription: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, charges?: Array<{ __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, prorated: boolean, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string } }> | null } }, fees?: Array<{ __typename?: 'Fee', id: string, charge?: { __typename?: 'Charge', id: string, filters?: Array<{ __typename?: 'ChargeFilter', id: string, values: any }> | null, properties?: { __typename?: 'Properties', graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: any, rate: string, toValue?: any | null }> | null } | null } | null, chargeFilter?: { __typename?: 'ChargeFilter', id: string } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', shortName: string } | null }> | null }> | null } | null };
 
 export type CreateAdjustedFeeMutationVariables = Exact<{
   input: CreateAdjustedFeeInput;
@@ -10908,6 +10929,13 @@ export type RegenerateInvoiceMutationVariables = Exact<{
 
 export type RegenerateInvoiceMutation = { __typename?: 'Mutation', regenerateFromVoided?: { __typename?: 'Invoice', id: string } | null };
 
+export type PreviewAdjustedFeeMutationVariables = Exact<{
+  input: PreviewAdjustedFeeInput;
+}>;
+
+
+export type PreviewAdjustedFeeMutation = { __typename?: 'Mutation', previewAdjustedFee?: { __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, addOn?: { __typename?: 'AddOn', id: string } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, amountCents: any, taxRate: number, taxName: string }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, toValue?: any | null, units?: string | null, perUnitTotalAmount?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', flatUnitAmount?: string | null, fromValue?: any | null, rate?: string | null, toValue?: any | null, units?: string | null, perUnitTotalAmount?: string | null }> | null } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, chargeModel: ChargeModelEnum, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval } } | null } | null };
+
 export type CustomerForRequestOverduePaymentFormFragment = { __typename?: 'Customer', email?: string | null };
 
 export type InvoicesForRequestOverduePaymentFormFragment = { __typename?: 'Invoice', id: string, number: string, totalDueAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any };
@@ -12623,6 +12651,20 @@ export const InvoiceSubscriptionForCreateFeeDrawerFragmentDoc = gql`
       filters {
         id
         values
+      }
+      properties {
+        graduatedRanges {
+          flatAmount
+          fromValue
+          perUnitAmount
+          toValue
+        }
+        graduatedPercentageRanges {
+          flatAmount
+          fromValue
+          rate
+          toValue
+        }
       }
     }
     chargeFilter {
@@ -29609,6 +29651,96 @@ export function useRegenerateInvoiceMutation(baseOptions?: Apollo.MutationHookOp
 export type RegenerateInvoiceMutationHookResult = ReturnType<typeof useRegenerateInvoiceMutation>;
 export type RegenerateInvoiceMutationResult = Apollo.MutationResult<RegenerateInvoiceMutation>;
 export type RegenerateInvoiceMutationOptions = Apollo.BaseMutationOptions<RegenerateInvoiceMutation, RegenerateInvoiceMutationVariables>;
+export const PreviewAdjustedFeeDocument = gql`
+    mutation previewAdjustedFee($input: PreviewAdjustedFeeInput!) {
+  previewAdjustedFee(input: $input) {
+    id
+    addOn {
+      id
+    }
+    appliedTaxes {
+      id
+      amountCents
+      taxRate
+      taxName
+    }
+    amountDetails {
+      freeUnits
+      paidUnits
+      perPackageSize
+      perPackageUnitAmount
+      graduatedRanges {
+        flatUnitAmount
+        fromValue
+        perUnitAmount
+        toValue
+        units
+        perUnitTotalAmount
+      }
+      graduatedPercentageRanges {
+        flatUnitAmount
+        fromValue
+        rate
+        toValue
+        units
+        perUnitTotalAmount
+      }
+    }
+    amountCents
+    invoiceName
+    invoiceDisplayName
+    units
+    groupedBy
+    charge {
+      id
+      payInAdvance
+      minAmountCents
+      chargeModel
+      billableMetric {
+        id
+        name
+      }
+    }
+    chargeFilter {
+      invoiceDisplayName
+      values
+    }
+    subscription {
+      id
+      plan {
+        id
+        interval
+      }
+    }
+  }
+}
+    `;
+export type PreviewAdjustedFeeMutationFn = Apollo.MutationFunction<PreviewAdjustedFeeMutation, PreviewAdjustedFeeMutationVariables>;
+
+/**
+ * __usePreviewAdjustedFeeMutation__
+ *
+ * To run a mutation, you first call `usePreviewAdjustedFeeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePreviewAdjustedFeeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [previewAdjustedFeeMutation, { data, loading, error }] = usePreviewAdjustedFeeMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function usePreviewAdjustedFeeMutation(baseOptions?: Apollo.MutationHookOptions<PreviewAdjustedFeeMutation, PreviewAdjustedFeeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<PreviewAdjustedFeeMutation, PreviewAdjustedFeeMutationVariables>(PreviewAdjustedFeeDocument, options);
+      }
+export type PreviewAdjustedFeeMutationHookResult = ReturnType<typeof usePreviewAdjustedFeeMutation>;
+export type PreviewAdjustedFeeMutationResult = Apollo.MutationResult<PreviewAdjustedFeeMutation>;
+export type PreviewAdjustedFeeMutationOptions = Apollo.BaseMutationOptions<PreviewAdjustedFeeMutation, PreviewAdjustedFeeMutationVariables>;
 export const GetRequestOverduePaymentInfosDocument = gql`
     query getRequestOverduePaymentInfos($id: ID!) {
   organization {
