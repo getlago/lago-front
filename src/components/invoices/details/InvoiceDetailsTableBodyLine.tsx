@@ -47,7 +47,7 @@ gql`
       amountCents
       conversionRate
       shortName
-      preciseAmountCents
+      preciseUnitAmount
     }
     charge {
       id
@@ -199,11 +199,12 @@ export const InvoiceDetailsTableBodyLine = memo(
             currency,
             minimumFractionDigits: 2,
             maximumFractionDigits: 15,
+            pricingUnitShortName: pricingUnitUsage?.shortName,
           }),
         })
       }
       return undefined
-    }, [canHaveUnitPrice, fee, chargeModel, translate, isTrueUpFee, currency])
+    }, [canHaveUnitPrice, fee, chargeModel, translate, isTrueUpFee, currency, pricingUnitUsage])
 
     const shouldDisplayFeeDetail = calculateIfDetailsShouldBeDisplayed(
       fee,
@@ -279,7 +280,7 @@ export const InvoiceDetailsTableBodyLine = memo(
                     <td>
                       <Typography variant="body" color="grey700">
                         {intlFormatNumber(
-                          pricingUnitUsage?.preciseAmountCents || fee?.preciseUnitAmount || 0,
+                          pricingUnitUsage?.preciseUnitAmount || fee?.preciseUnitAmount || 0,
                           {
                             pricingUnitShortName: pricingUnitUsage?.shortName,
                             currencyDisplay: 'symbol',
