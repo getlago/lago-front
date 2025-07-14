@@ -10,7 +10,6 @@ import {
 } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
-  CreateAdjustedFeeInput,
   CurrencyEnum,
   Customer,
   Fee,
@@ -20,6 +19,7 @@ import {
   Invoice,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { OnRegeneratedFeeAdd } from '~/pages/CustomerInvoiceRegenerate'
 
 import { DeleteAdjustedFeeDialogRef } from './DeleteAdjustedFeeDialog'
 import { EditFeeDrawerRef } from './EditFeeDrawer'
@@ -49,7 +49,7 @@ interface InvoiceFeeArrearsDetailsTableProps {
   currency: CurrencyEnum
   editFeeDrawerRef: RefObject<EditFeeDrawerRef>
   deleteAdjustedFeeDialogRef: RefObject<DeleteAdjustedFeeDialogRef>
-  onAdd?: (input: CreateAdjustedFeeInput) => void
+  onAdd?: OnRegeneratedFeeAdd
   onDelete?: (id: string) => void
   fees?: Invoice['fees']
 }

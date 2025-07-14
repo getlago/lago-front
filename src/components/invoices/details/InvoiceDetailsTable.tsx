@@ -15,7 +15,6 @@ import { InvoiceFeeArrearsDetailsTable } from '~/components/invoices/details/Inv
 import { groupAndFormatFees, TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
-  CreateAdjustedFeeInput,
   CurrencyEnum,
   Customer,
   ErrorCodesEnum,
@@ -34,6 +33,7 @@ import {
 } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { OnRegeneratedFeeAdd } from '~/pages/CustomerInvoiceRegenerate'
 
 gql`
   fragment FeeForInvoiceDetailsTable on Fee {
@@ -153,7 +153,7 @@ interface InvoiceDetailsTableProps {
   deleteAdjustedFeeDialogRef: RefObject<DeleteAdjustedFeeDialogRef>
   isDraftOverride?: boolean
   fees?: Invoice['fees']
-  onAdd?: (input: CreateAdjustedFeeInput) => void
+  onAdd?: OnRegeneratedFeeAdd
   onDelete?: (id: string) => void
 }
 
@@ -230,7 +230,7 @@ const AddFee = ({
   invoiceSubscriptionId?: string
   editFeeDrawerRef: RefObject<EditFeeDrawerRef>
   translate: TranslateFunc
-  onAdd?: (input: CreateAdjustedFeeInput) => void
+  onAdd?: OnRegeneratedFeeAdd
 }) => (
   <tr className="py-2 shadow-b">
     <td>

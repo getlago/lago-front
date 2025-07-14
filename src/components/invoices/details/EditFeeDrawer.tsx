@@ -20,6 +20,7 @@ import {
   useGetInvoiceDetailsForCreateFeeDrawerQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { OnRegeneratedFeeAdd } from '~/pages/CustomerInvoiceRegenerate'
 
 import { InvoiceTableSection } from './InvoiceDetailsTable'
 import { InvoiceDetailsTableBodyLine } from './InvoiceDetailsTableBodyLine'
@@ -59,6 +60,20 @@ gql`
         filters {
           id
           values
+        }
+        properties {
+          graduatedRanges {
+            flatAmount
+            fromValue
+            perUnitAmount
+            toValue
+          }
+          graduatedPercentageRanges {
+            flatAmount
+            fromValue
+            rate
+            toValue
+          }
         }
       }
       chargeFilter {
@@ -100,7 +115,7 @@ type EditFeeDrawerProps = {
   invoiceId: string
   invoiceSubscriptionId?: string
   fee?: TExtendedRemainingFee | undefined
-  onAdd?: (input: CreateAdjustedFeeInput) => void
+  onAdd?: OnRegeneratedFeeAdd
 }
 
 export interface EditFeeDrawerRef {
@@ -221,7 +236,10 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
         formikProps.resetForm()
         formikProps.validateForm()
 
-        return localData.onAdd(input)
+        return localData.onAdd({
+          ...(localData.fee || {}),
+          ...input,
+        })
       }
 
       await createFee({
