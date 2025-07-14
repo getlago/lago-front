@@ -11,19 +11,55 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ, intlFormatDateTime } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
-import { ChargeUsage, CurrencyEnum, TimezoneEnum } from '~/generated/graphql'
+import {
+  ChargeFilterUsage,
+  ChargeUsage,
+  CurrencyEnum,
+  GroupedChargeUsage,
+  TimezoneEnum,
+} from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 const NO_ID_FILTER_DEFAULT_VALUE = 'NO_ID_FILTER_DEFAULT_VALUE'
+
+type AmountCentsCellProps = {
+  row: ChargeFilterUsage | GroupedChargeUsage
+  currency: CurrencyEnum
+  locale?: LocaleEnum
+  pricingUnitShortName?: string
+}
+
+const AmountCentsCell = ({ row, currency, locale, pricingUnitShortName }: AmountCentsCellProps) => (
+  <Typography variant="bodyHl" color="grey700">
+    {intlFormatNumber(
+      deserializeAmount(row.pricingUnitAmountCents || row.amountCents, currency) || 0,
+      {
+        currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
+        currency,
+        locale,
+        pricingUnitShortName,
+      },
+    )}
+  </Typography>
+)
 
 gql`
   fragment CustomerUsageForUsageDetails on CustomerUsage {
     fromDatetime
     toDatetime
     chargesUsage {
+      id
+      pricingUnitAmountCents
       charge {
         id
         invoiceDisplayName
+        appliedPricingUnit {
+          id
+          pricingUnit {
+            id
+            shortName
+          }
+        }
       }
       billableMetric {
         name
@@ -34,6 +70,7 @@ gql`
         units
         values
         invoiceDisplayName
+        pricingUnitAmountCents
       }
       groupedUsage {
         id
@@ -41,12 +78,14 @@ gql`
         groupedBy
         eventsCount
         units
+        pricingUnitAmountCents
         filters {
           id
           amountCents
           units
           values
           invoiceDisplayName
+          pricingUnitAmountCents
         }
       }
     }
@@ -91,6 +130,7 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
       (u) => (u?.filters || [])?.length > 0,
     )
     const hasAnyUnitsInGroupUsage = usage?.groupedUsage?.some((u) => u?.units > 0)
+    const pricingUnitShortName = usage?.charge.appliedPricingUnit?.pricingUnit?.shortName
 
     useImperativeHandle(ref, () => ({
       openDrawer: (data, refreshData) => {
@@ -210,13 +250,12 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                         textAlign: 'right',
                         minWidth: 100,
                         content: (row) => (
-                          <Typography variant="bodyHl" color="grey700">
-                            {intlFormatNumber(deserializeAmount(row.amountCents, currency) || 0, {
-                              currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
-                              currency,
-                              locale,
-                            })}
-                          </Typography>
+                          <AmountCentsCell
+                            row={row}
+                            currency={currency}
+                            locale={locale}
+                            pricingUnitShortName={pricingUnitShortName}
+                          />
                         ),
                       },
                     ]}
@@ -263,13 +302,12 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                 textAlign: 'right',
                 minWidth: 100,
                 content: (row) => (
-                  <Typography variant="bodyHl" color="grey700">
-                    {intlFormatNumber(deserializeAmount(row.amountCents, currency) || 0, {
-                      currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
-                      currency,
-                      locale,
-                    })}
-                  </Typography>
+                  <AmountCentsCell
+                    row={row}
+                    currency={currency}
+                    locale={locale}
+                    pricingUnitShortName={pricingUnitShortName}
+                  />
                 ),
               },
             ]}
@@ -324,13 +362,12 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                 textAlign: 'right',
                 minWidth: 100,
                 content: (row) => (
-                  <Typography variant="bodyHl" color="grey700">
-                    {intlFormatNumber(deserializeAmount(row.amountCents, currency) || 0, {
-                      currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
-                      currency,
-                      locale,
-                    })}
-                  </Typography>
+                  <AmountCentsCell
+                    row={row}
+                    currency={currency}
+                    locale={locale}
+                    pricingUnitShortName={pricingUnitShortName}
+                  />
                 ),
               },
             ]}
