@@ -9,7 +9,7 @@ export const SectionHeader: FC<
 > = ({ children, hideBottomShadow, className, ...props }) => (
   <Typography
     className={tw(
-      'flex h-16 items-center justify-between',
+      'flex h-nav items-center justify-between',
       {
         'shadow-b': !hideBottomShadow,
       },

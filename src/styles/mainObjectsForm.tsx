@@ -11,7 +11,7 @@ export const Main = ({ children }: PropsWithChildren) => (
 )
 
 export const Side = ({ children }: PropsWithChildren) => (
-  <div className="relative hidden w-2/5 bg-grey-100 [&>div]:height-minus-nav md:block [&>div]:sticky [&>div]:top-20">
+  <div className="height-minus-nav sticky right-0 top-nav hidden w-2/5 bg-grey-100 md:block">
     {children}
   </div>
 )
