@@ -12,7 +12,13 @@ import { InvoiceDetailsTableHeader } from '~/components/invoices/details/Invoice
 import { InvoiceDetailsTablePeriodLine } from '~/components/invoices/details/InvoiceDetailsTablePeriodLine'
 import { InvoiceFeeAdvanceDetailsTable } from '~/components/invoices/details/InvoiceFeeAdvanceDetailsTable'
 import { InvoiceFeeArrearsDetailsTable } from '~/components/invoices/details/InvoiceFeeArrearsDetailsTable'
-import { groupAndFormatFees, TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
+import {
+  _newDeepFormatFees,
+  composeGroupedByDisplayName,
+  composeMultipleValuesWithSepator,
+  groupAndFormatFees,
+  TExtendedRemainingFee,
+} from '~/core/formats/formatInvoiceItemsMap'
 import { formatDateToTZ } from '~/core/timezone'
 import {
   CurrencyEnum,
@@ -276,6 +282,12 @@ export const InvoiceDetailsTable = memo(
       ({ errorCode }) => errorCode === ErrorCodesEnum.TaxError,
     )
 
+    const computeFeeDisplayName = (fee: TExtendedRemainingFee) => {
+      const deep = _newDeepFormatFees([fee])
+
+      return deep?.[0]?.metadata?.displayName || fee.itemName || 'Fee'
+    }
+
     /******************
      * One-off invoice
      ******************/
@@ -468,10 +480,7 @@ export const InvoiceDetailsTable = memo(
                             key={`local-added-fee-${i}`}
                             canHaveUnitPrice={canHaveUnitPrice}
                             currency={currency}
-                            displayName={
-                              fee.invoiceDisplayName ||
-                              subscription?.metadata?.subscriptionDisplayName
-                            }
+                            displayName={computeFeeDisplayName(fee as TExtendedRemainingFee)}
                             succeededDate={undefined}
                             editFeeDrawerRef={editFeeDrawerRef}
                             deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
@@ -524,7 +533,7 @@ export const InvoiceDetailsTable = memo(
           <table>
             <InvoiceDetailsTableFooter
               invoice={invoice}
-              invoiceFees={invoiceFees as Fee[]}
+              invoiceFees={onAdd ? (invoiceFees as Fee[]) : null}
               canHaveUnitPrice={canHaveUnitPrice}
               hasTaxProviderError={hasTaxProviderError}
             />
