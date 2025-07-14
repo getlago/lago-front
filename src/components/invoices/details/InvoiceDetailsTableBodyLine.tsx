@@ -236,7 +236,12 @@ export const InvoiceDetailsTableBodyLine = memo(
 
     return (
       <>
-        <tr className={shouldDisplayFeeDetail || !!pricingUnitUsage ? 'has-details' : ''}>
+        <tr
+          className={tw({
+            'has-details': shouldDisplayFeeDetail || !!pricingUnitUsage,
+            '[&_td:last-child]:!pr-0': !!pricingUnitUsage && !isDraftInvoice,
+          })}
+        >
           <td colSpan={shouldDisplayFeeDetail ? 5 : 1}>
             <Stack direction="row" spacing={1} alignItems="center">
               <Typography variant="bodyHl" color="grey700">
