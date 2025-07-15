@@ -1404,6 +1404,7 @@ export type CreateAdjustedFeeInput = {
   feeId?: InputMaybe<Scalars['ID']['input']>;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
   invoiceId: Scalars['ID']['input'];
+  invoiceSubscriptionId?: InputMaybe<Scalars['ID']['input']>;
   subscriptionId?: InputMaybe<Scalars['ID']['input']>;
   unitPreciseAmount?: InputMaybe<Scalars['String']['input']>;
   units?: InputMaybe<Scalars['Float']['input']>;
@@ -5408,6 +5409,7 @@ export type PreviewAdjustedFeeInput = {
   feeId?: InputMaybe<Scalars['ID']['input']>;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
   invoiceId: Scalars['ID']['input'];
+  invoiceSubscriptionId?: InputMaybe<Scalars['ID']['input']>;
   subscriptionId?: InputMaybe<Scalars['ID']['input']>;
   unitPreciseAmount?: InputMaybe<Scalars['String']['input']>;
   units?: InputMaybe<Scalars['Float']['input']>;
