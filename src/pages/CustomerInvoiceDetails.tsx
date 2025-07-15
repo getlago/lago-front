@@ -215,6 +215,7 @@ gql`
             id
             name
             rate
+            code
           }
         }
         addOn {
@@ -223,6 +224,7 @@ gql`
             id
             name
             rate
+            code
           }
         }
         charge {
