@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 import { Alert, Button, GenericPlaceholder, Typography } from 'lago-design-system'
+import { isNumber } from 'lodash'
 import { useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
@@ -16,6 +17,8 @@ import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
 import {
+  Charge,
+  ChargeModelEnum,
   CurrencyEnum,
   Customer,
   Fee,
@@ -109,6 +112,8 @@ export type OnRegeneratedFeeAdd = (input: {
   invoiceDisplayName?: string | null
   units?: number | null
   amountDetails?: FeeAmountDetails | null
+  charge?: Charge | null
+  invoiceSubscriptionId?: string | null
 }) => void
 
 const CustomerInvoiceRegenerate = () => {
@@ -164,12 +169,21 @@ const CustomerInvoiceRegenerate = () => {
   const onAdd: OnRegeneratedFeeAdd = async (input) => {
     let feeWithCalculatedRanges = null
 
-    if (input?.amountDetails?.graduatedRanges) {
+    const isGraduated =
+      input?.amountDetails?.graduatedRanges ||
+      (input?.charge?.chargeModel &&
+        [ChargeModelEnum.Graduated, ChargeModelEnum.GraduatedPercentage].includes(
+          input?.charge?.chargeModel,
+        ))
+
+    if (isGraduated) {
       const previewInput = {
         feeId: input?.feeId,
         invoiceId: invoiceId as string,
         units: input?.units,
         unitPreciseAmount: input?.unitPreciseAmount,
+        invoiceSubscriptionId: input?.invoiceSubscriptionId,
+        charge: input?.charge,
       }
 
       const updatedFee = await previewAdjustedFee({
@@ -187,6 +201,20 @@ const CustomerInvoiceRegenerate = () => {
     const feeId = input.feeId ? input.feeId : `${TEMPORARY_ID_PREFIX}${Math.random().toString()}`
 
     const existing = fees.find((f) => f.id === feeId)
+
+    const computeAmountCents = (
+      units: number | string | null | undefined,
+      unitPreciseAmount: number | string | null | undefined,
+    ) => {
+      return isNumber(units) && isNumber(unitPreciseAmount)
+        ? {
+            amountCents: serializeAmount(
+              Number(units) * Number(unitPreciseAmount),
+              invoice.currency as CurrencyEnum,
+            ),
+          }
+        : {}
+    }
 
     if (existing) {
       const units = input.units ?? existing.units
@@ -211,14 +239,7 @@ const CustomerInvoiceRegenerate = () => {
           units,
           preciseUnitAmount: unitPreciseAmount,
           invoiceDisplayName: input.invoiceDisplayName ?? existing.invoiceDisplayName,
-          ...(units && unitPreciseAmount
-            ? {
-                amountCents: serializeAmount(
-                  Number(units) * Number(unitPreciseAmount),
-                  invoice.currency as CurrencyEnum,
-                ),
-              }
-            : {}),
+          ...computeAmountCents(units, unitPreciseAmount),
         }
       }
 
@@ -229,16 +250,10 @@ const CustomerInvoiceRegenerate = () => {
 
     const fee = {
       ...input,
+      id: feeId,
       adjustedFee: true,
       preciseUnitAmount: Number(input.unitPreciseAmount || 0),
-      ...(input.units && input.unitPreciseAmount
-        ? {
-            amountCents: serializeAmount(
-              Number(input.units) * Number(input.unitPreciseAmount),
-              invoice.currency as CurrencyEnum,
-            ),
-          }
-        : {}),
+      ...computeAmountCents(input.units, input.unitPreciseAmount),
       appliedTaxes: invoice?.appliedTaxes,
     }
 
@@ -246,10 +261,10 @@ const CustomerInvoiceRegenerate = () => {
   }
 
   const onDelete = (id: string) => {
-    const existing = invoice?.fees?.find((f) => f.id === id)
+    const existing = fees?.find((f) => f.id === id)
 
     if (existing) {
-      return setFees((f) => f.map((fee) => (fee.id === id ? existing : fee)))
+      return setFees((f) => f.filter((fee) => fee.id !== id))
     }
   }
 

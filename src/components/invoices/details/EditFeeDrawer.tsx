@@ -239,6 +239,8 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
         return localData.onAdd({
           ...(localData.fee || {}),
           ...input,
+          charge: currentCharge,
+          invoiceSubscriptionId: localData?.invoiceSubscriptionId,
         })
       }
 
@@ -332,6 +334,10 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
   }, [currentInvoiceSubscription?.subscription.plan.charges, fee, formikProps.values.chargeId])
 
   const feeName = fee?.metadata?.displayName || fee?.itemName || ''
+
+  const currentCharge = currentInvoiceSubscription?.subscription.plan.charges?.find(
+    (charge) => charge.id === formikProps.values.chargeId,
+  )
 
   return (
     <Drawer
@@ -598,7 +604,9 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
               loading={formikProps.isSubmitting}
               onClick={formikProps.submitForm}
             >
-              {translate('text_65a6b4e2cb38d9b70ec53d9b')}
+              {translate(
+                fee?.id ? 'text_65a6b4e2cb38d9b70ec53d9b' : 'text_1752580912616sr615x718w7',
+              )}
             </Button>
           </DrawerLayout.StickyFooter>
         </DrawerLayout.Wrapper>
