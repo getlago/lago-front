@@ -14,8 +14,6 @@ import { InvoiceFeeAdvanceDetailsTable } from '~/components/invoices/details/Inv
 import { InvoiceFeeArrearsDetailsTable } from '~/components/invoices/details/InvoiceFeeArrearsDetailsTable'
 import {
   _newDeepFormatFees,
-  composeGroupedByDisplayName,
-  composeMultipleValuesWithSepator,
   groupAndFormatFees,
   TExtendedRemainingFee,
 } from '~/core/formats/formatInvoiceItemsMap'
