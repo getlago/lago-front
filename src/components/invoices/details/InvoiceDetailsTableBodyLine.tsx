@@ -47,7 +47,7 @@ gql`
       amountCents
       conversionRate
       shortName
-      preciseAmountCents
+      preciseUnitAmount
     }
     charge {
       id
@@ -199,11 +199,12 @@ export const InvoiceDetailsTableBodyLine = memo(
             currency,
             minimumFractionDigits: 2,
             maximumFractionDigits: 15,
+            pricingUnitShortName: pricingUnitUsage?.shortName,
           }),
         })
       }
       return undefined
-    }, [canHaveUnitPrice, fee, chargeModel, translate, isTrueUpFee, currency])
+    }, [canHaveUnitPrice, fee, chargeModel, translate, isTrueUpFee, currency, pricingUnitUsage])
 
     const shouldDisplayFeeDetail = calculateIfDetailsShouldBeDisplayed(
       fee,
@@ -235,7 +236,12 @@ export const InvoiceDetailsTableBodyLine = memo(
 
     return (
       <>
-        <tr className={shouldDisplayFeeDetail || !!pricingUnitUsage ? 'has-details' : ''}>
+        <tr
+          className={tw({
+            'has-details': shouldDisplayFeeDetail || !!pricingUnitUsage,
+            '[&_td:last-child]:!pr-0': !!pricingUnitUsage && !isDraftInvoice,
+          })}
+        >
           <td colSpan={shouldDisplayFeeDetail ? 5 : 1}>
             <Stack direction="row" spacing={1} alignItems="center">
               <Typography variant="bodyHl" color="grey700">
@@ -279,7 +285,7 @@ export const InvoiceDetailsTableBodyLine = memo(
                     <td>
                       <Typography variant="body" color="grey700">
                         {intlFormatNumber(
-                          pricingUnitUsage?.preciseAmountCents || fee?.preciseUnitAmount || 0,
+                          pricingUnitUsage?.preciseUnitAmount || fee?.preciseUnitAmount || 0,
                           {
                             pricingUnitShortName: pricingUnitUsage?.shortName,
                             currencyDisplay: 'symbol',
