@@ -59,11 +59,12 @@ import {
   useGetAddonListForInfoiceLazyQuery,
   useGetBillingEntityQuery,
   useGetInfosForCreateInvoiceQuery,
-  useGetInvoiceDetailsQuery,
+  useGetInvoiceFeesQuery,
   useVoidInvoiceMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import { useSalesForceConfig } from '~/hooks/useSalesForceConfig'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
@@ -180,6 +181,7 @@ const CreateInvoice = () => {
   const navigate = useNavigate()
   const { goBack } = useLocationHistory()
   const { emitSalesForceEvent, isRunningInSalesForceIframe } = useSalesForceConfig()
+  const actions = usePermissionsInvoiceActions()
 
   const [showAddItem, setShowAddItem] = useState(false)
   const [taxProviderTaxesResult, setTaxProviderTaxesResult] =
@@ -203,7 +205,7 @@ const CreateInvoice = () => {
   })
   const { customer, taxes } = data || {}
 
-  const { data: prefillData } = useGetInvoiceDetailsQuery({
+  const { data: prefillData } = useGetInvoiceFeesQuery({
     variables: { id: voidedInvoiceId as string },
     skip: !voidedInvoiceId,
   })
@@ -301,8 +303,8 @@ const CreateInvoice = () => {
     enableReinitialize: true,
     validateOnMount: true,
     onSubmit: async ({ fees, ...values }) => {
-      if (voidedInvoiceId) {
-        await voidInvoice({
+      if (voidedInvoiceId && prefillData?.invoice?.id && actions.canVoid(prefillData?.invoice)) {
+        const res = await voidInvoice({
           variables: {
             input: {
               id: voidedInvoiceId,
@@ -310,12 +312,17 @@ const CreateInvoice = () => {
             },
           },
         })
+
+        if (!res.data?.voidInvoice?.id) {
+          return
+        }
       }
 
       await createInvoice({
         variables: {
           input: {
             ...values,
+            ...(prefillData?.invoice?.id ? { voidedInvoiceId: prefillData?.invoice?.id } : {}),
             fees: fees.map(({ unitAmountCents, taxes: addonTaxes, ...fee }) => {
               return {
                 ...fee,
