@@ -140,7 +140,7 @@ const CreditNotesTable = ({
   const showCustomerName = !customerTimezone
 
   return (
-    <>
+    <div className="overflow-y-auto">
       {showFilters && (
         <div
           className={tw(
@@ -345,7 +345,7 @@ const CreditNotesTable = ({
       </InfiniteScroll>
 
       <VoidCreditNoteDialog ref={voidCreditNoteDialogRef} />
-    </>
+    </div>
   )
 }
 

@@ -10867,6 +10867,34 @@ export type RetryTaxReportingMutationVariables = Exact<{
 
 export type RetryTaxReportingMutation = { __typename?: 'Mutation', retryTaxReporting?: { __typename?: 'CreditNote', id: string } | null };
 
+export type GetCreditNotesListQueryVariables = Exact<{
+  amountFrom?: InputMaybe<Scalars['Int']['input']>;
+  amountTo?: InputMaybe<Scalars['Int']['input']>;
+  creditStatus?: InputMaybe<Array<CreditNoteCreditStatusEnum> | CreditNoteCreditStatusEnum>;
+  currency?: InputMaybe<CurrencyEnum>;
+  customerExternalId?: InputMaybe<Scalars['String']['input']>;
+  invoiceNumber?: InputMaybe<Scalars['String']['input']>;
+  issuingDateFrom?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  issuingDateTo?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  reason?: InputMaybe<Array<CreditNoteReasonEnum> | CreditNoteReasonEnum>;
+  refundStatus?: InputMaybe<Array<CreditNoteRefundStatusEnum> | CreditNoteRefundStatusEnum>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  selfBilled?: InputMaybe<Scalars['Boolean']['input']>;
+  billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+}>;
+
+
+export type GetCreditNotesListQuery = { __typename?: 'Query', creditNotes: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, taxProviderSyncable: boolean, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null, billingEntity: { __typename?: 'BillingEntity', name: string, code: string } }> } };
+
+export type CreateCreditNotesDataExportMutationVariables = Exact<{
+  input: CreateDataExportsCreditNotesInput;
+}>;
+
+
+export type CreateCreditNotesDataExportMutation = { __typename?: 'Mutation', createCreditNotesDataExport?: { __typename?: 'DataExport', id: string } | null };
+
 export type CustomerDetailsFragment = { __typename?: 'Customer', id: string, customerType?: CustomerTypeEnum | null, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', name: string, code: string }, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, avalaraCustomer?: { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, hubspotCustomer?: { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, salesforceCustomer?: { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null };
 
 export type GetCustomerQueryVariables = Exact<{
@@ -11079,27 +11107,6 @@ export type GetInvoicesListQueryVariables = Exact<{
 
 export type GetInvoicesListQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, creditableAmountCents: any, refundableAmountCents: any, associatedActiveWalletPresent: boolean, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', name: string, code: string } }> } };
 
-export type GetCreditNotesListQueryVariables = Exact<{
-  amountFrom?: InputMaybe<Scalars['Int']['input']>;
-  amountTo?: InputMaybe<Scalars['Int']['input']>;
-  creditStatus?: InputMaybe<Array<CreditNoteCreditStatusEnum> | CreditNoteCreditStatusEnum>;
-  currency?: InputMaybe<CurrencyEnum>;
-  customerExternalId?: InputMaybe<Scalars['String']['input']>;
-  invoiceNumber?: InputMaybe<Scalars['String']['input']>;
-  issuingDateFrom?: InputMaybe<Scalars['ISO8601Date']['input']>;
-  issuingDateTo?: InputMaybe<Scalars['ISO8601Date']['input']>;
-  reason?: InputMaybe<Array<CreditNoteReasonEnum> | CreditNoteReasonEnum>;
-  refundStatus?: InputMaybe<Array<CreditNoteRefundStatusEnum> | CreditNoteRefundStatusEnum>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  page?: InputMaybe<Scalars['Int']['input']>;
-  searchTerm?: InputMaybe<Scalars['String']['input']>;
-  selfBilled?: InputMaybe<Scalars['Boolean']['input']>;
-  billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
-}>;
-
-
-export type GetCreditNotesListQuery = { __typename?: 'Query', creditNotes: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, taxProviderSyncable: boolean, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null, billingEntity: { __typename?: 'BillingEntity', name: string, code: string } }> } };
-
 export type RetryAllInvoicePaymentsMutationVariables = Exact<{
   input: RetryAllInvoicePaymentsInput;
 }>;
@@ -11113,13 +11120,6 @@ export type CreateInvoicesDataExportMutationVariables = Exact<{
 
 
 export type CreateInvoicesDataExportMutation = { __typename?: 'Mutation', createInvoicesDataExport?: { __typename?: 'DataExport', id: string } | null };
-
-export type CreateCreditNotesDataExportMutationVariables = Exact<{
-  input: CreateDataExportsCreditNotesInput;
-}>;
-
-
-export type CreateCreditNotesDataExportMutation = { __typename?: 'Mutation', createCreditNotesDataExport?: { __typename?: 'DataExport', id: string } | null };
 
 export type InvoiceForPaymentDetailsFragment = { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, paymentStatus: InvoicePaymentStatusTypeEnum, number: string, totalAmountCents: any, issuingDate: any, currency?: CurrencyEnum | null, paymentOverdue: boolean, totalPaidAmountCents: any, paymentDisputeLostAt?: any | null };
 
@@ -28983,6 +28983,109 @@ export function useRetryTaxReportingMutation(baseOptions?: Apollo.MutationHookOp
 export type RetryTaxReportingMutationHookResult = ReturnType<typeof useRetryTaxReportingMutation>;
 export type RetryTaxReportingMutationResult = Apollo.MutationResult<RetryTaxReportingMutation>;
 export type RetryTaxReportingMutationOptions = Apollo.BaseMutationOptions<RetryTaxReportingMutation, RetryTaxReportingMutationVariables>;
+export const GetCreditNotesListDocument = gql`
+    query getCreditNotesList($amountFrom: Int, $amountTo: Int, $creditStatus: [CreditNoteCreditStatusEnum!], $currency: CurrencyEnum, $customerExternalId: String, $invoiceNumber: String, $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $reason: [CreditNoteReasonEnum!], $refundStatus: [CreditNoteRefundStatusEnum!], $limit: Int, $page: Int, $searchTerm: String, $selfBilled: Boolean, $billingEntityIds: [ID!]) {
+  creditNotes(
+    amountFrom: $amountFrom
+    amountTo: $amountTo
+    creditStatus: $creditStatus
+    currency: $currency
+    customerExternalId: $customerExternalId
+    invoiceNumber: $invoiceNumber
+    issuingDateFrom: $issuingDateFrom
+    issuingDateTo: $issuingDateTo
+    reason: $reason
+    refundStatus: $refundStatus
+    limit: $limit
+    page: $page
+    searchTerm: $searchTerm
+    selfBilled: $selfBilled
+    billingEntityIds: $billingEntityIds
+  ) {
+    ...CreditNotesForTable
+  }
+}
+    ${CreditNotesForTableFragmentDoc}`;
+
+/**
+ * __useGetCreditNotesListQuery__
+ *
+ * To run a query within a React component, call `useGetCreditNotesListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCreditNotesListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCreditNotesListQuery({
+ *   variables: {
+ *      amountFrom: // value for 'amountFrom'
+ *      amountTo: // value for 'amountTo'
+ *      creditStatus: // value for 'creditStatus'
+ *      currency: // value for 'currency'
+ *      customerExternalId: // value for 'customerExternalId'
+ *      invoiceNumber: // value for 'invoiceNumber'
+ *      issuingDateFrom: // value for 'issuingDateFrom'
+ *      issuingDateTo: // value for 'issuingDateTo'
+ *      reason: // value for 'reason'
+ *      refundStatus: // value for 'refundStatus'
+ *      limit: // value for 'limit'
+ *      page: // value for 'page'
+ *      searchTerm: // value for 'searchTerm'
+ *      selfBilled: // value for 'selfBilled'
+ *      billingEntityIds: // value for 'billingEntityIds'
+ *   },
+ * });
+ */
+export function useGetCreditNotesListQuery(baseOptions?: Apollo.QueryHookOptions<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>(GetCreditNotesListDocument, options);
+      }
+export function useGetCreditNotesListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>(GetCreditNotesListDocument, options);
+        }
+export function useGetCreditNotesListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>(GetCreditNotesListDocument, options);
+        }
+export type GetCreditNotesListQueryHookResult = ReturnType<typeof useGetCreditNotesListQuery>;
+export type GetCreditNotesListLazyQueryHookResult = ReturnType<typeof useGetCreditNotesListLazyQuery>;
+export type GetCreditNotesListSuspenseQueryHookResult = ReturnType<typeof useGetCreditNotesListSuspenseQuery>;
+export type GetCreditNotesListQueryResult = Apollo.QueryResult<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>;
+export const CreateCreditNotesDataExportDocument = gql`
+    mutation createCreditNotesDataExport($input: CreateDataExportsCreditNotesInput!) {
+  createCreditNotesDataExport(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateCreditNotesDataExportMutationFn = Apollo.MutationFunction<CreateCreditNotesDataExportMutation, CreateCreditNotesDataExportMutationVariables>;
+
+/**
+ * __useCreateCreditNotesDataExportMutation__
+ *
+ * To run a mutation, you first call `useCreateCreditNotesDataExportMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCreditNotesDataExportMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCreditNotesDataExportMutation, { data, loading, error }] = useCreateCreditNotesDataExportMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCreditNotesDataExportMutation(baseOptions?: Apollo.MutationHookOptions<CreateCreditNotesDataExportMutation, CreateCreditNotesDataExportMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCreditNotesDataExportMutation, CreateCreditNotesDataExportMutationVariables>(CreateCreditNotesDataExportDocument, options);
+      }
+export type CreateCreditNotesDataExportMutationHookResult = ReturnType<typeof useCreateCreditNotesDataExportMutation>;
+export type CreateCreditNotesDataExportMutationResult = Apollo.MutationResult<CreateCreditNotesDataExportMutation>;
+export type CreateCreditNotesDataExportMutationOptions = Apollo.BaseMutationOptions<CreateCreditNotesDataExportMutation, CreateCreditNotesDataExportMutationVariables>;
 export const GetCustomerDocument = gql`
     query getCustomer($id: ID!) {
   customer(id: $id) {
@@ -29959,76 +30062,6 @@ export type GetInvoicesListQueryHookResult = ReturnType<typeof useGetInvoicesLis
 export type GetInvoicesListLazyQueryHookResult = ReturnType<typeof useGetInvoicesListLazyQuery>;
 export type GetInvoicesListSuspenseQueryHookResult = ReturnType<typeof useGetInvoicesListSuspenseQuery>;
 export type GetInvoicesListQueryResult = Apollo.QueryResult<GetInvoicesListQuery, GetInvoicesListQueryVariables>;
-export const GetCreditNotesListDocument = gql`
-    query getCreditNotesList($amountFrom: Int, $amountTo: Int, $creditStatus: [CreditNoteCreditStatusEnum!], $currency: CurrencyEnum, $customerExternalId: String, $invoiceNumber: String, $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $reason: [CreditNoteReasonEnum!], $refundStatus: [CreditNoteRefundStatusEnum!], $limit: Int, $page: Int, $searchTerm: String, $selfBilled: Boolean, $billingEntityIds: [ID!]) {
-  creditNotes(
-    amountFrom: $amountFrom
-    amountTo: $amountTo
-    creditStatus: $creditStatus
-    currency: $currency
-    customerExternalId: $customerExternalId
-    invoiceNumber: $invoiceNumber
-    issuingDateFrom: $issuingDateFrom
-    issuingDateTo: $issuingDateTo
-    reason: $reason
-    refundStatus: $refundStatus
-    limit: $limit
-    page: $page
-    searchTerm: $searchTerm
-    selfBilled: $selfBilled
-    billingEntityIds: $billingEntityIds
-  ) {
-    ...CreditNotesForTable
-  }
-}
-    ${CreditNotesForTableFragmentDoc}`;
-
-/**
- * __useGetCreditNotesListQuery__
- *
- * To run a query within a React component, call `useGetCreditNotesListQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCreditNotesListQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCreditNotesListQuery({
- *   variables: {
- *      amountFrom: // value for 'amountFrom'
- *      amountTo: // value for 'amountTo'
- *      creditStatus: // value for 'creditStatus'
- *      currency: // value for 'currency'
- *      customerExternalId: // value for 'customerExternalId'
- *      invoiceNumber: // value for 'invoiceNumber'
- *      issuingDateFrom: // value for 'issuingDateFrom'
- *      issuingDateTo: // value for 'issuingDateTo'
- *      reason: // value for 'reason'
- *      refundStatus: // value for 'refundStatus'
- *      limit: // value for 'limit'
- *      page: // value for 'page'
- *      searchTerm: // value for 'searchTerm'
- *      selfBilled: // value for 'selfBilled'
- *      billingEntityIds: // value for 'billingEntityIds'
- *   },
- * });
- */
-export function useGetCreditNotesListQuery(baseOptions?: Apollo.QueryHookOptions<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>(GetCreditNotesListDocument, options);
-      }
-export function useGetCreditNotesListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>(GetCreditNotesListDocument, options);
-        }
-export function useGetCreditNotesListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>(GetCreditNotesListDocument, options);
-        }
-export type GetCreditNotesListQueryHookResult = ReturnType<typeof useGetCreditNotesListQuery>;
-export type GetCreditNotesListLazyQueryHookResult = ReturnType<typeof useGetCreditNotesListLazyQuery>;
-export type GetCreditNotesListSuspenseQueryHookResult = ReturnType<typeof useGetCreditNotesListSuspenseQuery>;
-export type GetCreditNotesListQueryResult = Apollo.QueryResult<GetCreditNotesListQuery, GetCreditNotesListQueryVariables>;
 export const RetryAllInvoicePaymentsDocument = gql`
     mutation retryAllInvoicePayments($input: RetryAllInvoicePaymentsInput!) {
   retryAllInvoicePayments(input: $input) {
@@ -30097,39 +30130,6 @@ export function useCreateInvoicesDataExportMutation(baseOptions?: Apollo.Mutatio
 export type CreateInvoicesDataExportMutationHookResult = ReturnType<typeof useCreateInvoicesDataExportMutation>;
 export type CreateInvoicesDataExportMutationResult = Apollo.MutationResult<CreateInvoicesDataExportMutation>;
 export type CreateInvoicesDataExportMutationOptions = Apollo.BaseMutationOptions<CreateInvoicesDataExportMutation, CreateInvoicesDataExportMutationVariables>;
-export const CreateCreditNotesDataExportDocument = gql`
-    mutation createCreditNotesDataExport($input: CreateDataExportsCreditNotesInput!) {
-  createCreditNotesDataExport(input: $input) {
-    id
-  }
-}
-    `;
-export type CreateCreditNotesDataExportMutationFn = Apollo.MutationFunction<CreateCreditNotesDataExportMutation, CreateCreditNotesDataExportMutationVariables>;
-
-/**
- * __useCreateCreditNotesDataExportMutation__
- *
- * To run a mutation, you first call `useCreateCreditNotesDataExportMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateCreditNotesDataExportMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createCreditNotesDataExportMutation, { data, loading, error }] = useCreateCreditNotesDataExportMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateCreditNotesDataExportMutation(baseOptions?: Apollo.MutationHookOptions<CreateCreditNotesDataExportMutation, CreateCreditNotesDataExportMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateCreditNotesDataExportMutation, CreateCreditNotesDataExportMutationVariables>(CreateCreditNotesDataExportDocument, options);
-      }
-export type CreateCreditNotesDataExportMutationHookResult = ReturnType<typeof useCreateCreditNotesDataExportMutation>;
-export type CreateCreditNotesDataExportMutationResult = Apollo.MutationResult<CreateCreditNotesDataExportMutation>;
-export type CreateCreditNotesDataExportMutationOptions = Apollo.BaseMutationOptions<CreateCreditNotesDataExportMutation, CreateCreditNotesDataExportMutationVariables>;
 export const GetPaymentDetailsDocument = gql`
     query GetPaymentDetails($id: ID!) {
   payment(id: $id) {
