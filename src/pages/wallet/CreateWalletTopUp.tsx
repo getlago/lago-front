@@ -22,7 +22,6 @@ import {
 import {
   CreateCustomerWalletTransactionInput,
   CurrencyEnum,
-  InvoiceStatusTypeEnum,
   useCreateCustomerWalletTransactionMutation,
   useGetCustomerWalletListQuery,
   useGetInvoiceStatusQuery,
@@ -33,6 +32,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 gql`
@@ -65,6 +65,7 @@ const CreateWalletTopUp = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { goBack } = useLocationHistory()
+  const actions = usePermissionsInvoiceActions()
 
   const { organization: { defaultCurrency } = {} } = useOrganizationInfos()
   const { customerId = '', walletId = '', voidedInvoiceId = '' } = useParams()
@@ -143,8 +144,12 @@ const CreateWalletTopUp = () => {
     }) => {
       if (!wallet) return
 
-      if (voidedInvoiceId && voidedInvoice?.invoice?.status !== InvoiceStatusTypeEnum.Voided) {
-        await voidInvoice({
+      if (
+        voidedInvoiceId &&
+        voidedInvoice?.invoice?.id &&
+        actions.canVoid(voidedInvoice?.invoice)
+      ) {
+        const res = await voidInvoice({
           variables: {
             input: {
               id: voidedInvoiceId,
@@ -152,6 +157,10 @@ const CreateWalletTopUp = () => {
             },
           },
         })
+
+        if (!res?.data?.voidInvoice?.id) {
+          return
+        }
       }
 
       await createWallet({
