@@ -183,7 +183,7 @@ const CustomerInvoiceRegenerate = () => {
         units: input?.units,
         unitPreciseAmount: input?.unitPreciseAmount,
         invoiceSubscriptionId: input?.invoiceSubscriptionId,
-        charge: input?.charge,
+        chargeId: input?.charge?.id,
       }
 
       const updatedFee = await previewAdjustedFee({
