@@ -507,6 +507,8 @@ const CreateInvoice = () => {
   const invoiceFooterLineClassname =
     'flex items-center [&>*:first-child]:mr-4 [&>*:first-child]:flex-1 [&>*:last-child]:w-42 [&>*:last-child]:text-end'
 
+  const canSubmit = formikProps.isValid && (!!voidedInvoiceId || formikProps.dirty)
+
   return (
     <>
       <PageHeader.Wrapper>
@@ -1305,7 +1307,7 @@ const CreateInvoice = () => {
               )}
               <Button
                 size="large"
-                disabled={!formikProps.isValid || !formikProps.dirty}
+                disabled={!canSubmit}
                 onClick={formikProps.submitForm}
                 data-test="create-invoice-button"
               >
