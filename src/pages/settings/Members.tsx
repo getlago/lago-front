@@ -172,7 +172,7 @@ const Members = () => {
                     action={
                       !!hasInvites && hasPermissions(['organizationMembersCreate']) ? (
                         <Button
-                          variant="quaternary"
+                          variant="inline"
                           onClick={() => {
                             createInviteDialogRef.current?.openDialog()
                           }}
@@ -303,7 +303,7 @@ const Members = () => {
                   action={
                     !hasInvites && hasPermissions(['organizationMembersCreate']) ? (
                       <Button
-                        variant="quaternary"
+                        variant="inline"
                         onClick={() => {
                           createInviteDialogRef.current?.openDialog()
                         }}

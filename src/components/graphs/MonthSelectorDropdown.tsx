@@ -39,7 +39,7 @@ const MonthSelectorDropdown = ({
         <Popper
           PopperProps={{ placement: 'bottom-end' }}
           opener={
-            <Button variant="quaternary" endIcon={'chevron-down'}>
+            <Button variant="inline" endIcon={'chevron-down'}>
               {translate(PeriodScopeTranslationLookup[periodScope])}
             </Button>
           }

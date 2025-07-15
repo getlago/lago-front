@@ -138,7 +138,7 @@ const AlertThresholds = ({
         <Button
           className="mb-2 ml-auto"
           startIcon="plus"
-          variant="quaternary"
+          variant="inline"
           onClick={() => addThreshold()}
           data-test="add-new-non-recurring-threshold-button"
         >

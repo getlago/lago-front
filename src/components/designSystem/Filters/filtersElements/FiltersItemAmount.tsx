@@ -1,5 +1,5 @@
-import { Typography } from '@mui/material'
 import { useFormik } from 'formik'
+import { Typography } from 'lago-design-system'
 import { useEffect } from 'react'
 
 import {

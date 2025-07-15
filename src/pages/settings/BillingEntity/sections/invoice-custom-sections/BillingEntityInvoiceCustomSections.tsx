@@ -96,7 +96,7 @@ const BillingEntityInvoiceCustomSections = () => {
                     <>
                       {hasPermissions(['billingEntitiesInvoicesUpdate']) && (
                         <Button
-                          variant="quaternary"
+                          variant="inline"
                           disabled={loading}
                           onClick={() => {
                             if (billingEntity) {

@@ -84,7 +84,7 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
           <>
             {!activeWallet && hasPermissions(['walletsCreate']) && (
               <Button
-                variant="quaternary"
+                variant="inline"
                 onClick={() =>
                   navigate(
                     generatePath(CREATE_WALLET_ROUTE, {
@@ -98,7 +98,7 @@ export const CustomerWalletsList = ({ customerId, customerTimezone }: CustomerWa
             )}
             {activeWallet && hasPermissions(['walletsTopUp']) && (
               <Button
-                variant="quaternary"
+                variant="inline"
                 onClick={() =>
                   navigate(
                     generatePath(CREATE_WALLET_TOP_UP_ROUTE, {

@@ -341,7 +341,7 @@ const CreateBillableMetric = () => {
                     <Button
                       className="self-start"
                       startIcon="plus"
-                      variant="quaternary"
+                      variant="inline"
                       onClick={() => setShouldDisplayDescription(true)}
                       data-test="show-description"
                     >
@@ -573,7 +573,7 @@ const CreateBillableMetric = () => {
                       {formikProps.values.roundingFunction === undefined && (
                         <div>
                           <Button
-                            variant="quaternary"
+                            variant="inline"
                             startIcon="plus"
                             onClick={() => {
                               formikProps.setFieldValue('roundingFunction', null)
@@ -808,7 +808,7 @@ const CreateBillableMetric = () => {
                     {/* NOTE: Div used to prevent button's full width. Caused because of the Stack container */}
                     <div>
                       <Button
-                        variant="quaternary"
+                        variant="inline"
                         startIcon="plus"
                         onClick={() => {
                           formikProps.setFieldValue('filters', [

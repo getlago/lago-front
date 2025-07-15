@@ -139,7 +139,7 @@ export const ChargeFilter = memo(
           <div>
             <Button
               id={buildChargeFilterAddFilterButtonId(chargeIndex, filterIndex)}
-              variant="quaternary"
+              variant="inline"
               startIcon="plus"
               onClick={() => {
                 setShowComboBox(true)

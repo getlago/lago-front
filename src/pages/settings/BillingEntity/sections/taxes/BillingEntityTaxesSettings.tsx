@@ -114,7 +114,7 @@ const BillingEntityTaxesSettings = () => {
                     <>
                       {hasPermissions(['billingEntitiesTaxesUpdate']) && (
                         <Button
-                          variant="quaternary"
+                          variant="inline"
                           disabled={loading}
                           onClick={() => {
                             if (billingEntity?.id) {

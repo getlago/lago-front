@@ -179,7 +179,7 @@ const CreateInvoiceCustomSection = () => {
                   ) : (
                     <Button
                       startIcon="plus"
-                      variant="quaternary"
+                      variant="inline"
                       onClick={() => setShouldDisplayDescription(true)}
                       data-test="show-description"
                     >

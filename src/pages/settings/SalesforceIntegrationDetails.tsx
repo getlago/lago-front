@@ -175,7 +175,7 @@ const SalesforceIntegrationDetails = () => {
           <div className="flex h-18 w-full items-center justify-between">
             <Typography variant="subhead1">{translate('text_664c732c264d7eed1c74fdc5')}</Typography>
             <Button
-              variant="quaternary"
+              variant="inline"
               disabled={loading}
               onClick={() => {
                 addSalesforceDialogRef.current?.openDialog({

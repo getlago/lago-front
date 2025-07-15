@@ -230,7 +230,7 @@ const BillingEntityInvoiceSettings = () => {
       sublabel: translate('text_17280313005777h5bvs7okol'),
       action: (
         <Button
-          variant="quaternary"
+          variant="inline"
           disabled={!canEditInvoiceSettings}
           onClick={() => editDefaultCurrencyDialogRef?.current?.openDialog({ billingEntity })}
         >
@@ -246,7 +246,7 @@ const BillingEntityInvoiceSettings = () => {
       sublabel: translate('text_1728031300577ipb2cxnths3'),
       action: (
         <Button
-          variant="quaternary"
+          variant="inline"
           disabled={!canEditInvoiceSettings}
           onClick={editDocumentLanguageDialogRef?.current?.openDialog}
         >
@@ -268,7 +268,7 @@ const BillingEntityInvoiceSettings = () => {
       sublabel: translate('text_1725538340200495slgen6ji'),
       action: (
         <Button
-          variant="quaternary"
+          variant="inline"
           disabled={!canEditInvoiceSettings}
           onClick={() => editFinalizeZeroAmountInvoiceDialogRef?.current?.openDialog()}
         >
@@ -293,7 +293,7 @@ const BillingEntityInvoiceSettings = () => {
       sublabel: translate('text_1728031300577ozl3dbfygr7'),
       action: (
         <Button
-          variant="quaternary"
+          variant="inline"
           endIcon={isPremium ? undefined : 'sparkles'}
           disabled={!canEditInvoiceSettings}
           onClick={() => {
@@ -326,7 +326,7 @@ const BillingEntityInvoiceSettings = () => {
       visible: false,
       action: (
         <Button
-          variant="quaternary"
+          variant="inline"
           disabled={!canEditInvoiceSettings}
           onClick={() => navigate(CREATE_INVOICE_CUSTOM_SECTION)}
         >
@@ -428,7 +428,7 @@ const BillingEntityInvoiceSettings = () => {
       sublabel: translate('text_1728031300577nwh7oc3hawr'),
       action: (
         <Button
-          variant="quaternary"
+          variant="inline"
           disabled={!canEditInvoiceSettings}
           onClick={editInvoiceTemplateDialogRef?.current?.openDialog}
         >
@@ -465,7 +465,7 @@ const BillingEntityInvoiceSettings = () => {
       sublabel: translate('text_17280313005771cdjezfas2e'),
       action: (
         <Button
-          variant="quaternary"
+          variant="inline"
           disabled={!canEditInvoiceSettings}
           onClick={editInvoiceNumberingDialogRef?.current?.openDialog}
         >
@@ -504,7 +504,7 @@ const BillingEntityInvoiceSettings = () => {
       sublabel: translate('text_1728031300577aivplw3hqav'),
       action: (
         <Button
-          variant="quaternary"
+          variant="inline"
           disabled={!canEditInvoiceSettings}
           onClick={() => editNetPaymentTermDialogRef?.current?.openDialog(billingEntity)}
         >
@@ -535,7 +535,7 @@ const BillingEntityInvoiceSettings = () => {
         <>
           {hasPermissions(['billingEntitiesTaxesUpdate']) && (
             <Button
-              variant="quaternary"
+              variant="inline"
               disabled={!canEditInvoiceSettings}
               onClick={editVATDialogRef?.current?.openDialog}
               data-test="add-tax-button"

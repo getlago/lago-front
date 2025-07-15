@@ -123,7 +123,7 @@ const Dunnings = () => {
                   action={
                     hasAccessToFeature ? (
                       <Button
-                        variant="quaternary"
+                        variant="inline"
                         disabled={loading}
                         onClick={() => {
                           navigate(CREATE_DUNNING_ROUTE)

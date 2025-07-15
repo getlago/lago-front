@@ -177,7 +177,7 @@ const InformationBlock = ({ billingEntity }: { billingEntity: BillingEntity }) =
           action={
             <>
               {hasPermissions(['organizationUpdate']) && (
-                <Button variant="quaternary" onClick={onEdit}>
+                <Button variant="inline" onClick={onEdit}>
                   {translate('text_6389099378112a8d8e2b73be')}
                 </Button>
               )}

@@ -98,7 +98,7 @@ const BillingEntityDunningCampaigns = () => {
                     <>
                       {hasPermissions(['billingEntitiesDunningCampaignsUpdate']) && (
                         <Button
-                          variant="quaternary"
+                          variant="inline"
                           disabled={loading || !!appliedDunningCampaign?.id}
                           onClick={() => {
                             if (billingEntity) {

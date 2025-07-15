@@ -287,7 +287,7 @@ export const AddLagoTaxManagementDialog = forwardRef<
 
       <Button
         fitContent
-        variant="quaternary"
+        variant="inline"
         size="medium"
         startIcon="plus"
         disabled={!canCreateBillingEntity}

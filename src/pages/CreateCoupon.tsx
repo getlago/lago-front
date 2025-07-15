@@ -308,7 +308,7 @@ const CreateCoupon = () => {
                     <Button
                       className="self-start"
                       startIcon="plus"
-                      variant="quaternary"
+                      variant="inline"
                       onClick={() => setShouldDisplayDescription(true)}
                       data-test="show-description"
                     >
@@ -589,9 +589,9 @@ const CreateCoupon = () => {
 
                       {(!isEdition || !coupon?.appliedCouponsCount) && (
                         <>
-                          <div className="flex flex-row flex-wrap gap-3">
+                          <div className="flex flex-row flex-wrap gap-4">
                             <Button
-                              variant="quaternary"
+                              variant="inline"
                               startIcon="plus"
                               disabled={hasBillableMetricLimit && !hasPlanLimit}
                               onClick={addPlanToCouponDialogRef.current?.openDialog}
@@ -600,7 +600,7 @@ const CreateCoupon = () => {
                               {translate('text_63d3a201113866a7fa5e6f6b')}
                             </Button>
                             <Button
-                              variant="quaternary"
+                              variant="inline"
                               startIcon="plus"
                               disabled={hasPlanLimit && !hasBillableMetricLimit}
                               onClick={addBillableMetricToCouponDialogRef.current?.openDialog}
