@@ -249,9 +249,16 @@ const CustomerInvoiceRegenerate = () => {
     }
 
     if (feeWithCalculatedRanges) {
+      const unitPreciseAmount = input.unitPreciseAmount ? Number(input.unitPreciseAmount) : null
+
       const fee = {
         ...input,
         ...feeWithCalculatedRanges,
+        ...(input?.unitPreciseAmount
+          ? {
+              preciseUnitAmount: unitPreciseAmount,
+            }
+          : {}),
         adjustedFee: true,
         appliedTaxes: invoice?.appliedTaxes,
         id: feeId,
