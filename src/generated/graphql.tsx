@@ -10866,6 +10866,13 @@ export type GetInvoiceStatusQueryVariables = Exact<{
 
 export type GetInvoiceStatusQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } | null };
 
+export type GetInvoiceFeesQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetInvoiceFeesQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, itemName: string, description?: string | null, groupedBy: any, units: number, preciseUnitAmount: number, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, tax?: { __typename?: 'Tax', id: string, name: string, rate: number } | null }> | null, addOn?: { __typename?: 'AddOn', id: string, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, rate: number }> | null } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval, name: string } } | null }> | null } | null };
+
 export type IntegrationsListForCustomerInvoiceDetailsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
@@ -29322,6 +29329,95 @@ export type GetInvoiceStatusQueryHookResult = ReturnType<typeof useGetInvoiceSta
 export type GetInvoiceStatusLazyQueryHookResult = ReturnType<typeof useGetInvoiceStatusLazyQuery>;
 export type GetInvoiceStatusSuspenseQueryHookResult = ReturnType<typeof useGetInvoiceStatusSuspenseQuery>;
 export type GetInvoiceStatusQueryResult = Apollo.QueryResult<GetInvoiceStatusQuery, GetInvoiceStatusQueryVariables>;
+export const GetInvoiceFeesDocument = gql`
+    query getInvoiceFees($id: ID!) {
+  invoice(id: $id) {
+    id
+    status
+    fees {
+      id
+      amountCents
+      invoiceName
+      invoiceDisplayName
+      itemName
+      description
+      groupedBy
+      units
+      preciseUnitAmount
+      appliedTaxes {
+        id
+        tax {
+          id
+          name
+          rate
+        }
+      }
+      addOn {
+        id
+        taxes {
+          id
+          name
+          rate
+        }
+      }
+      charge {
+        id
+        payInAdvance
+        minAmountCents
+        billableMetric {
+          id
+          name
+        }
+      }
+      chargeFilter {
+        invoiceDisplayName
+        values
+      }
+      subscription {
+        id
+        plan {
+          id
+          interval
+          name
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetInvoiceFeesQuery__
+ *
+ * To run a query within a React component, call `useGetInvoiceFeesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetInvoiceFeesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetInvoiceFeesQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetInvoiceFeesQuery(baseOptions: Apollo.QueryHookOptions<GetInvoiceFeesQuery, GetInvoiceFeesQueryVariables> & ({ variables: GetInvoiceFeesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetInvoiceFeesQuery, GetInvoiceFeesQueryVariables>(GetInvoiceFeesDocument, options);
+      }
+export function useGetInvoiceFeesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetInvoiceFeesQuery, GetInvoiceFeesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetInvoiceFeesQuery, GetInvoiceFeesQueryVariables>(GetInvoiceFeesDocument, options);
+        }
+export function useGetInvoiceFeesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoiceFeesQuery, GetInvoiceFeesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetInvoiceFeesQuery, GetInvoiceFeesQueryVariables>(GetInvoiceFeesDocument, options);
+        }
+export type GetInvoiceFeesQueryHookResult = ReturnType<typeof useGetInvoiceFeesQuery>;
+export type GetInvoiceFeesLazyQueryHookResult = ReturnType<typeof useGetInvoiceFeesLazyQuery>;
+export type GetInvoiceFeesSuspenseQueryHookResult = ReturnType<typeof useGetInvoiceFeesSuspenseQuery>;
+export type GetInvoiceFeesQueryResult = Apollo.QueryResult<GetInvoiceFeesQuery, GetInvoiceFeesQueryVariables>;
 export const IntegrationsListForCustomerInvoiceDetailsDocument = gql`
     query integrationsListForCustomerInvoiceDetails($limit: Int) {
   integrations(limit: $limit) {
