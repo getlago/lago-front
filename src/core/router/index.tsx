@@ -3,7 +3,7 @@ import { AppEnvEnum } from '~/core/constants/globalTypes'
 
 import { authRoutes } from './AuthRoutes'
 import { customerPortalRoutes } from './CustomerPortalRoutes'
-import { customerObjectCreationRoutes, customerRoutes } from './CustomerRoutes'
+import { customerObjectCreationRoutes, customerRoutes, customerVoidRoutes } from './CustomerRoutes'
 import { objectCreationRoutes, objectDetailsRoutes, objectListRoutes } from './ObjectsRoutes'
 import { settingRoutes } from './SettingRoutes'
 import { CustomRouteObject } from './types'
@@ -89,6 +89,7 @@ export const routes: CustomRouteObject[] = [
   },
   ...authRoutes,
   ...customerObjectCreationRoutes,
+  ...customerVoidRoutes,
   ...objectCreationRoutes,
   ...customerPortalRoutes,
 ]
