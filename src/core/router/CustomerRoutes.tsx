@@ -70,6 +70,9 @@ export const customerRoutes: CustomRouteObject[] = [
     element: <CreditNoteDetails />,
     permissions: ['creditNotesView'],
   },
+]
+
+export const customerVoidRoutes: CustomRouteObject[] = [
   {
     path: [CUSTOMER_INVOICE_VOID_ROUTE],
     private: true,
