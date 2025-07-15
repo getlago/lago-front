@@ -3268,5 +3268,10 @@
   "text_1751530295201vhd64062mii": "Automatic (interval)",
   "text_1751530295201xyz98abc123": "Automatic (threshold)",
   "text_1751530295201def456ghi78": "Manual",
-  "text_1751629285990kftdtjbv2dc": "Customer has Tax ID"
+  "text_1751629285990kftdtjbv2dc": "Customer has Tax ID",
+  "text_1751378926655m4bfald61u4": "Search subscriptions",
+  "text_1751462194856885bttkg6wt": "Edit, terminate",
+  "text_1751969008731sd4e2mssx90": "There are no subscriptions",
+  "text_1751969008731m6hlinilrky": "Create your first subscription",
+  "text_1751969070668mwxq0nou1x9": "A subscription represents the assignment of a plan to a customer of your business."
 }

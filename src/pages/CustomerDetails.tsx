@@ -378,7 +378,7 @@ const CustomerDetails = () => {
                       component: (
                         <div className="flex flex-col gap-12">
                           <CustomerCoupons />
-                          <CustomerSubscriptionsList customerTimezone={safeTimezone} />
+                          <CustomerSubscriptionsList />
                         </div>
                       ),
                     },

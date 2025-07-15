@@ -5,6 +5,7 @@ import { getIntervalTranslationKey } from '~/core/constants/form'
 import {
   CurrencyEnum,
   EditPlanFragmentDoc,
+  LagoApiError,
   PlanInterval,
   useGetPlanForDetailsOverviewSectionQuery,
 } from '~/generated/graphql'
@@ -29,11 +30,19 @@ export const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
   const { data: planResult, loading: isPlanLoading } = useGetPlanForDetailsOverviewSectionQuery({
     variables: { plan: planId as string },
     skip: !planId,
+    context: {
+      silentError: [LagoApiError.NotFound],
+    },
   })
+
   const plan = planResult?.plan
 
   if (!plan && isPlanLoading) {
     return <DetailsPage.Skeleton />
+  }
+
+  if (!plan) {
+    return null
   }
 
   return (

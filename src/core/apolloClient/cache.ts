@@ -33,7 +33,7 @@ export const cache = new InMemoryCache({
           merge: mergePaginatedCollection,
         },
         subscriptions: {
-          keyArgs: false,
+          keyArgs: ['id'],
           merge: mergePaginatedCollection,
         },
         customers: {
