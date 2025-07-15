@@ -23,5 +23,6 @@ export const invoiceFeesToFeeInput = (
     name: fee.itemName,
     unitAmountCents: fee.preciseUnitAmount,
     units: fee.units,
+    taxes: fee?.appliedTaxes?.map((appliedTax) => appliedTax.tax) || [],
   }))
 }
