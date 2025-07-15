@@ -248,6 +248,18 @@ const CustomerInvoiceRegenerate = () => {
       return setFees([...newFees])
     }
 
+    if (feeWithCalculatedRanges) {
+      const fee = {
+        ...input,
+        ...feeWithCalculatedRanges,
+        adjustedFee: true,
+        appliedTaxes: invoice?.appliedTaxes,
+        id: feeId,
+      }
+
+      return setFees((f) => [...f, fee as unknown as Fee])
+    }
+
     const fee = {
       ...input,
       id: feeId,
