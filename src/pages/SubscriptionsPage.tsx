@@ -101,6 +101,7 @@ const SubscriptionsPage = () => {
 
   const [getSubscriptions, { data, error, loading, variables, fetchMore }] =
     useGetSubscriptionsListLazyQuery({
+      notifyOnNetworkStatusChange: true,
       variables: {
         limit: 20,
         ...filtersForSubscriptionQuery,
