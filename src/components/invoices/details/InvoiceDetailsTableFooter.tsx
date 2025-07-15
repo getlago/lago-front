@@ -4,7 +4,7 @@ import { memo } from 'react'
 import { Alert, Typography } from '~/components/designSystem'
 import { appliedTaxEnumedTaxCodeTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
   Fee,
