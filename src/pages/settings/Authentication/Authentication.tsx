@@ -132,7 +132,7 @@ const Authentication = () => {
 
     return (
       <ConditionalWrapper
-        condition={isUniqueAuthenticationMethodEnabled}
+        condition={isUniqueAuthenticationMethodEnabled && method !== AuthenticationMethodsEnum.Okta}
         validWrapper={(children) => (
           <Tooltip title={translate('text_1752158016615ah5wceoz1ed')} placement="top">
             {children}
@@ -238,21 +238,35 @@ const Authentication = () => {
                       >
                         {translate('text_664c8fa719b5e7ad81c86018')}
                       </Button>
-                      <Button
-                        startIcon="trash"
-                        variant="quaternary"
-                        align="left"
-                        loading={authIntegrationsLoading}
-                        onClick={(e) => {
-                          e.stopPropagation()
-
-                          deleteOktaDialogRef.current?.openDialog({
-                            integration: oktaIntegration,
-                          })
-                        }}
+                      <ConditionalWrapper
+                        condition={isUniqueAuthenticationMethodEnabled}
+                        validWrapper={(children) => (
+                          <Tooltip
+                            title={translate('text_1752158016615ah5wceoz1ed')}
+                            placement="bottom"
+                          >
+                            {children}
+                          </Tooltip>
+                        )}
+                        invalidWrapper={(children) => <>{children}</>}
                       >
-                        {translate('text_17522481192202remk2eytrr')}
-                      </Button>
+                        <Button
+                          startIcon="trash"
+                          variant="quaternary"
+                          align="left"
+                          loading={authIntegrationsLoading}
+                          disabled={isUniqueAuthenticationMethodEnabled}
+                          onClick={(e) => {
+                            e.stopPropagation()
+
+                            deleteOktaDialogRef.current?.openDialog({
+                              integration: oktaIntegration,
+                            })
+                          }}
+                        >
+                          {translate('text_17522481192202remk2eytrr')}
+                        </Button>
+                      </ConditionalWrapper>
                     </>
                   )}
                 </MenuPopper>

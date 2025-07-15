@@ -12,11 +12,13 @@ import {
 import { AUTHENTICATION_ROUTE } from '~/core/router'
 import {
   AddOktaIntegrationDialogFragmentDoc,
+  AuthenticationMethodsEnum,
   DeleteOktaIntegrationDialogFragmentDoc,
   OktaIntegration,
   useGetOktaIntegrationQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import Okta from '~/public/images/okta.svg'
 import { MenuPopper, PageHeader } from '~/styles'
 
@@ -48,6 +50,7 @@ gql`
 const OktaAuthenticationDetails = () => {
   const { translate } = useInternationalization()
   const { integrationId } = useParams()
+  const { organization } = useOrganizationInfos()
   const navigate = useNavigate()
 
   const addOktaDialogRef = useRef<AddOktaDialogRef>(null)
@@ -58,6 +61,10 @@ const OktaAuthenticationDetails = () => {
   })
 
   const integration = data?.integration as OktaIntegration | null
+
+  const hasOtherAuthenticationMethodsThanOkta = organization?.authenticationMethods.some(
+    (method) => method !== AuthenticationMethodsEnum.Okta,
+  )
 
   const onDeleteCallback = () => {
     navigate(AUTHENTICATION_ROUTE)
@@ -117,6 +124,7 @@ const OktaAuthenticationDetails = () => {
                 variant="quaternary"
                 align="left"
                 fullWidth
+                disabled={!hasOtherAuthenticationMethodsThanOkta}
                 onClick={() => {
                   closePopper()
                   deleteOktaDialogRef.current?.openDialog({
