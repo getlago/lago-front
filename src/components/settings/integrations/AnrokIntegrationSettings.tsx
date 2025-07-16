@@ -182,7 +182,7 @@ const AnrokIntegrationSettings = () => {
           direction="row"
           gap={4}
           justifyContent="space-between"
-          alignItems="center"
+          alignItems="baseline"
           paddingBottom={6}
           sx={{ boxShadow: theme.shadows[7] }}
         >

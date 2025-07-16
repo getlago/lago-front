@@ -50,7 +50,7 @@ export const SettingsListItemHeader = ({
   sublabel?: string
   action?: JSX.Element
 }) => (
-  <div className="flex min-h-12 flex-row items-center justify-between gap-4">
+  <div className="flex min-h-12 flex-row items-baseline justify-between gap-4">
     <div className="flex flex-col gap-2">
       <Typography variant="subhead1" color="grey700">
         {label}
