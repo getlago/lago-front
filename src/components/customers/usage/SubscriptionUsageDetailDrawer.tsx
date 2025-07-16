@@ -30,17 +30,29 @@ type AmountCentsCellProps = {
 }
 
 const AmountCentsCell = ({ row, currency, locale, pricingUnitShortName }: AmountCentsCellProps) => (
-  <Typography variant="bodyHl" color="grey700">
-    {intlFormatNumber(
-      deserializeAmount(row.pricingUnitAmountCents || row.amountCents, currency) || 0,
-      {
-        currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
-        currency,
-        locale,
-        pricingUnitShortName,
-      },
+  <div className="flex flex-col items-end">
+    <Typography variant="bodyHl" color="grey700">
+      {intlFormatNumber(
+        deserializeAmount(row.pricingUnitAmountCents || row.amountCents, currency) || 0,
+        {
+          currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
+          currency,
+          locale,
+          pricingUnitShortName,
+        },
+      )}
+    </Typography>
+
+    {!!pricingUnitShortName && (
+      <Typography variant="caption" color="grey600">
+        {intlFormatNumber(deserializeAmount(row.amountCents, currency), {
+          currency,
+          locale,
+          currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
+        })}
+      </Typography>
     )}
-  </Typography>
+  </div>
 )
 
 gql`
@@ -203,6 +215,7 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                     key={`grouped-usage-${groupedUsageIndex}`}
                     name={`grouped-usage-with-filters-table-${groupedUsageIndex}`}
                     containerSize={0}
+                    rowSize={!!pricingUnitShortName ? 72 : 48}
                     data={
                       groupedUsage.filters?.map((f) => {
                         return {
@@ -268,6 +281,7 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
           <Table
             name="grouped-usage-table"
             containerSize={0}
+            rowSize={!!pricingUnitShortName ? 72 : 48}
             data={usage?.groupedUsage || []}
             columns={[
               {
@@ -317,6 +331,7 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
           <Table
             name="filters-table"
             containerSize={0}
+            rowSize={!!pricingUnitShortName ? 72 : 48}
             data={
               usage?.filters?.map((f) => {
                 return {
