@@ -61,8 +61,8 @@ importers:
         specifier: workspace:*
         version: link:packages/design-system
       lago-expression:
-        specifier: 0.1.4
-        version: 0.1.4
+        specifier: 0.1.6
+        version: 0.1.6
       localforage:
         specifier: 1.10.0
         version: 1.10.0
@@ -5278,8 +5278,8 @@ packages:
     resolution: {integrity: sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==}
     engines: {node: '>=6'}
 
-  lago-expression@0.1.4:
-    resolution: {integrity: sha512-ggzb02619mqVmo3oj/U9YrpMEepa8QU+A5C/E+C6Ylzu0vbJx7ChAUpdU2VhqJaDZf3DZZMoA+nUmRq8Yb+Geg==}
+  lago-expression@0.1.6:
+    resolution: {integrity: sha512-snbDHE5q1DarYVRtFzrDnPqnIXFdiOjWqcItcmIPmjOIeMHpl+OQOf/U8DuqWHBfZDpTdpd9nwH/59qnoYXrXQ==}
 
   language-subtag-registry@0.3.23:
     resolution: {integrity: sha512-0K65Lea881pHotoGEa5gDlMxt3pctLi2RplBb7Ezh4rRdLEOtgi7n4EwK9lamnUCkKBqaeKRVebTq6BAxSkpXQ==}
@@ -13496,7 +13496,7 @@ snapshots:
 
   kleur@3.0.3: {}
 
-  lago-expression@0.1.4: {}
+  lago-expression@0.1.6: {}
 
   language-subtag-registry@0.3.23: {}
 
