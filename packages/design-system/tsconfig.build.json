@@ -4,6 +4,7 @@
   "exclude": ["**/__tests__/**", "**/*.test.{ts,tsx}", "playground", "dist", "node_modules"],
   "compilerOptions": {
     "declaration": true,
+    "declarationMap": true,
     "emitDeclarationOnly": true,
     "noEmit": false,
     "outDir": "./dist/types",
