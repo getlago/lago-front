@@ -339,7 +339,9 @@ const CustomerInvoiceRegenerate = () => {
         chargeId: fee.charge?.id,
         description: fee.description,
         invoiceDisplayName: fee.invoiceDisplayName,
-        subscriptionId: fee.subscription?.id,
+        subscriptionId:
+          fee.subscription?.id ||
+          (fee as { invoiceSubscriptionId?: string })?.invoiceSubscriptionId,
         unitAmountCents: fee.preciseUnitAmount,
         taxCodes: (taxCodes?.length || 0) > 0 ? taxCodes : null,
         units: fee.units,
