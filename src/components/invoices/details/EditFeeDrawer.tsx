@@ -20,6 +20,7 @@ import {
   useGetInvoiceDetailsForCreateFeeDrawerQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { OnRegeneratedFeeAdd } from '~/pages/CustomerInvoiceRegenerate'
 
 import { InvoiceTableSection } from './InvoiceDetailsTable'
 import { InvoiceDetailsTableBodyLine } from './InvoiceDetailsTableBodyLine'
@@ -39,6 +40,9 @@ gql`
           invoiceDisplayName
           chargeModel
           prorated
+          properties {
+            amount
+          }
           filters {
             id
             invoiceDisplayName
@@ -59,6 +63,20 @@ gql`
         filters {
           id
           values
+        }
+        properties {
+          graduatedRanges {
+            flatAmount
+            fromValue
+            perUnitAmount
+            toValue
+          }
+          graduatedPercentageRanges {
+            flatAmount
+            fromValue
+            rate
+            toValue
+          }
         }
       }
       chargeFilter {
@@ -100,6 +118,7 @@ type EditFeeDrawerProps = {
   invoiceId: string
   invoiceSubscriptionId?: string
   fee?: TExtendedRemainingFee | undefined
+  onAdd?: OnRegeneratedFeeAdd
 }
 
 export interface EditFeeDrawerRef {
@@ -200,32 +219,39 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
         invoiceDisplayName: values.invoiceDisplayName || undefined,
       }
 
+      let input: CreateAdjustedFeeInput = {
+        ...defaultPayload,
+        chargeId: values.chargeId,
+        chargeFilterId:
+          values.chargeFilterId === ALL_FILTER_VALUES ? null : values.chargeFilterId || undefined,
+        subscriptionId: localData?.invoiceSubscriptionId || '',
+      }
+
       if (!!fee) {
-        // Edit scenario
-        await createFee({
-          variables: {
-            input: {
-              ...defaultPayload,
-              feeId: fee?.id,
-            },
-          },
-        })
-      } else {
-        // Creation scenario
-        await createFee({
-          variables: {
-            input: {
-              ...defaultPayload,
-              chargeId: values.chargeId,
-              chargeFilterId:
-                values.chargeFilterId === ALL_FILTER_VALUES
-                  ? null
-                  : values.chargeFilterId || undefined,
-              subscriptionId: localData?.invoiceSubscriptionId || '',
-            },
-          },
+        input = {
+          ...defaultPayload,
+          feeId: fee?.id,
+        }
+      }
+
+      if (localData?.onAdd) {
+        drawerRef.current?.closeDrawer()
+        formikProps.resetForm()
+        formikProps.validateForm()
+
+        return localData.onAdd({
+          ...(localData.fee || {}),
+          ...input,
+          charge: currentCharge,
+          invoiceSubscriptionId: localData?.invoiceSubscriptionId,
         })
       }
+
+      await createFee({
+        variables: {
+          input,
+        },
+      })
     },
   })
 
@@ -310,6 +336,12 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
     )
   }, [currentInvoiceSubscription?.subscription.plan.charges, fee, formikProps.values.chargeId])
 
+  const feeName = fee?.metadata?.displayName || fee?.itemName || ''
+
+  const currentCharge = currentInvoiceSubscription?.subscription.plan.charges?.find(
+    (charge) => charge.id === formikProps.values.chargeId,
+  )
+
   return (
     <Drawer
       fullContentHeight
@@ -318,7 +350,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
       title={
         !!fee
           ? translate('text_65a6b4e2cb38d9b70ec53c25', {
-              name: fee?.metadata?.displayName,
+              name: feeName,
             })
           : translate('text_1737709105343hpvidjp0yz0')
       }
@@ -348,7 +380,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
                   title={
                     !!fee
                       ? translate('text_65a6b4e2cb38d9b70ec53c25', {
-                          name: fee?.metadata?.displayName,
+                          name: feeName,
                         })
                       : translate('text_1737709105343hpvidjp0yz0')
                   }
@@ -403,8 +435,8 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
                             <InvoiceDetailsTableBodyLine
                               canHaveUnitPrice
                               hideVat
-                              currency={fee.currency}
-                              displayName={fee.metadata.displayName}
+                              currency={fee?.currency}
+                              displayName={feeName}
                               fee={fee}
                               isDraftInvoice={false}
                             />
@@ -575,7 +607,9 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
               loading={formikProps.isSubmitting}
               onClick={formikProps.submitForm}
             >
-              {translate('text_65a6b4e2cb38d9b70ec53d9b')}
+              {translate(
+                fee?.id ? 'text_65a6b4e2cb38d9b70ec53d9b' : 'text_1752580912616sr615x718w7',
+              )}
             </Button>
           </DrawerLayout.StickyFooter>
         </DrawerLayout.Wrapper>

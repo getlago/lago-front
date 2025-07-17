@@ -3272,5 +3272,21 @@
   "text_1751462194856885bttkg6wt": "Edit, terminate",
   "text_1751969008731sd4e2mssx90": "There are no subscriptions",
   "text_1751969008731m6hlinilrky": "Create your first subscription",
-  "text_1751969070668mwxq0nou1x9": "A subscription represents the assignment of a plan to a customer of your business."
+  "text_1751969070668mwxq0nou1x9": "A subscription represents the assignment of a plan to a customer of your business.",
+  "text_1750678506388d4fr5etxbhh": "Void and/or regenerate",
+  "text_1750678506388oynw9hd01l9": "Regenerate invoice",
+  "text_1750678506388s7bfu2qjzhn": "Regenerate a voided invoice",
+  "text_17506785063887oto6r0hcq0": "The invoice {{invoiceNumber}} was issued on {{issuingDate}} and voided on {{voidDate}}",
+  "text_1750678506388d8u5rv893gn": "Regenerate a voided invoice to correct the initial one, these invoices will be linked together.",
+  "text_1750678506388ssxh1yacay0": "Regenerate invoice",
+  "text_1750678506388eexnh1b36o4": "Void and regenerate",
+  "text_17506785063889sphu20u9eh": "Add a new fee",
+  "text_17512809059243nam2ohm0ul": "Invoice successfully regenerated",
+  "text_1751969800882c5zez5kbrwt": "Affiliated invoice",
+  "text_1751991206828m0rxpmddapo": "The invoice {{invoiceNumber}} was issued on {{issuingDate}}",
+  "text_17519912068281q4wys5q1g2": "Void and regenerate",
+  "text_17519914705750hjw95snsdf": "Void and regenerate an invoice to correct the initial one, these invoices will be linked together.",
+  "text_1751991518313o0xwbo9xf0y": "Void and regenerate invoice",
+  "text_1752580912616sr615x718w7": "Add fee"
 }
+
