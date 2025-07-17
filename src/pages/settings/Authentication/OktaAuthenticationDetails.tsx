@@ -14,6 +14,7 @@ import {
   AddOktaIntegrationDialogFragmentDoc,
   AuthenticationMethodsEnum,
   DeleteOktaIntegrationDialogFragmentDoc,
+  LagoApiError,
   OktaIntegration,
   useGetOktaIntegrationQuery,
 } from '~/generated/graphql'
@@ -58,6 +59,10 @@ const OktaAuthenticationDetails = () => {
 
   const { data, loading, refetch } = useGetOktaIntegrationQuery({
     variables: { id: integrationId },
+    skip: !integrationId,
+    context: {
+      silentErrorCodes: [LagoApiError.NotFound],
+    },
   })
 
   const integration = data?.integration as OktaIntegration | null

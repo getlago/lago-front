@@ -32,7 +32,7 @@ export interface UpdateLoginMethodDialogRef {
 }
 
 export const UpdateLoginMethodDialog = forwardRef<UpdateLoginMethodDialogRef>((_, ref) => {
-  const { organization } = useOrganizationInfos()
+  const { organization, refetchOrganizationInfos } = useOrganizationInfos()
   const { translate } = useInternationalization()
   const [dialogData, setDialogData] = useState<UpdateLoginMethodDialogProps | undefined>(undefined)
   const dialogRef = useRef<DialogRef>(null)
@@ -74,6 +74,8 @@ export const UpdateLoginMethodDialog = forwardRef<UpdateLoginMethodDialogRef>((_
           }),
           severity: 'success',
         })
+
+        refetchOrganizationInfos()
 
         handleCloseDialog()
       },
