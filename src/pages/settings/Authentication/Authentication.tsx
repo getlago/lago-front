@@ -69,6 +69,7 @@ const Authentication = () => {
   const {
     organization: { premiumIntegrations, authenticationMethods } = {},
     loading: organizationLoading,
+    refetchOrganizationInfos,
   } = useOrganizationInfos()
   const navigate = useNavigate()
 
@@ -233,6 +234,9 @@ const Authentication = () => {
 
                           addOktaDialogRef.current?.openDialog({
                             integration: oktaIntegration,
+                            callback: () => {
+                              refetchOrganizationInfos()
+                            },
                           })
                         }}
                       >
@@ -261,6 +265,9 @@ const Authentication = () => {
 
                             deleteOktaDialogRef.current?.openDialog({
                               integration: oktaIntegration,
+                              callback: () => {
+                                refetchOrganizationInfos()
+                              },
                             })
                           }}
                         >
