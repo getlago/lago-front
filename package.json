@@ -108,7 +108,6 @@
   "dependencies": {
     "@apollo/client": "3.11.4",
     "@mui/material": "5.14.18",
-    "@mui/styled-engine": "6.1.9",
     "@mui/x-date-pickers": "6.20.0",
     "@nangohq/frontend": "0.62.0",
     "@sentry/react": "9.11.0",
