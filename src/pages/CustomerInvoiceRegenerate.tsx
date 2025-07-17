@@ -116,6 +116,29 @@ export type OnRegeneratedFeeAdd = (input: {
   invoiceSubscriptionId?: string | null
 }) => void
 
+const removeEmptyKeys = (obj: object) => {
+  const keys = Object.keys(obj).filter((key) => !!obj[key as keyof typeof obj])
+
+  return Object.fromEntries(keys.map((key) => [key, obj[key as keyof typeof obj]]))
+}
+
+const invoiceFeesToNonAdjusted = (invoice?: Invoice | null) => {
+  return {
+    ...invoice,
+    fees: invoice?.fees?.map((fee) => ({
+      ...fee,
+      adjustedFee: false,
+    })),
+    invoiceSubscriptions: invoice?.invoiceSubscriptions?.map((subscription) => ({
+      ...subscription,
+      fees: subscription?.fees?.map((fee) => ({
+        ...fee,
+        adjustedFee: false,
+      })),
+    })),
+  }
+}
+
 const CustomerInvoiceRegenerate = () => {
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
@@ -130,7 +153,7 @@ const CustomerInvoiceRegenerate = () => {
     skip: !invoiceId,
   })
 
-  const invoice = data?.invoice as Invoice
+  const invoice = invoiceFeesToNonAdjusted(data?.invoice as Invoice)
   const customer = invoice?.customer
   const billingEntity = invoice?.billingEntity
 
@@ -159,12 +182,6 @@ const CustomerInvoiceRegenerate = () => {
   const [previewAdjustedFee] = usePreviewAdjustedFeeMutation()
 
   const TEMPORARY_ID_PREFIX = 'temporary-id-fee-'
-
-  const removeEmptyKeys = (obj: object) => {
-    const keys = Object.keys(obj).filter((key) => !!obj[key as keyof typeof obj])
-
-    return Object.fromEntries(keys.map((key) => [key, obj[key as keyof typeof obj]]))
-  }
 
   const onAdd: OnRegeneratedFeeAdd = async (input) => {
     let feeWithCalculatedRanges = null
