@@ -18,9 +18,9 @@ export const PageSectionTitle = ({
   loading?: boolean
 }) => {
   return (
-    <div className={tw('mb-4 flex items-center justify-between gap-2', className)}>
+    <div className={tw('mb-4 flex items-baseline justify-between gap-2', className)}>
       {loading && (
-        <div className="flex h-7 w-full items-center">
+        <div className="flex h-7 w-full items-baseline">
           <Skeleton variant="text" className="w-40" />
         </div>
       )}

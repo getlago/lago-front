@@ -189,7 +189,7 @@ const AvalaraIntegrationSettings = () => {
           )}
         </section>
 
-        <div className="flex flex-row items-center justify-between gap-4 pb-6 shadow-b">
+        <div className="flex flex-row items-baseline justify-between gap-4 pb-6 shadow-b">
           <div className="flex-1">
             <Typography variant="bodyHl" color="grey700">
               {translate('text_66ba5a76e614f000a738c97a')}
