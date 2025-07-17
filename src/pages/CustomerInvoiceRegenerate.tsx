@@ -280,10 +280,10 @@ const CustomerInvoiceRegenerate = () => {
   }
 
   const onDelete = (id: string) => {
-    const existing = fees?.find((f) => f.id === id)
+    const original = invoice?.fees?.find((f) => f.id === id)
 
-    if (existing) {
-      return setFees((f) => f.filter((fee) => fee.id !== id))
+    if (original) {
+      return setFees((f) => f.map((fee) => (fee.id === id ? original : fee)))
     }
   }
 
