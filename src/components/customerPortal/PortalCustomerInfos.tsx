@@ -52,7 +52,7 @@ const FieldTitle = ({ title }: { title: string }) => (
 )
 
 const FieldContent = ({ content, children }: { content?: string; children?: React.ReactNode }) => (
-  <Typography variant="subhead2" color="grey700" className="break-words">
+  <Typography variant="body" color="grey700" className="break-words">
     {content || children}
   </Typography>
 )
@@ -224,10 +224,10 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
             />
 
             {hasShippingAddress && hasBillingAddress && identicalAddresses ? (
-              <Typography variant="subhead2" color="grey700">
+              <>
                 <FieldTitle title={translate('text_667d708c1359b49f5a5a822a')} />
                 <FieldContent content={translate('text_1728381336070e8cj1amorap')} />
-              </Typography>
+              </>
             ) : (
               <AddressField
                 title={translate('text_667d708c1359b49f5a5a822a')}
