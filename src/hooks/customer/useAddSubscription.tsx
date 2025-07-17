@@ -76,15 +76,11 @@ type UseAddSubscription = (args: {
 }) => UseAddSubscriptionReturn
 
 // Clean plan values (non editable fields not accepted by BE / Graph fails if they are sent)
-export const cleanPlanValues = (
-  planValues: PlanOverridesInput,
-  formType: keyof typeof FORM_TYPE_ENUM,
-) => {
+export const cleanPlanValues = (planValues: PlanOverridesInput) => {
   return {
     ...planValues,
     code: undefined,
     interval: undefined,
-    taxCodes: formType === FORM_TYPE_ENUM.edition ? undefined : planValues.taxCodes,
     taxes: undefined,
     payInAdvance: undefined,
     billChargesMonthly: undefined,
@@ -279,7 +275,7 @@ export const useAddSubscription: UseAddSubscription = ({
                   externalId: externalId || undefined,
                   ...values,
                   planOverrides: hasPlanBeingChangedFromInitial
-                    ? { ...cleanPlanValues(serializedPlanValues as PlanOverridesInput, formType) }
+                    ? { ...cleanPlanValues(serializedPlanValues as PlanOverridesInput) }
                     : undefined,
                 },
               },
@@ -297,7 +293,7 @@ export const useAddSubscription: UseAddSubscription = ({
                   endingAt: !!subEndDate ? DateTime.fromISO(subEndDate).toUTC().toISO() : null,
                   name: name ?? undefined,
                   planOverrides: hasPlanBeingChangedFromInitial
-                    ? { ...cleanPlanValues(serializedPlanValues as PlanOverridesInput, formType) }
+                    ? { ...cleanPlanValues(serializedPlanValues as PlanOverridesInput) }
                     : undefined,
                 },
               },

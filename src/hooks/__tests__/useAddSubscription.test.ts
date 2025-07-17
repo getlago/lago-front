@@ -1,5 +1,4 @@
 import { LocalPricingUnitType, PlanFormInput } from '~/components/plans/types'
-import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import {
   AggregationTypeEnum,
   ChargeModelEnum,
@@ -88,102 +87,55 @@ describe('cleanPlanValues', () => {
 
   const mockPlanOverrides = mockPlanFormInput as unknown as PlanOverridesInput
 
-  describe('when formType is creation', () => {
-    it('should clean plan values and preserve taxCodes', () => {
-      const result = cleanPlanValues(mockPlanOverrides, FORM_TYPE_ENUM.creation)
+  it('should clean plan values and preserve taxCodes', () => {
+    const result = cleanPlanValues(mockPlanOverrides)
 
-      // Should preserve valid PlanOverridesInput fields
-      expect(result.name).toBe('Test Plan')
-      expect(result.description).toBe('Test Description')
-      expect(result.amountCents).toBe('1000')
-      expect(result.trialPeriod).toBe(7)
-      expect(result.invoiceDisplayName).toBe('Test Invoice Display Name')
-      expect(result.taxCodes).toEqual(['TAX001', 'TAX002']) // Should be preserved for creation
+    // Should preserve valid PlanOverridesInput fields
+    expect(result.name).toBe('Test Plan')
+    expect(result.description).toBe('Test Description')
+    expect(result.amountCents).toBe('1000')
+    expect(result.trialPeriod).toBe(7)
+    expect(result.invoiceDisplayName).toBe('Test Invoice Display Name')
+    expect(result.taxCodes).toEqual(['TAX001', 'TAX002']) // Should be preserved for creation
 
-      // Should remove plan-level fields not in PlanOverridesInput
-      expect(result.code).toBeUndefined()
-      expect(result.interval).toBeUndefined()
-      expect(result.taxes).toBeUndefined()
-      expect(result.payInAdvance).toBeUndefined()
-      expect(result.billChargesMonthly).toBeUndefined()
-      expect(result.cascadeUpdates).toBeUndefined()
+    // Should remove plan-level fields not in PlanOverridesInput
+    expect(result.code).toBeUndefined()
+    expect(result.interval).toBeUndefined()
+    expect(result.taxes).toBeUndefined()
+    expect(result.payInAdvance).toBeUndefined()
+    expect(result.billChargesMonthly).toBeUndefined()
+    expect(result.cascadeUpdates).toBeUndefined()
 
-      // Should clean charges
-      expect(result.charges).toHaveLength(1)
-      const cleanedCharge = result.charges?.[0]
+    // Should clean charges
+    expect(result.charges).toHaveLength(1)
+    const cleanedCharge = result.charges?.[0]
 
-      // Should preserve valid charge fields
-      expect(cleanedCharge?.id).toBe('charge-1')
-      expect(cleanedCharge?.invoiceDisplayName).toBe('Charge 1')
-      expect(cleanedCharge?.minAmountCents).toBe('100')
-      expect(cleanedCharge?.properties).toEqual({
-        amount: '10.00',
-        rate: '0.05',
-      })
-      expect(cleanedCharge?.taxCodes).toEqual(['TAX003'])
-      //   appliedPricingUnit should only contain conversionRate
-      expect(cleanedCharge?.appliedPricingUnit).toEqual({ conversionRate: 2.5 })
-
-      // Should remove charge fields not in ChargeOverridesInput
-      expect(cleanedCharge?.taxes).toBeUndefined()
-      expect(cleanedCharge?.payInAdvance).toBeUndefined()
-      expect(cleanedCharge?.billableMetric).toBeUndefined()
-      expect(cleanedCharge?.chargeModel).toBeUndefined()
-      expect(cleanedCharge?.invoiceable).toBeUndefined()
-      expect(cleanedCharge?.prorated).toBeUndefined()
-      expect(cleanedCharge?.regroupPaidFees).toBeUndefined()
+    // Should preserve valid charge fields
+    expect(cleanedCharge?.id).toBe('charge-1')
+    expect(cleanedCharge?.invoiceDisplayName).toBe('Charge 1')
+    expect(cleanedCharge?.minAmountCents).toBe('100')
+    expect(cleanedCharge?.properties).toEqual({
+      amount: '10.00',
+      rate: '0.05',
     })
-  })
+    expect(cleanedCharge?.taxCodes).toEqual(['TAX003'])
+    //   appliedPricingUnit should only contain conversionRate
+    expect(cleanedCharge?.appliedPricingUnit).toEqual({ conversionRate: 2.5 })
 
-  describe('when formType is edition', () => {
-    it('should clean plan values and remove taxCodes', () => {
-      const result = cleanPlanValues(mockPlanOverrides, FORM_TYPE_ENUM.edition)
-
-      // Should preserve valid fields
-      expect(result.name).toBe('Test Plan')
-      expect(result.description).toBe('Test Description')
-
-      // Should remove taxCodes for edition
-      expect(result.taxCodes).toBeUndefined()
-
-      // Should remove plan-level fields not in PlanOverridesInput
-      expect(result.code).toBeUndefined()
-      expect(result.interval).toBeUndefined()
-      expect(result.taxes).toBeUndefined()
-      expect(result.payInAdvance).toBeUndefined()
-      expect(result.billChargesMonthly).toBeUndefined()
-      expect(result.cascadeUpdates).toBeUndefined()
-    })
-  })
-
-  describe('when formType is duplicate', () => {
-    it('should clean plan values and preserve taxCodes', () => {
-      const result = cleanPlanValues(mockPlanOverrides, FORM_TYPE_ENUM.duplicate)
-
-      expect(result.taxCodes).toEqual(['TAX001', 'TAX002'])
-      expect(result.code).toBeUndefined()
-      expect(result.interval).toBeUndefined()
-      expect(result.taxes).toBeUndefined()
-      expect(result.payInAdvance).toBeUndefined()
-      expect(result.billChargesMonthly).toBeUndefined()
-      expect(result.cascadeUpdates).toBeUndefined()
-    })
-  })
-
-  describe('when formType is upgradeDowngrade', () => {
-    it('should clean plan values and preserve taxCodes', () => {
-      const result = cleanPlanValues(mockPlanOverrides, FORM_TYPE_ENUM.upgradeDowngrade)
-
-      expect(result.taxCodes).toEqual(['TAX001', 'TAX002'])
-      expect(result.code).toBeUndefined()
-      expect(result.interval).toBeUndefined()
-    })
+    // Should remove charge fields not in ChargeOverridesInput
+    expect(cleanedCharge?.taxes).toBeUndefined()
+    expect(cleanedCharge?.payInAdvance).toBeUndefined()
+    expect(cleanedCharge?.billableMetric).toBeUndefined()
+    expect(cleanedCharge?.chargeModel).toBeUndefined()
+    expect(cleanedCharge?.invoiceable).toBeUndefined()
+    expect(cleanedCharge?.prorated).toBeUndefined()
+    expect(cleanedCharge?.regroupPaidFees).toBeUndefined()
   })
 
   describe('edge cases', () => {
     it('should handle empty plan values', () => {
       const emptyPlanValues: PlanOverridesInput = {}
-      const result = cleanPlanValues(emptyPlanValues, FORM_TYPE_ENUM.creation)
+      const result = cleanPlanValues(emptyPlanValues)
 
       expect(result).toEqual({
         code: undefined,
@@ -202,7 +154,7 @@ describe('cleanPlanValues', () => {
         name: 'Test Plan',
         charges: [],
       }
-      const result = cleanPlanValues(planWithEmptyCharges, FORM_TYPE_ENUM.creation)
+      const result = cleanPlanValues(planWithEmptyCharges)
 
       expect(result.charges).toEqual([])
       expect(result.name).toBe('Test Plan')
@@ -219,7 +171,7 @@ describe('cleanPlanValues', () => {
           },
         ],
       }
-      const result = cleanPlanValues(planWithStringConversionRate, FORM_TYPE_ENUM.creation)
+      const result = cleanPlanValues(planWithStringConversionRate)
 
       expect(result.charges?.[0]?.appliedPricingUnit?.conversionRate).toBe(3.14159)
     })
@@ -232,7 +184,7 @@ describe('cleanPlanValues', () => {
           },
         ],
       }
-      const result = cleanPlanValues(planWithoutPricingUnit, FORM_TYPE_ENUM.creation)
+      const result = cleanPlanValues(planWithoutPricingUnit)
 
       expect(result.charges?.[0]?.appliedPricingUnit).toBeUndefined()
     })
