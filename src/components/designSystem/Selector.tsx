@@ -72,8 +72,10 @@ export const Selector = ({
   const [loading, setLoading] = useState(false)
   const clickable = !!onClick && !loading && !disabled
 
+  const Component = clickable ? 'button' : 'div'
+
   return (
-    <button
+    <Component
       disabled={disabled}
       tabIndex={clickable ? 0 : -1}
       className={tw(
@@ -129,7 +131,7 @@ export const Selector = ({
       ) : (
         endIcon
       )}
-    </button>
+    </Component>
   )
 }
 

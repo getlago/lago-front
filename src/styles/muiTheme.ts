@@ -179,14 +179,6 @@ export const theme = createTheme({
           padding: '0px',
           margin: '0px',
         },
-        icon: {
-          width: '12px',
-          height: '12px',
-          padding: '0px',
-          margin: '0px',
-          marginRight: '4px',
-          color: palette.grey[600],
-        },
         deleteIcon: {
           width: '20px',
           height: '20px',

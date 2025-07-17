@@ -3,7 +3,7 @@ import { ChipOwnProps, Chip as MuiChip } from '@mui/material'
 import { ConditionalWrapper, tw } from '~/lib'
 
 import { Button } from './Button'
-import { Icon, IconName } from './Icon'
+import { Icon, IconColor, IconName, IconProps } from './Icon'
 import { Tooltip } from './Tooltip'
 import { Typography, TypographyColor, TypographyProps } from './Typography'
 
@@ -22,6 +22,8 @@ type ChipProps = Omit<ChipOwnProps, 'color' | 'variant' | 'size' | 'deleteIcon' 
   deleteIconLabel?: string
   error?: boolean
   icon?: IconName
+  iconColor?: IconColor
+  iconSize?: IconProps['size']
   size?: ChipSize
   type?: ChipType
   variant?: TypographyProps['variant']
@@ -36,6 +38,8 @@ export const Chip = ({
   deleteIconLabel,
   error,
   icon,
+  iconColor,
+  iconSize,
   label,
   size = 'medium',
   type,
@@ -43,32 +47,6 @@ export const Chip = ({
   onDelete,
   ...chipProps
 }: ChipProps) => {
-  const renderDeleteIcon = () => {
-    if (!!deleteIconLabel) {
-      return (
-        <Tooltip placement="top-end" title={deleteIconLabel}>
-          <Button
-            danger={error}
-            icon={deleteIcon || 'close-circle-filled'}
-            onClick={onDelete}
-            size="small"
-            variant="quaternary"
-          />
-        </Tooltip>
-      )
-    }
-
-    return (
-      <Button
-        danger={error}
-        icon={deleteIcon || 'close-circle-filled'}
-        onClick={onDelete}
-        size="small"
-        variant="quaternary"
-      />
-    )
-  }
-
   return (
     <MuiChip
       {...chipProps}
@@ -80,7 +58,16 @@ export const Chip = ({
         },
         className,
       )}
-      icon={icon ? <Icon className="!m-0" name={icon} /> : undefined}
+      icon={
+        icon ? (
+          <Icon
+            className="!m-0"
+            name={icon}
+            size={iconSize ?? 'small'}
+            color={iconColor ?? 'dark'}
+          />
+        ) : undefined
+      }
       label={
         <Typography variant={variant || 'captionHl'} color={!!error ? 'danger600' : color} noWrap>
           {label}

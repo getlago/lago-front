@@ -1,5 +1,5 @@
 import { ChipOwnProps, Chip as MuiChip } from '@mui/material'
-import { Icon, IconName } from 'lago-design-system'
+import { Icon, IconColor, IconName, IconProps } from 'lago-design-system'
 
 import { tw } from '~/styles/utils'
 
@@ -24,6 +24,8 @@ type ChipProps = Omit<ChipOwnProps, 'color' | 'variant' | 'size' | 'deleteIcon' 
   deleteIconLabel?: string
   error?: boolean
   icon?: IconName
+  iconColor?: IconColor
+  iconSize?: IconProps['size']
   size?: ChipSize
   type?: ChipType
   variant?: TypographyProps['variant']
@@ -38,6 +40,8 @@ export const Chip = ({
   deleteIconLabel,
   error,
   icon,
+  iconColor,
+  iconSize,
   label,
   size = 'medium',
   type,
@@ -56,7 +60,16 @@ export const Chip = ({
         },
         className,
       )}
-      icon={icon ? <Icon className="!m-0" name={icon} /> : undefined}
+      icon={
+        icon ? (
+          <Icon
+            className="!m-0"
+            name={icon}
+            size={iconSize ?? 'small'}
+            color={iconColor ?? 'dark'}
+          />
+        ) : undefined
+      }
       label={
         <Typography variant={variant || 'captionHl'} color={!!error ? 'danger600' : color} noWrap>
           {label}

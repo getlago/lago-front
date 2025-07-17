@@ -23,7 +23,9 @@ export const SelectorSection = () => {
               <Stripe />
             </Avatar>
           }
-          endIcon={<Chip label="With chip" />}
+          endIcon={
+            <Chip icon="validate-filled" iconSize="medium" iconColor="success" label="With chip" />
+          }
           onClick={onClick}
           fullWidth
         />
