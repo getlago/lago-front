@@ -147,6 +147,12 @@ gql`
           code
         }
 
+        ... on FlutterwaveProvider {
+          id
+          name
+          code
+        }
+
         ... on CashfreeProvider {
           id
           name

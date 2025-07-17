@@ -6,6 +6,7 @@ import { ProviderTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Adyen from '~/public/images/adyen.svg'
 import Cashfree from '~/public/images/cashfree.svg'
+import Flutterwave from '~/public/images/flutterwave.svg'
 import Gocardless from '~/public/images/gocardless.svg'
 import Moneyhash from '~/public/images/moneyhash.svg'
 import Stripe from '~/public/images/stripe.svg'
@@ -34,6 +35,10 @@ const providers: Record<ProviderTypeEnum, { icon: JSX.Element; label: string }> 
     icon: <Cashfree />,
     label: 'text_17367626793434wkg1rk0114',
   },
+  [ProviderTypeEnum.Flutterwave]: {
+    icon: <Flutterwave />,
+    label: 'text_1749724395108m0swrna0zt4',
+  },
   [ProviderTypeEnum.Moneyhash]: {
     icon: <Moneyhash />,
     label: 'text_1733427981129n3wxjui0bex',
@@ -57,7 +62,7 @@ export const PaymentProviderChip: FC<PaymentProviderChipProps> = ({
 
   return (
     <div className={tw('flex flex-nowrap items-center gap-2', className)}>
-      <Avatar variant="connector" size="small">
+      <Avatar className="bg-white" variant="connector" size="small">
         {paymentProvider === 'manual' || paymentProvider === 'manual_long' ? (
           <Icon name="receipt" color="dark" size="small" />
         ) : (
