@@ -212,7 +212,10 @@ const CustomerInvoiceRegenerate = () => {
         },
       })
 
-      feeWithCalculatedRanges = updatedFee?.data?.previewAdjustedFee
+      feeWithCalculatedRanges = {
+        ...updatedFee?.data?.previewAdjustedFee,
+        wasOnlyUnitsUpdate: !input?.unitPreciseAmount,
+      }
     }
 
     const feeId = input.feeId ? input.feeId : `${TEMPORARY_ID_PREFIX}${Math.random().toString()}`
@@ -342,7 +345,9 @@ const CustomerInvoiceRegenerate = () => {
         subscriptionId:
           fee.subscription?.id ||
           (fee as { invoiceSubscriptionId?: string })?.invoiceSubscriptionId,
-        unitAmountCents: fee.preciseUnitAmount,
+        unitAmountCents: (fee as { wasOnlyUnitsUpdate?: boolean })?.wasOnlyUnitsUpdate
+          ? null
+          : fee?.preciseUnitAmount,
         taxCodes: (taxCodes?.length || 0) > 0 ? taxCodes : null,
         units: fee.units,
       }))
