@@ -235,8 +235,11 @@ const CustomerInvoiceRegenerate = () => {
 
     if (existing) {
       const units = input.units ?? existing.units
-      const unitPreciseAmount = input.unitPreciseAmount
-        ? Number(input.unitPreciseAmount)
+      const chargeAmount = input?.charge?.properties?.amount
+      const _unitPreciseAmount = input.unitPreciseAmount || chargeAmount
+
+      const unitPreciseAmount = _unitPreciseAmount
+        ? Number(_unitPreciseAmount)
         : existing.preciseUnitAmount
 
       let updated = {}
@@ -284,12 +287,17 @@ const CustomerInvoiceRegenerate = () => {
       return setFees((f) => [...f, fee as unknown as Fee])
     }
 
+    const chargeAmount = input?.charge?.properties?.amount
+    const _unitPreciseAmount = input.unitPreciseAmount || chargeAmount
+
+    const unitPreciseAmount = _unitPreciseAmount ? Number(_unitPreciseAmount) : null
+
     const fee = {
       ...input,
       id: feeId,
       adjustedFee: true,
-      preciseUnitAmount: Number(input.unitPreciseAmount || 0),
-      ...computeAmountCents(input.units, input.unitPreciseAmount),
+      preciseUnitAmount: Number(unitPreciseAmount || 0),
+      ...computeAmountCents(input.units, unitPreciseAmount),
       appliedTaxes: invoice?.appliedTaxes,
     }
 
@@ -302,6 +310,8 @@ const CustomerInvoiceRegenerate = () => {
     if (original) {
       return setFees((f) => f.map((fee) => (fee.id === id ? original : fee)))
     }
+
+    return setFees((f) => f.filter((fee) => fee.id !== id))
   }
 
   const onSubmit = async () => {
