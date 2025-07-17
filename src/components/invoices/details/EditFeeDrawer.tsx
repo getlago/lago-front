@@ -40,6 +40,9 @@ gql`
           invoiceDisplayName
           chargeModel
           prorated
+          properties {
+            amount
+          }
           filters {
             id
             invoiceDisplayName
