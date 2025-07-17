@@ -229,7 +229,7 @@ export const MrrBreakdownSection = ({ premiumWarningDialogRef }: MrrBreakdownSec
                       })}
                     </Typography>
                     <Typography className="w-16 text-right" variant="body" color="grey600">
-                      {intlFormatNumber(mrrShare, { style: 'percent' })}
+                      {intlFormatNumber(mrrShare || 0, { style: 'percent' })}
                     </Typography>
                   </div>
                 )
