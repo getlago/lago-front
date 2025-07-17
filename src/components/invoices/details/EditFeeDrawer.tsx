@@ -13,6 +13,7 @@ import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   AdjustedFeeTypeEnum,
+  Charge,
   ChargeModelEnum,
   CreateAdjustedFeeInput,
   CurrencyEnum,
@@ -239,10 +240,14 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
         formikProps.resetForm()
         formikProps.validateForm()
 
+        const currentCharge = currentInvoiceSubscription?.subscription.plan.charges?.find(
+          (charge) => charge.id === values.chargeId,
+        )
+
         return localData.onAdd({
           ...(localData.fee || {}),
           ...input,
-          charge: currentCharge,
+          charge: currentCharge as Charge,
           invoiceSubscriptionId: localData?.invoiceSubscriptionId,
         })
       }
@@ -337,10 +342,6 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
   }, [currentInvoiceSubscription?.subscription.plan.charges, fee, formikProps.values.chargeId])
 
   const feeName = fee?.metadata?.displayName || fee?.itemName || ''
-
-  const currentCharge = currentInvoiceSubscription?.subscription.plan.charges?.find(
-    (charge) => charge.id === formikProps.values.chargeId,
-  )
 
   return (
     <Drawer

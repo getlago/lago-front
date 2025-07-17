@@ -139,6 +139,21 @@ const invoiceFeesToNonAdjusted = (invoice?: Invoice | null) => {
   }
 }
 
+const computeAmountCents = (
+  units: number | string | null | undefined,
+  unitPreciseAmount: number | string | null | undefined,
+  invoice: Invoice,
+) => {
+  return isNumber(units) && isNumber(unitPreciseAmount)
+    ? {
+        amountCents: serializeAmount(
+          Number(units) * Number(unitPreciseAmount),
+          invoice?.currency as CurrencyEnum,
+        ),
+      }
+    : {}
+}
+
 const CustomerInvoiceRegenerate = () => {
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
@@ -194,47 +209,49 @@ const CustomerInvoiceRegenerate = () => {
         ))
 
     if (isGraduated) {
-      const previewInput = {
-        feeId: input?.feeId,
-        invoiceId: invoiceId as string,
-        units: input?.units,
-        unitPreciseAmount: input?.unitPreciseAmount,
-        invoiceSubscriptionId: input?.invoiceSubscriptionId,
-        chargeId: input?.charge?.id,
-      }
-
       const updatedFee = await previewAdjustedFee({
         variables: {
           input: {
-            ...removeEmptyKeys(previewInput),
+            ...removeEmptyKeys({
+              feeId: input?.feeId,
+              invoiceId: invoiceId as string,
+              units: input?.units,
+              unitPreciseAmount: input?.unitPreciseAmount,
+              invoiceSubscriptionId: input?.invoiceSubscriptionId,
+              chargeId: input?.charge?.id,
+            }),
             invoiceId: invoiceId as string,
           },
         },
       })
 
+      const wasOnlyUnitsUpdate = !input?.unitPreciseAmount
+      const previewedFee = updatedFee?.data?.previewAdjustedFee
+
       feeWithCalculatedRanges = {
-        ...updatedFee?.data?.previewAdjustedFee,
-        wasOnlyUnitsUpdate: !input?.unitPreciseAmount,
+        ...previewedFee,
+        wasOnlyUnitsUpdate,
+        ...(input?.unitPreciseAmount
+          ? {
+              preciseUnitAmount: input?.unitPreciseAmount || null,
+            }
+          : {}),
+        ...(previewedFee?.charge
+          ? {
+              charge: {
+                ...(previewedFee?.charge || {}),
+                chargeModel: wasOnlyUnitsUpdate
+                  ? previewedFee?.charge?.chargeModel
+                  : ChargeModelEnum.Standard,
+              },
+            }
+          : {}),
       }
     }
 
     const feeId = input.feeId ? input.feeId : `${TEMPORARY_ID_PREFIX}${Math.random().toString()}`
 
     const existing = fees.find((f) => f.id === feeId)
-
-    const computeAmountCents = (
-      units: number | string | null | undefined,
-      unitPreciseAmount: number | string | null | undefined,
-    ) => {
-      return isNumber(units) && isNumber(unitPreciseAmount)
-        ? {
-            amountCents: serializeAmount(
-              Number(units) * Number(unitPreciseAmount),
-              invoice.currency as CurrencyEnum,
-            ),
-          }
-        : {}
-    }
 
     if (existing) {
       const units = input.units ?? existing.units
@@ -262,7 +279,7 @@ const CustomerInvoiceRegenerate = () => {
           units,
           preciseUnitAmount: unitPreciseAmount,
           invoiceDisplayName: input.invoiceDisplayName ?? existing.invoiceDisplayName,
-          ...computeAmountCents(units, unitPreciseAmount),
+          ...computeAmountCents(units, unitPreciseAmount, invoice as Invoice),
         }
       }
 
@@ -300,7 +317,7 @@ const CustomerInvoiceRegenerate = () => {
       id: feeId,
       adjustedFee: true,
       preciseUnitAmount: Number(unitPreciseAmount || 0),
-      ...computeAmountCents(input.units, unitPreciseAmount),
+      ...computeAmountCents(input.units, unitPreciseAmount, invoice as Invoice),
       appliedTaxes: invoice?.appliedTaxes,
     }
 
@@ -461,7 +478,7 @@ const CustomerInvoiceRegenerate = () => {
             {invoice && customer && billingEntity && (
               <InvoiceQuickInfo
                 customer={customer}
-                invoice={invoice}
+                invoice={invoice as Invoice}
                 billingEntity={billingEntity}
               />
             )}
