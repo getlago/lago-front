@@ -146,6 +146,10 @@ export const cache = new InMemoryCache({
           keyArgs: ['id', 'appliedToOrganization'],
           merge: mergePaginatedCollection,
         },
+        features: {
+          keyArgs: false,
+          merge: mergePaginatedCollection,
+        },
       },
     },
   },

@@ -55,6 +55,10 @@ gql`
       dunningCampaignsCreate
       dunningCampaignsUpdate
       dunningCampaignsView
+      featuresCreate
+      featuresDelete
+      featuresUpdate
+      featuresView
       invoiceCustomSectionsCreate
       invoiceCustomSectionsUpdate
       invoicesCreate

@@ -3,6 +3,7 @@ export enum FeatureFlags {
   FTR_ENABLED = 'ftr_enabled',
   ANALYTICS_USAGE = 'analyticsUsage',
   PRICING_UNITS = 'pricingUnits',
+  FTR_FEATURES = 'ftr_features',
 }
 
 const FF_KEY = 'featureFlags'

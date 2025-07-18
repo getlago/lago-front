@@ -58,3 +58,8 @@ export enum CustomerDetailsTabsOptions {
   usage = 'usage',
   wallet = 'wallet',
 }
+
+export enum FeatureDetailsTabsOptionsEnum {
+  overview = 'overview',
+  activityLogs = 'activity-logs',
+}
