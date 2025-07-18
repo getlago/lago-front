@@ -1,6 +1,6 @@
 import { FormikProps } from 'formik'
 
-const formatCodeFromName = (name: string) => {
+export const formatCodeFromName = (name: string) => {
   return name.toLowerCase().replace(/ /g, '_')
 }
 
