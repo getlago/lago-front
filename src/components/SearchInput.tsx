@@ -10,9 +10,10 @@ interface SearchInputProps {
   className?: string
   onChange: ReturnType<UseDebouncedSearch>['debouncedSearch']
   placeholder?: string
+  disabled?: boolean
 }
 
-export const SearchInput = ({ className, onChange, placeholder }: SearchInputProps) => {
+export const SearchInput = ({ className, onChange, placeholder, disabled }: SearchInputProps) => {
   const [localValue, setLocalValue] = useState<string>('')
 
   return (
@@ -20,6 +21,7 @@ export const SearchInput = ({ className, onChange, placeholder }: SearchInputPro
       className={tw('max-w-60 [&_input]:h-10 [&_input]:!pl-3', className)}
       placeholder={placeholder}
       value={localValue}
+      disabled={disabled}
       onChange={(value) => {
         onChange && onChange(value)
         setLocalValue(value)
