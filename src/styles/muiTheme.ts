@@ -313,7 +313,7 @@ export const theme = createTheme({
             padding: '5px 11px',
             minHeight: '38px',
             resize: 'vertical',
-            'white-space': 'pre-wrap',
+            whiteSpace: 'pre-wrap',
           },
         },
         notchedOutline: {
