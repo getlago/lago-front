@@ -15,12 +15,14 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
 import { Card, Page, StyledLogo } from '~/styles/auth'
 
-const getErrorKey = (code: LagoApiError): string => {
+const getErrorKey = (code: LagoApiError): string | undefined => {
   switch (code) {
     case LagoApiError.OktaUserinfoError:
       return 'text_664c98989d08a3f733357f73'
     case LagoApiError.DomainNotConfigured:
       return 'text_664c90c9b2b6c2012aa50bd6'
+    case LagoApiError.OktaLoginMethodNotAuthorized:
+      return undefined
     default:
       return 'text_62b31e1f6a5b8b1b745ece48'
   }
@@ -63,6 +65,8 @@ const LoginOkta = () => {
     if (fetchOktaAuthorizeUrlError) {
       if (hasDefinedGQLError('DomainNotConfigured', fetchOktaAuthorizeUrlError)) {
         setErrorField(LagoApiError.DomainNotConfigured)
+      } else if (hasDefinedGQLError('LoginMethodNotAuthorized', fetchOktaAuthorizeUrlError)) {
+        setErrorAlert(LagoApiError.OktaLoginMethodNotAuthorized)
       } else {
         setErrorAlert(LagoApiError.UnprocessableEntity)
       }
@@ -122,7 +126,9 @@ const LoginOkta = () => {
           {/* This error is displayed in the input */}
           {!!errorAlert && (
             <Alert type="danger">
-              <Typography color="textSecondary">{translate(getErrorKey(errorAlert))}</Typography>
+              <Typography color="textSecondary">
+                {translate(getErrorKey(errorAlert) ?? '')}
+              </Typography>
             </Alert>
           )}
 
@@ -138,7 +144,7 @@ const LoginOkta = () => {
               formikProps.touched.email && formikProps.errors.email
                 ? formikProps.errors.email
                 : errorField
-                  ? translate(getErrorKey(errorField))
+                  ? translate(getErrorKey(errorField) ?? '')
                   : undefined
             }
           />

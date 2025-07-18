@@ -12,7 +12,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 export type GoogleAuthModeEnum = 'login' | 'signup' | 'invite'
 
-const getErrorKey = (errorCode: string): string => {
+const getErrorKey = (errorCode: string): string | undefined => {
   // Note: some error code are underscrored as they can come from the google callback page via url parameter
   switch (errorCode) {
     case 'invalid_google_token':
@@ -21,6 +21,8 @@ const getErrorKey = (errorCode: string): string => {
       return 'text_660bf95c75dd928ced0ecb25'
     case 'user_does_not_exist':
       return 'text_660bfaa2cbc95800a63f48b1'
+    case 'google_login_method_not_authorized':
+      return undefined
     default:
       return 'text_62b31e1f6a5b8b1b745ece48'
   }
@@ -75,7 +77,13 @@ const GoogleAuthButton = ({
         <Alert type="danger">
           <Typography
             color="textSecondary"
-            html={translate(getErrorKey(errorCode), { href: DOCUMENTATION_ENV_VARS })}
+            html={
+              !!getErrorKey(errorCode)
+                ? translate(getErrorKey(errorCode) || '', {
+                    href: DOCUMENTATION_ENV_VARS,
+                  })
+                : undefined
+            }
           />
         </Alert>
       )}
@@ -97,6 +105,8 @@ const GoogleAuthButton = ({
             return setErrorCode('invalid_google_token')
           } else if (hasDefinedGQLError('UserDoesNotExist', errors)) {
             return setErrorCode('user_does_not_exist')
+          } else if (hasDefinedGQLError('LoginMethodNotAuthorized', errors)) {
+            return setErrorCode('google_login_method_not_authorized')
           }
 
           if (data?.googleAuthUrl?.url) {

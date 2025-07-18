@@ -46,11 +46,20 @@ const OktaAuthCallback = () => {
       } else {
         const res = await oktaLoginUser({ variables: { input: { code, state: oktaState } } })
 
+        console.log({
+          LoginMethodNotAuthorized: hasDefinedGQLError('LoginMethodNotAuthorized', res.errors),
+        })
+
         if (res.errors) {
           if (hasDefinedGQLError('OktaUserinfoError', res.errors)) {
             navigate({
               pathname: LOGIN_OKTA,
               search: `?lago_error_code=${LagoApiError.OktaUserinfoError}`,
+            })
+          } else if (hasDefinedGQLError('LoginMethodNotAuthorized', res.errors)) {
+            navigate({
+              pathname: LOGIN_ROUTE,
+              search: `?lago_error_code=${LagoApiError.OktaLoginMethodNotAuthorized}`,
             })
           } else {
             navigate({
