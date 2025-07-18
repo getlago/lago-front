@@ -101,6 +101,7 @@ gql`
         pricingUnit {
           id
           code
+          name
           shortName
         }
       }
