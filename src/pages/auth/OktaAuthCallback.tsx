@@ -52,6 +52,11 @@ const OktaAuthCallback = () => {
               pathname: LOGIN_OKTA,
               search: `?lago_error_code=${LagoApiError.OktaUserinfoError}`,
             })
+          } else if (hasDefinedGQLError('LoginMethodNotAuthorized', res.errors)) {
+            navigate({
+              pathname: LOGIN_ROUTE,
+              search: `?lago_error_code=${LagoApiError.OktaLoginMethodNotAuthorized}`,
+            })
           } else {
             navigate({
               pathname: LOGIN_ROUTE,

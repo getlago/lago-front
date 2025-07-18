@@ -40,7 +40,9 @@ export const typeDefs = gql`
     invalid_google_code
     invalid_google_token
     google_auth_missing_setup
+    google_login_method_not_authorized
     domain_not_configured
+    okta_login_method_not_authorized
     okta_userinfo_error
 
     # Anrok errors

@@ -150,6 +150,9 @@ export const onLogIn = async (client: ApolloClient<object>, token: string) => {
     removeItemFromLS(AUTH_TOKEN_LS_KEY)
     removeItemFromLS(ORGANIZATION_LS_KEY_ID)
     removeItemFromLS(LAST_PRIVATE_VISITED_ROUTE_WHILE_NOT_CONNECTED_LS_KEY)
+
+    // In case of error, we want to log out the user
+    logOut(client, true)
   }
 }
 

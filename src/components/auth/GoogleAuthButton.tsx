@@ -12,7 +12,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 export type GoogleAuthModeEnum = 'login' | 'signup' | 'invite'
 
-const getErrorKey = (errorCode: string): string => {
+const getErrorKey = (errorCode: GoogleErrorCodes): string | undefined => {
   // Note: some error code are underscrored as they can come from the google callback page via url parameter
   switch (errorCode) {
     case 'invalid_google_token':
@@ -21,6 +21,8 @@ const getErrorKey = (errorCode: string): string => {
       return 'text_660bf95c75dd928ced0ecb25'
     case 'user_does_not_exist':
       return 'text_660bfaa2cbc95800a63f48b1'
+    case 'google_login_method_not_authorized':
+      return 'text_17521583805554mlsol8fld6'
     default:
       return 'text_62b31e1f6a5b8b1b745ece48'
   }
@@ -33,6 +35,16 @@ gql`
     }
   }
 `
+
+const GoogleErrorCodes = [
+  'GoogleAuthMissingSetup',
+  'invalid_google_code',
+  'invalid_google_token',
+  'user_does_not_exist',
+  'google_login_method_not_authorized',
+] as const
+
+type GoogleErrorCodes = (typeof GoogleErrorCodes)[number]
 
 type BasicGoogleAuthButtonProps = {
   mode: GoogleAuthModeEnum
@@ -50,7 +62,7 @@ const GoogleAuthButton = ({
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
 
-  const [errorCode, setErrorCode] = useState<string | undefined>(undefined)
+  const [errorCode, setErrorCode] = useState<GoogleErrorCodes>()
   const lagoErrorCode = searchParams.get('lago_error_code') || ''
 
   const [getGoogleUrl] = useGetGoogleAuthUrlLazyQuery({
@@ -59,9 +71,9 @@ const GoogleAuthButton = ({
   })
 
   useEffect(() => {
-    if (lagoErrorCode) {
+    if (lagoErrorCode && GoogleErrorCodes.includes(lagoErrorCode as GoogleErrorCodes)) {
       // Set the error code to be displayed
-      setErrorCode(lagoErrorCode)
+      setErrorCode(lagoErrorCode as GoogleErrorCodes)
       // Remove the error code from the URL, so it disappears on page reload
       history.replaceState({}, '', window.location.pathname)
     }
@@ -72,10 +84,17 @@ const GoogleAuthButton = ({
   return (
     <Stack spacing={8}>
       {!!errorCode && !hideAlert && (
-        <Alert type="danger">
+        <Alert type="danger" data-test="google-auth-button-error-alert">
           <Typography
             color="textSecondary"
-            html={translate(getErrorKey(errorCode), { href: DOCUMENTATION_ENV_VARS })}
+            html={
+              !!getErrorKey(errorCode)
+                ? translate(getErrorKey(errorCode) || '', {
+                    href: DOCUMENTATION_ENV_VARS,
+                    method: translate('text_1752158380555upqjf6cxtq9'),
+                  })
+                : undefined
+            }
           />
         </Alert>
       )}
@@ -97,6 +116,8 @@ const GoogleAuthButton = ({
             return setErrorCode('invalid_google_token')
           } else if (hasDefinedGQLError('UserDoesNotExist', errors)) {
             return setErrorCode('user_does_not_exist')
+          } else if (hasDefinedGQLError('LoginMethodNotAuthorized', errors)) {
+            return setErrorCode('google_login_method_not_authorized')
           }
 
           if (data?.googleAuthUrl?.url) {

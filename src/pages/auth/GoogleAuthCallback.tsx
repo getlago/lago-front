@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { GoogleAuthModeEnum } from '~/components/auth/GoogleAuthButton'
-import { LagoGQLError, onLogIn } from '~/core/apolloClient'
+import { hasDefinedGQLError, LagoGQLError, onLogIn } from '~/core/apolloClient'
 import { INVITATION_ROUTE_FORM, LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
 import { LagoApiError, useGoogleLoginUserMutation } from '~/generated/graphql'
 
@@ -45,12 +45,19 @@ const GoogleAuthCallback = () => {
         })
 
         if (res.errors) {
-          navigate({
-            pathname: LOGIN_ROUTE,
-            search: `?lago_error_code=${
-              (res.errors[0].extensions as LagoGQLError['extensions'])?.details.base[0]
-            }`,
-          })
+          if (hasDefinedGQLError('LoginMethodNotAuthorized', res.errors)) {
+            navigate({
+              pathname: LOGIN_ROUTE,
+              search: `?lago_error_code=${LagoApiError.GoogleLoginMethodNotAuthorized}`,
+            })
+          } else {
+            navigate({
+              pathname: LOGIN_ROUTE,
+              search: `?lago_error_code=${
+                (res.errors[0].extensions as LagoGQLError['extensions'])?.details.base[0]
+              }`,
+            })
+          }
         } else if (!!res.data?.googleLoginUser) {
           await onLogIn(client, res.data?.googleLoginUser?.token)
         }

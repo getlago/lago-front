@@ -2,7 +2,7 @@ import { gql, useApolloClient } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
 import { useEffect, useState } from 'react'
-import { generatePath, Link, useNavigate } from 'react-router-dom'
+import { generatePath, Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { object, string } from 'yup'
 
 import GoogleAuthButton from '~/components/auth/GoogleAuthButton'
@@ -35,6 +35,17 @@ const Login = () => {
   const { close: closeDevTool } = useDeveloperTool()
   const client = useApolloClient()
   const [authMethodError, setAuthMethodError] = useState<AuthenticationMethodsEnum>()
+  const [searchParams] = useSearchParams()
+
+  const lagoErrorCode = searchParams.get('lago_error_code')
+
+  useEffect(() => {
+    // Okta login method not authorized
+    // Google login method is handled in GoogleAuthButton
+    if (lagoErrorCode === LagoApiError.OktaLoginMethodNotAuthorized) {
+      setAuthMethodError(AuthenticationMethodsEnum.Okta)
+    }
+  }, [lagoErrorCode])
 
   useEffect(() => {
     // In case the devtools are open, close it
@@ -53,10 +64,6 @@ const Login = () => {
     onError(error) {
       if (hasDefinedGQLError('LoginMethodNotAuthorized', error, 'emailPassword')) {
         setAuthMethodError(AuthenticationMethodsEnum.EmailPassword)
-      } else if (hasDefinedGQLError('LoginMethodNotAuthorized', error, 'googleOauth')) {
-        setAuthMethodError(AuthenticationMethodsEnum.GoogleOauth)
-      } else if (hasDefinedGQLError('LoginMethodNotAuthorized', error, 'okta')) {
-        setAuthMethodError(AuthenticationMethodsEnum.Okta)
       }
     },
     fetchPolicy: 'network-only',
@@ -106,16 +113,16 @@ const Login = () => {
           </Stack>
 
           {hasDefinedGQLError('IncorrectLoginOrPassword', loginError) && (
-            <Alert data-test="error-alert" type="danger">
+            <Alert data-test="incorrect-login-or-password-alert" type="danger">
               {translate('text_620bc4d4269a55014d493fb7')}
             </Alert>
           )}
-          {hasDefinedGQLError('LoginMethodNotAuthorized', loginError) && (
-            <Alert data-test="error-alert" type="danger">
-              {authMethodError &&
-                translate('text_17521583805554mlsol8fld6', {
-                  method: translate(authenticationMethodsMapping[authMethodError]),
-                })}
+
+          {authMethodError && (
+            <Alert data-test="login-method-not-authorized-alert" type="danger">
+              {translate('text_17521583805554mlsol8fld6', {
+                method: translate(authenticationMethodsMapping[authMethodError]),
+              })}
             </Alert>
           )}
 
