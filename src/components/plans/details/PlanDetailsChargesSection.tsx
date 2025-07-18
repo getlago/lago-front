@@ -71,6 +71,10 @@ export const PlanDetailsChargesSection = ({
                     <DetailsPage.InfoGrid
                       grid={[
                         {
+                          label: translate('text_17502505476284yyq70yy6mx'),
+                          value: charge.appliedPricingUnit.pricingUnit.name,
+                        },
+                        {
                           label: translate('text_1750411499858su5b7bbp5t9'),
                           value: translate('text_1750424999815sw5whlu1xj0', {
                             shortName: charge.appliedPricingUnit?.pricingUnit?.shortName,
@@ -206,6 +210,10 @@ export const PlanDetailsChargesSection = ({
                   <div className="p-4 shadow-b">
                     <DetailsPage.InfoGrid
                       grid={[
+                        {
+                          label: translate('text_17502505476284yyq70yy6mx'),
+                          value: charge.appliedPricingUnit.pricingUnit.name,
+                        },
                         {
                           label: translate('text_1750411499858su5b7bbp5t9'),
                           value: translate('text_1750424999815sw5whlu1xj0', {
