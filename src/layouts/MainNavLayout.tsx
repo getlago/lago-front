@@ -34,6 +34,7 @@ import {
   CUSTOMER_SUBSCRIPTION_PLAN_DETAILS,
   CUSTOMERS_LIST_ROUTE,
   EMAILS_SETTINGS_ROUTE,
+  FORECASTS_ROUTE,
   HOME_ROUTE,
   INTEGRATIONS_ROUTE,
   INVOICE_SETTINGS_ROUTE,
@@ -58,6 +59,7 @@ import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { NavLayout } from '~/layouts/NavLayout'
+import { BadgeAI } from '~/pages/forecasts/Forecasts'
 import { MenuPopper } from '~/styles/designSystem'
 
 // 280 + 2px for the border
@@ -280,6 +282,14 @@ const MainNavLayout = () => {
                     link: ANALYTIC_ROUTE,
                     match: [ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE],
                     hidden: !hasPermissions(['analyticsView']),
+                  },
+                  {
+                    title: translate('text_1753014457040hxp6wkphkvw'),
+                    icon: 'eye',
+                    link: FORECASTS_ROUTE,
+                    match: [FORECASTS_ROUTE],
+                    hidden: !hasPermissions(['analyticsView']),
+                    extra: <BadgeAI />,
                   },
                 ]}
               />
