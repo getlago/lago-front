@@ -1,5 +1,6 @@
 import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
+import Forecasts from '~/pages/forecasts/Forecasts'
 
 import { authRoutes } from './AuthRoutes'
 import { customerPortalRoutes } from './CustomerPortalRoutes'
@@ -29,6 +30,7 @@ export const FORBIDDEN_ROUTE = '/forbidden'
 export const ANALYTIC_ROUTE = '/analytics'
 export const ANALYTIC_TABS_ROUTE = '/analytics/:tab'
 export const ANALYTIC_USAGE_BILLABLE_METRIC_ROUTE = '/analytics/usage/:billableMetricCode'
+export const FORECASTS_ROUTE = '/forecasts'
 export const ERROR_404_ROUTE = '/404'
 
 // Route Available only on dev mode
@@ -72,6 +74,12 @@ export const routes: CustomRouteObject[] = [
         path: ANALYTIC_USAGE_BILLABLE_METRIC_ROUTE,
         private: true,
         element: <UsageBillableMetric />,
+        permissions: ['analyticsView', 'dataApiView'],
+      },
+      {
+        path: FORECASTS_ROUTE,
+        private: true,
+        element: <Forecasts />,
         permissions: ['analyticsView', 'dataApiView'],
       },
       ...customerRoutes,
