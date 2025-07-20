@@ -18,6 +18,7 @@ interface VerticalMenuProps extends Omit<ButtonLinkTabProps, 'to' | 'type' | 'ch
   title?: string
   component?: ReactNode
   beta?: boolean
+  extra?: React.ReactElement
 }
 
 interface VerticalMenusProps {
@@ -50,7 +51,7 @@ export const VerticalMenu = ({
       {!loading && (
         <div className="flex w-full flex-1 flex-col gap-1 overflow-visible">
           {tabs.map((tab, i) => {
-            const { link, hidden, title, beta, external, onAction, ...tabProps } = tab
+            const { link, hidden, title, beta, external, onAction, extra, ...tabProps } = tab
 
             if (hidden) return null
 
@@ -80,6 +81,7 @@ export const VerticalMenu = ({
                       )}
                     </div>
                     {!!external && <Icon name="outside" />}
+                    {!!extra && extra}
                   </div>
                 </ButtonLink>
               )
