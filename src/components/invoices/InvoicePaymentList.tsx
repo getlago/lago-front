@@ -1,16 +1,16 @@
-import { FC } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { FC, RefObject } from 'react'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import { ButtonLink, InfiniteScroll, Status, Table } from '~/components/designSystem'
+import { Button, InfiniteScroll, Status, Table } from '~/components/designSystem'
 import { Typography } from '~/components/designSystem/Typography'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
+import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { payablePaymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CREATE_INVOICE_PAYMENT_ROUTE, PAYMENT_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
 import {
-  AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
   CurrencyEnum,
   Invoice,
   PaymentRequest,
@@ -20,15 +20,15 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import useDownloadPaymentReceipts from '~/hooks/paymentReceipts/useDownloadPaymentReceipts'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { usePermissions } from '~/hooks/usePermissions'
 
 export const InvoicePaymentList: FC<{
-  invoiceTotalDueAmount: AllInvoiceDetailsForCustomerInvoiceDetailsFragment['totalDueAmountCents']
-}> = ({ invoiceTotalDueAmount }) => {
+  canRecordPayment: boolean
+  premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
+}> = ({ canRecordPayment, premiumWarningDialogRef }) => {
   const { translate } = useInternationalization()
-  const { hasPermissions } = usePermissions()
   const { isPremium } = useCurrentUser()
   const { invoiceId } = useParams()
+  const navigate = useNavigate()
 
   const { data, loading, error, fetchMore } = useGetPaymentsListQuery({
     variables: { invoiceId: invoiceId as string, limit: 20 },
@@ -39,23 +39,29 @@ export const InvoicePaymentList: FC<{
 
   const payments = data?.payments.collection || []
 
-  const canRecordPayment =
-    invoiceTotalDueAmount > 0 && hasPermissions(['paymentsCreate']) && isPremium
-
   return (
     <>
       <div className="flex h-18 items-center justify-between shadow-b">
         <Typography variant="subhead1">{translate('text_6672ebb8b1b50be550eccbed')}</Typography>
         {canRecordPayment && (
-          <ButtonLink
-            type="button"
-            to={generatePath(CREATE_INVOICE_PAYMENT_ROUTE, { invoiceId: invoiceId as string })}
-            buttonProps={{
-              variant: 'quaternary',
+          <Button
+            variant="quaternary"
+            align="left"
+            endIcon={isPremium ? undefined : 'sparkles'}
+            onClick={() => {
+              if (isPremium) {
+                navigate(
+                  generatePath(CREATE_INVOICE_PAYMENT_ROUTE, {
+                    invoiceId: invoiceId as string,
+                  }),
+                )
+              } else {
+                premiumWarningDialogRef.current?.openDialog()
+              }
             }}
           >
             {translate('text_1737471851634wpeojigr27w')}
-          </ButtonLink>
+          </Button>
         )}
       </div>
       {!loading && !payments.length && (
