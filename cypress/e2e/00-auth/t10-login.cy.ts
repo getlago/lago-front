@@ -7,7 +7,7 @@ describe('Log in', () => {
     cy.get('input[name="password"]').type(userPassword)
     cy.get('[data-test="submit"]').click()
     cy.url().should('be.equal', Cypress.config().baseUrl + '/')
-    cy.get('[data-test="error-alert"]').should('not.exist')
+    cy.get('[data-test="incorrect-login-or-password-alert"]').should('not.exist')
   })
 
   it('should display an error if wrong credentials', () => {
@@ -17,7 +17,7 @@ describe('Log in', () => {
     cy.get('input[name="password"]').type('IHateLago')
     cy.get('[data-test="submit"]').click()
     cy.url().should('be.equal', Cypress.config().baseUrl + '/login')
-    cy.get('[data-test="error-alert"]').should('exist')
+    cy.get('[data-test="incorrect-login-or-password-alert"]').should('exist')
   })
 
   it('should display errors if inputs are not filled', () => {
