@@ -15,7 +15,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
 import { Card, Page, StyledLogo } from '~/styles/auth'
 
-const getErrorKey = (code: LagoApiError): string | undefined => {
+const getErrorKey = (code: LagoApiError): string => {
   switch (code) {
     case LagoApiError.OktaUserinfoError:
       return 'text_664c98989d08a3f733357f73'
@@ -122,9 +122,7 @@ const LoginOkta = () => {
           {/* This error is displayed in the input */}
           {!!errorAlert && (
             <Alert type="danger" data-test="login-okta-error-alert">
-              <Typography color="textSecondary">
-                {translate(getErrorKey(errorAlert) ?? '')}
-              </Typography>
+              <Typography color="textSecondary">{translate(getErrorKey(errorAlert))}</Typography>
             </Alert>
           )}
 

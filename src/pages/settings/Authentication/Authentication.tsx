@@ -104,10 +104,8 @@ const Authentication = () => {
       authenticationMethods?.length === 1 && authenticationMethods?.includes(method)
 
     if (method === AuthenticationMethodsEnum.Okta && !shouldSeeOktaIntegration) {
-      if (!shouldSeeOktaIntegration) {
-        isPopperVisible = false
-        icon = <Icon name="sparkles" size="medium" />
-      }
+      isPopperVisible = false
+      icon = <Icon name="sparkles" size="medium" />
     } else if (method === AuthenticationMethodsEnum.Okta && !oktaIntegration?.id) {
       isPopperVisible = false
       icon = undefined

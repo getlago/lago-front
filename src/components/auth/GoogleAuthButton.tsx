@@ -12,7 +12,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 export type GoogleAuthModeEnum = 'login' | 'signup' | 'invite'
 
-const getErrorKey = (errorCode: GoogleErrorCodes): string | undefined => {
+const getErrorKey = (errorCode: GoogleErrorCodes): string => {
   // Note: some error code are underscrored as they can come from the google callback page via url parameter
   switch (errorCode) {
     case 'invalid_google_token':
@@ -89,7 +89,7 @@ const GoogleAuthButton = ({
             color="textSecondary"
             html={
               !!getErrorKey(errorCode)
-                ? translate(getErrorKey(errorCode) || '', {
+                ? translate(getErrorKey(errorCode), {
                     href: DOCUMENTATION_ENV_VARS,
                     method: translate('text_1752158380555upqjf6cxtq9'),
                   })

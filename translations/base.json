@@ -3295,7 +3295,6 @@
   "text_1752157864305y1yi854blva": "Allows users to log in using their Google account via OAuth.",
   "text_1752157864305cyuembvqwls": "Disable {{method}} method",
   "text_1752157864305wmeiff8xkih": "Users will no longer be able to log in using {{method}}. This method will still appear on the login page but will return an error if selected.",
-  "text_17521578643059q8jhz2cl1l": "Disable",
   "text_1752157864305e5ihvtb7dys": "Disabled",
   "text_1752158016616mbk432yu9oz": "Disable this method",
   "text_1752157864305roig666alyw": "Enable {{method}} method",

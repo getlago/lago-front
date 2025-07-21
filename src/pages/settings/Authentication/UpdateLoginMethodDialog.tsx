@@ -39,12 +39,16 @@ export const UpdateLoginMethodDialog = forwardRef<UpdateLoginMethodDialogRef>((_
 
   const getNewOrganizationAuthenticationMethods = () => {
     if (dialogData?.type === 'disable') {
-      return organization?.authenticationMethods?.filter((method) => method !== dialogData?.method)
+      return (
+        organization?.authenticationMethods?.filter((method) => method !== dialogData?.method) || []
+      )
     }
 
     if (dialogData?.type === 'enable') {
       return [...(organization?.authenticationMethods || []), dialogData?.method]
     }
+
+    return []
   }
 
   const handleCloseDialog = () => {
