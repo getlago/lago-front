@@ -124,6 +124,8 @@ const MainNavLayout = () => {
     contentRef.current?.scrollTo(0, 0)
   }, [pathname, contentRef, state?.disableScrollTop])
 
+  const canSeeReportsSection = hasPermissions(['analyticsView'])
+
   return (
     <NavLayout.NavWrapper>
       <NavLayout.NavBurgerButton onClick={() => setOpen((prev) => !prev)} />
@@ -264,26 +266,28 @@ const MainNavLayout = () => {
           {/* Top menu entries */}
           <NavLayout.NavSectionGroup>
             {/* Reports */}
-            <NavLayout.NavSection>
-              <VerticalMenuSectionTitle
-                title={translate('text_1750864025932bnohjbzci3f')}
-                loading={currentUserLoading}
-              />
-              <VerticalMenu
-                loading={currentUserLoading}
-                loadingComponent={<VerticalMenuSkeleton numberOfElements={1} />}
-                onClick={() => setOpen(false)}
-                tabs={[
-                  {
-                    title: translate('text_6553885df387fd0097fd7384'),
-                    icon: 'chart-bar',
-                    link: ANALYTIC_ROUTE,
-                    match: [ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE],
-                    hidden: !hasPermissions(['analyticsView']),
-                  },
-                ]}
-              />
-            </NavLayout.NavSection>
+            {canSeeReportsSection && (
+              <NavLayout.NavSection>
+                <VerticalMenuSectionTitle
+                  title={translate('text_1750864025932bnohjbzci3f')}
+                  loading={currentUserLoading}
+                />
+                <VerticalMenu
+                  loading={currentUserLoading}
+                  loadingComponent={<VerticalMenuSkeleton numberOfElements={1} />}
+                  onClick={() => setOpen(false)}
+                  tabs={[
+                    {
+                      title: translate('text_6553885df387fd0097fd7384'),
+                      icon: 'chart-bar',
+                      link: ANALYTIC_ROUTE,
+                      match: [ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE],
+                      hidden: !hasPermissions(['analyticsView']),
+                    },
+                  ]}
+                />
+              </NavLayout.NavSection>
+            )}
 
             {/* Configuration */}
             <NavLayout.NavSection>
