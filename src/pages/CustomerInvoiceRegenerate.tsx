@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { Alert, Button, GenericPlaceholder, Typography } from 'lago-design-system'
-import { isNumber } from 'lodash'
 import { useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
@@ -14,12 +13,9 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast } from '~/core/apolloClient'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
-import { serializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
 import {
   Charge,
-  ChargeModelEnum,
-  CurrencyEnum,
   Customer,
   Fee,
   FeeAmountDetails,
@@ -45,6 +41,12 @@ gql`
   mutation previewAdjustedFee($input: PreviewAdjustedFeeInput!) {
     previewAdjustedFee(input: $input) {
       id
+      amountCents
+      invoiceName
+      invoiceDisplayName
+      units
+      groupedBy
+      preciseUnitAmount
       addOn {
         id
       }
@@ -76,11 +78,6 @@ gql`
           perUnitTotalAmount
         }
       }
-      amountCents
-      invoiceName
-      invoiceDisplayName
-      units
-      groupedBy
       charge {
         id
         payInAdvance
@@ -139,20 +136,7 @@ const invoiceFeesToNonAdjusted = (invoice?: Invoice | null) => {
   }
 }
 
-const computeAmountCents = (
-  units: number | string | null | undefined,
-  unitPreciseAmount: number | string | null | undefined,
-  invoice: Invoice,
-) => {
-  return isNumber(units) && isNumber(unitPreciseAmount)
-    ? {
-        amountCents: serializeAmount(
-          Number(units) * Number(unitPreciseAmount),
-          invoice?.currency as CurrencyEnum,
-        ),
-      }
-    : {}
-}
+const TEMPORARY_ID_PREFIX = 'temporary-id-fee-'
 
 const CustomerInvoiceRegenerate = () => {
   const { translate } = useInternationalization()
@@ -196,132 +180,38 @@ const CustomerInvoiceRegenerate = () => {
   const [voidInvoice] = useVoidInvoiceMutation()
   const [previewAdjustedFee] = usePreviewAdjustedFeeMutation()
 
-  const TEMPORARY_ID_PREFIX = 'temporary-id-fee-'
-
   const onAdd: OnRegeneratedFeeAdd = async (input) => {
-    let feeWithCalculatedRanges = null
-
-    const isGraduated =
-      input?.amountDetails?.graduatedRanges ||
-      (input?.charge?.chargeModel &&
-        [ChargeModelEnum.Graduated, ChargeModelEnum.GraduatedPercentage].includes(
-          input?.charge?.chargeModel,
-        ))
-
-    if (isGraduated) {
-      const updatedFee = await previewAdjustedFee({
-        variables: {
-          input: {
-            ...removeEmptyKeys({
-              feeId: input?.feeId,
-              invoiceId: invoiceId as string,
-              units: input?.units,
-              unitPreciseAmount: input?.unitPreciseAmount,
-              invoiceSubscriptionId: input?.invoiceSubscriptionId,
-              chargeId: input?.charge?.id,
-            }),
-            invoiceId: invoiceId as string,
-          },
+    const previewedFee = await previewAdjustedFee({
+      variables: {
+        input: {
+          invoiceId: invoiceId as string,
+          ...removeEmptyKeys({
+            feeId: input?.feeId,
+            units: input?.units,
+            unitPreciseAmount: input?.unitPreciseAmount,
+            invoiceSubscriptionId: input?.invoiceSubscriptionId,
+            chargeId: input?.charge?.id,
+            invoiceDisplayName: input?.invoiceDisplayName,
+          }),
         },
-      })
+      },
+    })
 
-      const wasOnlyUnitsUpdate = !input?.unitPreciseAmount
-      const previewedFee = updatedFee?.data?.previewAdjustedFee
+    const feeData = previewedFee?.data?.previewAdjustedFee
 
-      feeWithCalculatedRanges = {
-        ...previewedFee,
-        wasOnlyUnitsUpdate,
-        ...(input?.unitPreciseAmount
-          ? {
-              preciseUnitAmount: input?.unitPreciseAmount || null,
-            }
-          : {}),
-        ...(previewedFee?.charge
-          ? {
-              charge: {
-                ...(previewedFee?.charge || {}),
-                chargeModel: wasOnlyUnitsUpdate
-                  ? previewedFee?.charge?.chargeModel
-                  : ChargeModelEnum.Standard,
-              },
-            }
-          : {}),
-      }
-    }
+    const isUpdate = fees?.find((f) => f.id === input?.feeId)
 
-    const feeId = input.feeId ? input.feeId : `${TEMPORARY_ID_PREFIX}${Math.random().toString()}`
-
-    const existing = fees.find((f) => f.id === feeId)
-
-    if (existing) {
-      const units = input.units ?? existing.units
-      const chargeAmount = input?.charge?.properties?.amount
-      const _unitPreciseAmount = input.unitPreciseAmount || chargeAmount
-
-      const unitPreciseAmount = _unitPreciseAmount
-        ? Number(_unitPreciseAmount)
-        : existing.preciseUnitAmount
-
-      let updated = {}
-
-      if (feeWithCalculatedRanges) {
-        updated = {
-          ...existing,
-          ...feeWithCalculatedRanges,
-          adjustedFee: true,
-          id: existing.id,
-        }
-      } else {
-        updated = {
-          ...existing,
-          adjustedFee: true,
-          id: existing.id,
-          units,
-          preciseUnitAmount: unitPreciseAmount,
-          invoiceDisplayName: input.invoiceDisplayName ?? existing.invoiceDisplayName,
-          ...computeAmountCents(units, unitPreciseAmount, invoice as Invoice),
-        }
-      }
-
-      const newFees = fees.map((fee) => (fee.id === feeId ? (updated as Fee) : fee))
-
-      return setFees([...newFees])
-    }
-
-    if (feeWithCalculatedRanges) {
-      const unitPreciseAmount = input.unitPreciseAmount ? Number(input.unitPreciseAmount) : null
-
-      const fee = {
-        ...input,
-        ...feeWithCalculatedRanges,
-        ...(input?.unitPreciseAmount
-          ? {
-              preciseUnitAmount: unitPreciseAmount,
-            }
-          : {}),
-        adjustedFee: true,
-        appliedTaxes: invoice?.appliedTaxes,
-        id: feeId,
-      }
-
-      return setFees((f) => [...f, fee as unknown as Fee])
-    }
-
-    const chargeAmount = input?.charge?.properties?.amount
-    const _unitPreciseAmount = input.unitPreciseAmount || chargeAmount
-
-    const unitPreciseAmount = _unitPreciseAmount ? Number(_unitPreciseAmount) : null
-
-    const fee = {
-      ...input,
-      id: feeId,
+    const calculatedFee = {
+      ...feeData,
+      id: isUpdate ? input?.feeId : `${TEMPORARY_ID_PREFIX}-${Math.random().toString()}`,
       adjustedFee: true,
-      preciseUnitAmount: Number(unitPreciseAmount || 0),
-      ...computeAmountCents(input.units, unitPreciseAmount, invoice as Invoice),
-      appliedTaxes: invoice?.appliedTaxes,
+    } as Fee
+
+    if (isUpdate) {
+      return setFees((f) => f.map((fee) => (fee.id === input.feeId ? calculatedFee : fee)))
     }
 
-    return setFees((f) => [...f, fee as unknown as Fee])
+    return setFees((f) => [...f, calculatedFee])
   }
 
   const onDelete = (id: string) => {
@@ -350,23 +240,10 @@ const CustomerInvoiceRegenerate = () => {
       })
     }
 
-    const taxCodes = invoice?.appliedTaxes?.map((tax) => tax.taxCode).filter((code) => !!code)
-
     const feesInput = fees
       .map((fee) => ({
-        id: fee.id?.includes(TEMPORARY_ID_PREFIX) ? null : fee.id,
-        addOnId: fee.addOn?.id,
-        chargeId: fee.charge?.id,
-        description: fee.description,
-        invoiceDisplayName: fee.invoiceDisplayName,
-        subscriptionId:
-          fee.subscription?.id ||
-          (fee as { invoiceSubscriptionId?: string })?.invoiceSubscriptionId,
-        unitAmountCents: (fee as { wasOnlyUnitsUpdate?: boolean })?.wasOnlyUnitsUpdate
-          ? null
-          : fee?.preciseUnitAmount,
-        taxCodes: (taxCodes?.length || 0) > 0 ? taxCodes : null,
-        units: fee.units,
+        ...fee,
+        id: fee.id.includes(TEMPORARY_ID_PREFIX) ? null : fee.id,
       }))
       .map((fee) => removeEmptyKeys(fee))
 
