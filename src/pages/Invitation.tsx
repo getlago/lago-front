@@ -92,6 +92,7 @@ const Invitation = () => {
   const { token } = useParams()
   const client = useApolloClient()
   const [searchParams] = useSearchParams()
+
   const googleCode = searchParams.get('code') || ''
   const oktaCode = searchParams.get('oktaCode') || ''
   const oktaState = searchParams.get('oktaState') || ''
@@ -144,6 +145,7 @@ const Invitation = () => {
     password: '',
   })
   const [errors, setErrors] = useState<FORM_ERRORS[]>([])
+
   const validationSchema = useMemo(
     () =>
       object().shape({
@@ -156,6 +158,7 @@ const Invitation = () => {
       }),
     [],
   )
+
   const onInvitation = async () => {
     const { password } = formFields
 
@@ -268,6 +271,24 @@ const Invitation = () => {
       return translate('text_664c98989d08a3f733357f73')
     }
 
+    if (hasDefinedGQLError('LoginMethodNotAuthorized', oktaAcceptInviteError)) {
+      return translate('text_17521583805554mlsol8fld6', {
+        method: translate('text_664c732c264d7eed1c74fda2'),
+      })
+    }
+
+    if (hasDefinedGQLError('LoginMethodNotAuthorized', googleAcceptInviteError)) {
+      return translate('text_17521583805554mlsol8fld6', {
+        method: translate('text_1752158380555upqjf6cxtq9'),
+      })
+    }
+
+    if (hasDefinedGQLError('LoginMethodNotAuthorized', acceptInviteError)) {
+      return translate('text_17521583805554mlsol8fld6', {
+        method: translate('text_1752158380555c18bvtn8gd8'),
+      })
+    }
+
     return
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -328,7 +349,7 @@ const Invitation = () => {
                 size="large"
                 variant="tertiary"
                 onClick={() => onOktaLogin()}
-                loading={oktaAuthorizeUrlLoading || oktaAcceptInviteLoading || acceptInviteLoading}
+                loading={oktaAuthorizeUrlLoading || oktaAcceptInviteLoading}
               >
                 {translate('text_664c90c9b2b6c2012aa50bd5')}
               </Button>
@@ -401,17 +422,18 @@ const Invitation = () => {
                       )
                     })}
                   </div>
-                ) : (
+                ) : !errorTranslation ? (
                   <Alert type="success" data-test="success" className="mt-3">
                     {translate('text_63246f875e2228ab7b63dd02')}
                   </Alert>
-                )}
+                ) : null}
               </div>
             </div>
 
             <Button
               data-test="submit-button"
               disabled={errors.length > 0}
+              loading={acceptInviteLoading}
               fullWidth
               size="large"
               onClick={onInvitation}
