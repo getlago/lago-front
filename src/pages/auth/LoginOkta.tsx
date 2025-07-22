@@ -138,7 +138,7 @@ const LoginOkta = () => {
               formikProps.touched.email && formikProps.errors.email
                 ? formikProps.errors.email
                 : errorField
-                  ? translate(getErrorKey(errorField) ?? '')
+                  ? translate(getErrorKey(errorField))
                   : undefined
             }
           />

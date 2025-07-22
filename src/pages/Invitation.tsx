@@ -302,6 +302,8 @@ const Invitation = () => {
     },
   ])
 
+  const hasValidationErrors = errors.some((err) => PASSWORD_VALIDATION.includes(err))
+
   return (
     <Page>
       <Card>
@@ -379,7 +381,7 @@ const Invitation = () => {
                   label={translate('text_63246f875e2228ab7b63dce9')}
                   placeholder={translate('text_63246f875e2228ab7b63dcf0')}
                 />
-                {errors.some((err) => PASSWORD_VALIDATION.includes(err)) ? (
+                {hasValidationErrors && (
                   <div
                     className={tw(
                       'flex flex-wrap overflow-hidden transition-all duration-250',
@@ -422,11 +424,12 @@ const Invitation = () => {
                       )
                     })}
                   </div>
-                ) : !errorTranslation ? (
+                )}
+                {!errorTranslation && !hasValidationErrors && (
                   <Alert type="success" data-test="success" className="mt-3">
                     {translate('text_63246f875e2228ab7b63dd02')}
                   </Alert>
-                ) : null}
+                )}
               </div>
             </div>
 

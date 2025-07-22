@@ -68,7 +68,7 @@ const generateTabs = ({
   {
     title: translate('text_664c732c264d7eed1c74fd96'),
     link: AUTHENTICATION_ROUTE,
-    match: [OKTA_AUTHENTICATION_ROUTE],
+    match: [AUTHENTICATION_ROUTE, OKTA_AUTHENTICATION_ROUTE],
     hidden: !hasPermissions(['organizationIntegrationsView', 'authenticationMethodsView']),
   },
   {
