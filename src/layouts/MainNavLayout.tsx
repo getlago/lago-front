@@ -1,6 +1,6 @@
 import { gql, useApolloClient } from '@apollo/client'
 import { ClickAwayListener, Stack } from '@mui/material'
-import { Avatar, Icon, IconName } from 'lago-design-system'
+import { Avatar, ConditionalWrapper, Icon, IconName, Tooltip } from 'lago-design-system'
 import { useEffect, useRef, useState } from 'react'
 import { Location, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
@@ -13,6 +13,7 @@ import {
   VerticalMenuSectionTitle,
 } from '~/components/designSystem'
 import { envGlobalVar, logOut, switchCurrentOrganization } from '~/core/apolloClient'
+import { authenticationMethodsMapping } from '~/core/constants/authenticationMethodsMapping'
 import { DOCUMENTATION_URL, FEATURE_REQUESTS_URL } from '~/core/constants/externalUrls'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import {
@@ -190,40 +191,73 @@ const MainNavLayout = () => {
                       <VerticalMenuSectionTitle title={currentUser?.email || ''} />
 
                       {organizationList
-                        .sort(
-                          (a, b) =>
-                            a.name.toLowerCase()?.localeCompare(b.name.toLowerCase() ?? '') ?? 0,
-                        )
-                        ?.map(({ id, name, logoUrl }) => (
-                          <Button
+                        .sort((a, b) => {
+                          // First sort by accessibleByCurrentSession (accessible first)
+                          if (a.accessibleByCurrentSession !== b.accessibleByCurrentSession) {
+                            return a.accessibleByCurrentSession ? -1 : 1
+                          }
+
+                          // Then sort alphabetically by name
+                          return (
+                            a.name.toLowerCase()?.localeCompare(b.name.toLowerCase() ?? '') ?? 0
+                          )
+                        })
+                        ?.map(({ id, name, logoUrl, accessibleByCurrentSession }) => (
+                          <ConditionalWrapper
                             key={`organization-in-side-nav-${id}`}
-                            align="left"
-                            size="small"
-                            variant={id === organization?.id ? 'secondary' : 'quaternary'}
-                            onClick={async () => {
-                              await switchCurrentOrganization(client, id)
-                              await refetchOrganizationInfos()
-                              navigate(HOME_ROUTE)
-                              closePopper()
-                            }}
-                          >
-                            {!!logoUrl ? (
-                              <Avatar className="mr-2" size="small" variant="connector">
-                                <img src={logoUrl} alt={`${name}'s logo`} />
-                              </Avatar>
-                            ) : (
-                              <Avatar
-                                className="mr-2"
-                                variant="company"
-                                identifier={name || ''}
-                                size="small"
-                                initials={(name ?? 'Lago')[0]}
-                              />
+                            condition={accessibleByCurrentSession}
+                            validWrapper={(children) => <>{children}</>}
+                            invalidWrapper={(children) => (
+                              <Tooltip
+                                placement="right"
+                                title={
+                                  organization
+                                    ? translate('text_1752158380555tozrnmtmxcz', {
+                                        method: translate(
+                                          authenticationMethodsMapping[
+                                            organization?.authenticatedMethod
+                                          ],
+                                        ),
+                                      })
+                                    : translate('text_1752158380555tozrnmtmxc1')
+                                }
+                              >
+                                {children}
+                              </Tooltip>
                             )}
-                            <Typography variant="caption" color="inherit" noWrap>
-                              {name}
-                            </Typography>
-                          </Button>
+                          >
+                            <Button
+                              align="left"
+                              size="small"
+                              fullWidth
+                              variant={id === organization?.id ? 'secondary' : 'quaternary'}
+                              disabled={!accessibleByCurrentSession}
+                              endIcon={accessibleByCurrentSession ? undefined : 'lock'}
+                              onClick={async () => {
+                                await switchCurrentOrganization(client, id)
+                                await refetchOrganizationInfos()
+                                navigate(HOME_ROUTE)
+                                closePopper()
+                              }}
+                            >
+                              {!!logoUrl ? (
+                                <Avatar className="mr-2" size="small" variant="connector">
+                                  <img src={logoUrl} alt={`${name}'s logo`} />
+                                </Avatar>
+                              ) : (
+                                <Avatar
+                                  className="mr-2"
+                                  variant="company"
+                                  identifier={name || ''}
+                                  size="small"
+                                  initials={(name ?? 'Lago')[0]}
+                                />
+                              )}
+                              <Typography variant="caption" color="inherit" noWrap>
+                                {name}
+                              </Typography>
+                            </Button>
+                          </ConditionalWrapper>
                         ))}
                     </div>
                   )}

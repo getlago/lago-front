@@ -18,6 +18,8 @@ gql`
     defaultCurrency
     premiumIntegrations
     canCreateBillingEntity
+    authenticationMethods
+    authenticatedMethod
 
     ...OrganizationForDatePicker
   }

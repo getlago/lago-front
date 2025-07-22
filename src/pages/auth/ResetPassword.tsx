@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql, useApolloClient } from '@apollo/client'
 import _findKey from 'lodash/findKey'
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
@@ -8,7 +8,6 @@ import { Alert, Button, Skeleton, Typography } from '~/components/designSystem'
 import { TextInput } from '~/components/form'
 import { addToast, onLogIn } from '~/core/apolloClient'
 import {
-  CurrentUserFragmentDoc,
   LagoApiError,
   useGetPasswordResetQuery,
   useResetPasswordMutation,
@@ -32,14 +31,8 @@ gql`
   mutation resetPassword($input: ResetPasswordInput!) {
     resetPassword(input: $input) {
       token
-      user {
-        id
-        ...CurrentUser
-      }
     }
   }
-
-  ${CurrentUserFragmentDoc}
 `
 
 type Fields = { password: string }
@@ -63,6 +56,8 @@ const PASSWORD_VALIDATION = [
 const ResetPassword = () => {
   const { translate } = useInternationalization()
   const { token } = useParams()
+  const client = useApolloClient()
+
   const { data, loading, error } = useGetPasswordResetQuery({
     context: { silentErrorCodes: [LagoApiError.NotFound] },
     notifyOnNetworkStatusChange: true,
@@ -71,10 +66,11 @@ const ResetPassword = () => {
     skip: !token,
     variables: { token: token || '' },
   })
+
   const [resetPassword] = useResetPasswordMutation({
-    onCompleted(res) {
+    onCompleted: async (res) => {
       if (!!res?.resetPassword) {
-        onLogIn(res?.resetPassword.token, res?.resetPassword?.user)
+        await onLogIn(client, res?.resetPassword.token)
       } else {
         addToast({
           severity: 'danger',

@@ -8,8 +8,9 @@ import {
   useOktaIntegration,
   UseOktaIntegrationProps,
 } from '~/components/settings/authentication/useOktaIntegration'
-import { AddOktaIntegrationDialogFragment } from '~/generated/graphql'
+import { AddOktaIntegrationDialogFragment, AuthenticationMethodsEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 type AddOktaDialogProps = Partial<{
   integration: AddOktaIntegrationDialogFragment
@@ -24,6 +25,7 @@ export interface AddOktaDialogRef {
 }
 
 export const AddOktaDialog = forwardRef<AddOktaDialogRef>((_, ref) => {
+  const { organization } = useOrganizationInfos()
   const { translate } = useInternationalization()
 
   const dialogRef = useRef<DialogRef>(null)
@@ -31,6 +33,9 @@ export const AddOktaDialog = forwardRef<AddOktaDialogRef>((_, ref) => {
 
   const integration = localData?.integration
   const isEdition = !!integration
+  const hasOtherAuthenticationMethodsThanOkta = organization?.authenticationMethods.some(
+    (method) => method !== AuthenticationMethodsEnum.Okta,
+  )
 
   const { formikProps } = useOktaIntegration({
     initialValues: integration,
@@ -67,21 +72,23 @@ export const AddOktaDialog = forwardRef<AddOktaDialogRef>((_, ref) => {
             width={isEdition ? '100%' : 'inherit'}
             spacing={3}
           >
-            {isEdition && localData?.deleteDialogCallback && (
-              <Button
-                danger
-                variant="quaternary"
-                onClick={() => {
-                  closeDialog()
-                  localData?.deleteModalRef?.current?.openDialog({
-                    integration,
-                    callback: localData.deleteDialogCallback,
-                  })
-                }}
-              >
-                {translate('text_65845f35d7d69c3ab4793dad')}
-              </Button>
-            )}
+            {isEdition &&
+              localData?.deleteDialogCallback &&
+              !!hasOtherAuthenticationMethodsThanOkta && (
+                <Button
+                  danger
+                  variant="quaternary"
+                  onClick={() => {
+                    closeDialog()
+                    localData?.deleteModalRef?.current?.openDialog({
+                      integration,
+                      callback: localData.deleteDialogCallback,
+                    })
+                  }}
+                >
+                  {translate('text_65845f35d7d69c3ab4793dad')}
+                </Button>
+              )}
 
             <Stack direction="row" spacing={3} alignItems="center" marginLeft="auto !important">
               <Button variant="quaternary" onClick={closeDialog}>

@@ -1,16 +1,17 @@
-import { gql } from '@apollo/client'
+import { gql, useApolloClient } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { useFormik } from 'formik'
-import { useEffect } from 'react'
-import { generatePath, Link, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { generatePath, Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { object, string } from 'yup'
 
 import GoogleAuthButton from '~/components/auth/GoogleAuthButton'
 import { Alert, Button, Typography } from '~/components/designSystem'
 import { TextInputField } from '~/components/form'
 import { envGlobalVar, hasDefinedGQLError, onLogIn } from '~/core/apolloClient'
+import { authenticationMethodsMapping } from '~/core/constants/authenticationMethodsMapping'
 import { FORGOT_PASSWORD_ROUTE, LOGIN_OKTA, SIGN_UP_ROUTE } from '~/core/router'
-import { CurrentUserFragmentDoc, LagoApiError, useLoginUserMutation } from '~/generated/graphql'
+import { AuthenticationMethodsEnum, LagoApiError, useLoginUserMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
@@ -22,15 +23,9 @@ const { disableSignUp } = envGlobalVar()
 gql`
   mutation loginUser($input: LoginUserInput!) {
     loginUser(input: $input) {
-      user {
-        id
-        ...CurrentUser
-      }
       token
     }
   }
-
-  ${CurrentUserFragmentDoc}
 `
 
 const Login = () => {
@@ -38,6 +33,19 @@ const Login = () => {
   const { isRunningInSalesForceIframe } = useSalesForceConfig()
   const navigate = useNavigate()
   const { close: closeDevTool } = useDeveloperTool()
+  const client = useApolloClient()
+  const [authMethodError, setAuthMethodError] = useState<AuthenticationMethodsEnum>()
+  const [searchParams] = useSearchParams()
+
+  const lagoErrorCode = searchParams.get('lago_error_code')
+
+  useEffect(() => {
+    // Okta login method not authorized
+    // Google login method is handled in GoogleAuthButton
+    if (lagoErrorCode === LagoApiError.OktaLoginMethodNotAuthorized) {
+      setAuthMethodError(AuthenticationMethodsEnum.Okta)
+    }
+  }, [lagoErrorCode])
 
   useEffect(() => {
     // In case the devtools are open, close it
@@ -48,9 +56,14 @@ const Login = () => {
 
   const [loginUser, { error: loginError }] = useLoginUserMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-    onCompleted(res) {
+    onCompleted: async (res) => {
       if (!!res?.loginUser) {
-        onLogIn(res.loginUser.token, res?.loginUser?.user)
+        await onLogIn(client, res.loginUser.token)
+      }
+    },
+    onError(error) {
+      if (hasDefinedGQLError('LoginMethodNotAuthorized', error, 'emailPassword')) {
+        setAuthMethodError(AuthenticationMethodsEnum.EmailPassword)
       }
     },
     fetchPolicy: 'network-only',
@@ -100,8 +113,16 @@ const Login = () => {
           </Stack>
 
           {hasDefinedGQLError('IncorrectLoginOrPassword', loginError) && (
-            <Alert data-test="error-alert" type="danger">
+            <Alert data-test="incorrect-login-or-password-alert" type="danger">
               {translate('text_620bc4d4269a55014d493fb7')}
+            </Alert>
+          )}
+
+          {authMethodError && (
+            <Alert data-test="login-method-not-authorized-alert" type="danger">
+              {translate('text_17521583805554mlsol8fld6', {
+                method: translate(authenticationMethodsMapping[authMethodError]),
+              })}
             </Alert>
           )}
 

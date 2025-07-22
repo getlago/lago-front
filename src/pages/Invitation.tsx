@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql, useApolloClient } from '@apollo/client'
 import { Stack } from '@mui/material'
 import _findKey from 'lodash/findKey'
 import { useEffect, useMemo, useState } from 'react'
@@ -44,20 +44,12 @@ gql`
   mutation acceptInvite($input: AcceptInviteInput!) {
     acceptInvite(input: $input) {
       token
-      user {
-        id
-        ...CurrentUser
-      }
     }
   }
 
   mutation googleAcceptInvite($input: GoogleAcceptInviteInput!) {
     googleAcceptInvite(input: $input) {
       token
-      user {
-        id
-        ...CurrentUser
-      }
     }
   }
 
@@ -70,10 +62,6 @@ gql`
   mutation oktaAcceptInvite($input: OktaAcceptInviteInput!) {
     oktaAcceptInvite(input: $input) {
       token
-      user {
-        id
-        ...CurrentUser
-      }
     }
   }
 
@@ -102,7 +90,9 @@ const Invitation = () => {
   const { isAuthenticated } = useIsAuthenticated()
   const { translate } = useInternationalization()
   const { token } = useParams()
+  const client = useApolloClient()
   const [searchParams] = useSearchParams()
+
   const googleCode = searchParams.get('code') || ''
   const oktaCode = searchParams.get('oktaCode') || ''
   const oktaState = searchParams.get('oktaState') || ''
@@ -117,18 +107,18 @@ const Invitation = () => {
   const [acceptInvite, { error: acceptInviteError, loading: acceptInviteLoading }] =
     useAcceptInviteMutation({
       context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-      onCompleted(res) {
+      onCompleted: async (res) => {
         if (!!res?.acceptInvite) {
-          onLogIn(res?.acceptInvite.token, res?.acceptInvite?.user)
+          await onLogIn(client, res?.acceptInvite.token)
         }
       },
     })
 
   const [googleAcceptInvite, { error: googleAcceptInviteError }] = useGoogleAcceptInviteMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-    onCompleted(res) {
+    onCompleted: async (res) => {
       if (!!res?.googleAcceptInvite) {
-        onLogIn(res?.googleAcceptInvite.token, res?.googleAcceptInvite?.user)
+        await onLogIn(client, res?.googleAcceptInvite.token)
       }
     },
   })
@@ -144,9 +134,9 @@ const Invitation = () => {
   const [oktaAcceptInvite, { error: oktaAcceptInviteError, loading: oktaAcceptInviteLoading }] =
     useOktaAcceptInviteMutation({
       context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-      onCompleted(res) {
+      onCompleted: async (res) => {
         if (!!res?.oktaAcceptInvite) {
-          onLogIn(res?.oktaAcceptInvite.token, res?.oktaAcceptInvite?.user)
+          await onLogIn(client, res?.oktaAcceptInvite.token)
         }
       },
     })
@@ -155,6 +145,7 @@ const Invitation = () => {
     password: '',
   })
   const [errors, setErrors] = useState<FORM_ERRORS[]>([])
+
   const validationSchema = useMemo(
     () =>
       object().shape({
@@ -167,6 +158,7 @@ const Invitation = () => {
       }),
     [],
   )
+
   const onInvitation = async () => {
     const { password } = formFields
 
@@ -279,6 +271,24 @@ const Invitation = () => {
       return translate('text_664c98989d08a3f733357f73')
     }
 
+    if (hasDefinedGQLError('LoginMethodNotAuthorized', oktaAcceptInviteError)) {
+      return translate('text_17521583805554mlsol8fld6', {
+        method: translate('text_664c732c264d7eed1c74fda2'),
+      })
+    }
+
+    if (hasDefinedGQLError('LoginMethodNotAuthorized', googleAcceptInviteError)) {
+      return translate('text_17521583805554mlsol8fld6', {
+        method: translate('text_1752158380555upqjf6cxtq9'),
+      })
+    }
+
+    if (hasDefinedGQLError('LoginMethodNotAuthorized', acceptInviteError)) {
+      return translate('text_17521583805554mlsol8fld6', {
+        method: translate('text_1752158380555c18bvtn8gd8'),
+      })
+    }
+
     return
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -291,6 +301,8 @@ const Invitation = () => {
       action: onInvitation,
     },
   ])
+
+  const hasValidationErrors = errors.some((err) => PASSWORD_VALIDATION.includes(err))
 
   return (
     <Page>
@@ -339,7 +351,7 @@ const Invitation = () => {
                 size="large"
                 variant="tertiary"
                 onClick={() => onOktaLogin()}
-                loading={oktaAuthorizeUrlLoading || oktaAcceptInviteLoading || acceptInviteLoading}
+                loading={oktaAuthorizeUrlLoading || oktaAcceptInviteLoading}
               >
                 {translate('text_664c90c9b2b6c2012aa50bd5')}
               </Button>
@@ -369,7 +381,7 @@ const Invitation = () => {
                   label={translate('text_63246f875e2228ab7b63dce9')}
                   placeholder={translate('text_63246f875e2228ab7b63dcf0')}
                 />
-                {errors.some((err) => PASSWORD_VALIDATION.includes(err)) ? (
+                {hasValidationErrors && (
                   <div
                     className={tw(
                       'flex flex-wrap overflow-hidden transition-all duration-250',
@@ -412,7 +424,8 @@ const Invitation = () => {
                       )
                     })}
                   </div>
-                ) : (
+                )}
+                {!errorTranslation && !hasValidationErrors && (
                   <Alert type="success" data-test="success" className="mt-3">
                     {translate('text_63246f875e2228ab7b63dd02')}
                   </Alert>
@@ -423,6 +436,7 @@ const Invitation = () => {
             <Button
               data-test="submit-button"
               disabled={errors.length > 0}
+              loading={acceptInviteLoading}
               fullWidth
               size="large"
               onClick={onInvitation}

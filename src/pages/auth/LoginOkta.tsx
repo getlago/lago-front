@@ -121,7 +121,7 @@ const LoginOkta = () => {
 
           {/* This error is displayed in the input */}
           {!!errorAlert && (
-            <Alert type="danger">
+            <Alert type="danger" data-test="login-okta-error-alert">
               <Typography color="textSecondary">{translate(getErrorKey(errorAlert))}</Typography>
             </Alert>
           )}
