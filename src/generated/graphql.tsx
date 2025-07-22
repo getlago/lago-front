@@ -1655,9 +1655,9 @@ export type CreateFeatureInput = {
   /** The code of the feature */
   code: Scalars['String']['input'];
   /** The description of the feature */
-  description: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
   /** The name of the feature */
-  name: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
   /** The privileges configuration */
   privileges: Array<UpdatePrivilegeInput>;
 };
@@ -5153,6 +5153,11 @@ export type OktaLoginInput = {
   state: Scalars['String']['input'];
 };
 
+export enum OnTerminationCreditNoteEnum {
+  Credit = 'credit',
+  Skip = 'skip'
+}
+
 export enum OrderByEnum {
   GrossRevenueAmountCents = 'gross_revenue_amount_cents',
   NetRevenueAmountCents = 'net_revenue_amount_cents'
@@ -5480,7 +5485,7 @@ export type PlanEntitlementPrivilegeInput = {
 export type PlanEntitlementPrivilegeObject = {
   __typename?: 'PlanEntitlementPrivilegeObject';
   code: Scalars['String']['output'];
-  config: Scalars['JSON']['output'];
+  config: PrivilegeConfigObject;
   name?: Maybe<Scalars['String']['output']>;
   value: Scalars['String']['output'];
   valueType: PrivilegeValueTypeEnum;
@@ -5565,10 +5570,23 @@ export type PricingUnitUsage = {
   updatedAt: Scalars['ISO8601DateTime']['output'];
 };
 
+/** Input for privilege configuration */
+export type PrivilegeConfigInput = {
+  /** Available options for select type privileges */
+  selectOptions?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+/** Configuration object for privileges */
+export type PrivilegeConfigObject = {
+  __typename?: 'PrivilegeConfigObject';
+  /** Available options for select type privileges */
+  selectOptions?: Maybe<Array<Scalars['String']['output']>>;
+};
+
 export type PrivilegeObject = {
   __typename?: 'PrivilegeObject';
   code: Scalars['String']['output'];
-  config: Scalars['JSON']['output'];
+  config: PrivilegeConfigObject;
   id: Scalars['ID']['output'];
   name?: Maybe<Scalars['String']['output']>;
   valueType: PrivilegeValueTypeEnum;
@@ -6795,6 +6813,7 @@ export type Subscription = {
   nextSubscription?: Maybe<Subscription>;
   nextSubscriptionAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   nextSubscriptionType?: Maybe<NextSubscriptionTypeEnum>;
+  onTerminationCreditNote?: Maybe<OnTerminationCreditNoteEnum>;
   periodEndDate?: Maybe<Scalars['ISO8601Date']['output']>;
   plan: Plan;
   startedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
@@ -7004,6 +7023,7 @@ export type TerminateSubscriptionInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
+  onTerminationCreditNote?: InputMaybe<OnTerminationCreditNoteEnum>;
 };
 
 export type ThresholdInput = {
@@ -7548,11 +7568,11 @@ export type UpdateFeatureInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   /** The description of the feature */
-  description: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
   /** The ID of the feature to update */
   id: Scalars['ID']['input'];
   /** The name of the feature */
-  name: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
   /** The privileges configuration */
   privileges: Array<UpdatePrivilegeInput>;
 };
@@ -7769,7 +7789,7 @@ export type UpdatePricingUnitInput = {
 /** Input for updating a privilege */
 export type UpdatePrivilegeInput = {
   code: Scalars['String']['input'];
-  config?: InputMaybe<Scalars['JSON']['input']>;
+  config?: InputMaybe<PrivilegeConfigInput>;
   name?: InputMaybe<Scalars['String']['input']>;
   valueType?: InputMaybe<PrivilegeValueTypeEnum>;
 };
@@ -10948,6 +10968,7 @@ export type FetchDraftInvoiceTaxesMutation = { __typename?: 'Mutation', fetchDra
 
 export type GetPayableInvoicesQueryVariables = Exact<{
   customerExternalId?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Array<InvoiceStatusTypeEnum> | InvoiceStatusTypeEnum>;
 }>;
 
 
@@ -29103,8 +29124,12 @@ export type FetchDraftInvoiceTaxesMutationHookResult = ReturnType<typeof useFetc
 export type FetchDraftInvoiceTaxesMutationResult = Apollo.MutationResult<FetchDraftInvoiceTaxesMutation>;
 export type FetchDraftInvoiceTaxesMutationOptions = Apollo.BaseMutationOptions<FetchDraftInvoiceTaxesMutation, FetchDraftInvoiceTaxesMutationVariables>;
 export const GetPayableInvoicesDocument = gql`
-    query GetPayableInvoices($customerExternalId: String) {
-  invoices(positiveDueAmount: true, customerExternalId: $customerExternalId) {
+    query GetPayableInvoices($customerExternalId: String, $status: [InvoiceStatusTypeEnum!]) {
+  invoices(
+    positiveDueAmount: true
+    customerExternalId: $customerExternalId
+    status: $status
+  ) {
     collection {
       id
       number
@@ -29127,6 +29152,7 @@ export const GetPayableInvoicesDocument = gql`
  * const { data, loading, error } = useGetPayableInvoicesQuery({
  *   variables: {
  *      customerExternalId: // value for 'customerExternalId'
+ *      status: // value for 'status'
  *   },
  * });
  */

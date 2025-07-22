@@ -70,9 +70,13 @@ export const usePermissionsInvoiceActions = () => {
   }
 
   const canRecordPayment = (
-    invoice: Pick<Invoice, 'totalDueAmountCents' | 'totalPaidAmountCents' | 'totalAmountCents'>,
+    invoice: Pick<
+      Invoice,
+      'totalDueAmountCents' | 'totalPaidAmountCents' | 'totalAmountCents' | 'status'
+    >,
   ): boolean => {
     return (
+      invoice.status === InvoiceStatusTypeEnum.Finalized &&
       Number(invoice.totalDueAmountCents) > 0 &&
       hasPermissions(['paymentsCreate']) &&
       Number(invoice.totalPaidAmountCents) < Number(invoice.totalAmountCents)

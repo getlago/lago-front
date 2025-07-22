@@ -330,10 +330,11 @@ const CustomerInvoiceDetails = () => {
     variables: { id: invoiceId as string },
     skip: !invoiceId,
   })
+  const invoice = data?.invoice
 
   const { data: customerData, loading: customerLoading } = useGetInvoiceCustomerQuery({
-    variables: { id: data?.invoice?.customer?.id as string },
-    skip: !data?.invoice?.customer?.id,
+    variables: { id: invoice?.customer?.id as string },
+    skip: !invoice?.customer?.id,
   })
 
   const customer = customerData?.customer
@@ -491,7 +492,6 @@ const CustomerInvoiceDetails = () => {
     paymentStatus,
     totalAmountCents,
     totalPaidAmountCents,
-    totalDueAmountCents,
     currency,
     status,
     taxStatus,
@@ -503,14 +503,12 @@ const CustomerInvoiceDetails = () => {
     paymentDisputeLostAt,
     integrationSyncable,
     integrationHubspotSyncable,
-  } = (data?.invoice as AllInvoiceDetailsForCustomerInvoiceDetailsFragment) || {}
+  } = (invoice as AllInvoiceDetailsForCustomerInvoiceDetailsFragment) || {}
 
   const isPartiallyPaid =
     Number(totalPaidAmountCents) > 0 && Number(totalAmountCents) - Number(totalPaidAmountCents) > 0
-  const canRecordPayment =
-    Number(totalDueAmountCents) > 0 &&
-    hasPermissions(['paymentsCreate']) &&
-    Number(totalPaidAmountCents) < Number(totalAmountCents)
+
+  const canRecordPayment = !!invoice && actions.canRecordPayment(invoice)
 
   const hasError = (!!error || !data?.invoice) && !loading
   const hasTaxProviderError = errorDetails?.find(
@@ -607,7 +605,10 @@ const CustomerInvoiceDetails = () => {
           }),
         ],
         component: (
-          <InvoicePaymentList invoiceTotalDueAmount={data?.invoice?.totalDueAmountCents} />
+          <InvoicePaymentList
+            canRecordPayment={canRecordPayment}
+            premiumWarningDialogRef={premiumWarningDialogRef}
+          />
         ),
       })
     }
@@ -874,8 +875,8 @@ const CustomerInvoiceDetails = () => {
                         variant="quaternary"
                         align="left"
                         onClick={() => {
-                          !!data?.invoice &&
-                            updateInvoicePaymentStatusDialog?.current?.openDialog(data.invoice)
+                          !!invoice &&
+                            updateInvoicePaymentStatusDialog?.current?.openDialog(invoice)
                           closePopper()
                         }}
                       >
@@ -1078,9 +1079,7 @@ const CustomerInvoiceDetails = () => {
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
       <DisputeInvoiceDialog ref={disputeInvoiceDialogRef} />
-      {!!data?.invoice && (
-        <AddMetadataDrawer ref={addMetadataDrawerDialogRef} invoiceId={data.invoice.id} />
-      )}
+      {!!invoice && <AddMetadataDrawer ref={addMetadataDrawerDialogRef} invoiceId={invoice.id} />}
     </>
   )
 }

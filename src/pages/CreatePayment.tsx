@@ -19,6 +19,7 @@ import { intlFormatDateTime } from '~/core/timezone'
 import {
   CreatePaymentInput,
   CurrencyEnum,
+  InvoiceStatusTypeEnum,
   InvoiceTypeEnum,
   LagoApiError,
   useCreatePaymentMutation,
@@ -32,8 +33,8 @@ import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 import { tw } from '~/styles/utils'
 
 gql`
-  query GetPayableInvoices($customerExternalId: String) {
-    invoices(positiveDueAmount: true, customerExternalId: $customerExternalId) {
+  query GetPayableInvoices($customerExternalId: String, $status: [InvoiceStatusTypeEnum!]) {
+    invoices(positiveDueAmount: true, customerExternalId: $customerExternalId, status: $status) {
       collection {
         id
         number
@@ -106,6 +107,7 @@ const CreatePayment = () => {
   const { data: payableInvoices, loading: payableInvoicesLoading } = useGetPayableInvoicesQuery({
     variables: {
       customerExternalId: searchParams.get('externalId'),
+      status: [InvoiceStatusTypeEnum.Finalized],
     },
   })
 
