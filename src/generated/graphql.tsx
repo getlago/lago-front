@@ -472,6 +472,7 @@ export type AppliedTax = {
 };
 
 export type AppliesToInput = {
+  billableMetricIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   feeTypes?: InputMaybe<Array<FeeTypesEnum>>;
 };
 
@@ -7981,6 +7982,7 @@ export type Wallet = {
 
 export type WalletAppliesTo = {
   __typename?: 'WalletAppliesTo';
+  billableMetrics?: Maybe<Array<BillableMetric>>;
   feeTypes?: Maybe<Array<FeeTypesEnum>>;
 };
 
@@ -10479,7 +10481,7 @@ export type DeleteTaxMutationVariables = Exact<{
 
 export type DeleteTaxMutation = { __typename?: 'Mutation', destroyTax?: { __typename?: 'DestroyTaxPayload', id?: string | null } | null };
 
-export type CustomerWalletFragment = { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null };
+export type CustomerWalletFragment = { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null };
 
 export type GetCustomerWalletListQueryVariables = Exact<{
   customerId: Scalars['ID']['input'];
@@ -10488,7 +10490,7 @@ export type GetCustomerWalletListQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerWalletListQuery = { __typename?: 'Query', wallets: { __typename?: 'WalletCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null }> } };
+export type GetCustomerWalletListQuery = { __typename?: 'Query', wallets: { __typename?: 'WalletCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null }> } };
 
 export type TerminateCustomerWalletMutationVariables = Exact<{
   input: TerminateCustomerWalletInput;
@@ -11942,7 +11944,7 @@ export type GetXeroIntegrationsListQueryVariables = Exact<{
 
 export type GetXeroIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<{ __typename?: 'AnrokIntegration' } | { __typename?: 'AvalaraIntegration' } | { __typename?: 'HubspotIntegration' } | { __typename?: 'NetsuiteIntegration' } | { __typename?: 'OktaIntegration' } | { __typename?: 'SalesforceIntegration' } | { __typename?: 'XeroIntegration', id: string, name: string, code: string, connectionId: string, hasMappingsConfigured?: boolean | null, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null }> } | null };
 
-export type WalletForUpdateFragment = { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null };
+export type WalletForUpdateFragment = { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null };
 
 export type GetCustomerInfosForWalletFormQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -11956,7 +11958,7 @@ export type GetWalletInfosForWalletFormQueryVariables = Exact<{
 }>;
 
 
-export type GetWalletInfosForWalletFormQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null } | null };
+export type GetWalletInfosForWalletFormQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null } | null };
 
 export type CreateCustomerWalletMutationVariables = Exact<{
   input: CreateCustomerWalletInput;
@@ -11970,7 +11972,7 @@ export type UpdateCustomerWalletMutationVariables = Exact<{
 }>;
 
 
-export type UpdateCustomerWalletMutation = { __typename?: 'Mutation', updateCustomerWallet?: { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null } | null };
+export type UpdateCustomerWalletMutation = { __typename?: 'Mutation', updateCustomerWallet?: { __typename?: 'Wallet', id: string, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, trigger: RecurringTransactionTriggerEnum, interval?: RecurringTransactionIntervalEnum | null, targetOngoingBalance?: string | null, paidCredits: string, grantedCredits: string, thresholdCredits?: string | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, expirationAt?: any | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null } | null };
 
 export type GetWalletForTopUpQueryVariables = Exact<{
   walletId: Scalars['ID']['input'];
@@ -11980,6 +11982,19 @@ export type GetWalletForTopUpQueryVariables = Exact<{
 export type GetWalletForTopUpQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean } | null };
 
 export type WalletForTopUpFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean };
+
+export type BillableMetricForWalletScopeSectionFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string };
+
+export type WalletForScopeSectionFragment = { __typename?: 'Wallet', id: string, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null };
+
+export type GetBillableMetricsForWalletQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetBillableMetricsForWalletQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }>, metadata: { __typename?: 'CollectionMetadata', totalCount: number } } };
 
 export const ActivityLogsTableDataFragmentDoc = gql`
     fragment ActivityLogsTableData on ActivityLog {
@@ -13577,6 +13592,24 @@ export const SubscriptionUsageLifetimeGraphForLifetimeGraphFragmentDoc = gql`
   }
 }
     `;
+export const BillableMetricForWalletScopeSectionFragmentDoc = gql`
+    fragment BillableMetricForWalletScopeSection on BillableMetric {
+  id
+  name
+  code
+}
+    `;
+export const WalletForScopeSectionFragmentDoc = gql`
+    fragment WalletForScopeSection on Wallet {
+  id
+  appliesTo {
+    feeTypes
+    billableMetrics {
+      ...BillableMetricForWalletScopeSection
+    }
+  }
+}
+    ${BillableMetricForWalletScopeSectionFragmentDoc}`;
 export const WalletForUpdateFragmentDoc = gql`
     fragment WalletForUpdate on Wallet {
   id
@@ -13604,8 +13637,9 @@ export const WalletForUpdateFragmentDoc = gql`
       value
     }
   }
+  ...WalletForScopeSection
 }
-    `;
+    ${WalletForScopeSectionFragmentDoc}`;
 export const WalletInfosForTransactionsFragmentDoc = gql`
     fragment WalletInfosForTransactions on Wallet {
   id
@@ -34200,3 +34234,50 @@ export type GetWalletForTopUpQueryHookResult = ReturnType<typeof useGetWalletFor
 export type GetWalletForTopUpLazyQueryHookResult = ReturnType<typeof useGetWalletForTopUpLazyQuery>;
 export type GetWalletForTopUpSuspenseQueryHookResult = ReturnType<typeof useGetWalletForTopUpSuspenseQuery>;
 export type GetWalletForTopUpQueryResult = Apollo.QueryResult<GetWalletForTopUpQuery, GetWalletForTopUpQueryVariables>;
+export const GetBillableMetricsForWalletDocument = gql`
+    query getBillableMetricsForWallet($page: Int, $limit: Int, $searchTerm: String) {
+  billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    collection {
+      ...BillableMetricForWalletScopeSection
+    }
+    metadata {
+      totalCount
+    }
+  }
+}
+    ${BillableMetricForWalletScopeSectionFragmentDoc}`;
+
+/**
+ * __useGetBillableMetricsForWalletQuery__
+ *
+ * To run a query within a React component, call `useGetBillableMetricsForWalletQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBillableMetricsForWalletQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBillableMetricsForWalletQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetBillableMetricsForWalletQuery(baseOptions?: Apollo.QueryHookOptions<GetBillableMetricsForWalletQuery, GetBillableMetricsForWalletQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetBillableMetricsForWalletQuery, GetBillableMetricsForWalletQueryVariables>(GetBillableMetricsForWalletDocument, options);
+      }
+export function useGetBillableMetricsForWalletLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetBillableMetricsForWalletQuery, GetBillableMetricsForWalletQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetBillableMetricsForWalletQuery, GetBillableMetricsForWalletQueryVariables>(GetBillableMetricsForWalletDocument, options);
+        }
+export function useGetBillableMetricsForWalletSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsForWalletQuery, GetBillableMetricsForWalletQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetBillableMetricsForWalletQuery, GetBillableMetricsForWalletQueryVariables>(GetBillableMetricsForWalletDocument, options);
+        }
+export type GetBillableMetricsForWalletQueryHookResult = ReturnType<typeof useGetBillableMetricsForWalletQuery>;
+export type GetBillableMetricsForWalletLazyQueryHookResult = ReturnType<typeof useGetBillableMetricsForWalletLazyQuery>;
+export type GetBillableMetricsForWalletSuspenseQueryHookResult = ReturnType<typeof useGetBillableMetricsForWalletSuspenseQuery>;
+export type GetBillableMetricsForWalletQueryResult = Apollo.QueryResult<GetBillableMetricsForWalletQuery, GetBillableMetricsForWalletQueryVariables>;

@@ -1,26 +1,19 @@
 import { InputAdornment } from '@mui/material'
 import { FormikProps } from 'formik'
-import { Alert, Chip } from 'lago-design-system'
 import { DateTime } from 'luxon'
-import { FC, useMemo, useState } from 'react'
+import { FC } from 'react'
 
 import { Button, Tooltip, Typography } from '~/components/designSystem'
 import {
   AmountInputField,
-  ComboBox,
   ComboBoxField,
   DatePickerField,
   TextInput,
   TextInputField,
 } from '~/components/form'
-import {
-  dateErrorCodes,
-  FORM_TYPE_ENUM,
-  MUI_INPUT_BASE_ROOT_CLASSNAME,
-  SEARCH_APPLIES_TO_FEE_TYPE_CLASSNAME,
-} from '~/core/constants/form'
+import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum, FeeTypesEnum, GetCustomerInfosForWalletFormQuery } from '~/generated/graphql'
+import { CurrencyEnum, GetCustomerInfosForWalletFormQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { TWalletDataForm } from '~/pages/wallet/types'
 import { tw } from '~/styles/utils'
@@ -33,14 +26,6 @@ interface SettingsSectionProps {
   formType: keyof typeof FORM_TYPE_ENUM
 }
 
-type AvailableFeeTypes = FeeTypesEnum.Charge | FeeTypesEnum.Commitment | FeeTypesEnum.Subscription
-
-const availableFeeTypesTranslation: Record<AvailableFeeTypes, string> = {
-  [FeeTypesEnum.Charge]: 'text_1748441354191rj96qhw3twa',
-  [FeeTypesEnum.Commitment]: 'text_1748441354191cnp0tm4ubf0',
-  [FeeTypesEnum.Subscription]: 'text_6630e3210c13c500cd398ea2',
-}
-
 export const SettingsSection: FC<SettingsSectionProps> = ({
   formikProps,
   formType,
@@ -49,36 +34,6 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
   setShowExpirationDate,
 }) => {
   const { translate } = useInternationalization()
-  const [showLimitInput, setShowLimitInput] = useState(false)
-
-  const comboboxFeeTypesData = useMemo(() => {
-    return [
-      {
-        label: translate(availableFeeTypesTranslation[FeeTypesEnum.Charge]),
-        value: FeeTypesEnum.Charge,
-        disabled: formikProps.values.appliesTo?.feeTypes?.includes(FeeTypesEnum.Charge) ?? false,
-      },
-      {
-        label: translate(availableFeeTypesTranslation[FeeTypesEnum.Commitment]),
-        value: FeeTypesEnum.Commitment,
-        disabled:
-          formikProps.values.appliesTo?.feeTypes?.includes(FeeTypesEnum.Commitment) ?? false,
-      },
-      {
-        label: translate(availableFeeTypesTranslation[FeeTypesEnum.Subscription]),
-        value: FeeTypesEnum.Subscription,
-        disabled:
-          formikProps.values.appliesTo?.feeTypes?.includes(FeeTypesEnum.Subscription) ?? false,
-      },
-    ]
-  }, [formikProps.values.appliesTo?.feeTypes, translate])
-
-  const hasSelectedAllFeeTypes = useMemo(
-    () =>
-      formikProps.values.appliesTo?.feeTypes?.length ===
-      Object.keys(availableFeeTypesTranslation).length,
-    [formikProps.values.appliesTo?.feeTypes?.length],
-  )
 
   return (
     <section className="flex flex-col gap-6 pb-12 shadow-b">
@@ -182,105 +137,6 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
             data-test="show-expiration-at"
           >
             {translate('text_6560809c38fb9de88d8a517e')}
-          </Button>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
-          <Typography variant="captionHl" color="grey700">
-            {translate('text_17484224585599hnm61rdb6d')}
-          </Typography>
-          <Typography variant="caption" color="grey600">
-            {translate('text_17484378349895wl4yqkmqj9')}
-          </Typography>
-        </div>
-
-        {!!formikProps.values.appliesTo?.feeTypes?.length && (
-          <div className="flex flex-wrap items-center gap-3">
-            {formikProps.values.appliesTo?.feeTypes?.map((feeType) => {
-              const feeTypeTranslation = availableFeeTypesTranslation[feeType as AvailableFeeTypes]
-
-              return (
-                <Chip
-                  key={feeType}
-                  label={translate(feeTypeTranslation)}
-                  onDelete={() => {
-                    formikProps.setFieldValue('appliesTo', {
-                      feeTypes: formikProps.values.appliesTo?.feeTypes?.filter(
-                        (ft) => ft !== feeType,
-                      ),
-                    })
-                  }}
-                />
-              )
-            })}
-          </div>
-        )}
-
-        {hasSelectedAllFeeTypes && (
-          <Alert type="info">{translate('text_17484418620700x4nxxdfenm')}</Alert>
-        )}
-
-        {showLimitInput ? (
-          <div className="flex items-center gap-4">
-            <ComboBox
-              containerClassName="flex-1"
-              className={SEARCH_APPLIES_TO_FEE_TYPE_CLASSNAME}
-              placeholder={translate('text_17484381918689r63e54hrh1')}
-              data={comboboxFeeTypesData}
-              onChange={(value: string) => {
-                const newFeeTypes = [...(formikProps.values.appliesTo?.feeTypes ?? [])]
-
-                if (value === '') {
-                  formikProps.setFieldValue('appliesTo', {
-                    feeTypes: [],
-                  })
-                } else if (newFeeTypes.includes(value as FeeTypesEnum)) {
-                  formikProps.setFieldValue('appliesTo', {
-                    feeTypes: newFeeTypes.filter((feeType) => feeType !== value),
-                  })
-                } else {
-                  formikProps.setFieldValue('appliesTo', {
-                    feeTypes: [...newFeeTypes, value as FeeTypesEnum],
-                  })
-                }
-                setShowLimitInput(false)
-              }}
-            />
-            <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
-              <Button
-                icon="trash"
-                variant="quaternary"
-                onClick={() => {
-                  setShowLimitInput(false)
-                }}
-              />
-            </Tooltip>
-          </div>
-        ) : (
-          <Button
-            className="self-start"
-            startIcon="plus"
-            variant="inline"
-            disabled={hasSelectedAllFeeTypes}
-            onClick={() => {
-              setShowLimitInput(true)
-
-              setTimeout(() => {
-                const element = document.querySelector(
-                  `.${SEARCH_APPLIES_TO_FEE_TYPE_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                ) as HTMLElement
-
-                if (!element) return
-
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                element.click()
-              }, 0)
-            }}
-            data-test="show-limit-input"
-          >
-            {translate('text_1748442650797pz30j2eeiv4')}
           </Button>
         )}
       </div>
