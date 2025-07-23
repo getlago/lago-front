@@ -11,6 +11,7 @@ import {
   Tooltip,
   Typography,
 } from '~/components/designSystem'
+import { getPricingUnitAmountCents } from '~/components/subscriptions/SubscriptionCurrentUsageTable'
 import {
   composeChargeFilterDisplayName,
   composeGroupedByDisplayName,
@@ -49,10 +50,7 @@ const AmountCentsCell = ({
   <div className="flex flex-col items-end">
     <Typography variant="bodyHl" color="grey700">
       {intlFormatNumber(
-        deserializeAmount(
-          showProjected ? row.projectedAmountCents : row.pricingUnitAmountCents || row.amountCents,
-          currency,
-        ) || 0,
+        deserializeAmount(getPricingUnitAmountCents(row, showProjected), currency) || 0,
         {
           currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
           currency,
@@ -85,6 +83,7 @@ gql`
       id
       pricingUnitAmountCents
       projectedAmountCents
+      pricingUnitProjectedAmountCents
       projectedUnits
       charge {
         id
@@ -108,6 +107,7 @@ gql`
         invoiceDisplayName
         pricingUnitAmountCents
         projectedAmountCents
+        pricingUnitProjectedAmountCents
         projectedUnits
       }
       groupedUsage {
@@ -118,6 +118,7 @@ gql`
         units
         pricingUnitAmountCents
         projectedAmountCents
+        pricingUnitProjectedAmountCents
         projectedUnits
         filters {
           id
@@ -127,6 +128,7 @@ gql`
           invoiceDisplayName
           pricingUnitAmountCents
           projectedAmountCents
+          pricingUnitProjectedAmountCents
           projectedUnits
         }
       }
