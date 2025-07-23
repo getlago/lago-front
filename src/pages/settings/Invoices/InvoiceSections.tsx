@@ -21,7 +21,6 @@ import {
   EDIT_INVOICE_CUSTOM_SECTION,
   EDIT_PRICING_UNIT,
 } from '~/core/router'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   DeleteCustomSectionFragmentDoc,
   useGetOrganizationSettingsInvoiceSectionsQuery,
@@ -73,8 +72,7 @@ const InvoiceSections = () => {
 
   const canEditInvoiceSettings = hasPermissions(['organizationInvoicesUpdate'])
   const canEditOrCreatePricingUnits = hasPermissions(['pricingUnitsCreate', 'pricingUnitsUpdate'])
-  const canViewPricingUnits =
-    hasPermissions(['pricingUnitsView']) && isFeatureFlagActive(FeatureFlags.PRICING_UNITS)
+  const canViewPricingUnits = hasPermissions(['pricingUnitsView'])
 
   const {
     data: invoiceCustomSectionsData,
