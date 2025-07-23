@@ -23,12 +23,14 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ, intlFormatDateTime } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
 import {
+  ChargeFilterUsage,
   ChargeUsage,
   CurrencyEnum,
   CustomerForSubscriptionUsageQuery,
   CustomerUsageForUsageDetailsFragmentDoc,
   GetCustomerUsageForPortalQuery,
   GetCustomerUsageForPortalQueryResult,
+  GroupedChargeUsage,
   LagoApiError,
   StatusTypeEnum,
   SubscrptionForSubscriptionUsageQuery,
@@ -156,6 +158,21 @@ type SubscriptionCurrentUsageTableComponentProps = {
 
   translate: TranslateFunc
   locale?: LocaleEnum
+}
+
+export const getPricingUnitAmountCents = (
+  row: Pick<
+    ChargeUsage | ChargeFilterUsage | GroupedChargeUsage,
+    | 'amountCents'
+    | 'pricingUnitAmountCents'
+    | 'projectedAmountCents'
+    | 'pricingUnitProjectedAmountCents'
+  >,
+  isProjected: boolean,
+) => {
+  return isProjected
+    ? row.pricingUnitProjectedAmountCents || row.projectedAmountCents
+    : row.pricingUnitAmountCents || row.amountCents
 }
 
 export const SubscriptionCurrentUsageTableComponent = ({
@@ -424,9 +441,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
                       <Typography variant="bodyHl" color="grey700">
                         {intlFormatNumber(
                           deserializeAmount(
-                            showProjected
-                              ? row.projectedAmountCents
-                              : row.pricingUnitAmountCents || row.amountCents,
+                            getPricingUnitAmountCents(row, showProjected),
                             currency,
                           ),
                           {
