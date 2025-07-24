@@ -1,7 +1,7 @@
 import { InputAdornment } from '@mui/material'
 import { getIn, useFormik } from 'formik'
 import { Alert, Button, GenericPlaceholder, Typography } from 'lago-design-system'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, Link, useNavigate, useParams } from 'react-router-dom'
 import { array, object, string, ValidationError } from 'yup'
 
 import { CreditTypeEnum, PayBackErrorEnum } from '~/components/creditNote/types'
@@ -19,8 +19,11 @@ import {
   serializeAmount,
 } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
+import { isPrepaidCredit } from '~/core/utils/invoiceUtils'
+import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   CurrencyEnum,
+  Invoice,
   InvoiceForVoidInvoiceDialogFragment,
   InvoiceForVoidInvoiceDialogFragmentDoc,
   useGetInvoiceDetailsQuery,
@@ -29,6 +32,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
@@ -56,6 +60,10 @@ const CustomerInvoiceVoid = () => {
   const { data, loading, error } = useGetInvoiceDetailsQuery({
     variables: { id: invoiceId as string },
     skip: !invoiceId,
+  })
+
+  const hasActiveWallet = useCustomerHasActiveWallet({
+    customerId,
   })
 
   const [voidInvoice] = useVoidInvoiceMutation({
@@ -207,6 +215,13 @@ const CustomerInvoiceVoid = () => {
     validateOnMount: true,
     onSubmit,
   })
+
+  const canRegenerate =
+    customerId &&
+    invoiceId &&
+    invoice &&
+    (isPrepaidCredit(invoice) ? hasActiveWallet : true) &&
+    formikProps?.values?.handle === HandleEnum.VoidOnly
 
   const onClose = () => {
     if (customerId && invoiceId) {
@@ -464,21 +479,33 @@ const CustomerInvoiceVoid = () => {
       )}
 
       <CenteredPage.StickyFooter>
-        <Button variant="quaternary" size="large" onClick={() => onClose()}>
-          {translate('text_6411e6b530cb47007488b027')}
-        </Button>
+        <div className="flex w-full items-center justify-between">
+          <div>
+            {!!canRegenerate && (
+              <Link to={regeneratePath(invoice as Invoice)}>
+                {translate('text_1750678506388eexnh1b36o4')}
+              </Link>
+            )}
+          </div>
 
-        <Button
-          variant="primary"
-          size="large"
-          danger
-          disabled={
-            formikProps.values.handle === HandleEnum.GenerateCreditNote && !formikProps.isValid
-          }
-          onClick={formikProps.submitForm}
-        >
-          {translate('text_65269b43d4d2b15dd929a259')}
-        </Button>
+          <div className="flex gap-3">
+            <Button variant="quaternary" size="large" onClick={() => onClose()}>
+              {translate('text_6411e6b530cb47007488b027')}
+            </Button>
+
+            <Button
+              variant="primary"
+              size="large"
+              danger
+              disabled={
+                formikProps.values.handle === HandleEnum.GenerateCreditNote && !formikProps.isValid
+              }
+              onClick={formikProps.submitForm}
+            >
+              {translate('text_65269b43d4d2b15dd929a259')}
+            </Button>
+          </div>
+        </div>
       </CenteredPage.StickyFooter>
     </CenteredPage.Wrapper>
   )
