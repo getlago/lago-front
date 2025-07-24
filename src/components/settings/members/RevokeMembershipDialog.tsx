@@ -4,7 +4,10 @@ import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { DialogRef } from '~/components/designSystem'
 import { WarningDialog } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
-import { useRevokeMembershipMutation } from '~/generated/graphql'
+import {
+  MembershipItemForMembershipSettingsFragment,
+  useRevokeMembershipMutation,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
@@ -22,8 +25,8 @@ export interface RevokeMembershipDialogRef {
 
 export const RevokeMembershipDialog = forwardRef<
   RevokeMembershipDialogRef,
-  { adminCount: number | undefined }
->(({ adminCount }, ref) => {
+  { admins: MembershipItemForMembershipSettingsFragment[] }
+>(({ admins }, ref) => {
   const dialogRef = useRef<DialogRef>(null)
   const { translate } = useInternationalization()
   const [revokeMembership] = useRevokeMembershipMutation({
@@ -35,6 +38,7 @@ export const RevokeMembershipDialog = forwardRef<
         })
       }
     },
+
     update(cache, { data }) {
       if (!data?.revokeMembership) return
 
@@ -59,7 +63,8 @@ export const RevokeMembershipDialog = forwardRef<
     closeDialog: () => dialogRef.current?.closeDialog(),
   }))
 
-  const isDeletingLastAdmin = adminCount === 1
+  const isDeletingLastAdmin =
+    !!admins.find((admin) => admin.id === membershipInfos?.id) && admins.length === 1
 
   return (
     <WarningDialog
