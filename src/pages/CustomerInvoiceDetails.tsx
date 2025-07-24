@@ -60,6 +60,7 @@ import {
   AvalaraIntegration,
   AvalaraIntegrationInfosForInvoiceOverviewFragmentDoc,
   CurrencyEnum,
+  Customer,
   CustomerForInvoiceOverviewFragmentDoc,
   ErrorCodesEnum,
   HubspotIntegration,
@@ -80,6 +81,7 @@ import {
   SalesforceIntegration,
   SalesforceIntegrationInfosForInvoiceOverviewFragmentDoc,
   useDownloadInvoiceMutation,
+  useGeneratePaymentUrlMutation,
   useGetInvoiceCustomerQuery,
   useGetInvoiceDetailsQuery,
   useIntegrationsListForCustomerInvoiceDetailsQuery,
@@ -138,6 +140,7 @@ gql`
   fragment CustomerForInvoiceDetails on Customer {
     id
     name
+    paymentProvider
     avalaraCustomer {
       id
       integrationId
@@ -378,6 +381,18 @@ const CustomerInvoiceDetails = () => {
           })
         }
       })
+    },
+  })
+
+  const [generatePaymentUrl] = useGeneratePaymentUrlMutation({
+    onCompleted({ generatePaymentUrl: generatedPaymentUrl }) {
+      if (generatedPaymentUrl?.paymentUrl) {
+        copyToClipboard(generatedPaymentUrl.paymentUrl)
+        addToast({
+          severity: 'info',
+          translateKey: 'text_1753384873899kf7djox30b6',
+        })
+      }
     },
   })
 
@@ -673,6 +688,7 @@ const CustomerInvoiceDetails = () => {
     data?.invoice,
     loading,
     customerLoading,
+    customer,
     loadingInvoiceDownload,
     loadingRefreshInvoice,
     loadingRetryInvoice,
@@ -693,6 +709,7 @@ const CustomerInvoiceDetails = () => {
     taxStatus,
     isPremium,
     hasPermissions,
+    canRecordPayment,
   ])
 
   // TODO: Compare this with src/hooks/usePermissionsInvoiceActions.ts:
@@ -869,6 +886,24 @@ const CustomerInvoiceDetails = () => {
                   >
                     {translate('text_634687079be251fdb438339b')}
                   </Button>
+                  {actions.canGeneratePaymentUrl({
+                    status,
+                    paymentStatus,
+                    customer: customer as Pick<Customer, 'paymentProvider'>,
+                  }) && (
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      onClick={async () => {
+                        await generatePaymentUrl({
+                          variables: { input: { invoiceId: invoiceId as string } },
+                        })
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_1753384709668qrxbzpbskn8')}
+                    </Button>
+                  )}
                   {actions.canUpdatePaymentStatus({ status, taxStatus }) && (
                     <>
                       <Button

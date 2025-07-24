@@ -46,6 +46,7 @@ import {
   LagoApiError,
   TimezoneEnum,
   useDownloadInvoiceItemMutation,
+  useGeneratePaymentUrlMutation,
   useRetryInvoicePaymentMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -77,6 +78,7 @@ gql`
       name
       displayName
       applicableTimezone
+      paymentProvider
     }
     errorDetails {
       errorCode
@@ -121,6 +123,12 @@ gql`
     }
   }
 
+  mutation generatePaymentUrl($input: GeneratePaymentUrlInput!) {
+    generatePaymentUrl(input: $input) {
+      paymentUrl
+    }
+  }
+
   ${InvoiceForFinalizeInvoiceFragmentDoc}
   ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
 `
@@ -162,6 +170,18 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   const [downloadInvoice] = useDownloadInvoiceItemMutation({
     onCompleted({ downloadInvoice: data }) {
       handleDownloadFile(data?.fileUrl)
+    },
+  })
+
+  const [generatePaymentUrl] = useGeneratePaymentUrlMutation({
+    onCompleted({ generatePaymentUrl: generatedPaymentUrl }) {
+      if (generatedPaymentUrl?.paymentUrl) {
+        copyToClipboard(generatedPaymentUrl.paymentUrl)
+        addToast({
+          severity: 'info',
+          translateKey: 'text_1753384873899kf7djox30b6',
+        })
+      }
     },
   })
 
@@ -346,11 +366,12 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
             const {
               canDownload,
               canFinalize,
+              canGeneratePaymentUrl,
+              canIssueCreditNote,
+              canRecordPayment,
               canRetryCollect,
               canUpdatePaymentStatus,
               canVoid,
-              canIssueCreditNote,
-              canRecordPayment,
             } = actions
 
             const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
@@ -434,6 +455,16 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                           translateKey: 'text_63b6d06df1a53b7e2ad973ad',
                         })
                       }
+                    },
+                  }
+                : null,
+
+              canGeneratePaymentUrl(invoice)
+                ? {
+                    startIcon: 'link',
+                    title: translate('text_1753384709668qrxbzpbskn8'),
+                    onAction: async ({ id }) => {
+                      await generatePaymentUrl({ variables: { input: { invoiceId: id } } })
                     },
                   }
                 : null,

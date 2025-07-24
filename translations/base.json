@@ -3360,5 +3360,7 @@
   "text_1752862804124sm9d1gl8aha": "You must define a fixed set of values for this privilege.",
   "text_1752863499298r6x9j41ndoy": "Add predefined privilege values",
   "text_175287350361170qk4c93fmm": "Privilege type",
-  "text_1753122279978r7koj4iy2vy": "Privilege name (optional)"
+  "text_1753122279978r7koj4iy2vy": "Privilege name (optional)",
+  "text_1753384709668qrxbzpbskn8": "Get payment link",
+  "text_1753384873899kf7djox30b6": "Payment link have been copied to your clipboard"
 }
