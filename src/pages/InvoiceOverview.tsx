@@ -211,10 +211,12 @@ const LinkToInvoice = ({
   invoice,
   redirectToInvoiceId,
   label,
+  invoiceNumberPrefix,
 }: {
   invoice?: Partial<Invoice>
   redirectToInvoiceId?: string | null
   label: string
+  invoiceNumberPrefix?: string
 }) => {
   const { data } = useGetInvoiceNumberQuery({
     context: {
@@ -237,6 +239,8 @@ const LinkToInvoice = ({
       </div>
 
       <Typography className="text-grey-700">
+        {invoiceNumberPrefix || ''}
+
         <Link
           to={generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
             customerId: invoice?.customer?.id,
@@ -289,16 +293,12 @@ export const InvoiceQuickInfo = ({
         invoice={invoice}
         redirectToInvoiceId={invoice?.voidedInvoiceId}
         label={translate('text_1751969800882c5zez5kbrwt')}
-      />
-      <LinkToInvoice
-        invoice={invoice}
-        redirectToInvoiceId={invoice?.regeneratedInvoiceId}
-        label={translate('text_1751969800882c5zez5kbrwt')}
+        invoiceNumberPrefix={`${translate('text_175334713974444hpp5yt2ab')}: `}
       />
       {billingEntity && (
         <div className="box-border flex items-center gap-2 py-6 shadow-b">
           <div className="min-w-[140px]">
-            <Typography variant="body" color="grey600">
+            <Typography className="text-sm text-grey-600">
               {translate('text_1743611497157teaa1zu8l24')}
             </Typography>
           </div>

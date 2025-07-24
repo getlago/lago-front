@@ -604,6 +604,7 @@ const CustomerInvoiceDetails = () => {
     paymentDisputeLostAt,
     integrationSyncable,
     integrationHubspotSyncable,
+    regeneratedInvoiceId,
   } = (invoice as AllInvoiceDetailsForCustomerInvoiceDetailsFragment) || {}
 
   const isPartiallyPaid =

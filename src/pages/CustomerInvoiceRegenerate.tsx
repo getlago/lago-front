@@ -24,6 +24,7 @@ import {
   usePreviewAdjustedFeeMutation,
   useRegenerateInvoiceMutation,
   useVoidInvoiceMutation,
+  VoidedInvoiceFeeInput,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
@@ -240,10 +241,16 @@ const CustomerInvoiceRegenerate = () => {
       })
     }
 
-    const feesInput = fees
+    const feesInput: VoidedInvoiceFeeInput[] = fees
       .map((fee) => ({
-        ...fee,
         id: fee.id.includes(TEMPORARY_ID_PREFIX) ? null : fee.id,
+        addOnId: fee?.addOn?.id,
+        chargeId: fee?.charge?.id,
+        description: fee?.description,
+        invoiceDisplayName: fee?.invoiceDisplayName,
+        subscriptionId: fee?.subscription?.id,
+        unitAmountCents: fee?.preciseUnitAmount,
+        units: fee?.units,
       }))
       .map((fee) => removeEmptyKeys(fee))
 

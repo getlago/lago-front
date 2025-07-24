@@ -3379,11 +3379,12 @@
   "text_1750678506388eexnh1b36o4": "Void and regenerate",
   "text_17506785063889sphu20u9eh": "Add a new fee",
   "text_17512809059243nam2ohm0ul": "Invoice successfully regenerated",
-  "text_1751969800882c5zez5kbrwt": "Affiliated invoice",
+  "text_1751969800882c5zez5kbrwt": "Related invoice",
   "text_1751991206828m0rxpmddapo": "The invoice {{invoiceNumber}} was issued on {{issuingDate}}",
   "text_17519912068281q4wys5q1g2": "Void and regenerate",
   "text_17519914705750hjw95snsdf": "Void and regenerate an invoice to correct the initial one, these invoices will be linked together.",
   "text_1751991518313o0xwbo9xf0y": "Void and regenerate invoice",
-  "text_1752580912616sr615x718w7": "Add fee"
+  "text_1752580912616sr615x718w7": "Add fee",
+  "text_175334713974444hpp5yt2ab": "Related to existing voided invoice"
 }
 
