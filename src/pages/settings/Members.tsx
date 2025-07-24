@@ -377,10 +377,6 @@ const Members = () => {
                         return undefined
                       }
 
-                      const canDeleteMember =
-                        membership.user.id !== currentUser?.id &&
-                        hasPermissions(['organizationMembersDelete'])
-
                       return [
                         ...(hasPermissions(['organizationMembersUpdate'])
                           ? [
@@ -401,7 +397,7 @@ const Members = () => {
                             ]
                           : []),
 
-                        ...(canDeleteMember
+                        ...(hasPermissions(['organizationMembersDelete'])
                           ? [
                               {
                                 startIcon: 'trash',
