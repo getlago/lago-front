@@ -1,7 +1,10 @@
-FROM node:20-alpine as build
+FROM node:20-alpine AS build
 
 WORKDIR /app
 
+COPY package.json pnpm-lock.yaml tsconfig.json ./
+COPY scripts ./scripts
+COPY packages ./packages
 COPY . .
 
 RUN apk add python3 build-base && \
