@@ -44,6 +44,7 @@ gql`
         id
         name
         code
+        payInAdvance
         parent {
           id
           name
@@ -199,6 +200,7 @@ const SubscriptionDetails = () => {
                         id: subscription?.id as string,
                         name: subscription?.name,
                         status: subscription?.status as StatusTypeEnum,
+                        payInAdvance: !!subscription?.plan.payInAdvance,
                         callback: () => {
                           navigate(
                             generatePath(CUSTOMER_DETAILS_ROUTE, {
