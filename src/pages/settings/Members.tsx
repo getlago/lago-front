@@ -49,6 +49,7 @@ import {
   InviteItemForMembersSettingsFragment,
   MemberForEditRoleForDialogFragmentDoc,
   MembershipItemForMembershipSettingsFragment,
+  MembershipRole,
   useGetInvitesQuery,
   useGetMembersQuery,
 } from '~/generated/graphql'
@@ -377,6 +378,8 @@ const Members = () => {
                         return undefined
                       }
 
+                      const isCurrentUser = membership.user.id === currentUser?.id
+
                       return [
                         ...(hasPermissions(['organizationMembersUpdate'])
                           ? [
@@ -397,7 +400,7 @@ const Members = () => {
                             ]
                           : []),
 
-                        ...(hasPermissions(['organizationMembersDelete'])
+                        ...(hasPermissions(['organizationMembersDelete']) && !isCurrentUser
                           ? [
                               {
                                 startIcon: 'trash',
@@ -424,7 +427,9 @@ const Members = () => {
         {!!hasInvites && <RevokeInviteDialog ref={revokeInviteDialogRef} />}
         <RevokeMembershipDialog
           ref={revokeMembershipDialogRef}
-          adminCount={membersMetadata?.adminCount}
+          admins={(membersData?.memberships.collection ?? []).filter(
+            (member) => member.role === MembershipRole.Admin,
+          )}
         />
         <EditMemberRoleDialog ref={editMemberRoleDiaglogRef} />
         <EditInviteRoleDialog ref={editInviteRoleDiaglogRef} />
