@@ -143,19 +143,6 @@ const FeatureDetails = () => {
               </DetailsPage.Container>
             ),
           },
-          // {
-          //   title: translate('text_1747314141347qq6rasuxisl'),
-          //   link: generatePath(FEATURE_DETAILS_ROUTE, {
-          //     featureId: featureId as string,
-          //     tab: FeatureDetailsTabsOptionsEnum.activityLogs,
-          //   }),
-          //   component: (
-          //     <div className="px-12 py-8">
-          //       <FeatureDetailsActivityLogs />
-          //     </div>
-          //   ),
-          //   hidden: !isPremium || !hasPermissions(['auditLogsView']),
-          // },
         ]}
       />
 
