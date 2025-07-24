@@ -35,6 +35,7 @@ type AnnotatedSubscription = {
   status?: Subscription['status']
   frequency: Plan['interval']
   statusType: StatusProps
+  payInAdvance: boolean
   isDowngrade?: boolean
   isScheduled?: boolean
   isOverriden?: boolean
@@ -87,6 +88,7 @@ const annotateSubscriptions = (
       terminatedAt,
       frequency: plan.interval,
       statusType: subscriptionStatusMapping(status),
+      payInAdvance: !!plan.payInAdvance,
       customer: {
         id: customerId || customer?.id,
         name: customer?.name || undefined,
@@ -110,6 +112,7 @@ const annotateSubscriptions = (
           type: StatusType.default,
           label: 'pending',
         } as StatusProps,
+        payInAdvance: !!plan.payInAdvance,
         isDowngrade: true,
         isOverriden: !!nextPlan.parent,
         customer: {
@@ -216,6 +219,7 @@ const generateActionColumn = ({
           id: subscription.id,
           name: subscription.name,
           status: subscription.status as StatusTypeEnum,
+          payInAdvance: subscription.payInAdvance,
         }),
     })
   }

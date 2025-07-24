@@ -40,6 +40,7 @@ gql`
           amountCurrency
           name
           interval
+          payInAdvance
           parent {
             id
           }
