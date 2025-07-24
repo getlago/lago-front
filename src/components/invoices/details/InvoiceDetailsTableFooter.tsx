@@ -49,6 +49,7 @@ interface InvoiceDetailsTableFooterProps {
   invoice: InvoiceForDetailsTableFooterFragment
   hasTaxProviderError?: boolean
   invoiceFees?: Fee[] | null
+  hideDiscounts?: boolean
 }
 
 const applyTaxRateToAmount = (amount: number, tax: { taxRate: number }) => {
@@ -91,15 +92,16 @@ export const InvoiceDetailsTableFooter = memo(
     invoice,
     hasTaxProviderError,
     invoiceFees,
+    hideDiscounts,
   }: InvoiceDetailsTableFooterProps) => {
     const { translate } = useInternationalization()
 
     const colSpan = canHaveUnitPrice ? 3 : 2
     const isLegacyInvoice = invoice?.versionNumber < 3
     const currency = invoice?.currency || CurrencyEnum.Usd
-    const hasCreditNotes = !!Number(invoice?.creditNotesAmountCents)
-    const hasPrepaidCredit = !!Number(invoice?.prepaidCreditAmountCents)
-    const hasCoupon = !!Number(invoice?.couponsAmountCents)
+    const hasCreditNotes = !!Number(invoice?.creditNotesAmountCents) && !hideDiscounts
+    const hasPrepaidCredit = !!Number(invoice?.prepaidCreditAmountCents) && !hideDiscounts
+    const hasCoupon = !!Number(invoice?.couponsAmountCents) && !hideDiscounts
     const isPending = invoice.status === InvoiceStatusTypeEnum.Pending
 
     const shouldDisplayPlaceholder = isPending || hasTaxProviderError
