@@ -118,9 +118,6 @@ const CustomerInvoiceVoid = () => {
 
   const canGenerateCreditNote = maxRefundable > 0 || maxCreditable > 0
 
-  const canRegenerate =
-    customerId && invoiceId && invoice && (isPrepaidCredit(invoice) ? hasActiveWallet : true)
-
   const onSubmit = async (values: CustomerInvoiceVoidForm) => {
     if (invoiceId) {
       const input: VoidInvoiceInput =
@@ -218,6 +215,13 @@ const CustomerInvoiceVoid = () => {
     validateOnMount: true,
     onSubmit,
   })
+
+  const canRegenerate =
+    customerId &&
+    invoiceId &&
+    invoice &&
+    (isPrepaidCredit(invoice) ? hasActiveWallet : true) &&
+    formikProps?.values?.handle === HandleEnum.VoidOnly
 
   const onClose = () => {
     if (customerId && invoiceId) {
