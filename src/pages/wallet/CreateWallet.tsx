@@ -26,10 +26,12 @@ import {
   useGetCustomerInfosForWalletFormQuery,
   useGetWalletInfosForWalletFormQuery,
   useUpdateCustomerWalletMutation,
+  WalletForScopeSectionFragmentDoc,
   WalletForUpdateFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { ScopeSection } from '~/pages/wallet/components/ScopeSection'
 import { SettingsSection } from '~/pages/wallet/components/SettingsSection'
 import { TopUpSection } from '~/pages/wallet/components/TopUpSection'
 import { walletFormSchema } from '~/pages/wallet/form'
@@ -63,6 +65,8 @@ gql`
         value
       }
     }
+
+    ...WalletForScopeSection
   }
 
   query getCustomerInfosForWalletForm($id: ID!) {
@@ -97,6 +101,7 @@ gql`
   }
 
   ${WalletForUpdateFragmentDoc}
+  ${WalletForScopeSectionFragmentDoc}
 `
 
 function hasWalletRecurringTopUpEnabled(
@@ -213,6 +218,7 @@ const CreateWallet = () => {
       rateAmount,
       currency: valuesCurrency,
       recurringTransactionRules,
+      appliesTo,
       ...values
     }) => {
       const recurringTransactionRulesFormatted =
@@ -269,11 +275,20 @@ const CreateWallet = () => {
             )
           : []
 
+      const formattedAppliesTo =
+        appliesTo?.feeTypes?.length || appliesTo?.billableMetrics?.length
+          ? {
+              feeTypes: appliesTo?.feeTypes || [],
+              billableMetricIds: appliesTo?.billableMetrics?.map((bm) => bm.id) || [],
+            }
+          : undefined
+
       if (formType === FORM_TYPE_ENUM.edition) {
         const input = {
           ...values,
           recurringTransactionRules: recurringTransactionRulesFormatted,
           id: walletId,
+          appliesTo: formattedAppliesTo,
         }
 
         const { errors } = await updateWallet({ variables: { input } })
@@ -288,6 +303,7 @@ const CreateWallet = () => {
           grantedCredits: grantedCredits === '' ? '0' : String(grantedCredits),
           paidCredits: paidCredits === '' ? '0' : String(paidCredits),
           recurringTransactionRules: recurringTransactionRulesFormatted,
+          appliesTo: formattedAppliesTo,
         }
 
         const { errors } = await createWallet({ variables: { input } })
@@ -346,6 +362,8 @@ const CreateWallet = () => {
               showExpirationDate={showExpirationDate}
               setShowExpirationDate={setShowExpirationDate}
             />
+
+            <ScopeSection formikProps={formikProps} />
 
             <TopUpSection
               formikProps={formikProps}

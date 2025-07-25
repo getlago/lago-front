@@ -45,6 +45,7 @@ export const ADD_CUSTOMER_TAX_PROVIDER_ACCORDION = 'addCustomerTaxProviderAccord
 export const ADD_CUSTOMER_CRM_PROVIDER_ACCORDION = 'addCustomerCrmProviderAccordion'
 // Wallets
 export const SEARCH_APPLIES_TO_FEE_TYPE_CLASSNAME = 'searchAppliesToFeeTypeInput'
+export const SEARCH_APPLIES_TO_BILLABLE_METRIC_CLASSNAME = 'searchAppliesToBillableMetricInput'
 
 /**** DATA ****/
 // Plan form types

@@ -3166,8 +3166,8 @@
   "text_1748422458559917eelhobh5": "A wallet is an object for free or prepaid credits, enabling users to prepay for their usage.",
   "text_1748422458559n8iqcz37i2z": "Define an expiration date",
   "text_17484224585596yw31vih46t": "By default, the wallet stays active until you set an expiration date or terminate it manually.",
-  "text_17484224585599hnm61rdb6d": "Limit wallet credits to specific object",
-  "text_17484378349895wl4yqkmqj9": "By default, wallet credits apply to all items on subscription invoices.",
+  "text_17484224585599hnm61rdb6d": "Limit wallet credits to specific objects",
+  "text_17484378349895wl4yqkmqj9": "Choose whether wallet credits apply to usage based charges, subscription fees, or other object.",
   "text_17484381918689r63e54hrh1": "Search and select an object",
   "text_1748441354191rj96qhw3twa": "Charges fees",
   "text_1748441354191cnp0tm4ubf0": "Commitment fees",
@@ -3310,5 +3310,10 @@
   "text_1752158380555tozrnmtmxc1": "Your current logged in method isn’t allowed by this organization. To access it, please log out and sign in again using a different login method.",
   "text_1752158380555al7jwgd0hfk": "{{method}} login method has been disabled successfully.",
   "text_1752158380555fssagh1zpp1": "{{method}} login method has been enabled successfully.",
-  "text_17522481192202remk2eytrr": "Delete Okta connection"
+  "text_17522481192202remk2eytrr": "Delete Okta connection",
+  "text_1753215016828tqecv5jeg4e": "Wallet scope limitation",
+  "text_1753215016828d5b7ocbawmp": "By default, wallet credits apply to all items on subscription invoices. Limit the scope for more control.",
+  "text_1753215016828k1x6yv1pwcc": "Limit wallet credits to specific billable metrics",
+  "text_1753215016828vpzdzmz23rw": "Select one or more billable metrics that wallet credits should apply to.",
+  "text_17532150168286lki5kmbqfo": "Add a billable metric limitation"
 }
