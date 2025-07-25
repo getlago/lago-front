@@ -6,6 +6,7 @@ import {
   InvoiceAppliedTaxOnWholeInvoiceCodeEnum,
   MembershipRole,
   PlanInterval,
+  PrivilegeValueTypeEnum,
 } from '~/generated/graphql'
 
 /**** Errors ****/
@@ -46,6 +47,8 @@ export const ADD_CUSTOMER_CRM_PROVIDER_ACCORDION = 'addCustomerCrmProviderAccord
 // Wallets
 export const SEARCH_APPLIES_TO_FEE_TYPE_CLASSNAME = 'searchAppliesToFeeTypeInput'
 export const SEARCH_APPLIES_TO_BILLABLE_METRIC_CLASSNAME = 'searchAppliesToBillableMetricInput'
+// Features
+export const SEARCH_PRIVILEGE_SELECT_OPTIONS_INPUT_CLASSNAME = 'searchPrivilegeSelectOptionsInput'
 
 /**** DATA ****/
 // Plan form types
@@ -133,4 +136,11 @@ export const getHubspotTargetedObjectTranslationKey: Record<HubspotTargetedObjec
 export const getTargetedObjectTranslationKey: Record<HubspotTargetedObjectsEnum, string> = {
   [HubspotTargetedObjectsEnum.Companies]: 'text_1727281892403pmg1yza7x1e',
   [HubspotTargetedObjectsEnum.Contacts]: 'text_1729003289241opvevwwhr7n',
+}
+
+export const getPrivilegeValueTypeTranslationKey: Record<PrivilegeValueTypeEnum, string> = {
+  [PrivilegeValueTypeEnum.Boolean]: 'text_1752846323920oit5ijknakw',
+  [PrivilegeValueTypeEnum.Integer]: 'text_1752846323920cemx0vj1r16',
+  [PrivilegeValueTypeEnum.String]: 'text_1752846323920ueyo3sru7na',
+  [PrivilegeValueTypeEnum.Select]: 'text_1752846323920ry5qxxvzrg7',
 }

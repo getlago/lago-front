@@ -35,6 +35,8 @@ import {
   CUSTOMER_SUBSCRIPTION_PLAN_DETAILS,
   CUSTOMERS_LIST_ROUTE,
   EMAILS_SETTINGS_ROUTE,
+  FEATURE_DETAILS_ROUTE,
+  FEATURES_ROUTE,
   HOME_ROUTE,
   INTEGRATIONS_ROUTE,
   INVOICE_SETTINGS_ROUTE,
@@ -52,6 +54,7 @@ import {
   SUBSCRIPTIONS_ROUTE,
   TAXES_SETTINGS_ROUTE,
 } from '~/core/router'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { useSideNavInfosQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -331,7 +334,7 @@ const MainNavLayout = () => {
               />
               <VerticalMenu
                 loading={currentUserLoading}
-                loadingComponent={<VerticalMenuSkeleton numberOfElements={4} />}
+                loadingComponent={<VerticalMenuSkeleton numberOfElements={5} />}
                 onClick={() => setOpen(false)}
                 tabs={[
                   {
@@ -343,20 +346,32 @@ const MainNavLayout = () => {
                     hidden: !hasPermissions(['billableMetricsView']),
                   },
                   {
-                    title: translate('text_629728388c4d2300e2d3801a'),
-                    icon: 'puzzle',
-                    link: ADD_ONS_ROUTE,
-                    canBeClickedOnActive: true,
-                    match: [ADD_ONS_ROUTE, ADD_ON_DETAILS_ROUTE],
-                    hidden: !hasPermissions(['addonsView']),
-                  },
-                  {
                     title: translate('text_62442e40cea25600b0b6d85a'),
                     icon: 'board',
                     link: PLANS_ROUTE,
                     canBeClickedOnActive: true,
                     match: [PLANS_ROUTE, PLAN_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS],
                     hidden: !hasPermissions(['plansView']),
+                  },
+                  ...(isFeatureFlagActive(FeatureFlags.FTR_FEATURES)
+                    ? [
+                        {
+                          title: translate('text_1752692673070k7z0mmf0494'),
+                          icon: 'switch',
+                          link: FEATURES_ROUTE,
+                          canBeClickedOnActive: true,
+                          match: [FEATURES_ROUTE, FEATURE_DETAILS_ROUTE],
+                          hidden: !hasPermissions(['featuresView']),
+                        } as TabProps,
+                      ]
+                    : []),
+                  {
+                    title: translate('text_629728388c4d2300e2d3801a'),
+                    icon: 'puzzle',
+                    link: ADD_ONS_ROUTE,
+                    canBeClickedOnActive: true,
+                    match: [ADD_ONS_ROUTE, ADD_ON_DETAILS_ROUTE],
+                    hidden: !hasPermissions(['addonsView']),
                   },
                   {
                     title: translate('text_62865498824cc10126ab2940'),

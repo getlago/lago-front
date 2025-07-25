@@ -11,6 +11,7 @@ const InvoicesPage = lazyLoad(() => import('~/pages/InvoicesPage'))
 const PaymentsPage = lazyLoad(() => import('~/pages/PaymentsPage'))
 const CreditNotesPage = lazyLoad(() => import('~/pages/CreditNotesPage'))
 const SubscriptionsPage = lazyLoad(() => import('~/pages/SubscriptionsPage'))
+const FeaturesList = lazyLoad(() => import('~/pages/features/FeaturesList'))
 
 // Creation
 const ApiKeysForm = lazyLoad(() => import('~/pages/developers/ApiKeysForm'))
@@ -26,6 +27,7 @@ const CreateWallet = lazyLoad(() => import('~/pages/wallet/CreateWallet'))
 const CreateWalletTopUp = lazyLoad(() => import('~/pages/wallet/CreateWalletTopUp'))
 const CreatePayment = lazyLoad(() => import('~/pages/CreatePayment'))
 const AlertForm = lazyLoad(() => import('~/pages/AlertForm'))
+const FeatureForm = lazyLoad(() => import('~/pages/features/FeatureForm'))
 
 // Details
 const SubscriptionDetails = lazyLoad(() => import('~/pages/SubscriptionDetails'))
@@ -34,6 +36,7 @@ const AddOnDetails = lazyLoad(() => import('~/pages/AddOnDetails'))
 const CouponDetails = lazyLoad(() => import('~/pages/CouponDetails'))
 const PaymentDetails = lazyLoad(() => import('~/pages/PaymentDetails'))
 const BillableMetricDetails = lazyLoad(() => import('~/pages/BillableMetricDetails'))
+const FeatureDetails = lazyLoad(() => import('~/pages/features/FeatureDetails'))
 
 // ----------- Routes -----------
 // Lists
@@ -45,6 +48,7 @@ export const INVOICES_ROUTE = '/invoices'
 export const PAYMENTS_ROUTE = '/payments'
 export const CREDIT_NOTES_ROUTE = '/credit-notes'
 export const SUBSCRIPTIONS_ROUTE = '/subscriptions'
+export const FEATURES_ROUTE = '/features'
 
 // Creation
 export const CREATE_CUSTOMER_ROUTE = `/customer/create`
@@ -93,6 +97,9 @@ export const UPDATE_ALERT_PLAN_SUBSCRIPTION_ROUTE =
 export const UPDATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE =
   '/customer/:customerId/subscription/:subscriptionId/alert/:alertId/edit'
 
+export const CREATE_FEATURE_ROUTE = '/create/feature'
+export const UPDATE_FEATURE_ROUTE = '/update/feature/:featureId'
+
 // Details
 export const CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE =
   '/customer/:customerId/subscription/:subscriptionId/:tab'
@@ -104,8 +111,8 @@ export const ADD_ON_DETAILS_ROUTE = '/add-on/:addOnId'
 export const COUPON_DETAILS_ROUTE = '/coupon/:couponId/:tab'
 export const PAYMENT_DETAILS_ROUTE = '/payment/:paymentId'
 export const CUSTOMER_PAYMENT_DETAILS_ROUTE = '/customer/:customerId/payment/:paymentId'
-
 export const BILLABLE_METRIC_DETAILS_ROUTE = '/billable-metric/:billableMetricId/:tab'
+export const FEATURE_DETAILS_ROUTE = '/feature/:featureId/:tab'
 
 export const objectListRoutes: CustomRouteObject[] = [
   {
@@ -155,6 +162,12 @@ export const objectListRoutes: CustomRouteObject[] = [
     private: true,
     element: <SubscriptionsPage />,
     permissions: ['subscriptionsView'],
+  },
+  {
+    path: [FEATURES_ROUTE],
+    private: true,
+    element: <FeaturesList />,
+    permissions: ['featuresView'],
   },
 ]
 
@@ -246,6 +259,12 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     element: <AlertForm />,
     permissions: ['subscriptionsCreate', 'subscriptionsUpdate'],
   },
+  {
+    path: [CREATE_FEATURE_ROUTE, UPDATE_FEATURE_ROUTE],
+    private: true,
+    element: <FeatureForm />,
+    permissions: ['featuresCreate', 'featuresUpdate'],
+  },
 ]
 
 export const objectDetailsRoutes: CustomRouteObject[] = [
@@ -284,5 +303,11 @@ export const objectDetailsRoutes: CustomRouteObject[] = [
     private: true,
     element: <BillableMetricDetails />,
     permissions: ['billableMetricsView'],
+  },
+  {
+    path: [FEATURE_DETAILS_ROUTE],
+    private: true,
+    element: <FeatureDetails />,
+    permissions: ['featuresView'],
   },
 ]
