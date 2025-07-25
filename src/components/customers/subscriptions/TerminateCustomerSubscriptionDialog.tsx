@@ -7,14 +7,22 @@ import { DialogRef } from '~/components/designSystem'
 import { RadioGroupField, SwitchField } from '~/components/form'
 import { WarningDialog } from '~/components/WarningDialog'
 import { addToast } from '~/core/apolloClient'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
+  CurrencyEnum,
   CustomerDetailsFragment,
   CustomerDetailsFragmentDoc,
+  InvoiceTypeEnum,
   OnTerminationCreditNoteEnum,
+  OnTerminationInvoiceEnum,
   StatusTypeEnum,
+  TerminateSubscriptionInput,
+  useGetInvoicesForTerminationQuery,
   useTerminateCustomerSubscriptionMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   mutation terminateCustomerSubscription($input: TerminateSubscriptionInput!) {
@@ -23,6 +31,22 @@ gql`
       customer {
         id
         activeSubscriptionsCount
+      }
+    }
+  }
+
+  query getInvoicesForTermination(
+    $subscriptionId: ID!
+    $invoiceType: [InvoiceTypeEnum!]
+    $limit: Int
+  ) {
+    invoices(subscriptionId: $subscriptionId, invoiceType: $invoiceType, limit: $limit) {
+      collection {
+        id
+        number
+        currency
+        totalAmountCents
+        totalPaidAmountCents
       }
     }
   }
@@ -46,7 +70,23 @@ export const TerminateCustomerSubscriptionDialog =
     const dialogRef = useRef<DialogRef>(null)
     const [context, setContext] = useState<TerminateCustomerSubscriptionDialogContext>()
 
+    const { organization } = useOrganizationInfos()
+
+    const { data: invoicesData } = useGetInvoicesForTerminationQuery({
+      variables: {
+        subscriptionId: context?.id as string,
+        invoiceType: [InvoiceTypeEnum.Subscription],
+        limit: 1,
+      },
+      skip: !context?.id || !context?.payInAdvance,
+    })
+
+    const invoice = invoicesData?.invoices?.collection?.[0]
+    const currency = invoice?.currency || organization?.defaultCurrency || CurrencyEnum.Usd
+    const isFullyPaid = invoice?.totalPaidAmountCents === invoice?.totalAmountCents
+
     const [terminate] = useTerminateCustomerSubscriptionMutation({
+      refetchQueries: ['getCustomerSubscriptionForList'],
       onCompleted({ terminateSubscription }) {
         if (!!terminateSubscription) {
           addToast({
@@ -99,10 +139,25 @@ export const TerminateCustomerSubscriptionDialog =
 
     const formikProps = useFormik({
       initialValues: {
-        generateInvoice: true,
-        generateCreditNote: OnTerminationCreditNoteEnum.Credit,
+        onTerminationInvoice: true,
+        onTerminationCreditNote: context?.payInAdvance
+          ? OnTerminationCreditNoteEnum.Credit
+          : undefined,
       },
-      onSubmit: () => {},
+      onSubmit: async (values) => {
+        const payload: TerminateSubscriptionInput = {
+          ...values,
+          onTerminationInvoice: values.onTerminationInvoice
+            ? OnTerminationInvoiceEnum.Generate
+            : OnTerminationInvoiceEnum.Skip,
+          onTerminationCreditNote: context?.payInAdvance
+            ? values.onTerminationCreditNote
+            : undefined,
+          id: context?.id as string,
+        }
+
+        await terminate({ variables: { input: payload } })
+      },
     })
 
     const content = useMemo(() => {
@@ -129,12 +184,7 @@ export const TerminateCustomerSubscriptionDialog =
         title={content.title}
         description={content.description}
         continueText={content.continueText}
-        onContinue={async () =>
-          await terminate({
-            variables: { input: { id: context?.id as string } },
-            refetchQueries: ['getCustomerSubscriptionForList'],
-          })
-        }
+        onContinue={() => formikProps.handleSubmit()}
       >
         <div className="mb-8 flex flex-col gap-8">
           <div className="flex flex-col gap-4">
@@ -148,7 +198,7 @@ export const TerminateCustomerSubscriptionDialog =
             </div>
             <SwitchField
               formikProps={formikProps}
-              name="generateInvoice"
+              name="onTerminationInvoice"
               label={translate('text_1753198825180w91fhv7612n')}
               subLabel={translate('text_1753274319009dha80usx9zz')}
             />
@@ -160,25 +210,35 @@ export const TerminateCustomerSubscriptionDialog =
                   {translate('text_1748341883774iypsrgem3hr')}
                 </Typography>
                 <Typography variant="caption">
-                  {translate('text_1753198825180qo474uj3p5f')}
+                  {translate('text_1753198825180qo474uj3p5f', {
+                    invoiceNumber: invoice?.number,
+                  })}
                 </Typography>
               </div>
 
               <RadioGroupField
                 formikProps={formikProps}
-                name="generateCreditNote"
+                name="onTerminationCreditNote"
                 optionLabelVariant="body"
                 options={[
                   {
-                    label: translate('text_1753198825180a94n1872cz4'),
+                    label: translate('text_1753198825180a94n1872cz4', {
+                      amount: intlFormatNumber(
+                        deserializeAmount(invoice?.totalAmountCents, currency),
+                      ),
+                    }),
                     sublabel: translate('text_17531988251808so7qch9zrf'),
                     value: OnTerminationCreditNoteEnum.Credit,
                   },
-                  context?.isFullyPaid
+                  isFullyPaid
                     ? {
-                        label: translate('text_1753198825180jnk5xbdev57'),
+                        label: translate('text_1753198825180jnk5xbdev57', {
+                          amount: intlFormatNumber(
+                            deserializeAmount(invoice?.totalPaidAmountCents, currency),
+                          ),
+                        }),
                         sublabel: translate('text_1753198825180bu4iaf2tczy'),
-                        value: false,
+                        value: OnTerminationCreditNoteEnum.Refund,
                       }
                     : undefined,
                   {
