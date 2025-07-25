@@ -35,6 +35,18 @@ export const usePermissionsInvoiceActions = () => {
     )
   }
 
+  const canGeneratePaymentUrl = (
+    invoice: Pick<Invoice, 'status' | 'paymentStatus'> & {
+      customer: Pick<Invoice['customer'], 'paymentProvider'>
+    },
+  ): boolean => {
+    return (
+      !!invoice.customer?.paymentProvider &&
+      invoice.status === InvoiceStatusTypeEnum.Finalized &&
+      invoice.paymentStatus !== InvoicePaymentStatusTypeEnum.Succeeded
+    )
+  }
+
   const canRetryCollect = (invoice: Pick<Invoice, 'status' | 'paymentStatus'>): boolean => {
     return (
       invoice.status === InvoiceStatusTypeEnum.Finalized &&
@@ -107,6 +119,7 @@ export const usePermissionsInvoiceActions = () => {
     canDownload,
     canFinalize,
     canRetryCollect,
+    canGeneratePaymentUrl,
     canUpdatePaymentStatus,
     canVoid,
     canIssueCreditNote,

@@ -57,6 +57,7 @@ import {
   LagoApiError,
   PremiumIntegrationTypeEnum,
   useDownloadInvoiceItemMutation,
+  useGeneratePaymentUrlMutation,
   useRetryInvoicePaymentMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -114,6 +115,18 @@ const InvoicesList = ({
         addToast({
           severity: 'success',
           translateKey: 'text_63ac86d897f728a87b2fa0b3',
+        })
+      }
+    },
+  })
+
+  const [generatePaymentUrl] = useGeneratePaymentUrlMutation({
+    onCompleted({ generatePaymentUrl: generatedPaymentUrl }) {
+      if (generatedPaymentUrl?.paymentUrl) {
+        copyToClipboard(generatedPaymentUrl.paymentUrl)
+        addToast({
+          severity: 'info',
+          translateKey: 'text_1753384873899kf7djox30b6',
         })
       }
     },
@@ -264,6 +277,16 @@ const InvoicesList = ({
                           translateKey: 'text_63b6d06df1a53b7e2ad973ad',
                         })
                       }
+                    },
+                  }
+                : null,
+
+              actions.canGeneratePaymentUrl(invoice)
+                ? {
+                    startIcon: 'link',
+                    title: translate('text_1753384709668qrxbzpbskn8'),
+                    onAction: async ({ id }) => {
+                      await generatePaymentUrl({ variables: { input: { invoiceId: id } } })
                     },
                   }
                 : null,
