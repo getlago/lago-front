@@ -11330,7 +11330,7 @@ export type PreviewAdjustedFeeMutationVariables = Exact<{
 }>;
 
 
-export type PreviewAdjustedFeeMutation = { __typename?: 'Mutation', previewAdjustedFee?: { __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, preciseUnitAmount: number, addOn?: { __typename?: 'AddOn', id: string } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, amountCents: any, taxRate: number, taxName: string }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, toValue?: any | null, units?: string | null, perUnitTotalAmount?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', flatUnitAmount?: string | null, fromValue?: any | null, rate?: string | null, toValue?: any | null, units?: string | null, perUnitTotalAmount?: string | null }> | null } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, chargeModel: ChargeModelEnum, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval } } | null } | null };
+export type PreviewAdjustedFeeMutation = { __typename?: 'Mutation', previewAdjustedFee?: { __typename?: 'Fee', id: string, feeType: FeeTypesEnum, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, units: number, groupedBy: any, preciseUnitAmount: number, addOn?: { __typename?: 'AddOn', id: string } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, amountCents: any, taxRate: number, taxName: string }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, toValue?: any | null, units?: string | null, perUnitTotalAmount?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', flatUnitAmount?: string | null, fromValue?: any | null, rate?: string | null, toValue?: any | null, units?: string | null, perUnitTotalAmount?: string | null }> | null } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, chargeModel: ChargeModelEnum, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval, name: string } } | null } | null };
 
 export type CustomerForRequestOverduePaymentFormFragment = { __typename?: 'Customer', email?: string | null };
 
@@ -30658,6 +30658,7 @@ export const PreviewAdjustedFeeDocument = gql`
     mutation previewAdjustedFee($input: PreviewAdjustedFeeInput!) {
   previewAdjustedFee(input: $input) {
     id
+    feeType
     amountCents
     invoiceName
     invoiceDisplayName
@@ -30714,6 +30715,7 @@ export const PreviewAdjustedFeeDocument = gql`
       plan {
         id
         interval
+        name
       }
     }
   }
