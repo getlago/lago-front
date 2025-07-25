@@ -42,6 +42,7 @@ gql`
   mutation previewAdjustedFee($input: PreviewAdjustedFeeInput!) {
     previewAdjustedFee(input: $input) {
       id
+      feeType
       amountCents
       invoiceName
       invoiceDisplayName
@@ -98,6 +99,7 @@ gql`
         plan {
           id
           interval
+          name
         }
       }
     }
@@ -111,6 +113,7 @@ export type OnRegeneratedFeeAdd = (input: {
   units?: number | null
   amountDetails?: FeeAmountDetails | null
   charge?: Charge | null
+  chargeFilterId?: string | null
   invoiceSubscriptionId?: string | null
 }) => void
 
@@ -192,6 +195,7 @@ const CustomerInvoiceRegenerate = () => {
             unitPreciseAmount: input?.unitPreciseAmount,
             invoiceSubscriptionId: input?.invoiceSubscriptionId,
             chargeId: input?.charge?.id,
+            chargeFilterId: input?.chargeFilterId,
             invoiceDisplayName: input?.invoiceDisplayName,
           }),
         },
