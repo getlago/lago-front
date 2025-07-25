@@ -220,11 +220,13 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
         invoiceDisplayName: values.invoiceDisplayName || undefined,
       }
 
+      const chargeFilterId =
+        values.chargeFilterId === ALL_FILTER_VALUES ? null : values.chargeFilterId || undefined
+
       let input: CreateAdjustedFeeInput = {
         ...defaultPayload,
         chargeId: values.chargeId,
-        chargeFilterId:
-          values.chargeFilterId === ALL_FILTER_VALUES ? null : values.chargeFilterId || undefined,
+        chargeFilterId,
         subscriptionId: localData?.invoiceSubscriptionId || '',
       }
 
@@ -248,6 +250,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
           ...(localData.fee || {}),
           ...input,
           charge: currentCharge as Charge,
+          chargeFilterId,
           invoiceSubscriptionId: localData?.invoiceSubscriptionId,
         })
       }
