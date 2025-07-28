@@ -217,6 +217,7 @@ const generateActionColumn = ({
       onAction: () =>
         terminateSubscriptionDialogRef?.current?.openDialog({
           id: subscription.id,
+          name: subscription.name as string,
           status: subscription.status as StatusTypeEnum,
           payInAdvance: subscription.payInAdvance,
         }),
