@@ -11,8 +11,6 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
-  CustomerDetailsFragment,
-  CustomerDetailsFragmentDoc,
   InvoiceTypeEnum,
   OnTerminationCreditNoteEnum,
   OnTerminationInvoiceEnum,
@@ -54,6 +52,7 @@ gql`
 
 interface TerminateCustomerSubscriptionDialogContext {
   id: string
+  name: string
   status: StatusTypeEnum
   payInAdvance: boolean
   callback?: (() => unknown) | undefined
@@ -86,7 +85,7 @@ export const TerminateCustomerSubscriptionDialog =
     const isFullyPaid = invoice?.totalPaidAmountCents === invoice?.totalAmountCents
 
     const [terminate] = useTerminateCustomerSubscriptionMutation({
-      refetchQueries: ['getCustomerSubscriptionForList'],
+      refetchQueries: ['getCustomerSubscriptionForList', 'getSubscriptionsList'],
       onCompleted({ terminateSubscription }) {
         if (!!terminateSubscription) {
           addToast({
@@ -98,34 +97,6 @@ export const TerminateCustomerSubscriptionDialog =
             context?.callback()
           }
         }
-      },
-      update(cache, { data }) {
-        if (!data?.terminateSubscription) return
-
-        const cacheId = cache.identify({
-          id: data?.terminateSubscription.id,
-          __typename: 'Subscription',
-        })
-
-        cache.evict({ id: cacheId })
-
-        const cachedCustomerId = `Customer:${data.terminateSubscription.customer.id}`
-
-        const previousData: CustomerDetailsFragment | null = cache.readFragment({
-          id: cachedCustomerId,
-          fragment: CustomerDetailsFragmentDoc,
-          fragmentName: 'CustomerDetails',
-        })
-
-        cache.writeFragment({
-          id: cachedCustomerId,
-          fragment: CustomerDetailsFragmentDoc,
-          fragmentName: 'CustomerDetails',
-          data: {
-            ...previousData,
-            activeSubscriptionsCount: data.terminateSubscription.customer.activeSubscriptionsCount,
-          },
-        })
       },
     })
 
@@ -164,8 +135,10 @@ export const TerminateCustomerSubscriptionDialog =
       if (context?.status === StatusTypeEnum.Pending) {
         return {
           title: translate('text_64a6d8cb9ed7d9007e7121ca'),
-          description: translate('text_64a6d96f84411700a90dbf51'),
-          continueText: translate('text_62d7f6178ec94cd09370e313'),
+          description: translate('text_64a6d96f84411700a90dbf51', {
+            subscriptionName: context?.name,
+          }),
+          continueText: translate('text_64a6d736c23125004817627f'),
         }
       }
 
@@ -186,71 +159,73 @@ export const TerminateCustomerSubscriptionDialog =
         continueText={content.continueText}
         onContinue={() => formikProps.handleSubmit()}
       >
-        <div className="mb-8 flex flex-col gap-8">
-          <div className="flex flex-col gap-4">
-            <div>
-              <Typography variant="bodyHl" color="grey700">
-                {translate('text_62d904b97e690a881f2b867c')}
-              </Typography>
-              <Typography variant="caption">
-                {translate('text_1753198825180dxhl10ooij3')}
-              </Typography>
-            </div>
-            <SwitchField
-              formikProps={formikProps}
-              name="onTerminationInvoice"
-              label={translate('text_1753198825180w91fhv7612n')}
-              subLabel={translate('text_1753274319009dha80usx9zz')}
-            />
-          </div>
-          {context?.payInAdvance && (
+        {context?.status === StatusTypeEnum.Active && (
+          <div className="mb-8 flex flex-col gap-8">
             <div className="flex flex-col gap-4">
               <div>
                 <Typography variant="bodyHl" color="grey700">
-                  {translate('text_1748341883774iypsrgem3hr')}
+                  {translate('text_62d904b97e690a881f2b867c')}
                 </Typography>
                 <Typography variant="caption">
-                  {translate('text_1753198825180qo474uj3p5f', {
-                    invoiceNumber: invoice?.number,
-                  })}
+                  {translate('text_1753198825180dxhl10ooij3')}
                 </Typography>
               </div>
-
-              <RadioGroupField
+              <SwitchField
                 formikProps={formikProps}
-                name="onTerminationCreditNote"
-                optionLabelVariant="body"
-                options={[
-                  {
-                    label: translate('text_1753198825180a94n1872cz4', {
-                      amount: intlFormatNumber(
-                        deserializeAmount(invoice?.totalAmountCents, currency),
-                      ),
-                    }),
-                    sublabel: translate('text_17531988251808so7qch9zrf'),
-                    value: OnTerminationCreditNoteEnum.Credit,
-                  },
-                  isFullyPaid
-                    ? {
-                        label: translate('text_1753198825180jnk5xbdev57', {
-                          amount: intlFormatNumber(
-                            deserializeAmount(invoice?.totalPaidAmountCents, currency),
-                          ),
-                        }),
-                        sublabel: translate('text_1753198825180bu4iaf2tczy'),
-                        value: OnTerminationCreditNoteEnum.Refund,
-                      }
-                    : undefined,
-                  {
-                    label: translate('text_1753198825180jfv0xkobkl5'),
-                    sublabel: translate('text_1753198825180k6hugot9xmt'),
-                    value: OnTerminationCreditNoteEnum.Skip,
-                  },
-                ].filter((option) => !!option)}
+                name="onTerminationInvoice"
+                label={translate('text_1753198825180w91fhv7612n')}
+                subLabel={translate('text_1753274319009dha80usx9zz')}
               />
             </div>
-          )}
-        </div>
+            {context?.payInAdvance && (
+              <div className="flex flex-col gap-4">
+                <div>
+                  <Typography variant="bodyHl" color="grey700">
+                    {translate('text_1748341883774iypsrgem3hr')}
+                  </Typography>
+                  <Typography variant="caption">
+                    {translate('text_1753198825180qo474uj3p5f', {
+                      invoiceNumber: invoice?.number,
+                    })}
+                  </Typography>
+                </div>
+
+                <RadioGroupField
+                  formikProps={formikProps}
+                  name="onTerminationCreditNote"
+                  optionLabelVariant="body"
+                  options={[
+                    {
+                      label: translate('text_1753198825180a94n1872cz4', {
+                        amount: intlFormatNumber(
+                          deserializeAmount(invoice?.totalAmountCents, currency),
+                        ),
+                      }),
+                      sublabel: translate('text_17531988251808so7qch9zrf'),
+                      value: OnTerminationCreditNoteEnum.Credit,
+                    },
+                    isFullyPaid
+                      ? {
+                          label: translate('text_1753198825180jnk5xbdev57', {
+                            amount: intlFormatNumber(
+                              deserializeAmount(invoice?.totalPaidAmountCents, currency),
+                            ),
+                          }),
+                          sublabel: translate('text_1753198825180bu4iaf2tczy'),
+                          value: OnTerminationCreditNoteEnum.Refund,
+                        }
+                      : undefined,
+                    {
+                      label: translate('text_1753198825180jfv0xkobkl5'),
+                      sublabel: translate('text_1753198825180k6hugot9xmt'),
+                      value: OnTerminationCreditNoteEnum.Skip,
+                    },
+                  ].filter((option) => !!option)}
+                />
+              </div>
+            )}
+          </div>
+        )}
       </WarningDialog>
     )
   })
