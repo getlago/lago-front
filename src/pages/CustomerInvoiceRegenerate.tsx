@@ -91,6 +91,7 @@ gql`
         }
       }
       chargeFilter {
+        id
         invoiceDisplayName
         values
       }
@@ -250,6 +251,7 @@ const CustomerInvoiceRegenerate = () => {
         id: fee.id.includes(TEMPORARY_ID_PREFIX) ? null : fee.id,
         addOnId: fee?.addOn?.id,
         chargeId: fee?.charge?.id,
+        chargeFilterId: fee?.chargeFilter?.id,
         description: fee?.description,
         invoiceDisplayName: fee?.invoiceDisplayName,
         subscriptionId: fee?.subscription?.id,
