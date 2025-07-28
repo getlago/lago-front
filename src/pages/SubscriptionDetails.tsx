@@ -198,6 +198,7 @@ const SubscriptionDetails = () => {
                     onClick={() => {
                       terminateSubscriptionDialogRef.current?.openDialog({
                         id: subscription?.id as string,
+                        name: subscription?.name as string,
                         status: subscription?.status as StatusTypeEnum,
                         payInAdvance: !!subscription?.plan.payInAdvance,
                         callback: () => {
