@@ -253,9 +253,8 @@ const LoadingRows = <T,>({
   columns,
   id,
   shouldDisplayActionColumn,
-  actionColumn,
   loadingRowCount = LOADING_ROW_COUNT,
-}: Pick<TableProps<T>, 'actionColumn' | 'loadingRowCount'> & {
+}: Pick<TableProps<T>, 'loadingRowCount'> & {
   columns: Array<TableColumn<T>>
   id: string
   shouldDisplayActionColumn: boolean
@@ -282,11 +281,7 @@ const LoadingRows = <T,>({
       {shouldDisplayActionColumn && (
         <TableActionCell>
           <TableInnerCell>
-            {Array.isArray(actionColumn?.({} as T)) ? (
-              <Button disabled icon="dots-horizontal" variant="quaternary" />
-            ) : (
-              (actionColumn?.({} as T) as ReactNode)
-            )}
+            <Button disabled icon="dots-horizontal" variant="quaternary" />
           </TableInnerCell>
         </TableActionCell>
       )}
@@ -634,7 +629,6 @@ export const Table = <T extends DataItem>({
               id: TABLE_ID,
               loadingRowCount,
               shouldDisplayActionColumn,
-              actionColumn,
             })}
         </MUITableBody>
       </MUITable>
