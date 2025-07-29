@@ -72,11 +72,10 @@ export const Selector = ({
   const [loading, setLoading] = useState(false)
   const clickable = !!onClick && !loading && !disabled
 
-  const Component = clickable ? 'button' : 'div'
-
   return (
-    <Component
-      disabled={disabled}
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+    <div
+      role="button"
       tabIndex={clickable ? 0 : -1}
       className={tw(
         selectorVariants({
@@ -131,7 +130,7 @@ export const Selector = ({
       ) : (
         endIcon
       )}
-    </Component>
+    </div>
   )
 }
 
