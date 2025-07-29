@@ -24,6 +24,7 @@ import {
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { ADD_ON_DETAILS_ROUTE, ADD_ONS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import {
   CurrencyEnum,
@@ -366,16 +367,9 @@ const CreateAddOn = () => {
                       onClick={() => {
                         setShouldDisplayTaxesInput(true)
 
-                        setTimeout(() => {
-                          const element = document.querySelector(
-                            `.${SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                          ) as HTMLElement
-
-                          if (!element) return
-
-                          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                          element.click()
-                        }, 0)
+                        scrollToAndClickElement({
+                          selector: `.${SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+                        })
                       }}
                       data-test="show-add-taxes"
                     >

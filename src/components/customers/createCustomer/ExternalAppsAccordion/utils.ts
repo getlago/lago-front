@@ -78,14 +78,3 @@ export const getIntegration = <T extends SupportedIntegration>({
     integrationPointerInIntegrationCustomer,
   }
 }
-
-export const scrollToIntegration = (selector: string) => {
-  return setTimeout(() => {
-    const element = document.querySelector(selector) as HTMLElement
-
-    if (!element) return
-
-    element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    element.click()
-  }, 1)
-}

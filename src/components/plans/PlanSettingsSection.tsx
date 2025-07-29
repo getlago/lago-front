@@ -19,6 +19,7 @@ import {
   SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME,
 } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import { CurrencyEnum, PlanInterval, useGetTaxesForPlanLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -305,16 +306,10 @@ export const PlanSettingsSection = memo(
             variant="inline"
             onClick={() => {
               setShouldDisplayTaxesInput(true)
-              setTimeout(() => {
-                const element = document.querySelector(
-                  `.${SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                ) as HTMLElement
 
-                if (!element) return
-
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                element.click()
-              }, 0)
+              scrollToAndClickElement({
+                selector: `.${SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+              })
             }}
             data-test="show-add-taxes"
           >

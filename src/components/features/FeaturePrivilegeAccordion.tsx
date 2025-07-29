@@ -9,6 +9,7 @@ import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_PRIVILEGE_SELECT_OPTIONS_INPUT_CLASSNAME,
 } from '~/core/constants/form'
+import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import {
   FeatureObject,
   FeaturePrivilegeAccordionFragment,
@@ -251,16 +252,9 @@ export const FeaturePrivilegeAccordion = ({
                 onClick={() => {
                   setShowSelectOptionsInput(true)
 
-                  setTimeout(() => {
-                    const element = document.querySelector(
-                      `.${currentSearchClassName} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                    ) as HTMLElement
-
-                    if (!element) return
-
-                    element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                    element.click()
-                  }, 0)
+                  scrollToAndClickElement({
+                    selector: `.${currentSearchClassName} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+                  })
                 }}
               >
                 {translate('text_6661fc17337de3591e29e427')}

@@ -10,6 +10,7 @@ import {
   SEARCH_APPLIES_TO_BILLABLE_METRIC_CLASSNAME,
   SEARCH_APPLIES_TO_FEE_TYPE_CLASSNAME,
 } from '~/core/constants/form'
+import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import { FeeTypesEnum, useGetBillableMetricsForWalletLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { TWalletDataForm } from '~/pages/wallet/types'
@@ -216,16 +217,9 @@ export const ScopeSection: FC<ScopeSectionProps> = ({ formikProps }) => {
             onClick={() => {
               setShowObjectLimitationInput(true)
 
-              setTimeout(() => {
-                const element = document.querySelector(
-                  `.${SEARCH_APPLIES_TO_FEE_TYPE_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                ) as HTMLElement
-
-                if (!element) return
-
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                element.click()
-              }, 0)
+              scrollToAndClickElement({
+                selector: `.${SEARCH_APPLIES_TO_FEE_TYPE_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+              })
             }}
             data-test="show-limit-input"
           >
@@ -310,16 +304,9 @@ export const ScopeSection: FC<ScopeSectionProps> = ({ formikProps }) => {
             onClick={() => {
               setShowBillableMetricLimitationInput(true)
 
-              setTimeout(() => {
-                const element = document.querySelector(
-                  `.${SEARCH_APPLIES_TO_BILLABLE_METRIC_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                ) as HTMLElement
-
-                if (!element) return
-
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                element.click()
-              }, 0)
+              scrollToAndClickElement({
+                selector: `.${SEARCH_APPLIES_TO_BILLABLE_METRIC_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+              })
             }}
           >
             {translate('text_17532150168286lki5kmbqfo')}

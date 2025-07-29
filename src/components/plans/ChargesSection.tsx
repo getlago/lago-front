@@ -13,6 +13,7 @@ import {
   SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME,
 } from '~/core/constants/form'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
+import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import {
   ChargeModelEnum,
   CurrencyEnum,
@@ -252,18 +253,10 @@ export const ChargesSection = memo(
                       onClick={async () => {
                         if (!showAddMeteredCharge) setShowAddMeteredCharge(true)
 
-                        setTimeout(() => {
-                          const element = document.querySelector(
-                            `.${SEARCH_METERED_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                          ) as HTMLElement
-
-                          if (!element) return
-
-                          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                          element.click()
-
-                          closePopper()
-                        }, 0)
+                        scrollToAndClickElement({
+                          selector: `.${SEARCH_METERED_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+                          callback: closePopper,
+                        })
                       }}
                     >
                       {translate('text_64d270faa1b07d0097fa287e')}
@@ -274,18 +267,10 @@ export const ChargesSection = memo(
                       onClick={async () => {
                         if (!showAddRecurringCharge) setShowAddRecurringCharge(true)
 
-                        setTimeout(() => {
-                          const element = document.querySelector(
-                            `.${SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                          ) as HTMLElement
-
-                          if (!element) return
-
-                          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                          element.click()
-
-                          closePopper()
-                        }, 0)
+                        scrollToAndClickElement({
+                          selector: `.${SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+                          callback: closePopper,
+                        })
                       }}
                     >
                       {translate('text_64d27120a3d1e300b35d0fcc')}
