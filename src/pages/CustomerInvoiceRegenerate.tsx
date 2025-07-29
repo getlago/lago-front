@@ -211,7 +211,10 @@ const CustomerInvoiceRegenerate = () => {
       ...feeData,
       id: isUpdate ? input?.feeId : `${TEMPORARY_ID_PREFIX}-${Math.random().toString()}`,
       adjustedFee: true,
-    } as Fee
+      wasOnlyUnitsUpdate: typeof input?.unitPreciseAmount === 'undefined',
+    } as Fee & {
+      wasOnlyUnitsUpdate: boolean
+    }
 
     if (isUpdate) {
       return setFees((f) => f.map((fee) => (fee.id === input.feeId ? calculatedFee : fee)))
@@ -255,7 +258,9 @@ const CustomerInvoiceRegenerate = () => {
         description: fee?.description,
         invoiceDisplayName: fee?.invoiceDisplayName,
         subscriptionId: fee?.subscription?.id,
-        unitAmountCents: fee?.preciseUnitAmount,
+        unitAmountCents: (fee as { wasOnlyUnitsUpdate?: boolean })?.wasOnlyUnitsUpdate
+          ? null
+          : fee?.preciseUnitAmount,
         units: fee?.units,
       }))
       .map((fee) => removeEmptyKeys(fee))
