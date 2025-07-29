@@ -21,3 +21,30 @@ export const scrollToAndExpandAccordion = (accordionId: string, delay: number = 
     }
   }, delay)
 }
+
+/**
+ * Scrolls to and clicks an element
+ * @param selector - The selector of the element to scroll to and click
+ * @param delay - Delay in milliseconds before executing the action (default: 0)
+ * @param callback - Callback function to execute after the element is clicked
+ */
+export const scrollToAndClickElement = ({
+  selector,
+  delay = 0,
+  callback,
+}: {
+  selector: string
+  delay?: number
+  callback?: () => void
+}) => {
+  setTimeout(() => {
+    const element = document.querySelector(selector) as HTMLElement
+
+    if (!element) return
+
+    element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    element.click()
+
+    callback?.()
+  }, delay)
+}
