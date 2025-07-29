@@ -32,6 +32,7 @@ gql`
     $toDate: ISO8601Date
     $billingEntityCode: String
     $isCustomerTinEmpty: Boolean
+    $planCode: String
   ) {
     dataApiUsagesAggregatedAmounts(
       currency: $currency
@@ -40,6 +41,7 @@ gql`
       toDate: $toDate
       billingEntityCode: $billingEntityCode
       isCustomerTinEmpty: $isCustomerTinEmpty
+      planCode: $planCode
     ) {
       collection {
         amountCents
