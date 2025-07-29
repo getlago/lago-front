@@ -338,6 +338,12 @@ const CustomerInvoiceDetails = () => {
   const { data: customerData, loading: customerLoading } = useGetInvoiceCustomerQuery({
     variables: { id: invoice?.customer?.id as string },
     skip: !invoice?.customer?.id,
+    context: {
+      // NOTE: This call is not critical, it aims to get the customer infos for display purpose.
+      // It can happen the customer have been deleted meanwhile hence having a not found error.
+      // We just don't want to display an error in this case.
+      silentErrorCodes: [LagoApiError.NotFound],
+    },
   })
 
   const customer = customerData?.customer
