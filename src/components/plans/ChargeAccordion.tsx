@@ -29,6 +29,7 @@ import {
 } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
+import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import {
   AggregationTypeEnum,
   ChargeForChargeOptionsAccordionFragmentDoc,
@@ -880,18 +881,9 @@ export const ChargeAccordion = memo(
                   onClick={() => {
                     formikProps.setFieldValue(`charges.${index}.properties`, getPropertyShape({}))
 
-                    setTimeout(() => {
-                      const element = document.querySelector(
-                        `.${buildChargeDefaultPropertyId(
-                          index,
-                        )} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
-                      ) as HTMLElement
-
-                      if (!element) return
-
-                      element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                      element.click()
-                    }, 0)
+                    scrollToAndClickElement({
+                      selector: `.${buildChargeDefaultPropertyId(index)} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
+                    })
                   }}
                 >
                   {translate('text_65faba06377c5900f5111cc6')}
@@ -1068,16 +1060,9 @@ export const ChargeAccordion = memo(
                   onClick={() => {
                     setShouldDisplayTaxesInput(true)
 
-                    setTimeout(() => {
-                      const element = document.querySelector(
-                        `.${SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                      ) as HTMLElement
-
-                      if (!element) return
-
-                      element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                      element.click()
-                    }, 0)
+                    scrollToAndClickElement({
+                      selector: `.${SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+                    })
                   }}
                   data-test="show-add-taxes"
                 >

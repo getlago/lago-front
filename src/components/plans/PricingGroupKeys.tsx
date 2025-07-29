@@ -6,6 +6,7 @@ import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_PRICING_GROUP_KEY_INPUT_CLASSNAME,
 } from '~/core/constants/form'
+import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import { PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -101,16 +102,9 @@ const PricingGroupKeys = ({
             onClick={() => {
               setShouldDisplayPricingGroupKeys(true)
 
-              setTimeout(() => {
-                const element = document.querySelector(
-                  `.${currentSearchClassName} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                ) as HTMLElement
-
-                if (!element) return
-
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                element.click()
-              }, 0)
+              scrollToAndClickElement({
+                selector: `.${currentSearchClassName} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+              })
             }}
           >
             {translate('text_6661fc17337de3591e29e427')}

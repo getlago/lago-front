@@ -9,6 +9,7 @@ import {
   ADD_CUSTOMER_TAX_PROVIDER_ACCORDION,
   MUI_BUTTON_BASE_ROOT_CLASSNAME,
 } from '~/core/constants/form'
+import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import {
   CreateCustomerInput,
   IntegrationTypeEnum,
@@ -22,7 +23,6 @@ import { AccountingProvidersAccordion } from './AccountingProvidersAccordion'
 import { CRMProvidersAccordion } from './CRMProvidersAccordion'
 import { PaymentProvidersAccordion } from './PaymentProvidersAccordion'
 import { TaxProvidersAccordion } from './TaxProvidersAccordion'
-import { scrollToIntegration } from './utils'
 
 type TExternalAppsAccordionProps = {
   formikProps: FormikProps<CreateCustomerInput | UpdateCustomerInput>
@@ -125,10 +125,11 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                 disabled={showPaymentSection}
                 onClick={() => {
                   setShowPaymentSection(true)
-                  scrollToIntegration(
-                    `.${ADD_CUSTOMER_PAYMENT_PROVIDER_ACCORDION} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
-                  )
-                  closePopper()
+
+                  scrollToAndClickElement({
+                    selector: `.${ADD_CUSTOMER_PAYMENT_PROVIDER_ACCORDION} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
+                    callback: closePopper,
+                  })
                 }}
               >
                 {translate('text_634ea0ecc6147de10ddb6631')}
@@ -139,10 +140,11 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                 disabled={showAccountingSection}
                 onClick={() => {
                   setShowAccountingSection(true)
-                  scrollToIntegration(
-                    `.${ADD_CUSTOMER_ACCOUNTING_PROVIDER_ACCORDION} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
-                  )
-                  closePopper()
+
+                  scrollToAndClickElement({
+                    selector: `.${ADD_CUSTOMER_ACCOUNTING_PROVIDER_ACCORDION} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
+                    callback: closePopper,
+                  })
                 }}
               >
                 {translate('text_66423cad72bbad009f2f568f')}
@@ -154,10 +156,11 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                 disabled={showTaxSection}
                 onClick={() => {
                   setShowTaxSection(true)
-                  scrollToIntegration(
-                    `.${ADD_CUSTOMER_TAX_PROVIDER_ACCORDION} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
-                  )
-                  closePopper()
+
+                  scrollToAndClickElement({
+                    selector: `.${ADD_CUSTOMER_TAX_PROVIDER_ACCORDION} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
+                    callback: closePopper,
+                  })
                 }}
               >
                 {translate('text_6668821d94e4da4dfd8b3840')}
@@ -169,10 +172,11 @@ export const ExternalAppsAccordion = ({ formikProps, isEdition }: TExternalAppsA
                 disabled={showCRMSection}
                 onClick={() => {
                   setShowCRMSection(true)
-                  scrollToIntegration(
-                    `.${ADD_CUSTOMER_CRM_PROVIDER_ACCORDION} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
-                  )
-                  closePopper()
+
+                  scrollToAndClickElement({
+                    selector: `.${ADD_CUSTOMER_CRM_PROVIDER_ACCORDION} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
+                    callback: closePopper,
+                  })
                 }}
               >
                 {translate('text_1728658962985xpfdvl5ru8a')}

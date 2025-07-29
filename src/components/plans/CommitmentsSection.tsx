@@ -13,6 +13,7 @@ import {
   SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME,
 } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import {
   CommitmentTypeEnum,
   CurrencyEnum,
@@ -284,16 +285,9 @@ export const CommitmentsSection = ({
                       onClick={() => {
                         setShouldDisplayTaxesInput(true)
 
-                        setTimeout(() => {
-                          const element = document.querySelector(
-                            `.${SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                          ) as HTMLElement
-
-                          if (!element) return
-
-                          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                          element.click()
-                        }, 0)
+                        scrollToAndClickElement({
+                          selector: `.${SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+                        })
                       }}
                     >
                       {translate('text_64be910fba8ef9208686a8c9')}
