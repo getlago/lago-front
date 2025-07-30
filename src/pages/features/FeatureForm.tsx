@@ -1,6 +1,6 @@
 import { FetchResult, gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { Button, Tooltip, Typography } from 'lago-design-system'
+import { Button, Chip, Tooltip, Typography } from 'lago-design-system'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { array, object, string } from 'yup'
@@ -209,7 +209,6 @@ const FeatureForm = () => {
     },
   })
 
-  // TODO: Might not work for the privilege code issue
   useEffect(() => {
     if (hasDefinedGQLError('ValueAlreadyExist', createError || updateError)) {
       formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
@@ -231,11 +230,15 @@ const FeatureForm = () => {
     <>
       <CenteredPage.Wrapper>
         <CenteredPage.Header>
-          <Typography variant="bodyHl" color="textSecondary" noWrap>
-            {translate(
-              isEdition ? 'text_1752692673070znttbx4w0r1' : 'text_17526926730703ysbxa2g5fj',
-            )}
-          </Typography>
+          <div className="flex items-center gap-4">
+            <Typography variant="bodyHl" color="textSecondary" noWrap>
+              {translate(
+                isEdition ? 'text_1752692673070znttbx4w0r1' : 'text_17526926730703ysbxa2g5fj',
+              )}
+            </Typography>
+            <Chip size="small" label={translate('text_65d8d71a640c5400917f8a13')} />
+          </div>
+
           <Button
             variant="quaternary"
             icon="close"
@@ -282,6 +285,7 @@ const FeatureForm = () => {
                     />
                     <TextInputField
                       name="code"
+                      beforeChangeFormatter={['code']}
                       disabled={isEdition}
                       label={translate('text_62876e85e32e0300e1803127')}
                       placeholder={translate('text_623b42ff8ee4e000ba87d0c4')}
@@ -374,8 +378,6 @@ const FeatureForm = () => {
                             valueType: PrivilegeValueTypeEnum.Boolean,
                           },
                         ])
-
-                        // TODO: Should open new accordion and focus name input
                       }}
                     >
                       {translate('text_1752695518075ut8zscauuq3')}
