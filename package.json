@@ -109,7 +109,7 @@
     "@apollo/client": "3.11.4",
     "@mui/material": "5.14.18",
     "@mui/x-date-pickers": "6.20.0",
-    "@nangohq/frontend": "0.62.0",
+    "@nangohq/frontend": "^0.64.4",
     "@sentry/react": "9.11.0",
     "@tanstack/react-virtual": "3.11.2",
     "ace-builds": "^1.37.3",
