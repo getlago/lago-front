@@ -347,7 +347,13 @@ export const Table = <T extends DataItem>({
   rowDataTestId,
 }: TableProps<T>) => {
   const TABLE_ID = `table-${name}`
-  const filteredColumns = columns.filter((column) => !!column)
+  const filteredColumns = columns
+    .filter((column) => !!column)
+    .map((column) => ({
+      ...column,
+      // Make sure maxWidth is set to 600 if maxSpace is true
+      maxWidth: column.maxSpace ? 600 : column.maxWidth,
+    }))
   const maxSpaceColumns = countMaxSpaceColumns(filteredColumns)
   const tableRef = useRef<HTMLTableElement>(null)
   const { translate } = useInternationalization()
