@@ -136,7 +136,7 @@ export const CustomerSubscriptionsList = () => {
                     >
                       {isDowngrade && <Icon name="arrow-indent" />}
 
-                      <Typography variant="subhead2" color="grey700">
+                      <Typography variant="bodyHl" color="grey700">
                         {name}
                       </Typography>
 
@@ -160,8 +160,7 @@ export const CustomerSubscriptionsList = () => {
                 content: ({ startedAt, customer }) =>
                   !!startedAt ? (
                     <TimezoneDate
-                      typographyClassName="text-nowrap"
-                      mainTypographyProps={{ variant: 'subhead2', color: 'grey600' }}
+                      mainTypographyProps={{ variant: 'body', color: 'grey600', noWrap: true }}
                       date={startedAt}
                       customerTimezone={customer.applicableTimezone}
                     />
@@ -175,8 +174,7 @@ export const CustomerSubscriptionsList = () => {
                 content: ({ endingAt, status, terminatedAt, customer }) =>
                   endingAt || terminatedAt ? (
                     <TimezoneDate
-                      typographyClassName="text-nowrap"
-                      mainTypographyProps={{ variant: 'subhead2', color: 'grey600' }}
+                      mainTypographyProps={{ variant: 'body', color: 'grey600', noWrap: true }}
                       date={status === StatusTypeEnum.Terminated ? terminatedAt : endingAt}
                       customerTimezone={customer.applicableTimezone}
                     />

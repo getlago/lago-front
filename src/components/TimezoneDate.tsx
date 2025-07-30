@@ -19,7 +19,7 @@ interface TimezoneDateProps {
   mainDateFormat?: string
   mainTimezone?: keyof typeof MainTimezoneEnum
   customerTimezone?: TimezoneEnum
-  mainTypographyProps?: Pick<TypographyProps, 'variant' | 'color' | 'className'>
+  mainTypographyProps?: Pick<TypographyProps, 'variant' | 'color' | 'className' | 'noWrap'>
   className?: string
   typographyClassName?: string
   position?: TooltipProps['placement']
