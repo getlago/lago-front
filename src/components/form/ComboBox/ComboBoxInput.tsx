@@ -22,11 +22,13 @@ export const ComboBoxInput = ({
   disableClearable,
   startAdornmentValue,
   hasValueSelected,
+  variant = 'default',
 }: ComboBoxInputProps) => {
   const { inputProps, InputProps, ...restParams } = params
 
   return (
     <TextInput
+      variant={variant}
       onChange={(newVal) => {
         // needed because useAutocomplete expect a DOM onChange listener...
         inputProps.onChange({ target: { value: newVal } })

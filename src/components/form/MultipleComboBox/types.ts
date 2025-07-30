@@ -62,6 +62,7 @@ export type MultipleComboBoxInputProps = Pick<
   | 'className'
   | 'infoText'
   | 'startAdornmentValue'
+  | 'variant'
 > & {
   disableClearable?: boolean
   disableCloseOnSelect?: boolean

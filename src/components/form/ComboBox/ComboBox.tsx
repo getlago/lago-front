@@ -38,6 +38,7 @@ export const ComboBox = ({
   renderGroupInputStartAdornment,
   onOpen,
   onChange,
+  variant = 'default',
 }: ComboBoxProps) => {
   const { translate } = useInternationalization()
 
@@ -113,6 +114,7 @@ export const ComboBox = ({
             placeholder={placeholder}
             startAdornmentValue={startAdornmentValue}
             params={params}
+            variant={variant}
           />
         )
       }}

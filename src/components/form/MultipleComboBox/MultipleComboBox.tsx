@@ -45,6 +45,7 @@ export const MultipleComboBox = ({
   virtualized = true,
   limitTags,
   onChange,
+  variant = 'default',
 }: MultipleComboBoxProps) => {
   const { translate } = useInternationalization()
   const [open, setOpen] = useState(false)
@@ -112,6 +113,7 @@ export const MultipleComboBox = ({
           label={label}
           name={name}
           placeholder={placeholder}
+          variant={variant}
         />
       )}
       onChange={(_, newValue) => {
