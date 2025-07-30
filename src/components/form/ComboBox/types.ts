@@ -77,6 +77,7 @@ export type ComboBoxInputProps = Pick<
   | 'className'
   | 'infoText'
   | 'startAdornmentValue'
+  | 'variant'
 > & {
   disableClearable?: boolean
   hasValueSelected?: boolean
