@@ -174,7 +174,7 @@ const SubscriptionsPage = () => {
                       })}
                     >
                       {isDowngrade && <Icon name="arrow-indent" />}
-                      <Typography noWrap className="text-base font-medium text-grey-700">
+                      <Typography variant="bodyHl" color="grey700" noWrap>
                         {name}
                       </Typography>
                       {isDowngrade && <Status type={StatusType.default} label="downgrade" />}
@@ -227,7 +227,7 @@ const SubscriptionsPage = () => {
                 content: ({ startedAt, customer }) =>
                   !!startedAt ? (
                     <TimezoneDate
-                      typographyClassName="text-nowrap text-base font-normal text-grey-600"
+                      mainTypographyProps={{ variant: 'body', color: 'grey600', noWrap: true }}
                       date={startedAt}
                       customerTimezone={customer.applicableTimezone}
                     />
@@ -241,7 +241,7 @@ const SubscriptionsPage = () => {
                 content: ({ endingAt, status, terminatedAt, customer }) =>
                   endingAt || terminatedAt ? (
                     <TimezoneDate
-                      typographyClassName="text-nowrap text-base font-normal text-grey-600"
+                      mainTypographyProps={{ variant: 'body', color: 'grey600', noWrap: true }}
                       date={status === StatusTypeEnum.Terminated ? terminatedAt : endingAt}
                       customerTimezone={customer.applicableTimezone}
                     />
