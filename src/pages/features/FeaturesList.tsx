@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { Avatar, Button, ButtonLink, Icon, Typography } from 'lago-design-system'
+import { Avatar, Button, ButtonLink, Chip, Icon, Typography } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
@@ -107,10 +107,13 @@ const FeaturesList = () => {
   return (
     <>
       <PageHeader.Wrapper withSide>
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_1752692673070k7z0mmf0494')}
-        </Typography>
+        <div className="flex items-center gap-4">
+          <Typography variant="bodyHl" color="grey700">
+            {translate('text_1752692673070k7z0mmf0494')}
+          </Typography>
 
+          <Chip size="small" label={translate('text_65d8d71a640c5400917f8a13')} />
+        </div>
         <PageHeader.Group>
           <SearchInput
             disabled={!isPremium}
