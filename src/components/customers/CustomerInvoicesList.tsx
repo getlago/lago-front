@@ -134,6 +134,7 @@ gql`
 `
 
 interface CustomerInvoicesListProps {
+  isSearching?: boolean
   isLoading: boolean
   hasError?: boolean
   invoiceData?: InvoiceForInvoiceListFragment
@@ -143,6 +144,7 @@ interface CustomerInvoicesListProps {
 }
 
 export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
+  isSearching,
   isLoading,
   hasError = false,
   invoiceData,
@@ -216,16 +218,26 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
             })
           }
           placeholder={{
-            errorState: {
-              title: translate('text_634812d6f16b31ce5cbf4111'),
-              subtitle: translate('text_634812d6f16b31ce5cbf411f'),
-              buttonTitle: translate('text_634812d6f16b31ce5cbf4123'),
-              buttonAction: () => location.reload(),
-            },
-            emptyState: {
-              title: translate('text_63c6cac5c1fc58028d0235eb'),
-              subtitle: translate('text_63c6cac5c1fc58028d0235ef'),
-            },
+            errorState: isSearching
+              ? {
+                  title: translate('text_623b53fea66c76017eaebb6e'),
+                  subtitle: translate('text_63bab307a61c62af497e0599'),
+                }
+              : {
+                  title: translate('text_634812d6f16b31ce5cbf4111'),
+                  subtitle: translate('text_634812d6f16b31ce5cbf411f'),
+                  buttonTitle: translate('text_634812d6f16b31ce5cbf4123'),
+                  buttonAction: () => location.reload(),
+                },
+            emptyState: isSearching
+              ? {
+                  title: translate('text_63c6cac5c1fc58028d0235eb'),
+                  subtitle: translate('text_63c6cac5c1fc58028d0235ef'),
+                }
+              : {
+                  title: translate('text_63b578e959c1366df5d14569'),
+                  subtitle: translate('text_6250304370f0f700a8fdc293'),
+                },
           }}
           columns={[
             {

@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { generatePath } from 'react-router-dom'
 
 import { CustomerOverview } from '~/components/customers/overview/CustomerOverview'
-import { ButtonLink, Skeleton, Typography } from '~/components/designSystem'
+import { ButtonLink } from '~/components/designSystem'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { SearchInput } from '~/components/SearchInput'
 import { CUSTOMER_DRAFT_INVOICES_LIST_ROUTE } from '~/core/router'
@@ -98,45 +98,20 @@ export const CustomerInvoicesTab = ({
   const invoicesFinalized = dataFinalized?.customerInvoices.collection
   const invoicesDraftCount = dataDraft?.customerInvoices.metadata.totalCount || 0
 
-  const showInvoices = !initialLoad
   const hasDraftInvoices = !!invoicesDraft?.length
   const hasFinalizedInvoices = !!invoicesFinalized?.length
-  const isSearching = variablesFinalized?.searchTerm
+  const isSearching = !!variablesFinalized?.searchTerm
   const hasInvoices = hasDraftInvoices || hasFinalizedInvoices
 
   const showSeeMore = invoicesDraftCount > DRAFT_INVOICES_ITEMS_COUNT
 
   return (
     <div className="flex flex-col gap-12">
-      {showInvoices && hasInvoices && !isPartner && (
+      {!initialLoad && hasInvoices && !isPartner && (
         <CustomerOverview externalCustomerId={externalId} userCurrency={userCurrency} />
       )}
 
-      {initialLoad && (
-        <div>
-          <Skeleton variant="text" className="mb-7 w-56" />
-          <CustomerInvoicesList
-            isLoading
-            customerTimezone={customerTimezone}
-            customerId={customerId}
-          />
-        </div>
-      )}
-
-      {showInvoices && !hasInvoices && !hasDraftInvoices && !isSearching && (
-        <div>
-          <PageSectionTitle
-            title={translate('text_6250304370f0f700a8fdc291')}
-            subtitle={translate('text_1737654864705k68zqvg5u9d')}
-          />
-
-          <Typography className="text-grey-500">
-            {translate('text_6250304370f0f700a8fdc293')}
-          </Typography>
-        </div>
-      )}
-
-      {showInvoices && hasDraftInvoices && (
+      {!initialLoad && hasDraftInvoices && (
         <div>
           <PageSectionTitle
             title={translate('text_638f4d756d899445f18a49ee')}
@@ -167,29 +142,28 @@ export const CustomerInvoicesTab = ({
         </div>
       )}
 
-      {showInvoices && (hasFinalizedInvoices || isSearching) && (
-        <div>
-          <PageSectionTitle
-            title={translate('text_6250304370f0f700a8fdc291')}
-            subtitle={translate('text_1737654864705k68zqvg5u9d')}
-            customAction={
-              <SearchInput
-                onChange={debouncedSearch}
-                placeholder={translate('text_63c6861d9991cdd5a92c1419')}
-              />
-            }
-          />
+      <div>
+        <PageSectionTitle
+          title={translate('text_6250304370f0f700a8fdc291')}
+          subtitle={translate('text_1737654864705k68zqvg5u9d')}
+          customAction={
+            <SearchInput
+              onChange={debouncedSearch}
+              placeholder={translate('text_63c6861d9991cdd5a92c1419')}
+            />
+          }
+        />
 
-          <CustomerInvoicesList
-            isLoading={isLoading}
-            hasError={!!errorFinalized}
-            customerTimezone={customerTimezone}
-            customerId={customerId}
-            invoiceData={dataFinalized?.customerInvoices}
-            fetchMore={fetchMoreFinalized}
-          />
-        </div>
-      )}
+        <CustomerInvoicesList
+          isSearching={isSearching}
+          isLoading={isLoading}
+          hasError={!!errorFinalized}
+          customerTimezone={customerTimezone}
+          customerId={customerId}
+          invoiceData={dataFinalized?.customerInvoices}
+          fetchMore={fetchMoreFinalized}
+        />
+      </div>
     </div>
   )
 }
