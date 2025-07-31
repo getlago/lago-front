@@ -213,7 +213,6 @@ const FeaturesList = () => {
                   title: translate('text_6419c64eace749372fc72b0f'),
                   maxSpace: true,
                   minWidth: 200,
-                  maxWidth: 600,
                   content: (feature) => (
                     <div className="flex items-center gap-3">
                       <Avatar size="big" variant="connector">
