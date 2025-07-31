@@ -33,9 +33,9 @@ export const InfiniteScroll = ({ children, onBottom }: InfiniteScrollProps) => {
   }, [hiddenBottom, onBottom])
 
   return (
-    <>
+    <div className="relative overflow-y-auto">
       {children}
-      <div className="h-px" ref={hiddenBottom} />
-    </>
+      <div className="absolute inset-x-0 bottom-0 -z-10 h-10" ref={hiddenBottom} />
+    </div>
   )
 }

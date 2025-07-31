@@ -370,7 +370,7 @@ const SubscriptionDetails = () => {
               }),
             ],
             component: (
-              <DetailsPage.Container>
+              <DetailsPage.Container className="max-w-none">
                 <SubscriptionActivityLogs externalSubscriptionId={subscription?.externalId || ''} />
               </DetailsPage.Container>
             ),

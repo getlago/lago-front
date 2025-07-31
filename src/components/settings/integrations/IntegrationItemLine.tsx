@@ -31,7 +31,7 @@ const IntegrationItemLine = ({
 
   if (loading) {
     return (
-      <div className="flex h-nav items-center justify-between px-12 py-3 shadow-b">
+      <div className="flex h-nav w-full items-center justify-between px-12 py-3 shadow-b">
         <Stack direction="row" alignItems="center" gap={3} sx={{ flex: 1 }}>
           <Skeleton variant="connectorAvatar" size="big" />
           <Stack sx={{ flex: 1 }}>
@@ -46,7 +46,7 @@ const IntegrationItemLine = ({
 
   return (
     <button
-      className="flex min-h-nav items-center justify-between rounded-none px-12 py-3 text-left shadow-b hover:bg-grey-100"
+      className="flex min-h-nav w-full items-center justify-between rounded-none px-12 py-3 text-left shadow-b hover:bg-grey-100"
       onClick={onMappingClick}
     >
       <Stack direction="row" alignItems="center" gap={3}>
