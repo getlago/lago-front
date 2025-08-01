@@ -5192,6 +5192,7 @@ export type OktaLoginInput = {
 
 export enum OnTerminationCreditNoteEnum {
   Credit = 'credit',
+  Refund = 'refund',
   Skip = 'skip'
 }
 
@@ -6413,6 +6414,7 @@ export type QueryInvoicesArgs = {
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   selfBilled?: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<Array<InvoiceStatusTypeEnum>>;
+  subscriptionId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -8903,7 +8905,7 @@ export type GetCustomerSubscriptionForListQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerSubscriptionForListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval, parent?: { __typename?: 'Plan', id: string } | null }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null }> } | null };
+export type GetCustomerSubscriptionForListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, plan: { __typename?: 'Plan', id: string, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval, payInAdvance: boolean, parent?: { __typename?: 'Plan', id: string } | null }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null }> } | null };
 
 export type TerminateCustomerSubscriptionMutationVariables = Exact<{
   input: TerminateSubscriptionInput;
@@ -8911,6 +8913,15 @@ export type TerminateCustomerSubscriptionMutationVariables = Exact<{
 
 
 export type TerminateCustomerSubscriptionMutation = { __typename?: 'Mutation', terminateSubscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number } } | null };
+
+export type GetInvoicesForTerminationQueryVariables = Exact<{
+  subscriptionId: Scalars['ID']['input'];
+  invoiceType?: InputMaybe<Array<InvoiceTypeEnum> | InvoiceTypeEnum>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetInvoicesForTerminationQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, number: string, currency?: CurrencyEnum | null, totalAmountCents: any, totalPaidAmountCents: any }> } };
 
 export type GetCustomerSubscriptionForUsageQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -11418,9 +11429,9 @@ export type GetSubscriptionForDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionForDetailsQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, externalId: string, plan: { __typename?: 'Plan', id: string, name: string, code: string, parent?: { __typename?: 'Plan', id: string, name: string, code: string } | null }, customer: { __typename?: 'Customer', id: string } } | null };
+export type GetSubscriptionForDetailsQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, externalId: string, plan: { __typename?: 'Plan', id: string, name: string, code: string, payInAdvance: boolean, parent?: { __typename?: 'Plan', id: string, name: string, code: string } | null }, customer: { __typename?: 'Customer', id: string } } | null };
 
-export type SubscriptionForSubscriptionsListFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null };
+export type SubscriptionForSubscriptionsListFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, payInAdvance: boolean, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null };
 
 export type GetSubscriptionsListQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -11433,7 +11444,7 @@ export type GetSubscriptionsListQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionsListQuery = { __typename?: 'Query', subscriptions: { __typename?: 'SubscriptionCollection', collection: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+export type GetSubscriptionsListQuery = { __typename?: 'Query', subscriptions: { __typename?: 'SubscriptionCollection', collection: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, payInAdvance: boolean, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type GetInvoiceCollectionsForAnalyticsQueryVariables = Exact<{
   currency: CurrencyEnum;
@@ -15543,6 +15554,7 @@ export const SubscriptionForSubscriptionsListFragmentDoc = gql`
   plan {
     id
     isOverridden
+    payInAdvance
     amountCurrency
     name
     interval
@@ -19685,6 +19697,7 @@ export const GetCustomerSubscriptionForListDocument = gql`
         amountCurrency
         name
         interval
+        payInAdvance
         parent {
           id
         }
@@ -19775,6 +19788,58 @@ export function useTerminateCustomerSubscriptionMutation(baseOptions?: Apollo.Mu
 export type TerminateCustomerSubscriptionMutationHookResult = ReturnType<typeof useTerminateCustomerSubscriptionMutation>;
 export type TerminateCustomerSubscriptionMutationResult = Apollo.MutationResult<TerminateCustomerSubscriptionMutation>;
 export type TerminateCustomerSubscriptionMutationOptions = Apollo.BaseMutationOptions<TerminateCustomerSubscriptionMutation, TerminateCustomerSubscriptionMutationVariables>;
+export const GetInvoicesForTerminationDocument = gql`
+    query getInvoicesForTermination($subscriptionId: ID!, $invoiceType: [InvoiceTypeEnum!], $limit: Int) {
+  invoices(
+    subscriptionId: $subscriptionId
+    invoiceType: $invoiceType
+    limit: $limit
+  ) {
+    collection {
+      id
+      number
+      currency
+      totalAmountCents
+      totalPaidAmountCents
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetInvoicesForTerminationQuery__
+ *
+ * To run a query within a React component, call `useGetInvoicesForTerminationQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetInvoicesForTerminationQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetInvoicesForTerminationQuery({
+ *   variables: {
+ *      subscriptionId: // value for 'subscriptionId'
+ *      invoiceType: // value for 'invoiceType'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetInvoicesForTerminationQuery(baseOptions: Apollo.QueryHookOptions<GetInvoicesForTerminationQuery, GetInvoicesForTerminationQueryVariables> & ({ variables: GetInvoicesForTerminationQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetInvoicesForTerminationQuery, GetInvoicesForTerminationQueryVariables>(GetInvoicesForTerminationDocument, options);
+      }
+export function useGetInvoicesForTerminationLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetInvoicesForTerminationQuery, GetInvoicesForTerminationQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetInvoicesForTerminationQuery, GetInvoicesForTerminationQueryVariables>(GetInvoicesForTerminationDocument, options);
+        }
+export function useGetInvoicesForTerminationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetInvoicesForTerminationQuery, GetInvoicesForTerminationQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetInvoicesForTerminationQuery, GetInvoicesForTerminationQueryVariables>(GetInvoicesForTerminationDocument, options);
+        }
+export type GetInvoicesForTerminationQueryHookResult = ReturnType<typeof useGetInvoicesForTerminationQuery>;
+export type GetInvoicesForTerminationLazyQueryHookResult = ReturnType<typeof useGetInvoicesForTerminationLazyQuery>;
+export type GetInvoicesForTerminationSuspenseQueryHookResult = ReturnType<typeof useGetInvoicesForTerminationSuspenseQuery>;
+export type GetInvoicesForTerminationQueryResult = Apollo.QueryResult<GetInvoicesForTerminationQuery, GetInvoicesForTerminationQueryVariables>;
 export const GetCustomerSubscriptionForUsageDocument = gql`
     query getCustomerSubscriptionForUsage($id: ID!) {
   customer(id: $id) {
@@ -31254,6 +31319,7 @@ export const GetSubscriptionForDetailsDocument = gql`
       id
       name
       code
+      payInAdvance
       parent {
         id
         name
