@@ -8,7 +8,7 @@ import { object, string } from 'yup'
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { RadioField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
-import { formatDateToTZ } from '~/core/timezone/utils'
+import { intlFormatDateTime } from '~/core/timezone/utils'
 import {
   ApiKeyForRotateApiKeyDialogFragment,
   ApiKeyRevealedForApiKeysListFragment,
@@ -171,7 +171,9 @@ export const RotateApiKeyDialog = forwardRef<
           </Typography>
           <Typography className="flex-1" variant="body" color="grey700">
             {!!apiKey?.lastUsedAt
-              ? formatDateToTZ(apiKey?.lastUsedAt, TimezoneEnum.TzUtc, 'LLL. dd, yyyy')
+              ? intlFormatDateTime(apiKey?.lastUsedAt, {
+                  timezone: TimezoneEnum.TzUtc,
+                }).date
               : '-'}
           </Typography>
         </div>

@@ -12,7 +12,7 @@ import { hasDefinedGQLError } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { UPDATE_PLAN_ROUTE, UPDATE_SUBSCRIPTION } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ, intlFormatDateTime } from '~/core/timezone'
+import { intlFormatDateTime } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
 import {
   CurrencyEnum,
@@ -141,18 +141,14 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
             noWrap
           >
             {translate('text_633dae57ca9a923dd53c2097', {
-              fromDate: locale
-                ? intlFormatDateTime(lifetimeUsage.totalUsageFromDatetime, {
-                    timezone: customerTimezone,
-                    locale,
-                  }).date
-                : formatDateToTZ(lifetimeUsage.totalUsageFromDatetime, customerTimezone),
-              toDate: locale
-                ? intlFormatDateTime(lifetimeUsage.totalUsageToDatetime, {
-                    timezone: customerTimezone,
-                    locale,
-                  }).date
-                : formatDateToTZ(lifetimeUsage.totalUsageToDatetime, customerTimezone),
+              fromDate: intlFormatDateTime(lifetimeUsage.totalUsageFromDatetime, {
+                timezone: customerTimezone,
+                locale,
+              }).date,
+              toDate: intlFormatDateTime(lifetimeUsage.totalUsageToDatetime, {
+                timezone: customerTimezone,
+                locale,
+              }).date,
             })}
           </Typography>
         )}

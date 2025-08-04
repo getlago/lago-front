@@ -10,7 +10,7 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { HOME_ROUTE } from '~/core/router'
-import { formatDateToTZ } from '~/core/timezone'
+import { intlFormatDateTime } from '~/core/timezone'
 import {
   ApiKeysPermissionsEnum,
   CreateApiKeyInput,
@@ -281,7 +281,9 @@ const ApiKeysForm = () => {
                 <Alert type="info">
                   <Typography variant="body" color="grey700">
                     {translate('text_1732286530467pwhhpj0aczl', {
-                      date: formatDateToTZ(apiKey?.lastUsedAt, TimezoneEnum.TzUtc, 'LLL. dd, yyyy'),
+                      date: intlFormatDateTime(apiKey?.lastUsedAt, {
+                        timezone: TimezoneEnum.TzUtc,
+                      }).date,
                     })}
                   </Typography>
                 </Alert>

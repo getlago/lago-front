@@ -13,7 +13,7 @@ import { InvoiceDetailsTablePeriodLine } from '~/components/invoices/details/Inv
 import { InvoiceFeeAdvanceDetailsTable } from '~/components/invoices/details/InvoiceFeeAdvanceDetailsTable'
 import { InvoiceFeeArrearsDetailsTable } from '~/components/invoices/details/InvoiceFeeArrearsDetailsTable'
 import { groupAndFormatFees, TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
-import { formatDateToTZ } from '~/core/timezone'
+import { intlFormatDateTime } from '~/core/timezone'
 import {
   CurrencyEnum,
   Customer,
@@ -322,16 +322,12 @@ export const InvoiceDetailsTable = memo(
                         canHaveUnitPrice={canHaveUnitPrice}
                         isDraftInvoice={false}
                         period={translate('text_6499a4e4db5730004703f36b', {
-                          from: formatDateToTZ(
-                            subscription?.metadata?.fromDatetime,
-                            customer?.applicableTimezone,
-                            'LLL. dd, yyyy',
-                          ),
-                          to: formatDateToTZ(
-                            subscription?.metadata?.toDatetime,
-                            customer?.applicableTimezone,
-                            'LLL. dd, yyyy',
-                          ),
+                          from: intlFormatDateTime(subscription?.metadata?.fromDatetime, {
+                            timezone: customer?.applicableTimezone,
+                          }).date,
+                          to: intlFormatDateTime(subscription?.metadata?.toDatetime, {
+                            timezone: customer?.applicableTimezone,
+                          }).date,
                         })}
                       />
 

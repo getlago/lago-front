@@ -25,7 +25,7 @@ import {
   intlFormatNumber,
 } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ } from '~/core/timezone'
+import { intlFormatDateTime } from '~/core/timezone'
 import { CurrencyEnum, TimeGranularityEnum, TimezoneEnum } from '~/generated/graphql'
 import { theme } from '~/styles'
 
@@ -329,7 +329,11 @@ const MultipleLineChart = <T extends DataItem>({
                       textAnchor: index === 0 ? 'start' : 'end',
                     }}
                   >
-                    {formatDateToTZ(dateValue, TimezoneEnum.TzUtc, 'LLL dd yyyy')}
+                    {
+                      intlFormatDateTime(dateValue, {
+                        timezone: TimezoneEnum.TzUtc,
+                      }).time
+                    }
                   </text>
                 </g>
               )

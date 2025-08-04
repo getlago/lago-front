@@ -15,7 +15,7 @@ import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOpti
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ } from '~/core/timezone'
+import { intlFormatDateTime } from '~/core/timezone'
 import {
   CreditNoteDetailsForOverviewTableFragmentDoc,
   CurrencyEnum,
@@ -172,10 +172,11 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
             {creditNote?.createdAt && (
               <DetailsPage.OverviewLine
                 title={translate('text_637655cb50f04bf1c8379d06')}
-                value={formatDateToTZ(
-                  creditNote?.createdAt,
-                  creditNote?.customer.applicableTimezone,
-                )}
+                value={
+                  intlFormatDateTime(creditNote?.createdAt, {
+                    timezone: creditNote?.customer.applicableTimezone,
+                  }).date
+                }
               />
             )}
           </>
@@ -207,10 +208,9 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
                 <Status
                   {...status}
                   labelVariables={{
-                    date: formatDateToTZ(
-                      creditNote?.refundedAt,
-                      creditNote?.customer.applicableTimezone,
-                    ),
+                    date: intlFormatDateTime(creditNote?.refundedAt, {
+                      timezone: creditNote?.customer.applicableTimezone,
+                    }).date,
                   }}
                 />
               }

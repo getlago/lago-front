@@ -131,8 +131,32 @@ const getTimezoneString = (dateTime: DateTime, timezone: TimezoneEnum, format: T
 }
 
 /**
- * @warning If you use it for organization-based dates, make sure to use the `formatTimeOrgaTZ` function instead.
+ * Formats a date/time string according to the specified timezone and locale options.
+ *
+ * @param date - ISO date string to format
+ * @param options - Formatting options
+ * @param options.timezone - Target timezone to format the date in. Defaults to UTC.
+ * @param options.locale - Locale to use for formatting. Defaults to English.
+ * @param options.formatDate - Format to use for the date portion. Default is `DATE_MED` (Apr 18, 2025).
+ * @param options.formatTime - Format to use for the time portion. Default is `TIME_SIMPLE` (12:00 AM).
+ * @param options.formatTimezone - Format to use for the timezone. Default is `UTC_OFFSET` (UTC±0:00).
+ * @returns Object containing formatted date, time and timezone strings
+ * @example
+ * ```ts
+ * // Format a date in UTC
+ * intlFormatDateTime('2023-01-01T00:00:00Z')
+ * // Returns: { date: 'Jan 1, 2023', time: '12:00 AM', timezone: 'UTC±0:00' }
+ *
+ * // Format with custom timezone and formats
+ * intlFormatDateTime('2023-01-01T00:00:00Z', {
+ *   timezone: TimezoneEnum.TzAmericaNewYork,
+ *   formatDate: DateFormat.DATE_MED_SHORT_YEAR,
+ *   formatTime: TimeFormat.TIME_24_SIMPLE
+ * })
+ * // Returns: { date: 'Dec 31, 22', time: '19:00', timezone: 'UTC-4:00' }
+ * ```
  */
+
 export const intlFormatDateTime = (
   date: string,
   options:

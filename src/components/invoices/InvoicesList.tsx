@@ -46,7 +46,7 @@ import {
   INVOICE_SETTINGS_ROUTE,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ } from '~/core/timezone'
+import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { handleDownloadFile } from '~/core/utils/downloadFiles'
 import {
@@ -483,7 +483,7 @@ const InvoicesList = ({
               minWidth: 104,
               content: ({ issuingDate, customer }) => (
                 <Typography variant="body" noWrap>
-                  {formatDateToTZ(issuingDate, customer.applicableTimezone)}
+                  {intlFormatDateTime(issuingDate, { timezone: customer.applicableTimezone }).date}
                 </Typography>
               ),
             },

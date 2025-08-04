@@ -38,6 +38,9 @@ type UseOrganizationInfos = () => {
   organization?: MainOrganizationInfosFragment
   timezone: TimezoneEnum
   timezoneConfig: TimezoneConfigObject
+  /**
+   * @deprecated Use `intlFormatDateTime` instead.
+   */
   formatTimeOrgaTZ: (date: string, format?: string) => string
   hasOrganizationPremiumAddon: (integration: PremiumIntegrationTypeEnum) => boolean
   refetchOrganizationInfos: () => void

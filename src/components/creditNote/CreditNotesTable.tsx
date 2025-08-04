@@ -21,7 +21,7 @@ import { CREDIT_NOTE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ } from '~/core/timezone'
+import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { handleDownloadFile } from '~/core/utils/downloadFiles'
 import { ResponsiveStyleValue } from '~/core/utils/responsiveProps'
@@ -124,7 +124,7 @@ const CreditNotesTable = ({
 }: TCreditNoteTableProps) => {
   const { translate } = useInternationalization()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
-  const { formatTimeOrgaTZ, organization: { premiumIntegrations } = {} } = useOrganizationInfos()
+  const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const { hasPermissions } = usePermissions()
 
   const hasAccessToRevenueShare = !!premiumIntegrations?.includes(
@@ -334,9 +334,11 @@ const CreditNotesTable = ({
               title: translate('text_62544c1db13ca10187214d7f'),
               content: ({ createdAt }) => (
                 <Typography variant="body" color="grey600" noWrap>
-                  {customerTimezone
-                    ? formatDateToTZ(createdAt, customerTimezone)
-                    : formatTimeOrgaTZ(createdAt)}
+                  {
+                    intlFormatDateTime(createdAt, {
+                      timezone: customerTimezone,
+                    }).date
+                  }
                 </Typography>
               ),
             },

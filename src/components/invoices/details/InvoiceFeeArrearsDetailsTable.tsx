@@ -8,7 +8,7 @@ import {
   TExtendedRemainingFee,
   TSubscriptionDataForDisplay,
 } from '~/core/formats/formatInvoiceItemsMap'
-import { formatDateToTZ } from '~/core/timezone'
+import { intlFormatDateTime } from '~/core/timezone'
 import {
   CurrencyEnum,
   Customer,
@@ -70,20 +70,18 @@ export const InvoiceFeeArrearsDetailsTable = memo(
               canHaveUnitPrice={canHaveUnitPrice}
               isDraftInvoice={isDraftInvoice}
               period={translate('text_6499a4e4db5730004703f36b', {
-                from: formatDateToTZ(
+                from: intlFormatDateTime(
                   subscription?.metadata?.differentBoundariesForSubscriptionAndCharges
                     ? subscription?.metadata?.chargesFromDatetime
                     : subscription?.metadata?.fromDatetime,
-                  customer?.applicableTimezone,
-                  'LLL. dd, yyyy',
-                ),
-                to: formatDateToTZ(
+                  { timezone: customer?.applicableTimezone },
+                ).date,
+                to: intlFormatDateTime(
                   subscription?.metadata?.differentBoundariesForSubscriptionAndCharges
                     ? subscription?.metadata?.chargesToDatetime
                     : subscription?.metadata?.toDatetime,
-                  customer?.applicableTimezone,
-                  'LLL. dd, yyyy',
-                ),
+                  { timezone: customer?.applicableTimezone },
+                ).date,
               })}
             />
 

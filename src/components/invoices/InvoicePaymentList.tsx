@@ -9,7 +9,7 @@ import { payablePaymentStatusMapping } from '~/core/constants/statusInvoiceMappi
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CREATE_INVOICE_PAYMENT_ROUTE, PAYMENT_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ } from '~/core/timezone'
+import { intlFormatDateTime } from '~/core/timezone'
 import {
   CurrencyEnum,
   Invoice,
@@ -172,7 +172,7 @@ export const InvoicePaymentList: FC<{
                 key: 'createdAt',
                 title: translate('text_664cb90097bfa800e6efa3f5'),
                 content: ({ createdAt, customer }) =>
-                  formatDateToTZ(createdAt, customer.applicableTimezone),
+                  intlFormatDateTime(createdAt, { timezone: customer.applicableTimezone }).date,
               },
             ]}
           />

@@ -23,7 +23,7 @@ import {
 import { ChartWrapper } from '~/components/layouts/Charts'
 import { bigNumberShortenNotationFormater } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ } from '~/core/timezone'
+import { intlFormatDateTime } from '~/core/timezone'
 import { CurrencyEnum, TimeGranularityEnum, TimezoneEnum } from '~/generated/graphql'
 import { theme } from '~/styles'
 
@@ -334,7 +334,11 @@ const StackedBarChart = <T extends DataItem>({
                       textAnchor: index === 0 ? 'start' : 'end',
                     }}
                   >
-                    {formatDateToTZ(dateValue, TimezoneEnum.TzUtc, 'LLL dd yyyy')}
+                    {
+                      intlFormatDateTime(dateValue, {
+                        timezone: TimezoneEnum.TzUtc,
+                      }).date
+                    }
                   </text>
                 </g>
               )

@@ -5,7 +5,7 @@ import { memo, RefObject, useState } from 'react'
 
 import { Button } from '~/components/designSystem'
 import { TSubscriptionDataForDisplay } from '~/core/formats/formatInvoiceItemsMap'
-import { formatDateToTZ } from '~/core/timezone'
+import { intlFormatDateTime } from '~/core/timezone'
 import {
   CurrencyEnum,
   Customer,
@@ -67,22 +67,20 @@ export const InvoiceFeeAdvanceDetailsTable = memo(
               canHaveUnitPrice={canHaveUnitPrice}
               isDraftInvoice={isDraftInvoice}
               period={translate('text_6499a4e4db5730004703f36b', {
-                from: formatDateToTZ(
+                from: intlFormatDateTime(
                   subscription?.metadata?.differentBoundariesForSubscriptionAndCharges
                     ? subscription?.metadata.fromDatetime
                     : subscription?.metadata?.inAdvanceChargesFromDatetime ||
                         subscription?.metadata?.chargesFromDatetime,
-                  customer?.applicableTimezone,
-                  'LLL. dd, yyyy',
-                ),
-                to: formatDateToTZ(
+                  { timezone: customer?.applicableTimezone },
+                ).date,
+                to: intlFormatDateTime(
                   subscription?.metadata?.differentBoundariesForSubscriptionAndCharges
                     ? subscription?.metadata.toDatetime
                     : subscription?.metadata?.inAdvanceChargesToDatetime ||
                         subscription?.metadata?.chargesToDatetime,
-                  customer?.applicableTimezone,
-                  'LLL. dd, yyyy',
-                ),
+                  { timezone: customer?.applicableTimezone },
+                ).date,
               })}
             />
             {subscription.feesInAdvance.map((feeInAdvance) => {
