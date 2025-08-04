@@ -27,6 +27,7 @@ import {
   CurrencyEnum,
   InvoiceExportTypeEnum,
   InvoiceListItemFragmentDoc,
+  InvoiceStatusTypeEnum,
   LagoApiError,
   useCreateInvoicesDataExportMutation,
   useGetInvoicesListLazyQuery,
@@ -156,6 +157,13 @@ const InvoicesPage = () => {
       nextFetchPolicy: 'network-only',
       variables: {
         limit: 20,
+        status: [
+          InvoiceStatusTypeEnum.Draft,
+          InvoiceStatusTypeEnum.Failed,
+          InvoiceStatusTypeEnum.Finalized,
+          InvoiceStatusTypeEnum.Voided,
+          InvoiceStatusTypeEnum.Pending,
+        ],
         ...formatAmountCurrency(filtersForInvoiceQuery, amountCurrency),
       },
     },
