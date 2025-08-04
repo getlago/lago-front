@@ -727,6 +727,9 @@ export type ChargeFilterUsage = {
   id?: Maybe<Scalars['ID']['output']>;
   invoiceDisplayName?: Maybe<Scalars['String']['output']>;
   pricingUnitAmountCents?: Maybe<Scalars['BigInt']['output']>;
+  pricingUnitProjectedAmountCents?: Maybe<Scalars['BigInt']['output']>;
+  projectedAmountCents: Scalars['BigInt']['output'];
+  projectedUnits: Scalars['Float']['output'];
   units: Scalars['Float']['output'];
   values: Scalars['ChargeFilterValues']['output'];
 };
@@ -779,6 +782,9 @@ export type ChargeUsage = {
   groupedUsage: Array<GroupedChargeUsage>;
   id: Scalars['ID']['output'];
   pricingUnitAmountCents?: Maybe<Scalars['BigInt']['output']>;
+  pricingUnitProjectedAmountCents?: Maybe<Scalars['BigInt']['output']>;
+  projectedAmountCents: Scalars['BigInt']['output'];
+  projectedUnits: Scalars['Float']['output'];
   units: Scalars['Float']['output'];
 };
 
@@ -2613,6 +2619,7 @@ export type CustomerUsage = {
   currency: CurrencyEnum;
   fromDatetime: Scalars['ISO8601DateTime']['output'];
   issuingDate: Scalars['ISO8601Date']['output'];
+  projectedAmountCents: Scalars['BigInt']['output'];
   taxesAmountCents: Scalars['BigInt']['output'];
   toDatetime: Scalars['ISO8601DateTime']['output'];
   totalAmountCents: Scalars['BigInt']['output'];
@@ -3570,6 +3577,9 @@ export type GroupedChargeUsage = {
   groupedBy?: Maybe<Scalars['JSON']['output']>;
   id: Scalars['ID']['output'];
   pricingUnitAmountCents?: Maybe<Scalars['BigInt']['output']>;
+  pricingUnitProjectedAmountCents?: Maybe<Scalars['BigInt']['output']>;
+  projectedAmountCents: Scalars['BigInt']['output'];
+  projectedUnits: Scalars['Float']['output'];
   units: Scalars['Float']['output'];
 };
 
