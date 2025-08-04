@@ -727,6 +727,9 @@ export type ChargeFilterUsage = {
   id?: Maybe<Scalars['ID']['output']>;
   invoiceDisplayName?: Maybe<Scalars['String']['output']>;
   pricingUnitAmountCents?: Maybe<Scalars['BigInt']['output']>;
+  pricingUnitProjectedAmountCents?: Maybe<Scalars['BigInt']['output']>;
+  projectedAmountCents: Scalars['BigInt']['output'];
+  projectedUnits: Scalars['Float']['output'];
   units: Scalars['Float']['output'];
   values: Scalars['ChargeFilterValues']['output'];
 };
@@ -779,6 +782,9 @@ export type ChargeUsage = {
   groupedUsage: Array<GroupedChargeUsage>;
   id: Scalars['ID']['output'];
   pricingUnitAmountCents?: Maybe<Scalars['BigInt']['output']>;
+  pricingUnitProjectedAmountCents?: Maybe<Scalars['BigInt']['output']>;
+  projectedAmountCents: Scalars['BigInt']['output'];
+  projectedUnits: Scalars['Float']['output'];
   units: Scalars['Float']['output'];
 };
 
@@ -1800,6 +1806,7 @@ export type CreatePlanInput = {
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
+  entitlements?: InputMaybe<Array<EntitlementInput>>;
   interval: PlanInterval;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
   minimumCommitment?: InputMaybe<CommitmentInput>;
@@ -1862,6 +1869,7 @@ export type CreateSubscriptionInput = {
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   customerId: Scalars['ID']['input'];
   endingAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  entitlements?: InputMaybe<Array<EntitlementInput>>;
   externalId?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   planId: Scalars['ID']['input'];
@@ -2611,6 +2619,7 @@ export type CustomerUsage = {
   currency: CurrencyEnum;
   fromDatetime: Scalars['ISO8601DateTime']['output'];
   issuingDate: Scalars['ISO8601Date']['output'];
+  projectedAmountCents: Scalars['BigInt']['output'];
   taxesAmountCents: Scalars['BigInt']['output'];
   toDatetime: Scalars['ISO8601DateTime']['output'];
   totalAmountCents: Scalars['BigInt']['output'];
@@ -2724,9 +2733,9 @@ export type DataApiRevenueStreamCustomer = {
   customerName?: Maybe<Scalars['String']['output']>;
   externalCustomerId: Scalars['String']['output'];
   grossRevenueAmountCents: Scalars['BigInt']['output'];
-  grossRevenueShare: Scalars['Float']['output'];
+  grossRevenueShare?: Maybe<Scalars['Float']['output']>;
   netRevenueAmountCents: Scalars['BigInt']['output'];
-  netRevenueShare: Scalars['Float']['output'];
+  netRevenueShare?: Maybe<Scalars['Float']['output']>;
 };
 
 export type DataApiRevenueStreamPlan = {
@@ -2735,9 +2744,9 @@ export type DataApiRevenueStreamPlan = {
   customersCount: Scalars['Int']['output'];
   customersShare: Scalars['Float']['output'];
   grossRevenueAmountCents: Scalars['BigInt']['output'];
-  grossRevenueShare: Scalars['Float']['output'];
+  grossRevenueShare?: Maybe<Scalars['Float']['output']>;
   netRevenueAmountCents: Scalars['BigInt']['output'];
-  netRevenueShare: Scalars['Float']['output'];
+  netRevenueShare?: Maybe<Scalars['Float']['output']>;
   planCode: Scalars['String']['output'];
   planDeletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   planId: Scalars['ID']['output'];
@@ -3195,6 +3204,19 @@ export enum EmailSettingsEnum {
   PaymentReceiptCreated = 'payment_receipt_created'
 }
 
+/** Input for updating a plan entitlement */
+export type EntitlementInput = {
+  featureCode: Scalars['String']['input'];
+  /** The privileges configuration */
+  privileges?: InputMaybe<Array<EntitlementPrivilegeInput>>;
+};
+
+/** Input for updating a plan entitlement privilege value */
+export type EntitlementPrivilegeInput = {
+  privilegeCode: Scalars['String']['input'];
+  value: Scalars['String']['input'];
+};
+
 export enum ErrorCodesEnum {
   InvoiceGenerationError = 'invoice_generation_error',
   NotProvided = 'not_provided',
@@ -3555,6 +3577,9 @@ export type GroupedChargeUsage = {
   groupedBy?: Maybe<Scalars['JSON']['output']>;
   id: Scalars['ID']['output'];
   pricingUnitAmountCents?: Maybe<Scalars['BigInt']['output']>;
+  pricingUnitProjectedAmountCents?: Maybe<Scalars['BigInt']['output']>;
+  projectedAmountCents: Scalars['BigInt']['output'];
+  projectedUnits: Scalars['Float']['output'];
   units: Scalars['Float']['output'];
 };
 
@@ -5514,19 +5539,6 @@ export type PlanEntitlementCollection = {
   metadata: CollectionMetadata;
 };
 
-/** Input for updating a plan entitlement */
-export type PlanEntitlementInput = {
-  featureCode: Scalars['String']['input'];
-  /** The privileges configuration */
-  privileges?: InputMaybe<Array<PlanEntitlementPrivilegeInput>>;
-};
-
-/** Input for updating a plan entitlement privilege value */
-export type PlanEntitlementPrivilegeInput = {
-  privilegeCode: Scalars['String']['input'];
-  value: Scalars['String']['input'];
-};
-
 export type PlanEntitlementPrivilegeObject = {
   __typename?: 'PlanEntitlementPrivilegeObject';
   code: Scalars['String']['output'];
@@ -6848,6 +6860,7 @@ export type Subscription = {
   currentBillingPeriodStartedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   customer: Customer;
   endingAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  entitlements: Array<SubscriptionEntitlement>;
   externalId: Scalars['String']['output'];
   fees?: Maybe<Array<Fee>>;
   id: Scalars['ID']['output'];
@@ -6876,6 +6889,25 @@ export type SubscriptionCollection = {
   collection: Array<Subscription>;
   /** Pagination Metadata for navigating the Pagination */
   metadata: CollectionMetadata;
+};
+
+export type SubscriptionEntitlement = {
+  __typename?: 'SubscriptionEntitlement';
+  code: Scalars['String']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  privileges: Array<SubscriptionEntitlementPrivilegeObject>;
+};
+
+export type SubscriptionEntitlementPrivilegeObject = {
+  __typename?: 'SubscriptionEntitlementPrivilegeObject';
+  code: Scalars['String']['output'];
+  config: Scalars['JSON']['output'];
+  name?: Maybe<Scalars['String']['output']>;
+  overrideValue?: Maybe<Scalars['String']['output']>;
+  planValue?: Maybe<Scalars['String']['output']>;
+  value?: Maybe<Scalars['String']['output']>;
+  valueType: PrivilegeValueTypeEnum;
 };
 
 export type SubscriptionLifetimeUsage = {
@@ -7798,7 +7830,7 @@ export type UpdateOrganizationInput = {
 export type UpdatePlanEntitlementsInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  entitlements: Array<PlanEntitlementInput>;
+  entitlements: Array<EntitlementInput>;
   planId: Scalars['ID']['input'];
 };
 
@@ -7813,6 +7845,7 @@ export type UpdatePlanInput = {
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
+  entitlements?: InputMaybe<Array<EntitlementInput>>;
   id: Scalars['ID']['input'];
   interval: PlanInterval;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
@@ -7894,6 +7927,7 @@ export type UpdateSubscriptionInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   endingAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  entitlements?: InputMaybe<Array<EntitlementInput>>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   planOverrides?: InputMaybe<PlanOverridesInput>;
@@ -8261,7 +8295,7 @@ export type GetRevenueStreamsCustomerBreakdownQueryVariables = Exact<{
 }>;
 
 
-export type GetRevenueStreamsCustomerBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsCustomers: { __typename?: 'DataApiRevenueStreamsCustomers', collection: Array<{ __typename?: 'DataApiRevenueStreamCustomer', amountCurrency: CurrencyEnum, customerDeletedAt?: any | null, customerName?: string | null, externalCustomerId: string, netRevenueAmountCents: any, netRevenueShare: number }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
+export type GetRevenueStreamsCustomerBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsCustomers: { __typename?: 'DataApiRevenueStreamsCustomers', collection: Array<{ __typename?: 'DataApiRevenueStreamCustomer', amountCurrency: CurrencyEnum, customerDeletedAt?: any | null, customerName?: string | null, externalCustomerId: string, netRevenueAmountCents: any, netRevenueShare?: number | null }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
 
 export type RevenueStreamDataForOverviewSectionFragment = { __typename?: 'DataApiRevenueStream', commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any };
 
@@ -8272,7 +8306,7 @@ export type GetRevenueStreamsPlanBreakdownQueryVariables = Exact<{
 }>;
 
 
-export type GetRevenueStreamsPlanBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsPlans: { __typename?: 'DataApiRevenueStreamsPlans', collection: Array<{ __typename?: 'DataApiRevenueStreamPlan', amountCurrency: CurrencyEnum, customersCount: number, customersShare: number, netRevenueAmountCents: any, netRevenueShare: number, planCode: string, planDeletedAt?: any | null, planId: string, planInterval: PlanInterval, planName: string }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
+export type GetRevenueStreamsPlanBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsPlans: { __typename?: 'DataApiRevenueStreamsPlans', collection: Array<{ __typename?: 'DataApiRevenueStreamPlan', amountCurrency: CurrencyEnum, customersCount: number, customersShare: number, netRevenueAmountCents: any, netRevenueShare?: number | null, planCode: string, planDeletedAt?: any | null, planId: string, planInterval: PlanInterval, planName: string }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
 
 export type GetRevenueStreamsQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
@@ -8320,6 +8354,7 @@ export type GetUsageOverviewQueryVariables = Exact<{
   toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   billingEntityCode?: InputMaybe<Scalars['String']['input']>;
   isCustomerTinEmpty?: InputMaybe<Scalars['Boolean']['input']>;
+  planCode?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -16590,7 +16625,7 @@ export type GetUsageBreakdownLazyQueryHookResult = ReturnType<typeof useGetUsage
 export type GetUsageBreakdownSuspenseQueryHookResult = ReturnType<typeof useGetUsageBreakdownSuspenseQuery>;
 export type GetUsageBreakdownQueryResult = Apollo.QueryResult<GetUsageBreakdownQuery, GetUsageBreakdownQueryVariables>;
 export const GetUsageOverviewDocument = gql`
-    query getUsageOverview($currency: CurrencyEnum, $timeGranularity: TimeGranularityEnum, $fromDate: ISO8601Date, $toDate: ISO8601Date, $billingEntityCode: String, $isCustomerTinEmpty: Boolean) {
+    query getUsageOverview($currency: CurrencyEnum, $timeGranularity: TimeGranularityEnum, $fromDate: ISO8601Date, $toDate: ISO8601Date, $billingEntityCode: String, $isCustomerTinEmpty: Boolean, $planCode: String) {
   dataApiUsagesAggregatedAmounts(
     currency: $currency
     timeGranularity: $timeGranularity
@@ -16598,6 +16633,7 @@ export const GetUsageOverviewDocument = gql`
     toDate: $toDate
     billingEntityCode: $billingEntityCode
     isCustomerTinEmpty: $isCustomerTinEmpty
+    planCode: $planCode
   ) {
     collection {
       amountCents
@@ -16627,6 +16663,7 @@ export const GetUsageOverviewDocument = gql`
  *      toDate: // value for 'toDate'
  *      billingEntityCode: // value for 'billingEntityCode'
  *      isCustomerTinEmpty: // value for 'isCustomerTinEmpty'
+ *      planCode: // value for 'planCode'
  *   },
  * });
  */

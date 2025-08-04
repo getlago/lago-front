@@ -117,11 +117,11 @@ export const useUsageAnalyticsBreakdown = ({
       return `${now.minus({ month: 1 }).startOf('day').toISO()},${now.endOf('day').toISO()}`
     }
 
-    return `${now.minus({ month: 12 }).startOf('day').toISO()},${now.endOf('day').toISO()}`
+    return `${now.minus({ days: 30 }).startOf('day').toISO()},${now.endOf('day').toISO()}`
   }, [hasAccessToAnalyticsDashboardsFeature])
 
   const getDefaultStaticTimeGranularityFilter = useCallback((): TimeGranularityEnum => {
-    return TimeGranularityEnum.Weekly
+    return TimeGranularityEnum.Daily
   }, [])
 
   const filtersForUsageBreakdownQuery = useMemo(() => {

@@ -192,7 +192,7 @@ export const RevenueStreamsCustomerBreakdownSection = ({
                       )}
                     </Typography>
                     <Typography className="w-16 text-right" variant="body" color="grey600">
-                      {intlFormatNumber(netRevenueShare, { style: 'percent' })}
+                      {intlFormatNumber(netRevenueShare || 0, { style: 'percent' })}
                     </Typography>
                   </div>
                 )
