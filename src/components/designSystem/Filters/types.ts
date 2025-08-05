@@ -15,17 +15,35 @@ export enum AmountFilterInterval {
   isAtLeast = 'isAtLeast',
 }
 
-export const AMOUNT_INTERVALS_TRANSLATION_MAP = {
+export enum ActiveSubscriptionsFilterInterval {
+  isBetween = 'isBetween',
+  isEqualTo = 'isEqualTo',
+  isGreaterThan = 'isGreaterThan',
+  isLessThan = 'isLessThan',
+}
+
+export const AMOUNT_INTERVALS_TRANSLATION_MAP: Record<AmountFilterInterval, string> = {
   [AmountFilterInterval.isBetween]: 'text_1734774653389kvylgxjiltu',
   [AmountFilterInterval.isEqualTo]: 'text_1734774653389pt3rhh3lspa',
   [AmountFilterInterval.isUpTo]: 'text_1734792781750cot2uyp6f1x',
   [AmountFilterInterval.isAtLeast]: 'text_17347927817503hromltntvm',
 }
 
+export const ACTIVE_SUBSCRIPTIONS_INTERVALS_TRANSLATION_MAP: Record<
+  ActiveSubscriptionsFilterInterval,
+  string
+> = {
+  [ActiveSubscriptionsFilterInterval.isBetween]: 'text_1734774653389kvylgxjiltu',
+  [ActiveSubscriptionsFilterInterval.isEqualTo]: 'text_1734774653389pt3rhh3lspa',
+  [ActiveSubscriptionsFilterInterval.isGreaterThan]: 'text_1754397427626s7wx2frw0f4',
+  [ActiveSubscriptionsFilterInterval.isLessThan]: 'text_1754397427626jjvqhvplifr',
+}
+
 export enum AvailableFiltersEnum {
   activityIds = 'activityIds',
   activitySources = 'activitySources',
   activityTypes = 'activityTypes',
+  activeSubscriptions = 'activeSubscriptions',
   amount = 'amount',
   apiKeyIds = 'apiKeyIds',
   billingEntityIds = 'billingEntityIds',
@@ -108,6 +126,7 @@ export const RevenueStreamsAvailablePopperFilters = [
 export const CustomerAvailableFilters = [
   AvailableFiltersEnum.customerAccountType,
   AvailableFiltersEnum.billingEntityIds,
+  AvailableFiltersEnum.activeSubscriptions,
 ]
 
 export const RevenueStreamsPlansAvailableFilters = [AvailableFiltersEnum.currency]
@@ -223,6 +242,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.activityIds]: 'text_1747666154075d10admbnf16',
   [AvailableFiltersEnum.activitySources]: 'text_1747666154075g4ceq9ii0xm',
   [AvailableFiltersEnum.activityTypes]: 'text_1747666154075d7ame7sqkxa',
+  [AvailableFiltersEnum.activeSubscriptions]: 'text_65281f686a80b400c8e2f6be',
   [AvailableFiltersEnum.amount]: 'text_17346988752182hpzppdqk9t',
   [AvailableFiltersEnum.apiKeyIds]: 'text_645d071272418a14c1c76aa4',
   [AvailableFiltersEnum.billingEntityIds]: 'text_17436114971570doqrwuwhf0',

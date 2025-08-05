@@ -1,4 +1,5 @@
 import { Typography } from '~/components/designSystem'
+import { FiltersItemActiveSubscriptions } from '~/components/designSystem/Filters/filtersElements/FiltersItemActiveSubscriptions'
 import { FiltersItemActivityIds } from '~/components/designSystem/Filters/filtersElements/FiltersItemActivityIds'
 import { FiltersItemActivitySources } from '~/components/designSystem/Filters/filtersElements/FiltersItemActivitySources'
 import { FiltersItemActivityTypes } from '~/components/designSystem/Filters/filtersElements/FiltersItemActivityTypes'
@@ -63,6 +64,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.activityIds]: <FiltersItemActivityIds {...props} />,
     [AvailableFiltersEnum.activitySources]: <FiltersItemActivitySources {...props} />,
     [AvailableFiltersEnum.activityTypes]: <FiltersItemActivityTypes {...props} />,
+    [AvailableFiltersEnum.activeSubscriptions]: <FiltersItemActiveSubscriptions {...props} />,
     [AvailableFiltersEnum.amount]: <FiltersItemAmount {...props} />,
     [AvailableFiltersEnum.apiKeyIds]: <FiltersItemApiKeyIds {...props} />,
     [AvailableFiltersEnum.billingEntityIds]: <FiltersItemBillingEntity {...props} />,

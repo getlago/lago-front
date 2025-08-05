@@ -3,8 +3,8 @@ import { Typography } from 'lago-design-system'
 import { useEffect } from 'react'
 
 import {
-  AMOUNT_INTERVALS_TRANSLATION_MAP,
-  AmountFilterInterval,
+  ACTIVE_SUBSCRIPTIONS_INTERVALS_TRANSLATION_MAP,
+  ActiveSubscriptionsFilterInterval,
   FiltersFormValues,
 } from '~/components/designSystem/Filters/types'
 import { parseFromToValue } from '~/components/designSystem/Filters/utils'
@@ -16,56 +16,73 @@ type FiltersItemAmountProps = {
   setFilterValue: (value: string) => void
 }
 
-const AMOUNT_INTERVALS = [
-  AmountFilterInterval.isBetween,
-  AmountFilterInterval.isEqualTo,
-  AmountFilterInterval.isUpTo,
-  AmountFilterInterval.isAtLeast,
-].map((interval) => ({ value: interval, label: AMOUNT_INTERVALS_TRANSLATION_MAP[interval] }))
+const ACTIVE_SUBSCRIPTIONS_INTERVALS = [
+  ActiveSubscriptionsFilterInterval.isBetween,
+  ActiveSubscriptionsFilterInterval.isEqualTo,
+  ActiveSubscriptionsFilterInterval.isGreaterThan,
+  ActiveSubscriptionsFilterInterval.isLessThan,
+].map((interval) => ({
+  value: interval,
+  label: ACTIVE_SUBSCRIPTIONS_INTERVALS_TRANSLATION_MAP[interval],
+}))
 
 const FROM_INTERVALS = [
-  AmountFilterInterval.isAtLeast,
-  AmountFilterInterval.isEqualTo,
-  AmountFilterInterval.isBetween,
+  ActiveSubscriptionsFilterInterval.isGreaterThan,
+  ActiveSubscriptionsFilterInterval.isEqualTo,
+  ActiveSubscriptionsFilterInterval.isBetween,
 ]
 
-const TO_INTERVALS = [AmountFilterInterval.isUpTo, AmountFilterInterval.isBetween]
+const TO_INTERVALS = [
+  ActiveSubscriptionsFilterInterval.isLessThan,
+  ActiveSubscriptionsFilterInterval.isBetween,
+]
 
-export const FiltersItemAmount = ({ value = '', setFilterValue }: FiltersItemAmountProps) => {
+export const FiltersItemActiveSubscriptions = ({
+  value = '',
+  setFilterValue,
+}: FiltersItemAmountProps) => {
   const { translate } = useInternationalization()
 
   const formikProps = useFormik({
     initialValues: {
       interval: value.split(',')?.[0],
-      amountFrom: value.split(',')?.[1],
-      amountTo: value.split(',')?.[2],
+      activeSubscriptionsFrom: value.split(',')?.[1],
+      activeSubscriptionsTo: value.split(',')?.[2],
     },
     validateOnMount: true,
     enableReinitialize: true,
     onSubmit: () => {},
   })
 
-  const showFrom = FROM_INTERVALS.includes(formikProps.values.interval as AmountFilterInterval)
-  const showTo = TO_INTERVALS.includes(formikProps.values.interval as AmountFilterInterval)
+  const showFrom = FROM_INTERVALS.includes(
+    formikProps.values.interval as ActiveSubscriptionsFilterInterval,
+  )
+  const showTo = TO_INTERVALS.includes(
+    formikProps.values.interval as ActiveSubscriptionsFilterInterval,
+  )
 
   useEffect(() => {
-    const { interval, amountFrom, amountTo } = formikProps.values
+    const { interval, activeSubscriptionsFrom, activeSubscriptionsTo } = formikProps.values
 
-    const { amountFrom: from, amountTo: to } = parseFromToValue(
-      `${interval},${amountFrom},${amountTo}`,
-      { from: 'amountFrom', to: 'amountTo' },
+    const { activeSubscriptionsFrom: from, activeSubscriptionsTo: to } = parseFromToValue(
+      `${interval},${activeSubscriptionsFrom},${activeSubscriptionsTo}`,
+      { from: 'activeSubscriptionsFrom', to: 'activeSubscriptionsTo' },
     )
 
     setFilterValue?.(`${interval},${from || ''},${to || ''}`)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formikProps.values.interval, formikProps.values.amountFrom, formikProps.values.amountTo])
+  }, [
+    formikProps.values.interval,
+    formikProps.values.activeSubscriptionsFrom,
+    formikProps.values.activeSubscriptionsTo,
+  ])
 
   return (
     <div className="flex items-center gap-2 lg:gap-3">
       <ComboBoxField
         name="interval"
-        data={AMOUNT_INTERVALS.map((interval) => ({
+        data={ACTIVE_SUBSCRIPTIONS_INTERVALS.map((interval) => ({
           value: interval.value,
           label: translate(interval.label),
         }))}
@@ -76,7 +93,7 @@ export const FiltersItemAmount = ({ value = '', setFilterValue }: FiltersItemAmo
 
       {showFrom && (
         <TextInputField
-          name="amountFrom"
+          name="activeSubscriptionsFrom"
           beforeChangeFormatter={['chargeDecimal']}
           type="number"
           placeholder="0"
@@ -88,7 +105,7 @@ export const FiltersItemAmount = ({ value = '', setFilterValue }: FiltersItemAmo
 
       {showTo && (
         <TextInputField
-          name="amountTo"
+          name="activeSubscriptionsTo"
           beforeChangeFormatter={['chargeDecimal']}
           type="number"
           placeholder="0"
