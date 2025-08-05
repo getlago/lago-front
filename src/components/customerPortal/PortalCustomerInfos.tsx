@@ -7,6 +7,7 @@ import useCustomerPortalTranslate from '~/components/customerPortal/common/useCu
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { Typography } from '~/components/designSystem'
 import { CountryCodes } from '~/core/constants/countryCodes'
+import { formatCityStateZipcodeString } from '~/core/formats/formatAddress'
 import {
   CustomerAddressInput,
   CustomerPortalCustomer,
@@ -96,7 +97,11 @@ const AddressField = ({
           {addressLine2 && <FieldContent content={addressLine2} />}
           {(zipcode || city || state) && (
             <FieldContent>
-              {zipcode} {city} {state}
+              {formatCityStateZipcodeString({
+                city,
+                state,
+                zipcode,
+              })}
             </FieldContent>
           )}
           {country && <FieldContent content={CountryCodes[country]} />}
