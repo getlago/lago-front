@@ -3393,5 +3393,7 @@
   "text_1754596347194200100004000": "Edit billing periods",
   "text_1754596547718sagqs9n5z2w": "Edit this item’s billing periods",
   "text_1754596547719py3gxrwmgdo": "Billing periods will appear on the customer’s PDF invoice.",
-  "text_175459724137023yixxoovqg": "To date should be greater or equal to From date"
+  "text_175459724137023yixxoovqg": "To date should be greater or equal to From date",
+  "text_1754397427626s7wx2frw0f4": "Is greater than",
+  "text_1754397427626jjvqhvplifr": "Is less than"
 }

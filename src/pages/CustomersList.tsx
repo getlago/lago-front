@@ -12,6 +12,7 @@ import { Button, InfiniteScroll, Table, Typography } from '~/components/designSy
 import {
   AvailableFiltersEnum,
   AvailableQuickFilters,
+  CustomerAvailableFilters,
   Filters,
   formatFiltersForCustomerQuery,
 } from '~/components/designSystem/Filters'
@@ -107,8 +108,10 @@ const CustomersList = () => {
   )
 
   const availableFilters = hasAccessToRevenueShare
-    ? [AvailableFiltersEnum.customerAccountType, AvailableFiltersEnum.billingEntityIds]
-    : [AvailableFiltersEnum.billingEntityIds]
+    ? CustomerAvailableFilters
+    : CustomerAvailableFilters.filter(
+        (filter) => filter !== AvailableFiltersEnum.customerAccountType,
+      )
 
   return (
     <>
