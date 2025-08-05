@@ -18,6 +18,7 @@ import {
   buildXeroCustomerUrl,
 } from '~/core/constants/externalUrls'
 import { getTargetedObjectTranslationKey } from '~/core/constants/form'
+import { formatCityStateZipcodeString } from '~/core/formats/formatAddress'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
   AnrokIntegration,
@@ -554,7 +555,11 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                   <Typography color="textSecondary">{addressLine1}</Typography>
                   <Typography color="textSecondary">{addressLine2}</Typography>
                   <Typography color="textSecondary">
-                    {zipcode} {city} {state}
+                    {formatCityStateZipcodeString({
+                      city,
+                      state,
+                      zipcode,
+                    })}
                   </Typography>
                   {country && (
                     <Typography color="textSecondary">{CountryCodes[country]}</Typography>
@@ -578,7 +583,11 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
                     <Typography color="textSecondary">{shippingAddress.addressLine1}</Typography>
                     <Typography color="textSecondary">{shippingAddress.addressLine2}</Typography>
                     <Typography color="textSecondary">
-                      {shippingAddress.zipcode} {shippingAddress.city} {shippingAddress.state}
+                      {formatCityStateZipcodeString({
+                        city: shippingAddress.city,
+                        state: shippingAddress.state,
+                        zipcode: shippingAddress.zipcode,
+                      })}
                     </Typography>
                     {shippingAddress.country && (
                       <Typography color="textSecondary">

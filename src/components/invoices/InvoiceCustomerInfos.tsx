@@ -9,6 +9,7 @@ import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Status, StatusType, Typography } from '~/components/designSystem'
 import { CountryCodes } from '~/core/constants/countryCodes'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
+import { formatCityStateZipcodeString } from '~/core/formats/formatAddress'
 import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
 import { formatDateToTZ } from '~/core/timezone'
 import {
@@ -157,7 +158,11 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
               )}
               {(customer?.zipcode || customer?.city || customer?.state) && (
                 <Typography variant="body" color="grey700">
-                  {customer?.zipcode} {customer?.city} {customer?.state}
+                  {formatCityStateZipcodeString({
+                    city: customer?.city,
+                    state: customer?.state,
+                    zipcode: customer?.zipcode,
+                  })}
                 </Typography>
               )}
               {customer?.country && (
