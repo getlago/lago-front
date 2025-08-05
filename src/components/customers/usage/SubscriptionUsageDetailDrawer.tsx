@@ -19,7 +19,7 @@ import {
 } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ, intlFormatDateTime } from '~/core/timezone'
+import { intlFormatDateTime } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
 import {
   ChargeFilterUsage,
@@ -226,12 +226,14 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
             </Typography>
             <Typography>
               {translate('text_633dae57ca9a923dd53c2097', {
-                fromDate: locale
-                  ? intlFormatDateTime(fromDatetime, { timezone: customerTimezone, locale }).date
-                  : formatDateToTZ(fromDatetime, customerTimezone),
-                toDate: locale
-                  ? intlFormatDateTime(toDatetime, { timezone: customerTimezone, locale }).date
-                  : formatDateToTZ(toDatetime, customerTimezone),
+                fromDate: intlFormatDateTime(fromDatetime, {
+                  locale,
+                  timezone: customerTimezone,
+                }).date,
+                toDate: intlFormatDateTime(toDatetime, {
+                  locale,
+                  timezone: customerTimezone,
+                }).date,
               })}
             </Typography>
           </div>

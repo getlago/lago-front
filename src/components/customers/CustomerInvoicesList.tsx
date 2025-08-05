@@ -33,7 +33,7 @@ import {
   CUSTOMER_INVOICE_VOID_ROUTE,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { formatDateToTZ, getTimezoneConfig } from '~/core/timezone'
+import { getTimezoneConfig, intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { handleDownloadFile } from '~/core/utils/downloadFiles'
 import {
@@ -371,7 +371,9 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 </Tooltip>
               ),
               content: ({ issuingDate, customer }) =>
-                formatDateToTZ(issuingDate, customer.applicableTimezone),
+                intlFormatDateTime(issuingDate, {
+                  timezone: customer.applicableTimezone,
+                }).date,
             },
           ]}
           actionColumn={(invoice) => {

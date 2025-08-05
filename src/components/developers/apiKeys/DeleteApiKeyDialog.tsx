@@ -3,7 +3,7 @@ import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { Button, Dialog, DialogRef, Typography } from '~/components/designSystem'
 import { addToast } from '~/core/apolloClient'
-import { formatDateToTZ } from '~/core/timezone/utils'
+import { intlFormatDateTime } from '~/core/timezone/utils'
 import {
   ApiKeyForDeleteApiKeyDialogFragment,
   TimezoneEnum,
@@ -93,7 +93,9 @@ export const DeleteApiKeyDialog = forwardRef<DeleteApiKeyDialogRef>((_, ref) => 
           </Typography>
           <Typography className="flex-1" variant="body" color="grey700">
             {!!apiKey?.lastUsedAt
-              ? formatDateToTZ(apiKey?.lastUsedAt, TimezoneEnum.TzUtc, 'LLL. dd, yyyy')
+              ? intlFormatDateTime(apiKey?.lastUsedAt, {
+                  timezone: TimezoneEnum.TzUtc,
+                }).date
               : '-'}
           </Typography>
         </div>
