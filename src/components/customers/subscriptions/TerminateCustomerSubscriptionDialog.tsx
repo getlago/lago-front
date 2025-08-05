@@ -43,8 +43,10 @@ gql`
         id
         number
         currency
-        totalAmountCents
-        totalPaidAmountCents
+        invoiceType
+        availableToCreditAmountCents
+        creditableAmountCents
+        refundableAmountCents
       }
     }
   }
@@ -82,7 +84,14 @@ export const TerminateCustomerSubscriptionDialog =
 
     const invoice = invoicesData?.invoices?.collection?.[0]
     const currency = invoice?.currency || organization?.defaultCurrency || CurrencyEnum.Usd
-    const isFullyPaid = invoice?.totalPaidAmountCents === invoice?.totalAmountCents
+    const isPrepaidCreditsInvoice = invoice?.invoiceType === InvoiceTypeEnum.Credit
+
+    const creditableAmount = deserializeAmount(invoice?.creditableAmountCents, currency)
+    const availableToCreditAmount = deserializeAmount(
+      invoice?.availableToCreditAmountCents,
+      currency,
+    )
+    const refundAmount = deserializeAmount(invoice?.refundableAmountCents, currency)
 
     const [terminate] = useTerminateCustomerSubscriptionMutation({
       refetchQueries: ['getCustomerSubscriptionForList', 'getSubscriptionsList'],
@@ -198,18 +207,16 @@ export const TerminateCustomerSubscriptionDialog =
                     {
                       label: translate('text_1753198825180a94n1872cz4', {
                         amount: intlFormatNumber(
-                          deserializeAmount(invoice?.totalAmountCents, currency),
+                          isPrepaidCreditsInvoice ? availableToCreditAmount : creditableAmount,
                         ),
                       }),
                       sublabel: translate('text_17531988251808so7qch9zrf'),
                       value: OnTerminationCreditNoteEnum.Credit,
                     },
-                    isFullyPaid
+                    refundAmount > 0
                       ? {
                           label: translate('text_1753198825180jnk5xbdev57', {
-                            amount: intlFormatNumber(
-                              deserializeAmount(invoice?.totalPaidAmountCents, currency),
-                            ),
+                            amount: intlFormatNumber(refundAmount),
                           }),
                           sublabel: translate('text_1753198825180bu4iaf2tczy'),
                           value: OnTerminationCreditNoteEnum.Refund,
