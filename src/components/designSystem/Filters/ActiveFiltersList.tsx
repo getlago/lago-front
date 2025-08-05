@@ -28,7 +28,7 @@ export const ActiveFiltersList = () => {
         return [
           ...acc,
           {
-            label: translate(mapFilterToTranslationKey(_keyWithoutPrefix)),
+            label: mapFilterToTranslationKey(_keyWithoutPrefix),
             value: formatActiveFilterValueDisplay(_keyWithoutPrefix, value, translate),
           },
         ]
