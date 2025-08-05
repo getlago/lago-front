@@ -83,7 +83,7 @@ const AddressField = ({
   city,
   zipcode,
 }: AddressFieldProps) => {
-  const { translate } = useCustomerPortalTranslate()
+  const { translate, documentLocale } = useCustomerPortalTranslate()
 
   return (
     <div className="flex flex-col gap-1">
@@ -101,6 +101,7 @@ const AddressField = ({
                 city,
                 state,
                 zipcode,
+                locale: documentLocale,
               })}
             </FieldContent>
           )}
