@@ -349,11 +349,15 @@ export const Table = <T extends DataItem>({
   const TABLE_ID = `table-${name}`
   const filteredColumns = columns
     .filter((column) => !!column)
-    .map((column) => ({
-      ...column,
-      // Make sure maxWidth is set to 600 if maxSpace is true
-      maxWidth: column.maxSpace ? 600 : column.maxWidth,
-    }))
+    .map((column) => {
+      const shouldForceColumnMaxWidth =
+        !!column.maxSpace && (column?.textAlign === 'left' || !column?.textAlign)
+
+      return {
+        ...column,
+        maxWidth: shouldForceColumnMaxWidth ? 600 : column.maxWidth,
+      }
+    })
   const maxSpaceColumns = countMaxSpaceColumns(filteredColumns)
   const tableRef = useRef<HTMLTableElement>(null)
   const { translate } = useInternationalization()
