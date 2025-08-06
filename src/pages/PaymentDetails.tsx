@@ -329,7 +329,7 @@ const PaymentDetails = () => {
                   label={translate('text_634687079be251fdb43833cb')}
                   value={
                     <ConditionalWrapper
-                      condition={!!customer?.deletedAt && !hasPermissions(['customersView'])}
+                      condition={!!customer?.deletedAt || !hasPermissions(['customersView'])}
                       validWrapper={(children) => <>{children}</>}
                       invalidWrapper={(children) => {
                         return !!customerId || customer?.id ? (
