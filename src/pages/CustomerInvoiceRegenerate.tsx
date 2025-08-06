@@ -10,17 +10,26 @@ import {
 import { EditFeeDrawer, EditFeeDrawerRef } from '~/components/invoices/details/EditFeeDrawer'
 import { InvoiceDetailsTable } from '~/components/invoices/details/InvoiceDetailsTable'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { addToast } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
+import { serializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ } from '~/core/timezone'
 import {
   Charge,
+  CurrencyEnum,
   Customer,
   Fee,
   FeeAmountDetails,
+  FeeAppliedTax,
+  FetchDraftInvoiceTaxesMutation,
   Invoice,
+  LagoApiError,
+  useFetchDraftInvoiceTaxesMutation,
+  useGetCustomerQuery,
   useGetInvoiceDetailsQuery,
+  useGetInvoiceFeesQuery,
   usePreviewAdjustedFeeMutation,
   useRegenerateInvoiceMutation,
   useVoidInvoiceMutation,
@@ -157,11 +166,31 @@ const CustomerInvoiceRegenerate = () => {
     skip: !invoiceId,
   })
 
+  const { data: fullCustomer } = useGetCustomerQuery({
+    variables: {
+      id: data?.invoice?.customer?.id as string,
+    },
+    skip: !data?.invoice?.customer?.id,
+  })
+
+  const { data: fullFeesInvoice } = useGetInvoiceFeesQuery({
+    variables: { id: invoiceId as string },
+    skip: !invoiceId,
+  })
+
+  const fullFees = fullFeesInvoice?.invoice?.fees
+
   const invoice = invoiceFeesToNonAdjusted(data?.invoice as Invoice)
   const customer = invoice?.customer
   const billingEntity = invoice?.billingEntity
+  const hasTaxProvider =
+    !!fullCustomer?.customer?.anrokCustomer?.id || !!fullCustomer?.customer?.avalaraCustomer?.id
 
   const [fees, setFees] = useState(invoice?.fees || [])
+  const [taxProviderTaxesResult, setTaxProviderTaxesResult] =
+    useState<FetchDraftInvoiceTaxesMutation['fetchDraftInvoiceTaxes']>(null)
+  const [taxProviderTaxesErrorMessage, setTaxProviderTaxesErrorMessage] =
+    useState<LocalTaxProviderErrorsEnum | null>()
 
   const [regenerateInvoice] = useRegenerateInvoiceMutation({
     onCompleted(regeneratedData) {
@@ -179,6 +208,13 @@ const CustomerInvoiceRegenerate = () => {
           }),
         )
       }
+    },
+  })
+
+  const [getTaxFromTaxProvider] = useFetchDraftInvoiceTaxesMutation({
+    fetchPolicy: 'no-cache',
+    context: {
+      silentErrorCodes: [LagoApiError.UnprocessableEntity],
     },
   })
 
@@ -391,10 +427,140 @@ const CustomerInvoiceRegenerate = () => {
         </>
       )}
 
+      <CenteredPage.Container>
+        {!!taxProviderTaxesErrorMessage && (
+          <Alert type="warning">
+            <Typography variant="bodyHl" color="grey700">
+              {translate('text_1723831735547ttel1jl0yva')}
+            </Typography>
+            <Typography variant="caption" color="grey600">
+              {translate(taxProviderTaxesErrorMessage)}
+            </Typography>
+          </Alert>
+        )}
+      </CenteredPage.Container>
+
       <CenteredPage.StickyFooter>
         <Button variant="quaternary" size="large" onClick={() => onClose()}>
           {translate('text_6411e6b530cb47007488b027')}
         </Button>
+
+        {!!hasTaxProvider && (
+          <Button
+            size="large"
+            variant="secondary"
+            disabled={!!taxProviderTaxesResult}
+            onClick={async () => {
+              setTaxProviderTaxesErrorMessage(null)
+
+              const taxProviderResult = await getTaxFromTaxProvider({
+                variables: {
+                  input: {
+                    currency: invoice?.currency,
+                    customerId: customer?.id as string,
+                    fees: fees.map((f) => ({
+                      addOnId: f.id,
+                      description: f.description,
+                      invoiceDisplayName: f.invoiceDisplayName,
+                      name: f.itemName,
+                      taxCodes: fullFees
+                        ?.find((x) => x.id === f.id)
+                        ?.appliedTaxes?.map((t) => t.taxCode) || [''],
+                      unitAmountCents: String(
+                        serializeAmount(f.preciseUnitAmount, invoice?.currency || CurrencyEnum.Usd),
+                      ),
+                      units: f.units,
+                    })),
+                  },
+                },
+              })
+
+              const { data: taxProviderResultData, errors } = taxProviderResult
+
+              if (!!errors?.length) {
+                if (
+                  // Anrok
+                  hasDefinedGQLError('CurrencyCodeNotSupported', errors) ||
+                  // Avalara
+                  hasDefinedGQLError('InvalidEnumValue', errors)
+                ) {
+                  setTaxProviderTaxesErrorMessage(
+                    LocalTaxProviderErrorsEnum.CurrencyCodeNotSupported,
+                  )
+                } else if (
+                  // Anrok
+                  hasDefinedGQLError('CustomerAddressCountryNotSupported', errors) ||
+                  hasDefinedGQLError('CustomerAddressCouldNotResolve', errors) ||
+                  // Avalara
+                  hasDefinedGQLError('MissingAddress', errors) ||
+                  hasDefinedGQLError('NotEnoughAddressesInfo', errors) ||
+                  hasDefinedGQLError('InvalidAddress', errors) ||
+                  hasDefinedGQLError('InvalidPostalCode', errors) ||
+                  hasDefinedGQLError('AddressLocationNotFound', errors)
+                ) {
+                  setTaxProviderTaxesErrorMessage(LocalTaxProviderErrorsEnum.CustomerAddressError)
+                } else if (
+                  // Anrok
+                  hasDefinedGQLError('ProductExternalIdUnknown', errors) ||
+                  // Avalara
+                  hasDefinedGQLError('TaxCodeAssociatedWithItemCodeNotFound', errors) ||
+                  hasDefinedGQLError('EntityNotFoundError', errors)
+                ) {
+                  setTaxProviderTaxesErrorMessage(
+                    LocalTaxProviderErrorsEnum.ProductExternalIdUnknown,
+                  )
+                } else {
+                  setTaxProviderTaxesErrorMessage(LocalTaxProviderErrorsEnum.GenericErrorMessage)
+                }
+
+                // Scroll bottom of the screen once the error message is displayed
+                setTimeout(() => {
+                  const rootElement = document.getElementById('root')
+
+                  rootElement?.scrollTo({
+                    top: rootElement.scrollHeight,
+                    behavior: 'smooth',
+                  })
+                }, 1)
+
+                return
+              }
+
+              const taxes = taxProviderResultData?.fetchDraftInvoiceTaxes?.collection
+
+              setFees((_fees) =>
+                _fees.map((f) => {
+                  const tax = taxes?.find((t) => t.itemId === f.id)
+
+                  if (!tax) {
+                    return f
+                  }
+
+                  const newFee = {
+                    ...f,
+                    appliedTaxes: [
+                      ...(tax.taxBreakdown || []).map(
+                        (breakdown) =>
+                          ({
+                            id: Math.random().toString(),
+                            taxRate: (breakdown.rate || 0) * 100,
+                            taxName: breakdown.name,
+                            amountCents: breakdown.taxAmount,
+                          }) as FeeAppliedTax,
+                      ),
+                    ],
+                  }
+
+                  return newFee
+                }),
+              )
+
+              setTaxProviderTaxesResult(taxProviderResultData?.fetchDraftInvoiceTaxes)
+            }}
+          >
+            {translate('text_172383173554743nq9isxpje')}
+          </Button>
+        )}
 
         <Button variant="primary" size="large" onClick={() => onSubmit()}>
           {translate(

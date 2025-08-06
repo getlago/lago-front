@@ -3375,7 +3375,7 @@ export type FeeAppliedTax = AppliedTax & {
 
 /** Fee input for creating invoice */
 export type FeeInput = {
-  addOnId: Scalars['ID']['input'];
+  addOnId?: InputMaybe<Scalars['ID']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
@@ -3389,6 +3389,7 @@ export enum FeeTypesEnum {
   Charge = 'charge',
   Commitment = 'commitment',
   Credit = 'credit',
+  FixedCharge = 'fixed_charge',
   Subscription = 'subscription'
 }
 
@@ -5547,6 +5548,7 @@ export type PlanEntitlement = {
   __typename?: 'PlanEntitlement';
   code: Scalars['String']['output'];
   description?: Maybe<Scalars['String']['output']>;
+  feature: FeatureObject;
   name: Scalars['String']['output'];
   privileges: Array<PlanEntitlementPrivilegeObject>;
 };
@@ -11313,7 +11315,7 @@ export type GetInvoiceFeesQueryVariables = Exact<{
 }>;
 
 
-export type GetInvoiceFeesQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, itemName: string, description?: string | null, groupedBy: any, units: number, preciseUnitAmount: number, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, tax?: { __typename?: 'Tax', id: string, name: string, rate: number, code: string } | null }> | null, addOn?: { __typename?: 'AddOn', id: string, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> | null } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval, name: string } } | null }> | null } | null };
+export type GetInvoiceFeesQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, invoiceName?: string | null, invoiceDisplayName?: string | null, itemName: string, description?: string | null, groupedBy: any, units: number, preciseUnitAmount: number, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxCode: string, tax?: { __typename?: 'Tax', id: string, name: string, rate: number, code: string } | null }> | null, addOn?: { __typename?: 'AddOn', id: string, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> | null } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval, name: string } } | null }> | null } | null };
 
 export type IntegrationsListForCustomerInvoiceDetailsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -30541,6 +30543,7 @@ export const GetInvoiceFeesDocument = gql`
       preciseUnitAmount
       appliedTaxes {
         id
+        taxCode
         tax {
           id
           name

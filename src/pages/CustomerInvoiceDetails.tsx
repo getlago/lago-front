@@ -214,6 +214,7 @@ gql`
         preciseUnitAmount
         appliedTaxes {
           id
+          taxCode
           tax {
             id
             name
