@@ -448,6 +448,7 @@ export const InvoiceDetailsTable = memo(
                   subscription={subscription}
                   onAdd={onAdd}
                   onDelete={onDelete}
+                  fees={fees}
                 />,
               ]
 
@@ -468,7 +469,9 @@ export const InvoiceDetailsTable = memo(
                     })}
                     {onAdd &&
                       invoiceFees
-                        ?.filter((f) => !!f.adjustedFee)
+                        ?.filter(
+                          (f) => !!f.adjustedFee && (f as Fee)?.subscription?.id === subscriptionId,
+                        )
                         .map((fee, i) => (
                           <InvoiceDetailsTableBodyLine
                             key={`local-added-fee-${i}`}
