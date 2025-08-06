@@ -147,7 +147,7 @@ const BillingEntityMain = ({ billingEntity }: BillingEntityMainProps) => {
         {translate('text_1742367266660b7aw6idpgux')}
       </Typography>
 
-      <div className="mt-4 flex flex-col gap-8">
+      <div className="mt-8 flex flex-col gap-8">
         {SETTINGS_LIST_ITEMS.map((item) => (
           <Item key={item.id} item={item} billingEntityCode={billingEntity?.code} />
         ))}
