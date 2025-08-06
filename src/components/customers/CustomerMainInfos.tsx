@@ -235,7 +235,7 @@ const InfoSection = ({ title, children }: { title: string; children: React.React
 )
 
 const InfoBlock = ({ children }: { children: React.ReactNode }) => (
-  <div className="mb-2 flex gap-4 first-child:w-50">{children}</div>
+  <div className="mb-2 flex gap-4 first-child:w-50 first-child:shrink-0">{children}</div>
 )
 
 const InlineLink: FC<PropsWithChildren<LinkProps>> = ({ children, ...props }) => {
