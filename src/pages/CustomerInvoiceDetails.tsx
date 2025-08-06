@@ -54,6 +54,7 @@ import {
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { handleDownloadFile } from '~/core/utils/downloadFiles'
+import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
   AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc,
@@ -94,6 +95,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
@@ -122,6 +124,9 @@ gql`
     taxProviderVoidable
     integrationHubspotSyncable
     associatedActiveWalletPresent
+    voidedAt
+    voidedInvoiceId
+    regeneratedInvoiceId
     errorDetails {
       errorCode
       errorDetails
@@ -176,6 +181,78 @@ gql`
       id
       ...CustomerForInvoiceDetails
       ...CustomerForInvoiceOverview
+    }
+  }
+
+  query getInvoiceNumber($id: ID!) {
+    invoice(id: $id) {
+      id
+      number
+    }
+  }
+
+  query getInvoiceStatus($id: ID!) {
+    invoice(id: $id) {
+      id
+      status
+    }
+  }
+
+  query getInvoiceFees($id: ID!) {
+    invoice(id: $id) {
+      id
+      status
+      fees {
+        id
+        amountCents
+        invoiceName
+        invoiceDisplayName
+        itemName
+        description
+        groupedBy
+        units
+        preciseUnitAmount
+        appliedTaxes {
+          id
+          taxCode
+          tax {
+            id
+            name
+            rate
+            code
+          }
+        }
+        addOn {
+          id
+          taxes {
+            id
+            name
+            rate
+            code
+          }
+        }
+        charge {
+          id
+          payInAdvance
+          minAmountCents
+          billableMetric {
+            id
+            name
+          }
+        }
+        chargeFilter {
+          invoiceDisplayName
+          values
+        }
+        subscription {
+          id
+          plan {
+            id
+            interval
+            name
+          }
+        }
+      }
     }
   }
 
@@ -347,6 +424,10 @@ const CustomerInvoiceDetails = () => {
   })
 
   const customer = customerData?.customer
+
+  const hasActiveWallet = useCustomerHasActiveWallet({
+    customerId: customer?.id,
+  })
 
   const [refreshInvoice, { loading: loadingRefreshInvoice }] = useRefreshInvoiceMutation({
     variables: { input: { id: invoiceId || '' } },
@@ -524,6 +605,7 @@ const CustomerInvoiceDetails = () => {
     paymentDisputeLostAt,
     integrationSyncable,
     integrationHubspotSyncable,
+    regeneratedInvoiceId,
   } = (invoice as AllInvoiceDetailsForCustomerInvoiceDetailsFragment) || {}
 
   const isPartiallyPaid =
@@ -995,7 +1077,24 @@ const CustomerInvoiceDetails = () => {
                         }
                       }}
                     >
-                      {translate('text_65269b43d4d2b15dd929a259')}
+                      {translate('text_1750678506388d4fr5etxbhh')}
+                    </Button>
+                  )}
+                  {actions.canRegenerate(
+                    { status, regeneratedInvoiceId, invoiceType },
+                    hasActiveWallet,
+                  ) && (
+                    <Button
+                      className="w-full"
+                      variant="quaternary"
+                      align="left"
+                      onClick={() => {
+                        if (customerId && invoiceId) {
+                          navigate(regeneratePath(data?.invoice as Invoice))
+                        }
+                      }}
+                    >
+                      {translate('text_1750678506388oynw9hd01l9')}
                     </Button>
                   )}
                   {actions.canSyncTaxIntegration({ taxProviderVoidable }) && (

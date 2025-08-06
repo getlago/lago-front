@@ -7,6 +7,7 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
+  Fee,
   InvoiceForDetailsTableFooterFragment,
   InvoiceStatusTypeEnum,
   InvoiceTaxStatusTypeEnum,
@@ -37,6 +38,7 @@ gql`
       taxableAmountCents
       taxRate
       taxName
+      taxCode
       enumedTaxCode
     }
   }
@@ -46,24 +48,73 @@ interface InvoiceDetailsTableFooterProps {
   canHaveUnitPrice: boolean
   invoice: InvoiceForDetailsTableFooterFragment
   hasTaxProviderError?: boolean
+  invoiceFees?: Fee[] | null
+  hideDiscounts?: boolean
+}
+
+const applyTaxRateToAmount = (amount: number, tax: { taxRate: number }) => {
+  return (amount * (tax.taxRate || 0)) / 100
+}
+
+const computeSubtotal = (
+  invoice: InvoiceForDetailsTableFooterFragment,
+  invoiceFees: InvoiceDetailsTableFooterProps['invoiceFees'],
+) => {
+  if (invoiceFees) {
+    const subTotalExcludingTax = invoiceFees.reduce((p, c) => {
+      return p + Number(c.amountCents)
+    }, 0)
+
+    const totalRate = invoice?.appliedTaxes?.reduce((p, c) => p + c.taxRate, 0) || 0
+
+    const subTotalIncludingTaxesAmountCents =
+      subTotalExcludingTax + applyTaxRateToAmount(subTotalExcludingTax, { taxRate: totalRate })
+
+    return {
+      subTotalExcludingTax,
+      subTotalIncludingTaxesAmountCents,
+      totalAmountCents: subTotalIncludingTaxesAmountCents,
+      totalDueAmountCents: subTotalIncludingTaxesAmountCents - invoice?.totalPaidAmountCents,
+    }
+  }
+
+  return {
+    subTotalExcludingTax: invoice?.subTotalExcludingTaxesAmountCents,
+    subTotalIncludingTaxesAmountCents: invoice?.subTotalIncludingTaxesAmountCents,
+    totalAmountCents: invoice?.totalAmountCents,
+    totalDueAmountCents: invoice?.totalDueAmountCents,
+  }
 }
 
 export const InvoiceDetailsTableFooter = memo(
-  ({ canHaveUnitPrice, invoice, hasTaxProviderError }: InvoiceDetailsTableFooterProps) => {
+  ({
+    canHaveUnitPrice,
+    invoice,
+    hasTaxProviderError,
+    invoiceFees,
+    hideDiscounts,
+  }: InvoiceDetailsTableFooterProps) => {
     const { translate } = useInternationalization()
 
     const colSpan = canHaveUnitPrice ? 3 : 2
     const isLegacyInvoice = invoice?.versionNumber < 3
     const currency = invoice?.currency || CurrencyEnum.Usd
-    const hasCreditNotes = !!Number(invoice?.creditNotesAmountCents)
-    const hasPrepaidCredit = !!Number(invoice?.prepaidCreditAmountCents)
-    const hasCoupon = !!Number(invoice?.couponsAmountCents)
+    const hasCreditNotes = !!Number(invoice?.creditNotesAmountCents) && !hideDiscounts
+    const hasPrepaidCredit = !!Number(invoice?.prepaidCreditAmountCents) && !hideDiscounts
+    const hasCoupon = !!Number(invoice?.couponsAmountCents) && !hideDiscounts
     const isPending = invoice.status === InvoiceStatusTypeEnum.Pending
 
     const shouldDisplayPlaceholder = isPending || hasTaxProviderError
     const shouldDisplayCouponRow = invoice.status !== InvoiceStatusTypeEnum.Draft && hasCoupon
     const shouldDisplayPrepaidCreditRow =
       invoice.status !== InvoiceStatusTypeEnum.Draft && hasPrepaidCredit
+
+    const {
+      subTotalExcludingTax,
+      subTotalIncludingTaxesAmountCents,
+      totalAmountCents,
+      totalDueAmountCents,
+    } = computeSubtotal(invoice, invoiceFees)
 
     return (
       <tfoot>
@@ -129,13 +180,10 @@ export const InvoiceDetailsTableFooter = memo(
                   color="grey700"
                   data-test="invoice-details-table-footer-subtotal-excl-tax-value"
                 >
-                  {intlFormatNumber(
-                    deserializeAmount(invoice?.subTotalExcludingTaxesAmountCents || 0, currency),
-                    {
-                      currencyDisplay: 'symbol',
-                      currency,
-                    },
-                  )}
+                  {intlFormatNumber(deserializeAmount(subTotalExcludingTax || 0, currency), {
+                    currencyDisplay: 'symbol',
+                    currency,
+                  })}
                 </Typography>
               </td>
             </tr>
@@ -179,7 +227,12 @@ export const InvoiceDetailsTableFooter = memo(
                                   style: 'percent',
                                 }),
                                 amount: intlFormatNumber(
-                                  deserializeAmount(appliedTax.taxableAmountCents || 0, currency),
+                                  deserializeAmount(
+                                    invoiceFees
+                                      ? subTotalExcludingTax
+                                      : appliedTax.taxableAmountCents || 0,
+                                    currency,
+                                  ),
                                   {
                                     currencyDisplay: 'symbol',
                                     currency,
@@ -199,7 +252,12 @@ export const InvoiceDetailsTableFooter = memo(
                           data-test={`invoice-details-table-footer-tax-${i}-value`}
                         >
                           {intlFormatNumber(
-                            deserializeAmount(appliedTax.amountCents || 0, currency),
+                            deserializeAmount(
+                              invoiceFees
+                                ? applyTaxRateToAmount(subTotalExcludingTax, appliedTax)
+                                : appliedTax.amountCents || 0,
+                              currency,
+                            ),
                             {
                               currencyDisplay: 'symbol',
                               currency,
@@ -245,10 +303,7 @@ export const InvoiceDetailsTableFooter = memo(
                   {shouldDisplayPlaceholder
                     ? '-'
                     : intlFormatNumber(
-                        deserializeAmount(
-                          invoice?.subTotalIncludingTaxesAmountCents || 0,
-                          currency,
-                        ),
+                        deserializeAmount(subTotalIncludingTaxesAmountCents || 0, currency),
                         {
                           currencyDisplay: 'symbol',
                           currency,
@@ -344,7 +399,7 @@ export const InvoiceDetailsTableFooter = memo(
             >
               {shouldDisplayPlaceholder
                 ? '-'
-                : intlFormatNumber(deserializeAmount(invoice?.totalAmountCents || 0, currency), {
+                : intlFormatNumber(deserializeAmount(totalAmountCents || 0, currency), {
                     currencyDisplay: 'symbol',
                     currency,
                   })}
@@ -391,7 +446,7 @@ export const InvoiceDetailsTableFooter = memo(
             >
               {shouldDisplayPlaceholder
                 ? '-'
-                : intlFormatNumber(deserializeAmount(invoice?.totalDueAmountCents || 0, currency), {
+                : intlFormatNumber(deserializeAmount(totalDueAmountCents || 0, currency), {
                     currencyDisplay: 'symbol',
                     currency,
                   })}

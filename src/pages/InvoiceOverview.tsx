@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { Stack } from '@mui/material'
 import { Icon } from 'lago-design-system'
 import { memo, useRef } from 'react'
-import { Link, LinkProps, useParams } from 'react-router-dom'
+import { generatePath, Link, LinkProps, useParams } from 'react-router-dom'
 
 import { Alert, Button, Skeleton, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
@@ -32,10 +32,13 @@ import {
   buildXeroInvoiceUrl,
 } from '~/core/constants/externalUrls'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
+import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import formatCreditNotesItems from '~/core/formats/formatCreditNotesItems'
+import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { formatDateToTZ } from '~/core/timezone'
 import {
   AvalaraIntegrationInfosForInvoiceOverviewFragment,
+  BillingEntity,
   CreditNote,
   CreditNoteItem,
   Customer,
@@ -46,6 +49,7 @@ import {
   Invoice,
   InvoiceStatusTypeEnum,
   InvoiceTaxStatusTypeEnum,
+  LagoApiError,
   NetsuiteIntegrationInfosForInvoiceOverviewFragment,
   RefreshInvoiceMutationFn,
   RetryInvoiceMutationFn,
@@ -53,6 +57,7 @@ import {
   SalesforceIntegrationInfosForInvoiceOverviewFragment,
   SyncHubspotIntegrationInvoiceMutationFn,
   SyncSalesforceInvoiceMutationFn,
+  useGetInvoiceNumberQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -77,6 +82,35 @@ gql`
     externalSalesforceIntegrationId
     fees {
       id
+      addOn {
+        id
+      }
+      amountCents
+      invoiceName
+      invoiceDisplayName
+      units
+      groupedBy
+      charge {
+        id
+        payInAdvance
+        minAmountCents
+        billableMetric {
+          id
+          name
+        }
+      }
+      chargeFilter {
+        invoiceDisplayName
+        values
+      }
+      subscription {
+        id
+        plan {
+          id
+          interval
+          name
+        }
+      }
     }
     billingEntity {
       name
@@ -170,6 +204,112 @@ const InfoLine = ({ children }: { children: React.ReactNode }) => {
     <div className="mb-3 flex items-start first-child:mr-3 first-child:min-w-58 first-child:leading-7 last-child:w-full last-child:line-break-anywhere">
       {children}
     </div>
+  )
+}
+
+const LinkToInvoice = ({
+  invoice,
+  redirectToInvoiceId,
+  label,
+  invoiceNumberPrefix,
+}: {
+  invoice?: Partial<Invoice>
+  redirectToInvoiceId?: string | null
+  label: string
+  invoiceNumberPrefix?: string
+}) => {
+  const { data } = useGetInvoiceNumberQuery({
+    context: {
+      silentErrorCodes: [LagoApiError.NotFound],
+    },
+    variables: {
+      id: redirectToInvoiceId as string,
+    },
+    skip: !redirectToInvoiceId,
+  })
+
+  if (!redirectToInvoiceId || !invoice?.customer?.id || !invoice.id || !data?.invoice?.number) {
+    return null
+  }
+
+  return (
+    <div className="box-border flex items-center gap-2 py-6 shadow-b">
+      <div className="min-w-[140px]">
+        <Typography className="text-sm text-grey-600">{label}</Typography>
+      </div>
+
+      <Typography className="text-grey-700">
+        {invoiceNumberPrefix || ''}
+
+        <Link
+          to={generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+            customerId: invoice?.customer?.id,
+            invoiceId: redirectToInvoiceId,
+            tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+          })}
+        >
+          {data?.invoice?.number}
+        </Link>
+      </Typography>
+    </div>
+  )
+}
+
+export const InvoiceQuickInfo = ({
+  invoice,
+  billingEntity,
+  customer,
+}: {
+  invoice: Invoice
+  billingEntity: Partial<BillingEntity>
+  customer?: Partial<Customer> | null
+}) => {
+  const { translate } = useInternationalization()
+  const isDraft = invoice?.status === InvoiceStatusTypeEnum.Draft
+  const customerIsPartner = customer?.accountType === CustomerAccountTypeEnum.Partner
+
+  if (!invoice) {
+    return null
+  }
+
+  return (
+    <>
+      {customerIsPartner && (
+        <div className={tw(isDraft ? 'pt-3' : 'pt-6')}>
+          <Alert type="info">
+            <Typography variant="body" color="grey700">
+              {translate(
+                isDraft ? 'text_1738593143437uebmu9jwtc4' : 'text_1738605383523lme9aweoipp',
+              )}
+            </Typography>
+
+            <Typography variant="caption" color="grey600">
+              {translate('text_1738593143438173lt8105a5')}
+            </Typography>
+          </Alert>
+        </div>
+      )}
+      <LinkToInvoice
+        invoice={invoice}
+        redirectToInvoiceId={invoice?.voidedInvoiceId}
+        label={translate('text_1751969800882c5zez5kbrwt')}
+        invoiceNumberPrefix={`${translate('text_175334713974444hpp5yt2ab')}: `}
+      />
+      {billingEntity && (
+        <div className="box-border flex items-center gap-2 py-6 shadow-b">
+          <div className="min-w-[140px]">
+            <Typography className="text-sm text-grey-600">
+              {translate('text_1743611497157teaa1zu8l24')}
+            </Typography>
+          </div>
+
+          <Typography variant="body" color="grey700">
+            {billingEntity.name || billingEntity.code}
+          </Typography>
+        </div>
+      )}
+      <InvoiceCustomerInfos invoice={invoice} />
+    </>
   )
 }
 
@@ -279,7 +419,6 @@ const InvoiceOverview = memo(
     const isTaxStatusPending = invoice?.taxStatus === InvoiceTaxStatusTypeEnum.Pending
 
     const isDraft = invoice?.status === InvoiceStatusTypeEnum.Draft
-    const customerIsPartner = customer?.accountType === CustomerAccountTypeEnum.Partner
 
     return (
       <>
@@ -413,35 +552,11 @@ const InvoiceOverview = memo(
                   </Alert>
                 </div>
               )}
-              {customerIsPartner && (
-                <div className={tw(isDraft ? 'pt-3' : 'pt-6')}>
-                  <Alert type="info">
-                    <Typography variant="body" color="grey700">
-                      {translate(
-                        isDraft ? 'text_1738593143437uebmu9jwtc4' : 'text_1738605383523lme9aweoipp',
-                      )}
-                    </Typography>
-
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_1738593143438173lt8105a5')}
-                    </Typography>
-                  </Alert>
-                </div>
-              )}
-              {billingEntity && (
-                <div className="box-border flex items-center gap-2 py-6 shadow-b">
-                  <div className="min-w-[140px]">
-                    <Typography variant="body" color="grey600">
-                      {translate('text_1743611497157teaa1zu8l24')}
-                    </Typography>
-                  </div>
-
-                  <Typography variant="body" color="grey700">
-                    {billingEntity.name || billingEntity.code}
-                  </Typography>
-                </div>
-              )}
-              <InvoiceCustomerInfos invoice={invoice} />
+              <InvoiceQuickInfo
+                customer={customer as Customer}
+                invoice={invoice}
+                billingEntity={billingEntity}
+              />
               <InvoiceDetailsTable
                 customer={customer as Customer}
                 invoice={invoice as Invoice}

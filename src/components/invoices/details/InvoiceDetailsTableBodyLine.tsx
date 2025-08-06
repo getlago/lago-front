@@ -23,6 +23,7 @@ import {
   FeeTypesEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { OnRegeneratedFeeAdd } from '~/pages/CustomerInvoiceRegenerate'
 import { MenuPopper, PopperOpener } from '~/styles'
 
 import { DeleteAdjustedFeeDialogRef } from './DeleteAdjustedFeeDialog'
@@ -105,6 +106,8 @@ type InvoiceDetailsTableBodyLineProps = {
   deleteAdjustedFeeDialogRef?: RefObject<DeleteAdjustedFeeDialogRef>
   succeededDate?: string
   hasTaxProviderError?: boolean
+  onAdd?: OnRegeneratedFeeAdd
+  onDelete?: (id: string) => void
 }
 
 export const calculateIfDetailsShouldBeDisplayed = (
@@ -176,6 +179,8 @@ export const InvoiceDetailsTableBodyLine = memo(
     isDraftInvoice,
     succeededDate,
     hasTaxProviderError,
+    onAdd,
+    onDelete,
   }: InvoiceDetailsTableBodyLineProps) => {
     const { invoiceId = '' } = useParams()
     const { translate } = useInternationalization()
@@ -221,6 +226,7 @@ export const InvoiceDetailsTableBodyLine = memo(
         return fee.appliedTaxes.map((appliedTaxes) => (
           <Typography
             key={`fee-${fee.id}-applied-tax-${appliedTaxes.id}`}
+            className="whitespace-nowrap"
             variant="body"
             color="grey700"
           >
@@ -353,9 +359,9 @@ export const InvoiceDetailsTableBodyLine = memo(
                         align="left"
                         onClick={() => {
                           if (isAdjustedFee) {
-                            deleteAdjustedFeeDialogRef?.current?.openDialog({ fee })
+                            deleteAdjustedFeeDialogRef?.current?.openDialog({ fee, onDelete })
                           } else {
-                            editFeeDrawerRef?.current?.openDrawer({ fee, invoiceId })
+                            editFeeDrawerRef?.current?.openDrawer({ fee, invoiceId, onAdd })
                           }
                           closePopper()
                         }}

@@ -1,4 +1,5 @@
 import { envGlobalVar } from '~/core/apolloClient'
+import { isPrepaidCredit } from '~/core/utils/invoiceUtils'
 import {
   Invoice,
   InvoicePaymentStatusTypeEnum,
@@ -74,6 +75,22 @@ export const usePermissionsInvoiceActions = () => {
     return invoice.status === InvoiceStatusTypeEnum.Finalized && hasPermissions(['invoicesVoid'])
   }
 
+  const canRegenerate = (
+    invoice: Pick<Invoice, 'status' | 'regeneratedInvoiceId' | 'invoiceType'>,
+    hasActiveWallet: boolean,
+  ): boolean => {
+    const isRegenerable =
+      invoice.status === InvoiceStatusTypeEnum.Voided &&
+      !invoice.regeneratedInvoiceId &&
+      hasPermissions(['invoicesVoid'])
+
+    if (isPrepaidCredit(invoice)) {
+      return isRegenerable && hasActiveWallet
+    }
+
+    return isRegenerable
+  }
+
   const canIssueCreditNote = (invoice: Pick<Invoice, 'status'>): boolean => {
     return (
       [InvoiceStatusTypeEnum.Finalized].includes(invoice.status) &&
@@ -122,6 +139,7 @@ export const usePermissionsInvoiceActions = () => {
     canGeneratePaymentUrl,
     canUpdatePaymentStatus,
     canVoid,
+    canRegenerate,
     canIssueCreditNote,
     canRecordPayment,
     canDispute,

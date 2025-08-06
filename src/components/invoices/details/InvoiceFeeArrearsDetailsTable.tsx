@@ -12,11 +12,14 @@ import { intlFormatDateTime } from '~/core/timezone'
 import {
   CurrencyEnum,
   Customer,
+  Fee,
   FeeForDeleteAdjustmentFeeDialogFragmentDoc,
   FeeForEditfeeDrawerFragmentDoc,
   FeeForInvoiceDetailsTableBodyLineFragmentDoc,
+  Invoice,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { OnRegeneratedFeeAdd } from '~/pages/CustomerInvoiceRegenerate'
 
 import { DeleteAdjustedFeeDialogRef } from './DeleteAdjustedFeeDialog'
 import { EditFeeDrawerRef } from './EditFeeDrawer'
@@ -46,6 +49,9 @@ interface InvoiceFeeArrearsDetailsTableProps {
   currency: CurrencyEnum
   editFeeDrawerRef: RefObject<EditFeeDrawerRef>
   deleteAdjustedFeeDialogRef: RefObject<DeleteAdjustedFeeDialogRef>
+  onAdd?: OnRegeneratedFeeAdd
+  onDelete?: (id: string) => void
+  fees?: Invoice['fees']
 }
 
 export const InvoiceFeeArrearsDetailsTable = memo(
@@ -58,9 +64,28 @@ export const InvoiceFeeArrearsDetailsTable = memo(
     currency,
     editFeeDrawerRef,
     deleteAdjustedFeeDialogRef,
+    onAdd,
+    onDelete,
+    fees,
   }: InvoiceFeeArrearsDetailsTableProps) => {
     const { translate } = useInternationalization()
     const [areZeroFeesVisible, setAreZeroFeesVisible] = useState<boolean>(false)
+
+    const feesInArreras = subscription?.feesInArrears?.filter((fee) => {
+      if (onAdd && fees?.find((f: Fee) => f.id === fee.id)?.adjustedFee) {
+        return false
+      }
+
+      return true
+    })
+
+    const feesInArrerasZero = subscription?.feesInArrearsZero?.filter((fee) => {
+      if (onAdd && fees?.find((f: Fee) => f.id === fee.id)?.adjustedFee) {
+        return false
+      }
+
+      return true
+    })
 
     return (
       <>
@@ -85,7 +110,7 @@ export const InvoiceFeeArrearsDetailsTable = memo(
               })}
             />
 
-            {(subscription.feesInArrears as TExtendedRemainingFee[]).map((feeInArrear) => {
+            {(feesInArreras as TExtendedRemainingFee[]).map((feeInArrear) => {
               return (
                 <InvoiceDetailsTableBodyLine
                   key={`fee-in-arrears-${feeInArrear.id}`}
@@ -96,6 +121,8 @@ export const InvoiceFeeArrearsDetailsTable = memo(
                   deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                   fee={feeInArrear}
                   isDraftInvoice={isDraftInvoice}
+                  onAdd={onAdd}
+                  onDelete={onDelete}
                 />
               )
             })}
@@ -131,22 +158,22 @@ export const InvoiceFeeArrearsDetailsTable = memo(
                         isDraftInvoice={isDraftInvoice}
                       />
                       <tbody>
-                        {(subscription.feesInArrearsZero as TExtendedRemainingFee[]).map(
-                          (feeInArrearZero) => {
-                            return (
-                              <InvoiceDetailsTableBodyLine
-                                key={`fee-in-arrears-zero-${feeInArrearZero.id}`}
-                                canHaveUnitPrice={canHaveUnitPrice}
-                                currency={currency}
-                                displayName={feeInArrearZero?.metadata?.displayName}
-                                editFeeDrawerRef={editFeeDrawerRef}
-                                deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
-                                fee={feeInArrearZero}
-                                isDraftInvoice={isDraftInvoice}
-                              />
-                            )
-                          },
-                        )}
+                        {(feesInArrerasZero as TExtendedRemainingFee[]).map((feeInArrearZero) => {
+                          return (
+                            <InvoiceDetailsTableBodyLine
+                              key={`fee-in-arrears-zero-${feeInArrearZero.id}`}
+                              canHaveUnitPrice={canHaveUnitPrice}
+                              currency={currency}
+                              displayName={feeInArrearZero?.metadata?.displayName}
+                              editFeeDrawerRef={editFeeDrawerRef}
+                              deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
+                              fee={feeInArrearZero}
+                              isDraftInvoice={isDraftInvoice}
+                              onAdd={onAdd}
+                              onDelete={onDelete}
+                            />
+                          )
+                        })}
                       </tbody>
                     </table>
                   </Collapse>

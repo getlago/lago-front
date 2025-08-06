@@ -12,15 +12,21 @@ import { InvoiceDetailsTableHeader } from '~/components/invoices/details/Invoice
 import { InvoiceDetailsTablePeriodLine } from '~/components/invoices/details/InvoiceDetailsTablePeriodLine'
 import { InvoiceFeeAdvanceDetailsTable } from '~/components/invoices/details/InvoiceFeeAdvanceDetailsTable'
 import { InvoiceFeeArrearsDetailsTable } from '~/components/invoices/details/InvoiceFeeArrearsDetailsTable'
-import { groupAndFormatFees, TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
+import {
+  _newDeepFormatFees,
+  groupAndFormatFees,
+  TExtendedRemainingFee,
+} from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
   CurrencyEnum,
   Customer,
   ErrorCodesEnum,
+  Fee,
   FeeForInvoiceDetailsTableBodyLineFragmentDoc,
   FeeForInvoiceFeeAdvanceDetailsTableFragmentDoc,
   FeeForInvoiceFeeArrearsDetailsTableFragmentDoc,
+  Invoice,
   InvoiceForDetailsTableFooterFragmentDoc,
   InvoiceForDetailsTableFragment,
   InvoiceStatusTypeEnum,
@@ -29,8 +35,9 @@ import {
   InvoiceTypeEnum,
   PremiumIntegrationTypeEnum,
 } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { OnRegeneratedFeeAdd } from '~/pages/CustomerInvoiceRegenerate'
 
 gql`
   fragment FeeForInvoiceDetailsTable on Fee {
@@ -74,6 +81,7 @@ gql`
   }
 
   fragment InvoiceForDetailsTable on Invoice {
+    id
     invoiceType
     subTotalExcludingTaxesAmountCents
     subTotalIncludingTaxesAmountCents
@@ -147,6 +155,10 @@ interface InvoiceDetailsTableProps {
   invoice: InvoiceForDetailsTableFragment
   editFeeDrawerRef: RefObject<EditFeeDrawerRef>
   deleteAdjustedFeeDialogRef: RefObject<DeleteAdjustedFeeDialogRef>
+  isDraftOverride?: boolean
+  fees?: Invoice['fees']
+  onAdd?: OnRegeneratedFeeAdd
+  onDelete?: (id: string) => void
 }
 
 export const InvoiceTableSection: FC<{
@@ -211,25 +223,68 @@ export const InvoiceTableSection: FC<{
   )
 }
 
+const AddFee = ({
+  invoiceId,
+  invoiceSubscriptionId,
+  editFeeDrawerRef,
+  translate,
+  onAdd,
+}: {
+  invoiceId: string
+  invoiceSubscriptionId?: string
+  editFeeDrawerRef: RefObject<EditFeeDrawerRef>
+  translate: TranslateFunc
+  onAdd?: OnRegeneratedFeeAdd
+}) => (
+  <tr className="py-2 shadow-b">
+    <td>
+      <Button
+        variant="quaternary"
+        startIcon="plus"
+        onClick={() => {
+          editFeeDrawerRef?.current?.openDrawer({
+            invoiceId,
+            invoiceSubscriptionId,
+            onAdd,
+          })
+        }}
+      >
+        {translate('text_17506785063889sphu20u9eh')}
+      </Button>
+    </td>
+  </tr>
+)
+
 export const InvoiceDetailsTable = memo(
   ({
     customer,
     editFeeDrawerRef,
     deleteAdjustedFeeDialogRef,
     invoice,
+    isDraftOverride,
+    fees,
+    onAdd,
+    onDelete,
   }: InvoiceDetailsTableProps) => {
     const { translate } = useInternationalization()
     const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
     const currency = invoice?.currency || CurrencyEnum.Usd
-    const isDraftInvoice = invoice?.status === InvoiceStatusTypeEnum.Draft
+    const isDraftInvoice = invoice?.status === InvoiceStatusTypeEnum.Draft || !!isDraftOverride
     const canHaveUnitPrice = invoice.versionNumber >= 4 || isDraftInvoice
     const hasOldZeroFeeManagement = !!premiumIntegrations?.includes(
       PremiumIntegrationTypeEnum.ZeroAmountFees,
     )
+    const invoiceFees = fees || invoice?.fees
 
     const hasTaxProviderError = !!invoice.errorDetails?.find(
       ({ errorCode }) => errorCode === ErrorCodesEnum.TaxError,
     )
+
+    const computeFeeDisplayName = (fee: TExtendedRemainingFee) => {
+      const deep = _newDeepFormatFees([fee])
+
+      return deep?.[0]?.metadata?.displayName || fee.itemName || 'Fee'
+    }
 
     /******************
      * One-off invoice
@@ -251,7 +306,7 @@ export const InvoiceDetailsTable = memo(
               isDraftInvoice={isDraftInvoice}
             />
             <tbody>
-              {invoice.fees?.map((fee, i) => (
+              {invoiceFees?.map((fee, i) => (
                 <InvoiceDetailsTableBodyLine
                   key={`one-off-fee-${i}`}
                   canHaveUnitPrice={canHaveUnitPrice}
@@ -277,6 +332,7 @@ export const InvoiceDetailsTable = memo(
                 />
               ))}
             </tbody>
+
             <InvoiceDetailsTableFooter
               invoice={invoice}
               canHaveUnitPrice={canHaveUnitPrice}
@@ -330,7 +386,6 @@ export const InvoiceDetailsTable = memo(
                           }).date,
                         })}
                       />
-
                       <InvoiceDetailsTableBodyLine
                         canHaveUnitPrice={canHaveUnitPrice}
                         currency={currency}
@@ -340,9 +395,10 @@ export const InvoiceDetailsTable = memo(
                         fee={undefined}
                         isDraftInvoice={false}
                         hasTaxProviderError={hasTaxProviderError}
+                        onAdd={onAdd}
+                        onDelete={onDelete}
                       />
                     </tbody>
-
                     <InvoiceDetailsTableFooter
                       invoice={invoice}
                       canHaveUnitPrice={canHaveUnitPrice}
@@ -376,6 +432,9 @@ export const InvoiceDetailsTable = memo(
                   deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                   isDraftInvoice={isDraftInvoice}
                   subscription={subscription}
+                  onAdd={onAdd}
+                  onDelete={onDelete}
+                  fees={fees}
                 />,
                 <InvoiceFeeAdvanceDetailsTable
                   key={`sub-${subscriptionIndex}-invoice-fee-advance-details-table`}
@@ -387,6 +446,8 @@ export const InvoiceDetailsTable = memo(
                   deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                   isDraftInvoice={isDraftInvoice}
                   subscription={subscription}
+                  onAdd={onAdd}
+                  onDelete={onDelete}
                 />,
               ]
 
@@ -405,7 +466,25 @@ export const InvoiceDetailsTable = memo(
                     {feesComponentsToRender.map((component) => {
                       return component
                     })}
-
+                    {onAdd &&
+                      invoiceFees
+                        ?.filter((f) => !!f.adjustedFee)
+                        .map((fee, i) => (
+                          <InvoiceDetailsTableBodyLine
+                            key={`local-added-fee-${i}`}
+                            canHaveUnitPrice={canHaveUnitPrice}
+                            currency={currency}
+                            displayName={computeFeeDisplayName(fee as TExtendedRemainingFee)}
+                            succeededDate={undefined}
+                            editFeeDrawerRef={editFeeDrawerRef}
+                            deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
+                            isDraftInvoice={isDraftInvoice}
+                            fee={fee as TExtendedRemainingFee}
+                            hasTaxProviderError={hasTaxProviderError}
+                            onAdd={onAdd}
+                            onDelete={onDelete}
+                          />
+                        ))}
                     {!hasOldZeroFeeManagement &&
                       !invoice.allChargesHaveFees &&
                       subscription.metadata.acceptNewChargeFees &&
@@ -430,18 +509,28 @@ export const InvoiceDetailsTable = memo(
                           </td>
                         </tr>
                       )}
+                    {!!onAdd && (
+                      <AddFee
+                        editFeeDrawerRef={editFeeDrawerRef}
+                        invoiceId={subscription.metadata.invoiceId}
+                        invoiceSubscriptionId={subscriptionId}
+                        onAdd={onAdd}
+                        translate={translate}
+                      />
+                    )}
                   </tbody>
                 </table>
               )
             },
           )}
-
           {/* Footer */}
           <table>
             <InvoiceDetailsTableFooter
               invoice={invoice}
+              invoiceFees={onAdd ? (invoiceFees as Fee[]) : null}
               canHaveUnitPrice={canHaveUnitPrice}
               hasTaxProviderError={hasTaxProviderError}
+              hideDiscounts={!!onAdd}
             />
           </table>
         </div>

@@ -1,3 +1,5 @@
+import CustomerInvoiceRegenerate from '~/pages/CustomerInvoiceRegenerate'
+
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
 
@@ -25,6 +27,7 @@ export const CUSTOMER_DRAFT_INVOICES_LIST_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/dra
 export const CUSTOMER_INVOICE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/:tab`
 export const CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/request-overdue-payment`
 export const CUSTOMER_INVOICE_VOID_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/void/:invoiceId`
+export const CUSTOMER_INVOICE_REGENERATE_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/regenerate/:invoiceId`
 
 // Credit note related
 export const CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/credit-notes/:creditNoteId`
@@ -67,10 +70,19 @@ export const customerRoutes: CustomRouteObject[] = [
     element: <CreditNoteDetails />,
     permissions: ['creditNotesView'],
   },
+]
+
+export const customerVoidRoutes: CustomRouteObject[] = [
   {
     path: [CUSTOMER_INVOICE_VOID_ROUTE],
     private: true,
     element: <CustomerInvoiceVoid />,
+    permissions: ['invoicesVoid'],
+  },
+  {
+    path: [CUSTOMER_INVOICE_REGENERATE_ROUTE],
+    private: true,
+    element: <CustomerInvoiceRegenerate />,
     permissions: ['invoicesVoid'],
   },
 ]
