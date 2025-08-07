@@ -198,64 +198,6 @@ gql`
     }
   }
 
-  query getInvoiceFees($id: ID!) {
-    invoice(id: $id) {
-      id
-      status
-      fees {
-        id
-        amountCents
-        invoiceName
-        invoiceDisplayName
-        itemName
-        description
-        groupedBy
-        units
-        preciseUnitAmount
-        appliedTaxes {
-          id
-          taxCode
-          tax {
-            id
-            name
-            rate
-            code
-          }
-        }
-        addOn {
-          id
-          taxes {
-            id
-            name
-            rate
-            code
-          }
-        }
-        charge {
-          id
-          payInAdvance
-          minAmountCents
-          billableMetric {
-            id
-            name
-          }
-        }
-        chargeFilter {
-          invoiceDisplayName
-          values
-        }
-        subscription {
-          id
-          plan {
-            id
-            interval
-            name
-          }
-        }
-      }
-    }
-  }
-
   query integrationsListForCustomerInvoiceDetails($limit: Int) {
     integrations(limit: $limit) {
       collection {

@@ -20,6 +20,10 @@ import {
 import { AmountInput, ComboBox, ComboBoxField, ComboboxItem, TextInput } from '~/components/form'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import {
+  EditFeeBillingPeriod,
+  EditFeeBillingPeriodRef,
+} from '~/components/invoices/EditFeeBillingPeriod'
+import {
   EditInvoiceDisplayName,
   EditInvoiceDisplayNameRef,
 } from '~/components/invoices/EditInvoiceDisplayName'
@@ -45,11 +49,13 @@ import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOpti
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
+import { intlFormatDateTime } from '~/core/timezone'
 import { invoiceFeesToFeeInput } from '~/core/utils/invoiceUtils'
 import {
   AddOnForInvoiceEditTaxDialogFragmentDoc,
   CurrencyEnum,
   CustomerAccountTypeEnum,
+  FeeForInvoiceFeesToFeeInputFragmentDoc,
   FetchDraftInvoiceTaxesMutation,
   Invoice,
   LagoApiError,
@@ -78,9 +84,63 @@ gql`
     rate
   }
 
-  mutation createInvoice($input: CreateInvoiceInput!) {
-    createInvoice(input: $input) {
+  query getInvoiceFees($id: ID!) {
+    invoice(id: $id) {
       id
+      status
+      fees {
+        id
+        amountCents
+        invoiceName
+        invoiceDisplayName
+        itemName
+        description
+        groupedBy
+        units
+        preciseUnitAmount
+        appliedTaxes {
+          id
+          taxCode
+          tax {
+            id
+            name
+            rate
+            code
+          }
+        }
+        addOn {
+          id
+          taxes {
+            id
+            name
+            rate
+            code
+          }
+        }
+        charge {
+          id
+          payInAdvance
+          minAmountCents
+          billableMetric {
+            id
+            name
+          }
+        }
+        chargeFilter {
+          invoiceDisplayName
+          values
+        }
+        subscription {
+          id
+          plan {
+            id
+            interval
+            name
+          }
+        }
+
+        ...FeeForInvoiceFeesToFeeInput
+      }
     }
   }
 
@@ -162,6 +222,13 @@ gql`
     }
   }
 
+  mutation createInvoice($input: CreateInvoiceInput!) {
+    createInvoice(input: $input) {
+      id
+    }
+  }
+
+  ${FeeForInvoiceFeesToFeeInputFragmentDoc}
   ${AddOnForInvoiceEditTaxDialogFragmentDoc}
 `
 
@@ -193,6 +260,7 @@ const CreateInvoice = () => {
   const editDescriptionDialogRef = useRef<EditInvoiceItemDescriptionDialogRef>(null)
   const editTaxDialogRef = useRef<EditInvoiceItemTaxDialogRef>(null)
   const editInvoiceDisplayNameRef = useRef<EditInvoiceDisplayNameRef>(null)
+  const editFeeBillingPeriodDialogRef = useRef<EditFeeBillingPeriodRef>(null)
 
   const handleClosePage = useCallback(() => {
     goBack(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId as string }))
@@ -755,11 +823,18 @@ const CreateInvoice = () => {
 
                       return (
                         <div
-                          className={tw(gridClassname, 'min-h-17 items-center shadow-b')}
+                          className={tw(gridClassname, 'min-h-17 items-center py-3 shadow-b')}
                           key={`item-${i}`}
                           data-test="invoice-item"
                         >
                           <div>
+                            <Typography variant="captionHl" color="grey600" noWrap>
+                              {translate('text_633dae57ca9a923dd53c2097', {
+                                fromDate: intlFormatDateTime(fee.fromDatetime).date,
+                                toDate: intlFormatDateTime(fee.toDatetime).date,
+                              })}
+                            </Typography>
+
                             <div className="flex items-center gap-2">
                               <Typography variant="body" color="grey700" noWrap>
                                 {fee.invoiceDisplayName || fee.name}
@@ -789,7 +864,7 @@ const CreateInvoice = () => {
                               </Tooltip>
                             </div>
                             {!!fee.description && (
-                              <Typography variant="body" color="grey600" noWrap>
+                              <Typography variant="caption" color="grey600" noWrap>
                                 {fee.description}
                               </Typography>
                             )}
@@ -886,6 +961,28 @@ const CreateInvoice = () => {
                             {({ closePopper }) => (
                               <MenuPopper>
                                 <Button
+                                  startIcon="calendar"
+                                  variant="quaternary"
+                                  align="left"
+                                  onClick={() => {
+                                    editFeeBillingPeriodDialogRef.current?.openDialog({
+                                      fromDatetime: fee.fromDatetime,
+                                      toDatetime: fee.toDatetime,
+                                      callback: (fromDatetime: string, toDatetime: string) => {
+                                        formikProps.setValues({
+                                          ...formikProps.values,
+                                          fees: formikProps.values.fees.map((f, j) =>
+                                            j === i ? { ...f, fromDatetime, toDatetime } : f,
+                                          ),
+                                        })
+                                      },
+                                    })
+                                    closePopper()
+                                  }}
+                                >
+                                  {translate('text_1754596347194200100004000')}
+                                </Button>
+                                <Button
                                   startIcon="text"
                                   variant="quaternary"
                                   align="left"
@@ -965,6 +1062,7 @@ const CreateInvoice = () => {
                               : addOn?.taxes?.length
                                 ? addOn?.taxes
                                 : customerApplicableTax
+                            const today = DateTime.now()
 
                             if (!!addOn) {
                               formikProps.setFieldValue('fees', [
@@ -977,6 +1075,8 @@ const CreateInvoice = () => {
                                   units: 1,
                                   unitAmountCents: deserializeAmount(addOn.amountCents, currency),
                                   taxes: addonApplicableTaxes,
+                                  fromDatetime: today.startOf('day').toISO(),
+                                  toDatetime: today.endOf('day').toISO(),
                                 },
                               ])
 
@@ -1327,6 +1427,7 @@ const CreateInvoice = () => {
       <EditInvoiceItemDescriptionDialog ref={editDescriptionDialogRef} />
       <EditInvoiceItemTaxDialog ref={editTaxDialogRef} />
       <EditInvoiceDisplayName ref={editInvoiceDisplayNameRef} />
+      <EditFeeBillingPeriod ref={editFeeBillingPeriodDialogRef} />
     </>
   )
 }
