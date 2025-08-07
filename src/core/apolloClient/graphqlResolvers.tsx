@@ -75,6 +75,7 @@ export const typeDefs = gql`
     customer
     customer_usage
     event
+    feature
     fee
     invoice
     invoice_custom_section

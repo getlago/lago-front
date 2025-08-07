@@ -39,6 +39,7 @@ const prepare = async ({
         interval: PlanInterval.Monthly,
         name: 'graduated',
         payInAdvance: false,
+        entitlements: [],
         charges: [
           {
             chargeModel: ChargeModelEnum.Graduated,

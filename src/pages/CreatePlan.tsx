@@ -10,6 +10,7 @@ import {
 } from '~/components/invoices/EditInvoiceDisplayName'
 import { ChargesSection } from '~/components/plans/ChargesSection'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
+import { FeatureEntitlementSection } from '~/components/plans/FeatureEntitlementSection'
 import { FixedFeeSection } from '~/components/plans/FixedFeeSection'
 import {
   ImpactOverridenSubscriptionsDialog,
@@ -34,8 +35,10 @@ import {
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   PLANS_ROUTE,
 } from '~/core/router'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   ChargeAccordionFragmentDoc,
+  FeatureEntitlementForPlanFragmentDoc,
   PlanForChargeAccordionFragmentDoc,
   PlanForFixedFeeSectionFragmentDoc,
   PlanForSettingsSectionFragmentDoc,
@@ -126,12 +129,14 @@ gql`
     ...PlanForChargeAccordion
     ...PlanForSettingsSection
     ...PlanForFixedFeeSection
+    ...FeatureEntitlementForPlan
   }
 
   ${ChargeAccordionFragmentDoc}
   ${PlanForChargeAccordionFragmentDoc}
   ${PlanForSettingsSectionFragmentDoc}
   ${PlanForFixedFeeSectionFragmentDoc}
+  ${FeatureEntitlementForPlanFragmentDoc}
 `
 
 const CreatePlan = () => {
@@ -144,6 +149,7 @@ const CreatePlan = () => {
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const impactOverridenSubscriptionsDialogRef = useRef<ImpactOverridenSubscriptionsDialogRef>(null)
   const editInvoiceDisplayNameRef = useRef<EditInvoiceDisplayNameRef>(null)
+  const hasAccessToFeatures = isFeatureFlagActive(FeatureFlags.FTR_FEATURES)
 
   const canBeEdited = !plan?.subscriptionsCount
 
@@ -281,6 +287,14 @@ const CreatePlan = () => {
                       premiumWarningDialogRef={premiumWarningDialogRef}
                       editInvoiceDisplayNameRef={editInvoiceDisplayNameRef}
                     />
+
+                    {hasAccessToFeatures && (
+                      <FeatureEntitlementSection
+                        formikProps={formikProps}
+                        isEdition={isEdition}
+                        premiumWarningDialogRef={premiumWarningDialogRef}
+                      />
+                    )}
                   </Card>
                 </SectionWrapper>
               </Stack>

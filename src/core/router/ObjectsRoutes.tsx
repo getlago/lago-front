@@ -22,15 +22,18 @@ const CreateTax = lazyLoad(() => import('~/pages/CreateTax'))
 const CreateInvoice = lazyLoad(() => import('~/pages/CreateInvoice'))
 const CreateCoupon = lazyLoad(() => import('~/pages/CreateCoupon'))
 const CreateAddOn = lazyLoad(() => import('~/pages/CreateAddOn'))
-const CreateSubscription = lazyLoad(() => import('~/pages/CreateSubscription'))
+const CreateSubscription = lazyLoad(() => import('~/pages/subscriptions/CreateSubscription'))
 const CreateWallet = lazyLoad(() => import('~/pages/wallet/CreateWallet'))
 const CreateWalletTopUp = lazyLoad(() => import('~/pages/wallet/CreateWalletTopUp'))
 const CreatePayment = lazyLoad(() => import('~/pages/CreatePayment'))
 const AlertForm = lazyLoad(() => import('~/pages/AlertForm'))
+const SubscriptionEntitlementForm = lazyLoad(
+  () => import('~/pages/subscriptions/SubscriptionEntitlementForm'),
+)
 const FeatureForm = lazyLoad(() => import('~/pages/features/FeatureForm'))
 
 // Details
-const SubscriptionDetails = lazyLoad(() => import('~/pages/SubscriptionDetails'))
+const SubscriptionDetails = lazyLoad(() => import('~/pages/subscriptions/SubscriptionDetails'))
 const PlanDetails = lazyLoad(() => import('~/pages/PlanDetails'))
 const AddOnDetails = lazyLoad(() => import('~/pages/AddOnDetails'))
 const CouponDetails = lazyLoad(() => import('~/pages/CouponDetails'))
@@ -99,6 +102,15 @@ export const UPDATE_ALERT_PLAN_SUBSCRIPTION_ROUTE =
   '/plan/:planId/subscription/:subscriptionId/alert/:alertId/edit'
 export const UPDATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE =
   '/customer/:customerId/subscription/:subscriptionId/alert/:alertId/edit'
+
+export const CREATE_ENTITLEMENT_PLAN_SUBSCRIPTION_ROUTE =
+  '/plan/:planId/subscription/:subscriptionId/entitlement/create'
+export const CREATE_ENTITLEMENT_CUSTOMER_SUBSCRIPTION_ROUTE =
+  '/customer/:customerId/subscription/:subscriptionId/entitlement/create'
+export const UPDATE_ENTITLEMENT_PLAN_SUBSCRIPTION_ROUTE =
+  '/plan/:planId/subscription/:subscriptionId/entitlement/:entitlementCode/edit'
+export const UPDATE_ENTITLEMENT_CUSTOMER_SUBSCRIPTION_ROUTE =
+  '/customer/:customerId/subscription/:subscriptionId/entitlement/:entitlementCode/edit'
 
 export const CREATE_FEATURE_ROUTE = '/create/feature'
 export const UPDATE_FEATURE_ROUTE = '/update/feature/:featureId'
@@ -260,6 +272,17 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     ],
     private: true,
     element: <AlertForm />,
+    permissions: ['subscriptionsCreate', 'subscriptionsUpdate'],
+  },
+  {
+    path: [
+      CREATE_ENTITLEMENT_PLAN_SUBSCRIPTION_ROUTE,
+      CREATE_ENTITLEMENT_CUSTOMER_SUBSCRIPTION_ROUTE,
+      UPDATE_ENTITLEMENT_PLAN_SUBSCRIPTION_ROUTE,
+      UPDATE_ENTITLEMENT_CUSTOMER_SUBSCRIPTION_ROUTE,
+    ],
+    private: true,
+    element: <SubscriptionEntitlementForm />,
     permissions: ['subscriptionsCreate', 'subscriptionsUpdate'],
   },
   {

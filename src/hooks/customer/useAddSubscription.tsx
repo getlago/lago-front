@@ -85,6 +85,7 @@ export const cleanPlanValues = (planValues: PlanOverridesInput) => {
     payInAdvance: undefined,
     billChargesMonthly: undefined,
     cascadeUpdates: undefined,
+    entitlements: undefined,
     charges: planValues?.charges?.map((charge) => ({
       ...charge,
       appliedPricingUnit: charge.appliedPricingUnit
@@ -227,11 +228,6 @@ export const useAddSubscription: UseAddSubscription = ({
 
   return {
     formType,
-    // errorCode: hasDefinedGQLError('CurrenciesDoesNotMatch', error)
-    //   ? LagoApiError.CurrenciesDoesNotMatch
-    //   : hasDefinedGQLError('ValueAlreadyExist', error)
-    //   ? LagoApiError.ValueAlreadyExist
-    //   : undefined,
     onSave: async (
       customerId,
       {
@@ -247,6 +243,7 @@ export const useAddSubscription: UseAddSubscription = ({
       hasPlanBeingChangedFromInitial,
     ) => {
       const serializedPlanValues = serializePlanInput(planValues)
+
       const { errors } =
         formType === FORM_TYPE_ENUM.creation || formType === FORM_TYPE_ENUM.upgradeDowngrade
           ? await create({
