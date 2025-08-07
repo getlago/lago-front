@@ -8654,7 +8654,7 @@ export type GetCustomerUsageForPortalQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerUsageForPortalQuery = { __typename?: 'Query', customerPortalCustomerUsage: { __typename?: 'CustomerUsage', amountCents: any, projectedAmountCents: any, currency: CurrencyEnum, fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', id: string, units: number, amountCents: any, pricingUnitAmountCents?: any | null, projectedAmountCents: any, projectedUnits: number, pricingUnitProjectedAmountCents?: any | null, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', id: string, pricingUnit: { __typename?: 'PricingUnit', id: string, shortName: string } } | null }, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, projectedAmountCents: any, projectedUnits: number, id: string, pricingUnitAmountCents?: any | null, pricingUnitProjectedAmountCents?: any | null, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number }> | null }> }> } };
+export type GetCustomerUsageForPortalQuery = { __typename?: 'Query', customerPortalCustomerUsage: { __typename?: 'CustomerUsage', amountCents: any, currency: CurrencyEnum, fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', id: string, units: number, amountCents: any, pricingUnitAmountCents?: any | null, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', id: string, pricingUnit: { __typename?: 'PricingUnit', id: string, shortName: string } } | null }, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, id: string, pricingUnitAmountCents?: any | null, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null }> | null }> }> } };
 
 export type GetPortalUsageQueryVariables = Exact<{
   status?: InputMaybe<Array<StatusTypeEnum> | StatusTypeEnum>;
@@ -9013,7 +9013,7 @@ export type GetCustomerSubscriptionForUsageQueryVariables = Exact<{
 
 export type GetCustomerSubscriptionForUsageQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, externalId: string, currency?: CurrencyEnum | null } | null };
 
-export type CustomerUsageForUsageDetailsFragment = { __typename?: 'CustomerUsage', fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', id: string, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', id: string, pricingUnit: { __typename?: 'PricingUnit', id: string, shortName: string } } | null }, billableMetric: { __typename?: 'BillableMetric', name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', id: string, amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number }> | null }> }> };
+export type CustomerUsageForUsageDetailsFragment = { __typename?: 'CustomerUsage', fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', id: string, pricingUnitAmountCents?: any | null, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', id: string, pricingUnit: { __typename?: 'PricingUnit', id: string, shortName: string } } | null }, billableMetric: { __typename?: 'BillableMetric', name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', id: string, amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, pricingUnitAmountCents?: any | null, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null }> | null }> }> };
 
 export type GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -10581,7 +10581,7 @@ export type SubscrptionForSubscriptionUsageQueryVariables = Exact<{
 
 export type SubscrptionForSubscriptionUsageQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string, code: string }, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum } } | null };
 
-export type SubscriptionCurrentUsageTableComponentCustomerUsageFragment = { __typename?: 'CustomerUsage', amountCents: any, projectedAmountCents: any, currency: CurrencyEnum, fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', id: string, units: number, amountCents: any, pricingUnitAmountCents?: any | null, projectedAmountCents: any, projectedUnits: number, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', id: string, pricingUnit: { __typename?: 'PricingUnit', id: string, shortName: string } } | null }, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, projectedAmountCents: any, projectedUnits: number, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null }> | null }> }> };
+export type SubscriptionCurrentUsageTableComponentCustomerUsageFragment = { __typename?: 'CustomerUsage', amountCents: any, currency: CurrencyEnum, fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', id: string, units: number, amountCents: any, pricingUnitAmountCents?: any | null, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', id: string, pricingUnit: { __typename?: 'PricingUnit', id: string, shortName: string } } | null }, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null }> | null }> }> };
 
 export type UsageForSubscriptionUsageQueryVariables = Exact<{
   customerId: Scalars['ID']['input'];
@@ -10589,7 +10589,7 @@ export type UsageForSubscriptionUsageQueryVariables = Exact<{
 }>;
 
 
-export type UsageForSubscriptionUsageQuery = { __typename?: 'Query', customerUsage: { __typename?: 'CustomerUsage', amountCents: any, projectedAmountCents: any, currency: CurrencyEnum, fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', id: string, units: number, amountCents: any, pricingUnitAmountCents?: any | null, projectedAmountCents: any, projectedUnits: number, pricingUnitProjectedAmountCents?: any | null, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', id: string, pricingUnit: { __typename?: 'PricingUnit', id: string, shortName: string } } | null }, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, projectedAmountCents: any, projectedUnits: number, id: string, pricingUnitAmountCents?: any | null, pricingUnitProjectedAmountCents?: any | null, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number }> | null }> }> } };
+export type UsageForSubscriptionUsageQuery = { __typename?: 'Query', customerUsage: { __typename?: 'CustomerUsage', amountCents: any, currency: CurrencyEnum, fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', id: string, units: number, amountCents: any, pricingUnitAmountCents?: any | null, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', id: string, pricingUnit: { __typename?: 'PricingUnit', id: string, shortName: string } } | null }, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, id: string, pricingUnitAmountCents?: any | null, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null }> | null }> }> } };
 
 export type GetSubscriptionForDetailsOverviewQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -12823,9 +12823,6 @@ export const CustomerUsageForUsageDetailsFragmentDoc = gql`
   chargesUsage {
     id
     pricingUnitAmountCents
-    projectedAmountCents
-    pricingUnitProjectedAmountCents
-    projectedUnits
     charge {
       id
       invoiceDisplayName
@@ -12847,9 +12844,6 @@ export const CustomerUsageForUsageDetailsFragmentDoc = gql`
       values
       invoiceDisplayName
       pricingUnitAmountCents
-      projectedAmountCents
-      pricingUnitProjectedAmountCents
-      projectedUnits
     }
     groupedUsage {
       id
@@ -12858,9 +12852,6 @@ export const CustomerUsageForUsageDetailsFragmentDoc = gql`
       eventsCount
       units
       pricingUnitAmountCents
-      projectedAmountCents
-      pricingUnitProjectedAmountCents
-      projectedUnits
       filters {
         id
         amountCents
@@ -12868,9 +12859,6 @@ export const CustomerUsageForUsageDetailsFragmentDoc = gql`
         values
         invoiceDisplayName
         pricingUnitAmountCents
-        projectedAmountCents
-        pricingUnitProjectedAmountCents
-        projectedUnits
       }
     }
   }
@@ -13784,7 +13772,6 @@ export const InviteForRolePickerFieldFragmentDoc = gql`
 export const SubscriptionCurrentUsageTableComponentCustomerUsageFragmentDoc = gql`
     fragment SubscriptionCurrentUsageTableComponentCustomerUsage on CustomerUsage {
   amountCents
-  projectedAmountCents
   currency
   fromDatetime
   toDatetime
@@ -13793,8 +13780,6 @@ export const SubscriptionCurrentUsageTableComponentCustomerUsageFragmentDoc = gq
     units
     amountCents
     pricingUnitAmountCents
-    projectedAmountCents
-    projectedUnits
     charge {
       id
       invoiceDisplayName
@@ -13819,8 +13804,6 @@ export const SubscriptionCurrentUsageTableComponentCustomerUsageFragmentDoc = gq
       groupedBy
       eventsCount
       units
-      projectedAmountCents
-      projectedUnits
       filters {
         id
       }

@@ -1,17 +1,7 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import {
-  Button,
-  Drawer,
-  DrawerRef,
-  NavigationTab,
-  Table,
-  TabManagedBy,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
-import { getPricingUnitAmountCents } from '~/components/subscriptions/SubscriptionCurrentUsageTable'
+import { Button, Drawer, DrawerRef, Table, Tooltip, Typography } from '~/components/designSystem'
 import {
   composeChargeFilterDisplayName,
   composeGroupedByDisplayName,
@@ -37,20 +27,13 @@ type AmountCentsCellProps = {
   currency: CurrencyEnum
   locale?: LocaleEnum
   pricingUnitShortName?: string
-  showProjected: boolean
 }
 
-const AmountCentsCell = ({
-  row,
-  currency,
-  locale,
-  pricingUnitShortName,
-  showProjected,
-}: AmountCentsCellProps) => (
+const AmountCentsCell = ({ row, currency, locale, pricingUnitShortName }: AmountCentsCellProps) => (
   <div className="flex flex-col items-end">
     <Typography variant="bodyHl" color="grey700">
       {intlFormatNumber(
-        deserializeAmount(getPricingUnitAmountCents(row, showProjected), currency) || 0,
+        deserializeAmount(row.pricingUnitAmountCents || row.amountCents, currency) || 0,
         {
           currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
           currency,
@@ -62,14 +45,11 @@ const AmountCentsCell = ({
 
     {!!pricingUnitShortName && (
       <Typography variant="caption" color="grey600">
-        {intlFormatNumber(
-          deserializeAmount(showProjected ? row.projectedAmountCents : row.amountCents, currency),
-          {
-            currency,
-            locale,
-            currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
-          },
-        )}
+        {intlFormatNumber(deserializeAmount(row.amountCents, currency), {
+          currency,
+          locale,
+          currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
+        })}
       </Typography>
     )}
   </div>
@@ -82,9 +62,6 @@ gql`
     chargesUsage {
       id
       pricingUnitAmountCents
-      projectedAmountCents
-      pricingUnitProjectedAmountCents
-      projectedUnits
       charge {
         id
         invoiceDisplayName
@@ -106,9 +83,6 @@ gql`
         values
         invoiceDisplayName
         pricingUnitAmountCents
-        projectedAmountCents
-        pricingUnitProjectedAmountCents
-        projectedUnits
       }
       groupedUsage {
         id
@@ -117,9 +91,6 @@ gql`
         eventsCount
         units
         pricingUnitAmountCents
-        projectedAmountCents
-        pricingUnitProjectedAmountCents
-        projectedUnits
         filters {
           id
           amountCents
@@ -127,9 +98,6 @@ gql`
           values
           invoiceDisplayName
           pricingUnitAmountCents
-          projectedAmountCents
-          pricingUnitProjectedAmountCents
-          projectedUnits
         }
       }
     }
@@ -137,11 +105,7 @@ gql`
 `
 
 export interface SubscriptionUsageDetailDrawerRef {
-  openDrawer: (
-    usage: ChargeUsage,
-    refreshUsage: () => Promise<ChargeUsage | undefined>,
-    defaultTab?: number,
-  ) => unknown
+  openDrawer: (usage: ChargeUsage, refreshUsage: () => Promise<ChargeUsage | undefined>) => unknown
   closeDialog: () => unknown
 }
 
@@ -172,21 +136,6 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
     const drawerRef = useRef<DrawerRef>(null)
     const [usage, setUsage] = useState<ChargeUsage>()
     const [refreshFunction, setRefreshFunction] = useState<() => Promise<ChargeUsage | undefined>>()
-    const [activeTab, setActiveTab] = useState<number>(0)
-
-    const showProjected = activeTab === 1
-
-    const TRANSLATION_MAP = showProjected
-      ? {
-          unitsHeader: translate('text_17531019276915hby502cvzy'),
-          amountHeader: translate('text_1753101927691j5chrkhmoma'),
-        }
-      : {
-          unitsHeader: translate('text_1753095789277t9kbe8y5pmh'),
-          amountHeader: translate('text_1753101927691fbbwyk7p39q'),
-        }
-
-    const unitsKey = showProjected ? 'projectedUnits' : 'units'
 
     const displayName = usage?.charge.invoiceDisplayName || usage?.billableMetric.name
     const hasAnyFilterInGroupUsage = usage?.groupedUsage?.some(
@@ -196,10 +145,9 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
     const pricingUnitShortName = usage?.charge.appliedPricingUnit?.pricingUnit?.shortName
 
     useImperativeHandle(ref, () => ({
-      openDrawer: (data, refreshData, defaultTab) => {
+      openDrawer: (data, refreshData) => {
         setUsage(data)
         setRefreshFunction(() => refreshData)
-        setActiveTab(defaultTab || 0)
         drawerRef.current?.openDrawer()
       },
       closeDialog: () => drawerRef.current?.closeDrawer(),
@@ -250,21 +198,6 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
             />
           </Tooltip>
         </div>
-
-        <NavigationTab
-          managedBy={TabManagedBy.INDEX}
-          currentTab={activeTab}
-          onChange={(index) => setActiveTab(index)}
-          tabs={[
-            {
-              title: translate('text_1753094834414fgnvuior3iv'),
-            },
-            {
-              title: translate('text_1753094834414tu9mxavuco7'),
-            },
-          ]}
-        />
-
         {hasAnyFilterInGroupUsage && (
           <div className="[&_table:not(#table-grouped-usage-with-filters-table-0)_thead]:hidden">
             {/* NOTE: We have to make a copy of the array here, otherwise we got an error after usage reload while opening the Drawer */}
@@ -317,18 +250,18 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                       },
                       {
                         key: 'units',
-                        title: TRANSLATION_MAP.unitsHeader,
+                        title: translate('text_65771fa3f4ab9a00720726ce'),
                         textAlign: 'right',
                         minWidth: 70,
                         content: (row) => (
                           <Typography variant="body" color="grey700">
-                            {row[unitsKey]}
+                            {row.units}
                           </Typography>
                         ),
                       },
                       {
                         key: 'amountCents',
-                        title: TRANSLATION_MAP.amountHeader,
+                        title: translate('text_6419c64eace749372fc72b3e'),
                         textAlign: 'right',
                         minWidth: 100,
                         content: (row) => (
@@ -337,7 +270,6 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                             currency={currency}
                             locale={locale}
                             pricingUnitShortName={pricingUnitShortName}
-                            showProjected={showProjected}
                           />
                         ),
                       },
@@ -371,18 +303,18 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
               },
               {
                 key: 'units',
-                title: TRANSLATION_MAP.unitsHeader,
+                title: translate('text_65771fa3f4ab9a00720726ce'),
                 textAlign: 'right',
                 minWidth: 70,
                 content: (row) => (
                   <Typography variant="body" color="grey700">
-                    {row[unitsKey]}
+                    {row.units}
                   </Typography>
                 ),
               },
               {
                 key: 'amountCents',
-                title: TRANSLATION_MAP.amountHeader,
+                title: translate('text_6419c64eace749372fc72b3e'),
                 textAlign: 'right',
                 minWidth: 100,
                 content: (row) => (
@@ -391,7 +323,6 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                     currency={currency}
                     locale={locale}
                     pricingUnitShortName={pricingUnitShortName}
-                    showProjected={showProjected}
                   />
                 ),
               },
@@ -433,18 +364,18 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
               },
               {
                 key: 'units',
-                title: TRANSLATION_MAP.unitsHeader,
+                title: translate('text_65771fa3f4ab9a00720726ce'),
                 textAlign: 'right',
                 minWidth: 70,
                 content: (row) => (
                   <Typography variant="body" color="grey700">
-                    {row[unitsKey]}
+                    {row.units}
                   </Typography>
                 ),
               },
               {
                 key: 'amountCents',
-                title: TRANSLATION_MAP.amountHeader,
+                title: translate('text_6419c64eace749372fc72b3e'),
                 textAlign: 'right',
                 minWidth: 100,
                 content: (row) => (
@@ -453,7 +384,6 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
                     currency={currency}
                     locale={locale}
                     pricingUnitShortName={pricingUnitShortName}
-                    showProjected={showProjected}
                   />
                 ),
               },

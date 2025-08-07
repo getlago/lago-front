@@ -27,8 +27,6 @@ type NavigationTabProps = {
     component?: ReactNode
   }[]
   children?: ReactNode
-  onChange?: (index: number) => void
-  currentTab?: number
 }
 
 interface TabPanelProps {
@@ -67,19 +65,16 @@ export const NavigationTab = ({
   name = 'Navigation tab',
   tabs,
   children,
-  onChange,
-  currentTab,
 }: NavigationTabProps) => {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const nonHiddenTabs = tabs.filter((t) => !t.hidden)
 
   // Default value is not 0 to prevent useEffect value udpate to flash first component
-  const [value, setValue] = useState<number | null>(currentTab || null)
+  const [value, setValue] = useState<number | null>(null)
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
-    onChange?.(newValue)
   }
 
   // Make sure the active tab is selected when the page is loaded

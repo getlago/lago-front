@@ -1,20 +1,11 @@
 import { ApolloError, gql } from '@apollo/client'
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 
 import {
   SubscriptionUsageDetailDrawer,
   SubscriptionUsageDetailDrawerRef,
 } from '~/components/customers/usage/SubscriptionUsageDetailDrawer'
-import {
-  Alert,
-  Button,
-  NavigationTab,
-  Skeleton,
-  Table,
-  TabManagedBy,
-  Tooltip,
-  Typography,
-} from '~/components/designSystem'
+import { Alert, Button, Skeleton, Table, Tooltip, Typography } from '~/components/designSystem'
 import { GenericPlaceholder } from '~/components/GenericPlaceholder'
 import { LagoGQLError } from '~/core/apolloClient'
 import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
@@ -23,14 +14,12 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { formatDateToTZ, intlFormatDateTime } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
 import {
-  ChargeFilterUsage,
   ChargeUsage,
   CurrencyEnum,
   CustomerForSubscriptionUsageQuery,
   CustomerUsageForUsageDetailsFragmentDoc,
   GetCustomerUsageForPortalQuery,
   GetCustomerUsageForPortalQueryResult,
-  GroupedChargeUsage,
   LagoApiError,
   StatusTypeEnum,
   SubscrptionForSubscriptionUsageQuery,
@@ -73,7 +62,6 @@ gql`
 
   fragment SubscriptionCurrentUsageTableComponentCustomerUsage on CustomerUsage {
     amountCents
-    projectedAmountCents
     currency
     fromDatetime
     toDatetime
@@ -82,8 +70,6 @@ gql`
       units
       amountCents
       pricingUnitAmountCents
-      projectedAmountCents
-      projectedUnits
       charge {
         id
         invoiceDisplayName
@@ -108,8 +94,6 @@ gql`
         groupedBy
         eventsCount
         units
-        projectedAmountCents
-        projectedUnits
         filters {
           id
         }
@@ -160,21 +144,6 @@ type SubscriptionCurrentUsageTableComponentProps = {
   locale?: LocaleEnum
 }
 
-export const getPricingUnitAmountCents = (
-  row: Pick<
-    ChargeUsage | ChargeFilterUsage | GroupedChargeUsage,
-    | 'amountCents'
-    | 'pricingUnitAmountCents'
-    | 'projectedAmountCents'
-    | 'pricingUnitProjectedAmountCents'
-  >,
-  isProjected: boolean,
-) => {
-  return isProjected
-    ? row.pricingUnitProjectedAmountCents || row.projectedAmountCents
-    : row.pricingUnitAmountCents || row.amountCents
-}
-
 export const SubscriptionCurrentUsageTableComponent = ({
   usageData,
   usageLoading,
@@ -196,8 +165,6 @@ export const SubscriptionCurrentUsageTableComponent = ({
   translate,
   locale,
 }: SubscriptionCurrentUsageTableComponentProps) => {
-  const [activeTab, setActiveTab] = useState<number>(0)
-
   const subscriptionUsageDetailDrawerRef = useRef<SubscriptionUsageDetailDrawerRef>(null)
 
   const currency = usageData?.currency || CurrencyEnum.Usd
@@ -207,23 +174,6 @@ export const SubscriptionCurrentUsageTableComponent = ({
     customerData?.applicableTimezone ||
     subscription?.customer.applicableTimezone ||
     TimezoneEnum.TzUtc
-
-  const showProjected = activeTab === 1
-
-  const TRANSLATION_MAP = showProjected
-    ? {
-        title: translate('text_1753095692838zn4t5a0wrg1'),
-        unitsHeader: translate('text_17531019276915hby502cvzy'),
-        amountHeader: translate('text_1753101927691j5chrkhmoma'),
-      }
-    : {
-        title: translate('text_17530956928381jy5n59318d'),
-        unitsHeader: translate('text_1753095789277t9kbe8y5pmh'),
-        amountHeader: translate('text_1753101927691fbbwyk7p39q'),
-      }
-
-  const amountCentsKey = showProjected ? 'projectedAmountCents' : 'amountCents'
-  const unitsKey = showProjected ? 'projectedUnits' : 'units'
 
   return (
     <section>
@@ -313,33 +263,20 @@ export const SubscriptionCurrentUsageTableComponent = ({
           )}
         </>
       )}
-
-      <NavigationTab
-        managedBy={TabManagedBy.INDEX}
-        onChange={(index) => setActiveTab(index)}
-        tabs={[
-          {
-            title: translate('text_1753094834414fgnvuior3iv'),
-          },
-          {
-            title: translate('text_1753094834414tu9mxavuco7'),
-          },
-        ]}
-      />
-
       {!hasError && !!usageData?.chargesUsage.length && (
         <>
-          <div className="flex h-12 flex-row items-center justify-between shadow-b">
+          <div className="flex h-10 flex-row items-center justify-between">
             <Typography variant="bodyHl" color="grey700" noWrap>
-              {TRANSLATION_MAP.title}{' '}
-              {showExcludingTaxLabel ? translate('text_1753095789277h17a2varizl') : ''}
+              {showExcludingTaxLabel
+                ? translate('text_17326286491076m81w5uy3el')
+                : translate('text_62c3f3fca8a1625624e83380')}
             </Typography>
 
             {isLoading ? (
               <Skeleton variant="text" className="w-36" />
             ) : (
               <Typography variant="bodyHl" color="grey700" noWrap>
-                {intlFormatNumber(deserializeAmount(usageData?.[amountCentsKey], currency) || 0, {
+                {intlFormatNumber(deserializeAmount(usageData?.amountCents, currency) || 0, {
                   currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
                   currency,
                   locale,
@@ -365,7 +302,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
                     (groupedUsage) => !!groupedUsage?.filters?.length,
                   )
                   const hasAnyGroupedUsageUnits = row.groupedUsage.some(
-                    (groupedUsage) => groupedUsage?.[unitsKey] > 0,
+                    (groupedUsage) => groupedUsage?.units > 0,
                   )
 
                   return (
@@ -403,7 +340,6 @@ export const SubscriptionCurrentUsageTableComponent = ({
                                         ) as ChargeUsage | undefined
                                       }
                                     },
-                                    activeTab,
                                   )
                                 }}
                               >
@@ -419,18 +355,18 @@ export const SubscriptionCurrentUsageTableComponent = ({
               },
               {
                 key: 'units',
-                title: TRANSLATION_MAP.unitsHeader,
+                title: translate('text_65771fa3f4ab9a00720726ce'),
                 textAlign: 'right',
                 minWidth: 70,
                 content: (row) => (
                   <Typography variant="body" color="grey700">
-                    {row[unitsKey]}
+                    {row.units}
                   </Typography>
                 ),
               },
               {
                 key: 'amountCents',
-                title: TRANSLATION_MAP.amountHeader,
+                title: translate('text_6419c64eace749372fc72b3e'),
                 textAlign: 'right',
                 minWidth: 100,
                 content: (row) => {
@@ -441,7 +377,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
                       <Typography variant="bodyHl" color="grey700">
                         {intlFormatNumber(
                           deserializeAmount(
-                            getPricingUnitAmountCents(row, showProjected),
+                            row.pricingUnitAmountCents || row.amountCents,
                             currency,
                           ),
                           {
@@ -456,7 +392,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
 
                       {!!row.charge.appliedPricingUnit && (
                         <Typography variant="caption" color="grey600">
-                          {intlFormatNumber(deserializeAmount(row[amountCentsKey], currency), {
+                          {intlFormatNumber(deserializeAmount(row.amountCents, currency), {
                             currency,
                             locale,
                             currencyDisplay,
