@@ -111,6 +111,7 @@ export const FeaturePrivilegeAccordion = ({
           <TextInput
             className="flex-1"
             name={`privileges.${privilegeIndex}.code`}
+            beforeChangeFormatter={['code']}
             disabled={isEdition && !!privilege.id}
             label={translate('text_1752845254936jdsefrsvmam')}
             placeholder={translate('text_645bb193927b375079d28b02')}
@@ -221,7 +222,8 @@ export const FeaturePrivilegeAccordion = ({
                     })) || []
                   }
                   onChange={(newValue) => {
-                    const transformedValue = newValue?.map((item) => item.value) || undefined
+                    const transformedValue =
+                      newValue?.map((item) => item.value.trim()).filter((item) => !!item) || []
 
                     setFieldValue(
                       `privileges.${privilegeIndex}.config.selectOptions`,

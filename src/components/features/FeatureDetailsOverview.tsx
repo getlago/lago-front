@@ -75,12 +75,12 @@ export const FeatureDetailsOverview = () => {
         </div>
       </section>
 
-      <section>
-        <DetailsPage.SectionTitle variant="subhead1" noWrap>
-          {translate('text_175269267307071bczmrev9u')}
-        </DetailsPage.SectionTitle>
+      {!!feature?.privileges.length && (
+        <section>
+          <DetailsPage.SectionTitle variant="subhead1" noWrap>
+            {translate('text_175269267307071bczmrev9u')}
+          </DetailsPage.SectionTitle>
 
-        {!!feature?.privileges.length && (
           <div className="flex flex-col gap-4">
             {feature?.privileges.map((privilege) => (
               <Accordion
@@ -123,8 +123,8 @@ export const FeatureDetailsOverview = () => {
               </Accordion>
             ))}
           </div>
-        )}
-      </section>
+        </section>
+      )}
     </section>
   )
 }
