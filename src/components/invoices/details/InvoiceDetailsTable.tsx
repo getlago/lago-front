@@ -98,11 +98,6 @@ gql`
       id
       ...FeeForInvoiceDetailsTable
     }
-    customer {
-      id
-      currency
-      applicableTimezone
-    }
     invoiceSubscriptions {
       fromDatetime
       toDatetime
