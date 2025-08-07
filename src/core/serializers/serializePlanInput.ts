@@ -128,6 +128,7 @@ const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnu
 export const serializePlanInput = (values: PlanFormInput) => {
   const {
     amountCents,
+    entitlements,
     trialPeriod,
     charges,
     taxes: planTaxes,
@@ -142,6 +143,20 @@ export const serializePlanInput = (values: PlanFormInput) => {
     amountCents: Number(serializeAmount(amountCents, values.amountCurrency)),
     trialPeriod: Number(trialPeriod || 0),
     taxCodes: planTaxes?.map(({ code }) => code) || [],
+    entitlements: entitlements.map(({ privileges, ...entitlement }) => ({
+      ...entitlement,
+      // Not needed in the backend, only FE display purpose
+      featureId: undefined,
+      featureName: undefined,
+      privileges: privileges.map(({ ...privilege }) => ({
+        ...privilege,
+        // Not needed in the backend, only FE display purpose
+        privilegeName: undefined,
+        valueType: undefined,
+        config: undefined,
+        id: undefined,
+      })),
+    })),
     minimumCommitment:
       !!minimumCommitment && !!Object.keys(minimumCommitment).length
         ? {

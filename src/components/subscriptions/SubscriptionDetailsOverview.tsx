@@ -32,6 +32,7 @@ export const SubscriptionDetailsOverview = () => {
       skip: !subscriptionId,
     })
   const subscription = subscriptionResult?.subscription
+  // const entitlements = subscription?.entitlements
 
   if (isSubscriptionLoading) {
     return (

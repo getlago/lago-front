@@ -102,6 +102,7 @@ export const PlanDetailsOverview = ({ planId }: { planId?: string }) => {
       <PlanDetailsAdvancedSettingsSection
         plan={plan}
         currency={plan?.amountCurrency || CurrencyEnum.Usd}
+        entitlements={plan?.entitlements}
       />
     </section>
   )

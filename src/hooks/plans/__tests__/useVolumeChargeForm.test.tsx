@@ -36,6 +36,7 @@ const prepare = async ({
         interval: PlanInterval.Monthly,
         name: 'volume',
         payInAdvance: false,
+        entitlements: [],
         charges: [
           {
             chargeModel: ChargeModelEnum.Volume,

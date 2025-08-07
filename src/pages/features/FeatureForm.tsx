@@ -29,6 +29,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { findFirstPrivilegeIndexWithDuplicateCode } from '~/pages/features/utils'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
+export type FeatureFormValues = Omit<FeatureObject, 'id' | 'createdAt' | 'subscriptionsCount'>
+
 const SILENT_ERROR_CODES = [LagoApiError.UnprocessableEntity]
 
 gql`
@@ -78,7 +80,7 @@ const FeatureForm = () => {
   })
   const existingFeature = featureData?.feature
 
-  const formikProps = useFormik<Omit<FeatureObject, 'id' | 'createdAt' | 'subscriptionsCount'>>({
+  const formikProps = useFormik<FeatureFormValues>({
     initialValues: {
       name: existingFeature?.name || '',
       code: existingFeature?.code || '',
@@ -350,18 +352,7 @@ const FeatureForm = () => {
                         isEdition={isEdition}
                         privilege={privilege}
                         privilegeIndex={privilegeIndex}
-                        privilegeErrors={formikProps.errors.privileges?.[privilegeIndex]}
-                        setFieldValue={(field: string, value: string | string[] | undefined) => {
-                          formikProps.setFieldValue(field, value)
-                        }}
-                        deletePrivilege={(privilegeIndexToDelete: number) => {
-                          formikProps.setFieldValue(
-                            'privileges',
-                            formikProps.values.privileges.filter(
-                              (_, index) => index !== privilegeIndexToDelete,
-                            ),
-                          )
-                        }}
+                        formikProps={formikProps}
                       />
                     ))}
 

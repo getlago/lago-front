@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
-import { FormikErrors } from 'formik'
+import { FormikProps } from 'formik'
 import { Accordion, Button, Chip, Tooltip, tw, Typography } from 'lago-design-system'
-import { useId, useMemo, useState } from 'react'
+import { useCallback, useId, useMemo, useState } from 'react'
 
 import { ButtonSelector, MultipleComboBox, TextInput } from '~/components/form'
 import {
@@ -10,12 +10,9 @@ import {
   SEARCH_PRIVILEGE_SELECT_OPTIONS_INPUT_CLASSNAME,
 } from '~/core/constants/form'
 import { scrollToAndClickElement } from '~/core/utils/domUtils'
-import {
-  FeatureObject,
-  FeaturePrivilegeAccordionFragment,
-  PrivilegeValueTypeEnum,
-} from '~/generated/graphql'
+import { FeaturePrivilegeAccordionFragment, PrivilegeValueTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { FeatureFormValues } from '~/pages/features/FeatureForm'
 
 gql`
   fragment FeaturePrivilegeAccordion on PrivilegeObject {
@@ -33,9 +30,7 @@ type FeaturePrivilegeAccordionProps = {
   isEdition: boolean
   privilege: FeaturePrivilegeAccordionFragment
   privilegeIndex: number
-  privilegeErrors: FormikErrors<FeatureObject['privileges'][number]> | string | undefined
-  setFieldValue: (field: string, value: string | string[] | undefined) => void
-  deletePrivilege: (privilegeIndexToDelete: number) => void
+  formikProps: FormikProps<FeatureFormValues>
 }
 
 export const FeaturePrivilegeAccordion = ({
@@ -43,14 +38,35 @@ export const FeaturePrivilegeAccordion = ({
   isEdition,
   privilege,
   privilegeIndex,
-  privilegeErrors,
-  setFieldValue,
-  deletePrivilege,
+  formikProps,
 }: FeaturePrivilegeAccordionProps) => {
   const componentId = useId()
   const { translate } = useInternationalization()
+  const privilegeErrors = formikProps.errors.privileges?.[privilegeIndex]
 
   const [showSelectOptionsInput, setShowSelectOptionsInput] = useState(false)
+
+  const setFieldValue = useCallback(
+    (field: string, value: string | string[] | undefined) => {
+      formikProps.setFieldValue(field, value)
+    },
+    [formikProps],
+  )
+
+  const deletePrivilege = useCallback(
+    (privilegeIndexToDelete: number) => {
+      formikProps.setFieldValue(
+        'privileges',
+        formikProps.values.privileges.filter((_, index) => index !== privilegeIndexToDelete),
+      )
+    },
+    [formikProps],
+  )
+
+  const initialSelectOptions = useMemo(() => {
+    return formikProps.initialValues?.privileges?.[privilegeIndex]?.config?.selectOptions || []
+  }, [formikProps.initialValues?.privileges, privilegeIndex])
+
   const currentSearchClassName = useMemo(() => {
     // Replace all colons with dashes to make the class name valid for querySelector
     const usableComponentId = componentId.replace(/:/g, '-')
@@ -111,6 +127,7 @@ export const FeaturePrivilegeAccordion = ({
           <TextInput
             className="flex-1"
             name={`privileges.${privilegeIndex}.code`}
+            beforeChangeFormatter={['code']}
             disabled={isEdition && !!privilege.id}
             label={translate('text_1752845254936jdsefrsvmam')}
             placeholder={translate('text_645bb193927b375079d28b02')}
@@ -184,21 +201,24 @@ export const FeaturePrivilegeAccordion = ({
               <div className="flex flex-wrap gap-2">
                 {privilege.config?.selectOptions?.map(
                   (selectOption: string, selectOptionIndex: number) => (
-                    // Disable de if edition and privilege has an id
                     <Chip
                       key={`privilege-${privilegeIndex}-option-${selectOptionIndex}`}
                       label={selectOption}
-                      onDelete={() => {
-                        const newSelectOptions =
-                          privilege.config?.selectOptions?.filter(
-                            (_, index) => index !== selectOptionIndex,
-                          ) || []
+                      onDelete={
+                        isEdition && !!privilege.id && initialSelectOptions.includes(selectOption)
+                          ? undefined
+                          : () => {
+                              const newSelectOptions =
+                                privilege.config?.selectOptions?.filter(
+                                  (_, index) => index !== selectOptionIndex,
+                                ) || []
 
-                        setFieldValue(
-                          `privileges.${privilegeIndex}.config.selectOptions`,
-                          newSelectOptions,
-                        )
-                      }}
+                              setFieldValue(
+                                `privileges.${privilegeIndex}.config.selectOptions`,
+                                newSelectOptions,
+                              )
+                            }
+                      }
                     />
                   ),
                 )}
@@ -221,7 +241,8 @@ export const FeaturePrivilegeAccordion = ({
                     })) || []
                   }
                   onChange={(newValue) => {
-                    const transformedValue = newValue?.map((item) => item.value) || undefined
+                    const transformedValue =
+                      newValue?.map((item) => item.value.trim()).filter((item) => !!item) || []
 
                     setFieldValue(
                       `privileges.${privilegeIndex}.config.selectOptions`,

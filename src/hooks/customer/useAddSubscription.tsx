@@ -85,6 +85,7 @@ export const cleanPlanValues = (planValues: PlanOverridesInput) => {
     payInAdvance: undefined,
     billChargesMonthly: undefined,
     cascadeUpdates: undefined,
+    entitlements: undefined,
     charges: planValues?.charges?.map((charge) => ({
       ...charge,
       appliedPricingUnit: charge.appliedPricingUnit
@@ -247,6 +248,9 @@ export const useAddSubscription: UseAddSubscription = ({
       hasPlanBeingChangedFromInitial,
     ) => {
       const serializedPlanValues = serializePlanInput(planValues)
+      // Entitlements have to be saved at the organization level, they are cleaned later in cleanPlanValues
+      const planEntitlements = serializedPlanValues.entitlements
+
       const { errors } =
         formType === FORM_TYPE_ENUM.creation || formType === FORM_TYPE_ENUM.upgradeDowngrade
           ? await create({
@@ -277,6 +281,7 @@ export const useAddSubscription: UseAddSubscription = ({
                   planOverrides: hasPlanBeingChangedFromInitial
                     ? { ...cleanPlanValues(serializedPlanValues as PlanOverridesInput) }
                     : undefined,
+                  entitlements: planEntitlements,
                 },
               },
             })
